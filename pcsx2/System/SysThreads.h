@@ -156,8 +156,149 @@ protected:
 	//     FALSE if it's returning from a paused state.
 	virtual void OnResumeInThread( bool isSuspended )=0;
 };
+#ifdef __LIBRETRO__
+// --------------------------------------------------------------------------------------
+//  SysFakeThread
+// --------------------------------------------------------------------------------------
 
+class SysFakeThread
+{
 
+public:
+	// Important: The order of these enumerations matters!  Optimized tests are used for both
+	// Closed and Paused states.
+	enum ExecutionMode
+	{
+		// Thread has not been created yet.  Typically this is the same as IsRunning()
+		// returning FALSE.
+		ExecMode_NoThreadYet,
+
+		// Thread is safely paused, with plugins in a "closed" state, and waiting for a
+		// resume/open signal.
+		ExecMode_Closed,
+
+		// Thread is safely paused, with plugins in an "open" state, and waiting for a
+		// resume/open signal.
+		ExecMode_Paused,
+
+		// Thread is active and running, with pluigns in an "open" state.
+		ExecMode_Opened,
+
+		// Close signal has been sent to the thread, but the thread's response is still
+		// pending (thread is busy/running).
+		ExecMode_Closing,
+
+		// Pause signal has been sent to the thread, but the thread's response is still
+		// pending (thread is busy/running).
+		ExecMode_Pausing,
+	};
+
+protected:
+	std::atomic<ExecutionMode>	m_ExecMode;
+
+	// This lock is used to avoid simultaneous requests to Suspend/Resume/Pause from
+	// contending threads.
+	MutexRecursive		m_ExecModeMutex;
+
+	// Used to wake up the thread from sleeping when it's in a suspended state.
+	Semaphore			m_sem_Resume;
+
+	// Used to synchronize inline changes from paused to suspended status.
+	Semaphore			m_sem_ChangingExecMode;
+
+	// Locked whenever the thread is not in a suspended state (either closed or paused).
+	// Issue a Wait against this mutex for performing actions that require the thread
+	// to be suspended.
+	Mutex				m_RunningLock;
+
+	Semaphore m_sem_event;      // general wait event that's needed by most threads
+	std::atomic<bool> m_running;  // set true by Start(), and set false by Cancel(), Block(), etc.
+	wxString m_name; // diagnostic name for our thread.
+	pthread_t m_thread;
+public:
+	explicit SysFakeThread();
+	virtual ~SysFakeThread() = default;
+
+	// Thread safety for IsOpen / IsClosed: The execution mode can change at any time on
+	// any thread, so the actual status may have already changed by the time this function
+	// returns its result.  Typically this isn't of major concern.  However if you need
+	// more assured execution mode status, issue a lock against the ExecutionModeMutex()
+	// first.
+	bool IsRunning() const { return m_running; }
+	bool IsSelf() const { return pthread_self() == m_thread; }
+
+	bool IsOpen() const
+	{
+		return IsRunning() && (m_ExecMode > ExecMode_Closed);
+	}
+
+	bool IsClosed() const { return !IsOpen(); }
+	bool IsPaused() const { return !IsRunning() || (m_ExecMode <= ExecMode_Paused); }
+
+	bool IsClosing() const
+	{
+		return !IsRunning() || (m_ExecMode <= ExecMode_Closed) || (m_ExecMode == ExecMode_Closing);
+	}
+
+	bool HasPendingStateChangeRequest() const
+	{
+		return m_ExecMode >= ExecMode_Closing;
+	}
+
+	ExecutionMode GetExecutionMode() const { return m_ExecMode.load(); }
+	Mutex& ExecutionModeMutex() { return m_ExecModeMutex; }
+
+	virtual void Suspend( bool isBlocking = true );
+	virtual void Resume();
+	virtual void Pause(bool debug = false);
+	virtual void PauseSelf();
+	virtual void PauseSelfDebug();
+	virtual void Cancel(bool isBlocking = true) { m_running = false; }
+	virtual void RethrowException() const {}
+
+	u64 GetCpuTime() const { return GetThreadCpuTime(); }
+	bool HasPendingException() const { return false; }
+
+protected:
+	virtual void OnStart();
+
+	// This function is called by Resume immediately prior to releasing the suspension of
+	// the core emulation thread.  You should overload this rather than Resume(), since
+	// Resume() has a lot of checks and balances to prevent re-entrance and race conditions.
+	virtual void OnResumeReady() {}
+	virtual void OnPause() {}
+	virtual void OnPauseDebug() {}
+
+	virtual bool StateCheckInThread();
+	virtual void OnCleanupInThread();
+	virtual void OnStartInThread();
+
+	// Used internally from Resume(), so let's make it private here.
+	virtual void Start();
+
+	// Extending classes should implement this, but should not call it.  The parent class
+	// handles invocation by the following guidelines: Called *in thread* from StateCheckInThread()
+	// prior to suspending the thread (ie, when Suspend() has been called on a separate
+	// thread, requesting this thread suspend itself temporarily).  After this is called,
+	// the thread enters a waiting state on the m_sem_Resume semaphore.
+	virtual void OnSuspendInThread()=0;
+
+	// Extending classes should implement this, but should not call it.  The parent class
+	// handles invocation by the following guidelines: Called *in thread* from StateCheckInThread()
+	// prior to pausing the thread (ie, when Pause() has been called on a separate thread,
+	// requesting this thread pause itself temporarily).  After this is called, the thread
+	// enters a waiting state on the m_sem_Resume semaphore.
+	virtual void OnPauseInThread()=0;
+
+	// Extending classes should implement this, but should not call it.  The parent class
+	// handles invocation by the following guidelines: Called from StateCheckInThread() after the
+	// thread has been suspended and then subsequently resumed.
+	// Parameter:
+	//   isSuspended - set to TRUE if the thread is returning from a suspended state, or
+	//     FALSE if it's returning from a paused state.
+	virtual void OnResumeInThread( bool isSuspended )=0;
+};
+#endif
 // --------------------------------------------------------------------------------------
 //  SysCoreThread class
 // --------------------------------------------------------------------------------------

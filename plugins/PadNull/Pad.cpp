@@ -21,22 +21,27 @@ using namespace std;
 #include "svnrev.h"
 #include "Pad.h"
 
-const u8 version = PS2E_PAD_VERSION;
-const u8 revision = 0;
-const u8 build = 1; // increase that with each version
+static const u8 version = PS2E_PAD_VERSION;
+static const u8 revision = 0;
+static const u8 build = 1; // increase that with each version
 
 #ifdef _MSC_VER
 #define snprintf sprintf_s
 #endif
+#ifdef BUILTIN_PAD_PLUGIN
+extern std::string s_strIniPath;
+extern std::string s_strLogPath;
+#else
 static char libraryName[256];
 string s_strIniPath = "inis";
 string s_strLogPath = "logs";
+#endif
 
 FILE *padLog;
 Config conf;
 keyEvent event;
 static keyEvent s_event;
-
+#ifndef BUILTIN_PAD_PLUGIN
 EXPORT_C_(u32)
 PS2EgetLibType()
 {
@@ -80,7 +85,7 @@ void __LogToConsole(const char *fmt, ...)
     vprintf(fmt, list);
     va_end(list);
 }
-
+#endif
 EXPORT_C_(void)
 PADsetSettingsDir(const char *dir)
 {
@@ -125,7 +130,7 @@ PADsetLogDir(const char *dir)
 EXPORT_C_(s32)
 PADinit(u32 flags)
 {
-    LoadConfig();
+    PADLoadConfig();
 
     OpenLog();
 
@@ -209,6 +214,12 @@ PADgsDriverInfo(GSdriverInfo *info)
 }
 
 EXPORT_C_(s32)
+PADqueryMtap(u8 port)
+{
+   return 0;
+}
+
+EXPORT_C_(s32)
 PADfreeze(int mode, freezeData *data)
 {
     return 0;
@@ -219,3 +230,19 @@ PADtest()
 {
     return 0;
 }
+
+EXPORT_C_(s32)
+PADsetSlot(u8 port, u8 slot)
+{
+    if (port > 2 || slot > 4) {
+        return 0;
+    }
+    return 1;
+}
+
+#if defined(__unix__)
+EXPORT_C_(void)
+PADWriteEvent(keyEvent &evt)
+{
+}
+#endif

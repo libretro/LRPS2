@@ -40,8 +40,8 @@ BOOL CALLBACK ConfigureDlgProc(HWND hW, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     switch (uMsg) {
         case WM_INITDIALOG:
-            LoadConfig();
-            if (conf.Log)
+            GSLoadConfig();
+            if (GSconf.Log)
                 CheckDlgButton(hW, IDC_LOGGING, TRUE);
             return TRUE;
 
@@ -52,10 +52,10 @@ BOOL CALLBACK ConfigureDlgProc(HWND hW, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     return TRUE;
                 case IDOK:
                     if (IsDlgButtonChecked(hW, IDC_LOGGING))
-                        conf.Log = 1;
+                        GSconf.Log = 1;
                     else
-                        conf.Log = 0;
-                    SaveConfig();
+                        GSconf.Log = 0;
+                    GSSaveConfig();
                     EndDialog(hW, FALSE);
                     return TRUE;
             }

@@ -199,7 +199,11 @@ void Pcsx2Config::CpuOptions::LoadSave( IniInterface& ini )
 // Default GSOptions
 Pcsx2Config::GSOptions::GSOptions()
 {
+#if __LIBRETRO__
+	FrameLimitEnable		= false;
+#else
 	FrameLimitEnable		= true;
+#endif
 	FrameSkipEnable			= false;
 	VsyncEnable				= VsyncMode::Off;
 
@@ -235,6 +239,9 @@ void Pcsx2Config::GSOptions::LoadSave( IniInterface& ini )
 
 int Pcsx2Config::GSOptions::GetVsync() const
 {
+#ifdef __LIBRETRO__
+	return 0;
+#else
 	if (g_LimiterMode == Limit_Turbo || !FrameLimitEnable)
 		return 0;
 
@@ -247,6 +254,7 @@ int Pcsx2Config::GSOptions::GetVsync() const
 
 		default: return 0;
 	}
+#endif
 }
 
 const wxChar *const tbl_GamefixNames[] =

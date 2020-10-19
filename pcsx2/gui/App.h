@@ -285,12 +285,13 @@ class pxAppResources
 {
 public:
 	AppImageIds					ImageId;
-
+#ifndef __LIBRETRO__
 	std::unique_ptr<wxImageList>		ConfigImages;
 	std::unique_ptr<wxImageList>		ToolbarImages;
 	std::unique_ptr<wxIconBundle>		IconBundle;
 	std::unique_ptr<wxBitmap>			Bitmap_Logo;
 	std::unique_ptr<wxBitmap>			ScreenshotBitmap;
+#endif
 	std::unique_ptr<AppGameDatabase>	GameDB;
 
 	pxAppResources();
@@ -502,25 +503,29 @@ public:
 	void DispatchEvent( CoreThreadStatus evt );
 	void DispatchUiSettingsEvent( IniInterface& ini );
 	void DispatchVmSettingsEvent( IniInterface& ini );
-
+#ifndef __LIBRETRO__
 	bool HasGUI() { return m_UseGUI; };
 	bool ExitPromptWithNoGUI() { return m_NoGuiExitPrompt; };
+#endif
 
 	// ----------------------------------------------------------------------------
 protected:
 	int								m_PendingSaves;
 	bool							m_ScheduledTermination;
+#ifndef __LIBRETRO__
 	bool							m_UseGUI;
 	bool							m_NoGuiExitPrompt;
+#endif
 
 	Threading::Mutex				m_mtx_Resources;
 	Threading::Mutex				m_mtx_LoadingGameDB;
 
 public:
 	FramerateManager				FpsManager;
+#ifndef __LIBRETRO__
 	std::unique_ptr<CommandDictionary> GlobalCommands;
 	std::unique_ptr<AcceleratorDictionary> GlobalAccels;
-
+#endif
 	StartupOptions					Startup;
 	CommandlineOverrides			Overrides;
 
@@ -530,15 +535,19 @@ protected:
 	std::unique_ptr<PipeRedirectionBase> m_StdoutRedirHandle;
 	std::unique_ptr<PipeRedirectionBase> m_StderrRedirHandle;
 
+#ifndef __LIBRETRO__
 	std::unique_ptr<RecentIsoList> m_RecentIsoList;
 	std::unique_ptr<DriveList> m_DriveList;
+#endif
 	std::unique_ptr<pxAppResources> m_Resources;
 
 public:
+#ifndef __LIBRETRO__
 	// Executor Thread for complex VM/System tasks.  This thread is used to execute such tasks
 	// in parallel to the main message pump, to allow the main pump to run without fear of
 	// blocked threads stalling the GUI.
 	ExecutorThread					SysExecutorThread;
+#endif
 	std::unique_ptr<SysCpuProviderPack> m_CpuProviders;
 	std::unique_ptr<SysMainMemory> m_VmReserve;
 
@@ -599,7 +608,9 @@ public:
 
 	void DetectCpuAndUserMode();
 	void OpenProgramLog();
+#ifndef __LIBRETRO__
 	void OpenMainFrame();
+#endif
 	void PrepForExit();
 	void CleanupRestartable();
 	void CleanupResources();
@@ -620,25 +631,26 @@ public:
 	// --------------------------------------------------------------------------
 	// All of these accessors cache the resources on first use and retain them in
 	// memory until the program exits.
-
+#ifndef __LIBRETRO__
 	wxMenu&				GetRecentIsoMenu();
 	RecentIsoManager&	GetRecentIsoManager();
 	wxMenu&				GetDriveListMenu();
-
+#endif
 	pxAppResources&		GetResourceCache();
+#ifndef __LIBRETRO__
 	const wxIconBundle&	GetIconBundle();
 	const wxBitmap&		GetLogoBitmap();
 	const wxBitmap&		GetScreenshotBitmap();
 	wxImageList&		GetImgList_Config();
 	wxImageList&		GetImgList_Toolbars();
-
+#endif
 	const AppImageIds& GetImgId() const;
 	AppGameDatabase* GetGameDatabase();
 
 	// --------------------------------------------------------------------------
 	//  Overrides of wxApp virtuals:
 	// --------------------------------------------------------------------------
-	wxAppTraits* CreateTraits();
+	wxAppTraits* CreateTraits() override;
 	bool OnInit();
 	int  OnExit();
 	void CleanUp();
@@ -685,10 +697,11 @@ protected:
 	void HandleEvent(wxEvtHandler* handler, wxEventFunction func, wxEvent& event);
 
 	void OnScheduledTermination( wxTimerEvent& evt );
+#ifndef __LIBRETRO__
 	void OnEmuKeyDown( wxKeyEvent& evt );
 	void OnSysExecutorTaskTimeout( wxTimerEvent& evt );
 	void OnDestroyWindow( wxWindowDestroyEvent& evt );
-
+#endif
 	// ----------------------------------------------------------------------------
 	//      Override wx default exception handling behavior
 	// ----------------------------------------------------------------------------
@@ -816,9 +829,13 @@ extern bool				HasMainFrame();
 extern MainEmuFrame&	GetMainFrame();
 extern MainEmuFrame*	GetMainFramePtr();
 
-extern __aligned16 AppCoreThread CoreThread;
 extern __aligned16 SysMtgsThread mtgsThread;
+extern __aligned16 AppCoreThread CoreThread;
+#ifdef __LIBRETRO__
+extern __aligned16 SysCorePlugins CorePlugins;
+#else
 extern __aligned16 AppCorePlugins CorePlugins;
+#endif
 
 extern void UI_UpdateSysControls();
 
@@ -830,7 +847,10 @@ extern void UI_EnableSysActions();
 
 extern void UI_DisableSysShutdown();
 
-
+#ifdef __LIBRETRO__
+#define AffinityAssert_AllowFrom_SysExecutor()
+#define AffinityAssert_DisallowFrom_SysExecutor()
+#else
 #define AffinityAssert_AllowFrom_SysExecutor() \
 	pxAssertMsg( wxGetApp().SysExecutorThread.IsSelf(), "Thread affinity violation: Call allowed from SysExecutor thread only." )
 
@@ -838,5 +858,6 @@ extern void UI_DisableSysShutdown();
 	pxAssertMsg( !wxGetApp().SysExecutorThread.IsSelf(), "Thread affinity violation: Call is *not* allowed from SysExecutor thread." )
 
 extern ExecutorThread& GetSysExecutorThread();
+#endif
 
 extern bool g_ConfigPanelChanged; //Indicates that the main config panel is open and holds unapplied changes.

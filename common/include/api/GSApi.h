@@ -91,7 +91,7 @@ GSsetFrameSkip(int frameskip);
 // if start is true, starts recording spu2 data, else stops
 // returns true if successful
 // for now, pData is not used
-EXPORT_C_(bool)
+EXPORT_C_(void *)
 GSsetupRecording(bool start);
 
 EXPORT_C_(void)

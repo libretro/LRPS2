@@ -46,7 +46,29 @@ set(onepadFinalFlags
     -Wall
     -Wno-parentheses
     )
-    
+if(LIBRETRO)
+# onepad sources
+set(onepadSources
+    controller.cpp
+#    GamePad.cpp
+#    SDL/joystick.cpp
+#    keyboard.cpp
+#    KeyStatus.cpp
+    onepad.cpp
+    resources.cpp
+    state_management.cpp)
+ # onepad headers
+ set(onepadHeaders
+     bitwise.h
+     controller.h
+     GamePad.h
+     SDL/joystick.h
+#     keyboard.h
+     KeyStatus.h
+     onepad.h
+     resources.h
+     state_management.h)
+else()
 # onepad sources
 set(onepadSources
     controller.cpp
@@ -82,7 +104,6 @@ set(onepadwxHeaders
     ${wx_headers}/opPanel.h
     ${wx_headers}/GamepadConfiguration.h
     ${wx_headers}/JoystickConfiguration.h)
-    
 # onepad Linux sources
 set(onepadLinuxSources
     ${linux_sources}/ini.cpp
@@ -96,6 +117,7 @@ set(onepadWindowsSources)
 
 # onepad Windows headers
 set(onepadWindowsHeaders)
+endif()
 
 set(onepadFinalLibs ${SDL2_LIBRARIES})
 add_definitions(-DSDL_BUILD)

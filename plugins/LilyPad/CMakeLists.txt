@@ -100,5 +100,10 @@ set(lilypadFinalSources
     ${lilypadLinuxHeaders}
     )
 
-add_pcsx2_plugin(${Output} "${lilypadFinalSources}" "${lilypadFinalLibs}" "${lilypadFinalFlags}")
+if(BUILTIN_PAD)
+    add_pcsx2_lib(${Output} "${lilypadFinalSources}" "${lilypadFinalLibs}" "${lilypadFinalFlags}")
+else()
+    add_pcsx2_plugin(${Output} "${lilypadFinalSources}" "${lilypadFinalLibs}" "${lilypadFinalFlags}")
+endif()
+
 target_compile_features(${Output} PRIVATE cxx_std_17)

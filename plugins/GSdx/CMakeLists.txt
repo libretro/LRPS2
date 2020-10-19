@@ -218,6 +218,16 @@ else()
         )
 endif()
 
+if(LIBRETRO)
+    LIST(APPEND GSdxSources
+       Window/GSWndRetroGL.cpp
+       )
+
+    LIST(APPEND GSdxHeaders
+        Window/GSWndRetroGL.h
+       )
+    include_directories(${CMAKE_SOURCE_DIR}/libretro)
+endif()
 
 set(GSdxFinalSources
     ${GSdxSources}

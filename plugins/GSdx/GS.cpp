@@ -47,6 +47,10 @@ extern bool RunLinuxDialog();
 
 #endif
 
+#ifdef __LIBRETRO__
+#include "Window/GSWndRetroGL.h"
+#endif
+
 #define PS2E_LT_GS 0x01
 #define PS2E_GS_VERSION 0x0006
 #define PS2E_X86 0x01   // 32 bit
@@ -104,6 +108,10 @@ EXPORT_C GSsetBaseMem(uint8* mem)
 EXPORT_C GSsetSettingsDir(const char* dir)
 {
 	theApp.SetConfigDir(dir);
+}
+
+EXPORT_C_(void) GSsetLogDir(const char *dir)
+{
 }
 
 EXPORT_C_(int) GSinit()
@@ -223,6 +231,9 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 		{
 			// Select the window first to detect the GL requirement
 			std::vector<std::shared_ptr<GSWnd>> wnds;
+#ifdef __LIBRETRO__
+				wnds.push_back(std::make_shared<GSWndRetroGL>());
+#else
 			switch (renderer)
 			{
 				case GSRendererType::OGL_HW:
@@ -256,7 +267,7 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 #endif
 					break;
 			}
-
+#endif
 			int w = theApp.GetConfigI("ModeWidth");
 			int h = theApp.GetConfigI("ModeHeight");
 #if defined(__unix__)
@@ -416,7 +427,11 @@ EXPORT_C_(int) GSopen2(void** dsp, uint32 flags)
 {
 	static bool stored_toggle_state = false;
 	const bool toggle_state = !!(flags & 4);
-
+#ifdef __LIBRETRO__
+//	theApp.SetCurrentRendererType(GSRendererType::Null);
+//	theApp.SetCurrentRendererType(GSRendererType::OGL_SW);
+	theApp.SetCurrentRendererType(GSRendererType::OGL_HW);
+#endif
 	auto current_renderer = theApp.GetCurrentRendererType();
 
 	if (current_renderer != GSRendererType::Undefined && stored_toggle_state != toggle_state)
@@ -668,6 +683,14 @@ EXPORT_C GSvsync(int field)
 	{
 		fprintf(stderr, "GSdx: Memory allocation error\n");
 	}
+}
+
+EXPORT_C_(void) GSchangeSaveState(int, const char *filename)
+{
+}
+
+EXPORT_C_(void) GSmakeSnapshot2(char *pathname, int *snapdone, int savejpg)
+{
 }
 
 EXPORT_C_(uint32) GSmakeSnapshot(char* path)

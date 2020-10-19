@@ -15,6 +15,7 @@
 
 #pragma once
 
+#include "PrecompiledHeader.h"
 #include "x86emitter/tools.h"
 
 class IniInterface;

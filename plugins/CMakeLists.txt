@@ -10,7 +10,7 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/dev9null" AND dev9null)
 	add_subdirectory(dev9null)
 endif()
 
-if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/dev9ghzdrk" AND dev9ghzdrk)
+if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/dev9ghzdrk" AND dev9ghzdrk AND NOT LIBRETRO)
 	add_subdirectory(dev9ghzdrk)
 endif()
 
@@ -22,7 +22,7 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/GSnull" AND GSnull)
 	add_subdirectory(GSnull)
 endif()
 
-if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/LilyPad" AND LilyPad)
+if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/LilyPad" AND LilyPad AND NOT LIBRETRO)
 	add_subdirectory(LilyPad)
 endif()
 
@@ -30,7 +30,7 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/onepad" AND onepad)
 	add_subdirectory(onepad)
 endif()
 
-if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/onepad_legacy" AND onepad_legacy)
+if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/onepad_legacy" AND onepad_legacy AND NOT LIBRETRO)
 	add_subdirectory(onepad_legacy)
 endif()
 

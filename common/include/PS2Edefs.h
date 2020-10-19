@@ -148,8 +148,12 @@ extern "C" {
 
 // basic funcs
 
+void CALLBACK GSosdLog(const char *utf8, u32 color);
+void CALLBACK GSosdMonitor(const char *key, const char *value, u32 color);
+
 s32 CALLBACK GSinit();
 s32 CALLBACK GSopen(void *pDsp, const char *Title, int multithread);
+s32 CALLBACK GSopen2(void *pDsp, u32 flags);
 void CALLBACK GSclose();
 void CALLBACK GSshutdown();
 void CALLBACK GSsetSettingsDir(const char *dir);
@@ -181,10 +185,13 @@ void CALLBACK GSsetGameCRC(int crc, int gameoptions);
 // controls frame skipping in the GS, if this routine isn't present, frame skipping won't be done
 void CALLBACK GSsetFrameSkip(int frameskip);
 
+void CALLBACK GSsetVsync(int enabled);
+void CALLBACK GSsetExclusive(int isExclusive);
+
 // if start is 1, starts recording spu2 data, else stops
 // returns a non zero value if successful
 // for now, pData is not used
-int CALLBACK GSsetupRecording(int start, void *pData);
+void* CALLBACK GSsetupRecording(int start);
 
 void CALLBACK GSreset();
 //deprecated: GSgetTitleInfo was used in PCSX2 but no plugin supported it prior to r4070:
@@ -212,6 +219,8 @@ void CALLBACK PADclose();
 void CALLBACK PADshutdown();
 void CALLBACK PADsetSettingsDir(const char *dir);
 void CALLBACK PADsetLogDir(const char *dir);
+s32 CALLBACK PADfreeze(int mode, freezeData *data);
+
 
 // PADkeyEvent is called every vsync (return NULL if no event)
 keyEvent *CALLBACK PADkeyEvent();
@@ -239,6 +248,8 @@ void CALLBACK PADWriteEvent(keyEvent &evt);
 // extended funcs
 
 void CALLBACK PADgsDriverInfo(GSdriverInfo *info);
+s32 CALLBACK PADsetSlot(u8 port, u8 slot);
+s32 CALLBACK PADqueryMtap(u8 port);
 void CALLBACK PADconfigure();
 void CALLBACK PADabout();
 s32 CALLBACK PADtest();
@@ -261,6 +272,7 @@ void CALLBACK DEV9close();
 void CALLBACK DEV9shutdown();
 void CALLBACK DEV9setSettingsDir(const char *dir);
 void CALLBACK DEV9setLogDir(const char *dir);
+void CALLBACK DEV9keyEvent(keyEvent *ev);
 
 u8 CALLBACK DEV9read8(u32 addr);
 u16 CALLBACK DEV9read16(u32 addr);
@@ -275,6 +287,7 @@ void CALLBACK DEV9writeDMA8Mem(u32 *pMem, int size);
 // if callback returns 1 the irq is triggered, else not
 void CALLBACK DEV9irqCallback(DEV9callback callback);
 DEV9handler CALLBACK DEV9irqHandler(void);
+void CALLBACK DEV9async(u32 cycles);
 
 // extended funcs
 
@@ -299,6 +312,7 @@ void CALLBACK USBclose();
 void CALLBACK USBshutdown();
 void CALLBACK USBsetSettingsDir(const char *dir);
 void CALLBACK USBsetLogDir(const char *dir);
+void CALLBACK USBkeyEvent(keyEvent *ev);
 
 u8 CALLBACK USBread8(u32 addr);
 u16 CALLBACK USBread16(u32 addr);

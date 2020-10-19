@@ -16,7 +16,9 @@
 #include "PrecompiledHeader.h"
 #include "MainFrame.h"
 #include "Utilities/IniInterface.h"
+#ifndef __LIBRETRO__
 #include "Dialogs/ModalPopups.h"
+#endif
 
 #include <wx/stdpaths.h>
 
@@ -133,7 +135,7 @@ wxConfigBase* Pcsx2App::TestForPortableInstall()
 		{
 			wxString accessFailedStr, createFailedStr;
 			if (TestUserPermissionsRights( portableDocsFolder, createFailedStr, accessFailedStr )) break;
-		
+#ifndef __LIBRETRO__
 			wxDialogWithHelpers dialog( NULL, AddAppName(_("Portable mode error - %s")) );
 
 			wxTextCtrl* scrollText = new wxTextCtrl(
@@ -175,7 +177,9 @@ wxConfigBase* Pcsx2App::TestForPortableInstall()
 					
 					return NULL;
 			}
-
+#else
+			return NULL;
+#endif
 		}
 	
 		// Success -- all user-based folders have write access.  PCSX2 should be able to run error-free!
@@ -210,6 +214,7 @@ void Pcsx2App::WipeUserModeSettings()
 
 static void DoFirstTimeWizard()
 {
+#ifndef __LIBRETRO__
 	// first time startup, so give the user the choice of user mode:
 	while(true)
 	{
@@ -223,6 +228,7 @@ static void DoFirstTimeWizard()
 
 		Console.WriteLn( Color_StrongBlack, "Restarting First Time Wizard!" );
 	}
+#endif
 }
 
 wxConfigBase* Pcsx2App::OpenInstallSettingsFile()

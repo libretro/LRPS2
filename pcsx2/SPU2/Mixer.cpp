@@ -886,11 +886,11 @@ __forceinline
 		// Good thing though that this code gets the volume exactly right, as per tests :)
 		Out = clamp_mix(Out, SndOutVolumeShift);
 	}
-
+#ifndef __LIBRETRO__
 	// Configurable output volume
 	Out.Left *= FinalVolume;
 	Out.Right *= FinalVolume;
-
+#endif
 	SndBuffer::Write(Out);
 
 	// Update AutoDMA output positioning

@@ -112,7 +112,12 @@ set(dev9ghzdrkFinalLibs
     ${GTK2_LIBRARIES} ${PCAP_LIBRARY} ${LIBXML2_LIBRARIES}
 )
 
-add_pcsx2_plugin(${Output} "${dev9ghzdrkFinalSources}" "${dev9ghzdrkFinalLibs}" "${dev9ghzdrkFinalFlags}")
+if(BUILTIN_DEV9)
+    add_pcsx2_lib(${Output} "${dev9ghzdrkFinalSources}" "${dev9ghzdrkFinalLibs}" "${dev9ghzdrkFinalFlags}")
+else()
+    add_pcsx2_plugin(${Output} "${dev9ghzdrkFinalSources}" "${dev9ghzdrkFinalLibs}" "${dev9ghzdrkFinalFlags}")
+endif()
+
 target_compile_features(${Output} PRIVATE cxx_std_17)
 
 #if(PACKAGE_MODE)

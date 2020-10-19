@@ -43,8 +43,13 @@ static char libraryName[256];
 keyEvent event;
 
 static keyEvent s_event;
+#ifdef BUILTIN_PAD_PLUGIN
+extern std::string s_strIniPath;
+extern std::string s_strLogPath;
+#else
 std::string s_strIniPath("inis/");
 std::string s_strLogPath("logs/");
+#endif
 
 const u32 version = PS2E_PAD_VERSION;
 const u32 revision = 2;
@@ -82,7 +87,7 @@ static void InitLibraryName()
              SVN_MODS ? "m" : "");
 #endif
 }
-
+#ifndef BUILTIN_PAD_PLUGIN
 EXPORT_C_(u32)
 PS2EgetLibType()
 {
@@ -126,7 +131,7 @@ void __LogToConsole(const char *fmt, ...)
     vprintf(fmt, list);
     va_end(list);
 }
-
+#endif
 void initLogging()
 {
 #ifdef PAD_LOG
@@ -158,7 +163,7 @@ PADinit(u32 flags)
 {
     initLogging();
 
-    LoadConfig();
+    PADLoadConfig();
 
     Pad::reset_all();
 
@@ -232,6 +237,12 @@ PADsetSlot(u8 port, u8 slot)
     slots[port] = slot;
 
     return 1;
+}
+
+EXPORT_C_(s32)
+PADqueryMtap(u8 port)
+{
+   return 0;
 }
 
 EXPORT_C_(s32)
@@ -319,6 +330,7 @@ PADpoll(u8 value)
 EXPORT_C_(keyEvent *)
 PADkeyEvent()
 {
+#ifndef __LIBRETRO__
 #ifdef SDL_BUILD
     // Take the opportunity to handle hot plugging here
     SDL_Event events;
@@ -343,9 +355,9 @@ PADkeyEvent()
     s_event = g_ev_fifo.dequeue();
     AnalyzeKeyEvent(s_event);
     // PAD_LOG("Returning Event. Event Type: %d, Key: %d\n", s_event.evt, s_event.key);
+#endif
     return &s_event;
 }
-
 #if defined(__unix__)
 EXPORT_C_(void)
 PADWriteEvent(keyEvent &evt)

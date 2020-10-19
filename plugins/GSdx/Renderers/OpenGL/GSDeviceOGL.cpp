@@ -331,13 +331,13 @@ bool GSDeviceOGL::Create(const std::shared_ptr<GSWnd> &wnd)
 		OMSetFBO(m_fbo);
 		GLenum target[1] = {GL_COLOR_ATTACHMENT0};
 		glDrawBuffers(1, target);
-		OMSetFBO(0);
+		OMSetFBO(GL_DEFAULT_FRAMEBUFFER);
 
 		glGenFramebuffers(1, &m_fbo_read);
 		// Always read from the first buffer
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo_read);
 		glReadBuffer(GL_COLOR_ATTACHMENT0);
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, GL_DEFAULT_FRAMEBUFFER);
 
 		// Some timers to help profiling
 		if (GLLoader::in_replayer) {
@@ -708,7 +708,7 @@ void GSDeviceOGL::ClearRenderTarget(GSTexture* t, const GSVector4& c)
 	OMSetColorMaskState();
 
 	if (T->IsBackbuffer()) {
-		OMSetFBO(0);
+		OMSetFBO(GL_DEFAULT_FRAMEBUFFER);
 
 		// glDrawBuffer(GL_BACK); // this is the default when there is no FB
 		// 0 will select the first drawbuffer ie GL_BACK
@@ -1233,7 +1233,7 @@ void GSDeviceOGL::CopyRectConv(GSTexture* sTex, GSTexture* dTex, const GSVector4
 	else
 		glCopyTextureSubImage2D(did, GL_TEX_LEVEL_0, r.x, r.y, r.x, r.y, r.width(), r.height());
 
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, GL_DEFAULT_FRAMEBUFFER);
 }
 
 // Copy a sub part of a texture into another
@@ -1793,7 +1793,7 @@ void GSDeviceOGL::OMSetRenderTargets(GSTexture* rt, GSTexture* ds, const GSVecto
 
 	} else {
 		// Render in the backbuffer
-		OMSetFBO(0);
+		OMSetFBO(GL_DEFAULT_FRAMEBUFFER);
 	}
 
 

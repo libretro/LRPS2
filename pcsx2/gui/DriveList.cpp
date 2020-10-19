@@ -17,7 +17,7 @@
 #include "DriveList.h"
 #include "MainFrame.h"
 #include "../CDVD/CDVDdiscReader.h"
-
+#ifndef __LIBRETRO__
 DriveList::DriveList()
 {
 	Menu = new wxMenu();
@@ -107,3 +107,4 @@ void DriveListManager::OnRefreshClicked(wxCommandEvent& evt)
 {
 	RefreshList();
 }
+#endif

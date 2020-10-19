@@ -43,8 +43,13 @@ static char libraryName[256];
 keyEvent event;
 
 static keyEvent s_event;
+#ifdef BUILTIN_PAD_PLUGIN
+extern std::string s_strIniPath;
+extern std::string s_strLogPath;
+#else
 std::string s_strIniPath("inis/");
 std::string s_strLogPath("logs/");
+#endif
 bool toggleAutoRepeat = false;
 
 const u32 version = PS2E_PAD_VERSION;
@@ -162,7 +167,7 @@ EXPORT_C_(s32) PADinit(u32 flags)
 {
     initLogging();
 
-    LoadConfig();
+    PADLoadConfig();
 
     key_status = new KeyStatus();
 

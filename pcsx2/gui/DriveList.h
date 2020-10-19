@@ -16,7 +16,7 @@
 #pragma once
 
 #include "AppCoreThread.h"
-
+#ifndef __LIBRETRO__
 class DriveListManager : public wxEvtHandler
 {
 protected:
@@ -58,3 +58,4 @@ struct DriveList
 };
 
 extern wxWindowID SwapOrReset_Disc(wxWindow* owner, IScopedCoreThread& core, const wxString driveLetter);
+#endif

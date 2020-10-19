@@ -32,7 +32,9 @@ class Pcsx2AppTraits : public wxGUIAppTraits
 public:
     virtual ~Pcsx2AppTraits() {}
     wxMessageOutput *CreateMessageOutput();
-
+#ifdef __LIBRETRO__
+    wxEventLoopBase* CreateEventLoop();
+#endif
 #ifdef wxUSE_STDPATHS
     wxStandardPaths &GetStandardPaths();
 #endif

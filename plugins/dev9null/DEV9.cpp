@@ -33,9 +33,9 @@
 #include "svnrev.h"
 #include "null/config.inl"
 
-const unsigned char version = PS2E_DEV9_VERSION;
-const unsigned char revision = 0;
-const unsigned char build = 5; // increase that with each version
+static const unsigned char version = PS2E_DEV9_VERSION;
+static const unsigned char revision = 0;
+static const unsigned char build = 5; // increase that with each version
 
 static char libraryName[256];
 
@@ -43,9 +43,18 @@ static char libraryName[256];
 void (*DEV9irq)(int);
 
 __aligned16 s8 dev9regs[0x10000];
-
+#ifdef BUILTIN_DEV9_PLUGIN
+extern std::string s_strIniPath;
+extern std::string s_strLogPath;
+#else
 std::string s_strIniPath = "inis";
 std::string s_strLogPath = "logs";
+#endif
+
+EXPORT_C_(void)
+DEV9about()
+{
+}
 
 EXPORT_C_(void)
 DEV9configure()
@@ -56,7 +65,7 @@ DEV9configure()
     SaveConfig(ini_path);
 }
 
-void LogInit()
+void DEV9LogInit()
 {
     const std::string LogFile(s_strLogPath + "/dev9null.log");
     g_plugin_log.Open(LogFile);
@@ -70,9 +79,9 @@ DEV9setLogDir(const char *dir)
 
     // Reload the log file after updated the path
     g_plugin_log.Close();
-    LogInit();
+    DEV9LogInit();
 }
-
+#ifndef BUILTIN_DEV9_PLUGIN
 EXPORT_C_(u32)
 PS2EgetLibType()
 {
@@ -91,12 +100,12 @@ PS2EgetLibVersion2(u32 type)
 {
     return (version << 16) | (revision << 8) | build;
 }
-
+#endif
 EXPORT_C_(s32)
 DEV9init()
 {
     LoadConfig(s_strIniPath + "/Dev9null.ini");
-    LogInit();
+    DEV9LogInit();
     g_plugin_log.WriteLn("dev9null plugin version %d,%d", revision, build);
     g_plugin_log.WriteLn("Initializing dev9null");
     // Initialize anything that needs to be initialized.
@@ -304,12 +313,22 @@ DEV9setSettingsDir(const char *dir)
     s_strIniPath = (dir == NULL) ? "inis" : dir;
 }
 
+EXPORT_C_(void)
+DEV9async(u32 cycles)
+{
+}
+
 // extended funcs
 
 EXPORT_C_(s32)
 DEV9test()
 {
     return 0;
+}
+
+EXPORT_C_(void)
+DEV9keyEvent(keyEvent *ev)
+{
 }
 
 EXPORT_C_(s32)

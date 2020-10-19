@@ -1117,7 +1117,7 @@ wxFileConfig* OpenFileConfig( const wxString& filename )
 {
 	return new wxFileConfig( wxEmptyString, wxEmptyString, filename, wxEmptyString, wxCONFIG_USE_RELATIVE_PATH );
 }
-
+#ifndef __LIBRETRO__
 void RelocateLogfile()
 {
 	g_Conf->Folders.Logs.Mkdir();
@@ -1141,7 +1141,7 @@ void RelocateLogfile()
 
 	wxGetApp().EnableAllLogging();
 }
-
+#endif
 // Parameters:
 //   overwrite - this option forces the current settings to overwrite any existing settings
 //      that might be saved to the configured ini/settings folder.
@@ -1154,6 +1154,7 @@ void AppConfig_OnChangedSettingsFolder( bool overwrite )
 {
 	PathDefs::GetDocuments().Mkdir();
 	GetSettingsFolder().Mkdir();
+
 
 	const wxString iniFilename( GetUiSettingsFilename() );
 
@@ -1179,7 +1180,9 @@ void AppConfig_OnChangedSettingsFolder( bool overwrite )
 		AppLoadSettings();
 
 	AppApplySettings();
+
 	AppSaveSettings();//Make sure both ini files are created if needed.
+
 }
 
 // --------------------------------------------------------------------------------------
@@ -1266,9 +1269,10 @@ AppIniLoader::AppIniLoader()
 static void LoadUiSettings()
 {
 	AppIniLoader loader;
+#ifndef __LIBRETRO__
 	ConLog_LoadSaveSettings( loader );
 	SysTraceLog_LoadSaveSettings( loader );
-
+#endif
 	g_Conf = std::make_unique<AppConfig>();
 	g_Conf->LoadSave( loader );
 
@@ -1335,14 +1339,15 @@ static void SaveUiSettings()
 		g_Conf->Folders.RunDisc.Clear();
 	}
 #endif
-
+#ifndef __LIBRETRO__
 	sApp.GetRecentIsoManager().Add( g_Conf->CurrentIso );
-
+#endif
 	AppIniSaver saver;
 	g_Conf->LoadSave( saver );
+#ifndef __LIBRETRO__
 	ConLog_LoadSaveSettings( saver );
 	SysTraceLog_LoadSaveSettings( saver );
-
+#endif
 	sApp.DispatchUiSettingsEvent( saver );
 }
 

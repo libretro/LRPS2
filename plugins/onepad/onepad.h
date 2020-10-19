@@ -130,8 +130,8 @@ void PADsetMode(int pad, int mode);
 
 void __Log(const char *fmt, ...);
 void __LogToConsole(const char *fmt, ...);
-void LoadConfig();
-void SaveConfig();
+void PADLoadConfig();
+void PADSaveConfig();
 
 void SysMessage(char *fmt, ...);
 

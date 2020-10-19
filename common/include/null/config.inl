@@ -22,7 +22,7 @@
 #endif
 #include <string>
 
-PluginLog g_plugin_log;
+static PluginLog g_plugin_log;
 
 #if defined(_WIN32)
 
@@ -60,14 +60,14 @@ static INT_PTR CALLBACK ConfigureDialogProc(HWND dialog, UINT message, WPARAM wp
     }
 }
 
-void ConfigureLogging()
+static void ConfigureLogging()
 {
     DialogBox(s_hinstance, MAKEINTRESOURCE(IDD_DIALOG), GetActiveWindow(), ConfigureDialogProc);
 }
 
 #elif defined(__unix__) || defined(__APPLE__)
 
-void ConfigureLogging()
+static void ConfigureLogging()
 {
     auto *dialog = new wxDialog;
     dialog->Create(nullptr, wxID_ANY, "Config", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX);
@@ -96,13 +96,13 @@ void ConfigureLogging()
 
 #else
 
-void ConfigureLogging()
+static void ConfigureLogging()
 {
 }
 
 #endif
 
-void SaveConfig(const std::string &pathname)
+static void SaveConfig(const std::string &pathname)
 {
     PluginConf ini;
     if (!ini.Open(pathname, WRITE_FILE)) {
@@ -115,7 +115,7 @@ void SaveConfig(const std::string &pathname)
     ini.Close();
 }
 
-void LoadConfig(const std::string &pathname)
+static void LoadConfig(const std::string &pathname)
 {
     PluginConf ini;
     if (!ini.Open(pathname, READ_FILE)) {

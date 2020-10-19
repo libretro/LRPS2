@@ -55,7 +55,7 @@ void gsReset()
 	CSRreg.Reset();
 	GSIMR.reset();
 }
-
+#ifndef __LIBRETRO__
 void gsUpdateFrequency(Pcsx2Config& config)
 {
 	switch (g_LimiterMode)
@@ -74,7 +74,7 @@ void gsUpdateFrequency(Pcsx2Config& config)
 	}
 	UpdateVSyncRate();
 }
-
+#endif
 static __fi void gsCSRwrite( const tGS_CSR& csr )
 {
 	if (csr.RESET) {

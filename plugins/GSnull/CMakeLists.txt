@@ -74,5 +74,10 @@ set(GSnullFinalLibs
 	${X11_LIBRARIES}
 )
 
-add_pcsx2_plugin(${Output} "${GSnullFinalSources}" "${GSnullFinalLibs}" "${GSnullFinalFlags}")
+if(BUILTIN_GS)
+    add_pcsx2_lib(${Output} "${GSnullFinalSources}" "${GSnullFinalLibs}" "${GSnullFinalFlags}")
+else()
+    add_pcsx2_plugin(${Output} "${GSnullFinalSources}" "${GSnullFinalLibs}" "${GSnullFinalFlags}")
+endif()
+
 target_compile_features(${Output} PRIVATE cxx_std_17)

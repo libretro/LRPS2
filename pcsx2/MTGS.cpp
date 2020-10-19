@@ -50,7 +50,11 @@ std::list<uint> ringposStack;
 #endif
 
 SysMtgsThread::SysMtgsThread() :
+#ifdef __LIBRETRO__
+	SysFakeThread()
+#else
 	SysThreadBase()
+#endif
 #ifdef RINGBUF_DEBUG_STACK
 ,	m_lock_Stack()
 #endif
@@ -282,14 +286,25 @@ void SysMtgsThread::ExecuteTaskInThread()
 
 	RingBufferLock busy (*this);
 
+//	OpenPlugin();
 	while(true) {
 		busy.Release();
+#ifdef __LIBRETRO__
+		while (wxTheApp->HasPendingEvents())
+			wxTheApp->ProcessPendingEvents();
 
+		while (!m_sem_event.WaitWithoutYield(wxTimeSpan::Millisecond()))
+		{
+			while (wxTheApp->HasPendingEvents())
+				wxTheApp->ProcessPendingEvents();
+		}
+#else
 		// Performance note: Both of these perform cancellation tests, but pthread_testcancel
 		// is very optimized (only 1 instruction test in most cases), so no point in trying
 		// to avoid it.
 
 		m_sem_event.WaitWithoutYield();
+#endif
 		StateCheckInThread();
 		busy.Acquire();
 
@@ -297,6 +312,9 @@ void SysMtgsThread::ExecuteTaskInThread()
 		// ever be modified by this thread.
 		while( m_ReadPos.load(std::memory_order_relaxed) != m_WritePos.load(std::memory_order_acquire))
 		{
+//			while (wxTheApp->HasPendingEvents())
+//				wxTheApp->ProcessPendingEvents();
+
 			const unsigned int local_ReadPos = m_ReadPos.load(std::memory_order_relaxed);
 
 			pxAssert( local_ReadPos < RingBufferSize );
@@ -543,6 +561,10 @@ void SysMtgsThread::ExecuteTaskInThread()
 					continue;
 				}
 			}
+#ifdef __LIBRETRO__
+			if(tag.command == GS_RINGTYPE_VSYNC)
+				return;
+#endif
 		}
 
 		busy.Release();
@@ -563,6 +585,21 @@ void SysMtgsThread::ExecuteTaskInThread()
 
 		//Console.Warning( "(MTGS Thread) Nothing to do!  ringpos=0x%06x", m_ReadPos );
 	}
+}
+
+void SysMtgsThread::FinishTaskInThread()
+{
+	if( m_SignalRingEnable.exchange(false) )
+	{
+		//Console.Warning( "(MTGS Thread) Dangling RingSignal on empty buffer!  signalpos=0x%06x", m_SignalRingPosition.exchange(0) ) );
+		m_SignalRingPosition.store(0, std::memory_order_release);
+		m_sem_OnRingReset.Post();
+	}
+
+	if (m_VsyncSignalListener.exchange(false))
+		m_sem_Vsync.Post();
+
+	//Console.Warning( "(MTGS Thread) Nothing to do!  ringpos=0x%06x", m_ReadPos );
 }
 
 void SysMtgsThread::ClosePlugin()

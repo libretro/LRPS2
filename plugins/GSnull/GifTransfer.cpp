@@ -26,7 +26,9 @@ using namespace std;
 
 extern GSVars gs;
 
+#ifndef BUILTIN_GS_PLUGIN
 PCSX2_ALIGNED16(u8 g_RealGSMem[0x2000]);
+#endif
 
 template <int index>
 void _GSgifTransfer(const u32 *pMem, u32 size)

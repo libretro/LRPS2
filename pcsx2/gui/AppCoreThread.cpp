@@ -106,37 +106,41 @@ static void _Cancel()
 
 void AppCoreThread::Cancel(bool isBlocking)
 {
+#ifndef __LIBRETRO__
 	if (GetSysExecutorThread().IsRunning() && !GetSysExecutorThread().Rpc_TryInvoke(_Cancel, L"AppCoreThread::Cancel"))
+#endif
 		_parent::Cancel(wxTimeSpan(0, 0, 4, 0));
 }
 
 void AppCoreThread::Reset()
 {
+#ifndef __LIBRETRO__
 	if (!GetSysExecutorThread().IsSelf())
 	{
 		GetSysExecutorThread().PostEvent(SysExecEvent_InvokeCoreThreadMethod(&AppCoreThread::Reset));
 		return;
 	}
-
+#endif
 	_parent::Reset();
 }
 
 void AppCoreThread::ResetQuick()
 {
+#ifndef __LIBRETRO__
 	if (!GetSysExecutorThread().IsSelf())
 	{
 		GetSysExecutorThread().PostEvent(SysExecEvent_InvokeCoreThreadMethod(&AppCoreThread::ResetQuick));
 		return;
 	}
-
+#endif
 	_parent::ResetQuick();
 }
-
+#ifndef __LIBRETRO__
 ExecutorThread& GetSysExecutorThread()
 {
 	return wxGetApp().SysExecutorThread;
 }
-
+#endif
 static void _Suspend()
 {
 	GetCoreThread().Suspend(true);
@@ -146,7 +150,7 @@ void AppCoreThread::Suspend(bool isBlocking)
 {
 	if (IsClosed())
 		return;
-
+#ifndef __LIBRETRO__
 	if (IsSelf())
 	{
 		// this should never fail...
@@ -154,17 +158,19 @@ void AppCoreThread::Suspend(bool isBlocking)
 		pxAssert(result);
 	}
 	else if (!GetSysExecutorThread().Rpc_TryInvoke(_Suspend, L"AppCoreThread::Suspend"))
+#endif
 		_parent::Suspend(true);
 }
 
 void AppCoreThread::Resume()
 {
+#ifndef __LIBRETRO__
 	if (!GetSysExecutorThread().IsSelf())
 	{
 		GetSysExecutorThread().PostEvent(SysExecEvent_InvokeCoreThreadMethod(&AppCoreThread::Resume));
 		return;
 	}
-
+#endif
 	GetCorePlugins().Init();
 	SPU2init();
 	_parent::Resume();
@@ -172,12 +178,13 @@ void AppCoreThread::Resume()
 
 void AppCoreThread::ChangeCdvdSource()
 {
+#ifndef __LIBRETRO__
 	if (!GetSysExecutorThread().IsSelf())
 	{
 		GetSysExecutorThread().PostEvent(new SysExecEvent_InvokeCoreThreadMethod(&AppCoreThread::ChangeCdvdSource));
 		return;
 	}
-
+#endif
 	CDVD_SourceType cdvdsrc(g_Conf->CdvdSource);
 	if (cdvdsrc == CDVDsys_GetSourceType())
 		return;
@@ -210,8 +217,9 @@ void AppCoreThread::OnResumeReady()
 {
 	wxGetApp().SysApplySettings();
 	wxGetApp().PostMethod(AppSaveSettings);
-
+#ifndef __LIBRETRO__
 	sApp.PostAppMethod(&Pcsx2App::leaveDebugMode);
+#endif
 	_parent::OnResumeReady();
 }
 
@@ -223,7 +231,9 @@ void AppCoreThread::OnPause()
 
 void AppCoreThread::OnPauseDebug()
 {
+#ifndef __LIBRETRO__
 	sApp.PostAppMethod(&Pcsx2App::enterDebugMode);
+#endif
 	_parent::OnPause();
 }
 
@@ -484,8 +494,9 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 	consoleTitle += L" [" + gameCRC.MakeUpper() + L"]" + gameCompat + gameFixes + gamePatch + gameCheats + gameWsHacks;
 	if (ingame)
 		Console.SetTitle(consoleTitle);
-
+#ifndef __LIBRETRO__
 	gsUpdateFrequency(fixup);
+#endif
 }
 
 // FIXME: This function is not for general consumption. Its only consumer (and
@@ -584,7 +595,9 @@ void AppCoreThread::OnCleanupInThread()
 
 void AppCoreThread::VsyncInThread()
 {
+//#ifndef __LIBRETRO__
 	wxGetApp().LogicalVsync();
+//#endif
 	_parent::VsyncInThread();
 }
 
@@ -759,6 +772,7 @@ void BaseScopedCoreThread::DoResume()
 {
 	if (m_alreadyStopped)
 		return;
+#ifndef __LIBRETRO__
 	if (!GetSysExecutorThread().IsSelf())
 	{
 		//DbgCon.WriteLn("(ScopedCoreThreadPause) Threaded Scope Created!");
@@ -766,9 +780,10 @@ void BaseScopedCoreThread::DoResume()
 		m_mtx_resume.Wait();
 	}
 	else
+#endif
 		CoreThread.Resume();
 }
-
+#ifndef __LIBRETRO__
 // Returns TRUE if the event is posted to the SysExecutor.
 // Returns FALSE if the thread *is* the SysExecutor (no message is posted, calling code should
 //  handle the code directly).
@@ -787,7 +802,7 @@ bool BaseScopedCoreThread::PostToSysExec(BaseSysExecEvent_ScopedCore* msg)
 
 	return true;
 }
-
+#endif
 ScopedCoreThreadClose::ScopedCoreThreadClose()
 {
 	if (ScopedCore_IsFullyClosed)
@@ -796,14 +811,16 @@ ScopedCoreThreadClose::ScopedCoreThreadClose()
 		m_alreadyScoped = true;
 		return;
 	}
-
+#ifndef __LIBRETRO__
 	if (!PostToSysExec(new SysExecEvent_CoreThreadClose()))
 	{
+#endif
 		m_alreadyStopped = CoreThread.IsClosed();
 		if (!m_alreadyStopped)
 			CoreThread.Suspend();
+#ifndef __LIBRETRO__
 	}
-
+#endif
 	ScopedCore_IsFullyClosed = true;
 }
 
@@ -830,13 +847,16 @@ ScopedCoreThreadPause::ScopedCoreThreadPause(BaseSysExecEvent_ScopedCore* abuse_
 
 	if (!abuse_me)
 		abuse_me = new SysExecEvent_CoreThreadPause();
+#ifndef __LIBRETRO__
 	if (!PostToSysExec(abuse_me))
 	{
+#endif
 		m_alreadyStopped = CoreThread.IsPaused();
 		if (!m_alreadyStopped)
 			CoreThread.Pause();
+#ifndef __LIBRETRO__
 	}
-
+#endif
 	ScopedCore_IsPaused = true;
 }
 

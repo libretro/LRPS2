@@ -57,5 +57,10 @@ set(PadNullFinalLibs
 	${X11_LIBRARIES}
 )
 
-add_pcsx2_plugin(${Output} "${PadNullFinalSources}" "${PadNullFinalLibs}" "${PadNullFinalFlags}")
+if(BUILTIN_PAD)
+    add_pcsx2_lib(${Output} "${PadNullFinalSources}" "${PadNullFinalLibs}" "${PadNullFinalFlags}")
+else()
+    add_pcsx2_plugin(${Output} "${PadNullFinalSources}" "${PadNullFinalLibs}" "${PadNullFinalFlags}")
+endif()
+
 target_compile_features(${Output} PRIVATE cxx_std_17)

@@ -189,9 +189,9 @@ public:
 	virtual ~BaseScopedCoreThread() =0;
 	virtual void AllowResume();
 	virtual void DisallowResume();
-
+#ifndef __LIBRETRO__
 	virtual bool PostToSysExec( BaseSysExecEvent_ScopedCore* msg );
-
+#endif
 protected:
 	// Called from destructors -- do not make virtual!!
 	void DoResume();

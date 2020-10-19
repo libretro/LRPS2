@@ -25,10 +25,6 @@
 #include "PS2Edefs.h"
 #include "PS2Eext.h"
 
-extern const unsigned char version;
-extern const unsigned char revision;
-extern const unsigned char build;
-
 extern void (*DEV9irq)(int);
 
 extern __aligned16 s8 dev9regs[0x10000];

@@ -307,9 +307,15 @@ struct MTGS_FreezeData
 // --------------------------------------------------------------------------------------
 //  SysMtgsThread
 // --------------------------------------------------------------------------------------
+#ifdef __LIBRETRO__
+class SysMtgsThread : public SysFakeThread
+{
+	typedef SysFakeThread _parent;
+#else
 class SysMtgsThread : public SysThreadBase
 {
 	typedef SysThreadBase _parent;
+#endif
 
 public:
 	// note: when m_ReadPos == m_WritePos, the fifo is empty
@@ -377,10 +383,12 @@ public:
 
 	bool IsPluginOpened() const { return m_PluginOpened; }
 
-protected:
+	void ExecuteTaskInThread();
+	void FinishTaskInThread();
 	void OpenPlugin();
 	void ClosePlugin();
 
+protected:
 	void OnStart();
 	void OnResumeReady();
 
@@ -393,7 +401,6 @@ protected:
 
 	// Used internally by SendSimplePacket type functions
 	void _FinishSimplePacket();
-	void ExecuteTaskInThread();
 };
 
 // GetMTGS() is a required external implementation. This function is *NOT* provided

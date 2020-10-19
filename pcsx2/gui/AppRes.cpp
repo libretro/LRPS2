@@ -39,7 +39,7 @@
 #include "Resources/AppIcon16.h"
 #include "Resources/AppIcon32.h"
 #include "Resources/AppIcon64.h"
-
+#ifndef __LIBRETRO__
 RecentIsoList::RecentIsoList(int firstIdForMenuItems_or_wxID_ANY)
 {
 	Menu = std::unique_ptr<wxMenu>(new wxMenu());
@@ -49,13 +49,13 @@ RecentIsoList::RecentIsoList(int firstIdForMenuItems_or_wxID_ANY)
 	Menu->Check( MenuId_Ask_On_Booting, g_Conf->AskOnBoot );
 	Manager = std::unique_ptr<RecentIsoManager>(new RecentIsoManager( Menu.get(), firstIdForMenuItems_or_wxID_ANY ));
 }
-
+#endif
 pxAppResources::pxAppResources()
 {
 }
 
 pxAppResources::~pxAppResources() = default;
-
+#ifndef __LIBRETRO__
 wxMenu& Pcsx2App::GetRecentIsoMenu()
 {
 	if (!m_RecentIsoList) m_RecentIsoList = std::unique_ptr<RecentIsoList>(new RecentIsoList( MenuId_RecentIsos_reservedStart ));
@@ -77,7 +77,7 @@ wxMenu& Pcsx2App::GetDriveListMenu()
 
 	return *m_DriveList->Menu;
 }
-
+#endif
 pxAppResources& Pcsx2App::GetResourceCache()
 {
 	ScopedLock lock( m_mtx_Resources );
@@ -86,7 +86,7 @@ pxAppResources& Pcsx2App::GetResourceCache()
 
 	return *m_Resources;
 }
-
+#ifndef __LIBRETRO__
 const wxIconBundle& Pcsx2App::GetIconBundle()
 {
 	std::unique_ptr<wxIconBundle>& bundle( GetResourceCache().IconBundle );
@@ -177,3 +177,4 @@ const AppImageIds& Pcsx2App::GetImgId() const
 {
 	return m_Resources->ImageId;
 }
+#endif

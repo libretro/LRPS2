@@ -384,16 +384,22 @@ namespace Implementations
 
 	void Sys_TakeSnapshot()
 	{
-		GSmakeSnapshot(g_Conf->Folders.Snapshots.ToUTF8());
+		GSmakeSnapshot(g_Conf->Folders.Snapshots.ToUTF8().data());
 	}
 
 	void Sys_RenderToggle()
 	{
 		if (renderswitch_delay == 0)
 		{
+#ifdef __LIBRETRO__
+			CoreThread.Pause();
+			renderswitch = !renderswitch;
+			CoreThread.Resume();
+#else
 			ScopedCoreThreadPause paused_core(new SysExecEvent_SaveSinglePlugin(PluginId_GS));
 			renderswitch = !renderswitch;
 			paused_core.AllowResume();
+#endif
 			renderswitch_delay = -1;
 		}
 	}
@@ -464,7 +470,7 @@ namespace Implementations
 			{
 				// GSsetupRecording can be aborted/canceled by the user. Don't go on to record the audio if that happens.
 				std::wstring* filename = nullptr;
-				if (filename = GSsetupRecording(g_Pcsx2Recording))
+				if (filename = (std::wstring*) GSsetupRecording(g_Pcsx2Recording))
 				{
 					SPU2setupRecording(g_Pcsx2Recording, filename);
 					delete filename;

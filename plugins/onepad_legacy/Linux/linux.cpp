@@ -200,7 +200,7 @@ EXPORT_C_(void) PADupdate(int pad)
 
 EXPORT_C_(void) PADconfigure()
 {
-    LoadConfig();
+    PADLoadConfig();
 
     DisplayDialog();
     return;

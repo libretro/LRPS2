@@ -59,7 +59,7 @@ protected:
 	virtual void DoLogRecord(wxLogLevel level, const wxString &message, const wxLogRecordInfo &info);
 };
 
-
+#ifndef __LIBRETRO__
 // --------------------------------------------------------------------------------------
 //  ConsoleThreadTest -- useful class for unit testing the thread safety and general performance
 //  of the console logger.
@@ -230,7 +230,7 @@ protected:
 
 	void OnLoggingChanged();
 };
-
+#endif
 void OSDlog(ConsoleColors color, bool console, const std::string& str);
 
 template<typename ... Args>

@@ -14,18 +14,21 @@
  */
 
 #include "PrecompiledHeader.h"
+#ifndef __LIBRETRO__
 #include "MainFrame.h"
 #include "AppAccelerators.h"
+#endif
 #include "ConsoleLogger.h"
 #include "MSWstuff.h"
 #include "MTVU.h" // for thread cancellation on shutdown
 
 #include "Utilities/IniInterface.h"
+#ifndef __LIBRETRO__
 #include "DebugTools/Debug.h"
 #include "Dialogs/ModalPopups.h"
 
 #include "Debugger/DisassemblyDialog.h"
-
+#endif
 #ifndef DISABLE_RECORDING
 #   include "Recording/InputRecording.h"
 #	include "Recording/VirtualPad/VirtualPad.h"
@@ -57,14 +60,22 @@ void Pcsx2App::DetectCpuAndUserMode()
 	}
 #endif
 
+
 	EstablishAppUserMode();
+
 
 	// force unload plugins loaded by the wizard.  If we don't do this the recompilers might
 	// fail to allocate the memory they need to function.
+#ifdef __LIBRETRO__
+	CoreThread.Cancel();
+	CorePlugins.Shutdown();
+	CorePlugins.Unload();
+#else
 	ShutdownPlugins();
 	UnloadPlugins();
+#endif
 }
-
+#ifndef __LIBRETRO__
 void Pcsx2App::OpenMainFrame()
 {
 	if( AppRpc_TryInvokeAsync( &Pcsx2App::OpenMainFrame ) ) return;
@@ -113,7 +124,9 @@ void Pcsx2App::OpenProgramLog()
 	wxWindow* m_current_focus = wxGetActiveWindow();
 
 	ScopedLock lock( m_mtx_ProgramLog );
+
 	m_ptr_ProgramLog	= new ConsoleLogFrame( GetMainFramePtr(), L"PCSX2 Program Log", g_Conf->ProgLogBox );
+
 	m_id_ProgramLogBox	= m_ptr_ProgramLog->GetId();
 	EnableAllLogging();
 
@@ -132,6 +145,7 @@ void Pcsx2App::OpenProgramLog()
 	}
 	*/
 }
+#endif
 
 void Pcsx2App::AllocateCoreStuffs()
 {
@@ -198,12 +212,17 @@ void Pcsx2App::AllocateCoreStuffs()
 			}
 
 			exconf += exconf.Heading(pxE( L"Note: Recompilers are not necessary for PCSX2 to run, however they typically improve emulation speed substantially. You may have to manually re-enable the recompilers listed above, if you resolve the errors." ));
-
+#ifndef __LIBRETRO__
 			pxIssueConfirmation( exconf, MsgButtons().OK() );
+#endif
 		}
 	}
 
+#ifdef __LIBRETRO__
+	LoadPluginsImmediate();
+#else
 	LoadPluginsPassive();
+#endif
 }
 
 
@@ -296,6 +315,7 @@ bool Pcsx2App::ParseOverrides( wxCmdLineParser& parser )
 		{
 			if( wxFileExists( dest ) )
 				Console.Warning( pi->GetShortname() + L" override: " + dest );
+#ifndef __LIBRETRO__
 			else
 			{
 				wxDialogWithHelpers okcan( NULL, AddAppName(_("Plugin Override Error - %s")) );
@@ -310,8 +330,9 @@ bool Pcsx2App::ParseOverrides( wxCmdLineParser& parser )
 				okcan += okcan.GetCharHeight();
 				okcan += okcan.Heading(AddAppName(_("Press OK to use the default configured plugin, or Cancel to close %s.")));
 
-				if( wxID_CANCEL == pxIssueConfirmation( okcan, MsgButtons().OKCancel() ) ) parsed = false;
+				if( wxID_CANCEL == pxIssueConfirmation( okcan, MsgButtons().OKCancel() ) ) parsed = false;				
 			}
+#endif
 
 			if (parsed) Overrides.Filenames.Plugins[pi->id] = dest;
 		}
@@ -322,6 +343,7 @@ bool Pcsx2App::ParseOverrides( wxCmdLineParser& parser )
 
 bool Pcsx2App::OnCmdLineParsed( wxCmdLineParser& parser )
 {
+#ifndef __LIBRETRO__
 	if( parser.Found(L"console") )
 	{
 		Startup.ForceConsole = true;
@@ -333,7 +355,7 @@ bool Pcsx2App::OnCmdLineParsed( wxCmdLineParser& parser )
 
 	m_UseGUI	= !parser.Found(L"nogui");
 	m_NoGuiExitPrompt = parser.Found(L"noguiprompt"); // by default no prompt for exit with nogui.
-
+#endif
 	if( !ParseOverrides(parser) ) return false;
 
 	// --- Parse Startup/Autoboot options ---
@@ -425,7 +447,9 @@ protected:
 
 bool Pcsx2App::OnInit()
 {
+#ifndef __LIBRETRO__
 	EnableAllLogging();
+#endif
 	Console.WriteLn("Interface is initializing.  Entering Pcsx2App::OnInit!");
 
 	InitCPUTicks();
@@ -449,10 +473,10 @@ bool Pcsx2App::OnInit()
 	Console.WriteLn("Command line parsed!");
 
 	i18n_SetLanguagePath();
-
+#ifndef __LIBRETRO__
 	Bind(wxEVT_KEY_DOWN, &Pcsx2App::OnEmuKeyDown, this, pxID_PadHandler_Keydown);
 	Bind(wxEVT_DESTROY, &Pcsx2App::OnDestroyWindow, this);
-
+#endif
 	// User/Admin Mode Dual Setup:
 	//   PCSX2 now supports two fundamental modes of operation.  The default is Classic mode,
 	//   which uses the Current Working Directory (CWD) for all user data files, and requires
@@ -466,6 +490,37 @@ bool Pcsx2App::OnInit()
 
 	try
 	{
+#ifdef __LIBRETRO__
+		DetectCpuAndUserMode();
+		AllocateCoreStuffs();
+		(new GameDatabaseLoaderThread())->Start();
+		// By default no IRX injection
+		g_Conf->CurrentIRX = "";
+		if( Startup.SysAutoRun )
+		{
+			g_Conf->EmuOptions.UseBOOT2Injection = !Startup.NoFastBoot;
+			g_Conf->CdvdSource = Startup.CdvdSource;
+			if (Startup.CdvdSource == CDVD_SourceType::Iso)
+				g_Conf->CurrentIso = Startup.IsoFile;
+			sApp.SysExecute( Startup.CdvdSource );
+			g_Conf->CurrentGameArgs = Startup.GameLaunchArgs;
+		}
+		else if ( Startup.SysAutoRunElf )
+		{
+			g_Conf->EmuOptions.UseBOOT2Injection = true;
+
+			sApp.SysExecute( Startup.CdvdSource, Startup.ElfFile );
+		}
+		else if (Startup.SysAutoRunIrx )
+		{
+			g_Conf->EmuOptions.UseBOOT2Injection = true;
+
+			g_Conf->CurrentIRX = Startup.ElfFile;
+
+			// FIXME: ElfFile is an irx it will crash
+			sApp.SysExecute( Startup.CdvdSource, Startup.ElfFile );
+		}
+#else
 		InitDefaultGlobalAccelerators();
 		delete wxLog::SetActiveTarget( new pxLogConsole() );
 
@@ -487,6 +542,7 @@ bool Pcsx2App::OnInit()
 		pxSizerFlags::SetBestPadding();
 		if( Startup.ForceConsole ) g_Conf->ProgLogBox.Visible = true;
 		OpenProgramLog();
+
 		AllocateCoreStuffs();
 		if( m_UseGUI ) OpenMainFrame();
 
@@ -520,6 +576,7 @@ bool Pcsx2App::OnInit()
 			// FIXME: ElfFile is an irx it will crash
 			sApp.SysExecute( Startup.CdvdSource, Startup.ElfFile );
 		}
+#endif
 	}
 	// ----------------------------------------------------------------------------
 	catch( Exception::StartupAborted& ex )		// user-aborted, no popups needed.
@@ -530,7 +587,9 @@ bool Pcsx2App::OnInit()
 	}
 	catch( Exception::HardwareDeficiency& ex )
 	{
+#ifndef __LIBRETRO__
 		Msgbox::Alert( ex.FormatDisplayMessage() + L"\n\n" + AddAppName(_("Press OK to close %s.")), _("PCSX2 Error: Hardware Deficiency") );
+#endif
 		CleanupOnExit();
 		return false;
 	}
@@ -542,8 +601,10 @@ bool Pcsx2App::OnInit()
 	catch( Exception::RuntimeError& ex )
 	{
 		Console.Error( ex.FormatDiagnosticMessage() );
+#ifndef __LIBRETRO__
 		Msgbox::Alert( ex.FormatDisplayMessage() + L"\n\n" + AddAppName(_("Press OK to close %s.")),
 			AddAppName(_("%s Critical Error")), wxICON_ERROR );
+#endif
 		CleanupOnExit();
 		return false;
 	}
@@ -590,7 +651,9 @@ void Pcsx2App::PrepForExit()
 	DispatchEvent( AppStatus_Exiting );
 
 	CoreThread.Cancel();
+#ifndef __LIBRETRO__
 	SysExecutorThread.ShutdownQueue();
+#endif
 
 	m_timer_Termination->Start( 500 );
 }
@@ -602,7 +665,9 @@ void Pcsx2App::CleanupRestartable()
 	AffinityAssert_AllowFrom_MainUI();
 
 	CoreThread.Cancel();
+#ifndef __LIBRETRO__
 	SysExecutorThread.ShutdownQueue();
+#endif
 	IdleEventDispatcher( L"Cleanup" );
 
 	if( g_Conf ) AppSaveSettings();
@@ -662,7 +727,7 @@ int Pcsx2App::OnExit()
 	CleanupOnExit();
 	return wxApp::OnExit();
 }
-
+#ifndef __LIBRETRO__
 void Pcsx2App::OnDestroyWindow( wxWindowDestroyEvent& evt )
 {
 	// Precautions:
@@ -680,7 +745,7 @@ void Pcsx2App::OnDestroyWindow( wxWindowDestroyEvent& evt )
 	OnGsFrameClosed( evt.GetId() );
 	evt.Skip();
 }
-
+#endif
 // --------------------------------------------------------------------------------------
 //  SysEventHandler
 // --------------------------------------------------------------------------------------
@@ -700,7 +765,9 @@ protected:
 
 
 Pcsx2App::Pcsx2App() 
+#ifndef __LIBRETRO__
 	: SysExecutorThread( new SysEvtHandler() )
+#endif
 {
 	// Warning: Do not delete this comment block! Gettext will parse it to allow
 	// the translation of some wxWidget internal strings. -- greg
@@ -732,8 +799,10 @@ Pcsx2App::Pcsx2App()
 
 	m_PendingSaves			= 0;
 	m_ScheduledTermination	= false;
+#ifndef __LIBRETRO__
 	m_UseGUI				= true;
 	m_NoGuiExitPrompt		= true;
+#endif
 
 	m_id_MainFrame		= wxID_ANY;
 	m_id_GsFrame		= wxID_ANY;
@@ -742,7 +811,9 @@ Pcsx2App::Pcsx2App()
 	m_ptr_ProgramLog	= NULL;
 
 	SetAppName( L"PCSX2" );
+#ifndef __LIBRETRO__
 	BuildCommandHash();
+#endif
 }
 
 Pcsx2App::~Pcsx2App()
@@ -756,6 +827,7 @@ Pcsx2App::~Pcsx2App()
 
 void Pcsx2App::CleanUp()
 {
+#ifndef __LIBRETRO__
 	CleanupResources();
 	m_Resources		= NULL;
 	m_RecentIsoList	= NULL;
@@ -767,6 +839,7 @@ void Pcsx2App::CleanUp()
 		fclose( emuLog );
 		emuLog = NULL;
 	}
+#endif
 
 	_parent::CleanUp();
 }

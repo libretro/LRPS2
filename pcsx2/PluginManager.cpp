@@ -605,6 +605,9 @@ static void PS2E_CALLBACK pcsx2_OSD_WriteLn( int icon, const char* msg )
 // ---------------------------------------------------------------------------------
 // DynamicStaticLibrary
 // ---------------------------------------------------------------------------------
+std::string s_strIniPath = "inis";
+std::string s_strLogPath = "logs";
+
 StaticLibrary::StaticLibrary(PluginsEnum_t _pid) : pid(_pid)
 {
 }
@@ -874,9 +877,10 @@ void SysCorePlugins::Load( const wxString (&folders)[PluginId_Count] )
 	});
 
 	indent.LeaveScope();
-
 	// Hack for PAD's stupid parameter passed on Init
+#ifndef BUILTIN_PAD_PLUGIN
 	PADinit = (_PADinit)m_info[PluginId_PAD]->CommonBindings.Init;
+#endif
 	m_info[PluginId_PAD]->CommonBindings.Init = _hack_PADinit;
 
 	Console.WriteLn( Color_StrongBlue, "Plugins loaded successfully.\n" );

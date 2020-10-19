@@ -18,10 +18,10 @@
 #include "../GS.h"
 
 extern HINSTANCE hInst;
-void SaveConfig()
+void GSSaveConfig()
 {
 
-    Config *Conf1 = &conf;
+    Config *Conf1 = &GSconf;
     char *szTemp;
     char szIniFile[256], szValue[256];
 
@@ -35,12 +35,12 @@ void SaveConfig()
     WritePrivateProfileString("Interface", "Logging", szValue, szIniFile);
 }
 
-void LoadConfig()
+void GSLoadConfig()
 {
     FILE *fp;
 
 
-    Config *Conf1 = &conf;
+    Config *Conf1 = &GSconf;
     char *szTemp;
     char szIniFile[256], szValue[256];
 
@@ -54,9 +54,9 @@ void LoadConfig()
 
     if (!fp) {
         CreateDirectory("inis", NULL);
-        memset(&conf, 0, sizeof(conf));
-        conf.Log = 0; //default value
-        SaveConfig(); //save and return
+        memset(&GSconf, 0, sizeof(GSconf));
+        GSconf.Log = 0; //default value
+        GSSaveConfig(); //save and return
         return;
     }
 

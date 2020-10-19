@@ -110,6 +110,7 @@ void ReadSettings()
 	VolumeAdjustLFE = powf(10, VolumeAdjustLFEdb / 10);
 	delayCycles = CfgReadInt(L"DEBUG", L"DelayCycles", 4);
 
+#ifndef __LIBRETRO__
 	wxString temp;
 
 #if SDL_MAJOR_VERSION >= 2 || !defined(SPU2X_PORTAUDIO)
@@ -172,7 +173,7 @@ void ReadSettings()
 		fprintf(stderr, "* SPU2: Defaulting to SDL (%S).\n", SDLOut->GetIdent());
 		OutputModule = FindOutputModuleById(SDLOut->GetIdent());
 	}
-
+#endif
 	WriteSettings();
 	spuConfig->Flush();
 }
@@ -201,7 +202,7 @@ void WriteSettings()
 	CfgWriteFloat(L"MIXING", L"VolumeAdjustSL(dB)", VolumeAdjustSLdb);
 	CfgWriteFloat(L"MIXING", L"VolumeAdjustSR(dB)", VolumeAdjustSRdb);
 	CfgWriteFloat(L"MIXING", L"VolumeAdjustLFE(dB)", VolumeAdjustLFEdb);
-
+#ifndef __LIBRETRO__
 	CfgWriteStr(L"OUTPUT", L"Output_Module", mods[OutputModule]->GetIdent());
 	CfgWriteInt(L"OUTPUT", L"Latency", SndOutLatencyMS);
 	CfgWriteInt(L"OUTPUT", L"Synch_Mode", SynchMode);
@@ -216,6 +217,7 @@ void WriteSettings()
 #endif
 	SoundtouchCfg::WriteSettings();
 	DebugConfig::WriteSettings();
+#endif
 }
 
 void configure()

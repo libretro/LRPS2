@@ -637,7 +637,11 @@ void Panels::PluginSelectorPanel::OnConfigure_Clicked( wxCommandEvent& evt )
 		
 		wxWindowDisabler disabler;
 		wxDoNotLogInThisScope quiettime;
+#ifdef __LIBRETRO__
+		CoreThread.Pause();
+#else
 		ScopedCoreThreadPause paused_core( new SysExecEvent_SaveSinglePlugin(pid) );
+#endif
 		if (!CorePlugins.AreLoaded())
 		{
 			CorePlugins.Load(pid, filename);
@@ -650,6 +654,9 @@ void Panels::PluginSelectorPanel::OnConfigure_Clicked( wxCommandEvent& evt )
 		{
 			configfunc();
 		}
+#ifdef __LIBRETRO__
+		CoreThread.Resume();
+#endif
 	}
 }
 

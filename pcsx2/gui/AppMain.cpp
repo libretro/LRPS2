@@ -15,22 +15,25 @@
 
 #include "PrecompiledHeader.h"
 #include "App.h"
+#ifndef __LIBRETRO__
 #include "MainFrame.h"
 #include "GSFrame.h"
+#endif
 #include "GS.h"
 #include "AppSaveStates.h"
+#ifndef __LIBRETRO__
 #include "AppGameDatabase.h"
 #include "AppAccelerators.h"
+#endif
 
 #include "Plugins.h"
 #include "ps2/BiosTools.h"
-
+#ifndef __LIBRETRO__
 #include "Dialogs/ModalPopups.h"
 #include "Dialogs/ConfigurationDialog.h"
 #include "Dialogs/LogOptionsDialog.h"
-
+#endif
 #include "Debugger/DisassemblyDialog.h"
-
 #ifndef DISABLE_RECORDING
 #	include "Recording/InputRecordingControls.h"
 #	include "Recording/InputRecording.h"
@@ -73,6 +76,9 @@ bool switchAR;
 
 static bool HandlePluginError( BaseException& ex )
 {
+#ifdef __LIBRETRO__
+	return false;
+#else
 	if (!pxDialogExists(L"Dialog:" + Dialogs::ComponentsConfigDialog::GetNameStatic()))
 	{
 		if( !Msgbox::OkCancel( ex.FormatDisplayMessage() +
@@ -90,6 +96,7 @@ static bool HandlePluginError( BaseException& ex )
 	// TODO: Send a message to the panel to select the failed plugin.
 
 	return AppOpenModalDialog<Dialogs::ComponentsConfigDialog>(L"Plugins") != wxID_CANCEL;
+#endif
 }
 
 class PluginErrorEvent : public pxExceptionEvent
@@ -133,7 +140,9 @@ void PluginErrorEvent::InvokeEvent()
 	if( !HandlePluginError( *deleteMe ) )
 	{
 		Console.Error( L"User-canceled plugin configuration; Plugins not loaded!" );
+#ifndef __LIBRETRO__
 		Msgbox::Alert( _("Warning!  System plugins have not been loaded.  PCSX2 may be inoperable.") );
+#endif
 	}
 }
 
@@ -147,7 +156,9 @@ void PluginInitErrorEvent::InvokeEvent()
 	if( !HandlePluginError( *deleteMe ) )
 	{
 		Console.Error( L"User-canceled plugin configuration after plugin initialization failure.  Plugins unloaded." );
+#ifndef __LIBRETRO__
 		Msgbox::Alert( _("Warning!  System plugins have not been loaded.  PCSX2 may be inoperable.") );
+#endif
 	}
 }
 
@@ -178,6 +189,9 @@ protected:
 
 static bool HandleBIOSError(BaseException& ex)
 {
+#ifdef __LIBRETRO__
+	return false;
+#else
 	if (!pxDialogExists(L"Dialog:" + Dialogs::ComponentsConfigDialog::GetNameStatic()))
 	{
 		if (!Msgbox::OkCancel(ex.FormatDisplayMessage() + L"\n\n" + BIOS_GetMsg_Required()
@@ -192,6 +206,7 @@ static bool HandleBIOSError(BaseException& ex)
 	g_Conf->ComponentsTabName = L"BIOS";
 
 	return AppOpenModalDialog<Dialogs::ComponentsConfigDialog>(L"BIOS") != wxID_CANCEL;
+#endif
 }
 
 void BIOSLoadErrorEvent::InvokeEvent()
@@ -204,10 +219,12 @@ void BIOSLoadErrorEvent::InvokeEvent()
 	if (!HandleBIOSError(*deleteMe))
 	{
 		Console.Warning("User canceled BIOS configuration.");
+#ifndef __LIBRETRO__
 		Msgbox::Alert(_("Warning! Valid BIOS has not been selected. PCSX2 may be inoperable."));
+#endif
 	}
 }
-
+#ifndef __LIBRETRO__
 // Allows for activating menu actions from anywhere in PCSX2.
 // And it's Thread Safe!
 void Pcsx2App::PostMenuAction( MenuIdentifiers menu_id ) const
@@ -221,7 +238,7 @@ void Pcsx2App::PostMenuAction( MenuIdentifiers menu_id ) const
 	else
 		mainFrame->GetEventHandler()->AddPendingEvent( joe );
 }
-
+#endif
 // --------------------------------------------------------------------------------------
 //  Pcsx2AppMethodEvent
 // --------------------------------------------------------------------------------------
@@ -279,7 +296,7 @@ extern int TranslateVKToWXK( u32 keysym );
 #elif defined( __WXGTK__ )
 extern int TranslateGDKtoWXK( u32 keysym );
 #endif
-
+#ifndef __LIBRETRO__
 void Pcsx2App::PadKeyDispatch( const keyEvent& ev )
 {
 	m_kevt.SetEventType( ( ev.evt == KEYPRESS ) ? wxEVT_KEY_DOWN : wxEVT_KEY_UP );
@@ -329,7 +346,7 @@ void Pcsx2App::PadKeyDispatch( const keyEvent& ev )
 		}
 	}
 }
-
+#endif
 // --------------------------------------------------------------------------------------
 //  Pcsx2AppTraits (implementations)  [includes pxMessageOutputMessageBox]
 // --------------------------------------------------------------------------------------
@@ -420,6 +437,12 @@ wxMessageOutput* Pcsx2AppTraits::CreateMessageOutput()
 class Pcsx2StandardPaths : public wxStandardPaths
 {
 public:
+#ifdef __LIBRETRO__
+	virtual wxString GetExecutablePath() const
+	{
+		return wxStandardPathsBase::GetExecutablePath();
+	}
+#endif
 	wxString GetResourcesDir() const
 	{
 		return Path::Combine( GetDataDir(), L"Langs" );
@@ -464,7 +487,14 @@ wxStandardPaths& Pcsx2AppTraits::GetStandardPaths()
 	return stdPaths;
 }
 #endif
-
+#ifdef __LIBRETRO__
+wxEventLoopBase* Pcsx2AppTraits::CreateEventLoop()
+{
+   return new wxEventLoop();
+//       return new wxGUIEventLoop();
+//       return new wxConsoleEventLoop();
+}
+#endif
 wxAppTraits* Pcsx2App::CreateTraits()
 {
 	return new Pcsx2AppTraits;
@@ -530,16 +560,25 @@ void DoFmvSwitch(bool on)
 		} else {
 			switchAR = false;
 		}
+#ifndef __LIBRETRO__
 		if (GSFrame* gsFrame = wxGetApp().GetGsFramePtr())
 			if (GSPanel* viewport = gsFrame->GetViewport())
 				viewport->DoResize();
+#endif
 	}
-
+#ifdef __LIBRETRO__
+	if (EmuConfig.Gamefixes.FMVinSoftwareHack) {
+		CoreThread.Pause();
+		renderswitch = !renderswitch;
+		CoreThread.Resume();
+	}
+#else
 	if (EmuConfig.Gamefixes.FMVinSoftwareHack) {
 		ScopedCoreThreadPause paused_core(new SysExecEvent_SaveSinglePlugin(PluginId_GS));
 		renderswitch = !renderswitch;
 		paused_core.AllowResume();
 	}
+#endif
 }
 
 void Pcsx2App::LogicalVsync()
@@ -571,11 +610,11 @@ void Pcsx2App::LogicalVsync()
 
 	renderswitch_delay >>= 1;
 
+#ifndef __LIBRETRO__
 	// Only call PADupdate here if we're using GSopen2.  Legacy GSopen plugins have the
 	// GS window belonging to the MTGS thread.
 	if( (PADupdate != NULL) && (GSopen2 != NULL) && (wxGetApp().GetGsFramePtr() != NULL) )
 		PADupdate(0);
-
 	while( const keyEvent* ev = PADkeyEvent() )
 	{
 		if( ev->key == 0 ) break;
@@ -586,8 +625,9 @@ void Pcsx2App::LogicalVsync()
 		if( !GetCorePlugins().KeyEvent( *ev ) )
 			PadKeyDispatch( *ev );
 	}
+#endif
 }
-
+#ifndef __LIBRETRO__
 void Pcsx2App::OnEmuKeyDown( wxKeyEvent& evt )
 {
 	const GlobalCommandDescriptor* cmd = NULL;
@@ -607,7 +647,7 @@ void Pcsx2App::OnEmuKeyDown( wxKeyEvent& evt )
 	DbgCon.WriteLn( "(app) Invoking command: %s", cmd->Id );
 	cmd->Invoke();
 }
-
+#endif
 void Pcsx2App::HandleEvent(wxEvtHandler* handler, wxEventFunction func, wxEvent& event) const
 {
 	const_cast<Pcsx2App*>(this)->HandleEvent( handler, func, event );
@@ -649,13 +689,16 @@ void Pcsx2App::HandleEvent(wxEvtHandler* handler, wxEventFunction func, wxEvent&
 	{
 		// Commandline 'nogui' users will not receive an error message, but at least PCSX2 will
 		// terminate properly.
+#ifndef __LIBRETRO__
 		GSFrame* gsframe = wxGetApp().GetGsFramePtr();
 		gsframe->Close();
+#endif
 
 		Console.Error(ex.FormatDiagnosticMessage());
-
+#ifndef __LIBRETRO__
 		if (wxGetApp().HasGUI())
 			AddIdleEvent(BIOSLoadErrorEvent(ex));
+#endif
 	}
 	// ----------------------------------------------------------------------------
 	catch( Exception::SaveStateLoadError& ex)
@@ -676,20 +719,26 @@ void Pcsx2App::HandleEvent(wxEvtHandler* handler, wxEventFunction func, wxEvent&
 		// PCSX2. This probably happened in the BIOS error case above as well.
 		// So the idea is to explicitly close the gsFrame before the modal MessageBox appears and
 		// intercepts the close message. Only for wx3.0 though - it sometimes breaks linux wx2.8.
-
+#ifndef __LIBRETRO__
 		if (GSFrame* gsframe = wxGetApp().GetGsFramePtr())
 			gsframe->Close();
-
+#endif
 		Console.Error(ex.FormatDiagnosticMessage());
-
+#ifndef __LIBRETRO__
 		// Make sure it terminates properly for nogui users.
 		if (wxGetApp().HasGUI())
 			AddIdleEvent(PluginInitErrorEvent(ex));
+#endif
 	}
 	// ----------------------------------------------------------------------------
 	catch( Exception::PluginInitError& ex )
 	{
+#ifdef __LIBRETRO__
+		CoreThread.Cancel();
+		CorePlugins.Shutdown();
+#else
 		ShutdownPlugins();
+#endif
 
 		Console.Error( ex.FormatDiagnosticMessage() );
 		AddIdleEvent( PluginInitErrorEvent(ex) );
@@ -697,7 +746,12 @@ void Pcsx2App::HandleEvent(wxEvtHandler* handler, wxEventFunction func, wxEvent&
 	// ----------------------------------------------------------------------------
 	catch( Exception::PluginError& ex )
 	{
+#ifdef __LIBRETRO__
+		CoreThread.Cancel();
+		CorePlugins.Unload();
+#else
 		UnloadPlugins();
+#endif
 
 		Console.Error( ex.FormatDiagnosticMessage() );
 		AddIdleEvent( PluginErrorEvent(ex) );
@@ -749,13 +803,17 @@ void Pcsx2App::HandleEvent(wxEvtHandler* handler, wxEventFunction func, wxEvent&
 
 		// Test case (Windows only, Linux has an uncaught exception for some
 		// reason): Run PSX ISO using fast boot
+#ifndef __LIBRETRO__
 		if (GSFrame* gsframe = wxGetApp().GetGsFramePtr())
 			gsframe->Close();
+#endif
 
 		Console.Error( ex.FormatDiagnosticMessage() );
+#ifndef __LIBRETRO__
 		// I should probably figure out how to have the error message as well.
 		if (wxGetApp().HasGUI())
 			Msgbox::Alert( ex.FormatDisplayMessage() );
+#endif
 	}
 }
 
@@ -791,6 +849,7 @@ void Pcsx2App::ClearPendingSave()
 	}
 }
 
+#ifndef __LIBRETRO__
 // This method generates debug assertions if the MainFrame handle is NULL (typically
 // indicating that PCSX2 is running in NoGUI mode, or that the main frame has been
 // closed).  In most cases you'll want to use HasMainFrame() to test for thread
@@ -832,14 +891,17 @@ void Pcsx2App::resetDebugger()
 	if (dlg)
 		dlg->reset();
 }
-
+#endif
 // NOTE: Plugins are *not* applied by this function.  Changes to plugins need to handled
 // manually.  The PluginSelectorPanel does this, for example.
 void AppApplySettings( const AppConfig* oldconf )
 {
 	AffinityAssert_AllowFrom_MainUI();
-
+#ifdef __LIBRETRO__
+	CoreThread.Pause();
+#else
 	ScopedCoreThreadPause paused_core;
+#endif
 
 	g_Conf->Folders.ApplyDefaults();
 
@@ -853,14 +915,16 @@ void AppApplySettings( const AppConfig* oldconf )
 	g_Conf->Folders.CheatsWS.Mkdir();
 
 	g_Conf->EmuOptions.BiosFilename = g_Conf->FullpathToBios();
-
+#ifndef __LIBRETRO__
 	RelocateLogfile();
+#endif
 
 	if( (oldconf == NULL) || (oldconf->LanguageCode.CmpNoCase(g_Conf->LanguageCode)) )
 	{
 		wxDoNotLogInThisScope please;
 		i18n_SetLanguage( g_Conf->LanguageId, g_Conf->LanguageCode );
 	}
+
 	
 	CorePlugins.SetSettingsFolder( GetSettingsFolder().ToString() );
 
@@ -872,7 +936,12 @@ void AppApplySettings( const AppConfig* oldconf )
 	#endif
 	sApp.DispatchEvent( AppStatus_SettingsApplied );
 
+#ifdef __LIBRETRO__
+//	CoreThread.Resume();
+#else
 	paused_core.AllowResume();
+#endif
+
 }
 
 // Invokes the specified Pcsx2App method, or posts the method to the main thread if the calling
@@ -935,7 +1004,7 @@ SysMainMemory& Pcsx2App::GetVmReserve()
 	if (!m_VmReserve) m_VmReserve = std::unique_ptr<SysMainMemory>(new SysMainMemory());
 	return *m_VmReserve;
 }
-
+#ifndef __LIBRETRO__
 void Pcsx2App::OpenGsPanel()
 {
 	if( AppRpc_TryInvoke( &Pcsx2App::OpenGsPanel ) ) return;
@@ -1169,7 +1238,33 @@ void Pcsx2App::SysExecute( CDVD_SourceType cdvdsrc, const wxString& elf_override
 	g_InputRecording.RecordingReset();
 #endif
 }
+#else
+void Pcsx2App::SysExecute()
+{
+	Pcsx2App::SysExecute(CDVD_SourceType::NoDisc);
+}
+void Pcsx2App::SysExecute( CDVD_SourceType cdvdsrc, const wxString& elf_override )
+{
+	ProcessMethod( AppSaveSettings );
 
+	// if something unloaded plugins since this messages was queued then it's best to ignore
+	// it, because apparently too much stuff is going on and the emulation states are wonky.
+	if( !CorePlugins.AreLoaded() ) return;
+
+	DbgCon.WriteLn( Color_Gray, "(SysExecute) received." );
+
+	CoreThread.ResetQuick();
+	symbolMap.Clear();
+
+	CDVDsys_SetFile(CDVD_SourceType::Iso, g_Conf->CurrentIso );
+	CDVDsys_ChangeSource( cdvdsrc);
+
+	if( !CoreThread.HasActiveMachine() )
+		CoreThread.SetElfOverride( elf_override );
+
+	CoreThread.Resume();
+}
+#endif
 // Returns true if there is a "valid" virtual machine state from the user's perspective.  This
 // means the user has started the emulator and not issued a full reset.
 // Thread Safety: The state of the system can change in parallel to execution of the
@@ -1179,7 +1274,7 @@ __fi bool SysHasValidState()
 {
 	return CoreThread.HasActiveMachine();
 }
-
+#ifndef __LIBRETRO__
 // Writes text to console and updates the window status bar and/or HUD or whateverness.
 // FIXME: This probably isn't thread safe. >_<
 void SysStatus( const wxString& text )
@@ -1230,6 +1325,7 @@ MainEmuFrame* GetMainFramePtr()
 {
 	return wxTheApp ? wxGetApp().GetMainFramePtr() : NULL;
 }
+#endif
 
 SysMainMemory& GetVmMemory()
 {

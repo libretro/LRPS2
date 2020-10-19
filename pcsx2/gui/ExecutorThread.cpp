@@ -390,7 +390,7 @@ void pxEvtQueue::SetActiveThread()
 {
 	m_OwnerThreadId = wxThread::GetCurrentId();
 }
-
+#ifndef __LIBRETRO__
 // --------------------------------------------------------------------------------------
 //  ExecutorThread Implementations
 // --------------------------------------------------------------------------------------
@@ -510,3 +510,4 @@ void Pcsx2App::OnSysExecutorTaskTimeout( wxTimerEvent& evt )
 
 	//task->ShowModalStatus();
 }
+#endif

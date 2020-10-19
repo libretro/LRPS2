@@ -22,8 +22,10 @@
 #include "Utilities/Console.h"
 #include "Utilities/IniInterface.h"
 #include "Utilities/SafeArray.inl"
+#ifndef __LIBRETRO__
 #include "Dialogs/LogOptionsDialog.h"
 #include "DebugTools/Debug.h"
+#endif
 
 #include <wx/textfile.h>
 
@@ -79,7 +81,7 @@ void pxLogConsole::DoLogRecord(wxLogLevel level, const wxString &message, const 
 	}
 }
 
-
+#ifndef __LIBRETRO__
 // ----------------------------------------------------------------------------
 void ConsoleTestThread::ExecuteTaskInThread()
 {
@@ -94,7 +96,7 @@ void ConsoleTestThread::ExecuteTaskInThread()
 		Yield( 0 );
 	}
 }
-
+#endif
 // ----------------------------------------------------------------------------
 // Pass an uninitialized file object. The function will ask the user for the
 // filename and try to open it. It returns true on success (file was opened),
@@ -137,7 +139,7 @@ static bool OpenLogFile(wxFile& file, wxString& filename, wxWindow *parent)
 
 	return file.Create(filename);
 }
-
+#ifndef __LIBRETRO__
 // --------------------------------------------------------------------------------------
 //  ConsoleLogFrame::ColorArray  (implementations)
 // --------------------------------------------------------------------------------------
@@ -1210,6 +1212,9 @@ static const IConsoleWriter	ConsoleWriter_WindowAndFile =
 
 void Pcsx2App::EnableAllLogging()
 {
+#ifdef __LIBRETRO__
+	return;
+#endif
 	AffinityAssert_AllowFrom_MainUI();
 
 	const bool logBoxOpen = (m_ptr_ProgramLog != NULL);
@@ -1232,7 +1237,7 @@ void Pcsx2App::EnableAllLogging()
 		else
 			newHandler = &ConsoleWriter_Stdout;
 	}
-	Console_SetActiveHandler( *newHandler );
+	Console_SetActiveHandler( *newHandler );	
 }
 
 // Used to disable the emuLog disk logger, typically used when disabling or re-initializing the
@@ -1263,18 +1268,21 @@ void Pcsx2App::DisableWindowLogging() const
 	Console_SetActiveHandler( (emuLog!=NULL) ? (IConsoleWriter&)ConsoleWriter_File : (IConsoleWriter&)ConsoleWriter_Stdout );
 }
 
+#endif
 void OSDlog(ConsoleColors color, bool console, const std::string& str)
 {
+#ifndef __LIBRETRO__
 	if (GSosdLog)
 		GSosdLog(str.c_str(), wxGetApp().GetProgramLog()->GetRGBA(color));
-
+#endif
 	if (console)
 		Console.WriteLn(color, str.c_str());
 }
-
+#ifndef __LIBRETRO__
 void OSDmonitor(ConsoleColors color, const std::string key, const std::string value) {
 	if(!GSosdMonitor) return;
 
 	GSosdMonitor(wxString(key).utf8_str(), wxString(value).utf8_str(), wxGetApp().GetProgramLog()->GetRGBA(color));
 }
+#endif
 

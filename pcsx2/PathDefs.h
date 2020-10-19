@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include "PrecompiledHeader.h"
+
 enum FoldersEnum_t
 {
 	// FIXME : Plugins and Settings folders are no longer part of the user-local

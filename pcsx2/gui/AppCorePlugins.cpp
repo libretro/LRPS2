@@ -31,7 +31,11 @@ using namespace Threading;
 // the window shouldn't. This blocks it. :)
 static bool s_DisableGsWindow = false;
 
+#ifdef __LIBRETRO__
+__aligned16 SysCorePlugins CorePlugins;
+#else
 __aligned16 AppCorePlugins CorePlugins;
+#endif
 
 SysCorePlugins& GetCorePlugins()
 {
@@ -95,7 +99,7 @@ static void ConvertPluginFilenames( wxString (&passins)[PluginId_Count] )
 			passins[pi->id] = g_Conf->FullpathTo( pi->id );
 	});
 }
-
+#ifndef __LIBRETRO__
 typedef void (AppCorePlugins::*FnPtr_AppPluginManager)();
 typedef void (AppCorePlugins::*FnPtr_AppPluginPid)( PluginsEnum_t pid );
 
@@ -398,7 +402,7 @@ protected:
 	}
 	~LoadCorePluginsEvent() = default;
 };
-
+#endif
 // --------------------------------------------------------------------------------------
 //  Public API / Interface
 // --------------------------------------------------------------------------------------
@@ -442,7 +446,7 @@ int EnumeratePluginsInFolder(const wxDirName& searchpath, wxArrayString* dest)
 
 	return realdest->GetCount();
 }
-
+#ifndef __LIBRETRO__
 // Posts a message to the App to reload plugins.  Plugins are loaded via a background thread
 // which is started on a pending event, so don't expect them to be ready  "right now."
 // If plugins are already loaded, onComplete is invoked, and the function returns with no
@@ -457,7 +461,7 @@ void LoadPluginsPassive()
 		wxGetApp().SysExecutorThread.PostEvent( new LoadCorePluginsEvent() );
 	}
 }
-
+#endif
 static void _LoadPluginsImmediate()
 {
 	if( CorePlugins.AreLoaded() ) return;
@@ -472,7 +476,7 @@ void LoadPluginsImmediate()
 	AffinityAssert_AllowFrom_SysExecutor();
 	_LoadPluginsImmediate();
 }
-
+#ifndef __LIBRETRO__
 // Performs a blocking load of plugins.  If the emulation thread is active, it is shut down
 // automatically to prevent race conditions (it depends on plugins).
 //
@@ -573,3 +577,4 @@ void SysExecEvent_SaveSinglePlugin::CleanupEvent()
 	s_DisableGsWindow = false;
 	_parent::CleanupEvent();
 }
+#endif

@@ -21,6 +21,8 @@ include(Pcsx2Utils)
 check_no_parenthesis_in_path()
 detectOperatingSystem()
 check_compiler_version("7.0" "7.0")
+set(CMAKE_C_COMPILER_LAUNCHER ccache)
+set(CMAKE_CXX_COMPILER_LAUNCHER ccache)
 
 #-------------------------------------------------------------------------------
 # Include specific module
@@ -33,6 +35,13 @@ include(SelectPcsx2Plugins)
 # Must be done after SearchForStuff
 get_git_version_info()
 write_svnrev_h()
+if (LIBRETRO)
+   set(CMAKE_BUILD_PO FALSE)
+   set(BUILD_REPLAY_LOADERS FALSE)
+   add_definitions(-D__LIBRETRO__ -DDISABLE_RECORDING)
+#add_definitions(-D__LIBRETRO__ -DDISABLE_RECORDING -DwxUSE_UNICODE=0)
+#add_definitions(-D__LIBRETRO__ -DDISABLE_RECORDING -DwxUSE_GUI=0)
+endif()
 
 if(NOT NO_TRANSLATION)
 # make the translation

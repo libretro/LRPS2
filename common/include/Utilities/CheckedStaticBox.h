@@ -14,7 +14,7 @@
  */
 
 #pragma once
-
+#include "PrecompiledHeader.h"
 #include "wxGuiTools.h"
 
 class CheckedStaticBox : public wxPanelWithHelpers

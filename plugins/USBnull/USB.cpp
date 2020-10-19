@@ -18,10 +18,13 @@
 #include "svnrev.h"
 #include "USB.h"
 #include "null/config.inl"
-
+#ifdef BUILTIN_USB_PLUGIN
+extern std::string s_strIniPath;
+extern std::string s_strLogPath;
+#else
 std::string s_strIniPath = "inis";
 std::string s_strLogPath = "logs";
-
+#endif
 const unsigned char version = PS2E_USB_VERSION;
 const unsigned char revision = 0;
 const unsigned char build = 7; // increase that with each version
@@ -41,7 +44,7 @@ USBconfigure()
     SaveConfig(ini_path);
 }
 
-void LogInit()
+void USBLogInit()
 {
     const std::string LogFile(s_strLogPath + "/USBnull.log");
     g_plugin_log.Open(LogFile);
@@ -55,9 +58,9 @@ USBsetLogDir(const char *dir)
 
     // Reload the log file after updated the path
     g_plugin_log.Close();
-    LogInit();
+    USBLogInit();
 }
-
+#ifndef BUILTIN_USB_PLUGIN
 EXPORT_C_(u32)
 PS2EgetLibType()
 {
@@ -76,12 +79,12 @@ PS2EgetLibVersion2(u32 type)
 {
     return (version << 16) | (revision << 8) | build;
 }
-
+#endif
 EXPORT_C_(s32)
 USBinit()
 {
     LoadConfig(s_strIniPath + "/USBnull.ini");
-    LogInit();
+    USBLogInit();
     g_plugin_log.WriteLn("USBnull plugin version %d,%d", revision, build);
     g_plugin_log.WriteLn("Initializing USBnull");
 
@@ -264,6 +267,16 @@ USBsetSettingsDir(const char *dir)
 
 // extended funcs
 
+EXPORT_C_(void)
+USBkeyEvent(keyEvent *ev)
+{
+}
+
+EXPORT_C_(void)
+USBabout()
+{
+}
+
 EXPORT_C_(s32)
 USBfreeze(int mode, freezeData *data)
 {
@@ -283,10 +296,10 @@ USBfreeze(int mode, freezeData *data)
     return 0;
 }
 
-/*EXPORT_C_(void) USBasync(u32 cycles)
+EXPORT_C_(void) USBasync(u32 cycles)
 {
 	// Optional function: Called in IopCounter.cpp.
-}*/
+}
 
 EXPORT_C_(s32)
 USBtest()

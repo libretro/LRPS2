@@ -141,7 +141,9 @@ void SysCoreThread::Reset()
 	ResetQuick();
 	GetVmMemory().DecommitAll();
 	SysClearExecutionCache();
+#ifndef __LIBRETRO__
 	sApp.PostAppMethod(&Pcsx2App::leaveDebugMode);
+#endif
 	g_FrameCount = 0;
 }
 
@@ -247,7 +249,9 @@ void SysCoreThread::GameStartingInThread()
 
 	MIPSAnalyst::ScanForFunctions(ElfTextRange.first, ElfTextRange.first + ElfTextRange.second, true);
 	symbolMap.UpdateActiveSymbols();
+#ifndef __LIBRETRO__
 	sApp.PostAppMethod(&Pcsx2App::resetDebugger);
+#endif
 
 	ApplyLoadedPatches(PPT_ONCE_ON_LOAD);
 #ifdef USE_SAVESLOT_UI_UPDATES
@@ -274,7 +278,9 @@ bool SysCoreThread::StateCheckInThread()
 void SysCoreThread::DoCpuExecute()
 {
 	m_hasActiveMachine = true;
+#ifndef __LIBRETRO__
 	UI_EnableSysActions();
+#endif
 	Cpu->Execute();
 }
 

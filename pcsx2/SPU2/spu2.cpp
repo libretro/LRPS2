@@ -66,7 +66,7 @@ static bool CheckSSE()
 	return true;
 #endif
 }
-
+#ifndef __LIBRETRO__
 void SPU2configure()
 {
 	if (!CheckSSE())
@@ -76,7 +76,7 @@ void SPU2configure()
 	configure();
 	paused_core.AllowResume();
 }
-
+#endif
 // --------------------------------------------------------------------------------------
 //  DMA 4/7 Callbacks from Core Emulator
 // --------------------------------------------------------------------------------------
