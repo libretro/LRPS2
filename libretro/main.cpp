@@ -234,16 +234,14 @@ static void context_destroy()
 
 bool retro_load_game(const struct retro_game_info* game)
 {
-#if 0
-	LoadPluginsImmediate();
-	CoreThread.ResetQuick();
-	//	CDVDsys_SetFile(CDVD_SourceType::Iso, game->path );
-	CDVDsys_ChangeSource(CDVD_SourceType::NoDisc);
-	CoreThread.SetElfOverride(game->path);
-	CoreThread.Resume();
-#endif
 	const char* system = nullptr;
 	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
+
+	//	pcsx2->Overrides.SettingsFolder = "";
+	//	pcsx2->Overrides.Gamefixes.Set( id, true);
+
+	pcsx2->CallOnInit();
+	g_Conf->EmuOptions.UseBOOT2Injection = true; // fastboot
 
 	if (game)
 	{
@@ -257,30 +255,25 @@ bool retro_load_game(const struct retro_game_info* game)
 
 		if (magic == 0x464C457F) // elf
 		{
-			pcsx2->Startup.SysAutoRunElf = true;
-			pcsx2->Startup.ElfFile = game->path;
+			// g_Conf->CurrentIRX = "";
+			pcsx2->SysExecute(CDVD_SourceType::NoDisc, game->path);
 		}
 		else
 		{
-			pcsx2->Startup.IsoFile = game->path;
-			pcsx2->Startup.CdvdSource = CDVD_SourceType::Iso;
-			pcsx2->Startup.SysAutoRun = true;
+			g_Conf->CdvdSource = CDVD_SourceType::Iso;
+			g_Conf->CurrentIso = game->path;
+			pcsx2->SysExecute(CDVD_SourceType::Iso);
 		}
 	}
 	else
 	{
 		pcsx2->Startup.CdvdSource = CDVD_SourceType::NoDisc;
 		pcsx2->Startup.SysAutoRun = true;
+		g_Conf->CdvdSource = CDVD_SourceType::NoDisc;
+		pcsx2->SysExecute(CDVD_SourceType::NoDisc);
 	}
 
-	//	pcsx2->Overrides.SettingsFolder = "";
-	//	pcsx2->Overrides.VmSettingsFile = "";
-	//	pcsx2->Overrides.Gamefixes.Set( id, true);
-	//	pcsx2->Startup.NoFastBoot = false;
-	//	pcsx2->Startup.PortableMode = false;
-	//	pcsx2->Startup.GameLaunchArgs = game_args;
-
-	pcsx2->CallOnInit();
+	g_Conf->CurrentGameArgs = "";
 	g_Conf->EmuOptions.GS.FrameLimitEnable = false;
 
 	hw_render.context_type = RETRO_HW_CONTEXT_OPENGL_CORE;
