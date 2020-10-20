@@ -163,6 +163,12 @@ void retro_init(void)
 
 	pcsx2 = new Pcsx2App;
 	wxApp::SetInstance(pcsx2);
+#if 0
+	int argc = 0;
+	pcsx2->Initialize(argc, (wchar_t**)nullptr);
+	wxModule::RegisterModules();
+	wxModule::InitializeModules();
+#endif
 }
 
 void retro_deinit(void)
@@ -236,38 +242,44 @@ bool retro_load_game(const struct retro_game_info* game)
 	CoreThread.SetElfOverride(game->path);
 	CoreThread.Resume();
 #endif
-	wchar_t* argv[16] = {};
-	int argc = 0;
-
 	const char* system = nullptr;
 	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
-
-	argv[argc++] = wxStrdup((wxString(system) + "/pcsx2/PCSX2").wc_str());
 
 	if (game)
 	{
 		u32 magic = 0;
-		{
-			FILE* fp = fopen(game->path, "rb");
-			fread(&magic, 4, 1, fp);
-			fclose(fp);
-		}
+		FILE* fp = fopen(game->path, "rb");
+		if (!fp)
+			return false;
+
+		fread(&magic, 4, 1, fp);
+		fclose(fp);
 
 		if (magic == 0x464C457F) // elf
-			argv[argc++] = wxStrdup((wxString("--elf=") + game->path).wc_str());
+		{
+			pcsx2->Startup.SysAutoRunElf = true;
+			pcsx2->Startup.ElfFile = game->path;
+		}
 		else
-			argv[argc++] = wxStrdup(wxString(game->path).wc_str());
+		{
+			pcsx2->Startup.IsoFile = game->path;
+			pcsx2->Startup.CdvdSource = CDVD_SourceType::Iso;
+			pcsx2->Startup.SysAutoRun = true;
+		}
 	}
 	else
-		argv[argc++] = wxStrdup(wxString("--nodisc").wc_str());
+	{
+		pcsx2->Startup.CdvdSource = CDVD_SourceType::NoDisc;
+		pcsx2->Startup.SysAutoRun = true;
+	}
 
+	//	pcsx2->Overrides.SettingsFolder = "";
+	//	pcsx2->Overrides.VmSettingsFile = "";
+	//	pcsx2->Overrides.Gamefixes.Set( id, true);
+	//	pcsx2->Startup.NoFastBoot = false;
+	//	pcsx2->Startup.PortableMode = false;
+	//	pcsx2->Startup.GameLaunchArgs = game_args;
 
-	argv[argc++] = wxStrdup(wxString("--nogui").wc_str());
-
-	pcsx2->Initialize(argc, argv);
-
-	wxModule::RegisterModules();
-	wxModule::InitializeModules();
 	pcsx2->CallOnInit();
 	g_Conf->EmuOptions.GS.FrameLimitEnable = false;
 
@@ -283,10 +295,6 @@ bool retro_load_game(const struct retro_game_info* game)
 		printf("Failed to create RETRO_HW_CONTEXT_OPENGL_CORE;\n");
 
 	Input::Init();
-
-	argc = 0;
-	while (argv[argc])
-		free(argv[argc++]);
 
 	return true;
 }
@@ -457,8 +465,8 @@ void SysMessage(const char* fmt, ...)
 wxEventLoopBase* Pcsx2AppTraits::CreateEventLoop()
 {
 	return new wxEventLoop();
-// return new wxGUIEventLoop();
-// return new wxConsoleEventLoop();
+	// return new wxGUIEventLoop();
+	// return new wxConsoleEventLoop();
 }
 
 #ifdef wxUSE_STDPATHS
@@ -467,19 +475,19 @@ class Pcsx2StandardPaths : public wxStandardPaths
 public:
 	virtual wxString GetExecutablePath() const
 	{
-		const char* system = ".";
+		const char* system = nullptr;
 		environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
 		return Path::Combine(system, "pcsx2/PCSX2");
 	}
 	wxString GetResourcesDir() const
 	{
-		const char* system = ".";
+		const char* system = nullptr;
 		environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
-		return Path::Combine(system, "Langs");
+		return Path::Combine(system, "pcsx2/Langs");
 	}
 	wxString GetUserLocalDataDir() const
 	{
-		const char* savedir = ".";
+		const char* savedir = nullptr;
 		environ_cb(RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY, &savedir);
 		return Path::Combine(savedir, "pcsx2");
 	}
