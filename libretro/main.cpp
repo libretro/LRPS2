@@ -258,6 +258,9 @@ bool retro_load_game(const struct retro_game_info* game)
 		else
 			argv[argc++] = wxStrdup(wxString(game->path).wc_str());
 	}
+	else
+		argv[argc++] = wxStrdup(wxString("--nodisc").wc_str());
+
 
 	argv[argc++] = wxStrdup(wxString("--nogui").wc_str());
 
