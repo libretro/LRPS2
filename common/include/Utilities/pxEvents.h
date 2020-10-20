@@ -14,10 +14,11 @@
  */
 
 #pragma once
-
+#if wxUSE_GUI
 wxDECLARE_EVENT(pxEvt_StartIdleEventTimer, wxCommandEvent);
 wxDECLARE_EVENT(pxEvt_DeleteObject, wxCommandEvent);
 wxDECLARE_EVENT(pxEvt_DeleteThread, wxCommandEvent);
+#endif
 
 typedef void FnType_Void();
 
@@ -163,7 +164,7 @@ protected:
 // --------------------------------------------------------------------------------------
 //  pxSynchronousCommandEvent
 // --------------------------------------------------------------------------------------
-
+#if wxUSE_GUI
 class pxSynchronousCommandEvent : public wxCommandEvent
 {
     wxDECLARE_DYNAMIC_CLASS_NO_ASSIGN(pxSynchronousCommandEvent);
@@ -192,6 +193,7 @@ public:
 };
 
 wxDECLARE_EVENT(pxEvt_SynchronousCommand, pxSynchronousCommandEvent);
+#endif
 
 // --------------------------------------------------------------------------------------
 //  BaseMessageBoxEvent

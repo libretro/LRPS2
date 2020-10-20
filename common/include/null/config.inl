@@ -69,6 +69,7 @@ static void ConfigureLogging()
 
 static void ConfigureLogging()
 {
+#if wxUSE_GUI
     auto *dialog = new wxDialog;
     dialog->Create(nullptr, wxID_ANY, "Config", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX);
 
@@ -92,6 +93,7 @@ static void ConfigureLogging()
         g_plugin_log.WriteToFile = file_check->GetValue();
     }
     wxDELETE(dialog);
+#endif
 }
 
 #else

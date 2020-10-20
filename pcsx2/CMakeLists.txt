@@ -379,7 +379,7 @@ if(LIBRETRO)
 #		gui/Debugger/DebuggerLists.cpp
 #		gui/Debugger/DisassemblyDialog.cpp
 #		gui/Debugger/DebugEvents.cpp
-		gui/DriveList.cpp
+#		gui/DriveList.cpp
 		gui/ExecutorThread.cpp
 #		gui/FrameForGS.cpp
 #		gui/GlobalCommands.cpp

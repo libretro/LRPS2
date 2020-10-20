@@ -25,13 +25,13 @@
 // you don't need to include or link against wxCore (GUI) to build them.  For tools
 // which require wxCore, see wxGuiTools.h
 // --------------------------------------------------------------------------------------
-
+#if wxUSE_GUI
 extern void pxExplore(const wxString &path);
 extern void pxExplore(const char *path);
 
 extern void pxLaunch(const wxString &path);
 extern void pxLaunch(const char *path);
-
+#endif
 // --------------------------------------------------------------------------------------
 //  wxDoNotLogInThisScope
 // --------------------------------------------------------------------------------------

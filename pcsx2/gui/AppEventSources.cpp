@@ -149,13 +149,15 @@ void Pcsx2App::DispatchEvent( CoreThreadStatus evt )
 
 	// Clear the sticky key statuses, because hell knows what'll change while the PAD
 	// plugin is suspended.
-
+#if wxUSE_GUI
 	m_kevt.m_shiftDown		= false;
 	m_kevt.m_controlDown	= false;
 	m_kevt.m_altDown		= false;
-
+#endif
 	m_evtsrc_CoreThreadStatus.Dispatch( evt );
+#if wxUSE_GUI
 	ScopedBusyCursor::SetDefault( Cursor_NotBusy );
+#endif
 	CoreThread.RethrowException();
 }
 

@@ -21,9 +21,7 @@ if(LIBRETRO)
 		../../include/Utilities/FixedPointTypes.inl
 		../../include/Utilities/EventSource.inl
 		../../include/Utilities/SafeArray.inl
-		CheckedStaticBox.cpp
 		Console.cpp
-		EventSource.cpp
 		Exceptions.cpp
 		FastFormatString.cpp
 		IniInterface.cpp
@@ -32,19 +30,24 @@ if(LIBRETRO)
 		PathUtils.cpp
 		PrecompiledHeader.cpp
 		Perf.cpp
-		pxCheckBox.cpp
-		pxRadioPanel.cpp
-		pxStaticText.cpp
 		pxStreams.cpp
 		pxTranslate.cpp
-		pxWindowTextWriter.cpp
 		RwMutex.cpp
 		StringHelpers.cpp
-		ThreadingDialogs.cpp
 		ThreadTools.cpp
+#		EventSource.cpp
+#		CheckedStaticBox.cpp
+#		pxCheckBox.cpp
+#		pxRadioPanel.cpp
+
+#		pxStaticText.cpp
+#		pxWindowTextWriter.cpp
+#		ThreadingDialogs.cpp
+#		wxGuiTools.cpp
+#		wxHelpers.cpp
+
+
 		wxAppWithHelpers.cpp
-		wxGuiTools.cpp
-		wxHelpers.cpp
 		)
 else()
 	set(UtilitiesSources

@@ -42,7 +42,7 @@ extern ConsoleLogSource_App pxConLog_App;
 
 #define pxAppLog pxConLog_App.IsActive() && pxConLog_App
 
-
+#if wxUSE_GUI
 // --------------------------------------------------------------------------------------
 //  ModalButtonPanel
 // --------------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ public:
 
     virtual void OnActionButtonClicked(wxCommandEvent &evt);
 };
-
+#endif
 typedef std::list<wxEvent *> wxEventList;
 
 // --------------------------------------------------------------------------------------
@@ -95,7 +95,9 @@ public:
     {
         if (obj == NULL)
             return;
+#ifndef __LIBRETRO__
         DeleteThread(*obj);
+#endif
     }
 
     void PostCommand(void *clientData, int evtType, int intParam = 0, long longParam = 0, const wxString &stringParam = wxEmptyString);
@@ -130,11 +132,13 @@ protected:
     void IdleEventDispatcher(const wxChar *action = wxEmptyString);
 
     void OnIdleEvent(wxIdleEvent &evt);
-    void OnStartIdleEventTimer(wxCommandEvent &evt);
     void OnIdleEventTimeout(wxTimerEvent &evt);
+#if wxUSE_GUI
+    void OnStartIdleEventTimer(wxCommandEvent &evt);
     void OnDeleteObject(wxCommandEvent &evt);
     void OnDeleteThread(wxCommandEvent &evt);
     void OnSynchronousCommand(pxSynchronousCommandEvent &evt);
+#endif
     void OnInvokeAction(pxActionEvent &evt);
 };
 
@@ -143,3 +147,5 @@ namespace Msgbox
 extern int ShowModal(BaseMessageBoxEvent &evt);
 extern int ShowModal(const wxString &title, const wxString &content, const MsgButtons &buttons);
 }
+
+extern wxString pxGetAppName();

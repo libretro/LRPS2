@@ -38,9 +38,9 @@
 #include <wx/intl.h>
 #include <wx/stdpaths.h>
 #include <memory>
-
+#if wxUSE_GUI
 using namespace pxSizerFlags;
-
+#endif
 void Pcsx2App::DetectCpuAndUserMode()
 {
 	AffinityAssert_AllowFrom_MainUI();
@@ -168,52 +168,62 @@ void Pcsx2App::AllocateCoreStuffs()
 			// HadSomeFailures only returns 'true' if an *enabled* cpu type fails to init.  If
 			// the user already has all interps configured, for example, then no point in
 			// popping up this dialog.
-			
+#if wxUSE_GUI
 			wxDialogWithHelpers exconf( NULL, _("PCSX2 Recompiler Error(s)") );
 
 			wxTextCtrl* scrollableTextArea = new wxTextCtrl(
 				&exconf, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize,
 				wxTE_READONLY | wxTE_MULTILINE | wxTE_WORDWRAP
 			);
-
 			exconf += 12;
 			exconf += exconf.Heading( pxE( L"Warning: Some of the configured PS2 recompilers failed to initialize and have been disabled:" )
 			);
 
 			exconf += 6;
 			exconf += scrollableTextArea	| pxExpand.Border(wxALL, 16);
+#endif
 			
 			Pcsx2Config::RecompilerOptions& recOps = g_Conf->EmuOptions.Cpu.Recompiler;
 			
 			if( BaseException* ex = m_CpuProviders->GetException_EE() )
 			{
+#if wxUSE_GUI
 				scrollableTextArea->AppendText( L"* R5900 (EE)\n\t" + ex->FormatDisplayMessage() + L"\n\n" );
+#endif
 				recOps.EnableEE		= false;
 			}
 
 			if( BaseException* ex = m_CpuProviders->GetException_IOP() )
 			{
+#if wxUSE_GUI
 				scrollableTextArea->AppendText( L"* R3000A (IOP)\n\t"  + ex->FormatDisplayMessage() + L"\n\n" );
+#endif
 				recOps.EnableIOP	= false;
 			}
 
 			if( BaseException* ex = m_CpuProviders->GetException_MicroVU0() )
 			{
+#if wxUSE_GUI
 				scrollableTextArea->AppendText( L"* microVU0\n\t" + ex->FormatDisplayMessage() + L"\n\n" );
+#endif
 				recOps.UseMicroVU0	= false;
 				recOps.EnableVU0	= false;
 			}
 
 			if( BaseException* ex = m_CpuProviders->GetException_MicroVU1() )
 			{
+#if wxUSE_GUI
 				scrollableTextArea->AppendText( L"* microVU1\n\t" + ex->FormatDisplayMessage() + L"\n\n" );
+#endif
 				recOps.UseMicroVU1	= false;
 				recOps.EnableVU1	= false;
 			}
 
+#if wxUSE_GUI
 			exconf += exconf.Heading(pxE( L"Note: Recompilers are not necessary for PCSX2 to run, however they typically improve emulation speed substantially. You may have to manually re-enable the recompilers listed above, if you resolve the errors." ));
 #ifndef __LIBRETRO__
 			pxIssueConfirmation( exconf, MsgButtons().OK() );
+#endif
 #endif
 		}
 	}
@@ -458,7 +468,9 @@ bool Pcsx2App::OnInit()
 	pxDoOutOfMemory	= SysOutOfMemory_EmergencyResponse;
 
 	g_Conf = std::make_unique<AppConfig>();
-    wxInitAllImageHandlers();
+#if wxUSE_GUI
+   wxInitAllImageHandlers();
+#endif
 
 	Console.WriteLn("Applying operating system default language...");
 	{
@@ -711,7 +723,9 @@ void Pcsx2App::CleanupOnExit()
 
 void Pcsx2App::CleanupResources()
 {
+#if wxUSE_GUI
 	ScopedBusyCursor cursor( Cursor_ReallyBusy );
+#endif
 	//delete wxConfigBase::Set( NULL );
 
 	while( wxGetLocale() != NULL )

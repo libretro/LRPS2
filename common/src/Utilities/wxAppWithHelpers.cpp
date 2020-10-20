@@ -18,12 +18,15 @@
 
 #include "ThreadingInternal.h"
 #include "PersistentThread.h"
-
+#if wxUSE_GUI
 wxDEFINE_EVENT(pxEvt_StartIdleEventTimer, wxCommandEvent);
 wxDEFINE_EVENT(pxEvt_DeleteObject, wxCommandEvent);
 wxDEFINE_EVENT(pxEvt_DeleteThread, wxCommandEvent);
+#endif
 wxDEFINE_EVENT(pxEvt_InvokeAction, pxActionEvent);
+#if wxUSE_GUI
 wxDEFINE_EVENT(pxEvt_SynchronousCommand, pxSynchronousCommandEvent);
+#endif
 
 wxIMPLEMENT_DYNAMIC_CLASS(pxSimpleEvent, wxEvent);
 
@@ -38,14 +41,14 @@ ConsoleLogSource_App::ConsoleLogSource_App()
 }
 
 ConsoleLogSource_App pxConLog_App;
-
+#if wxUSE_GUI
 void BaseDeletableObject::DoDeletion()
 {
     wxAppWithHelpers *app = wxDynamicCast(wxApp::GetInstance(), wxAppWithHelpers);
     pxAssert(app != NULL);
     app->DeleteObject(*this);
 }
-
+#endif
 
 // --------------------------------------------------------------------------------------
 //  SynchronousActionState Implementations
@@ -152,7 +155,7 @@ void pxActionEvent::SetException(BaseException *ex)
 
     m_state->SetException(ex);
 }
-
+#if wxUSE_GUI
 // --------------------------------------------------------------------------------------
 //  pxSynchronousCommandEvent
 // --------------------------------------------------------------------------------------
@@ -211,7 +214,7 @@ void pxSynchronousCommandEvent::SetException(BaseException *ex)
 
     m_sync->SetException(ex);
 }
-
+#endif
 // --------------------------------------------------------------------------------------
 //  pxRpcEvent
 // --------------------------------------------------------------------------------------
@@ -449,7 +452,7 @@ void pxActionEvent::_DoInvokeEvent()
     if (m_state)
         m_state->PostResult();
 }
-
+#if wxUSE_GUI
 void wxAppWithHelpers::OnSynchronousCommand(pxSynchronousCommandEvent &evt)
 {
     AffinityAssert_AllowFrom_MainUI();
@@ -468,23 +471,24 @@ void wxAppWithHelpers::OnSynchronousCommand(pxSynchronousCommandEvent &evt)
     if (Semaphore *sema = evt.GetSemaphore())
         sema->Post();
 }
-
+#endif
 void wxAppWithHelpers::AddIdleEvent(const wxEvent &evt)
 {
     ScopedLock lock(m_IdleEventMutex);
+#if wxUSE_GUI
     if (m_IdleEventQueue.empty())
         PostEvent(wxCommandEvent(pxEvt_StartIdleEventTimer));
-
+#endif
     m_IdleEventQueue.push_back(evt.Clone());
 }
-
+#if wxUSE_GUI
 void wxAppWithHelpers::OnStartIdleEventTimer(wxCommandEvent &evt)
 {
     ScopedLock lock(m_IdleEventMutex);
     if (!m_IdleEventQueue.empty())
         m_IdleEventTimer.Start(100, true);
 }
-
+#endif
 void wxAppWithHelpers::IdleEventDispatcher(const wxChar *action)
 {
     // Recursion is possible thanks to modal dialogs being issued from the idle event handler.
@@ -505,15 +509,17 @@ void wxAppWithHelpers::IdleEventDispatcher(const wxChar *action)
         m_IdleEventQueue.erase(node);
 
         lock.Release();
+#if wxUSE_GUI
         if (!Threading::AllowDeletions() && (deleteMe->GetEventType() == pxEvt_DeleteThread)) {
             // Threads that have active semaphores or mutexes (other threads are waiting on them) cannot
             // be deleted because those mutex/sema objects will become invalid and cause the pending
             // thread to crash.  So we disallow deletions when those waits are in action, and continue
             // to postpone the deletion of the thread until such time that it is safe.
-
             pxThreadLog.Write(((pxThread *)((wxCommandEvent *)deleteMe.get())->GetClientData())->GetName(), L"Deletion postponed due to mutex or semaphore dependency.");
             postponed.push_back(deleteMe.release());
-        } else {
+        } else
+#endif
+        {
             pxAppLog.Write(L"(AppIdleQueue%s) Dispatching event '%s'", action, deleteMe->GetClassInfo()->GetClassName());
             ProcessEvent(*deleteMe); // dereference to prevent auto-deletion by ProcessEvent
         }
@@ -545,7 +551,7 @@ void wxAppWithHelpers::Ping()
     AddIdleEvent(evt);
     sync.WaitForResult();
 }
-
+#if wxUSE_GUI
 void wxAppWithHelpers::PostCommand(void *clientData, int evtType, int intParam, long longParam, const wxString &stringParam)
 {
     wxCommandEvent evt(evtType);
@@ -555,12 +561,12 @@ void wxAppWithHelpers::PostCommand(void *clientData, int evtType, int intParam, 
     evt.SetString(stringParam);
     AddPendingEvent(evt);
 }
-
 void wxAppWithHelpers::PostCommand(int evtType, int intParam, long longParam, const wxString &stringParam)
 {
     PostCommand(NULL, evtType, intParam, longParam, stringParam);
 }
-
+#endif
+#if wxUSE_GUI
 sptr wxAppWithHelpers::ProcessCommand(void *clientData, int evtType, int intParam, long longParam, const wxString &stringParam)
 {
     SynchronousActionState sync;
@@ -575,11 +581,11 @@ sptr wxAppWithHelpers::ProcessCommand(void *clientData, int evtType, int intPara
 
     return sync.return_value;
 }
-
 sptr wxAppWithHelpers::ProcessCommand(int evtType, int intParam, long longParam, const wxString &stringParam)
 {
     return ProcessCommand(NULL, evtType, intParam, longParam, stringParam);
 }
+#endif
 
 void wxAppWithHelpers::PostAction(const pxActionEvent &evt)
 {
@@ -597,7 +603,7 @@ void wxAppWithHelpers::ProcessAction(pxActionEvent &evt)
         evt._DoInvokeEvent();
 }
 
-
+#if wxUSE_GUI
 void wxAppWithHelpers::DeleteObject(BaseDeletableObject &obj)
 {
     pxAssert(!obj.IsBeingDeleted());
@@ -613,17 +619,19 @@ void wxAppWithHelpers::DeleteThread(pxThread &obj)
     evt.SetClientData((void *)&obj);
     AddIdleEvent(evt);
 }
-
+#endif
 bool wxAppWithHelpers::OnInit()
 {
+#if wxUSE_GUI
     Bind(pxEvt_SynchronousCommand, &wxAppWithHelpers::OnSynchronousCommand, this);
+#endif
     Bind(pxEvt_InvokeAction, &wxAppWithHelpers::OnInvokeAction, this);
-
+#if wxUSE_GUI
     Bind(pxEvt_StartIdleEventTimer, &wxAppWithHelpers::OnStartIdleEventTimer, this);
 
     Bind(pxEvt_DeleteObject, &wxAppWithHelpers::OnDeleteObject, this);
     Bind(pxEvt_DeleteThread, &wxAppWithHelpers::OnDeleteThread, this);
-
+#endif
     Bind(wxEVT_IDLE, &wxAppWithHelpers::OnIdleEvent, this);
 
     Bind(wxEVT_TIMER, &wxAppWithHelpers::OnIdleEventTimeout, this, m_IdleEventTimer.GetId());
@@ -635,14 +643,14 @@ void wxAppWithHelpers::OnInvokeAction(pxActionEvent &evt)
 {
     evt._DoInvokeEvent(); // wow this is easy!
 }
-
+#if wxUSE_GUI
 void wxAppWithHelpers::OnDeleteObject(wxCommandEvent &evt)
 {
     if (evt.GetClientData() == NULL)
         return;
     delete (BaseDeletableObject *)evt.GetClientData();
 }
-
+#endif
 // In theory we create a Pcsx2App object which inherit from wxAppWithHelpers,
 // so Pcsx2App::CreateTraits must be used instead.
 //
@@ -654,7 +662,7 @@ wxAppTraits *wxAppWithHelpers::CreateTraits()
 {
     return new Pcsx2AppTraits;
 }
-
+#if wxUSE_GUI
 // Threads have their own deletion handler that propagates exceptions thrown by the thread to the UI.
 // (thus we have a fairly automatic threaded exception system!)
 void wxAppWithHelpers::OnDeleteThread(wxCommandEvent &evt)
@@ -668,7 +676,7 @@ void wxAppWithHelpers::OnDeleteThread(wxCommandEvent &evt)
     pxThreadLog.Write(thr->GetName(), wxString(wxString(L"Thread object deleted successfully") + (thr->HasPendingException() ? L" [exception pending!]" : L"")).wc_str());
     thr->RethrowException();
 }
-
+#endif
 wxAppWithHelpers::wxAppWithHelpers()
     : m_IdleEventTimer(this)
 {
@@ -681,4 +689,10 @@ wxAppWithHelpers::wxAppWithHelpers()
     static thread_local int tls_insurance = 0;
     tls_insurance = 1;
 #endif
+}
+
+wxString pxGetAppName()
+{
+    pxAssert(wxTheApp);
+    return wxTheApp->GetAppName();
 }

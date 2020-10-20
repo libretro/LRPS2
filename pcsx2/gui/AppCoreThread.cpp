@@ -19,9 +19,9 @@
 #include "AppGameDatabase.h"
 
 #include <wx/stdpaths.h>
-
+#if wxUSE_GUI
 #include "Debugger/DisassemblyDialog.h"
-
+#endif
 #include "Utilities/Threading.h"
 
 #include "ps2/BiosTools.h"

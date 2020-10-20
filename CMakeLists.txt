@@ -38,9 +38,9 @@ write_svnrev_h()
 if (LIBRETRO)
    set(CMAKE_BUILD_PO FALSE)
    set(BUILD_REPLAY_LOADERS FALSE)
-   add_definitions(-D__LIBRETRO__ -DDISABLE_RECORDING)
+#   add_definitions(-D__LIBRETRO__ -DDISABLE_RECORDING)
 #add_definitions(-D__LIBRETRO__ -DDISABLE_RECORDING -DwxUSE_UNICODE=0)
-#add_definitions(-D__LIBRETRO__ -DDISABLE_RECORDING -DwxUSE_GUI=0)
+add_definitions(-D__LIBRETRO__ -DDISABLE_RECORDING -DwxUSE_GUI=0)
 endif()
 
 if(NOT NO_TRANSLATION)
@@ -49,6 +49,10 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/locales")
     add_subdirectory(locales)
 endif()
 endif()
+
+#if(LIBRETRO)
+#   add_subdirectory(3rdparty/wxwidgets3.0)
+#endif()
 
 # make common
 if(common_libs)

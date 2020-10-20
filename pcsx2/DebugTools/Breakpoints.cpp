@@ -383,8 +383,9 @@ const std::vector<BreakPoint> CBreakPoints::GetBreakpoints()
 
 // including them earlier causes some ambiguities
 #include "App.h"
+#if wxUSE_GUI
 #include "Debugger/DisassemblyDialog.h"
-
+#endif
 void CBreakPoints::Update(u32 addr)
 {
 	bool resume = false;
@@ -402,8 +403,10 @@ void CBreakPoints::Update(u32 addr)
 	if (resume)
 		r5900Debug.resumeCpu();
 #ifndef __LIBRETRO__
+#if wxUSE_GUI
 	auto disassembly_window = wxGetApp().GetDisassemblyPtr();
 	if (disassembly_window) // make sure that valid pointer is recieved to prevent potential NULL dereference.
 		disassembly_window->update();
+#endif
 #endif
 }

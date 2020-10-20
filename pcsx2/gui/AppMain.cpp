@@ -33,7 +33,9 @@
 #include "Dialogs/ConfigurationDialog.h"
 #include "Dialogs/LogOptionsDialog.h"
 #endif
+#if wxUSE_GUI
 #include "Debugger/DisassemblyDialog.h"
+#endif
 #ifndef DISABLE_RECORDING
 #	include "Recording/InputRecordingControls.h"
 #	include "Recording/InputRecording.h"
@@ -1242,8 +1244,9 @@ void Pcsx2App::SysExecute( CDVD_SourceType cdvdsrc, const wxString& elf_override
 	DbgCon.WriteLn( Color_Gray, "(SysExecute) received." );
 
 	CoreThread.ResetQuick();
+#if wxUSE_GUI
 	symbolMap.Clear();
-
+#endif
 	CDVDsys_SetFile(CDVD_SourceType::Iso, g_Conf->CurrentIso );
 	CDVDsys_ChangeSource( cdvdsrc);
 

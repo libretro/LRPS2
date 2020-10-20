@@ -192,7 +192,7 @@ wxString Path::GetRootDirectory(const wxString &src)
     else
         return wxString(src.begin(), src.begin() + pos);
 }
-
+#if wxUSE_GUI
 // ------------------------------------------------------------------------
 // Launches the specified file according to its mime type
 //
@@ -221,3 +221,4 @@ void pxExplore(const char *path)
 {
     pxExplore(fromUTF8(path));
 }
+#endif

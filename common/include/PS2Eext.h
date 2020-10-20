@@ -33,8 +33,12 @@
 #elif defined(__unix__)
 
 #include <cstring>
+#include <wx/defs.h>
+#if wxUSE_GUI
 #include <wx/msgdlg.h>
-
+#else
+#include "Utilities/Console.h"
+#endif
 #define EXPORT_C_(type) extern "C" __attribute__((stdcall, externally_visible, visibility("default"))) type
 
 #else
@@ -211,12 +215,15 @@ static void SysMessage(const char *fmt, ...)
     va_start(list, fmt);
     vsprintf(msg, fmt, list);
     va_end(list);
-
     if (msg[strlen(msg) - 1] == '\n')
         msg[strlen(msg) - 1] = 0;
 
+#if wxUSE_GUI
     wxMessageDialog dialog(nullptr, msg, "Info", wxOK);
     dialog.ShowModal();
+#else
+    Console.WriteLn(msg);
+#endif
 }
 
 #define ENTRY_POINT /* We don't need no stinkin' entry point! */

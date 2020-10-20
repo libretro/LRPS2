@@ -25,9 +25,10 @@
 
 #include "AppCommon.h"
 #include "AppCoreThread.h"
+#if wxUSE_GUI
 #include "RecentIsoList.h"
 #include "DriveList.h"
-
+#endif
 #ifndef DISABLE_RECORDING
 #	include "Recording/VirtualPad/VirtualPad.h"
 #	include "Recording/NewRecordingFrame.h"
@@ -561,9 +562,9 @@ protected:
 	wxWindowID			m_id_VirtualPad[2];
 	wxWindowID			m_id_NewRecordingFrame;
 #endif
-
+#if wxUSE_GUI
 	wxKeyEvent			m_kevt;
-
+#endif
 public:
 	Pcsx2App();
 	virtual ~Pcsx2App();
@@ -581,11 +582,11 @@ public:
 	
 	GSFrame&			GetGsFrame() const;
 	MainEmuFrame&		GetMainFrame() const;
-
+#if wxUSE_GUI
 	GSFrame*			GetGsFramePtr() const		{ return (GSFrame*)wxWindow::FindWindowById( m_id_GsFrame ); }
 	MainEmuFrame*		GetMainFramePtr() const		{ return (MainEmuFrame*)wxWindow::FindWindowById( m_id_MainFrame ); }
 	DisassemblyDialog*	GetDisassemblyPtr() const	{ return (DisassemblyDialog*)wxWindow::FindWindowById(m_id_Disassembler); }
-
+#endif
 #ifndef DISABLE_RECORDING
 	VirtualPad*			GetVirtualPadPtr(int port) const	{ return (VirtualPad*)wxWindow::FindWindowById(m_id_VirtualPad[port]); }
 	NewRecordingFrame*	GetNewRecordingFramePtr() const		{ return (NewRecordingFrame*)wxWindow::FindWindowById(m_id_NewRecordingFrame); }
@@ -594,13 +595,14 @@ public:
 	void enterDebugMode();
 	void leaveDebugMode();
 	void resetDebugger();
-
+#if wxUSE_GUI
 	bool HasMainFrame() const	{ return GetMainFramePtr() != NULL; }
 
 	void OpenGsPanel();
 	void CloseGsPanel();
 	void OnGsFrameClosed( wxWindowID id );
 	void OnMainFrameClosed( wxWindowID id );
+#endif
 
 	// --------------------------------------------------------------------------
 	//  Startup / Shutdown Helpers
@@ -743,7 +745,7 @@ wxDECLARE_APP(Pcsx2App);
 //
 #define sApp \
 	if( Pcsx2App* __app_ = (Pcsx2App*)wxApp::GetInstance() ) (*__app_)
-
+#if wxUSE_GUI
 #define sLogFrame \
 	if( ConsoleLogFrame* __conframe_ = wxGetApp().GetProgramLog() ) (*__conframe_)
 
@@ -807,7 +809,7 @@ int AppOpenModalDialog(wxString panel_name, wxWindow* parent = NULL)
 	} else
 		return DialogType(parent).ShowModal();
 }
-
+#endif
 extern pxDoAssertFnType AppDoAssert;
 
 // --------------------------------------------------------------------------------------

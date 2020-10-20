@@ -15,7 +15,9 @@
 
 #include "PrecompiledHeader.h"
 #include "App.h"
+#if wxUSE_GUI
 #include "MainFrame.h"
+#endif
 #include "Plugins.h"
 
 #include "MemoryCardFile.h"
@@ -506,12 +508,14 @@ bool IsPortable()
 }
 
 AppConfig::AppConfig()
-	: MainGuiPosition( wxDefaultPosition )
-	, SysSettingsTabName( L"Cpu" )
+	: SysSettingsTabName( L"Cpu" )
 	, McdSettingsTabName( L"none" )
 	, ComponentsTabName( L"Plugins" )
 	, AppSettingsTabName( L"none" )
 	, GameDatabaseTabName( L"none" )
+#if wxUSE_GUI
+	, MainGuiPosition( wxDefaultPosition )
+#endif
 {
 	LanguageId			= wxLANGUAGE_DEFAULT;
 	LanguageCode		= L"default";
@@ -623,7 +627,9 @@ void AppConfig::LoadSaveMemcards( IniInterface& ini )
 
 void AppConfig::LoadSaveRootItems( IniInterface& ini )
 {
+#if wxUSE_GUI
 	IniEntry( MainGuiPosition );
+#endif
 	IniEntry( SysSettingsTabName );
 	IniEntry( McdSettingsTabName );
 	IniEntry( ComponentsTabName );
@@ -667,8 +673,9 @@ void AppConfig::LoadSave( IniInterface& ini )
 	LoadSaveMemcards( ini );
 
 	// Process various sub-components:
+#if wxUSE_GUI
 	ProgLogBox		.LoadSave( ini, L"ProgramLog" );
-
+#endif
 	Folders			.LoadSave( ini );
 	BaseFilenames	.LoadSave( ini );
 	GSWindow		.LoadSave( ini );
@@ -680,7 +687,7 @@ void AppConfig::LoadSave( IniInterface& ini )
 
 	ini.Flush();
 }
-
+#if wxUSE_GUI
 // ------------------------------------------------------------------------
 AppConfig::ConsoleLogOptions::ConsoleLogOptions()
 	: DisplayPosition( wxDefaultPosition )
@@ -703,7 +710,7 @@ void AppConfig::ConsoleLogOptions::LoadSave( IniInterface& ini, const wxChar* lo
 	IniEntry( FontSize );
 	IniEntry( Theme );
 }
-
+#endif
 void AppConfig::FolderOptions::ApplyDefaults()
 {
 	if( UseDefaultBios )		Bios		  = PathDefs::GetBios();
@@ -830,9 +837,10 @@ AppConfig::GSWindowOptions::GSWindowOptions()
 	StretchY				= 100;
 	OffsetX					= 0;
 	OffsetY					= 0;
-
+#if wxUSE_GUI
 	WindowSize				= wxSize( 640, 480 );
 	WindowPos				= wxDefaultPosition;
+#endif
 	IsMaximized				= false;
 	IsFullscreen			= false;
 	EnableVsyncWindowFlag	= false;
@@ -843,7 +851,7 @@ AppConfig::GSWindowOptions::GSWindowOptions()
 void AppConfig::GSWindowOptions::SanityCheck()
 {
 	// Ensure Conformation of various options...
-
+#if wxUSE_GUI
 	WindowSize.x = std::max( WindowSize.x, 8 );
 	WindowSize.x = std::min( WindowSize.x, wxGetDisplayArea().GetWidth()-16 );
 
@@ -854,7 +862,7 @@ void AppConfig::GSWindowOptions::SanityCheck()
 	// move into view:
 	if( !wxGetDisplayArea().Contains( wxRect( WindowPos, wxSize( 48,48 ) ) ) )
 		WindowPos = wxDefaultPosition;
-
+#endif
 	if( (uint)AspectRatio >= (uint)AspectRatio_MaxCount )
 		AspectRatio = AspectRatio_4_3;
 }
@@ -868,9 +876,10 @@ void AppConfig::GSWindowOptions::LoadSave( IniInterface& ini )
 	IniEntry( AlwaysHideMouse );
 	IniEntry( DisableResizeBorders );
 	IniEntry( DisableScreenSaver );
-
+#if wxUSE_GUI
 	IniEntry( WindowSize );
 	IniEntry( WindowPos );
+#endif
 	IniEntry( IsMaximized );
 	IniEntry( IsFullscreen );
 	IniEntry( EnableVsyncWindowFlag );
@@ -989,7 +998,7 @@ int AppConfig::GetMaxPresetIndex()
 {
 	return 5;
 }
-
+#if wxUSE_GUI
 bool AppConfig::isOkGetPresetTextAndColor( int n, wxString& label, wxColor& c )
 {
 	const wxString presetNamesAndColors[][2] =
@@ -1009,7 +1018,7 @@ bool AppConfig::isOkGetPresetTextAndColor( int n, wxString& label, wxColor& c )
 
     return true;
 }
-
+#endif
 
 // Apply one of several (currently 6) configuration subsets.
 // The scope of the subset which each preset controlls is hardcoded here.

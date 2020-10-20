@@ -16,9 +16,9 @@
 #include "PrecompiledHeader.h"
 #include "App.h"
 #include <memory>
-
+#if wxUSE_GUI
 using namespace pxSizerFlags;
-
+#endif
 // --------------------------------------------------------------------------------------
 //  ConsoleLogSource_Event  (implementations)
 // --------------------------------------------------------------------------------------

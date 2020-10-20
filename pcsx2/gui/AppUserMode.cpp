@@ -14,7 +14,10 @@
  */
 
 #include "PrecompiledHeader.h"
+#include "App.h"
+#if wxUSE_GUI
 #include "MainFrame.h"
+#endif
 #include "Utilities/IniInterface.h"
 #ifndef __LIBRETRO__
 #include "Dialogs/ModalPopups.h"

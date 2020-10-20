@@ -119,6 +119,7 @@ enum MemoryCardType
 class AppConfig
 {
 public:
+#if wxUSE_GUI
 	// ------------------------------------------------------------------------
 	struct ConsoleLogOptions
 	{
@@ -138,7 +139,7 @@ public:
 		ConsoleLogOptions();
 		void LoadSave( IniInterface& conf, const wxChar* title );
 	};
-
+#endif
 	// ------------------------------------------------------------------------
 	struct FolderOptions
 	{
@@ -220,9 +221,10 @@ public:
 		Fixed100	OffsetX;
 		Fixed100	OffsetY;
 
-
+#if wxUSE_GUI
 		wxSize		WindowSize;
 		wxPoint		WindowPos;
+#endif
 		bool		IsMaximized;
 		bool		IsFullscreen;
 		bool		EnableVsyncWindowFlag;
@@ -280,8 +282,9 @@ public:
 	};
 
 public:
+#if wxUSE_GUI
 	wxPoint		MainGuiPosition;
-
+#endif
 	// Because remembering the last used tab on the settings panel is cool (tab is remembered
 	// by it's UTF/ASCII name).
 	wxString	SysSettingsTabName;
@@ -345,8 +348,9 @@ public:
 	// slots (3 each)
 	McdOptions				Mcd[8];
 	wxString				GzipIsoIndexTemplate; // for quick-access index with gzipped ISO
-
+#if wxUSE_GUI
 	ConsoleLogOptions		ProgLogBox;
+#endif
 	FolderOptions			Folders;
 	FilenameOptions			BaseFilenames;
 	GSWindowOptions			GSWindow;
@@ -376,7 +380,9 @@ public:
 	void LoadSaveMemcards( IniInterface& ini );
 
 	static int  GetMaxPresetIndex();
+#if wxUSE_GUI
     static bool isOkGetPresetTextAndColor(int n, wxString& label, wxColor& c);
+#endif
 	
 	bool        IsOkApplyPreset(int n, bool ignoreMTVU);
 

@@ -14,7 +14,10 @@
  */
 
 #include "PrecompiledHeader.h"
+#include "App.h"
+#if wxUSE_GUI
 #include "MainFrame.h"
+#endif
 #include "AppGameDatabase.h"
 
 #include <wx/zipstrm.h>
@@ -23,7 +26,7 @@
 #include <memory>
 
 #include "MSWstuff.h"
-
+#if wxUSE_GUI
 #include "Utilities/EmbeddedImage.h"
 #include "Resources/BackgroundLogo.h"
 #include "Resources/ButtonIcon_Camera.h"
@@ -39,6 +42,7 @@
 #include "Resources/AppIcon16.h"
 #include "Resources/AppIcon32.h"
 #include "Resources/AppIcon64.h"
+#endif
 #ifndef __LIBRETRO__
 RecentIsoList::RecentIsoList(int firstIdForMenuItems_or_wxID_ANY)
 {
@@ -50,6 +54,7 @@ RecentIsoList::RecentIsoList(int firstIdForMenuItems_or_wxID_ANY)
 	Manager = std::unique_ptr<RecentIsoManager>(new RecentIsoManager( Menu.get(), firstIdForMenuItems_or_wxID_ANY ));
 }
 #endif
+
 pxAppResources::pxAppResources()
 {
 }

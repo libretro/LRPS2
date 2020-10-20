@@ -16,8 +16,9 @@
 #include "PrecompiledHeader.h"
 #include "App.h"
 #include "AppSaveStates.h"
+#if wxUSE_GUI
 #include "GSFrame.h"
-
+#endif
 #include <wx/dir.h>
 #include <wx/file.h>
 

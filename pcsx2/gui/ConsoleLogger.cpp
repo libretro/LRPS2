@@ -15,7 +15,9 @@
 
 #include "PrecompiledHeader.h"
 #include "App.h"
+#if wxUSE_GUI
 #include "MainFrame.h"
+#endif
 #include "ConsoleLogger.h"
 #include "MSWstuff.h"
 
@@ -96,7 +98,7 @@ void ConsoleTestThread::ExecuteTaskInThread()
 		Yield( 0 );
 	}
 }
-#endif
+
 // ----------------------------------------------------------------------------
 // Pass an uninitialized file object. The function will ask the user for the
 // filename and try to open it. It returns true on success (file was opened),
@@ -139,7 +141,7 @@ static bool OpenLogFile(wxFile& file, wxString& filename, wxWindow *parent)
 
 	return file.Create(filename);
 }
-#ifndef __LIBRETRO__
+
 // --------------------------------------------------------------------------------------
 //  ConsoleLogFrame::ColorArray  (implementations)
 // --------------------------------------------------------------------------------------
