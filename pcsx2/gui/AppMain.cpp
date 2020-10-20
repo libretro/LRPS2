@@ -433,16 +433,11 @@ wxMessageOutput* Pcsx2AppTraits::CreateMessageOutput()
 // --------------------------------------------------------------------------------------
 //  Pcsx2StandardPaths
 // --------------------------------------------------------------------------------------
+#ifndef __LIBRETRO__
 #ifdef wxUSE_STDPATHS
 class Pcsx2StandardPaths : public wxStandardPaths
 {
 public:
-#ifdef __LIBRETRO__
-	virtual wxString GetExecutablePath() const
-	{
-		return wxStandardPathsBase::GetExecutablePath();
-	}
-#endif
 	wxString GetResourcesDir() const
 	{
 		return Path::Combine( GetDataDir(), L"Langs" );
@@ -487,13 +482,6 @@ wxStandardPaths& Pcsx2AppTraits::GetStandardPaths()
 	return stdPaths;
 }
 #endif
-#ifdef __LIBRETRO__
-wxEventLoopBase* Pcsx2AppTraits::CreateEventLoop()
-{
-   return new wxEventLoop();
-//       return new wxGUIEventLoop();
-//       return new wxConsoleEventLoop();
-}
 #endif
 wxAppTraits* Pcsx2App::CreateTraits()
 {

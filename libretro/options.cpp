@@ -38,8 +38,7 @@ void SetVariables()
 {
 	if (optionsList->empty())
 		return;
-	if (optionsList->back().key)
-		optionsList->push_back({});
+	optionsList->push_back({});
 	environ_cb(RETRO_ENVIRONMENT_SET_VARIABLES, (void*)optionsList->data());
 }
 

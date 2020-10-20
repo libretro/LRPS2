@@ -8,6 +8,7 @@
 #include <libretro.h>
 #include <string>
 #include <thread>
+#include <wx/stdpaths.h>
 
 #include "GS.h"
 #include "options.h"
@@ -298,6 +299,8 @@ void retro_unload_game(void)
 	//	GetMTGS().FinishTaskInThread();
 	//	GetMTGS().ClosePlugin();
 	//	GetCoreThread().Suspend(true);
+	//		GetCoreThread().Cancel(true);
+	//		pcsx2->PrepForExit();
 }
 
 
@@ -447,3 +450,41 @@ void SysMessage(const char* fmt, ...)
 	vprintf(fmt, list);
 	va_end(list);
 }
+
+wxEventLoopBase* Pcsx2AppTraits::CreateEventLoop()
+{
+	return new wxEventLoop();
+// return new wxGUIEventLoop();
+// return new wxConsoleEventLoop();
+}
+
+#ifdef wxUSE_STDPATHS
+class Pcsx2StandardPaths : public wxStandardPaths
+{
+public:
+	virtual wxString GetExecutablePath() const
+	{
+		const char* system = ".";
+		environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
+		return Path::Combine(system, "pcsx2/PCSX2");
+	}
+	wxString GetResourcesDir() const
+	{
+		const char* system = ".";
+		environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
+		return Path::Combine(system, "Langs");
+	}
+	wxString GetUserLocalDataDir() const
+	{
+		const char* savedir = ".";
+		environ_cb(RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY, &savedir);
+		return Path::Combine(savedir, "pcsx2");
+	}
+};
+
+wxStandardPaths& Pcsx2AppTraits::GetStandardPaths()
+{
+	static Pcsx2StandardPaths stdPaths;
+	return stdPaths;
+}
+#endif
