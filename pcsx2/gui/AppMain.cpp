@@ -68,8 +68,15 @@
 #undef ECX
 #include <wx/osx/private.h>		// needed to implement the app!
 #endif
-
+#ifdef __LIBRETRO__
+Pcsx2App& wxGetApp() {
+   static Pcsx2App pcsx2;
+   return pcsx2;
+}
+#else
 wxIMPLEMENT_APP(Pcsx2App);
+#endif
+
 
 std::unique_ptr<AppConfig> g_Conf;
 

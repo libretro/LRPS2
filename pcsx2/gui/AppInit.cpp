@@ -819,9 +819,9 @@ void Pcsx2App::CleanUp()
 		fclose( emuLog );
 		emuLog = NULL;
 	}
-#endif
 
 	_parent::CleanUp();
+#endif
 }
 
 __fi wxString AddAppName( const wxChar* fmt )

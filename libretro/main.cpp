@@ -153,8 +153,9 @@ void retro_init(void)
 #endif
 	}
 
-	pcsx2 = new Pcsx2App;
-	wxApp::SetInstance(pcsx2);
+//	pcsx2 = new Pcsx2App;
+//	wxApp::SetInstance(pcsx2);
+	pcsx2 = &wxGetApp();
 #if 0
 	int argc = 0;
 	pcsx2->Initialize(argc, (wchar_t**)nullptr);
@@ -270,8 +271,6 @@ bool retro_load_game(const struct retro_game_info* game)
 	}
 	else
 	{
-		pcsx2->Startup.CdvdSource = CDVD_SourceType::NoDisc;
-		pcsx2->Startup.SysAutoRun = true;
 		g_Conf->CdvdSource = CDVD_SourceType::NoDisc;
 		pcsx2->SysExecute(CDVD_SourceType::NoDisc);
 	}

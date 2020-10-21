@@ -424,9 +424,14 @@ public:
 // =====================================================================================================
 //  Pcsx2App  -  main wxApp class
 // =====================================================================================================
+#if defined(__LIBRETRO__) && 0
+class Pcsx2App
+{
+#else
 class Pcsx2App : public wxAppWithHelpers
 {
 	typedef wxAppWithHelpers _parent;
+#endif
 
 	// ----------------------------------------------------------------------------
 	// Event Sources!
@@ -652,7 +657,7 @@ public:
 	// --------------------------------------------------------------------------
 	//  Overrides of wxApp virtuals:
 	// --------------------------------------------------------------------------
-	wxAppTraits* CreateTraits() override;
+	wxAppTraits* CreateTraits();
 	bool OnInit();
 	int  OnExit();
 	void CleanUp();
