@@ -20,6 +20,10 @@ set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL)
 find_package(PNG)
 find_package(Vtune)
+if(LIBRETRO)
+   set(wxWidgets_FOUND 1)
+   set(wxWidgets_USE_FILE 3rdparty/wxwidgets3.0/UsewxWidgets.cmake)
+else()
 # The requirement of wxWidgets is checked in SelectPcsx2Plugins module
 # Does not require the module (allow to compile non-wx plugins)
 # Force the unicode build (the variable is only supported on cmake 2.8.3 and above)
@@ -72,6 +76,7 @@ else()
 endif()
 
 find_package(wxWidgets COMPONENTS base core adv)
+endif()
 find_package(ZLIB)
 
 ## Use pcsx2 package to find module

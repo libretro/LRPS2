@@ -14,6 +14,8 @@
  */
 
 #pragma once
+#include "wx/windowid.h"
+
 #if wxUSE_GUI
 wxDECLARE_EVENT(pxEvt_StartIdleEventTimer, wxCommandEvent);
 wxDECLARE_EVENT(pxEvt_DeleteObject, wxCommandEvent);

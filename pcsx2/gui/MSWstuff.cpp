@@ -20,14 +20,14 @@
 #ifdef __WXMSW__
 #	include <wx/msw/wrapwin.h>		// needed for OutputDebugString
 #endif
-
+#if wxUSE_GUI
 void MSW_SetWindowAfter( WXWidget hwnd, WXWidget hwndAfter )
 {
 #ifdef __WXMSW__
 	SetWindowPos( (HWND)hwnd, (HWND)hwndAfter, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE );
 #endif
 }
-
+#endif
 // Text scales automatically on Windows but that's about it. The dialog widths
 // and images need to be scaled manually.
 float MSW_GetDPIScale()

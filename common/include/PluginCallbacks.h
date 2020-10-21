@@ -122,7 +122,7 @@ typedef int BOOL;
 // on its HWND define that could be useful, and well it's probably good practice to use
 // platform available defines when they exist.
 //
-#if defined(_WX_DEFS_H_)
+#if defined(_WX_DEFS_H_) && wxUSE_GUI
 typedef WXWidget PS2E_HWND;
 #elif defined(_WINDEF_)
 // For Windows let's use HWND, since it has some type strictness applied to it.

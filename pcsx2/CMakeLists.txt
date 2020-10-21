@@ -995,6 +995,9 @@ if(USE_VTUNE)
 endif()
 
 if(LIBRETRO)
+#   add_link_options(-fuse-ld=gold)
+#   add_link_options(-Wl,--gc-sections,--print-symbol-counts,sym.log)
+
    add_library(${Output} SHARED
      ${CMAKE_SOURCE_DIR}/libretro/main.cpp
      ${CMAKE_SOURCE_DIR}/libretro/options.cpp
@@ -1013,8 +1016,6 @@ if(LIBRETRO)
       set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
    endif()
 
-#   add_definitions(${pcsx2FinalFlags} -D__LIBRETRO__ -DDISABLE_RECORDING -DwxUSE_GUI=0)
-   add_definitions(${pcsx2FinalFlags} -D__LIBRETRO__)
    target_link_libraries(pcsx2_libretro PRIVATE ${pcsx2FinalLibs})
    if(PACKAGE_MODE)
        install(TARGETS ${Output} DESTINATION ${BIN_DIR})

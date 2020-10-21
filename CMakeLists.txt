@@ -50,9 +50,9 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/locales")
 endif()
 endif()
 
-#if(LIBRETRO)
-#   add_subdirectory(3rdparty/wxwidgets3.0)
-#endif()
+if(LIBRETRO)
+   add_subdirectory(3rdparty/wxwidgets3.0)
+endif()
 
 # make common
 if(common_libs)
