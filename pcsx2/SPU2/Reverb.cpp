@@ -52,7 +52,7 @@ StereoOut32 V_Core::DoReverb(const StereoOut32& Input)
 {
 	if (EffectsBufferSize <= 0)
 	{
-		return StereoOut32::Empty;
+		return StereoOut32(0, 0);
 	}
 
 	bool R = Cycles & 1;

@@ -169,10 +169,13 @@ void retro_init(void)
 	wxModule::RegisterModules();
 	wxModule::InitializeModules();
 #endif
+	pcsx2->OnInit();
 }
 
 void retro_deinit(void)
 {
+//	CoreThread.Cancel(true);
+//	pcsx2->PrepForExit();
 	pcsx2->OnExit();
 #ifdef PERF_TEST
 	perf_cb.perf_log();
@@ -240,7 +243,6 @@ bool retro_load_game(const struct retro_game_info* game)
 	//	pcsx2->Overrides.SettingsFolder = "";
 	//	pcsx2->Overrides.Gamefixes.Set( id, true);
 
-	pcsx2->CallOnInit();
 	g_Conf->EmuOptions.UseBOOT2Injection = true; // fastboot
 
 	if (game)
@@ -301,10 +303,9 @@ bool retro_load_game_special(unsigned game_type, const struct retro_game_info* i
 void retro_unload_game(void)
 {
 	//	GetMTGS().FinishTaskInThread();
-	//	GetMTGS().ClosePlugin();
-	//	GetCoreThread().Suspend(true);
-	//		GetCoreThread().Cancel(true);
-	//		pcsx2->PrepForExit();
+//		GetMTGS().ClosePlugin();
+		GetCoreThread().Suspend(true);
+//			GetCoreThread().Cancel(true);
 }
 
 
@@ -362,15 +363,6 @@ void retro_cheat_reset(void)
 void retro_cheat_set(unsigned index, bool enabled, const char* code)
 {
 }
-StereoOut32 StereoOut32::Empty(0, 0);
-StereoOut32* SndBuffer::m_buffer;
-s32 SndBuffer::m_size;
-__aligned(4) volatile s32 SndBuffer::m_rpos;
-__aligned(4) volatile s32 SndBuffer::m_wpos;
-bool SndBuffer::m_underrun_freeze;
-StereoOut32* SndBuffer::sndTempBuffer = nullptr;
-StereoOut16* SndBuffer::sndTempBuffer16 = nullptr;
-int SndBuffer::sndTempProgress = 0;
 
 int Interpolation = 4;
 int numSpeakers;

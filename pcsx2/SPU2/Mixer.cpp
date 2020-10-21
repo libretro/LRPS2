@@ -783,7 +783,7 @@ StereoOut32 Apply_Frequency_Response_Filter(StereoOut32& SoundStream)
 
 StereoOut32 Apply_Dealias_Filter(StereoOut32& SoundStream)
 {
-	static StereoOut32 Old = StereoOut32::Empty;
+	static StereoOut32 Old;
 
 	s32 l, r;
 
@@ -823,7 +823,7 @@ __forceinline
 			/*(PlayMode&4) ? StereoOut32::Empty : */ ApplyVolume(Cores[0].ReadInput(), Cores[0].InpVol),
 
 			// CDDA is on Core 1:
-			(PlayMode & 8) ? StereoOut32::Empty : ApplyVolume(Cores[1].ReadInput(), Cores[1].InpVol)};
+			(PlayMode & 8) ? StereoOut32(0, 0) : ApplyVolume(Cores[1].ReadInput(), Cores[1].InpVol)};
 
 	WaveDump::WriteCore(0, CoreSrc_Input, InputData[0]);
 	WaveDump::WriteCore(1, CoreSrc_Input, InputData[1]);
@@ -833,10 +833,10 @@ __forceinline
 	MixCoreVoices(VoiceData[0], 0);
 	MixCoreVoices(VoiceData[1], 1);
 
-	StereoOut32 Ext(Cores[0].Mix(VoiceData[0], InputData[0], StereoOut32::Empty));
+	StereoOut32 Ext(Cores[0].Mix(VoiceData[0], InputData[0], StereoOut32(0, 0)));
 
 	if ((PlayMode & 4) || (Cores[0].Mute != 0))
-		Ext = StereoOut32::Empty;
+		Ext = StereoOut32(0, 0);
 	else
 	{
 		Ext = clamp_mix(ApplyVolume(Ext, Cores[0].MasterVol));
