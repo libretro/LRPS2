@@ -170,7 +170,9 @@ bool Threading::Mutex::RecreateIfLocked()
 // other than the main thread.
 void Threading::Mutex::AcquireWithoutYield()
 {
+#ifndef __LIBRETRO__
     pxAssertMsg(!wxThread::IsMain(), "Unyielding mutex acquire issued from the main/gui thread.  Please use Acquire() instead.");
+#endif
     pthread_mutex_lock(&m_mutex);
 }
 
