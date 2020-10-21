@@ -143,6 +143,11 @@ include_directories(
     ${CMAKE_BINARY_DIR}/plugins/onepad/
 )
 
+if(NOT GTKn_FOUND)
+   include_directories(${GLIB_INCLUDE_DIRS})
+endif()
+
+
 ### Generate the resources files
 file(MAKE_DIRECTORY ${compiled_images})
 

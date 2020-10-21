@@ -16,10 +16,10 @@
 #endif /* __cplusplus */
 
 /* fill in with the string wxGetOsDescription() will return */
-#define WXWIN_OS_DESCRIPTION "Linux 5.6.8-arch1-1 x86_64"
+/* #define WXWIN_OS_DESCRIPTION */
 
 /* the installation location prefix from configure */
-#define wxINSTALL_PREFIX "/usr"
+/* #define wxINSTALL_PREFIX */
 
 /* Define to `int' if <sys/types.h> doesn't define.  */
 /* #undef gid_t */
@@ -84,9 +84,9 @@
 /*
  * Define to 1 for Unix[-like] system
  */
-#define wxUSE_UNIX 1
+/* #define wxUSE_UNIX */
 
-#define __UNIX__ 1
+/* #define __UNIX__ */
 
 /* #undef __AIX__ */
 /* #undef __BSD__ */
@@ -94,7 +94,7 @@
 /* #undef __EMX__ */
 /* #undef __FREEBSD__ */
 /* #undef __HPUX__ */
-#define __LINUX__ 1
+/* #define __LINUX__ */
 /* #undef __NETBSD__ */
 /* #undef __OPENBSD__ */
 /* #undef __OSF__ */
@@ -113,7 +113,7 @@
 /* #undef __ALPHA__ */
 
 /* NanoX (with wxX11) */
-#define wxUSE_NANOX 0
+/* #define wxUSE_NANOX */
 
 /* PowerPC Darwin & Mac OS X */
 /* #undef __POWERPC__ */
@@ -149,7 +149,7 @@
 /* --- start common options --- */
 
 #ifndef wxUSE_GUI
-    #define wxUSE_GUI 1
+    #define wxUSE_GUI 0
 #endif
 
 
@@ -820,7 +820,7 @@
 /*
  * Use GTK print for printing under GTK+ 2.10+
  */
-#define wxUSE_GTKPRINT 1
+#define wxUSE_GTKPRINT 0
 /*
  * Use GNOME VFS for MIME types
  */
@@ -836,11 +836,11 @@
 /*
  * Use libnotify library.
  */
-#define wxUSE_LIBNOTIFY 1
+#define wxUSE_LIBNOTIFY 0
 /*
  * Use libnotify 0.7+ API.
  */
-#define wxUSE_LIBNOTIFY_0_7 1
+#define wxUSE_LIBNOTIFY_0_7 0
 /*
  * Use libXpm
  */
@@ -861,7 +861,7 @@
 /*
  * Use OpenGL
  */
-#define wxUSE_OPENGL 1
+#define wxUSE_OPENGL 0
 
 /*
  * Use MS HTML Help via libmspack (Unix)

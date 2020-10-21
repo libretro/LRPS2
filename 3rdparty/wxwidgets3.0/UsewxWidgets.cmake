@@ -5,9 +5,20 @@ set(wxWidgets_LIBRARIES wxwidgets)
 set(wxWidgets_CXX_FLAGS)
 
 include_directories(SYSTEM ${wxWidgets_INCLUDE_DIRS})
-#add_definitions(-DWX_PRECOMP -DWXUSINGDLL -DwxUSE_GUI=0 -D_FILE_OFFSET_BITS=64)
 add_definitions(-DwxUSE_GUI=0 -D_FILE_OFFSET_BITS=64)
-#-D__WXGTK__
+if(UNIX)
+   add_definitions(-DwxUSE_UNIX -D__UNIX__)
+   if(APPLE)
+      add_definitions(-D__DARWIN__)
+   else()
+       add_definitions(-D__LINUX__)
+   endif()
+elseif(WIN32)
+   add_definitions(-D__WINDOWS__)
+   if(MINGW)
+      add_definitions(-D__GNUWIN32__)
+   endif()
+endif()
 
 
 

@@ -207,7 +207,7 @@ if(Windows)
         resource.h
         targetver.h
         )
-else()
+elseif(NOT LIBRETRO)
     LIST(APPEND GSdxSources
         Window/GSLinuxDialog.cpp
         Window/GSWndEGL.cpp
@@ -264,6 +264,9 @@ set(RESOURCE_FILES
 add_custom_glib_res("GSdxResources" "gsdx-res.xml" "GSdx_res" ${RESOURCE_FILES})
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+if(NOT GTKn_FOUND)
+   include_directories(${FREETYPE_INCLUDE_DIR_ft2build} ${FREETYPE_INCLUDE_DIR_freetype2} ${GLIB_INCLUDE_DIRS})
+endif()
 
 if(BUILTIN_GS)
     add_pcsx2_lib(${Output} "${GSdxFinalSources}" "${GSdxFinalLibs}" "${GSdxFinalFlags}")

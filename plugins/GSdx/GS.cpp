@@ -758,6 +758,7 @@ EXPORT_C GSconfigure()
 
 		theApp.Init();
 
+#ifndef __LIBRETRO__
 #ifdef _WIN32
 		GSDialog::InitCommonControls();
 		if(GSSettingsDlg().DoModal() == IDOK)
@@ -773,7 +774,7 @@ EXPORT_C GSconfigure()
 			// Force a reload of the gs state
 			theApp.SetCurrentRendererType(GSRendererType::Undefined);
 		}
-
+#endif
 #endif
 
 	} catch (GSDXRecoverableError)

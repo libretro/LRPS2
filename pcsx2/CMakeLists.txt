@@ -608,9 +608,12 @@ set(pcsx2LinuxSources
 	CDVD/Linux/IOCtlSrc.cpp
 	gui/CpuUsageProviderLnx.cpp
 	Linux/LnxConsolePipe.cpp
-	Linux/LnxKeyCodes.cpp
 	Linux/LnxFlatFileReader.cpp
-    )
+   )
+if(NOT LIBRETRO)
+   set(pcsx2LinuxSources ${pcsx2LinuxSources}
+      Linux/LnxKeyCodes.cpp)
+endif()
 
 set(pcsx2OSXSources
 	CDVD/Linux/DriveUtility.cpp
@@ -942,6 +945,8 @@ set(pcsx2FinalLibs
     x86emitter
     ${wxWidgets_LIBRARIES}
     ${GTK2_LIBRARIES}
+    ${GLIB_LIBRARIES}
+    ${GLIB_GIO_LIBRARIES}
     ${ZLIB_LIBRARIES}
     ${AIO_LIBRARIES}
     ${GCOV_LIBRARIES}

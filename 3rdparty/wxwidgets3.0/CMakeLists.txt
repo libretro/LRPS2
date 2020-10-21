@@ -4,6 +4,7 @@ set(wxUnixSources
    src/unix/dir.cpp
    src/unix/dlunix.cpp
    src/unix/evtloopunix.cpp
+   src/unix/epolldispatcher.cpp
    src/unix/fdiounix.cpp
    src/unix/stackwalk.cpp
    src/unix/stdpaths.cpp
@@ -13,7 +14,6 @@ set(wxUnixSources
    src/unix/wakeuppipe.cpp
    src/common/selectdispatcher.cpp
    src/common/fdiodispatcher.cpp
-   src/unix/epolldispatcher.cpp
    )
 endif()
 if(WIN32)
