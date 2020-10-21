@@ -682,15 +682,15 @@ public:
 	void DisableDiskLogging() const;
 	void OnProgramLogClosed( wxWindowID id );
 
+	void AllocateCoreStuffs();
+	void CleanupOnExit();
 protected:
 	bool AppRpc_TryInvoke( FnPtr_Pcsx2App method );
 	bool AppRpc_TryInvokeAsync( FnPtr_Pcsx2App method );
 
-	void AllocateCoreStuffs();
 	void InitDefaultGlobalAccelerators();
 	void BuildCommandHash();
 	bool TryOpenConfigCwd();
-	void CleanupOnExit();
 	void OpenWizardConsole();
 	void PadKeyDispatch( const keyEvent& ev );
 

@@ -38,8 +38,6 @@ static struct retro_perf_callback perf_cb;
 
 retro_environment_t environ_cb;
 retro_video_refresh_t video_cb;
-static retro_audio_sample_batch_t batch_cb;
-static retro_audio_sample_t sample_cb;
 struct retro_hw_render_callback hw_render;
 static ConsoleColors log_color = Color_Default;
 static retro_log_printf_t log_cb;
@@ -52,16 +50,7 @@ static Option test("pcsx2_test", "Test", false);
 // renderswitch - tells GSdx to go into dx9 sw if "renderswitch" is set.
 bool renderswitch = false;
 uint renderswitch_delay = 0;
-
-void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb)
-{
-	batch_cb = cb;
-}
-
-void retro_set_audio_sample(retro_audio_sample_t cb)
-{
-	sample_cb = cb;
-}
+static Pcsx2App* pcsx2;
 
 void retro_set_video_refresh(retro_video_refresh_t cb)
 {
@@ -122,18 +111,22 @@ static void RetroLog_DoWrite(const wxString& fmt)
 
 	log_cb(level, "%s", (const char*)fmt);
 }
+
 static void RetroLog_SetTitle(const wxString& title)
 {
 	RetroLog_DoWrite(title + L"\n");
 }
+
 static void RetroLog_Newline()
 {
 	//	RetroLog_DoWrite(L"\n");
 }
+
 static void RetroLog_DoWriteLn(const wxString& fmt)
 {
 	RetroLog_DoWrite(fmt + L"\n");
 }
+
 const IConsoleWriter ConsoleWriter_Libretro =
 	{
 		RetroLog_DoWrite,
@@ -147,7 +140,6 @@ const IConsoleWriter ConsoleWriter_Libretro =
 		0, // instance-level indentation (should always be 0)
 };
 
-static Pcsx2App* pcsx2;
 void retro_init(void)
 {
 	enum retro_pixel_format xrgb888 = RETRO_PIXEL_FORMAT_XRGB8888;
@@ -169,14 +161,21 @@ void retro_init(void)
 	wxModule::RegisterModules();
 	wxModule::InitializeModules();
 #endif
-	pcsx2->OnInit();
+
+	InitCPUTicks();
+	pxDoAssert = AppDoAssert;
+	pxDoOutOfMemory = SysOutOfMemory_EmergencyResponse;
+	g_Conf = std::make_unique<AppConfig>();
+	i18n_SetLanguage(wxLANGUAGE_DEFAULT);
+	i18n_SetLanguagePath();
+	pcsx2->DetectCpuAndUserMode();
+	pcsx2->AllocateCoreStuffs();
+	//	pcsx2->GetGameDatabase();
 }
 
 void retro_deinit(void)
 {
-//	CoreThread.Cancel(true);
-//	pcsx2->PrepForExit();
-	pcsx2->OnExit();
+	pcsx2->CleanupOnExit();
 #ifdef PERF_TEST
 	perf_cb.perf_log();
 #endif
@@ -243,6 +242,8 @@ bool retro_load_game(const struct retro_game_info* game)
 	//	pcsx2->Overrides.SettingsFolder = "";
 	//	pcsx2->Overrides.Gamefixes.Set( id, true);
 
+	// By default no IRX injection
+	g_Conf->CurrentIRX = "";
 	g_Conf->EmuOptions.UseBOOT2Injection = true; // fastboot
 
 	if (game)
@@ -303,9 +304,9 @@ bool retro_load_game_special(unsigned game_type, const struct retro_game_info* i
 void retro_unload_game(void)
 {
 	//	GetMTGS().FinishTaskInThread();
-//		GetMTGS().ClosePlugin();
-		GetCoreThread().Suspend(true);
-//			GetCoreThread().Cancel(true);
+	//		GetMTGS().ClosePlugin();
+	GetCoreThread().Suspend(true);
+	//			GetCoreThread().Cancel(true);
 }
 
 
@@ -386,7 +387,19 @@ int SynchMode;
 
 unsigned int delayCycles = 4;
 
+static retro_audio_sample_batch_t batch_cb;
+static retro_audio_sample_t sample_cb;
 static int write_pos = 0;
+
+void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb)
+{
+	batch_cb = cb;
+}
+
+void retro_set_audio_sample(retro_audio_sample_t cb)
+{
+	sample_cb = cb;
+}
 
 void SndBuffer::Write(const StereoOut32& Sample)
 {

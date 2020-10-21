@@ -459,7 +459,7 @@ bool Pcsx2App::OnInit()
 {
 #ifndef __LIBRETRO__
 	EnableAllLogging();
-#endif
+
 	Console.WriteLn("Interface is initializing.  Entering Pcsx2App::OnInit!");
 
 	InitCPUTicks();
@@ -485,10 +485,8 @@ bool Pcsx2App::OnInit()
 	Console.WriteLn("Command line parsed!");
 
 	i18n_SetLanguagePath();
-#ifndef __LIBRETRO__
 	Bind(wxEVT_KEY_DOWN, &Pcsx2App::OnEmuKeyDown, this, pxID_PadHandler_Keydown);
 	Bind(wxEVT_DESTROY, &Pcsx2App::OnDestroyWindow, this);
-#endif
 	// User/Admin Mode Dual Setup:
 	//   PCSX2 now supports two fundamental modes of operation.  The default is Classic mode,
 	//   which uses the Current Working Directory (CWD) for all user data files, and requires
@@ -502,37 +500,9 @@ bool Pcsx2App::OnInit()
 
 	try
 	{
-#ifdef __LIBRETRO__
 		DetectCpuAndUserMode();
 		AllocateCoreStuffs();
 		(new GameDatabaseLoaderThread())->Start();
-		// By default no IRX injection
-		g_Conf->CurrentIRX = "";
-		if( Startup.SysAutoRun )
-		{
-			g_Conf->EmuOptions.UseBOOT2Injection = !Startup.NoFastBoot;
-			g_Conf->CdvdSource = Startup.CdvdSource;
-			if (Startup.CdvdSource == CDVD_SourceType::Iso)
-				g_Conf->CurrentIso = Startup.IsoFile;
-			sApp.SysExecute( Startup.CdvdSource );
-			g_Conf->CurrentGameArgs = Startup.GameLaunchArgs;
-		}
-		else if ( Startup.SysAutoRunElf )
-		{
-			g_Conf->EmuOptions.UseBOOT2Injection = true;
-
-			sApp.SysExecute( Startup.CdvdSource, Startup.ElfFile );
-		}
-		else if (Startup.SysAutoRunIrx )
-		{
-			g_Conf->EmuOptions.UseBOOT2Injection = true;
-
-			g_Conf->CurrentIRX = Startup.ElfFile;
-
-			// FIXME: ElfFile is an irx it will crash
-			sApp.SysExecute( Startup.CdvdSource, Startup.ElfFile );
-		}
-#else
 		InitDefaultGlobalAccelerators();
 		delete wxLog::SetActiveTarget( new pxLogConsole() );
 
@@ -588,7 +558,6 @@ bool Pcsx2App::OnInit()
 			// FIXME: ElfFile is an irx it will crash
 			sApp.SysExecute( Startup.CdvdSource, Startup.ElfFile );
 		}
-#endif
 	}
 	// ----------------------------------------------------------------------------
 	catch( Exception::StartupAborted& ex )		// user-aborted, no popups needed.
@@ -599,9 +568,7 @@ bool Pcsx2App::OnInit()
 	}
 	catch( Exception::HardwareDeficiency& ex )
 	{
-#ifndef __LIBRETRO__
 		Msgbox::Alert( ex.FormatDisplayMessage() + L"\n\n" + AddAppName(_("Press OK to close %s.")), _("PCSX2 Error: Hardware Deficiency") );
-#endif
 		CleanupOnExit();
 		return false;
 	}
@@ -613,13 +580,12 @@ bool Pcsx2App::OnInit()
 	catch( Exception::RuntimeError& ex )
 	{
 		Console.Error( ex.FormatDiagnosticMessage() );
-#ifndef __LIBRETRO__
 		Msgbox::Alert( ex.FormatDisplayMessage() + L"\n\n" + AddAppName(_("Press OK to close %s.")),
 			AddAppName(_("%s Critical Error")), wxICON_ERROR );
-#endif
 		CleanupOnExit();
 		return false;
 	}
+#endif
     return true;
 }
 
