@@ -72,26 +72,6 @@ void retro_set_video_refresh(retro_video_refresh_t cb)
 void retro_set_environment(retro_environment_t cb)
 {
 	environ_cb = cb;
-	if (!Options::bios)
-	{
-		const char* system = nullptr;
-		environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
-		wxFileName bios_path = Path::Combine(system, "pcsx2/bios");
-		wxArrayString bioslist;
-		wxDir::GetAllFiles(bios_path.GetFullPath(), &bioslist, L"*.*", wxDIR_FILES);
-
-		std::vector<std::pair<std::string, std::string>> option_list;
-		for (wxString bios_file : bioslist)
-		{
-			wxString description;
-			if (IsBIOS(bios_file, description))
-				option_list.push_back({(const char*)description, (const char*)bios_file});
-		}
-		if (option_list.size())
-			Options::bios = std::make_unique<Options::Option<std::string>>("pcsx2_bios", "Bios", option_list);
-	}
-
-	Options::SetVariables();
 	bool no_game = true;
 	environ_cb(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &no_game);
 #ifdef PERF_TEST
@@ -209,6 +189,28 @@ void retro_init(void)
 	g_Conf->BaseFilenames.Plugins[PluginId_PAD] = "Built-in";
 	g_Conf->BaseFilenames.Plugins[PluginId_USB] = "Built-in";
 	g_Conf->BaseFilenames.Plugins[PluginId_DEV9] = "Built-in";
+
+	if (!Options::bios)
+	{
+		const char* system = nullptr;
+		environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
+		wxFileName bios_path = Path::Combine(system, "pcsx2/bios");
+		wxArrayString bioslist;
+		wxDir::GetAllFiles(bios_path.GetFullPath(), &bioslist, L"*.*", wxDIR_FILES);
+
+		std::vector<std::pair<std::string, std::string>> option_list;
+		for (wxString bios_file : bioslist)
+		{
+			wxString description;
+			if (IsBIOS(bios_file, description))
+				option_list.push_back({(const char*)description, (const char*)bios_file});
+		}
+		if (option_list.size())
+			Options::bios = std::make_unique<Options::Option<std::string>>("pcsx2_bios", "Bios", option_list);
+	}
+
+	Options::SetVariables();
+
 }
 
 void retro_deinit(void)
