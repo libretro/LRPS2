@@ -9,50 +9,72 @@ extern retro_environment_t environ_cb;
 
 namespace Options
 {
-void SetVariables();
-void CheckVariables();
-void Register(const char* id, const char* desc, bool* dirtyPtr);
-
-template <typename T>
-class Option
+class OptionBase
 {
 public:
+	void SetDirty() { m_dirty = true; }
+	virtual retro_variable getVariable() = 0;
+	virtual bool empty() = 0;
+
+protected:
+	OptionBase(const char* id, const char* name)
+		: m_id(id)
+		, m_name(name)
+	{
+		Register();
+	}
+
+	const char* m_id;
+	const char* m_name;
+	bool m_dirty = true;
+	std::string m_options;
+
+private:
+	void Register();
+};
+
+template <typename T>
+class Option : private OptionBase
+{
+public:
+	Option(const char* id, const char* name)
+		: OptionBase(id, name)
+	{
+	}
+
 	Option(const char* id, const char* name, T initial) = delete;
 
 	Option(const char* id, const char* name,
 		   std::vector<std::pair<std::string, T>> list)
-		: m_id(id)
-		, m_name(name)
+		: OptionBase(id, name)
 		, m_list(list.begin(), list.end())
 	{
-		Register();
 	}
 
 	Option(const char* id, const char* name, std::vector<const char*> list)
-		: m_id(id)
-		, m_name(name)
+		: OptionBase(id, name)
 	{
 		for (auto option : list)
 			m_list.push_back({option, (T)m_list.size()});
-		Register();
 	}
 	Option(const char* id, const char* name, T first,
 		   std::vector<const char*> list)
-		: m_id(id)
-		, m_name(name)
+		: OptionBase(id, name)
 	{
 		for (auto option : list)
 			m_list.push_back({option, first + (int)m_list.size()});
-		Register();
 	}
 
 	Option(const char* id, const char* name, T first, int count, int step = 1)
-		: m_id(id)
-		, m_name(name)
+		: OptionBase(id, name)
 	{
 		for (T i = first; i < first + count; i += step)
 			m_list.push_back({std::to_string(i), i});
-		Register();
+	}
+
+	void push_back(const char* name, T value)
+	{
+		m_list.push_back({name, value});
 	}
 
 	bool Updated()
@@ -82,6 +104,7 @@ public:
 				return true;
 			}
 		}
+
 		return false;
 	}
 
@@ -93,30 +116,39 @@ public:
 
 	T Get()
 	{
-		Updated();
-		return m_value;
+		return (T) * this;
 	}
 
 	template <typename S>
 	bool operator==(S value)
 	{
-		return (T)(*this) == value;
+		return (T) * this == value;
 	}
 
 	template <typename S>
 	bool operator!=(S value)
 	{
-		return (T)(*this) != value;
+		return (T) * this != value;
 	}
 
-private:
-	void Register();
+	virtual retro_variable getVariable() override
+	{
+		m_options = m_name;
+		m_options.push_back(';');
+		for (auto& option : m_list)
+		{
+			if (&option == &m_list.front())
+				m_options += std::string(" ") + option.first;
+			else
+				m_options += std::string("|") + option.first;
+		}
+		return {m_id, m_options.c_str()};
+	}
 
-	const char* m_id;
-	const char* m_name;
+	virtual bool empty() override { return m_list.empty(); }
+
+private:
 	T m_value;
-	bool m_dirty = true;
-	std::string m_options;
 	std::vector<std::pair<std::string, T>> m_list;
 };
 
@@ -125,9 +157,14 @@ Option<std::string>::Option(const char* id, const char* name,
 							std::vector<const char*> list);
 template <>
 Option<const char*>::Option(const char* id, const char* name,
-								   std::vector<const char*> list);
+							std::vector<const char*> list);
 
 template <>
 Option<bool>::Option(const char* id, const char* name, bool initial);
 
+
+void SetVariables();
+void CheckVariables();
+
+extern Option<int> upscale_multiplier;
 } // namespace Options

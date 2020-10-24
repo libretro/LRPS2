@@ -1,4 +1,3 @@
-#include "PrecompiledHeader.h"
 
 #include "PrecompiledHeader.h"
 
@@ -54,9 +53,9 @@ static retro_log_printf_t log_cb;
 
 namespace Options
 {
-static Option test("pcsx2_test", "Test", false);
-static Option fast_boot("pcsx2_fastboot", "Fast Boot", true);
-static std::unique_ptr<Option<std::string>> bios;
+static Option<bool> test("pcsx2_test", "Test", false);
+static Option<bool> fast_boot("pcsx2_fastboot", "Fast Boot", true);
+static Option<std::string> bios("pcsx2_bios", "Bios"); // will be filled in retro_init()
 } // namespace Options
 
 // renderswitch - tells GSdx to go into dx9 sw if "renderswitch" is set.
@@ -84,6 +83,7 @@ static void RetroLog_DoSetColor(ConsoleColors color)
 	if (color != Color_Current)
 		log_color = color;
 }
+
 static void RetroLog_DoWrite(const wxString& fmt)
 {
 	retro_log_level level = RETRO_LOG_INFO;
@@ -190,27 +190,24 @@ void retro_init(void)
 	g_Conf->BaseFilenames.Plugins[PluginId_USB] = "Built-in";
 	g_Conf->BaseFilenames.Plugins[PluginId_DEV9] = "Built-in";
 
-	if (!Options::bios)
+	if (Options::bios.empty())
 	{
 		const char* system = nullptr;
 		environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
-		wxFileName bios_path = Path::Combine(system, "pcsx2/bios");
-		wxArrayString bioslist;
-		wxDir::GetAllFiles(bios_path.GetFullPath(), &bioslist, L"*.*", wxDIR_FILES);
 
-		std::vector<std::pair<std::string, std::string>> option_list;
-		for (wxString bios_file : bioslist)
+		wxArrayString bios_list;
+		wxFileName bios_dir = Path::Combine(system, "pcsx2/bios");
+		wxDir::GetAllFiles(bios_dir.GetFullPath(), &bios_list, L"*.*", wxDIR_FILES);
+
+		for (wxString bios_file : bios_list)
 		{
 			wxString description;
 			if (IsBIOS(bios_file, description))
-				option_list.push_back({(const char*)description, (const char*)bios_file});
+				Options::bios.push_back((const char*)description, (const char*)bios_file);
 		}
-		if (option_list.size())
-			Options::bios = std::make_unique<Options::Option<std::string>>("pcsx2_bios", "Bios", option_list);
 	}
 
 	Options::SetVariables();
-
 }
 
 void retro_deinit(void)
@@ -245,13 +242,10 @@ void retro_get_system_info(retro_system_info* info)
 
 void retro_get_system_av_info(retro_system_av_info* info)
 {
-	//	info->geometry.base_width = 640;
-	//	info->geometry.base_height = 480;
-	info->geometry.base_width = 1280;
-	info->geometry.base_height = 896;
+	info->geometry.base_width = 640 * Options::upscale_multiplier;
+	info->geometry.base_height = 448 * Options::upscale_multiplier;
 
 	info->geometry.max_width = info->geometry.base_width;
-	//	info->geometry.max_height = 1280;
 	info->geometry.max_height = info->geometry.base_height;
 
 	info->geometry.aspect_ratio = 4.0f / 3.0f;
@@ -288,7 +282,7 @@ static void context_destroy()
 
 bool retro_load_game(const struct retro_game_info* game)
 {
-	if (!Options::bios)
+	if (Options::bios.empty())
 	{
 		log_cb(RETRO_LOG_ERROR, "Bios File not found!\n");
 		return false;
@@ -301,7 +295,7 @@ bool retro_load_game(const struct retro_game_info* game)
 
 	// By default no IRX injection
 	g_Conf->CurrentIRX = "";
-	g_Conf->BaseFilenames.Bios = Options::bios->Get();
+	g_Conf->BaseFilenames.Bios = Options::bios.Get();
 
 	u32 magic = 0;
 	if (game)
@@ -366,6 +360,16 @@ void retro_run(void)
 {
 	Options::CheckVariables();
 	Input::Update();
+
+	if (Options::upscale_multiplier.Updated())
+	{
+		retro_system_av_info av_info;
+		retro_get_system_av_info(&av_info);
+		environ_cb(RETRO_ENVIRONMENT_SET_SYSTEM_AV_INFO, &av_info);
+
+		GetMTGS().ClosePlugin();
+		GetMTGS().OpenPlugin();
+	}
 
 	RETRO_PERFORMANCE_INIT(pcsx2_run);
 	RETRO_PERFORMANCE_START(pcsx2_run);
@@ -439,10 +443,10 @@ void retro_set_audio_sample(retro_audio_sample_t cb)
 void SndBuffer::Write(const StereoOut32& Sample)
 {
 #if 0
-	static s16 snd_buffer[0x200 << 1];
+	static s16 snd_buffer[0x100 << 1];
 	snd_buffer[write_pos++] = Sample.Left >> 12;
 	snd_buffer[write_pos++] = Sample.Right >> 12;
-	if(write_pos == (0x200 << 1))
+	if(write_pos == (0x100 << 1))
 	{
 		batch_cb(snd_buffer, write_pos >> 1);
 		write_pos = 0;

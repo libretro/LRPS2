@@ -49,6 +49,12 @@ extern bool RunLinuxDialog();
 
 #ifdef __LIBRETRO__
 #include "Window/GSWndRetro.h"
+#include "options.h"
+namespace Options {
+Option<int> upscale_multiplier("pcsx2_upscale_multiplier", "Internal Resolution", 1,
+										 {"Native PS2", "2x Native ~720p", "3x Native ~1080p", "4x Native ~1440p 2K",
+										  "5x Native ~1620p 3K", "6x Native ~2160p 4K", "8x Native ~2880p 5K"});
+}
 #endif
 
 #define PS2E_LT_GS 0x01
@@ -435,6 +441,7 @@ EXPORT_C_(int) GSopen2(void** dsp, uint32 flags)
 //	theApp.SetCurrentRendererType(GSRendererType::Null);
 //	theApp.SetCurrentRendererType(GSRendererType::OGL_SW);
 	theApp.SetCurrentRendererType(GSRendererType::OGL_HW);
+	theApp.SetConfig("upscale_multiplier", Options::upscale_multiplier);
 #endif
 	auto current_renderer = theApp.GetCurrentRendererType();
 

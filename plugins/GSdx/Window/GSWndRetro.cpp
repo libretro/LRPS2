@@ -22,7 +22,7 @@
 #include "../stdafx.h"
 #include "GSWndRetro.h"
 #include <libretro.h>
-
+#include "options.h"
 
 extern struct retro_hw_render_callback hw_render;
 extern retro_video_refresh_t video_cb;
@@ -83,7 +83,8 @@ bool GSWndRetroGL::Create(const std::string& title, int w, int h)
 void* GSWndRetroGL::GetProcAddress(const char* name, bool opt)
 {
 	void* ptr = (void*)hw_render.get_proc_address(name);
-	if (ptr == nullptr) {
+	if (ptr == nullptr)
+	{
 		if (theApp.GetConfigB("debug_opengl"))
 			fprintf(stderr, "Failed to find %s\n", name);
 
@@ -95,8 +96,7 @@ void* GSWndRetroGL::GetProcAddress(const char* name, bool opt)
 
 GSVector4i GSWndRetroGL::GetClientRect()
 {
-//	return GSVector4i(0, 0, 640, 480);
-	return GSVector4i(0, 0, 1280, 896);
+	return GSVector4i(0, 0, 640 * Options::upscale_multiplier, 448 * Options::upscale_multiplier);
 }
 
 void GSWndRetroGL::SetSwapInterval()
@@ -105,9 +105,7 @@ void GSWndRetroGL::SetSwapInterval()
 
 void GSWndRetroGL::Flip()
 {
-//	video_cb(NULL, 0, 0, 0);
-//	video_cb(RETRO_HW_FRAME_BUFFER_VALID, 640, 480, 0);
-	video_cb(RETRO_HW_FRAME_BUFFER_VALID, 1280, 896, 0);
+	video_cb(RETRO_HW_FRAME_BUFFER_VALID, 640 * Options::upscale_multiplier, 448 * Options::upscale_multiplier, 0);
 }
 
 
@@ -157,13 +155,13 @@ void GSWndRetroDX::Detach()
 
 GSVector4i GSWndRetroDX::GetClientRect()
 {
-	//	return GSVector4i(0, 0, 640, 480);
-	return GSVector4i(0, 0, 1280, 896);
+	return GSVector4i(0, 0, 640 * Options::upscale_multiplier, 448 * Options::upscale_multiplier);
 }
 
 bool GSWndRetroDX::SetWindowText(const char* title)
 {
-	if(!m_managed) return false;
+	if (!m_managed)
+		return false;
 	return true;
 }
 #endif
