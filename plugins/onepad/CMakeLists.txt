@@ -11,7 +11,7 @@ set(linux_sources "Linux")
 set(linux_headers "Linux")
 set(wx_sources "wx_dialog")
 set(wx_headers "wx_dialog")
-
+if(NOT MSVC)
 set(onepadGuiResources
     ${compiled_images}/analog.h
     ${compiled_images}/circle.h
@@ -37,15 +37,16 @@ set(onepadGuiResources
     ${compiled_images}/arrow_left.h
     ${compiled_images}/arrow_right.h
     )
-
+endif()
 # plugin name
 set(Output onepad)
-
+if(NOT MSVC)
 set(onepadFinalFlags
     -fvisibility=hidden
     -Wall
     -Wno-parentheses
     )
+endif()
 if(LIBRETRO)
 # onepad sources
 set(onepadSources
@@ -55,8 +56,11 @@ set(onepadSources
 #    keyboard.cpp
 #    KeyStatus.cpp
     onepad.cpp
-    resources.cpp
     state_management.cpp)
+   if(NOT MSVC)
+   set(onepadSources ${onepadSources}
+       resources.cpp)
+   endif()
  # onepad headers
  set(onepadHeaders
      bitwise.h
@@ -66,8 +70,11 @@ set(onepadSources
 #     keyboard.h
      KeyStatus.h
      onepad.h
-     resources.h
      state_management.h)
+     if(NOT MSVC)
+     set(onepadHeaders ${onepadHeaders}
+        resources.h)
+     endif()
 else()
 # onepad sources
 set(onepadSources
@@ -118,9 +125,10 @@ set(onepadWindowsSources)
 # onepad Windows headers
 set(onepadWindowsHeaders)
 endif()
-
-set(onepadFinalLibs ${SDL2_LIBRARIES})
-add_definitions(-DSDL_BUILD)
+if(NOT LIBRETRO)
+   set(onepadFinalLibs ${SDL2_LIBRARIES})
+   add_definitions(-DSDL_BUILD)
+endif()
 
 set(onepadFinalLibs
     ${onepadFinalLibs}
@@ -151,6 +159,9 @@ endif()
 ### Generate the resources files
 file(MAKE_DIRECTORY ${compiled_images})
 
+if(MSVC)
+   #todo
+else()
 foreach(result_file IN ITEMS
         analog circle cross dp_bottom dp_left dp_right dp_up dualshock2
         joystick_cursor l1 r1 l2 r2 l3 r3 select square start triangle arrow_up
@@ -162,8 +173,8 @@ endforeach()
 
 set(RESOURCE_FILES res/game_controller_db.txt)
 
-add_custom_glib_res("resources" "onepad-res.xml" "onepad_res" ${RESOURCE_FILES})
-
+   add_custom_glib_res("resources" "onepad-res.xml" "onepad_res" ${RESOURCE_FILES})
+endif()
 
 if(BUILTIN_PAD)
     add_pcsx2_lib(${Output} "${onepadFinalSources}" "${onepadFinalLibs}" "${onepadFinalFlags}")

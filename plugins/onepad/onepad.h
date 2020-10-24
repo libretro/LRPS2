@@ -109,12 +109,15 @@ enum gamePadValues {
 #include "KeyStatus.h"
 #include "mt_queue.h"
 
+#ifdef BUILTIN_PAD_PLUGIN
+#define EXPORT_C_(type) extern "C" type CALLBACK
+#else
 #ifdef _MSC_VER
 #define EXPORT_C_(type) extern "C" __declspec(dllexport) type CALLBACK
 #else
 #define EXPORT_C_(type) extern "C" __attribute__((stdcall, externally_visible, visibility("default"))) type
 #endif
-
+#endif
 extern FILE *padLog;
 extern void initLogging();
 

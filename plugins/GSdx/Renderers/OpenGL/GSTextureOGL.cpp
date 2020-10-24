@@ -555,6 +555,9 @@ void GSTextureOGL::CommitPages(const GSVector2i& region, bool commit)
 
 bool GSTextureOGL::Save(const std::string& fn)
 {
+#ifdef __LIBRETRO__
+	return true;
+#else
 	// Collect the texture data
 	uint32 pitch = 4 * m_committed_size.x;
 	uint32 buf_size = pitch * m_committed_size.y * 2;// Note *2 for security (depth/stencil)
@@ -606,6 +609,7 @@ bool GSTextureOGL::Save(const std::string& fn)
 
 	int compression = theApp.GetConfigI("png_compression_level");
 	return GSPng::Save(fmt, fn, image.get(), m_committed_size.x, m_committed_size.y, pitch, compression);
+#endif
 }
 
 uint32 GSTextureOGL::GetMemUsage()

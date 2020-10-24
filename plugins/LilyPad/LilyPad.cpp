@@ -327,7 +327,7 @@ void UpdateEnabledDevices(int updateList = 0)
     }
 }
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(BUILTIN_PAD_PLUGIN)
 BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD fdwReason, void *lpvReserved)
 {
     hInst = hInstance;

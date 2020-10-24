@@ -249,14 +249,25 @@ if(LIBRETRO)
 #		SPU2/Timestretcher.cpp
 		SPU2/Wavedump_wav.cpp
 		SPU2/WavFile.cpp
-#		SPU2/Linux/Alsa.cpp
-		SPU2/Linux/CfgHelpers.cpp
-#		SPU2/Linux/Config.cpp
-		SPU2/Linux/ConfigDebug.cpp
-#		SPU2/Linux/ConfigSoundTouch.cpp
-#		SPU2/Linux/Dialogs.cpp
 #		SPU2/wx/wxConfig.cpp
 		 )
+       if(MSVC)
+          set(pcsx2SPU2Sources ${pcsx2SPU2Sources}
+             SPU2/Windows/RealtimeDebugger.cpp
+             SPU2/Windows/ConfigDebug.cpp
+             SPU2/Windows/CfgHelpers.cpp
+             )
+       else()
+          set(pcsx2SPU2Sources ${pcsx2SPU2Sources}
+       #		SPU2/Linux/Alsa.cpp
+             SPU2/Linux/CfgHelpers.cpp
+       #		SPU2/Linux/Config.cpp
+             SPU2/Linux/ConfigDebug.cpp
+       #		SPU2/Linux/ConfigSoundTouch.cpp
+       #		SPU2/Linux/Dialogs.cpp
+          )
+       endif()
+
 else()
 	# SPU2 sources
 	set(pcsx2SPU2Sources
@@ -559,6 +570,7 @@ else()
 		gui/Saveslots.h
 		)
 endif()
+if(NOT MSVC)
 # Warning: the declaration of the .h are mandatory in case of resources files. It will ensure the creation
 # from the bin2cpp tools at right good moment (ie .h must be created before the pcsx2 compilation)
 # Gui resources headers
@@ -581,7 +593,7 @@ set(pcsx2GuiResources
     ${res_bin}/Breakpoint_Active.h
     ${res_bin}/Breakpoint_Inactive.h
     )
-
+endif()
 # IPU sources
 set(pcsx2IPUSources
 	IPU/IPU.cpp
@@ -762,13 +774,16 @@ set(pcsx2WindowsSources
 	gui/CpuUsageProviderMSW.cpp
 	windows/FlatFileReaderWindows.cpp
 	windows/Optimus.cpp
-	windows/PatchBrowser.cpp
 	windows/VCprojects/IopSif.cpp
 	windows/WinCompressNTFS.cpp
 	windows/WinConsolePipe.cpp
 	windows/WinKeyCodes.cpp
 	)
-
+if(NOT LIBRETRO)
+   set(pcsx2WindowsSources ${pcsx2WindowsSources}
+   	windows/PatchBrowser.cpp
+   	)
+endif()
 # Windows headers
 set(pcsx2WindowsHeaders
 	windows/resource.h
@@ -959,6 +974,9 @@ set(pcsx2FinalLibs
 
 if(BUILTIN_GS)
     set(pcsx2FinalLibs ${pcsx2FinalLibs} GSdx)
+    if(MSVC)
+       set(pcsx2FinalSources ${pcsx2FinalSources} ${CMAKE_SOURCE_DIR}/plugins/GSdx/GSdx.rc)
+    endif()
 endif()
 if(BUILTIN_PAD)
     set(pcsx2FinalLibs ${pcsx2FinalLibs} onepad)
@@ -977,6 +995,7 @@ include_directories(
     ${CMAKE_BINARY_DIR}/pcsx2/gui
 )
 
+if(NOT MSVC)
 ### Generate the resources files
 file(MAKE_DIRECTORY ${res_bin})
 
@@ -994,9 +1013,19 @@ foreach(res_file IN ITEMS
 				r1Pressed r2Pressed r3Pressed rightPressed selectPressed squarePressed startPressed trianglePressed upPressed)
     add_custom_command(OUTPUT  "${res_rec_vp_src}/${res_file}.h" COMMAND perl ${CMAKE_SOURCE_DIR}/linux_various/hex2h.pl "${res_rec_vp_src}/${res_file}.png" "${res_rec_vp_src}/${res_file}" )
 endforeach()
+endif()
 
 if(USE_VTUNE)
     set(pcsx2FinalLibs ${pcsx2FinalLibs} ${VTUNE_LIBRARIES})
+endif()
+
+if(MSVC)
+#   include_directories(x86/ix86-32 IPU System)
+   add_definitions(-D_M_X86 -D__i386__ -DTIXML_USE_STL -D_SCL_SECURE_NO_WARNINGS)
+   add_definitions(-D_ARCH_64=1 -D_M_X86_64 -D__M_X86_64) #64-bit
+#   add_definitions(-D_ARCH_32=1 -D_M_X86_32) #32-bit
+   set(pcsx2FinalLibs ${pcsx2FinalLibs} baseclasses)
+   set(pcsx2FinalLibs ${pcsx2FinalLibs} comctl32 ws2_32 shlwapi winmm rpcrt4)
 endif()
 
 if(LIBRETRO)

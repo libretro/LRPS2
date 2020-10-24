@@ -399,7 +399,7 @@ __forceinline void TimeUpdate(u32 cClocks)
 		dClocks = TickInterval * SanityInterval;
 		lClocks = cClocks - dClocks;
 	}
-
+#ifndef __LIBRETRO__
 // Visual debug display showing all core's activity! Disabled via #define on release builds.
 #ifdef _WIN32
 	UpdateDebugDialog();
@@ -409,7 +409,7 @@ __forceinline void TimeUpdate(u32 cClocks)
 		SndBuffer::UpdateTempoChangeAsyncMixing();
 	else
 		TickInterval = 768; // Reset to default, in case the user hotswitched from async to something else.
-
+#endif
 	//Update Mixing Progress
 	while (dClocks >= TickInterval)
 	{

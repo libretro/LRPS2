@@ -369,7 +369,7 @@ void Pcsx2App::PadKeyDispatch( const keyEvent& ev )
 // command line help message in cmd/powershell/mingw bash. It can be done in English
 // locales ( using AttachConsole, WriteConsole, FreeConsole combined with
 // wxMessageOutputStderr), but completely fails for some other languages (i.e. Japanese).
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__LIBRETRO__)
 class pxMessageOutputMessageBox : public wxMessageOutput
 {
 public:
@@ -432,7 +432,7 @@ void pxMessageOutputMessageBox::Output(const wxString& out)
 
 wxMessageOutput* Pcsx2AppTraits::CreateMessageOutput()
 {
-#ifdef __UNIX__
+#if defined(__UNIX__) || defined(__LIBRETRO__)
 	return _parent::CreateMessageOutput();
 #else
 	return new pxMessageOutputMessageBox;

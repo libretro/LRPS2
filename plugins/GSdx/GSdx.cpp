@@ -24,10 +24,13 @@
 #include "GS.h"
 #include <fstream>
 
-static void* s_hModule;
-
 #ifdef _WIN32
 
+#ifdef BUILTIN_GS_PLUGIN
+EXTERN_C IMAGE_DOS_HEADER __ImageBase;
+static void* s_hModule = &__ImageBase;
+#else
+static void* s_hModule;
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
 	switch(ul_reason_for_call)
@@ -42,6 +45,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 	return TRUE;
 }
+#endif
 
 bool GSdxApp::LoadResource(int id, std::vector<char>& buff, const char* type)
 {
@@ -482,7 +486,11 @@ void GSdxApp::BuildConfigurationMap(const char* lpFileName)
 
 void* GSdxApp::GetModuleHandlePtr()
 {
+#ifdef _WIN32
 	return s_hModule;
+#else
+	return nullptr;
+#endif
 }
 
 void GSdxApp::SetConfigDir(const char* dir)

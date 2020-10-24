@@ -874,6 +874,7 @@ ScopedCoreThreadPause::~ScopedCoreThreadPause()
 
 ScopedCoreThreadPopup::ScopedCoreThreadPopup()
 {
+#ifndef BUILTIN_GS_PLUGIN
 	// The old style GUI (without GSopen2) must use a full close of the CoreThread, in order to
 	// ensure that the GS window isn't blocking the popup, and to avoid crashes if the GS window
 	// is maximized or fullscreen.
@@ -881,6 +882,7 @@ ScopedCoreThreadPopup::ScopedCoreThreadPopup()
 	if (!GSopen2)
 		m_scoped_core = std::unique_ptr<BaseScopedCoreThread>(new ScopedCoreThreadClose());
 	else
+#endif
 		m_scoped_core = std::unique_ptr<BaseScopedCoreThread>(new ScopedCoreThreadPause());
 };
 

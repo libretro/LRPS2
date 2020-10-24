@@ -192,6 +192,9 @@ static void dummyIrqCallback()
 
 void SysMtgsThread::OpenPlugin()
 {
+#ifdef __LIBRETRO__
+	m_thread = pthread_self();
+#endif
 
 	if( m_PluginOpened ) return;
 
@@ -277,6 +280,10 @@ class RingBufferLock {
 
 void SysMtgsThread::ExecuteTaskInThread()
 {
+#ifdef __LIBRETRO__
+	pxAssert(IsSelf());
+#endif
+
 	// Threading info: run in MTGS thread
 	// m_ReadPos is only update by the MTGS thread so it is safe to load it with a relaxed atomic
 
@@ -517,13 +524,17 @@ void SysMtgsThread::ExecuteTaskInThread()
 
 						case GS_RINGTYPE_INIT_READ_FIFO1:
 							MTGS_LOG( "(MTGS Packet Read) ringtype=Fifo1" );
+#ifndef BUILTIN_GS_PLUGIN
 							if (GSinitReadFIFO)
+#endif
 								GSinitReadFIFO( (u64*)tag.pointer);
 						break;
 
 						case GS_RINGTYPE_INIT_READ_FIFO2:
 							MTGS_LOG( "(MTGS Packet Read) ringtype=Fifo2, size=%d", tag.data[0] );
+#ifndef BUILTIN_GS_PLUGIN
 							if (GSinitReadFIFO2)
+#endif
 								GSinitReadFIFO2( (u64*)tag.pointer, tag.data[0]);
 						break;
 
@@ -563,7 +574,16 @@ void SysMtgsThread::ExecuteTaskInThread()
 			}
 #ifdef __LIBRETRO__
 			if(tag.command == GS_RINGTYPE_VSYNC)
+			{
+				busy.Release();
+				if( m_SignalRingEnable.exchange(false) )
+				{
+					//Console.Warning( "(MTGS Thread) Dangling RingSignal on empty buffer!  signalpos=0x%06x", m_SignalRingPosition.exchange(0) ) );
+					m_SignalRingPosition.store(0, std::memory_order_release);
+					m_sem_OnRingReset.Post();
+				}
 				return;
+			}
 #endif
 		}
 
@@ -595,11 +615,8 @@ void SysMtgsThread::FinishTaskInThread()
 		m_SignalRingPosition.store(0, std::memory_order_release);
 		m_sem_OnRingReset.Post();
 	}
-
 	if (m_VsyncSignalListener.exchange(false))
 		m_sem_Vsync.Post();
-
-	//Console.Warning( "(MTGS Thread) Nothing to do!  ringpos=0x%06x", m_ReadPos );
 }
 
 void SysMtgsThread::ClosePlugin()
@@ -607,6 +624,9 @@ void SysMtgsThread::ClosePlugin()
 	if( !m_PluginOpened ) return;
 	m_PluginOpened = false;
 	GetCorePlugins().Close( PluginId_GS );
+#ifdef __LIBRETRO__
+	m_thread = {};
+#endif
 }
 
 void SysMtgsThread::OnSuspendInThread()

@@ -105,6 +105,9 @@ void GSTexture11::Unmap()
 
 bool GSTexture11::Save(const std::string& fn)
 {
+#ifdef __LIBRETRO__
+	return true;
+#else
 	CComPtr<ID3D11Texture2D> res;
 	D3D11_TEXTURE2D_DESC desc;
 
@@ -198,6 +201,7 @@ bool GSTexture11::Save(const std::string& fn)
 	m_ctx->Unmap(res, 0);
 
 	return success;
+#endif
 }
 
 GSTexture11::operator ID3D11Texture2D*()

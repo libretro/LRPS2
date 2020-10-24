@@ -157,13 +157,14 @@ DEV9about() {
               GetActiveWindow(),
               (DLGPROC)AboutDlgProc);
 }
-
+#ifndef BUILTIN_DEV9_PLUGIN
 BOOL APIENTRY DllMain(HANDLE hModule,                  // DLL INIT
                       DWORD  dwReason,
                       LPVOID lpReserved) {
 	hInst = (HINSTANCE)hModule;
 	return TRUE;                                          // very quick :)
 }
+#endif
 /*
 UINT DEV9ThreadProc() {
 	DEV9thread();

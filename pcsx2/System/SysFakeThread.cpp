@@ -26,7 +26,7 @@
 SysFakeThread::SysFakeThread() :
 	m_ExecMode( ExecMode_NoThreadYet )
 ,	m_ExecModeMutex()
-,  m_thread(pthread_self())
+	,  m_thread{}
 {
 }
 

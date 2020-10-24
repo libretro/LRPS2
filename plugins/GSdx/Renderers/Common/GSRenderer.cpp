@@ -395,12 +395,12 @@ void GSRenderer::VSync(int field)
 
 			s = format("%dx%d | %s", GetInternalResolution().x, GetInternalResolution().y, theApp.m_gs_interlace[m_interlace].name.c_str());
 		}
-
+#ifndef __LIBRETRO__
 		if(m_capture.IsCapturing())
 		{
 			s += " | Recording...";
 		}
-
+#endif
 		if(m_wnd->IsManaged())
 		{
 			m_wnd->SetWindowText(s.c_str());
@@ -432,13 +432,13 @@ void GSRenderer::VSync(int field)
 	}
 
 	// present
-
+#ifndef __LIBRETRO__
 	// This will scale the OSD to the window's size.
 	// Will maintiain the font size no matter what size the window is.
 	GSVector4i window_size = m_wnd->GetClientRect();
 	m_dev->m_osd.m_real_size.x = window_size.v[2];
 	m_dev->m_osd.m_real_size.y = window_size.v[3];
-
+#endif
 	m_dev->Present(m_wnd->GetClientRect().fit(m_aspectratio), m_shader);
 
 	// snapshot
@@ -472,7 +472,7 @@ void GSRenderer::VSync(int field)
 		if(m_dump->VSync(field, !m_control_key, m_regs))
 			m_dump.reset();
 	}
-
+#ifndef __LIBRETRO__
 	// capture
 
 	if(m_capture.IsCapturing())
@@ -496,6 +496,7 @@ void GSRenderer::VSync(int field)
 			}
 		}
 	}
+#endif
 }
 
 bool GSRenderer::MakeSnapshot(const std::string& path)
@@ -531,15 +532,21 @@ bool GSRenderer::MakeSnapshot(const std::string& path)
 
 std::wstring* GSRenderer::BeginCapture()
 {
+#ifdef __LIBRETRO__
+	return nullptr;
+#else
 	GSVector4i disp = m_wnd->GetClientRect().fit(m_aspectratio);
 	float aspect = (float)disp.width() / std::max(1, disp.height());
 
 	return m_capture.BeginCapture(GetTvRefreshRate(), GetInternalResolution(), aspect);
+#endif
 }
 
 void GSRenderer::EndCapture()
 {
+#ifndef __LIBRETRO__
 	m_capture.EndCapture();
+#endif
 }
 
 void GSRenderer::KeyEvent(GSKeyEventData* e)

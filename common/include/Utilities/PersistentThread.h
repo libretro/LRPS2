@@ -19,6 +19,8 @@
 #include "ScopedPtrMT.h"
 #include "EventSource.h"
 
+#undef Yield
+
 namespace Threading
 {
 

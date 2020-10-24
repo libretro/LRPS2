@@ -7,12 +7,13 @@ endif()
 
 # plugin name
 set(Output PADnull)
+if(NOT MSVC)
 set(PadNullFinalFlags
 -fvisibility=hidden
 -Wall
 -Wno-parentheses
 	)
-
+endif()
 # PadNull sources
 set(PadNullSources
 	Pad.cpp)

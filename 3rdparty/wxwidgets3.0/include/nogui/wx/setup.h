@@ -3,39 +3,7 @@
  * only once and to indicate that we are building using configure. */
 #ifndef __WX_SETUP_H__
 #define __WX_SETUP_H__
-
-/* never undefine inline or const keywords for C++ compilation */
-#ifndef __cplusplus
-
-/* Define to empty if the keyword does not work.  */
-/* #undef const */
-
-/* Define as __inline if that's what the C compiler calls it.  */
-/* #undef inline */
-
-#endif /* __cplusplus */
-
-/* fill in with the string wxGetOsDescription() will return */
-/* #define WXWIN_OS_DESCRIPTION */
-
-/* the installation location prefix from configure */
-/* #define wxINSTALL_PREFIX */
-
-/* Define to `int' if <sys/types.h> doesn't define.  */
-/* #undef gid_t */
-
-/* Define to `int' if <sys/types.h> doesn't define.  */
-/* #undef mode_t */
-
-/* Define to `long' if <sys/types.h> doesn't define.  */
-/* #undef off_t */
-
-/* Define to `int' if <sys/types.h> doesn't define.  */
-/* #undef pid_t */
-
-/* Define to `unsigned' if <sys/types.h> doesn't define.  */
-/* #undef size_t */
-
+#if __UNIX__
 /* Define if ssize_t type is available.  */
 #define HAVE_SSIZE_T 1
 
@@ -46,106 +14,7 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE 1
 #endif
-
-/* Define to `int' if <sys/types.h> doesn't define.  */
-/* #undef uid_t */
-
-/* Define if your processor stores words with the most significant
-   byte first (like Motorola and SPARC, unlike Intel and VAX).  */
-/* #undef WORDS_BIGENDIAN */
-
-/* Define this if your version of GTK+ is greater than 1.2.7 */
-/* #undef __WXGTK127__ */
-
-/* Define this if your version of GTK+ is greater than 2.0 */
-/* #define __WXGTK20__ 1 */
-
-/* Define this if your version of GTK+ is greater than 2.6 */
-/* #undef __WXGTK26__ */
-
-/* Define this if your version of GTK+ is greater than 2.10 */
-/* #define __WXGTK210__ 1 */
-
-/* Define this if your version of GTK+ is greater than 2.18 */
-/* #define __WXGTK218__ 1 */
-
-/* Define this if your version of GTK+ is >= 3.0 */
-/* #define __WXGTK3__ 1 */
-
-/* Define this if you want to use GPE features */
-/* #undef __WXGPE__ */
-
-/* Define this if your version of Motif is greater than 2.0 */
-/* #undef __WXMOTIF20__ */
-
-/* Define this if you are using Lesstif */
-/* #undef __WXLESSTIF__ */
-
-/*
- * Define to 1 for Unix[-like] system
- */
-/* #define wxUSE_UNIX */
-
-/* #define __UNIX__ */
-
-/* #undef __AIX__ */
-/* #undef __BSD__ */
-/* #undef __DARWIN__ */
-/* #undef __EMX__ */
-/* #undef __FREEBSD__ */
-/* #undef __HPUX__ */
-/* #define __LINUX__ */
-/* #undef __NETBSD__ */
-/* #undef __OPENBSD__ */
-/* #undef __OSF__ */
-/* #undef __QNX__ */
-/* #undef __SGI__ */
-/* #undef __SOLARIS__ */
-/* #undef __SUN__ */
-/* #undef __SUNOS__ */
-/* #undef __SVR4__ */
-/* #undef __SYSV__ */
-/* #undef __ULTRIX__ */
-/* #undef __UNIXWARE__ */
-/* #undef __VMS__ */
-
-/* #undef __IA64__ */
-/* #undef __ALPHA__ */
-
-/* NanoX (with wxX11) */
-/* #define wxUSE_NANOX */
-
-/* PowerPC Darwin & Mac OS X */
-/* #undef __POWERPC__ */
-/* #undef TARGET_CARBON */
-
-/* Hack to make IOGraphicsTypes.h not define Point conflicting with MacTypes */
-/* #undef __Point__ */
-
-/* MS-DOS with DJGPP */
-/* #undef __DOS__ */
-
-/* Stupid hack; __WINDOWS__ clashes with wx/defs.h */
-#ifndef __WINDOWS__
-/* #undef __WINDOWS__ */
 #endif
-
-#ifndef __WIN32__
-/* #undef __WIN32__ */
-#endif
-#ifndef __GNUWIN32__
-/* #undef __GNUWIN32__ */
-#endif
-#ifndef STRICT
-/* #undef STRICT */
-#endif
-#ifndef WINVER
-/* #undef WINVER */
-#endif
-
-/* OS/2 with EMX */
-/* #undef __OS2__ */
-
 /* --- start common options --- */
 
 #ifndef wxUSE_GUI
@@ -155,10 +24,9 @@
 
 #define WXWIN_COMPATIBILITY_2_6 0
 
-#define WXWIN_COMPATIBILITY_2_8 1
+#define WXWIN_COMPATIBILITY_2_8 0
 
 #define wxDIALOG_UNIT_COMPATIBILITY   0
-
 
 
 #define wxUSE_ON_FATAL_EXCEPTION 1
@@ -166,7 +34,6 @@
 #define wxUSE_STACKWALKER 1
 
 #define wxUSE_DEBUGREPORT 1
-
 
 
 #define wxUSE_DEBUG_CONTEXT 0
@@ -215,14 +82,14 @@
         || (defined(_MSC_VER) && _MSC_VER < 1200)
     #define wxUSE_STD_DEFAULT  0
 #else
-    #define wxUSE_STD_DEFAULT  0
+    #define wxUSE_STD_DEFAULT  1
 #endif
 
 #define wxUSE_STD_CONTAINERS 0
 
-#define wxUSE_STD_IOSTREAM 1
+#define wxUSE_STD_IOSTREAM wxUSE_STD_DEFAULT
 
-#define wxUSE_STD_STRING 1
+#define wxUSE_STD_STRING wxUSE_STD_DEFAULT
 
 #define wxUSE_STD_STRING_CONV_IN_WXSTRING wxUSE_STL
 
@@ -295,7 +162,7 @@
 
 #define wxUSE_FONTENUM 1
 
-#define wxUSE_FONTMAP 1
+#define wxUSE_FONTMAP 0 /* 1 */
 
 #define wxUSE_MIMETYPE 1
 
@@ -319,7 +186,7 @@
 
 #define wxUSE_SOUND 1
 
-#define wxUSE_MEDIACTRL 1
+#define wxUSE_MEDIACTRL 0
 
 #define wxUSE_XRC 1
 
@@ -362,7 +229,7 @@
 #   else
 
 
-#       define wxUSE_GRAPHICS_CONTEXT 1
+#       define wxUSE_GRAPHICS_CONTEXT 0
 #   endif
 #else
 
@@ -373,7 +240,7 @@
 #   define wxUSE_GRAPHICS_CONTEXT 1
 #endif
 
-#define wxUSE_CAIRO 1
+#define wxUSE_CAIRO 0
 
 
 
@@ -463,9 +330,9 @@
 
 #define wxUSE_ARTPROVIDER_STD 1
 
-#define wxUSE_ARTPROVIDER_TANGO 0
+#define wxUSE_ARTPROVIDER_TANGO 0 /* 1 */
 
-#define wxUSE_HOTKEY 0
+#define wxUSE_HOTKEY 0 /* 1 */
 
 #define wxUSE_CARET 1
 
@@ -500,7 +367,7 @@
 #endif
 
 
-#define wxUSE_COMMON_DIALOGS 0
+#define wxUSE_COMMON_DIALOGS 0 /* 1 */
 
 #define wxUSE_BUSYINFO 1
 
@@ -536,8 +403,8 @@
 #define wxUSE_FILE_HISTORY 1
 
 
-#define wxUSE_METAFILE              0
-#define wxUSE_ENH_METAFILE          0
+#define wxUSE_METAFILE              0 /* 1 */
+#define wxUSE_ENH_METAFILE          0 /* 1 */
 #define wxUSE_WIN_METAFILES_ALWAYS  0
 
 
@@ -558,7 +425,7 @@
 
 #define wxUSE_CLIPBOARD 1
 
-#define wxUSE_DATAOBJ 1
+#define wxUSE_DATAOBJ 0 /* 1 */
 
 #define wxUSE_DRAG_AND_DROP 1
 
@@ -591,7 +458,7 @@
 #define wxUSE_UIACTIONSIMULATOR 1
 
 
-#define wxUSE_POSTSCRIPT 1
+#define wxUSE_POSTSCRIPT 1/* 0 */
 
 #define wxUSE_AFM_FOR_POSTSCRIPT 1
 
@@ -607,7 +474,7 @@
 
 #define wxUSE_LIBJPEG 1
 
-#define wxUSE_LIBTIFF 1
+#define wxUSE_LIBTIFF 1/* 0 */
 
 #define wxUSE_TGA 1
 
@@ -619,14 +486,14 @@
 
 #define wxUSE_IFF 1
 
-#define wxUSE_XPM 1
+#define wxUSE_XPM 1/* 0 */
 
 #define wxUSE_ICO_CUR 1
 
 #define wxUSE_PALETTE 1
 
 
-#define wxUSE_ALL_THEMES    0
+#define wxUSE_ALL_THEMES    0 /* 1 */
 
 #define wxUSE_THEME_GTK     0
 #define wxUSE_THEME_METAL   0
@@ -635,7 +502,7 @@
 
 
 /* --- end common options --- */
-
+#if __unix__
 /*
  * Unix-specific options
  */
@@ -654,7 +521,7 @@
    Recommended setting: 1 (wxMediaCtrl won't work by default without it).
  */
 #define wxUSE_GSTREAMER 1
-
+#else
 /* --- start MSW options --- */
 
 #ifndef wxUSE_UNICODE_MSLU
@@ -663,29 +530,29 @@
 
 #define wxUSE_MFC           0
 
-#define wxUSE_OLE           0
+#define wxUSE_OLE           0 /* 1 */
 
-#define wxUSE_OLE_AUTOMATION 0
+#define wxUSE_OLE_AUTOMATION 0 /* 1 */
 
-#define wxUSE_ACTIVEX 0
+#define wxUSE_ACTIVEX 0 /* 1 */
 
-#define wxUSE_DC_CACHEING 0
+#define wxUSE_DC_CACHEING 0 /* 1 */
 
-#define wxUSE_WXDIB 0
+#define wxUSE_WXDIB 0 /* 1 */
 
-#define wxUSE_POSTSCRIPT_ARCHITECTURE_IN_MSW 0
+#define wxUSE_POSTSCRIPT_ARCHITECTURE_IN_MSW 0 /* 1 */
 
-#define wxUSE_REGKEY 0
+#define wxUSE_REGKEY 1 /* 1 */
 
 #define wxUSE_RICHEDIT 1
 
 #define wxUSE_RICHEDIT2 1
 
-#define wxUSE_OWNER_DRAWN 0
+#define wxUSE_OWNER_DRAWN 0 /* 1 */
 
 #define wxUSE_TASKBARICON_BALLOONS 1
 
-#define wxUSE_UXTHEME           0
+#define wxUSE_UXTHEME           0 /* 1 */
 
 #define wxUSE_INKEDIT  0
 
@@ -697,9 +564,10 @@
 #define wxUSE_TIMEPICKCTRL_GENERIC 0
 
 
-#define wxUSE_CRASHREPORT 0
+#define wxUSE_CRASHREPORT 0 /* 1 */
 /* --- end MSW options --- */
-
+#endif
+#ifndef _WIN32
 /*
  * Define if your compiler supports the explicit keyword
  */
@@ -1144,7 +1012,7 @@
 #define HAVE_SETENV 1
 
 /* Define if you have strtok_r function. */
-#define HAVE_STRTOK_R 1
+/* #define HAVE_STRTOK_R */
 
 /* Define if you have thr_setconcurrency function */
 /* #undef HAVE_THR_SETCONCURRENCY */
@@ -1265,37 +1133,7 @@
 
 /* Define if you have kqueu_xxx() functions. */
 /* #undef wxHAS_KQUEUE */
-
-/* -------------------------------------------------------------------------
-   Win32 adjustments section
-   ------------------------------------------------------------------------- */
-
-#ifdef __WIN32__
-
-/* When using an external jpeg library and the Windows headers already define
- * boolean, define to the type used by the jpeg library for boolean.  */
-/* #undef wxHACK_BOOLEAN */
-
-/* Define if the header pbt.h is missing.  */
-/* #undef NEED_PBT_H */
-
-#endif /* __WIN32__ */
-
-/* --------------------------------------------------------*
- *  This stuff is static, it doesn't get modified directly
- *  by configure.
-*/
-
-/*
-   define some constants identifying wxWindows version in more details than
-   just the version number
- */
-
-/* wxLogChain class available */
-#define wxHAS_LOG_CHAIN
-
-/* define this when wxDC::Blit() respects SetDeviceOrigin() in wxGTK */
-/* #undef wxHAS_WORKING_GTK_DC_BLIT */
+#endif
 
 #endif /* __WX_SETUP_H__ */
 

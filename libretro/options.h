@@ -20,7 +20,7 @@ public:
 	Option(const char* id, const char* name, T initial) = delete;
 
 	Option(const char* id, const char* name,
-		   std::initializer_list<std::pair<const char*, T>> list)
+		   std::vector<std::pair<std::string, T>> list)
 		: m_id(id)
 		, m_name(name)
 		, m_list(list.begin(), list.end())
@@ -28,7 +28,7 @@ public:
 		Register();
 	}
 
-	Option(const char* id, const char* name, std::initializer_list<const char*> list)
+	Option(const char* id, const char* name, std::vector<const char*> list)
 		: m_id(id)
 		, m_name(name)
 	{
@@ -37,7 +37,7 @@ public:
 		Register();
 	}
 	Option(const char* id, const char* name, T first,
-		   std::initializer_list<const char*> list)
+		   std::vector<const char*> list)
 		: m_id(id)
 		, m_name(name)
 	{
@@ -91,6 +91,12 @@ public:
 		return m_value;
 	}
 
+	T Get()
+	{
+		Updated();
+		return m_value;
+	}
+
 	template <typename S>
 	bool operator==(S value)
 	{
@@ -116,10 +122,10 @@ private:
 
 template <>
 Option<std::string>::Option(const char* id, const char* name,
-								   std::initializer_list<const char*> list);
+							std::vector<const char*> list);
 template <>
 Option<const char*>::Option(const char* id, const char* name,
-								   std::initializer_list<const char*> list);
+								   std::vector<const char*> list);
 
 template <>
 Option<bool>::Option(const char* id, const char* name, bool initial);

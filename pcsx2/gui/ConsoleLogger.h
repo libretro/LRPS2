@@ -235,7 +235,11 @@ void OSDlog(ConsoleColors color, bool console, const std::string& str);
 
 template<typename ... Args>
 void OSDlog(ConsoleColors color, bool console, const std::string& format, Args ... args) {
+#ifdef BUILTIN_GS_PLUGIN
+	if (!console) return;
+#else
 	if (!GSosdLog && !console) return;
+#endif
 
 	size_t size = snprintf( nullptr, 0, format.c_str(), args ... ) + 1; // Extra space for '\0'
 	std::vector<char> buf(size);

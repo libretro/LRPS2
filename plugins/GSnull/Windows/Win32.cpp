@@ -96,7 +96,7 @@ GSabout()
               GetActiveWindow(),
               (DLGPROC)AboutDlgProc);
 }
-
+#ifndef BUILTIN_GS_PLUGIN
 BOOL APIENTRY DllMain(HANDLE hModule, // DLL INIT
                       DWORD dwReason,
                       LPVOID lpReserved)
@@ -104,3 +104,4 @@ BOOL APIENTRY DllMain(HANDLE hModule, // DLL INIT
     hInst = (HINSTANCE)hModule;
     return TRUE; // very quick :)
 }
+#endif

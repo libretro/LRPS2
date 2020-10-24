@@ -22,9 +22,6 @@
 
 #include "GSWnd.h"
 
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
-
 #define GS_EGL_X11 1
 #define GS_EGL_WL 0
 
@@ -47,12 +44,12 @@ public:
 	void Detach() final;
 
 	virtual void* CreateNativeDisplay();
-	virtual void* CreateNativeWindow(int w, int h); // GSopen1/PSX API
+	virtual void* CreateNativeWindow(int w, int h);
 	virtual void* AttachNativeWindow(void* handle);
 	virtual void DestroyNativeResources();
 
 	GSVector4i GetClientRect();
-	virtual bool SetWindowText(const char* title); // GSopen1/PSX API
+	virtual bool SetWindowText(const char* title);
 
 	void AttachContext() final;
 	void DetachContext() final;
@@ -60,10 +57,9 @@ public:
 
 	void Flip() final;
 
-	// Deprecated API
 	void Show() final {}
 	void Hide() final {}
-	void HideFrame() final {} // DX9 API
+	void HideFrame() final {}
 
 	void* GetDisplay() final { return (void*)-1; } // GSopen1 API
 	void* GetHandle() final { return (void*)-1; }  // DX API
@@ -73,5 +69,28 @@ public:
 	// before object creation
 	static int SelectPlatform();
 };
+
+#ifdef _WIN32
+class GSWndRetroDX : public GSWnd
+{
+public:
+	GSWndRetroDX() {}
+	virtual ~GSWndRetroDX() {}
+
+	bool Create(const std::string& title, int w, int h);
+	bool Attach(void* handle, bool managed = true);
+	void Detach();
+
+	void* GetDisplay() {return (void*)-1;}
+	void* GetHandle() {return (void*)-1;}
+	GSVector4i GetClientRect();
+	bool SetWindowText(const char* title);
+
+	void Show() {}
+	void Hide() {}
+	void HideFrame() {}
+};
+#endif
+
 
 #endif

@@ -434,13 +434,13 @@ bool GSDevice11::Create(const std::shared_ptr<GSWnd> &wnd)
 	memset(&blend, 0, sizeof(blend));
 
 	m_dev->CreateBlendState(&blend, &m_date.bs);
-
+#ifndef __LIBRETRO__
 	GSVector2i tex_font = m_osd.get_texture_font_size();
 
 	m_font = std::unique_ptr<GSTexture>(
 		CreateSurface(GSTexture::Texture, tex_font.x, tex_font.y, DXGI_FORMAT_R8_UNORM)
 	);
-
+#endif
 	return true;
 }
 
@@ -833,6 +833,7 @@ void GSDevice11::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture*
 
 void GSDevice11::RenderOsd(GSTexture* dt)
 {
+#ifndef __LIBRETRO__
 	BeginScene();
 
 	// om
@@ -870,6 +871,7 @@ void GSDevice11::RenderOsd(GSTexture* dt)
 	DrawPrimitive();
 
 	EndScene();
+#endif
 }
 
 void GSDevice11::DoMerge(GSTexture* sTex[3], GSVector4* sRect, GSTexture* dTex, GSVector4* dRect, const GSRegPMODE& PMODE, const GSRegEXTBUF& EXTBUF, const GSVector4& c)

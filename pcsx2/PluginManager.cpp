@@ -1054,12 +1054,14 @@ void SysCorePlugins::Open()
 		// several places. Save yourself of multithread headache. Wait few seconds the end of 
 		// gsopen -- Gregory
 		if (pi->id == PluginId_GS) GetMTGS().WaitForOpen();
-#else
+#elif !defined(BUILTIN_GS_PLUGIN)
 		if (pi->id == PluginId_GS && !GSopen2) GetMTGS().WaitForOpen();
 #endif
 	});
-
-	if (GSopen2) GetMTGS().WaitForOpen();
+#ifndef BUILTIN_GS_PLUGIN
+	if (GSopen2)
+#endif
+		GetMTGS().WaitForOpen();
 
 	if( !m_mcdOpen.exchange(true) )
 	{
@@ -1084,7 +1086,9 @@ void SysCorePlugins::ClosePlugin_GS()
 		_generalclose( PluginId_GS );
 	else
 	{
+#ifndef BUILTIN_GS_PLUGIN
 		if( !GSopen2 ) Close( PluginId_PAD );
+#endif
 		GetMTGS().Suspend();
 	}
 }

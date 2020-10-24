@@ -8,13 +8,13 @@ endif()
 
 # plugin name
 set(Output USBnull-0.7.0)
-
+if(NOT MSVC)
 set(USBnullFinalFlags
 -fvisibility=hidden
 -Wall
 -Wno-parentheses
 	)
-
+endif()
 # USBnull sources
 set(USBnullSources
 	USB.cpp)

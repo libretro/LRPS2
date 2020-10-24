@@ -40,7 +40,6 @@ set(wxWindowsSources
    src/msw/utils.cpp
    src/msw/utilsexc.cpp
    src/msw/volume.cpp
-   src/common/ipcbase.cpp
    )
 endif()
 add_library(wxwidgets

@@ -19,9 +19,8 @@
  *
  */
 
-#ifdef __LIBRETRO__
 #include "../stdafx.h"
-#include "GSWndRetroGL.h"
+#include "GSWndRetro.h"
 #include <libretro.h>
 
 
@@ -136,4 +135,35 @@ bool GSWndRetroGL::SetWindowText(const char* title)
 	return true;
 }
 
+#ifdef _WIN32
+
+bool GSWndRetroDX::Create(const std::string& title, int w, int h)
+{
+	m_managed = true;
+
+	return true;
+}
+
+bool GSWndRetroDX::Attach(void* handle, bool managed)
+{
+	m_managed = managed;
+	return true;
+}
+
+void GSWndRetroDX::Detach()
+{
+	m_managed = true;
+}
+
+GSVector4i GSWndRetroDX::GetClientRect()
+{
+	//	return GSVector4i(0, 0, 640, 480);
+	return GSVector4i(0, 0, 1280, 896);
+}
+
+bool GSWndRetroDX::SetWindowText(const char* title)
+{
+	if(!m_managed) return false;
+	return true;
+}
 #endif

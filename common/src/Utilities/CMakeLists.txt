@@ -17,7 +17,6 @@ set(UtilitiesFinalFlags ${CommonFlags})
 if(LIBRETRO)
 	set(UtilitiesSources
 		VirtualMemory.cpp
-		AlignedMalloc.cpp
 		../../include/Utilities/FixedPointTypes.inl
 		../../include/Utilities/EventSource.inl
 		../../include/Utilities/SafeArray.inl
@@ -25,7 +24,6 @@ if(LIBRETRO)
 		Exceptions.cpp
 		FastFormatString.cpp
 		IniInterface.cpp
-		Linux/LnxHostSys.cpp
 		Mutex.cpp
 		PathUtils.cpp
 		PrecompiledHeader.cpp
@@ -49,6 +47,11 @@ if(LIBRETRO)
 
 		wxAppWithHelpers.cpp
 		)
+   if(NOT MSVC)
+   set(UtilitiesSources ${UtilitiesSources}
+      AlignedMalloc.cpp
+      Linux/LnxHostSys.cpp)
+   endif()
 else()
 	set(UtilitiesSources
 		VirtualMemory.cpp
@@ -128,11 +131,17 @@ if(APPLE)
 	)
 elseif(Windows)
 	LIST(APPEND UtilitiesSources
-		x86/MemcpyFast.cpp
 		Windows/WinThreads.cpp
 		Windows/WinHostSys.cpp
 		Windows/WinMisc.cpp
+      Semaphore.cpp
 	)
+# if(x86)
+#   LIST(APPEND UtilitiesSources
+#		x86/MemcpyFast.cpp
+#	)
+# endif()
+
 else()
 	LIST(APPEND UtilitiesSources
 		Linux/LnxThreads.cpp
@@ -150,6 +159,11 @@ set(UtilitiesFinalLibs
     ${LIBC_LIBRARIES} # Gold (new linux linker) does not get automatically dependency of dependency
 	${wxWidgets_LIBRARIES}
 )
+
+if(MSVC)
+   set(UtilitiesFinalLibs ${UtilitiesFinalLibs} pthread)
+endif()
+
 
 add_pcsx2_lib(${Output} "${UtilitiesFinalSources}" "${UtilitiesFinalLibs}" "${UtilitiesFinalFlags}")
 add_pcsx2_lib(${Output}_NO_TLS "${UtilitiesFinalSources}" "${UtilitiesFinalLibs}" "${UtilitiesFinalFlags} -DPCSX2_THREAD_LOCAL=0")

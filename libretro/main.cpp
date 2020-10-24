@@ -1,6 +1,12 @@
 #include "PrecompiledHeader.h"
 
 #include "PrecompiledHeader.h"
+
+#ifdef WIN32
+#include <windows.h>
+#undef Yield
+#endif
+
 #include "AppCommon.h"
 #include "App.h"
 
@@ -9,12 +15,16 @@
 #include <string>
 #include <thread>
 #include <wx/stdpaths.h>
+#include <wx/dir.h>
+#include <wx/evtloop.h>
 
 #include "GS.h"
 #include "options.h"
 #include "input.h"
 #include "svnrev.h"
 #include "SPU2/Global.h"
+#include "ps2/BiosTools.h"
+#include "MTVU.h"
 
 #ifdef PERF_TEST
 static struct retro_perf_callback perf_cb;
@@ -45,7 +55,9 @@ static retro_log_printf_t log_cb;
 namespace Options
 {
 static Option test("pcsx2_test", "Test", false);
-}
+static Option fast_boot("pcsx2_fastboot", "Fast Boot", true);
+static std::unique_ptr<Option<std::string>> bios;
+} // namespace Options
 
 // renderswitch - tells GSdx to go into dx9 sw if "renderswitch" is set.
 bool renderswitch = false;
@@ -60,6 +72,25 @@ void retro_set_video_refresh(retro_video_refresh_t cb)
 void retro_set_environment(retro_environment_t cb)
 {
 	environ_cb = cb;
+	if (!Options::bios)
+	{
+		const char* system = nullptr;
+		environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
+		wxFileName bios_path = Path::Combine(system, "pcsx2/bios");
+		wxArrayString bioslist;
+		wxDir::GetAllFiles(bios_path.GetFullPath(), &bioslist, L"*.*", wxDIR_FILES);
+
+		std::vector<std::pair<std::string, std::string>> option_list;
+		for (wxString bios_file : bioslist)
+		{
+			wxString description;
+			if (IsBIOS(bios_file, description))
+				option_list.push_back({(const char*)description, (const char*)bios_file});
+		}
+		if (option_list.size())
+			Options::bios = std::make_unique<Options::Option<std::string>>("pcsx2_bios", "Bios", option_list);
+	}
+
 	Options::SetVariables();
 	bool no_game = true;
 	environ_cb(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &no_game);
@@ -153,8 +184,8 @@ void retro_init(void)
 #endif
 	}
 
-//	pcsx2 = new Pcsx2App;
-//	wxApp::SetInstance(pcsx2);
+	//	pcsx2 = new Pcsx2App;
+	//	wxApp::SetInstance(pcsx2);
 	pcsx2 = &wxGetApp();
 #if 0
 	int argc = 0;
@@ -172,10 +203,20 @@ void retro_init(void)
 	pcsx2->DetectCpuAndUserMode();
 	pcsx2->AllocateCoreStuffs();
 	//	pcsx2->GetGameDatabase();
+	vu1Thread.Reset();
+
+	g_Conf->BaseFilenames.Plugins[PluginId_GS] = "Built-in";
+	g_Conf->BaseFilenames.Plugins[PluginId_PAD] = "Built-in";
+	g_Conf->BaseFilenames.Plugins[PluginId_USB] = "Built-in";
+	g_Conf->BaseFilenames.Plugins[PluginId_DEV9] = "Built-in";
 }
 
 void retro_deinit(void)
 {
+	//	GetCoreThread().Cancel(true);
+
+	// WIN32 doesn't allow canceling threads from global constructors/destructors in a shared library.
+	vu1Thread.Cancel();
 	pcsx2->CleanupOnExit();
 #ifdef PERF_TEST
 	perf_cb.perf_log();
@@ -211,7 +252,7 @@ void retro_get_system_av_info(retro_system_av_info* info)
 	//	info->geometry.max_height = 1280;
 	info->geometry.max_height = info->geometry.base_height;
 
-	info->geometry.aspect_ratio = 4.0 / 3.0;
+	info->geometry.aspect_ratio = 4.0f / 3.0f;
 	info->timing.fps = (retro_get_region() == RETRO_REGION_NTSC) ? (60.0f / 1.001f) : 50.0f;
 	info->timing.sample_rate = 48000;
 }
@@ -230,52 +271,62 @@ static void context_reset()
 static void context_destroy()
 {
 	GetMTGS().FinishTaskInThread();
+
+	while (pcsx2->HasPendingEvents())
+		pcsx2->ProcessPendingEvents();
 	GetMTGS().ClosePlugin();
-	GetCoreThread().Suspend(true);
+
+	while (pcsx2->HasPendingEvents())
+		pcsx2->ProcessPendingEvents();
+	//	GetCoreThread().Suspend(true);
+	GetCoreThread().Pause();
+
 	printf("Context destroy\n");
 }
 
 bool retro_load_game(const struct retro_game_info* game)
 {
+	if (!Options::bios)
+	{
+		log_cb(RETRO_LOG_ERROR, "Bios File not found!\n");
+		return false;
+	}
+
 	const char* system = nullptr;
 	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
 
-	//	pcsx2->Overrides.SettingsFolder = "";
 	//	pcsx2->Overrides.Gamefixes.Set( id, true);
 
 	// By default no IRX injection
 	g_Conf->CurrentIRX = "";
-	g_Conf->EmuOptions.UseBOOT2Injection = true; // fastboot
+	g_Conf->BaseFilenames.Bios = Options::bios->Get();
 
+	u32 magic = 0;
 	if (game)
 	{
-		u32 magic = 0;
 		FILE* fp = fopen(game->path, "rb");
 		if (!fp)
 			return false;
 
 		fread(&magic, 4, 1, fp);
 		fclose(fp);
+	}
 
-		if (magic == 0x464C457F) // elf
-		{
-			// g_Conf->CurrentIRX = "";
-			pcsx2->SysExecute(CDVD_SourceType::NoDisc, game->path);
-		}
-		else
-		{
-			g_Conf->CdvdSource = CDVD_SourceType::Iso;
-			g_Conf->CurrentIso = game->path;
-			pcsx2->SysExecute(CDVD_SourceType::Iso);
-		}
+	if (magic == 0x464C457F) // elf
+	{
+		// g_Conf->CurrentIRX = "";
+		g_Conf->EmuOptions.UseBOOT2Injection = true;
+		pcsx2->SysExecute(CDVD_SourceType::NoDisc, game->path);
 	}
 	else
 	{
-		g_Conf->CdvdSource = CDVD_SourceType::NoDisc;
-		pcsx2->SysExecute(CDVD_SourceType::NoDisc);
+		g_Conf->EmuOptions.UseBOOT2Injection = Options::fast_boot;
+		g_Conf->CdvdSource = game ? CDVD_SourceType::Iso : CDVD_SourceType::NoDisc;
+		g_Conf->CurrentIso = game ? game->path : "";
+		pcsx2->SysExecute(g_Conf->CdvdSource);
 	}
 
-	g_Conf->CurrentGameArgs = "";
+	//	g_Conf->CurrentGameArgs = "";
 	g_Conf->EmuOptions.GS.FrameLimitEnable = false;
 
 	hw_render.context_type = RETRO_HW_CONTEXT_OPENGL_CORE;
@@ -287,7 +338,7 @@ bool retro_load_game(const struct retro_game_info* game)
 	hw_render.depth = true;
 	//	hw_render.cache_context = true;
 	if (!environ_cb(RETRO_ENVIRONMENT_SET_HW_RENDER, &hw_render))
-		printf("Failed to create RETRO_HW_CONTEXT_OPENGL_CORE;\n");
+		log_cb(RETRO_LOG_ERROR, "Failed to create RETRO_HW_CONTEXT_OPENGL_CORE;\n");
 
 	Input::Init();
 
@@ -304,7 +355,7 @@ void retro_unload_game(void)
 {
 	//	GetMTGS().FinishTaskInThread();
 	//		GetMTGS().ClosePlugin();
-	GetCoreThread().Suspend(true);
+	//	GetCoreThread().Suspend(true);
 	//			GetCoreThread().Cancel(true);
 }
 
@@ -365,25 +416,8 @@ void retro_cheat_set(unsigned index, bool enabled, const char* code)
 }
 
 int Interpolation = 4;
-int numSpeakers;
 bool EffectsDisabled = false;
-float FinalVolume = 1.0f; // Global / pre-scale
-bool AdvancedVolumeControl;
-float VolumeAdjustFLdb;
-float VolumeAdjustCdb;
-float VolumeAdjustFRdb;
-float VolumeAdjustBLdb;
-float VolumeAdjustBRdb;
-float VolumeAdjustSLdb;
-float VolumeAdjustSRdb;
-float VolumeAdjustLFEdb;
-bool postprocess_filter_enabled = 1;
 bool postprocess_filter_dealias = false;
-int dplLevel;
-u32 OutputModule;
-int SndOutLatencyMS;
-int SynchMode;
-
 unsigned int delayCycles = 4;
 
 static retro_audio_sample_batch_t batch_cb;
@@ -434,10 +468,6 @@ void SndBuffer::ClearContents()
 {
 }
 
-void SndBuffer::UpdateTempoChangeAsyncMixing()
-{
-}
-
 void DspUpdate()
 {
 }
@@ -450,7 +480,7 @@ s32 DspLoadLibrary(wchar_t* fileName, int modnum)
 void ReadSettings()
 {
 }
-
+#ifndef _WIN32
 void SysMessage(const char* fmt, ...)
 {
 	va_list list;
@@ -458,12 +488,12 @@ void SysMessage(const char* fmt, ...)
 	vprintf(fmt, list);
 	va_end(list);
 }
-
+#endif
 wxEventLoopBase* Pcsx2AppTraits::CreateEventLoop()
 {
 	return new wxEventLoop();
-	// return new wxGUIEventLoop();
-	// return new wxConsoleEventLoop();
+	//	 return new wxGUIEventLoop();
+	//	 return new wxConsoleEventLoop();
 }
 
 #ifdef wxUSE_STDPATHS

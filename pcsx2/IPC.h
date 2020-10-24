@@ -18,6 +18,10 @@
 
 #pragma once
 
+#if _WIN32
+#include <windows.h>
+#endif
+
 #include "Utilities/PersistentThread.h"
 #include "System/SysThreads.h"
 

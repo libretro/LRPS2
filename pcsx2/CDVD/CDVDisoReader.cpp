@@ -402,7 +402,7 @@ s32 CALLBACK ISOdummyS32()
 	return 0;
 }
 
-void CALLBACK ISOnewDiskCB(void (*/* callback */)())
+void CALLBACK ISOnewDiskCB(void (* /* callback */)())
 {
 }
 

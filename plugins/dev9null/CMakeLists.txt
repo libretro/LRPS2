@@ -8,13 +8,13 @@ endif()
 
 # plugin name
 set(Output dev9null-0.5.0)
-
+if(NOT MSVC)
 set(dev9nullFinalFlags
     -fvisibility=hidden
     -Wall
     -Wno-parentheses
 	)
-
+endif()
 # dev9null sources
 set(dev9nullSources
 	DEV9.cpp)

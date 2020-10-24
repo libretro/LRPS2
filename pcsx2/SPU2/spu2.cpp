@@ -371,7 +371,7 @@ s32 SPU2open(void* pDsp)
 	{
 		SndBuffer::Init();
 
-#ifndef __POSIX__
+#if !defined(__POSIX__) && !defined(__LIBRETRO__)
 		DspLoadLibrary(dspPlugin, dspPluginModule);
 #endif
 		WaveDump::Open();
@@ -396,7 +396,7 @@ void SPU2close()
 
 	FileLog("[%10d] SPU2 Close\n", Cycles);
 
-#ifndef __POSIX__
+#if !defined(__POSIX__) && !defined(__LIBRETRO__)
 	DspCloseLibrary();
 #endif
 

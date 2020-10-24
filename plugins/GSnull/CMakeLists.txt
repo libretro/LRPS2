@@ -8,13 +8,13 @@ endif()
 
 # plugin name
 set(Output GSnull)
-
+if(NOT MSVC)
 set(GSnullFinalFlags
     -fvisibility=hidden
     -Wall
     -Wno-parentheses
 	)
-
+endif()
 # GSnull sources
 set(GSnullSources
 	GifTransfer.cpp

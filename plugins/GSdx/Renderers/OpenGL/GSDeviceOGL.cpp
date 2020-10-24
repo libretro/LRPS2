@@ -551,7 +551,7 @@ bool GSDeviceOGL::Create(const std::shared_ptr<GSWnd> &wnd)
 		GLState::available_vram = (int64)(vram[0]) * 1024ul * 2ul;
 
 	fprintf(stdout, "Available VRAM/RAM:%lldMB for textures\n", GLState::available_vram >> 20u);
-
+#ifndef __LIBRETRO__
 	// ****************************************************************
 	// Texture Font (OSD)
 	// ****************************************************************
@@ -560,7 +560,7 @@ bool GSDeviceOGL::Create(const std::shared_ptr<GSWnd> &wnd)
 	m_font = std::unique_ptr<GSTexture>(
 		new GSTextureOGL(GSTextureOGL::Texture, tex_font.x, tex_font.y, GL_R8, m_fbo_read, false)
 	);
-
+#endif
 	// ****************************************************************
 	// Finish window setup and backbuffer
 	// ****************************************************************
@@ -1390,6 +1390,7 @@ void GSDeviceOGL::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture
 
 void GSDeviceOGL::RenderOsd(GSTexture* dt)
 {
+#ifndef __LIBRETRO__
 	BeginScene();
 
 	m_shader->BindPipeline(m_convert.ps[ShaderConvert_OSD]);
@@ -1416,6 +1417,7 @@ void GSDeviceOGL::RenderOsd(GSTexture* dt)
 	DrawPrimitive();
 
 	EndScene();
+#endif
 }
 
 void GSDeviceOGL::DoMerge(GSTexture* sTex[3], GSVector4* sRect, GSTexture* dTex, GSVector4* dRect, const GSRegPMODE& PMODE, const GSRegEXTBUF& EXTBUF, const GSVector4& c)

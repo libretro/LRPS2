@@ -8,14 +8,14 @@ endif()
 
 # plugin name (no version number to ease future version bump and bisect)
 set(Output GSdx)
-
+if (NOT MSVC)
 set(CommonFlags
     -fno-operator-names # because Xbyak uses and()/xor()/or()/not() function
     -Wno-unknown-pragmas
     -Wno-parentheses
     -Wunused-variable # __dummy variable need to be investigated
     )
-
+endif()
 # The next two need to be looked at, but spam really badly in gcc 8.
 # Largely class alignment in GSDevice.h and memcpy in GSVector*.h.
 if(GCC_VERSION VERSION_EQUAL "8.0" OR GCC_VERSION VERSION_GREATER "8.0")
@@ -48,7 +48,6 @@ set(GSdxSources
     GS.cpp
     GSAlignedClass.cpp
     GSBlock.cpp
-    GSCapture.cpp
     GSClut.cpp
     GSCodeBuffer.cpp
     GSCrc.cpp
@@ -57,18 +56,15 @@ set(GSdxSources
     GSLocalMemory.cpp
     GSLzma.cpp
     GSPerfMon.cpp
-    GSPng.cpp
     GSState.cpp
     GSTables.cpp
     GSUtil.cpp
     GSVector.cpp
     GSdx.cpp
-    GSdxResources.cpp
     stdafx.cpp
     Renderers/Common/GSDevice.cpp
     Renderers/Common/GSDirtyRect.cpp
     Renderers/Common/GSFunctionMap.cpp
-    Renderers/Common/GSOsdManager.cpp
     Renderers/Common/GSRenderer.cpp
     Renderers/Common/GSTexture.cpp
     Renderers/Common/GSVertexTrace.cpp
@@ -107,6 +103,17 @@ set(GSdxSources
     Window/GSSetting.cpp
     Window/GSWnd.cpp
     )
+if(NOT MSVC)
+   set(GSdxSources ${GSdxSources}
+       GSdxResources.cpp)
+endif()
+if(NOT LIBRETRO)
+   set(GSdxSources ${GSdxSources}
+      GSCapture.cpp
+      GSPng.cpp
+      Renderers/Common/GSOsdManager.cpp
+      )
+endif()
 
 set(GSdxHeaders
     config.h
@@ -120,7 +127,6 @@ set(GSdxHeaders
     GSDrawingEnvironment.h
     GSDump.h
     GSdx.h
-    GSdxResources.h
     GS.h
     GSLocalMemory.h
     GSLzma.h
@@ -180,6 +186,10 @@ set(GSdxHeaders
     xbyak/xbyak_mnemonic.h
     xbyak/xbyak_util.h
     )
+if(NOT MSVC)
+   set(GSdxHeaders ${GSdxHeaders}
+      GSdxResources.h)
+endif()
 
 if(Windows)
     LIST(APPEND GSdxSources
@@ -189,12 +199,11 @@ if(Windows)
         Renderers/DX11/GSTexture11.cpp
         Renderers/DX11/GSTextureCache11.cpp
         Renderers/DX11/GSTextureFX11.cpp
-        GSVertexList.cpp
+#        GSVertexList.cpp
         Renderers/SW/GSVertexSW.cpp
         Window/GSCaptureDlg.cpp
         Window/GSSettingsDlg.cpp
-        Window/GSWndDX.cpp
-        Window/GSWndWGL.cpp
+        GSdx.rc
         )
 
     LIST(APPEND GSdxHeaders
@@ -202,11 +211,19 @@ if(Windows)
         Renderers/DX11/GSRendererDX11.h
         Renderers/DX11/GSTexture11.h
         Renderers/DX11/GSTextureCache11.h
-        Window/GSWndDX.h
-        Window/GSWndWGL.h
         resource.h
         targetver.h
         )
+   if(NOT LIBRETRO)
+      LIST(APPEND GSdxSources
+          Window/GSWndDX.cpp
+          Window/GSWndWGL.cpp
+          )
+      LIST(APPEND GSdxHeaders
+          Window/GSWndDX.h
+          Window/GSWndWGL.h
+          )
+   endif()
 elseif(NOT LIBRETRO)
     LIST(APPEND GSdxSources
         Window/GSLinuxDialog.cpp
@@ -220,11 +237,11 @@ endif()
 
 if(LIBRETRO)
     LIST(APPEND GSdxSources
-       Window/GSWndRetroGL.cpp
+       Window/GSWndRetro.cpp
        )
 
     LIST(APPEND GSdxHeaders
-        Window/GSWndRetroGL.h
+        Window/GSWndRetro.h
        )
     include_directories(${CMAKE_SOURCE_DIR}/libretro)
 endif()
@@ -250,6 +267,10 @@ if(USE_VTUNE)
     set(GSdxFinalLibs ${GSdxFinalLibs} ${VTUNE_LIBRARIES})
 endif()
 
+if(MSVC)
+   set(GSdxFinalLibs ${GSdxFinalLibs} d3dcompiler d3d11 dxgi dxguid winmm strmiids opengl32 comsuppw comctl32)
+else()
+
 set(RESOURCE_FILES
     res/logo-ogl.bmp
     res/fxaa.fx
@@ -261,9 +282,15 @@ set(RESOURCE_FILES
     res/glsl/tfx_fs.glsl
     res/glsl/tfx_vgs.glsl)
 
-add_custom_glib_res("GSdxResources" "gsdx-res.xml" "GSdx_res" ${RESOURCE_FILES})
+   add_custom_glib_res("GSdxResources" "gsdx-res.xml" "GSdx_res" ${RESOURCE_FILES})
+endif()
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+if(MSVC)
+   include_directories(${CMAKE_SOURCE_DIR}/3rdparty ${CMAKE_SOURCE_DIR}/3rdparty/libpng ${CMAKE_SOURCE_DIR}/3rdparty/baseclasses ${CMAKE_SOURCE_DIR}/3rdparty/xz/xz/src/liblzma/api)
+   add_definitions(/wd4456 /wd4458 /wd4996 /wd4995 /wd4324 /wd4100 /wd4101 /wd4201 /wd4556 /wd4127 /wd4512)
+endif()
+
 if(NOT GTKn_FOUND)
    include_directories(${FREETYPE_INCLUDE_DIR_ft2build} ${FREETYPE_INCLUDE_DIR_freetype2} ${GLIB_INCLUDE_DIRS})
 endif()

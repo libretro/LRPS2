@@ -48,7 +48,7 @@ extern bool RunLinuxDialog();
 #endif
 
 #ifdef __LIBRETRO__
-#include "Window/GSWndRetroGL.h"
+#include "Window/GSWndRetro.h"
 #endif
 
 #define PS2E_LT_GS 0x01
@@ -415,12 +415,16 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 
 EXPORT_C_(void) GSosdLog(const char *utf8, uint32 color)
 {
+#ifndef __LIBRETRO__
 	if(s_gs && s_gs->m_dev) s_gs->m_dev->m_osd.Log(utf8);
+#endif
 }
 
 EXPORT_C_(void) GSosdMonitor(const char *key, const char *value, uint32 color)
 {
+#ifndef __LIBRETRO__
 	if(s_gs && s_gs->m_dev) s_gs->m_dev->m_osd.Monitor(key, value);
+#endif
 }
 
 EXPORT_C_(int) GSopen2(void** dsp, uint32 flags)

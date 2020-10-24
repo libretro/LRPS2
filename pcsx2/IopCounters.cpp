@@ -514,11 +514,15 @@ void psxRcntUpdate()
 	else
 		c -= difference;
 	psxNextCounter = c;
+#ifndef BUILTIN_DEV9_PLUGIN
 	if (DEV9async)
+#endif
 	{
 		DEV9async(1);
 	}
+#ifndef BUILTIN_USB_PLUGIN
 	if (USBasync)
+#endif
 	{
 		const s32 difference = psxRegs.cycle - psxCounters[7].sCycleT;
 		s32 c = psxCounters[7].CycleT;

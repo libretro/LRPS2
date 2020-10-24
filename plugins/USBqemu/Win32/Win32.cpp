@@ -71,10 +71,11 @@ void CALLBACK USBabout() {
               GetActiveWindow(),  
               (DLGPROC)AboutDlgProc);
 }
-
+#ifndef BUILTIN_USB_PLUGIN
 BOOL APIENTRY DllMain(HANDLE hModule,                  // DLL INIT
                       DWORD  dwReason, 
                       LPVOID lpReserved) {
 	hInst = (HINSTANCE)hModule;
 	return TRUE;                                          // very quick :)
 }
+#endif

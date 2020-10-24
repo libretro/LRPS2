@@ -8,13 +8,13 @@ endif()
 
 # plugin name
 set(Output LilyPad-0.11.0)
-
+if(NOT MSVC)
 set(lilypadFinalFlags
     -fvisibility=hidden
     -Wall
     -Wno-parentheses
     )
-    
+endif()
 # lilypad sources
 set(lilypadSources
     DeviceEnumerator.cpp

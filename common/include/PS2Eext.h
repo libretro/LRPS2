@@ -27,6 +27,7 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <commctrl.h>
+#undef Yield
 
 #define EXPORT_C_(type) extern "C" type CALLBACK
 

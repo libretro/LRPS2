@@ -358,13 +358,13 @@ PADkeyEvent()
 #endif
     return &s_event;
 }
-#if defined(__unix__)
 EXPORT_C_(void)
 PADWriteEvent(keyEvent &evt)
 {
+#if defined(__unix__)
     // if (evt.evt != 6) { // Skip mouse move events for logging
     //     PAD_LOG("Pushing Event. Event Type: %d, Key: %d\n", evt.evt, evt.key);
     // }
     g_ev_fifo.push(evt);
-}
 #endif
+}

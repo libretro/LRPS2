@@ -1,3 +1,5 @@
+cmake_policy(SET CMP0048 NEW)
+
 # Project Name
 project(Pcsx2)
 
@@ -21,8 +23,10 @@ include(Pcsx2Utils)
 check_no_parenthesis_in_path()
 detectOperatingSystem()
 check_compiler_version("7.0" "7.0")
-set(CMAKE_C_COMPILER_LAUNCHER ccache)
-set(CMAKE_CXX_COMPILER_LAUNCHER ccache)
+if(NOT MSVC)
+   set(CMAKE_C_COMPILER_LAUNCHER ccache)
+   set(CMAKE_CXX_COMPILER_LAUNCHER ccache)
+endif()
 
 #-------------------------------------------------------------------------------
 # Include specific module

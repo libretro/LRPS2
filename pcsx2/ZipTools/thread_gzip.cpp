@@ -21,6 +21,7 @@
 #include "Utilities/SafeArray.inl"
 #include "wx/wfstream.h"
 
+#undef Yield
 
 BaseCompressThread::~BaseCompressThread()
 {

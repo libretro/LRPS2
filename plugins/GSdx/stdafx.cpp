@@ -80,7 +80,7 @@ void* fifo_alloc(size_t size, size_t repeat)
 	ASSERT(s_fh == NULL);
 
 	if (repeat >= countof(s_Next)) {
-		fprintf(stderr, "Memory mapping overflow (%zu >= %u)\n", repeat, countof(s_Next));
+		fprintf(stderr, "Memory mapping overflow (%zu >= %u)\n", repeat, (unsigned int)countof(s_Next));
 		return vmalloc(size * repeat, false); // Fallback to default vmalloc
 	}
 

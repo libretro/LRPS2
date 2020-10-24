@@ -7,7 +7,9 @@ if (Linux)
     find_package(PCAP)
     find_package(LibXml2)
 endif()
-find_package(Freetype) # GSdx OSD
+if (NOT LIBRETRO)
+   find_package(Freetype) # GSdx OSD
+endif()
 find_package(Gettext) # translation tool
 if(EXISTS ${PROJECT_SOURCE_DIR}/.git)
     find_package(Git)
@@ -80,7 +82,9 @@ endif()
 find_package(ZLIB)
 
 ## Use pcsx2 package to find module
-include(FindLibc)
+if (NOT MSVC)
+   include(FindLibc)
+endif()
 
 ## Only needed by the extra plugins
 if(EXTRA_PLUGINS)
@@ -105,6 +109,7 @@ if(Linux)
         check_lib(LIBUDEV libudev libudev.h)
     endif()
 endif()
+if(NOT LIBRETRO)
 if(PORTAUDIO_API)
     check_lib(PORTAUDIO portaudio portaudio.h pa_linux_alsa.h)
 endif()
@@ -116,6 +121,7 @@ else()
     # Tell cmake that we use SDL as a library and not as an application
     set(SDL_BUILDING_LIBRARY TRUE)
     find_package(SDL)
+endif()
 endif()
 
 if(UNIX)
@@ -201,12 +207,41 @@ endif()
 
 if(ZLIB_FOUND)
 	include_directories(${ZLIB_INCLUDE_DIRS})
+else()
+   set(ZLIB_FOUND TRUE)
+   set(ZLIB_LIBRARIES z)
+   add_subdirectory(${CMAKE_SOURCE_DIR}/3rdparty/zlib)
+   include_directories(${CMAKE_SOURCE_DIR}/3rdparty)
+   include_directories(${CMAKE_SOURCE_DIR}/3rdparty/zlib)
 endif()
 
-find_package(HarfBuzz)
+if (NOT LIBRETRO)
+   find_package(HarfBuzz)
+endif()
 
 if(HarfBuzz_FOUND)
 include_directories(${HarfBuzz_INCLUDE_DIRS})
+endif()
+
+if (NOT FREETYPE_FOUND)
+   set(FREETYPE_FOUND 1)
+   set(FREETYPE_LIBRARIES)
+endif()
+
+if(NOT LZMA_FOUND)
+   set(LZMA_FOUND 1)
+   add_definitions(-DLZMA_API_STATIC)
+   set(LIBLZMA_LIBRARIES lzma)
+   add_subdirectory(${CMAKE_SOURCE_DIR}/3rdparty/xz)
+endif()
+
+if(MSVC)
+   add_definitions(-DPTW32_STATIC_LIB)
+#   add_definitions(-D__CLEANUP_SEH)
+   add_subdirectory(${CMAKE_SOURCE_DIR}/3rdparty/pthreads4w)
+   include_directories(${CMAKE_SOURCE_DIR}/3rdparty/pthreads4w/include)
+   add_subdirectory(${CMAKE_SOURCE_DIR}/3rdparty/baseclasses)
+#   include_directories(${CMAKE_SOURCE_DIR}/3rdparty/baseclasses)
 endif()
 
 set(ACTUALLY_ENABLE_TESTS ${ENABLE_TESTS})

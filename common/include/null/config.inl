@@ -24,7 +24,7 @@
 
 static PluginLog g_plugin_log;
 
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(__LIBRETRO__)
 
 static HINSTANCE s_hinstance;
 
@@ -65,7 +65,7 @@ static void ConfigureLogging()
     DialogBox(s_hinstance, MAKEINTRESOURCE(IDD_DIALOG), GetActiveWindow(), ConfigureDialogProc);
 }
 
-#elif defined(__unix__) || defined(__APPLE__)
+#elif (defined(__unix__) || defined(__APPLE__)) && !defined(__LIBRETRO__)
 
 static void ConfigureLogging()
 {

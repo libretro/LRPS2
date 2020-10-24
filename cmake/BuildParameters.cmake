@@ -94,7 +94,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(USE_GCC TRUE)
     message(STATUS "Building with GNU GCC")
-else()
+elseif(NOT MSVC)
     message(FATAL_ERROR "Unknown compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif()
 
@@ -243,6 +243,28 @@ else()
     message(FATAL_ERROR "Unsupported architecture: ${PCSX2_TARGET_ARCHITECTURES}")
 endif()
 
+if(MSVC)
+   set(ARCH_FLAG)
+   #   add_compile_options(/permissive-)
+   #   add_compile_options(/Zc:inline)
+   #   add_compile_options(/Zc:throwingNew)
+   #   add_compile_options(/volatile:iso)
+   #string(APPEND CMAKE_EXE_LINKER_FLAGS " /NXCOMPAT")
+#   add_compile_options(/EHsc)
+#   add_definitions(-DPCSX2_DEVBUILD -DPCSX2_DEBUG -D_DEBUG)
+#   add_definitions(-DNDEBUG -DPCSX2_DEVBUILD -D_DEVEL)
+#   add_definitions(-DNDEBUG -DPCSX2_DEVBUILD)
+   add_definitions(-DNDEBUG)
+
+   add_compile_options(/EHa)
+   add_compile_options(/MP)
+   add_compile_options(/Zi)
+   add_link_options(/DEBUG)
+   add_definitions(-D__WIN32__ -DWIN32 -D_WINDOWS -D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE)
+   add_definitions(${PLUGIN_SUPPORT})
+   add_definitions(-D_ARCH_64=1 -D_M_X86_64 -D__M_X86_64)
+   add_definitions(/wd4063 /wd4100 /wd4267 /wd4244 /wd4244 /wd4312 /wd4334)
+else(MSVC)
 #-------------------------------------------------------------------------------
 # Control GCC flags
 #-------------------------------------------------------------------------------
@@ -354,7 +376,7 @@ endif()
 if(USE_PGO_OPTIMIZE)
     set(PGO_FLAGS "${PGO_FLAGS} -fprofile-use")
 endif()
-
+endif(MSVC)
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
     set(DEBUG_FLAG "${DBG} -DPCSX2_DEVBUILD -DPCSX2_DEBUG -D_DEBUG")
 elseif(CMAKE_BUILD_TYPE MATCHES "Devel")
@@ -400,8 +422,9 @@ endif()
 # Note: -DGTK_DISABLE_DEPRECATED can be used to test a build without gtk deprecated feature. It could be useful to port to a newer API
 set(DEFAULT_GCC_FLAG "${ARCH_FLAG} ${COMMON_FLAG} ${DEFAULT_WARNINGS} ${AGGRESSIVE_WARNING} ${HARDENING_FLAG} ${DEBUG_FLAG} ${ASAN_FLAG} ${OPTIMIZATION_FLAG} ${LTO_FLAGS} ${PGO_FLAGS} ${PLUGIN_SUPPORT}")
 # c++ only flags
+if(NOT MSVC)
 set(DEFAULT_CPP_FLAG "${DEFAULT_GCC_FLAG} -Wno-invalid-offsetof")
-
+endif()
 #-------------------------------------------------------------------------------
 # Allow user to set some default flags
 # Note: string STRIP must be used to remove trailing and leading spaces.

@@ -28,7 +28,9 @@
 
 class GSRenderer : public GSState
 {
+#ifndef __LIBRETRO__
 	GSCapture m_capture;
+#endif
 	std::string m_snapshot;
 	int m_shader;
 

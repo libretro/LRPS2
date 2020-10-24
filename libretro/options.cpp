@@ -11,9 +11,9 @@ static std::vector<bool*>* dirtyPtrList;
 template <typename T>
 void Option<T>::Register()
 {
-	if(!optionsList)
+	if (!optionsList)
 		optionsList = new std::vector<retro_variable>;
-	if(!dirtyPtrList)
+	if (!dirtyPtrList)
 		dirtyPtrList = new std::vector<bool*>;
 
 	if (!m_options.empty())
@@ -30,7 +30,8 @@ void Option<T>::Register()
 	}
 	optionsList->push_back({m_id, m_options.c_str()});
 	dirtyPtrList->push_back(&m_dirty);
-	Updated();
+//	Updated();
+	m_value = m_list.front().second;
 	m_dirty = true;
 }
 
@@ -54,7 +55,7 @@ void CheckVariables()
 
 template <>
 Option<std::string>::Option(const char* id, const char* name,
-								   std::initializer_list<const char*> list)
+							std::vector<const char*> list)
 	: m_id(id)
 	, m_name(name)
 {
@@ -65,7 +66,7 @@ Option<std::string>::Option(const char* id, const char* name,
 
 template <>
 Option<const char*>::Option(const char* id, const char* name,
-								   std::initializer_list<const char*> list)
+							std::vector<const char*> list)
 	: m_id(id)
 	, m_name(name)
 {
@@ -83,6 +84,9 @@ Option<bool>::Option(const char* id, const char* name, bool initial)
 	m_list.push_back({!initial ? "enabled" : "disabled", !initial});
 	Register();
 }
+//static Option<std::string> test2("pcsx2_test2", "Test2", {{"aa", "hh"}, {"bb", "hho"}});
 
+template void Option<std::string>::Register();
+template void Option<const char*>::Register();
+template void Option<bool>::Register();
 } // namespace Options
-

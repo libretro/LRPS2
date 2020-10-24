@@ -173,8 +173,9 @@ protected:
 	virtual uint16 ConvertBlendEnum(uint16 generic) = 0; // Convert blend factors/ops from the generic enum to DX11/OGl specific.
 
 public:
+#ifndef __LIBRETRO__
 	GSOsdManager m_osd;
-
+#endif
 	GSDevice();
 	virtual ~GSDevice();
 
