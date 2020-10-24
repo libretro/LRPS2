@@ -133,6 +133,7 @@ public:
 
 	virtual retro_variable getVariable() override
 	{
+		/* only the last retro_variable returned by this function is valid */
 		m_options = m_name;
 		m_options.push_back(';');
 		for (auto& option : m_list)
