@@ -60,9 +60,7 @@ void Pcsx2App::DetectCpuAndUserMode()
 	}
 #endif
 
-
 	EstablishAppUserMode();
-
 
 	// force unload plugins loaded by the wizard.  If we don't do this the recompilers might
 	// fail to allocate the memory they need to function.
@@ -124,9 +122,7 @@ void Pcsx2App::OpenProgramLog()
 	wxWindow* m_current_focus = wxGetActiveWindow();
 
 	ScopedLock lock( m_mtx_ProgramLog );
-
 	m_ptr_ProgramLog	= new ConsoleLogFrame( GetMainFramePtr(), L"PCSX2 Program Log", g_Conf->ProgLogBox );
-
 	m_id_ProgramLogBox	= m_ptr_ProgramLog->GetId();
 	EnableAllLogging();
 
@@ -175,6 +171,7 @@ void Pcsx2App::AllocateCoreStuffs()
 				&exconf, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize,
 				wxTE_READONLY | wxTE_MULTILINE | wxTE_WORDWRAP
 			);
+
 			exconf += 12;
 			exconf += exconf.Heading( pxE( L"Warning: Some of the configured PS2 recompilers failed to initialize and have been disabled:" )
 			);
@@ -459,7 +456,6 @@ bool Pcsx2App::OnInit()
 {
 #ifndef __LIBRETRO__
 	EnableAllLogging();
-
 	Console.WriteLn("Interface is initializing.  Entering Pcsx2App::OnInit!");
 
 	InitCPUTicks();
@@ -469,7 +465,7 @@ bool Pcsx2App::OnInit()
 
 	g_Conf = std::make_unique<AppConfig>();
 #if wxUSE_GUI
-   wxInitAllImageHandlers();
+    wxInitAllImageHandlers();
 #endif
 
 	Console.WriteLn("Applying operating system default language...");
@@ -485,8 +481,10 @@ bool Pcsx2App::OnInit()
 	Console.WriteLn("Command line parsed!");
 
 	i18n_SetLanguagePath();
+
 	Bind(wxEVT_KEY_DOWN, &Pcsx2App::OnEmuKeyDown, this, pxID_PadHandler_Keydown);
 	Bind(wxEVT_DESTROY, &Pcsx2App::OnDestroyWindow, this);
+
 	// User/Admin Mode Dual Setup:
 	//   PCSX2 now supports two fundamental modes of operation.  The default is Classic mode,
 	//   which uses the Current Working Directory (CWD) for all user data files, and requires
@@ -500,9 +498,6 @@ bool Pcsx2App::OnInit()
 
 	try
 	{
-		DetectCpuAndUserMode();
-		AllocateCoreStuffs();
-		(new GameDatabaseLoaderThread())->Start();
 		InitDefaultGlobalAccelerators();
 		delete wxLog::SetActiveTarget( new pxLogConsole() );
 
