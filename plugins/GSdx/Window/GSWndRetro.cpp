@@ -93,10 +93,10 @@ void* GSWndRetroGL::GetProcAddress(const char* name, bool opt)
 	}
 	return ptr;
 }
-
+GSVector2i GSgetInternalResolution();
 GSVector4i GSWndRetroGL::GetClientRect()
-{
-	return GSVector4i(0, 0, 640 * Options::upscale_multiplier, 448 * Options::upscale_multiplier);
+{	
+	return GSVector4i(0, 0, GSgetInternalResolution().x, GSgetInternalResolution().y);
 }
 
 void GSWndRetroGL::SetSwapInterval()
@@ -105,7 +105,7 @@ void GSWndRetroGL::SetSwapInterval()
 
 void GSWndRetroGL::Flip()
 {
-	video_cb(RETRO_HW_FRAME_BUFFER_VALID, 640 * Options::upscale_multiplier, 448 * Options::upscale_multiplier, 0);
+	video_cb(RETRO_HW_FRAME_BUFFER_VALID, GSgetInternalResolution().x, GSgetInternalResolution().y, 0);
 }
 
 

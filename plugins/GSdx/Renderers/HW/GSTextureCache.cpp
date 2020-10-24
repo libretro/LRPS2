@@ -465,7 +465,12 @@ GSTextureCache::Source* GSTextureCache::LookupSource(const GIFRegTEX0& TEX0, con
 void GSTextureCache::ScaleTexture(GSTexture* texture)
 {
 	if (!m_renderer->CanUpscale())
+	{
+#ifdef __LIBRETRO__
+		texture->SetScale({1,1});
+#endif
 		return;
+	}
 
 	float multiplier = static_cast<float>(m_renderer->GetUpscaleMultiplier());
 	bool custom_resolution = (multiplier == 0);

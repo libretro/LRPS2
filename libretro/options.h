@@ -13,7 +13,7 @@ class OptionBase
 {
 public:
 	void SetDirty() { m_dirty = true; }
-	virtual retro_variable getVariable() = 0;
+	retro_variable getVariable() { return {m_id, m_options.c_str()}; }
 	virtual bool empty() = 0;
 
 protected:
@@ -21,6 +21,8 @@ protected:
 		: m_id(id)
 		, m_name(name)
 	{
+		m_options = m_name;
+		m_options.push_back(';');
 		Register();
 	}
 
@@ -45,35 +47,45 @@ public:
 	Option(const char* id, const char* name, T initial) = delete;
 
 	Option(const char* id, const char* name,
-		   std::vector<std::pair<std::string, T>> list)
+		   std::vector<std::pair<const char*, T>> list)
 		: OptionBase(id, name)
-		, m_list(list.begin(), list.end())
 	{
+		for (auto option : list)
+			push_back(option.first, option.second);
 	}
 
 	Option(const char* id, const char* name, std::vector<const char*> list)
 		: OptionBase(id, name)
 	{
 		for (auto option : list)
-			m_list.push_back({option, (T)m_list.size()});
+			push_back(option, (T)m_list.size());
 	}
+
 	Option(const char* id, const char* name, T first,
 		   std::vector<const char*> list)
 		: OptionBase(id, name)
 	{
 		for (auto option : list)
-			m_list.push_back({option, first + (int)m_list.size()});
+			push_back(option, first + (int)m_list.size());
 	}
 
 	Option(const char* id, const char* name, T first, int count, int step = 1)
 		: OptionBase(id, name)
 	{
 		for (T i = first; i < first + count; i += step)
-			m_list.push_back({std::to_string(i), i});
+			push_back(std::to_string(i), i);
 	}
 
 	void push_back(const char* name, T value)
 	{
+		if (m_list.empty())
+		{
+			m_options += std::string(" ") + name;
+			m_value = value;
+		}
+		else
+			m_options += std::string("|") + name;
+
 		m_list.push_back({name, value});
 	}
 
@@ -129,21 +141,6 @@ public:
 	bool operator!=(S value)
 	{
 		return (T) * this != value;
-	}
-
-	virtual retro_variable getVariable() override
-	{
-		/* only the last retro_variable returned by this function is valid */
-		m_options = m_name;
-		m_options.push_back(';');
-		for (auto& option : m_list)
-		{
-			if (&option == &m_list.front())
-				m_options += std::string(" ") + option.first;
-			else
-				m_options += std::string("|") + option.first;
-		}
-		return {m_id, m_options.c_str()};
 	}
 
 	virtual bool empty() override { return m_list.empty(); }

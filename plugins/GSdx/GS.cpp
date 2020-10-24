@@ -51,9 +51,9 @@ extern bool RunLinuxDialog();
 #include "Window/GSWndRetro.h"
 #include "options.h"
 namespace Options {
-Option<int> upscale_multiplier("pcsx2_upscale_multiplier", "Internal Resolution", 1,
-										 {"Native PS2", "2x Native ~720p", "3x Native ~1080p", "4x Native ~1440p 2K",
-										  "5x Native ~1620p 3K", "6x Native ~2160p 4K", "8x Native ~2880p 5K"});
+Option<int> upscale_multiplier("pcsx2_upscale_multiplier", "Internal Resolution",
+										 {{"Native PS2", 1}, {"2x Native ~720p", 2}, {"3x Native ~1080p", 3},{"4x Native ~1440p 2K", 4},
+										  {"5x Native ~1620p 3K", 5}, {"6x Native ~2160p 4K", 6}, {"8x Native ~2880p 5K", 8}});
 }
 #endif
 
@@ -523,6 +523,11 @@ EXPORT_C_(int) GSopen(void** dsp, const char* title, int mt)
 	gsopen_done = true;
 
 	return retval;
+}
+
+GSVector2i GSgetInternalResolution()
+{
+	return s_gs->GetInternalResolution();
 }
 
 EXPORT_C GSreset()

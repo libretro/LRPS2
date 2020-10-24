@@ -365,10 +365,13 @@ void retro_run(void)
 	{
 		retro_system_av_info av_info;
 		retro_get_system_av_info(&av_info);
+#if 1
 		environ_cb(RETRO_ENVIRONMENT_SET_SYSTEM_AV_INFO, &av_info);
-
+#else
+		environ_cb(RETRO_ENVIRONMENT_SET_GEOMETRY, &av_info.geometry);
 		GetMTGS().ClosePlugin();
 		GetMTGS().OpenPlugin();
+#endif
 	}
 
 	RETRO_PERFORMANCE_INIT(pcsx2_run);
@@ -425,6 +428,7 @@ int Interpolation = 4;
 bool EffectsDisabled = false;
 bool postprocess_filter_dealias = false;
 unsigned int delayCycles = 4;
+bool _visual_debug_enabled = false; // windows only feature
 
 static retro_audio_sample_batch_t batch_cb;
 static retro_audio_sample_t sample_cb;

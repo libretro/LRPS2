@@ -21,6 +21,9 @@
 
 #include "stdafx.h"
 #include "GSRendererHW.h"
+#ifdef __LIBRETRO__
+#include "options.h"
+#endif
 
 const float GSRendererHW::SSR_UV_TOLERANCE = 1e-3f;
 
@@ -81,6 +84,9 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 
 void GSRendererHW::SetScaling()
 {
+#ifdef __LIBRETRO__
+	m_upscale_multiplier = Options::upscale_multiplier;
+#endif
 	if (!m_upscale_multiplier)
 	{
 		CustomResolutionScaling();
