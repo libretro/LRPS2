@@ -44,7 +44,7 @@ public:
 	{
 	}
 
-	Option(const char* id, const char* name, T initial) = delete;
+	Option(const char* id, const char* name, T initial);
 
 	Option(const char* id, const char* name,
 		   std::vector<std::pair<const char*, T>> list)
