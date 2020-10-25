@@ -60,7 +60,6 @@ unsigned int delayCycles;
 
 bool postprocess_filter_enabled = true;
 bool postprocess_filter_dealias = false;
-bool _visual_debug_enabled = false; // windows only feature
 
 // OUTPUT
 u32 OutputModule = 0;

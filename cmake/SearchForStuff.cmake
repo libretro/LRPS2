@@ -229,7 +229,6 @@ if (NOT FREETYPE_FOUND)
 endif()
 
 if(NOT LIBLZMA_FOUND)
-   message(FATAL_ERROR "no lzma")
    set(LIBLZMA_FOUND 1)
    add_definitions(-DLZMA_API_STATIC)
    set(LIBLZMA_LIBRARIES lzma)

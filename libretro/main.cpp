@@ -428,7 +428,6 @@ int Interpolation = 4;
 bool EffectsDisabled = false;
 bool postprocess_filter_dealias = false;
 unsigned int delayCycles = 4;
-bool _visual_debug_enabled = false; // windows only feature
 
 static retro_audio_sample_batch_t batch_cb;
 static retro_audio_sample_t sample_cb;
