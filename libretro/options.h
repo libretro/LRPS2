@@ -111,7 +111,7 @@ public:
 	{
 		push_back(option, option);
 	}
-
+#if 0
 	template <>
 	void push_back<false>(const char* option)
 	{
@@ -120,7 +120,7 @@ public:
 		else
 			push_back(option, m_list.back().second + 1);
 	}
-
+#endif
 	bool Updated()
 	{
 		if (m_dirty)
