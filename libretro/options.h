@@ -1,14 +1,23 @@
 #pragma once
 
-#include <cassert>
 #include <libretro.h>
 #include <string>
 #include <vector>
+#include <type_traits>
 
 extern retro_environment_t environ_cb;
 
 namespace Options
 {
+
+enum Groups
+{
+	OPTIONS_BASE,
+	OPTIONS_GFX,
+	OPTIONS_EMU,
+	OPTIONS_GROUPS_MAX
+};
+
 class OptionBase
 {
 public:
@@ -17,13 +26,13 @@ public:
 	virtual bool empty() = 0;
 
 protected:
-	OptionBase(const char* id, const char* name)
+	OptionBase(const char* id, const char* name, Groups group)
 		: m_id(id)
 		, m_name(name)
 	{
 		m_options = m_name;
 		m_options.push_back(';');
-		Register();
+		Register(group);
 	}
 
 	const char* m_id;
@@ -32,61 +41,84 @@ protected:
 	std::string m_options;
 
 private:
-	void Register();
+	void Register(Groups group);
 };
 
-template <typename T>
-class Option : private OptionBase
+template <typename T, Groups group = OPTIONS_BASE>
+class Option : public OptionBase
 {
+	static_assert(group < OPTIONS_GROUPS_MAX, "invalid option group index");
+	Option(Option&) = delete;
+	Option(Option&&) = delete;
+	Option& operator=(Option&) = delete;
+
 public:
 	Option(const char* id, const char* name)
-		: OptionBase(id, name)
+		: OptionBase(id, name, group)
 	{
 	}
 
-	Option(const char* id, const char* name, T initial) = delete;
+	Option(const char* id, const char* name, T initial)
+		: OptionBase(id, name, group)
+	{
+		push_back(initial ? "enabled" : "disabled", initial);
+		push_back(!initial ? "enabled" : "disabled", !initial);
+	}
 
-	Option(const char* id, const char* name,
-		   std::vector<std::pair<const char*, T>> list)
-		: OptionBase(id, name)
+	Option(const char* id, const char* name, std::initializer_list<std::pair<const char*, T>> list)
+		: OptionBase(id, name, group)
 	{
 		for (auto option : list)
 			push_back(option.first, option.second);
 	}
 
-	Option(const char* id, const char* name, std::vector<const char*> list)
-		: OptionBase(id, name)
+	Option(const char* id, const char* name, std::initializer_list<const char*> list)
+		: OptionBase(id, name, group)
 	{
 		for (auto option : list)
-			push_back(option, (T)m_list.size());
+			push_back(option);
 	}
 
-	Option(const char* id, const char* name, T first,
-		   std::vector<const char*> list)
-		: OptionBase(id, name)
+	Option(const char* id, const char* name, T first, std::initializer_list<const char*> list)
+		: OptionBase(id, name, group)
 	{
 		for (auto option : list)
 			push_back(option, first + (int)m_list.size());
 	}
 
 	Option(const char* id, const char* name, T first, int count, int step = 1)
-		: OptionBase(id, name)
+		: OptionBase(id, name, group)
 	{
 		for (T i = first; i < first + count; i += step)
 			push_back(std::to_string(i), i);
 	}
 
-	void push_back(const char* name, T value)
+	void push_back(std::string option, T value)
 	{
 		if (m_list.empty())
 		{
-			m_options += std::string(" ") + name;
+			m_options += std::string(" ") + option;
 			m_value = value;
 		}
 		else
-			m_options += std::string("|") + name;
+			m_options += std::string("|") + option;
 
-		m_list.push_back({name, value});
+		m_list.push_back({option, value});
+	}
+
+	template <bool is_str = !std::is_integral<T>() && std::is_constructible<T, const char*>()>
+	void push_back(const char* option)
+	{
+		push_back(option, option);
+	}
+
+	template <>
+	void push_back<false>(const char* option)
+	{
+		if (m_list.empty())
+			push_back(option, 0);
+		else
+			push_back(option, m_list.back().second + 1);
 	}
 
 	bool Updated()
@@ -150,19 +182,14 @@ private:
 	std::vector<std::pair<std::string, T>> m_list;
 };
 
-template <>
-Option<std::string>::Option(const char* id, const char* name,
-							std::vector<const char*> list);
-template <>
-Option<const char*>::Option(const char* id, const char* name,
-							std::vector<const char*> list);
-
-template <>
-Option<bool>::Option(const char* id, const char* name, bool initial);
-
+template <typename T>
+using EmuOption = Option<T, OPTIONS_EMU>;
+template <typename T>
+using GfxOption = Option<T, OPTIONS_GFX>;
 
 void SetVariables();
 void CheckVariables();
 
-extern Option<int> upscale_multiplier;
+extern GfxOption<int> upscale_multiplier;
+extern GfxOption<std::string> renderer;
 } // namespace Options

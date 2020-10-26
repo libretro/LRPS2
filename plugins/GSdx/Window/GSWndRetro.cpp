@@ -133,37 +133,39 @@ bool GSWndRetroGL::SetWindowText(const char* title)
 	return true;
 }
 
-#ifdef _WIN32
-
-bool GSWndRetroDX::Create(const std::string& title, int w, int h)
+bool GSWndRetro::Create(const std::string& title, int w, int h)
 {
 	m_managed = true;
 
 	return true;
 }
 
-bool GSWndRetroDX::Attach(void* handle, bool managed)
+bool GSWndRetro::Attach(void* handle, bool managed)
 {
 	m_managed = managed;
 	return true;
 }
 
-void GSWndRetroDX::Detach()
+void GSWndRetro::Detach()
 {
 	m_managed = true;
 }
 
-GSVector4i GSWndRetroDX::GetClientRect()
+GSVector4i GSWndRetro::GetClientRect()
 {
 //	return GSVector4i(0, 0, 640 , 480);
 	return GSVector4i(0, 0, 640 * Options::upscale_multiplier, 480 * Options::upscale_multiplier);
 //	return GSVector4i(0, 0, GSgetInternalResolution().x, GSgetInternalResolution().y);
 }
 
-bool GSWndRetroDX::SetWindowText(const char* title)
+bool GSWndRetro::SetWindowText(const char* title)
 {
 	if (!m_managed)
 		return false;
 	return true;
 }
-#endif
+
+void GSWndRetro::Flip()
+{
+	video_cb(NULL, GSgetInternalResolution().x, GSgetInternalResolution().y, 0);
+}

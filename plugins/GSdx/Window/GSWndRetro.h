@@ -70,12 +70,11 @@ public:
 	static int SelectPlatform();
 };
 
-#ifdef _WIN32
-class GSWndRetroDX : public GSWnd
+class GSWndRetro : public GSWnd
 {
 public:
-	GSWndRetroDX() {}
-	virtual ~GSWndRetroDX() {}
+	GSWndRetro() {}
+	virtual ~GSWndRetro() {}
 
 	bool Create(const std::string& title, int w, int h);
 	bool Attach(void* handle, bool managed = true);
@@ -89,8 +88,8 @@ public:
 	void Show() {}
 	void Hide() {}
 	void HideFrame() {}
-};
-#endif
 
+	void Flip() final;
+};
 
 #endif

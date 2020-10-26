@@ -53,9 +53,18 @@ static retro_log_printf_t log_cb;
 
 namespace Options
 {
-static Option<bool> test("pcsx2_test", "Test", false);
-static Option<bool> fast_boot("pcsx2_fastboot", "Fast Boot", true);
 static Option<std::string> bios("pcsx2_bios", "Bios"); // will be filled in retro_init()
+static Option<bool> fast_boot("pcsx2_fastboot", "Fast Boot", true);
+
+GfxOption<std::string> renderer("pcsx2_renderer", "Renderer", {"Auto",
+#ifdef _WIN32
+															   "D3D11",
+#endif
+															   "OpenGL", "Software", "Null"});
+
+static GfxOption<bool> frameskip("pcsx2_frameskip", "Frameskip", false);
+static GfxOption<int> frames_to_draw("pcsx2_frames_to_draw", "Frameskip: Frames to Draw", 1, 10);
+static GfxOption<int> frames_to_skip("pcsx2_frames_to_skip", "Frameskip: Frames to Skip", 1, 10);
 } // namespace Options
 
 // renderswitch - tells GSdx to go into dx9 sw if "renderswitch" is set.
@@ -280,7 +289,7 @@ static void context_destroy()
 	printf("Context destroy\n");
 }
 
-static bool init_hw_render(retro_hw_context_type type)
+static bool set_hw_render(retro_hw_context_type type)
 {
 	hw_render.context_type = type;
 	hw_render.context_reset = context_reset;
@@ -288,6 +297,7 @@ static bool init_hw_render(retro_hw_context_type type)
 	hw_render.bottom_left_origin = true;
 	hw_render.depth = true;
 	hw_render.cache_context = false;
+
 	switch (type)
 	{
 		case RETRO_HW_CONTEXT_DIRECT3D:
@@ -301,10 +311,31 @@ static bool init_hw_render(retro_hw_context_type type)
 			hw_render.version_minor = 3;
 			break;
 
-		default:
+		case RETRO_HW_CONTEXT_OPENGL:
+			if(set_hw_render(RETRO_HW_CONTEXT_OPENGL_CORE))
+				return true;
+
+			hw_render.version_major = 3;
+			hw_render.version_minor = 0;
+			hw_render.cache_context = true;
+			break;
+
+		case RETRO_HW_CONTEXT_OPENGLES3:
+			if(set_hw_render(RETRO_HW_CONTEXT_OPENGL))
+				return true;
+
+			hw_render.version_major = 3;
+			hw_render.version_minor = 0;
+			hw_render.cache_context = true;
+			break;
+
 		case RETRO_HW_CONTEXT_NONE:
+			return true;
+
+		default:
 			return false;
 	}
+
 	return environ_cb(RETRO_ENVIRONMENT_SET_HW_RENDER, &hw_render);
 }
 
@@ -352,19 +383,21 @@ bool retro_load_game(const struct retro_game_info* game)
 
 	//	g_Conf->CurrentGameArgs = "";
 	g_Conf->EmuOptions.GS.FrameLimitEnable = false;
+//	g_Conf->EmuOptions.GS.SynchronousMTGS = true;
 
 	Input::Init();
 
-	retro_hw_context_type preferred = RETRO_HW_CONTEXT_NONE;
-	if (environ_cb(RETRO_ENVIRONMENT_GET_PREFERRED_HW_RENDER, &preferred) && init_hw_render(preferred))
-		return true;
-
+	retro_hw_context_type context_type = RETRO_HW_CONTEXT_OPENGL;
+	if (Options::renderer == "Auto")
+		environ_cb(RETRO_ENVIRONMENT_GET_PREFERRED_HW_RENDER, &context_type);
 #ifdef _WIN32
-	if (init_hw_render(RETRO_HW_CONTEXT_DIRECT3D))
-		return true;
+	else if (Options::renderer == "D3D11")
+		context_type =  RETRO_HW_CONTEXT_DIRECT3D;
 #endif
+	else if (Options::renderer == "Null")
+		context_type = RETRO_HW_CONTEXT_NONE;
 
-	return init_hw_render(RETRO_HW_CONTEXT_OPENGL_CORE);
+	return set_hw_render(context_type);
 }
 
 bool retro_load_game_special(unsigned game_type, const struct retro_game_info* info,
@@ -379,12 +412,27 @@ void retro_unload_game(void)
 	//		GetMTGS().ClosePlugin();
 	//	GetCoreThread().Suspend(true);
 	//			GetCoreThread().Cancel(true);
+	GetMTGS().FinishTaskInThread();
+
+	while (pcsx2->HasPendingEvents())
+		pcsx2->ProcessPendingEvents();
+	GetMTGS().ClosePlugin();
+
+	while (pcsx2->HasPendingEvents())
+		pcsx2->ProcessPendingEvents();
+	//	GetCoreThread().Suspend(true);
+	GetCoreThread().Pause();
+
 }
 
 
 void retro_run(void)
 {
 	Options::CheckVariables();
+	SetGSConfig().FrameSkipEnable = Options::frameskip;
+	SetGSConfig().FramesToDraw = Options::frames_to_draw;
+	SetGSConfig().FramesToSkip = Options::frames_to_skip;
+
 	Input::Update();
 
 	if (Options::upscale_multiplier.Updated())
@@ -402,6 +450,8 @@ void retro_run(void)
 
 	RETRO_PERFORMANCE_INIT(pcsx2_run);
 	RETRO_PERFORMANCE_START(pcsx2_run);
+	GetCoreThread().Resume();
+	GetMTGS().OpenPlugin();
 
 	GetMTGS().ExecuteTaskInThread();
 
