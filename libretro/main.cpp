@@ -352,7 +352,8 @@ bool retro_load_game(const struct retro_game_info* game)
 
 	//	g_Conf->CurrentGameArgs = "";
 	g_Conf->EmuOptions.GS.FrameLimitEnable = false;
-	g_Conf->EmuOptions.GS.VsyncEnable = VsyncMode::Off;
+	g_Conf->EmuOptions.GS.VsyncEnable  = VsyncMode::Off;
+	g_Conf->EmuOptions.GS.FramesToDraw = 1;
 
 	Input::Init();
 
