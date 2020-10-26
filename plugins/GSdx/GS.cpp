@@ -238,6 +238,11 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 			// Select the window first to detect the GL requirement
 			std::vector<std::shared_ptr<GSWnd>> wnds;
 #ifdef __LIBRETRO__
+#ifdef _WIN32
+			if (hw_render.context_type == RETRO_HW_CONTEXT_DIRECT3D)
+				wnds.push_back(std::make_shared<GSWndRetroDX>());
+			else
+#endif
 				wnds.push_back(std::make_shared<GSWndRetroGL>());
 #else
 			switch (renderer)
@@ -440,7 +445,12 @@ EXPORT_C_(int) GSopen2(void** dsp, uint32 flags)
 #ifdef __LIBRETRO__
 //	theApp.SetCurrentRendererType(GSRendererType::Null);
 //	theApp.SetCurrentRendererType(GSRendererType::OGL_SW);
-	theApp.SetCurrentRendererType(GSRendererType::OGL_HW);
+#ifdef _WIN32
+	if (hw_render.context_type == RETRO_HW_CONTEXT_DIRECT3D)
+		theApp.SetCurrentRendererType(GSRendererType::DX1011_HW);
+	else
+#endif
+		theApp.SetCurrentRendererType(GSRendererType::OGL_HW);
 	theApp.SetConfig("upscale_multiplier", Options::upscale_multiplier);
 #endif
 	auto current_renderer = theApp.GetCurrentRendererType();

@@ -25,6 +25,11 @@
 #include "GSVector.h"
 #include "Renderers/Common/GSDevice.h"
 
+#ifdef __LIBRETRO__
+#include "libretro_d3d.h"
+extern retro_environment_t environ_cb;
+#endif
+
 struct GSVertexShader11
 {
 	CComPtr<ID3D11VertexShader> vs;
@@ -387,7 +392,9 @@ private:
 	CComPtr<IDXGIFactory2> m_factory;
 	CComPtr<ID3D11Device> m_dev;
 	CComPtr<ID3D11DeviceContext> m_ctx;
+#ifndef __LIBRETRO__
 	CComPtr<IDXGISwapChain1> m_swapchain;
+#endif
 	CComPtr<ID3D11Buffer> m_vb;
 	CComPtr<ID3D11Buffer> m_vb_old;
 	CComPtr<ID3D11Buffer> m_ib;

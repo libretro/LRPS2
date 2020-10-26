@@ -280,6 +280,34 @@ static void context_destroy()
 	printf("Context destroy\n");
 }
 
+static bool init_hw_render(retro_hw_context_type type)
+{
+	hw_render.context_type = type;
+	hw_render.context_reset = context_reset;
+	hw_render.context_destroy = context_destroy;
+	hw_render.bottom_left_origin = true;
+	hw_render.depth = true;
+	hw_render.cache_context = false;
+	switch (type)
+	{
+		case RETRO_HW_CONTEXT_DIRECT3D:
+			hw_render.version_major = 11;
+			hw_render.version_minor = 0;
+			hw_render.cache_context = true;
+			break;
+
+		case RETRO_HW_CONTEXT_OPENGL_CORE:
+			hw_render.version_major = 3;
+			hw_render.version_minor = 3;
+			break;
+
+		default:
+		case RETRO_HW_CONTEXT_NONE:
+			return false;
+	}
+	return environ_cb(RETRO_ENVIRONMENT_SET_HW_RENDER, &hw_render);
+}
+
 bool retro_load_game(const struct retro_game_info* game)
 {
 	if (Options::bios.empty())
@@ -326,20 +354,18 @@ bool retro_load_game(const struct retro_game_info* game)
 	g_Conf->EmuOptions.GS.FrameLimitEnable = false;
 	g_Conf->EmuOptions.GS.VsyncEnable = VsyncMode::Off;
 
-	hw_render.context_type = RETRO_HW_CONTEXT_OPENGL_CORE;
-	hw_render.version_major = 3;
-	hw_render.version_minor = 3;
-	hw_render.context_reset = context_reset;
-	hw_render.context_destroy = context_destroy;
-	hw_render.bottom_left_origin = true;
-	hw_render.depth = true;
-	//	hw_render.cache_context = true;
-	if (!environ_cb(RETRO_ENVIRONMENT_SET_HW_RENDER, &hw_render))
-		log_cb(RETRO_LOG_ERROR, "Failed to create RETRO_HW_CONTEXT_OPENGL_CORE;\n");
-
 	Input::Init();
 
-	return true;
+	retro_hw_context_type preferred = RETRO_HW_CONTEXT_NONE;
+	if (environ_cb(RETRO_ENVIRONMENT_GET_PREFERRED_HW_RENDER, &preferred) && init_hw_render(preferred))
+		return true;
+
+#ifdef _WIN32
+	if (init_hw_render(RETRO_HW_CONTEXT_DIRECT3D))
+		return true;
+#endif
+
+	return init_hw_render(RETRO_HW_CONTEXT_OPENGL_CORE);
 }
 
 bool retro_load_game_special(unsigned game_type, const struct retro_game_info* info,

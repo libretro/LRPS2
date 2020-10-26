@@ -155,7 +155,9 @@ void GSWndRetroDX::Detach()
 
 GSVector4i GSWndRetroDX::GetClientRect()
 {
-	return GSVector4i(0, 0, 640 * Options::upscale_multiplier, 448 * Options::upscale_multiplier);
+//	return GSVector4i(0, 0, 640 , 480);
+	return GSVector4i(0, 0, 640 * Options::upscale_multiplier, 480 * Options::upscale_multiplier);
+//	return GSVector4i(0, 0, GSgetInternalResolution().x, GSgetInternalResolution().y);
 }
 
 bool GSWndRetroDX::SetWindowText(const char* title)
