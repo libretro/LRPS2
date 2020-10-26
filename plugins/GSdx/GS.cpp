@@ -54,6 +54,7 @@ namespace Options {
 GfxOption<int> upscale_multiplier("pcsx2_upscale_multiplier", "Internal Resolution",
 								  {{"Native PS2", 1}, {"2x Native ~720p", 2}, {"3x Native ~1080p", 3},{"4x Native ~1440p 2K", 4},
 								   {"5x Native ~1620p 3K", 5}, {"6x Native ~2160p 4K", 6}, {"8x Native ~2880p 5K", 8}});
+static GfxOption<int> sw_renderer_threads("pcsx2_sw_renderer_threads", "Software Renderer Threads", 2, 10);
 }
 #endif
 
@@ -212,7 +213,9 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 			renderer = GSUtil::GetBestRenderer();
 #endif
 	}
-
+#ifdef __LIBRETRO__
+	threads =  Options::sw_renderer_threads;
+#endif
 	if(threads == -1)
 	{
 		threads = theApp.GetConfigI("extrathreads");
