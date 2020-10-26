@@ -94,6 +94,15 @@ bool GSDevice11::Create(const std::shared_ptr<GSWnd> &wnd)
 	{
 		return false;
 	}
+
+	HRESULT hr = E_FAIL;
+
+	D3D11_BUFFER_DESC bd;
+	D3D11_SAMPLER_DESC sd;
+	D3D11_DEPTH_STENCIL_DESC dsd;
+	D3D11_RASTERIZER_DESC rd;
+	D3D11_BLEND_DESC bsd;
+
 #ifdef __LIBRETRO__
 	retro_hw_render_interface_d3d11 *d3d11 = nullptr;
 	if (!environ_cb(RETRO_ENVIRONMENT_GET_HW_RENDER_INTERFACE, (void **)&d3d11) || !d3d11) {
@@ -109,16 +118,7 @@ bool GSDevice11::Create(const std::shared_ptr<GSWnd> &wnd)
 	m_dev = d3d11->device;
 	m_ctx = d3d11->context;
 	D3D_FEATURE_LEVEL level = d3d11->featureLevel;
-
-	HRESULT hr = E_FAIL;
-
-	D3D11_BUFFER_DESC bd;
-	D3D11_SAMPLER_DESC sd;
-	D3D11_DEPTH_STENCIL_DESC dsd;
-	D3D11_RASTERIZER_DESC rd;
-	D3D11_BLEND_DESC bsd;
 #else
-
 	// create factory
 	{
 		const HRESULT result = CreateDXGIFactory2(0, IID_PPV_ARGS(&m_factory));

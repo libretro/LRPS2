@@ -51,9 +51,10 @@ extern bool RunLinuxDialog();
 #include "Window/GSWndRetro.h"
 #include "options.h"
 namespace Options {
-Option<int> upscale_multiplier("pcsx2_upscale_multiplier", "Internal Resolution",
-										 {{"Native PS2", 1}, {"2x Native ~720p", 2}, {"3x Native ~1080p", 3},{"4x Native ~1440p 2K", 4},
-										  {"5x Native ~1620p 3K", 5}, {"6x Native ~2160p 4K", 6}, {"8x Native ~2880p 5K", 8}});
+GfxOption<int> upscale_multiplier("pcsx2_upscale_multiplier", "Internal Resolution",
+								  {{"Native PS2", 1}, {"2x Native ~720p", 2}, {"3x Native ~1080p", 3},{"4x Native ~1440p 2K", 4},
+								   {"5x Native ~1620p 3K", 5}, {"6x Native ~2160p 4K", 6}, {"8x Native ~2880p 5K", 8}});
+static GfxOption<int> sw_renderer_threads("pcsx2_sw_renderer_threads", "Software Renderer Threads", 2, 10);
 }
 #endif
 
@@ -212,7 +213,9 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 			renderer = GSUtil::GetBestRenderer();
 #endif
 	}
-
+#ifdef __LIBRETRO__
+	threads =  Options::sw_renderer_threads;
+#endif
 	if(threads == -1)
 	{
 		threads = theApp.GetConfigI("extrathreads");
@@ -238,12 +241,16 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 			// Select the window first to detect the GL requirement
 			std::vector<std::shared_ptr<GSWnd>> wnds;
 #ifdef __LIBRETRO__
-#ifdef _WIN32
-			if (hw_render.context_type == RETRO_HW_CONTEXT_DIRECT3D)
-				wnds.push_back(std::make_shared<GSWndRetroDX>());
-			else
-#endif
-				wnds.push_back(std::make_shared<GSWndRetroGL>());
+			switch (renderer)
+			{
+				case GSRendererType::OGL_HW:
+				case GSRendererType::OGL_SW:
+					wnds.push_back(std::make_shared<GSWndRetroGL>());
+					break;
+				default:
+					wnds.push_back(std::make_shared<GSWndRetro>());
+					break;
+			}
 #else
 			switch (renderer)
 			{
@@ -443,14 +450,23 @@ EXPORT_C_(int) GSopen2(void** dsp, uint32 flags)
 	static bool stored_toggle_state = false;
 	const bool toggle_state = !!(flags & 4);
 #ifdef __LIBRETRO__
-//	theApp.SetCurrentRendererType(GSRendererType::Null);
+	switch (hw_render.context_type)
+	{
+		case RETRO_HW_CONTEXT_DIRECT3D:
+			theApp.SetCurrentRendererType(GSRendererType::DX1011_HW);
+			break;
+		case RETRO_HW_CONTEXT_NONE:
+			theApp.SetCurrentRendererType(GSRendererType::Null);
+			break;
+		default:
+			if(Options::renderer == "Software")
+				theApp.SetCurrentRendererType(GSRendererType::OGL_SW);
+			else
+				theApp.SetCurrentRendererType(GSRendererType::OGL_HW);
+			break;
+	}
+
 //	theApp.SetCurrentRendererType(GSRendererType::OGL_SW);
-#ifdef _WIN32
-	if (hw_render.context_type == RETRO_HW_CONTEXT_DIRECT3D)
-		theApp.SetCurrentRendererType(GSRendererType::DX1011_HW);
-	else
-#endif
-		theApp.SetCurrentRendererType(GSRendererType::OGL_HW);
 	theApp.SetConfig("upscale_multiplier", Options::upscale_multiplier);
 #endif
 	auto current_renderer = theApp.GetCurrentRendererType();

@@ -189,7 +189,11 @@ public:
 	virtual bool IsLost(bool update = false) {return false;}
 	virtual void Present(const GSVector4i& r, int shader);
 	virtual void Present(GSTexture* sTex, GSTexture* dTex, const GSVector4& dRect, int shader = 0);
+#ifdef __LIBRETRO__
+	virtual void Flip() { m_wnd->Flip(); }
+#else
 	virtual void Flip() {}
+#endif
 
 	virtual void SetVSync(int vsync) {m_vsync = vsync;}
 
