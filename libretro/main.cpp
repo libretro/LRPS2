@@ -71,6 +71,7 @@ static GfxOption<int> frames_to_skip("pcsx2_frames_to_skip", "Frameskip: Frames 
 bool renderswitch = false;
 uint renderswitch_delay = 0;
 static Pcsx2App* pcsx2;
+static wxFileName bios_dir;
 
 void retro_set_video_refresh(retro_video_refresh_t cb)
 {
@@ -187,7 +188,7 @@ static unsigned RETRO_CALLCONV get_num_images(void)
 
 static bool RETRO_CALLCONV replace_image_index(unsigned index, const struct retro_game_info* info)
 {
-	if(index >= disk_images.size())
+	if (index >= disk_images.size())
 		return false;
 
 	disk_images[index] = info->path;
@@ -196,8 +197,8 @@ static bool RETRO_CALLCONV replace_image_index(unsigned index, const struct retr
 
 static bool RETRO_CALLCONV add_image_index(void)
 {
-   disk_images.push_back(nullptr);
-   return true;
+	disk_images.push_back(nullptr);
+	return true;
 }
 
 /* NOTE: Frontend will only attempt to record/restore
@@ -205,34 +206,34 @@ static bool RETRO_CALLCONV add_image_index(void)
  * and get_image_path() are implemented */
 static bool RETRO_CALLCONV set_initial_image(unsigned index, const char* path)
 {
-   if(index >= disk_images.size())
-      index = 0;
-   image_index = index;
+	if (index >= disk_images.size())
+		index = 0;
+	image_index = index;
 
-   return true;
+	return true;
 }
 
 static bool RETRO_CALLCONV get_image_path(unsigned index, char* path, size_t len)
 {
-   if(index >= disk_images.size())
-      return false;
+	if (index >= disk_images.size())
+		return false;
 
-   if(!disk_images[index])
-      return false;
+	if (!disk_images[index])
+		return false;
 
-   strncpy(path, disk_images[index], len);
-   return true;
+	strncpy(path, disk_images[index], len);
+	return true;
 }
 static bool RETRO_CALLCONV get_image_label(unsigned index, char* label, size_t len)
 {
-   if(index >= disk_images.size())
-      return false;
+	if (index >= disk_images.size())
+		return false;
 
-   if(!disk_images[index])
-      return false;
+	if (!disk_images[index])
+		return false;
 
-   strncpy(label, disk_images[index], len);
-   return true;
+	strncpy(label, disk_images[index], len);
+	return true;
 }
 
 void retro_init(void)
@@ -278,9 +279,9 @@ void retro_init(void)
 	{
 		const char* system = nullptr;
 		environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
+		bios_dir = Path::Combine(system, "pcsx2/bios");
 
 		wxArrayString bios_list;
-		wxFileName bios_dir = Path::Combine(system, "pcsx2/bios");
 		wxDir::GetAllFiles(bios_dir.GetFullPath(), &bios_list, L"*.*", wxDIR_FILES);
 
 		for (wxString bios_file : bios_list)
@@ -306,7 +307,7 @@ void retro_init(void)
 		get_image_label,
 	};
 
-//	environ_cb(RETRO_ENVIRONMENT_SET_DISK_CONTROL_EXT_INTERFACE, &disk_control);
+	//	environ_cb(RETRO_ENVIRONMENT_SET_DISK_CONTROL_EXT_INTERFACE, &disk_control);
 }
 
 void retro_deinit(void)
@@ -341,8 +342,16 @@ void retro_get_system_info(retro_system_info* info)
 
 void retro_get_system_av_info(retro_system_av_info* info)
 {
-	info->geometry.base_width = 640 * Options::upscale_multiplier;
-	info->geometry.base_height = 448 * Options::upscale_multiplier;
+	if (Options::renderer == "Software" || Options::renderer == "Null")
+	{
+		info->geometry.base_width = 640;
+		info->geometry.base_height = 448;
+	}
+	else
+	{
+		info->geometry.base_width = 640 * Options::upscale_multiplier;
+		info->geometry.base_height = 448 * Options::upscale_multiplier;
+	}
 
 	info->geometry.max_width = info->geometry.base_width;
 	info->geometry.max_height = info->geometry.base_height;
@@ -442,7 +451,7 @@ bool retro_load_game(const struct retro_game_info* game)
 {
 	if (Options::bios.empty())
 	{
-		log_cb(RETRO_LOG_ERROR, "Bios File not found!\n");
+		log_cb(RETRO_LOG_ERROR, "Could not find any valid PS2 Bios File in %s\n", (const char*)bios_dir.GetFullPath());
 		return false;
 	}
 
@@ -454,6 +463,8 @@ bool retro_load_game(const struct retro_game_info* game)
 	// By default no IRX injection
 	g_Conf->CurrentIRX = "";
 	g_Conf->BaseFilenames.Bios = Options::bios.Get();
+
+	Options::renderer.UpdateAndLock(); // disallow changes to Options::renderer outside of retro_load_game.
 
 	u32 magic = 0;
 	if (game)

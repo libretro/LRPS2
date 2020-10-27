@@ -123,7 +123,7 @@ public:
 #endif
 	bool Updated()
 	{
-		if (m_dirty)
+		if (m_dirty && !m_locked)
 		{
 			m_dirty = false;
 
@@ -152,6 +152,13 @@ public:
 		return false;
 	}
 
+	void UpdateAndLock()
+	{
+		m_locked = false;
+		Updated();
+		m_locked = true;
+	}
+
 	operator T()
 	{
 		Updated();
@@ -178,6 +185,7 @@ public:
 	virtual bool empty() override { return m_list.empty(); }
 
 private:
+	bool m_locked = false;
 	T m_value;
 	std::vector<std::pair<std::string, T>> m_list;
 };
