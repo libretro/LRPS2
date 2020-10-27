@@ -147,7 +147,7 @@ static void RetroLog_DoWriteLn(const wxString& fmt)
 	RetroLog_DoWrite(fmt + L"\n");
 }
 
-const IConsoleWriter ConsoleWriter_Libretro =
+static const IConsoleWriter ConsoleWriter_Libretro =
 	{
 		RetroLog_DoWrite,
 		RetroLog_DoWriteLn,
@@ -159,6 +159,81 @@ const IConsoleWriter ConsoleWriter_Libretro =
 
 		0, // instance-level indentation (should always be 0)
 };
+
+static std::vector<const char*> disk_images;
+static int image_index = 0;
+static bool RETRO_CALLCONV set_eject_state(bool ejected)
+{
+	return true;
+}
+static bool RETRO_CALLCONV get_eject_state(void)
+{
+	return true;
+}
+
+static unsigned RETRO_CALLCONV get_image_index(void)
+{
+	return image_index;
+}
+static bool RETRO_CALLCONV set_image_index(unsigned index)
+{
+	image_index = index;
+	return true;
+}
+static unsigned RETRO_CALLCONV get_num_images(void)
+{
+	return disk_images.size();
+}
+
+static bool RETRO_CALLCONV replace_image_index(unsigned index, const struct retro_game_info* info)
+{
+	if(index >= disk_images.size())
+		return false;
+
+	disk_images[index] = info->path;
+	return true;
+}
+
+static bool RETRO_CALLCONV add_image_index(void)
+{
+   disk_images.push_back(nullptr);
+   return true;
+}
+
+/* NOTE: Frontend will only attempt to record/restore
+ * last used disk index if both set_initial_image()
+ * and get_image_path() are implemented */
+static bool RETRO_CALLCONV set_initial_image(unsigned index, const char* path)
+{
+   if(index >= disk_images.size())
+      index = 0;
+   image_index = index;
+
+   return true;
+}
+
+static bool RETRO_CALLCONV get_image_path(unsigned index, char* path, size_t len)
+{
+   if(index >= disk_images.size())
+      return false;
+
+   if(!disk_images[index])
+      return false;
+
+   strncpy(path, disk_images[index], len);
+   return true;
+}
+static bool RETRO_CALLCONV get_image_label(unsigned index, char* label, size_t len)
+{
+   if(index >= disk_images.size())
+      return false;
+
+   if(!disk_images[index])
+      return false;
+
+   strncpy(label, disk_images[index], len);
+   return true;
+}
 
 void retro_init(void)
 {
@@ -217,6 +292,21 @@ void retro_init(void)
 	}
 
 	Options::SetVariables();
+
+	static retro_disk_control_ext_callback disk_control = {
+		set_eject_state,
+		get_eject_state,
+		get_image_index,
+		set_image_index,
+		get_num_images,
+		replace_image_index,
+		add_image_index,
+		set_initial_image,
+		get_image_path,
+		get_image_label,
+	};
+
+//	environ_cb(RETRO_ENVIRONMENT_SET_DISK_CONTROL_EXT_INTERFACE, &disk_control);
 }
 
 void retro_deinit(void)
@@ -264,6 +354,15 @@ void retro_get_system_av_info(retro_system_av_info* info)
 
 void retro_reset(void)
 {
+	GetMTGS().FinishTaskInThread();
+
+	while (pcsx2->HasPendingEvents())
+		pcsx2->ProcessPendingEvents();
+	GetMTGS().ClosePlugin();
+	while (pcsx2->HasPendingEvents())
+		pcsx2->ProcessPendingEvents();
+
+	GetCoreThread().ResetQuick();
 }
 
 static void context_reset()
@@ -312,7 +411,7 @@ static bool set_hw_render(retro_hw_context_type type)
 			break;
 
 		case RETRO_HW_CONTEXT_OPENGL:
-			if(set_hw_render(RETRO_HW_CONTEXT_OPENGL_CORE))
+			if (set_hw_render(RETRO_HW_CONTEXT_OPENGL_CORE))
 				return true;
 
 			hw_render.version_major = 3;
@@ -321,7 +420,7 @@ static bool set_hw_render(retro_hw_context_type type)
 			break;
 
 		case RETRO_HW_CONTEXT_OPENGLES3:
-			if(set_hw_render(RETRO_HW_CONTEXT_OPENGL))
+			if (set_hw_render(RETRO_HW_CONTEXT_OPENGL))
 				return true;
 
 			hw_render.version_major = 3;
@@ -381,11 +480,11 @@ bool retro_load_game(const struct retro_game_info* game)
 		pcsx2->SysExecute(g_Conf->CdvdSource);
 	}
 
-	//	g_Conf->CurrentGameArgs = "";
-	g_Conf->EmuOptions.GS.FrameLimitEnable = false;
-//	g_Conf->EmuOptions.GS.SynchronousMTGS = true;
 	g_Conf->EmuOptions.GS.VsyncEnable  = VsyncMode::Off;
 	g_Conf->EmuOptions.GS.FramesToDraw = 1;
+	//	g_Conf->CurrentGameArgs = "";
+	g_Conf->EmuOptions.GS.FrameLimitEnable = false;
+	//	g_Conf->EmuOptions.GS.SynchronousMTGS = true;
 
 	Input::Init();
 
@@ -394,7 +493,7 @@ bool retro_load_game(const struct retro_game_info* game)
 		environ_cb(RETRO_ENVIRONMENT_GET_PREFERRED_HW_RENDER, &context_type);
 #ifdef _WIN32
 	else if (Options::renderer == "D3D11")
-		context_type =  RETRO_HW_CONTEXT_DIRECT3D;
+		context_type = RETRO_HW_CONTEXT_DIRECT3D;
 #endif
 	else if (Options::renderer == "Null")
 		context_type = RETRO_HW_CONTEXT_NONE;
@@ -424,7 +523,6 @@ void retro_unload_game(void)
 		pcsx2->ProcessPendingEvents();
 	//	GetCoreThread().Suspend(true);
 	GetCoreThread().Pause();
-
 }
 
 
