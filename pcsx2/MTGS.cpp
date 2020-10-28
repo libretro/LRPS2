@@ -291,11 +291,15 @@ void SysMtgsThread::ExecuteTaskInThread()
 	PacketTagType prevCmd;
 #endif
 
+#ifndef __LIBRETRO__
 	RingBufferLock busy (*this);
+#endif
 
 //	OpenPlugin();
 	while(true) {
+#ifndef __LIBRETRO__
 		busy.Release();
+#endif
 #ifdef __LIBRETRO__
 		while (wxTheApp->HasPendingEvents())
 			wxTheApp->ProcessPendingEvents();
@@ -313,7 +317,9 @@ void SysMtgsThread::ExecuteTaskInThread()
 		m_sem_event.WaitWithoutYield();
 #endif
 		StateCheckInThread();
+#ifndef __LIBRETRO__
 		busy.Acquire();
+#endif
 
 		// note: m_ReadPos is intentionally not volatile, because it should only
 		// ever be modified by this thread.
@@ -434,10 +440,14 @@ void SysMtgsThread::ExecuteTaskInThread()
 				case GS_RINGTYPE_MTVU_GSPACKET: {
 					MTVU_LOG("MTGS - Waiting on semaXGkick!");
 					vu1Thread.KickStart(true);
+#ifndef __LIBRETRO__
 					busy.PartialRelease();
+#endif
 					// Wait for MTVU to complete vu1 program
 					vu1Thread.semaXGkick.WaitWithoutYield();
+#ifndef __LIBRETRO__
 					busy.PartialAcquire();
+#endif
 					Gif_Path& path   = gifUnit.gifPath[GIF_PATH_1];
 					GS_Packet gsPack = path.GetGSPacketMTVU(); // Get vu1 program's xgkick packet(s)
 					if (gsPack.size) GSgifTransfer((u32*)&path.buffer[gsPack.offset], gsPack.size/16);
@@ -482,9 +492,13 @@ void SysMtgsThread::ExecuteTaskInThread()
 							if (m_VsyncSignalListener.exchange(false))
 								m_sem_Vsync.Post();
 
+#ifndef __LIBRETRO__
 							busy.Release();
+#endif
 							StateCheckInThread();
+#ifndef __LIBRETRO__
 							busy.Acquire();
+#endif
 						}
 						break;
 
@@ -575,7 +589,9 @@ void SysMtgsThread::ExecuteTaskInThread()
 #ifdef __LIBRETRO__
 			if(tag.command == GS_RINGTYPE_VSYNC)
 			{
+#ifndef __LIBRETRO__
 				busy.Release();
+#endif
 				if( m_SignalRingEnable.exchange(false) )
 				{
 					//Console.Warning( "(MTGS Thread) Dangling RingSignal on empty buffer!  signalpos=0x%06x", m_SignalRingPosition.exchange(0) ) );
@@ -587,7 +603,9 @@ void SysMtgsThread::ExecuteTaskInThread()
 #endif
 		}
 
+#ifndef __LIBRETRO__
 		busy.Release();
+#endif
 
 		// Safety valve in case standard signals fail for some reason -- this ensures the EEcore
 		// won't sleep the eternity, even if SignalRingPosition didn't reach 0 for some reason.
