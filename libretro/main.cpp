@@ -268,7 +268,6 @@ void retro_init(void)
 	pcsx2->DetectCpuAndUserMode();
 	pcsx2->AllocateCoreStuffs();
 	//	pcsx2->GetGameDatabase();
-	vu1Thread.Reset();
 
 	g_Conf->BaseFilenames.Plugins[PluginId_GS] = "Built-in";
 	g_Conf->BaseFilenames.Plugins[PluginId_PAD] = "Built-in";
@@ -312,10 +311,6 @@ void retro_init(void)
 
 void retro_deinit(void)
 {
-	//	GetCoreThread().Cancel(true);
-
-	// WIN32 doesn't allow canceling threads from global constructors/destructors in a shared library.
-	vu1Thread.Cancel();
 	pcsx2->CleanupOnExit();
 #ifdef PERF_TEST
 	perf_cb.perf_log();
@@ -364,37 +359,23 @@ void retro_get_system_av_info(retro_system_av_info* info)
 void retro_reset(void)
 {
 	GetMTGS().FinishTaskInThread();
-
-	while (pcsx2->HasPendingEvents())
-		pcsx2->ProcessPendingEvents();
-	GetMTGS().ClosePlugin();
-	while (pcsx2->HasPendingEvents())
-		pcsx2->ProcessPendingEvents();
-
 	GetCoreThread().ResetQuick();
 }
 
-static void context_reset()
+static void context_reset(void)
 {
-	printf("Context reset\n");
-	GetCoreThread().Resume();
 	GetMTGS().OpenPlugin();
-	//	GSsetVsync(0);
 }
-static void context_destroy()
+
+static void context_destroy(void)
 {
 	GetMTGS().FinishTaskInThread();
 
 	while (pcsx2->HasPendingEvents())
 		pcsx2->ProcessPendingEvents();
 	GetMTGS().ClosePlugin();
-
 	while (pcsx2->HasPendingEvents())
 		pcsx2->ProcessPendingEvents();
-	//	GetCoreThread().Suspend(true);
-	GetCoreThread().Pause();
-
-	printf("Context destroy\n");
 }
 
 static bool set_hw_render(retro_hw_context_type type)
@@ -522,8 +503,6 @@ void retro_unload_game(void)
 {
 	//	GetMTGS().FinishTaskInThread();
 	//		GetMTGS().ClosePlugin();
-	//	GetCoreThread().Suspend(true);
-	//			GetCoreThread().Cancel(true);
 	GetMTGS().FinishTaskInThread();
 
 	while (pcsx2->HasPendingEvents())
@@ -532,8 +511,6 @@ void retro_unload_game(void)
 
 	while (pcsx2->HasPendingEvents())
 		pcsx2->ProcessPendingEvents();
-	//	GetCoreThread().Suspend(true);
-	GetCoreThread().Pause();
 }
 
 
@@ -561,8 +538,6 @@ void retro_run(void)
 
 	RETRO_PERFORMANCE_INIT(pcsx2_run);
 	RETRO_PERFORMANCE_START(pcsx2_run);
-	GetCoreThread().Resume();
-	GetMTGS().OpenPlugin();
 
 	GetMTGS().ExecuteTaskInThread();
 
