@@ -905,6 +905,7 @@ EXPORT_C GSgetLastTag(uint32* tag)
 
 EXPORT_C GSgetTitleInfo2(char* dest, size_t length)
 {
+#ifndef __LIBRETRO__
 	std::string s;
 	s.append(s_renderer_name);
 	// TODO: this gets called from a different thread concurrently with GSOpen (on linux)
@@ -921,6 +922,7 @@ EXPORT_C GSgetTitleInfo2(char* dest, size_t length)
 	}
 
 	strcpy(dest, s.c_str());
+#endif
 }
 
 EXPORT_C GSsetFrameSkip(int frameskip)

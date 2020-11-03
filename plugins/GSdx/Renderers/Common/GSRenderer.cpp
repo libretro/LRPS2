@@ -39,7 +39,9 @@ GSRenderer::GSRenderer()
 	, m_wnd()
 	, m_dev(NULL)
 {
+#ifndef __LIBRETRO__
 	m_GStitleInfoBuffer[0] = 0;
+#endif
 
 	m_interlace   = theApp.GetConfigI("interlace") % s_interlace_nb;
 	m_aspectratio = theApp.GetConfigI("AspectRatio") % s_aspect_ratio_nb;
@@ -340,7 +342,7 @@ void GSRenderer::VSync(int field)
 	m_dev->AgePool();
 
 	// osd
-
+#ifndef __LIBRETRO__
 	if((m_perfmon.GetFrame() & 0x1f) == 0)
 	{
 		m_perfmon.Update();
@@ -425,6 +427,7 @@ void GSRenderer::VSync(int field)
 		// We don't have window title rights, or the window has no title,
 		// so let's use actual OSD!
 	}
+#endif
 
 	if(m_frameskip)
 	{
@@ -441,8 +444,8 @@ void GSRenderer::VSync(int field)
 #endif
 	m_dev->Present(m_wnd->GetClientRect().fit(m_aspectratio), m_shader);
 
+#ifndef __LIBRETRO__
 	// snapshot
-
 	if(!m_snapshot.empty())
 	{
 		if(!m_dump && m_shift_key)
@@ -472,7 +475,6 @@ void GSRenderer::VSync(int field)
 		if(m_dump->VSync(field, !m_control_key, m_regs))
 			m_dump.reset();
 	}
-#ifndef __LIBRETRO__
 	// capture
 
 	if(m_capture.IsCapturing())
@@ -501,6 +503,7 @@ void GSRenderer::VSync(int field)
 
 bool GSRenderer::MakeSnapshot(const std::string& path)
 {
+#ifndef __LIBRETRO__
 	if(m_snapshot.empty())
 	{
 		time_t cur_time = time(nullptr);
@@ -526,6 +529,7 @@ bool GSRenderer::MakeSnapshot(const std::string& path)
 			prev_snap = cur_time;
 		}
 	}
+#endif
 
 	return true;
 }

@@ -30,8 +30,8 @@ class GSRenderer : public GSState
 {
 #ifndef __LIBRETRO__
 	GSCapture m_capture;
-#endif
 	std::string m_snapshot;
+#endif
 	int m_shader;
 
 	bool Merge(int field);
@@ -80,7 +80,9 @@ public:
 	void PurgePool();
 
 public:
+#ifndef __LIBRETRO__
 	std::mutex m_pGSsetTitle_Crit;
 
 	char m_GStitleInfoBuffer[128];
+#endif
 };
