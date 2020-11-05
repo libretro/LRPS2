@@ -376,7 +376,6 @@ if(LIBRETRO)
 		)
 	# gui headers
 	set(pcsx2GuiHeaders
-		gui-libretro/AppAccelerators.h
 		gui-libretro/AppCommon.h
 		gui-libretro/AppConfig.h
 		gui-libretro/AppCorePlugins.h
@@ -388,7 +387,6 @@ if(LIBRETRO)
 		gui-libretro/AppSaveStates.h
 		gui-libretro/ConsoleLogger.h
 		gui-libretro/DriveList.h
-		gui-libretro/IsoDropTarget.h
 		gui-libretro/MemoryCardFile.h
 		gui-libretro/MemoryCardFolder.h
 		gui-libretro/pxEventThread.h

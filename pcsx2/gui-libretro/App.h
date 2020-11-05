@@ -34,24 +34,10 @@ class DisassemblyDialog;
 typedef void FnType_OnThreadComplete(const wxCommandEvent& evt);
 typedef void (Pcsx2App::*FnPtr_Pcsx2App)();
 
-wxDECLARE_EVENT(pxEvt_SetSettingsPage, wxCommandEvent);
-
 // This is used when the GS plugin is handling its own window.  Messages from the PAD
 // are piped through to an app-level message handler, which dispatches them through
 // the universal Accelerator table.
 static const int pxID_PadHandler_Keydown = 8030;
-
-// Plugin ID sections are spaced out evenly at intervals to make it easy to use a
-// single for-loop to create them.
-static const int PluginMenuId_Interval = 0x10;
-
-// ID and return code used for modal popups that have a custom button.
-static const wxWindowID pxID_CUSTOM = wxID_LOWEST - 1;
-
-// Return code used by first time wizard if the dialog needs to be automatically recreated
-// (assigned an arbitrary value)
-static const wxWindowID pxID_RestartWizard = wxID_LOWEST - 100;
-
 
 // Forces the Interface to destroy the GS viewport window when the GS plugin is
 // destroyed.  This has the side effect of forcing all plugins to close and re-open
