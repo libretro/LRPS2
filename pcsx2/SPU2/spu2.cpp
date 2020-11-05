@@ -112,7 +112,9 @@ void SPU2readDMA4Mem(u16* pMem, u32 size) // size now in 16bit units
 	if (cyclePtr != nullptr)
 		TimeUpdate(*cyclePtr);
 
+#ifdef HAVE_LOGGING
 	FileLog("[%10d] SPU2 readDMA4Mem size %x\n", Cycles, size << 1);
+#endif
 	Cores[0].DoDMAread(pMem, size);
 }
 
@@ -121,7 +123,9 @@ void SPU2writeDMA4Mem(u16* pMem, u32 size) // size now in 16bit units
 	if (cyclePtr != nullptr)
 		TimeUpdate(*cyclePtr);
 
+#ifdef HAVE_LOGGING
 	FileLog("[%10d] SPU2 writeDMA4Mem size %x at address %x\n", Cycles, size << 1, Cores[0].TSA);
+#endif
 #ifdef S2R_ENABLE
 	if (!replay_mode)
 		s2r_writedma4(Cycles, pMem, size);
@@ -131,14 +135,18 @@ void SPU2writeDMA4Mem(u16* pMem, u32 size) // size now in 16bit units
 
 void SPU2interruptDMA4()
 {
+#ifdef HAVE_LOGGING
 	FileLog("[%10d] SPU2 interruptDMA4\n", Cycles);
+#endif
 	Cores[0].Regs.STATX |= 0x80;
 	//Cores[0].Regs.ATTR &= ~0x30;
 }
 
 void SPU2interruptDMA7()
 {
+#ifdef HAVE_LOGGING
 	FileLog("[%10d] SPU2 interruptDMA7\n", Cycles);
+#endif
 	Cores[1].Regs.STATX |= 0x80;
 	//Cores[1].Regs.ATTR &= ~0x30;
 }
@@ -148,7 +156,9 @@ void SPU2readDMA7Mem(u16* pMem, u32 size)
 	if (cyclePtr != nullptr)
 		TimeUpdate(*cyclePtr);
 
+#ifdef HAVE_LOGGING
 	FileLog("[%10d] SPU2 readDMA7Mem size %x\n", Cycles, size << 1);
+#endif
 	Cores[1].DoDMAread(pMem, size);
 }
 
@@ -157,7 +167,9 @@ void SPU2writeDMA7Mem(u16* pMem, u32 size)
 	if (cyclePtr != nullptr)
 		TimeUpdate(*cyclePtr);
 
+#ifdef HAVE_LOGGING
 	FileLog("[%10d] SPU2 writeDMA7Mem size %x at address %x\n", Cycles, size << 1, Cores[1].TSA);
+#endif
 #ifdef S2R_ENABLE
 	if (!replay_mode)
 		s2r_writedma7(Cycles, pMem, size);
@@ -280,7 +292,9 @@ s32 SPU2init()
 
 	SPU2reset();
 
+#ifdef HAVE_LOGGING
 	DMALogOpen();
+#endif
 	InitADSR();
 
 #ifdef S2R_ENABLE
@@ -291,6 +305,7 @@ s32 SPU2init()
 }
 
 #ifdef _MSC_VER
+#ifdef PCSX2_DEVBUILD
 // Bit ugly to have this here instead of in RealttimeDebugger.cpp, but meh :p
 extern bool debugDialogOpen;
 extern HWND hDebugDialog;
@@ -330,6 +345,8 @@ static INT_PTR CALLBACK DebugProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 	return TRUE;
 }
 #endif
+#endif
+
 uptr gsWindowHandle = 0;
 
 s32 SPU2open(void* pDsp)
@@ -374,7 +391,9 @@ s32 SPU2open(void* pDsp)
 #if !defined(__POSIX__) && !defined(__LIBRETRO__)
 		DspLoadLibrary(dspPlugin, dspPluginModule);
 #endif
+#ifdef WAVE_DUMP
 		WaveDump::Open();
+#endif
 	}
 	catch (std::exception& ex)
 	{
@@ -394,7 +413,9 @@ void SPU2close()
 		return;
 	IsOpened = false;
 
+#ifdef HAVE_LOGGING
 	FileLog("[%10d] SPU2 Close\n", Cycles);
+#endif
 
 #if !defined(__POSIX__) && !defined(__LIBRETRO__)
 	DspCloseLibrary();
@@ -428,9 +449,13 @@ void SPU2shutdown()
 	fclose(el0);
 	fclose(el1);
 #endif
+#ifdef WAVE_DUMP
 	WaveDump::Close();
+#endif
 
+#ifdef HAVE_LOGGING
 	DMALogClose();
+#endif
 
 	safe_free(spu2regs);
 	safe_free(_spu2mem);
@@ -552,13 +577,17 @@ u16 SPU2read(u32 rmem)
 		else if (mem >= 0x800)
 		{
 			ret = spu2Ru16(mem);
+#ifdef HAVE_LOGGING
 			ConLog("* SPU2: Read from reg>=0x800: %x value %x\n", mem, ret);
+#endif
 		}
 		else
 		{
 			ret = *(regtable[(mem >> 1)]);
+#ifdef HAVE_LOGGING
 			//FileLog("[%10d] SPU2 read mem %x (core %d, register %x): %x\n",Cycles, mem, core, (omem & 0x7ff), ret);
 			SPU2writeLog("read", rmem, ret);
+#endif
 		}
 	}
 
@@ -583,7 +612,9 @@ void SPU2write(u32 rmem, u16 value)
 		Cores[0].WriteRegPS1(rmem, value);
 	else
 	{
+#ifdef HAVE_LOGGING
 		SPU2writeLog("write", rmem, value);
+#endif
 		SPU2_FastWrite(rmem, value);
 	}
 }

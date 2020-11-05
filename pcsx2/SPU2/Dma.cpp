@@ -21,6 +21,7 @@
 
 extern u8 callirq;
 
+#ifdef HAVE_LOGGING
 static FILE* DMA4LogFile = nullptr;
 static FILE* DMA7LogFile = nullptr;
 static FILE* ADMA4LogFile = nullptr;
@@ -93,12 +94,15 @@ void V_Core::LogAutoDMA(FILE* fp)
 		return;
 	fwrite(DMAPtr + InputDataProgress, 0x400, 1, fp);
 }
+#endif
 
 void V_Core::AutoDMAReadBuffer(int mode) //mode: 0= split stereo; 1 = do not split stereo
 {
 	int spos = ((InputPosRead + 0xff) & 0x100); //starting position of the free buffer
 
+#ifdef HAVE_LOGGING
 	LogAutoDMA(Index ? ADMA7LogFile : ADMA4LogFile);
+#endif
 
 	// HACKFIX!! DMAPtr can be invalid after a savestate load, so the savestate just forces it
 	// to nullptr and we ignore it here.  (used to work in old VM editions of PCSX2 with fixed
@@ -137,9 +141,11 @@ void V_Core::StartADMAWrite(u16* pMem, u32 sz)
 {
 	int size = (sz) & (~511);
 
+#ifdef HAVE_LOGGING
 	if (MsgAutoDMA())
 		ConLog("* SPU2: DMA%c AutoDMA Transfer of %d bytes to %x (%02x %x %04x).\n",
 			   GetDmaIndexChar(), size << 1, TSA, DMABits, AutoDMACtrl, (~Regs.ATTR) & 0x7fff);
+#endif
 
 	InputDataProgress = 0;
 	if ((AutoDMACtrl & (Index + 1)) == 0)
@@ -204,7 +210,7 @@ void V_Core::PlainDMAWrite(u16* pMem, u32 size)
 	// Perform an alignment check.
 	// Not really important.  Everything should work regardless,
 	// but it could be indicative of an emulation foopah elsewhere.
-
+#ifdef HAVE_LOGGING
 	if (MsgToConsole())
 	{
 		// Don't need this anymore. Target may still be good to know though.
@@ -223,6 +229,7 @@ void V_Core::PlainDMAWrite(u16* pMem, u32 size)
 		DMA4LogWrite(pMem, size << 1);
 	else
 		DMA7LogWrite(pMem, size << 1);
+#endif
 
 	TSA &= 0xfffff;
 
@@ -416,6 +423,7 @@ void V_Core::DoDMAwrite(u16* pMem, u32 size)
 		return;
 	}
 
+#ifdef HAVE_LOGGING
 	if (IsDevBuild)
 	{
 		DebugCores[Index].lastsize = size;
@@ -429,6 +437,7 @@ void V_Core::DoDMAwrite(u16* pMem, u32 size)
 			ConLog("* SPU2: Transfer Start Address out of bounds. TSA is %x\n", TSA);
 		}
 	}
+#endif
 
 	TSA &= 0xfffff;
 
@@ -441,10 +450,12 @@ void V_Core::DoDMAwrite(u16* pMem, u32 size)
 	}
 	else
 	{
+#ifdef HAVE_LOGGING
 		if (MsgDMA())
 			ConLog("* SPU2: DMA%c Transfer of %d bytes to %x (%02x %x %04x). IRQE = %d IRQA = %x \n",
 				   GetDmaIndexChar(), size << 1, TSA, DMABits, AutoDMACtrl, (~Regs.ATTR) & 0x7fff,
 				   Cores[0].IRQEnable, Cores[0].IRQA);
+#endif
 
 		PlainDMAWrite(pMem, size);
 	}

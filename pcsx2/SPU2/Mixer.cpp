@@ -81,8 +81,10 @@ static void __forceinline XA_decode_block(s16* buffer, const s16* block, s32& pr
 	const s32 header = *block;
 	const s32 shift = (header & 0xF) + 16;
 	const int id = header >> 4 & 0xF;
+#ifdef HAVE_LOGGING
 	if (id > 4 && MsgToConsole())
 		ConLog("* SPU2: Unknown ADPCM coefficients table id %d\n", id);
+#endif
 	const s32 pred1 = tbl_XA_Factor[id][0];
 	const s32 pred2 = tbl_XA_Factor[id][1];
 
@@ -166,11 +168,13 @@ static __forceinline s32 GetNextDataBuffered(V_Core& thiscore, uint voiceidx)
 				{
 					vc.Stop();
 
+#ifdef HAVE_LOGGING
 					if (IsDevBuild)
 					{
 						if (MsgVoiceOff())
 							ConLog("* SPU2: Voice Off by EndPoint: %d \n", voiceidx);
 					}
+#endif
 				}
 			}
 			else
@@ -336,11 +340,13 @@ static __forceinline void CalculateADSR(V_Core& thiscore, uint voiceidx)
 
 	if (!vc.ADSR.Calculate())
 	{
+#ifdef HAVE_LOGGING
 		if (IsDevBuild)
 		{
 			if (MsgVoiceOff())
 				ConLog("* SPU2: Voice Off by ADSR: %d \n", voiceidx);
 		}
+#endif
 		vc.Stop();
 	}
 
@@ -652,9 +658,10 @@ StereoOut32 V_Core::Mix(const VoiceMixSet& inVoices, const StereoOut32& Input, c
 	spu2M_WriteFast(((0 == Index) ? 0x1600 : 0x1E00) + OutPos, Voices.Wet.Right);
 
 	// Write mixed results to logfile (if enabled)
-
+#ifdef WAVE_DUMP
 	WaveDump::WriteCore(Index, CoreSrc_DryVoiceMix, Voices.Dry);
 	WaveDump::WriteCore(Index, CoreSrc_WetVoiceMix, Voices.Wet);
+#endif
 
 	// Mix in the Input data
 
@@ -713,11 +720,15 @@ StereoOut32 V_Core::Mix(const VoiceMixSet& inVoices, const StereoOut32& Input, c
 	TW.Left += Ext.Left & WetGate.ExtL;
 	TW.Right += Ext.Right & WetGate.ExtR;
 
+#ifdef WAVE_DUMP
 	WaveDump::WriteCore(Index, CoreSrc_PreReverb, TW);
+#endif
 
 	StereoOut32 RV = DoReverb(TW);
 
+#ifdef WAVE_DUMP
 	WaveDump::WriteCore(Index, CoreSrc_PostReverb, RV);
+#endif
 
 	// Mix Dry + Wet
 	// (master volume is applied later to the result of both outputs added together).
@@ -825,8 +836,10 @@ __forceinline
 			// CDDA is on Core 1:
 			(PlayMode & 8) ? StereoOut32(0, 0) : ApplyVolume(Cores[1].ReadInput(), Cores[1].InpVol)};
 
+#ifdef WAVE_DUMP
 	WaveDump::WriteCore(0, CoreSrc_Input, InputData[0]);
 	WaveDump::WriteCore(1, CoreSrc_Input, InputData[1]);
+#endif
 
 	// Todo: Replace me with memzero initializer!
 	VoiceMixSet VoiceData[2] = {VoiceMixSet::Empty, VoiceMixSet::Empty}; // mixed voice data for each core.
@@ -846,7 +859,9 @@ __forceinline
 	spu2M_WriteFast(0x800 + OutPos, Ext.Left);
 	spu2M_WriteFast(0xA00 + OutPos, Ext.Right);
 
+#ifdef WAVE_DUMP
 	WaveDump::WriteCore(0, CoreSrc_External, Ext);
+#endif
 
 	Ext = ApplyVolume(Ext, Cores[1].ExtVol);
 	StereoOut32 Out(Cores[1].Mix(VoiceData[1], InputData[1], Ext));
@@ -898,6 +913,7 @@ __forceinline
 	if (OutPos >= 0x200)
 		OutPos = 0;
 
+#ifdef HAVE_LOGGING
 	if (IsDevBuild)
 	{
 		p_cachestat_counter++;
@@ -915,4 +931,5 @@ __forceinline
 					g_counter_cache_ignores = 0;
 		}
 	}
+#endif
 }

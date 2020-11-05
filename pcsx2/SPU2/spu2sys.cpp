@@ -30,7 +30,9 @@
 s16* spu2regs = nullptr;
 s16* _spu2mem = nullptr;
 
+#ifdef HAVE_LOGGING
 V_CoreDebug DebugCores[2];
+#endif
 V_Core Cores[2];
 V_SPDIF Spdif;
 
@@ -82,8 +84,10 @@ __forceinline void spu2M_Write(u32 addr, s16 value)
 		const int cacheIdx = addr / pcm_WordsPerBlock;
 		pcm_cache_data[cacheIdx].Validated = false;
 
+#ifdef HAVE_LOGGING
 		if (MsgToConsole() && MsgCache())
 			ConLog("* SPU2: PcmCache Block Clear at 0x%x (cacheIdx=0x%x)\n", addr, cacheIdx);
+#endif
 	}
 	*GetMemPtr(addr) = value;
 }
@@ -332,7 +336,9 @@ void V_Voice::QueueStart()
 	if (Cycles - PlayCycle < delayCycles)
 	{
 		// Required by The Legend of Spyro: The Eternal Night (probably the other two legend games too)
+#ifdef HAVE_LOGGING
 		ConLog(" *** KeyOn after less than %d T disregarded.\n", delayCycles);
+#endif
 		return;
 	}
 	PlayCycle = Cycles;
@@ -394,8 +400,10 @@ __forceinline void TimeUpdate(u32 cClocks)
 
 	if (dClocks > (u32)(TickInterval * SanityInterval))
 	{
+#ifdef HAVE_LOGGING
 		if (MsgToConsole())
 			ConLog(" * SPU2 > TimeUpdate Sanity Check (Tick Delta: %d) (PS2 Ticks: %d)\n", dClocks / TickInterval, cClocks / TickInterval);
+#endif
 		dClocks = TickInterval * SanityInterval;
 		lClocks = cClocks - dClocks;
 	}
@@ -504,11 +512,13 @@ __forceinline void UpdateSpdifMode()
 			PlayMode = 1;
 		}
 	}
+#ifdef HAVE_LOGGING
 	if (OPM != PlayMode)
 	{
 		ConLog("* SPU2: Play Mode Set to %s (%d).\n",
 			   (PlayMode == 0) ? "Normal" : ((PlayMode == 1) ? "PCM Clone" : ((PlayMode == 2) ? "PCM Bypass" : "BitStream Bypass")), PlayMode);
 	}
+#endif
 }
 
 // Converts an SPU2 register volume write into a 32 bit SPU2 volume.  The value is extended
@@ -558,9 +568,11 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 				{
 					thisvol.Mode = (value & 0xF000) >> 12;
 					thisvol.Increment = (value & 0x7F);
+#ifdef HAVE_LOGGING
 					// We're not sure slides work 100%
 					if (IsDevBuild)
 						ConLog("* SPU2: Voice uses Slides in Mode = %x, Increment = %x\n", thisvol.Mode, thisvol.Increment);
+#endif
 				}
 				else
 				{
@@ -576,8 +588,10 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 				break;
 			}
 			case 0x4:
+#ifdef HAVE_LOGGING
 				if (value > 0x3fff)
 					ConLog("* SPU2: Pitch setting too big: 0x%x\n", value);
+#endif
 				Voices[voice].Pitch = value & 0x3fff;
 				//ConLog("voice %x Pitch write: %x\n", voice, Voices[voice].Pitch);
 				break;
@@ -598,7 +612,9 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 			case 0xc: // Voice 0..23 ADSR Current Volume
 				// not commonly set by games
 				Voices[voice].ADSR.Value = value * 0x10001U;
+#ifdef HAVE_LOGGING
 				ConLog("voice %x ADSR.Value write: %x\n", voice, Voices[voice].ADSR.Value);
+#endif
 				break;
 			case 0xe:
 				Voices[voice].LoopStartA = map_spu1to2(value);
@@ -646,27 +662,35 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 
 			case 0x1d90: //         Channel FM (pitch lfo) mode (0-15)
 				SPU2_FastWrite(REG_S_PMON, value);
+#ifdef HAVE_LOGGING
 				if (value != 0)
 					ConLog("spu2x warning: wants to set Pitch Modulation reg1 to %x \n", value);
+#endif
 				break;
 
 			case 0x1d92: //         Channel FM (pitch lfo) mode (16-23)
 				SPU2_FastWrite(REG_S_PMON + 2, value);
+#ifdef HAVE_LOGGING
 				if (value != 0)
 					ConLog("spu2x warning: wants to set Pitch Modulation reg2 to %x \n", value);
+#endif
 				break;
 
 
 			case 0x1d94: //         Channel Noise mode (0-15)
 				SPU2_FastWrite(REG_S_NON, value);
+#ifdef HAVE_LOGGING
 				if (value != 0)
 					ConLog("spu2x warning: wants to set Channel Noise mode reg1 to %x\n", value);
+#endif
 				break;
 
 			case 0x1d96: //         Channel Noise mode (16-23)
 				SPU2_FastWrite(REG_S_NON + 2, value);
+#ifdef HAVE_LOGGING
 				if (value != 0)
 					ConLog("spu2x warning: wants to set Channel Noise mode reg2 to %x\n", value);
+#endif
 				break;
 
 			case 0x1d98: //         1F801D98h - Voice 0..23 Reverb mode aka Echo On (EON) (R/W)
@@ -695,12 +719,16 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 			//break;
 			case 0x1d9c: // Voice 0..15 ON/OFF (status) (ENDX) (R) // writeable but hw overrides it shortly after
 				//Regs.ENDX &= 0xff0000;
+#ifdef HAVE_LOGGING
 				ConLog("spu2x warning: wants to set ENDX reg1 to %x \n", value);
+#endif
 				break;
 
 			case 0x1d9e: //         // Voice 15..23 ON/OFF (status) (ENDX) (R) // writeable but hw overrides it shortly after
 				//Regs.ENDX &= 0xffff;
+#ifdef HAVE_LOGGING
 				ConLog("spu2x warning: wants to set ENDX reg2 to %x \n", value);
+#endif
 				break;
 
 			case 0x1da2: //         Reverb work area start
@@ -739,7 +767,9 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 				break;
 
 			case 0x1dac: // 1F801DACh - Sound RAM Data Transfer Control (should be 0004h)
+#ifdef HAVE_LOGGING
 				ConLog("SPU Sound RAM Data Transfer Control (should be 4) : value = %x \n", value);
+#endif
 				psxSoundDataTransferControl = value;
 				break;
 
@@ -1055,9 +1085,11 @@ static void __fastcall RegWrite_VoiceParams(u16 value)
 			{
 				thisvol.Mode = (value & 0xF000) >> 12;
 				thisvol.Increment = (value & 0x7F);
+#ifdef HAVE_LOGGING
 				// We're not sure slides work 100%
 				if (IsDevBuild)
 					ConLog("* SPU2: Voice uses Slides in Mode = %x, Increment = %x\n", thisvol.Mode, thisvol.Increment);
+#endif
 			}
 			else
 			{
@@ -1073,8 +1105,10 @@ static void __fastcall RegWrite_VoiceParams(u16 value)
 		break;
 
 		case 2:
+#ifdef HAVE_LOGGING
 			if (value > 0x3fff)
 				ConLog("* SPU2: Pitch setting too big: 0x%x\n", value);
+#endif
 			thisvoice.Pitch = value & 0x3fff;
 			break;
 
@@ -1119,14 +1153,18 @@ static void __fastcall RegWrite_VoiceAddr(u16 value)
 	{
 		case 0: // SSA (Waveform Start Addr) (hiword, 4 bits only)
 			thisvoice.StartA = ((value & 0x0F) << 16) | (thisvoice.StartA & 0xFFF8);
+#ifdef HAVE_LOGGING
 			if (IsDevBuild)
 				DebugCores[core].Voices[voice].lastSetStartA = thisvoice.StartA;
+#endif
 			break;
 
 		case 1: // SSA (loword)
 			thisvoice.StartA = (thisvoice.StartA & 0x0F0000) | (value & 0xFFF8);
+#ifdef HAVE_LOGGING
 			if (IsDevBuild)
 				DebugCores[core].Voices[voice].lastSetStartA = thisvoice.StartA;
+#endif
 			break;
 
 		case 2:
@@ -1227,6 +1265,7 @@ static void __fastcall RegWrite_Core(u16 value)
 				thiscore.Regs.STATX &= ~0x400; // ready to transfer
 			}
 
+#ifdef HAVE_LOGGING
 			if (value & 0x000E)
 			{
 				if (MsgToConsole())
@@ -1238,6 +1277,7 @@ static void __fastcall RegWrite_Core(u16 value)
 				if (MsgToConsole())
 					ConLog("* SPU2: ATTR bit 0 set to %d\n", thiscore.AttrBit0);
 			}
+#endif
 			if (thiscore.IRQEnable != irqe)
 			{
 				//ConLog("* SPU2: Core%d IRQ %s at cycle %d. Current IRQA = %x Current EffectA = %x\n",
@@ -1416,11 +1456,13 @@ static void __fastcall RegWrite_Core(u16 value)
 			break;
 
 		case REG_S_ADMAS:
+#ifdef HAVE_LOGGING
 			if (MsgToConsole())
 				ConLog("* SPU2: Core %d AutoDMAControl set to %d (at cycle %d)\n", core, value, Cycles);
 
 			if (psxmode)
 				ConLog("* SPU2: Writing to REG_S_ADMAS while in PSX mode! value: %x", value);
+#endif
 			// hack for ps1driver which writes -1 (and never turns the adma off after psxlogo).
 			// adma isn't available in psx mode either
 			if (value == 32767)
@@ -1868,6 +1910,7 @@ void StartVoices(int core, u32 value)
 
 		Cores[core].Voices[vc].QueueStart();
 
+#ifdef HAVE_LOGGING
 		if (IsDevBuild)
 		{
 			V_Voice& thisvc(Cores[core].Voices[vc]);
@@ -1882,6 +1925,7 @@ void StartVoices(int core, u32 value)
 					   thisvc.Volume.Left.Value >> 16, thisvc.Volume.Right.Value >> 16,
 					   thisvc.ADSR.regADSR1, thisvc.ADSR.regADSR2);
 		}
+#endif
 	}
 }
 
@@ -1895,7 +1939,9 @@ void StopVoices(int core, u32 value)
 			continue;
 
 		Cores[core].Voices[vc].ADSR.Releasing = true;
+#ifdef HAVE_LOGGING
 		if (MsgKeyOnOff())
 			ConLog("* SPU2: KeyOff: Core %d; Voice %d.\n", core, vc);
+#endif
 	}
 }
