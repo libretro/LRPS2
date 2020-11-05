@@ -77,10 +77,10 @@ void RecompiledCodeReserve::Reset()
 
 bool RecompiledCodeReserve::Commit()
 {
-	bool status = _parent::Commit();
-#if defined(_WIN32) && defined(__LIBRETRO__) // TODO: investigate
-#define IsDevBuild true
-#endif
+#ifdef __LIBRETRO__
+   return _parent::Commit();
+#else
+   bool status = _parent::Commit();
 	if (IsDevBuild && m_baseptr)
 	{
 		// Clear the recompiled code block to 0xcc (INT3) -- this helps disasm tools show
@@ -91,6 +91,7 @@ bool RecompiledCodeReserve::Commit()
 	}
 
 	return status;
+#endif
 }
 
 // Sets the abbreviated name used by the profiler.  Name should be under 10 characters long.
