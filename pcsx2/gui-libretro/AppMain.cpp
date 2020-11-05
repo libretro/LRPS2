@@ -24,31 +24,6 @@
 #include "Utilities/IniInterface.h"
 #include "Utilities/AppTrait.h"
 
-#include <wx/stdpaths.h>
-
-#ifdef __WXMSW__
-#	include <wx/msw/wrapwin.h>		// needed to implement the app!
-#endif
-
-#ifdef __WXGTK__
-#include <gdk/gdkx.h>
-#include <gtk/gtk.h>
-#endif
-
-// Safe to remove these lines when this is handled properly.
-#ifdef __WXMAC__
-// Great joy....
-#undef EBP
-#undef ESP
-#undef EDI
-#undef ESI
-#undef EDX
-#undef EAX
-#undef EBX
-#undef ECX
-#include <wx/osx/private.h>		// needed to implement the app!
-#endif
-
 Pcsx2App& wxGetApp() {
    static Pcsx2App pcsx2;
    return pcsx2;

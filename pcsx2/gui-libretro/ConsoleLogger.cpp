@@ -16,7 +16,6 @@
 #include "PrecompiledHeader.h"
 #include "App.h"
 #include "ConsoleLogger.h"
-#include "MSWstuff.h"
 
 #include "Utilities/Console.h"
 #include "Utilities/IniInterface.h"

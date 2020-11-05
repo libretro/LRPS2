@@ -22,8 +22,6 @@
 #include <wx/imaglist.h>
 #include <memory>
 
-#include "MSWstuff.h"
-
 pxAppResources::pxAppResources()
 {
 }

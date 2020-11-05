@@ -370,7 +370,6 @@ if(LIBRETRO)
 		gui-libretro/AppMain.cpp
 		gui-libretro/AppRes.cpp
 		gui-libretro/ConsoleLogger.cpp
-		gui-libretro/CpuUsageProvider.cpp
 		gui-libretro/ExecutorThread.cpp
 		gui-libretro/MemoryCardFile.cpp
 		gui-libretro/MemoryCardFolder.cpp
@@ -388,13 +387,10 @@ if(LIBRETRO)
 		gui-libretro/App.h
 		gui-libretro/AppSaveStates.h
 		gui-libretro/ConsoleLogger.h
-		gui-libretro/CpuUsageProvider.h
 		gui-libretro/DriveList.h
-		gui-libretro/GSFrame.h
 		gui-libretro/IsoDropTarget.h
 		gui-libretro/MemoryCardFile.h
 		gui-libretro/MemoryCardFolder.h
-		gui-libretro/MSWstuff.h
 		gui-libretro/pxEventThread.h
 		gui-libretro/Saveslots.h
 		)
@@ -557,10 +553,7 @@ set(pcsx2LinuxSources
 	Linux/LnxConsolePipe.cpp
 	Linux/LnxFlatFileReader.cpp
    )
-if(LIBRETRO)
-   set(pcsx2LinuxSources ${pcsx2LinuxSources}
-      gui-libretro/CpuUsageProviderLnx.cpp)
-else()
+if(NOT LIBRETRO)
    set(pcsx2LinuxSources ${pcsx2LinuxSources}
       Linux/LnxKeyCodes.cpp
       gui/CpuUsageProviderLnx.cpp)
@@ -574,10 +567,7 @@ set(pcsx2OSXSources
 	Darwin/DarwinFlatFileReader.cpp
 	)
 
-if(LIBRETRO)
-   set(pcsx2OSXSources ${pcsx2OSXSources}
-      gui-libretro/CpuUsageProviderLnx.cpp)
-else()
+if(NOT LIBRETRO)
    set(pcsx2OSXSources ${pcsx2OSXSources}
       gui/CpuUsageProviderLnx.cpp)
 endif()
@@ -590,10 +580,7 @@ set(pcsx2FreeBSDSources
 	Darwin/DarwinFlatFileReader.cpp
 	)
 
-if(LIBRETRO)
-   set(pcsx2FreeBSDSources ${pcsx2FreeBSDSources}
-      gui-libretro/CpuUsageProviderLnx.cpp)
-else()
+if(NOT LIBRETRO)
    set(pcsx2FreeBSDSources ${pcsx2FreeBSDSources}
       gui/CpuUsageProviderLnx.cpp)
 endif()
@@ -731,11 +718,7 @@ set(pcsx2WindowsSources
 	windows/WinConsolePipe.cpp
 	windows/WinKeyCodes.cpp
 	)
-if(LIBRETRO)
-   set(pcsx2WindowsSources ${pcsx2WindowsSources}
-      gui-libretro/CpuUsageProviderMSW.cpp
-   	)
-else()
+if(NOT LIBRETRO)
    set(pcsx2WindowsSources ${pcsx2WindowsSources}
       windows/PatchBrowser.cpp
       gui/CpuUsageProviderMSW.cpp
