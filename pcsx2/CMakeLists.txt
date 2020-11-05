@@ -359,108 +359,46 @@ set(pcsx2DebugToolsHeaders
 if(LIBRETRO)
 	# gui sources
 	set(pcsx2GuiSources
-		gui/AppAssert.cpp
-		gui/AppConfig.cpp
-		gui/AppCorePlugins.cpp
-		gui/AppCoreThread.cpp
-		gui/AppEventSources.cpp
-		gui/AppGameDatabase.cpp
-		gui/AppUserMode.cpp
-		gui/AppInit.cpp
-		gui/AppMain.cpp
-		gui/AppRes.cpp
-		gui/ConsoleLogger.cpp
-		gui/CpuUsageProvider.cpp
-#		gui/Dialogs/AboutBoxDialog.cpp
-#		gui/Dialogs/AssertionDialog.cpp
-#		gui/Dialogs/BaseConfigurationDialog.cpp
-#		gui/Dialogs/ConfirmationDialogs.cpp
-#		gui/Dialogs/ConvertMemoryCardDialog.cpp
-#		gui/Dialogs/CreateMemoryCardDialog.cpp
-#		gui/Dialogs/FirstTimeWizard.cpp
-#		gui/Dialogs/ImportSettingsDialog.cpp
-#		gui/Dialogs/LogOptionsDialog.cpp
-#		gui/Dialogs/McdConfigDialog.cpp
-#		gui/Dialogs/PickUserModeDialog.cpp
-#		gui/Dialogs/SysConfigDialog.cpp
-#		gui/Debugger/BreakpointWindow.cpp
-#		gui/Debugger/CtrlDisassemblyView.cpp
-#		gui/Debugger/CtrlRegisterList.cpp
-#		gui/Debugger/CtrlMemView.cpp
-#		gui/Debugger/DebuggerLists.cpp
-#		gui/Debugger/DisassemblyDialog.cpp
-#		gui/Debugger/DebugEvents.cpp
-#		gui/DriveList.cpp
-		gui/ExecutorThread.cpp
-#		gui/FrameForGS.cpp
-#		gui/GlobalCommands.cpp
-		gui/i18n.cpp
-#		gui/IsoDropTarget.cpp
-#		gui/MainFrame.cpp
-#		gui/MainMenuClicks.cpp
-		gui/MemoryCardFile.cpp
-		gui/MemoryCardFolder.cpp
-#		gui/MessageBoxes.cpp
-		gui/MSWstuff.cpp
-#		gui/Panels/BaseApplicableConfigPanel.cpp
-#		gui/Panels/BiosSelectorPanel.cpp
-#		gui/Panels/CpuPanel.cpp
-#		gui/Panels/DirPickerPanel.cpp
-#		gui/Panels/GameFixesPanel.cpp
-#		gui/Panels/GSWindowPanel.cpp
-#		gui/Panels/LogOptionsPanels.cpp
-#		gui/Panels/MemoryCardListPanel.cpp
-#		gui/Panels/MemoryCardListView.cpp
-#		gui/Panels/MiscPanelStuff.cpp
-#		gui/Panels/PathsPanel.cpp
-#		gui/Panels/PluginSelectorPanel.cpp
-#		gui/Panels/SpeedhacksPanel.cpp
-#		gui/Panels/VideoPanel.cpp
-#		gui/RecentIsoList.cpp
-#		gui/Saveslots.cpp
-#		gui/SysState.cpp
-#		gui/UpdateUI.cpp
+		gui-libretro/AppAssert.cpp
+		gui-libretro/AppConfig.cpp
+		gui-libretro/AppCorePlugins.cpp
+		gui-libretro/AppCoreThread.cpp
+		gui-libretro/AppEventSources.cpp
+		gui-libretro/AppGameDatabase.cpp
+		gui-libretro/AppUserMode.cpp
+		gui-libretro/AppInit.cpp
+		gui-libretro/AppMain.cpp
+		gui-libretro/AppRes.cpp
+		gui-libretro/ConsoleLogger.cpp
+		gui-libretro/CpuUsageProvider.cpp
+		gui-libretro/ExecutorThread.cpp
+		gui-libretro/i18n.cpp
+		gui-libretro/MemoryCardFile.cpp
+		gui-libretro/MemoryCardFolder.cpp
 		)
 	# gui headers
 	set(pcsx2GuiHeaders
-		gui/AppAccelerators.h
-		gui/AppCommon.h
-		gui/AppConfig.h
-		gui/AppCorePlugins.h
-		gui/AppCoreThread.h
-		gui/AppEventListeners.h
-		gui/AppForwardDefs.h
-		gui/AppGameDatabase.h
-		gui/App.h
-		gui/ApplyState.h
-		gui/AppSaveStates.h
-		gui/ConsoleLogger.h
-		gui/CpuUsageProvider.h
-		gui/Debugger/BreakpointWindow.h
-		gui/Debugger/CtrlDisassemblyView.h
-		gui/Debugger/CtrlMemView.h
-		gui/Debugger/CtrlRegisterList.h
-		gui/Debugger/DebugEvents.h
-		gui/Debugger/DebuggerLists.h
-		gui/Debugger/DisassemblyDialog.h
-		gui/Dialogs/BaseConfigurationDialog.inl
-		gui/Dialogs/ConfigurationDialog.h
-		gui/Dialogs/LogOptionsDialog.h
-		gui/Dialogs/ModalPopups.h
-		gui/DriveList.h
-		gui/GSFrame.h
-		gui/i18n.h
-		gui/IsoDropTarget.h
-		gui/MainFrame.h
-		gui/MemoryCardFile.h
-		gui/MemoryCardFolder.h
-		gui/MSWstuff.h
-		gui/Panels/ConfigurationPanels.h
-		gui/Panels/LogOptionsPanels.h
-		gui/Panels/MemoryCardPanels.h
-		gui/pxEventThread.h
-		gui/RecentIsoList.h
-		gui/Saveslots.h
+		gui-libretro/AppAccelerators.h
+		gui-libretro/AppCommon.h
+		gui-libretro/AppConfig.h
+		gui-libretro/AppCorePlugins.h
+		gui-libretro/AppCoreThread.h
+		gui-libretro/AppEventListeners.h
+		gui-libretro/AppForwardDefs.h
+		gui-libretro/AppGameDatabase.h
+		gui-libretro/App.h
+		gui-libretro/AppSaveStates.h
+		gui-libretro/ConsoleLogger.h
+		gui-libretro/CpuUsageProvider.h
+		gui-libretro/DriveList.h
+		gui-libretro/GSFrame.h
+		gui-libretro/i18n.h
+		gui-libretro/IsoDropTarget.h
+		gui-libretro/MemoryCardFile.h
+		gui-libretro/MemoryCardFolder.h
+		gui-libretro/MSWstuff.h
+		gui-libretro/pxEventThread.h
+		gui-libretro/Saveslots.h
 		)
 else()
 	# gui sources
@@ -618,32 +556,49 @@ set(pcsx2IPUHeaders
 set(pcsx2LinuxSources
 	CDVD/Linux/DriveUtility.cpp
 	CDVD/Linux/IOCtlSrc.cpp
-	gui/CpuUsageProviderLnx.cpp
 	Linux/LnxConsolePipe.cpp
 	Linux/LnxFlatFileReader.cpp
    )
-if(NOT LIBRETRO)
+if(LIBRETRO)
    set(pcsx2LinuxSources ${pcsx2LinuxSources}
-      Linux/LnxKeyCodes.cpp)
+      gui-libretro/CpuUsageProviderLnx.cpp)
+else()
+   set(pcsx2LinuxSources ${pcsx2LinuxSources}
+      Linux/LnxKeyCodes.cpp
+      gui/CpuUsageProviderLnx.cpp)
 endif()
 
 set(pcsx2OSXSources
 	CDVD/Linux/DriveUtility.cpp
 	CDVD/Linux/IOCtlSrc.cpp
-	gui/CpuUsageProviderLnx.cpp
 	Linux/LnxConsolePipe.cpp
 #	Linux/LnxKeyCodes.cpp
 	Darwin/DarwinFlatFileReader.cpp
 	)
 
+if(LIBRETRO)
+   set(pcsx2OSXSources ${pcsx2OSXSources}
+      gui-libretro/CpuUsageProviderLnx.cpp)
+else()
+   set(pcsx2OSXSources ${pcsx2OSXSources}
+      gui/CpuUsageProviderLnx.cpp)
+endif()
+
 set(pcsx2FreeBSDSources
 	CDVD/Linux/DriveUtility.cpp
 	CDVD/Linux/IOCtlSrc.cpp
-	gui/CpuUsageProviderLnx.cpp
 	Linux/LnxConsolePipe.cpp
 	Linux/LnxKeyCodes.cpp
 	Darwin/DarwinFlatFileReader.cpp
 	)
+
+if(LIBRETRO)
+   set(pcsx2FreeBSDSources ${pcsx2FreeBSDSources}
+      gui-libretro/CpuUsageProviderLnx.cpp)
+else()
+   set(pcsx2FreeBSDSources ${pcsx2FreeBSDSources}
+      gui/CpuUsageProviderLnx.cpp)
+endif()
 
 # Linux headers
 set(pcsx2LinuxHeaders
@@ -771,7 +726,6 @@ set(pcsx2ZipToolsHeaders
 set(pcsx2WindowsSources
 	CDVD/Windows/DriveUtility.cpp
 	CDVD/Windows/IOCtlSrc.cpp
-	gui/CpuUsageProviderMSW.cpp
 	windows/FlatFileReaderWindows.cpp
 	windows/Optimus.cpp
 	windows/VCprojects/IopSif.cpp
@@ -779,9 +733,14 @@ set(pcsx2WindowsSources
 	windows/WinConsolePipe.cpp
 	windows/WinKeyCodes.cpp
 	)
-if(NOT LIBRETRO)
+if(LIBRETRO)
    set(pcsx2WindowsSources ${pcsx2WindowsSources}
-   	windows/PatchBrowser.cpp
+      gui-libretro/CpuUsageProviderMSW.cpp
+   	)
+else()
+   set(pcsx2WindowsSources ${pcsx2WindowsSources}
+      windows/PatchBrowser.cpp
+      gui/CpuUsageProviderMSW.cpp
    	)
 endif()
 # Windows headers
