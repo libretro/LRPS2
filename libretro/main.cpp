@@ -263,8 +263,6 @@ void retro_init(void)
 	pxDoAssert = AppDoAssert;
 	pxDoOutOfMemory = SysOutOfMemory_EmergencyResponse;
 	g_Conf = std::make_unique<AppConfig>();
-	i18n_SetLanguage(wxLANGUAGE_DEFAULT);
-	i18n_SetLanguagePath();
 	pcsx2->DetectCpuAndUserMode();
 	pcsx2->AllocateCoreStuffs();
 	//	pcsx2->GetGameDatabase();

@@ -346,13 +346,6 @@ void AppApplySettings( const AppConfig* oldconf )
 
 	g_Conf->EmuOptions.BiosFilename = g_Conf->FullpathToBios();
 
-	if( (oldconf == NULL) || (oldconf->LanguageCode.CmpNoCase(g_Conf->LanguageCode)) )
-	{
-		wxDoNotLogInThisScope please;
-		i18n_SetLanguage( g_Conf->LanguageId, g_Conf->LanguageCode );
-	}
-
-	
 	CorePlugins.SetSettingsFolder( GetSettingsFolder().ToString() );
 
 	// Update the compression attribute on the Memcards folder.

@@ -19,10 +19,6 @@
 #include "MTVU.h" // for thread cancellation on shutdown
 
 #include "Utilities/IniInterface.h"
-#ifndef DISABLE_RECORDING
-#   include "Recording/InputRecording.h"
-#	include "Recording/VirtualPad/VirtualPad.h"
-#endif
 
 #include <wx/cmdline.h>
 #include <wx/intl.h>

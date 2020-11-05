@@ -227,16 +227,6 @@ public:
 		void SanityCheck();
 	};
 
-#ifndef DISABLE_RECORDING
-	struct InputRecordingOptions
-	{
-		wxPoint		VirtualPadPosition;
-
-		InputRecordingOptions();
-		void loadSave( IniInterface& conf );
-	};
-#endif
-
 	struct UiTemplateOptions {
 		UiTemplateOptions();
 		void LoadSave(IniInterface& conf);
@@ -251,9 +241,6 @@ public:
 		wxString OutputInterlaced;
 		wxString Paused;
 		wxString TitleTemplate;
-#ifndef DISABLE_RECORDING
-		wxString RecordingTemplate;
-#endif
 	};
 
 public:
@@ -324,9 +311,6 @@ public:
 	FilenameOptions			BaseFilenames;
 	GSWindowOptions			GSWindow;
 	FramerateOptions		Framerate;
-#ifndef DISABLE_RECORDING
-	InputRecordingOptions   inputRecording;
-#endif
 	UiTemplateOptions		Templates;
 	
 	// PCSX2-core emulation options, which are passed to the emu core prior to initiating
@@ -377,7 +361,6 @@ extern void SysTraceLog_LoadSaveSettings( IniInterface& ini );
 
 
 extern wxFileConfig* OpenFileConfig( const wxString& filename );
-extern void RelocateLogfile();
 extern void AppConfig_OnChangedSettingsFolder( bool overwrite =  false );
 extern wxConfigBase* GetAppConfig();
 

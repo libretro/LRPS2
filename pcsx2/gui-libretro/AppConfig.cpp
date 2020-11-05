@@ -668,9 +668,6 @@ void AppConfig::LoadSave( IniInterface& ini )
 	BaseFilenames	.LoadSave( ini );
 	GSWindow		.LoadSave( ini );
 	Framerate		.LoadSave( ini );
-#ifndef DISABLE_RECORDING
-	inputRecording.loadSave(ini);
-#endif
 	Templates		.LoadSave( ini );
 
 	ini.Flush();
@@ -856,20 +853,6 @@ void AppConfig::GSWindowOptions::LoadSave( IniInterface& ini )
 	if( ini.IsLoading() ) SanityCheck();
 }
 
-#ifndef DISABLE_RECORDING
-AppConfig::InputRecordingOptions::InputRecordingOptions()
-	: VirtualPadPosition(wxDefaultPosition)
-{
-}
-
-void AppConfig::InputRecordingOptions::loadSave(IniInterface& ini)
-{
-	ScopedIniGroup path(ini, L"InputRecording");
-
-	IniEntry(VirtualPadPosition);
-}
-#endif
-
 // ----------------------------------------------------------------------------
 AppConfig::FramerateOptions::FramerateOptions()
 {
@@ -914,9 +897,6 @@ AppConfig::UiTemplateOptions::UiTemplateOptions()
 	OutputInterlaced	= L"Interlaced";
 	Paused				= L"<PAUSED> ";
 	TitleTemplate		= L"Slot: ${slot} | Speed: ${speed} (${vfps}) | ${videomode} | Limiter: ${limiter} | ${gsdx} | ${omodei} | ${cpuusage}";
-#ifndef DISABLE_RECORDING
-	RecordingTemplate	= L"Slot: ${slot} | Frame: ${frame}/${maxFrame} | Rec. Mode: ${mode} | Speed: ${speed} (${vfps}) | Limiter: ${limiter}";
-#endif
 }
 
 void AppConfig::UiTemplateOptions::LoadSave(IniInterface& ini)
@@ -933,9 +913,6 @@ void AppConfig::UiTemplateOptions::LoadSave(IniInterface& ini)
 	IniEntry(OutputInterlaced);
 	IniEntry(Paused);
 	IniEntry(TitleTemplate);
-#ifndef DISABLE_RECORDING
-	IniEntry(RecordingTemplate);
-#endif
 }
 
 int AppConfig::GetMaxPresetIndex()
@@ -1049,31 +1026,7 @@ wxFileConfig* OpenFileConfig( const wxString& filename )
 {
 	return new wxFileConfig( wxEmptyString, wxEmptyString, filename, wxEmptyString, wxCONFIG_USE_RELATIVE_PATH );
 }
-#ifndef __LIBRETRO__
-void RelocateLogfile()
-{
-	g_Conf->Folders.Logs.Mkdir();
 
-	wxString newlogname( Path::Combine( g_Conf->Folders.Logs.ToString(), L"emuLog.txt" ) );
-
-	if( (emuLog != NULL) && (emuLogName != newlogname) )
-	{
-		Console.WriteLn( L"\nRelocating Logfile...\n\tFrom: %s\n\tTo  : %s\n", WX_STR(emuLogName), WX_STR(newlogname) );
-		wxGetApp().DisableDiskLogging();
-
-		fclose( emuLog );
-		emuLog = NULL;
-	}
-
-	if( emuLog == NULL )
-	{
-		emuLogName = newlogname;
-		emuLog = wxFopen( emuLogName, "wb" );
-	}
-
-	wxGetApp().EnableAllLogging();
-}
-#endif
 // Parameters:
 //   overwrite - this option forces the current settings to overwrite any existing settings
 //      that might be saved to the configured ini/settings folder.

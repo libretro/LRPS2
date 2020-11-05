@@ -372,7 +372,6 @@ if(LIBRETRO)
 		gui-libretro/ConsoleLogger.cpp
 		gui-libretro/CpuUsageProvider.cpp
 		gui-libretro/ExecutorThread.cpp
-		gui-libretro/i18n.cpp
 		gui-libretro/MemoryCardFile.cpp
 		gui-libretro/MemoryCardFolder.cpp
 		)
@@ -392,7 +391,6 @@ if(LIBRETRO)
 		gui-libretro/CpuUsageProvider.h
 		gui-libretro/DriveList.h
 		gui-libretro/GSFrame.h
-		gui-libretro/i18n.h
 		gui-libretro/IsoDropTarget.h
 		gui-libretro/MemoryCardFile.h
 		gui-libretro/MemoryCardFolder.h
