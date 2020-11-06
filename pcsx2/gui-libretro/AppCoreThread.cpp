@@ -590,14 +590,6 @@ void AppCoreThread::OnCleanupInThread()
 	_parent::OnCleanupInThread();
 }
 
-void AppCoreThread::VsyncInThread()
-{
-//#ifndef __LIBRETRO__
-	wxGetApp().LogicalVsync();
-//#endif
-	_parent::VsyncInThread();
-}
-
 void AppCoreThread::GameStartingInThread()
 {
 	// Simulate a Close/Resume, so that settings get re-applied and the database

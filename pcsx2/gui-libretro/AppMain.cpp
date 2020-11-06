@@ -211,14 +211,7 @@ wxAppTraits* Pcsx2App::CreateTraits()
 //         Pcsx2App Event Handlers
 // ----------------------------------------------------------------------------
 
-// LogicalVsync - Event received from the AppCoreThread (EEcore) for each vsync,
-// roughly 50/60 times a second when frame limiting is enabled, and up to 10,000 
-// times a second if not (ok, not quite, but you get the idea... I hope.)
-extern uint eecount_on_last_vdec;
-extern bool FMVstarted;
-extern bool EnableFMV;
 extern bool renderswitch;
-extern uint renderswitch_delay;
 
 void DoFmvSwitch(bool on)
 {
@@ -241,34 +234,6 @@ void DoFmvSwitch(bool on)
 		renderswitch = !renderswitch;
 		CoreThread.Resume();
 	}
-}
-
-void Pcsx2App::LogicalVsync()
-{
-	if( AppRpc_TryInvokeAsync( &Pcsx2App::LogicalVsync ) ) return;
-
-	if( !SysHasValidState() ) return;
-
-	// Update / Calculate framerate!
-
-	if (EmuConfig.Gamefixes.FMVinSoftwareHack || g_Conf->GSWindow.FMVAspectRatioSwitch != FMV_AspectRatio_Switch_Off) {
-		if (EnableFMV) {
-			DevCon.Warning("FMV on");
-			DoFmvSwitch(true);
-			EnableFMV = false;
-		}
-
-		if (FMVstarted) {
-			int diff = cpuRegs.cycle - eecount_on_last_vdec;
-			if (diff > 60000000 ) {
-				DevCon.Warning("FMV off");
-				DoFmvSwitch(false);
-				FMVstarted = false;
-			}
-		}
-	}
-
-	renderswitch_delay >>= 1;
 }
 
 bool Pcsx2App::HasPendingSaves() const

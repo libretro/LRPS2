@@ -433,7 +433,6 @@ public:
 	void SysApplySettings();
 	void SysExecute();
 	void SysExecute( CDVD_SourceType cdvdsrc, const wxString& elf_override=wxEmptyString );
-	void LogicalVsync();
 	
 	SysMainMemory& GetVmReserve();
 	
