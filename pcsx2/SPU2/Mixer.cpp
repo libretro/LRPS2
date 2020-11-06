@@ -590,8 +590,10 @@ static __forceinline StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 			vc.NextCrest = vc.PV1;
 		}
 
+#ifdef HAVE_LOGGING
 		if (IsDevBuild)
 			DebugCores[coreidx].Voices[voiceidx].displayPeak = std::max(DebugCores[coreidx].Voices[voiceidx].displayPeak, (s32)vc.OutX);
+#endif
 
 		// Write-back of raw voice data (post ADSR applied)
 
