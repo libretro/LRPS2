@@ -21,14 +21,6 @@
 #include "Utilities/IniInterface.h"
 #include "Utilities/SafeArray.inl"
 
-#include <wx/textfile.h>
-
-wxDECLARE_EVENT(pxEvt_SetTitleText, wxCommandEvent);
-wxDECLARE_EVENT(pxEvt_FlushQueue, wxCommandEvent);
-
-wxDEFINE_EVENT(pxEvt_SetTitleText, wxCommandEvent);
-wxDEFINE_EVENT(pxEvt_FlushQueue, wxCommandEvent);
-
 // C++ requires abstract destructors to exist, even though they're abstract.
 PipeRedirectionBase::~PipeRedirectionBase() = default;
 
@@ -70,25 +62,8 @@ void pxLogConsole::DoLogRecord(wxLogLevel level, const wxString &message, const 
 	}
 }
 
-#ifndef __LIBRETRO__
-void OSDlog(ConsoleColors color, bool console, const std::string& str)
-{
-	if (GSosdLog)
-		GSosdLog(str.c_str(), wxGetApp().GetProgramLog()->GetRGBA(color));
-	if (console)
-		Console.WriteLn(color, str.c_str());
-}
-
-void OSDmonitor(ConsoleColors color, const std::string key, const std::string value) {
-	if(!GSosdMonitor) return;
-
-	GSosdMonitor(wxString(key).utf8_str(), wxString(value).utf8_str(), wxGetApp().GetProgramLog()->GetRGBA(color));
-}
-#else
 void OSDlog(ConsoleColors color, bool console, const std::string& str)
 {
 	if (console)
 		Console.WriteLn(color, str.c_str());
 }
-#endif
-
