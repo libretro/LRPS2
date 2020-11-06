@@ -47,10 +47,6 @@
 #include "wx/thread.h"
 
 #if wxUSE_STL
-    #if wxUSE_EXCEPTIONS
-        #include <exception>
-        #include <typeinfo>
-    #endif
     #if wxUSE_INTL
         #include <locale>
     #endif
@@ -219,31 +215,6 @@ void wxAppConsoleBase::CleanUp()
 
 bool wxAppConsoleBase::OnInit()
 {
-#if wxUSE_CMDLINE_PARSER
-    wxCmdLineParser parser(argc, argv);
-
-    OnInitCmdLine(parser);
-
-    bool cont;
-    switch ( parser.Parse(false /* don't show usage */) )
-    {
-        case -1:
-            cont = OnCmdLineHelp(parser);
-            break;
-
-        case 0:
-            cont = OnCmdLineParsed(parser);
-            break;
-
-        default:
-            cont = OnCmdLineError(parser);
-            break;
-    }
-
-    if ( !cont )
-        return false;
-#endif // wxUSE_CMDLINE_PARSER
-
     return true;
 }
 
@@ -582,131 +553,6 @@ void wxAppConsoleBase::DeletePendingObjects()
         node = wxPendingDelete.GetFirst();
     }
 }
-
-// ----------------------------------------------------------------------------
-// exception handling
-// ----------------------------------------------------------------------------
-
-#if wxUSE_EXCEPTIONS
-
-void
-wxAppConsoleBase::HandleEvent(wxEvtHandler *handler,
-                              wxEventFunction func,
-                              wxEvent& event) const
-{
-    // by default, simply call the handler
-    (handler->*func)(event);
-}
-
-void wxAppConsoleBase::CallEventHandler(wxEvtHandler *handler,
-                                        wxEventFunctor& functor,
-                                        wxEvent& event) const
-{
-    // If the functor holds a method then, for backward compatibility, call
-    // HandleEvent():
-    wxEventFunction eventFunction = functor.GetEvtMethod();
-
-    if ( eventFunction )
-        HandleEvent(handler, eventFunction, event);
-    else
-        functor(handler, event);
-}
-
-void wxAppConsoleBase::OnUnhandledException()
-{
-#ifdef __WXDEBUG__
-    // we're called from an exception handler so we can re-throw the exception
-    // to recover its type
-    wxString what;
-    try
-    {
-        throw;
-    }
-#if wxUSE_STL
-    catch ( std::exception& e )
-    {
-        what.Printf("std::exception of type \"%s\", what() = \"%s\"",
-                    typeid(e).name(), e.what());
-    }
-#endif // wxUSE_STL
-    catch ( ... )
-    {
-        what = "unknown exception";
-    }
-
-    wxMessageOutputBest().Printf(
-        "*** Caught unhandled %s; terminating\n", what
-    );
-#endif // __WXDEBUG__
-}
-
-// ----------------------------------------------------------------------------
-// exceptions support
-// ----------------------------------------------------------------------------
-
-bool wxAppConsoleBase::OnExceptionInMainLoop()
-{
-    throw;
-
-    // some compilers are too stupid to know that we never return after throw
-#if defined(__DMC__) || (defined(_MSC_VER) && _MSC_VER < 1200)
-    return false;
-#endif
-}
-
-#endif // wxUSE_EXCEPTIONS
-
-// ----------------------------------------------------------------------------
-// cmd line parsing
-// ----------------------------------------------------------------------------
-
-#if wxUSE_CMDLINE_PARSER
-
-#define OPTION_VERBOSE "verbose"
-
-void wxAppConsoleBase::OnInitCmdLine(wxCmdLineParser& parser)
-{
-    // the standard command line options
-    static const wxCmdLineEntryDesc cmdLineDesc[] =
-    {
-        {
-            wxCMD_LINE_SWITCH,
-            "h",
-            "help",
-            gettext_noop("show this help message"),
-            wxCMD_LINE_VAL_NONE,
-            wxCMD_LINE_OPTION_HELP
-        },
-
-        // terminator
-        wxCMD_LINE_DESC_END
-    };
-
-    parser.SetDesc(cmdLineDesc);
-}
-
-bool wxAppConsoleBase::OnCmdLineParsed(wxCmdLineParser& parser)
-{
-    wxUnusedVar(parser);
-
-    return true;
-}
-
-bool wxAppConsoleBase::OnCmdLineHelp(wxCmdLineParser& parser)
-{
-    parser.Usage();
-
-    return false;
-}
-
-bool wxAppConsoleBase::OnCmdLineError(wxCmdLineParser& parser)
-{
-    parser.Usage();
-
-    return false;
-}
-
-#endif // wxUSE_CMDLINE_PARSER
 
 // ----------------------------------------------------------------------------
 // debugging support

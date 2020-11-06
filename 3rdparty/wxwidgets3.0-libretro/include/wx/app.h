@@ -181,37 +181,6 @@ public:
     }
 
 
-    // cmd line parsing stuff
-    // ----------------------
-
-    // all of these methods may be overridden in the derived class to
-    // customize the command line parsing (by default only a few standard
-    // options are handled)
-    //
-    // you also need to call wxApp::OnInit() from YourApp::OnInit() for all
-    // this to work
-
-#if wxUSE_CMDLINE_PARSER
-    // this one is called from OnInit() to add all supported options
-    // to the given parser (don't forget to call the base class version if you
-    // override it!)
-    virtual void OnInitCmdLine(wxCmdLineParser& parser);
-
-    // called after successfully parsing the command line, return true
-    // to continue and false to exit (don't forget to call the base class
-    // version if you override it!)
-    virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
-
-    // called if "--help" option was specified, return true to continue
-    // and false to exit
-    virtual bool OnCmdLineHelp(wxCmdLineParser& parser);
-
-    // called if incorrect command line options were given, return
-    // false to abort and true to continue
-    virtual bool OnCmdLineError(wxCmdLineParser& parser);
-#endif // wxUSE_CMDLINE_PARSER
-
-
     // miscellaneous customization functions
     // -------------------------------------
 
@@ -269,41 +238,6 @@ public:
     // return true if we're running event loop, i.e. if the events can
     // (already) be dispatched
     static bool IsMainLoopRunning();
-
-#if wxUSE_EXCEPTIONS
-    // execute the functor to handle the given event
-    //
-    // this is a generalization of HandleEvent() below and the base class
-    // implementation of CallEventHandler() still calls HandleEvent() for
-    // compatibility for functors which are just wxEventFunctions (i.e. methods
-    // of wxEvtHandler)
-    virtual void CallEventHandler(wxEvtHandler *handler,
-                                  wxEventFunctor& functor,
-                                  wxEvent& event) const;
-
-    // call the specified handler on the given object with the given event
-    //
-    // this method only exists to allow catching the exceptions thrown by any
-    // event handler, it would lead to an extra (useless) virtual function call
-    // if the exceptions were not used, so it doesn't even exist in that case
-    virtual void HandleEvent(wxEvtHandler *handler,
-                             wxEventFunction func,
-                             wxEvent& event) const;
-
-    // Called when an unhandled C++ exception occurs inside OnRun(): note that
-    // the main event loop has already terminated by now and the program will
-    // exit, if you need to really handle the exceptions you need to override
-    // OnExceptionInMainLoop()
-    virtual void OnUnhandledException();
-
-    // Function called if an uncaught exception is caught inside the main
-    // event loop: it may return true to continue running the event loop or
-    // false to stop it (in the latter case it may rethrow the exception as
-    // well)
-    virtual bool OnExceptionInMainLoop();
-
-#endif // wxUSE_EXCEPTIONS
-
 
     // pending events
     // --------------
@@ -639,15 +573,6 @@ public:
 
     // Change the theme used by the application, return true on success.
     virtual bool SetNativeTheme(const wxString& WXUNUSED(theme)) { return false; }
-
-
-    // command line parsing (GUI-specific)
-    // ------------------------------------------------------------------------
-
-#if wxUSE_CMDLINE_PARSER
-    virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
-    virtual void OnInitCmdLine(wxCmdLineParser& parser);
-#endif
 
     // miscellaneous other stuff
     // ------------------------------------------------------------------------

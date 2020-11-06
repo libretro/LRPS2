@@ -47,12 +47,7 @@
 
 #define wxUSE_WCHAR_T 1
 
-
-#define wxUSE_EXCEPTIONS 1
-
 #define wxUSE_EXTENDED_RTTI 0
-
-#define wxUSE_CMDLINE_PARSER 1
 
 #define wxUSE_THREADS 1
 

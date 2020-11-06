@@ -42,10 +42,6 @@ public:
     void OnEndSession(wxCloseEvent& event);
     void OnQueryEndSession(wxCloseEvent& event);
 
-#if wxUSE_EXCEPTIONS
-    virtual bool OnExceptionInMainLoop();
-#endif // wxUSE_EXCEPTIONS
-
     // MSW-specific from now on
     // ------------------------
 

@@ -1381,16 +1381,6 @@ bool wxEvtHandler::ProcessEventIfMatchesId(const wxEventTableEntryBase& entry,
         event.Skip(false);
         event.m_callbackUserData = entry.m_callbackUserData;
 
-#if wxUSE_EXCEPTIONS
-        if ( wxTheApp )
-        {
-            // call the handler via wxApp method which allows the user to catch
-            // any exceptions which may be thrown by any handler in the program
-            // in one place
-            wxTheApp->CallEventHandler(handler, *entry.m_fn, event);
-        }
-        else
-#endif // wxUSE_EXCEPTIONS
         {
             (*entry.m_fn)(handler, event);
         }
@@ -1604,44 +1594,7 @@ bool wxEvtHandler::TryHereOnly(wxEvent& event)
 
 bool wxEvtHandler::SafelyProcessEvent(wxEvent& event)
 {
-#if wxUSE_EXCEPTIONS
-    try
-    {
-#endif
-        return ProcessEvent(event);
-#if wxUSE_EXCEPTIONS
-    }
-    catch ( ... )
-    {
-        // notice that we do it in 2 steps to avoid warnings about possibly
-        // uninitialized loop variable from some versions of g++ which are not
-        // smart enough to figure out that GetActive() doesn't throw and so
-        // that loop will always be initialized
-        wxEventLoopBase *loop = NULL;
-        try
-        {
-            loop = wxEventLoopBase::GetActive();
-
-            if ( !wxTheApp || !wxTheApp->OnExceptionInMainLoop() )
-            {
-                if ( loop )
-                    loop->Exit();
-            }
-            //else: continue running current event loop
-
-            return false;
-        }
-        catch ( ... )
-        {
-            // OnExceptionInMainLoop() threw, possibly rethrowing the same
-            // exception again: very good, but we still need Exit() to
-            // be called
-            if ( loop )
-                loop->Exit();
-            throw;
-        }
-    }
-#endif // wxUSE_EXCEPTIONS
+   return ProcessEvent(event);
 }
 
 bool wxEvtHandler::SearchEventTable(wxEventTable& table, wxEvent& event)

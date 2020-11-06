@@ -57,18 +57,6 @@
 #   define wxUSE_THREADS 0
 #endif /* wxNO_THREADS */
 
-#ifdef wxNO_EXCEPTIONS
-#   undef wxUSE_EXCEPTIONS
-#   define wxUSE_EXCEPTIONS 0
-#endif /* wxNO_EXCEPTIONS */
-
-/* we also must disable exceptions if compiler doesn't support them */
-#if defined(_MSC_VER) && !defined(_CPPUNWIND)
-#   undef wxUSE_EXCEPTIONS
-#   define wxUSE_EXCEPTIONS 0
-#endif /* VC++ without exceptions support */
-
-
 /*
    Section 1a: tests for non GUI features.
 
@@ -90,10 +78,6 @@
 #ifndef wxUSE_DYNLIB_CLASS
 #define wxUSE_DYNLIB_CLASS 0
 #endif /* !defined(wxUSE_DYNLIB_CLASS) */
-
-#ifndef wxUSE_EXCEPTIONS
-#define wxUSE_EXCEPTIONS 0
-#endif /* !defined(wxUSE_EXCEPTIONS) */
 
 #ifndef wxUSE_FILE_HISTORY
 #define wxUSE_FILE_HISTORY 0

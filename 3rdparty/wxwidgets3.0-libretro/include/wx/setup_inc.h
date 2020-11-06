@@ -154,35 +154,12 @@
 // global features
 // ----------------------------------------------------------------------------
 
-// Compile library in exception-safe mode? If set to 1, the library will try to
-// behave correctly in presence of exceptions (even though it still will not
-// use the exceptions itself) and notify the user code about any unhandled
-// exceptions. If set to 0, propagation of the exceptions through the library
-// code will lead to undefined behaviour -- but the code itself will be
-// slightly smaller and faster.
-//
-// Note that like wxUSE_THREADS this option is automatically set to 0 if
-// wxNO_EXCEPTIONS is defined.
-//
-// Default is 1
-//
-// Recommended setting: depends on whether you intend to use C++ exceptions
-//                      in your own code (1 if you do, 0 if you don't)
-#define wxUSE_EXCEPTIONS    1
-
 // Set wxUSE_EXTENDED_RTTI to 1 to use extended RTTI
 //
 // Default is 0
 //
 // Recommended setting: 0 (this is still work in progress...)
 #define wxUSE_EXTENDED_RTTI 0
-
-// Support for command line parsing using wxCmdLineParser class.
-//
-// Default is 1
-//
-// Recommended setting: 1 (can be set to 0 if you don't use the cmd line)
-#define wxUSE_CMDLINE_PARSER 1
 
 // Support for multithreaded applications: if 1, compile in thread classes
 // (thread.h) and make the library a bit more thread safe. Although thread

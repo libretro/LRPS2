@@ -21,20 +21,12 @@
 // code using it might be compiling with a compiler switch disabling them in
 // which cases we shouldn't use try/catch in the headers -- this results in
 // compilation errors in e.g. wx/scopeguard.h with at least g++ 4
-#if !wxUSE_EXCEPTIONS || \
-        (defined(__GNUG__) && !defined(__EXCEPTIONS))
-    #ifndef wxNO_EXCEPTIONS
-        #define wxNO_EXCEPTIONS
-    #endif
+#ifndef wxNO_EXCEPTIONS
+#define wxNO_EXCEPTIONS
 #endif
 
-#ifdef wxNO_EXCEPTIONS
-    #define wxTRY
-    #define wxCATCH_ALL(code)
-#else // do use exceptions
-    #define wxTRY try
-    #define wxCATCH_ALL(code) catch ( ... ) { code }
-#endif // wxNO_EXCEPTIONS/!wxNO_EXCEPTIONS
+#define wxTRY
+#define wxCATCH_ALL(code)
 
 #endif // _WX_EXCEPT_H_
 
