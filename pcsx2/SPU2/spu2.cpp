@@ -624,10 +624,12 @@ void SPU2write(u32 rmem, u16 value)
 // for now, pData is not used
 int SPU2setupRecording(int start, std::wstring* filename)
 {
+#ifdef WAVE_DUMP
 	if (start == 0)
 		RecordStop();
 	else if (start == 1)
 		RecordStart(filename);
+#endif
 
 	return 0;
 }

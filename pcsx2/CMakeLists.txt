@@ -247,8 +247,8 @@ if(LIBRETRO)
 		SPU2/spu2replay.cpp
 		SPU2/spu2sys.cpp
 #		SPU2/Timestretcher.cpp
-		SPU2/Wavedump_wav.cpp
-		SPU2/WavFile.cpp
+#     SPU2/Wavedump_wav.cpp
+#     SPU2/WavFile.cpp
 #		SPU2/wx/wxConfig.cpp
 		 )
        if(MSVC)
