@@ -46,18 +46,24 @@ class wxDoNotLogInThisScope
 {
     DeclareNoncopyableObject(wxDoNotLogInThisScope);
 
+#ifndef __LIBRETRO__
 protected:
     bool m_prev;
+#endif
 
 public:
     wxDoNotLogInThisScope()
     {
+#ifndef __LIBRETRO__
         m_prev = wxLog::EnableLogging(false);
+#endif
     }
 
     virtual ~wxDoNotLogInThisScope()
     {
+#ifndef __LIBRETRO__
         wxLog::EnableLogging(m_prev);
+#endif
     }
 };
 

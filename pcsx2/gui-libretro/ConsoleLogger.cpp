@@ -24,44 +24,6 @@
 // C++ requires abstract destructors to exist, even though they're abstract.
 PipeRedirectionBase::~PipeRedirectionBase() = default;
 
-// ----------------------------------------------------------------------------
-//
-void pxLogConsole::DoLogRecord(wxLogLevel level, const wxString &message, const wxLogRecordInfo &info)
-{
-	switch ( level )
-	{
-		case wxLOG_Trace:
-		case wxLOG_Debug:
-		break;
-
-		case wxLOG_FatalError:
-			// This one is unused by wx, and unused by PCSX2 (we prefer exceptions, thanks).
-			pxFailDev( "Stop using FatalError and use assertions or exceptions instead." );
-		break;
-
-		case wxLOG_Status:
-			// Also unsed by wx, and unused by PCSX2 also (we prefer direct API calls to our main window!)
-			pxFailDev( "Stop using wxLogStatus just access the Pcsx2App functions directly instead." );
-		break;
-
-		case wxLOG_Info:
-			if ( !GetVerbose() ) return;
-			// fallthrough!
-
-		case wxLOG_Message:
-			Console.WriteLn( L"[wx] %s", WX_STR(message));
-		break;
-
-		case wxLOG_Error:
-			Console.Error(L"[wx] %s", WX_STR(message));
-		break;
-
-		case wxLOG_Warning:
-			Console.Warning(L"[wx] %s", WX_STR(message));
-		break;
-	}
-}
-
 void OSDlog(ConsoleColors color, bool console, const std::string& str)
 {
 	if (console)

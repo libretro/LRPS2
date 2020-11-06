@@ -55,7 +55,7 @@ endif()
 endif()
 
 if(LIBRETRO)
-   add_subdirectory(3rdparty/wxwidgets3.0)
+   add_subdirectory(3rdparty/wxwidgets3.0-libretro)
 endif()
 
 # make common

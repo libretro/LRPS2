@@ -43,22 +43,6 @@ protected:
 
 extern PipeRedirectionBase* NewPipeRedir( FILE* stdstream );
 
-// --------------------------------------------------------------------------------------
-//  pxLogConsole
-// --------------------------------------------------------------------------------------
-// This is a custom logging facility that pipes wxLog messages to our very own console
-// log window.  Useful for catching and redirecting wx's internal logs (although like
-// 3/4ths of them are worthless and we would probably rather ignore them anyway).
-//
-class pxLogConsole : public wxLog
-{
-public:
-	pxLogConsole() {}
-
-protected:
-	virtual void DoLogRecord(wxLogLevel level, const wxString &message, const wxLogRecordInfo &info);
-};
-
 void OSDlog(ConsoleColors color, bool console, const std::string& str);
 
 template<typename ... Args>

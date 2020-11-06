@@ -24,7 +24,7 @@ find_package(PNG)
 find_package(Vtune)
 if(LIBRETRO)
    set(wxWidgets_FOUND 1)
-   set(wxWidgets_USE_FILE 3rdparty/wxwidgets3.0/UsewxWidgets.cmake)
+   set(wxWidgets_USE_FILE 3rdparty/wxwidgets3.0-libretro/UsewxWidgets.cmake)
 else()
 # The requirement of wxWidgets is checked in SelectPcsx2Plugins module
 # Does not require the module (allow to compile non-wx plugins)
