@@ -15,7 +15,11 @@
 
 #include "PrecompiledHeader.h"
 #include "Common.h"
+#ifndef __LIBRETRO__
 #include "gui/App.h"
+#else
+#include "gui-libretro/App.h"
+#endif
 #include "IopBios.h"
 #include "R5900.h"
 

@@ -21,8 +21,8 @@
 # Misc option
 #-------------------------------------------------------------------------------
 option(DISABLE_BUILD_DATE "Disable including the binary compile date")
-option(ENABLE_TESTS "Enables building the unit tests" ON)
-option(LIBRETRO "Enables building the libretro core" OFF)
+option(ENABLE_TESTS "Enables building the unit tests" OFF)
+option(LIBRETRO "Enables building the libretro core" ON)
 set(DISABLE_BUILD_DATE ON)
 
 if(DISABLE_BUILD_DATE OR openSUSE)
