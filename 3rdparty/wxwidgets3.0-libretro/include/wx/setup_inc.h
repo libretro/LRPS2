@@ -552,9 +552,6 @@
 // contribute us a makefile for src/regex for it
 #define wxUSE_REGEX       1
 
-// wxSystemOptions class
-#define wxUSE_SYSTEM_OPTIONS 1
-
 // wxSound class
 #define wxUSE_SOUND      1
 

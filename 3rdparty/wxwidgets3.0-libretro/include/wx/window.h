@@ -100,10 +100,6 @@ enum wxWindowVariant
     wxWINDOW_VARIANT_MAX
 };
 
-#if wxUSE_SYSTEM_OPTIONS
-    #define wxWINDOW_DEFAULT_VARIANT wxT("window-default-variant")
-#endif
-
 // valid values for Show/HideWithEffect()
 enum wxShowEffect
 {

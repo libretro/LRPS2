@@ -18,9 +18,6 @@
 // ----------------------------------------------------------------------------
 
 class
-#if wxUSE_SYSTEM_OPTIONS
-WXDLLIMPEXP_BASE
-#endif
 wxSystemOptions : public wxObject
 {
 public:
@@ -30,10 +27,6 @@ public:
     // These could also be used to influence GetSystem... calls, indeed
     // to implement SetSystemColour/Font/Metric
 
-#if wxUSE_SYSTEM_OPTIONS
-    static void SetOption(const wxString& name, const wxString& value);
-    static void SetOption(const wxString& name, int value);
-#endif // wxUSE_SYSTEM_OPTIONS
     static wxString GetOption(const wxString& name);
     static int GetOptionInt(const wxString& name);
     static bool HasOption(const wxString& name);
@@ -43,8 +36,6 @@ public:
         return HasOption(name) && GetOptionInt(name) == 0;
     }
 };
-
-#if !wxUSE_SYSTEM_OPTIONS
 
 // define inline stubs for accessors to make it possible to use wxSystemOptions
 // in the library itself without checking for wxUSE_SYSTEM_OPTIONS all the time
@@ -66,8 +57,6 @@ bool wxSystemOptions::HasOption(const wxString& WXUNUSED(name))
 {
     return false;
 }
-
-#endif // !wxUSE_SYSTEM_OPTIONS
 
 #endif
     // _WX_SYSOPT_H_

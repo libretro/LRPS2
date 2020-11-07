@@ -143,8 +143,6 @@
 
 #define wxUSE_REGEX 1
 
-#define wxUSE_SYSTEM_OPTIONS 1
-
 #define wxUSE_SOUND 1
 
 #define wxUSE_MEDIACTRL 0
