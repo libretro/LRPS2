@@ -73,18 +73,6 @@ public:
     virtual bool ShowAssertDialog(const wxString& msg);
 #endif
 
-#if wxUSE_SOCKETS
-
-#ifdef wxHAS_GUI_SOCKET_MANAGER
-    virtual wxSocketManager *GetSocketManager();
-#endif
-
-#ifdef wxHAS_GUI_FDIOMANAGER
-    virtual wxFDIOManager *GetFDIOManager();
-#endif
-
-#endif // wxUSE_SOCKETS
-
     virtual wxEventLoopSourcesManagerBase* GetEventLoopSourcesManager();
 };
 

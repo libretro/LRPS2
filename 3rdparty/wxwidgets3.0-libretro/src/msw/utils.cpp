@@ -49,13 +49,6 @@
 #   include <sys/types.h>
 #endif
 
-// Doesn't work with Cygwin at present
-#if wxUSE_SOCKETS && (defined(__GNUWIN32_OLD__) || defined(__WXWINCE__) || defined(__CYGWIN32__))
-    // apparently we need to include winsock.h to get WSADATA and other stuff
-    // used in wxGetFullHostName() with the old mingw32 versions
-    #include <winsock.h>
-#endif
-
 #if !defined(__GNUWIN32__) && !defined(__WXMICROWIN__) && !defined(__WXWINCE__)
     #include <direct.h>
 
@@ -157,84 +150,6 @@ bool wxGetHostName(wxChar *buf, int maxSize)
 // get full hostname (with domain name if possible)
 bool wxGetFullHostName(wxChar *buf, int maxSize)
 {
-#if !defined( __WXMICROWIN__) && wxUSE_DYNLIB_CLASS && wxUSE_SOCKETS
-    // TODO should use GetComputerNameEx() when available
-
-    // we don't want to always link with Winsock DLL as we might not use it at
-    // all, so load it dynamically here if needed (and don't complain if it is
-    // missing, we handle this)
-    wxLogNull noLog;
-
-    wxDynamicLibrary dllWinsock(wxT("ws2_32.dll"), wxDL_VERBATIM);
-    if ( dllWinsock.IsLoaded() )
-    {
-        typedef int (PASCAL *WSAStartup_t)(WORD, WSADATA *);
-        typedef int (PASCAL *gethostname_t)(char *, int);
-        typedef hostent* (PASCAL *gethostbyname_t)(const char *);
-        typedef hostent* (PASCAL *gethostbyaddr_t)(const char *, int , int);
-        typedef int (PASCAL *WSACleanup_t)(void);
-
-        #define LOAD_WINSOCK_FUNC(func)                                       \
-            func ## _t                                                        \
-                pfn ## func = (func ## _t)dllWinsock.GetSymbol(wxT(#func))
-
-        LOAD_WINSOCK_FUNC(WSAStartup);
-
-        WSADATA wsa;
-        if ( pfnWSAStartup && pfnWSAStartup(MAKEWORD(1, 1), &wsa) == 0 )
-        {
-            LOAD_WINSOCK_FUNC(gethostname);
-
-            wxString host;
-            if ( pfngethostname )
-            {
-                char bufA[256];
-                if ( pfngethostname(bufA, WXSIZEOF(bufA)) == 0 )
-                {
-                    // gethostname() won't usually include the DNS domain name,
-                    // for this we need to work a bit more
-                    if ( !strchr(bufA, '.') )
-                    {
-                        LOAD_WINSOCK_FUNC(gethostbyname);
-
-                        struct hostent *pHostEnt = pfngethostbyname
-                                                    ? pfngethostbyname(bufA)
-                                                    : NULL;
-
-                        if ( pHostEnt )
-                        {
-                            // Windows will use DNS internally now
-                            LOAD_WINSOCK_FUNC(gethostbyaddr);
-
-                            pHostEnt = pfngethostbyaddr
-                                        ? pfngethostbyaddr(pHostEnt->h_addr,
-                                                           4, AF_INET)
-                                        : NULL;
-                        }
-
-                        if ( pHostEnt )
-                        {
-                            host = wxString::FromAscii(pHostEnt->h_name);
-                        }
-                    }
-                }
-            }
-
-            LOAD_WINSOCK_FUNC(WSACleanup);
-            if ( pfnWSACleanup )
-                pfnWSACleanup();
-
-
-            if ( !host.empty() )
-            {
-                wxStrlcpy(buf, host.c_str(), maxSize);
-
-                return true;
-            }
-        }
-    }
-#endif // !__WXMICROWIN__
-
     return wxGetHostName(buf, maxSize);
 }
 

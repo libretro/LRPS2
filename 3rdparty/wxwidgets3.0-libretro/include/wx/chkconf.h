@@ -165,10 +165,6 @@
 #       define wxUSE_XML 0
 #endif /* !defined(wxUSE_XML) */
 
-#ifndef wxUSE_SOCKETS
-#       define wxUSE_SOCKETS 0
-#endif /* !defined(wxUSE_SOCKETS) */
-
 #ifndef wxUSE_STD_CONTAINERS
 #       define wxUSE_STD_CONTAINERS 0
 #endif /* !defined(wxUSE_STD_CONTAINERS) */
@@ -694,13 +690,6 @@
 #endif /* wxUSE_URL */
 
 #if wxUSE_PROTOCOL
-#   if !wxUSE_SOCKETS
-#       if wxUSE_PROTOCOL_HTTP || wxUSE_PROTOCOL_FTP
-#               undef wxUSE_SOCKETS
-#               define wxUSE_SOCKETS 1
-#       endif
-#   endif
-
 #   if !wxUSE_STREAMS
 #           undef wxUSE_STREAMS
 #           define wxUSE_STREAMS 1
@@ -1220,11 +1209,6 @@
 #       undef wxUSE_XRC
 #       define wxUSE_XRC 0
 #endif /* wxUSE_XRC */
-
-#if wxUSE_SOCKETS && !wxUSE_STOPWATCH
-#       undef wxUSE_SOCKETS
-#       define wxUSE_SOCKETS 0
-#endif /* wxUSE_SOCKETS */
 
 #if wxUSE_SVG && !wxUSE_STREAMS
 #       undef wxUSE_SVG

@@ -338,14 +338,6 @@
 // Recommended setting: 1
 #define wxUSE_LONGLONG      1
 
-// Set wxUSE_BASE64 to 1, to compile in Base64 support. This is required for
-// storing binary data in wxConfig on most platforms.
-//
-// Default is 1.
-//
-// Recommended setting: 1 (but can be safely disabled if you don't use it)
-#define wxUSE_BASE64        1
-
 // Set this to 1 to be able to use wxEventLoop even in console applications
 // (i.e. using base library only, without GUI). This is mostly useful for
 // processing socket events but is also necessary to use timers in console
@@ -488,9 +480,6 @@
 
 // experimental, don't use for now
 #define wxUSE_DYNAMIC_LOADER  1
-
-// Set to 1 to use socket classes
-#define wxUSE_SOCKETS       1
 
 // Set to 1 to use ipv6 socket classes (requires wxUSE_SOCKETS)
 //

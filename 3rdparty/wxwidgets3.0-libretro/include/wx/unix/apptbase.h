@@ -35,19 +35,6 @@ public:
     // until the child process exit and dispatch the events while doing it.
     virtual int WaitForChild(wxExecuteData& execData);
 
-#if wxUSE_SOCKETS
-    // return a pointer to the object which should be used to integrate
-    // monitoring of the file descriptors to the event loop (currently this is
-    // used for the sockets only but should be used for arbitrary event loop
-    // sources in the future)
-    //
-    // this object may be different for the console and GUI applications
-    //
-    // the pointer is not deleted by the caller as normally it points to a
-    // static variable
-    virtual wxFDIOManager *GetFDIOManager();
-#endif // wxUSE_SOCKETS
-
 #if wxUSE_CONSOLE_EVENTLOOP
     // Return a non-NULL pointer to the object responsible for managing the
     // event loop sources in this kind of application.
