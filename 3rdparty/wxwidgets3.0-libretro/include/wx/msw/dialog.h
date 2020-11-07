@@ -26,11 +26,6 @@ extern WXDLLIMPEXP_DATA_CORE(const char) wxDialogNameStr[];
 
 class WXDLLIMPEXP_FWD_CORE wxDialogModalData;
 
-#if wxUSE_TOOLBAR && (defined(__SMARTPHONE__) || defined(__POCKETPC__))
-class WXDLLIMPEXP_FWD_CORE wxToolBar;
-extern WXDLLIMPEXP_DATA_CORE(const char) wxToolBarNameStr[];
-#endif
-
 // Dialog boxes
 class WXDLLIMPEXP_CORE wxDialog : public wxDialogBase
 {
@@ -67,23 +62,6 @@ public:
 
     // may be called to terminate the dialog with the given return code
     virtual void EndModal(int retCode);
-
-
-    // we treat dialog toolbars specially under Windows CE
-#if wxUSE_TOOLBAR && defined(__POCKETPC__)
-    // create main toolbar by calling OnCreateToolBar()
-    virtual wxToolBar* CreateToolBar(long style = -1,
-                                     wxWindowID winid = wxID_ANY,
-                                     const wxString& name = wxToolBarNameStr);
-    // return a new toolbar
-    virtual wxToolBar *OnCreateToolBar(long style,
-                                       wxWindowID winid,
-                                       const wxString& name );
-
-    // get the main toolbar
-    wxToolBar *GetToolBar() const { return m_dialogToolBar; }
-#endif // wxUSE_TOOLBAR && __POCKETPC__
-
 
     // implementation only from now on
     // -------------------------------
@@ -126,10 +104,6 @@ private:
     // gripper window for a resizable dialog, NULL if we're not resizable
     WXHWND m_hGripper;
 #endif // wxUSE_DIALOG_SIZEGRIP
-
-#if wxUSE_TOOLBAR && defined(__POCKETPC__)
-    wxToolBar*  m_dialogToolBar;
-#endif
 
     // this pointer is non-NULL only while the modal event loop is running
     wxDialogModalData *m_modalData;

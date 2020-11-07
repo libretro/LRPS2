@@ -53,12 +53,6 @@
 #undef wxUSE_AUI
 #define wxUSE_AUI 0
 
-// no MDI under CE
-#undef wxUSE_MDI
-#define wxUSE_MDI 0
-#undef wxUSE_MDI_ARCHITECTURE
-#define wxUSE_MDI_ARCHITECTURE 0
-
 // metafiles are not supported neither
 #undef wxUSE_METAFILE
 #define wxUSE_METAFILE 0
@@ -125,9 +119,6 @@
 #if defined(__SMARTPHONE__)
     #undef wxUSE_LISTBOOK
     #define wxUSE_LISTBOOK 0
-
-    #undef wxUSE_NOTEBOOK
-    #define wxUSE_NOTEBOOK 0
 
     #undef wxUSE_STATUSBAR
     #define wxUSE_STATUSBAR 0

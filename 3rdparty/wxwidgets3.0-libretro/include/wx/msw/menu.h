@@ -20,10 +20,6 @@
 
 class WXDLLIMPEXP_FWD_CORE wxFrame;
 
-#if defined(__WXWINCE__) && wxUSE_TOOLBAR
-class WXDLLIMPEXP_FWD_CORE wxToolBar;
-#endif
-
 class wxMenuRadioItemsData;
 
 // Not using a combined wxToolBar/wxMenuBar? then use
@@ -210,12 +206,6 @@ public:
     virtual void Detach();
     virtual void Attach(wxFrame *frame);
 
-#if defined(__WXWINCE__) && wxUSE_TOOLBAR
-    // Under WinCE, a menubar is owned by the frame's toolbar
-    void SetToolBar(wxToolBar* toolBar) { m_toolBar = toolBar; }
-    wxToolBar* GetToolBar() const { return m_toolBar; }
-#endif
-
 #ifdef WINCE_WITH_COMMANDBAR
     WXHWND GetCommandBar() const { return m_commandBar; }
     bool AddAdornments(long style);
@@ -249,10 +239,6 @@ protected:
     // Return the MSW position for a wxMenu which is sometimes different from
     // the wxWidgets position.
     int MSWPositionForWxMenu(wxMenu *menu, int wxpos);
-
-#if defined(__WXWINCE__) && wxUSE_TOOLBAR
-    wxToolBar*  m_toolBar;
-#endif
 
 #ifdef WINCE_WITH_COMMANDBAR
     WXHWND      m_commandBar;

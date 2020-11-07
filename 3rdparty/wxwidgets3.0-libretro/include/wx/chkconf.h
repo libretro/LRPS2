@@ -341,10 +341,6 @@
 #       define wxUSE_DISPLAY 0
 #endif /* !defined(wxUSE_DISPLAY) */
 
-#ifndef wxUSE_DOC_VIEW_ARCHITECTURE
-#       define wxUSE_DOC_VIEW_ARCHITECTURE 0
-#endif /* !defined(wxUSE_DOC_VIEW_ARCHITECTURE) */
-
 #ifndef wxUSE_FILECTRL
 #       define wxUSE_FILECTRL 0
 #endif /* !defined(wxUSE_FILECTRL) */
@@ -372,11 +368,6 @@
 #ifndef wxUSE_GAUGE
 #       define wxUSE_GAUGE 0
 #endif /* !defined(wxUSE_GAUGE) */
-
-#ifndef wxUSE_GRAPHICS_CONTEXT
-#       define wxUSE_GRAPHICS_CONTEXT 0
-#endif /* !defined(wxUSE_GRAPHICS_CONTEXT) */
-
 
 #ifndef wxUSE_GRID
 #       define wxUSE_GRID 0
@@ -439,29 +430,9 @@
 #       define wxUSE_MARKUP 0
 #endif /* !defined(wxUSE_MARKUP) */
 
-#ifndef wxUSE_MDI
-#       define wxUSE_MDI 0
-#endif /* !defined(wxUSE_MDI) */
-
-#ifndef wxUSE_MDI_ARCHITECTURE
-#       define wxUSE_MDI_ARCHITECTURE 0
-#endif /* !defined(wxUSE_MDI_ARCHITECTURE) */
-
-#ifndef wxUSE_MENUS
-#       define wxUSE_MENUS 0
-#endif /* !defined(wxUSE_MENUS) */
-
 #ifndef wxUSE_MSGDLG
 #       define wxUSE_MSGDLG 0
 #endif /* !defined(wxUSE_MSGDLG) */
-
-#ifndef wxUSE_NOTEBOOK
-#       define wxUSE_NOTEBOOK 0
-#endif /* !defined(wxUSE_NOTEBOOK) */
-
-#ifndef wxUSE_NOTIFICATION_MESSAGE
-#       define wxUSE_NOTIFICATION_MESSAGE 0
-#endif /* !defined(wxUSE_NOTIFICATION_MESSAGE) */
 
 #ifndef wxUSE_ODCOMBOBOX
 #       define wxUSE_ODCOMBOBOX 0
@@ -470,14 +441,6 @@
 #ifndef wxUSE_PALETTE
 #       define wxUSE_PALETTE 0
 #endif /* !defined(wxUSE_PALETTE) */
-
-#ifndef wxUSE_POPUPWIN
-#       define wxUSE_POPUPWIN 0
-#endif /* !defined(wxUSE_POPUPWIN) */
-
-#ifndef wxUSE_PREFERENCES_EDITOR
-#       define wxUSE_PREFERENCES_EDITOR 0
-#endif /* !defined(wxUSE_PREFERENCES_EDITOR) */
 
 #ifndef wxUSE_PRINTING_ARCHITECTURE
 #       define wxUSE_PRINTING_ARCHITECTURE 0
@@ -502,10 +465,6 @@
 #ifndef wxUSE_RICHMSGDLG
 #       define wxUSE_RICHMSGDLG 0
 #endif /* !defined(wxUSE_RICHMSGDLG) */
-
-#ifndef wxUSE_RICHTOOLTIP
-#       define wxUSE_RICHTOOLTIP 0
-#endif /* !defined(wxUSE_RICHTOOLTIP) */
 
 #ifndef wxUSE_SASH
 #       define wxUSE_SASH 0
@@ -570,14 +529,6 @@
 #ifndef wxUSE_TIMEPICKCTRL
 #       define wxUSE_TIMEPICKCTRL 0
 #endif /* !defined(wxUSE_TIMEPICKCTRL) */
-
-#ifndef wxUSE_TIPWINDOW
-#       define wxUSE_TIPWINDOW 0
-#endif /* !defined(wxUSE_TIPWINDOW) */
-
-#ifndef wxUSE_TOOLBAR
-#       define wxUSE_TOOLBAR 0
-#endif /* !defined(wxUSE_TOOLBAR) */
 
 #ifndef wxUSE_TOOLTIPS
 #       define wxUSE_TOOLTIPS 0
@@ -804,7 +755,6 @@
     wxUSE_HEADERCTRL || \
     wxUSE_LISTBOX || \
     wxUSE_LISTCTRL || \
-    wxUSE_NOTEBOOK || \
     wxUSE_RADIOBOX || \
     wxUSE_RADIOBTN || \
     wxUSE_REARRANGECTRL || \
@@ -818,7 +768,6 @@
     wxUSE_STATTEXT || \
     wxUSE_STATUSBAR || \
     wxUSE_TEXTCTRL || \
-    wxUSE_TOOLBAR || \
     wxUSE_TREECTRL || \
     wxUSE_TREELISTCTRL
 #    if !wxUSE_CONTROLS
@@ -849,7 +798,7 @@
 #       undef wxUSE_BOOKCTRL
 #endif
 
-#define wxUSE_BOOKCTRL (wxUSE_NOTEBOOK || \
+#define wxUSE_BOOKCTRL ( \
                         wxUSE_LISTBOOK || \
                         wxUSE_CHOICEBOOK || \
                         wxUSE_TOOLBOOK || \
@@ -875,13 +824,6 @@
 #           define wxUSE_CHOICE 1
 #   endif
 #endif /* wxUSE_CHOICEBOOK */
-
-#if wxUSE_TOOLBOOK
-#   if !wxUSE_TOOLBAR
-#           undef wxUSE_TOOLBAR
-#           define wxUSE_TOOLBAR 1
-#   endif
-#endif /* wxUSE_TOOLBOOK */
 
 #if !wxUSE_ODCOMBOBOX
 #   if wxUSE_BITMAPCOMBOBOX
@@ -920,12 +862,6 @@
 #       define wxUSE_NATIVE_STATUSBAR 0
 #   endif
 #endif
-
-#if wxUSE_GRAPHICS_CONTEXT && !wxUSE_GEOMETRY
-#       undef wxUSE_GRAPHICS_CONTEXT
-#       define wxUSE_GRAPHICS_CONTEXT 0
-#endif /* wxUSE_GRAPHICS_CONTEXT */
-
 
 /* generic controls dependencies */
 #if !defined(__WXMSW__) || defined(__WXUNIVERSAL__)
@@ -1032,15 +968,13 @@
 #endif /* wxUSE_MS_HTML_HELP */
 
 #if wxUSE_WXHTML_HELP
-#   if !wxUSE_HELP || !wxUSE_HTML || !wxUSE_COMBOBOX || !wxUSE_NOTEBOOK || !wxUSE_SPINCTRL
+#   if !wxUSE_HELP || !wxUSE_HTML || !wxUSE_COMBOBOX || !wxUSE_SPINCTRL
 #           undef wxUSE_HELP
 #           define wxUSE_HELP 1
 #           undef wxUSE_HTML
 #           define wxUSE_HTML 1
 #           undef wxUSE_COMBOBOX
 #           define wxUSE_COMBOBOX 1
-#           undef wxUSE_NOTEBOOK
-#           define wxUSE_NOTEBOOK 1
 #           undef wxUSE_SPINCTRL
 #           define wxUSE_SPINCTRL 1
 #   endif
@@ -1092,11 +1026,6 @@
 #            define wxUSE_IFF 0
 #   endif
 
-#   if wxUSE_TOOLBAR
-#            undef wxUSE_TOOLBAR
-#            define wxUSE_TOOLBAR 0
-#   endif
-
 #   if wxUSE_XPM
 #            undef wxUSE_XPM
 #            define wxUSE_XPM 0
@@ -1104,53 +1033,12 @@
 
 #endif /* !wxUSE_IMAGE */
 
-#if wxUSE_DOC_VIEW_ARCHITECTURE
-#   if !wxUSE_MENUS
-#            undef wxUSE_MENUS
-#            define wxUSE_MENUS 1
-#   endif
-
-#   if !wxUSE_CHOICEDLG
-#            undef wxUSE_CHOICEDLG
-#            define wxUSE_CHOICEDLG 1
-#   endif
-
-#   if !wxUSE_STREAMS && !wxUSE_STD_IOSTREAM
-#            undef wxUSE_STREAMS
-#            define wxUSE_STREAMS 1
-#   endif
-
-#   if !wxUSE_FILE_HISTORY
-#            undef wxUSE_FILE_HISTORY
-#            define wxUSE_FILE_HISTORY 1
-#   endif
-#endif /* wxUSE_DOC_VIEW_ARCHITECTURE */
-
 #if wxUSE_PRINTING_ARCHITECTURE
 #   if !wxUSE_COMBOBOX
 #           undef wxUSE_COMBOBOX
 #           define wxUSE_COMBOBOX 1
 #   endif
 #endif /* wxUSE_PRINTING_ARCHITECTURE */
-
-#if wxUSE_MDI_ARCHITECTURE
-#   if !wxUSE_MDI
-#            undef wxUSE_MDI
-#            define wxUSE_MDI 1
-#   endif
-
-#   if !wxUSE_DOC_VIEW_ARCHITECTURE
-#            undef wxUSE_DOC_VIEW_ARCHITECTURE
-#            define wxUSE_DOC_VIEW_ARCHITECTURE 1
-#   endif
-#endif /* wxUSE_MDI_ARCHITECTURE */
-
-#if !wxUSE_FILEDLG
-#   if wxUSE_DOC_VIEW_ARCHITECTURE || wxUSE_WXHTML_HELP
-#           undef wxUSE_FILEDLG
-#           define wxUSE_FILEDLG 1
-#   endif
-#endif /* wxUSE_FILEDLG */
 
 #if !wxUSE_GAUGE || !wxUSE_BUTTON
 #   if wxUSE_PROGRESSDLG
@@ -1175,15 +1063,8 @@
 #   endif
 #endif /* !wxUSE_BUTTON */
 
-#if !wxUSE_TOOLBAR
-#   if wxUSE_TOOLBAR_NATIVE
-#            undef wxUSE_TOOLBAR_NATIVE
-#            define wxUSE_TOOLBAR_NATIVE 0
-#   endif
-#endif
-
 #if !wxUSE_IMAGLIST
-#   if wxUSE_TREECTRL || wxUSE_NOTEBOOK || wxUSE_LISTCTRL || wxUSE_TREELISTCTRL
+#   if wxUSE_TREECTRL || wxUSE_LISTCTRL || wxUSE_TREELISTCTRL
 #           undef wxUSE_IMAGLIST
 #           define wxUSE_IMAGLIST 1
 #   endif
@@ -1225,7 +1106,7 @@
 #       define wxUSE_SVG 0
 #endif /* wxUSE_SVG */
 
-#if wxUSE_TASKBARICON && !wxUSE_MENUS
+#if wxUSE_TASKBARICON
 #       undef wxUSE_TASKBARICON
 #       define wxUSE_TASKBARICON 0
 #endif /* wxUSE_TASKBARICON */
@@ -1246,25 +1127,6 @@
 #       undef wxUSE_WEBVIEW
 #       define wxUSE_WEBVIEW 0
 #endif /* wxUSE_WEBVIEW && !any web view backend */
-
-#if wxUSE_PREFERENCES_EDITOR
-    /*
-        We can use either a generic implementation, using wxNotebook, or a
-        native one under wxOSX/Cocoa but then we must be using the native
-        toolbar.
-    */
-#   if !wxUSE_NOTEBOOK
-#       ifdef __WXOSX_COCOA__
-#           if !wxUSE_TOOLBAR || !wxOSX_USE_NATIVE_TOOLBAR
-#                   undef wxUSE_PREFERENCES_EDITOR
-#                   define wxUSE_PREFERENCES_EDITOR 0
-#           endif
-#       else
-#               undef wxUSE_PREFERENCES_EDITOR
-#               define wxUSE_PREFERENCES_EDITOR 0
-#       endif
-#   endif
-#endif /* wxUSE_PREFERENCES_EDITOR */
 
 #endif /* wxUSE_GUI */
 

@@ -12,10 +12,6 @@
 
 #include "wx/preferences.h"
 
-#if wxUSE_TOOLBAR && defined(__WXOSX_COCOA__) && wxOSX_USE_NATIVE_TOOLBAR
-    #define wxHAS_PREF_EDITOR_NATIVE
-#endif
-
 // ----------------------------------------------------------------------------
 // wxPreferencesEditorImpl: defines wxPreferencesEditor implementation.
 // ----------------------------------------------------------------------------

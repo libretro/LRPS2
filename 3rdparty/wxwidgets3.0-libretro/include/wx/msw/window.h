@@ -549,10 +549,6 @@ protected:
     // that makes most sense for this Windows environment
     virtual wxBorder TranslateBorder(wxBorder border) const;
 
-#if wxUSE_MENUS_NATIVE
-    virtual bool DoPopupMenu( wxMenu *menu, int x, int y );
-#endif // wxUSE_MENUS_NATIVE
-
     // the window handle
     WXHWND                m_hWnd;
 

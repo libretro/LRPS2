@@ -1172,12 +1172,8 @@ bool wxLaunchDefaultBrowser(const wxString& url, int flags)
 #if WXWIN_COMPATIBILITY_2_6
 wxChar *wxStripMenuCodes(const wxChar *in, wxChar *out)
 {
-#if wxUSE_MENUS
-    wxString s = wxMenuItem::GetLabelText(in);
-#else
     wxString str(in);
     wxString s = wxStripMenuCodes(str);
-#endif // wxUSE_MENUS
     if ( out )
     {
         // go smash their buffer if it's not big enough - I love char * params
@@ -1268,16 +1264,9 @@ wxFindMenuItemId(wxFrame *frame,
                  const wxString& menuString,
                  const wxString& itemString)
 {
-#if wxUSE_MENUS
-    wxMenuBar *menuBar = frame->GetMenuBar ();
-    if ( menuBar )
-        return menuBar->FindMenuItem (menuString, itemString);
-#else // !wxUSE_MENUS
     wxUnusedVar(frame);
     wxUnusedVar(menuString);
     wxUnusedVar(itemString);
-#endif // wxUSE_MENUS/!wxUSE_MENUS
-
     return wxNOT_FOUND;
 }
 
@@ -1290,23 +1279,6 @@ wxWindow* wxFindWindowAtPoint(wxWindow* win, const wxPoint& pt)
 {
     if (!win->IsShown())
         return NULL;
-
-    // Hack for wxNotebook case: at least in wxGTK, all pages
-    // claim to be shown, so we must only deal with the selected one.
-#if wxUSE_NOTEBOOK
-    if (wxDynamicCast(win, wxNotebook))
-    {
-      wxNotebook* nb = (wxNotebook*) win;
-      int sel = nb->GetSelection();
-      if (sel >= 0)
-      {
-        wxWindow* child = nb->GetPage(sel);
-        wxWindow* foundWin = wxFindWindowAtPoint(child, pt);
-        if (foundWin)
-           return foundWin;
-      }
-    }
-#endif
 
     wxWindowList::compatibility_iterator node = win->GetChildren().GetLast();
     while (node)

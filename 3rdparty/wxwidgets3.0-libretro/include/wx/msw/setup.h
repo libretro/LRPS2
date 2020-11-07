@@ -677,43 +677,6 @@
 #define wxUSE_WEBVIEW_WEBKIT 0
 #endif
 
-// Enable the new wxGraphicsPath and wxGraphicsContext classes for an advanced
-// 2D drawing API.  (Still somewhat experimental)
-//
-// Please note that on Windows gdiplus.dll is loaded dynamically which means
-// that nothing special needs to be done as long as you don't use
-// wxGraphicsContext at all or only use it on XP and later systems but you
-// still do need to distribute it yourself for an application using
-// wxGraphicsContext to be runnable on pre-XP systems.
-//
-// Default is 1 except if you're using a non-Microsoft compiler under Windows
-// as only MSVC7+ is known to ship with gdiplus.h. For other compilers (e.g.
-// mingw32) you may need to install the headers (and just the headers)
-// yourself. If you do, change the setting below manually.
-//
-// Recommended setting: 1 if supported by the compilation environment
-
-// notice that we can't use wxCHECK_VISUALC_VERSION() here as this file is
-// included from wx/platform.h before wxCHECK_VISUALC_VERSION() is defined
-#ifdef _MSC_VER
-#   if _MSC_VER >= 1310
-        // MSVC7.1+ comes with new enough Platform SDK, enable
-        // wxGraphicsContext support for it
-#       define wxUSE_GRAPHICS_CONTEXT 1
-#   else
-        // MSVC 6 didn't include GDI+ headers so disable by default, enable it
-        // here if you use MSVC 6 with a newer SDK
-#       define wxUSE_GRAPHICS_CONTEXT 0
-#   endif
-#else
-    // Disable support for other Windows compilers, enable it if your compiler
-    // comes with new enough SDK or you installed the headers manually.
-    //
-    // Notice that this will be set by configure under non-Windows platforms
-    // anyhow so the value there is not important.
-#   define wxUSE_GRAPHICS_CONTEXT 0
-#endif
-
 // Enable wxGraphicsContext implementation using Cairo library.
 //
 // This is not needed under Windows and detected automatically by configure
@@ -747,22 +710,6 @@
 //
 // Recommended setting: 1 (may be set to 0 if you want to save on code size)
 #define wxUSE_MARKUP       1
-
-// wxPopupWindow class is a top level transient window. It is currently used
-// to implement wxTipWindow
-//
-// Default is 1
-//
-// Recommended setting: 1 (may be set to 0 if you don't wxUSE_TIPWINDOW)
-#define wxUSE_POPUPWIN     1
-
-// wxTipWindow allows to implement the custom tooltips, it is used by the
-// context help classes. Requires wxUSE_POPUPWIN.
-//
-// Default is 1
-//
-// Recommended setting: 1 (may be set to 0)
-#define wxUSE_TIPWINDOW    1
 
 // Each of the settings below corresponds to one wxWidgets control. They are
 // all switched on by default but may be disabled if you are sure that your
@@ -831,26 +778,6 @@
 //
 // Recommended setting: 1 (there is no advantage in using the generic one)
 #define wxUSE_NATIVE_STATUSBAR        1
-
-// wxToolBar related settings: if wxUSE_TOOLBAR is 0, don't compile any toolbar
-// classes at all. Otherwise, use the native toolbar class unless
-// wxUSE_TOOLBAR_NATIVE is 0.
-//
-// Default is 1 for all settings.
-//
-// Recommended setting: 1 for wxUSE_TOOLBAR and wxUSE_TOOLBAR_NATIVE.
-#define wxUSE_TOOLBAR 1
-#define wxUSE_TOOLBAR_NATIVE 1
-
-// wxNotebook is a control with several "tabs" located on one of its sides. It
-// may be used to logically organise the data presented to the user instead of
-// putting everything in one huge dialog. It replaces wxTabControl and related
-// classes of wxWin 1.6x.
-//
-// Default is 1.
-//
-// Recommended setting: 1
-#define wxUSE_NOTEBOOK 1
 
 // wxListbook control is similar to wxNotebook but uses wxListCtrl instead of
 // the tabs
@@ -1012,42 +939,6 @@
 // depends on it)
 #define wxUSE_INFOBAR       1
 
-// Use wxMenu, wxMenuBar, wxMenuItem.
-//
-// Default is 1.
-//
-// Recommended setting: 1 (can't be disabled under MSW)
-#define wxUSE_MENUS         1
-
-// Use wxNotificationMessage.
-//
-// wxNotificationMessage allows to show non-intrusive messages to the user
-// using balloons, banners, popups or whatever is the appropriate method for
-// the current platform.
-//
-// Default is 1.
-//
-// Recommended setting: 1
-#define wxUSE_NOTIFICATION_MESSAGE 1
-
-// wxPreferencesEditor provides a common API for different ways of presenting
-// the standard "Preferences" or "Properties" dialog under different platforms
-// (e.g. some use modal dialogs, some use modeless ones; some apply the changes
-// immediately while others require an explicit "Apply" button).
-//
-// Default is 1.
-//
-// Recommended setting: 1 (but can be safely disabled if you don't use it)
-#define wxUSE_PREFERENCES_EDITOR 1
-
-// wxRichToolTip is a customizable tooltip class which has more functionality
-// than the stock (but native, unlike this class) wxToolTip.
-//
-// Default is 1.
-//
-// Recommended setting: 1 (but can be safely set to 0 if you don't need it)
-#define wxUSE_RICHTOOLTIP 1
-
 // Use wxSashWindow class.
 //
 // Default is 1.
@@ -1207,23 +1098,6 @@
 // ----------------------------------------------------------------------------
 // Big GUI components
 // ----------------------------------------------------------------------------
-
-// Set to 0 to disable MDI support.
-//
-// Requires wxUSE_NOTEBOOK under platforms other than MSW.
-//
-// Default is 1.
-//
-// Recommended setting: 1, can be safely set to 0.
-#define wxUSE_MDI 1
-
-// Set to 0 to disable document/view architecture
-#define wxUSE_DOC_VIEW_ARCHITECTURE 1
-
-// Set to 0 to disable MDI document/view architecture
-//
-// Requires wxUSE_MDI && wxUSE_DOC_VIEW_ARCHITECTURE
-#define wxUSE_MDI_ARCHITECTURE    1
 
 // Set to 0 to disable print/preview architecture code
 #define wxUSE_PRINTING_ARCHITECTURE  1

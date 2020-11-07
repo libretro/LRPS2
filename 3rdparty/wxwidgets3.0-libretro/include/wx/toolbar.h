@@ -64,29 +64,5 @@ enum
     wxTB_DEFAULT_STYLE = wxTB_HORIZONTAL | wxTB_FLAT
 };
 
-#if wxUSE_TOOLBAR
-    #include "wx/tbarbase.h"     // the base class for all toolbars
-
-    #if defined(__WXUNIVERSAL__)
-       #include "wx/univ/toolbar.h"
-    #elif defined(__WXMSW__) && (!defined(_WIN32_WCE) || (_WIN32_WCE >= 400 && !defined(__POCKETPC__) && !defined(__SMARTPHONE__)))
-       #include "wx/msw/toolbar.h"
-    #elif defined(__WXWINCE__)
-       #include "wx/msw/wince/tbarwce.h"
-    #elif defined(__WXMOTIF__)
-       #include "wx/motif/toolbar.h"
-    #elif defined(__WXGTK20__)
-        #include "wx/gtk/toolbar.h"
-    #elif defined(__WXGTK__)
-        #include "wx/gtk1/toolbar.h"
-    #elif defined(__WXMAC__)
-       #include "wx/osx/toolbar.h"
-    #elif defined(__WXCOCOA__)
-       #include "wx/cocoa/toolbar.h"
-    #elif defined(__WXPM__)
-       #include "wx/os2/toolbar.h"
-    #endif
-#endif // wxUSE_TOOLBAR
-
 #endif
     // _WX_TOOLBAR_H_BASE_

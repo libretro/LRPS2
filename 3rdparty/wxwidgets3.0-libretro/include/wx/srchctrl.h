@@ -55,12 +55,6 @@ public:
     wxSearchCtrlBase() { }
     virtual ~wxSearchCtrlBase() { }
 
-    // search control
-#if wxUSE_MENUS
-    virtual void SetMenu(wxMenu *menu) = 0;
-    virtual wxMenu *GetMenu() = 0;
-#endif // wxUSE_MENUS
-
     // get/set options
     virtual void ShowSearchButton( bool show ) = 0;
     virtual bool IsSearchButtonVisible() const = 0;

@@ -197,25 +197,6 @@
 #endif
 
 
-#ifdef _MSC_VER
-#   if _MSC_VER >= 1310
-
-
-#define wxUSE_GRAPHICS_CONTEXT 1
-#   else
-
-
-#       define wxUSE_GRAPHICS_CONTEXT 0
-#   endif
-#else
-
-
-
-
-
-#   define wxUSE_GRAPHICS_CONTEXT 1
-#endif
-
 #define wxUSE_CAIRO 0
 
 
@@ -223,10 +204,6 @@
 #define wxUSE_CONTROLS 1
 
 #define wxUSE_MARKUP 1
-
-#define wxUSE_POPUPWIN 1
-
-#define wxUSE_TIPWINDOW 1
 
 #define wxUSE_ANIMATIONCTRL 1
 #define wxUSE_BANNERWINDOW 1
@@ -274,11 +251,6 @@
 
 #define wxUSE_NATIVE_STATUSBAR 1
 
-#define wxUSE_TOOLBAR 1
-#define wxUSE_TOOLBAR_NATIVE 1
-
-#define wxUSE_NOTEBOOK 1
-
 #define wxUSE_LISTBOOK 1
 
 #define wxUSE_CHOICEBOOK 1
@@ -319,14 +291,6 @@
 #define wxUSE_IMAGLIST 1
 
 #define wxUSE_INFOBAR 1
-
-#define wxUSE_MENUS 1
-
-#define wxUSE_NOTIFICATION_MESSAGE 1
-
-#define wxUSE_PREFERENCES_EDITOR 1
-
-#define wxUSE_RICHTOOLTIP 1
 
 #define wxUSE_SASH 1
 
@@ -383,12 +347,6 @@
 #define wxUSE_ENH_METAFILE          0 /* 1 */
 #define wxUSE_WIN_METAFILES_ALWAYS  0
 
-
-#define wxUSE_MDI 1
-
-#define wxUSE_DOC_VIEW_ARCHITECTURE 1
-
-#define wxUSE_MDI_ARCHITECTURE 1
 
 #define wxUSE_PRINTING_ARCHITECTURE 1
 

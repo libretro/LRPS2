@@ -40,15 +40,6 @@
 #include "wx/access.h"
 #endif
 
-// when building wxUniv/Foo we don't want the code for native menu use to be
-// compiled in - it should only be used when building real wxFoo
-#ifdef __WXUNIVERSAL__
-    #define wxUSE_MENUS_NATIVE 0
-#else // !__WXUNIVERSAL__
-    #define wxUSE_MENUS_NATIVE wxUSE_MENUS
-#endif // __WXUNIVERSAL__/!__WXUNIVERSAL__
-
-
 // Define this macro if the corresponding operating system handles the state
 // of children windows automatically when the parent is enabled/disabled.
 // Otherwise wx itself must ensure that when the parent is disabled its
@@ -1209,22 +1200,6 @@ public:
     // do the window-specific processing after processing the update event
     virtual void DoUpdateWindowUI(wxUpdateUIEvent& event) ;
 
-#if wxUSE_MENUS
-    // show popup menu at the given position, generate events for the items
-    // selected in it
-    bool PopupMenu(wxMenu *menu, const wxPoint& pos = wxDefaultPosition)
-        { return PopupMenu(menu, pos.x, pos.y); }
-    bool PopupMenu(wxMenu *menu, int x, int y);
-
-    // simply return the id of the selected item or wxID_NONE without
-    // generating any events
-    int GetPopupMenuSelectionFromUser(wxMenu& menu,
-                                      const wxPoint& pos = wxDefaultPosition)
-        { return DoGetPopupMenuSelectionFromUser(menu, pos.x, pos.y); }
-    int GetPopupMenuSelectionFromUser(wxMenu& menu, int x, int y)
-        { return DoGetPopupMenuSelectionFromUser(menu, x, y); }
-#endif // wxUSE_MENUS
-
     // override this method to return true for controls having multiple pages
     virtual bool HasMultiplePages() const { return false; }
 
@@ -1795,10 +1770,6 @@ protected:
     virtual void DoSetToolTip( wxToolTip *tip );
 #endif // wxUSE_TOOLTIPS
 
-#if wxUSE_MENUS
-    virtual bool DoPopupMenu(wxMenu *menu, int x, int y) = 0;
-#endif // wxUSE_MENUS
-
     // Makes an adjustment to the window position to make it relative to the
     // parents client area, e.g. if the parent is a frame with a toolbar, its
     // (0, 0) is just below the toolbar
@@ -1823,15 +1794,6 @@ private:
     // enabled/disabled status changed because a parent window had been
     // enabled/disabled
     void NotifyWindowOnEnableChange(bool enabled);
-
-#if wxUSE_MENUS
-    // temporary event handlers used by GetPopupMenuSelectionFromUser()
-    void InternalOnPopupMenu(wxCommandEvent& event);
-    void InternalOnPopupMenuUpdate(wxUpdateUIEvent& event);
-
-    // implementation of the public GetPopupMenuSelectionFromUser() method
-    int DoGetPopupMenuSelectionFromUser(wxMenu& menu, int x, int y);
-#endif // wxUSE_MENUS
 
     // layout the window children when its size changes unless this was
     // explicitly disabled with SetAutoLayout(false)

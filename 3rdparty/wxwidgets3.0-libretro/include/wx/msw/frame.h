@@ -48,13 +48,6 @@ public:
     // event handlers
     void OnSysColourChanged(wxSysColourChangedEvent& event);
 
-    // Toolbar
-#if wxUSE_TOOLBAR
-    virtual wxToolBar* CreateToolBar(long style = -1,
-                                     wxWindowID id = wxID_ANY,
-                                     const wxString& name = wxToolBarNameStr);
-#endif // wxUSE_TOOLBAR
-
     // Status bar
 #if wxUSE_STATUSBAR
     virtual wxStatusBar* OnCreateStatusBar(int number = 1,
@@ -99,15 +92,6 @@ public:
                                     WXWPARAM wParam,
                                     WXLPARAM lParam);
 
-#if wxUSE_MENUS
-    // get the currently active menu: this is the same as the frame menu for
-    // normal frames but is overridden by wxMDIParentFrame
-    virtual WXHMENU MSWGetActiveMenu() const { return m_hMenu; }
-
-    // Look up the menu in the menu bar.
-    virtual wxMenu* MSWFindMenuFromHMENU(WXHMENU hMenu);
-#endif // wxUSE_MENUS
-
 protected:
     // common part of all ctors
     void Init();
@@ -115,15 +99,6 @@ protected:
     // override base class virtuals
     virtual void DoGetClientSize(int *width, int *height) const;
     virtual void DoSetClientSize(int width, int height);
-
-#if wxUSE_MENUS_NATIVE
-    // perform MSW-specific action when menubar is changed
-    virtual void AttachMenuBar(wxMenuBar *menubar);
-
-    // a plug in for MDI frame classes which need to do something special when
-    // the menubar is set
-    virtual void InternalSetMenuBar();
-#endif // wxUSE_MENUS_NATIVE
 
     // propagate our state change to all child frames
     void IconizeChildFrames(bool bIconize);
@@ -137,20 +112,11 @@ protected:
     // get default (wxWidgets) icon for the frame
     virtual WXHICON GetDefaultIcon() const;
 
-#if wxUSE_TOOLBAR
-    virtual void PositionToolBar();
-#endif // wxUSE_TOOLBAR
-
 #if wxUSE_STATUSBAR
     virtual void PositionStatusBar();
 
     static bool           m_useNativeStatusBar;
 #endif // wxUSE_STATUSBAR
-
-#if wxUSE_MENUS
-    // frame menu, NULL if none
-    WXHMENU m_hMenu;
-#endif // wxUSE_MENUS
 
 private:
 #if wxUSE_TOOLTIPS
