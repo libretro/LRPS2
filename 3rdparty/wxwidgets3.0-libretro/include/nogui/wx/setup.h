@@ -97,8 +97,6 @@
 
 #define wxUSE_TIMER 1
 
-#define wxUSE_FSWATCHER 0
-
 #define wxUSE_CONFIG 1
 
 #define wxUSE_CONFIG_NATIVE 1
@@ -617,12 +615,6 @@
  */
 #define CONST_COMPATIBILITY 0
 
-/*
- * use the session manager to detect KDE/GNOME
- */
-#define wxUSE_DETECT_SM 1
-
-
 /* define with the name of timezone variable */
 #define WX_TIMEZONE timezone
 
@@ -978,11 +970,6 @@
 /* Define if locale_t is available */
 /* #undef HAVE_LOCALE_T */
 
-/* Define if you have inotify_xxx() functions. */
-#define wxHAS_INOTIFY 1
-
-/* Define if you have kqueu_xxx() functions. */
-/* #undef wxHAS_KQUEUE */
 #endif
 
 #endif /* __WX_SETUP_H__ */

@@ -91,10 +91,6 @@
 #define wxUSE_FSVOLUME 0
 #endif /* !defined(wxUSE_FSVOLUME) */
 
-#ifndef wxUSE_FSWATCHER
-#define wxUSE_FSWATCHER 0
-#endif /* !defined(wxUSE_FSWATCHER) */
-
 #ifndef wxUSE_DYNAMIC_LOADER
 #       define wxUSE_DYNAMIC_LOADER 0
 #endif /* !defined(wxUSE_DYNAMIC_LOADER) */

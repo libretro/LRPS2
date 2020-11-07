@@ -20,7 +20,6 @@ set(wxWindowsSources
    src/msw/dir.cpp
    src/msw/dlmsw.cpp
    src/msw/evtloopconsole.cpp
-   src/msw/fswatcher.cpp
    src/msw/main.cpp
    src/msw/mslu.cpp
    src/msw/regconf.cpp

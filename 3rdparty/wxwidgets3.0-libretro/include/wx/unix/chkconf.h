@@ -16,13 +16,6 @@
 #   endif
 #endif /* wxUSE_CONSOLE_EVENTLOOP */
 
-#if wxUSE_FSWATCHER
-#   if !defined(wxHAS_INOTIFY) && !defined(wxHAS_KQUEUE)
-#           undef wxUSE_FSWATCHER
-#           define wxUSE_FSWATCHER 0
-#   endif
-#endif /* wxUSE_FSWATCHER */
-
 #if wxUSE_GSTREAMER
 #   if !wxUSE_THREADS
 #           undef wxUSE_GSTREAMER
