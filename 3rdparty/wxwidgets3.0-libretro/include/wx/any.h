@@ -597,77 +597,6 @@ public: \
 //wxDECLARE_ANY_TYPE(wxArrayString, WXDLLIMPEXP_BASE)
 
 
-#if wxUSE_VARIANT
-
-class WXDLLIMPEXP_FWD_BASE wxAnyToVariantRegistration;
-
-// Because of header inter-dependencies, cannot include this earlier
-#include "wx/variant.h"
-
-//
-// wxVariantData* data type implementation. For cases when appropriate
-// wxAny<->wxVariant conversion code is missing.
-//
-
-class WXDLLIMPEXP_BASE wxAnyValueTypeImplVariantData :
-    public wxAnyValueTypeImplBase<wxVariantData*>
-{
-    WX_DECLARE_ANY_VALUE_TYPE(wxAnyValueTypeImplVariantData)
-public:
-    wxAnyValueTypeImplVariantData() :
-        wxAnyValueTypeImplBase<wxVariantData*>() { }
-    virtual ~wxAnyValueTypeImplVariantData() { }
-
-    virtual void DeleteValue(wxAnyValueBuffer& buf) const
-    {
-        wxVariantData* data = static_cast<wxVariantData*>(buf.m_ptr);
-        if ( data )
-            data->DecRef();
-    }
-
-    virtual void CopyBuffer(const wxAnyValueBuffer& src,
-                            wxAnyValueBuffer& dst) const
-    {
-        wxVariantData* data = static_cast<wxVariantData*>(src.m_ptr);
-        if ( data )
-            data->IncRef();
-        dst.m_ptr = data;
-    }
-
-    static void SetValue(wxVariantData* value,
-                         wxAnyValueBuffer& buf)
-    {
-        value->IncRef();
-        buf.m_ptr = value;
-    }
-
-    static wxVariantData* GetValue(const wxAnyValueBuffer& buf)
-    {
-        return static_cast<wxVariantData*>(buf.m_ptr);
-    }
-
-    virtual bool ConvertValue(const wxAnyValueBuffer& src,
-                              wxAnyValueType* dstType,
-                              wxAnyValueBuffer& dst) const
-    {
-        wxUnusedVar(src);
-        wxUnusedVar(dstType);
-        wxUnusedVar(dst);
-        return false;
-    }
-};
-
-template<>
-class wxAnyValueTypeImpl<wxVariantData*> :
-    public wxAnyValueTypeImplVariantData
-{
-public:
-    wxAnyValueTypeImpl() : wxAnyValueTypeImplVariantData() { }
-    virtual ~wxAnyValueTypeImpl() { }
-};
-
-#endif // wxUSE_VARIANT
-
 #ifdef __VISUALC6__
     // Re-enable useless VC6 warnings
     #pragma warning (pop)
@@ -707,23 +636,6 @@ bool operator==(TUS value) const \
                 (wxAnyValueTypeImpl<TS>::GetValue(m_buffer))); \
     return false; \
 }
-
-
-#if wxUSE_VARIANT
-
-// Note that the following functions are implemented outside wxAny class
-// so that it can reside entirely in header and lack the export declaration.
-
-// Helper function used to associate wxAnyValueType with a wxVariantData.
-extern WXDLLIMPEXP_BASE void
-wxPreRegisterAnyToVariant(wxAnyToVariantRegistration* reg);
-
-// This function performs main wxAny to wxVariant conversion duties.
-extern WXDLLIMPEXP_BASE bool
-wxConvertAnyToVariant(const wxAny& any, wxVariant* variant);
-
-#endif // wxUSE_VARIANT
-
 
 //
 // The wxAny class represents a container for any type. A variant's value
@@ -779,14 +691,6 @@ public:
         m_type = wxAnyNullValueType;
         AssignAny(any);
     }
-
-#if wxUSE_VARIANT
-    wxAny(const wxVariant& variant)
-    {
-        m_type = wxAnyNullValueType;
-        AssignVariant(variant);
-    }
-#endif
 
     //@}
 
@@ -866,14 +770,6 @@ public:
             AssignAny(any);
         return *this;
     }
-
-#if wxUSE_VARIANT
-    wxAny& operator=(const wxVariant &variant)
-    {
-        AssignVariant(variant);
-        return *this;
-    }
-#endif
 
     // These two operators are needed to deal with string literals
     wxAny& operator=(const char* value)
@@ -1030,14 +926,6 @@ public:
         return true;
     }
 
-#if wxUSE_VARIANT
-    // GetAs() wxVariant specialization
-    bool GetAs(wxVariant* value) const
-    {
-        return wxConvertAnyToVariant(*this, value);
-    }
-#endif
-
 private:
     // Assignment functions
     void AssignAny(const wxAny& any)
@@ -1052,30 +940,6 @@ private:
 
         newType->CopyBuffer(any.m_buffer, m_buffer);
     }
-
-#if wxUSE_VARIANT
-    void AssignVariant(const wxVariant& variant)
-    {
-        wxVariantData* data = variant.GetData();
-
-        if ( data && data->GetAsAny(this) )
-            return;
-
-        m_type->DeleteValue(m_buffer);
-
-        if ( variant.IsNull() )
-        {
-            // Init as Null
-            m_type = wxAnyNullValueType;
-        }
-        else
-        {
-            // If everything else fails, wrap the whole wxVariantData
-            m_type = wxAnyValueTypeImpl<wxVariantData*>::sm_instance.get();
-            wxAnyValueTypeImpl<wxVariantData*>::SetValue(data, m_buffer);
-        }
-    }
-#endif
 
     template<typename T>
     void Assign(const T &value)

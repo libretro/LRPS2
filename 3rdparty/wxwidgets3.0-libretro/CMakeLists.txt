@@ -93,7 +93,6 @@ add_library(wxwidgets
    src/common/extended.c
    src/common/hash.cpp
    src/common/process.cpp
-   src/common/variant.cpp
    ${wxUnixSources}
    ${wxWindowsSources}
 )

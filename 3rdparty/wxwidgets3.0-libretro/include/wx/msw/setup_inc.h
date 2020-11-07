@@ -37,23 +37,6 @@
 // Recommended setting: 0 unless you really have to use MFC
 #define wxUSE_MFC           0
 
-// Set this to 1 for generic OLE support: this is required for drag-and-drop,
-// clipboard, OLE Automation. Only set it to 0 if your compiler is very old and
-// can't compile/doesn't have the OLE headers.
-//
-// Default is 1.
-//
-// Recommended setting: 1
-#define wxUSE_OLE           1
-
-// Set this to 1 to enable wxAutomationObject class.
-//
-// Default is 1.
-//
-// Recommended setting: 1 if you need to control other applications via OLE
-// Automation, can be safely set to 0 otherwise
-#define wxUSE_OLE_AUTOMATION 1
-
 // Set this to 1 to enable wxActiveXContainer class allowing to embed OLE
 // controls in wx.
 //

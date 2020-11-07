@@ -193,10 +193,6 @@
 #       define wxUSE_URL 0
 #endif /* !defined(wxUSE_URL) */
 
-#ifndef wxUSE_VARIANT
-#       define wxUSE_VARIANT 0
-#endif /* wxUSE_VARIANT */
-
 #ifndef wxUSE_XLOCALE
 #       define wxUSE_XLOCALE 0
 #endif /* !defined(wxUSE_XLOCALE) */
@@ -220,10 +216,6 @@
 #ifndef wxUSE_ACCEL
 #       define wxUSE_ACCEL 0
 #endif /* !defined(wxUSE_ACCEL) */
-
-#ifndef wxUSE_ACCESSIBILITY
-#       define wxUSE_ACCESSIBILITY 0
-#endif /* !defined(wxUSE_ACCESSIBILITY) */
 
 #ifndef wxUSE_ANIMATIONCTRL
 #       define wxUSE_ANIMATIONCTRL 0
@@ -720,11 +712,6 @@
  */
 #if wxUSE_GUI
 
-#if wxUSE_ACCESSIBILITY && !defined(__WXMSW__)
-#       undef wxUSE_ACCESSIBILITY
-#       define wxUSE_ACCESSIBILITY 0
-#endif /* wxUSE_ACCESSIBILITY */
-
 #if wxUSE_BUTTON || \
     wxUSE_CALENDARCTRL || \
     wxUSE_CARET || \
@@ -1093,13 +1080,6 @@
 #       undef wxUSE_TASKBARICON
 #       define wxUSE_TASKBARICON 0
 #endif /* wxUSE_TASKBARICON */
-
-#if !wxUSE_VARIANT
-#   if wxUSE_DATAVIEWCTRL
-#           undef wxUSE_DATAVIEWCTRL
-#           define wxUSE_DATAVIEWCTRL 0
-#   endif
-#endif /* wxUSE_VARIANT */
 
 #if wxUSE_TREELISTCTRL && !wxUSE_DATAVIEWCTRL
 #       undef wxUSE_TREELISTCTRL

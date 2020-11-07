@@ -38,14 +38,6 @@
 #        define wxUSE_INICONF 0
 #endif /* !defined(wxUSE_INICONF) */
 
-#ifndef wxUSE_OLE
-#        define wxUSE_OLE 0
-#endif /* !defined(wxUSE_OLE) */
-
-#ifndef wxUSE_OLE_AUTOMATION
-#        define wxUSE_OLE_AUTOMATION 0
-#endif /* !defined(wxUSE_OLE_AUTOMATION) */
-
 #ifndef wxUSE_TASKBARICON_BALLOONS
 #       define wxUSE_TASKBARICON_BALLOONS 0
 #endif /* wxUSE_TASKBARICON_BALLOONS */
@@ -239,18 +231,6 @@
 #       define wxUSE_CRASHREPORT 0
 #endif /* wxUSE_CRASHREPORT */
 
-#if !wxUSE_VARIANT
-#   if wxUSE_ACTIVEX
-#           undef wxUSE_ACTIVEX
-#           define wxUSE_ACTIVEX 0
-#   endif
-
-#   if wxUSE_OLE_AUTOMATION
-#           undef wxUSE_OLE_AUTOMATION
-#           define wxUSE_OLE_AUTOMATION 0
-#   endif
-#endif /* !wxUSE_VARIANT */
-
 #if !wxUSE_DYNAMIC_LOADER
 #    if wxUSE_MS_HTML_HELP
 #            undef wxUSE_MS_HTML_HELP
@@ -281,7 +261,6 @@
 #   endif
 #endif  /* !wxUSE_DYNLIB_CLASS */
 
-#if !wxUSE_OLE
 #   if wxUSE_ACTIVEX
 #           undef wxUSE_ACTIVEX
 #           define wxUSE_ACTIVEX 0
@@ -292,20 +271,10 @@
 #           define wxUSE_DATAOBJ 0
 #   endif
 
-#   if wxUSE_OLE_AUTOMATION
-#           undef wxUSE_OLE_AUTOMATION
-#           define wxUSE_OLE_AUTOMATION 0
-#   endif
-#endif /* !wxUSE_OLE */
-
 #if !wxUSE_ACTIVEX
 #   if wxUSE_MEDIACTRL
 #           undef wxUSE_MEDIACTRL
 #           define wxUSE_MEDIACTRL 0
-#   endif
-#    if wxUSE_WEB
-#           undef wxUSE_WEB
-#           define wxUSE_WEB 0
 #   endif
 #endif /* !wxUSE_ACTIVEX */
 
@@ -315,14 +284,6 @@
 #           define wxUSE_FSWATCHER 0
 #   endif
 #endif /* !wxUSE_THREADS */
-
-
-#if !wxUSE_OLE_AUTOMATION
-#    if wxUSE_WEB
-#           undef wxUSE_WEB
-#           define wxUSE_WEB 0
-#   endif
-#endif /* !wxUSE_OLE_AUTOMATION */
 
 #if defined(__WXUNIVERSAL__) && wxUSE_POSTSCRIPT_ARCHITECTURE_IN_MSW && !wxUSE_POSTSCRIPT
 #   undef wxUSE_POSTSCRIPT

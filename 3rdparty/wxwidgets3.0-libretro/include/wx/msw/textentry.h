@@ -70,32 +70,9 @@ protected:
     virtual bool DoSetMargins(const wxPoint& pt);
     virtual wxPoint DoGetMargins() const;
 
-    // auto-completion uses COM under Windows so they won't work without
-    // wxUSE_OLE as OleInitialize() is not called then
-#if wxUSE_OLE
-    virtual bool DoAutoCompleteStrings(const wxArrayString& choices);
-#if wxUSE_DYNLIB_CLASS
-    virtual bool DoAutoCompleteFileNames(int flags);
-#endif // wxUSE_DYNLIB_CLASS
-    virtual bool DoAutoCompleteCustom(wxTextCompleter *completer);
-#endif // wxUSE_OLE
-
 private:
     // implement this to return the HWND of the EDIT control
     virtual WXHWND GetEditHWND() const = 0;
-
-#if wxUSE_OLE
-    // Get the auto-complete object creating it if necessary. Returns NULL if
-    // creating it failed.
-    wxTextAutoCompleteData *GetOrCreateCompleter();
-
-    // Various auto-completion-related stuff, only used if any of AutoComplete()
-    // methods are called. Use the function above to access it.
-    wxTextAutoCompleteData *m_autoCompleteData;
-
-    // It needs to call our GetEditableWindow() and GetEditHWND() methods.
-    friend class wxTextAutoCompleteData;
-#endif // wxUSE_OLE
 };
 
 #endif // _WX_MSW_TEXTENTRY_H_

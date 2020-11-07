@@ -556,15 +556,6 @@
 // This code is experimental and subject to change.
 #define wxUSE_URL_NATIVE 0
 
-// Support for wxVariant class used in several places throughout the library,
-// notably in wxDataViewCtrl API.
-//
-// Default is 1.
-//
-// Recommended setting: 1 unless you want to reduce the library size as much as
-// possible in which case setting this to 0 can gain up to 100KB.
-#define wxUSE_VARIANT 1
-
 // Support for wxAny class, the successor for wxVariant.
 //
 // Default is 1.
@@ -1115,14 +1106,6 @@
 // Recommended setting: 1
 #define wxUSE_DRAG_AND_DROP 1
 
-// Use wxAccessible for enhanced and customisable accessibility.
-// Depends on wxUSE_OLE.
-//
-// Default is 0.
-//
-// Recommended setting (at present): 0
-#define wxUSE_ACCESSIBILITY 0
-
 // ----------------------------------------------------------------------------
 // miscellaneous settings
 // ----------------------------------------------------------------------------
@@ -1277,23 +1260,6 @@
 //
 // Recommended setting: 0 unless you really have to use MFC
 #define wxUSE_MFC           0
-
-// Set this to 1 for generic OLE support: this is required for drag-and-drop,
-// clipboard, OLE Automation. Only set it to 0 if your compiler is very old and
-// can't compile/doesn't have the OLE headers.
-//
-// Default is 1.
-//
-// Recommended setting: 1
-#define wxUSE_OLE           1
-
-// Set this to 1 to enable wxAutomationObject class.
-//
-// Default is 1.
-//
-// Recommended setting: 1 if you need to control other applications via OLE
-// Automation, can be safely set to 0 otherwise
-#define wxUSE_OLE_AUTOMATION 1
 
 // Set this to 1 to enable wxActiveXContainer class allowing to embed OLE
 // controls in wx.

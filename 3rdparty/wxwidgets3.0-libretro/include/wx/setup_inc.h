@@ -552,15 +552,6 @@
 // This code is experimental and subject to change.
 #define wxUSE_URL_NATIVE 0
 
-// Support for wxVariant class used in several places throughout the library,
-// notably in wxDataViewCtrl API.
-//
-// Default is 1.
-//
-// Recommended setting: 1 unless you want to reduce the library size as much as
-// possible in which case setting this to 0 can gain up to 100KB.
-#define wxUSE_VARIANT 1
-
 // Support for wxAny class, the successor for wxVariant.
 //
 // Default is 1.
@@ -1110,14 +1101,6 @@
 //
 // Recommended setting: 1
 #define wxUSE_DRAG_AND_DROP 1
-
-// Use wxAccessible for enhanced and customisable accessibility.
-// Depends on wxUSE_OLE.
-//
-// Default is 0.
-//
-// Recommended setting (at present): 0
-#define wxUSE_ACCESSIBILITY 0
 
 // ----------------------------------------------------------------------------
 // miscellaneous settings

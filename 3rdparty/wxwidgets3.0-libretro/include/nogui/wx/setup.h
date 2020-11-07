@@ -146,8 +146,6 @@
 
 #define wxUSE_URL_NATIVE 0
 
-#define wxUSE_VARIANT 1
-
 #define wxUSE_ANY 1
 
 #define wxUSE_REGEX 1
@@ -334,8 +332,6 @@
 
 #define wxUSE_DRAG_AND_DROP 1
 
-#define wxUSE_ACCESSIBILITY 0
-
 #define wxUSE_DRAGIMAGE 1
 
 #define wxUSE_HELP 1
@@ -428,10 +424,6 @@
 #endif
 
 #define wxUSE_MFC           0
-
-#define wxUSE_OLE           0 /* 1 */
-
-#define wxUSE_OLE_AUTOMATION 0 /* 1 */
 
 #define wxUSE_ACTIVEX 0 /* 1 */
 

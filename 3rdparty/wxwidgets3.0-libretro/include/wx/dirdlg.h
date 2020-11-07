@@ -97,8 +97,7 @@ protected:
 #if defined(__WXUNIVERSAL__)
     #include "wx/generic/dirdlgg.h"
     #define wxDirDialog wxGenericDirDialog
-#elif defined(__WXMSW__) && (!wxUSE_OLE               || \
-                             (defined (__GNUWIN32__) && !wxUSE_NORLANDER_HEADERS))
+#elif defined(__WXMSW__)
     #include "wx/generic/dirdlgg.h"
     #define wxDirDialog wxGenericDirDialog
 #elif defined(__WXMSW__) && defined(__WXWINCE__) && !defined(__HANDHELDPC__)

@@ -1594,18 +1594,6 @@ bool wxFileName::Normalize(int flags,
         m_dirs.Add(dir);
     }
 
-#if defined(__WIN32__) && !defined(__WXWINCE__) && wxUSE_OLE
-    if ( (flags & wxPATH_NORM_SHORTCUT) )
-    {
-        wxString filename;
-        if (GetShortcutTarget(GetFullPath(format), filename))
-        {
-            m_relative = false;
-            Assign(filename);
-        }
-    }
-#endif
-
 #if defined(__WIN32__)
     if ( (flags & wxPATH_NORM_LONG) && (format == wxPATH_DOS) )
     {
@@ -1674,88 +1662,6 @@ bool wxFileName::ReplaceHomeDir(wxPathFormat format)
 
     return true;
 }
-
-// ----------------------------------------------------------------------------
-// get the shortcut target
-// ----------------------------------------------------------------------------
-
-// WinCE (3) doesn't have CLSID_ShellLink, IID_IShellLink definitions.
-// The .lnk file is a plain text file so it should be easy to
-// make it work. Hint from Google Groups:
-// "If you open up a lnk file, you'll see a
-// number, followed by a pound sign (#), followed by more text. The
-// number is the number of characters that follows the pound sign. The
-// characters after the pound sign are the command line (which _can_
-// include arguments) to be executed. Any path (e.g. \windows\program
-// files\myapp.exe) that includes spaces needs to be enclosed in
-// quotation marks."
-
-#if defined(__WIN32__) && !defined(__WXWINCE__) && wxUSE_OLE
-
-bool wxFileName::GetShortcutTarget(const wxString& shortcutPath,
-                                   wxString& targetFilename,
-                                   wxString* arguments) const
-{
-    wxString path, file, ext;
-    wxFileName::SplitPath(shortcutPath, & path, & file, & ext);
-
-    HRESULT hres;
-    IShellLink* psl;
-    bool success = false;
-
-    // Assume it's not a shortcut if it doesn't end with lnk
-    if (ext.CmpNoCase(wxT("lnk"))!=0)
-        return false;
-
-    // Ensure OLE is initialized.
-    wxOleInitializer oleInit;
-
-    // create a ShellLink object
-    hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
-                            IID_IShellLink, (LPVOID*) &psl);
-
-    if (SUCCEEDED(hres))
-    {
-        IPersistFile* ppf;
-        hres = psl->QueryInterface( IID_IPersistFile, (LPVOID *) &ppf);
-        if (SUCCEEDED(hres))
-        {
-            WCHAR wsz[MAX_PATH];
-
-            MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, shortcutPath.mb_str(), -1, wsz,
-                                MAX_PATH);
-
-            hres = ppf->Load(wsz, 0);
-            ppf->Release();
-
-            if (SUCCEEDED(hres))
-            {
-                wxChar buf[2048];
-                // Wrong prototype in early versions
-#if defined(__MINGW32__) && !wxCHECK_W32API_VERSION(2, 2)
-                psl->GetPath((CHAR*) buf, 2048, NULL, SLGP_UNCPRIORITY);
-#else
-                psl->GetPath(buf, 2048, NULL, SLGP_UNCPRIORITY);
-#endif
-                targetFilename = wxString(buf);
-                success = (shortcutPath != targetFilename);
-
-                psl->GetArguments(buf, 2048);
-                wxString args(buf);
-                if (!args.empty() && arguments)
-                {
-                    *arguments = args;
-                }
-            }
-        }
-
-        psl->Release();
-    }
-    return success;
-}
-
-#endif // __WIN32__ && !__WXWINCE__
-
 
 // ----------------------------------------------------------------------------
 // absolute/relative paths

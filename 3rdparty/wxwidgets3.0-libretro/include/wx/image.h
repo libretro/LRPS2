@@ -89,15 +89,6 @@ class WXDLLIMPEXP_FWD_CORE wxImage;
 class WXDLLIMPEXP_FWD_CORE wxPalette;
 
 //-----------------------------------------------------------------------------
-// wxVariant support
-//-----------------------------------------------------------------------------
-
-#if wxUSE_VARIANT
-#include "wx/variant.h"
-DECLARE_VARIANT_OBJECT_EXPORTED(wxImage,WXDLLIMPEXP_CORE)
-#endif
-
-//-----------------------------------------------------------------------------
 // wxImageHandler
 //-----------------------------------------------------------------------------
 

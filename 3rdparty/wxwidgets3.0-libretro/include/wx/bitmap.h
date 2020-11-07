@@ -28,15 +28,6 @@ class WXDLLIMPEXP_FWD_CORE wxPalette;
 class WXDLLIMPEXP_FWD_CORE wxDC;
 
 // ----------------------------------------------------------------------------
-// wxVariant support
-// ----------------------------------------------------------------------------
-
-#if wxUSE_VARIANT
-#include "wx/variant.h"
-DECLARE_VARIANT_OBJECT_EXPORTED(wxBitmap,WXDLLIMPEXP_CORE)
-#endif
-
-// ----------------------------------------------------------------------------
 // wxMask represents the transparent area of the bitmap
 // ----------------------------------------------------------------------------
 
