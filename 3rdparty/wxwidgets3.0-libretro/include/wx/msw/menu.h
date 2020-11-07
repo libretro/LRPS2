@@ -11,13 +11,6 @@
 #ifndef _WX_MENU_H_
 #define _WX_MENU_H_
 
-#if wxUSE_ACCEL
-    #include "wx/accel.h"
-    #include "wx/dynarray.h"
-
-    WX_DEFINE_EXPORTED_ARRAY_PTR(wxAcceleratorEntry *, wxAcceleratorArray);
-#endif // wxUSE_ACCEL
-
 class WXDLLIMPEXP_FWD_CORE wxFrame;
 
 class wxMenuRadioItemsData;
@@ -82,24 +75,6 @@ public:
     // containing this position.
     bool MSWGetRadioGroupRange(int pos, int *start, int *end) const;
 
-#if wxUSE_ACCEL
-    // called by wxMenuBar to build its accel table from the accels of all menus
-    bool HasAccels() const { return !m_accels.empty(); }
-    size_t GetAccelCount() const { return m_accels.size(); }
-    size_t CopyAccels(wxAcceleratorEntry *accels) const;
-
-    // called by wxMenuItem when its accels changes
-    void UpdateAccel(wxMenuItem *item);
-
-    // helper used by wxMenu itself (returns the index in m_accels)
-    int FindAccel(int id) const;
-
-    // used only by wxMDIParentFrame currently but could be useful elsewhere:
-    // returns a new accelerator table with accelerators for just this menu
-    // (shouldn't be called if we don't have any accelerators)
-    wxAcceleratorTable *CreateAccelTable() const;
-#endif // wxUSE_ACCEL
-
 #if wxUSE_OWNER_DRAWN
 
     int GetMaxAccelWidth()
@@ -155,11 +130,6 @@ private:
     // the menu handle of this menu
     WXHMENU m_hMenu;
 
-#if wxUSE_ACCEL
-    // the accelerators for our menu items
-    wxAcceleratorArray m_accels;
-#endif // wxUSE_ACCEL
-
 #if wxUSE_OWNER_DRAWN
     // true if the menu has any ownerdrawn items
     bool m_ownerDrawn;
@@ -210,11 +180,6 @@ public:
     WXHWND GetCommandBar() const { return m_commandBar; }
     bool AddAdornments(long style);
 #endif
-
-#if wxUSE_ACCEL
-    // update the accel table (must be called after adding/deleting a menu)
-    void RebuildAccelTable();
-#endif // wxUSE_ACCEL
 
         // get the menu handle
     WXHMENU GetHMenu() const { return m_hMenu; }

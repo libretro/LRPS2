@@ -32,10 +32,6 @@
     #include "wx/palette.h"
 #endif // wxUSE_PALETTE
 
-#if wxUSE_ACCEL
-    #include "wx/accel.h"
-#endif // wxUSE_ACCEL
-
 // Define this macro if the corresponding operating system handles the state
 // of children windows automatically when the parent is enabled/disabled.
 // Otherwise wx itself must ensure that when the parent is disabled its
@@ -916,16 +912,6 @@ public:
 
     virtual void InitDialog();
 
-#if wxUSE_ACCEL
-    // accelerators
-    // ------------
-    virtual void SetAcceleratorTable( const wxAcceleratorTable& accel )
-        { m_acceleratorTable = accel; }
-    wxAcceleratorTable *GetAcceleratorTable()
-        { return &m_acceleratorTable; }
-
-#endif // wxUSE_ACCEL
-
     // dialog units translations
     // -------------------------
 
@@ -1510,12 +1496,6 @@ protected:
 
     // the region which should be repainted in response to paint event
     wxRegion             m_updateRegion;
-
-#if wxUSE_ACCEL
-    // the accelerator table for the window which translates key strokes into
-    // command events
-    wxAcceleratorTable   m_acceleratorTable;
-#endif // wxUSE_ACCEL
 
     // the tooltip for this window (may be NULL)
 #if wxUSE_TOOLTIPS

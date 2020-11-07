@@ -770,9 +770,6 @@
 // Miscellaneous GUI stuff
 // ----------------------------------------------------------------------------
 
-// wxAcceleratorTable/Entry classes and support for them in wxMenu(Bar)
-#define wxUSE_ACCEL 1
-
 // Use the standard art provider. The icons returned by this provider are
 // embedded into the library as XPMs so disabling it reduces the library size
 // somewhat but this should only be done if you use your own custom art

@@ -225,9 +225,6 @@
 
 #define wxUSE_REARRANGECTRL 1
 
-
-#define wxUSE_ACCEL 1
-
 #define wxUSE_ARTPROVIDER_STD 1
 
 #define wxUSE_ARTPROVIDER_TANGO 0 /* 1 */

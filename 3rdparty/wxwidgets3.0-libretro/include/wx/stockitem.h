@@ -50,14 +50,6 @@ enum wxStockLabelQueryFlag
 WXDLLIMPEXP_CORE wxString wxGetStockLabel(wxWindowID id,
                                      long flags = wxSTOCK_WITH_MNEMONIC);
 
-#if wxUSE_ACCEL
-
-    // Returns the accelerator that should be used for given stock UI element
-    // (e.g. "Ctrl+x" for wxSTOCK_EXIT)
-    WXDLLIMPEXP_CORE wxAcceleratorEntry wxGetStockAccelerator(wxWindowID id);
-
-#endif
-
 // wxStockHelpStringClient conceptually works like wxArtClient: it gives a hint to
 // wxGetStockHelpString() about the context where the help string is to be used
 enum wxStockHelpStringClient
