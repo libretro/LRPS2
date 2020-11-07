@@ -39,10 +39,6 @@
 #undef wxUSE_INICONF
 #define wxUSE_INICONF 0
 
-// DDE doesn't exist under WinCE and wxIPC is DDE-based under MSW
-#undef wxUSE_IPC
-#define wxUSE_IPC 0
-
 // libtiff doesn't build with eVC but is ok with VC8
 #ifdef __EVC4__
     #undef wxUSE_LIBTIFF

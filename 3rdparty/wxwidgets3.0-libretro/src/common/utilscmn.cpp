@@ -57,7 +57,6 @@
 #include "wx/process.h"
 #include "wx/txtstrm.h"
 #include "wx/uri.h"
-#include "wx/mimetype.h"
 #include "wx/config.h"
 #include "wx/versioninfo.h"
 
@@ -1036,18 +1035,6 @@ bool wxDoLaunchDefaultBrowser(const wxString& url, int flags)
 
     bool ok = false;
     wxString cmd;
-
-#if wxUSE_MIMETYPE
-    wxFileType *ft = wxTheMimeTypesManager->GetFileTypeFromExtension(wxT("html"));
-    if ( ft )
-    {
-        wxString mt;
-        ft->GetMimeType(&mt);
-
-        ok = ft->GetOpenCommand(&cmd, wxFileType::MessageParameters(url));
-        delete ft;
-    }
-#endif // wxUSE_MIMETYPE
 
     if ( !ok || cmd.empty() )
     {

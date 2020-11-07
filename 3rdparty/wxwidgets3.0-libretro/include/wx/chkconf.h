@@ -115,10 +115,6 @@
 #       define wxUSE_LONGLONG 0
 #endif /* !defined(wxUSE_LONGLONG) */
 
-#ifndef wxUSE_MIMETYPE
-#       define wxUSE_MIMETYPE 0
-#endif /* !defined(wxUSE_MIMETYPE) */
-
 #ifndef wxUSE_ON_FATAL_EXCEPTION
 #       define wxUSE_ON_FATAL_EXCEPTION 0
 #endif /* !defined(wxUSE_ON_FATAL_EXCEPTION) */
@@ -550,10 +546,6 @@
 #       define wxUSE_VALIDATORS 0
 #endif /* !defined(wxUSE_VALIDATORS) */
 
-#ifndef wxUSE_WEBVIEW
-#       define wxUSE_WEBVIEW 0
-#endif /* !defined(wxUSE_WEBVIEW) */
-
 #ifndef wxUSE_WXHTML_HELP
 #       define wxUSE_WXHTML_HELP 0
 #endif /* !defined(wxUSE_WXHTML_HELP) */
@@ -692,11 +684,6 @@
 #            define wxUSE_LONGLONG 1
 #    endif
 #endif /* wxUSE_STOPWATCH */
-
-#if wxUSE_MIMETYPE && !wxUSE_TEXTFILE
-#       undef wxUSE_TEXTFILE
-#       define wxUSE_TEXTFILE 1
-#endif /* wxUSE_MIMETYPE */
 
 #if wxUSE_TEXTFILE && !wxUSE_TEXTBUFFER
 #       undef wxUSE_TEXTBUFFER
@@ -1122,11 +1109,6 @@
 #       undef wxUSE_TREELISTCTRL
 #       define wxUSE_TREELISTCTRL 0
 #endif /* wxUSE_TREELISTCTRL */
-
-#if wxUSE_WEBVIEW && !(wxUSE_WEBVIEW_WEBKIT || wxUSE_WEBVIEW_IE)
-#       undef wxUSE_WEBVIEW
-#       define wxUSE_WEBVIEW 0
-#endif /* wxUSE_WEBVIEW && !any web view backend */
 
 #endif /* wxUSE_GUI */
 

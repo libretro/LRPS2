@@ -5,26 +5,22 @@ set(wxUnixSources
    src/unix/dlunix.cpp
    src/unix/evtloopunix.cpp
    src/unix/epolldispatcher.cpp
-   src/unix/fdiounix.cpp
    src/unix/stdpaths.cpp
    src/unix/threadpsx.cpp
    src/unix/timerunx.cpp
    src/unix/utilsunx.cpp
    src/unix/wakeuppipe.cpp
    src/common/selectdispatcher.cpp
-   src/common/fdiodispatcher.cpp
    )
 endif()
 if(WIN32)
 set(wxWindowsSources
    src/msw/basemsw.cpp
-   src/msw/dde.cpp
    src/msw/dir.cpp
    src/msw/dlmsw.cpp
    src/msw/evtloopconsole.cpp
    src/msw/fswatcher.cpp
    src/msw/main.cpp
-   src/msw/mimetype.cpp
    src/msw/mslu.cpp
    src/msw/regconf.cpp
    src/msw/registry.cpp
@@ -35,7 +31,6 @@ set(wxWindowsSources
    src/msw/utils.cpp
    src/msw/utilsexc.cpp
    src/msw/volume.cpp
-   src/common/ipcbase.cpp
    )
 endif()
 add_library(wxwidgets

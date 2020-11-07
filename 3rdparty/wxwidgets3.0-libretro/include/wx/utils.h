@@ -404,13 +404,6 @@ WXDLLIMPEXP_BASE long wxExecute(const wxString& command,
                                 int flags = 0,
                                 const wxExecuteEnv *env = NULL);
 
-#if defined(__WINDOWS__) && wxUSE_IPC
-// ask a DDE server to execute the DDE request with given parameters
-WXDLLIMPEXP_BASE bool wxExecuteDDE(const wxString& ddeServer,
-                                   const wxString& ddeTopic,
-                                   const wxString& ddeCommand);
-#endif // __WINDOWS__ && wxUSE_IPC
-
 enum wxSignal
 {
     wxSIGNONE = 0,  // verify if the process exists under Unix

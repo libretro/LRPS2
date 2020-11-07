@@ -536,9 +536,6 @@
 // wxFontMapper class
 #define wxUSE_FONTMAP 1
 
-// wxMimeTypesManager class
-#define wxUSE_MIMETYPE 1
-
 // wxProtocol and related classes: if you want to use either of wxFTP, wxHTTP
 // or wxURL you need to set this to 1.
 //
@@ -640,42 +637,6 @@
 //
 // Recommended setting: 1
 #define wxUSE_PROPGRID  1
-
-// Use wxStyledTextCtrl, a wxWidgets implementation of Scintilla.
-//
-// Default is 1
-//
-// Recommended setting: 1
-#define wxUSE_STC 1
-
-// Use wxWidget's web viewing classes
-//
-// Default is 1
-//
-// Recommended setting: 1
-#define wxUSE_WEBVIEW 1
-
-// Use the IE wxWebView backend
-//
-// Default is 1 on MSW
-//
-// Recommended setting: 1
-#ifdef __WXMSW__
-#define wxUSE_WEBVIEW_IE 1
-#else
-#define wxUSE_WEBVIEW_IE 0
-#endif
-
-// Use the WebKit wxWebView backend
-//
-// Default is 1 on GTK and OSX
-//
-// Recommended setting: 1
-#if defined(__WXGTK__) || defined(__WXOSX__)
-#define wxUSE_WEBVIEW_WEBKIT 1
-#else
-#define wxUSE_WEBVIEW_WEBKIT 0
-#endif
 
 // Enable wxGraphicsContext implementation using Cairo library.
 //
@@ -1183,8 +1144,6 @@
 
 #define wxUSE_DRAGIMAGE 1
 
-#define wxUSE_IPC         1
-                                // 0 for no interprocess comms
 #define wxUSE_HELP        1
                                 // 0 for no help facility
 

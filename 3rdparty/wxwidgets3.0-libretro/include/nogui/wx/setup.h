@@ -140,8 +140,6 @@
 
 #define wxUSE_FONTMAP 0 /* 1 */
 
-#define wxUSE_MIMETYPE 1
-
 #define wxUSE_PROTOCOL 1
 
 #define wxUSE_PROTOCOL_FILE 1
@@ -173,29 +171,6 @@
 #define wxUSE_RIBBON 1
 
 #define wxUSE_PROPGRID 1
-
-#define wxUSE_STC 1
-
-#define wxUSE_WEBVIEW 1
-
-#ifdef __WXMSW__
-#define wxUSE_WEBVIEW_IE 0
-#else
-#define wxUSE_WEBVIEW_IE 0
-#endif
-
-#if (defined(__WXGTK__) && !defined(__WXGTK3__)) || defined(__WXOSX__)
-#define wxUSE_WEBVIEW_WEBKIT 0
-#else
-#define wxUSE_WEBVIEW_WEBKIT 0
-#endif
-
-#if defined(__WXGTK3__)
-#define wxUSE_WEBVIEW_WEBKIT2 1
-#else
-#define wxUSE_WEBVIEW_WEBKIT2 1
-#endif
-
 
 #define wxUSE_CAIRO 0
 
@@ -370,10 +345,7 @@
 
 #define wxUSE_DRAGIMAGE 1
 
-#define wxUSE_IPC 1
-
 #define wxUSE_HELP 1
-
 
 #define wxUSE_MS_HTML_HELP 0
 
