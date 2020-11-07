@@ -927,11 +927,19 @@ if(BUILTIN_DEV9)
 endif()
 
 # additonal include directories
+if(NOT LIBRETRO)
 include_directories(
     gui
     x86
     ${CMAKE_BINARY_DIR}/pcsx2/gui
 )
+else()
+include_directories(
+    gui-libretro
+    x86
+    ${CMAKE_BINARY_DIR}/pcsx2/gui-libretro
+)
+endif()
 
 if(NOT MSVC)
 ### Generate the resources files

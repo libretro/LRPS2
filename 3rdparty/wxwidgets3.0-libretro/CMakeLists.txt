@@ -11,6 +11,7 @@ set(wxUnixSources
    src/unix/utilsunx.cpp
    src/unix/wakeuppipe.cpp
    src/common/selectdispatcher.cpp
+   src/common/fdiodispatcher.cpp
    )
 endif()
 if(WIN32)
