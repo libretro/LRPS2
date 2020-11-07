@@ -68,7 +68,6 @@ add_library(wxwidgets
    src/common/string.cpp
    src/common/stringimpl.cpp
    src/common/strvararg.cpp
-   src/common/sysopt.cpp
    src/common/tarstrm.cpp
    src/common/textbuf.cpp
    src/common/textfile.cpp
@@ -86,7 +85,6 @@ add_library(wxwidgets
    src/common/xlocale.cpp
    src/common/zipstrm.cpp
    src/common/zstream.cpp
-   src/common/any.cpp
    src/common/archive.cpp
    src/common/datstrm.cpp
    src/common/encconv.cpp
