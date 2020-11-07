@@ -18,12 +18,6 @@
 // please keep the list in alphabetic order except for closely related settings
 // (e.g. wxUSE_ENH_METAFILE is put immediately after wxUSE_METAFILE)
 
-#if _WIN32_WCE < 400
-    // not enough API and lack of ddraw.h
-    #undef wxUSE_DISPLAY
-    #define wxUSE_DISPLAY 0
-#endif
-
 // eVC doesn't have standard streams
 #ifdef __EVC4__
     #undef wxUSE_STD_IOSTREAM

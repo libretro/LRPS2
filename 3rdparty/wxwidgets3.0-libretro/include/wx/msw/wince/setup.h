@@ -800,18 +800,6 @@
 // Recommended setting: 1 but can be turned off to reduce the library size.
 #define wxUSE_ARTPROVIDER_TANGO 1
 
-// Use wxDisplay class: it allows enumerating all displays on a system and
-// their geometries as well as finding the display on which the given point or
-// window lies.
-//
-// Default is 1.
-//
-// Recommended setting: 1 if you need it, can be safely set to 0 otherwise
-#define wxUSE_DISPLAY       1
-
-// Miscellaneous geometry code: needed for Canvas library
-#define wxUSE_GEOMETRY            1
-
 // Use wxImageList. This class is needed by wxNotebook, wxTreeCtrl and
 // wxListCtrl.
 //

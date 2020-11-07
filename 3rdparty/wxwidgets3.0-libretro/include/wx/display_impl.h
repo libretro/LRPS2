@@ -65,18 +65,6 @@ public:
     // return true if this is the primary monitor (usually one with index 0)
     virtual bool IsPrimary() const { return GetIndex() == 0; }
 
-
-#if wxUSE_DISPLAY
-    // implements wxDisplay::GetModes()
-    virtual wxArrayVideoModes GetModes(const wxVideoMode& mode) const = 0;
-
-    // get current video mode
-    virtual wxVideoMode GetCurrentMode() const = 0;
-
-    // change current mode, return true if succeeded, false otherwise
-    virtual bool ChangeMode(const wxVideoMode& mode) = 0;
-#endif // wxUSE_DISPLAY
-
 protected:
     // create the object providing access to the display with the given index
     wxDisplayImpl(unsigned n) : m_index(n) { }

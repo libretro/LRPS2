@@ -232,10 +232,6 @@
 
 #define wxUSE_ARTPROVIDER_TANGO 0 /* 1 */
 
-#define wxUSE_DISPLAY 1
-
-#define wxUSE_GEOMETRY 1
-
 #define wxUSE_IMAGLIST 1
 
 #define wxUSE_INFOBAR 1
