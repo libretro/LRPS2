@@ -14,19 +14,6 @@
 #include "wx/event.h"
 #include "wx/utils.h"
 
-// TODO: implement wxEventLoopSource for MSW (it should wrap a HANDLE and be
-//       monitored using MsgWaitForMultipleObjects())
-#if defined(__WXOSX__) || (defined(__UNIX__) && !defined(__WINDOWS__))
-    #define wxUSE_EVENTLOOP_SOURCE 1
-#else
-    #define wxUSE_EVENTLOOP_SOURCE 0
-#endif
-
-#if wxUSE_EVENTLOOP_SOURCE
-    class wxEventLoopSource;
-    class wxEventLoopSourceHandler;
-#endif
-
 /*
     NOTE ABOUT wxEventLoopBase::YieldFor LOGIC
     ------------------------------------------
@@ -75,13 +62,6 @@ public:
 
     // returns true if this is the main loop
     bool IsMain() const;
-
-#if wxUSE_EVENTLOOP_SOURCE
-    // create a new event loop source wrapping the given file descriptor and
-    // monitor it for events occurring on this descriptor in all event loops
-    static wxEventLoopSource *
-      AddSourceForFD(int fd, wxEventLoopSourceHandler *handler, int flags);
-#endif // wxUSE_EVENTLOOP_SOURCE
 
     // dispatch&processing
     // -------------------
