@@ -18,9 +18,7 @@ endif()
 if(WIN32)
 set(wxWindowsSources
    src/msw/basemsw.cpp
-   src/msw/crashrpt.cpp
    src/msw/dde.cpp
-   src/msw/debughlp.cpp
    src/msw/dir.cpp
    src/msw/dlmsw.cpp
    src/msw/evtloopconsole.cpp

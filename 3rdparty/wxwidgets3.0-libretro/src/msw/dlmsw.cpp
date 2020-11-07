@@ -265,35 +265,6 @@ void *wxDynamicLibrary::RawGetSymbol(wxDllType handle, const wxString& name)
 wxDynamicLibraryDetailsArray wxDynamicLibrary::ListLoaded()
 {
     wxDynamicLibraryDetailsArray dlls;
-
-#if wxUSE_DBGHELP
-    if ( wxDbgHelpDLL::Init() )
-    {
-        // prepare to use functions for version info extraction
-        wxVersionDLL verDLL;
-
-        wxDynamicLibraryDetailsCreator::EnumModulesProcParams params;
-        params.dlls = &dlls;
-        params.verDLL = &verDLL;
-
-        // Note that the cast of EnumModulesProc is needed because the type of
-        // PENUMLOADED_MODULES_CALLBACK changed: in old SDK versions its first
-        // argument was non-const PSTR while now it's PCSTR. By explicitly
-        // casting to whatever the currently used headers require we ensure
-        // that the code compilers in any case.
-        if ( !wxDbgHelpDLL::EnumerateLoadedModules
-                            (
-                                ::GetCurrentProcess(),
-                                (PENUMLOADED_MODULES_CALLBACK)
-                                wxDynamicLibraryDetailsCreator::EnumModulesProc,
-                                &params
-                            ) )
-        {
-            wxLogLastError(wxT("EnumerateLoadedModules"));
-        }
-    }
-#endif // wxUSE_DBGHELP
-
     return dlls;
 }
 
