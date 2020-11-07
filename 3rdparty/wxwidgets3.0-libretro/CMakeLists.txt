@@ -26,7 +26,6 @@ set(wxWindowsSources
    src/msw/main.cpp
    src/msw/mimetype.cpp
    src/msw/mslu.cpp
-   src/msw/power.cpp
    src/msw/regconf.cpp
    src/msw/registry.cpp
    src/msw/snglinst.cpp
