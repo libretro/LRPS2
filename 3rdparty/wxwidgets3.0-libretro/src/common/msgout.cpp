@@ -29,9 +29,6 @@
     #include "wx/app.h"
     #include "wx/intl.h"
     #include "wx/log.h"
-    #if wxUSE_GUI
-        #include "wx/msgdlg.h"
-    #endif // wxUSE_GUI
 #endif
 
 #include "wx/msgout.h"
@@ -189,28 +186,3 @@ void wxMessageOutputLog::Output(const wxString& str)
 }
 
 #endif // wxUSE_BASE
-
-// ----------------------------------------------------------------------------
-// wxMessageOutputMessageBox
-// ----------------------------------------------------------------------------
-
-#if wxUSE_GUI && wxUSE_MSGDLG
-
-extern WXDLLEXPORT_DATA(const char) wxMessageBoxCaptionStr[] = "Message";
-
-void wxMessageOutputMessageBox::Output(const wxString& str)
-{
-    wxString out(str);
-
-    // the native MSW msg box understands the TABs, others don't
-#ifndef __WINDOWS__
-    out.Replace(wxT("\t"), wxT("        "));
-#endif
-
-    wxString title = wxT("wxWidgets") ;
-    if (wxTheApp) title = wxTheApp->GetAppDisplayName();
-
-    ::wxMessageBox(out, title);
-}
-
-#endif // wxUSE_GUI

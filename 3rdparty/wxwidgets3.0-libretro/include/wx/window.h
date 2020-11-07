@@ -930,15 +930,6 @@ public:
 
 #endif // wxUSE_ACCEL
 
-#if wxUSE_HOTKEY
-    // hot keys (system wide accelerators)
-    // -----------------------------------
-
-    virtual bool RegisterHotKey(int hotkeyId, int modifiers, int keycode);
-    virtual bool UnregisterHotKey(int hotkeyId);
-#endif // wxUSE_HOTKEY
-
-
     // dialog units translations
     // -------------------------
 
@@ -1112,13 +1103,6 @@ public:
         // if the cursor was really changed)
     virtual bool SetCursor( const wxCursor &cursor );
     const wxCursor& GetCursor() const { return m_cursor; }
-
-#if wxUSE_CARET
-        // associate a caret with the window
-    void SetCaret(wxCaret *caret);
-        // get the current caret (may be NULL)
-    wxCaret *GetCaret() const { return m_caret; }
-#endif // wxUSE_CARET
 
         // get the (average) character size for the current font
     virtual int GetCharHeight() const = 0;
@@ -1550,10 +1534,6 @@ protected:
     wxFont               m_font;                // see m_hasFont
     wxColour             m_backgroundColour,    //     m_hasBgCol
                          m_foregroundColour;    //     m_hasFgCol
-
-#if wxUSE_CARET
-    wxCaret             *m_caret;
-#endif // wxUSE_CARET
 
     // the region which should be repainted in response to paint event
     wxRegion             m_updateRegion;

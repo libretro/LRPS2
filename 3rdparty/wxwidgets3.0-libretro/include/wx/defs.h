@@ -30,23 +30,6 @@
 /*  Make sure the environment is set correctly */
 #   if defined(__WXMSW__) && defined(__X__)
 #       error "Target can't be both X and MSW"
-#   elif !defined(__WXMOTIF__) && \
-         !defined(__WXMSW__)   && \
-         !defined(__WXGTK__)   && \
-         !defined(__WXPM__)    && \
-         !defined(__WXOSX_CARBON__)   && \
-         !defined(__WXOSX_COCOA__)   && \
-         !defined(__WXOSX_IPHONE__)   && \
-         !defined(__WXCOCOA__) && \
-         !defined(__X__)       && \
-         !defined(__WXDFB__)   && \
-         !defined(__WXX11__)   && \
-          wxUSE_GUI
-#       ifdef __UNIX__
-#           error "No Target! You should use wx-config program for compilation flags!"
-#       else /*  !Unix */
-#           error "No Target! You should use supplied makefiles for compilation!"
-#       endif /*  Unix/!Unix */
 #   endif
 #endif /*__cplusplus*/
 
@@ -59,7 +42,7 @@
     #define wxUSE_BASE 1
 #endif
 
-#if !wxUSE_GUI && !defined(__WXBASE__)
+#if !defined(__WXBASE__)
     #define __WXBASE__
 #endif
 
@@ -2350,19 +2333,6 @@ enum wxStandardID
 };
 
 /*  ---------------------------------------------------------------------------- */
-/*  wxWindowID type (after wxID_XYZ enum, platform detection, and dlimpexp.h)    */
-/*  ---------------------------------------------------------------------------- */
-
-/*  special care should be taken with this type under Windows where the real */
-/*  window id is unsigned, so we must always do the cast before comparing them */
-/*  (or else they would be always different!). Using wxGetWindowId() which does */
-/*  the cast itself is recommended. Note that this type can't be unsigned */
-/*  because wxID_ANY == -1 is a valid (and largely used) value for window id. */
-#if defined(__cplusplus) && wxUSE_GUI
-    #include "wx/windowid.h"
-#endif
-
-/*  ---------------------------------------------------------------------------- */
 /*  other constants */
 /*  ---------------------------------------------------------------------------- */
 
@@ -3546,30 +3516,6 @@ typedef const void* WXWidget;
 /*  --------------------------------------------------------------------------- */
 /*  If a manifest is being automatically generated, add common controls 6 to it */
 /*  --------------------------------------------------------------------------- */
-
-#if wxUSE_GUI && \
-    (!defined wxUSE_NO_MANIFEST || wxUSE_NO_MANIFEST == 0 ) && \
-    ( defined _MSC_FULL_VER && _MSC_FULL_VER >= 140040130 )
-
-#define WX_CC_MANIFEST(cpu)                     \
-    "/manifestdependency:\"type='win32'         \
-     name='Microsoft.Windows.Common-Controls'   \
-     version='6.0.0.0'                          \
-     processorArchitecture='" cpu "'            \
-     publicKeyToken='6595b64144ccf1df'          \
-     language='*'\""
-
-#if defined _M_IX86
-    #pragma comment(linker, WX_CC_MANIFEST("x86"))
-#elif defined _M_X64
-    #pragma comment(linker, WX_CC_MANIFEST("amd64"))
-#elif defined _M_IA64
-    #pragma comment(linker, WX_CC_MANIFEST("ia64"))
-#else
-    #pragma comment(linker, WX_CC_MANIFEST("*"))
-#endif
-
-#endif /* !wxUSE_NO_MANIFEST && _MSC_FULL_VER >= 140040130 */
 
 /* wxThread and wxProcess priorities */
 enum

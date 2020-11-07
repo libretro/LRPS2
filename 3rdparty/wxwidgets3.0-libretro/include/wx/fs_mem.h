@@ -20,10 +20,6 @@
 class wxMemoryFSFile;
 WX_DECLARE_STRING_HASH_MAP(wxMemoryFSFile *, wxMemoryFSHash);
 
-#if wxUSE_GUI
-    #include "wx/bitmap.h"
-#endif // wxUSE_GUI
-
 // ----------------------------------------------------------------------------
 // wxMemoryFSHandlerBase
 // ----------------------------------------------------------------------------
@@ -76,63 +72,10 @@ protected:
 // wxMemoryFSHandler
 // ----------------------------------------------------------------------------
 
-#if wxUSE_GUI
-
-// add GUI-only operations to the base class
-class WXDLLIMPEXP_CORE wxMemoryFSHandler : public wxMemoryFSHandlerBase
-{
-public:
-    // bring the base class versions into the scope, otherwise they would be
-    // inaccessible in wxMemoryFSHandler
-    // (unfortunately "using" can't be used as gcc 2.95 doesn't have it...)
-    static void AddFile(const wxString& filename, const wxString& textdata)
-    {
-        wxMemoryFSHandlerBase::AddFile(filename, textdata);
-    }
-
-    static void AddFile(const wxString& filename,
-                        const void *binarydata,
-                        size_t size)
-    {
-        wxMemoryFSHandlerBase::AddFile(filename, binarydata, size);
-    }
-    static void AddFileWithMimeType(const wxString& filename,
-                                    const wxString& textdata,
-                                    const wxString& mimetype)
-    {
-        wxMemoryFSHandlerBase::AddFileWithMimeType(filename,
-                                                   textdata,
-                                                   mimetype);
-    }
-    static void AddFileWithMimeType(const wxString& filename,
-                                    const void *binarydata, size_t size,
-                                    const wxString& mimetype)
-    {
-        wxMemoryFSHandlerBase::AddFileWithMimeType(filename,
-                                                   binarydata, size,
-                                                   mimetype);
-    }
-
-#if wxUSE_IMAGE
-    static void AddFile(const wxString& filename,
-                        const wxImage& image,
-                        wxBitmapType type);
-
-    static void AddFile(const wxString& filename,
-                        const wxBitmap& bitmap,
-                        wxBitmapType type);
-#endif // wxUSE_IMAGE
-
-};
-
-#else // !wxUSE_GUI
-
 // just the same thing as the base class in wxBase
 class WXDLLIMPEXP_BASE wxMemoryFSHandler : public wxMemoryFSHandlerBase
 {
 };
-
-#endif // wxUSE_GUI/!wxUSE_GUI
 
 #endif // wxUSE_FILESYSTEM
 

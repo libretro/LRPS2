@@ -11,17 +11,6 @@
 #ifndef _WX_SETUP_H_
 #define _WX_SETUP_H_
 
-/* --- start common options --- */
-// ----------------------------------------------------------------------------
-// global settings
-// ----------------------------------------------------------------------------
-
-// define this to 0 when building wxBase library - this can also be done from
-// makefile/project file overriding the value here
-#ifndef wxUSE_GUI
-    #define wxUSE_GUI            1
-#endif // wxUSE_GUI
-
 // ----------------------------------------------------------------------------
 // compatibility settings
 // ----------------------------------------------------------------------------
@@ -556,14 +545,6 @@
 // This code is experimental and subject to change.
 #define wxUSE_URL_NATIVE 0
 
-// Support for wxAny class, the successor for wxVariant.
-//
-// Default is 1.
-//
-// Recommended setting: 1 unless you want to reduce the library size by a small amount,
-// or your compiler cannot for some reason cope with complexity of templates used.
-#define wxUSE_ANY 1
-
 // Support for regular expression matching via wxRegEx class: enable this to
 // use POSIX regular expressions in your code. You need to compile regex
 // library from src/regex to use it under Windows.
@@ -708,23 +689,6 @@
 #define wxUSE_TREECTRL      1   // wxTreeCtrl
 #define wxUSE_TREELISTCTRL  1   // wxTreeListCtrl
 
-// Use a status bar class? Depending on the value of wxUSE_NATIVE_STATUSBAR
-// below either wxStatusBar95 or a generic wxStatusBar will be used.
-//
-// Default is 1
-//
-// Recommended setting: 1
-#define wxUSE_STATUSBAR    1
-
-// Two status bar implementations are available under Win32: the generic one
-// or the wrapper around native control. For native look and feel the native
-// version should be used.
-//
-// Default is 1 for the platforms where native status bar is supported.
-//
-// Recommended setting: 1 (there is no advantage in using the generic one)
-#define wxUSE_NATIVE_STATUSBAR        1
-
 // wxListbook control is similar to wxNotebook but uses wxListCtrl instead of
 // the tabs
 //
@@ -844,17 +808,6 @@
 //
 // Recommended setting: 1 but can be turned off to reduce the library size.
 #define wxUSE_ARTPROVIDER_TANGO 1
-
-// Hotkey support (currently Windows only)
-#define wxUSE_HOTKEY 1
-
-// Use wxCaret: a class implementing a "cursor" in a text control (called caret
-// under Windows).
-//
-// Default is 1.
-//
-// Recommended setting: 1 (can be safely set to 0, not used by the library)
-#define wxUSE_CARET         1
 
 // Use wxDisplay class: it allows enumerating all displays on a system and
 // their geometries as well as finding the display on which the given point or
@@ -1048,15 +1001,6 @@
 // Set to 0 to disable print/preview architecture code
 #define wxUSE_PRINTING_ARCHITECTURE  1
 
-// wxHTML sublibrary allows to display HTML in wxWindow programs and much,
-// much more.
-//
-// Default is 1.
-//
-// Recommended setting: 1 (wxHTML is great!), set to 0 if you want compile a
-// smaller library.
-#define wxUSE_HTML          1
-
 // Setting wxUSE_GLCANVAS to 1 enables OpenGL support. You need to have OpenGL
 // headers and libraries to be able to compile the library with wxUSE_GLCANVAS
 // set to 1 and, under Windows, also to add opengl32.lib and glu32.lib to the
@@ -1114,19 +1058,6 @@
 
 #define wxUSE_HELP        1
                                 // 0 for no help facility
-
-// Should we use MS HTML help for wxHelpController? If disabled, neither
-// wxCHMHelpController nor wxBestHelpController are available.
-//
-// Default is 1 under MSW, 0 is always used for the other platforms.
-//
-// Recommended setting: 1, only set to 0 if you have trouble compiling
-// wxCHMHelpController (could be a problem with really ancient compilers)
-#define wxUSE_MS_HTML_HELP 1
-
-
-// Use wxHTML-based help controller?
-#define wxUSE_WXHTML_HELP 1
 
 #define wxUSE_CONSTRAINTS 1
                                 // 0 for no window layout constraint system

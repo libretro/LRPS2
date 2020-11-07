@@ -116,9 +116,6 @@
     #undef wxUSE_LISTBOOK
     #define wxUSE_LISTBOOK 0
 
-    #undef wxUSE_STATUSBAR
-    #define wxUSE_STATUSBAR 0
-
     #undef wxUSE_COLOURPICKERCTRL
     #define wxUSE_COLOURPICKERCTRL 0
 

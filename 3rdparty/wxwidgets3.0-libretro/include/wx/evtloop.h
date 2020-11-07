@@ -269,70 +269,6 @@ private:
     #include "wx/msw/evtloopconsole.h"
 #endif
 
-#if wxUSE_GUI
-
-// include the appropriate header defining wxGUIEventLoop
-
-#if defined(__WXMSW__)
-    #include "wx/msw/evtloop.h"
-#elif defined(__WXCOCOA__)
-    #include "wx/cocoa/evtloop.h"
-#elif defined(__WXOSX__)
-    #include "wx/osx/evtloop.h"
-#elif defined(__WXDFB__)
-    #include "wx/dfb/evtloop.h"
-#elif defined(__WXGTK20__)
-    #include "wx/gtk/evtloop.h"
-#else // other platform
-
-#include "wx/stopwatch.h"   // for wxMilliClock_t
-
-class WXDLLIMPEXP_FWD_CORE wxEventLoopImpl;
-
-class WXDLLIMPEXP_CORE wxGUIEventLoop : public wxEventLoopBase
-{
-public:
-    wxGUIEventLoop() { m_impl = NULL; }
-    virtual ~wxGUIEventLoop();
-
-    virtual void ScheduleExit(int rc = 0);
-    virtual bool Pending() const;
-    virtual bool Dispatch();
-    virtual int DispatchTimeout(unsigned long timeout)
-    {
-        // TODO: this is, of course, horribly inefficient and a proper wait with
-        //       timeout should be implemented for all ports natively...
-        const wxMilliClock_t timeEnd = wxGetLocalTimeMillis() + timeout;
-        for ( ;; )
-        {
-            if ( Pending() )
-                return Dispatch();
-
-            if ( wxGetLocalTimeMillis() >= timeEnd )
-                return -1;
-        }
-    }
-    virtual void WakeUp() { }
-    virtual bool YieldFor(long eventsToProcess);
-
-protected:
-    virtual int DoRun();
-
-    // the pointer to the port specific implementation class
-    wxEventLoopImpl *m_impl;
-
-    wxDECLARE_NO_COPY_CLASS(wxGUIEventLoop);
-};
-
-#endif // platforms
-
-#endif // wxUSE_GUI
-
-#if wxUSE_GUI
-    // we use a class rather than a typedef because wxEventLoop is
-    // forward-declared in many places
-    class wxEventLoop : public wxGUIEventLoop { };
-#else // !wxUSE_GUI
     // we can't define wxEventLoop differently in GUI and base libraries so use
     // a #define to still allow writing wxEventLoop in the user code
     #if wxUSE_CONSOLE_EVENTLOOP && (defined(__WINDOWS__) || defined(__UNIX__))
@@ -340,41 +276,8 @@ protected:
     #else // we still must define it somehow for the code below...
         #define wxEventLoop wxEventLoopBase
     #endif
-#endif
 
 inline bool wxEventLoopBase::IsRunning() const { return GetActive() == this; }
-
-#if wxUSE_GUI && !defined(__WXOSX__)
-// ----------------------------------------------------------------------------
-// wxModalEventLoop
-// ----------------------------------------------------------------------------
-
-// this is a naive generic implementation which uses wxWindowDisabler to
-// implement modality, we will surely need platform-specific implementations
-// too, this generic implementation is here only temporarily to see how it
-// works
-class WXDLLIMPEXP_CORE wxModalEventLoop : public wxGUIEventLoop
-{
-public:
-    wxModalEventLoop(wxWindow *winModal)
-    {
-        m_windowDisabler = new wxWindowDisabler(winModal);
-    }
-
-protected:
-    virtual void OnExit()
-    {
-        delete m_windowDisabler;
-        m_windowDisabler = NULL;
-
-        wxGUIEventLoop::OnExit();
-    }
-
-private:
-    wxWindowDisabler *m_windowDisabler;
-};
-
-#endif //wxUSE_GUI
 
 // ----------------------------------------------------------------------------
 // wxEventLoopActivator: helper class for wxEventLoop implementations
@@ -402,7 +305,7 @@ private:
     wxEventLoopBase *m_evtLoopOld;
 };
 
-#if wxUSE_GUI || wxUSE_CONSOLE_EVENTLOOP
+#if wxUSE_CONSOLE_EVENTLOOP
 
 class wxEventLoopGuarantor
 {
@@ -430,6 +333,6 @@ private:
     wxEventLoop *m_evtLoopNew;
 };
 
-#endif // wxUSE_GUI || wxUSE_CONSOLE_EVENTLOOP
+#endif // wxUSE_CONSOLE_EVENTLOOP
 
 #endif // _WX_EVTLOOP_H_

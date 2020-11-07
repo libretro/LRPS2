@@ -79,36 +79,6 @@ public:
 
     bool ProcessCommand(int WXUNUSED(winid)) { return false; }
 
-    // status bar functions
-    // --------------------
-#if wxUSE_STATUSBAR
-    // create the main status bar by calling OnCreateStatusBar()
-    virtual wxStatusBar* CreateStatusBar(int number = 1,
-                                         long style = wxSTB_DEFAULT_STYLE,
-                                         wxWindowID winid = 0,
-                                         const wxString& name = wxStatusLineNameStr);
-    // return a new status bar
-    virtual wxStatusBar *OnCreateStatusBar(int number,
-                                           long style,
-                                           wxWindowID winid,
-                                           const wxString& name);
-    // get the main status bar
-    virtual wxStatusBar *GetStatusBar() const { return m_frameStatusBar; }
-
-    // sets the main status bar
-    virtual void SetStatusBar(wxStatusBar *statBar);
-
-    // forward these to status bar
-    virtual void SetStatusText(const wxString &text, int number = 0);
-    virtual void SetStatusWidths(int n, const int widths_field[]);
-    void PushStatusText(const wxString &text, int number = 0);
-    void PopStatusText(int number = 0);
-
-    // set the status bar pane the help will be shown in
-    void SetStatusBarPane(int n) { m_statusBarPane = n; }
-    int GetStatusBarPane() const { return m_statusBarPane; }
-#endif // wxUSE_STATUSBAR
-
     // implementation only from now on
     // -------------------------------
 
@@ -133,20 +103,6 @@ protected:
 
     // test whether this window makes part of the frame
     virtual bool IsOneOfBars(const wxWindow *win) const;
-
-#if wxUSE_STATUSBAR
-    // override to update status bar position (or anything else) when
-    // something changes
-    virtual void PositionStatusBar() { }
-
-    // show the help string for the given menu item using DoGiveHelp() if the
-    // given item does have a help string (as determined by FindInMenuBar()),
-    // return false if there is no help for such item
-    bool ShowMenuHelp(int helpid);
-
-    wxStatusBar *m_frameStatusBar;
-#endif // wxUSE_STATUSBAR
-
 
     int m_statusBarPane;
 

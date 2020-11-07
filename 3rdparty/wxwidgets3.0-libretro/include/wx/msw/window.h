@@ -134,12 +134,6 @@ public:
     wxWindow* GetWindowChild(wxWindowID id);
 #endif // __WXUNIVERSAL__
 
-#if wxUSE_HOTKEY
-    // install and deinstall a system wide hotkey
-    virtual bool RegisterHotKey(int hotkeyId, int modifiers, int keycode);
-    virtual bool UnregisterHotKey(int hotkeyId);
-#endif // wxUSE_HOTKEY
-
 #ifdef __POCKETPC__
     bool IsContextMenuEnabled() const { return m_contextMenuEnabled; }
     void EnableContextMenu(bool enable = true) { m_contextMenuEnabled = enable; }
@@ -353,9 +347,6 @@ public:
     bool HandleChar(WXWPARAM wParam, WXLPARAM lParam);
     bool HandleKeyDown(WXWPARAM wParam, WXLPARAM lParam);
     bool HandleKeyUp(WXWPARAM wParam, WXLPARAM lParam);
-#if wxUSE_HOTKEY
-    bool HandleHotKey(WXWPARAM wParam, WXLPARAM lParam);
-#endif
 #ifdef __WIN32__
     int HandleMenuChar(int chAccel, WXLPARAM lParam);
 #endif

@@ -103,42 +103,8 @@ protected:
     bool m_isOk;
 };
 
-#if wxUSE_GUI
-
-#include "wx/icon.h"
-#include "wx/iconbndl.h" // only for wxIconArray
-
-enum wxFSIconType
-{
-    wxFS_VOL_ICO_SMALL = 0,
-    wxFS_VOL_ICO_LARGE,
-    wxFS_VOL_ICO_SEL_SMALL,
-    wxFS_VOL_ICO_SEL_LARGE,
-    wxFS_VOL_ICO_MAX
-};
-
-// wxFSVolume adds GetIcon() to wxFSVolumeBase
-class WXDLLIMPEXP_CORE wxFSVolume : public wxFSVolumeBase
-{
-public:
-    wxFSVolume() : wxFSVolumeBase() { InitIcons(); }
-    wxFSVolume(const wxString& name) : wxFSVolumeBase(name) { InitIcons(); }
-
-    wxIcon GetIcon(wxFSIconType type) const;
-
-private:
-    void InitIcons();
-
-    // the different icons for this volume (created on demand)
-    wxIconArray m_icons;
-};
-
-#else // !wxUSE_GUI
-
 // wxFSVolume is the same thing as wxFSVolume in wxBase
 typedef wxFSVolumeBase wxFSVolume;
-
-#endif // wxUSE_GUI/!wxUSE_GUI
 
 #endif // wxUSE_FSVOLUME
 

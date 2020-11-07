@@ -49,10 +49,6 @@ typedef unsigned long wxLogLevel;
 
 class WXDLLIMPEXP_FWD_BASE wxObject;
 
-#if wxUSE_GUI
-    class WXDLLIMPEXP_FWD_CORE wxFrame;
-#endif // wxUSE_GUI
-
 #if defined(__WATCOMC__) || defined(__MINGW32__)
     // Mingw has similar problem with wxLogSysError:
     #define WX_WATCOM_OR_MINGW_ONLY_CODE( x )  x
@@ -95,11 +91,6 @@ wxDEFINE_EMPTY_LOG_FUNCTION(Info);
 wxDEFINE_EMPTY_LOG_FUNCTION(Verbose);
 
 wxDEFINE_EMPTY_LOG_FUNCTION2(Generic, wxLogLevel);
-
-#if wxUSE_GUI
-    wxDEFINE_EMPTY_LOG_FUNCTION(Status);
-    wxDEFINE_EMPTY_LOG_FUNCTION2(Status, wxFrame *);
-#endif // wxUSE_GUI
 
 // Empty Class to fake wxLogNull
 class WXDLLIMPEXP_BASE wxLogNull

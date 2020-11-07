@@ -48,24 +48,6 @@ public:
     // event handlers
     void OnSysColourChanged(wxSysColourChangedEvent& event);
 
-    // Status bar
-#if wxUSE_STATUSBAR
-    virtual wxStatusBar* OnCreateStatusBar(int number = 1,
-                                           long style = wxSTB_DEFAULT_STYLE,
-                                           wxWindowID id = 0,
-                                           const wxString& name = wxStatusLineNameStr);
-
-    // Hint to tell framework which status bar to use: the default is to use
-    // native one for the platforms which support it (Win32), the generic one
-    // otherwise
-
-    // TODO: should this go into a wxFrameworkSettings class perhaps?
-    static void UseNativeStatusBar(bool useNative)
-        { m_useNativeStatusBar = useNative; }
-    static bool UsesNativeStatusBar()
-        { return m_useNativeStatusBar; }
-#endif // wxUSE_STATUSBAR
-
     // event handlers
     bool HandleSize(int x, int y, WXUINT flag);
     bool HandleCommand(WXWORD id, WXWORD cmd, WXHWND control);
@@ -111,12 +93,6 @@ protected:
 
     // get default (wxWidgets) icon for the frame
     virtual WXHICON GetDefaultIcon() const;
-
-#if wxUSE_STATUSBAR
-    virtual void PositionStatusBar();
-
-    static bool           m_useNativeStatusBar;
-#endif // wxUSE_STATUSBAR
 
 private:
 #if wxUSE_TOOLTIPS

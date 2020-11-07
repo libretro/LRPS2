@@ -89,21 +89,6 @@
 
 #endif /* __WINDOWS__ */
 
-/*
-    Don't use widget toolkit specific code in non-GUI code in the library
-    itself to ensure that the same base library is used for both MSW and GTK
-    ports. But keep __WXMSW__ defined for (console) applications using
-    wxWidgets for compatibility.
- */
-#if defined(WXBUILDING) && defined(wxUSE_GUI) && !wxUSE_GUI
-#   ifdef __WXMSW__
-#       undef __WXMSW__
-#   endif
-#   ifdef __WXGTK__
-#       undef __WXGTK__
-#   endif
-#endif
-
 #if defined(__WXGTK__) && defined(__WINDOWS__)
 
 #   ifdef __WXMSW__
@@ -532,9 +517,6 @@
 #           error "incorrect SDK for an iPhone build"
 #       endif
 #   else
-#       if wxUSE_GUI && !(defined(__WXOSX_CARBON__) || defined(__WXOSX_COCOA__))
-#           error "one of __WXOSX_IPHONE__, __WXOSX_CARBON__ or __WXOSX_COCOA__ must be defined for the GUI build"
-#       endif
 #       if !( defined(TARGET_OS_MAC) && TARGET_OS_MAC )
 #           error "incorrect SDK for a Mac OS X build"
 #       endif
@@ -668,10 +650,6 @@
 #    else
 #        define wxUSE_FILECONFIG 0
 #    endif
-#endif
-
-#ifndef wxUSE_HOTKEY
-#    define wxUSE_HOTKEY 0
 #endif
 
 #if !defined(wxUSE_WXDIB) && defined(__WXMSW__)

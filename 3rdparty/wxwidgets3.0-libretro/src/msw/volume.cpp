@@ -27,9 +27,6 @@
 #include "wx/volume.h"
 
 #ifndef WX_PRECOMP
-    #if wxUSE_GUI
-        #include "wx/icon.h"
-    #endif
     #include "wx/intl.h"
     #include "wx/log.h"
     #include "wx/hashmap.h"
@@ -559,78 +556,5 @@ int wxFSVolumeBase::GetFlags() const
 } // GetFlags
 
 #endif // wxUSE_BASE
-
-// ============================================================================
-// wxFSVolume
-// ============================================================================
-
-#if wxUSE_GUI
-
-void wxFSVolume::InitIcons()
-{
-    m_icons.Alloc(wxFS_VOL_ICO_MAX);
-    wxIcon null;
-    for (int idx = 0; idx < wxFS_VOL_ICO_MAX; idx++)
-        m_icons.Add(null);
-}
-
-//=============================================================================
-// Function: GetIcon
-// Purpose: return the requested icon.
-//=============================================================================
-
-wxIcon wxFSVolume::GetIcon(wxFSIconType type) const
-{
-    wxCHECK_MSG( type >= 0 && (size_t)type < m_icons.GetCount(), wxNullIcon,
-                 wxT("wxFSIconType::GetIcon(): invalid icon index") );
-
-#ifdef __WXMSW__
-    // Load on demand.
-    if (m_icons[type].IsNull())
-    {
-        UINT flags = SHGFI_ICON;
-        switch (type)
-        {
-        case wxFS_VOL_ICO_SMALL:
-            flags |= SHGFI_SMALLICON;
-            break;
-
-        case wxFS_VOL_ICO_LARGE:
-            flags |= SHGFI_SHELLICONSIZE;
-            break;
-
-        case wxFS_VOL_ICO_SEL_SMALL:
-            flags |= SHGFI_SMALLICON | SHGFI_OPENICON;
-            break;
-
-        case wxFS_VOL_ICO_SEL_LARGE:
-            flags |= SHGFI_SHELLICONSIZE | SHGFI_OPENICON;
-            break;
-
-        case wxFS_VOL_ICO_MAX:
-            wxFAIL_MSG(wxT("wxFS_VOL_ICO_MAX is not valid icon type"));
-            break;
-        }
-
-        SHFILEINFO fi;
-        long rc = SHGetFileInfo(m_volName.t_str(), 0, &fi, sizeof(fi), flags);
-        if (!rc || !fi.hIcon)
-        {
-            wxLogError(_("Cannot load icon from '%s'."), m_volName.c_str());
-        }
-        else
-        {
-            m_icons[type].CreateFromHICON((WXHICON)fi.hIcon);
-        }
-    }
-
-    return m_icons[type];
-#else
-    wxFAIL_MSG(wxS("Can't convert HICON to wxIcon in this port."));
-    return wxNullIcon;
-#endif
-} // GetIcon
-
-#endif // wxUSE_GUI
 
 #endif // wxUSE_FSVOLUME

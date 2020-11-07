@@ -17,11 +17,6 @@
 #endif
 /* --- start common options --- */
 
-#ifndef wxUSE_GUI
-    #define wxUSE_GUI 0
-#endif
-
-
 #define WXWIN_COMPATIBILITY_2_6 0
 
 #define WXWIN_COMPATIBILITY_2_8 0
@@ -146,8 +141,6 @@
 
 #define wxUSE_URL_NATIVE 0
 
-#define wxUSE_ANY 1
-
 #define wxUSE_REGEX 1
 
 #define wxUSE_SYSTEM_OPTIONS 1
@@ -167,8 +160,6 @@
 #define wxUSE_PROPGRID 1
 
 #define wxUSE_CAIRO 0
-
-
 
 #define wxUSE_CONTROLS 1
 
@@ -216,10 +207,6 @@
 #define wxUSE_TREECTRL 1
 #define wxUSE_TREELISTCTRL 1
 
-#define wxUSE_STATUSBAR 1
-
-#define wxUSE_NATIVE_STATUSBAR 1
-
 #define wxUSE_LISTBOOK 1
 
 #define wxUSE_CHOICEBOOK 1
@@ -248,10 +235,6 @@
 #define wxUSE_ARTPROVIDER_STD 1
 
 #define wxUSE_ARTPROVIDER_TANGO 0 /* 1 */
-
-#define wxUSE_HOTKEY 0 /* 1 */
-
-#define wxUSE_CARET 1
 
 #define wxUSE_DISPLAY 1
 
@@ -319,8 +302,6 @@
 
 #define wxUSE_PRINTING_ARCHITECTURE 1
 
-#define wxUSE_HTML 1
-
 #define wxUSE_GLCANVAS 1
 
 #define wxUSE_RICHTEXT 1
@@ -335,11 +316,6 @@
 #define wxUSE_DRAGIMAGE 1
 
 #define wxUSE_HELP 1
-
-#define wxUSE_MS_HTML_HELP 0
-
-
-#define wxUSE_WXHTML_HELP 1
 
 #define wxUSE_CONSTRAINTS 1
 

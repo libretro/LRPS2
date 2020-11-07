@@ -181,35 +181,6 @@ public:
 };
 
 // ----------------------------------------------------------------------------
-// wxGUIAppTraitsBase: wxAppTraits implementation for the GUI apps
-// ----------------------------------------------------------------------------
-
-#if wxUSE_GUI
-
-class WXDLLIMPEXP_CORE wxGUIAppTraitsBase : public wxAppTraits
-{
-public:
-    virtual wxMessageOutput *CreateMessageOutput();
-    virtual wxRendererNative *CreateRenderer();
-
-    virtual bool ShowAssertDialog(const wxString& msg);
-    virtual bool HasStderr();
-
-    virtual bool IsUsingUniversalWidgets() const
-    {
-    #ifdef __WXUNIVERSAL__
-        return true;
-    #else
-        return false;
-    #endif
-    }
-
-    virtual wxString GetDesktopEnvironment() const { return wxEmptyString; }
-};
-
-#endif // wxUSE_GUI
-
-// ----------------------------------------------------------------------------
 // include the platform-specific version of the classes above
 // ----------------------------------------------------------------------------
 
@@ -223,11 +194,6 @@ public:
 #elif defined(__DOS__)
     #include "wx/msdos/apptrait.h"
 #else
-    #if wxUSE_GUI
-        class wxGUIAppTraits : public wxGUIAppTraitsBase
-        {
-        };
-    #endif // wxUSE_GUI
     class wxConsoleAppTraits: public wxConsoleAppTraitsBase
     {
     };
