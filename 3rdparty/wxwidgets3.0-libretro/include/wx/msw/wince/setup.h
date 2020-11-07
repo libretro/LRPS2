@@ -416,13 +416,6 @@
 // Recommended setting: 1
 #define wxUSE_TIMER         1
 
-// Use wxStopWatch clas.
-//
-// Default is 1
-//
-// Recommended setting: 1 (needed by wxSocket)
-#define wxUSE_STOPWATCH     1
-
 // Set wxUSE_FSWATCHER to 1 if you want to enable wxFileSystemWatcher
 //
 // Default is 1

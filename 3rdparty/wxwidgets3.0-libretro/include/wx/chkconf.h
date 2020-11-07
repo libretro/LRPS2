@@ -169,10 +169,6 @@
 #       define wxUSE_STREAMS 0
 #endif /* !defined(wxUSE_STREAMS) */
 
-#ifndef wxUSE_STOPWATCH
-#       define wxUSE_STOPWATCH 0
-#endif /* !defined(wxUSE_STOPWATCH) */
-
 #ifndef wxUSE_TEXTBUFFER
 #       define wxUSE_TEXTBUFFER 0
 #endif /* !defined(wxUSE_TEXTBUFFER) */
@@ -307,12 +303,12 @@
 #   endif
 #endif /* wxUSE_FS_INET */
 
-#if wxUSE_STOPWATCH || wxUSE_DATETIME
+#if wxUSE_DATETIME
 #    if !wxUSE_LONGLONG
 #            undef wxUSE_LONGLONG
 #            define wxUSE_LONGLONG 1
 #    endif
-#endif /* wxUSE_STOPWATCH */
+#endif
 
 #if wxUSE_TEXTFILE && !wxUSE_TEXTBUFFER
 #       undef wxUSE_TEXTBUFFER
