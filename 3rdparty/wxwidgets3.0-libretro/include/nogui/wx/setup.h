@@ -136,10 +136,6 @@
 
 #define wxUSE_APPLE_IEEE 1
 
-#define wxUSE_FONTENUM 1
-
-#define wxUSE_FONTMAP 0 /* 1 */
-
 #define wxUSE_PROTOCOL 1
 
 #define wxUSE_PROTOCOL_FILE 1

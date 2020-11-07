@@ -58,10 +58,6 @@
 
 #include <locale.h>
 
-#if wxUSE_FONTMAP
-    #include "wx/fontmap.h"
-#endif // wxUSE_FONTMAP
-
 #if wxDEBUG_LEVEL
     #include "wx/recguard.h"
 #endif // wxDEBUG_LEVEL
@@ -638,15 +634,6 @@ wxMessageOutput *wxConsoleAppTraitsBase::CreateMessageOutput()
 {
     return new wxMessageOutputStderr;
 }
-
-#if wxUSE_FONTMAP
-
-wxFontMapper *wxConsoleAppTraitsBase::CreateFontMapper()
-{
-    return (wxFontMapper *)new wxFontMapperBase;
-}
-
-#endif // wxUSE_FONTMAP
 
 wxRendererNative *wxConsoleAppTraitsBase::CreateRenderer()
 {

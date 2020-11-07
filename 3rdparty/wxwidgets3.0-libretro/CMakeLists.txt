@@ -51,7 +51,6 @@ add_library(wxwidgets
    src/common/fileconf.cpp
    src/common/filefn.cpp
    src/common/filename.cpp
-   src/common/fmapbase.cpp
    src/common/hashmap.cpp
    src/common/init.cpp
    src/common/intl.cpp

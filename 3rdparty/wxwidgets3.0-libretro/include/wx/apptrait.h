@@ -17,9 +17,6 @@
 class WXDLLIMPEXP_FWD_BASE wxArrayString;
 class WXDLLIMPEXP_FWD_BASE wxConfigBase;
 class WXDLLIMPEXP_FWD_BASE wxEventLoopBase;
-#if wxUSE_FONTMAP
-    class WXDLLIMPEXP_FWD_CORE wxFontMapper;
-#endif // wxUSE_FONTMAP
 class WXDLLIMPEXP_FWD_BASE wxLog;
 class WXDLLIMPEXP_FWD_BASE wxMessageOutput;
 class WXDLLIMPEXP_FWD_BASE wxObject;
@@ -54,11 +51,6 @@ public:
 
     // create the global object used for printing out messages
     virtual wxMessageOutput *CreateMessageOutput() = 0;
-
-#if wxUSE_FONTMAP
-    // create the global font mapper object used for encodings/charset mapping
-    virtual wxFontMapper *CreateFontMapper() = 0;
-#endif // wxUSE_FONTMAP
 
     // get the renderer to use for drawing the generic controls (return value
     // may be NULL in which case the default renderer for the current platform
@@ -168,9 +160,6 @@ public:
 #endif // !wxUSE_CONSOLE_EVENTLOOP
 
     virtual wxMessageOutput *CreateMessageOutput();
-#if wxUSE_FONTMAP
-    virtual wxFontMapper *CreateFontMapper();
-#endif // wxUSE_FONTMAP
     virtual wxRendererNative *CreateRenderer();
 
     virtual bool ShowAssertDialog(const wxString& msg);
@@ -201,9 +190,6 @@ class WXDLLIMPEXP_CORE wxGUIAppTraitsBase : public wxAppTraits
 {
 public:
     virtual wxMessageOutput *CreateMessageOutput();
-#if wxUSE_FONTMAP
-    virtual wxFontMapper *CreateFontMapper();
-#endif // wxUSE_FONTMAP
     virtual wxRendererNative *CreateRenderer();
 
     virtual bool ShowAssertDialog(const wxString& msg);

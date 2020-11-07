@@ -526,12 +526,6 @@
 // Recommended setting: 1 unless you don't like the license terms (unlikely)
 #define wxUSE_APPLE_IEEE          1
 
-// wxFontEnumerator class
-#define wxUSE_FONTENUM 1
-
-// wxFontMapper class
-#define wxUSE_FONTMAP 1
-
 // wxProtocol and related classes: if you want to use either of wxFTP, wxHTTP
 // or wxURL you need to set this to 1.
 //

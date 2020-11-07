@@ -353,10 +353,6 @@
 #       define wxUSE_FONTDLG 0
 #endif /* !defined(wxUSE_FONTDLG) */
 
-#ifndef wxUSE_FONTMAP
-#       define wxUSE_FONTMAP 0
-#endif /* !defined(wxUSE_FONTMAP) */
-
 #ifndef wxUSE_FONTPICKERCTRL
 #       define wxUSE_FONTPICKERCTRL 0
 #endif /* !defined(wxUSE_FONTPICKERCTRL) */
