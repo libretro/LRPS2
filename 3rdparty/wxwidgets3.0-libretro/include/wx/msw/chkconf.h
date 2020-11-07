@@ -18,10 +18,6 @@
 #        define wxUSE_ACTIVEX 0
 #endif /* !defined(wxUSE_ACTIVEX) */
 
-#ifndef wxUSE_CRASHREPORT
-#       define wxUSE_CRASHREPORT 0
-#endif /* !defined(wxUSE_CRASHREPORT) */
-
 #ifndef wxUSE_DC_CACHEING
 #       define wxUSE_DC_CACHEING 1
 #endif /* wxUSE_DC_CACHEING */
@@ -115,9 +111,6 @@
     (!defined(__BORLANDC__) || __BORLANDC__ < 0x0550)
 #    undef wxUSE_ON_FATAL_EXCEPTION
 #    define wxUSE_ON_FATAL_EXCEPTION 0
-
-#    undef wxUSE_CRASHREPORT
-#    define wxUSE_CRASHREPORT 0
 #endif /* compiler doesn't support SEH */
 
 #if defined(__GNUWIN32__)
@@ -155,12 +148,6 @@
 #   undef  wxUSE_DEBUG_NEW_ALWAYS
 #   define wxUSE_DEBUG_NEW_ALWAYS          0
 #endif /* wxUSE_MFC */
-
-#if (defined(__GNUWIN32__) && !wxUSE_NORLANDER_HEADERS)
-    /* GnuWin32 doesn't have appropriate headers for e.g. IUnknown. */
-#   undef wxUSE_DRAG_AND_DROP
-#   define wxUSE_DRAG_AND_DROP 0
-#endif
 
 #if !wxUSE_OWNER_DRAWN && !defined(__WXUNIVERSAL__)
 #   undef wxUSE_CHECKLISTBOX
@@ -224,12 +211,6 @@
 #   endif /* wxUSE_UNICODE_MSLU */
 #endif /* __WINE__ */
 
-
-/* check settings consistency for MSW-specific ones */
-#if wxUSE_CRASHREPORT && !wxUSE_ON_FATAL_EXCEPTION
-#       undef wxUSE_CRASHREPORT
-#       define wxUSE_CRASHREPORT 0
-#endif /* wxUSE_CRASHREPORT */
 
 #if !wxUSE_DYNAMIC_LOADER
 #    if wxUSE_MS_HTML_HELP

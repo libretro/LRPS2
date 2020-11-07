@@ -1035,20 +1035,9 @@
 // Recommended setting: 1
 #define wxUSE_DATAOBJ       1
 
-// Use wxDropTarget and wxDropSource classes for drag and drop (this is
-// different from "built in" drag and drop in wxTreeCtrl which is always
-// available). Requires wxUSE_DATAOBJ.
-//
-// Default is 1.
-//
-// Recommended setting: 1
-#define wxUSE_DRAG_AND_DROP 1
-
 // ----------------------------------------------------------------------------
 // miscellaneous settings
 // ----------------------------------------------------------------------------
-
-#define wxUSE_DRAGIMAGE 1
 
 #define wxUSE_HELP        1
                                 // 0 for no help facility

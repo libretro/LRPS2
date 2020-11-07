@@ -1289,25 +1289,6 @@ public:
     void UnsetToolTip() { }
 #endif // wxUSE_TOOLTIPS/!wxUSE_TOOLTIPS
 
-    // drag and drop
-    // -------------
-#if wxUSE_DRAG_AND_DROP
-        // set/retrieve the drop target associated with this window (may be
-        // NULL; it's owned by the window and will be deleted by it)
-    virtual void SetDropTarget( wxDropTarget *dropTarget ) = 0;
-    virtual wxDropTarget *GetDropTarget() const { return m_dropTarget; }
-
-    // Accept files for dragging
-    virtual void DragAcceptFiles(bool accept)
-#ifdef __WXMSW__
-    // it does have common implementation but not for MSW which has its own
-    // native version of it
-    = 0
-#endif // __WXMSW__
-    ;
-
-#endif // wxUSE_DRAG_AND_DROP
-
     // constraints and sizers
     // ----------------------
 #if wxUSE_CONSTRAINTS
@@ -1520,10 +1501,6 @@ protected:
     // associated validator or NULL if none
     wxValidator         *m_windowValidator;
 #endif // wxUSE_VALIDATORS
-
-#if wxUSE_DRAG_AND_DROP
-    wxDropTarget        *m_dropTarget;
-#endif // wxUSE_DRAG_AND_DROP
 
     // visual window attributes
     wxCursor             m_cursor;

@@ -14,10 +14,6 @@
 #include "wx/dc.h"
 #include "wx/gdiobj.h"
 
-#if wxUSE_DRAG_AND_DROP
-    #include "wx/dataobj.h"
-#endif
-
 // ----------------------------------------------------------------------------
 // Metafile and metafile device context classes
 // ----------------------------------------------------------------------------
@@ -150,39 +146,6 @@ bool WXDLLIMPEXP_CORE wxMakeMetafilePlaceable(const wxString& filename, float sc
 
 // Optional origin and extent
 bool WXDLLIMPEXP_CORE wxMakeMetaFilePlaceable(const wxString& filename, int x1, int y1, int x2, int y2, float scale = 1.0, bool useOriginAndExtent = true);
-
-// ----------------------------------------------------------------------------
-// wxMetafileDataObject is a specialization of wxDataObject for metafile data
-// ----------------------------------------------------------------------------
-
-#if wxUSE_DRAG_AND_DROP
-
-class WXDLLIMPEXP_CORE wxMetafileDataObject : public wxDataObjectSimple
-{
-public:
-    // ctors
-    wxMetafileDataObject() : wxDataObjectSimple(wxDF_METAFILE)
-        { }
-    wxMetafileDataObject(const wxMetafile& metafile)
-        : wxDataObjectSimple(wxDF_METAFILE), m_metafile(metafile) { }
-
-    // virtual functions which you may override if you want to provide data on
-    // demand only - otherwise, the trivial default versions will be used
-    virtual void SetMetafile(const wxMetafile& metafile)
-        { m_metafile = metafile; }
-    virtual wxMetafile GetMetafile() const
-        { return m_metafile; }
-
-    // implement base class pure virtuals
-    virtual size_t GetDataSize() const;
-    virtual bool GetDataHere(void *buf) const;
-    virtual bool SetData(size_t len, const void *buf);
-
-protected:
-    wxMetafile m_metafile;
-};
-
-#endif // wxUSE_DRAG_AND_DROP
 
 #endif
     // _WX_METAFIILE_H_

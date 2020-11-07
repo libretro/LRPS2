@@ -699,13 +699,6 @@ public:
     // Use EditItem() instead
     wxDEPRECATED( void StartEditor(const wxDataViewItem& item, unsigned int column) );
 
-#if wxUSE_DRAG_AND_DROP
-    virtual bool EnableDragSource(const wxDataFormat& WXUNUSED(format))
-        { return false; }
-    virtual bool EnableDropTarget(const wxDataFormat& WXUNUSED(format))
-        { return false; }
-#endif // wxUSE_DRAG_AND_DROP
-
     // define control visual attributes
     // --------------------------------
 
@@ -757,13 +750,6 @@ public:
         m_cacheFrom(0),
         m_cacheTo(0),
         m_editCancelled(false)
-#if wxUSE_DRAG_AND_DROP
-        , m_dataObject(NULL),
-        m_dataBuffer(NULL),
-        m_dataSize(0),
-        m_dragFlags(0),
-        m_dropEffect(wxDragNone)
-#endif
         { }
 
     wxDataViewEvent(const wxDataViewEvent& event)
@@ -777,14 +763,6 @@ public:
         m_cacheFrom(event.m_cacheFrom),
         m_cacheTo(event.m_cacheTo),
         m_editCancelled(event.m_editCancelled)
-#if wxUSE_DRAG_AND_DROP
-        , m_dataObject(event.m_dataObject),
-        m_dataFormat(event.m_dataFormat),
-        m_dataBuffer(event.m_dataBuffer),
-        m_dataSize(event.m_dataSize),
-        m_dragFlags(event.m_dragFlags),
-        m_dropEffect(event.m_dropEffect)
-#endif
         { }
 
     wxDataViewItem GetItem() const { return m_item; }
@@ -817,24 +795,6 @@ public:
     void SetCache(int from, int to) { m_cacheFrom = from; m_cacheTo = to; }
 
 
-#if wxUSE_DRAG_AND_DROP
-    // For drag operations
-    void SetDataObject( wxDataObject *obj ) { m_dataObject = obj; }
-    wxDataObject *GetDataObject() const { return m_dataObject; }
-
-    // For drop operations
-    void SetDataFormat( const wxDataFormat &format ) { m_dataFormat = format; }
-    wxDataFormat GetDataFormat() const { return m_dataFormat; }
-    void SetDataSize( size_t size ) { m_dataSize = size; }
-    size_t GetDataSize() const { return m_dataSize; }
-    void SetDataBuffer( void* buf ) { m_dataBuffer = buf;}
-    void *GetDataBuffer() const { return m_dataBuffer; }
-    void SetDragFlags( int flags ) { m_dragFlags = flags; }
-    int GetDragFlags() const { return m_dragFlags; }
-    void SetDropEffect( wxDragResult effect ) { m_dropEffect = effect; }
-    wxDragResult GetDropEffect() const { return m_dropEffect; }
-#endif // wxUSE_DRAG_AND_DROP
-
     virtual wxEvent *Clone() const { return new wxDataViewEvent(*this); }
 
 protected:
@@ -847,17 +807,6 @@ protected:
     int                 m_cacheFrom;
     int                 m_cacheTo;
     bool                m_editCancelled;
-
-#if wxUSE_DRAG_AND_DROP
-    wxDataObject       *m_dataObject;
-
-    wxDataFormat        m_dataFormat;
-    void*               m_dataBuffer;
-    size_t              m_dataSize;
-
-    int                 m_dragFlags;
-    wxDragResult        m_dropEffect;
-#endif // wxUSE_DRAG_AND_DROP
 
 private:
     DECLARE_DYNAMIC_CLASS_NO_ASSIGN(wxDataViewEvent)

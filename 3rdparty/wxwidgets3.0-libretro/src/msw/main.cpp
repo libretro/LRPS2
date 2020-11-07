@@ -147,35 +147,6 @@ bool wxHandleFatalExceptions(bool doit)
     // assume this can only be called from the main thread
     gs_handleExceptions = doit;
 
-#if wxUSE_CRASHREPORT
-    if ( doit )
-    {
-        // try to find a place where we can put out report file later
-        wxChar fullname[MAX_PATH];
-        if ( !::GetTempPath(WXSIZEOF(fullname), fullname) )
-        {
-            wxLogLastError(wxT("GetTempPath"));
-
-            // when all else fails...
-            wxStrcpy(fullname, wxT("c:\\"));
-        }
-
-        // use PID and date to make the report file name more unique
-        wxString name = wxString::Format
-                        (
-                            wxT("%s_%s_%lu.dmp"),
-                            wxTheApp ? (const wxChar*)wxTheApp->GetAppDisplayName().c_str()
-                                     : wxT("wxwindows"),
-                            wxDateTime::Now().Format(wxT("%Y%m%dT%H%M%S")).c_str(),
-                            ::GetCurrentProcessId()
-                        );
-
-        wxStrncat(fullname, name, WXSIZEOF(fullname) - wxStrlen(fullname) - 1);
-
-        wxCrashReport::SetFileName(fullname);
-    }
-#endif // wxUSE_CRASHREPORT
-
     return true;
 }
 

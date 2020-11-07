@@ -14,10 +14,6 @@
 #include "wx/dc.h"
 #include "wx/gdiobj.h"
 
-#if wxUSE_DRAG_AND_DROP
-    #include "wx/dataobj.h"
-#endif
-
 // ----------------------------------------------------------------------------
 // wxEnhMetaFile: encapsulation of Win32 HENHMETAFILE
 // ----------------------------------------------------------------------------
@@ -100,88 +96,5 @@ public:
 private:
     DECLARE_DYNAMIC_CLASS_NO_COPY(wxEnhMetaFileDC)
 };
-
-#if wxUSE_DRAG_AND_DROP
-
-// ----------------------------------------------------------------------------
-// wxEnhMetaFileDataObject is a specialization of wxDataObject for enh metafile
-// ----------------------------------------------------------------------------
-
-// notice that we want to support both CF_METAFILEPICT and CF_ENHMETAFILE and
-// so we derive from wxDataObject and not from wxDataObjectSimple
-class WXDLLIMPEXP_CORE wxEnhMetaFileDataObject : public wxDataObject
-{
-public:
-    // ctors
-    wxEnhMetaFileDataObject() { }
-    wxEnhMetaFileDataObject(const wxEnhMetaFile& metafile)
-        : m_metafile(metafile) { }
-
-    // virtual functions which you may override if you want to provide data on
-    // demand only - otherwise, the trivial default versions will be used
-    virtual void SetMetafile(const wxEnhMetaFile& metafile)
-        { m_metafile = metafile; }
-    virtual wxEnhMetaFile GetMetafile() const
-        { return m_metafile; }
-
-    // implement base class pure virtuals
-    virtual wxDataFormat GetPreferredFormat(Direction dir) const;
-    virtual size_t GetFormatCount(Direction dir) const;
-    virtual void GetAllFormats(wxDataFormat *formats, Direction dir) const;
-    virtual size_t GetDataSize(const wxDataFormat& format) const;
-    virtual bool GetDataHere(const wxDataFormat& format, void *buf) const;
-    virtual bool SetData(const wxDataFormat& format, size_t len,
-                         const void *buf);
-
-protected:
-    wxEnhMetaFile m_metafile;
-
-    wxDECLARE_NO_COPY_CLASS(wxEnhMetaFileDataObject);
-};
-
-
-// ----------------------------------------------------------------------------
-// wxEnhMetaFileSimpleDataObject does derive from wxDataObjectSimple which
-// makes it more convenient to use (it can be used with wxDataObjectComposite)
-// at the price of not supoprting any more CF_METAFILEPICT but only
-// CF_ENHMETAFILE
-// ----------------------------------------------------------------------------
-
-class WXDLLIMPEXP_CORE wxEnhMetaFileSimpleDataObject : public wxDataObjectSimple
-{
-public:
-    // ctors
-    wxEnhMetaFileSimpleDataObject() : wxDataObjectSimple(wxDF_ENHMETAFILE) { }
-    wxEnhMetaFileSimpleDataObject(const wxEnhMetaFile& metafile)
-        : wxDataObjectSimple(wxDF_ENHMETAFILE), m_metafile(metafile) { }
-
-    // virtual functions which you may override if you want to provide data on
-    // demand only - otherwise, the trivial default versions will be used
-    virtual void SetEnhMetafile(const wxEnhMetaFile& metafile)
-        { m_metafile = metafile; }
-    virtual wxEnhMetaFile GetEnhMetafile() const
-        { return m_metafile; }
-
-    // implement base class pure virtuals
-    virtual size_t GetDataSize() const;
-    virtual bool GetDataHere(void *buf) const;
-    virtual bool SetData(size_t len, const void *buf);
-
-    virtual size_t GetDataSize(const wxDataFormat& WXUNUSED(format)) const
-        { return GetDataSize(); }
-    virtual bool GetDataHere(const wxDataFormat& WXUNUSED(format),
-                             void *buf) const
-        { return GetDataHere(buf); }
-    virtual bool SetData(const wxDataFormat& WXUNUSED(format),
-                         size_t len, const void *buf)
-        { return SetData(len, buf); }
-
-protected:
-    wxEnhMetaFile m_metafile;
-
-    wxDECLARE_NO_COPY_CLASS(wxEnhMetaFileSimpleDataObject);
-};
-
-#endif // wxUSE_DRAG_AND_DROP
 
 #endif // _WX_MSW_ENHMETA_H_

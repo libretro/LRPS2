@@ -309,10 +309,6 @@
 
 #define wxUSE_DATAOBJ 0 /* 1 */
 
-#define wxUSE_DRAG_AND_DROP 1
-
-#define wxUSE_DRAGIMAGE 1
-
 #define wxUSE_HELP 1
 
 #define wxUSE_CONSTRAINTS 1
@@ -428,8 +424,6 @@
 
 #define wxUSE_TIMEPICKCTRL_GENERIC 0
 
-
-#define wxUSE_CRASHREPORT 0 /* 1 */
 /* --- end MSW options --- */
 #endif
 #ifndef _WIN32

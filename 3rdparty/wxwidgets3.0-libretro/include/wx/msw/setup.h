@@ -1038,20 +1038,9 @@
 // Recommended setting: 1
 #define wxUSE_DATAOBJ       1
 
-// Use wxDropTarget and wxDropSource classes for drag and drop (this is
-// different from "built in" drag and drop in wxTreeCtrl which is always
-// available). Requires wxUSE_DATAOBJ.
-//
-// Default is 1.
-//
-// Recommended setting: 1
-#define wxUSE_DRAG_AND_DROP 1
-
 // ----------------------------------------------------------------------------
 // miscellaneous settings
 // ----------------------------------------------------------------------------
-
-#define wxUSE_DRAGIMAGE 1
 
 #define wxUSE_HELP        1
                                 // 0 for no help facility
@@ -1285,19 +1274,6 @@
 //
 // Recommended setting: 0, this is mainly used for testing
 #define wxUSE_TIMEPICKCTRL_GENERIC 0
-
-// ----------------------------------------------------------------------------
-// Crash debugging helpers
-// ----------------------------------------------------------------------------
-
-// Set this to 1 to be able to use wxCrashReport::Generate() to create mini
-// dumps of your program when it crashes (or at any other moment)
-//
-// Default is 1 if supported by the compiler (VC++ and recent BC++ only).
-//
-// Recommended setting: 1, set to 0 if your programs never crash
-#define wxUSE_CRASHREPORT 1
-/* --- end MSW options --- */
 
 #endif // _WX_SETUP_H_
 
