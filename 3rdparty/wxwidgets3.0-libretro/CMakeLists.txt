@@ -6,7 +6,6 @@ set(wxUnixSources
    src/unix/evtloopunix.cpp
    src/unix/epolldispatcher.cpp
    src/unix/fdiounix.cpp
-   src/unix/stackwalk.cpp
    src/unix/stdpaths.cpp
    src/unix/threadpsx.cpp
    src/unix/timerunx.cpp
@@ -33,7 +32,6 @@ set(wxWindowsSources
    src/msw/regconf.cpp
    src/msw/registry.cpp
    src/msw/snglinst.cpp
-   src/msw/stackwalk.cpp
    src/msw/stdpaths.cpp
    src/msw/thread.cpp
    src/msw/timer.cpp
@@ -67,7 +65,6 @@ add_library(wxwidgets
    src/common/intl.cpp
    src/common/languageinfo.cpp
    src/common/list.cpp
-   src/common/log.cpp
    src/common/longlong.cpp
    src/common/module.cpp
    src/common/msgout.cpp
@@ -100,7 +97,6 @@ add_library(wxwidgets
    src/common/zstream.cpp
    src/common/any.cpp
    src/common/archive.cpp
-   src/common/base64.cpp
    src/common/datstrm.cpp
    src/common/encconv.cpp
    src/common/extended.c
