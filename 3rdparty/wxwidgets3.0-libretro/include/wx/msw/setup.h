@@ -1133,15 +1133,6 @@
 // miscellaneous settings
 // ----------------------------------------------------------------------------
 
-// wxSingleInstanceChecker class allows to verify at startup if another program
-// instance is running.
-//
-// Default is 1
-//
-// Recommended setting: 1 (the class is tiny, disabling it won't save much
-// space)
-#define wxUSE_SNGLINST_CHECKER  1
-
 #define wxUSE_DRAGIMAGE 1
 
 #define wxUSE_HELP        1

@@ -340,9 +340,6 @@
 
 #define wxUSE_ACCESSIBILITY 0
 
-
-#define wxUSE_SNGLINST_CHECKER 1
-
 #define wxUSE_DRAGIMAGE 1
 
 #define wxUSE_HELP 1

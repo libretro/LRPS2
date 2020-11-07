@@ -24,7 +24,6 @@ set(wxWindowsSources
    src/msw/mslu.cpp
    src/msw/regconf.cpp
    src/msw/registry.cpp
-   src/msw/snglinst.cpp
    src/msw/stdpaths.cpp
    src/msw/thread.cpp
    src/msw/timer.cpp
