@@ -214,23 +214,16 @@ void AppCoreThread::OnResumeReady()
 {
 	wxGetApp().SysApplySettings();
 	wxGetApp().PostMethod(AppSaveSettings);
-#ifndef __LIBRETRO__
-	sApp.PostAppMethod(&Pcsx2App::leaveDebugMode);
-#endif
 	_parent::OnResumeReady();
 }
 
 void AppCoreThread::OnPause()
 {
-	//sApp.PostAppMethod( &Pcsx2App::enterDebugMode );
 	_parent::OnPause();
 }
 
 void AppCoreThread::OnPauseDebug()
 {
-#ifndef __LIBRETRO__
-	sApp.PostAppMethod(&Pcsx2App::enterDebugMode);
-#endif
 	_parent::OnPause();
 }
 
@@ -512,11 +505,6 @@ void LoadAllPatchesAndStuff(const Pcsx2Config& cfg)
 	Pcsx2Config dummy;
 	PatchesVerboseReset();
 	_ApplySettings(cfg, dummy);
-
-	// And I'm hacking in updating the UI here too.
-#ifdef USE_SAVESLOT_UI_UPDATES
-	UI_UpdateSysControls();
-#endif
 }
 
 void AppCoreThread::ApplySettings(const Pcsx2Config& src)

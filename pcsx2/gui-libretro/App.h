@@ -483,22 +483,6 @@ public:
 	bool OnCmdLineError( wxCmdLineParser& parser );
 	bool ParseOverrides( wxCmdLineParser& parser );
 
-	Threading::MutexRecursive	m_mtx_ProgramLog;
-	ConsoleLogFrame*			m_ptr_ProgramLog;
-
-	// ----------------------------------------------------------------------------
-	//   Console / Program Logging Helpers
-	// ----------------------------------------------------------------------------
-	ConsoleLogFrame* GetProgramLog();
-	const ConsoleLogFrame* GetProgramLog() const;
-	void ProgramLog_PostEvent( wxEvent& evt );
-	Threading::Mutex& GetProgramLogLock();
-
-	void EnableAllLogging();
-	void DisableWindowLogging() const;
-	void DisableDiskLogging() const;
-	void OnProgramLogClosed( wxWindowID id );
-
 	void AllocateCoreStuffs();
 	void CleanupOnExit();
 protected:
@@ -506,7 +490,6 @@ protected:
 	bool AppRpc_TryInvokeAsync( FnPtr_Pcsx2App method );
 
 	void InitDefaultGlobalAccelerators();
-	void BuildCommandHash();
 	bool TryOpenConfigCwd();
 
 protected:
@@ -568,10 +551,6 @@ extern void SysUpdateIsoSrcFile( const wxString& newIsoFile );
 extern void SysUpdateDiscSrcDrive( const wxString& newDiscDrive );
 extern void SysStatus( const wxString& text );
 
-extern bool				HasMainFrame();
-extern MainEmuFrame&	GetMainFrame();
-extern MainEmuFrame*	GetMainFramePtr();
-
 extern __aligned16 SysMtgsThread mtgsThread;
 extern __aligned16 AppCoreThread CoreThread;
 #ifdef __LIBRETRO__
@@ -579,8 +558,6 @@ extern __aligned16 SysCorePlugins CorePlugins;
 #else
 extern __aligned16 AppCorePlugins CorePlugins;
 #endif
-
-extern void UI_UpdateSysControls();
 
 extern void UI_DisableStateActions();
 extern void UI_EnableStateActions();

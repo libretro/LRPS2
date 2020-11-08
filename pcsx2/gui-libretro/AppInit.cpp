@@ -170,8 +170,6 @@ void Pcsx2App::CleanupRestartable()
 	SysExecutorThread.ShutdownQueue();
 #endif
 	IdleEventDispatcher( L"Cleanup" );
-
-	if( g_Conf ) AppSaveSettings();
 }
 
 // This cleanup handler can be called from OnExit (it doesn't need a running message pump),
@@ -234,14 +232,6 @@ class SysEvtHandler : public pxEvtQueue
 {
 public:
 	wxString GetEvtHandlerName() const { return L"SysExecutor"; }
-
-protected:
-	// When the SysExec message queue is finally empty, we should check the state of
-	// the menus and make sure they're all consistent to the current emulation states.
-	void _DoIdle()
-	{
-		UI_UpdateSysControls();
-	}
 };
 
 
@@ -277,12 +267,7 @@ Pcsx2App::Pcsx2App()
 
 	m_PendingSaves			= 0;
 
-	m_ptr_ProgramLog	= NULL;
-
 	SetAppName( L"PCSX2" );
-#ifndef __LIBRETRO__
-	BuildCommandHash();
-#endif
 }
 
 Pcsx2App::~Pcsx2App()

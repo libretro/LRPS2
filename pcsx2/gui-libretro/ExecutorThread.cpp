@@ -358,13 +358,10 @@ bool pxEvtQueue::Rpc_TryInvoke( FnType_Void* method, const wxChar* traceName )
 // This method invokes the derived class Idle implementations (if any) and then enters
 // the sleep state until such time that new messages are received.
 //
-// Extending: Derived classes should override _DoIdle instead, unless it is necessary
-// to implement post-wakeup behavior.
 //
 void pxEvtQueue::Idle()
 {
 	ProcessIdleEvents();
-	_DoIdle();
 	m_wakeup.WaitWithoutYield();
 }
 

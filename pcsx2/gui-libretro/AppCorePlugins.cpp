@@ -25,10 +25,6 @@
 
 using namespace Threading;
 
-// The GS plugin needs to be opened to save/load the state during plugin configuration, but
-// the window shouldn't. This blocks it. :)
-static bool s_DisableGsWindow = false;
-
 #ifdef __LIBRETRO__
 __aligned16 SysCorePlugins CorePlugins;
 #else
@@ -348,11 +344,6 @@ void AppCorePlugins::Open()
 
 // Yay, this plugin is guaranteed to always be opened first and closed last.
 bool AppCorePlugins::OpenPlugin_GS()
-{
-	if( GSopen2 && !s_DisableGsWindow )
-	{
-		sApp.OpenGsPanel();
-	}
 
 	bool retval = _parent::OpenPlugin_GS();
 
@@ -539,8 +530,6 @@ void ShutdownPlugins()
 
 void SysExecEvent_SaveSinglePlugin::InvokeEvent()
 {
-	s_DisableGsWindow = true;		// keeps the GS window smooth by avoiding closing the window
-
 	ScopedCoreThreadPause paused_core;
 
 	if( CorePlugins.AreLoaded() )
@@ -566,13 +555,11 @@ void SysExecEvent_SaveSinglePlugin::InvokeEvent()
 		}
 	}
 
-	s_DisableGsWindow = false;
 	paused_core.AllowResume();
 }
 
 void SysExecEvent_SaveSinglePlugin::CleanupEvent()
 {
-	s_DisableGsWindow = false;
 	_parent::CleanupEvent();
 }
 #endif

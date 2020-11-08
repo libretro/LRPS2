@@ -232,9 +232,6 @@ public:
 	bool Rpc_TryInvokeAsync( FnType_Void* method, const wxChar* traceName=NULL );
 	bool Rpc_TryInvoke( FnType_Void* method, const wxChar* traceName=NULL );
 	void SetActiveThread();
-
-protected:
-	virtual void _DoIdle() {}
 };
 #ifndef __LIBRETRO__
 // --------------------------------------------------------------------------------------
