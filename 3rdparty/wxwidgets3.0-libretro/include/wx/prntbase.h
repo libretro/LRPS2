@@ -367,9 +367,6 @@ public:
     void OnSysColourChanged(wxSysColourChangedEvent& event);
 
 private:
-#if wxUSE_MOUSEWHEEL
-    void OnMouseWheel(wxMouseEvent& event);
-#endif // wxUSE_MOUSEWHEEL
     void OnIdle(wxIdleEvent& event);
 
     wxPrintPreviewBase* m_printPreview;

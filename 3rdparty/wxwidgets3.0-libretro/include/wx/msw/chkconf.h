@@ -247,11 +247,6 @@
 #           define wxUSE_ACTIVEX 0
 #   endif
 
-#   if wxUSE_DATAOBJ
-#           undef wxUSE_DATAOBJ
-#           define wxUSE_DATAOBJ 0
-#   endif
-
 #if !wxUSE_ACTIVEX
 #   if wxUSE_MEDIACTRL
 #           undef wxUSE_MEDIACTRL

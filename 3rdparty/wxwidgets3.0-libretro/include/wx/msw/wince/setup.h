@@ -992,42 +992,14 @@
 #define wxUSE_RICHTEXT       1
 
 // ----------------------------------------------------------------------------
-// Data transfer
-// ----------------------------------------------------------------------------
-
-// Use wxClipboard class for clipboard copy/paste.
-//
-// Default is 1.
-//
-// Recommended setting: 1
-#define wxUSE_CLIPBOARD     1
-
-// Use wxDataObject and related classes. Needed for clipboard and OLE drag and
-// drop
-//
-// Default is 1.
-//
-// Recommended setting: 1
-#define wxUSE_DATAOBJ       1
-
-// ----------------------------------------------------------------------------
 // miscellaneous settings
 // ----------------------------------------------------------------------------
 
 #define wxUSE_HELP        1
                                 // 0 for no help facility
 
-#define wxUSE_CONSTRAINTS 1
-                                // 0 for no window layout constraint system
-
 #define wxUSE_SPLINES     1
                                 // 0 for no splines
-
-#define wxUSE_MOUSEWHEEL        1
-                                // Include mouse wheel support
-
-// Compile wxUIActionSimulator class?
-#define wxUSE_UIACTIONSIMULATOR 1
 
 // ----------------------------------------------------------------------------
 // wxDC classes for various output formats

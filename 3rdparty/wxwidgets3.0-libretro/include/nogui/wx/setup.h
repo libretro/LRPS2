@@ -293,24 +293,9 @@
 
 #define wxUSE_RICHTEXT 1
 
-
-#define wxUSE_CLIPBOARD 1
-
-#define wxUSE_DATAOBJ 0 /* 1 */
-
 #define wxUSE_HELP 1
 
-#define wxUSE_CONSTRAINTS 1
-
-
 #define wxUSE_SPLINES 1
-
-
-#define wxUSE_MOUSEWHEEL 1
-
-
-#define wxUSE_UIACTIONSIMULATOR 1
-
 
 #define wxUSE_POSTSCRIPT 1/* 0 */
 

@@ -129,9 +129,6 @@ public:
     // the methods to be called from the window event handlers
     void HandleOnScroll(wxScrollWinEvent& event);
     void HandleOnSize(wxSizeEvent& event);
-#if wxUSE_MOUSEWHEEL
-    void HandleOnMouseWheel(wxMouseEvent& event);
-#endif // wxUSE_MOUSEWHEEL
 
     // these functions must be overidden in the derived class to return
     // orientation specific data (e.g. the width for vertically scrolling
@@ -270,11 +267,6 @@ private:
     // the number of currently visible units (including the last, possibly only
     // partly, visible one)
     size_t m_nUnitsVisible;
-
-    // accumulated mouse wheel rotation
-#if wxUSE_MOUSEWHEEL
-    int m_sumWheelRotation;
-#endif
 
     // do child scrolling (used in DoPrepareDC())
     bool m_physicalScrolling;

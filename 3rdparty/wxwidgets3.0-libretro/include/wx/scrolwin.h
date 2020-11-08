@@ -235,9 +235,6 @@ public:
     void HandleOnSize(wxSizeEvent& event);
     void HandleOnMouseEnter(wxMouseEvent& event);
     void HandleOnMouseLeave(wxMouseEvent& event);
-#if wxUSE_MOUSEWHEEL
-    void HandleOnMouseWheel(wxMouseEvent& event);
-#endif // wxUSE_MOUSEWHEEL
     void HandleOnChildFocus(wxChildFocusEvent& event);
 
 #if WXWIN_COMPATIBILITY_2_8
@@ -327,10 +324,6 @@ protected:
 
     bool                  m_xScrollingEnabled;
     bool                  m_yScrollingEnabled;
-
-#if wxUSE_MOUSEWHEEL
-    int m_wheelRotation;
-#endif // wxUSE_MOUSEWHEEL
 
     wxScrollHelperEvtHandler *m_handler;
 
