@@ -45,7 +45,7 @@ if(LIBRETRO)
 #		wxHelpers.cpp
 
 
-		wxAppWithHelpers.cpp
+      wxAppWithHelpersLibretro.cpp
 		)
    if(NOT MSVC)
    set(UtilitiesSources ${UtilitiesSources}
