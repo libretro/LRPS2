@@ -34,7 +34,9 @@ class SynchronousActionState
 protected:
     bool m_posted;
     Threading::Semaphore m_sema;
+#ifndef __LIBRETRO__
     ScopedExcept m_exception;
+#endif
 
 public:
     sptr return_value;
