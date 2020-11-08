@@ -22,26 +22,6 @@
 
 static const bool EnableThreadedLoggingTest = false; //true;
 
-class LogWriteEvent;
-
-// --------------------------------------------------------------------------------------
-//  PipeRedirectionBase
-// --------------------------------------------------------------------------------------
-// Implementations for this class are found in Win/Lnx specific modules.  Class creation
-// should be done using NewPipeRedir() only (hence the protected constructor in this class).
-//
-class PipeRedirectionBase
-{
-	DeclareNoncopyableObject( PipeRedirectionBase );
-
-public:
-	virtual ~PipeRedirectionBase() =0;	// abstract destructor, forces abstract class behavior
-
-protected:
-	PipeRedirectionBase() {}
-};
-
-extern PipeRedirectionBase* NewPipeRedir( FILE* stdstream );
 
 void OSDlog(ConsoleColors color, bool console, const std::string& str);
 
@@ -59,6 +39,3 @@ void OSDlog(ConsoleColors color, bool console, const std::string& format, Args .
 
 	OSDlog(color, console, buf.data());
 }
-
-void OSDmonitor(ConsoleColors color, const std::string key, const std::string value);
-

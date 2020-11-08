@@ -408,9 +408,6 @@ public:
 	CommandlineOverrides			Overrides;
 
 protected:
-	std::unique_ptr<PipeRedirectionBase> m_StdoutRedirHandle;
-	std::unique_ptr<PipeRedirectionBase> m_StderrRedirHandle;
-
 	std::unique_ptr<pxAppResources> m_Resources;
 
 public:

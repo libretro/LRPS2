@@ -548,11 +548,11 @@ set(pcsx2IPUHeaders
 set(pcsx2LinuxSources
 	CDVD/Linux/DriveUtility.cpp
 	CDVD/Linux/IOCtlSrc.cpp
-	Linux/LnxConsolePipe.cpp
 	Linux/LnxFlatFileReader.cpp
    )
 if(NOT LIBRETRO)
    set(pcsx2LinuxSources ${pcsx2LinuxSources}
+      Linux/LnxConsolePipe.cpp
       Linux/LnxKeyCodes.cpp
       gui/CpuUsageProviderLnx.cpp)
 endif()
@@ -560,26 +560,26 @@ endif()
 set(pcsx2OSXSources
 	CDVD/Linux/DriveUtility.cpp
 	CDVD/Linux/IOCtlSrc.cpp
-	Linux/LnxConsolePipe.cpp
-#	Linux/LnxKeyCodes.cpp
 	Darwin/DarwinFlatFileReader.cpp
 	)
 
 if(NOT LIBRETRO)
    set(pcsx2OSXSources ${pcsx2OSXSources}
+      Linux/LnxConsolePipe.cpp
+      #	Linux/LnxKeyCodes.cpp
       gui/CpuUsageProviderLnx.cpp)
 endif()
 
 set(pcsx2FreeBSDSources
 	CDVD/Linux/DriveUtility.cpp
 	CDVD/Linux/IOCtlSrc.cpp
-	Linux/LnxConsolePipe.cpp
-	Linux/LnxKeyCodes.cpp
 	Darwin/DarwinFlatFileReader.cpp
 	)
 
 if(NOT LIBRETRO)
    set(pcsx2FreeBSDSources ${pcsx2FreeBSDSources}
+      Linux/LnxConsolePipe.cpp
+      Linux/LnxKeyCodes.cpp
       gui/CpuUsageProviderLnx.cpp)
 endif()
 
@@ -713,12 +713,12 @@ set(pcsx2WindowsSources
 	windows/Optimus.cpp
 	windows/VCprojects/IopSif.cpp
 	windows/WinCompressNTFS.cpp
-	windows/WinConsolePipe.cpp
 	windows/WinKeyCodes.cpp
 	)
 if(NOT LIBRETRO)
    set(pcsx2WindowsSources ${pcsx2WindowsSources}
       windows/PatchBrowser.cpp
+      windows/WinConsolePipe.cpp
       gui/CpuUsageProviderMSW.cpp
    	)
 endif()

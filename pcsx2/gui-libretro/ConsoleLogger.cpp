@@ -21,9 +21,6 @@
 #include "Utilities/IniInterface.h"
 #include "Utilities/SafeArray.inl"
 
-// C++ requires abstract destructors to exist, even though they're abstract.
-PipeRedirectionBase::~PipeRedirectionBase() = default;
-
 void OSDlog(ConsoleColors color, bool console, const std::string& str)
 {
 	if (console)
