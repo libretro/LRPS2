@@ -119,18 +119,14 @@
 #define wxUSE_PROTOCOL_FTP 1
 #define wxUSE_PROTOCOL_HTTP 1
 
-#define wxUSE_ANIMATIONCTRL 1
 #define wxUSE_BANNERWINDOW 1
-#define wxUSE_BUTTON 1
 #define wxUSE_BMPBUTTON 1
 #define wxUSE_CALENDARCTRL 1
 #define wxUSE_CHECKBOX 1
 #define wxUSE_CHOICE 1
 #define wxUSE_COLLPANE 1
-#define wxUSE_COLOURPICKERCTRL 1
 #define wxUSE_COMBOBOX 1
 #define wxUSE_COMMANDLINKBUTTON 1
-#define wxUSE_DATAVIEWCTRL 1
 #define wxUSE_DATEPICKCTRL 1
 #define wxUSE_DIRPICKERCTRL 1
 #define wxUSE_EDITABLELISTBOX 1
@@ -156,25 +152,6 @@
 #define wxUSE_STATBMP 1
 #define wxUSE_TEXTCTRL 1
 #define wxUSE_TIMEPICKCTRL 1
-#define wxUSE_TOGGLEBTN 1
-#define wxUSE_TREECTRL 1
-#define wxUSE_TREELISTCTRL 1
-
-#define wxUSE_LISTBOOK 1
-
-#define wxUSE_CHOICEBOOK 1
-
-#define wxUSE_TREEBOOK 1
-
-#define wxUSE_TOOLBOOK 1
-
-#define wxUSE_COMBOCTRL 1
-
-#define wxUSE_ODCOMBOBOX 1
-
-#define wxUSE_BITMAPCOMBOBOX 1
-
-#define wxUSE_REARRANGECTRL 1
 
 #ifdef __WXMSW__
 #define wxUSE_AUTOID_MANAGEMENT 0

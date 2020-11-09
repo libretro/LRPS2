@@ -168,14 +168,6 @@
 #include "wx/setup.h"
 
 /*
-   Convenience for any optional classes that use the wxAnyButton base class.
- */
-#if wxUSE_TOGGLEBTN || wxUSE_BUTTON
-    #define wxHAS_ANY_BUTTON
-#endif
-
-
-/*
    Hardware platform detection.
 
    VC++ defines _M_xxx symbols.

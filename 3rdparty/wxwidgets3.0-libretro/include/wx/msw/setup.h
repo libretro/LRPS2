@@ -476,18 +476,14 @@
 // Default is 1
 //
 // Recommended setting: 1
-#define wxUSE_ANIMATIONCTRL 1   // wxAnimationCtrl
 #define wxUSE_BANNERWINDOW  1   // wxBannerWindow
-#define wxUSE_BUTTON        1   // wxButton
 #define wxUSE_BMPBUTTON     1   // wxBitmapButton
 #define wxUSE_CALENDARCTRL  1   // wxCalendarCtrl
 #define wxUSE_CHECKBOX      1   // wxCheckBox
 #define wxUSE_CHOICE        1   // wxChoice
 #define wxUSE_COLLPANE      1   // wxCollapsiblePane
-#define wxUSE_COLOURPICKERCTRL 1    // wxColourPickerCtrl
 #define wxUSE_COMBOBOX      1   // wxComboBox
 #define wxUSE_COMMANDLINKBUTTON 1   // wxCommandLinkButton
-#define wxUSE_DATAVIEWCTRL  1   // wxDataViewCtrl
 #define wxUSE_DATEPICKCTRL  1   // wxDatePickerCtrl
 #define wxUSE_DIRPICKERCTRL 1   // wxDirPickerCtrl
 #define wxUSE_EDITABLELISTBOX 1 // wxEditableListBox
@@ -513,75 +509,6 @@
 #define wxUSE_STATBMP       1   // wxStaticBitmap
 #define wxUSE_TEXTCTRL      1   // wxTextCtrl
 #define wxUSE_TIMEPICKCTRL  1   // wxTimePickerCtrl
-#define wxUSE_TOGGLEBTN     1   // requires wxButton
-#define wxUSE_TREECTRL      1   // wxTreeCtrl
-#define wxUSE_TREELISTCTRL  1   // wxTreeListCtrl
-
-// wxListbook control is similar to wxNotebook but uses wxListCtrl instead of
-// the tabs
-//
-// Default is 1.
-//
-// Recommended setting: 1
-#define wxUSE_LISTBOOK 1
-
-// wxChoicebook control is similar to wxNotebook but uses wxChoice instead of
-// the tabs
-//
-// Default is 1.
-//
-// Recommended setting: 1
-#define wxUSE_CHOICEBOOK 1
-
-// wxTreebook control is similar to wxNotebook but uses wxTreeCtrl instead of
-// the tabs
-//
-// Default is 1.
-//
-// Recommended setting: 1
-#define wxUSE_TREEBOOK 1
-
-// wxToolbook control is similar to wxNotebook but uses wxToolBar instead of
-// tabs
-//
-// Default is 1.
-//
-// Recommended setting: 1
-#define wxUSE_TOOLBOOK 1
-
-// wxComboCtrl and related classes: combobox with custom popup window and
-// not necessarily a listbox.
-//
-// Default is 1.
-//
-// Recommended setting: 1 but can be safely set to 0 except for wxUniv where it
-//                      it used by wxComboBox
-#define wxUSE_COMBOCTRL 1
-
-// wxOwnerDrawnComboBox is a custom combobox allowing to paint the combobox
-// items.
-//
-// Default is 1.
-//
-// Recommended setting: 1 but can be safely set to 0, except where it is
-//                      needed as a base class for generic wxBitmapComboBox.
-#define wxUSE_ODCOMBOBOX 1
-
-// wxBitmapComboBox is a combobox that can have images in front of text items.
-//
-// Default is 1.
-//
-// Recommended setting: 1 but can be safely set to 0
-#define wxUSE_BITMAPCOMBOBOX 1
-
-// wxRearrangeCtrl is a wxCheckListBox with two buttons allowing to move items
-// up and down in it. It is also used as part of wxRearrangeDialog.
-//
-// Default is 1.
-//
-// Recommended setting: 1 but can be safely set to 0 (currently used only by
-// wxHeaderCtrl)
-#define wxUSE_REARRANGECTRL 1
 
 // ----------------------------------------------------------------------------
 // Miscellaneous GUI stuff
