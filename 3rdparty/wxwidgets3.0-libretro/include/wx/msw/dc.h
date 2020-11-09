@@ -18,28 +18,6 @@
 // macros
 // ---------------------------------------------------------------------------
 
-#if wxUSE_DC_CACHEING
-/*
- * Cached blitting, maintaining a cache
- * of bitmaps required for transparent blitting
- * instead of constant creation/deletion
- */
-
-class wxDCCacheEntry: public wxObject
-{
-public:
-    wxDCCacheEntry(WXHBITMAP hBitmap, int w, int h, int depth);
-    wxDCCacheEntry(WXHDC hDC, int depth);
-    virtual ~wxDCCacheEntry();
-
-    WXHBITMAP   m_bitmap;
-    WXHDC       m_dc;
-    int         m_width;
-    int         m_height;
-    int         m_depth;
-};
-#endif
-
 // this is an ABC: use one of the derived classes to create a DC associated
 // with a window, screen, printer and so on
 class WXDLLIMPEXP_CORE wxMSWDCImpl: public wxDCImpl
@@ -117,15 +95,6 @@ public:
 
     // update the internal clip box variables
     void UpdateClipBox();
-
-#if wxUSE_DC_CACHEING
-    static wxDCCacheEntry* FindBitmapInCache(WXHDC hDC, int w, int h);
-    static wxDCCacheEntry* FindDCInCache(wxDCCacheEntry* notThis, WXHDC hDC);
-
-    static void AddToBitmapCache(wxDCCacheEntry* entry);
-    static void AddToDCCache(wxDCCacheEntry* entry);
-    static void ClearCache();
-#endif
 
     // RTL related functions
     // ---------------------
@@ -279,11 +248,6 @@ protected:
     WXHPEN            m_oldPen;
     WXHBRUSH          m_oldBrush;
     WXHFONT           m_oldFont;
-
-#if wxUSE_DC_CACHEING
-    static wxObjectList     sm_bitmapCache;
-    static wxObjectList     sm_dcCache;
-#endif
 
     DECLARE_CLASS(wxMSWDCImpl)
     wxDECLARE_NO_COPY_CLASS(wxMSWDCImpl);

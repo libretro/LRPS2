@@ -571,9 +571,6 @@
 // general Windows-specific stuff
 // ----------------------------------------------------------------------------
 
-// Set this to 1 to enable wxDIB (don't change unless you have reason to)
-#define wxUSE_WXDIB 1
-
 // Set this to 1 to compile in wxRegKey class.
 //
 // Default is 1

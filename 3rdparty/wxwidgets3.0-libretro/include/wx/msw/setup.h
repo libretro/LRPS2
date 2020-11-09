@@ -601,17 +601,6 @@
 // Recommended setting: 0 unless you really have to use MFC
 #define wxUSE_MFC           0
 
-// wxDC caching implementation
-#define wxUSE_DC_CACHEING 1
-
-// Set this to 1 to enable wxDIB class used internally for manipulating
-// wxBitmap data.
-//
-// Default is 1, set it to 0 only if you don't use wxImage neither
-//
-// Recommended setting: 1 (without it conversion to/from wxImage won't work)
-#define wxUSE_WXDIB 1
-
 // Set this to 1 to compile in wxRegKey class.
 //
 // Default is 1

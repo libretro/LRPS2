@@ -187,10 +187,6 @@
 
 #define wxUSE_MFC           0
 
-#define wxUSE_DC_CACHEING 0 /* 1 */
-
-#define wxUSE_WXDIB 0 /* 1 */
-
 #define wxUSE_REGKEY 1 /* 1 */
 
 /* --- end MSW options --- */

@@ -21,9 +21,6 @@ class WXDLLIMPEXP_FWD_CORE wxBitmapRefData;
 class WXDLLIMPEXP_FWD_CORE wxControl;
 class WXDLLIMPEXP_FWD_CORE wxCursor;
 class WXDLLIMPEXP_FWD_CORE wxDC;
-#if wxUSE_WXDIB
-class WXDLLIMPEXP_FWD_CORE wxDIB;
-#endif
 class WXDLLIMPEXP_FWD_CORE wxIcon;
 class WXDLLIMPEXP_FWD_CORE wxMask;
 class WXDLLIMPEXP_FWD_CORE wxPalette;
@@ -117,13 +114,6 @@ public:
     // copies the contents and mask of the given cursor to the bitmap
     bool CopyFromCursor(const wxCursor& cursor,
                         wxBitmapTransparency transp = wxBitmapTransparency_Auto);
-
-#if wxUSE_WXDIB
-    // copies from a device independent bitmap
-    bool CopyFromDIB(const wxDIB& dib);
-    bool IsDIB() const;
-    bool ConvertToDIB();
-#endif
 
     virtual bool Create(int width, int height, int depth = wxBITMAP_SCREEN_DEPTH);
     virtual bool Create(const wxSize& sz, int depth = wxBITMAP_SCREEN_DEPTH)

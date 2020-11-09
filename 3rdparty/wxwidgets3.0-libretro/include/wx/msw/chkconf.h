@@ -13,10 +13,6 @@
 #ifndef _WX_MSW_CHKCONF_H_
 #define _WX_MSW_CHKCONF_H_
 
-#ifndef wxUSE_DC_CACHEING
-#       define wxUSE_DC_CACHEING 1
-#endif /* wxUSE_DC_CACHEING */
-
 #ifndef wxUSE_UNICODE_MSLU
 #        define wxUSE_UNICODE_MSLU 0
 #endif  /* wxUSE_UNICODE_MSLU */

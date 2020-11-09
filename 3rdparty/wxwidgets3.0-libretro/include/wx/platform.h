@@ -644,10 +644,6 @@
 #    endif
 #endif
 
-#if !defined(wxUSE_WXDIB) && defined(__WXMSW__)
-#    define wxUSE_WXDIB 1
-#endif
-
 /*
     Optionally supported C++ features.
  */
