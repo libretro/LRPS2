@@ -79,16 +79,6 @@ public:
     // Create a bitmap compatible with the given DC
     wxBitmap(int width, int height, const wxDC& dc);
 
-#if wxUSE_IMAGE
-    // Convert from wxImage
-    wxBitmap(const wxImage& image, int depth = -1)
-        { (void)CreateFromImage(image, depth); }
-
-    // Create a DDB compatible with the given DC from wxImage
-    wxBitmap(const wxImage& image, const wxDC& dc)
-        { (void)CreateFromImage(image, dc); }
-#endif // wxUSE_IMAGE
-
     // we must have this, otherwise icons are silently copied into bitmaps using
     // the copy ctor but the resulting bitmap is invalid!
     wxBitmap(const wxIcon& icon,
@@ -112,11 +102,6 @@ public:
     }
 
     virtual ~wxBitmap();
-
-#if wxUSE_IMAGE
-    wxImage ConvertToImage() const;
-    wxBitmap ConvertToDisabled(unsigned char brightness = 255) const;
-#endif // wxUSE_IMAGE
 
     // get the given part of bitmap
     wxBitmap GetSubBitmap( const wxRect& rect ) const;
@@ -195,17 +180,6 @@ protected:
 
     // creates an uninitialized bitmap, called from Create()s above
     bool DoCreate(int w, int h, int depth, WXHDC hdc);
-
-#if wxUSE_IMAGE
-    // creates the bitmap from wxImage, supposed to be called from ctor
-    bool CreateFromImage(const wxImage& image, int depth);
-
-    // creates a DDB from wxImage, supposed to be called from ctor
-    bool CreateFromImage(const wxImage& image, const wxDC& dc);
-
-    // common part of the 2 methods above (hdc may be 0)
-    bool CreateFromImage(const wxImage& image, int depth, WXHDC hdc);
-#endif // wxUSE_IMAGE
 
 private:
     // common part of CopyFromIcon/CopyFromCursor for Win32

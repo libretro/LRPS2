@@ -26,16 +26,6 @@
 
 #define wxUSE_ON_FATAL_EXCEPTION 1
 
-#define wxUSE_DEBUG_CONTEXT 0
-
-#define wxUSE_MEMORY_TRACING 0
-
-#define wxUSE_GLOBAL_MEMORY_OPERATORS 0
-
-#define wxUSE_DEBUG_NEW_ALWAYS 0
-
-
-
 #ifndef wxUSE_UNICODE
     #define wxUSE_UNICODE 1
 #endif
@@ -186,41 +176,13 @@
 
 #define wxUSE_REARRANGECTRL 1
 
-#define wxUSE_ARTPROVIDER_STD 1
-
-#define wxUSE_ARTPROVIDER_TANGO 0 /* 1 */
-
 #ifdef __WXMSW__
 #define wxUSE_AUTOID_MANAGEMENT 0
 #else
 #define wxUSE_AUTOID_MANAGEMENT 0
 #endif
 
-#define wxUSE_FILEDLG 1
-
-#define wxUSE_FINDREPLDLG 1
-
-#define wxUSE_FONTDLG 1
-
-#define wxUSE_MSGDLG 1
-
-#define wxUSE_PROGRESSDLG 1
-
-#define wxUSE_STARTUP_TIPS 1
-
-#define wxUSE_TEXTDLG 1
-
-#define wxUSE_NUMBERDLG 1
-
-#define wxUSE_SPLASH 1
-
-#define wxUSE_WIZARDDLG 1
-
-#define wxUSE_ABOUTDLG 1
-
 #define wxUSE_WIN_METAFILES_ALWAYS  0
-
-#define wxUSE_IMAGE 1
 
 #define wxUSE_LIBPNG 1
 
@@ -235,8 +197,6 @@
 #define wxUSE_PCX 1
 
 #define wxUSE_IFF 1
-
-#define wxUSE_XPM 1/* 0 */
 
 #define wxUSE_ALL_THEMES    0 /* 1 */
 
@@ -403,39 +363,6 @@
 #define wxUSE_LIBSDL 0
 
 /*
- * Compile sound backends as plugins
- */
-#define wxUSE_PLUGINS 0
-
-/*
- * Use GTK print for printing under GTK+ 2.10+
- */
-#define wxUSE_GTKPRINT 0
-/*
- * Use GNOME VFS for MIME types
- */
-#define wxUSE_LIBGNOMEVFS 0
-/*
- * Use the Hildon framework
- */
-#define wxUSE_LIBHILDON 0
-/*
- * Use the Hildon 2.0 framework
- */
-#define wxUSE_LIBHILDON2 0
-/*
- * Use libnotify library.
- */
-#define wxUSE_LIBNOTIFY 0
-/*
- * Use libnotify 0.7+ API.
- */
-#define wxUSE_LIBNOTIFY_0_7 0
-/*
- * Use libXpm
- */
-#define wxHAVE_LIB_XPM 0
-/*
  * Define if you have pthread_cleanup_push/pop()
  */
 #define wxHAVE_PTHREAD_CLEANUP 1
@@ -447,26 +374,6 @@
  * Define if large (64 bit file offsets) files are supported.
  */
 #define HAVE_LARGEFILE_SUPPORT 1
-
-/*
- * Use OpenGL
- */
-#define wxUSE_OPENGL 0
-
-/*
- * Use MS HTML Help via libmspack (Unix)
- */
-#define wxUSE_LIBMSPACK 0
-
-/*
- * Matthews garbage collection (used for MrEd?)
- */
-#define WXGARBAGE_COLLECTION_ON 0
-
-/*
- * wxWebKitCtrl
- */
-#define wxUSE_WEBKIT 0
 
 /*
  * wxMediaCtrl on OS X

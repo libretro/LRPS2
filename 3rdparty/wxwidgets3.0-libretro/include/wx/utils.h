@@ -126,11 +126,6 @@ wxDEPRECATED_INLINE(inline bool wxStringEq(const wchar_t *s1, const wchar_t *s2)
 // Sound the bell
 WXDLLIMPEXP_CORE void wxBell();
 
-#if wxUSE_MSGDLG
-// Show wxWidgets information
-WXDLLIMPEXP_CORE void wxInfoMessageBox(wxWindow* parent);
-#endif // wxUSE_MSGDLG
-
 WXDLLIMPEXP_CORE wxVersionInfo wxGetLibraryVersionInfo();
 
 // Get OS description as a user-readable string

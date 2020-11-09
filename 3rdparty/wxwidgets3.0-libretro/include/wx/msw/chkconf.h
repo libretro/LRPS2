@@ -93,15 +93,6 @@
 
 #if defined(__GNUWIN32__)
     /* These don't work as expected for mingw32 and cygwin32 */
-#   undef  wxUSE_MEMORY_TRACING
-#   define wxUSE_MEMORY_TRACING            0
-
-#   undef  wxUSE_GLOBAL_MEMORY_OPERATORS
-#   define wxUSE_GLOBAL_MEMORY_OPERATORS   0
-
-#   undef  wxUSE_DEBUG_NEW_ALWAYS
-#   define wxUSE_DEBUG_NEW_ALWAYS          0
-
 /* some Cygwin versions don't have wcslen */
 #   if defined(__CYGWIN__) || defined(__CYGWIN32__)
 #   if ! ((__GNUC__>2) ||((__GNUC__==2) && (__GNUC_MINOR__>=95)))
@@ -117,15 +108,6 @@
 #ifndef wxUSE_MFC
     #define wxUSE_MFC 0
 #endif /* !defined(wxUSE_MFC) */
-
-/* MFC duplicates these operators */
-#if wxUSE_MFC
-#   undef  wxUSE_GLOBAL_MEMORY_OPERATORS
-#   define wxUSE_GLOBAL_MEMORY_OPERATORS   0
-
-#   undef  wxUSE_DEBUG_NEW_ALWAYS
-#   define wxUSE_DEBUG_NEW_ALWAYS          0
-#endif /* wxUSE_MFC */
 
 #if wxUSE_SPINCTRL
 #   if !wxUSE_SPINBTN
@@ -145,12 +127,6 @@
     /* BC++ 4.0 can't compile JPEG library */
 #   undef wxUSE_LIBJPEG
 #   define wxUSE_LIBJPEG 0
-#endif
-
-/* wxUSE_DEBUG_NEW_ALWAYS = 1 not compatible with BC++ in DLL mode */
-#if defined(WXMAKINGDLL) || defined(WXUSINGDLL)
-#   undef wxUSE_DEBUG_NEW_ALWAYS
-#   define wxUSE_DEBUG_NEW_ALWAYS 0
 #endif
 
 #endif /* __BORLANDC__ */

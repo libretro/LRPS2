@@ -73,27 +73,6 @@ const wxEventTableEntry wxEvtHandler::sm_eventTableEntries[] =
     { wxDECLARE_EVENT_TABLE_TERMINATOR() };
 
 
-// wxUSE_MEMORY_TRACING considers memory freed from the static objects dtors
-// leaked, so we need to manually clean up all event tables before checking for
-// the memory leaks when using it, however this breaks re-initializing the
-// library (i.e. repeated calls to wxInitialize/wxUninitialize) because the
-// event tables won't be rebuilt the next time, so disable this by default
-#if wxUSE_MEMORY_TRACING
-
-class wxEventTableEntryModule: public wxModule
-{
-public:
-    wxEventTableEntryModule() { }
-    virtual bool OnInit() { return true; }
-    virtual void OnExit() { wxEventHashTable::ClearAll(); }
-
-    DECLARE_DYNAMIC_CLASS(wxEventTableEntryModule)
-};
-
-IMPLEMENT_DYNAMIC_CLASS(wxEventTableEntryModule, wxModule)
-
-#endif // wxUSE_MEMORY_TRACING
-
 // ----------------------------------------------------------------------------
 // global variables
 // ----------------------------------------------------------------------------
@@ -257,21 +236,6 @@ void wxEventHashTable::Clear()
 
     m_size = 0;
 }
-
-#if wxUSE_MEMORY_TRACING
-
-// Clear all tables
-void wxEventHashTable::ClearAll()
-{
-    wxEventHashTable* table = sm_first;
-    while (table)
-    {
-        table->Clear();
-        table = table->m_next;
-    }
-}
-
-#endif // wxUSE_MEMORY_TRACING
 
 bool wxEventHashTable::HandleEvent(wxEvent &event, wxEvtHandler *self)
 {

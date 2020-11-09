@@ -87,47 +87,6 @@
 // The rest of the options in this section are obsolete and not supported,
 // enable them at your own risk.
 
-// If 1, enables wxDebugContext, for writing error messages to file, etc. If
-// __WXDEBUG__ is not defined, will still use the normal memory operators.
-//
-// Default is 0
-//
-// Recommended setting: 0
-#define wxUSE_DEBUG_CONTEXT 0
-
-// If 1, enables debugging versions of wxObject::new and wxObject::delete *IF*
-// __WXDEBUG__ is also defined.
-//
-// WARNING: this code may not work with all architectures, especially if
-// alignment is an issue. This switch is currently ignored for mingw / cygwin
-//
-// Default is 0
-//
-// Recommended setting: 1 if you are not using a memory debugging tool, else 0
-#define wxUSE_MEMORY_TRACING 0
-
-// In debug mode, cause new and delete to be redefined globally.
-// If this causes problems (e.g. link errors which is a common problem
-// especially if you use another library which also redefines the global new
-// and delete), set this to 0.
-// This switch is currently ignored for mingw / cygwin
-//
-// Default is 0
-//
-// Recommended setting: 0
-#define wxUSE_GLOBAL_MEMORY_OPERATORS 0
-
-// In debug mode, causes new to be defined to be WXDEBUG_NEW (see object.h). If
-// this causes problems (e.g. link errors), set this to 0. You may need to set
-// this to 0 if using templates (at least for VC++). This switch is currently
-// ignored for MinGW/Cygwin.
-//
-// Default is 0
-//
-// Recommended setting: 0
-#define wxUSE_DEBUG_NEW_ALWAYS 0
-
-
 // ----------------------------------------------------------------------------
 // Unicode support
 // ----------------------------------------------------------------------------
@@ -628,29 +587,6 @@
 // Miscellaneous GUI stuff
 // ----------------------------------------------------------------------------
 
-// Use the standard art provider. The icons returned by this provider are
-// embedded into the library as XPMs so disabling it reduces the library size
-// somewhat but this should only be done if you use your own custom art
-// provider returning the icons or never use any icons not provided by the
-// native art provider (which might not be implemented at all for some
-// platforms) or by the Tango icons provider (if it's not itself disabled
-// below).
-//
-// Default is 1.
-//
-// Recommended setting: 1 unless you use your own custom art provider.
-#define wxUSE_ARTPROVIDER_STD 1
-
-// Use art provider providing Tango icons: this art provider has higher quality
-// icons than the default ones using smaller size XPM icons without
-// transparency but the embedded PNG icons add to the library size.
-//
-// Default is 1 under non-GTK ports. Under wxGTK the native art provider using
-// the GTK+ stock icons replaces it so it is normally not necessary.
-//
-// Recommended setting: 1 but can be turned off to reduce the library size.
-#define wxUSE_ARTPROVIDER_TANGO 1
-
 // Use reference counted ID management: this means that wxWidgets will track
 // the automatically allocated ids (those used when you use wxID_ANY when
 // creating a window, menu or toolbar item &c) instead of just supposing that
@@ -664,66 +600,6 @@
 #else
 #define wxUSE_AUTOID_MANAGEMENT 0
 #endif
-
-// ----------------------------------------------------------------------------
-// common dialogs
-// ----------------------------------------------------------------------------
-
-// TODO: setting to choose the generic or native one
-
-// Use file open/save dialogs.
-//
-// Default is 1
-//
-// Recommended setting: 1 (used in many places in the library itself)
-#define wxUSE_FILEDLG       1
-
-// Use find/replace dialogs.
-//
-// Default is 1
-//
-// Recommended setting: 1 (but may be safely set to 0)
-#define wxUSE_FINDREPLDLG       1
-
-// Use font picker dialog
-//
-// Default is 1
-//
-// Recommended setting: 1 (used in the library itself)
-#define wxUSE_FONTDLG       1
-
-// Use wxMessageDialog and wxMessageBox.
-//
-// Default is 1
-//
-// Recommended setting: 1 (used in the library itself)
-#define wxUSE_MSGDLG        1
-
-// progress dialog class for lengthy operations
-#define wxUSE_PROGRESSDLG 1
-
-// support for startup tips (wxShowTip &c)
-#define wxUSE_STARTUP_TIPS 1
-
-// text entry dialog and wxGetTextFromUser function
-#define wxUSE_TEXTDLG 1
-
-// number entry dialog
-#define wxUSE_NUMBERDLG 1
-
-// splash screen class
-#define wxUSE_SPLASH 1
-
-// wizards
-#define wxUSE_WIZARDDLG 1
-
-// Compile in wxAboutBox() function showing the standard "About" dialog.
-//
-// Default is 1
-//
-// Recommended setting: 1 but can be set to 0 to save some space if you don't
-//                      use this function
-#define wxUSE_ABOUTDLG 1
 
 // ----------------------------------------------------------------------------
 // Metafiles support
@@ -756,9 +632,6 @@
 // Some formats require an extra library which is included in wxWin sources
 // which is mentioned if it is the case.
 
-// Set to 1 for wxImage support (recommended).
-#define wxUSE_IMAGE         1
-
 // Set to 1 for PNG format support (requires libpng). Also requires wxUSE_ZLIB.
 #define wxUSE_LIBPNG        1
 
@@ -779,9 +652,6 @@
 
 // Set to 1 for IFF format support (Amiga format)
 #define wxUSE_IFF           0
-
-// Set to 1 for XPM format support
-#define wxUSE_XPM           1
 
 // ----------------------------------------------------------------------------
 // wxUniversal-only options

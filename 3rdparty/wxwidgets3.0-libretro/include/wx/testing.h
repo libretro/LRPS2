@@ -155,30 +155,6 @@ protected:
     int m_id;
 };
 
-#if wxUSE_FILEDLG
-
-template<>
-class wxExpectModal<wxFileDialog> : public wxExpectModalBase<wxFileDialog>
-{
-public:
-    wxExpectModal(const wxString& path, int id = wxID_OK)
-        : m_path(path), m_id(id)
-    {
-    }
-
-protected:
-    virtual int OnInvoked(wxFileDialog *dlg) const
-    {
-        dlg->SetPath(m_path);
-        return m_id;
-    }
-
-    wxString m_path;
-    int m_id;
-};
-
-#endif
-
 // Implementation of wxModalDialogHook for use in testing, with
 // wxExpectModal<T> and the wxTEST_DIALOG() macro. It is not intended for
 // direct use, use the macro instead.
