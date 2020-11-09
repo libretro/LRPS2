@@ -425,7 +425,6 @@ public:
 	virtual ~Pcsx2App();
 
 	void PostAppMethod( FnPtr_Pcsx2App method );
-	void PostIdleAppMethod( FnPtr_Pcsx2App method );
 
 	void SysApplySettings();
 	void SysExecute();

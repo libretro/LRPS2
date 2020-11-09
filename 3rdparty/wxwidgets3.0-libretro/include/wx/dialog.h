@@ -80,11 +80,6 @@ public:
     virtual void ShowWindowModal () ;
     virtual void SendWindowModalDialogEvent ( wxEventType type );
 
-#ifdef wxHAS_EVENT_BIND
-    template<typename Functor>
-    void ShowWindowModalThenDo(const Functor& onEndModal);
-#endif // wxHAS_EVENT_BIND
-
     // Modal dialogs have a return code - usually the id of the last
     // pressed button
     void SetReturnCode(int returnCode) { m_returnCode = returnCode; }
@@ -378,46 +373,6 @@ typedef void (wxEvtHandler::*wxWindowModalDialogEventFunction)(wxWindowModalDial
 
 #define EVT_WINDOW_MODAL_DIALOG_CLOSED(winid, func) \
     wx__DECLARE_EVT1(wxEVT_WINDOW_MODAL_DIALOG_CLOSED, winid, wxWindowModalDialogEventHandler(func))
-
-#ifdef wxHAS_EVENT_BIND
-template<typename Functor>
-class wxWindowModalDialogEventFunctor
-{
-public:
-    wxWindowModalDialogEventFunctor(const Functor& f)
-        : m_f(new Functor(f))
-    {}
-
-    void operator()(wxWindowModalDialogEvent& event)
-    {
-        if ( m_f )
-        {
-            // We only want to call this handler once. Also, by deleting
-            // the functor here, its data (such as wxWindowPtr pointing to
-            // the dialog) are freed immediately after exiting this operator().
-            wxSharedPtr<Functor> functor(m_f);
-            m_f.reset();
-
-            (*functor)(event.GetReturnCode());
-        }
-        else // was already called once
-        {
-            event.Skip();
-        }
-    }
-
-private:
-    wxSharedPtr<Functor> m_f;
-};
-
-template<typename Functor>
-void wxDialogBase::ShowWindowModalThenDo(const Functor& onEndModal)
-{
-    Bind(wxEVT_WINDOW_MODAL_DIALOG_CLOSED,
-         wxWindowModalDialogEventFunctor<Functor>(onEndModal));
-    ShowWindowModal();
-}
-#endif // wxHAS_EVENT_BIND
 
 #endif
     // _WX_DIALOG_H_BASE_

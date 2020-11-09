@@ -169,7 +169,6 @@ void Pcsx2App::CleanupRestartable()
 #ifndef __LIBRETRO__
 	SysExecutorThread.ShutdownQueue();
 #endif
-	IdleEventDispatcher( L"Cleanup" );
 }
 
 // This cleanup handler can be called from OnExit (it doesn't need a running message pump),

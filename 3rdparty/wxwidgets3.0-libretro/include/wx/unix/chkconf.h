@@ -15,10 +15,3 @@
 #           define wxUSE_SELECT_DISPATCHER 1
 #   endif
 #endif /* wxUSE_CONSOLE_EVENTLOOP */
-
-#if wxUSE_GSTREAMER
-#   if !wxUSE_THREADS
-#           undef wxUSE_GSTREAMER
-#           define wxUSE_GSTREAMER 0
-#   endif
-#endif /* wxUSE_GSTREAMER */

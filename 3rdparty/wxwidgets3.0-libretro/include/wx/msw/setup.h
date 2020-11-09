@@ -383,15 +383,6 @@
 // Recommended setting: 1
 #define wxUSE_CONFIG_NATIVE   1
 
-// If wxUSE_DIALUP_MANAGER is 1, compile in wxDialUpManager class which allows
-// to connect/disconnect from the network and be notified whenever the dial-up
-// network connection is established/terminated. Requires wxUSE_DYNAMIC_LOADER.
-//
-// Default is 1.
-//
-// Recommended setting: 1
-#define wxUSE_DIALUP_MANAGER   1
-
 // Compile in classes for run-time DLL loading and function calling.
 // Required by wxUSE_DIALUP_MANAGER.
 //
@@ -484,11 +475,8 @@
 #define wxUSE_COLLPANE      1   // wxCollapsiblePane
 #define wxUSE_COMBOBOX      1   // wxComboBox
 #define wxUSE_COMMANDLINKBUTTON 1   // wxCommandLinkButton
-#define wxUSE_DATEPICKCTRL  1   // wxDatePickerCtrl
-#define wxUSE_DIRPICKERCTRL 1   // wxDirPickerCtrl
 #define wxUSE_EDITABLELISTBOX 1 // wxEditableListBox
 #define wxUSE_FILECTRL      1   // wxFileCtrl
-#define wxUSE_FILEPICKERCTRL 1  // wxFilePickerCtrl
 #define wxUSE_FONTPICKERCTRL 1  // wxFontPickerCtrl
 #define wxUSE_GAUGE         1   // wxGauge
 #define wxUSE_HEADERCTRL    1   // wxHeaderCtrl
@@ -508,7 +496,6 @@
 #define wxUSE_STATTEXT      1   // wxStaticText
 #define wxUSE_STATBMP       1   // wxStaticBitmap
 #define wxUSE_TEXTCTRL      1   // wxTextCtrl
-#define wxUSE_TIMEPICKCTRL  1   // wxTimePickerCtrl
 
 // ----------------------------------------------------------------------------
 // Miscellaneous GUI stuff
@@ -584,18 +571,6 @@
 // wxUniversal-only options
 // ----------------------------------------------------------------------------
 
-// Set to 1 to enable compilation of all themes, this is the default
-#define wxUSE_ALL_THEMES    1
-
-// Set to 1 to enable the compilation of individual theme if wxUSE_ALL_THEMES
-// is unset, if it is set these options are not used; notice that metal theme
-// uses Win32 one
-#define wxUSE_THEME_GTK     0
-#define wxUSE_THEME_METAL   0
-#define wxUSE_THEME_MONO    0
-#define wxUSE_THEME_WIN32   0
-
-
 /* --- end common options --- */
 
 /* --- start MSW options --- */
@@ -629,14 +604,6 @@
 // Recommended setting: 0 unless you really have to use MFC
 #define wxUSE_MFC           0
 
-// Set this to 1 to enable wxActiveXContainer class allowing to embed OLE
-// controls in wx.
-//
-// Default is 1.
-//
-// Recommended setting: 1, required by wxMediaCtrl
-#define wxUSE_ACTIVEX 1
-
 // wxDC caching implementation
 #define wxUSE_DC_CACHEING 1
 
@@ -654,26 +621,6 @@
 //
 // Recommended setting: 1, this is used internally by wx in a few places
 #define wxUSE_REGKEY 1
-
-// ----------------------------------------------------------------------------
-// Generic versions of native controls
-// ----------------------------------------------------------------------------
-
-// Set this to 1 to be able to use wxDatePickerCtrlGeneric in addition to the
-// native wxDatePickerCtrl
-//
-// Default is 0.
-//
-// Recommended setting: 0, this is mainly used for testing
-#define wxUSE_DATEPICKCTRL_GENERIC 0
-
-// Set this to 1 to be able to use wxTimePickerCtrlGeneric in addition to the
-// native wxTimePickerCtrl for the platforms that have the latter (MSW).
-//
-// Default is 0.
-//
-// Recommended setting: 0, this is mainly used for testing
-#define wxUSE_TIMEPICKCTRL_GENERIC 0
 
 #endif // _WX_SETUP_H_
 

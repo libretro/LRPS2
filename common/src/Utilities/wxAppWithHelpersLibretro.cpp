@@ -208,14 +208,6 @@ void wxAppWithHelpers::PostMethod(FnType_Void *method)
     PostEvent(pxRpcEvent(method));
 }
 
-// Posts a method to the main thread; non-blocking.  Post occurs even when called from the
-// main thread.
-void wxAppWithHelpers::PostIdleMethod(FnType_Void *method)
-{
-    pxRpcEvent evt(method);
-    AddIdleEvent(evt);
-}
-
 // Invokes the specified void method, or posts the method to the main thread if the calling
 // thread is not Main.  Action is blocking.  For non-blocking method execution, use
 // AppRpc_TryInvokeAsync.
@@ -361,53 +353,6 @@ void pxActionEvent::_DoInvokeEvent()
         m_state->PostResult();
 }
 
-void wxAppWithHelpers::AddIdleEvent(const wxEvent &evt)
-{
-    ScopedLock lock(m_IdleEventMutex);
-    m_IdleEventQueue.push_back(evt.Clone());
-}
-void wxAppWithHelpers::IdleEventDispatcher(const wxChar *action)
-{
-    // Recursion is possible thanks to modal dialogs being issued from the idle event handler.
-    // (recursion shouldn't hurt anything anyway, since the node system re-creates the iterator
-    // on each pass)
-    wxEventList postponed;
-    wxEventList::iterator node;
-
-    ScopedLock lock(m_IdleEventMutex);
-
-    while (node = m_IdleEventQueue.begin(), node != m_IdleEventQueue.end())
-    {
-       std::unique_ptr<wxEvent> deleteMe(*node);
-       m_IdleEventQueue.erase(node);
-
-       lock.Release();
-       ProcessEvent(*deleteMe); // dereference to prevent auto-deletion by ProcessEvent
-       lock.Acquire();
-    }
-
-    m_IdleEventQueue = postponed;
-}
-
-void wxAppWithHelpers::OnIdleEvent(wxIdleEvent &evt)
-{
-    m_IdleEventTimer.Stop();
-    IdleEventDispatcher();
-}
-
-void wxAppWithHelpers::OnIdleEventTimeout(wxTimerEvent &evt)
-{
-    IdleEventDispatcher(L"[Timeout]");
-}
-
-void wxAppWithHelpers::Ping()
-{
-    SynchronousActionState sync;
-    pxActionEvent evt(sync);
-    AddIdleEvent(evt);
-    sync.WaitForResult();
-}
-
 void wxAppWithHelpers::PostAction(const pxActionEvent &evt)
 {
     PostEvent(evt);
@@ -426,18 +371,9 @@ void wxAppWithHelpers::ProcessAction(pxActionEvent &evt)
 
 bool wxAppWithHelpers::OnInit()
 {
-    Bind(pxEvt_InvokeAction, &wxAppWithHelpers::OnInvokeAction, this);
-    Bind(wxEVT_IDLE, &wxAppWithHelpers::OnIdleEvent, this);
-
-    Bind(wxEVT_TIMER, &wxAppWithHelpers::OnIdleEventTimeout, this, m_IdleEventTimer.GetId());
-
     return _parent::OnInit();
 }
 
-void wxAppWithHelpers::OnInvokeAction(pxActionEvent &evt)
-{
-    evt._DoInvokeEvent(); // wow this is easy!
-}
 // In theory we create a Pcsx2App object which inherit from wxAppWithHelpers,
 // so Pcsx2App::CreateTraits must be used instead.
 //
@@ -451,7 +387,6 @@ wxAppTraits *wxAppWithHelpers::CreateTraits()
 }
 
 wxAppWithHelpers::wxAppWithHelpers()
-    : m_IdleEventTimer(this)
 {
 #ifdef __WXMSW__
     // This variable assignment ensures that MSVC links in the TLS setup stubs even in

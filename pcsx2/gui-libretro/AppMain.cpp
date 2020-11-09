@@ -351,14 +351,6 @@ void Pcsx2App::PostAppMethod( FnPtr_Pcsx2App method )
 	PostEvent( Pcsx2AppMethodEvent( method ) );
 }
 
-// Posts a method to the main thread; non-blocking.  Post occurs even when called from the
-// main thread.
-void Pcsx2App::PostIdleAppMethod( FnPtr_Pcsx2App method )
-{
-	Pcsx2AppMethodEvent evt( method );
-	AddIdleEvent( evt );
-}
-
 SysMainMemory& Pcsx2App::GetVmReserve()
 {
 	if (!m_VmReserve) m_VmReserve = std::unique_ptr<SysMainMemory>(new SysMainMemory());

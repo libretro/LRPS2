@@ -37,14 +37,6 @@
 // Recommended setting: 0 unless you really have to use MFC
 #define wxUSE_MFC           0
 
-// Set this to 1 to enable wxActiveXContainer class allowing to embed OLE
-// controls in wx.
-//
-// Default is 1.
-//
-// Recommended setting: 1, required by wxMediaCtrl
-#define wxUSE_ACTIVEX 1
-
 // wxDC caching implementation
 #define wxUSE_DC_CACHEING 1
 
@@ -62,23 +54,3 @@
 //
 // Recommended setting: 1, this is used internally by wx in a few places
 #define wxUSE_REGKEY 1
-
-// ----------------------------------------------------------------------------
-// Generic versions of native controls
-// ----------------------------------------------------------------------------
-
-// Set this to 1 to be able to use wxDatePickerCtrlGeneric in addition to the
-// native wxDatePickerCtrl
-//
-// Default is 0.
-//
-// Recommended setting: 0, this is mainly used for testing
-#define wxUSE_DATEPICKCTRL_GENERIC 0
-
-// Set this to 1 to be able to use wxTimePickerCtrlGeneric in addition to the
-// native wxTimePickerCtrl for the platforms that have the latter (MSW).
-//
-// Default is 0.
-//
-// Recommended setting: 0, this is mainly used for testing
-#define wxUSE_TIMEPICKCTRL_GENERIC 0

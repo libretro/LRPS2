@@ -1258,12 +1258,7 @@ void AppSaveSettings()
 	static std::atomic<bool> isPosted(false);
 
 	if( !wxThread::IsMain() )
-	{
-		if( !isPosted.exchange(true) )
-			wxGetApp().PostIdleMethod( AppSaveSettings );
-
 		return;
-	}
 
 	//Console.WriteLn("Saving ini files...");
 

@@ -87,8 +87,6 @@
 
 #define wxUSE_CONFIG_NATIVE 1
 
-#define wxUSE_DIALUP_MANAGER 1
-
 #define wxUSE_DYNLIB_CLASS 1
 
 #define wxUSE_DYNAMIC_LOADER 1
@@ -127,8 +125,6 @@
 #define wxUSE_COLLPANE 1
 #define wxUSE_COMBOBOX 1
 #define wxUSE_COMMANDLINKBUTTON 1
-#define wxUSE_DATEPICKCTRL 1
-#define wxUSE_DIRPICKERCTRL 1
 #define wxUSE_EDITABLELISTBOX 1
 #define wxUSE_FILECTRL 1
 #define wxUSE_FILEPICKERCTRL 1
@@ -151,7 +147,6 @@
 #define wxUSE_STATTEXT 1
 #define wxUSE_STATBMP 1
 #define wxUSE_TEXTCTRL 1
-#define wxUSE_TIMEPICKCTRL 1
 
 #ifdef __WXMSW__
 #define wxUSE_AUTOID_MANAGEMENT 0
@@ -175,14 +170,6 @@
 
 #define wxUSE_IFF 1
 
-#define wxUSE_ALL_THEMES    0 /* 1 */
-
-#define wxUSE_THEME_GTK     0
-#define wxUSE_THEME_METAL   0
-#define wxUSE_THEME_MONO    0
-#define wxUSE_THEME_WIN32   0
-
-
 /* --- end common options --- */
 #if __unix__
 /*
@@ -193,16 +180,6 @@
 
 #define wxUSE_UNICODE_UTF8 0
 #define wxUSE_UTF8_LOCALE_ONLY 0
-
-/*
-   Use GStreamer for Unix.
-
-   Default is 0 as this requires a lot of dependencies which might not be
-   available.
-
-   Recommended setting: 1 (wxMediaCtrl won't work by default without it).
- */
-#define wxUSE_GSTREAMER 1
 #else
 /* --- start MSW options --- */
 
@@ -212,17 +189,11 @@
 
 #define wxUSE_MFC           0
 
-#define wxUSE_ACTIVEX 0 /* 1 */
-
 #define wxUSE_DC_CACHEING 0 /* 1 */
 
 #define wxUSE_WXDIB 0 /* 1 */
 
 #define wxUSE_REGKEY 1 /* 1 */
-
-#define wxUSE_DATEPICKCTRL_GENERIC 0
-
-#define wxUSE_TIMEPICKCTRL_GENERIC 0
 
 /* --- end MSW options --- */
 #endif

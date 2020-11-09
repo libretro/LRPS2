@@ -63,6 +63,64 @@ typedef std::list<wxEvent *> wxEventList;
 // --------------------------------------------------------------------------------------
 //  wxAppWithHelpers
 // --------------------------------------------------------------------------------------
+#ifdef __LIBRETRO__
+class wxAppWithHelpers : public wxApp
+{
+    typedef wxApp _parent;
+
+    wxDECLARE_DYNAMIC_CLASS(wxAppWithHelpers);
+
+public:
+    wxAppWithHelpers();
+    virtual ~wxAppWithHelpers() {}
+
+    wxAppTraits *CreateTraits();
+
+    void CleanUp();
+
+    void DeleteObject(BaseDeletableObject &obj);
+    void DeleteObject(BaseDeletableObject *obj)
+    {
+        if (obj == NULL)
+            return;
+        DeleteObject(*obj);
+    }
+
+    void DeleteThread(Threading::pxThread &obj);
+    void DeleteThread(Threading::pxThread *obj)
+    {
+        if (obj == NULL)
+            return;
+#ifndef __LIBRETRO__
+        DeleteThread(*obj);
+#endif
+    }
+
+    void PostCommand(void *clientData, int evtType, int intParam = 0, long longParam = 0, const wxString &stringParam = wxEmptyString);
+    void PostCommand(int evtType, int intParam = 0, long longParam = 0, const wxString &stringParam = wxEmptyString);
+    void PostMethod(FnType_Void *method);
+    void ProcessMethod(FnType_Void *method);
+
+    bool Rpc_TryInvoke(FnType_Void *method);
+    bool Rpc_TryInvokeAsync(FnType_Void *method);
+
+    sptr ProcessCommand(void *clientData, int evtType, int intParam = 0, long longParam = 0, const wxString &stringParam = wxEmptyString);
+    sptr ProcessCommand(int evtType, int intParam = 0, long longParam = 0, const wxString &stringParam = wxEmptyString);
+
+    void ProcessAction(pxActionEvent &evt);
+    void PostAction(const pxActionEvent &evt);
+
+    bool OnInit();
+    //int  OnExit();
+
+    void PostEvent(const wxEvent &evt);
+    bool ProcessEvent(wxEvent &evt);
+    bool ProcessEvent(wxEvent *evt);
+
+    bool ProcessEvent(pxActionEvent &evt);
+    bool ProcessEvent(pxActionEvent *evt);
+};
+#else
 class wxAppWithHelpers : public wxApp
 {
     typedef wxApp _parent;
@@ -95,9 +153,7 @@ public:
     {
         if (obj == NULL)
             return;
-#ifndef __LIBRETRO__
         DeleteThread(*obj);
-#endif
     }
 
     void PostCommand(void *clientData, int evtType, int intParam = 0, long longParam = 0, const wxString &stringParam = wxEmptyString);
@@ -118,7 +174,6 @@ public:
     void Ping();
     bool OnInit();
     //int  OnExit();
-
     void AddIdleEvent(const wxEvent &evt);
 
     void PostEvent(const wxEvent &evt);
@@ -141,6 +196,7 @@ protected:
 #endif
     void OnInvokeAction(pxActionEvent &evt);
 };
+#endif
 
 namespace Msgbox
 {

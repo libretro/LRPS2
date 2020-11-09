@@ -13,18 +13,9 @@
 #ifndef _WX_MSW_CHKCONF_H_
 #define _WX_MSW_CHKCONF_H_
 
-/* ensure that MSW-specific settings are defined */
-#ifndef wxUSE_ACTIVEX
-#        define wxUSE_ACTIVEX 0
-#endif /* !defined(wxUSE_ACTIVEX) */
-
 #ifndef wxUSE_DC_CACHEING
 #       define wxUSE_DC_CACHEING 1
 #endif /* wxUSE_DC_CACHEING */
-
-#ifndef wxUSE_DIALUP_MANAGER
-#        define wxUSE_DIALUP_MANAGER 0
-#endif /* !defined(wxUSE_DIALUP_MANAGER) */
 
 #ifndef wxUSE_MS_HTML_HELP
 #        define wxUSE_MS_HTML_HELP 0
@@ -131,29 +122,11 @@
 
 #endif /* __BORLANDC__ */
 
-/* DMC++ doesn't have definitions for date picker control, so use generic control
- */
-#ifdef __DMC__
-#   if wxUSE_DATEPICKCTRL
-#       undef wxUSE_DATEPICKCTRL_GENERIC
-#       undef wxUSE_DATEPICKCTRL
-#   endif
-#   define wxUSE_DATEPICKCTRL 0
-#   define wxUSE_DATEPICKCTRL_GENERIC 1
-#endif
-
-
-
 /*
    un/redefine the options which we can't compile (after checking that they're
    defined
  */
 #ifdef __WINE__
-#   if wxUSE_ACTIVEX
-#       undef wxUSE_ACTIVEX
-#       define wxUSE_ACTIVEX 0
-#   endif /* wxUSE_ACTIVEX */
-
 #   if wxUSE_UNICODE_MSLU
 #       undef wxUSE_UNICODE_MSLU
 #       define wxUSE_UNICODE_MSLU 0
@@ -166,15 +139,6 @@
 #            undef wxUSE_MS_HTML_HELP
 #            define wxUSE_MS_HTML_HELP 0
 #    endif
-#    if wxUSE_DIALUP_MANAGER
-#            undef wxUSE_DIALUP_MANAGER
-#            define wxUSE_DIALUP_MANAGER 0
-#    endif
 #endif  /* !wxUSE_DYNAMIC_LOADER */
-
-#   if wxUSE_ACTIVEX
-#           undef wxUSE_ACTIVEX
-#           define wxUSE_ACTIVEX 0
-#   endif
 
 #endif /* _WX_MSW_CHKCONF_H_ */
