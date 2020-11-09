@@ -232,12 +232,12 @@ u8 KeyStatus::get(u32 pad, u32 index)
 
 		default:
 			if (index < 16)
-				val = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_BUTTON, keymap[index]);
+         {
+				val = input_cb(pad, RETRO_DEVICE_JOYPAD, RETRO_DEVICE_INDEX_ANALOG_BUTTON, keymap[index]);
+            return 0xFF - (val >> 7);
+         }
 			break;
 	}
-
-	if (index < 16)
-		return 0xFF - (val >> 7);
 
 	return 0x80 + (val >> 8);
 }
