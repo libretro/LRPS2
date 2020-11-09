@@ -17,10 +17,6 @@
 #       define wxUSE_DC_CACHEING 1
 #endif /* wxUSE_DC_CACHEING */
 
-#ifndef wxUSE_MS_HTML_HELP
-#        define wxUSE_MS_HTML_HELP 0
-#endif /* !defined(wxUSE_MS_HTML_HELP) */
-
 #ifndef wxUSE_UNICODE_MSLU
 #        define wxUSE_UNICODE_MSLU 0
 #endif  /* wxUSE_UNICODE_MSLU */
@@ -133,12 +129,5 @@
 #   endif /* wxUSE_UNICODE_MSLU */
 #endif /* __WINE__ */
 
-
-#if !wxUSE_DYNAMIC_LOADER
-#    if wxUSE_MS_HTML_HELP
-#            undef wxUSE_MS_HTML_HELP
-#            define wxUSE_MS_HTML_HELP 0
-#    endif
-#endif  /* !wxUSE_DYNAMIC_LOADER */
 
 #endif /* _WX_MSW_CHKCONF_H_ */

@@ -89,8 +89,6 @@
 
 #define wxUSE_DYNLIB_CLASS 1
 
-#define wxUSE_DYNAMIC_LOADER 1
-
 #define wxUSE_IPV6          0
 
 #define wxUSE_FILESYSTEM 1

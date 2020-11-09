@@ -394,9 +394,6 @@
 // Recommended setting: 1
 #define wxUSE_DYNLIB_CLASS    1
 
-// experimental, don't use for now
-#define wxUSE_DYNAMIC_LOADER  1
-
 // Set to 1 to use ipv6 socket classes (requires wxUSE_SOCKETS)
 //
 // Notice that currently setting this option under Windows will result in

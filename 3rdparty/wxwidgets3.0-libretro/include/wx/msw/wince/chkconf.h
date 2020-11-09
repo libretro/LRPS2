@@ -30,10 +30,6 @@
     #define wxUSE_LIBTIFF 0
 #endif
 
-// not sure if this is supported by CE but it doesn't compile currently anyhow
-#undef wxUSE_MS_HTML_HELP
-#define wxUSE_MS_HTML_HELP 0
-
 // eVC doesn't support SEH
 #undef wxUSE_ON_FATAL_EXCEPTION
 #define wxUSE_ON_FATAL_EXCEPTION 0

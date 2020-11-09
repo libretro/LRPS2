@@ -83,10 +83,6 @@
 #define wxUSE_FS_ARCHIVE 0
 #endif /* !defined(wxUSE_FS_ARCHIVE) */
 
-#ifndef wxUSE_DYNAMIC_LOADER
-#       define wxUSE_DYNAMIC_LOADER 0
-#endif /* !defined(wxUSE_DYNAMIC_LOADER) */
-
 #ifndef wxUSE_INTL
 #       define wxUSE_INTL 0
 #endif /* !defined(wxUSE_INTL) */
@@ -288,12 +284,6 @@
 #       undef wxUSE_FILE
 #       define wxUSE_FILE 1
 #endif /* wxUSE_TEXTFILE */
-
-#if !wxUSE_DYNLIB_CLASS
-#   if wxUSE_DYNAMIC_LOADER
-#           define wxUSE_DYNLIB_CLASS 1
-#   endif
-#endif  /* wxUSE_DYNLIB_CLASS */
 
 #if wxUSE_ZIPSTREAM
 #   if !wxUSE_ZLIB
