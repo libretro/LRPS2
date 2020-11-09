@@ -41,29 +41,9 @@
     #pragma optimize("", off)
 #endif
 
-#if wxUSE_EXTENDED_RTTI
-const wxClassInfo* wxObject::ms_classParents[] = { NULL } ;
-wxObject* wxVariantOfPtrToObjectConverterwxObject ( const wxAny &data )
-{ return wxANY_AS(data, wxObject*); }
- wxAny wxObjectToVariantConverterwxObject ( wxObject *data )
- { return wxAny( dynamic_cast<wxObject*> (data)  ) ; }
-
- wxClassInfo wxObject::ms_classInfo(ms_classParents , wxEmptyString , wxT("wxObject"),
-            (int) sizeof(wxObject),                              \
-            (wxObjectConstructorFn) 0   ,
-            NULL,NULL,0 , 0 ,
-            0 , wxVariantOfPtrToObjectConverterwxObject , 0 , wxObjectToVariantConverterwxObject);
-
- template<> void wxStringWriteValue(wxString & , wxObject* const & ){ wxFAIL_MSG("unreachable"); }
- template<> void wxStringWriteValue(wxString & , wxObject const & ){ wxFAIL_MSG("unreachable"); }
-
- wxClassTypeInfo s_typeInfo(wxT_OBJECT_PTR , &wxObject::ms_classInfo , NULL , NULL , typeid(wxObject*).name() ) ;
- wxClassTypeInfo s_typeInfowxObject(wxT_OBJECT , &wxObject::ms_classInfo , NULL , NULL , typeid(wxObject).name() ) ;
-#else
 wxClassInfo wxObject::ms_classInfo( wxT("wxObject"), 0, 0,
                                         (int) sizeof(wxObject),
                                         (wxObjectConstructorFn) 0 );
-#endif
 
 // restore optimizations
 #if defined __VISUALC__ && __VISUALC__ >= 1300
@@ -79,14 +59,11 @@ wxHashTable* wxClassInfo::sm_classTable = NULL;
 // all wx classes and this solves linking problems for HP-UX native toolchain
 // and possibly others (we could make dtor non-inline as well but it's more
 // useful to keep it inline than this function)
-#if !wxUSE_EXTENDED_RTTI
 
 wxClassInfo *wxObject::GetClassInfo() const
 {
     return &wxObject::ms_classInfo;
 }
-
-#endif // wxUSE_EXTENDED_RTTI
 
 // this variable exists only so that we can avoid 'always true/false' warnings
 const bool wxFalse = false;

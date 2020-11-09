@@ -118,9 +118,6 @@ protected:
     virtual wxSize DoGetSizeFromTextSize(int xlen, int ylen = -1) const;
     virtual void DoGetSize(int *width, int *height) const;
     virtual void DoGetClientSize(int *x, int *y) const;
-#if wxUSE_TOOLTIPS
-    virtual void DoSetToolTip( wxToolTip *tip );
-#endif // wxUSE_TOOLTIPS
 
     virtual bool MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result);
     virtual bool MSWOnScroll(int orientation, WXWORD wParam,

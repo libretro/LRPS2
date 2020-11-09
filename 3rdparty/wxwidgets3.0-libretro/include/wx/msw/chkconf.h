@@ -30,21 +30,9 @@
 #        define wxUSE_MS_HTML_HELP 0
 #endif /* !defined(wxUSE_MS_HTML_HELP) */
 
-#ifndef wxUSE_INICONF
-#        define wxUSE_INICONF 0
-#endif /* !defined(wxUSE_INICONF) */
-
-#ifndef wxUSE_TASKBARICON_BALLOONS
-#       define wxUSE_TASKBARICON_BALLOONS 0
-#endif /* wxUSE_TASKBARICON_BALLOONS */
-
 #ifndef wxUSE_UNICODE_MSLU
 #        define wxUSE_UNICODE_MSLU 0
 #endif  /* wxUSE_UNICODE_MSLU */
-
-#ifndef wxUSE_UXTHEME
-#        define wxUSE_UXTHEME 0
-#endif  /* wxUSE_UXTHEME */
 
 /*
  * We don't want to give an error if wxUSE_UNICODE_MSLU is enabled but
@@ -94,16 +82,6 @@
 #endif
 
 /*
- * See WINVER definition in wx/msw/wrapwin.h for the explanation of this test
- * logic.
- */
-#if (defined(__VISUALC__) && (__VISUALC__ < 1300)) && \
-        (!defined(WINVER) || WINVER < 0x0500)
-#   undef wxUSE_TASKBARICON_BALLOONS
-#   define wxUSE_TASKBARICON_BALLOONS 0
-#endif
-
-/*
  * All of the settings below require SEH support (__try/__catch) and can't work
  * without it.
  */
@@ -148,11 +126,6 @@
 #   undef  wxUSE_DEBUG_NEW_ALWAYS
 #   define wxUSE_DEBUG_NEW_ALWAYS          0
 #endif /* wxUSE_MFC */
-
-#if !wxUSE_OWNER_DRAWN && !defined(__WXUNIVERSAL__)
-#   undef wxUSE_CHECKLISTBOX
-#   define wxUSE_CHECKLISTBOX 0
-#endif
 
 #if wxUSE_SPINCTRL
 #   if !wxUSE_SPINBTN
@@ -223,40 +196,9 @@
 #    endif
 #endif  /* !wxUSE_DYNAMIC_LOADER */
 
-#if !wxUSE_DYNLIB_CLASS
-#   if wxUSE_DC_TRANSFORM_MATRIX
-#           undef wxUSE_DC_TRANSFORM_MATRIX
-#           define wxUSE_DC_TRANSFORM_MATRIX 0
-#   endif
-#   if wxUSE_UXTHEME
-#           undef wxUSE_UXTHEME
-#           define wxUSE_UXTHEME 0
-#   endif
-#   if wxUSE_MEDIACTRL
-#           undef wxUSE_MEDIACTRL
-#           define wxUSE_MEDIACTRL 0
-#   endif
-#   if wxUSE_INKEDIT
-#           undef wxUSE_INKEDIT
-#           define wxUSE_INKEDIT 0
-#   endif
-#endif  /* !wxUSE_DYNLIB_CLASS */
-
 #   if wxUSE_ACTIVEX
 #           undef wxUSE_ACTIVEX
 #           define wxUSE_ACTIVEX 0
 #   endif
-
-#if !wxUSE_ACTIVEX
-#   if wxUSE_MEDIACTRL
-#           undef wxUSE_MEDIACTRL
-#           define wxUSE_MEDIACTRL 0
-#   endif
-#endif /* !wxUSE_ACTIVEX */
-
-#if defined(__WXUNIVERSAL__) && wxUSE_POSTSCRIPT_ARCHITECTURE_IN_MSW && !wxUSE_POSTSCRIPT
-#   undef wxUSE_POSTSCRIPT
-#   define wxUSE_POSTSCRIPT 1
-#endif
 
 #endif /* _WX_MSW_CHKCONF_H_ */

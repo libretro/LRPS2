@@ -17,15 +17,6 @@
 // simple types
 // ----------------------------------------------------------------------------
 
-#if wxUSE_OWNER_DRAWN
-  class WXDLLIMPEXP_FWD_CORE wxOwnerDrawn;
-
-  // define the array of list box items
-  #include  "wx/dynarray.h"
-
-  WX_DEFINE_EXPORTED_ARRAY_PTR(wxOwnerDrawn *, wxListBoxItemsArray);
-#endif // wxUSE_OWNER_DRAWN
-
 // forward decl for GetSelections()
 class WXDLLIMPEXP_FWD_BASE wxArrayInt;
 
@@ -93,30 +84,6 @@ public:
     int HitTest(const wxPoint& pt) const { return DoHitTestList(pt); }
     int HitTest(wxCoord x, wxCoord y) const { return DoHitTestList(wxPoint(x, y)); }
 
-    // ownerdrawn wxListBox and wxCheckListBox support
-#if wxUSE_OWNER_DRAWN
-    // override base class virtuals
-    virtual bool SetFont(const wxFont &font);
-
-    bool MSWOnMeasure(WXMEASUREITEMSTRUCT *item);
-    bool MSWOnDraw(WXDRAWITEMSTRUCT *item);
-
-    // plug-in for derived classes
-    virtual wxOwnerDrawn *CreateLboxItem(size_t n);
-
-    // allows to get the item and use SetXXX functions to set it's appearance
-    wxOwnerDrawn *GetItem(size_t n) const { return m_aItems[n]; }
-
-    // get the index of the given item
-    int GetItemIndex(wxOwnerDrawn *item) const { return m_aItems.Index(item); }
-
-    // get rect of the given item index
-    bool GetItemRect(size_t n, wxRect& rect) const;
-
-    // redraw the given item
-    bool RefreshItem(size_t n);
-#endif // wxUSE_OWNER_DRAWN
-
     // Windows-specific code to update the horizontal extent of the listbox, if
     // necessary. If s is non-empty, the horizontal extent is increased to the
     // length of this string if it's currently too short, otherwise the maximum
@@ -173,11 +140,6 @@ protected:
     void Free();
 
     unsigned int m_noItems;
-
-#if wxUSE_OWNER_DRAWN
-    // control items
-    wxListBoxItemsArray m_aItems;
-#endif
 
 private:
     // common part of all ctors

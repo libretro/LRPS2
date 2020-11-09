@@ -75,10 +75,6 @@
 #define wxUSE_DYNLIB_CLASS 0
 #endif /* !defined(wxUSE_DYNLIB_CLASS) */
 
-#ifndef wxUSE_FILE_HISTORY
-#define wxUSE_FILE_HISTORY 0
-#endif /* !defined(wxUSE_FILE_HISTORY) */
-
 #ifndef wxUSE_FILESYSTEM
 #define wxUSE_FILESYSTEM 0
 #endif /* !defined(wxUSE_FILESYSTEM) */
@@ -86,10 +82,6 @@
 #ifndef wxUSE_FS_ARCHIVE
 #define wxUSE_FS_ARCHIVE 0
 #endif /* !defined(wxUSE_FS_ARCHIVE) */
-
-#ifndef wxUSE_FSVOLUME
-#define wxUSE_FSVOLUME 0
-#endif /* !defined(wxUSE_FSVOLUME) */
 
 #ifndef wxUSE_DYNAMIC_LOADER
 #       define wxUSE_DYNAMIC_LOADER 0
@@ -141,17 +133,9 @@
 #       define wxUSE_PROTOCOL_FILE 0
 #endif /* !defined(wxUSE_PROTOCOL_FILE) */
 
-#ifndef wxUSE_REGEX
-#       define wxUSE_REGEX 0
-#endif /* !defined(wxUSE_REGEX) */
-
 #ifndef wxUSE_STDPATHS
 #       define wxUSE_STDPATHS 1
 #endif /* !defined(wxUSE_STDPATHS) */
-
-#ifndef wxUSE_XML
-#       define wxUSE_XML 0
-#endif /* !defined(wxUSE_XML) */
 
 #ifndef wxUSE_STD_CONTAINERS
 #       define wxUSE_STD_CONTAINERS 0
@@ -176,10 +160,6 @@
 #ifndef wxUSE_UNICODE
 #       define wxUSE_UNICODE 0
 #endif /* !defined(wxUSE_UNICODE) */
-
-#ifndef wxUSE_URL
-#       define wxUSE_URL 0
-#endif /* !defined(wxUSE_URL) */
 
 #ifndef wxUSE_XLOCALE
 #       define wxUSE_XLOCALE 0
@@ -253,13 +233,6 @@
 #            define wxUSE_PROTOCOL 1
 #   endif
 #endif /* wxUSE_PROTOCOL_XXX */
-
-#if wxUSE_URL
-#   if !wxUSE_PROTOCOL
-#            undef wxUSE_PROTOCOL
-#            define wxUSE_PROTOCOL 1
-#   endif
-#endif /* wxUSE_URL */
 
 #if wxUSE_PROTOCOL
 #   if !wxUSE_STREAMS

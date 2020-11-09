@@ -316,12 +316,6 @@ protected:
     // removed as this also affects the controller
     void DoInvalidateBestSize();
 
-#if wxUSE_HELP
-    // Show the help for the corresponding page
-    void OnHelp(wxHelpEvent& event);
-#endif // wxUSE_HELP
-
-
     // the array of all pages of this control
     wxArrayPages m_pages;
 

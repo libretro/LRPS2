@@ -155,12 +155,6 @@
     #endif
     #pragma comment(lib, wxBASE_LIB_NAME("net"))
 #endif
-#if wxUSE_XML && !defined(wxNO_XML_LIB)
-    #pragma comment(lib, wxBASE_LIB_NAME("xml"))
-#endif
-#if wxUSE_REGEX && !defined(wxNO_REGEX_LIB) && !defined(WXUSINGDLL)
-    #pragma comment(lib, wx3RD_PARTY_LIB_NAME_U("regex"))
-#endif
 
 #ifndef WXUSINGDLL
     // Make sure all required system libraries are added to the linker too when
@@ -178,9 +172,6 @@
     #pragma comment(lib, "uuid")
     #pragma comment(lib, "rpcrt4")
     #pragma comment(lib, "advapi32")
-    #if wxUSE_URL_NATIVE
-        #pragma comment(lib, "wininet")
-    #endif
 
     #ifdef __WXGTK__
         #pragma comment(lib, "gtk-win32-2.0.lib")

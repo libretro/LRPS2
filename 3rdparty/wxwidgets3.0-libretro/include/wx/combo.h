@@ -597,10 +597,6 @@ protected:
     // Flags are same as for DoShowPopup.
     virtual bool AnimateShow( const wxRect& rect, int flags );
 
-#if wxUSE_TOOLTIPS
-    virtual void DoSetToolTip( wxToolTip *tip );
-#endif
-
     // protected wxTextEntry methods
     virtual void DoSetValue(const wxString& value, int flags);
     virtual wxString DoGetValue() const;

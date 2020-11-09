@@ -52,12 +52,6 @@ public:
     bool HandleSize(int x, int y, WXUINT flag);
     bool HandleCommand(WXWORD id, WXWORD cmd, WXHWND control);
 
-    // tooltip management
-#if wxUSE_TOOLTIPS
-    WXHWND GetToolTipCtrl() const { return m_hwndToolTip; }
-    void SetToolTipCtrl(WXHWND hwndTT) { m_hwndToolTip = hwndTT; }
-#endif // tooltips
-
     // override the base class function to handle iconized/maximized frames
     virtual void SendSizeEvent(int flags = 0);
 
@@ -95,10 +89,6 @@ protected:
     virtual WXHICON GetDefaultIcon() const;
 
 private:
-#if wxUSE_TOOLTIPS
-    WXHWND                m_hwndToolTip;
-#endif // tooltips
-
     // used by IconizeChildFrames(), see comments there
     bool m_wasMinimized;
 

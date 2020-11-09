@@ -48,11 +48,6 @@ public:
 
     virtual void SetMaxLength(unsigned long len);
 
-#if wxUSE_UXTHEME
-    virtual bool SetHint(const wxString& hint);
-    virtual wxString GetHint() const;
-#endif // wxUSE_UXTHEME
-
 protected:
     virtual wxString DoGetValue() const;
 

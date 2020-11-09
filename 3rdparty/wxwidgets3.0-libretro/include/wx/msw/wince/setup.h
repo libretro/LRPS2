@@ -148,13 +148,6 @@
 // global features
 // ----------------------------------------------------------------------------
 
-// Set wxUSE_EXTENDED_RTTI to 1 to use extended RTTI
-//
-// Default is 0
-//
-// Recommended setting: 0 (this is still work in progress...)
-#define wxUSE_EXTENDED_RTTI 0
-
 // Support for multithreaded applications: if 1, compile in thread classes
 // (thread.h) and make the library a bit more thread safe. Although thread
 // support is quite stable by now, you may still consider recompiling the
@@ -352,13 +345,6 @@
 #define wxUSE_FILE          1
 #define wxUSE_FFILE         1
 
-// Use wxFSVolume class providing access to the configured/active mount points
-//
-// Default is 1
-//
-// Recommended setting: 1 (but may be safely disabled if you don't use it)
-#define wxUSE_FSVOLUME      1
-
 // Use wxStandardPaths class which allows to retrieve some standard locations
 // in the file system
 //
@@ -519,108 +505,9 @@
 #define wxUSE_PROTOCOL_FTP 1
 #define wxUSE_PROTOCOL_HTTP 1
 
-// Define this to use wxURL class.
-#define wxUSE_URL 1
-
-// Define this to use native platform url and protocol support.
-// Currently valid only for MS-Windows.
-// Note: if you set this to 1, you can open ftp/http/gopher sites
-// and obtain a valid input stream for these sites
-// even when you set wxUSE_PROTOCOL_FTP/HTTP to 0.
-// Doing so reduces the code size.
-//
-// This code is experimental and subject to change.
-#define wxUSE_URL_NATIVE 0
-
-// Support for regular expression matching via wxRegEx class: enable this to
-// use POSIX regular expressions in your code. You need to compile regex
-// library from src/regex to use it under Windows.
-//
-// Default is 0
-//
-// Recommended setting: 1 if your compiler supports it, if it doesn't please
-// contribute us a makefile for src/regex for it
-#define wxUSE_REGEX       1
-
-// wxSound class
-#define wxUSE_SOUND      1
-
-// Use wxMediaCtrl
-//
-// Default is 1.
-//
-// Recommended setting: 1
-#define wxUSE_MEDIACTRL     1
-
-// Use wxWidget's XRC XML-based resource system.  Recommended.
-//
-// Default is 1
-//
-// Recommended setting: 1 (requires wxUSE_XML)
-#define wxUSE_XRC       1
-
-// XML parsing classes. Note that their API will change in the future, so
-// using wxXmlDocument and wxXmlNode in your app is not recommended.
-//
-// Default is the same as wxUSE_XRC, i.e. 1 by default.
-//
-// Recommended setting: 1 (required by XRC)
-#define wxUSE_XML       wxUSE_XRC
-
-// Use wxWidget's AUI docking system
-//
-// Default is 1
-//
-// Recommended setting: 1
-#define wxUSE_AUI       1
-
-// Use wxWidget's Ribbon classes for interfaces
-//
-// Default is 1
-//
-// Recommended setting: 1
-#define wxUSE_RIBBON    1
-
-// Use wxPropertyGrid.
-//
-// Default is 1
-//
-// Recommended setting: 1
-#define wxUSE_PROPGRID  1
-
-// Enable wxGraphicsContext implementation using Cairo library.
-//
-// This is not needed under Windows and detected automatically by configure
-// under other systems, however you may set this to 1 manually if you installed
-// Cairo under Windows yourself and prefer to use it instead the native GDI+
-// implementation.
-//
-// Default is 0
-//
-// Recommended setting: 0
-#define wxUSE_CAIRO 0
-
-
 // ----------------------------------------------------------------------------
 // Individual GUI controls
 // ----------------------------------------------------------------------------
-
-// You must set wxUSE_CONTROLS to 1 if you are using any controls at all
-// (without it, wxControl class is not compiled)
-//
-// Default is 1
-//
-// Recommended setting: 1 (don't change except for very special programs)
-#define wxUSE_CONTROLS     1
-
-// Support markup in control labels, i.e. provide wxControl::SetLabelMarkup().
-// Currently markup is supported only by a few controls and only some ports but
-// their number will increase with time.
-//
-// Default is 1
-//
-// Recommended setting: 1 (may be set to 0 if you want to save on code size)
-#define wxUSE_MARKUP       1
 
 // Each of the settings below corresponds to one wxWidgets control. They are
 // all switched on by default but may be disabled if you are sure that your
@@ -637,7 +524,6 @@
 #define wxUSE_BMPBUTTON     1   // wxBitmapButton
 #define wxUSE_CALENDARCTRL  1   // wxCalendarCtrl
 #define wxUSE_CHECKBOX      1   // wxCheckBox
-#define wxUSE_CHECKLISTBOX  1   // wxCheckListBox (requires wxUSE_OWNER_DRAWN)
 #define wxUSE_CHOICE        1   // wxChoice
 #define wxUSE_COLLPANE      1   // wxCollapsiblePane
 #define wxUSE_COLOURPICKERCTRL 1    // wxColourPickerCtrl
@@ -705,30 +591,6 @@
 // Recommended setting: 1
 #define wxUSE_TOOLBOOK 1
 
-// wxTaskBarIcon is a small notification icon shown in the system toolbar or
-// dock.
-//
-// Default is 1.
-//
-// Recommended setting: 1 (but can be set to 0 if you don't need it)
-#define wxUSE_TASKBARICON 1
-
-// wxGrid class
-//
-// Default is 1, set to 0 to cut down compilation time and binaries size if you
-// don't use it.
-//
-// Recommended setting: 1
-//
-#define wxUSE_GRID         1
-
-// wxMiniFrame class: a frame with narrow title bar
-//
-// Default is 1.
-//
-// Recommended setting: 1 (it doesn't cost almost anything)
-#define wxUSE_MINIFRAME 1
-
 // wxComboCtrl and related classes: combobox with custom popup window and
 // not necessarily a listbox.
 //
@@ -790,47 +652,6 @@
 // Recommended setting: 1 but can be turned off to reduce the library size.
 #define wxUSE_ARTPROVIDER_TANGO 1
 
-// Use wxImageList. This class is needed by wxNotebook, wxTreeCtrl and
-// wxListCtrl.
-//
-// Default is 1.
-//
-// Recommended setting: 1 (set it to 0 if you don't use any of the controls
-// enumerated above, then this class is mostly useless too)
-#define wxUSE_IMAGLIST      1
-
-// Use wxInfoBar class.
-//
-// Default is 1.
-//
-// Recommended setting: 1 (but can be disabled without problems as nothing
-// depends on it)
-#define wxUSE_INFOBAR       1
-
-// Use wxSashWindow class.
-//
-// Default is 1.
-//
-// Recommended setting: 1
-#define wxUSE_SASH          1
-
-// Use wxSplitterWindow class.
-//
-// Default is 1.
-//
-// Recommended setting: 1
-#define wxUSE_SPLITTER      1
-
-// Use wxToolTip and wxWindow::Set/GetToolTip() methods.
-//
-// Default is 1.
-//
-// Recommended setting: 1
-#define wxUSE_TOOLTIPS      1
-
-// wxValidator class and related methods
-#define wxUSE_VALIDATORS 1
-
 // Use reference counted ID management: this means that wxWidgets will track
 // the automatically allocated ids (those used when you use wxID_ANY when
 // creating a window, menu or toolbar item &c) instead of just supposing that
@@ -848,36 +669,6 @@
 // ----------------------------------------------------------------------------
 // common dialogs
 // ----------------------------------------------------------------------------
-
-// On rare occasions (e.g. using DJGPP) may want to omit common dialogs (e.g.
-// file selector, printer dialog). Switching this off also switches off the
-// printing architecture and interactive wxPrinterDC.
-//
-// Default is 1
-//
-// Recommended setting: 1 (unless it really doesn't work)
-#define wxUSE_COMMON_DIALOGS 1
-
-// wxBusyInfo displays window with message when app is busy. Works in same way
-// as wxBusyCursor
-#define wxUSE_BUSYINFO      1
-
-// Use single/multiple choice dialogs.
-//
-// Default is 1
-//
-// Recommended setting: 1 (used in the library itself)
-#define wxUSE_CHOICEDLG     1
-
-// Use colour picker dialog
-//
-// Default is 1
-//
-// Recommended setting: 1
-#define wxUSE_COLOURDLG     1
-
-// wxDirDlg class for getting a directory name from user
-#define wxUSE_DIRDLG 1
 
 // TODO: setting to choose the generic or native one
 
@@ -935,13 +726,6 @@
 //                      use this function
 #define wxUSE_ABOUTDLG 1
 
-// wxFileHistory class
-//
-// Default is 1
-//
-// Recommended setting: 1
-#define wxUSE_FILE_HISTORY 1
-
 // ----------------------------------------------------------------------------
 // Metafiles support
 // ----------------------------------------------------------------------------
@@ -959,71 +743,7 @@
 // Default is 1 for wxUSE_ENH_METAFILE and 0 for wxUSE_WIN_METAFILES_ALWAYS.
 //
 // Recommended setting: default or 0 for everything for portable programs.
-#define wxUSE_METAFILE              1
-#define wxUSE_ENH_METAFILE          1
 #define wxUSE_WIN_METAFILES_ALWAYS  0
-
-// ----------------------------------------------------------------------------
-// Big GUI components
-// ----------------------------------------------------------------------------
-
-// Set to 0 to disable print/preview architecture code
-#define wxUSE_PRINTING_ARCHITECTURE  1
-
-// Setting wxUSE_GLCANVAS to 1 enables OpenGL support. You need to have OpenGL
-// headers and libraries to be able to compile the library with wxUSE_GLCANVAS
-// set to 1 and, under Windows, also to add opengl32.lib and glu32.lib to the
-// list of libraries used to link your application (although this is done
-// implicitly for Microsoft Visual C++ users).
-//
-// Default is 1 unless the compiler is known to ship without the necessary
-// headers (Digital Mars) or the platform doesn't support OpenGL (Windows CE).
-//
-// Recommended setting: 1 if you intend to use OpenGL, can be safely set to 0
-// otherwise.
-#define wxUSE_GLCANVAS       1
-
-// wxRichTextCtrl allows editing of styled text.
-//
-// Default is 1.
-//
-// Recommended setting: 1, set to 0 if you want compile a
-// smaller library.
-#define wxUSE_RICHTEXT       1
-
-// ----------------------------------------------------------------------------
-// miscellaneous settings
-// ----------------------------------------------------------------------------
-
-#define wxUSE_HELP        1
-                                // 0 for no help facility
-
-#define wxUSE_SPLINES     1
-                                // 0 for no splines
-
-// ----------------------------------------------------------------------------
-// wxDC classes for various output formats
-// ----------------------------------------------------------------------------
-
-// Set to 1 for PostScript device context.
-#define wxUSE_POSTSCRIPT  0
-
-// Set to 1 to use font metric files in GetTextExtent
-#define wxUSE_AFM_FOR_POSTSCRIPT 1
-
-// Set to 1 to compile in support for wxSVGFileDC, a wxDC subclass which allows
-// to create files in SVG (Scalable Vector Graphics) format.
-#define wxUSE_SVG 1
-
-// Should wxDC provide SetTransformMatrix() and related methods?
-//
-// Default is 1 but can be set to 0 if this functionality is not used. Notice
-// that currently only wxMSW supports this so setting this to 0 doesn't change
-// much for non-MSW platforms (although it will still save a few bytes
-// probably).
-//
-// Recommended setting: 1.
-#define wxUSE_DC_TRANSFORM_MATRIX 1
 
 // ----------------------------------------------------------------------------
 // image format support
@@ -1052,9 +772,6 @@
 // Set to 1 for TGA format support (loading only)
 #define wxUSE_TGA           1
 
-// Set to 1 for GIF format support
-#define wxUSE_GIF           1
-
 // Set to 1 for PNM format support
 #define wxUSE_PNM           1
 
@@ -1066,12 +783,6 @@
 
 // Set to 1 for XPM format support
 #define wxUSE_XPM           1
-
-// Set to 1 for MS Icons and Cursors format support
-#define wxUSE_ICO_CUR       1
-
-// Set to 1 to compile in wxPalette class
-#define wxUSE_PALETTE       1
 
 // ----------------------------------------------------------------------------
 // wxUniversal-only options
@@ -1118,39 +829,5 @@
 // Windows CE doesn't use RAS so wxDialUpManager doesn't work under it
 #undef wxUSE_DIALUP_MANAGER
 #define wxUSE_DIALUP_MANAGER 0
-
-#undef wxUSE_FSVOLUME
-#define wxUSE_FSVOLUME 0
-
-// there is no difference between frame and mini frame decorations under CE
-#undef wxUSE_MINIFRAME
-#define wxUSE_MINIFRAME 0
-
-// ???
-#undef wxUSE_OWNER_DRAWN
-#define wxUSE_OWNER_DRAWN 0
-
-// there is usually no printer attached to a PDA...
-#undef wxUSE_PRINTING_ARCHITECTURE
-#define wxUSE_PRINTING_ARCHITECTURE 0
-
-// doesn't make much sense in absence of mouse...
-#undef wxUSE_TOOLTIPS
-#define wxUSE_TOOLTIPS 0
-
-// Do use commdlg.h
-#undef wxUSE_COMMON_DIALOGS
-#define wxUSE_COMMON_DIALOGS 1
-
-// don't use wxRichTextCtrl on WinCE yet, it's not ready, plus it's
-// probably overkill for a WinCE environment.
-#undef wxUSE_RICHTEXT
-#define wxUSE_RICHTEXT 0
-
-// ----------------------------------------------------------------------------
-// obsolete MSW settings, don't change
-// ----------------------------------------------------------------------------
-
-#define wxUSE_POSTSCRIPT_ARCHITECTURE_IN_MSW 0
 
 #endif // _WX_SETUP_H_

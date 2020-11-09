@@ -202,11 +202,6 @@ public:
     // MSW only: true if this control is part of the main control
     virtual bool ContainsHWND(WXHWND WXUNUSED(hWnd)) const { return false; }
 
-#if wxUSE_TOOLTIPS
-    // MSW only: true if this window or any of its children have a tooltip
-    virtual bool HasToolTips() const { return GetToolTip() != NULL; }
-#endif // wxUSE_TOOLTIPS
-
     // translate wxWidgets style flags for this control into the Windows style
     // and optional extended style for the corresponding native control
     //
@@ -589,16 +584,6 @@ protected:
     // ::MoveWindow() except for composite controls which will want to arrange
     // themselves inside the given rectangle
     virtual void DoMoveWindow(int x, int y, int width, int height);
-
-#if wxUSE_TOOLTIPS
-    virtual void DoSetToolTip( wxToolTip *tip );
-
-    // process TTN_NEEDTEXT message properly (i.e. fixing the bugs in
-    // comctl32.dll in our code -- see the function body for more info)
-    bool HandleTooltipNotify(WXUINT code,
-                             WXLPARAM lParam,
-                             const wxString& ttip);
-#endif // wxUSE_TOOLTIPS
 
     // This is used by CreateKeyEvent() and also for wxEVT_CHAR[_HOOK] event
     // creation. Notice that this method doesn't initialize wxKeyEvent

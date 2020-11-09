@@ -464,13 +464,6 @@ public:
     void SetMask( bool mask = true );
     bool HasMask() const;
 
-#if wxUSE_PALETTE
-    // Palette functions
-    bool HasPalette() const;
-    const wxPalette& GetPalette() const;
-    void SetPalette(const wxPalette& palette);
-#endif // wxUSE_PALETTE
-
     // Option functions (arbitrary name/value mapping)
     void SetOption(const wxString& name, const wxString& value);
     void SetOption(const wxString& name, int value);

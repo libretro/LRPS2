@@ -159,11 +159,6 @@ public:
     void *GetRawData(wxPixelDataBase& data, int bpp);
     void UngetRawData(wxPixelDataBase& data);
 
-#if wxUSE_PALETTE
-    wxPalette* GetPalette() const;
-    void SetPalette(const wxPalette& palette);
-#endif // wxUSE_PALETTE
-
     wxMask *GetMask() const;
     void SetMask(wxMask *mask);
 

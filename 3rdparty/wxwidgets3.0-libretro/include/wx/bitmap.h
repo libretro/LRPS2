@@ -39,11 +39,6 @@ public:
     // create the mask from bitmap pixels of the given colour
     bool Create(const wxBitmap& bitmap, const wxColour& colour);
 
-#if wxUSE_PALETTE
-    // create the mask from bitmap pixels with the given palette index
-    bool Create(const wxBitmap& bitmap, int paletteIndex);
-#endif // wxUSE_PALETTE
-
     // create the mask from the given mono bitmap
     bool Create(const wxBitmap& bitmap);
 
@@ -205,11 +200,6 @@ public:
        virtual bool GetRawData(wxRawBitmapData *data) = 0;
        virtual void UngetRawData(wxRawBitmapData *data) = 0;
      */
-
-#if wxUSE_PALETTE
-    virtual wxPalette *GetPalette() const = 0;
-    virtual void SetPalette(const wxPalette& palette) = 0;
-#endif // wxUSE_PALETTE
 
     // copies the contents and mask of the given (colour) icon to the bitmap
     virtual bool CopyFromIcon(const wxIcon& icon) = 0;

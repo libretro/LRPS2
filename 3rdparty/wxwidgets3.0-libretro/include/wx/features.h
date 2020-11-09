@@ -37,8 +37,6 @@
     || defined(__WXOSX_MAC__) || defined(__WXCOCOA__)
     #define wxHAS_TASK_BAR_ICON
 #else
-    #undef wxUSE_TASKBARICON
-    #define wxUSE_TASKBARICON 0
     #undef wxHAS_TASK_BAR_ICON
 #endif
 

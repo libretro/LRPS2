@@ -56,63 +56,12 @@
 // Recommended setting: 1 (without it conversion to/from wxImage won't work)
 #define wxUSE_WXDIB 1
 
-// Set to 0 to disable PostScript print/preview architecture code under Windows
-// (just use Windows printing).
-#define wxUSE_POSTSCRIPT_ARCHITECTURE_IN_MSW 1
-
 // Set this to 1 to compile in wxRegKey class.
 //
 // Default is 1
 //
 // Recommended setting: 1, this is used internally by wx in a few places
 #define wxUSE_REGKEY 1
-
-// Set this to 1 to use RICHEDIT controls for wxTextCtrl with style wxTE_RICH
-// which allows to put more than ~32Kb of text in it even under Win9x (NT
-// doesn't have such limitation).
-//
-// Default is 1 for compilers which support it
-//
-// Recommended setting: 1, only set it to 0 if your compiler doesn't have
-//                      or can't compile <richedit.h>
-#define wxUSE_RICHEDIT  1
-
-// Set this to 1 to use extra features of richedit v2 and later controls
-//
-// Default is 1 for compilers which support it
-//
-// Recommended setting: 1
-#define wxUSE_RICHEDIT2 1
-
-// Set this to 1 to enable support for the owner-drawn menu and listboxes. This
-// is required by wxUSE_CHECKLISTBOX.
-//
-// Default is 1.
-//
-// Recommended setting: 1, set to 0 for a small library size reduction
-#define wxUSE_OWNER_DRAWN 1
-
-// Set this to 1 to enable MSW-specific wxTaskBarIcon::ShowBalloon() method. It
-// is required by native wxNotificationMessage implementation.
-//
-// Default is 1 but disabled in wx/msw/chkconf.h if SDK is too old to contain
-// the necessary declarations.
-//
-// Recommended setting: 1, set to 0 for a tiny library size reduction
-#define wxUSE_TASKBARICON_BALLOONS 1
-
-// Set to 1 to compile MS Windows XP theme engine support
-#define wxUSE_UXTHEME           1
-
-// Set to 1 to use InkEdit control (Tablet PC), if available
-#define wxUSE_INKEDIT  0
-
-// Set to 1 to enable .INI files based wxConfig implementation (wxIniConfig)
-//
-// Default is 0.
-//
-// Recommended setting: 0, nobody uses .INI files any more
-#define wxUSE_INICONF 0
 
 // ----------------------------------------------------------------------------
 // Generic versions of native controls

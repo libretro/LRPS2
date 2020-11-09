@@ -100,16 +100,6 @@ public:
     virtual void SetFocus();
     virtual bool SetFont(const wxFont& font);
     virtual bool ContainsHWND(WXHWND hWnd) const;
-#if wxUSE_TOOLTIPS
-    virtual bool HasToolTips() const;
-#endif // wxUSE_TOOLTIPS
-#if wxUSE_HELP
-    // override virtual function with a platform-independent implementation
-    virtual wxString GetHelpTextAtPoint(const wxPoint & pt, wxHelpEvent::Origin origin) const
-    {
-        return wxRadioBoxBase::DoGetHelpTextAtPoint( this, pt, origin );
-    }
-#endif // wxUSE_HELP
 
     virtual bool Reparent(wxWindowBase *newParent);
 
@@ -153,10 +143,6 @@ protected:
                            int sizeFlags = wxSIZE_AUTO);
     virtual void DoMoveWindow(int x, int y, int width, int height);
     virtual wxSize DoGetBestSize() const;
-
-#if wxUSE_TOOLTIPS
-    virtual void DoSetItemToolTip(unsigned int n, wxToolTip * tooltip);
-#endif
 
 #ifndef __WXWINCE__
     virtual WXHRGN MSWGetRegionWithoutChildren();

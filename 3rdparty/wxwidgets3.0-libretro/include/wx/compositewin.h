@@ -104,15 +104,6 @@ public:
         return true;
     }
 
-#if wxUSE_TOOLTIPS
-    virtual void DoSetToolTip(wxToolTip *tip)
-    {
-        BaseWindowClass::DoSetToolTip(tip);
-
-        SetForAllParts(&wxWindowBase::CopyToolTip, tip);
-    }
-#endif // wxUSE_TOOLTIPS
-
 #endif // !__VISUALC6__
 
     virtual void SetFocus()

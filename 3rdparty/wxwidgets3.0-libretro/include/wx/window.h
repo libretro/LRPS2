@@ -28,10 +28,6 @@
 
 #include "wx/validate.h"        // for wxDefaultValidator (always include it)
 
-#if wxUSE_PALETTE
-    #include "wx/palette.h"
-#endif // wxUSE_PALETTE
-
 // Define this macro if the corresponding operating system handles the state
 // of children windows automatically when the parent is enabled/disabled.
 // Otherwise wx itself must ensure that when the parent is disabled its
@@ -889,17 +885,6 @@ protected:
 
 public:
 
-    // validators
-    // ----------
-
-#if wxUSE_VALIDATORS
-        // a window may have an associated validator which is used to control
-        // user input
-    virtual void SetValidator( const wxValidator &validator );
-    virtual wxValidator *GetValidator() { return m_windowValidator; }
-#endif // wxUSE_VALIDATORS
-
-
     // dialog oriented functions
     // -------------------------
 
@@ -1217,63 +1202,17 @@ public:
 
     // these are the convenience functions wrapping wxHelpProvider methods
 
-#if wxUSE_HELP
-        // associate this help text with this window
-    void SetHelpText(const wxString& text);
-
-#if WXWIN_COMPATIBILITY_2_8
-    // Associate this help text with all windows with the same id as this one.
-    // Don't use this, do wxHelpProvider::Get()->AddHelp(id, text);
-    wxDEPRECATED( void SetHelpTextForId(const wxString& text) );
-#endif // WXWIN_COMPATIBILITY_2_8
-
-        // get the help string associated with the given position in this window
-        //
-        // notice that pt may be invalid if event origin is keyboard or unknown
-        // and this method should return the global window help text then
-    virtual wxString GetHelpTextAtPoint(const wxPoint& pt,
-                                        wxHelpEvent::Origin origin) const;
-        // returns the position-independent help text
-    wxString GetHelpText() const
-    {
-        return GetHelpTextAtPoint(wxDefaultPosition, wxHelpEvent::Origin_Unknown);
-    }
-
-#else // !wxUSE_HELP
     // silently ignore SetHelpText() calls
     void SetHelpText(const wxString& WXUNUSED(text)) { }
     void SetHelpTextForId(const wxString& WXUNUSED(text)) { }
-#endif // wxUSE_HELP
 
     // tooltips
     // --------
 
-#if wxUSE_TOOLTIPS
-        // the easiest way to set a tooltip for a window is to use this method
-    void SetToolTip( const wxString &tip );
-        // attach a tooltip to the window, pointer can be NULL to remove
-        // existing tooltip
-    void SetToolTip( wxToolTip *tip ) { DoSetToolTip(tip); }
-        // more readable synonym for SetToolTip(NULL)
-    void UnsetToolTip() { SetToolTip(NULL); }
-        // get the associated tooltip or NULL if none
-    wxToolTip* GetToolTip() const { return m_tooltip; }
-    wxString GetToolTipText() const;
-
-    // Use the same tool tip as the given one (which can be NULL to indicate
-    // that no tooltip should be used) for this window. This is currently only
-    // used by wxCompositeWindow::DoSetToolTip() implementation and is not part
-    // of the public wx API.
-    //
-    // Returns true if tip was valid and we copied it or false if it was NULL
-    // and we reset our own tooltip too.
-    bool CopyToolTip(wxToolTip *tip);
-#else // !wxUSE_TOOLTIPS
         // make it much easier to compile apps in an environment
         // that doesn't support tooltips, such as PocketPC
     void SetToolTip(const wxString & WXUNUSED(tip)) { }
     void UnsetToolTip() { }
-#endif // wxUSE_TOOLTIPS/!wxUSE_TOOLTIPS
 
     // when using constraints or sizers, it makes sense to update
     // children positions automatically whenever the window is resized
@@ -1306,9 +1245,6 @@ public:
     void OnSysColourChanged( wxSysColourChangedEvent& event );
     void OnInitDialog( wxInitDialogEvent &event );
     void OnMiddleClick( wxMouseEvent& event );
-#if wxUSE_HELP
-    void OnHelp(wxHelpEvent& event);
-#endif // wxUSE_HELP
 
         // virtual function for implementing internal idle
         // behaviour
@@ -1326,22 +1262,6 @@ public:
     virtual void AssociateHandle(WXWidget WXUNUSED(handle)) { }
         // dissociate the current native handle from the window
     virtual void DissociateHandle() { }
-
-#if wxUSE_PALETTE
-        // Store the palette used by DCs in wxWindow so that the dcs can share
-        // a palette. And we can respond to palette messages.
-    wxPalette GetPalette() const { return m_palette; }
-
-        // When palette is changed tell the DC to set the system palette to the
-        // new one.
-    void SetPalette(const wxPalette& pal);
-
-        // return true if we have a specific palette
-    bool HasCustomPalette() const { return m_hasCustomPalette; }
-
-        // return the first parent window with a custom palette or NULL
-    wxWindow *GetAncestorWithCustomPalette() const;
-#endif // wxUSE_PALETTE
 
     // inherit the parents visual attributes if they had been explicitly set
     // by the user (i.e. we don't inherit default attributes) and if we don't
@@ -1447,11 +1367,6 @@ protected:
     // changed with SetEventHandler()
     wxEvtHandler        *m_eventHandler;
 
-#if wxUSE_VALIDATORS
-    // associated validator or NULL if none
-    wxValidator         *m_windowValidator;
-#endif // wxUSE_VALIDATORS
-
     // visual window attributes
     wxCursor             m_cursor;
     wxFont               m_font;                // see m_hasFont
@@ -1460,11 +1375,6 @@ protected:
 
     // the region which should be repainted in response to paint event
     wxRegion             m_updateRegion;
-
-    // the tooltip for this window (may be NULL)
-#if wxUSE_TOOLTIPS
-    wxToolTip           *m_tooltip;
-#endif // wxUSE_TOOLTIPS
 
     // this window's sizer
     wxSizer             *m_windowSizer;
@@ -1496,10 +1406,6 @@ protected:
     wxString             m_windowName;
     bool                 m_themeEnabled;
     wxBackgroundStyle    m_backgroundStyle;
-#if wxUSE_PALETTE
-    wxPalette            m_palette;
-    bool                 m_hasCustomPalette;
-#endif // wxUSE_PALETTE
 
     // Virtual size (scrolling)
     wxSize                m_virtualSize;
@@ -1624,10 +1530,6 @@ protected:
     // wxCENTRE_ON_SCREEN shouldn't be specified here, it only makes sense for
     // TLWs
     virtual void DoCentre(int dir);
-
-#if wxUSE_TOOLTIPS
-    virtual void DoSetToolTip( wxToolTip *tip );
-#endif // wxUSE_TOOLTIPS
 
     // Makes an adjustment to the window position to make it relative to the
     // parents client area, e.g. if the parent is a frame with a toolbar, its

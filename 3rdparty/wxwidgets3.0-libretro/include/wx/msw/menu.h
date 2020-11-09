@@ -75,28 +75,6 @@ public:
     // containing this position.
     bool MSWGetRadioGroupRange(int pos, int *start, int *end) const;
 
-#if wxUSE_OWNER_DRAWN
-
-    int GetMaxAccelWidth()
-    {
-        if (m_maxAccelWidth == -1)
-            CalculateMaxAccelWidth();
-        return m_maxAccelWidth;
-    }
-
-    void ResetMaxAccelWidth()
-    {
-        m_maxAccelWidth = -1;
-    }
-
-    // get the menu with given handle (recursively)
-    wxMenu* MSWGetMenu(WXHMENU hMenu);
-
-private:
-    void CalculateMaxAccelWidth();
-
-#endif // wxUSE_OWNER_DRAWN
-
 protected:
     virtual wxMenuItem* DoAppend(wxMenuItem *item);
     virtual wxMenuItem* DoInsert(size_t pos, wxMenuItem *item);
@@ -129,17 +107,6 @@ private:
 
     // the menu handle of this menu
     WXHMENU m_hMenu;
-
-#if wxUSE_OWNER_DRAWN
-    // true if the menu has any ownerdrawn items
-    bool m_ownerDrawn;
-
-    // the max width of menu items bitmaps
-    int m_maxBitmapWidth;
-
-    // the max width of menu items accels
-    int m_maxAccelWidth;
-#endif // wxUSE_OWNER_DRAWN
 
     DECLARE_DYNAMIC_CLASS_NO_COPY(wxMenu)
 };

@@ -42,8 +42,6 @@
 
 #define wxUSE_WCHAR_T 1
 
-#define wxUSE_EXTENDED_RTTI 0
-
 #define wxUSE_THREADS 1
 
 #define wxUSE_STREAMS 1
@@ -80,8 +78,6 @@
 
 #define wxUSE_FILE 1
 #define wxUSE_FFILE 1
-
-#define wxUSE_FSVOLUME 1
 
 #define wxUSE_STDPATHS 1
 
@@ -133,39 +129,12 @@
 #define wxUSE_PROTOCOL_FTP 1
 #define wxUSE_PROTOCOL_HTTP 1
 
-#define wxUSE_URL 1
-
-#define wxUSE_URL_NATIVE 0
-
-#define wxUSE_REGEX 1
-
-#define wxUSE_SOUND 1
-
-#define wxUSE_MEDIACTRL 0
-
-#define wxUSE_XRC 1
-
-#define wxUSE_XML 1
-
-#define wxUSE_AUI 1
-
-#define wxUSE_RIBBON 1
-
-#define wxUSE_PROPGRID 1
-
-#define wxUSE_CAIRO 0
-
-#define wxUSE_CONTROLS 1
-
-#define wxUSE_MARKUP 1
-
 #define wxUSE_ANIMATIONCTRL 1
 #define wxUSE_BANNERWINDOW 1
 #define wxUSE_BUTTON 1
 #define wxUSE_BMPBUTTON 1
 #define wxUSE_CALENDARCTRL 1
 #define wxUSE_CHECKBOX 1
-#define wxUSE_CHECKLISTBOX 1
 #define wxUSE_CHOICE 1
 #define wxUSE_COLLPANE 1
 #define wxUSE_COLOURPICKERCTRL 1
@@ -209,12 +178,6 @@
 
 #define wxUSE_TOOLBOOK 1
 
-#define wxUSE_TASKBARICON 1
-
-#define wxUSE_GRID 1
-
-#define wxUSE_MINIFRAME 1
-
 #define wxUSE_COMBOCTRL 1
 
 #define wxUSE_ODCOMBOBOX 1
@@ -227,35 +190,11 @@
 
 #define wxUSE_ARTPROVIDER_TANGO 0 /* 1 */
 
-#define wxUSE_IMAGLIST 1
-
-#define wxUSE_INFOBAR 1
-
-#define wxUSE_SASH 1
-
-#define wxUSE_SPLITTER 1
-
-#define wxUSE_TOOLTIPS 1
-
-#define wxUSE_VALIDATORS 1
-
 #ifdef __WXMSW__
 #define wxUSE_AUTOID_MANAGEMENT 0
 #else
 #define wxUSE_AUTOID_MANAGEMENT 0
 #endif
-
-
-#define wxUSE_COMMON_DIALOGS 0 /* 1 */
-
-#define wxUSE_BUSYINFO 1
-
-#define wxUSE_CHOICEDLG 1
-
-#define wxUSE_COLOURDLG 1
-
-#define wxUSE_DIRDLG 1
-
 
 #define wxUSE_FILEDLG 1
 
@@ -279,33 +218,7 @@
 
 #define wxUSE_ABOUTDLG 1
 
-#define wxUSE_FILE_HISTORY 1
-
-
-#define wxUSE_METAFILE              0 /* 1 */
-#define wxUSE_ENH_METAFILE          0 /* 1 */
 #define wxUSE_WIN_METAFILES_ALWAYS  0
-
-
-#define wxUSE_PRINTING_ARCHITECTURE 1
-
-#define wxUSE_GLCANVAS 1
-
-#define wxUSE_RICHTEXT 1
-
-#define wxUSE_HELP 1
-
-#define wxUSE_SPLINES 1
-
-#define wxUSE_POSTSCRIPT 1/* 0 */
-
-#define wxUSE_AFM_FOR_POSTSCRIPT 1
-
-#define wxUSE_SVG 1
-
-#define wxUSE_DC_TRANSFORM_MATRIX 1
-
-
 
 #define wxUSE_IMAGE 1
 
@@ -317,8 +230,6 @@
 
 #define wxUSE_TGA 1
 
-#define wxUSE_GIF 1
-
 #define wxUSE_PNM 1
 
 #define wxUSE_PCX 1
@@ -326,11 +237,6 @@
 #define wxUSE_IFF 1
 
 #define wxUSE_XPM 1/* 0 */
-
-#define wxUSE_ICO_CUR 1
-
-#define wxUSE_PALETTE 1
-
 
 #define wxUSE_ALL_THEMES    0 /* 1 */
 
@@ -375,24 +281,7 @@
 
 #define wxUSE_WXDIB 0 /* 1 */
 
-#define wxUSE_POSTSCRIPT_ARCHITECTURE_IN_MSW 0 /* 1 */
-
 #define wxUSE_REGKEY 1 /* 1 */
-
-#define wxUSE_RICHEDIT 1
-
-#define wxUSE_RICHEDIT2 1
-
-#define wxUSE_OWNER_DRAWN 0 /* 1 */
-
-#define wxUSE_TASKBARICON_BALLOONS 1
-
-#define wxUSE_UXTHEME           0 /* 1 */
-
-#define wxUSE_INKEDIT  0
-
-#define wxUSE_INICONF 0
-
 
 #define wxUSE_DATEPICKCTRL_GENERIC 0
 

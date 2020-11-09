@@ -219,9 +219,6 @@ public:
     virtual wxDCImpl* CreateMemoryDC( wxMemoryDC *owner, wxBitmap &bitmap ) = 0;
     virtual wxDCImpl* CreateMemoryDC( wxMemoryDC *owner, wxDC *dc ) = 0;
     virtual wxDCImpl* CreateScreenDC( wxScreenDC *owner ) = 0;
-#if wxUSE_PRINTING_ARCHITECTURE
-    virtual wxDCImpl* CreatePrinterDC( wxPrinterDC *owner, const wxPrintData &data  ) = 0;
-#endif
 
     static void Set(wxDCFactory *factory);
     static wxDCFactory *Get();
@@ -246,9 +243,6 @@ public:
     virtual wxDCImpl* CreateMemoryDC( wxMemoryDC *owner, wxBitmap &bitmap );
     virtual wxDCImpl* CreateMemoryDC( wxMemoryDC *owner, wxDC *dc );
     virtual wxDCImpl* CreateScreenDC( wxScreenDC *owner );
-#if wxUSE_PRINTING_ARCHITECTURE
-    virtual wxDCImpl* CreatePrinterDC( wxPrinterDC *owner, const wxPrintData &data  );
-#endif
 };
 
 //-----------------------------------------------------------------------------
@@ -377,10 +371,6 @@ public:
     virtual const wxColour& GetTextBackground() const
         { return m_textBackgroundColour; }
 
-#if wxUSE_PALETTE
-    virtual void SetPalette(const wxPalette& palette) = 0;
-#endif // wxUSE_PALETTE
-
     // inherit the DC attributes (font and colours) from the given window
     //
     // this is called automatically when a window, client or paint DC is
@@ -496,20 +486,6 @@ public:
         if ( y ) *y = m_deviceOriginY;
     }
 
-#if wxUSE_DC_TRANSFORM_MATRIX
-    // Transform matrix support is not available in most ports right now
-    // (currently only wxMSW provides it) so do nothing in these methods by
-    // default.
-    virtual bool CanUseTransformMatrix() const
-        { return false; }
-    virtual bool SetTransformMatrix(const wxAffineMatrix2D& WXUNUSED(matrix))
-        { return false; }
-    virtual wxAffineMatrix2D GetTransformMatrix() const
-        { return wxAffineMatrix2D(); }
-    virtual void ResetTransformMatrix()
-        { }
-#endif // wxUSE_DC_TRANSFORM_MATRIX
-
     virtual void SetDeviceLocalOrigin( wxCoord x, wxCoord y );
 
     virtual void ComputeScaleAndOrigin();
@@ -616,16 +592,6 @@ public:
                      wxCoord xoffset, wxCoord yoffset,
                      wxPolygonFillMode fillStyle );
 
-
-#if wxUSE_SPLINES
-    void DrawSpline(wxCoord x1, wxCoord y1,
-                            wxCoord x2, wxCoord y2,
-                            wxCoord x3, wxCoord y3);
-    void DrawSpline(int n, const wxPoint points[]);
-    void DrawSpline(const wxPointList *points) { DoDrawSpline(points); }
-
-    virtual void DoDrawSpline(const wxPointList *points);
-#endif
 
     // ---------------------------------------------------------
     // wxMemoryDC Impl API
@@ -759,11 +725,6 @@ protected:
     wxColour          m_textBackgroundColour;
     wxFont            m_font;
 
-#if wxUSE_PALETTE
-    wxPalette         m_palette;
-    bool              m_hasCustomPalette;
-#endif // wxUSE_PALETTE
-
 private:
     DECLARE_ABSTRACT_CLASS(wxDCImpl)
 };
@@ -896,11 +857,6 @@ public:
         { m_pimpl->SetTextBackground(colour); }
     const wxColour& GetTextBackground() const
         { return m_pimpl->GetTextBackground(); }
-
-#if wxUSE_PALETTE
-    void SetPalette(const wxPalette& palette)
-        { m_pimpl->SetPalette(palette); }
-#endif // wxUSE_PALETTE
 
     // logical functions
 
@@ -1043,20 +999,6 @@ public:
 
     void SetAxisOrientation(bool xLeftRight, bool yBottomUp)
         { m_pimpl->SetAxisOrientation(xLeftRight, yBottomUp); }
-
-#if wxUSE_DC_TRANSFORM_MATRIX
-    bool CanUseTransformMatrix() const
-        { return m_pimpl->CanUseTransformMatrix(); }
-
-    bool SetTransformMatrix(const wxAffineMatrix2D &matrix)
-        { return m_pimpl->SetTransformMatrix(matrix); }
-
-    wxAffineMatrix2D GetTransformMatrix() const
-        { return m_pimpl->GetTransformMatrix(); }
-
-    void ResetTransformMatrix()
-        { m_pimpl->ResetTransformMatrix(); }
-#endif // wxUSE_DC_TRANSFORM_MATRIX
 
     // mostly internal
     void SetDeviceLocalOrigin( wxCoord x, wxCoord y )
@@ -1270,18 +1212,6 @@ public:
     {
         return m_pimpl->DoGetAsBitmap(subrect);
     }
-
-#if wxUSE_SPLINES
-    void DrawSpline(wxCoord x1, wxCoord y1,
-                    wxCoord x2, wxCoord y2,
-                    wxCoord x3, wxCoord y3)
-        { m_pimpl->DrawSpline(x1,y1,x2,y2,x3,y3); }
-    void DrawSpline(int n, const wxPoint points[])
-        { m_pimpl->DrawSpline(n,points); }
-    void DrawSpline(const wxPointList *points)
-        { m_pimpl->DrawSpline(points); }
-#endif // wxUSE_SPLINES
-
 
 #if WXWIN_COMPATIBILITY_2_8
     // for compatibility with the old code when wxCoord was long everywhere
