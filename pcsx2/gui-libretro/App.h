@@ -530,7 +530,6 @@ wxDECLARE_APP(Pcsx2App);
 //
 #define sApp \
 	if( Pcsx2App* __app_ = (Pcsx2App*)wxApp::GetInstance() ) (*__app_)
-extern pxDoAssertFnType AppDoAssert;
 
 // --------------------------------------------------------------------------------------
 //  External App-related Globals and Shortcuts

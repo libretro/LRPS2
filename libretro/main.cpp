@@ -260,7 +260,6 @@ void retro_init(void)
 #endif
 
 	InitCPUTicks();
-	pxDoAssert = AppDoAssert;
 	pxDoOutOfMemory = SysOutOfMemory_EmergencyResponse;
 	g_Conf = std::make_unique<AppConfig>();
 	pcsx2->DetectCpuAndUserMode();

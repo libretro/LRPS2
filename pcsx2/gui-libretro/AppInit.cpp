@@ -203,7 +203,6 @@ void Pcsx2App::CleanupOnExit()
 	
 	// FIXME: performing a wxYield() here may fix that problem. -- air
 
-	pxDoAssert = pxAssertImpl_LogIt;
 	Console_SetActiveHandler( ConsoleWriter_Stdout );
 }
 
@@ -271,7 +270,6 @@ Pcsx2App::Pcsx2App()
 
 Pcsx2App::~Pcsx2App()
 {
-	pxDoAssert = pxAssertImpl_LogIt;	
 	try {
 		vu1Thread.Cancel();
 	}
