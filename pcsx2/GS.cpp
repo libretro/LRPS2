@@ -57,9 +57,9 @@ void gsReset()
 	CSRreg.Reset();
 	GSIMR.reset();
 }
-#ifndef __LIBRETRO__
 void gsUpdateFrequency(Pcsx2Config& config)
 {
+#ifndef __LIBRETRO__
 	switch (g_LimiterMode)
 	{
 	case LimiterModeType::Limit_Nominal:
@@ -75,8 +75,9 @@ void gsUpdateFrequency(Pcsx2Config& config)
 		pxAssert("Unknown framelimiter mode!");
 	}
 	UpdateVSyncRate();
-}
 #endif
+}
+
 static __fi void gsCSRwrite( const tGS_CSR& csr )
 {
 	if (csr.RESET) {

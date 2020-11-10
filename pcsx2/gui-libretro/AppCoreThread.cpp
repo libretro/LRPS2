@@ -484,9 +484,7 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 	consoleTitle += L" [" + gameCRC.MakeUpper() + L"]" + gameCompat + gameFixes + gamePatch + gameCheats + gameWsHacks;
 	if (ingame)
 		Console.SetTitle(consoleTitle);
-#ifndef __LIBRETRO__
 	gsUpdateFrequency(fixup);
-#endif
 }
 
 // FIXME: This function is not for general consumption. Its only consumer (and
