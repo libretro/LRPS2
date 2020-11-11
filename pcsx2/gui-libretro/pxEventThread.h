@@ -43,11 +43,6 @@ public:
 	bool Error( const pxEvtQueue* evtHandler, const SysExecEvent* evt, const wxChar* msg );
 };
 
-extern ConsoleLogSource_Event pxConLog_Event;
-
-#define pxEvtLog pxConLog_Event.IsActive() && pxConLog_Event
-
-
 // --------------------------------------------------------------------------------------
 //  SysExecEvent
 // --------------------------------------------------------------------------------------

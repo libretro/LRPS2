@@ -41,8 +41,6 @@ ConsoleLogSource_Event::ConsoleLogSource_Event()
 	m_Descriptor = &myDesc;
 }
 
-ConsoleLogSource_Event pxConLog_Event;
-
 // --------------------------------------------------------------------------------------
 //  SysExecEvent  (implementations)
 // --------------------------------------------------------------------------------------
@@ -256,8 +254,6 @@ void pxEvtQueue::PostEvent( SysExecEvent* evt )
 
 	ScopedLock synclock( m_mtx_pending );
 	
-	pxEvtLog.Write( this, evt, pxsFmt(L"Posting event! (pending=%d, idle=%d)", m_pendingEvents.size(), m_idleEvents.size()) );
-
 	m_pendingEvents.push_back( sevt.release() );
 	if( m_pendingEvents.size() == 1)
 		m_wakeup.Post();
@@ -279,8 +275,6 @@ void pxEvtQueue::PostIdleEvent( SysExecEvent* evt )
 	}
 
 	ScopedLock synclock( m_mtx_pending );
-
-	pxEvtLog.Write( this, evt, pxsFmt(L"Posting event! (pending=%d, idle=%d) [idle]", m_pendingEvents.size(), m_idleEvents.size()) );
 
 	if( m_pendingEvents.empty() )
 	{
