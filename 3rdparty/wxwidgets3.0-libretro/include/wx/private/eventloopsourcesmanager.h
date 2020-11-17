@@ -15,6 +15,11 @@
 
 class WXDLLIMPEXP_BASE wxEventLoopSourcesManagerBase
 {
+public:
+#if wxUSE_EVENTLOOP_SOURCE
+  virtual wxEventLoopSource*
+  AddSourceForFD(int fd, wxEventLoopSourceHandler *handler, int flags) = 0;
+#endif
 };
 
 #endif // _WX_PRIVATE_EVENTLOOPSOURCESMANAGER_H_

@@ -41,6 +41,10 @@
 #include "wx/private/fdioeventloopsourcehandler.h"
 #include "wx/private/eventloopsourcesmanager.h"
 
+#if wxUSE_EVENTLOOP_SOURCE
+    #include "wx/evtloopsrc.h"
+#endif // wxUSE_EVENTLOOP_SOURCE
+
 // ===========================================================================
 // wxEventLoop implementation
 // ===========================================================================
@@ -93,6 +97,57 @@ wxConsoleEventLoop::~wxConsoleEventLoop()
         delete m_wakeupPipe;
     }
 }
+
+//-----------------------------------------------------------------------------
+// adding & removing sources
+//-----------------------------------------------------------------------------
+
+#if wxUSE_EVENTLOOP_SOURCE
+
+class wxConsoleEventLoopSourcesManager : public wxEventLoopSourcesManagerBase
+{
+public:
+    wxEventLoopSource* AddSourceForFD( int fd,
+                                       wxEventLoopSourceHandler *handler,
+                                       int flags)
+    {
+        wxCHECK_MSG( fd != -1, NULL, "can't monitor invalid fd" );
+
+        wxLogTrace(wxTRACE_EVT_SOURCE,
+                    "Adding event loop source for fd=%d", fd);
+
+        // we need a bridge to wxFDIODispatcher
+        //
+        // TODO: refactor the code so that only wxEventLoopSourceHandler is used
+        wxScopedPtr<wxFDIOHandler>
+            fdioHandler(new wxFDIOEventLoopSourceHandler(handler));
+
+        if ( !wxFDIODispatcher::Get()->RegisterFD(fd, fdioHandler.get(), flags) )
+            return NULL;
+
+        return new wxUnixEventLoopSource(wxFDIODispatcher::Get(), fdioHandler.release(),
+                                         fd, handler, flags);
+    }
+};
+
+wxEventLoopSourcesManagerBase* wxAppTraits::GetEventLoopSourcesManager()
+{
+    static wxConsoleEventLoopSourcesManager s_eventLoopSourcesManager;
+
+    return &s_eventLoopSourcesManager;
+}
+
+wxUnixEventLoopSource::~wxUnixEventLoopSource()
+{
+    wxLogTrace(wxTRACE_EVT_SOURCE,
+               "Removing event loop source for fd=%d", m_fd);
+
+    m_dispatcher->UnregisterFD(m_fd);
+
+    delete m_fdioHandler;
+}
+
+#endif // wxUSE_EVENTLOOP_SOURCE
 
 //-----------------------------------------------------------------------------
 // events dispatch and loop handling
