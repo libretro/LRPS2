@@ -116,6 +116,27 @@ bool wxEventLoopBase::Yield(bool onlyIfNeeded)
     return YieldFor(wxEVT_CATEGORY_ALL);
 }
 
+#if wxUSE_EVENTLOOP_SOURCE
+
+wxEventLoopSource*
+wxEventLoopBase::AddSourceForFD(int fd,
+                                wxEventLoopSourceHandler *handler,
+                                int flags)
+{
+#if wxUSE_CONSOLE_EVENTLOOP
+    // Delegate to the event loop sources manager defined by it.
+    wxEventLoopSourcesManagerBase* const
+        manager = wxApp::GetValidTraits().GetEventLoopSourcesManager();
+    wxCHECK_MSG( manager, NULL, wxS("Must have wxEventLoopSourcesManager") );
+
+    return manager->AddSourceForFD(fd, handler, flags);
+#else // !wxUSE_CONSOLE_EVENTLOOP
+    return NULL;
+#endif // wxUSE_CONSOLE_EVENTLOOP/!wxUSE_CONSOLE_EVENTLOOP
+}
+
+#endif // wxUSE_EVENTLOOP_SOURCE
+
 // wxEventLoopManual is unused in the other ports
 #if defined(__WINDOWS__) || defined(__WXDFB__) || ( ( defined(__UNIX__) && !defined(__WXOSX__) ) && wxUSE_BASE)
 
@@ -234,4 +255,3 @@ void wxEventLoopManual::ScheduleExit(int rc)
 }
 
 #endif // __WINDOWS__ || __WXMAC__ || __WXDFB__
-
