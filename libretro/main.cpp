@@ -1,6 +1,5 @@
 
 #include "PrecompiledHeader.h"
-
 #ifdef WIN32
 #include <windows.h>
 #undef Yield
@@ -70,7 +69,7 @@ static GfxOption<int> frames_to_skip("pcsx2_frames_to_skip", "Frameskip: Frames 
 // renderswitch - tells GSdx to go into dx9 sw if "renderswitch" is set.
 bool renderswitch = false;
 uint renderswitch_delay = 0;
-static Pcsx2App* pcsx2;
+Pcsx2App* pcsx2;
 static wxFileName bios_dir;
 
 void retro_set_video_refresh(retro_video_refresh_t cb)
@@ -249,22 +248,28 @@ void retro_init(void)
 #endif
 	}
 
-	//	pcsx2 = new Pcsx2App;
-	//	wxApp::SetInstance(pcsx2);
-	pcsx2 = &wxGetApp();
+	if (!pcsx2)
+	{
+		pcsx2 = new Pcsx2App;
+		wxApp::SetInstance(pcsx2);
 #if 0
-	int argc = 0;
-	pcsx2->Initialize(argc, (wchar_t**)nullptr);
-	wxModule::RegisterModules();
-	wxModule::InitializeModules();
+        int argc = 0;
+        pcsx2->Initialize(argc, (wchar_t**)nullptr);
+        wxModule::RegisterModules();
+        wxModule::InitializeModules();
 #endif
 
-	InitCPUTicks();
-	pxDoOutOfMemory = SysOutOfMemory_EmergencyResponse;
-	g_Conf = std::make_unique<AppConfig>();
-	pcsx2->DetectCpuAndUserMode();
-	pcsx2->AllocateCoreStuffs();
-	//	pcsx2->GetGameDatabase();
+		InitCPUTicks();
+		pxDoOutOfMemory = SysOutOfMemory_EmergencyResponse;
+		g_Conf = std::make_unique<AppConfig>();
+		pcsx2->DetectCpuAndUserMode();
+		pcsx2->AllocateCoreStuffs();
+		//	pcsx2->GetGameDatabase();
+	}
+	else
+		GetSysExecutorThread().Start();
+
+	vu1Thread.Reset();
 
 	g_Conf->BaseFilenames.Plugins[PluginId_GS] = "Built-in";
 	g_Conf->BaseFilenames.Plugins[PluginId_PAD] = "Built-in";
@@ -308,7 +313,11 @@ void retro_init(void)
 
 void retro_deinit(void)
 {
-	pcsx2->CleanupOnExit();
+	vu1Thread.Cancel();
+	GetSysExecutorThread().Cancel();
+	pcsx2->ExitMainLoop();
+	delete pcsx2;
+	pcsx2 = nullptr;
 #ifdef PERF_TEST
 	perf_cb.perf_log();
 #endif
@@ -386,11 +395,13 @@ static bool set_hw_render(retro_hw_context_type type)
 
 	switch (type)
 	{
+#ifdef _WIN32
 		case RETRO_HW_CONTEXT_DIRECT3D:
 			hw_render.version_major = 11;
 			hw_render.version_minor = 0;
 			hw_render.cache_context = true;
 			break;
+#endif
 
 		case RETRO_HW_CONTEXT_OPENGL_CORE:
 			hw_render.version_major = 3;
@@ -469,7 +480,7 @@ bool retro_load_game(const struct retro_game_info* game)
 		pcsx2->SysExecute(g_Conf->CdvdSource);
 	}
 
-	g_Conf->EmuOptions.GS.VsyncEnable  = VsyncMode::Off;
+	g_Conf->EmuOptions.GS.VsyncEnable = VsyncMode::Off;
 	g_Conf->EmuOptions.GS.FramesToDraw = 1;
 	//	g_Conf->CurrentGameArgs = "";
 	g_Conf->EmuOptions.GS.FrameLimitEnable = false;
