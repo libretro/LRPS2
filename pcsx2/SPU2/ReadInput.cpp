@@ -135,7 +135,7 @@ StereoOut32 V_Core::ReadInput()
 			(s32)(*GetMemPtr(0x2200 + (Index << 10) + InputPosRead)));
 	}
 
-#ifdef PCSX2_DEVBUILD
+#if defined(PCSX2_DEVBUILD) && defined(HAVE_LOGGING)
 	DebugCores[Index].admaWaveformL[InputPosRead % 0x100] = retval.Left;
 	DebugCores[Index].admaWaveformR[InputPosRead % 0x100] = retval.Right;
 #endif
