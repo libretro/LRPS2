@@ -70,7 +70,7 @@ static GfxOption<int> frames_to_skip("pcsx2_frames_to_skip", "Frameskip: Frames 
 // renderswitch - tells GSdx to go into dx9 sw if "renderswitch" is set.
 bool renderswitch = false;
 uint renderswitch_delay = 0;
-static Pcsx2App* pcsx2;
+Pcsx2App* pcsx2;
 static wxFileName bios_dir;
 
 void retro_set_video_refresh(retro_video_refresh_t cb)
@@ -249,8 +249,8 @@ void retro_init(void)
 #endif
 	}
 
-	//	pcsx2 = new Pcsx2App;
-	//	wxApp::SetInstance(pcsx2);
+	//pcsx2 = new Pcsx2App;
+	//wxApp::SetInstance(pcsx2);
 	pcsx2 = &wxGetApp();
 #if 0
 	int argc = 0;
@@ -308,7 +308,9 @@ void retro_init(void)
 
 void retro_deinit(void)
 {
+	vu1Thread.Cancel();
 	pcsx2->CleanupOnExit();
+	pcsx2->OnExit();
 #ifdef PERF_TEST
 	perf_cb.perf_log();
 #endif
@@ -469,7 +471,7 @@ bool retro_load_game(const struct retro_game_info* game)
 		pcsx2->SysExecute(g_Conf->CdvdSource);
 	}
 
-	g_Conf->EmuOptions.GS.VsyncEnable  = VsyncMode::Off;
+	g_Conf->EmuOptions.GS.VsyncEnable = VsyncMode::Off;
 	g_Conf->EmuOptions.GS.FramesToDraw = 1;
 	//	g_Conf->CurrentGameArgs = "";
 	g_Conf->EmuOptions.GS.FrameLimitEnable = false;
