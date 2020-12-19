@@ -270,6 +270,7 @@ void retro_init(void)
 	g_Conf->BaseFilenames.Plugins[PluginId_PAD] = "Built-in";
 	g_Conf->BaseFilenames.Plugins[PluginId_USB] = "Built-in";
 	g_Conf->BaseFilenames.Plugins[PluginId_DEV9] = "Built-in";
+	g_Conf->EmuOptions.EnableIPC = false;
 
 	if (Options::bios.empty())
 	{
