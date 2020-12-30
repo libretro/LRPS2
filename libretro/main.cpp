@@ -329,7 +329,7 @@ void retro_get_system_info(retro_system_info* info)
 	info->library_version = version;
 #endif
 
-	info->library_name = "pcsx2";
+	info->library_name = "pcsx2 (alpha)";
 	info->valid_extensions = "elf|iso|ciso|cue|bin";
 	info->need_fullpath = true;
 	info->block_extract = true;
