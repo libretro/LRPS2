@@ -23,6 +23,7 @@
 #include "svnrev.h"
 #include "SPU2/Global.h"
 #include "ps2/BiosTools.h"
+#include "CDVD/CDVD.h"
 #include "MTVU.h"
 
 #ifdef PERF_TEST
@@ -161,15 +162,40 @@ static const IConsoleWriter ConsoleWriter_Libretro =
 		0, // instance-level indentation (should always be 0)
 };
 
-static std::vector<const char*> disk_images;
+static wxVector<wxString> disk_images;
 static int image_index = 0;
+static bool eject_state;
 static bool RETRO_CALLCONV set_eject_state(bool ejected)
 {
+	if (eject_state == ejected)
+		return false;
+
+	eject_state = ejected;
+
+	GetMTGS().FinishTaskInThread();
+	CoreThread.Pause();
+
+	if (ejected)
+		cdvdCtrlTrayOpen();
+	else
+	{
+		if (image_index < 0 || image_index >= (int)disk_images.size())
+			g_Conf->CdvdSource = CDVD_SourceType::NoDisc;
+		else
+		{
+			g_Conf->CurrentIso = disk_images[image_index];
+			g_Conf->CdvdSource = CDVD_SourceType::Iso;
+			CDVDsys_SetFile(CDVD_SourceType::Iso, g_Conf->CurrentIso);
+		}
+		cdvdCtrlTrayClose();
+	}
+
+	CoreThread.Resume();
 	return true;
 }
 static bool RETRO_CALLCONV get_eject_state(void)
 {
-	return true;
+	return eject_state;
 }
 
 static unsigned RETRO_CALLCONV get_image_index(void)
@@ -178,8 +204,10 @@ static unsigned RETRO_CALLCONV get_image_index(void)
 }
 static bool RETRO_CALLCONV set_image_index(unsigned index)
 {
-	image_index = index;
-	return true;
+	if (eject_state)
+		image_index = index;
+
+	return eject_state;
 }
 static unsigned RETRO_CALLCONV get_num_images(void)
 {
@@ -191,23 +219,31 @@ static bool RETRO_CALLCONV replace_image_index(unsigned index, const struct retr
 	if (index >= disk_images.size())
 		return false;
 
-	disk_images[index] = info->path;
+	if (!info->path)
+	{
+		disk_images.erase(disk_images.begin() + index);
+		if (!disk_images.size())
+			image_index = -1;
+		else if (image_index > (int)index)
+			image_index--;
+	}
+	else
+		disk_images[index] = info->path;
+
 	return true;
 }
 
 static bool RETRO_CALLCONV add_image_index(void)
 {
-	disk_images.push_back(nullptr);
+	disk_images.push_back("");
 	return true;
 }
 
-/* NOTE: Frontend will only attempt to record/restore
- * last used disk index if both set_initial_image()
- * and get_image_path() are implemented */
 static bool RETRO_CALLCONV set_initial_image(unsigned index, const char* path)
 {
 	if (index >= disk_images.size())
 		index = 0;
+
 	image_index = index;
 
 	return true;
@@ -218,10 +254,10 @@ static bool RETRO_CALLCONV get_image_path(unsigned index, char* path, size_t len
 	if (index >= disk_images.size())
 		return false;
 
-	if (!disk_images[index])
+	if (disk_images[index].empty())
 		return false;
 
-	strncpy(path, disk_images[index], len);
+	strncpy(path, disk_images[index].c_str(), len);
 	return true;
 }
 static bool RETRO_CALLCONV get_image_label(unsigned index, char* label, size_t len)
@@ -229,10 +265,10 @@ static bool RETRO_CALLCONV get_image_label(unsigned index, char* label, size_t l
 	if (index >= disk_images.size())
 		return false;
 
-	if (!disk_images[index])
+	if (disk_images[index].empty())
 		return false;
 
-	strncpy(label, disk_images[index], len);
+	strncpy(label, disk_images[index].c_str(), len);
 	return true;
 }
 
@@ -304,7 +340,7 @@ void retro_init(void)
 		get_image_label,
 	};
 
-	//	environ_cb(RETRO_ENVIRONMENT_SET_DISK_CONTROL_EXT_INTERFACE, &disk_control);
+	environ_cb(RETRO_ENVIRONMENT_SET_DISK_CONTROL_EXT_INTERFACE, &disk_control);
 }
 
 void retro_deinit(void)
@@ -330,7 +366,7 @@ void retro_get_system_info(retro_system_info* info)
 #endif
 
 	info->library_name = "pcsx2 (alpha)";
-	info->valid_extensions = "elf|iso|ciso|cue|bin";
+	info->valid_extensions = "elf|iso|ciso|cue|bin|m3u";
 	info->need_fullpath = true;
 	info->block_extract = true;
 }
@@ -360,6 +396,7 @@ void retro_reset(void)
 {
 	GetMTGS().FinishTaskInThread();
 	GetCoreThread().ResetQuick();
+	eject_state = false;
 }
 
 static void context_reset(void)
@@ -428,6 +465,59 @@ static bool set_hw_render(retro_hw_context_type type)
 	return environ_cb(RETRO_ENVIRONMENT_SET_HW_RENDER, &hw_render);
 }
 
+static wxVector<wxString>
+read_m3u_file(const wxFileName& m3u_file)
+{
+	log_cb(RETRO_LOG_DEBUG, "Reading M3U file");
+
+	wxVector<wxString> result;
+	wxVector<wxString> nonexistent;
+
+	wxTextFile m3u_data;
+	if (!m3u_data.Open(m3u_file.GetFullPath()))
+	{
+		log_cb(RETRO_LOG_ERROR, "M3U file \"%s\" cannot be read", m3u_file.GetFullPath().c_str());
+		return result;
+	}
+
+	wxString base_path = m3u_file.GetPath();
+
+	// This is the UTF-8 representation of U+FEFF.
+	const wxString utf8_bom = "\xEF\xBB\xBF";
+
+	wxString line = m3u_data.GetFirstLine();
+	if (line.StartsWith(utf8_bom))
+	{
+		log_cb(RETRO_LOG_WARN, "M3U file \"%s\" contains UTF-8 BOM", m3u_file.GetFullPath().c_str());
+		line.erase(0, utf8_bom.length());
+	}
+
+	for (line; !m3u_data.Eof(); line = m3u_data.GetNextLine())
+	{
+		if (!line.StartsWith('#')) // Comments start with #
+		{
+			wxFileName discFile(base_path, line);
+			discFile.Normalize();
+			if (discFile.Exists())
+			{
+				log_cb(RETRO_LOG_DEBUG, "Found disc image in M3U file, %s", discFile.GetFullPath());
+				result.push_back(discFile.GetFullPath());
+			}
+			else
+			{
+				wxString full_path = discFile.GetFullPath();
+				nonexistent.push_back(full_path);
+				log_cb(RETRO_LOG_WARN, "File specified in the M3U file \"%s\" was not found:\n%s", m3u_file.GetFullPath().c_str(), full_path.c_str());
+			}
+		}
+	}
+
+	if (result.empty())
+		log_cb(RETRO_LOG_ERROR, "No paths found in the M3U file \"%s\"", m3u_file.GetFullPath().c_str());
+
+	return result;
+}
+
 bool retro_load_game(const struct retro_game_info* game)
 {
 	if (Options::bios.empty())
@@ -444,31 +534,58 @@ bool retro_load_game(const struct retro_game_info* game)
 	// By default no IRX injection
 	g_Conf->CurrentIRX = "";
 	g_Conf->BaseFilenames.Bios = Options::bios.Get();
+	eject_state = false;
 
 	Options::renderer.UpdateAndLock(); // disallow changes to Options::renderer outside of retro_load_game.
 
-	u32 magic = 0;
 	if (game)
 	{
-		FILE* fp = fopen(game->path, "rb");
+		wxVector<wxString> game_paths;
+
+		wxFileName file_name(game->path);
+		if (file_name.GetExt() == "m3u")
+		{
+			game_paths = read_m3u_file(file_name);
+			log_cb(RETRO_LOG_DEBUG, "Found %u game images in M3U file.", game_paths.size());
+		}
+		else
+		{
+			game_paths.push_back(game->path);
+		}
+
+		disk_images.assign(game_paths.begin(), game_paths.end());
+
+		u32 magic = 0;
+		FILE* fp = fopen(game_paths[0], "rb");
+
 		if (!fp)
+		{
+			log_cb(RETRO_LOG_ERROR, "Could not open File: %s\n", game_paths[0]);
 			return false;
+		}
 
 		fread(&magic, 4, 1, fp);
 		fclose(fp);
-	}
 
-	if (magic == 0x464C457F) // elf
-	{
-		// g_Conf->CurrentIRX = "";
-		g_Conf->EmuOptions.UseBOOT2Injection = true;
-		pcsx2->SysExecute(CDVD_SourceType::NoDisc, game->path);
+		if (magic == 0x464C457F) // elf
+		{
+			// g_Conf->CurrentIRX = "";
+			g_Conf->EmuOptions.UseBOOT2Injection = true;
+			pcsx2->SysExecute(CDVD_SourceType::NoDisc, game_paths[0]);
+		}
+		else
+		{
+			g_Conf->EmuOptions.UseBOOT2Injection = Options::fast_boot;
+			g_Conf->CdvdSource = CDVD_SourceType::Iso;
+			g_Conf->CurrentIso = game_paths[0];
+			pcsx2->SysExecute(g_Conf->CdvdSource);
+		}
 	}
 	else
 	{
 		g_Conf->EmuOptions.UseBOOT2Injection = Options::fast_boot;
-		g_Conf->CdvdSource = game ? CDVD_SourceType::Iso : CDVD_SourceType::NoDisc;
-		g_Conf->CurrentIso = game ? game->path : "";
+		g_Conf->CdvdSource = CDVD_SourceType::NoDisc;
+		g_Conf->CurrentIso = "";
 		pcsx2->SysExecute(g_Conf->CdvdSource);
 	}
 
