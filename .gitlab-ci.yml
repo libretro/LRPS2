@@ -1,0 +1,42 @@
+# DESCRIPTION: GitLab CI/CD for libRetro (NOT FOR GitLab-proper)
+
+##############################################################################
+################################# BOILERPLATE ################################
+##############################################################################
+
+# Core definitions
+.core-defs:
+  variables:
+    CORENAME: pcsx2
+    CORE_ARGS: -DLIBRETRO=ON
+    
+variables:
+  GIT_SUBMODULE_STRATEGY: normal
+
+.core-linux-defs:
+  extends: .core-defs
+  variables:
+    CORE_ARGS: -DLIBRETRO=ON -DENABLE_QT=OFF
+
+# Inclusion templates, required for the build to work
+include:
+  ################################## DESKTOPS ################################
+  # Linux 64-bit
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/linux-cmake.yml'
+
+# Stages for building
+stages:
+  - build-prepare
+  - build-shared
+
+##############################################################################
+#################################### STAGES ##################################
+##############################################################################
+#
+################################### DESKTOPS #################################
+# Linux 64-bit
+libretro-build-linux-x64:
+  extends:
+    - .libretro-linux-cmake-x86_64
+    - .core-linux-defs
