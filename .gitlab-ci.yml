@@ -8,7 +8,7 @@
 .core-defs:
   variables:
     CORENAME: pcsx2
-    CORE_ARGS: -DLIBRETRO=ON
+    CORE_ARGS: -DLIBRETRO=ON -DCMAKE_BUILD_TYPE=Release
     
 variables:
   GIT_SUBMODULE_STRATEGY: normal
@@ -16,11 +16,22 @@ variables:
 .core-linux-defs:
   extends: .core-defs
   variables:
-    CORE_ARGS: -DLIBRETRO=ON -DENABLE_QT=OFF
+    EXTRA_PATH: pcsx2
+    CORE_ARGS: -DLIBRETRO=ON -DCMAKE_BUILD_TYPE=Release -DENABLE_QT=OFF
+
+.core-windows-defs:
+  extends: .core-defs
+  variables:
+    EXTRA_PATH: pcsx2\Release
+    CORE_ARGS: -DLIBRETRO=ON -DCMAKE_BUILD_TYPE=Release -DENABLE_QT=OFF
 
 # Inclusion templates, required for the build to work
 include:
   ################################## DESKTOPS ################################
+  # Windows
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/windows-cmake-msvc19.yml'
+
   # Linux 64-bit
   - project: 'libretro-infrastructure/ci-templates'
     file: '/linux-cmake.yml'
@@ -35,6 +46,12 @@ stages:
 ##############################################################################
 #
 ################################### DESKTOPS #################################
+# Windows 64-bit
+libretro-build-windows-x64:
+  extends:
+    - .libretro-windows-msvc19-cmake-x86_64
+    - .core-windows-defs
+
 # Linux 64-bit
 libretro-build-linux-x64:
   extends:
