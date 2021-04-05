@@ -996,6 +996,11 @@ if(LIBRETRO)
       set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
    endif()
 
+   if (MSVC)
+      set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /DELAYLOAD:OpenGL32.dll")
+	  set(pcsx2FinalLibs ${pcsx2FinalLibs} Delayimp.lib)
+   endif()
+   
    target_link_libraries(pcsx2_libretro PRIVATE ${pcsx2FinalLibs})
    if(PACKAGE_MODE)
        install(TARGETS ${Output} DESTINATION ${BIN_DIR})
