@@ -63,6 +63,7 @@ GfxOption<std::string> renderer("pcsx2_renderer", "Renderer", {"Auto",
 #endif
 															   "OpenGL", "Software", "Null"});
 
+static GfxOption<bool> force_widescreen("pcsx2_force_widescreen", "Force Widescreen", false);
 static GfxOption<bool> frameskip("pcsx2_frameskip", "Frameskip", false);
 static GfxOption<int> frames_to_draw("pcsx2_frames_to_draw", "Frameskip: Frames to Draw", 1, 10);
 static GfxOption<int> frames_to_skip("pcsx2_frames_to_skip", "Frameskip: Frames to Skip", 1, 10);
@@ -387,7 +388,10 @@ void retro_get_system_av_info(retro_system_av_info* info)
 	info->geometry.max_width = info->geometry.base_width;
 	info->geometry.max_height = info->geometry.base_height;
 
-	info->geometry.aspect_ratio = 4.0f / 3.0f;
+	if (! Options::force_widescreen)
+		info->geometry.aspect_ratio = 4.0f / 3.0f;
+	else
+		info->geometry.aspect_ratio = 16.0f / 9.0f;
 	info->timing.fps = (retro_get_region() == RETRO_REGION_NTSC) ? (60.0f / 1.001f) : 50.0f;
 	info->timing.sample_rate = 48000;
 }
