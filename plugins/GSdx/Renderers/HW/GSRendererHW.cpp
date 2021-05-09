@@ -23,6 +23,7 @@
 #include "GSRendererHW.h"
 #ifdef __LIBRETRO__
 #include "options.h"
+#include "options_mgmt.h"
 #endif
 
 const float GSRendererHW::SSR_UV_TOLERANCE = 1e-3f;
@@ -85,7 +86,7 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 void GSRendererHW::SetScaling()
 {
 #ifdef __LIBRETRO__
-	m_upscale_multiplier = Options::upscale_multiplier;
+	m_upscale_multiplier = option_value(environ_cb, INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::int_return);
 #endif
 	if (!m_upscale_multiplier)
 	{
