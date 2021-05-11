@@ -6,16 +6,18 @@
 #include <retro_inline.h>
 #endif
 
+
+int options_elements = 11;
 struct retro_core_option_definition option_defs_us[] = {
-/*
+
 	{"pcsx2_bios",
 	"Bios",
 	NULL,
 	{
-		{NULL, NULL},
+		// dynamically filled in retro_init
 	},
 	NULL},
-*/
+
 	{"pcsx2_fastboot",
 	"Fast Boot",
 	"This will bypass the intial bios logo, with the side effect that the bios settings, like the system language, will not be applied. (Content reboot required)",
@@ -66,9 +68,9 @@ struct retro_core_option_definition option_defs_us[] = {
 	},
 	"disabled"},
 
-	{"pcsx2_enable_presets",
-	"Enable Accurancy/Speed Presets",
-	"The presets allow to modify the balance between emulation accuracy and emulation speed. (Content reboot required)",
+	{"pcsx2_enable_speedhacks",
+	"Enable Speedhacks",
+	"Speedhacks usually improve emulation speed, but can cause glitches, broken audio, and false FPS readings. When having emulation problems, disable this option first. (Content reboot required)",
 	{
 		{"disabled", NULL},
 		{"enabled", NULL},
@@ -76,19 +78,19 @@ struct retro_core_option_definition option_defs_us[] = {
 	},
 	"disabled"},
 
-	{"pcsx2_preset_index",
-	 "Preset Index",
-	 "Controls the Accurancy/Speed balance preset. This setting will be applied only if 'Enable Accurancy/Speed Presets' option is enabled",
+	{"pcsx2_speedhacks_presets",
+	 "Speedhacks preset",
+	 "Controls the Accurancy/Speed speedhacks balance. This setting will be applied only if 'Enable Speedhacks' option is enabled",
 	{
-		{"0", "Safest"},
-		{"1", "Safe (Default)"},
+		{"0", "Safest (No Hacks)"},
+		{"1", "Safe  (Default)"},
 		{"2", "Balanced"},
 		{"3", "Aggressive"},
 		{"4", "Very Aggressive"},
 		{"5", "Mostly Harmful"},
 		{NULL, NULL},
 	},
-	"1" },
+	"0" },
 
 	{"pcsx2_frameskip",
 	"Frame Skip",

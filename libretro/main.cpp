@@ -18,9 +18,9 @@
 #include <wx/dir.h>
 #include <wx/evtloop.h>
 
+
 #include "GS.h"
-#include "options.h"
-#include "options_mgmt.h"
+#include "options_tools.h"
 #include "input.h"
 #include "svnrev.h"
 #include "SPU2/Global.h"
@@ -53,11 +53,6 @@ retro_video_refresh_t video_cb;
 struct retro_hw_render_callback hw_render;
 static ConsoleColors log_color = Color_Default;
 static retro_log_printf_t log_cb;
-
-namespace Options
-{
-static Option<std::string> bios("pcsx2_bios", "Bios"); // will be filled in retro_init()
-} // namespace Options
 
 // renderswitch - tells GSdx to go into dx9 sw if "renderswitch" is set.
 bool renderswitch = false;
@@ -299,23 +294,36 @@ void retro_init(void)
 	g_Conf->BaseFilenames.Plugins[PluginId_DEV9] = "Built-in";
 	g_Conf->EmuOptions.EnableIPC = false;
 
+	const char* system = nullptr;
+	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
+	bios_dir = Path::Combine(system, "pcsx2/bios");
 
-	// for now we keep the bios data in the old type of options
-	if (Options::bios.empty())
+	wxArrayString bios_list;
+	wxDir::GetAllFiles(bios_dir.GetFullPath(), &bios_list, L"*.*", wxDIR_FILES);
+	static std::vector<std::string> bios_files;
+	for (wxString bios_file : bios_list)
 	{
-		const char* system = nullptr;
-		environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
-		bios_dir = Path::Combine(system, "pcsx2/bios");
-
-		wxArrayString bios_list;
-		wxDir::GetAllFiles(bios_dir.GetFullPath(), &bios_list, L"*.*", wxDIR_FILES);
-
-		for (wxString bios_file : bios_list)
-		{
-			wxString description;
-			if (IsBIOS(bios_file, description))
-				Options::bios.push_back((const char*)description, (const char*)bios_file);
+		wxString description;
+		if (IsBIOS(bios_file, description)) {
+			bios_files.push_back((std::string)bios_file);
+			bios_files.push_back((std::string)description);
 		}
+	}
+
+	for (retro_core_option_definition& def : option_defs_us)
+	{
+		if (!def.key || strcmp(def.key, "pcsx2_bios")) continue;
+		size_t i = 0, numfiles = bios_files.size();
+		int cont = 0;
+		for (size_t f = 0; f != numfiles; f += 2)
+		{
+
+			def.values[i++] = { bios_files[f].c_str(), bios_files[f + 1].c_str() };
+			cont++;
+		}
+		def.values[cont] = { NULL, NULL };
+		def.default_value = def.values[0].value;
+		break;
 	}
 
 	libretro_set_core_options(environ_cb);
@@ -366,21 +374,21 @@ void retro_get_system_info(retro_system_info* info)
 
 void retro_get_system_av_info(retro_system_av_info* info)
 {
-	if ( option_value(environ_cb, STRING_PCSX2_OPT_RENDERER, KeyOptionString::string_return ) == "Software" || option_value(environ_cb, STRING_PCSX2_OPT_RENDERER, KeyOptionString::string_return) == "Null")
+	if ( option_value(environ_cb, STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type) == "Software" || option_value(environ_cb, STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type) == "Null")
 	{
 		info->geometry.base_width = 640;
 		info->geometry.base_height = 448;
 	}
 	else
 	{
-		info->geometry.base_width = 640 * option_value(environ_cb, INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::int_return);
-		info->geometry.base_height = 448 * option_value(environ_cb, INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::int_return);
+		info->geometry.base_width = 640 * option_value(environ_cb, INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
+		info->geometry.base_height = 448 * option_value(environ_cb, INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 	}
 
 	info->geometry.max_width = info->geometry.base_width;
 	info->geometry.max_height = info->geometry.base_height;
 
-	if (! option_value(environ_cb, BOOL_PCSX2_OPT_FORCE_WIDESCREEN, KeyOptionBool::bool_return))
+	if (! option_value(environ_cb, BOOL_PCSX2_OPT_FORCE_WIDESCREEN, KeyOptionBool::return_type))
 		info->geometry.aspect_ratio = 4.0f / 3.0f;
 	else
 		info->geometry.aspect_ratio = 16.0f / 9.0f;
@@ -516,11 +524,15 @@ read_m3u_file(const wxFileName& m3u_file)
 
 bool retro_load_game(const struct retro_game_info* game)
 {
-	if (Options::bios.empty())
+	const char* selected_bios = option_value(environ_cb, STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type);
+	if (selected_bios == NULL)
 	{
 		log_cb(RETRO_LOG_ERROR, "Could not find any valid PS2 Bios File in %s\n", (const char*)bios_dir.GetFullPath());
 		return false;
 	}
+	else
+		log_cb(RETRO_LOG_INFO, "Loading selected BIOS:  %s\n", selected_bios);
+	
 
 	const char* system = nullptr;
 	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
@@ -529,7 +541,8 @@ bool retro_load_game(const struct retro_game_info* game)
 
 	// By default no IRX injection
 	g_Conf->CurrentIRX = "";
-	g_Conf->BaseFilenames.Bios = Options::bios.Get();
+	g_Conf->BaseFilenames.Bios = selected_bios;
+
 	eject_state = false;
 
 	if (game)
@@ -564,20 +577,33 @@ bool retro_load_game(const struct retro_game_info* game)
 		if (magic == 0x464C457F) // elf
 		{
 			// g_Conf->CurrentIRX = "";
+			log_cb(RETRO_LOG_INFO, "Something went wrong while loading game");
 			g_Conf->EmuOptions.UseBOOT2Injection = true;
 			pcsx2->SysExecute(CDVD_SourceType::NoDisc, game_paths[0]);
 		}
 		else
-		{
-			g_Conf->EmuOptions.UseBOOT2Injection = option_value(environ_cb, BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::bool_return);
+		{	
+			/*
+			if (option_value(environ_cb, BOOL_PCSX2_OPT_ENABLE_SPEEDHACKS, KeyOptionBool::return_type))
+			{
+				g_Conf->EnablePresets = true;
+				g_Conf->PresetIndex = 1; //option_value(environ_cb, INT_PCSX2_OPT_SPEEDHACKS_PRESET, KeyOptionInt::return_type);
+			}
+			else
+				g_Conf->EnablePresets = false;
+			*/
+
+			g_Conf->EmuOptions.UseBOOT2Injection = option_value(environ_cb, BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::return_type);
 			g_Conf->CdvdSource = CDVD_SourceType::Iso;
 			g_Conf->CurrentIso = game_paths[0];
 			pcsx2->SysExecute(g_Conf->CdvdSource);
+			log_cb(RETRO_LOG_INFO, "Game Loaded");
 		}
 	}
 	else
 	{
-		g_Conf->EmuOptions.UseBOOT2Injection = option_value(environ_cb, BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::bool_return);
+		log_cb(RETRO_LOG_INFO, "Entrerning BIOS Menu.....");
+		g_Conf->EmuOptions.UseBOOT2Injection = option_value(environ_cb, BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::return_type);
 		g_Conf->CdvdSource = CDVD_SourceType::NoDisc;
 		g_Conf->CurrentIso = "";
 		pcsx2->SysExecute(g_Conf->CdvdSource);
@@ -592,13 +618,13 @@ bool retro_load_game(const struct retro_game_info* game)
 	Input::Init();
 
 	retro_hw_context_type context_type = RETRO_HW_CONTEXT_OPENGL;
-	if (option_value(environ_cb, STRING_PCSX2_OPT_RENDERER, KeyOptionString::string_return) == "Auto")
+	if (option_value(environ_cb, STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type) == "Auto")
 		environ_cb(RETRO_ENVIRONMENT_GET_PREFERRED_HW_RENDER, &context_type);
 #ifdef _WIN32
-	else if (option_value(environ_cb, STRING_PCSX2_OPT_RENDERER, KeyOptionString::string_return) == "D3D11")
+	else if (option_value(environ_cb, STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type) == "D3D11")
 		context_type = RETRO_HW_CONTEXT_DIRECT3D;
 #endif
-	else if (option_value(environ_cb, STRING_PCSX2_OPT_RENDERER, KeyOptionString::string_return) == "Null")
+	else if (option_value(environ_cb, STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type) == "Null")
 		context_type = RETRO_HW_CONTEXT_NONE;
 
 	return set_hw_render(context_type);
@@ -627,9 +653,9 @@ void retro_unload_game(void)
 
 void retro_run(void)
 {
-	SetGSConfig().FrameSkipEnable = option_value(environ_cb, BOOL_PCSX2_OPT_FRAMESKIP, KeyOptionBool::bool_return);
-	SetGSConfig().FramesToDraw = option_value(environ_cb, INT_PCSX2_OPT_FRAMES_TO_DRAW, KeyOptionInt::int_return);
-	SetGSConfig().FramesToSkip = option_value(environ_cb, INT_PCSX2_OPT_FRAMES_TO_SKIP, KeyOptionInt::int_return);
+	SetGSConfig().FrameSkipEnable = option_value(environ_cb, BOOL_PCSX2_OPT_FRAMESKIP, KeyOptionBool::return_type);
+	SetGSConfig().FramesToDraw = option_value(environ_cb, INT_PCSX2_OPT_FRAMES_TO_DRAW, KeyOptionInt::return_type);
+	SetGSConfig().FramesToSkip = option_value(environ_cb, INT_PCSX2_OPT_FRAMES_TO_SKIP, KeyOptionInt::return_type);
 
 	Input::Update();
 

@@ -980,7 +980,7 @@ if(LIBRETRO)
 
    add_library(${Output} SHARED
      ${CMAKE_SOURCE_DIR}/libretro/main.cpp
-     ${CMAKE_SOURCE_DIR}/libretro/options.cpp
+     
      ${CMAKE_SOURCE_DIR}/libretro/input.cpp
      ${pcsx2FinalSources}
    )
