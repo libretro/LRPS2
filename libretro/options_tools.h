@@ -45,7 +45,7 @@ enum class KeyOptionString
 };
 
 
-static bool option_value(retro_environment_t environ_cb, const char* const_option, KeyOptionBool return_type) {
+static bool option_value(const char* const_option, KeyOptionBool return_type) {
 	struct retro_variable var = { 0 };
 	var.key = const_option;
 	if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var))
@@ -57,7 +57,7 @@ static bool option_value(retro_environment_t environ_cb, const char* const_optio
 }
 
 
-static int option_value(retro_environment_t environ_cb, const char* const_option, KeyOptionInt return_type) {
+static int option_value(const char* const_option, KeyOptionInt return_type) {
 	struct retro_variable var = { 0 };
 		var.key = const_option;
 	if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var))
@@ -68,7 +68,7 @@ static int option_value(retro_environment_t environ_cb, const char* const_option
 }
 
 
-static const char* option_value(retro_environment_t environ_cb, const char* const_option, KeyOptionString return_type) {
+static const char* option_value(const char* const_option, KeyOptionString return_type) {
 	struct retro_variable var = { 0 };
 		var.key = const_option;
 		if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var))

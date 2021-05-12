@@ -86,7 +86,7 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 void GSRendererHW::SetScaling()
 {
 #ifdef __LIBRETRO__
-	m_upscale_multiplier = option_value(environ_cb, INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
+	m_upscale_multiplier = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 #endif
 	if (!m_upscale_multiplier)
 	{

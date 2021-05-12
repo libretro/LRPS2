@@ -374,21 +374,21 @@ void retro_get_system_info(retro_system_info* info)
 
 void retro_get_system_av_info(retro_system_av_info* info)
 {
-	if ( option_value(environ_cb, STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type) == "Software" || option_value(environ_cb, STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type) == "Null")
+	if ( option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type) == "Software" || option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type) == "Null")
 	{
 		info->geometry.base_width = 640;
 		info->geometry.base_height = 448;
 	}
 	else
 	{
-		info->geometry.base_width = 640 * option_value(environ_cb, INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
-		info->geometry.base_height = 448 * option_value(environ_cb, INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
+		info->geometry.base_width = 640 * option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
+		info->geometry.base_height = 448 * option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 	}
 
 	info->geometry.max_width = info->geometry.base_width;
 	info->geometry.max_height = info->geometry.base_height;
 
-	if (! option_value(environ_cb, BOOL_PCSX2_OPT_FORCE_WIDESCREEN, KeyOptionBool::return_type))
+	if (! option_value(BOOL_PCSX2_OPT_FORCE_WIDESCREEN, KeyOptionBool::return_type))
 		info->geometry.aspect_ratio = 4.0f / 3.0f;
 	else
 		info->geometry.aspect_ratio = 16.0f / 9.0f;
@@ -524,7 +524,7 @@ read_m3u_file(const wxFileName& m3u_file)
 
 bool retro_load_game(const struct retro_game_info* game)
 {
-	const char* selected_bios = option_value(environ_cb, STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type);
+	const char* selected_bios = option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type);
 	if (selected_bios == NULL)
 	{
 		log_cb(RETRO_LOG_ERROR, "Could not find any valid PS2 Bios File in %s\n", (const char*)bios_dir.GetFullPath());
@@ -584,16 +584,16 @@ bool retro_load_game(const struct retro_game_info* game)
 		else
 		{	
 			/*
-			if (option_value(environ_cb, BOOL_PCSX2_OPT_ENABLE_SPEEDHACKS, KeyOptionBool::return_type))
+			if (option_value(BOOL_PCSX2_OPT_ENABLE_SPEEDHACKS, KeyOptionBool::return_type))
 			{
 				g_Conf->EnablePresets = true;
-				g_Conf->PresetIndex = 1; //option_value(environ_cb, INT_PCSX2_OPT_SPEEDHACKS_PRESET, KeyOptionInt::return_type);
+				g_Conf->PresetIndex = 1; //option_value(INT_PCSX2_OPT_SPEEDHACKS_PRESET, KeyOptionInt::return_type);
 			}
 			else
 				g_Conf->EnablePresets = false;
 			*/
 
-			g_Conf->EmuOptions.UseBOOT2Injection = option_value(environ_cb, BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::return_type);
+			g_Conf->EmuOptions.UseBOOT2Injection = option_value(BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::return_type);
 			g_Conf->CdvdSource = CDVD_SourceType::Iso;
 			g_Conf->CurrentIso = game_paths[0];
 			pcsx2->SysExecute(g_Conf->CdvdSource);
@@ -603,7 +603,7 @@ bool retro_load_game(const struct retro_game_info* game)
 	else
 	{
 		log_cb(RETRO_LOG_INFO, "Entrerning BIOS Menu.....");
-		g_Conf->EmuOptions.UseBOOT2Injection = option_value(environ_cb, BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::return_type);
+		g_Conf->EmuOptions.UseBOOT2Injection = option_value(BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::return_type);
 		g_Conf->CdvdSource = CDVD_SourceType::NoDisc;
 		g_Conf->CurrentIso = "";
 		pcsx2->SysExecute(g_Conf->CdvdSource);
@@ -618,13 +618,13 @@ bool retro_load_game(const struct retro_game_info* game)
 	Input::Init();
 
 	retro_hw_context_type context_type = RETRO_HW_CONTEXT_OPENGL;
-	if (option_value(environ_cb, STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type) == "Auto")
+	if (option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type) == "Auto")
 		environ_cb(RETRO_ENVIRONMENT_GET_PREFERRED_HW_RENDER, &context_type);
 #ifdef _WIN32
-	else if (option_value(environ_cb, STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type) == "D3D11")
+	else if (option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type) == "D3D11")
 		context_type = RETRO_HW_CONTEXT_DIRECT3D;
 #endif
-	else if (option_value(environ_cb, STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type) == "Null")
+	else if (option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type) == "Null")
 		context_type = RETRO_HW_CONTEXT_NONE;
 
 	return set_hw_render(context_type);
@@ -653,9 +653,9 @@ void retro_unload_game(void)
 
 void retro_run(void)
 {
-	SetGSConfig().FrameSkipEnable = option_value(environ_cb, BOOL_PCSX2_OPT_FRAMESKIP, KeyOptionBool::return_type);
-	SetGSConfig().FramesToDraw = option_value(environ_cb, INT_PCSX2_OPT_FRAMES_TO_DRAW, KeyOptionInt::return_type);
-	SetGSConfig().FramesToSkip = option_value(environ_cb, INT_PCSX2_OPT_FRAMES_TO_SKIP, KeyOptionInt::return_type);
+	SetGSConfig().FrameSkipEnable = option_value(BOOL_PCSX2_OPT_FRAMESKIP, KeyOptionBool::return_type);
+	SetGSConfig().FramesToDraw = option_value(INT_PCSX2_OPT_FRAMES_TO_DRAW, KeyOptionInt::return_type);
+	SetGSConfig().FramesToSkip = option_value(INT_PCSX2_OPT_FRAMES_TO_SKIP, KeyOptionInt::return_type);
 
 	Input::Update();
 

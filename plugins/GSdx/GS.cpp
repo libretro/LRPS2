@@ -209,7 +209,7 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 #endif
 	}
 #ifdef __LIBRETRO__
-	threads = option_value(environ_cb, INT_PCSX2_OPT_RENDERER_THREADS, KeyOptionInt::return_type);
+	threads = option_value(INT_PCSX2_OPT_RENDERER_THREADS, KeyOptionInt::return_type);
 #endif
 	if(threads == -1)
 	{
@@ -454,7 +454,7 @@ EXPORT_C_(int) GSopen2(void** dsp, uint32 flags)
 			theApp.SetCurrentRendererType(GSRendererType::Null);
 			break;
 		default:
-			if(option_value(environ_cb, STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type) == "Software")
+			if(option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type) == "Software")
 				theApp.SetCurrentRendererType(GSRendererType::OGL_SW);
 			else
 				theApp.SetCurrentRendererType(GSRendererType::OGL_HW);
@@ -462,7 +462,7 @@ EXPORT_C_(int) GSopen2(void** dsp, uint32 flags)
 	}
 
 //	theApp.SetCurrentRendererType(GSRendererType::OGL_SW);
-	theApp.SetConfig("upscale_multiplier", option_value(environ_cb, INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type));  // Options::upscale_multiplier
+	theApp.SetConfig("upscale_multiplier", option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type));  // Options::upscale_multiplier
 #endif
 	auto current_renderer = theApp.GetCurrentRendererType();
 
