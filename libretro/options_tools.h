@@ -17,6 +17,8 @@ static constexpr const char* BOOL_PCSX2_OPT_FASTBOOT = "pcsx2_fastboot";
 static constexpr const char* BOOL_PCSX2_OPT_FORCE_WIDESCREEN = "pcsx2_force_widescreen";
 static constexpr const char* BOOL_PCSX2_OPT_ENABLE_SPEEDHACKS = "pcsx2_enable_speedhacks";
 static constexpr const char* BOOL_PCSX2_OPT_FRAMESKIP = "pcsx2_frameskip";
+static constexpr const char* BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE = "pcsx2_userhack_align_sprite";
+static constexpr const char* BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE = "pcsx2_userhack_merge_sprite";
 
 static constexpr const char* STRING_PCSX2_OPT_BIOS = "pcsx2_bios";
 static constexpr const char* STRING_PCSX2_OPT_RENDERER = "pcsx2_renderer";

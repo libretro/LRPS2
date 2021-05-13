@@ -7,7 +7,6 @@
 #endif
 
 
-int options_elements = 11;
 struct retro_core_option_definition option_defs[] = {
 
 	{"pcsx2_bios",
@@ -155,6 +154,26 @@ struct retro_core_option_definition option_defs[] = {
 		{NULL, NULL},
 	},
 	"1" },
+
+	{ "pcsx2_userhack_align_sprite",
+	"Gamefix: Align Sprite",
+	"Fixes vertical lines problem in some games when resolution is upscaled.(content restart required)",
+	{
+		{"disabled", NULL},
+		{"enabled", NULL},
+		{NULL, NULL},
+	},
+	"disabled" },
+
+	{ "pcsx2_userhack_merge_sprite",
+	"Gamefix: Merge Sprite",
+	"Another option which could fix vertical lines problem in some games when resolution is upscaled.(content restart required)",
+	{
+		{"disabled", NULL},
+		{"enabled", NULL},
+		{NULL, NULL},
+	},
+	"disabled" },
 
 	{NULL, NULL, NULL, {{0}}, NULL},
 };
