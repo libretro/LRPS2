@@ -18,7 +18,6 @@
 #include <wx/dir.h>
 #include <wx/evtloop.h>
 
-
 #include "GS.h"
 #include "options_tools.h"
 #include "input.h"
@@ -52,7 +51,7 @@ retro_environment_t environ_cb;
 retro_video_refresh_t video_cb;
 struct retro_hw_render_callback hw_render;
 static ConsoleColors log_color = Color_Default;
-static retro_log_printf_t log_cb;
+retro_log_printf_t log_cb;
 
 // renderswitch - tells GSdx to go into dx9 sw if "renderswitch" is set.
 bool renderswitch = false;
@@ -271,29 +270,6 @@ void retro_init(void)
 #endif
 	}
 
-	//pcsx2 = new Pcsx2App;
-	//wxApp::SetInstance(pcsx2);
-	pcsx2 = &wxGetApp();
-#if 0
-	int argc = 0;
-	pcsx2->Initialize(argc, (wchar_t**)nullptr);
-	wxModule::RegisterModules();
-	wxModule::InitializeModules();
-#endif
-
-	InitCPUTicks();
-	pxDoOutOfMemory = SysOutOfMemory_EmergencyResponse;
-	g_Conf = std::make_unique<AppConfig>();
-	pcsx2->DetectCpuAndUserMode();
-	pcsx2->AllocateCoreStuffs();
-	//	pcsx2->GetGameDatabase();
-
-	g_Conf->BaseFilenames.Plugins[PluginId_GS] = "Built-in";
-	g_Conf->BaseFilenames.Plugins[PluginId_PAD] = "Built-in";
-	g_Conf->BaseFilenames.Plugins[PluginId_USB] = "Built-in";
-	g_Conf->BaseFilenames.Plugins[PluginId_DEV9] = "Built-in";
-	g_Conf->EmuOptions.EnableIPC = false;
-
 	const char* system = nullptr;
 	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
 	bios_dir = Path::Combine(system, "pcsx2/bios");
@@ -310,7 +286,7 @@ void retro_init(void)
 		}
 	}
 
-	for (retro_core_option_definition& def : option_defs_us)
+	for (retro_core_option_definition& def : option_defs)
 	{
 		if (!def.key || strcmp(def.key, "pcsx2_bios")) continue;
 		size_t i = 0, numfiles = bios_files.size();
@@ -327,6 +303,32 @@ void retro_init(void)
 	}
 
 	libretro_set_core_options(environ_cb);
+
+	//pcsx2 = new Pcsx2App;
+	//wxApp::SetInstance(pcsx2);
+	pcsx2 = &wxGetApp();
+#if 0
+	int argc = 0;
+	pcsx2->Initialize(argc, (wchar_t**)nullptr);
+	wxModule::RegisterModules();
+	wxModule::InitializeModules();
+#endif
+
+	InitCPUTicks();
+	pxDoOutOfMemory = SysOutOfMemory_EmergencyResponse;
+	g_Conf = std::make_unique<AppConfig>();
+	pcsx2->DetectCpuAndUserMode();
+	pcsx2->AllocateCoreStuffs();
+	//	pcsx2->GetGameDatabase();
+	if (!option_value(BOOL_PCSX2_OPT_ENABLE_SPEEDHACKS, KeyOptionBool::return_type))
+		g_Conf->PresetIndex = 1;
+	
+	g_Conf->BaseFilenames.Plugins[PluginId_GS] = "Built-in";
+	g_Conf->BaseFilenames.Plugins[PluginId_PAD] = "Built-in";
+	g_Conf->BaseFilenames.Plugins[PluginId_USB] = "Built-in";
+	g_Conf->BaseFilenames.Plugins[PluginId_DEV9] = "Built-in";
+	g_Conf->EmuOptions.EnableIPC = false;
+
 
 	static retro_disk_control_ext_callback disk_control = {
 		set_eject_state,
@@ -577,32 +579,23 @@ bool retro_load_game(const struct retro_game_info* game)
 		if (magic == 0x464C457F) // elf
 		{
 			// g_Conf->CurrentIRX = "";
-			log_cb(RETRO_LOG_INFO, "Something went wrong while loading game");
+			log_cb(RETRO_LOG_INFO, "Something went wrong while loading game\n");
 			g_Conf->EmuOptions.UseBOOT2Injection = true;
 			pcsx2->SysExecute(CDVD_SourceType::NoDisc, game_paths[0]);
 		}
 		else
 		{	
-			/*
-			if (option_value(BOOL_PCSX2_OPT_ENABLE_SPEEDHACKS, KeyOptionBool::return_type))
-			{
-				g_Conf->EnablePresets = true;
-				g_Conf->PresetIndex = 1; //option_value(INT_PCSX2_OPT_SPEEDHACKS_PRESET, KeyOptionInt::return_type);
-			}
-			else
-				g_Conf->EnablePresets = false;
-			*/
-
+		
 			g_Conf->EmuOptions.UseBOOT2Injection = option_value(BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::return_type);
 			g_Conf->CdvdSource = CDVD_SourceType::Iso;
 			g_Conf->CurrentIso = game_paths[0];
 			pcsx2->SysExecute(g_Conf->CdvdSource);
-			log_cb(RETRO_LOG_INFO, "Game Loaded");
+			log_cb(RETRO_LOG_INFO, "Game Loaded\n");
 		}
 	}
 	else
 	{
-		log_cb(RETRO_LOG_INFO, "Entrerning BIOS Menu.....");
+		log_cb(RETRO_LOG_INFO, "Entrerning BIOS Menu.....\n");
 		g_Conf->EmuOptions.UseBOOT2Injection = option_value(BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::return_type);
 		g_Conf->CdvdSource = CDVD_SourceType::NoDisc;
 		g_Conf->CurrentIso = "";

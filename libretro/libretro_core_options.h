@@ -8,7 +8,7 @@
 
 
 int options_elements = 11;
-struct retro_core_option_definition option_defs_us[] = {
+struct retro_core_option_definition option_defs[] = {
 
 	{"pcsx2_bios",
 	"Bios",
@@ -20,7 +20,7 @@ struct retro_core_option_definition option_defs_us[] = {
 
 	{"pcsx2_fastboot",
 	"Fast Boot",
-	"This will bypass the intial bios logo, with the side effect that the bios settings, like the system language, will not be applied. (Content reboot required)",
+	"This will bypass the intial bios logo, with the side effect that bios settings like the system language will not be applied. (Content restart required)",
 	{
 		{"disabled", NULL},
 		{"enabled", NULL},
@@ -44,8 +44,8 @@ struct retro_core_option_definition option_defs_us[] = {
 	"auto"},
 
 	{"pcsx2_upscale_multiplier",
-	"Internal Resolution",
-	"Content reboot required",
+	"Internal Resolution ",
+	"Content restart required",
 	{
 		{"1", "Native PS2"},
 		{"2", "2x Native ~720p"},
@@ -60,7 +60,7 @@ struct retro_core_option_definition option_defs_us[] = {
 
 	{"pcsx2_force_widescreen",
 	"Force Widescreen",
-	"Content reboot required",
+	"Content restart required",
 	{
 		{"disabled", NULL},
 		{"enabled", NULL},
@@ -70,7 +70,7 @@ struct retro_core_option_definition option_defs_us[] = {
 
 	{"pcsx2_enable_speedhacks",
 	"Enable Speedhacks",
-	"Speedhacks usually improve emulation speed, but can cause glitches, broken audio, and false FPS readings. When having emulation problems, disable this option first. (Content reboot required)",
+	"Speedhacks usually improve emulation speed, but can cause glitches, broken audio, and false FPS readings. When having emulation problems, or the BIOS menu text is not visible, disable this option.(content restart required)",
 	{
 		{"disabled", NULL},
 		{"enabled", NULL},
@@ -80,17 +80,17 @@ struct retro_core_option_definition option_defs_us[] = {
 
 	{"pcsx2_speedhacks_presets",
 	 "Speedhacks preset",
-	 "Controls the Accurancy/Speed speedhacks balance. This setting will be applied only if 'Enable Speedhacks' option is enabled",
+	 "Preset which controls the speedhacks balance between accurancy and speed. This setting is applied only if 'Enable Speedhacks' option is enabled (content restart required)",
 	{
-		{"0", "Safest (No Hacks)"},
-		{"1", "Safe  (Default)"},
+		{"0", "Safest - No Hacks"},
+		{"1", "Safe (default)"},
 		{"2", "Balanced"},
 		{"3", "Aggressive"},
 		{"4", "Very Aggressive"},
 		{"5", "Mostly Harmful"},
 		{NULL, NULL},
 	},
-	"0" },
+	"1" },
 
 	{"pcsx2_frameskip",
 	"Frame Skip",
@@ -161,12 +161,6 @@ struct retro_core_option_definition option_defs_us[] = {
 
 /*
  ********************************
- * Language Mapping
- ********************************
-*/
-
-/*
- ********************************
  * Functions
  ********************************
 */
@@ -188,9 +182,7 @@ static INLINE void libretro_set_core_options(retro_environment_t environ_cb)
 
 	if (environ_cb(RETRO_ENVIRONMENT_GET_CORE_OPTIONS_VERSION, &version) && (version >= 1))
 	{
-
-		environ_cb(RETRO_ENVIRONMENT_SET_CORE_OPTIONS, &option_defs_us);
-
+		environ_cb(RETRO_ENVIRONMENT_SET_CORE_OPTIONS, &option_defs);
 	}
 	else
 	{
@@ -202,7 +194,7 @@ static INLINE void libretro_set_core_options(retro_environment_t environ_cb)
 		/* Determine number of options */
 		while (true)
 		{
-			if (option_defs_us[num_options].key)
+			if (option_defs[num_options].key)
 				num_options++;
 			else
 				break;
@@ -215,13 +207,13 @@ static INLINE void libretro_set_core_options(retro_environment_t environ_cb)
 		if (!variables || !values_buf)
 			goto error;
 
-		/* Copy parameters from option_defs_us array */
+		/* Copy parameters from option_defs array */
 		for (i = 0; i < num_options; i++)
 		{
-			const char* key = option_defs_us[i].key;
-			const char* desc = option_defs_us[i].desc;
-			const char* default_value = option_defs_us[i].default_value;
-			struct retro_core_option_value* values = option_defs_us[i].values;
+			const char* key = option_defs[i].key;
+			const char* desc = option_defs[i].desc;
+			const char* default_value = option_defs[i].default_value;
+			struct retro_core_option_value* values = option_defs[i].values;
 			size_t buf_len = 3;
 			size_t default_index = 0;
 
