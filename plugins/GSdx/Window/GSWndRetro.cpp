@@ -22,7 +22,7 @@
 #include "../stdafx.h"
 #include "GSWndRetro.h"
 #include <libretro.h>
-#include "options.h"
+#include "options_tools.h"
 
 extern struct retro_hw_render_callback hw_render;
 extern retro_video_refresh_t video_cb;
@@ -153,8 +153,9 @@ void GSWndRetro::Detach()
 
 GSVector4i GSWndRetro::GetClientRect()
 {
+	int upscale_mult = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 //	return GSVector4i(0, 0, 640 , 480);
-	return GSVector4i(0, 0, 640 * Options::upscale_multiplier, 480 * Options::upscale_multiplier);
+	return GSVector4i(0, 0, 640 * upscale_mult, 480 * upscale_mult);
 //	return GSVector4i(0, 0, GSgetInternalResolution().x, GSgetInternalResolution().y);
 }
 

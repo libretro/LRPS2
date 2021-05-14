@@ -334,7 +334,8 @@ public:
 
 	static int  GetMaxPresetIndex();
 	
-	bool        IsOkApplyPreset(int n, bool ignoreMTVU);
+	bool IsOkApplyPreset(int n, bool ignoreMTVU);
+	void ResetPresetSettingsToDefault();
 
 
 	//The next 2 flags are used with ApplyConfigToGui which the presets system use:

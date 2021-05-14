@@ -22,7 +22,8 @@
 #include "stdafx.h"
 #include "GSRendererHW.h"
 #ifdef __LIBRETRO__
-#include "options.h"
+//#include "options.h"
+#include "options_tools.h"
 #endif
 
 const float GSRendererHW::SSR_UV_TOLERANCE = 1e-3f;
@@ -61,7 +62,13 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 	} else {
 		m_userhacks_enabled_gs_mem_clear = true;
 		m_userHacks_enabled_unscale_ptln = true;
+#ifdef __LIBRETRO__
+		m_userhacks_align_sprite_X = option_value(BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE, KeyOptionBool::return_type);
+		m_userHacks_merge_sprite = option_value(BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE, KeyOptionBool::return_type);
+#else
 		m_userhacks_align_sprite_X       = false;
+		m_userHacks_merge_sprite = false;
+#endif
 		m_userHacks_merge_sprite         = false;
 		m_userhacks_ts_half_bottom       = -1;
 		m_userhacks_round_sprite_offset  = 0;
@@ -85,7 +92,7 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 void GSRendererHW::SetScaling()
 {
 #ifdef __LIBRETRO__
-	m_upscale_multiplier = Options::upscale_multiplier;
+	m_upscale_multiplier = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 #endif
 	if (!m_upscale_multiplier)
 	{

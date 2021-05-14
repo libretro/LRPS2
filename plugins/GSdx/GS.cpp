@@ -49,13 +49,8 @@ extern bool RunLinuxDialog();
 
 #ifdef __LIBRETRO__
 #include "Window/GSWndRetro.h"
-#include "options.h"
-namespace Options {
-GfxOption<int> upscale_multiplier("pcsx2_upscale_multiplier", "Internal Resolution",
-								  {{"Native PS2", 1}, {"2x Native ~720p", 2}, {"3x Native ~1080p", 3},{"4x Native ~1440p 2K", 4},
-								   {"5x Native ~1620p 3K", 5}, {"6x Native ~2160p 4K", 6}, {"8x Native ~2880p 5K", 8}});
-static GfxOption<int> sw_renderer_threads("pcsx2_sw_renderer_threads", "Software Renderer Threads", 2, 10);
-}
+//#include "options.h"
+#include "options_tools.h"
 #endif
 
 #define PS2E_LT_GS 0x01
@@ -203,7 +198,6 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 {
 	GSDevice* dev = NULL;
 	bool old_api = *dsp == NULL;
-
 	// Fresh start up or config file changed
 	if(renderer == GSRendererType::Undefined)
 	{
@@ -214,7 +208,7 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 #endif
 	}
 #ifdef __LIBRETRO__
-	threads =  Options::sw_renderer_threads;
+	threads = option_value(INT_PCSX2_OPT_RENDERER_THREADS, KeyOptionInt::return_type);
 #endif
 	if(threads == -1)
 	{
@@ -360,6 +354,9 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 		}
 
 		printf("Current Renderer: %s\n", renderer_name.c_str());
+#ifdef __LIBRETRO__
+		log_cb(RETRO_LOG_INFO, "Launching with Renderer:%s\n", renderer_name.c_str());
+#endif
 
 		if (dev == NULL)
 		{
@@ -450,24 +447,34 @@ EXPORT_C_(int) GSopen2(void** dsp, uint32 flags)
 	static bool stored_toggle_state = false;
 	const bool toggle_state = !!(flags & 4);
 #ifdef __LIBRETRO__
+
 	switch (hw_render.context_type)
 	{
 		case RETRO_HW_CONTEXT_DIRECT3D:
 			theApp.SetCurrentRendererType(GSRendererType::DX1011_HW);
+			log_cb(RETRO_LOG_INFO, "Selected Renderer: DX1011_HW\n" );
 			break;
 		case RETRO_HW_CONTEXT_NONE:
 			theApp.SetCurrentRendererType(GSRendererType::Null);
+			log_cb(RETRO_LOG_INFO, "Selected Renderer: NULL\n");
 			break;
 		default:
-			if(Options::renderer == "Software")
+			if (! std::strcmp(option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type), "Software"))
+			{
 				theApp.SetCurrentRendererType(GSRendererType::OGL_SW);
+				log_cb(RETRO_LOG_ERROR, "Selected Renderer: OGL_SW\n");
+			}
 			else
+			{
 				theApp.SetCurrentRendererType(GSRendererType::OGL_HW);
+				log_cb(RETRO_LOG_ERROR, "Selected Renderer: OGL_HW\n");
+			}
 			break;
 	}
+	
 
 //	theApp.SetCurrentRendererType(GSRendererType::OGL_SW);
-	theApp.SetConfig("upscale_multiplier", Options::upscale_multiplier);
+	theApp.SetConfig("upscale_multiplier", option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type));  // Options::upscale_multiplier
 #endif
 	auto current_renderer = theApp.GetCurrentRendererType();
 

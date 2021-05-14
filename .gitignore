@@ -127,3 +127,4 @@ build*/
 *.files
 *.includes
 *.autosave
+/CMakeSettings.json

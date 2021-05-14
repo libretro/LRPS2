@@ -18,13 +18,14 @@
 #include "Plugins.h"
 
 #include "MemoryCardFile.h"
-
 #include "Utilities/IniInterface.h"
 
 #include <wx/stdpaths.h>
 #include "DebugTools/Debug.h"
 #include <memory>
 
+
+#include "options_tools.h"
 //////////////////////////////////////////////////////////////////////////////////////////
 // PathDefs Namespace -- contains default values for various pcsx2 path names and locations.
 //
@@ -928,11 +929,12 @@ bool AppConfig::IsOkApplyPreset(int n, bool ignoreMTVU)
 {
 	if (n < 0 || n > GetMaxPresetIndex() )
 	{
-		Console.WriteLn("DEV Warning: ApplyPreset(%d): index out of range, Aborting.", n);
+		Console.WriteLn("", n);
+		log_cb(RETRO_LOG_INFO, "DEV Warning: ApplyPreset(%i): index out of range, Aborting.\n", n);
 		return false;
 	}
 
-	//Console.WriteLn("Applying Preset %d ...", n);
+	log_cb(RETRO_LOG_INFO, "Applying preset n: %i\n", n);
 
 	//Have some original and default values at hand to be used later.
 	Pcsx2Config::GSOptions        original_GS = EmuOptions.GS;
@@ -974,7 +976,6 @@ bool AppConfig::IsOkApplyPreset(int n, bool ignoreMTVU)
 	EmuOptions.Speedhacks.bitset	= 0; //Turn off individual hacks to make it visually clear they're not used.
 	EmuOptions.Speedhacks.vuThread	= original_SpeedHacks.vuThread;
 	EnableSpeedHacks = true;
-
 	// Actual application of current preset over the base settings which all presets use (mostly pcsx2's default values).
 
 	bool isRateSet = false, isSkipSet = false, isMTVUSet = ignoreMTVU ? true : false; // used to prevent application of specific lower preset values on fallthrough.
@@ -984,7 +985,7 @@ bool AppConfig::IsOkApplyPreset(int n, bool ignoreMTVU)
 			isRateSet ? 0 : (isRateSet = true, EmuOptions.Speedhacks.EECycleRate = 1); // +1 EE cyclerate
 			isSkipSet ? 0 : (isSkipSet = true, EmuOptions.Speedhacks.EECycleSkip = 1); // +1 EE cycle skip
             // Fall through
-		
+
 		case 4: // Very Aggressive
 			isRateSet ? 0 : (isRateSet = true, EmuOptions.Speedhacks.EECycleRate = -2); // -2 EE cyclerate
             // Fall through
@@ -1001,7 +1002,6 @@ bool AppConfig::IsOkApplyPreset(int n, bool ignoreMTVU)
 			EmuOptions.Speedhacks.IntcStat = true;
 			EmuOptions.Speedhacks.WaitLoop = true;
 			EmuOptions.Speedhacks.vuFlagHack = true;
-			
 			// If waterfalling from > Safe, break to avoid MTVU disable.
 			if (n > 1) break;
             // Fall through
@@ -1020,6 +1020,18 @@ bool AppConfig::IsOkApplyPreset(int n, bool ignoreMTVU)
 
 	return true;
 }
+
+void AppConfig::ResetPresetSettingsToDefault() {
+	EmuOptions.Speedhacks.EECycleRate = 0;
+	EmuOptions.Speedhacks.EECycleSkip = 0;
+	EmuOptions.Speedhacks.vuThread = false;
+	EmuOptions.Speedhacks.IntcStat = true;
+	EmuOptions.Speedhacks.WaitLoop = true;
+	EmuOptions.Speedhacks.vuFlagHack = true;
+	PresetIndex = 1;
+	log_cb(RETRO_LOG_INFO, "Reset of speedhack preset to n:1 - Safe (default)\n");
+}
+
 
 
 wxFileConfig* OpenFileConfig( const wxString& filename )
@@ -1186,12 +1198,23 @@ static void LoadVmSettings()
 	g_Conf->EmuOptions.LoadSave( vmloader );
 	g_Conf->EmuOptions.GS.LimitScalar = g_Conf->Framerate.NominalScalar;
 
-	if (g_Conf->EnablePresets){
-		g_Conf->IsOkApplyPreset(g_Conf->PresetIndex, true);
+	g_Conf->EnablePresets = option_value(BOOL_PCSX2_OPT_ENABLE_SPEEDHACKS, KeyOptionBool::return_type);
+	g_Conf->PresetIndex = option_value(INT_PCSX2_OPT_SPEEDHACKS_PRESET, KeyOptionInt::return_type);
+	
+
+	if (g_Conf->EnablePresets) 
+	{
+		g_Conf->IsOkApplyPreset(g_Conf->PresetIndex, false);
+	}
+	else
+	{
+		g_Conf->ResetPresetSettingsToDefault();
 	}
 
 	sApp.DispatchVmSettingsEvent( vmloader );
 }
+
+
 
 void AppLoadSettings()
 {
