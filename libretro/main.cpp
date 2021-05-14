@@ -322,7 +322,7 @@ void retro_init(void)
 	//	pcsx2->GetGameDatabase();
 	if (!option_value(BOOL_PCSX2_OPT_ENABLE_SPEEDHACKS, KeyOptionBool::return_type))
 		g_Conf->PresetIndex = 1;
-	
+
 	g_Conf->BaseFilenames.Plugins[PluginId_GS] = "Built-in";
 	g_Conf->BaseFilenames.Plugins[PluginId_PAD] = "Built-in";
 	g_Conf->BaseFilenames.Plugins[PluginId_USB] = "Built-in";
@@ -376,7 +376,7 @@ void retro_get_system_info(retro_system_info* info)
 
 void retro_get_system_av_info(retro_system_av_info* info)
 {
-	if ( option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type) == "Software" || option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type) == "Null")
+	if ( !std::strcmp(option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type), "Software") || !std::strcmp(option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type), "Null"))
 	{
 		info->geometry.base_width = 640;
 		info->geometry.base_height = 448;
@@ -423,6 +423,7 @@ static void context_destroy(void)
 
 static bool set_hw_render(retro_hw_context_type type)
 {
+
 	hw_render.context_type = type;
 	hw_render.context_reset = context_reset;
 	hw_render.context_destroy = context_destroy;
@@ -462,7 +463,10 @@ static bool set_hw_render(retro_hw_context_type type)
 			break;
 
 		case RETRO_HW_CONTEXT_NONE:
-			return true;
+			hw_render.version_major = 3;
+			hw_render.version_minor = 0;
+			hw_render.cache_context = true;
+			break;
 
 		default:
 			return false;
@@ -611,13 +615,16 @@ bool retro_load_game(const struct retro_game_info* game)
 	Input::Init();
 
 	retro_hw_context_type context_type = RETRO_HW_CONTEXT_OPENGL;
-	if (option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type) == "Auto")
+	const char* option_renderer = option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type);
+	log_cb(RETRO_LOG_INFO, "options renderer: %s\n", option_renderer);
+
+	if (! std::strcmp(option_renderer,"Auto"))
 		environ_cb(RETRO_ENVIRONMENT_GET_PREFERRED_HW_RENDER, &context_type);
 #ifdef _WIN32
-	else if (option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type) == "D3D11")
+	else if (!std::strcmp(option_renderer, "D3D11"))
 		context_type = RETRO_HW_CONTEXT_DIRECT3D;
 #endif
-	else if (option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type) == "Null")
+	else if (!std::strcmp(option_renderer, "Null"))
 		context_type = RETRO_HW_CONTEXT_NONE;
 
 	return set_hw_render(context_type);

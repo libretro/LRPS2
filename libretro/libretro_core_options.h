@@ -37,7 +37,7 @@ struct retro_core_option_definition option_defs[] = {
 #endif
 		{"OpenGl", NULL},
 		{"Software", NULL},
-		{"null", NULL},
+		{"Null", NULL},
 		{NULL, NULL},
 	},
 	"auto"},

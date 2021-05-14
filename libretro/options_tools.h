@@ -1,6 +1,6 @@
 /*
  * Options tools
- * The aim is to provide the access to core options trough the call of the same function
+ * The aim is to provide the access to core options through the call of the same function
  * indipendently from the return types, improving readability and maintaining of the code.
  * The function is exposed with overrides which return boolean, string or int.
  * The KeyOption enum types are used only as a trick to select the needed override.
