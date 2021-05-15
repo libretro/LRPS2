@@ -19,15 +19,21 @@ static constexpr const char* BOOL_PCSX2_OPT_ENABLE_SPEEDHACKS = "pcsx2_enable_sp
 static constexpr const char* BOOL_PCSX2_OPT_FRAMESKIP = "pcsx2_frameskip";
 static constexpr const char* BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE = "pcsx2_userhack_align_sprite";
 static constexpr const char* BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE = "pcsx2_userhack_merge_sprite";
+static constexpr const char* BOOL_PCSX2_OPT_USERHACK_WILDARMS_OFFSET = "pcsx2_userhack_wildarms_offset";
 
 static constexpr const char* STRING_PCSX2_OPT_BIOS = "pcsx2_bios";
 static constexpr const char* STRING_PCSX2_OPT_RENDERER = "pcsx2_renderer";
 
 static constexpr const char* INT_PCSX2_OPT_UPSCALE_MULTIPLIER = "pcsx2_upscale_multiplier";
 static constexpr const char* INT_PCSX2_OPT_SPEEDHACKS_PRESET = "pcsx2_speedhacks_presets";
-static constexpr const char* INT_PCSX2_OPT_FRAMES_TO_DRAW= "pcsx2_frames_to_draw";
+static constexpr const char* INT_PCSX2_OPT_FRAMES_TO_DRAW = "pcsx2_frames_to_draw";
 static constexpr const char* INT_PCSX2_OPT_FRAMES_TO_SKIP = "pcsx2_frames_to_skip";
 static constexpr const char* INT_PCSX2_OPT_RENDERER_THREADS = "pcsx2_sw_renderer_threads";
+
+static constexpr const char* INT_PCSX2_OPT_USERHACK_SKIPDRAW_START = "pcsx2_userhack_skipdraw_start";
+static constexpr const char* INT_PCSX2_OPT_USERHACK_SKIPDRAW_LAYERS = "pcsx2_userhack_skipdraw_layers";
+static constexpr const char* INT_PCSX2_OPT_USERHACK_HALFPIXEL_OFFSET = "pcsx2_userhack_halfpixel_offset";
+static constexpr const char* INT_PCSX2_OPT_USERHACK_ROUND_SPRITE = "pcsx2_userhack_round_sprite";
 
 
 enum class KeyOptionBool
