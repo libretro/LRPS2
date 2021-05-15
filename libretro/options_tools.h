@@ -13,27 +13,30 @@
 extern retro_environment_t environ_cb;
 extern retro_log_printf_t log_cb;
 
-static constexpr const char* BOOL_PCSX2_OPT_FASTBOOT = "pcsx2_fastboot";
-static constexpr const char* BOOL_PCSX2_OPT_FORCE_WIDESCREEN = "pcsx2_force_widescreen";
-static constexpr const char* BOOL_PCSX2_OPT_ENABLE_SPEEDHACKS = "pcsx2_enable_speedhacks";
-static constexpr const char* BOOL_PCSX2_OPT_FRAMESKIP = "pcsx2_frameskip";
-static constexpr const char* BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE = "pcsx2_userhack_align_sprite";
-static constexpr const char* BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE = "pcsx2_userhack_merge_sprite";
-static constexpr const char* BOOL_PCSX2_OPT_USERHACK_WILDARMS_OFFSET = "pcsx2_userhack_wildarms_offset";
+static const char* BOOL_PCSX2_OPT_FASTBOOT = "pcsx2_fastboot";
+static const char* BOOL_PCSX2_OPT_FORCE_WIDESCREEN = "pcsx2_force_widescreen";
+static const char* BOOL_PCSX2_OPT_ENABLE_SPEEDHACKS = "pcsx2_enable_speedhacks";
+static const char* BOOL_PCSX2_OPT_FRAMESKIP = "pcsx2_frameskip";
+static const char* BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE = "pcsx2_userhack_align_sprite";
+static const char* BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE = "pcsx2_userhack_merge_sprite";
+static const char* BOOL_PCSX2_OPT_USERHACK_WILDARMS_OFFSET = "pcsx2_userhack_wildarms_offset";
 
-static constexpr const char* STRING_PCSX2_OPT_BIOS = "pcsx2_bios";
-static constexpr const char* STRING_PCSX2_OPT_RENDERER = "pcsx2_renderer";
+static const char* STRING_PCSX2_OPT_BIOS = "pcsx2_bios";
+static const char* STRING_PCSX2_OPT_RENDERER = "pcsx2_renderer";
 
-static constexpr const char* INT_PCSX2_OPT_UPSCALE_MULTIPLIER = "pcsx2_upscale_multiplier";
-static constexpr const char* INT_PCSX2_OPT_SPEEDHACKS_PRESET = "pcsx2_speedhacks_presets";
-static constexpr const char* INT_PCSX2_OPT_FRAMES_TO_DRAW = "pcsx2_frames_to_draw";
-static constexpr const char* INT_PCSX2_OPT_FRAMES_TO_SKIP = "pcsx2_frames_to_skip";
-static constexpr const char* INT_PCSX2_OPT_RENDERER_THREADS = "pcsx2_sw_renderer_threads";
+static const char* INT_PCSX2_OPT_UPSCALE_MULTIPLIER = "pcsx2_upscale_multiplier";
+static const char* INT_PCSX2_OPT_SPEEDHACKS_PRESET = "pcsx2_speedhacks_presets";
+static const char* INT_PCSX2_OPT_FRAMES_TO_DRAW = "pcsx2_frames_to_draw";
+static const char* INT_PCSX2_OPT_FRAMES_TO_SKIP = "pcsx2_frames_to_skip";
+static const char* INT_PCSX2_OPT_RENDERER_THREADS = "pcsx2_sw_renderer_threads";
+static const char* INT_PCSX2_OPT_ANISOTROPIC_FILTER = "pcsx2_anisotropic_filter";
 
-static constexpr const char* INT_PCSX2_OPT_USERHACK_SKIPDRAW_START = "pcsx2_userhack_skipdraw_start";
-static constexpr const char* INT_PCSX2_OPT_USERHACK_SKIPDRAW_LAYERS = "pcsx2_userhack_skipdraw_layers";
-static constexpr const char* INT_PCSX2_OPT_USERHACK_HALFPIXEL_OFFSET = "pcsx2_userhack_halfpixel_offset";
-static constexpr const char* INT_PCSX2_OPT_USERHACK_ROUND_SPRITE = "pcsx2_userhack_round_sprite";
+
+static const char* INT_PCSX2_OPT_USERHACK_SKIPDRAW_START = "pcsx2_userhack_skipdraw_start";
+static const char* INT_PCSX2_OPT_USERHACK_SKIPDRAW_LAYERS = "pcsx2_userhack_skipdraw_layers";
+static const char* INT_PCSX2_OPT_USERHACK_HALFPIXEL_OFFSET = "pcsx2_userhack_halfpixel_offset";
+static const char* INT_PCSX2_OPT_USERHACK_ROUND_SPRITE = "pcsx2_userhack_round_sprite";
+static const char* INT_PCSX2_OPT_USERHACK_HALFSCREEN_FIX = "pcsx2_userhack_halfscreen_fix";
 
 
 enum class KeyOptionBool

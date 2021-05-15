@@ -67,6 +67,20 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	"disabled"},
 
+	{"pcsx2_anisotropic_filter",
+	 "Anisotropic Filtering",
+	 "Reduces texture aliasing at extreme viewing angles",
+	{
+		{"0", "None"},
+		{"2", "2x"},
+		{"4", "4x"},
+		{"8", "8x"},
+		{"16", "16x"},
+		{NULL, NULL},
+	},
+	"0" },
+
+
 	{"pcsx2_enable_speedhacks",
 	"Enable Speedhacks",
 	"Speedhacks usually improve emulation speed, but can cause glitches, broken audio, and false FPS readings. When having emulation problems, or the BIOS menu text is not visible, disable this option.(content restart required)",
@@ -238,7 +252,7 @@ struct retro_core_option_definition option_defs[] = {
 	"Gamefix: Half-pixel Offset",
 	"Might fix some misaligned fog, bloom or blend effect. The preferred option is Normal(vertex). (content restart required)",
 	{
-		{"0", "Off (Default)"},
+		{"0", "Off (default)"},
 		{"1", "Normal (Vertex)"},
 		{"2", "Special (Texture)"},
 		{"3", "Special (Texture-Aggessive)"},
@@ -250,7 +264,7 @@ struct retro_core_option_definition option_defs[] = {
 	"Gamefix: Round Sprite",
 	"Corrects the sampling of 2D textures when upscaling. (content restart required)",
 	{
-		{"0", "Off (Default)"},
+		{"0", "Off (default)"},
 		{"1", "Half"},
 		{"2", "Full"},
 		{NULL, NULL},
@@ -263,6 +277,17 @@ struct retro_core_option_definition option_defs[] = {
 	{
 		{"disabled", NULL},
 		{"enabled", NULL},
+		{NULL, NULL},
+	},
+	"disabled" },
+
+	{ "pcsx2_userhack_halfscreen_fix",
+	"Gamefix: Half-screen fix",
+	"Automatic control of the halfscreen fix detection on texture shuffle. Force-Disable may help in some games, but causes visual glitches in most. Use Force-Enable when a game has half screen issues (content restart required)",
+	{
+		{"-1", "Automatic (default)"},
+		{"0", "Force-Disabled"},
+		{"1", "Force-Enabled"},
 		{NULL, NULL},
 	},
 	"disabled" },

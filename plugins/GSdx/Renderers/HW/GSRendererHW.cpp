@@ -22,7 +22,6 @@
 #include "stdafx.h"
 #include "GSRendererHW.h"
 #ifdef __LIBRETRO__
-//#include "options.h"
 #include "options_tools.h"
 #endif
 
@@ -72,17 +71,21 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 		m_userHacks_HPO					= option_value(INT_PCSX2_OPT_USERHACK_HALFPIXEL_OFFSET, KeyOptionInt::return_type);
 		m_userhacks_round_sprite_offset = option_value(INT_PCSX2_OPT_USERHACK_ROUND_SPRITE, KeyOptionInt::return_type);
 		m_userhacks_wildhack			= option_value(BOOL_PCSX2_OPT_USERHACK_WILDARMS_OFFSET, KeyOptionBool::return_type);
+		m_userhacks_ts_half_bottom		= option_value(INT_PCSX2_OPT_USERHACK_HALFSCREEN_FIX, KeyOptionInt::return_type);
 #else
 		m_userhacks_align_sprite_X      = false;
 		m_userHacks_merge_sprite		= false;
 		m_userHacks_HPO					= 0;
 		m_userhacks_round_sprite_offset = 0;
+		m_userhacks_ts_half_bottom = -1;
 #endif
-		m_userhacks_ts_half_bottom       = -1;
+		
 		
 		
 	}
-
+#ifdef __LIBRETRO__
+	theApp.SetConfig("MaxAnisotropy", option_value(INT_PCSX2_OPT_ANISOTROPIC_FILTER, KeyOptionInt::return_type));
+#endif
 	if (!m_upscale_multiplier) { //Custom Resolution
 		m_custom_width = m_width = theApp.GetConfigI("resx");
 		m_custom_height = m_height = theApp.GetConfigI("resy");
@@ -94,7 +97,7 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 		m_userHacks_merge_sprite         = false;
 		m_userhacks_wildhack = false;
 	}
-
+	
 	m_dump_root = root_hw;
 }
 
