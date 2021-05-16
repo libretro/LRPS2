@@ -329,6 +329,9 @@ void retro_init(void)
 	g_Conf->BaseFilenames.Plugins[PluginId_DEV9] = "Built-in";
 	g_Conf->EmuOptions.EnableIPC = false;
 
+	g_Conf->EmuOptions.GS.FrameSkipEnable = option_value(BOOL_PCSX2_OPT_FRAMESKIP, KeyOptionBool::return_type);
+	g_Conf->EmuOptions.GS.FramesToDraw = option_value(INT_PCSX2_OPT_FRAMES_TO_DRAW, KeyOptionInt::return_type);
+	g_Conf->EmuOptions.GS.FramesToSkip = option_value(INT_PCSX2_OPT_FRAMES_TO_SKIP, KeyOptionInt::return_type);
 
 	static retro_disk_control_ext_callback disk_control = {
 		set_eject_state,
@@ -653,9 +656,13 @@ void retro_unload_game(void)
 
 void retro_run(void)
 {
-	SetGSConfig().FrameSkipEnable = option_value(BOOL_PCSX2_OPT_FRAMESKIP, KeyOptionBool::return_type);
-	SetGSConfig().FramesToDraw = option_value(INT_PCSX2_OPT_FRAMES_TO_DRAW, KeyOptionInt::return_type);
-	SetGSConfig().FramesToSkip = option_value(INT_PCSX2_OPT_FRAMES_TO_SKIP, KeyOptionInt::return_type);
+	bool updated = false;
+	if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
+	{
+		SetGSConfig().FrameSkipEnable = option_value(BOOL_PCSX2_OPT_FRAMESKIP, KeyOptionBool::return_type);
+		SetGSConfig().FramesToDraw = option_value(INT_PCSX2_OPT_FRAMES_TO_DRAW, KeyOptionInt::return_type);
+		SetGSConfig().FramesToSkip = option_value(INT_PCSX2_OPT_FRAMES_TO_SKIP, KeyOptionInt::return_type);
+	}
 
 	Input::Update();
 
