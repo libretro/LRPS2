@@ -12,6 +12,7 @@
 
 extern retro_environment_t environ_cb;
 extern retro_log_printf_t log_cb;
+extern void GSUpdateOptions();
 
 static const char* BOOL_PCSX2_OPT_FASTBOOT = "pcsx2_fastboot";
 static const char* BOOL_PCSX2_OPT_FORCE_WIDESCREEN = "pcsx2_force_widescreen";

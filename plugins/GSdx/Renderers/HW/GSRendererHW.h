@@ -170,6 +170,9 @@ public:
 	virtual ~GSRendererHW();
 
 	void SetGameCRC(uint32 crc, int options);
+#ifdef __LIBRETRO__
+	void UpdateRendererOptions();
+#endif
 	bool CanUpscale();
 	int GetUpscaleMultiplier();
 	GSVector2i GetCustomResolution();

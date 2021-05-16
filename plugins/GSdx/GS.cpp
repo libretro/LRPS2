@@ -428,6 +428,15 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 	return 0;
 }
 
+
+#ifdef __LIBRETRO__
+void GSUpdateOptions()
+{
+	s_gs->UpdateRendererOptions();
+}
+#endif
+
+
 EXPORT_C_(void) GSosdLog(const char *utf8, uint32 color)
 {
 #ifndef __LIBRETRO__

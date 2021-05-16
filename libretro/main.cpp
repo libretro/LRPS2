@@ -405,7 +405,7 @@ void retro_reset(void)
 {
 	GetMTGS().FinishTaskInThread();
 	GetCoreThread().ResetQuick();
-	eject_state = false;
+	eject_state = false;	
 }
 
 static void context_reset(void)
@@ -659,9 +659,11 @@ void retro_run(void)
 	bool updated = false;
 	if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
 	{
+		log_cb(RETRO_LOG_INFO, "Options Change detected...\n");
 		SetGSConfig().FrameSkipEnable = option_value(BOOL_PCSX2_OPT_FRAMESKIP, KeyOptionBool::return_type);
 		SetGSConfig().FramesToDraw = option_value(INT_PCSX2_OPT_FRAMES_TO_DRAW, KeyOptionInt::return_type);
 		SetGSConfig().FramesToSkip = option_value(INT_PCSX2_OPT_FRAMES_TO_SKIP, KeyOptionInt::return_type);
+		GSUpdateOptions();
 	}
 
 	Input::Update();

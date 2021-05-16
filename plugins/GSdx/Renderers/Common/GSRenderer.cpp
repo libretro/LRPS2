@@ -638,3 +638,9 @@ void GSRenderer::PurgePool()
 {
 	m_dev->PurgePool();
 }
+
+#ifdef __LIBRETRO__
+void GSRenderer::UpdateRendererOptions()
+{
+}
+#endif

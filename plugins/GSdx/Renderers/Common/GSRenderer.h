@@ -60,8 +60,12 @@ public:
 
 public:
 	GSRenderer();
-	virtual ~GSRenderer();
+	
+#ifdef __LIBRETRO__
+	virtual void UpdateRendererOptions();
+#endif
 
+	virtual ~GSRenderer();
 	virtual bool CreateDevice(GSDevice* dev);
 	virtual void ResetDevice();
 	virtual void VSync(int field);
