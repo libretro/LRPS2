@@ -82,8 +82,8 @@ struct retro_core_option_definition option_defs[] = {
 
 
 	{"pcsx2_enable_speedhacks",
-	"Enable Speedhacks",
-	"Speedhacks usually improve emulation speed, but can cause glitches, broken audio, and false FPS readings. When having emulation problems, or the BIOS menu text is not visible, disable this option.(content restart required)",
+	"Enable SpeedHacks",
+	"Speedhacks usually improve emulation speed, but can cause glitches, broken audio, and false FPS readings. When having emulation problems, or the BIOS menu text is not visible, disable this option. (content restart required)",
 	{
 		{"disabled", NULL},
 		{"enabled", NULL},
@@ -92,8 +92,8 @@ struct retro_core_option_definition option_defs[] = {
 	"disabled"},
 
 	{"pcsx2_speedhacks_presets",
-	 "Speedhacks preset",
-	 "Preset which controls the speedhacks balance between accurancy and speed. This setting is applied only if 'Enable Speedhacks' option is enabled (content restart required)",
+	 "SpeedHacks preset",
+	 "Preset which controls the speedhacks balance between accurancy and speed. This setting is applied only if 'Enable Speedhacks' option is enabled. (content restart required)",
 	{
 		{"0", "Safest - No Hacks"},
 		{"1", "Safe (default)"},
@@ -170,8 +170,8 @@ struct retro_core_option_definition option_defs[] = {
 	"1" },
 
 	{ "pcsx2_userhack_align_sprite",
-	"Gamefix: Align Sprite",
-	"Fixes vertical lines problem in some games when resolution is upscaled.(content restart required)",
+	"Hack: Align Sprite",
+	"Fixes vertical lines problem in some games when resolution is upscaled.",
 	{
 		{"disabled", NULL},
 		{"enabled", NULL},
@@ -180,8 +180,8 @@ struct retro_core_option_definition option_defs[] = {
 	"disabled" },
 
 	{ "pcsx2_userhack_merge_sprite",
-	"Gamefix: Merge Sprite",
-	"Another option which could fix vertical lines problem in some games when resolution is upscaled.(content restart required)",
+	"Hack: Merge Sprite",
+	"Another option which could fix vertical lines problem in some games when resolution is upscaled.",
 	{
 		{"disabled", NULL},
 		{"enabled", NULL},
@@ -191,8 +191,8 @@ struct retro_core_option_definition option_defs[] = {
 
 
 	{ "pcsx2_userhack_skipdraw_start",
-	"Gamefix: Skipdraw - Start Layer",
-	"Used to fix some rendering glitches and bad post processing by skipping rendering layers.(content restart required)",
+	"Hack: Skipdraw - Start Layer",
+	"Used to fix some rendering glitches and bad post processing by skipping rendering layers.",
 	{
 		{"0", "0 (default)"},
 		{"1", NULL},
@@ -220,8 +220,8 @@ struct retro_core_option_definition option_defs[] = {
 	"0" },
 
 	{ "pcsx2_userhack_skipdraw_layers",
-	"Gamefix: Skipdraw - Layers to Skip",
-	"Number of rendering layers to skip, counting from the value set in the Start Layer option. For a original PCSX2 setting of 2:5, skipdraw option of the core must be set 2 +3 .(content restart required)",
+	"Hack: Skipdraw - Layers to Skip",
+	"Number of rendering layers to skip, counting from the value set in the Start Layer option. For a original PCSX2 setting of 2:5, skipdraw option of the core must be set 2 +3 .",
 	{
 		{"0", "+0 (default)"},
 		{"1", "+1"},
@@ -249,8 +249,8 @@ struct retro_core_option_definition option_defs[] = {
 	"0" },
 
 	{ "pcsx2_userhack_halfpixel_offset",
-	"Gamefix: Half-pixel Offset",
-	"Might fix some misaligned fog, bloom or blend effect. The preferred option is Normal(vertex). (content restart required)",
+	"Hack: Half-pixel Offset",
+	"Might fix some misaligned fog, bloom or blend effect. The preferred option is Normal(vertex).",
 	{
 		{"0", "Off (default)"},
 		{"1", "Normal (Vertex)"},
@@ -261,8 +261,8 @@ struct retro_core_option_definition option_defs[] = {
 	"0" },
 
 	{ "pcsx2_userhack_round_sprite",
-	"Gamefix: Round Sprite",
-	"Corrects the sampling of 2D textures when upscaling. (content restart required)",
+	"Hack: Round Sprite",
+	"Corrects the sampling of 2D textures when upscaling.",
 	{
 		{"0", "Off (default)"},
 		{"1", "Half"},
@@ -272,8 +272,8 @@ struct retro_core_option_definition option_defs[] = {
 	"0" },
 
 	{ "pcsx2_userhack_wildarms_offset",
-	"Gamefix: Wild Arms Offset",
-	"Avoid gaps between pixel in some games when upscaling. (content restart required)",
+	"Hack: Wild Arms Offset",
+	"Avoid gaps between pixel in some games when upscaling.",
 	{
 		{"disabled", NULL},
 		{"enabled", NULL},
@@ -282,8 +282,8 @@ struct retro_core_option_definition option_defs[] = {
 	"disabled" },
 
 	{ "pcsx2_userhack_halfscreen_fix",
-	"Gamefix: Half-screen fix",
-	"Automatic control of the halfscreen fix detection on texture shuffle. Force-Disable may help in some games, but causes visual glitches in most. Use Force-Enable when a game has half screen issues (content restart required)",
+	"Hack: Half-screen fix",
+	"Automatic control of the halfscreen fix detection on texture shuffle. Force-Disable may help in some games, but causes visual glitches in most. Use Force-Enable when a game has half screen issues.",
 	{
 		{"-1", "Automatic (default)"},
 		{"0", "Force-Disabled"},
