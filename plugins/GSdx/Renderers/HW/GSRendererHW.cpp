@@ -101,6 +101,34 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 	m_dump_root = root_hw;
 }
 
+#ifdef __LIBRETRO__
+void GSRendererHW::UpdateRendererOptions()
+{
+	
+	m_userhacks_align_sprite_X = option_value(BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE, KeyOptionBool::return_type);
+	m_userHacks_merge_sprite = option_value(BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE, KeyOptionBool::return_type);
+	int skipdraw_start = option_value(INT_PCSX2_OPT_USERHACK_SKIPDRAW_START, KeyOptionInt::return_type);
+	int skipdraw_layers = option_value(INT_PCSX2_OPT_USERHACK_SKIPDRAW_LAYERS, KeyOptionInt::return_type);
+	m_userhacks_skipdraw_offset = skipdraw_start;
+	m_userhacks_skipdraw = skipdraw_start + skipdraw_layers;
+	m_userHacks_HPO = option_value(INT_PCSX2_OPT_USERHACK_HALFPIXEL_OFFSET, KeyOptionInt::return_type);
+	m_userhacks_round_sprite_offset = option_value(INT_PCSX2_OPT_USERHACK_ROUND_SPRITE, KeyOptionInt::return_type);
+	m_userhacks_wildhack = option_value(BOOL_PCSX2_OPT_USERHACK_WILDARMS_OFFSET, KeyOptionBool::return_type);
+	m_userhacks_ts_half_bottom = option_value(INT_PCSX2_OPT_USERHACK_HALFSCREEN_FIX, KeyOptionInt::return_type);
+
+	theApp.SetConfig("MaxAnisotropy", option_value(INT_PCSX2_OPT_ANISOTROPIC_FILTER, KeyOptionInt::return_type));
+
+	if (m_upscale_multiplier == 1) { // hacks are only needed for upscaling issues.
+		m_userhacks_round_sprite_offset = 0;
+		m_userhacks_align_sprite_X = false;
+		m_userHacks_merge_sprite = false;
+		m_userhacks_wildhack = false;
+	}
+	log_cb(RETRO_LOG_INFO, "Rendering Options Updated!\n");
+}
+#endif
+
+
 void GSRendererHW::SetScaling()
 {
 #ifdef __LIBRETRO__
