@@ -88,7 +88,9 @@ const unsigned char revision = 0;
 const unsigned char build    = 4;    // increase that with each version
 
 
+#ifndef BUILTIN_DEV9_PLUGIN
 static const char *libraryName     = "GiGaHeRz's DEV9 Driver"
+#endif
 #ifdef _DEBUG
 	"(debug)"
 #endif
@@ -102,6 +104,7 @@ int hEeprom;
 int mapping;
 #endif
 
+#ifndef BUILTIN_DEV9_PLUGIN
 EXPORT_C_(u32)
 PS2EgetLibType() {
 	return PS2E_LT_DEV9;
@@ -116,10 +119,13 @@ EXPORT_C_(u32)
 PS2EgetLibVersion2(u32 type) {
 	return (version<<16) | (revision<<8) | build;
 }
+#endif
 
 
+#ifndef __LIBRETRO__
 std::string s_strIniPath = "inis";
 std::string s_strLogPath = "logs";
+#endif
 // Warning: The below log function is SLOW. Better fix it before attempting to use it.
 #ifdef _DEBUG
 int Log = 1;
@@ -256,6 +262,9 @@ DEV9open(void *pDsp)
 {
 	DEV9_LOG("DEV9open\n");
 	LoadConf();
+#ifdef __LIBRETRO__
+  SaveConf();
+#endif
 	DEV9_LOG("open r+: %s\n", config.Hdd);
 	config.HddSize = 8*1024;
 	
@@ -736,6 +745,35 @@ DEV9setLogDir(const char* dir)
 	// Currently dosn't change winPcap log directories post DEV9open()
 	DEV9Log.Close();
 	DEV9LogInit();
+}
+
+EXPORT_C_(void)
+DEV9about()
+{
+}
+
+EXPORT_C_(s32)
+DEV9freeze(int mode, freezeData *data)
+{
+    // This should store or retrieve any information, for if emulation
+    // gets suspended, or for savestates.
+    switch (mode) {
+        case FREEZE_LOAD:
+            // Load previously saved data.
+            break;
+        case FREEZE_SAVE:
+            // Save data.
+            break;
+        case FREEZE_SIZE:
+            // return the size of the data.
+            break;
+    }
+    return 0;
+}
+
+EXPORT_C_(void)
+DEV9keyEvent(keyEvent *ev)
+{
 }
 
 int emu_printf(const char *fmt, ...)
