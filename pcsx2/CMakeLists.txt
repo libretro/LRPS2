@@ -923,7 +923,11 @@ if(BUILTIN_USB)
     set(pcsx2FinalLibs ${pcsx2FinalLibs} USBnull-0.7.0)
 endif()
 if(BUILTIN_DEV9)
+  if(ENABLE_DEV9GHZDRK)
+    set(pcsx2FinalLibs ${pcsx2FinalLibs} dev9ghzdrk-0.4)
+  else()
     set(pcsx2FinalLibs ${pcsx2FinalLibs} dev9null-0.5.0)
+  endif()
 endif()
 
 # additonal include directories

@@ -57,6 +57,7 @@ set(dev9ghzdrkSources
 set(dev9ghzdrkHeaders
 )
 
+if(NOT LIBRETRO)
 compile_gresources( dev9ghzdrkUI_C 
                    dev9ghzdrkUI_XML 
                    TYPE EMBED_C
@@ -74,6 +75,7 @@ compile_gresources( dev9ghzdrkUI_H
                    COMPRESS_ALL
                    STRIPBLANKS_ALL
 )
+endif()
 
 # dev9ghzdrk Linux sources
 set(dev9ghzdrkLinuxSources

@@ -23,6 +23,7 @@
 #elif defined(__linux__)
 #include <sys/ioctl.h>
 #include <net/if.h>
+#include <unistd.h>
 #endif
 #include <stdio.h>
 #include <stdarg.h>
