@@ -483,7 +483,7 @@ EXPORT_C_(int) GSopen2(void** dsp, uint32 flags)
 	
 
 //	theApp.SetCurrentRendererType(GSRendererType::OGL_SW);
-	theApp.SetConfig("upscale_multiplier", option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type));  // Options::upscale_multiplier
+//	theApp.SetConfig("upscale_multiplier", option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type));  // Options::upscale_multiplier
 #endif
 	auto current_renderer = theApp.GetCurrentRendererType();
 

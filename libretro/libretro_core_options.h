@@ -44,7 +44,7 @@ struct retro_core_option_definition option_defs[] = {
 
 	{"pcsx2_upscale_multiplier",
 	"Internal Resolution ",
-	"Content restart required",
+	NULL,
 	{
 		{"1", "Native PS2"},
 		{"2", "2x Native ~720p"},

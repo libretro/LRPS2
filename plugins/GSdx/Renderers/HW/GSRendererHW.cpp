@@ -84,6 +84,7 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 		
 	}
 #ifdef __LIBRETRO__
+	m_upscale_multiplier = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 	theApp.SetConfig("MaxAnisotropy", option_value(INT_PCSX2_OPT_ANISOTROPIC_FILTER, KeyOptionInt::return_type));
 #endif
 	if (!m_upscale_multiplier) { //Custom Resolution
@@ -117,13 +118,18 @@ void GSRendererHW::UpdateRendererOptions()
 	m_userhacks_ts_half_bottom = option_value(INT_PCSX2_OPT_USERHACK_HALFSCREEN_FIX, KeyOptionInt::return_type);
 
 	theApp.SetConfig("MaxAnisotropy", option_value(INT_PCSX2_OPT_ANISOTROPIC_FILTER, KeyOptionInt::return_type));
-
+	m_upscale_multiplier = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 	if (m_upscale_multiplier == 1) { // hacks are only needed for upscaling issues.
 		m_userhacks_round_sprite_offset = 0;
 		m_userhacks_align_sprite_X = false;
 		m_userHacks_merge_sprite = false;
 		m_userhacks_wildhack = false;
 	}
+
+
+	
+
+
 	log_cb(RETRO_LOG_INFO, "Rendering Options Updated!\n");
 }
 #endif
@@ -131,9 +137,6 @@ void GSRendererHW::UpdateRendererOptions()
 
 void GSRendererHW::SetScaling()
 {
-#ifdef __LIBRETRO__
-	m_upscale_multiplier = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
-#endif
 	if (!m_upscale_multiplier)
 	{
 		CustomResolutionScaling();
