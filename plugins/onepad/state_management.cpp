@@ -125,7 +125,11 @@ void Pad::rumble(unsigned port)
         if (nextVibrate[motor] | currentVibrate[motor]) {
             currentVibrate[motor] = nextVibrate[motor];
 
-            GamePad::DoRumble(motor, port);
+            if (currentVibrate[motor])
+              GamePad::DoRumble(motor, port);
+            else
+              // Stop rumble
+              GamePad::DoRumble(motor+2, port);
         }
     }
 }
