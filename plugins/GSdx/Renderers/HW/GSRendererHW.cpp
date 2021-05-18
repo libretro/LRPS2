@@ -80,8 +80,6 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 		m_userhacks_ts_half_bottom = -1;
 #endif
 		
-		
-		
 	}
 #ifdef __LIBRETRO__
 	m_upscale_multiplier = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
@@ -125,10 +123,6 @@ void GSRendererHW::UpdateRendererOptions()
 		m_userHacks_merge_sprite = false;
 		m_userhacks_wildhack = false;
 	}
-
-
-	
-
 
 	log_cb(RETRO_LOG_INFO, "Rendering Options Updated!\n");
 }
