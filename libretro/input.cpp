@@ -154,8 +154,12 @@ void GamePad::DoRumble(unsigned type, unsigned pad)
 
 	if (type == 0)
 		rumble.set_rumble_state(pad, RETRO_RUMBLE_WEAK, 0xFFFF);
-	else
+	else if (type == 1)
 		rumble.set_rumble_state(pad, RETRO_RUMBLE_STRONG, 0xFFFF);
+  else if (type == 2)
+		rumble.set_rumble_state(pad, RETRO_RUMBLE_WEAK, 0x0);
+  else
+		rumble.set_rumble_state(pad, RETRO_RUMBLE_STRONG, 0x0);
 }
 
 EXPORT_C_(void)
