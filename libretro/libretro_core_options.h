@@ -19,7 +19,7 @@ struct retro_core_option_definition option_defs[] = {
 
 	{"pcsx2_fastboot",
 	"Fast Boot",
-	"This will bypass the intial bios logo, with the side effect that bios settings like the system language will not be applied. (Content restart required)",
+	"This will bypass the intial BIOS logo, with the side effect that BIOS settings like the system language will not be applied. (Content restart required)",
 	{
 		{"disabled", NULL},
 		{"enabled", NULL},
@@ -79,6 +79,16 @@ struct retro_core_option_definition option_defs[] = {
 		{NULL, NULL},
 	},
 	"0" },
+
+	{"pcsx2_rumble_enable",
+	"Gamepad: Enable Rumble",
+	"Enables rumble on gamepads that support it",
+	{
+		{"disabled", NULL},
+		{"enabled", NULL},
+		{NULL, NULL},
+	},
+	"enabled"},
 
 
 	{"pcsx2_enable_speedhacks",

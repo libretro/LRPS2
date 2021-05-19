@@ -22,9 +22,10 @@
 #include "options_tools.h"
 #include "input.h"
 #include "svnrev.h"
+#include "disk_control.h"
 #include "SPU2/Global.h"
 #include "ps2/BiosTools.h"
-#include "CDVD/CDVD.h"
+
 #include "MTVU.h"
 
 #ifdef PERF_TEST
@@ -74,189 +75,6 @@ void retro_set_environment(retro_environment_t cb)
 #endif
 }
 
-static void RetroLog_DoSetColor(ConsoleColors color)
-{
-	if (color != Color_Current)
-		log_color = color;
-}
-
-static void RetroLog_DoWrite(const wxString& fmt)
-{
-	retro_log_level level = RETRO_LOG_INFO;
-	switch (log_color)
-	{
-		case Color_StrongRed: // intended for errors
-			level = RETRO_LOG_ERROR;
-			break;
-		case Color_StrongOrange: // intended for warnings
-			level = RETRO_LOG_WARN;
-			break;
-		case Color_Cyan:   // faint visibility, intended for logging PS2/IOP output
-		case Color_Yellow: // faint visibility, intended for logging PS2/IOP output
-		case Color_White:  // faint visibility, intended for logging PS2/IOP output
-			level = RETRO_LOG_DEBUG;
-			break;
-		default:
-		case Color_Default:
-		case Color_Black:
-		case Color_Green:
-		case Color_Red:
-		case Color_Blue:
-		case Color_Magenta:
-		case Color_Orange:
-		case Color_Gray:
-		case Color_StrongBlack:
-		case Color_StrongGreen: // intended for infrequent state information
-		case Color_StrongBlue:  // intended for block headings
-		case Color_StrongMagenta:
-		case Color_StrongGray:
-		case Color_StrongCyan:
-		case Color_StrongYellow:
-		case Color_StrongWhite:
-			break;
-	}
-
-	log_cb(level, "%s", (const char*)fmt);
-}
-
-static void RetroLog_SetTitle(const wxString& title)
-{
-	RetroLog_DoWrite(title + L"\n");
-}
-
-static void RetroLog_Newline()
-{
-	//	RetroLog_DoWrite(L"\n");
-}
-
-static void RetroLog_DoWriteLn(const wxString& fmt)
-{
-	RetroLog_DoWrite(fmt + L"\n");
-}
-
-static const IConsoleWriter ConsoleWriter_Libretro =
-	{
-		RetroLog_DoWrite,
-		RetroLog_DoWriteLn,
-		RetroLog_DoSetColor,
-
-		RetroLog_DoWrite,
-		RetroLog_Newline,
-		RetroLog_SetTitle,
-
-		0, // instance-level indentation (should always be 0)
-};
-
-static wxVector<wxString> disk_images;
-static int image_index = 0;
-static bool eject_state;
-static bool RETRO_CALLCONV set_eject_state(bool ejected)
-{
-	if (eject_state == ejected)
-		return false;
-
-	eject_state = ejected;
-
-	GetMTGS().FinishTaskInThread();
-	CoreThread.Pause();
-
-	if (ejected)
-		cdvdCtrlTrayOpen();
-	else
-	{
-		if (image_index < 0 || image_index >= (int)disk_images.size())
-			g_Conf->CdvdSource = CDVD_SourceType::NoDisc;
-		else
-		{
-			g_Conf->CurrentIso = disk_images[image_index];
-			g_Conf->CdvdSource = CDVD_SourceType::Iso;
-			CDVDsys_SetFile(CDVD_SourceType::Iso, g_Conf->CurrentIso);
-		}
-		cdvdCtrlTrayClose();
-	}
-
-	CoreThread.Resume();
-	return true;
-}
-static bool RETRO_CALLCONV get_eject_state(void)
-{
-	return eject_state;
-}
-
-static unsigned RETRO_CALLCONV get_image_index(void)
-{
-	return image_index;
-}
-static bool RETRO_CALLCONV set_image_index(unsigned index)
-{
-	if (eject_state)
-		image_index = index;
-
-	return eject_state;
-}
-static unsigned RETRO_CALLCONV get_num_images(void)
-{
-	return disk_images.size();
-}
-
-static bool RETRO_CALLCONV replace_image_index(unsigned index, const struct retro_game_info* info)
-{
-	if (index >= disk_images.size())
-		return false;
-
-	if (!info->path)
-	{
-		disk_images.erase(disk_images.begin() + index);
-		if (!disk_images.size())
-			image_index = -1;
-		else if (image_index > (int)index)
-			image_index--;
-	}
-	else
-		disk_images[index] = info->path;
-
-	return true;
-}
-
-static bool RETRO_CALLCONV add_image_index(void)
-{
-	disk_images.push_back("");
-	return true;
-}
-
-static bool RETRO_CALLCONV set_initial_image(unsigned index, const char* path)
-{
-	if (index >= disk_images.size())
-		index = 0;
-
-	image_index = index;
-
-	return true;
-}
-
-static bool RETRO_CALLCONV get_image_path(unsigned index, char* path, size_t len)
-{
-	if (index >= disk_images.size())
-		return false;
-
-	if (disk_images[index].empty())
-		return false;
-
-	strncpy(path, disk_images[index].c_str(), len);
-	return true;
-}
-static bool RETRO_CALLCONV get_image_label(unsigned index, char* label, size_t len)
-{
-	if (index >= disk_images.size())
-		return false;
-
-	if (disk_images[index].empty())
-		return false;
-
-	strncpy(label, disk_images[index].c_str(), len);
-	return true;
-}
-
 void retro_init(void)
 {
 	enum retro_pixel_format xrgb888 = RETRO_PIXEL_FORMAT_XRGB8888;
@@ -265,9 +83,6 @@ void retro_init(void)
 	if (environ_cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &log))
 	{
 		log_cb = log.log;
-#if 0
-		Console_SetActiveHandler(ConsoleWriter_Libretro);
-#endif
 	}
 
 	const char* system = nullptr;
@@ -319,7 +134,7 @@ void retro_init(void)
 	g_Conf = std::make_unique<AppConfig>();
 	pcsx2->DetectCpuAndUserMode();
 	pcsx2->AllocateCoreStuffs();
-	//	pcsx2->GetGameDatabase();
+
 	if (!option_value(BOOL_PCSX2_OPT_ENABLE_SPEEDHACKS, KeyOptionBool::return_type))
 		g_Conf->PresetIndex = 1;
 
@@ -334,16 +149,16 @@ void retro_init(void)
 	g_Conf->EmuOptions.GS.FramesToSkip = option_value(INT_PCSX2_OPT_FRAMES_TO_SKIP, KeyOptionInt::return_type);
 
 	static retro_disk_control_ext_callback disk_control = {
-		set_eject_state,
-		get_eject_state,
-		get_image_index,
-		set_image_index,
-		get_num_images,
-		replace_image_index,
-		add_image_index,
-		set_initial_image,
-		get_image_path,
-		get_image_label,
+		DiskControl::set_eject_state,
+		DiskControl::get_eject_state,
+		DiskControl::get_image_index,
+		DiskControl::set_image_index,
+		DiskControl::get_num_images,
+		DiskControl::replace_image_index,
+		DiskControl::add_image_index,
+		DiskControl::set_initial_image,
+		DiskControl::get_image_path,
+		DiskControl::get_image_label,
 	};
 
 	environ_cb(RETRO_ENVIRONMENT_SET_DISK_CONTROL_EXT_INTERFACE, &disk_control);
@@ -405,7 +220,7 @@ void retro_reset(void)
 {
 	GetMTGS().FinishTaskInThread();
 	GetCoreThread().ResetQuick();
-	eject_state = false;	
+	DiskControl::eject_state = false;
 }
 
 static void context_reset(void)
@@ -552,7 +367,7 @@ bool retro_load_game(const struct retro_game_info* game)
 	g_Conf->CurrentIRX = "";
 	g_Conf->BaseFilenames.Bios = selected_bios;
 
-	eject_state = false;
+	DiskControl::eject_state = false;
 
 	if (game)
 	{
@@ -569,7 +384,7 @@ bool retro_load_game(const struct retro_game_info* game)
 			game_paths.push_back(game->path);
 		}
 
-		disk_images.assign(game_paths.begin(), game_paths.end());
+		DiskControl::disk_images.assign(game_paths.begin(), game_paths.end());
 
 		u32 magic = 0;
 		FILE* fp = fopen(game_paths[0], "rb");
@@ -586,7 +401,7 @@ bool retro_load_game(const struct retro_game_info* game)
 		if (magic == 0x464C457F) // elf
 		{
 			// g_Conf->CurrentIRX = "";
-			log_cb(RETRO_LOG_INFO, "Something went wrong while loading game\n");
+			log_cb(RETRO_LOG_INFO, "ELF file detected, loading content....\n");
 			g_Conf->EmuOptions.UseBOOT2Injection = true;
 			pcsx2->SysExecute(CDVD_SourceType::NoDisc, game_paths[0]);
 		}
@@ -616,6 +431,7 @@ bool retro_load_game(const struct retro_game_info* game)
 	//	g_Conf->EmuOptions.GS.SynchronousMTGS = true;
 
 	Input::Init();
+	Input::RumbleEnabled(option_value(BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE, KeyOptionBool::return_type));
 
 	retro_hw_context_type context_type = RETRO_HW_CONTEXT_OPENGL;
 	const char* option_renderer = option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type);
@@ -664,6 +480,7 @@ void retro_run(void)
 		SetGSConfig().FramesToDraw = option_value(INT_PCSX2_OPT_FRAMES_TO_DRAW, KeyOptionInt::return_type);
 		SetGSConfig().FramesToSkip = option_value(INT_PCSX2_OPT_FRAMES_TO_SKIP, KeyOptionInt::return_type);
 		GSUpdateOptions();
+		Input::RumbleEnabled(option_value(BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE, KeyOptionBool::return_type));
 	}
 
 	Input::Update();
