@@ -11,7 +11,6 @@
 #include "../plugins/onepad/keyboard.h"
 #include "../plugins/onepad/state_management.h"
 #include "../plugins/onepad/KeyStatus.h"
-#include "options_tools.h"
 
 extern retro_environment_t environ_cb;
 static retro_input_poll_t poll_cb;
@@ -118,7 +117,6 @@ void setRumbleLevel(int percent)
 		percent = 0;
 
 	rumble_level = rumble_max * percent / 100;
-	log_cb(RETRO_LOG_DEBUG, "Rumble level set to %i percent: %X", percent, rumble_level);
 	
 }
 
