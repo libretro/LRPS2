@@ -431,7 +431,10 @@ bool retro_load_game(const struct retro_game_info* game)
 	//	g_Conf->EmuOptions.GS.SynchronousMTGS = true;
 
 	Input::Init();
-	Input::RumbleEnabled(option_value(BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE, KeyOptionBool::return_type));
+	Input::RumbleEnabled(
+		option_value(BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE, KeyOptionBool::return_type),
+		option_value(INT_PCSX2_OPT_GAMEPAD_RUMBLE_FORCE, KeyOptionInt::return_type)
+		);
 
 	retro_hw_context_type context_type = RETRO_HW_CONTEXT_OPENGL;
 	const char* option_renderer = option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type);
@@ -480,7 +483,10 @@ void retro_run(void)
 		SetGSConfig().FramesToDraw = option_value(INT_PCSX2_OPT_FRAMES_TO_DRAW, KeyOptionInt::return_type);
 		SetGSConfig().FramesToSkip = option_value(INT_PCSX2_OPT_FRAMES_TO_SKIP, KeyOptionInt::return_type);
 		GSUpdateOptions();
-		Input::RumbleEnabled(option_value(BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE, KeyOptionBool::return_type));
+		Input::RumbleEnabled(
+			option_value(BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE, KeyOptionBool::return_type),
+			option_value(INT_PCSX2_OPT_GAMEPAD_RUMBLE_FORCE, KeyOptionInt::return_type)
+		);
 	}
 
 	Input::Update();

@@ -37,6 +37,9 @@ static const char* INT_PCSX2_OPT_USERHACK_SKIPDRAW_LAYERS = "pcsx2_userhack_skip
 static const char* INT_PCSX2_OPT_USERHACK_HALFPIXEL_OFFSET = "pcsx2_userhack_halfpixel_offset";
 static const char* INT_PCSX2_OPT_USERHACK_ROUND_SPRITE = "pcsx2_userhack_round_sprite";
 static const char* INT_PCSX2_OPT_USERHACK_HALFSCREEN_FIX = "pcsx2_userhack_halfscreen_fix";
+static const char* INT_PCSX2_OPT_GAMEPAD_RUMBLE_FORCE = "pcsx2_rumble_intensity";
+
+
 
 
 enum class KeyOptionBool

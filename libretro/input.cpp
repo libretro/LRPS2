@@ -11,6 +11,7 @@
 #include "../plugins/onepad/keyboard.h"
 #include "../plugins/onepad/state_management.h"
 #include "../plugins/onepad/KeyStatus.h"
+#include "options_tools.h"
 
 extern retro_environment_t environ_cb;
 static retro_input_poll_t poll_cb;
@@ -64,6 +65,8 @@ static struct retro_input_descriptor desc[] = {
 };
 
 bool rumble_enabled = true;
+const uint16_t rumble_max = 0xFFFF;
+uint16_t rumble_level = 0x0;
 
 namespace Input
 {
@@ -101,9 +104,22 @@ void Update()
 	Pad::rumble_all();
 }
 
-void RumbleEnabled(bool enabled)
+void RumbleEnabled(bool enabled, int percent)
 {
 	rumble_enabled = enabled;
+	setRumbleLevel(percent);
+}
+
+void setRumbleLevel(int percent)
+{
+	if (percent > 100)
+		percent = 100;
+	else if (percent < 0)
+		percent = 0;
+
+	rumble_level = rumble_max * percent / 100;
+	log_cb(RETRO_LOG_DEBUG, "Rumble level set to %i percent: %X", percent, rumble_level);
+	
 }
 
 
@@ -164,9 +180,9 @@ void GamePad::DoRumble(unsigned type, unsigned pad)
 			return;
 
 		if (type == 0)
-			rumble.set_rumble_state(pad, RETRO_RUMBLE_WEAK, 0xFFFF);
+			rumble.set_rumble_state(pad, RETRO_RUMBLE_WEAK, rumble_level);
 		else if (type == 1)
-			rumble.set_rumble_state(pad, RETRO_RUMBLE_STRONG, 0xFFFF);
+			rumble.set_rumble_state(pad, RETRO_RUMBLE_STRONG, rumble_level);
 		else if (type == 2)
 			rumble.set_rumble_state(pad, RETRO_RUMBLE_WEAK, 0x0);
 		else

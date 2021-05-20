@@ -90,6 +90,23 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	"enabled"},
 
+	{"pcsx2_rumble_intensity",
+	"Gamepad: Rumble Intensity",
+	"Intensity of gamepad rumble",
+	{
+		{"10", "10%"},
+		{"20", "20%"},
+		{"30", "30%"},
+		{"40", "40%"},
+		{"50", "50%"},
+		{"60", "60%"},
+		{"70", "70%"},
+		{"80", "80%"},
+		{"90", "90%"},
+		{"100", "100%"},
+		{NULL, NULL},
+	},
+	"100"},
 
 	{"pcsx2_enable_speedhacks",
 	"Enable SpeedHacks",
