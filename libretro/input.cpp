@@ -63,6 +63,10 @@ static struct retro_input_descriptor desc[] = {
 	{0},
 };
 
+bool rumble_enabled = true;
+const uint16_t rumble_max = 0xFFFF;
+uint16_t rumble_level = 0x0;
+
 namespace Input
 {
 
@@ -98,6 +102,24 @@ void Update()
 #endif
 	Pad::rumble_all();
 }
+
+void RumbleEnabled(bool enabled, int percent)
+{
+	rumble_enabled = enabled;
+	setRumbleLevel(percent);
+}
+
+void setRumbleLevel(int percent)
+{
+	if (percent > 100)
+		percent = 100;
+	else if (percent < 0)
+		percent = 0;
+
+	rumble_level = rumble_max * percent / 100;
+	
+}
+
 
 } // namespace Input
 
@@ -149,17 +171,21 @@ void GamePad::EnumerateGamePads(std::vector<std::unique_ptr<GamePad>>& vgamePad)
 
 void GamePad::DoRumble(unsigned type, unsigned pad)
 {
-	if (pad >= GAMEPAD_NUMBER)
-		return;
+	if (rumble_enabled)
+	{
 
-	if (type == 0)
-		rumble.set_rumble_state(pad, RETRO_RUMBLE_WEAK, 0xFFFF);
-	else if (type == 1)
-		rumble.set_rumble_state(pad, RETRO_RUMBLE_STRONG, 0xFFFF);
-  else if (type == 2)
-		rumble.set_rumble_state(pad, RETRO_RUMBLE_WEAK, 0x0);
-  else
-		rumble.set_rumble_state(pad, RETRO_RUMBLE_STRONG, 0x0);
+		if (pad >= GAMEPAD_NUMBER)
+			return;
+
+		if (type == 0)
+			rumble.set_rumble_state(pad, RETRO_RUMBLE_WEAK, rumble_level);
+		else if (type == 1)
+			rumble.set_rumble_state(pad, RETRO_RUMBLE_STRONG, rumble_level);
+		else if (type == 2)
+			rumble.set_rumble_state(pad, RETRO_RUMBLE_WEAK, 0x0);
+		else
+			rumble.set_rumble_state(pad, RETRO_RUMBLE_STRONG, 0x0);
+	}
 }
 
 EXPORT_C_(void)

@@ -2,8 +2,8 @@
  * Options tools
  * The aim is to provide the access to core options through the call of the same function
  * indipendently from the return types, improving readability and maintaining of the code.
- * The function is exposed with overrides which return boolean, string or int.
- * The KeyOption enum types are used only as a trick to select the needed override.
+ * The function is exposed with overloads which return boolean, string or int.
+ * The KeyOption enum types are used only as a trick to select the needed overloaded function.
  * 
  */
 
@@ -21,6 +21,7 @@ static const char* BOOL_PCSX2_OPT_FRAMESKIP = "pcsx2_frameskip";
 static const char* BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE = "pcsx2_userhack_align_sprite";
 static const char* BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE = "pcsx2_userhack_merge_sprite";
 static const char* BOOL_PCSX2_OPT_USERHACK_WILDARMS_OFFSET = "pcsx2_userhack_wildarms_offset";
+static const char* BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE = "pcsx2_rumble_enable";
 
 static const char* STRING_PCSX2_OPT_BIOS = "pcsx2_bios";
 static const char* STRING_PCSX2_OPT_RENDERER = "pcsx2_renderer";
@@ -31,13 +32,14 @@ static const char* INT_PCSX2_OPT_FRAMES_TO_DRAW = "pcsx2_frames_to_draw";
 static const char* INT_PCSX2_OPT_FRAMES_TO_SKIP = "pcsx2_frames_to_skip";
 static const char* INT_PCSX2_OPT_RENDERER_THREADS = "pcsx2_sw_renderer_threads";
 static const char* INT_PCSX2_OPT_ANISOTROPIC_FILTER = "pcsx2_anisotropic_filter";
-
-
 static const char* INT_PCSX2_OPT_USERHACK_SKIPDRAW_START = "pcsx2_userhack_skipdraw_start";
 static const char* INT_PCSX2_OPT_USERHACK_SKIPDRAW_LAYERS = "pcsx2_userhack_skipdraw_layers";
 static const char* INT_PCSX2_OPT_USERHACK_HALFPIXEL_OFFSET = "pcsx2_userhack_halfpixel_offset";
 static const char* INT_PCSX2_OPT_USERHACK_ROUND_SPRITE = "pcsx2_userhack_round_sprite";
 static const char* INT_PCSX2_OPT_USERHACK_HALFSCREEN_FIX = "pcsx2_userhack_halfscreen_fix";
+static const char* INT_PCSX2_OPT_GAMEPAD_RUMBLE_FORCE = "pcsx2_rumble_intensity";
+
+
 
 
 enum class KeyOptionBool
