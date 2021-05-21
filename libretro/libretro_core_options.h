@@ -59,13 +59,23 @@ struct retro_core_option_definition option_defs[] = {
 
 	{"pcsx2_aspect_ratio",
 	"Aspect Ratio",
-	"Content restart required",
+	"Sets the aspect ratio. Setting the aspect ratio to Widescreen (16:9) stretches the display. For proper widescreen in select games, also turn on the 'Enable Widescreen Patches' option. (Content restart required)",
 	{
 		{"0", "Standard (4:3)"},
 		{"1", "Widescreen (16:9)"},
 		{NULL, NULL},
 	},
 	"0"},
+
+	{"pcsx2_enable_widescreen_patches",
+	"Enable Widescreen Patches",
+	"Enables widescreen patches that allow certain games to render in true 16:9 ratio without stretching the display. For the widescreen patches to display properly, the 'Aspect Ratio' option should be set to Widescreen (16:9). (Content restart required)",
+	{
+		{"disabled", NULL},
+		{"enabled", NULL},
+		{NULL, NULL},
+	},
+	"disabled"},
 
 	{"pcsx2_anisotropic_filter",
 	 "Anisotropic Filtering",
