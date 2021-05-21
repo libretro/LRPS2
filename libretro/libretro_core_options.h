@@ -57,15 +57,15 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	"1"},
 
-	{"pcsx2_force_widescreen",
-	"Force Widescreen",
+	{"pcsx2_aspect_ratio",
+	"Aspect Ratio",
 	"Content restart required",
 	{
-		{"disabled", NULL},
-		{"enabled", NULL},
+		{"0", "Standard (4:3)"},
+		{"1", "Widescreen (16:9)"},
 		{NULL, NULL},
 	},
-	"disabled"},
+	"0"},
 
 	{"pcsx2_anisotropic_filter",
 	 "Anisotropic Filtering",

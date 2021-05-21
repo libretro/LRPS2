@@ -15,7 +15,6 @@ extern retro_log_printf_t log_cb;
 extern void GSUpdateOptions();
 
 static const char* BOOL_PCSX2_OPT_FASTBOOT = "pcsx2_fastboot";
-static const char* BOOL_PCSX2_OPT_FORCE_WIDESCREEN = "pcsx2_force_widescreen";
 static const char* BOOL_PCSX2_OPT_ENABLE_SPEEDHACKS = "pcsx2_enable_speedhacks";
 static const char* BOOL_PCSX2_OPT_FRAMESKIP = "pcsx2_frameskip";
 static const char* BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE = "pcsx2_userhack_align_sprite";
@@ -25,6 +24,7 @@ static const char* BOOL_PCSX2_OPT_USERHACK_WILDARMS_OFFSET = "pcsx2_userhack_wil
 static const char* STRING_PCSX2_OPT_BIOS = "pcsx2_bios";
 static const char* STRING_PCSX2_OPT_RENDERER = "pcsx2_renderer";
 
+static const char* INT_PCSX2_OPT_ASPECT_RATIO = "pcsx2_aspect_ratio";
 static const char* INT_PCSX2_OPT_UPSCALE_MULTIPLIER = "pcsx2_upscale_multiplier";
 static const char* INT_PCSX2_OPT_SPEEDHACKS_PRESET = "pcsx2_speedhacks_presets";
 static const char* INT_PCSX2_OPT_FRAMES_TO_DRAW = "pcsx2_frames_to_draw";

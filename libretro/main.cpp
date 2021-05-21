@@ -393,7 +393,7 @@ void retro_get_system_av_info(retro_system_av_info* info)
 	info->geometry.max_width = info->geometry.base_width;
 	info->geometry.max_height = info->geometry.base_height;
 
-	if (! option_value(BOOL_PCSX2_OPT_FORCE_WIDESCREEN, KeyOptionBool::return_type))
+	if (option_value(INT_PCSX2_OPT_ASPECT_RATIO, KeyOptionInt::return_type) == 0)
 		info->geometry.aspect_ratio = 4.0f / 3.0f;
 	else
 		info->geometry.aspect_ratio = 16.0f / 9.0f;
