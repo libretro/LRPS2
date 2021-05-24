@@ -128,6 +128,7 @@ void retro_init(void)
 	//pcsx2 = new Pcsx2App;
 	//wxApp::SetInstance(pcsx2);
 	pcsx2 = &wxGetApp();
+
 #if 0
 	int argc = 0;
 	pcsx2->Initialize(argc, (wchar_t**)nullptr);
