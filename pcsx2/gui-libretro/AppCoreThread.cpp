@@ -44,9 +44,9 @@
 * These bool variable are for keep trace if the messages to the frontend about "cheat ws found/not found" are already sent.
 * This is a side effect of a strange problem that at game boot the function _ApplySettings runs multiple time:
 * 2 times if widescreen patches option is disabled, 4 times if enabled.
-* This eems to be the cause of the very long boot times regitered when widescreen patches are enabled,
-* because the cheats_ws zip file went analyzed for patches 4 time consecutively.
-* The standalone pcsx2 seems to be not affected by this problem (checking its logs)
+* This sems to be the cause of the very long boot times regitered when widescreen patches are enabled,
+* because the cheats_ws zip file is scanned for patches 4 times consecutively.
+* The standalone pcsx2 seems to be not affected by this problem (by checking its logs)
 */
 bool msg_cheat_ws_found_sent = false;
 bool msg_cheat_ws_not_fount_sent = false;
