@@ -17,6 +17,21 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	NULL},
 
+	{"pcsx2_system_language",
+	"System Language",
+	"Set the BIOS system Language. Useful for PAL multilanguage games. The selected language will be applied, if available in-game. (Content restart required)",
+	{
+		{"English", NULL},
+		{"French", NULL},
+		{"Spanish", NULL},
+		{"German", NULL},
+		{"Italian", NULL},
+		{"Dutch", NULL},
+		{"Portuguese", NULL},
+		{NULL, NULL},
+	},
+	"Keep BIOS setting"},
+
 	{"pcsx2_fastboot",
 	"Fast Boot",
 	"This will bypass the intial BIOS logo, with the side effect that BIOS settings like the system language will not be applied. (Content restart required)",
@@ -40,7 +55,7 @@ struct retro_core_option_definition option_defs[] = {
 		{"Null", NULL},
 		{NULL, NULL},
 	},
-	"auto"},
+	"Auto"},
 
 	{"pcsx2_upscale_multiplier",
 	"Internal Resolution ",
@@ -69,7 +84,7 @@ struct retro_core_option_definition option_defs[] = {
 
 	{"pcsx2_enable_widescreen_patches",
 	"Enable Widescreen Patches",
-	"Enables widescreen patches that allow certain games to render in true 16:9 ratio without stretching the display. For the widescreen patches to display properly, the 'Aspect Ratio' option should be set to Widescreen (16:9). (Content restart required)",
+	"Enables widescreen patches that allow certain games to render in true 16:9 ratio without stretching the display. For the widescreen patches to display properly, the 'Aspect Ratio' option should be set to Widescreen (16:9). Considerably increases games boot time. (Content restart required)",
 	{
 		{"disabled", NULL},
 		{"enabled", NULL},
