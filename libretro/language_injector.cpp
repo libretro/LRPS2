@@ -153,7 +153,7 @@ namespace LanguageInjector
 			int checksum = 0;
 			for (size_t i = opt_index; i < opt_index + 15; i++) {
 				checksum += buffer[i] % 256;
-				log_cb(RETRO_LOG_DEBUG, "Calc checksum adding value: %x\n", buffer[i]);
+				//log_cb(RETRO_LOG_DEBUG, "Calc checksum adding value: %x\n", buffer[i]);
 			}
 			buffer[opt_index + 15] = checksum;
 			log_cb(RETRO_LOG_INFO, "checksum set to %x\n", checksum);
