@@ -20,6 +20,7 @@
 
 #include "GS.h"
 #include "options_tools.h"
+#include "retro_messager.h"
 #include "language_injector.h"
 #include "input.h"
 #include "svnrev.h"
@@ -55,6 +56,7 @@ retro_environment_t environ_cb;
 retro_video_refresh_t video_cb;
 struct retro_hw_render_callback hw_render;
 static ConsoleColors log_color = Color_Default;
+unsigned libretro_msg_interface_version = 0;
 retro_log_printf_t log_cb;
 
 // renderswitch - tells GSdx to go into dx9 sw if "renderswitch" is set.
@@ -87,6 +89,7 @@ void retro_init(void)
 	{
 		log_cb = log.log;
 	}
+	environ_cb(RETRO_ENVIRONMENT_GET_MESSAGE_INTERFACE_VERSION, &libretro_msg_interface_version);
 
 	const char* system = nullptr;
 	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
@@ -426,6 +429,7 @@ bool retro_load_game(const struct retro_game_info* game)
 			pcsx2->SysExecute(g_Conf->CdvdSource);
 			log_cb(RETRO_LOG_INFO, "Game Loaded\n");
 		}
+		
 	}
 	else
 	{
