@@ -14,6 +14,7 @@ namespace LanguageInjector
 {
 	void Inject(std::string bios_path, const char* language);
 	
+	
 	bool _ModifyNVM(std::string bios_path, bios_lang lang_data);
 	bios_lang _GetLanguageDataForBios(const char* bios_name, const char* language);
 	bool _ModifyLanguageOptionByte(uint8_t buffer[], bios_lang lang_data);

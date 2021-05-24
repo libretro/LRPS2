@@ -1,3 +1,10 @@
+/*
+* Language Injector by SeventySixx
+* According to the provided BIOS path and language option, injects the relative 
+* language byte in the nvm BIOS file. If a BIOS is not supported, or if the requested 
+* language is already set, it exits without doing nothing. 
+*/
+
 #include "language_injector.h"
 #include "options_tools.h"
 #include <fstream>
@@ -6,9 +13,11 @@
 
 static const char* BIOS_30004R_V6		= "PS2 Bios 30004R V6 Pal";
 static const char* BIOS_SCPH70004_V12	= "SCPH-70004_BIOS_V12_PAL_200";
+static const char* BIOS_SCPH39001		= "scph39001";
 
 static const uint8_t ADDRESS_SCPH70004_V12  = 0x2c;
 static const uint8_t ADDRESS_30004R_V6		= 0x31;
+static const uint8_t ADDRESS_SCPH39001		= 0x31;
 
 static const char* LANG_ENGLISH		= "English";
 static const char* LANG_FRENCH		= "French";
@@ -27,7 +36,7 @@ static const uint8_t BYTE_LANG_DUT = 0x26;
 static const uint8_t BYTE_LANG_POR = 0x27;
 
 
-static const int NUM_BIOS_LANG_ENTRIES = 14;
+static const int NUM_BIOS_LANG_ENTRIES = 21;
 
 
 const bios_lang bios_language[NUM_BIOS_LANG_ENTRIES] = {
@@ -47,6 +56,13 @@ const bios_lang bios_language[NUM_BIOS_LANG_ENTRIES] = {
 	{ BIOS_SCPH70004_V12, LANG_DUTCH,		ADDRESS_SCPH70004_V12, BYTE_LANG_DUT },
 	{ BIOS_SCPH70004_V12, LANG_PORTUGUESE,	ADDRESS_SCPH70004_V12, BYTE_LANG_POR  },
 
+	{ BIOS_SCPH39001, LANG_ENGLISH,		ADDRESS_SCPH39001, BYTE_LANG_ENG },
+	{ BIOS_SCPH39001, LANG_FRENCH,		ADDRESS_SCPH39001, BYTE_LANG_FRA },
+	{ BIOS_SCPH39001, LANG_SPANISH,		ADDRESS_SCPH39001, BYTE_LANG_SPA },
+	{ BIOS_SCPH39001, LANG_GERMAN,		ADDRESS_SCPH39001, BYTE_LANG_GER },
+	{ BIOS_SCPH39001, LANG_ITALIAN,		ADDRESS_SCPH39001, BYTE_LANG_ITA },
+	{ BIOS_SCPH39001, LANG_DUTCH,		ADDRESS_SCPH39001, BYTE_LANG_DUT },
+	{ BIOS_SCPH39001, LANG_PORTUGUESE,	ADDRESS_SCPH39001, BYTE_LANG_POR  },
 };
 
 
@@ -75,8 +91,6 @@ namespace LanguageInjector
 		}
 
 	}
-
-
 
 
 	bios_lang _GetLanguageDataForBios(const char* bios_name, const char* language) {
@@ -113,17 +127,6 @@ namespace LanguageInjector
 		infile.close();
 		log_cb(RETRO_LOG_DEBUG, "File read in buffer\n", buffer);
 
-		/*
-		log_cb(RETRO_LOG_DEBUG, "1 byte: %x\n", buffer[0]);
-		log_cb(RETRO_LOG_DEBUG, "2 byte: %x\n", buffer[1]);
-		log_cb(RETRO_LOG_DEBUG, "3 byte: %x\n", buffer[2]);
-		log_cb(RETRO_LOG_DEBUG, "4 byte: %x\n", buffer[3]);
-		log_cb(RETRO_LOG_DEBUG, "1 byte: %x\n", buffer[4]);
-		log_cb(RETRO_LOG_DEBUG, "2 byte: %x\n", buffer[5]);
-		log_cb(RETRO_LOG_DEBUG, "3 byte: %x\n", buffer[6]);
-		log_cb(RETRO_LOG_DEBUG, "4 byte: %x\n", buffer[7]);
-		*/
-
 		if (_ModifyLanguageOptionByte(buffer, lang_data)) {
 			std::ofstream outfile(path_nvm_output, std::ofstream::binary);
 			outfile.write((char*)buffer, BUFFER_SIZE);                      // write the actual text
@@ -136,8 +139,10 @@ namespace LanguageInjector
 
 
 	bool _ModifyLanguageOptionByte(uint8_t buffer[], bios_lang lang_data) {
+
 		size_t opt_index = (size_t)lang_data.address * 16;
 		log_cb(RETRO_LOG_DEBUG, "Checking language byte, found: %x\n", buffer[opt_index + 1]);
+
 		if (buffer[opt_index + 1] == lang_data.byte_lang) {
 			log_cb(RETRO_LOG_INFO, "Language already set to %s, no need to inject language byte\n", lang_data.language);
 		}
@@ -157,13 +162,10 @@ namespace LanguageInjector
 		return false;
 	}
 
+
 	bool _FirstUpper(const std::string& word) {
 		return word.size() && std::isupper(word[0]);
 	}
-
-
-	
-
 
 
 
