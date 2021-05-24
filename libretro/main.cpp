@@ -20,11 +20,14 @@
 
 #include "GS.h"
 #include "options_tools.h"
+#include "language_injector.h"
 #include "input.h"
 #include "svnrev.h"
 #include "disk_control.h"
 #include "SPU2/Global.h"
 #include "ps2/BiosTools.h"
+
+
 
 #include "MTVU.h"
 
@@ -163,6 +166,7 @@ void retro_init(void)
 	};
 
 	environ_cb(RETRO_ENVIRONMENT_SET_DISK_CONTROL_EXT_INTERFACE, &disk_control);
+
 }
 
 void retro_deinit(void)
@@ -349,6 +353,7 @@ read_m3u_file(const wxFileName& m3u_file)
 
 bool retro_load_game(const struct retro_game_info* game)
 {
+
 	const char* selected_bios = option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type);
 	if (selected_bios == NULL)
 	{
@@ -372,6 +377,12 @@ bool retro_load_game(const struct retro_game_info* game)
 
 	if (game)
 	{
+
+		LanguageInjector::Inject(
+			(std::string)option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type),
+			option_value(STRING_PCSX2_OPT_SYSTEM_LANGUAGE, KeyOptionString::return_type)
+		);
+
 		wxVector<wxString> game_paths;
 
 		wxFileName file_name(game->path);

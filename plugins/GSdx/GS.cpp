@@ -471,12 +471,12 @@ EXPORT_C_(int) GSopen2(void** dsp, uint32 flags)
 			if (! std::strcmp(option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type), "Software"))
 			{
 				theApp.SetCurrentRendererType(GSRendererType::OGL_SW);
-				log_cb(RETRO_LOG_ERROR, "Selected Renderer: OGL_SW\n");
+				log_cb(RETRO_LOG_INFO, "Selected Renderer: OGL_SW\n");
 			}
 			else
 			{
 				theApp.SetCurrentRendererType(GSRendererType::OGL_HW);
-				log_cb(RETRO_LOG_ERROR, "Selected Renderer: OGL_HW\n");
+				log_cb(RETRO_LOG_INFO, "Selected Renderer: OGL_HW\n");
 			}
 			break;
 	}
