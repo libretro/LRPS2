@@ -19,7 +19,7 @@ struct retro_core_option_definition option_defs[] = {
 
 	{"pcsx2_system_language",
 	"System Language",
-	"Set the BIOS system Language. Useful for PAL multilanguage games. The selected language will be applied, if available in-game. (Content restart required)",
+	"Set the BIOS system Language. Useful for PAL multilanguage games. Fastboot option must be disabled. The selected language will be applied, if available in-game. (Content restart required)",
 	{
 		{"English", NULL},
 		{"French", NULL},
