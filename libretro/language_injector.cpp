@@ -77,7 +77,6 @@ namespace LanguageInjector
 	
 	void Inject(std::string bios_path, const char* language) {
 
-
 		wxString description;
 		wxString bios_file = wxString(bios_path.c_str());
 		if (!IsBIOS(bios_file, description)) {
@@ -87,13 +86,7 @@ namespace LanguageInjector
 		std::string bios_descr = (std::string)description;
 
 		bios_descr.erase(remove(bios_descr.begin(), bios_descr.end(), ' '), bios_descr.end());
-
-		//log_cb(RETRO_LOG_INFO, "Detected bios description (before): %s \n", ((std::string)description).c_str());
 		log_cb(RETRO_LOG_INFO, "Detected BIOS: %s \n", bios_descr.c_str());
-		
-
-		//size_t last_dot_index = bios_path.find_last_of(".");
-		//std::string rawpath = bios_path.substr(0, last_dot_index);
 
 		size_t last_slash_index = bios_path.find_last_of("\\/");
 		std::string bios_name = bios_path.substr(last_slash_index + 1, bios_path.length());
