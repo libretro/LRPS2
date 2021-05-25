@@ -31,6 +31,29 @@
 #include "R5900Exceptions.h"
 #include "Sio.h"
 
+
+#ifdef __LIBRETRO__
+#include "retro_messager.h"
+#endif 
+
+
+
+#ifdef __LIBRETRO__
+
+/*
+* These bool variable are for keep trace if the messages to the frontend about "cheat ws found/not found" are already sent.
+* This is a side effect of a strange problem that at game boot the function _ApplySettings runs multiple time:
+* 2 times if widescreen patches option is disabled, 4 times if enabled.
+* This seems to be the cause of the very long boot times regitered when widescreen patches are enabled,
+* because the cheats_ws zip file is scanned for patches 4 times consecutively.
+* The standalone pcsx2 seems to be not affected by this problem (by checking its logs)
+*/
+bool msg_cheat_ws_found_sent = false;
+bool msg_cheat_ws_not_found_sent = false;
+
+#endif
+
+
 __aligned16 SysMtgsThread mtgsThread;
 __aligned16 AppCoreThread CoreThread;
 
@@ -466,6 +489,16 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 		{
 			gameWsHacks.Printf(L" [%d widescreen hacks]", numberLoadedWideScreenPatches);
 			Console.WriteLn(Color_Gray, "Found widescreen patches in the cheats_ws folder --> skipping cheats_ws.zip");
+#ifdef __LIBRETRO__
+			if (!msg_cheat_ws_found_sent) 
+			{
+				RetroMessager::Message(3, RETRO_LOG_INFO,
+					RETRO_MESSAGE_TARGET_OSD,
+					RETRO_MESSAGE_TYPE_NOTIFICATION,
+					"Found Widescreen Patch. Applied.\n");
+				msg_cheat_ws_found_sent = true;
+			}
+#endif
 		}
 		else
 		{
@@ -474,6 +507,32 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 			int numberDbfCheatsLoaded = LoadPatchesFromZip(gameCRC, cheats_ws_archive);
 			PatchesCon->WriteLn(Color_Green, "(Wide Screen Cheats DB) Patches Loaded: %d", numberDbfCheatsLoaded);
 			gameWsHacks.Printf(L" [%d widescreen hacks]", numberDbfCheatsLoaded);
+
+#ifdef __LIBRETRO__
+			if (numberDbfCheatsLoaded) {
+				if (!msg_cheat_ws_found_sent)
+				{
+					RetroMessager::Message(3, RETRO_LOG_INFO,
+						RETRO_MESSAGE_TARGET_OSD,
+						RETRO_MESSAGE_TYPE_NOTIFICATION,
+						"Found Widescreen Patch. Applied.\n");
+					msg_cheat_ws_found_sent = true;
+				}
+			}
+			else
+			{
+				if (!msg_cheat_ws_not_found_sent)
+				{
+					RetroMessager::Message(3, RETRO_LOG_INFO,
+						RETRO_MESSAGE_TARGET_OSD,
+						RETRO_MESSAGE_TYPE_NOTIFICATION,
+						"Widescreen patch not found for the content\n");
+					msg_cheat_ws_not_found_sent = true;
+				}
+				
+			}
+#endif
+
 		}
 	}
 
