@@ -11,11 +11,15 @@
 #include <vector>
 #include <string>
 
-static const char* BIOS_30004R_V6		= "PS2 Bios 30004R V6 Pal";
-static const char* BIOS_SCPH70004_V12	= "SCPH-70004_BIOS_V12_PAL_200";
-static const char* BIOS_SCPH39001		= "scph39001";
+#include "SPU2/Global.h"
+#include "ps2/BiosTools.h"
 
-static const uint8_t ADDRESS_SCPH70004_V12  = 0x2c;
+static const char* BIOS_30004R_V6		= "Europev01.60(04/10/2001)Console";  //"PS2 Bios 30004R V6 Pal";
+static const char* BIOS_SCPH39001		= "USAv01.60(07/02/2002)Console";     //"scph39001";
+static const char* BIOS_SCPH70004_V12	= "Europev02.00(14/06/2004)Console";  //"SCPH-70004_BIOS_V12_PAL_200";
+
+
+static const uint8_t ADDRESS_SCPH70004_V12	= 0x2c;
 static const uint8_t ADDRESS_30004R_V6		= 0x31;
 static const uint8_t ADDRESS_SCPH39001		= 0x31;
 
@@ -72,14 +76,22 @@ namespace LanguageInjector
 	
 	void Inject(std::string bios_path, const char* language) {
 
-		size_t last_dot_index = bios_path.find_last_of(".");
-		std::string rawpath = bios_path.substr(0, last_dot_index);
+		wxString description;
+		wxString bios_file = wxString(bios_path.c_str());
+		if (!IsBIOS(bios_file, description)) {
+			log_cb(RETRO_LOG_INFO, "Invalid BIOS file: %s \n", bios_path);
+			return;
+		}
+		std::string bios_descr = (std::string)description;
 
-		size_t last_slash_index = rawpath.find_last_of("\\/");
-		std::string bios_name = rawpath.substr(last_slash_index + 1, rawpath.length());
-		log_cb(RETRO_LOG_DEBUG, "Isolated BIOS name: %s\n", bios_name.c_str());
+		bios_descr.erase(remove(bios_descr.begin(), bios_descr.end(), ' '), bios_descr.end());
+		log_cb(RETRO_LOG_INFO, "Detected BIOS: %s \n", bios_descr.c_str());
 
-		bios_lang lang_data = _GetLanguageDataForBios(bios_name.c_str(), language);
+		size_t last_slash_index = bios_path.find_last_of("\\/");
+		std::string bios_name = bios_path.substr(last_slash_index + 1, bios_path.length());
+		log_cb(RETRO_LOG_DEBUG, "BIOS file name: %s\n", bios_name.c_str());
+
+		bios_lang lang_data = _GetLanguageDataForBios(bios_descr.c_str(), language);
 
 		if (lang_data.bios_name == NULL) {
 			log_cb(RETRO_LOG_INFO, "No injection data found for Bios %s - language: %s \n", bios_name.c_str(), language);
@@ -125,7 +137,7 @@ namespace LanguageInjector
 		std::ifstream infile(path_nvm, std::ifstream::binary);
 		infile.read((char*)buffer, BUFFER_SIZE);
 		infile.close();
-		log_cb(RETRO_LOG_DEBUG, "File read in buffer\n", buffer);
+		//log_cb(RETRO_LOG_DEBUG, "File read in buffer\n", buffer);
 
 		if (_ModifyLanguageOptionByte(buffer, lang_data)) {
 			std::ofstream outfile(path_nvm_output, std::ofstream::binary);
