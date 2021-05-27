@@ -41,15 +41,12 @@
 #ifdef __LIBRETRO__
 
 /*
-* These bool variable are for keep trace if the messages to the frontend about "cheat ws found/not found" are already sent.
+* This bool variable is used to keep trace if the messages to the frontend about "cheat ws found" is already sent.
 * This is a side effect of a strange problem that at game boot the function _ApplySettings runs multiple time:
-* 2 times if widescreen patches option is disabled, 4 times if enabled.
-* This seems to be the cause of the very long boot times regitered when widescreen patches are enabled,
-* because the cheats_ws zip file is scanned for patches 4 times consecutively.
-* The standalone pcsx2 seems to be not affected by this problem (by checking its logs)
+* this is to be investigate deeper, if it's the cause of the very long boot time when cheat ws are enabled
 */
 bool msg_cheat_ws_found_sent = false;
-bool msg_cheat_ws_not_found_sent = false;
+
 
 #endif
 
@@ -495,7 +492,7 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 				RetroMessager::Message(3, RETRO_LOG_INFO,
 					RETRO_MESSAGE_TARGET_OSD,
 					RETRO_MESSAGE_TYPE_NOTIFICATION,
-					"Found Widescreen Patch. Applied.\n");
+					"Found and applied Widescreen Patch.\n");
 				msg_cheat_ws_found_sent = true;
 			}
 #endif
@@ -515,21 +512,9 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 					RetroMessager::Message(3, RETRO_LOG_INFO,
 						RETRO_MESSAGE_TARGET_OSD,
 						RETRO_MESSAGE_TYPE_NOTIFICATION,
-						"Found Widescreen Patch. Applied.\n");
+						"Found and applied Widescreen Patch.\n");
 					msg_cheat_ws_found_sent = true;
 				}
-			}
-			else
-			{
-				if (!msg_cheat_ws_not_found_sent)
-				{
-					RetroMessager::Message(3, RETRO_LOG_INFO,
-						RETRO_MESSAGE_TARGET_OSD,
-						RETRO_MESSAGE_TYPE_NOTIFICATION,
-						"Widescreen patch not found for the content\n");
-					msg_cheat_ws_not_found_sent = true;
-				}
-				
 			}
 #endif
 
