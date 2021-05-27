@@ -93,6 +93,21 @@ void retro_init(void)
 
 	const char* system = nullptr;
 	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
+	
+	//pcsx2 = new Pcsx2App;
+	//wxApp::SetInstance(pcsx2);
+	pcsx2 = &wxGetApp();
+	#if 0
+		int argc = 0;
+		pcsx2->Initialize(argc, (wchar_t**)nullptr);
+		wxModule::RegisterModules();
+		wxModule::InitializeModules();
+	#endif
+	InitCPUTicks();
+	pxDoOutOfMemory = SysOutOfMemory_EmergencyResponse;
+	g_Conf = std::make_unique<AppConfig>();
+	
+	
 	bios_dir = Path::Combine(system, "pcsx2/bios");
 
 	wxArrayString bios_list;
@@ -100,11 +115,11 @@ void retro_init(void)
 	static std::vector<std::string> bios_files;
 	for (wxString bios_file : bios_list)
 	{
-		wxString description;
-		if (IsBIOS(bios_file, description)) {
-			bios_files.push_back((std::string)bios_file);
-			bios_files.push_back((std::string)description);
-		}
+			wxString description;
+			if (IsBIOS(bios_file, description)) {
+				bios_files.push_back((std::string)bios_file);
+				bios_files.push_back((std::string)description);
+			}
 	}
 
 	for (retro_core_option_definition& def : option_defs)
@@ -125,20 +140,7 @@ void retro_init(void)
 
 	libretro_set_core_options(environ_cb);
 
-	//pcsx2 = new Pcsx2App;
-	//wxApp::SetInstance(pcsx2);
-	pcsx2 = &wxGetApp();
 
-#if 0
-	int argc = 0;
-	pcsx2->Initialize(argc, (wchar_t**)nullptr);
-	wxModule::RegisterModules();
-	wxModule::InitializeModules();
-#endif
-
-	InitCPUTicks();
-	pxDoOutOfMemory = SysOutOfMemory_EmergencyResponse;
-	g_Conf = std::make_unique<AppConfig>();
 	pcsx2->DetectCpuAndUserMode();
 	pcsx2->AllocateCoreStuffs();
 
