@@ -27,6 +27,7 @@
 #include "disk_control.h"
 #include "SPU2/Global.h"
 #include "ps2/BiosTools.h"
+#include "memcard_retro.h"
 
 
 
@@ -106,6 +107,7 @@ void retro_init(void)
 	InitCPUTicks();
 	pxDoOutOfMemory = SysOutOfMemory_EmergencyResponse;
 	g_Conf = std::make_unique<AppConfig>();
+	
 	
 	
 	bios_dir = Path::Combine(system, "pcsx2/bios");
@@ -425,10 +427,38 @@ bool retro_load_game(const struct retro_game_info* game)
 		}
 		else
 		{	
-		
+			const char* path_to_memcard_file = nullptr;
+			if (! option_value(BOOL_PCSX2_OPT_MEMCARD_MULTIDISK, KeyOptionBool::return_type)) {
+				const char* save_dir = nullptr;
+				environ_cb(RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY, &save_dir);
+				log_cb(RETRO_LOG_DEBUG, "save directory: %s\n", save_dir);
+				const char* save_path_test_pcsx2 = MemCardRetro::checkSaveDir(save_dir);
+				const char* filename = MemCardRetro::getMemCardFileName(game_paths[0]);
+				path_to_memcard_file = MemCardRetro::CreateMemCardFilePath(save_path_test_pcsx2, filename);
+
+				if (!MemCardRetro::isMemCardExisting(path_to_memcard_file))
+					MemCardRetro::Create(path_to_memcard_file);
+			}
+	
 			g_Conf->EmuOptions.UseBOOT2Injection = option_value(BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::return_type);
 			g_Conf->CdvdSource = CDVD_SourceType::Iso;
 			g_Conf->CurrentIso = game_paths[0];
+
+			if (!option_value(BOOL_PCSX2_OPT_MEMCARD_MULTIDISK, KeyOptionBool::return_type)) {
+				wxString MemCardfileName = wxString(path_to_memcard_file);
+				g_Conf->Mcd[0].Filename = MemCardfileName;
+				std::string card_used = (std::string)MemCardfileName;
+				log_cb(RETRO_LOG_DEBUG, "Using memory card: %s\n", card_used.c_str());
+			}
+			else
+			{
+				wxString MemCardfileName = wxString(MemCardRetro::GetDefaultMemoryCardPath(system));
+				g_Conf->Mcd[0].Filename = MemCardfileName;
+				std::string card_used = (std::string)MemCardfileName;
+				log_cb(RETRO_LOG_DEBUG, "Using memory card: %s\n", card_used.c_str());
+				RetroMessager::Notification("Multi-Disk memory card enabled ");
+			}
+			
 			pcsx2->SysExecute(g_Conf->CdvdSource);
 			log_cb(RETRO_LOG_INFO, "Game Loaded\n");
 		}

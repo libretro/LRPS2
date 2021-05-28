@@ -105,6 +105,16 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	"0" },
 
+	{"pcsx2_memcard_multidisk",
+	"MemoryCard: Multi-Disk Game",
+	"Enable this option for multi-disk games. This will use the default memory card in system/pcsx2/saves folder. This option is needed because the feature 'one memory card per-game' is still experimental for multi disk game, and the behaviour in these cases is still to be tested. (Content restart required)",
+	{
+		{"disabled", NULL},
+		{"enabled", NULL},
+		{NULL, NULL},
+	},
+	"disabled"},
+
 	{"pcsx2_rumble_enable",
 	"Gamepad: Enable Rumble",
 	"Enables rumble on gamepads that support it",
