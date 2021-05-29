@@ -22,12 +22,18 @@ static const char* BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE		= "pcsx2_userhack_align
 static const char* BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE		= "pcsx2_userhack_merge_sprite";
 static const char* BOOL_PCSX2_OPT_USERHACK_WILDARMS_OFFSET	= "pcsx2_userhack_wildarms_offset";
 static const char* BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE		= "pcsx2_rumble_enable";
-static const char* BOOL_PCSX2_OPT_MEMCARD_MULTIDISK			= "pcsx2_memcard_multidisk";
+static const char* BOOL_PCSX2_OPT_MEMCARD_LEGACY			= "pcsx2_memcard_legacy";
+static const char* BOOL_PCSX2_OPT_BOOT_TO_BIOS				= "pcsx2_boot_bios";
+
+
 
 
 static const char* STRING_PCSX2_OPT_BIOS					= "pcsx2_bios";
 static const char* STRING_PCSX2_OPT_RENDERER				= "pcsx2_renderer";
 static const char* STRING_PCSX2_OPT_SYSTEM_LANGUAGE			= "pcsx2_system_language";
+static const char* STRING_PCSX2_OPT_MEMCARD_SLOT_1			= "pcsx2_memcard_slot_1";
+static const char* STRING_PCSX2_OPT_MEMCARD_SLOT_2			= "pcsx2_memcard_slot_2";
+
 
 static const char* INT_PCSX2_OPT_ASPECT_RATIO				= "pcsx2_aspect_ratio";
 static const char* INT_PCSX2_OPT_UPSCALE_MULTIPLIER			= "pcsx2_upscale_multiplier";
@@ -42,8 +48,6 @@ static const char* INT_PCSX2_OPT_USERHACK_HALFPIXEL_OFFSET	= "pcsx2_userhack_hal
 static const char* INT_PCSX2_OPT_USERHACK_ROUND_SPRITE		= "pcsx2_userhack_round_sprite";
 static const char* INT_PCSX2_OPT_USERHACK_HALFSCREEN_FIX	= "pcsx2_userhack_halfscreen_fix";
 static const char* INT_PCSX2_OPT_GAMEPAD_RUMBLE_FORCE		= "pcsx2_rumble_intensity";
-
-
 
 
 enum class KeyOptionBool

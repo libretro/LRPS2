@@ -30,17 +30,28 @@ struct retro_core_option_definition option_defs[] = {
 		{"Portuguese", NULL},
 		{NULL, NULL},
 	},
-	"Keep BIOS setting"},
+	"English"},
 
 	{"pcsx2_fastboot",
 	"Fast Boot",
-	"This will bypass the intial BIOS logo, with the side effect that BIOS settings like the system language will not be applied. (Content restart required)",
+	"Bypass the intial BIOS logo, with the side effect that BIOS settings like the system language will not be applied. (Content restart required)",
 	{
 		{"disabled", NULL},
 		{"enabled", NULL},
 		{NULL, NULL},
 	},
 	"disabled"},
+
+	{"pcsx2_boot_bios",
+	"Boot To BIOS",
+	"Skip the content loading and boot in the BIOS. Useful to manage memory cards currently associated to this content. (Content restart required)",
+	{
+		{"disabled", NULL},
+		{"enabled", NULL},
+		{NULL, NULL},
+	},
+	"disabled"},
+
 
 	{"pcsx2_renderer",
 	"Renderer",
@@ -105,9 +116,26 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	"0" },
 
-	{"pcsx2_memcard_multidisk",
-	"MemoryCard: Multi-Disk Game",
-	"Enable this option for multi-disk games. This will use the default memory card in system/pcsx2/saves folder. This option is needed because the feature 'one memory card per-game' is still experimental for multi disk game, and the behaviour in these cases is still to be tested. (Content restart required)",
+	{"pcsx2_memcard_slot_1",
+	"MemoryCard: Slot 1",
+	"Select the shared memcard to use. If Empty is selected for both slot 1 and slot 2, the core will use a memcard per-game.(Content restart required)",
+	{
+		// dynamically filled in retro_init
+	},
+	NULL},
+
+	{ "pcsx2_memcard_slot_2",
+	"MemoryCard: Slot 2",
+	"Select the shared memcard to use. If Empty is selected for both slot 1 and slot 2, the core will use a memcard per-game. (Content restart required)",
+	{
+		// dynamically filled in retro_init
+	},
+	NULL },
+
+
+	{"pcsx2_memcard_legacy",
+	"MemoryCard: Use Legacy Card ",
+	"Disable the memory cards system and uses the legacy memory card in the system/pcsx2/memcards folder. (Content restart required)",
 	{
 		{"disabled", NULL},
 		{"enabled", NULL},

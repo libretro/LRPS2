@@ -95,6 +95,96 @@ void retro_init(void)
 	const char* system = nullptr;
 	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
 	
+
+	
+	const char* save_dir = nullptr;
+	environ_cb(RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY, &save_dir);
+
+	// checks and create save folders
+	const char* pcsx2_save_dir = MemCardRetro::checkSaveDir(save_dir, "//pcsx2");
+	const char* shared_memcards_dir = MemCardRetro::checkSaveDir(pcsx2_save_dir, "//shared_memcards");
+
+	// creates shared_memcards if not existing
+	for (int i = 0; i < 9; i++) 
+	{
+		const char* path_to_memcard_file = nullptr;
+		const char* memcard_filename = nullptr;
+
+		memcard_filename = MemCardRetro::GetSharedMemCardFileName("Shared Memory Card", i + 1);
+		path_to_memcard_file = MemCardRetro::CreateMemCardFilePath(shared_memcards_dir, memcard_filename);
+
+		if (!MemCardRetro::isMemCardExisting(path_to_memcard_file))
+		{
+			MemCardRetro::Create(path_to_memcard_file);
+			log_cb(RETRO_LOG_DEBUG, "creating shared memcard:\n");
+			log_cb(RETRO_LOG_DEBUG, path_to_memcard_file);
+		}
+	}
+
+	// get available shared memcards and fill the options
+
+	wxArrayString shared_memcard_list;
+	wxString shared_path = wxString(shared_memcards_dir);
+	
+	wxDir::GetAllFiles(shared_path, &shared_memcard_list, L"*.*", wxDIR_FILES);
+	static std::vector<std::string> memcard_list;
+	for (wxString memcard_file : shared_memcard_list)
+	{
+		wxString description;
+		if (MemCardRetro::IsAMemoryCard(memcard_file)) {
+			std::string file_n = MemCardRetro::getMemCardFileRawName(memcard_file);
+			memcard_list.push_back((std::string)memcard_file);
+			memcard_list.push_back(file_n);
+
+		}
+	}
+
+
+	// breaking after filled should be more quick than looping throught all options
+	// so we do this 2 times for both memcard options slot.
+	// the max number of shared memcard is limited to 20
+	for (retro_core_option_definition& def : option_defs)
+	{								
+		if (!def.key || strcmp(def.key, "pcsx2_memcard_slot_1")) continue; // || strcmp(def.key, "pcsx2_memcard_slot_2")
+		size_t i = 0, numfiles = memcard_list.size();
+		int cont = 0;
+		def.values[i++] = { "Empty", "Empty" };
+
+		for (size_t f = 0; f != numfiles; f += 2)
+		{
+			def.values[i++] = { memcard_list[f].c_str(), memcard_list[f + 1].c_str() };
+			cont++;
+			if (cont >= 20) break;
+		}
+
+		def.values[i++] = { NULL, NULL };
+		def.default_value = def.values[0].value;
+		break;
+	}
+
+	for (retro_core_option_definition& def : option_defs)
+	{
+		if (!def.key || strcmp(def.key, "pcsx2_memcard_slot_2")) continue; 
+		size_t i = 0, numfiles = memcard_list.size();
+		int cont = 0;
+		def.values[i++] = { "Empty", "Empty" };
+
+		for (size_t f = 0; f != numfiles; f += 2)
+		{
+			def.values[i++] = { memcard_list[f].c_str(), memcard_list[f + 1].c_str() };
+			cont++;
+			if (cont >= 20) break;
+		}
+
+		def.values[i++] = { NULL, NULL };
+		def.default_value = def.values[0].value;
+		break;
+	}
+
+
+
+	// instantiate the pcsx2 app and so some things on it
+
 	//pcsx2 = new Pcsx2App;
 	//wxApp::SetInstance(pcsx2);
 	pcsx2 = &wxGetApp();
@@ -109,7 +199,8 @@ void retro_init(void)
 	g_Conf = std::make_unique<AppConfig>();
 	
 	
-	
+	// get the BIOS available and fill the option
+
 	bios_dir = Path::Combine(system, "pcsx2/bios");
 
 	wxArrayString bios_list;
@@ -140,11 +231,16 @@ void retro_init(void)
 		break;
 	}
 
+	// loads the options structure to the frontend
+
 	libretro_set_core_options(environ_cb);
 
+	// some other stuffs about pcsx2
 
 	pcsx2->DetectCpuAndUserMode();
 	pcsx2->AllocateCoreStuffs();
+
+	// apply options to pcsx2
 
 	if (!option_value(BOOL_PCSX2_OPT_ENABLE_SPEEDHACKS, KeyOptionBool::return_type))
 		g_Conf->PresetIndex = 1;
@@ -383,6 +479,13 @@ bool retro_load_game(const struct retro_game_info* game)
 
 	DiskControl::eject_state = false;
 
+	// check what memcard to use
+	const char* path_to_memcard_file_slot1 = nullptr;
+
+	
+
+
+
 	if (game)
 	{
 
@@ -427,40 +530,131 @@ bool retro_load_game(const struct retro_game_info* game)
 		}
 		else
 		{	
-			const char* path_to_memcard_file = nullptr;
-			if (! option_value(BOOL_PCSX2_OPT_MEMCARD_MULTIDISK, KeyOptionBool::return_type)) {
-				const char* save_dir = nullptr;
-				environ_cb(RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY, &save_dir);
-				log_cb(RETRO_LOG_DEBUG, "save directory: %s\n", save_dir);
-				const char* save_path_test_pcsx2 = MemCardRetro::checkSaveDir(save_dir);
-				const char* filename = MemCardRetro::getMemCardFileName(game_paths[0]);
-				path_to_memcard_file = MemCardRetro::CreateMemCardFilePath(save_path_test_pcsx2, filename);
-
-				if (!MemCardRetro::isMemCardExisting(path_to_memcard_file))
-					MemCardRetro::Create(path_to_memcard_file);
-			}
-	
+			
 			g_Conf->EmuOptions.UseBOOT2Injection = option_value(BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::return_type);
 			g_Conf->CdvdSource = CDVD_SourceType::Iso;
 			g_Conf->CurrentIso = game_paths[0];
+			
+			
+			if (!option_value(BOOL_PCSX2_OPT_MEMCARD_LEGACY, KeyOptionBool::return_type)) {
 
-			if (!option_value(BOOL_PCSX2_OPT_MEMCARD_MULTIDISK, KeyOptionBool::return_type)) {
-				wxString MemCardfileName = wxString(path_to_memcard_file);
-				g_Conf->Mcd[0].Filename = MemCardfileName;
-				std::string card_used = (std::string)MemCardfileName;
+				if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "Empty") == 0 && 
+					strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "Empty") == 0)
+				{
+					// per-game memory card
+					const char* save_dir = nullptr;
+					environ_cb(RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY, &save_dir);
+
+					log_cb(RETRO_LOG_DEBUG, "save directory: %s\n", save_dir);
+
+					const char* memcard_content_path = MemCardRetro::checkSaveDir(save_dir, "//pcsx2");
+					const char* memcard_filename = MemCardRetro::getMemCardFileName(game_paths[0]);
+					path_to_memcard_file_slot1 = MemCardRetro::CreateMemCardFilePath(memcard_content_path, memcard_filename);
+					RetroMessager::Notification("Memory Card Mode: Per-game", true);
+
+					if (!MemCardRetro::isMemCardExisting(path_to_memcard_file_slot1))
+					{
+						if (MemCardRetro::Create(path_to_memcard_file_slot1))
+							RetroMessager::Notification("Memory Card created for the content", true);
+					}
+
+					wxString MemCardfileNameSlot1 = wxString(path_to_memcard_file_slot1);
+					// insert the memcard
+					g_Conf->Mcd[0].Enabled = true;
+					g_Conf->Mcd[0].Filename = MemCardfileNameSlot1;
+
+					std::string card_used = (std::string)MemCardfileNameSlot1;
+					log_cb(RETRO_LOG_DEBUG, "Memory card on slot 1: %s\n", card_used.c_str());
+
+
+				}
+				else
+				{
+					// shared-memcards
+					RetroMessager::Notification("Memory Card Mode: Shared", true);
+					const char* memcard1 = option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type);
+					const char* memcard2 = option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type);
+
+					if (strcmp(memcard1, "Empty") == 0)
+					{
+						g_Conf->Mcd[0].Enabled = false;
+						
+					}
+					else {
+						g_Conf->Mcd[0].Enabled = true;
+						g_Conf->Mcd[0].Filename = wxString(memcard1);
+						std::string card_used = (std::string)memcard1;
+						log_cb(RETRO_LOG_DEBUG, "Memory card on slot 1: %s\n", card_used.c_str());
+					}
+
+					if (strcmp(memcard2, "Empty") == 0)
+					{
+						g_Conf->Mcd[1].Enabled = false;
+						
+					}
+					else {
+						// if memcard in slot 2 and 1  are the same, we disable slot2
+						if (strcmp(memcard1, memcard2) == 0) {
+							g_Conf->Mcd[1].Enabled = false;
+							RetroMessager::Notification("Detected same memory card on both slots, disabled slot 2", true);
+						}
+						else
+						{
+							g_Conf->Mcd[1].Enabled = true;
+							g_Conf->Mcd[1].Filename = wxString(memcard2);
+							std::string card_used = (std::string)memcard2;
+							log_cb(RETRO_LOG_DEBUG, "Memory card on slot 2: %s\n", card_used.c_str());
+						}
+						
+					}
+
+				}
+
+
+			}else{
+
+				// memcard legacy, the old location system/pcsx2/memcards
+				wxString MemCardfileNameSlot1 = wxString(MemCardRetro::GetDefaultMemoryCardPath1(system));
+				wxString MemCardfileNameSlot2 = wxString(MemCardRetro::GetDefaultMemoryCardPath2(system));
+				g_Conf->Mcd[0].Enabled = true;
+				g_Conf->Mcd[0].Filename = MemCardfileNameSlot1;
+				g_Conf->Mcd[1].Enabled = true;
+				g_Conf->Mcd[1].Filename = MemCardfileNameSlot2;
+				std::string card_used = (std::string)MemCardfileNameSlot1;
 				log_cb(RETRO_LOG_DEBUG, "Using memory card: %s\n", card_used.c_str());
+				RetroMessager::Notification("Memory Card mode: Legacy");
+			
+			}
+
+
+
+			if (!option_value(BOOL_PCSX2_OPT_MEMCARD_LEGACY, KeyOptionBool::return_type)) {
+
+			
+				//std::string slot_msg = "Using Memory card SLOT " + std::to_string(save_slot);
+				//RetroMessager::Notification(slot_msg.c_str(), true);
 			}
 			else
 			{
-				wxString MemCardfileName = wxString(MemCardRetro::GetDefaultMemoryCardPath(system));
-				g_Conf->Mcd[0].Filename = MemCardfileName;
-				std::string card_used = (std::string)MemCardfileName;
-				log_cb(RETRO_LOG_DEBUG, "Using memory card: %s\n", card_used.c_str());
-				RetroMessager::Notification("Multi-Disk memory card enabled ");
+
 			}
 			
-			pcsx2->SysExecute(g_Conf->CdvdSource);
-			log_cb(RETRO_LOG_INFO, "Game Loaded\n");
+			if (!option_value(BOOL_PCSX2_OPT_BOOT_TO_BIOS, KeyOptionBool::return_type))
+			{
+				pcsx2->SysExecute(g_Conf->CdvdSource);
+				log_cb(RETRO_LOG_INFO, "Game Loaded\n");
+			}
+			else
+			{
+				// we enter here in the bios, so we have the correct memcards loaded
+				log_cb(RETRO_LOG_INFO, "Entrerning BIOS Menu.....\n");
+				RetroMessager::Notification("Boot to BIOS", true);
+				g_Conf->EmuOptions.UseBOOT2Injection = option_value(BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::return_type);
+				g_Conf->CdvdSource = CDVD_SourceType::NoDisc;
+				g_Conf->CurrentIso = "";
+				pcsx2->SysExecute(g_Conf->CdvdSource);
+
+			}
 		}
 		
 	}
