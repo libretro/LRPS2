@@ -44,22 +44,28 @@ namespace MemCardRetro
 
 
 
-	const char* checkSaveDir(const char* path_saves, const char* subfolder_to_check)
+	std::string checkSaveDir(const std::string &path_saves, const std::string &subfolder_to_check)
 	{
 		//Judge whether the folder exists, create it if it does not exist
+		std::string  path_saves_pcsx2 = path_saves;
+		path_saves_pcsx2.append(subfolder_to_check);
 
+		/*
 		static char path_saves_pcsx2[300];
 		strcpy(path_saves_pcsx2, path_saves);
 		strcat(path_saves_pcsx2, subfolder_to_check);
 		puts(path_saves_pcsx2);
+		*/
 
-		if (_access(path_saves_pcsx2, 0) == -1)
+
+		if (_access(path_saves_pcsx2.c_str(), 0) == -1)
 		{
-			_mkdir(path_saves_pcsx2);
+			_mkdir(path_saves_pcsx2.c_str());
 			
 		}
 		return path_saves_pcsx2;
 	}
+
 
 
 	const char* CreateMemCardFilePath(const char* path_saves, const char* fileName)
@@ -132,10 +138,10 @@ namespace MemCardRetro
 	*/
 
 	// returns FALSE if an error occurred (either permission denied or disk full)
-	bool Create(const wxString& mcdFile)
+	bool Create(const wxString& mcdFile, uint sizeInMB)
 	{
 
-		uint sizeInMB = 8;
+		//uint sizeInMB = 8;
 		u8 m_effeffs[528 * 16];
 		memset8<0xff>(m_effeffs);
 
@@ -150,6 +156,21 @@ namespace MemCardRetro
 				return false;
 		}
 		return true;
+	}
+
+	bool CreateSharedMemCardIfNotExisting(const char* slot_dir, const char* memcard_name, uint sizeInMB)
+	{
+		const char* memcard_path = MemCardRetro::CreateMemCardFilePath(slot_dir, memcard_name);
+		if (!MemCardRetro::isMemCardExisting(memcard_path))
+		{
+			MemCardRetro::Create(memcard_path, sizeInMB);
+			std::string msg = "Memory card created: ";
+			std::string name = memcard_name;
+			msg.append(name);
+			RetroMessager::Notification(msg.c_str());
+			return true;
+		}
+		return false;
 	}
 
 

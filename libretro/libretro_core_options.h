@@ -117,31 +117,20 @@ struct retro_core_option_definition option_defs[] = {
 	"0" },
 
 	{"pcsx2_memcard_slot_1",
-	"MemoryCard: Slot 1",
-	"Select the shared memcard to use. If Empty is selected for both slot 1 and slot 2, the core will use a memcard per-game.(Content restart required)",
+	"Memory Card: Slot 1",
+	"Select the primary memory card to use.",
 	{
 		// dynamically filled in retro_init
 	},
 	NULL},
 
 	{ "pcsx2_memcard_slot_2",
-	"MemoryCard: Slot 2",
-	"Select the shared memcard to use. If Empty is selected for both slot 1 and slot 2, the core will use a memcard per-game. (Content restart required)",
+	"Memory Card: Slot 2",
+	"Select the secondary memory card to use.",
 	{
 		// dynamically filled in retro_init
 	},
 	NULL },
-
-
-	{"pcsx2_memcard_legacy",
-	"MemoryCard: Use Legacy Card ",
-	"Disable the memory cards system and uses the legacy memory card in the system/pcsx2/memcards folder. (Content restart required)",
-	{
-		{"disabled", NULL},
-		{"enabled", NULL},
-		{NULL, NULL},
-	},
-	"disabled"},
 
 	{"pcsx2_rumble_enable",
 	"Gamepad: Enable Rumble",

@@ -22,7 +22,6 @@ static const char* BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE		= "pcsx2_userhack_align
 static const char* BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE		= "pcsx2_userhack_merge_sprite";
 static const char* BOOL_PCSX2_OPT_USERHACK_WILDARMS_OFFSET	= "pcsx2_userhack_wildarms_offset";
 static const char* BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE		= "pcsx2_rumble_enable";
-static const char* BOOL_PCSX2_OPT_MEMCARD_LEGACY			= "pcsx2_memcard_legacy";
 static const char* BOOL_PCSX2_OPT_BOOT_TO_BIOS				= "pcsx2_boot_bios";
 
 
