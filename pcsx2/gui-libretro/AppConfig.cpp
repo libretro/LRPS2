@@ -497,7 +497,11 @@ wxString GetUiKeysFilename()
 wxString AppConfig::FullpathToBios() const				{ return Path::Combine( Folders.Bios, BaseFilenames.Bios ); }
 wxString AppConfig::FullpathToMcd( uint slot ) const
 {
+#ifdef __LIBRETRO__
+	return Mcd[slot].Filename.GetPath();
+#else
 	return Path::Combine( Folders.MemoryCards, Mcd[slot].Filename );
+#endif
 }
 
 bool IsPortable()

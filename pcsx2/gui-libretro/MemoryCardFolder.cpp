@@ -23,6 +23,7 @@
 #include "AppConfig.h"
 
 #include "svnrev.h"
+#include "options_tools.h"
 
 bool RemoveDirectory( const wxString& dirname );
 
@@ -68,11 +69,18 @@ void FolderMemoryCard::Open( const wxString& fullPath, const AppConfig::McdOptio
 	m_performFileWrites = !simulateFileWrites;
 
 	wxFileName configuredFileName( fullPath );
+
+
 	m_folderName = wxFileName( configuredFileName.GetFullPath() + L"/" );
 	wxString str( configuredFileName.GetFullPath() );
 	bool disabled = false;
-
+/*
+	log_cb(RETRO_LOG_DEBUG, "type %i \n", mcdOptions.Type);
+	log_cb(RETRO_LOG_DEBUG, "slot %i \n", m_slot);
+	log_cb(RETRO_LOG_DEBUG, "enabled %d \n", mcdOptions.Enabled);
+*/
 	if ( mcdOptions.Enabled && mcdOptions.Type == MemoryCardType::MemoryCard_Folder ) {
+
 		if ( configuredFileName.GetFullName().IsEmpty() ) {
 			str = L"[empty filename]";
 			disabled = true;
@@ -96,7 +104,6 @@ void FolderMemoryCard::Open( const wxString& fullPath, const AppConfig::McdOptio
 
 	Console.WriteLn( disabled ? Color_Gray : Color_Green, L"McdSlot %u: [Folder] " + str, m_slot );
 	if ( disabled ) return;
-
 	m_isEnabled = true;
 	m_filteringEnabled = enableFiltering;
 	m_filteringString = filter;

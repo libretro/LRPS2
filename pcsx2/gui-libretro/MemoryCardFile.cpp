@@ -455,6 +455,7 @@ static void PS2E_CALLBACK FileMcd_EmuOpen( PS2E_THISPTR thisptr, const PS2E_Sess
 	// detect inserted memory card types
 	for ( uint slot = 0; slot < 8; ++slot ) {
 		if ( g_Conf->Mcd[slot].Enabled ) {
+#ifndef __LIBRETRO__
 			MemoryCardType type = MemoryCardType::MemoryCard_File; // default to file if we can't find anything at the path so it gets auto-generated
 
 			const wxString path = g_Conf->FullpathToMcd( slot );
@@ -465,6 +466,7 @@ static void PS2E_CALLBACK FileMcd_EmuOpen( PS2E_THISPTR thisptr, const PS2E_Sess
 			}
 
 			g_Conf->Mcd[slot].Type = type;
+#endif
 		}
 	}
 
