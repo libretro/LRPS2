@@ -276,10 +276,7 @@ void FileMemoryCard::Open()
 {
 	for (int slot = 0; slot < 8; ++slot)
 	{
-		log_cb(RETRO_LOG_DEBUG, "QUI!\n");
-		log_cb(RETRO_LOG_DEBUG, "SLOT %i !\n", slot);
-		log_cb(RETRO_LOG_DEBUG, "type: %i !\n", g_Conf->Mcd[slot].Type);
-		log_cb(RETRO_LOG_DEBUG, "enabled: %i !\n", g_Conf->Mcd[slot].Enabled);
+
 		if (FileMcd_IsMultitapSlot(slot))
 		{
 			if (!EmuConfig.MultitapPort0_Enabled && (FileMcd_GetMtapPort(slot) == 0))
@@ -287,33 +284,32 @@ void FileMemoryCard::Open()
 			if (!EmuConfig.MultitapPort1_Enabled && (FileMcd_GetMtapPort(slot) == 1))
 				continue;
 		}
-		log_cb(RETRO_LOG_DEBUG, "1!\n");
 
 		wxFileName fname(g_Conf->FullpathToMcd(slot));
 		wxString str(fname.GetFullPath());
 		bool cont = false;
-		log_cb(RETRO_LOG_DEBUG, "2\n");
+
 		if (fname.GetFullName().IsEmpty())
 		{
 			str = L"[empty filename]";
 			log_cb(RETRO_LOG_DEBUG, "[empty filename]\n");
 			cont = true;
 		}
-		log_cb(RETRO_LOG_DEBUG, "3\n");
+
 		if (!g_Conf->Mcd[slot].Enabled)
 		{
 			str = L"[disabled]";
 			log_cb(RETRO_LOG_DEBUG, "[disabled]\n");
 			cont = true;
 		}
-		log_cb(RETRO_LOG_DEBUG, "4\n");
+
 		if (g_Conf->Mcd[slot].Type != MemoryCardType::MemoryCard_File)
 		{
 			str = L"[is not memcard file]";
 			log_cb(RETRO_LOG_DEBUG, "[is not memcard file]\n");
 			cont = true;
 		}
-		log_cb(RETRO_LOG_DEBUG, "5\n");
+
 		Console.WriteLn(cont ? Color_Gray : Color_Green, L"McdSlot %u [File]: " + str, slot);
 		if (cont)
 			continue;
