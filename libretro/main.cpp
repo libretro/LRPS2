@@ -158,7 +158,7 @@ void retro_init(void)
 		if (!def.key || strcmp(def.key, "pcsx2_memcard_slot_1")) continue; 
 		size_t i = 0;
 		def.values[i++] = { "empty", "Empty" };
-		def.values[i++] = { "per-game", "Per-game Memory Card" };
+		def.values[i++] = { "per-game", "Per-Game Saves" };
 		def.values[i++] = { "shared8", "Shared Memory Card (8 MB)" };
 		def.values[i++] = { "shared32", "Shared Memory Card (32 MB)" };
 		if (legacy_memcard1.FileExists()) {
