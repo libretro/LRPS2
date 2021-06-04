@@ -69,11 +69,13 @@ static wxFileName bios_dir;
 static const char* FILENAME_SHARED_MEMCARD_8 = "Shared Memory Card (8 MB)";
 static const char* FILENAME_SHARED_MEMCARD_32 = "Shared Memory Card (32 MB)";
 
-
+/*
 std::string slot1_dir;
 std::string slot2_dir;
 std::string legacy_path1;
 std::string legacy_path2;
+*/
+
 
 wxFileName save_dir_root;
 
@@ -102,6 +104,7 @@ void retro_set_environment(retro_environment_t cb)
 
 void retro_init(void)
 {
+	wxInitialize();
 	enum retro_pixel_format xrgb888 = RETRO_PIXEL_FORMAT_XRGB8888;
 	environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &xrgb888);
 	struct retro_log_callback log;
@@ -150,22 +153,76 @@ void retro_init(void)
 	legacy_memcard2.SetExt("ps2");
 
 
+	// get other 'custom' memcards put by the user in the slot 1 folder, if any
+
+	wxArrayString memcard_files_slot1;
+	//wxString shared_path = wxString(shared_memcards_dir);
+
+	wxDir::GetAllFiles(slot1_file.GetPath(), &memcard_files_slot1, L"*.*", wxDIR_FILES);
+	static std::vector<std::string> custom_memcard_list_slot1;
+	for (wxString memcard_file : memcard_files_slot1)
+	{
+		wxFileName found_file;
+		found_file.Assign(memcard_file);
+		if (!found_file.GetName().IsSameAs(FILENAME_SHARED_MEMCARD_8) && !found_file.GetName().IsSameAs(FILENAME_SHARED_MEMCARD_8))
+		{
+			if (found_file.GetExt().IsSameAs("ps2"))
+			{
+				custom_memcard_list_slot1.push_back((std::string)found_file.GetFullPath());
+				custom_memcard_list_slot1.push_back((std::string)found_file.GetName());
+			}
+		}
+		
+	}
+
+	// get other 'custom' memcards put by the user in the slot 2 folder, if any
+
+	wxArrayString memcard_files_slot2;
+	//wxString shared_path = wxString(shared_memcards_dir);
+
+	wxDir::GetAllFiles(slot2_file.GetPath(), &memcard_files_slot2, L"*.*", wxDIR_FILES);
+	static std::vector<std::string> custom_memcard_list_slot2;
+	for (wxString memcard_file : memcard_files_slot2)
+	{
+		wxFileName found_file;
+		found_file.Assign(memcard_file);
+		if (!found_file.GetName().IsSameAs(FILENAME_SHARED_MEMCARD_8) && !found_file.GetName().IsSameAs(FILENAME_SHARED_MEMCARD_8))
+		{
+			if (found_file.GetExt().IsSameAs("ps2"))
+			{
+				custom_memcard_list_slot2.push_back((std::string)found_file.GetFullPath());
+				custom_memcard_list_slot2.push_back((std::string)found_file.GetName());
+			}
+		}
+	}
+
+
 	// breaking after filled should be more quick than looping throught all options
 	// so we do this 2 times for both memcard options slot.
 	// the max number of shared memcard is limited to 20
+	//
+	// Per game folders saves has been disabled because hangs while writing on disk
+	// and seems not working well on some games
 	for (retro_core_option_definition& def : option_defs)
 	{								
 		if (!def.key || strcmp(def.key, "pcsx2_memcard_slot_1")) continue; 
 		size_t i = 0;
 		def.values[i++] = { "empty", "Empty" };
-		def.values[i++] = { "per-game", "Per-Game Saves" };
+		if (legacy_memcard1.FileExists())
+		{
+			def.values[i++] = {"legacy", "Legacy"};
+		}
+		//def.values[i++] = { "per-game", "Per-Game Saves" };
 		def.values[i++] = { "shared8", "Shared Memory Card (8 MB)" };
 		def.values[i++] = { "shared32", "Shared Memory Card (32 MB)" };
-		if (legacy_memcard1.FileExists()) {
-			def.values[i++] = { "legacy", "Legacy" };
+		for (size_t j = 0; j < memcard_files_slot1.GetCount(); j += 2)
+		{
+			if (j >= 40) break;
+			def.values[i++] = {memcard_files_slot1[j].c_str(), memcard_files_slot1[j + 1].c_str()};
 		}
 
 		def.values[i++] = { NULL, NULL };
+		if (i > 1)
 		def.default_value = def.values[1].value;
 		break;
 	}
@@ -174,11 +231,17 @@ void retro_init(void)
 	{
 		if (!def.key || strcmp(def.key, "pcsx2_memcard_slot_2")) continue; 
 		size_t i = 0;
-		def.values[i++] = { "empty", "Empty" };
+		def.values[i++] = {"empty", "Empty"};
+		if (legacy_memcard2.FileExists())
+		{
+			def.values[i++] = {"legacy", "Legacy"};
+		}
 		def.values[i++] = { "shared8", "Shared Memory Card (8 MB)" };
 		def.values[i++] = { "shared32", "Shared Memory Card (32 MB)" };
-		if (legacy_memcard2.FileExists()) {
-			def.values[i++] = { "legacy", "Legacy" };
+		for (size_t j = 0; j < memcard_files_slot2.GetCount(); j += 2)
+		{
+			if (j >= 40) break;
+			def.values[i++] = {memcard_files_slot2[j].c_str(), memcard_files_slot2[j + 1].c_str()};	
 		}
 
 		def.values[i++] = { NULL, NULL };
@@ -318,6 +381,7 @@ void retro_deinit(void)
 	vu1Thread.Cancel();
 	pcsx2->CleanupOnExit();
 	pcsx2->OnExit();
+	wxUninitialize();
 #ifdef PERF_TEST
 	perf_cb.perf_log();
 #endif
