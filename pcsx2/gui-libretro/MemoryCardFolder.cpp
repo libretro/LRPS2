@@ -25,7 +25,6 @@
 #include "yaml-cpp/yaml.h"
 
 #include "svnrev.h"
-#include "options_tools.h"
 
 bool RemoveDirectory(const wxString& dirname);
 
@@ -99,12 +98,6 @@ void FolderMemoryCard::Open(const wxString& fullPath, const AppConfig::McdOption
 {
 	InitializeInternalData();
 	m_performFileWrites = !simulateFileWrites;
-
-	log_cb(RETRO_LOG_DEBUG, "type %i \n", mcdOptions.Type);
-	log_cb(RETRO_LOG_DEBUG, "slot %i \n", m_slot);
-	log_cb(RETRO_LOG_DEBUG, "enabled %d \n", mcdOptions.Enabled);
-	log_cb(RETRO_LOG_DEBUG, "full path %s \n", fullPath.mb_str(wxConvUTF8));
-
 
 	wxFileName configuredFileName(fullPath);
 	m_folderName = wxFileName(configuredFileName.GetFullPath() + L"/");

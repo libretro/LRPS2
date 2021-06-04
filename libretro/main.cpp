@@ -104,7 +104,6 @@ void retro_set_environment(retro_environment_t cb)
 
 void retro_init(void)
 {
-	wxInitialize();
 	enum retro_pixel_format xrgb888 = RETRO_PIXEL_FORMAT_XRGB8888;
 	environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &xrgb888);
 	struct retro_log_callback log;
@@ -169,7 +168,10 @@ void retro_init(void)
 			if (found_file.GetExt().IsSameAs("ps2"))
 			{
 				custom_memcard_list_slot1.push_back((std::string)found_file.GetFullPath());
-				custom_memcard_list_slot1.push_back((std::string)found_file.GetName());
+
+				std::string name = (std::string)found_file.GetName();
+				name.insert(0, "[USER] ");
+				custom_memcard_list_slot1.push_back(name);
 			}
 		}
 		
@@ -191,7 +193,10 @@ void retro_init(void)
 			if (found_file.GetExt().IsSameAs("ps2"))
 			{
 				custom_memcard_list_slot2.push_back((std::string)found_file.GetFullPath());
-				custom_memcard_list_slot2.push_back((std::string)found_file.GetName());
+
+				std::string name = (std::string)found_file.GetName();
+				name.insert(0, "[USER] ");
+				custom_memcard_list_slot2.push_back(name);
 			}
 		}
 	}
@@ -215,10 +220,10 @@ void retro_init(void)
 		//def.values[i++] = { "per-game", "Per-Game Saves" };
 		def.values[i++] = { "shared8", "Shared Memory Card (8 MB)" };
 		def.values[i++] = { "shared32", "Shared Memory Card (32 MB)" };
-		for (size_t j = 0; j < memcard_files_slot1.GetCount(); j += 2)
+		for (size_t j = 0; j < custom_memcard_list_slot1.size(); j += 2)
 		{
 			if (j >= 40) break;
-			def.values[i++] = {memcard_files_slot1[j].c_str(), memcard_files_slot1[j + 1].c_str()};
+			def.values[i++] = { custom_memcard_list_slot1[j].c_str(), custom_memcard_list_slot1[j + 1].c_str()};
 		}
 
 		def.values[i++] = { NULL, NULL };
@@ -238,10 +243,10 @@ void retro_init(void)
 		}
 		def.values[i++] = { "shared8", "Shared Memory Card (8 MB)" };
 		def.values[i++] = { "shared32", "Shared Memory Card (32 MB)" };
-		for (size_t j = 0; j < memcard_files_slot2.GetCount(); j += 2)
+		for (size_t j = 0; j < custom_memcard_list_slot2.size(); j += 2)
 		{
 			if (j >= 40) break;
-			def.values[i++] = {memcard_files_slot2[j].c_str(), memcard_files_slot2[j + 1].c_str()};	
+			def.values[i++] = { custom_memcard_list_slot2[j].c_str(), custom_memcard_list_slot2[j + 1].c_str()};
 		}
 
 		def.values[i++] = { NULL, NULL };
@@ -381,7 +386,6 @@ void retro_deinit(void)
 	vu1Thread.Cancel();
 	pcsx2->CleanupOnExit();
 	pcsx2->OnExit();
-	wxUninitialize();
 #ifdef PERF_TEST
 	perf_cb.perf_log();
 #endif
@@ -634,7 +638,16 @@ bool retro_load_game(const struct retro_game_info* game)
 			
 			// set up memcard on slot 1
 			log_cb(RETRO_LOG_DEBUG, "SETTING UP MEMORY CARDS.....!\n");
-			if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "per-game") == 0)
+
+
+
+			if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "empty") == 0)
+			{
+				// slot empty
+				g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_None;
+				g_Conf->Mcd[0].Enabled = false;
+			}
+			else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "per-game") == 0)
 			{
 				// per game folder save
 				std::string content_name = game->path;
@@ -666,16 +679,28 @@ bool retro_load_game(const struct retro_game_info* game)
 			}
 			else
 			{
-				// slot emmpty
-				g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_None;
-				g_Conf->Mcd[0].Enabled = false;
+				// User imported memcards
+				wxFileName user_memcard;
+				user_memcard.Assign(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type));
+
+				g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_File;
+				g_Conf->Mcd[0].Enabled = true;
+				g_Conf->Mcd[0].Filename = user_memcard;
 			}
+
 
 
 
 			// set up memcard on slot 2
 
-			if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "shared8") == 0 
+							
+			if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "empty") == 0)
+			{
+				// slot empty
+				g_Conf->Mcd[1].Type = MemoryCardType::MemoryCard_None;
+				g_Conf->Mcd[1].Enabled = false;
+			}
+			else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "shared8") == 0 
 				|| strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "shared32") == 0)
 			{
 				// Shared Memcards
@@ -692,9 +717,14 @@ bool retro_load_game(const struct retro_game_info* game)
 			}
 			else
 			{
-				// slot emmpty
-				g_Conf->Mcd[1].Type = MemoryCardType::MemoryCard_None;
-				g_Conf->Mcd[1].Enabled = false;
+				// User imported memcards
+				wxFileName user_memcard;
+				user_memcard.Assign(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type));
+
+				g_Conf->Mcd[1].Type = MemoryCardType::MemoryCard_File;
+				g_Conf->Mcd[1].Enabled = true;
+				g_Conf->Mcd[1].Filename = user_memcard;
+
 			}
 
 	
