@@ -118,7 +118,7 @@ struct retro_core_option_definition option_defs[] = {
 
 	{"pcsx2_memcard_slot_1",
 	"Memory Card: Slot 1",
-	"Select the primary memory card to use.",
+	"Select the primary memory card to use. 'Legacy' points to the memory card Mcd001 in the old location system/pcsx2/memcards. (content restart required)",
 	{
 		// dynamically filled in retro_init
 	},
@@ -126,7 +126,7 @@ struct retro_core_option_definition option_defs[] = {
 
 	{ "pcsx2_memcard_slot_2",
 	"Memory Card: Slot 2",
-	"Select the secondary memory card to use.",
+	"Select the secondary memory card to use. 'Legacy' points to the memory card Mcd002 in the old location system/pcsx2/memcards. (content restart required)",
 	{
 		// dynamically filled in retro_init
 	},
