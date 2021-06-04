@@ -30,17 +30,28 @@ struct retro_core_option_definition option_defs[] = {
 		{"Portuguese", NULL},
 		{NULL, NULL},
 	},
-	"Keep BIOS setting"},
+	"English"},
 
 	{"pcsx2_fastboot",
 	"Fast Boot",
-	"This will bypass the intial BIOS logo, with the side effect that BIOS settings like the system language will not be applied. (Content restart required)",
+	"Bypass the intial BIOS logo, with the side effect that BIOS settings like the system language will not be applied. (Content restart required)",
 	{
 		{"disabled", NULL},
 		{"enabled", NULL},
 		{NULL, NULL},
 	},
 	"disabled"},
+
+	{"pcsx2_boot_bios",
+	"Boot To BIOS",
+	"Skip the content loading and boot in the BIOS. Useful to manage memory cards currently associated to this content. (Content restart required)",
+	{
+		{"disabled", NULL},
+		{"enabled", NULL},
+		{NULL, NULL},
+	},
+	"disabled"},
+
 
 	{"pcsx2_renderer",
 	"Renderer",
@@ -104,6 +115,22 @@ struct retro_core_option_definition option_defs[] = {
 		{NULL, NULL},
 	},
 	"0" },
+
+	{"pcsx2_memcard_slot_1",
+	"Memory Card: Slot 1",
+	"Select the primary memory card to use. 'Legacy' points to the memory card Mcd001 in the old location system/pcsx2/memcards. (content restart required)",
+	{
+		// dynamically filled in retro_init
+	},
+	NULL},
+
+	{ "pcsx2_memcard_slot_2",
+	"Memory Card: Slot 2",
+	"Select the secondary memory card to use. 'Legacy' points to the memory card Mcd002 in the old location system/pcsx2/memcards. (content restart required)",
+	{
+		// dynamically filled in retro_init
+	},
+	NULL },
 
 	{"pcsx2_rumble_enable",
 	"Gamepad: Enable Rumble",

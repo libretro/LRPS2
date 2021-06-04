@@ -27,6 +27,7 @@
 #include "disk_control.h"
 #include "SPU2/Global.h"
 #include "ps2/BiosTools.h"
+#include "memcard_retro.h"
 
 
 
@@ -65,6 +66,27 @@ uint renderswitch_delay = 0;
 Pcsx2App* pcsx2;
 static wxFileName bios_dir;
 
+static const char* FILENAME_SHARED_MEMCARD_8 = "Shared Memory Card (8 MB)";
+static const char* FILENAME_SHARED_MEMCARD_32 = "Shared Memory Card (32 MB)";
+
+/*
+std::string slot1_dir;
+std::string slot2_dir;
+std::string legacy_path1;
+std::string legacy_path2;
+*/
+
+
+wxFileName save_dir_root;
+
+wxFileName slot1_file;
+wxFileName slot2_file;
+
+wxFileName legacy_memcard1;
+wxFileName legacy_memcard2;
+
+wxFileName save_game_folder;
+
 void retro_set_video_refresh(retro_video_refresh_t cb)
 {
 	video_cb = cb;
@@ -94,6 +116,148 @@ void retro_init(void)
 	const char* system = nullptr;
 	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
 	
+	const char* save_dir = nullptr;
+	environ_cb(RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY, &save_dir);
+
+
+	// checks and create save folders
+
+	save_dir_root = wxFileName(wxString(save_dir), "");
+	save_dir_root.AppendDir("pcsx2");
+
+	slot1_file = wxFileName(save_dir_root.GetPath(), "");
+	slot1_file.AppendDir("Slot 1");
+
+	slot2_file = wxFileName(save_dir_root.GetPath(), "");
+	slot2_file.AppendDir("Slot 2");
+
+	
+	if (! save_dir_root.DirExists()) save_dir_root.Mkdir();
+	if (!slot1_file.DirExists()) slot1_file.Mkdir();
+	if (!slot2_file.DirExists()) slot2_file.Mkdir();
+	
+
+	// check if legacy memcards exists
+
+	wxFileName legacy_dir(wxString(system), "");
+	legacy_dir.AppendDir("pcsx2");
+	legacy_dir.AppendDir("memcards");
+
+	legacy_memcard1 = wxFileName(legacy_dir.GetPath(), "");
+	legacy_memcard1.SetName("Mcd001");
+	legacy_memcard1.SetExt("ps2");
+
+	legacy_memcard2 = wxFileName(legacy_dir.GetPath(), "");
+	legacy_memcard2.SetName("Mcd002");
+	legacy_memcard2.SetExt("ps2");
+
+
+	// get other 'custom' memcards put by the user in the slot 1 folder, if any
+
+	wxArrayString memcard_files_slot1;
+	//wxString shared_path = wxString(shared_memcards_dir);
+
+	wxDir::GetAllFiles(slot1_file.GetPath(), &memcard_files_slot1, L"*.*", wxDIR_FILES);
+	static std::vector<std::string> custom_memcard_list_slot1;
+	for (wxString memcard_file : memcard_files_slot1)
+	{
+		wxFileName found_file;
+		found_file.Assign(memcard_file);
+		if (!found_file.GetName().IsSameAs(FILENAME_SHARED_MEMCARD_8) && !found_file.GetName().IsSameAs(FILENAME_SHARED_MEMCARD_8))
+		{
+			if (found_file.GetExt().IsSameAs("ps2"))
+			{
+				custom_memcard_list_slot1.push_back((std::string)found_file.GetFullPath());
+
+				std::string name = (std::string)found_file.GetName();
+				name.insert(0, "[USER] ");
+				custom_memcard_list_slot1.push_back(name);
+			}
+		}
+		
+	}
+
+	// get other 'custom' memcards put by the user in the slot 2 folder, if any
+
+	wxArrayString memcard_files_slot2;
+	//wxString shared_path = wxString(shared_memcards_dir);
+
+	wxDir::GetAllFiles(slot2_file.GetPath(), &memcard_files_slot2, L"*.*", wxDIR_FILES);
+	static std::vector<std::string> custom_memcard_list_slot2;
+	for (wxString memcard_file : memcard_files_slot2)
+	{
+		wxFileName found_file;
+		found_file.Assign(memcard_file);
+		if (!found_file.GetName().IsSameAs(FILENAME_SHARED_MEMCARD_8) && !found_file.GetName().IsSameAs(FILENAME_SHARED_MEMCARD_8))
+		{
+			if (found_file.GetExt().IsSameAs("ps2"))
+			{
+				custom_memcard_list_slot2.push_back((std::string)found_file.GetFullPath());
+
+				std::string name = (std::string)found_file.GetName();
+				name.insert(0, "[USER] ");
+				custom_memcard_list_slot2.push_back(name);
+			}
+		}
+	}
+
+
+	// breaking after filled should be more quick than looping throught all options
+	// so we do this 2 times for both memcard options slot.
+	// the max number of shared memcard is limited to 20
+	//
+	// Per game folders saves has been disabled because hangs while writing on disk
+	// and seems not working well on some games
+	for (retro_core_option_definition& def : option_defs)
+	{								
+		if (!def.key || strcmp(def.key, "pcsx2_memcard_slot_1")) continue; 
+		size_t i = 0;
+		def.values[i++] = { "empty", "Empty" };
+		if (legacy_memcard1.FileExists())
+		{
+			def.values[i++] = {"legacy", "Legacy"};
+		}
+		//def.values[i++] = { "per-game", "Per-Game Saves" };
+		def.values[i++] = { "shared8", "Shared Memory Card (8 MB)" };
+		def.values[i++] = { "shared32", "Shared Memory Card (32 MB)" };
+		for (size_t j = 0; j < custom_memcard_list_slot1.size(); j += 2)
+		{
+			if (j >= 40) break;
+			def.values[i++] = { custom_memcard_list_slot1[j].c_str(), custom_memcard_list_slot1[j + 1].c_str()};
+		}
+
+		def.values[i++] = { NULL, NULL };
+		if (i > 1)
+		def.default_value = def.values[1].value;
+		break;
+	}
+
+	for (retro_core_option_definition& def : option_defs)
+	{
+		if (!def.key || strcmp(def.key, "pcsx2_memcard_slot_2")) continue; 
+		size_t i = 0;
+		def.values[i++] = {"empty", "Empty"};
+		if (legacy_memcard2.FileExists())
+		{
+			def.values[i++] = {"legacy", "Legacy"};
+		}
+		def.values[i++] = { "shared8", "Shared Memory Card (8 MB)" };
+		def.values[i++] = { "shared32", "Shared Memory Card (32 MB)" };
+		for (size_t j = 0; j < custom_memcard_list_slot2.size(); j += 2)
+		{
+			if (j >= 40) break;
+			def.values[i++] = { custom_memcard_list_slot2[j].c_str(), custom_memcard_list_slot2[j + 1].c_str()};
+		}
+
+		def.values[i++] = { NULL, NULL };
+		def.default_value = def.values[0].value;
+		break;
+	}
+
+
+
+	// instantiate the pcsx2 app and so some things on it
+
 	//pcsx2 = new Pcsx2App;
 	//wxApp::SetInstance(pcsx2);
 	pcsx2 = &wxGetApp();
@@ -108,6 +272,8 @@ void retro_init(void)
 	g_Conf = std::make_unique<AppConfig>();
 	
 	
+	// get the BIOS available and fill the option
+
 	bios_dir = Path::Combine(system, "pcsx2/bios");
 
 	wxArrayString bios_list;
@@ -138,11 +304,51 @@ void retro_init(void)
 		break;
 	}
 
+	// loads the options structure to the frontend
+
 	libretro_set_core_options(environ_cb);
 
 
+	// some other stuffs about pcsx2
+
 	pcsx2->DetectCpuAndUserMode();
 	pcsx2->AllocateCoreStuffs();
+
+	// checks and creates the shared memory cards based on user option if
+	// already set (e.g. global config + new content)
+
+	if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "shared8") == 0)
+	{
+		
+		slot1_file.SetName(FILENAME_SHARED_MEMCARD_8);
+		slot1_file.SetExt("ps2");
+		MemCardRetro::CreateSharedMemCardIfNotExisting(slot1_file, 8);
+
+	}
+	else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "shared32") == 0)
+	{
+		slot1_file.SetName(FILENAME_SHARED_MEMCARD_32);
+		slot1_file.SetExt("ps2");
+		MemCardRetro::CreateSharedMemCardIfNotExisting(slot1_file, 32);
+	}
+
+
+	if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "shared8") == 0)
+	{
+		slot2_file.SetName(FILENAME_SHARED_MEMCARD_8);
+		slot2_file.SetExt("ps2");
+		MemCardRetro::CreateSharedMemCardIfNotExisting(slot2_file, 8);
+
+	}
+	else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "shared32") == 0)
+	{
+		slot2_file.SetName(FILENAME_SHARED_MEMCARD_32);
+		slot2_file.SetExt("ps2");
+		MemCardRetro::CreateSharedMemCardIfNotExisting(slot2_file, 32);
+	}
+
+
+	// apply options to pcsx2
 
 	if (!option_value(BOOL_PCSX2_OPT_ENABLE_SPEEDHACKS, KeyOptionBool::return_type))
 		g_Conf->PresetIndex = 1;
@@ -381,9 +587,9 @@ bool retro_load_game(const struct retro_game_info* game)
 
 	DiskControl::eject_state = false;
 
+
 	if (game)
 	{
-
 		LanguageInjector::Inject(
 			(std::string)option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type),
 			option_value(STRING_PCSX2_OPT_SYSTEM_LANGUAGE, KeyOptionString::return_type)
@@ -425,12 +631,119 @@ bool retro_load_game(const struct retro_game_info* game)
 		}
 		else
 		{	
-		
+			
 			g_Conf->EmuOptions.UseBOOT2Injection = option_value(BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::return_type);
 			g_Conf->CdvdSource = CDVD_SourceType::Iso;
 			g_Conf->CurrentIso = game_paths[0];
-			pcsx2->SysExecute(g_Conf->CdvdSource);
-			log_cb(RETRO_LOG_INFO, "Game Loaded\n");
+			
+			// set up memcard on slot 1
+			log_cb(RETRO_LOG_DEBUG, "SETTING UP MEMORY CARDS.....!\n");
+
+
+
+			if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "empty") == 0)
+			{
+				// slot empty
+				g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_None;
+				g_Conf->Mcd[0].Enabled = false;
+			}
+			else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "per-game") == 0)
+			{
+				// per game folder save
+				std::string content_name = game->path;
+
+				save_game_folder = wxFileName(save_dir_root.GetPath(), "");
+				save_game_folder.AppendDir("Slot 1");
+				save_game_folder.AppendDir(MemCardRetro::GetContentFileRawName(content_name));
+
+				g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_Folder;
+				g_Conf->Mcd[0].Enabled = true;
+				g_Conf->Mcd[0].Filename = save_game_folder;
+
+			}
+			else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "shared8") == 0 
+				|| strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "shared32") == 0)
+			{
+				// Shared Memcards
+				g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_File;
+				g_Conf->Mcd[0].Enabled = true;
+				g_Conf->Mcd[0].Filename = slot1_file;
+
+			}
+			else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "legacy") == 0)
+			{
+				// legacy
+				g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_File;
+				g_Conf->Mcd[0].Enabled = true;
+				g_Conf->Mcd[0].Filename = legacy_memcard1;
+			}
+			else
+			{
+				// User imported memcards
+				wxFileName user_memcard;
+				user_memcard.Assign(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type));
+
+				g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_File;
+				g_Conf->Mcd[0].Enabled = true;
+				g_Conf->Mcd[0].Filename = user_memcard;
+			}
+
+
+
+
+			// set up memcard on slot 2
+
+							
+			if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "empty") == 0)
+			{
+				// slot empty
+				g_Conf->Mcd[1].Type = MemoryCardType::MemoryCard_None;
+				g_Conf->Mcd[1].Enabled = false;
+			}
+			else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "shared8") == 0 
+				|| strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "shared32") == 0)
+			{
+				// Shared Memcards
+				g_Conf->Mcd[1].Type = MemoryCardType::MemoryCard_File;
+				g_Conf->Mcd[1].Enabled = true;
+				g_Conf->Mcd[1].Filename = slot2_file;
+			}
+			else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "legacy") == 0)
+			{
+				// legacy
+				g_Conf->Mcd[1].Type = MemoryCardType::MemoryCard_File;
+				g_Conf->Mcd[1].Enabled = true;
+				g_Conf->Mcd[1].Filename = legacy_memcard2;
+			}
+			else
+			{
+				// User imported memcards
+				wxFileName user_memcard;
+				user_memcard.Assign(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type));
+
+				g_Conf->Mcd[1].Type = MemoryCardType::MemoryCard_File;
+				g_Conf->Mcd[1].Enabled = true;
+				g_Conf->Mcd[1].Filename = user_memcard;
+
+			}
+
+	
+			if (!option_value(BOOL_PCSX2_OPT_BOOT_TO_BIOS, KeyOptionBool::return_type))
+			{
+				pcsx2->SysExecute(g_Conf->CdvdSource);
+				log_cb(RETRO_LOG_INFO, "Game Loaded\n");
+			}
+			else
+			{
+				// we enter here in the bios, so we have the correct memcards loaded
+				log_cb(RETRO_LOG_INFO, "Entrerning BIOS Menu.....\n");
+				RetroMessager::Notification("Boot to BIOS enabled", true);
+				g_Conf->EmuOptions.UseBOOT2Injection = option_value(BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::return_type);
+				g_Conf->CdvdSource = CDVD_SourceType::NoDisc;
+				g_Conf->CurrentIso = "";
+				pcsx2->SysExecute(g_Conf->CdvdSource);
+
+			}
 		}
 		
 	}

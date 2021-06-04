@@ -9,6 +9,7 @@ namespace RetroMessager {
 		unsigned priority, enum retro_log_level level,
 		enum retro_message_target target, enum retro_message_type type,
 		const char* str);
-	void Log(enum retro_log_level level, const char* str);
+	void Notification(const char* str, bool logging);
+	void Notification(const char* str);
 
 }

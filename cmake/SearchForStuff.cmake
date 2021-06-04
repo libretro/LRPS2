@@ -286,3 +286,5 @@ endif()
 
 add_subdirectory(3rdparty/libchdr EXCLUDE_FROM_ALL)
 include_directories(3rdparty/libchdr/include)
+add_subdirectory(3rdparty/yaml-cpp EXCLUDE_FROM_ALL)
+include_directories(3rdparty/yaml-cpp/include)
