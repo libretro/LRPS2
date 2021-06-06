@@ -17,53 +17,17 @@
 
 #include "App.h"
 #include "AppGameDatabase.h"
+#include "GameIndex.h"
 
 #include <wx/stdpaths.h>
 #include "fmt/core.h"
-#include <fstream>
 
-std::ifstream AppGameDatabase::getFileAsStream(const wxString& file)
+AppGameDatabase& AppGameDatabase::Load()
 {
-	// TODO - config - refactor with std::filesystem/ghc::filesystem
-#ifdef _WIN32
-	return std::ifstream(file.wc_str());
-#else
-	return std::ifstream(file.c_str());
-#endif
-}
-
-AppGameDatabase& AppGameDatabase::LoadFromFile(const wxString& _file)
-{
-	// TODO - config - refactor with std::filesystem/ghc::filesystem
-
-	wxString file(_file);
-	if (wxFileName(file).IsRelative())
-	{
-		// InstallFolder is the preferred base directory for the DB file, but the registry can point to previous
-		// installs if uninstall wasn't done properly.
-		// Since the games DB file is considered part of pcsx2.exe itself, look for it at the exe folder
-		//   regardless of any other settings.
-
-		// Note 1: Portable setup didn't suffer from this as install folder pointed already to the exe folder in portable.
-		// Note 2: Other folders are either configurable (plugins, memcards, etc) or create their content automatically (inis)
-		//           So the games DB was really the only one that suffers from residues of prior installs.
-
-		//wxDirName dir = InstallFolder;
-		wxDirName dir = (wxDirName)wxFileName(wxStandardPaths::Get().GetExecutablePath()).GetPath();
-		file = (dir + file).GetFullPath();
-	}
-
-
-	if (!wxFileExists(file))
-	{
-		Console.Error(L"[GameDB] Database Not Found! [%s]", WX_STR(file));
-		return *this;
-	}
-
 	const u64 qpc_Start = GetCPUTicks();
+	std::istringstream stream(*GameIndex_yaml);
 
-	std::ifstream fileStream = getFileAsStream(file);
-	if (!this->initDatabase(fileStream))
+	if (!this->initDatabase(stream))
 	{
 		Console.Error(L"[GameDB] Database could not be loaded successfully");
 		return *this;
@@ -85,7 +49,7 @@ AppGameDatabase* Pcsx2App::GetGameDatabase()
 	if (!res.GameDB)
 	{
 		res.GameDB = std::make_unique<AppGameDatabase>();
-		res.GameDB->LoadFromFile();
+		res.GameDB->Load();
 	}
 	return res.GameDB.get();
 }

@@ -86,7 +86,7 @@ public:
 class IGameDatabase
 {
 public:
-	virtual bool initDatabase(std::ifstream& stream) = 0;
+	virtual bool initDatabase(std::istream& stream) = 0;
 	virtual GameDatabaseSchema::GameEntry findGame(const std::string serial) = 0;
 	virtual int numGames() = 0;
 };
@@ -94,7 +94,7 @@ public:
 class YamlGameDatabaseImpl : public IGameDatabase
 {
 public:
-	bool initDatabase(std::ifstream& stream) override;
+	bool initDatabase(std::istream& stream) override;
 	GameDatabaseSchema::GameEntry findGame(const std::string serial) override;
 	int numGames() override;
 

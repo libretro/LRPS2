@@ -20,7 +20,6 @@
 #include "fmt/core.h"
 #include "fmt/ranges.h"
 #include "yaml-cpp/yaml.h"
-#include <fstream>
 #include <algorithm>
 
 std::string strToLower(std::string str)
@@ -52,7 +51,7 @@ bool GameDatabaseSchema::GameEntry::findPatch(const std::string crc, Patch& patc
 		Console.WriteLn(fmt::format("[GameDB] Found patch with CRC '{}'", crc));
 		patch = patches.at(crcLower);
 		return true;
-	} 	else if (patches.count("default") == 1)
+	} else if (patches.count("default") == 1)
 	{
 		Console.WriteLn("[GameDB] Found and falling back to default patch");
 		patch = patches.at("default");
@@ -112,7 +111,7 @@ GameDatabaseSchema::GameEntry YamlGameDatabaseImpl::entryFromYaml(const std::str
 			if (fixValidated)
 			{
 				gameEntry.gameFixes.push_back(fix);
-			} 			else
+			} else
 			{
 				Console.Error(fmt::format("[GameDB] Invalid gamefix: '{}', specified for serial: '{}'. Dropping!", fix, serial));
 			}
@@ -137,7 +136,7 @@ GameDatabaseSchema::GameEntry YamlGameDatabaseImpl::entryFromYaml(const std::str
 				if (speedHackValidated)
 				{
 					gameEntry.speedHacks[speedHack] = entry.second.as<int>();
-				} 				else
+				} else
 				{
 					Console.Error(fmt::format("[GameDB] Invalid speedhack: '{}', specified for serial: '{}'. Dropping!", speedHack, serial));
 				}
@@ -165,11 +164,11 @@ GameDatabaseSchema::GameEntry YamlGameDatabaseImpl::entryFromYaml(const std::str
 				gameEntry.patches[crc] = patchCol;
 			}
 		}
-	} 	catch (const YAML::RepresentationException& e)
+	} catch (const YAML::RepresentationException& e)
 	{
 		Console.Error(fmt::format("[GameDB] Invalid GameDB syntax detected on serial: '{}'. Error Details - {}", serial, e.msg));
 		gameEntry.isValid = false;
-	} 	catch (const std::exception& e)
+	} catch (const std::exception& e)
 	{
 		Console.Error(fmt::format("[GameDB] Unexpected error occurred when reading serial: '{}'. Error Details - {}", serial, e.what()));
 		gameEntry.isValid = false;
@@ -198,7 +197,7 @@ int YamlGameDatabaseImpl::numGames()
 	return gameDb.size();
 }
 
-bool YamlGameDatabaseImpl::initDatabase(std::ifstream& stream)
+bool YamlGameDatabaseImpl::initDatabase(std::istream& stream)
 {
 	try
 	{
@@ -227,12 +226,12 @@ bool YamlGameDatabaseImpl::initDatabase(std::ifstream& stream)
 					continue;
 				}
 				gameDb[serial] = entryFromYaml(serial, entry.second);
-			} 			catch (const YAML::RepresentationException& e)
+			} catch (const YAML::RepresentationException& e)
 			{
 				Console.Error(fmt::format("[GameDB] Invalid GameDB syntax detected. Error Details - {}", e.msg));
 			}
 		}
-	} 	catch (const std::exception& e)
+	} catch (const std::exception& e)
 	{
 		Console.Error(fmt::format("[GameDB] Error occured when initializing GameDB: {}", e.what()));
 		return false;
