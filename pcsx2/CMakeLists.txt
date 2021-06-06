@@ -898,6 +898,7 @@ set(pcsx2FinalSources
 set(pcsx2FinalLibs
     Utilities
     x86emitter
+	fmt::fmt
     ${wxWidgets_LIBRARIES}
     ${GTK2_LIBRARIES}
     ${GLIB_LIBRARIES}

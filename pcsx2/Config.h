@@ -62,6 +62,16 @@ enum GamefixId
 	GamefixId_COUNT
 };
 
+enum SpeedhackId
+{
+	SpeedhackId_FIRST = 0,
+
+	Speedhack_mvuFlag = SpeedhackId_FIRST,
+	Speedhack_InstantVU1,
+
+	SpeedhackId_COUNT
+};
+
 enum class VsyncMode
 {
 	Off,
@@ -77,6 +87,7 @@ typename std::underlying_type<Enumeration>::type enum_cast(Enumeration E)
 }
 
 ImplementEnumOperators( GamefixId );
+ImplementEnumOperators( SpeedhackId );
 
 //------------ DEFAULT sseMXCSR VALUES ---------------
 #define DEFAULT_sseMXCSR	0xffc0 //FPU rounding > DaZ, FtZ, "chop"
@@ -402,8 +413,10 @@ struct Pcsx2Config
 		u8	EECycleSkip;		// EE Cycle skip factor (0, 1, 2, or 3)
 
 		SpeedhackOptions();
-		void LoadSave( IniInterface& conf );
+		void LoadSave(IniInterface& conf);
 		SpeedhackOptions& DisableAll();
+
+		void Set(SpeedhackId id, bool enabled = true);
 
 		bool operator ==( const SpeedhackOptions& right ) const
 		{
