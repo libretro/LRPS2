@@ -25,7 +25,10 @@
 AppGameDatabase& AppGameDatabase::Load()
 {
 	const u64 qpc_Start = GetCPUTicks();
-	std::istringstream stream(*GameIndex_yaml);
+	
+	std::string game_index(reinterpret_cast<const char*>(&GameIndex_yaml), GameIndex_yaml_len);
+	std::istringstream stream(game_index);
+
 
 	if (!this->initDatabase(stream))
 	{
