@@ -536,6 +536,8 @@ set(db_resources
 
 file(MAKE_DIRECTORY ${db_res_bin})
 
+find_program(XXD xxd REQUIRED)
+
 add_custom_command(
 	OUTPUT ${db_res_bin}/cheats_ws.h
 	COMMAND ${XXD} -i cheats_ws.zip cheats_ws.h
@@ -543,6 +545,7 @@ add_custom_command(
 	WORKING_DIRECTORY ${db_res_src}
 	COMMENT "Generating cheats_ws.h from cheats_ws.zip"
 	DEPENDS ${db_res_src}/cheats_ws.zip
+	VERBATIM
 )
 add_custom_command(
 	OUTPUT  ${db_res_bin}/GameIndex.h
@@ -551,6 +554,7 @@ add_custom_command(
 	WORKING_DIRECTORY  ${db_res_src}
 	COMMENT "Generating GameIndex.h from GameIndex.yaml"
 	DEPENDS  ${db_res_src}/GameIndex.yaml
+	VERBATIM
 )
 
 # IPU sources
