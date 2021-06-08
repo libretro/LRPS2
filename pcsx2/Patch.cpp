@@ -20,13 +20,13 @@
 #include "IopCommon.h"
 #include "Patch.h"
 #include "GameDatabase.h"
+#include "WidescreenPatchDatabase.h"
 
 #include <memory>
 #include <vector>
 #include <wx/textfile.h>
 #include <wx/dir.h>
 #include <wx/txtstrm.h>
-#include <wx/zipstrm.h>
 #include <wx/wfstream.h>
 #include <PathDefs.h>
 
@@ -201,34 +201,20 @@ static int _LoadPatchFiles(const wxDirName& folderName, wxString& fileSpec, cons
 	return Patch.size() - before;
 }
 
-// This routine loads patches from a zip file
-// Returns number of patches loaded
-// Note: does not reset previously loaded patches (use ForgetLoadedPatches() for that)
-// Note: only load patches from the root folder of the zip
-int LoadPatchesFromZip(wxString gameCRC, const wxString& patchesArchiveFilename)
+int LoadWidescreenPatchesFromDatabase(std::string gameCRC)
 {
-	gameCRC.MakeUpper();
+	std::transform(gameCRC.begin(), gameCRC.end(), gameCRC.begin(), ::toupper);
 
 	int before = Patch.size();
 
-	std::unique_ptr<wxZipEntry> entry;
-	wxFFileInputStream in(patchesArchiveFilename);
-	wxZipInputStream zip(in);
-	while (entry.reset(zip.GetNextEntry()), entry.get() != NULL)
+	WidescreenPatchDatabase* widescreen_database = WidescreenPatchDatabase::GetSingleton();
+	std::vector<std::string> patch_lines = widescreen_database->GetPatchLines(gameCRC);
+
+	for (std::string line : patch_lines)
 	{
-		wxString name = entry->GetName();
-		name.MakeUpper();
-		if (name.Find(gameCRC) == 0 && name.Find(L".PNACH") + 6u == name.Length())
-		{
-			PatchesCon->WriteLn(Color_Green, L"Loading patch '%s' from archive '%s'",
-				WX_STR(entry->GetName()), WX_STR(patchesArchiveFilename));
-			wxTextInputStream pnach(zip);
-			while (!zip.Eof()) 
-			{
-				inifile_processString(pnach.ReadLine());
-			}
-		}
+		inifile_processString(line);
 	}
+
 	return Patch.size() - before;
 }
 

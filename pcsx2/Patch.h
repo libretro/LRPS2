@@ -104,7 +104,7 @@ namespace PatchFunc
 // - do not actually patch the emulation memory (that happens at ApplyLoadedPatches(...) )
 extern int LoadPatchesFromGamesDB(const wxString& crc, const GameDatabaseSchema::GameEntry& game);
 extern int LoadPatchesFromDir(wxString name, const wxDirName& folderName, const wxString& friendlyName);
-extern int LoadPatchesFromZip(wxString gameCRC, const wxString& cheatsArchiveFilename);
+extern int LoadWidescreenPatchesFromDatabase(std::string gameCRC);
 
 // Patches the emulation memory by applying all the loaded patches with a specific place value.
 // Note: unless you know better, there's no need to check whether or not different patch sources
