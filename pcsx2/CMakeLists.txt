@@ -565,13 +565,13 @@ else()
 	need to be run again with xxd installed; otherwise, you may safely ignore this warning.")
 	add_custom_command(
 		OUTPUT ${db_res_bin}/cheats_ws.h
-		COMMAND cp cheats_ws.h ${db_res_bin}/cheats_ws.h
+		COMMAND ${CMAKE_COMMAND} -E copy cheats_ws.h ${db_res_bin}/cheats_ws.h
 		WORKING_DIRECTORY ${db_res_src}
 		VERBATIM
 	)
 	add_custom_command(
 		OUTPUT  ${db_res_bin}/GameIndex.h
-		COMMAND cp GameIndex.h  ${db_res_bin}/GameIndex.h
+		COMMAND ${CMAKE_COMMAND} -E copy GameIndex.h  ${db_res_bin}/GameIndex.h
 		WORKING_DIRECTORY  ${db_res_src}
 		VERBATIM
 	)
