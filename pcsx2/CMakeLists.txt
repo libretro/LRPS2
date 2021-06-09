@@ -750,16 +750,6 @@ set(pcsx2UtilitiesSources
 set(pcsx2UtilitiesHeaders
 	Utilities/AsciiFile.h)
 
-# Zip tools utilies sources
-set(pcsx2ZipToolsSources
-    ZipTools/thread_gzip.cpp
-    ZipTools/thread_lzma.cpp)
-
-# Zip tools utilies headers
-set(pcsx2ZipToolsHeaders
-    ZipTools/ThreadedZipTools.h)
-
-
 # Windows sources
 set(pcsx2WindowsSources
 	CDVD/Windows/DriveUtility.cpp
@@ -879,9 +869,7 @@ if(LIBRETRO)
 		${pcsx2UtilitiesSources}
 		${pcsx2UtilitiesHeaders}
 		${pcsx2x86Sources}
-		${pcsx2x86Headers}
-		${pcsx2ZipToolsSources}
-		${pcsx2ZipToolsHeaders})
+		${pcsx2x86Headers})
 else()
 	set(Common
 		${db_resources}
@@ -907,9 +895,7 @@ else()
 		${pcsx2UtilitiesSources}
 		${pcsx2UtilitiesHeaders}
 		${pcsx2x86Sources}
-		${pcsx2x86Headers}
-		${pcsx2ZipToolsSources}
-		${pcsx2ZipToolsHeaders})
+		${pcsx2x86Headers})
 endif()
 
 # platform sources
