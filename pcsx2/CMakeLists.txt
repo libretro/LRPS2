@@ -529,35 +529,55 @@ set(pcsx2GuiResources
     )
 endif()
 
-set(db_res_bin "${CMAKE_BINARY_DIR}/resources")
 set(db_res_src "${CMAKE_SOURCE_DIR}/resources")
-set(db_resources
-	${db_res_bin}/cheats_ws.h
-	${db_res_bin}/GameIndex.h
-	)
+set(db_res_bin "${CMAKE_BINARY_DIR}/resources")
 
 file(MAKE_DIRECTORY ${db_res_bin})
+file(REMOVE ${db_res_bin}/cheats_ws.h)
+file(REMOVE ${db_res_bin}/GameIndex.h)
 
-find_program(XXD xxd REQUIRED)
+set(db_resources
+		${db_res_bin}/cheats_ws.h
+		${db_res_bin}/GameIndex.h
+		)
 
-add_custom_command(
-	OUTPUT ${db_res_bin}/cheats_ws.h
-	COMMAND ${XXD} -i cheats_ws.zip cheats_ws.h
-	COMMAND mv cheats_ws.h ${db_res_bin}/cheats_ws.h
-	WORKING_DIRECTORY ${db_res_src}
-	COMMENT "Generating cheats_ws.h from cheats_ws.zip"
-	DEPENDS ${db_res_src}/cheats_ws.zip
-	VERBATIM
-)
-add_custom_command(
-	OUTPUT  ${db_res_bin}/GameIndex.h
-	COMMAND ${XXD} -i GameIndex.yaml GameIndex.h
-	COMMAND mv GameIndex.h  ${db_res_bin}/GameIndex.h
-	WORKING_DIRECTORY  ${db_res_src}
-	COMMENT "Generating GameIndex.h from GameIndex.yaml"
-	DEPENDS  ${db_res_src}/GameIndex.yaml
-	VERBATIM
-)
+find_program(XXD xxd)
+if (XXD)
+	message("-- Found xxd. GameIndex.h and cheats_ws.h will be generated.")
+	
+	add_custom_command(
+		OUTPUT ${db_res_bin}/cheats_ws.h
+		COMMAND ${XXD} -i cheats_ws.zip cheats_ws.h
+		COMMAND cp cheats_ws.h ${db_res_bin}/cheats_ws.h
+		WORKING_DIRECTORY ${db_res_src}
+		VERBATIM
+	)
+	add_custom_command(
+		OUTPUT  ${db_res_bin}/GameIndex.h
+		COMMAND ${XXD} -i GameIndex.yaml GameIndex.h
+		COMMAND cp GameIndex.h  ${db_res_bin}/GameIndex.h
+		WORKING_DIRECTORY  ${db_res_src}
+		VERBATIM
+	)
+else()
+	message("Could NOT find xxd. Falling back on GameIndex.h and cheats_ws.h in ${db_res_src}.
+	Warning: if changes were made to GameIndex.yaml or cheats_ws.zip, this build script will
+	need to be run again with xxd installed; otherwise, you may safely ignore this warning.")
+	add_custom_command(
+		OUTPUT ${db_res_bin}/cheats_ws.h
+		COMMAND cp cheats_ws.h ${db_res_bin}/cheats_ws.h
+		WORKING_DIRECTORY ${db_res_src}
+		VERBATIM
+	)
+	add_custom_command(
+		OUTPUT  ${db_res_bin}/GameIndex.h
+		COMMAND cp GameIndex.h  ${db_res_bin}/GameIndex.h
+		WORKING_DIRECTORY  ${db_res_src}
+		VERBATIM
+	)
+
+
+endif()
 
 # IPU sources
 set(pcsx2IPUSources
