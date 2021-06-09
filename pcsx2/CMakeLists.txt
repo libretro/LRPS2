@@ -126,7 +126,8 @@ set(pcsx2Sources
 	VU1microInterp.cpp
 	VUflags.cpp
 	VUmicroMem.cpp
-	VUops.cpp)
+	VUops.cpp
+	WidescreenPatchDatabase.cpp)
 
 # Main pcsx2 header
 set(pcsx2Headers
@@ -182,7 +183,8 @@ set(pcsx2Headers
 	vtlb.h
 	VUflags.h
 	VUmicro.h
-	VUops.h)
+	VUops.h
+	WidescreenPatchDatabase.h)
 
 # CDVD sources
 set(pcsx2CDVDSources
@@ -526,6 +528,37 @@ set(pcsx2GuiResources
     ${res_bin}/Breakpoint_Inactive.h
     )
 endif()
+
+set(db_res_bin "${CMAKE_BINARY_DIR}/resources")
+set(db_res_src "${CMAKE_SOURCE_DIR}/resources")
+set(db_resources
+	${db_res_bin}/cheats_ws.h
+	${db_res_bin}/GameIndex.h
+	)
+
+file(MAKE_DIRECTORY ${db_res_bin})
+
+find_program(XXD xxd REQUIRED)
+
+add_custom_command(
+	OUTPUT ${db_res_bin}/cheats_ws.h
+	COMMAND ${XXD} -i cheats_ws.zip cheats_ws.h
+	COMMAND mv cheats_ws.h ${db_res_bin}/cheats_ws.h
+	WORKING_DIRECTORY ${db_res_src}
+	COMMENT "Generating cheats_ws.h from cheats_ws.zip"
+	DEPENDS ${db_res_src}/cheats_ws.zip
+	VERBATIM
+)
+add_custom_command(
+	OUTPUT  ${db_res_bin}/GameIndex.h
+	COMMAND ${XXD} -i GameIndex.yaml GameIndex.h
+	COMMAND mv GameIndex.h  ${db_res_bin}/GameIndex.h
+	WORKING_DIRECTORY  ${db_res_src}
+	COMMENT "Generating GameIndex.h from GameIndex.yaml"
+	DEPENDS  ${db_res_src}/GameIndex.yaml
+	VERBATIM
+)
+
 # IPU sources
 set(pcsx2IPUSources
 	IPU/IPU.cpp
@@ -803,6 +836,7 @@ set(pcsx2x86Headers
 # common Sources
 if(LIBRETRO)
 	set(Common
+		${db_resources}
 		${pcsx2Sources}
 		${pcsx2Headers}
 		${pcsx2CDVDSources}
@@ -830,6 +864,7 @@ if(LIBRETRO)
 		${pcsx2ZipToolsHeaders})
 else()
 	set(Common
+		${db_resources}
 		${pcsx2Sources}
 		${pcsx2Headers}
 		${pcsx2CDVDSources}
@@ -898,6 +933,7 @@ set(pcsx2FinalSources
 set(pcsx2FinalLibs
     Utilities
     x86emitter
+	fmt::fmt
     ${wxWidgets_LIBRARIES}
     ${GTK2_LIBRARIES}
     ${GLIB_LIBRARIES}
@@ -937,13 +973,15 @@ if(NOT LIBRETRO)
 include_directories(
     gui
     x86
+	${db_res_bin} 
     ${CMAKE_BINARY_DIR}/pcsx2/gui
 )
 else()
 include_directories(
     gui-libretro
     x86
-    ${CMAKE_BINARY_DIR}/pcsx2/gui-libretro
+    ${db_res_bin}
+	${CMAKE_BINARY_DIR}/pcsx2/gui-libretro
 )
 endif()
 
