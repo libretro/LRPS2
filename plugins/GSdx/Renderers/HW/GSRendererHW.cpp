@@ -82,8 +82,14 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 		
 	}
 #ifdef __LIBRETRO__
+
 	m_upscale_multiplier = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 	theApp.SetConfig("MaxAnisotropy", option_value(INT_PCSX2_OPT_ANISOTROPIC_FILTER, KeyOptionInt::return_type));
+	m_fxaa = option_value(INT_PCSX2_OPT_FXAA, KeyOptionInt::return_type);
+	theApp.SetConfig("fxaa", m_fxaa);
+	m_interlace = option_value(INT_PCSX2_OPT_DEINTERLACING_MODE, KeyOptionInt::return_type);
+	theApp.SetConfig("interlace", m_interlace);
+
 #endif
 	if (!m_upscale_multiplier) { //Custom Resolution
 		m_custom_width = m_width = theApp.GetConfigI("resx");
@@ -114,8 +120,12 @@ void GSRendererHW::UpdateRendererOptions()
 	m_userhacks_round_sprite_offset = option_value(INT_PCSX2_OPT_USERHACK_ROUND_SPRITE, KeyOptionInt::return_type);
 	m_userhacks_wildhack = option_value(BOOL_PCSX2_OPT_USERHACK_WILDARMS_OFFSET, KeyOptionBool::return_type);
 	m_userhacks_ts_half_bottom = option_value(INT_PCSX2_OPT_USERHACK_HALFSCREEN_FIX, KeyOptionInt::return_type);
-
+	
 	theApp.SetConfig("MaxAnisotropy", option_value(INT_PCSX2_OPT_ANISOTROPIC_FILTER, KeyOptionInt::return_type));
+	m_fxaa = option_value(INT_PCSX2_OPT_FXAA, KeyOptionInt::return_type);
+	theApp.SetConfig("fxaa", m_fxaa);
+	m_interlace = option_value(INT_PCSX2_OPT_DEINTERLACING_MODE, KeyOptionInt::return_type);
+	theApp.SetConfig("interlace", m_interlace);
 	m_upscale_multiplier = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 	if (m_upscale_multiplier == 1) { // hacks are only needed for upscaling issues.
 		m_userhacks_round_sprite_offset = 0;

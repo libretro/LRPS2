@@ -83,6 +83,22 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	"1"},
 
+	{"pcsx2_deinterlace_mode",
+	"Deinterlacing Mode",
+	"Can remove blur on some games. Note that some modes can slightly decrease performance while the others can blur the whole picture, decreasing the amount of details thus deinterlacing is to be used only when it's necessary.",
+	{
+		{"7", "Automatic (default)"},
+		{"6", "Blend bff - slight blur, 1/2 fps"},
+		{"5", "Blend tff - slight blur, 1/2 fps"},
+		{"4", "Bob bff   - use blend if shaking"},
+		{"3", "Bob tff   - use blend if shaking"},
+		{"2", "Weave bff - saw-tooth"},
+		{"1", "Weave tff - saw-tooth"},
+		{"0", "None "},
+		{NULL, NULL},
+	},
+	"7"},
+
 	{"pcsx2_aspect_ratio",
 	"Aspect Ratio",
 	"Sets the aspect ratio. Setting the aspect ratio to Widescreen (16:9) stretches the display. For proper widescreen in select games, also turn on the 'Enable Widescreen Patches' option. (Content restart required)",
@@ -103,9 +119,19 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	"disabled"},
 
+	{ "pcsx2_fxaa",
+	"Fast Approximate Anti-Aliasing",
+	NULL,
+	{
+		{"0", "Disabled"},
+		{"1", "Enabled"},
+		{NULL, NULL},
+	},
+	"0" },
+
 	{"pcsx2_anisotropic_filter",
 	 "Anisotropic Filtering",
-	 "Reduces texture aliasing at extreme viewing angles",
+	 "D3D11 only. Reduces texture aliasing at extreme viewing angles",
 	{
 		{"0", "None"},
 		{"2", "2x"},

@@ -47,6 +47,9 @@ static const char* INT_PCSX2_OPT_USERHACK_HALFPIXEL_OFFSET	= "pcsx2_userhack_hal
 static const char* INT_PCSX2_OPT_USERHACK_ROUND_SPRITE		= "pcsx2_userhack_round_sprite";
 static const char* INT_PCSX2_OPT_USERHACK_HALFSCREEN_FIX	= "pcsx2_userhack_halfscreen_fix";
 static const char* INT_PCSX2_OPT_GAMEPAD_RUMBLE_FORCE		= "pcsx2_rumble_intensity";
+static const char* INT_PCSX2_OPT_DEINTERLACING_MODE			= "pcsx2_deinterlace_mode";
+static const char* INT_PCSX2_OPT_FXAA						= "pcsx2_fxaa";
+
 
 
 enum class KeyOptionBool
