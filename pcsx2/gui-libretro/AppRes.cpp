@@ -17,7 +17,6 @@
 #include "App.h"
 #include "AppGameDatabase.h"
 
-#include <wx/zipstrm.h>
 #include <wx/wfstream.h>
 #ifndef __LIBRETRO__
 #include <wx/imaglist.h>
