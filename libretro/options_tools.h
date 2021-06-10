@@ -9,6 +9,7 @@
 
 #include <libretro.h>
 #include <stdlib.h>
+#include <cstring>
 
 extern retro_environment_t environ_cb;
 extern retro_log_printf_t log_cb;
