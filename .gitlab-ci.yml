@@ -17,7 +17,7 @@ variables:
   extends: .core-defs
   variables:
     EXTRA_PATH: pcsx2
-    CORE_ARGS: -DLIBRETRO=ON -DCMAKE_BUILD_TYPE=Release -DENABLE_QT=OFF
+    CORE_ARGS: -DLIBRETRO=ON -DCMAKE_BUILD_TYPE=Release -DENABLE_QT=OFF -DCMAKE_LINK_WHAT_YOU_USE=TRUE
 
 .core-windows-defs:
   extends: .core-defs
@@ -53,7 +53,7 @@ libretro-build-windows-x64:
     - .core-windows-defs
 
 # Linux 64-bit
-#libretro-build-linux-x64:
-#  extends:
-#    - .libretro-linux-cmake-x86_64
-#    - .core-linux-defs
+libretro-build-linux-x64:
+  extends:
+    - .libretro-linux-cmake-x86_64
+    - .core-linux-defs
