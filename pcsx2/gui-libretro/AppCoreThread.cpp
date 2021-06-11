@@ -48,7 +48,7 @@
 * this is to be investigate deeper, if it's the cause of the very long boot time when cheat ws are enabled
 */
 bool msg_cheat_ws_found_sent = false;
-
+bool msg_cheats_found_sent = false;
 
 #endif
 
@@ -486,8 +486,25 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 	}
 
 	// regular cheat patches
-	if (fixup.EnableCheats)
+	if (fixup.EnableCheats) {
+#ifdef __LIBRETRO__
+		int numcheatsfound = 0;
+		if (numcheatsfound = LoadPatchesFromDir(gameCRC, GetCheatsFolder(), L"Cheats")) {
+			if (!msg_cheats_found_sent)
+			{
+				RetroMessager::Message(3, RETRO_LOG_INFO,
+					RETRO_MESSAGE_TARGET_OSD,
+					RETRO_MESSAGE_TYPE_NOTIFICATION,
+					"Found and applied cheats\n");
+				msg_cheats_found_sent = true;
+			}
+		}
+		gameCheats.Printf(L" [%d Cheats]", numcheatsfound);
+#else
 		gameCheats.Printf(L" [%d Cheats]", LoadPatchesFromDir(gameCRC, GetCheatsFolder(), L"Cheats"));
+#endif
+	}
+
 
 	// wide screen patches
 	if (fixup.EnableWideScreenPatches)

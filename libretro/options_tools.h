@@ -24,7 +24,7 @@ static const char* BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE		= "pcsx2_userhack_merge
 static const char* BOOL_PCSX2_OPT_USERHACK_WILDARMS_OFFSET	= "pcsx2_userhack_wildarms_offset";
 static const char* BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE		= "pcsx2_rumble_enable";
 static const char* BOOL_PCSX2_OPT_BOOT_TO_BIOS				= "pcsx2_boot_bios";
-
+static const char* BOOL_PCSX2_OPT_ENABLE_CHEATS				= "pcsx2_enable_cheats";
 
 
 
