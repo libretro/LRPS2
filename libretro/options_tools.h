@@ -15,6 +15,9 @@ extern retro_environment_t environ_cb;
 extern retro_log_printf_t log_cb;
 extern void GSUpdateOptions();
 
+extern bool msg_cheat_ws_found_sent;
+extern bool msg_cheats_found_sent;
+
 static const char* BOOL_PCSX2_OPT_FASTBOOT					= "pcsx2_fastboot";
 static const char* BOOL_PCSX2_OPT_ENABLE_WIDESCREEN_PATCHES = "pcsx2_enable_widescreen_patches";
 static const char* BOOL_PCSX2_OPT_ENABLE_SPEEDHACKS			= "pcsx2_enable_speedhacks";
