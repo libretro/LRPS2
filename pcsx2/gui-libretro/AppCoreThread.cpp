@@ -49,6 +49,7 @@
 */
 bool msg_cheat_ws_found_sent = false;
 bool msg_cheats_found_sent = false;
+wxString gameCRC;
 
 #endif
 
@@ -99,6 +100,22 @@ static void PostCoreStatus(CoreThreadStatus pevt)
 {
 	sApp.PostAction(CoreThreadStatusEvent(pevt));
 }
+
+#ifdef __LIBRETRO__
+/*
+* Resets stuffs related to content, 
+* needed when closing and reopening a game
+* * it's called from retro_load_game
+*/
+void ResetContentStuffs()
+{
+	msg_cheat_ws_found_sent = false;
+	msg_cheats_found_sent = false;
+	gameCRC = L"00000000";
+
+}
+
+#endif // __LIBRETRO__
 
 // --------------------------------------------------------------------------------------
 //  AppCoreThread Implementations
@@ -407,8 +424,11 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 		fixup.GS.FrameLimitEnable = false;
 		fixup.GS.VsyncEnable = VsyncMode::Off;
 	}
-
+#ifndef __LIBRETRO__
 	wxString gameCRC;
+#endif // !__LIBRETRO__
+
+
 	wxString gameSerial;
 	wxString gamePatch;
 	wxString gameFixes;

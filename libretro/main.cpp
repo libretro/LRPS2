@@ -567,8 +567,10 @@ read_m3u_file(const wxFileName& m3u_file)
 
 bool retro_load_game(const struct retro_game_info* game)
 {
-	msg_cheat_ws_found_sent = false;
-	msg_cheats_found_sent = false;
+//	msg_cheat_ws_found_sent = false;
+//	msg_cheats_found_sent = false;
+
+	ResetContentStuffs();
 
 	const char* selected_bios = option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type);
 	if (selected_bios == NULL)
