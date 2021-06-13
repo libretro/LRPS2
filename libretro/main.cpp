@@ -385,7 +385,13 @@ void retro_init(void)
 
 void retro_deinit(void)
 {
-	vu1Thread.Cancel();
+	/* FIXME: This is a workaround that resolves crashes on close content.
+	When closing the frontend, we end up with a zombie process because the
+	main thread tries to call vu1Thread.Cancel() within pcsx2's destructor is
+	called and it gets stuck waiting for a mutex that will never unlock */
+	vu1Thread.WaitVU();
+	//vu1Thread.Cancel();
+
 	pcsx2->CleanupOnExit();
 	pcsx2->OnExit();
 #ifdef PERF_TEST
