@@ -49,7 +49,7 @@
 */
 bool msg_cheat_ws_found_sent = false;
 bool msg_cheats_found_sent = false;
-wxString gameCRC;
+
 
 #endif
 
@@ -111,7 +111,7 @@ void ResetContentStuffs()
 {
 	msg_cheat_ws_found_sent = false;
 	msg_cheats_found_sent = false;
-	gameCRC = L"00000000";
+	ElfCRC = 0;
 
 }
 
@@ -424,11 +424,8 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 		fixup.GS.FrameLimitEnable = false;
 		fixup.GS.VsyncEnable = VsyncMode::Off;
 	}
-#ifndef __LIBRETRO__
+
 	wxString gameCRC;
-#endif // !__LIBRETRO__
-
-
 	wxString gameSerial;
 	wxString gamePatch;
 	wxString gameFixes;
