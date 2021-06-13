@@ -643,10 +643,6 @@ bool retro_load_game(const struct retro_game_info* game)
 			g_Conf->CurrentIso = game_paths[0];
 			
 			// set up memcard on slot 1
-			log_cb(RETRO_LOG_DEBUG, "SETTING UP MEMORY CARDS.....!\n");
-
-
-
 			if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "empty") == 0)
 			{
 				// slot empty
