@@ -602,10 +602,13 @@ bool retro_load_game(const struct retro_game_info* game)
 
 	if (game)
 	{
+		
 		LanguageInjector::Inject(
 			(std::string)option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type),
 			option_value(STRING_PCSX2_OPT_SYSTEM_LANGUAGE, KeyOptionString::return_type)
 		);
+		
+
 
 		wxVector<wxString> game_paths;
 

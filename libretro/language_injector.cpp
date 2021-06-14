@@ -14,6 +14,7 @@
 #include "SPU2/Global.h"
 #include "ps2/BiosTools.h"
 
+#include <wx/filename.h>
 
 
 static const char* BIOS_SCPH30003		    = "Europev01.20(02/09/2000)Console";
@@ -236,23 +237,29 @@ namespace LanguageInjector
 
 		if (_FirstUpper(rawext))
 			nvm_ext = ".NVM";
-
+		
 		std::string path_nvm = rawpath + nvm_ext;
-		//std::string path_nvm_output = rawpath + "_DEBUG_OUT" + nvm_ext;
-		std::string path_nvm_output = rawpath + nvm_ext;
 
-		const int BUFFER_SIZE = 1024;
-		uint8_t buffer[BUFFER_SIZE];
-		std::ifstream infile(path_nvm, std::ifstream::binary);
-		infile.read((char*)buffer, BUFFER_SIZE);
-		infile.close();
-		//log_cb(RETRO_LOG_DEBUG, "File read in buffer\n", buffer);
+		wxFileName nvmFile;
+		nvmFile.Assign(path_nvm);
+		if (nvmFile.FileExists())
+		{
+			//std::string path_nvm_output = rawpath + "_DEBUG_OUT" + nvm_ext;
+			std::string path_nvm_output = rawpath + nvm_ext;
 
-		if (_ModifyLanguageOptionByte(buffer, lang_data)) {
-			std::ofstream outfile(path_nvm_output, std::ofstream::binary);
-			outfile.write((char*)buffer, BUFFER_SIZE);                      // write the actual text
-			outfile.close();
-			return true;
+			const int BUFFER_SIZE = 1024;
+			uint8_t buffer[BUFFER_SIZE];
+			std::ifstream infile(path_nvm, std::ifstream::binary);
+			infile.read((char*)buffer, BUFFER_SIZE);
+			infile.close();
+			//log_cb(RETRO_LOG_DEBUG, "File read in buffer\n", buffer);
+
+			if (_ModifyLanguageOptionByte(buffer, lang_data)) {
+				std::ofstream outfile(path_nvm_output, std::ofstream::binary);
+				outfile.write((char*)buffer, BUFFER_SIZE);                      // write the actual text
+				outfile.close();
+				return true;
+			}
 		}
 		return false;
 
