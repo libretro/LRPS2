@@ -383,6 +383,17 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	"-1" },
 
+	{ "pcsx2_userhack_auto_flush",
+	"Hack: Auto Flush",
+	"Force a primitive flush when a framebuffer is also an input texture. Fixes some processing effects such as the shadows in the \
+	Jak series and radiosity in GTA:SA. Very costly in performance. (Content restart required)",
+	{
+		{"disabled", NULL},
+		{"enabled", NULL},
+		{NULL, NULL},
+	},
+	"disabled" },
+
 	{NULL, NULL, NULL, {{0}}, NULL},
 };
 
