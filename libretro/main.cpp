@@ -349,10 +349,8 @@ void retro_init(void)
 
 
 	// apply options to pcsx2
-
-	if (!option_value(BOOL_PCSX2_OPT_ENABLE_SPEEDHACKS, KeyOptionBool::return_type))
-		g_Conf->PresetIndex = 1;
-
+	
+	g_Conf->EnablePresets = true;
 	g_Conf->BaseFilenames.Plugins[PluginId_GS] = "Built-in";
 	g_Conf->BaseFilenames.Plugins[PluginId_PAD] = "Built-in";
 	g_Conf->BaseFilenames.Plugins[PluginId_USB] = "Built-in";

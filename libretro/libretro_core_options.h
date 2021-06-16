@@ -62,8 +62,6 @@ struct retro_core_option_definition option_defs[] = {
 		{"D3D11", NULL},
 #endif
 		{"OpenGl", NULL},
-		{"Software", NULL},
-		{"Null", NULL},
 		{NULL, NULL},
 	},
 	"Auto"},
@@ -111,7 +109,7 @@ struct retro_core_option_definition option_defs[] = {
 
 	{"pcsx2_enable_widescreen_patches",
 	"Enable Widescreen Patches",
-	"Enables widescreen patches that allow certain games to render in true 16:9 ratio without stretching the display. For the widescreen patches to display properly, the 'Aspect Ratio' option should be set to Widescreen (16:9). Considerably increases games boot time. (Content restart required)",
+	"Enables widescreen patches that allow certain games to render in true 16:9 ratio without stretching the display. For the widescreen patches to display properly, the 'Aspect Ratio' option should be set to Widescreen (16:9). (Content restart required)",
 	{
 		{"disabled", NULL},
 		{"enabled", NULL},
@@ -131,7 +129,7 @@ struct retro_core_option_definition option_defs[] = {
 
 	{"pcsx2_anisotropic_filter",
 	 "Anisotropic Filtering",
-	 "D3D11 only. Reduces texture aliasing at extreme viewing angles",
+	 "Reduces texture aliasing at extreme viewing angles",
 	{
 		{"0", "None"},
 		{"2", "2x"},
@@ -144,7 +142,7 @@ struct retro_core_option_definition option_defs[] = {
 
 	{"pcsx2_memcard_slot_1",
 	"Memory Card: Slot 1",
-	"Select the primary memory card to use. 'Legacy' points to the memory card Mcd001 in the old location system/pcsx2/memcards. (content restart required)",
+	"Select the primary memory card to use. 'Legacy' points to the memory card Mcd001 in the old location system/pcsx2/memcards. (Content restart required)",
 	{
 		// dynamically filled in retro_init
 	},
@@ -152,7 +150,7 @@ struct retro_core_option_definition option_defs[] = {
 
 	{ "pcsx2_memcard_slot_2",
 	"Memory Card: Slot 2",
-	"Select the secondary memory card to use. 'Legacy' points to the memory card Mcd002 in the old location system/pcsx2/memcards. (content restart required)",
+	"Select the secondary memory card to use. 'Legacy' points to the memory card Mcd002 in the old location system/pcsx2/memcards. (Content restart required)",
 	{
 		// dynamically filled in retro_init
 	},
@@ -188,7 +186,8 @@ struct retro_core_option_definition option_defs[] = {
 
 	{ "pcsx2_enable_cheats",
 	"Enable Cheats",
-	"Loads and apply cheats pnach files found in the cheats folder. (content restart required)",
+	"Enabled: Checks the 'system/pcsx2/cheats' directory for a PNACH file for the running content and, if found, \
+	applies the cheats from the file. (Content restart required)",
 	{
 		{"disabled", NULL},
 		{"enabled", NULL},
@@ -196,19 +195,14 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	"disabled" },
 
-	{"pcsx2_enable_speedhacks",
-	"Enable SpeedHacks",
-	"Speedhacks usually improve emulation speed, but can cause glitches, broken audio, and false FPS readings. When having emulation problems, or the BIOS menu text is not visible, disable this option. (content restart required)",
-	{
-		{"disabled", NULL},
-		{"enabled", NULL},
-		{NULL, NULL},
-	},
-	"disabled"},
-
 	{"pcsx2_speedhacks_presets",
-	 "SpeedHacks preset",
-	 "Preset which controls the speedhacks balance between accurancy and speed. This setting is applied only if 'Enable Speedhacks' option is enabled. (content restart required)",
+	 "Speed Hacks Preset",
+	 "Preset which controls the balance between accuracy and speed. (Content restart required) \
+		\nSafest: no speed hacks. Most reliable, but possibly slow. \
+		\nSafe: a few speed hacks known to provide boosts with minimal to no side effects. \
+		\nBalanced: recommended preset for CPUs with 4+ cores. Provides good boosts with minimal to no side effects. \
+		\nAggressive/Very Aggressive: may help underpowered CPUs in less demanding games, but may cause problems in other cases. \
+		\nMostly Harmful: helps a very small set of games with unusual performance requirements. Not recommended for underpowered devices.",
 	{
 		{"0", "Safest - No Hacks"},
 		{"1", "Safe (default)"},
@@ -262,24 +256,6 @@ struct retro_core_option_definition option_defs[] = {
 		{"8", NULL},
 		{"9", NULL},
 		{"10", NULL},
-		{NULL, NULL},
-	},
-	"1" },
-
-	{ "pcsx2_sw_renderer_threads",
-	"Software Rendered Threads",
-	NULL,
-	{
-		{"2", NULL},
-		{"3", NULL},
-		{"4", NULL},
-		{"5", NULL},
-		{"6", NULL},
-		{"7", NULL},
-		{"8", NULL},
-		{"9", NULL},
-		{"10", NULL},
-		{"11", NULL},
 		{NULL, NULL},
 	},
 	"1" },
@@ -405,7 +381,7 @@ struct retro_core_option_definition option_defs[] = {
 		{"1", "Force-Enabled"},
 		{NULL, NULL},
 	},
-	"disabled" },
+	"-1" },
 
 	{NULL, NULL, NULL, {{0}}, NULL},
 };
