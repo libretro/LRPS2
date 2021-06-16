@@ -292,21 +292,18 @@ void FileMemoryCard::Open()
 		if (fname.GetFullName().IsEmpty())
 		{
 			str = L"[empty filename]";
-			log_cb(RETRO_LOG_DEBUG, "[empty filename]\n");
 			cont = true;
 		}
 
 		if (!g_Conf->Mcd[slot].Enabled)
 		{
 			str = L"[disabled]";
-			log_cb(RETRO_LOG_DEBUG, "[disabled]\n");
 			cont = true;
 		}
 
 		if (g_Conf->Mcd[slot].Type != MemoryCardType::MemoryCard_File)
 		{
 			str = L"[is not memcard file]";
-			log_cb(RETRO_LOG_DEBUG, "[is not memcard file]\n");
 			cont = true;
 		}
 

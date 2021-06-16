@@ -48,6 +48,7 @@
 * this is to be investigate deeper, if it's the cause of the very long boot time when cheat ws are enabled
 */
 bool msg_cheat_ws_found_sent = false;
+bool msg_cheats_found_sent = false;
 
 
 #endif
@@ -99,6 +100,22 @@ static void PostCoreStatus(CoreThreadStatus pevt)
 {
 	sApp.PostAction(CoreThreadStatusEvent(pevt));
 }
+
+#ifdef __LIBRETRO__
+/*
+* Resets stuffs related to content, 
+* needed when closing and reopening a game
+* * it's called from retro_load_game
+*/
+void ResetContentStuffs()
+{
+	msg_cheat_ws_found_sent = false;
+	msg_cheats_found_sent = false;
+	ElfCRC = 0;
+
+}
+
+#endif // __LIBRETRO__
 
 // --------------------------------------------------------------------------------------
 //  AppCoreThread Implementations
@@ -425,7 +442,11 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 	// settings as if the game is already running (title, loadeding patches, etc).
 	bool ingame = (ElfCRC && (g_GameLoading || g_GameStarted));
 	if (ingame)
+	{
 		gameCRC.Printf(L"%8.8x", ElfCRC);
+		log_cb(RETRO_LOG_INFO, "Game CRC: %8.8x\n", ElfCRC);
+	}
+		
 	if (ingame && !DiscSerial.IsEmpty())
 		gameSerial = L" [" + DiscSerial + L"]";
 
@@ -486,8 +507,23 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 	}
 
 	// regular cheat patches
-	if (fixup.EnableCheats)
+	if (fixup.EnableCheats) {
+#ifdef __LIBRETRO__
+		int numcheatsfound = 0;
+		if (numcheatsfound = LoadPatchesFromDir(gameCRC, GetCheatsFolder(), L"Cheats")) {
+			if (!msg_cheats_found_sent)
+			{
+				RetroMessager::Notification("Found and applied cheats");
+				log_cb(RETRO_LOG_INFO, "Found and applied cheats\n");
+				msg_cheats_found_sent = true;
+			}
+		}
+		gameCheats.Printf(L" [%d Cheats]", numcheatsfound);
+#else
 		gameCheats.Printf(L" [%d Cheats]", LoadPatchesFromDir(gameCRC, GetCheatsFolder(), L"Cheats"));
+#endif
+	}
+
 
 	// wide screen patches
 	if (fixup.EnableWideScreenPatches)
@@ -499,10 +535,8 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 #ifdef __LIBRETRO__
 			if (!msg_cheat_ws_found_sent) 
 			{
-				RetroMessager::Message(3, RETRO_LOG_INFO,
-					RETRO_MESSAGE_TARGET_OSD,
-					RETRO_MESSAGE_TYPE_NOTIFICATION,
-					"Found and applied Widescreen Patch.\n");
+				RetroMessager::Notification("Found and applied Widescreen Patch");
+				log_cb(RETRO_LOG_INFO, "Found and applied Widescreen Patch\n");
 				msg_cheat_ws_found_sent = true;
 			}
 #endif
@@ -518,10 +552,8 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 			if (numberDbfCheatsLoaded) {
 				if (!msg_cheat_ws_found_sent)
 				{
-					RetroMessager::Message(3, RETRO_LOG_INFO,
-						RETRO_MESSAGE_TARGET_OSD,
-						RETRO_MESSAGE_TYPE_NOTIFICATION,
-						"Found and applied Widescreen Patch.\n");
+					RetroMessager::Notification("Found and applied Widescreen Patch");
+					log_cb(RETRO_LOG_INFO, "Found and applied Widescreen Patch\n");
 					msg_cheat_ws_found_sent = true;
 				}
 			}

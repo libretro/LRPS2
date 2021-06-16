@@ -186,6 +186,16 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	"100"},
 
+	{ "pcsx2_enable_cheats",
+	"Enable Cheats",
+	"Loads and apply cheats pnach files found in the cheats folder. (content restart required)",
+	{
+		{"disabled", NULL},
+		{"enabled", NULL},
+		{NULL, NULL},
+	},
+	"disabled" },
+
 	{"pcsx2_enable_speedhacks",
 	"Enable SpeedHacks",
 	"Speedhacks usually improve emulation speed, but can cause glitches, broken audio, and false FPS readings. When having emulation problems, or the BIOS menu text is not visible, disable this option. (content restart required)",

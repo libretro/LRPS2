@@ -363,7 +363,7 @@ void retro_init(void)
 	g_Conf->EmuOptions.GS.FrameSkipEnable = option_value(BOOL_PCSX2_OPT_FRAMESKIP, KeyOptionBool::return_type);
 	g_Conf->EmuOptions.GS.FramesToDraw = option_value(INT_PCSX2_OPT_FRAMES_TO_DRAW, KeyOptionInt::return_type);
 	g_Conf->EmuOptions.GS.FramesToSkip = option_value(INT_PCSX2_OPT_FRAMES_TO_SKIP, KeyOptionInt::return_type);
-
+	g_Conf->EmuOptions.EnableCheats = option_value(BOOL_PCSX2_OPT_ENABLE_CHEATS, KeyOptionBool::return_type);
 	
 
 	static retro_disk_control_ext_callback disk_control = {
@@ -573,6 +573,10 @@ read_m3u_file(const wxFileName& m3u_file)
 
 bool retro_load_game(const struct retro_game_info* game)
 {
+//	msg_cheat_ws_found_sent = false;
+//	msg_cheats_found_sent = false;
+
+	ResetContentStuffs();
 
 	const char* selected_bios = option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type);
 	if (selected_bios == NULL)
@@ -598,10 +602,13 @@ bool retro_load_game(const struct retro_game_info* game)
 
 	if (game)
 	{
+		
 		LanguageInjector::Inject(
 			(std::string)option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type),
 			option_value(STRING_PCSX2_OPT_SYSTEM_LANGUAGE, KeyOptionString::return_type)
 		);
+		
+
 
 		wxVector<wxString> game_paths;
 
@@ -645,10 +652,6 @@ bool retro_load_game(const struct retro_game_info* game)
 			g_Conf->CurrentIso = game_paths[0];
 			
 			// set up memcard on slot 1
-			log_cb(RETRO_LOG_DEBUG, "SETTING UP MEMORY CARDS.....!\n");
-
-
-
 			if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "empty") == 0)
 			{
 				// slot empty
