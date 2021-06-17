@@ -62,29 +62,18 @@ void SaveStateBase::mtvuFreeze()
 		unsigned int v = vu1Thread.vuCycles[i].load();
 		Freeze(v);
 	}
-	u32 gsFinishInt;
-	u64 gsSignals;
-	u32 gsSignalsCnt;
 
-	gsFinishInt = vu1Thread.gsFinish.load();
-	Freeze(gsFinishInt);
-	vu1Thread.gsFinish.store(gsFinishInt);
-	gsSignals = vu1Thread.gsSignal.load();
-	Freeze(gsSignals);
-	vu1Thread.gsSignal.store(gsSignals);
-	gsSignalsCnt = vu1Thread.gsSignalCnt.load();
-	Freeze(gsSignalsCnt);
-	vu1Thread.gsSignalCnt.store(gsSignalsCnt);
-	gsSignals = vu1Thread.gsLabel.load();
-	Freeze(gsSignals);
-	vu1Thread.gsLabel.store(gsSignals);
-	gsSignalsCnt = vu1Thread.gsLabelCnt.load();
-	Freeze(gsSignalsCnt);
-	vu1Thread.gsLabelCnt.store(gsSignalsCnt);
+	u32 gsInterrupts = vu1Thread.gsInterrupts.load();
+	Freeze(gsInterrupts);
+	vu1Thread.gsInterrupts.store(gsInterrupts);
+	u64 gsSignal = vu1Thread.gsSignal.load();
+	Freeze(gsSignal);
+	vu1Thread.gsSignal.store(gsSignal);
+	u64 gsLabel = vu1Thread.gsLabel.load();
+	Freeze(gsLabel);
+	vu1Thread.gsLabel.store(gsLabel);
 
 	Freeze(vu1Thread.vuCycleIdx);
-	Freeze(vu1Thread.lastLabel);
-	Freeze(vu1Thread.lastSignal);
 }
 
 VU_Thread::VU_Thread(BaseVUmicroCPU*& _vuCPU, VURegs& _vuRegs)
@@ -111,8 +100,6 @@ void VU_Thread::Reset()
 	ScopedLock lock(mtxBusy);
 
 	vuCycleIdx = 0;
-	lastLabel = 0;
-	lastSignal = 0;
 	isBusy = false;
 	m_ato_write_pos = 0;
 	m_write_pos = 0;
@@ -122,8 +109,7 @@ void VU_Thread::Reset()
 	memzero(vifRegs);
 	for (size_t i = 0; i < 4; ++i)
 		vu1Thread.vuCycles[i] = 0;
-	vu1Thread.gsSignal = 0;
-	vu1Thread.gsLabel = 0;
+	vu1Thread.gsInterrupts = 0;
 }
 
 void VU_Thread::ExecuteTaskInThread()
@@ -348,17 +334,21 @@ u32 VU_Thread::Get_vuCycles()
 
 void VU_Thread::Get_GSChanges()
 {
-	u32 finishInt = gsFinish.load(std::memory_order_acquire);
-	u64 signalCnt = gsSignalCnt.load(std::memory_order_acquire);
-	u64 labelCnt = gsLabelCnt.load(std::memory_order_acquire);
+	// Note: Atomic communication is with Gif_Unit.cpp Gif_HandlerAD_MTVU
+	u32 interrupts = gsInterrupts.load(std::memory_order_relaxed);
+	if (!interrupts)
+		return;
 
-	if (signalCnt != lastSignal)
+	if (interrupts & InterruptFlagSignal)
 	{
+		std::atomic_thread_fence(std::memory_order_acquire);
+		const u64 signal = gsSignal.load(std::memory_order_relaxed);
+		// If load of signal was moved after clearing the flag, the other thread could write a new value before we load without noticing the double signal
+		// Prevent that with release semantics
+		gsInterrupts.fetch_and(~InterruptFlagSignal, std::memory_order_release);
 		GUNIT_WARN("SIGNAL firing");
-		const u64 signal = gsSignal.load(std::memory_order_acquire);
 		const u32 signalMsk = (u32)(signal >> 32);
 		const u32 signalData = (u32)signal;
-		lastSignal = signalCnt;
 		if (CSRreg.SIGNAL)
 		{
 			GUNIT_WARN("Queue SIGNAL");
@@ -376,24 +366,26 @@ void VU_Thread::Get_GSChanges()
 				gsIrq();
 		}
 	}
-	if (finishInt)
+	if (interrupts & InterruptFlagFinish)
 	{
+		gsInterrupts.fetch_and(~InterruptFlagFinish, std::memory_order_relaxed);
 		GUNIT_WARN("Finish firing");
 		CSRreg.FINISH = true;
 		gifUnit.gsFINISH.gsFINISHFired = false;
 
 		if (!gifRegs.stat.APATH)
 			Gif_FinishIRQ();
-
-		gsFinish.store(0);
 	}
-	if (labelCnt != lastLabel)
+	if (interrupts & InterruptFlagLabel)
 	{
+		gsInterrupts.fetch_and(~InterruptFlagLabel, std::memory_order_acquire);
+		// If other thread updates gsLabel for a second interrupt, that's okay.  Worst case we think there's a label interrupt but gsLabel is 0
+		// We do not want the exchange of gsLabel to move ahead of clearing the flag, or the other thread could add more work before we clear the flag, resulting in an update with the flag unset
+		// acquire semantics should supply that guarantee
+		const u64 label = gsLabel.exchange(0, std::memory_order_relaxed);
 		GUNIT_WARN("LABEL firing");
-		const u64 label = gsLabel.load(std::memory_order_acquire);
 		const u32 labelMsk = (u32)(label >> 32);
 		const u32 labelData = (u32)label;
-		lastLabel = labelCnt;
 		GSSIGLBLID.LBLID = (GSSIGLBLID.LBLID & ~labelMsk) | (labelData & labelMsk);
 	}
 }
