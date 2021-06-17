@@ -69,8 +69,6 @@ static __fi void vuExecMicro(int idx, u32 addr) {
 	if(GetVifX.waitforvu)
 		return;
 
-	vifRegs.stat.VEW = true;
-
 	if (vifRegs.itops  > (idx ? 0x3ffu : 0xffu)) {
 		Console.WriteLn("VIF%d ITOP overrun! %x", idx, vifRegs.itops);
 		vifRegs.itops &= (idx ? 0x3ffu : 0xffu);
