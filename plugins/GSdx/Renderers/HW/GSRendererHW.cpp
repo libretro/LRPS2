@@ -58,7 +58,13 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 		m_userhacks_tcoffset_x           = theApp.GetConfigI("UserHacks_TCOffsetX") / -1000.0f;
 		m_userhacks_tcoffset_y           = theApp.GetConfigI("UserHacks_TCOffsetY") / -1000.0f;
 		m_userhacks_tcoffset             = m_userhacks_tcoffset_x < 0.0f || m_userhacks_tcoffset_y < 0.0f;
-	} else {
+	} //else {
+	/*
+	* FIX ME: Probably due to VU-related backports #66, some users complained about configured hack not applied  
+	* at start of the game. Not sure why, but now theApp.GetConfigB("UserHacks") it's true 
+	* and don't precess the "else". Games tested do not apply hacks like "Align Sprite",and probably also others hacks.
+	* For the momemnt this "else" is commented so the UserHacks  are overwritten from the options hacks here below, choosen by the user
+	*/
 		m_userhacks_enabled_gs_mem_clear = true;
 		m_userHacks_enabled_unscale_ptln = true;
 #ifdef __LIBRETRO__
@@ -80,7 +86,7 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 		m_userhacks_ts_half_bottom = -1;
 #endif
 		
-	}
+	//}
 #ifdef __LIBRETRO__
 
 	m_upscale_multiplier = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
