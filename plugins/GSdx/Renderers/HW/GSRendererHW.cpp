@@ -85,10 +85,13 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 
 	m_upscale_multiplier = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 	theApp.SetConfig("MaxAnisotropy", option_value(INT_PCSX2_OPT_ANISOTROPIC_FILTER, KeyOptionInt::return_type));
+	theApp.SetConfig("filter", option_value(INT_PCSX2_OPT_TEXTURE_FILTERING, KeyOptionInt::return_type));
 	m_fxaa = option_value(INT_PCSX2_OPT_FXAA, KeyOptionInt::return_type);
 	theApp.SetConfig("fxaa", m_fxaa);
 	m_interlace = option_value(INT_PCSX2_OPT_DEINTERLACING_MODE, KeyOptionInt::return_type);
 	theApp.SetConfig("interlace", m_interlace);
+
+	
 
 #endif
 	if (!m_upscale_multiplier) { //Custom Resolution
@@ -125,6 +128,7 @@ void GSRendererHW::UpdateRendererOptions()
 	theApp.SetConfig("UserHacks", true);
 	
 	theApp.SetConfig("MaxAnisotropy", option_value(INT_PCSX2_OPT_ANISOTROPIC_FILTER, KeyOptionInt::return_type));
+	theApp.SetConfig("filter", option_value(INT_PCSX2_OPT_TEXTURE_FILTERING, KeyOptionInt::return_type));
 	m_fxaa = option_value(INT_PCSX2_OPT_FXAA, KeyOptionInt::return_type);
 	theApp.SetConfig("fxaa", m_fxaa);
 	m_interlace = option_value(INT_PCSX2_OPT_DEINTERLACING_MODE, KeyOptionInt::return_type);

@@ -156,15 +156,31 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	"0" },
 
+	{ "pcsx2_texture_filtering",
+	"Video: Texture Filtering",
+	"Controls the texture filtering of the emulation "
+		"\nNearest: always disable interpolation, rendering will be blocky. "
+		"\nBilinear Forced: always enable interpolation. Rendering is smoother but it could generate some glitches. "
+		"\nBilinear PS2: use same mode as the PS2. It is the more accurate option."
+		"\nBilinear Forced (excluding sprite): always enable interpolation except for sprites (FMV/Text/2D elements). Rendering is smoother but it could generate a few glitches. If upscaling is enabled, this setting is recommended over 'Bilinear Forced ",
+	{
+		{"0", "Nearest"},
+		{"1", "Bilinear (Forced)"},
+		{"2", "Bilinear (PS2 - Default)"},
+		{"3", "Bilinear (Forced Excluding Sprite)"},
+		{NULL, NULL},
+	},
+	"2" },
+
 	{ "pcsx2_frameskip",
-"Video: Frame Skip",
-NULL,
-{
-	{"disabled", NULL},
-	{"enabled", NULL},
-	{NULL, NULL},
-},
-"disabled" },
+	"Video: Frame Skip",
+	NULL,
+	{
+		{"disabled", NULL},
+		{"enabled", NULL},
+		{NULL, NULL},
+	},
+	"disabled" },
 
 	{ "pcsx2_frames_to_draw",
 	"Video: Frameskip - Frames to Draw",
