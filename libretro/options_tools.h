@@ -19,7 +19,6 @@ extern void ResetContentStuffs();
 
 static const char* BOOL_PCSX2_OPT_FASTBOOT					= "pcsx2_fastboot";
 static const char* BOOL_PCSX2_OPT_ENABLE_WIDESCREEN_PATCHES = "pcsx2_enable_widescreen_patches";
-static const char* BOOL_PCSX2_OPT_ENABLE_SPEEDHACKS			= "pcsx2_enable_speedhacks";
 static const char* BOOL_PCSX2_OPT_FRAMESKIP					= "pcsx2_frameskip";
 static const char* BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE		= "pcsx2_userhack_align_sprite";
 static const char* BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE		= "pcsx2_userhack_merge_sprite";
@@ -27,6 +26,7 @@ static const char* BOOL_PCSX2_OPT_USERHACK_WILDARMS_OFFSET	= "pcsx2_userhack_wil
 static const char* BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE		= "pcsx2_rumble_enable";
 static const char* BOOL_PCSX2_OPT_BOOT_TO_BIOS				= "pcsx2_boot_bios";
 static const char* BOOL_PCSX2_OPT_ENABLE_CHEATS				= "pcsx2_enable_cheats";
+static const char* BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH		= "pcsx2_userhack_auto_flush";
 
 
 
@@ -42,7 +42,6 @@ static const char* INT_PCSX2_OPT_UPSCALE_MULTIPLIER			= "pcsx2_upscale_multiplie
 static const char* INT_PCSX2_OPT_SPEEDHACKS_PRESET			= "pcsx2_speedhacks_presets";
 static const char* INT_PCSX2_OPT_FRAMES_TO_DRAW				= "pcsx2_frames_to_draw";
 static const char* INT_PCSX2_OPT_FRAMES_TO_SKIP				= "pcsx2_frames_to_skip";
-static const char* INT_PCSX2_OPT_RENDERER_THREADS			= "pcsx2_sw_renderer_threads";
 static const char* INT_PCSX2_OPT_ANISOTROPIC_FILTER			= "pcsx2_anisotropic_filter";
 static const char* INT_PCSX2_OPT_USERHACK_SKIPDRAW_START	= "pcsx2_userhack_skipdraw_start";
 static const char* INT_PCSX2_OPT_USERHACK_SKIPDRAW_LAYERS	= "pcsx2_userhack_skipdraw_layers";

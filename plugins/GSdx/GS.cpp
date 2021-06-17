@@ -207,9 +207,7 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 			renderer = GSUtil::GetBestRenderer();
 #endif
 	}
-#ifdef __LIBRETRO__
-	threads = option_value(INT_PCSX2_OPT_RENDERER_THREADS, KeyOptionInt::return_type);
-#endif
+
 	if(threads == -1)
 	{
 		threads = theApp.GetConfigI("extrathreads");

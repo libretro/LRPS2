@@ -349,10 +349,8 @@ void retro_init(void)
 
 
 	// apply options to pcsx2
-
-	if (!option_value(BOOL_PCSX2_OPT_ENABLE_SPEEDHACKS, KeyOptionBool::return_type))
-		g_Conf->PresetIndex = 1;
-
+	
+	g_Conf->EnablePresets = true;
 	g_Conf->BaseFilenames.Plugins[PluginId_GS] = "Built-in";
 	g_Conf->BaseFilenames.Plugins[PluginId_PAD] = "Built-in";
 	g_Conf->BaseFilenames.Plugins[PluginId_USB] = "Built-in";
@@ -387,8 +385,8 @@ void retro_deinit(void)
 {
 	/* FIXME: This is a workaround that resolves crashes on close content.
 	When closing the frontend, we end up with a zombie process because the
-	main thread tries to call vu1Thread.Cancel() within pcsx2's destructor is
-	called and it gets stuck waiting for a mutex that will never unlock */
+	main thread tries to call vu1Thread.Cancel() within pcsx2's destructor
+	and it gets stuck waiting for a mutex that will never unlock */
 	vu1Thread.WaitVU();
 	//vu1Thread.Cancel();
 

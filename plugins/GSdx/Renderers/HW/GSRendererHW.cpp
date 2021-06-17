@@ -120,6 +120,9 @@ void GSRendererHW::UpdateRendererOptions()
 	m_userhacks_round_sprite_offset = option_value(INT_PCSX2_OPT_USERHACK_ROUND_SPRITE, KeyOptionInt::return_type);
 	m_userhacks_wildhack = option_value(BOOL_PCSX2_OPT_USERHACK_WILDARMS_OFFSET, KeyOptionBool::return_type);
 	m_userhacks_ts_half_bottom = option_value(INT_PCSX2_OPT_USERHACK_HALFSCREEN_FIX, KeyOptionInt::return_type);
+	m_userhacks_auto_flush = option_value(BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH, KeyOptionBool::return_type);
+	theApp.SetConfig("UserHacks_AutoFlush", m_userhacks_auto_flush);
+	theApp.SetConfig("UserHacks", true);
 	
 	theApp.SetConfig("MaxAnisotropy", option_value(INT_PCSX2_OPT_ANISOTROPIC_FILTER, KeyOptionInt::return_type));
 	m_fxaa = option_value(INT_PCSX2_OPT_FXAA, KeyOptionInt::return_type);
