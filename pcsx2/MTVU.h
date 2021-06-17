@@ -47,6 +47,13 @@ public:
 	__aligned(4) Semaphore semaXGkick;
 	__aligned(4) std::atomic<unsigned int> vuCycles[4]; // Used for VU cycle stealing hack
 	__aligned(4) u32 vuCycleIdx;  // Used for VU cycle stealing hack
+	__aligned(4) u32 lastSignal;
+	__aligned(4) u32 lastLabel;
+	__aligned(4) std::atomic<unsigned int> gsFinish; // Used for GS Signal, Finish etc
+	__aligned(4) std::atomic<u32> gsLabelCnt; // Used for GS Label command
+	__aligned(4) std::atomic<u32> gsSignalCnt; // Used for GS Signal command
+	__aligned(4) std::atomic<u64> gsLabel; // Used for GS Label command
+	__aligned(4) std::atomic<u64> gsSignal; // Used for GS Signal command
 
 	VU_Thread(BaseVUmicroCPU*& _vuCPU, VURegs& _vuRegs);
 	virtual ~VU_Thread();
@@ -61,6 +68,8 @@ public:
 
 	// Waits till MTVU is done processing
 	void WaitVU();
+
+	void Get_GSChanges();
 
 	void ExecuteVU(u32 vu_addr, u32 vif_top, u32 vif_itop);
 
