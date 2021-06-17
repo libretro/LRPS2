@@ -417,7 +417,7 @@ void VU_Thread::WaitVU()
 		if (IsDone())
 			break;
 		//DevCon.WriteLn("WaitVU()");
-		pxAssert(THREAD_VU1);
+		//pxAssert(THREAD_VU1);
 		KickStart();
 		std::this_thread::yield(); // Give a chance to the MTVU thread to actually start
 		ScopedLock lock(mtxBusy);
@@ -465,6 +465,7 @@ void VU_Thread::WriteMicroMem(u32 vu_micro_addr, void* data, u32 size)
 	Write(size);
 	Write(data, size);
 	CommitWritePos();
+	KickStart();
 }
 
 void VU_Thread::WriteDataMem(u32 vu_data_addr, void* data, u32 size)
@@ -476,6 +477,7 @@ void VU_Thread::WriteDataMem(u32 vu_data_addr, void* data, u32 size)
 	Write(size);
 	Write(data, size);
 	CommitWritePos();
+	KickStart();
 }
 
 void VU_Thread::WriteCol(vifStruct& _vif)
