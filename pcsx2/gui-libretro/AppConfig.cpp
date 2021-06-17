@@ -1040,6 +1040,7 @@ void AppConfig::ResetPresetSettingsToDefault() {
 	EmuOptions.Speedhacks.EECycleRate = 0;
 	EmuOptions.Speedhacks.EECycleSkip = 0;
 	EmuOptions.Speedhacks.vuThread = false;
+	EmuOptions.Speedhacks.vu1Instant = true;
 	EmuOptions.Speedhacks.IntcStat = true;
 	EmuOptions.Speedhacks.WaitLoop = true;
 	EmuOptions.Speedhacks.vuFlagHack = true;
