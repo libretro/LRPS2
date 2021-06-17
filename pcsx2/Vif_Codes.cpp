@@ -41,21 +41,16 @@ __ri void vifExecQueue(int idx)
 
 	GetVifX.queued_program = false;
 
-	int startcycles = 0;
-
-	if (!idx) startcycles = VU0.cycle;
-	else      startcycles = VU1.cycle;
-
 	if (!idx) vu0ExecMicro(vif0.queued_pc);
 	else	  vu1ExecMicro(vif1.queued_pc);
 
-	///NOTE: Shadowman 2 has SPS with this, uncommenting the correct code fixes it
-	if (!idx) { startcycles = ((VU0.cycle-startcycles) + ( vif0ch.qwc - (vif0.vifpacketsize >> 2) )); CPU_INT(VIF_VU0_FINISH, 1/*startcycles * BIAS*/); }
-	else      { startcycles = ((VU1.cycle-startcycles) + ( vif1ch.qwc - (vif1.vifpacketsize >> 2) )); CPU_INT(VIF_VU1_FINISH, 1/*startcycles * BIAS*/); }
-
-	//DevCon.Warning("Ran VU%x, VU0 Cycles %x, VU1 Cycles %x, start %x cycle %x", idx, g_vu0Cycles, g_vu1Cycles, startcycles, VU1.cycle);
-	//GetVifX.vifstalled.enabled = VifStallEnable(vifXch);
-	//GetVifX.vifstalled.value = VIF_TIMING_BREAK;
+	// Hack for Wakeboarding Unleashed, game runs a VU program in parallel with a VIF unpack list.
+	// The start of the VU program clears the VU memory, while VIF populates it from behind, so we need to get the clear out of the way.
+	/*if (idx && !INSTANT_VU1)
+	{
+		VU1.cycle -= 256;
+		CpuVU1->ExecuteBlock(0);
+	}*/
 }
 
 static __fi void vifFlush(int idx) {
@@ -73,8 +68,6 @@ static __fi void vuExecMicro(int idx, u32 addr) {
 	vifFlush(idx);
 	if(GetVifX.waitforvu)
 		return;
-
-	vifRegs.stat.VEW = true;
 
 	if (vifRegs.itops  > (idx ? 0x3ffu : 0xffu)) {
 		Console.WriteLn("VIF%d ITOP overrun! %x", idx, vifRegs.itops);
@@ -101,8 +94,14 @@ static __fi void vuExecMicro(int idx, u32 addr) {
 	}
 
 	GetVifX.queued_program = true;
-	GetVifX.queued_pc = addr;
+	if ((s32)addr == -1)
+		GetVifX.queued_pc = addr;
+	else
+		GetVifX.queued_pc = addr & (idx ? 0x7ffu : 0x1ffu);
 	GetVifX.unpackcalls = 0;
+
+	if (!idx || (!THREAD_VU1 && !INSTANT_VU1))
+		vifExecQueue(idx);
 }
 
 void ExecuteVU(int idx)
@@ -266,11 +265,20 @@ static __fi void _vifCode_MPG(int idx, u32 addr, const u32 *data, int size) {
 	vifExecQueue(idx);
 
 	if (idx && THREAD_VU1) {
-		vu1Thread.WriteMicroMem(addr, (u8*)data, size*4);
+		if ((addr + size * 4) > vuMemSize)
+		{
+			vu1Thread.WriteMicroMem(addr, (u8*)data, vuMemSize - addr);
+			size -= (vuMemSize - addr) / 4;
+			vu1Thread.WriteMicroMem(0, (u8*)data, size * 4);
+			vifX.tag.addr = size * 4;
+		} 		
+		else
+		{
+			vu1Thread.WriteMicroMem(addr, (u8*)data, size * 4);
+			vifX.tag.addr += size * 4;
+		}
 		return;
-	}
-
-	
+	}	
 
 	// Don't forget the Unsigned designator for these checks
 	if((addr + size *4) > vuMemSize)
@@ -491,10 +499,17 @@ template<int idx> static __fi int _vifCode_STColRow(const u32* data, u32* pmem2)
 	pxAssume(ret > 0);
 
 	switch (ret) {
-		case 4: pmem2[3] = data[3]; // Fall through
-		case 3: pmem2[2] = data[2]; // Fall through
-		case 2: pmem2[1] = data[1]; // Fall through
-		case 1: pmem2[0] = data[0];
+		case 4: 
+			pmem2[3] = data[3]; 
+			// Fall through
+		case 3: 
+			pmem2[2] = data[2];
+			// Fall through
+		case 2: 
+			pmem2[1] = data[1];
+			// Fall through
+		case 1: 
+			pmem2[0] = data[0];
 				break;
 		jNO_DEFAULT
 	}
@@ -522,7 +537,8 @@ vifOp(vifCode_STCol) {
 	}
 	pass2 {
 		u32 ret = _vifCode_STColRow<idx>(data, &vifX.MaskCol._u32[vifX.tag.addr]);
-		if (idx && THREAD_VU1) { vu1Thread.WriteCol(vifX); }
+		if (idx && vifX.tag.size == 0)
+			vu1Thread.WriteCol(vifX);
 		return ret;
 	}
 	pass3 { VifCodeLog("STCol"); }
@@ -539,7 +555,8 @@ vifOp(vifCode_STRow) {
 	}
 	pass2 {
 		u32 ret = _vifCode_STColRow<idx>(data, &vifX.MaskRow._u32[vifX.tag.addr]);
-		if (idx && THREAD_VU1) { vu1Thread.WriteRow(vifX); }
+		if (idx && vifX.tag.size == 0)
+			vu1Thread.WriteRow(vifX);
 		return ret;
 	}
 	pass3 { VifCodeLog("STRow"); }

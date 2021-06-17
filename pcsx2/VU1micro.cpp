@@ -35,14 +35,23 @@ void vu1ResetRegs()
 	vif1Regs.stat.VEW = false;
 }
 
-void vu1Finish() {
+void vu1Finish(bool add_cycles) {
 	if (THREAD_VU1) {
 		if (VU0.VI[REG_VPU_STAT].UL & 0x100) DevCon.Error("MTVU: VU0.VI[REG_VPU_STAT].UL & 0x100");
 		return;
 	}
-	while (VU0.VI[REG_VPU_STAT].UL & 0x100) {
+	u32 vu1cycles = VU1.cycle;
+	if (VU0.VI[REG_VPU_STAT].UL & 0x100) {
 		VUM_LOG("vu1ExecMicro > Stalling until current microprogram finishes");
 		CpuVU1->Execute(vu1RunCycles);
+	}
+	if (VU0.VI[REG_VPU_STAT].UL & 0x100) {
+		DevCon.Warning("Force Stopping VU1, ran for too long");
+		VU0.VI[REG_VPU_STAT].UL &= ~0x100;
+	}
+	if (add_cycles)
+	{
+		cpuRegs.cycle += VU1.cycle - vu1cycles;
 	}
 }
 
@@ -54,14 +63,18 @@ void __fastcall vu1ExecMicro(u32 addr)
 		return;
 	}
 	static int count = 0;
-	vu1Finish();
+	vu1Finish(false);
 
 	VUM_LOG("vu1ExecMicro %x (count=%d)", addr, count++);
 	VU1.cycle = cpuRegs.cycle;
 	VU0.VI[REG_VPU_STAT].UL &= ~0xFF00;
 	VU0.VI[REG_VPU_STAT].UL |=  0x0100;
 	if ((s32)addr != -1) VU1.VI[REG_TPC].UL = addr;
-	_vuExecMicroDebug(VU1);
 
-	CpuVU1->Execute(vu1RunCycles);
+	CpuVU1->SetStartPC(VU1.VI[REG_TPC].UL << 3);
+	_vuExecMicroDebug(VU1);
+	if (!INSTANT_VU1)
+		CpuVU1->ExecuteBlock(1);
+	else
+		CpuVU1->Execute(vu1RunCycles);
 }

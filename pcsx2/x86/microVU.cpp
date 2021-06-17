@@ -73,7 +73,15 @@ void mVUinit(microVU& mVU, uint vuIndex) {
 
 // Resets Rec Data
 void mVUreset(microVU& mVU, bool resetReserve) {
-
+	if (THREAD_VU1)
+	{
+		// If MTVU is toggled on during gameplay we need to flush the running VU1 program, else it gets in a mess
+		if (VU0.VI[REG_VPU_STAT].UL & 0x100)
+		{
+			CpuVU1->Execute(vu1RunCycles);
+		}
+		VU0.VI[REG_VPU_STAT].UL &= ~0x100;
+	}
 	// Restore reserve to uncommitted state
 	if (resetReserve) mVU.cache_reserve->Reset();
 
@@ -230,35 +238,35 @@ void mVUprintUniqueRatio(microVU& mVU) {
 	DevCon.WriteLn("%d / %d [%3.1f%%]", v.size(), total, 100.-(double)v.size()/(double)total*100.);
 }
 
-// Compare partial program by only checking compiled ranges...
-__ri bool mVUcmpPartial(microVU& mVU, microProgram& prog) {
-	std::deque<microRange>::const_iterator it(prog.ranges->begin());
-	for ( ; it != prog.ranges->end(); ++it) {
-		if((it[0].start<0)||(it[0].end<0))  { DevCon.Error("microVU%d: Negative Range![%d][%d]", mVU.index, it[0].start, it[0].end); }
-		if (memcmp_mmx(cmpOffset(prog.data), cmpOffset(mVU.regs().Micro), ((it[0].end + 8)  -  it[0].start))) {
-			return 0;
-		}
-	}
-	return 1;
-}
-
 // Compare Cached microProgram to mVU.regs().Micro
 __fi bool mVUcmpProg(microVU& mVU, microProgram& prog, const bool cmpWholeProg) {
-	if ((cmpWholeProg && !memcmp_mmx((u8*)prog.data, mVU.regs().Micro, mVU.microMemSize))
-	|| (!cmpWholeProg && mVUcmpPartial(mVU, prog))) {
-		mVU.prog.cleared =  0;
-		mVU.prog.cur	 = &prog;
-		mVU.prog.isSame  =  cmpWholeProg ? 1 : -1;
-		return true;
+	if (cmpWholeProg)
+	{
+		if (memcmp_mmx((u8*)prog.data, mVU.regs().Micro, mVU.microMemSize))
+			return false;
+	} 
+	else
+	{
+		for (const auto& range : *prog.ranges) {
+			auto cmpOffset = [&](void* x) { return (u8*)x + range.start; };
+			if ((range.start < 0) || (range.end < 0)) { DevCon.Error("microVU%d: Negative Range![%d][%d]", mVU.index, range.start, range.end); }
+			if (memcmp_mmx(cmpOffset(prog.data), cmpOffset(mVU.regs().Micro), ((range.end + 8) - range.start))) {
+				return false;
+			}
+		}
 	}
-	return false;
+	mVU.prog.cleared = 0;
+	mVU.prog.cur = &prog;
+	mVU.prog.isSame = cmpWholeProg ? 1 : -1;
+	return true;
 }
 
 // Searches for Cached Micro Program and sets prog.cur to it (returns entry-point to program)
 _mVUt __fi void* mVUsearchProg(u32 startPC, uptr pState) {
 	microVU& mVU = mVUx;
-	microProgramQuick& quick = mVU.prog.quick[startPC/8];
-	microProgramList*  list  = mVU.prog.prog [startPC/8];
+	microProgramQuick& quick = mVU.prog.quick[mVU.regs().start_pc / 8];
+	microProgramList* list = mVU.prog.prog[mVU.regs().start_pc / 8];
+
 	if(!quick.prog) { // If null, we need to search for new program
 		std::deque<microProgram*>::iterator it(list->begin());
 		for ( ; it != list->end(); ++it) {
@@ -294,7 +302,7 @@ _mVUt __fi void* mVUsearchProg(u32 startPC, uptr pState) {
 		// If cleared and program not found, make a new program instance
 		mVU.prog.cleared	= 0;
 		mVU.prog.isSame		= 1;
-		mVU.prog.cur		= mVUcreateProg(mVU,  startPC/8);
+		mVU.prog.cur		= mVUcreateProg(mVU, mVU.regs().start_pc / 8);
 		void* entryPoint	= mVUblockFetch(mVU,  startPC, pState);
 		quick.block			= mVU.prog.cur->block[startPC/8];
 		quick.prog			= mVU.prog.cur;
@@ -302,9 +310,20 @@ _mVUt __fi void* mVUsearchProg(u32 startPC, uptr pState) {
 		//mVUprintUniqueRatio(mVU);
 		return entryPoint;
 	}
+
 	// If list.quick, then we've already found and recompiled the program ;)
-	mVU.prog.isSame	= -1;
-	mVU.prog.cur	=  quick.prog;
+	mVU.prog.isSame = -1;
+	mVU.prog.cur = quick.prog;
+	// Because the VU's can now run in sections and not whole programs at once
+	// we need to set the current block so it gets the right program back
+	quick.block = mVU.prog.cur->block[startPC / 8];
+
+	// Sanity check, in case for some reason the program compilation aborted half way through
+	if (quick.block == nullptr)
+	{
+		void* entryPoint = mVUblockFetch(mVU, startPC, pState);
+		return entryPoint;
+	}
 	return mVUentryGet(mVU, quick.block, startPC, pState);
 }
 
@@ -348,6 +367,11 @@ void recMicroVU1::Reset() {
 	mVUreset(microVU1, true);
 }
 
+void recMicroVU0::SetStartPC(u32 startPC)
+{
+	VU0.start_pc = startPC;
+}
+
 void recMicroVU0::Execute(u32 cycles) {
 	pxAssert(m_Reserved); // please allocate me first! :|
 
@@ -367,6 +391,12 @@ void recMicroVU0::Execute(u32 cycles) {
 		hwIntcIrq(6);
 	}
 }
+
+void recMicroVU1::SetStartPC(u32 startPC)
+{
+	VU1.start_pc = startPC;
+}
+
 void recMicroVU1::Execute(u32 cycles) {
 	pxAssert(m_Reserved); // please allocate me first! :|
 
