@@ -10,7 +10,7 @@
 struct retro_core_option_definition option_defs[] = {
 
 	{"pcsx2_bios",
-	"Bios",
+	"System: BIOS",
 	NULL,
 	{
 		// dynamically filled in retro_init
@@ -18,7 +18,7 @@ struct retro_core_option_definition option_defs[] = {
 	NULL},
 
 	{"pcsx2_system_language",
-	"System Language",
+	"System: Language",
 	"Set the BIOS system Language. Useful for PAL multilanguage games. Fastboot option must be disabled. The selected language will be applied, if available in-game. (Content restart required)",
 	{
 		{"English", NULL},
@@ -33,7 +33,7 @@ struct retro_core_option_definition option_defs[] = {
 	"English"},
 
 	{"pcsx2_fastboot",
-	"Fast Boot",
+	"System: Fast Boot",
 	"Bypass the intial BIOS logo, with the side effect that BIOS settings like the system language will not be applied. (Content restart required)",
 	{
 		{"disabled", NULL},
@@ -43,7 +43,7 @@ struct retro_core_option_definition option_defs[] = {
 	"disabled"},
 
 	{"pcsx2_boot_bios",
-	"Boot To BIOS",
+	"System: Boot To BIOS",
 	"Skip the content loading and boot in the BIOS. Useful to manage memory cards currently associated to this content. (Content restart required)",
 	{
 		{"disabled", NULL},
@@ -51,94 +51,6 @@ struct retro_core_option_definition option_defs[] = {
 		{NULL, NULL},
 	},
 	"disabled"},
-
-
-	{"pcsx2_renderer",
-	"Renderer",
-	"Content reboot required",
-	{
-		{"Auto", NULL},
-#ifdef _WIN32
-		{"D3D11", NULL},
-#endif
-		{"OpenGl", NULL},
-		{NULL, NULL},
-	},
-	"Auto"},
-
-	{"pcsx2_upscale_multiplier",
-	"Internal Resolution ",
-	NULL,
-	{
-		{"1", "Native PS2"},
-		{"2", "2x Native ~720p"},
-		{"3", "3x Native ~1080p"},
-		{"4", "4x Native ~1440p 2K"},
-		{"5", "5x Native ~1620p 3K"},
-		{"6", "6x Native ~2160p 4K"},
-		{"8", "8x Native ~2880p 5K"},
-		{NULL, NULL},
-	},
-	"1"},
-
-	{"pcsx2_deinterlace_mode",
-	"Deinterlacing Mode",
-	"Can remove blur on some games. Note that some modes can slightly decrease performance while the others can blur the whole picture, decreasing the amount of details thus deinterlacing is to be used only when it's necessary.",
-	{
-		{"7", "Automatic (default)"},
-		{"6", "Blend bff - slight blur, 1/2 fps"},
-		{"5", "Blend tff - slight blur, 1/2 fps"},
-		{"4", "Bob bff   - use blend if shaking"},
-		{"3", "Bob tff   - use blend if shaking"},
-		{"2", "Weave bff - saw-tooth"},
-		{"1", "Weave tff - saw-tooth"},
-		{"0", "None "},
-		{NULL, NULL},
-	},
-	"7"},
-
-	{"pcsx2_aspect_ratio",
-	"Aspect Ratio",
-	"Sets the aspect ratio. Setting the aspect ratio to Widescreen (16:9) stretches the display. For proper widescreen in select games, also turn on the 'Enable Widescreen Patches' option. (Content restart required)",
-	{
-		{"0", "Standard (4:3)"},
-		{"1", "Widescreen (16:9)"},
-		{NULL, NULL},
-	},
-	"0"},
-
-	{"pcsx2_enable_widescreen_patches",
-	"Enable Widescreen Patches",
-	"Enables widescreen patches that allow certain games to render in true 16:9 ratio without stretching the display. For the widescreen patches to display properly, the 'Aspect Ratio' option should be set to Widescreen (16:9). (Content restart required)",
-	{
-		{"disabled", NULL},
-		{"enabled", NULL},
-		{NULL, NULL},
-	},
-	"disabled"},
-
-	{ "pcsx2_fxaa",
-	"Fast Approximate Anti-Aliasing",
-	NULL,
-	{
-		{"0", "Disabled"},
-		{"1", "Enabled"},
-		{NULL, NULL},
-	},
-	"0" },
-
-	{"pcsx2_anisotropic_filter",
-	 "Anisotropic Filtering",
-	 "Reduces texture aliasing at extreme viewing angles",
-	{
-		{"0", "None"},
-		{"2", "2x"},
-		{"4", "4x"},
-		{"8", "8x"},
-		{"16", "16x"},
-		{NULL, NULL},
-	},
-	"0" },
 
 	{"pcsx2_memcard_slot_1",
 	"Memory Card: Slot 1",
@@ -155,6 +67,140 @@ struct retro_core_option_definition option_defs[] = {
 		// dynamically filled in retro_init
 	},
 	NULL },
+
+
+	{"pcsx2_renderer",
+	"Video: Renderer",
+	"Content reboot required",
+	{
+		{"Auto", NULL},
+#ifdef _WIN32
+		{"D3D11", NULL},
+#endif
+		{"OpenGl", NULL},
+		{NULL, NULL},
+	},
+	"Auto"},
+
+	{"pcsx2_upscale_multiplier",
+	"Video: Internal Resolution ",
+	NULL,
+	{
+		{"1", "Native PS2"},
+		{"2", "2x Native ~720p"},
+		{"3", "3x Native ~1080p"},
+		{"4", "4x Native ~1440p 2K"},
+		{"5", "5x Native ~1620p 3K"},
+		{"6", "6x Native ~2160p 4K"},
+		{"8", "8x Native ~2880p 5K"},
+		{NULL, NULL},
+	},
+	"1"},
+
+	{"pcsx2_deinterlace_mode",
+	"Video: Deinterlacing Mode",
+	"Can remove blur on some games. Note that some modes can slightly decrease performance while the others can blur the whole picture, decreasing the amount of details thus deinterlacing is to be used only when it's necessary.",
+	{
+		{"7", "Automatic (default)"},
+		{"6", "Blend bff - slight blur, 1/2 fps"},
+		{"5", "Blend tff - slight blur, 1/2 fps"},
+		{"4", "Bob bff   - use blend if shaking"},
+		{"3", "Bob tff   - use blend if shaking"},
+		{"2", "Weave bff - saw-tooth"},
+		{"1", "Weave tff - saw-tooth"},
+		{"0", "None "},
+		{NULL, NULL},
+	},
+	"7"},
+
+	{"pcsx2_aspect_ratio",
+	"Video: Aspect Ratio",
+	"Sets the aspect ratio. Setting the aspect ratio to Widescreen (16:9) stretches the display. For proper widescreen in select games, also turn on the 'Enable Widescreen Patches' option. (Content restart required)",
+	{
+		{"0", "Standard (4:3)"},
+		{"1", "Widescreen (16:9)"},
+		{NULL, NULL},
+	},
+	"0"},
+
+	{"pcsx2_enable_widescreen_patches",
+	"Video: Enable Widescreen Patches",
+	"Enables widescreen patches that allow certain games to render in true 16:9 ratio without stretching the display. For the widescreen patches to display properly, the 'Aspect Ratio' option should be set to Widescreen (16:9). (Content restart required)",
+	{
+		{"disabled", NULL},
+		{"enabled", NULL},
+		{NULL, NULL},
+	},
+	"disabled"},
+
+	{ "pcsx2_fxaa",
+	"Video: FXAA",
+	"Enables Fast Approximate Anti-Aliasing",
+	{
+		{"0", "Disabled"},
+		{"1", "Enabled"},
+		{NULL, NULL},
+	},
+	"0" },
+
+	{"pcsx2_anisotropic_filter",
+	 "Video: Anisotropic Filtering",
+	 "Reduces texture aliasing at extreme viewing angles",
+	{
+		{"0", "None"},
+		{"2", "2x"},
+		{"4", "4x"},
+		{"8", "8x"},
+		{"16", "16x"},
+		{NULL, NULL},
+	},
+	"0" },
+
+	{ "pcsx2_frameskip",
+"Video: Frame Skip",
+NULL,
+{
+	{"disabled", NULL},
+	{"enabled", NULL},
+	{NULL, NULL},
+},
+"disabled" },
+
+	{ "pcsx2_frames_to_draw",
+	"Video: Frameskip - Frames to Draw",
+	NULL,
+	{
+		{"1", NULL},
+		{"2", NULL},
+		{"3", NULL},
+		{"4", NULL},
+		{"5", NULL},
+		{"6", NULL},
+		{"7", NULL},
+		{"8", NULL},
+		{"9", NULL},
+		{"10", NULL},
+		{NULL, NULL},
+	},
+	"1" },
+
+	{ "pcsx2_frames_to_skip",
+	"Video: Frameskip - Frames to Skip",
+	NULL,
+	{
+		{"1", NULL},
+		{"2", NULL},
+		{"3", NULL},
+		{"4", NULL},
+		{"5", NULL},
+		{"6", NULL},
+		{"7", NULL},
+		{"8", NULL},
+		{"9", NULL},
+		{"10", NULL},
+		{NULL, NULL},
+	},
+	"1" },
 
 	{"pcsx2_rumble_enable",
 	"Gamepad: Enable Rumble",
@@ -185,7 +231,7 @@ struct retro_core_option_definition option_defs[] = {
 	"100"},
 
 	{ "pcsx2_enable_cheats",
-	"Enable Cheats",
+	"Patches: Enable Cheats",
 	"Enabled: Checks the 'system/pcsx2/cheats' directory for a PNACH file for the running content and, if found, \
 	applies the cheats from the file. (Content restart required)",
 	{
@@ -196,7 +242,7 @@ struct retro_core_option_definition option_defs[] = {
 	"disabled" },
 
 	{"pcsx2_speedhacks_presets",
-	 "Speed Hacks Preset",
+	 "CPU: Speed Hacks Preset",
 	 "Preset which controls the balance between accuracy and speed. (Content restart required) \
 		\nSafest: no speed hacks. Most reliable, but possibly slow. \
 		\nSafe: a few speed hacks known to provide boosts with minimal to no side effects. \
@@ -214,51 +260,6 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	"1" },
 
-	{"pcsx2_frameskip",
-	"Frame Skip",
-	NULL,
-	{
-		{"disabled", NULL},
-		{"enabled", NULL},
-		{NULL, NULL},
-	},
-	"disabled"},
-
-	{"pcsx2_frames_to_draw",
-	"Frameskip: Frames to Draw",
-	NULL,
-	{
-		{"1", NULL},
-		{"2", NULL},
-		{"3", NULL},
-		{"4", NULL},
-		{"5", NULL},
-		{"6", NULL},
-		{"7", NULL},
-		{"8", NULL},
-		{"9", NULL},
-		{"10", NULL},
-		{NULL, NULL},
-	},
-	"1"},
-
-	{ "pcsx2_frames_to_skip",
-	"Frameskip: Frames to Skip",
-	NULL,
-	{
-		{"1", NULL},
-		{"2", NULL},
-		{"3", NULL},
-		{"4", NULL},
-		{"5", NULL},
-		{"6", NULL},
-		{"7", NULL},
-		{"8", NULL},
-		{"9", NULL},
-		{"10", NULL},
-		{NULL, NULL},
-	},
-	"1" },
 
 	{ "pcsx2_userhack_align_sprite",
 	"Hack: Align Sprite",
