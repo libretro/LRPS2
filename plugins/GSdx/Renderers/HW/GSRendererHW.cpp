@@ -43,63 +43,42 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 	, m_lod(GSVector2i(0,0))
 {
 	m_mipmap = theApp.GetConfigI("mipmap_hw");
-	m_upscale_multiplier = theApp.GetConfigI("upscale_multiplier");
 	m_large_framebuffer  = theApp.GetConfigB("large_framebuffer");
 	m_accurate_date = theApp.GetConfigI("accurate_date");
 
-	if (theApp.GetConfigB("UserHacks")) {
-		m_userhacks_enabled_gs_mem_clear = !theApp.GetConfigB("UserHacks_Disable_Safe_Features");
-		m_userHacks_enabled_unscale_ptln = !theApp.GetConfigB("UserHacks_Disable_Safe_Features");
-		m_userhacks_align_sprite_X       = theApp.GetConfigB("UserHacks_align_sprite_X");
-		m_userHacks_merge_sprite         = theApp.GetConfigB("UserHacks_merge_pp_sprite");
-		m_userhacks_ts_half_bottom       = theApp.GetConfigI("UserHacks_Half_Bottom_Override");
-		m_userhacks_round_sprite_offset  = theApp.GetConfigI("UserHacks_round_sprite_offset");
-		m_userHacks_HPO                  = theApp.GetConfigI("UserHacks_HalfPixelOffset");
-		m_userhacks_tcoffset_x           = theApp.GetConfigI("UserHacks_TCOffsetX") / -1000.0f;
-		m_userhacks_tcoffset_y           = theApp.GetConfigI("UserHacks_TCOffsetY") / -1000.0f;
-		m_userhacks_tcoffset             = m_userhacks_tcoffset_x < 0.0f || m_userhacks_tcoffset_y < 0.0f;
-	} //else {
-	/*
-	* FIX ME: Probably due to VU-related backports #66, some users complained about configured hack not applied  
-	* at start of the game. Not sure why, but now theApp.GetConfigB("UserHacks") it's true 
-	* and don't precess the "else". Games tested do not apply hacks like "Align Sprite",and probably also others hacks.
-	* For the momemnt this "else" is commented so the UserHacks  are overwritten from the options hacks here below, choosen by the user
-	*/
-		m_userhacks_enabled_gs_mem_clear = true;
-		m_userHacks_enabled_unscale_ptln = true;
-#ifdef __LIBRETRO__
-		m_userhacks_align_sprite_X		= option_value(BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE, KeyOptionBool::return_type);
-		m_userHacks_merge_sprite		= option_value(BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE, KeyOptionBool::return_type);
-		int skipdraw_start				= option_value(INT_PCSX2_OPT_USERHACK_SKIPDRAW_START, KeyOptionInt::return_type);
-		int skipdraw_layers				= option_value(INT_PCSX2_OPT_USERHACK_SKIPDRAW_LAYERS, KeyOptionInt::return_type);
-		m_userhacks_skipdraw_offset		= skipdraw_start;
-		m_userhacks_skipdraw			= skipdraw_start + skipdraw_layers;
-		m_userHacks_HPO					= option_value(INT_PCSX2_OPT_USERHACK_HALFPIXEL_OFFSET, KeyOptionInt::return_type);
-		m_userhacks_round_sprite_offset = option_value(INT_PCSX2_OPT_USERHACK_ROUND_SPRITE, KeyOptionInt::return_type);
-		m_userhacks_wildhack			= option_value(BOOL_PCSX2_OPT_USERHACK_WILDARMS_OFFSET, KeyOptionBool::return_type);
-		m_userhacks_ts_half_bottom		= option_value(INT_PCSX2_OPT_USERHACK_HALFSCREEN_FIX, KeyOptionInt::return_type);
-#else
-		m_userhacks_align_sprite_X      = false;
-		m_userHacks_merge_sprite		= false;
-		m_userHacks_HPO					= 0;
-		m_userhacks_round_sprite_offset = 0;
-		m_userhacks_ts_half_bottom = -1;
-#endif
-		
-	//}
-#ifdef __LIBRETRO__
-
-	m_upscale_multiplier = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 	theApp.SetConfig("MaxAnisotropy", option_value(INT_PCSX2_OPT_ANISOTROPIC_FILTER, KeyOptionInt::return_type));
 	theApp.SetConfig("filter", option_value(INT_PCSX2_OPT_TEXTURE_FILTERING, KeyOptionInt::return_type));
+
 	m_fxaa = option_value(INT_PCSX2_OPT_FXAA, KeyOptionInt::return_type);
 	theApp.SetConfig("fxaa", m_fxaa);
+	
 	m_interlace = option_value(INT_PCSX2_OPT_DEINTERLACING_MODE, KeyOptionInt::return_type);
 	theApp.SetConfig("interlace", m_interlace);
 
-	
+	m_userhacks_enabled_gs_mem_clear = true;
+	m_userHacks_enabled_unscale_ptln = true;
 
-#endif
+	m_upscale_multiplier			= option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
+
+	m_userhacks_align_sprite_X		= option_value(BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE, KeyOptionBool::return_type);
+	m_userHacks_merge_sprite		= option_value(BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE, KeyOptionBool::return_type);
+	int skipdraw_start				= option_value(INT_PCSX2_OPT_USERHACK_SKIPDRAW_START, KeyOptionInt::return_type);
+	int skipdraw_layers				= option_value(INT_PCSX2_OPT_USERHACK_SKIPDRAW_LAYERS, KeyOptionInt::return_type);
+	m_userhacks_skipdraw_offset		= skipdraw_start;
+	m_userhacks_skipdraw			= skipdraw_start + skipdraw_layers;
+	m_userHacks_HPO					= option_value(INT_PCSX2_OPT_USERHACK_HALFPIXEL_OFFSET, KeyOptionInt::return_type);
+	m_userhacks_round_sprite_offset = option_value(INT_PCSX2_OPT_USERHACK_ROUND_SPRITE, KeyOptionInt::return_type);
+	m_userhacks_wildhack			= option_value(BOOL_PCSX2_OPT_USERHACK_WILDARMS_OFFSET, KeyOptionBool::return_type);
+	m_userhacks_ts_half_bottom		= option_value(INT_PCSX2_OPT_USERHACK_HALFSCREEN_FIX, KeyOptionInt::return_type);
+	m_userhacks_auto_flush			= option_value(BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH, KeyOptionBool::return_type);
+
+	theApp.SetConfig("UserHacks_AutoFlush", m_userhacks_auto_flush);
+
+	m_userhacks_tcoffset_x	= theApp.GetConfigI("UserHacks_TCOffsetX") / -1000.0f;
+	m_userhacks_tcoffset_y	= theApp.GetConfigI("UserHacks_TCOffsetY") / -1000.0f;
+	m_userhacks_tcoffset	= m_userhacks_tcoffset_x < 0.0f || m_userhacks_tcoffset_y < 0.0f;
+
+
 	if (!m_upscale_multiplier) { //Custom Resolution
 		m_custom_width = m_width = theApp.GetConfigI("resx");
 		m_custom_height = m_height = theApp.GetConfigI("resy");
@@ -118,28 +97,33 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 #ifdef __LIBRETRO__
 void GSRendererHW::UpdateRendererOptions()
 {
-	
-	m_userhacks_align_sprite_X = option_value(BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE, KeyOptionBool::return_type);
-	m_userHacks_merge_sprite = option_value(BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE, KeyOptionBool::return_type);
-	int skipdraw_start = option_value(INT_PCSX2_OPT_USERHACK_SKIPDRAW_START, KeyOptionInt::return_type);
-	int skipdraw_layers = option_value(INT_PCSX2_OPT_USERHACK_SKIPDRAW_LAYERS, KeyOptionInt::return_type);
-	m_userhacks_skipdraw_offset = skipdraw_start;
-	m_userhacks_skipdraw = skipdraw_start + skipdraw_layers;
-	m_userHacks_HPO = option_value(INT_PCSX2_OPT_USERHACK_HALFPIXEL_OFFSET, KeyOptionInt::return_type);
-	m_userhacks_round_sprite_offset = option_value(INT_PCSX2_OPT_USERHACK_ROUND_SPRITE, KeyOptionInt::return_type);
-	m_userhacks_wildhack = option_value(BOOL_PCSX2_OPT_USERHACK_WILDARMS_OFFSET, KeyOptionBool::return_type);
-	m_userhacks_ts_half_bottom = option_value(INT_PCSX2_OPT_USERHACK_HALFSCREEN_FIX, KeyOptionInt::return_type);
-	m_userhacks_auto_flush = option_value(BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH, KeyOptionBool::return_type);
-	theApp.SetConfig("UserHacks_AutoFlush", m_userhacks_auto_flush);
-	theApp.SetConfig("UserHacks", true);
-	
+
 	theApp.SetConfig("MaxAnisotropy", option_value(INT_PCSX2_OPT_ANISOTROPIC_FILTER, KeyOptionInt::return_type));
 	theApp.SetConfig("filter", option_value(INT_PCSX2_OPT_TEXTURE_FILTERING, KeyOptionInt::return_type));
+	
 	m_fxaa = option_value(INT_PCSX2_OPT_FXAA, KeyOptionInt::return_type);
 	theApp.SetConfig("fxaa", m_fxaa);
 	m_interlace = option_value(INT_PCSX2_OPT_DEINTERLACING_MODE, KeyOptionInt::return_type);
 	theApp.SetConfig("interlace", m_interlace);
-	m_upscale_multiplier = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
+
+	m_upscale_multiplier				= option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
+	
+	m_userhacks_align_sprite_X			= option_value(BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE, KeyOptionBool::return_type);
+	m_userHacks_merge_sprite			= option_value(BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE, KeyOptionBool::return_type);
+	int skipdraw_start					= option_value(INT_PCSX2_OPT_USERHACK_SKIPDRAW_START, KeyOptionInt::return_type);
+	int skipdraw_layers					= option_value(INT_PCSX2_OPT_USERHACK_SKIPDRAW_LAYERS, KeyOptionInt::return_type);
+	m_userhacks_skipdraw_offset			= skipdraw_start;
+	m_userhacks_skipdraw				= skipdraw_start + skipdraw_layers;
+	m_userHacks_HPO						= option_value(INT_PCSX2_OPT_USERHACK_HALFPIXEL_OFFSET, KeyOptionInt::return_type);
+	m_userhacks_round_sprite_offset		= option_value(INT_PCSX2_OPT_USERHACK_ROUND_SPRITE, KeyOptionInt::return_type);
+	m_userhacks_wildhack				= option_value(BOOL_PCSX2_OPT_USERHACK_WILDARMS_OFFSET, KeyOptionBool::return_type);
+	m_userhacks_ts_half_bottom			= option_value(INT_PCSX2_OPT_USERHACK_HALFSCREEN_FIX, KeyOptionInt::return_type);
+	m_userhacks_auto_flush				= option_value(BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH, KeyOptionBool::return_type);
+
+	theApp.SetConfig("UserHacks_AutoFlush", m_userhacks_auto_flush);
+	theApp.SetConfig("UserHacks", true);
+	
+
 	if (m_upscale_multiplier == 1) { // hacks are only needed for upscaling issues.
 		m_userhacks_round_sprite_offset = 0;
 		m_userhacks_align_sprite_X = false;
