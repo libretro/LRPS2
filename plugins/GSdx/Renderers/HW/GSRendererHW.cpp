@@ -74,6 +74,15 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 
 	theApp.SetConfig("UserHacks_AutoFlush", m_userhacks_auto_flush);
 
+	int toffset_x = option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_HUNDREDS, KeyOptionInt::return_type);
+	toffset_x += option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_TENS, KeyOptionInt::return_type);
+	theApp.SetConfig("UserHacks_TCOffsetX", toffset_x);
+
+
+	int toffset_y = option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_Y_HUNDREDS, KeyOptionInt::return_type);
+	toffset_y += option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_Y_TENS, KeyOptionInt::return_type);
+	theApp.SetConfig("UserHacks_TCOffsetY", toffset_y);
+
 	m_userhacks_tcoffset_x	= theApp.GetConfigI("UserHacks_TCOffsetX") / -1000.0f;
 	m_userhacks_tcoffset_y	= theApp.GetConfigI("UserHacks_TCOffsetY") / -1000.0f;
 	m_userhacks_tcoffset	= m_userhacks_tcoffset_x < 0.0f || m_userhacks_tcoffset_y < 0.0f;
@@ -123,6 +132,19 @@ void GSRendererHW::UpdateRendererOptions()
 	theApp.SetConfig("UserHacks_AutoFlush", m_userhacks_auto_flush);
 	theApp.SetConfig("UserHacks", true);
 	
+	int toffset_x = option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_HUNDREDS, KeyOptionInt::return_type);
+	toffset_x += option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_TENS, KeyOptionInt::return_type);
+	theApp.SetConfig("UserHacks_TCOffsetX", toffset_x);
+
+
+	int toffset_y = option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_Y_HUNDREDS, KeyOptionInt::return_type);
+	toffset_y += option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_Y_TENS, KeyOptionInt::return_type);
+	theApp.SetConfig("UserHacks_TCOffsetY", toffset_y);
+
+	m_userhacks_tcoffset_x = theApp.GetConfigI("UserHacks_TCOffsetX") / -1000.0f;
+	m_userhacks_tcoffset_y = theApp.GetConfigI("UserHacks_TCOffsetY") / -1000.0f;
+	m_userhacks_tcoffset = m_userhacks_tcoffset_x < 0.0f || m_userhacks_tcoffset_y < 0.0f;
+
 
 	if (m_upscale_multiplier == 1) { // hacks are only needed for upscaling issues.
 		m_userhacks_round_sprite_offset = 0;
