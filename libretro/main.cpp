@@ -69,14 +69,6 @@ static wxFileName bios_dir;
 static const char* FILENAME_SHARED_MEMCARD_8 = "Shared Memory Card (8 MB)";
 static const char* FILENAME_SHARED_MEMCARD_32 = "Shared Memory Card (32 MB)";
 
-/*
-std::string slot1_dir;
-std::string slot2_dir;
-std::string legacy_path1;
-std::string legacy_path2;
-*/
-
-
 wxFileName save_dir_root;
 
 wxFileName slot1_file;
