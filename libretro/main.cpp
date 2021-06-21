@@ -353,7 +353,9 @@ void retro_init(void)
 	g_Conf->EmuOptions.GS.FrameSkipEnable = option_value(BOOL_PCSX2_OPT_FRAMESKIP, KeyOptionBool::return_type);
 	g_Conf->EmuOptions.GS.FramesToDraw = option_value(INT_PCSX2_OPT_FRAMES_TO_DRAW, KeyOptionInt::return_type);
 	g_Conf->EmuOptions.GS.FramesToSkip = option_value(INT_PCSX2_OPT_FRAMES_TO_SKIP, KeyOptionInt::return_type);
+	g_Conf->EmuOptions.GS.VsyncQueueSize = option_value(INT_PCSX2_OPT_VSYNC_MTGS_QUEUE, KeyOptionInt::return_type);
 	g_Conf->EmuOptions.EnableCheats = option_value(BOOL_PCSX2_OPT_ENABLE_CHEATS, KeyOptionBool::return_type);
+	
 
 
 	static retro_disk_control_ext_callback disk_control = {
@@ -815,6 +817,7 @@ void retro_run(void)
 		SetGSConfig().FrameSkipEnable = option_value(BOOL_PCSX2_OPT_FRAMESKIP, KeyOptionBool::return_type);
 		SetGSConfig().FramesToDraw = option_value(INT_PCSX2_OPT_FRAMES_TO_DRAW, KeyOptionInt::return_type);
 		SetGSConfig().FramesToSkip = option_value(INT_PCSX2_OPT_FRAMES_TO_SKIP, KeyOptionInt::return_type);
+		SetGSConfig().VsyncQueueSize = option_value(INT_PCSX2_OPT_VSYNC_MTGS_QUEUE, KeyOptionInt::return_type);
 		GSUpdateOptions();
 		Input::RumbleEnabled(
 			option_value(BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE, KeyOptionBool::return_type),
