@@ -278,7 +278,7 @@ struct retro_core_option_definition option_defs[] = {
 
 	{ "pcsx2_vsync_mtgs_queue",
 	"Emulation: Vsyncs in MTGS Queue",
-	"Setting this to a lower value improves input lag, a value around 2 or 3 will sightly improve framerates.",
+	"Setting this to a lower value improves input lag, a value around 2 or 3 will sightly improve framerates. (Content restart required)",
 	{
 		{"0", "0"},
 		{"1", "1"},
