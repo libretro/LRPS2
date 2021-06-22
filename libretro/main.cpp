@@ -53,6 +53,7 @@ static struct retro_perf_callback perf_cb;
 #define RETRO_PERFORMANCE_STOP(name)
 #endif
 
+int option_upscale_mult = 1;
 retro_environment_t environ_cb;
 retro_video_refresh_t video_cb;
 struct retro_hw_render_callback hw_render;

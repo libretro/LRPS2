@@ -15,6 +15,7 @@ extern retro_environment_t environ_cb;
 extern retro_log_printf_t log_cb;
 extern void GSUpdateOptions();
 extern void ResetContentStuffs();
+extern int option_upscale_mult;
 
 
 static const char* BOOL_PCSX2_OPT_FASTBOOT					= "pcsx2_fastboot";
