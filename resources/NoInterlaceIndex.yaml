@@ -1,0 +1,56 @@
+
+# PCSX2 Game Database [for no-interlacing patches]!
+# ---------------------------------------------
+
+# ---------------------------------------------
+# Credits
+# ---------------------------------------------
+# Game Data (serials, titles, and region info) is
+# based on the information found at http://sonyindex.com
+
+# ---------------------------------------------
+# Notes
+# ---------------------------------------------
+# For basics on the YAML syntax, see here - https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html
+#
+
+# ---------------------------------------------
+# Usage
+# ---------------------------------------------
+# For comprehensive usage examples / explanations, see the following documentaiton
+# https://github.com/PCSX2/pcsx2/blob/master/pcsx2/Docs/GameIndex.md
+
+# ---------------------------------------------
+# -- Game List
+# ---------------------------------------------
+SLUS-20001:
+  name: "Tekken Tag Tournament"
+  region: "NTSC-U"
+  patches:
+    67454C1E:
+      content: |-
+         // No interlacing patch for other version (CRC) of
+         // Tekken Tag Tournament
+         comment= original no interlace code by asasega.
+         author=someother1ne
+         patch=1,EE,208BD0C8,word,00000066  //00007F67
+         patch=1,EE,208BD0D0,word,00000001  //00000003
+         patch=1,EE,208BD0D8,word,00009400  //0000948C
+    E84C9242:
+      content: |-
+        // No interlacing patch
+        comment=No interlacing patch
+        author=asasega
+        patch=1,EE,208BCFC8,word,00000066
+        patch=1,EE,208BCFD0,word,00000001
+        patch=1,EE,208BCFD8,word,00009400
+SLUS-20071:
+  name: "Dead or Alive 2"
+  region: "NTSC-U"
+  patches:
+    23AF6876:
+      content: |-
+        // No interlacing patch
+        comment=No interlacing patch
+        author=asasega
+        patch=1,EE,203962FC,word,00000000
