@@ -258,7 +258,7 @@ struct retro_core_option_definition option_defs[] = {
 	"disabled" },
 
 	{"pcsx2_speedhacks_presets",
-	 "CPU: Speed Hacks Preset",
+	 "Emulation: Speed Hacks Preset",
 	 "Preset which controls the balance between accuracy and speed. (Content restart required) \
 		\nSafest: no speed hacks. Most reliable, but possibly slow. \
 		\nSafe: a few speed hacks known to provide boosts with minimal to no side effects. \
@@ -275,6 +275,18 @@ struct retro_core_option_definition option_defs[] = {
 		{NULL, NULL},
 	},
 	"1" },
+
+	{ "pcsx2_vsync_mtgs_queue",
+	"Emulation: Vsyncs in MTGS Queue",
+	"Setting this to a lower value improves input lag, a value around 2 or 3 will sightly improve framerates.",
+	{
+		{"0", "0"},
+		{"1", "1"},
+		{"2", "2 (default)"},
+		{"3", "3"},
+		{NULL, NULL},
+	},
+	"2" },
 
 
 	{ "pcsx2_userhack_align_sprite",

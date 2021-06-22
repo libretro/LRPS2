@@ -15,6 +15,7 @@ extern retro_environment_t environ_cb;
 extern retro_log_printf_t log_cb;
 extern void GSUpdateOptions();
 extern void ResetContentStuffs();
+extern int option_upscale_mult;
 
 
 static const char* BOOL_PCSX2_OPT_FASTBOOT					= "pcsx2_fastboot";
@@ -52,10 +53,15 @@ static const char* INT_PCSX2_OPT_GAMEPAD_RUMBLE_FORCE		= "pcsx2_rumble_intensity
 static const char* INT_PCSX2_OPT_DEINTERLACING_MODE			= "pcsx2_deinterlace_mode";
 static const char* INT_PCSX2_OPT_FXAA						= "pcsx2_fxaa";
 static const char* INT_PCSX2_OPT_TEXTURE_FILTERING			= "pcsx2_texture_filtering";
+static const char* INT_PCSX2_OPT_VSYNC_MTGS_QUEUE = "pcsx2_vsync_mtgs_queue";
+
 static const char* INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_HUNDREDS	= "pcsx2_userhack_texture_offset_x_hundreds";
 static const char* INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_TENS		= "pcsx2_userhack_texture_offset_x_tens";
 static const char* INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_Y_HUNDREDS = "pcsx2_userhack_texture_offset_y_hundreds";
 static const char* INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_Y_TENS		= "pcsx2_userhack_texture_offset_y_tens";
+
+
+
 
 
 enum class KeyOptionBool
