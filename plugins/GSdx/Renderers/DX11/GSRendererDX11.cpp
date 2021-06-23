@@ -501,7 +501,7 @@ void GSRendererDX11::EmulateBlending()
 	bool sw_blending         = false;
 
 	// No blending so early exit
-	if (!(PRIM->ABE || (PRIM->AA1 && m_vt.m_primclass == GS_LINE_CLASS)))
+   if (!(PRIM->ABE || m_env.PABE.PABE || (PRIM->AA1 && m_vt.m_primclass == GS_LINE_CLASS)))
 		return;
 
 	m_om_bsel.abe = 1;
@@ -521,8 +521,9 @@ void GSRendererDX11::EmulateBlending()
 		}
 		else
 		{
-			// Breath of Fire Dragon Quarter, Strawberry Shortcake, Super Robot Wars.
-			//ASSERT(0);
+         // Breath of Fire Dragon Quarter, Strawberry Shortcake, Super Robot Wars, Cartoon Network Racing.
+         // fprintf(stderr, "%d: PABE mode ENABLED\n", s_n);
+         m_ps_sel.pabe = 1;
 		}
 	}
 
