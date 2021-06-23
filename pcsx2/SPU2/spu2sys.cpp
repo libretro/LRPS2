@@ -425,8 +425,7 @@ __forceinline void TimeUpdate(u32 cClocks)
 		{
 			//ConLog("* SPU2: Irq Called (%04x) at cycle %d.\n", Spdif.Info, Cycles);
 			has_to_call_irq = false;
-			if (!SPU2_dummy_callback)
-				spu2Irq();
+         spu2Irq();
 		}
 
 		//Update DMA4 interrupt delay counter
@@ -438,10 +437,7 @@ __forceinline void TimeUpdate(u32 cClocks)
 				//ConLog("counter set and callback!\n");
 				Cores[0].MADR = Cores[0].TADR;
 				Cores[0].DMAICounter = 0;
-				if (!SPU2_dummy_callback)
-					spu2DMA4Irq();
-				else
-					SPU2interruptDMA4();
+            spu2DMA4Irq();
 			}
 			else
 			{
@@ -458,10 +454,7 @@ __forceinline void TimeUpdate(u32 cClocks)
 				Cores[1].MADR = Cores[1].TADR;
 				Cores[1].DMAICounter = 0;
 				//ConLog( "* SPU2 > DMA 7 Callback!  %d\n", Cycles );
-				if (!SPU2_dummy_callback)
-					spu2DMA7Irq();
-				else
-					SPU2interruptDMA7();
+            spu2DMA7Irq();
 			}
 			else
 			{
@@ -755,8 +748,7 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 				if (Cores[0].IRQEnable && (Cores[0].IRQA <= Cores[0].TSA))
 				{
 					SetIrqCall(0);
-					if (!SPU2_dummy_callback)
-						spu2Irq();
+               spu2Irq();
 				}
 				DmaWrite(value);
 				show = false;
