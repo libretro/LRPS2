@@ -535,10 +535,12 @@ set(db_res_bin "${CMAKE_BINARY_DIR}/resources")
 file(MAKE_DIRECTORY ${db_res_bin})
 file(REMOVE ${db_res_bin}/cheats_ws.h)
 file(REMOVE ${db_res_bin}/GameIndex.h)
+file(REMOVE ${db_res_bin}/NoInterlaceIndex.h)
 
 set(db_resources
 		${db_res_bin}/cheats_ws.h
 		${db_res_bin}/GameIndex.h
+		${db_res_bin}/NoInterlaceIndex.h
 		)
 
 find_program(XXD xxd)
@@ -559,9 +561,16 @@ if (XXD)
 		WORKING_DIRECTORY  ${db_res_src}
 		VERBATIM
 	)
+	add_custom_command(
+		OUTPUT  ${db_res_bin}/NoInterlaceIndex.h
+		COMMAND ${XXD} -i NoInterlaceIndex.yaml NoInterlaceIndex.h
+		COMMAND cp NoInterlaceIndex.h  ${db_res_bin}/NoInterlaceIndex.h
+		WORKING_DIRECTORY  ${db_res_src}
+		VERBATIM
+	)
 else()
-	message("Could NOT find xxd. Falling back on GameIndex.h and cheats_ws.h in ${db_res_src}.
-	Warning: if changes were made to GameIndex.yaml or cheats_ws.zip, this build script will
+	message("Could NOT find xxd. Falling back on GameIndex.h, cheats_ws.h and NoInterlaceIndex.h in ${db_res_src}.
+	Warning: if changes were made to GameIndex.yaml, cheats_ws.zip or NoInterlaceIndex.yaml, this build script will
 	need to be run again with xxd installed; otherwise, you may safely ignore this warning.")
 	add_custom_command(
 		OUTPUT ${db_res_bin}/cheats_ws.h
@@ -575,7 +584,12 @@ else()
 		WORKING_DIRECTORY  ${db_res_src}
 		VERBATIM
 	)
-
+	add_custom_command(
+		OUTPUT  ${db_res_bin}/NoInterlaceIndex.h
+		COMMAND ${CMAKE_COMMAND} -E copy NoInterlaceIndex.h  ${db_res_bin}/NoInterlaceIndex.h
+		WORKING_DIRECTORY  ${db_res_src}
+		VERBATIM
+	)
 
 endif()
 
