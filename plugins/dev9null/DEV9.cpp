@@ -43,12 +43,14 @@ static char libraryName[256];
 void (*DEV9irq)(int);
 
 __aligned16 s8 dev9regs[0x10000];
+#ifndef __LIBRETRO__
 #ifdef BUILTIN_DEV9_PLUGIN
 extern std::string s_strIniPath;
 extern std::string s_strLogPath;
 #else
 std::string s_strIniPath = "inis";
 std::string s_strLogPath = "logs";
+#endif
 #endif
 
 EXPORT_C_(void)
@@ -59,27 +61,33 @@ DEV9about()
 EXPORT_C_(void)
 DEV9configure()
 {
+#ifndef __LIBRETRO__
     const std::string ini_path = s_strIniPath + "/Dev9null.ini";
     LoadConfig(ini_path);
     ConfigureLogging();
     SaveConfig(ini_path);
+#endif
 }
 
 void DEV9LogInit()
 {
+#ifndef __LIBRETRO__
     const std::string LogFile(s_strLogPath + "/dev9null.log");
     g_plugin_log.Open(LogFile);
+#endif
 }
 
 EXPORT_C_(void)
 DEV9setLogDir(const char *dir)
 {
+#ifndef __LIBRETRO__
     // Get the path to the log directory.
     s_strLogPath = (dir == NULL) ? "logs" : dir;
 
     // Reload the log file after updated the path
     g_plugin_log.Close();
     DEV9LogInit();
+#endif
 }
 #ifndef BUILTIN_DEV9_PLUGIN
 EXPORT_C_(u32)
@@ -104,10 +112,12 @@ PS2EgetLibVersion2(u32 type)
 EXPORT_C_(s32)
 DEV9init()
 {
+#ifndef __LIBRETRO__
     LoadConfig(s_strIniPath + "/Dev9null.ini");
     DEV9LogInit();
     g_plugin_log.WriteLn("dev9null plugin version %d,%d", revision, build);
     g_plugin_log.WriteLn("Initializing dev9null");
+#endif
     // Initialize anything that needs to be initialized.
     memset(dev9regs, 0, sizeof(dev9regs));
     return 0;
@@ -116,14 +126,18 @@ DEV9init()
 EXPORT_C_(void)
 DEV9shutdown()
 {
+#ifndef __LIBRETRO__
     g_plugin_log.WriteLn("Shutting down Dev9null.");
     g_plugin_log.Close();
+#endif
 }
 
 EXPORT_C_(s32)
 DEV9open(void *pDsp)
 {
+#ifndef __LIBRETRO__
     g_plugin_log.WriteLn("Opening Dev9null.");
+#endif
     // Get anything ready we need to. Opening and creating hard
     // drive files, for example.
     return 0;
@@ -132,7 +146,9 @@ DEV9open(void *pDsp)
 EXPORT_C_(void)
 DEV9close()
 {
+#ifndef __LIBRETRO__
     g_plugin_log.WriteLn("Closing Dev9null.");
+#endif
     // Close files opened.
 }
 
@@ -147,7 +163,9 @@ DEV9read8(u32 addr)
             break;       // We need to have at least one case to avoid warnings.
         default:
             //value = dev9Ru8(addr);
+#ifndef __LIBRETRO__
             g_plugin_log.WriteLn("*Unknown 8 bit read at address %lx", addr);
+#endif
             break;
     }
     return value;
@@ -180,7 +198,9 @@ DEV9read16(u32 addr)
             break;
         default:
             //value = dev9Ru16(addr);
+#ifndef __LIBRETRO__
             g_plugin_log.WriteLn("*Unknown 16 bit read at address %lx", addr);
+#endif
             break;
     }
 
@@ -197,7 +217,9 @@ DEV9read32(u32 addr)
             break;
         default:
             //value = dev9Ru32(addr);
+#ifndef __LIBRETRO__
             g_plugin_log.WriteLn("*Unknown 32 bit read at address %lx", addr);
+#endif
             break;
     }
 
@@ -211,7 +233,9 @@ DEV9write8(u32 addr, u8 value)
         case 0x10000038: /*dev9Ru8(addr) = value;*/
             break;
         default:
+#ifndef __LIBRETRO__
             g_plugin_log.WriteLn("*Unknown 8 bit write; address %lx = %x", addr, value);
+#endif
             //dev9Ru8(addr) = value;
             break;
     }
@@ -226,7 +250,9 @@ DEV9write16(u32 addr, u16 value)
         case 0x10000038: /*dev9Ru16(addr) = value;*/
             break;
         default:
+#ifndef __LIBRETRO__
             g_plugin_log.WriteLn("*Unknown 16 bit write; address %lx = %x", addr, value);
+#endif
             //dev9Ru16(addr) = value;
             break;
     }
@@ -239,7 +265,9 @@ DEV9write32(u32 addr, u32 value)
         case 0x10000038: /*dev9Ru32(addr) = value;*/
             break;
         default:
+#ifndef __LIBRETRO__
             g_plugin_log.WriteLn("*Unknown 32 bit write; address %lx = %x", addr, value);
+#endif
             //dev9Ru32(addr) = value;
             break;
     }
@@ -250,7 +278,9 @@ DEV9dmaRead(s32 channel, u32 *data, u32 bytesLeft, u32 *bytesProcessed)
 {
     // You'll want to put your own DMA8 reading code here.
     // Time to interact with your fake (or real) hardware.
+#ifndef __LIBRETRO__
     g_plugin_log.WriteLn("Reading DMA8 Mem.");
+#endif
     *bytesProcessed = bytesLeft;
     return 0;
 }
@@ -259,7 +289,9 @@ EXPORT_C_(s32)
 DEV9dmaWrite(s32 channel, u32 *data, u32 bytesLeft, u32 *bytesProcessed)
 {
     // See above.
+#ifndef __LIBRETRO__
     g_plugin_log.WriteLn("Writing DMA8 Mem.");
+#endif
     *bytesProcessed = bytesLeft;
     return 0;
 }
@@ -275,14 +307,18 @@ DEV9readDMA8Mem(u32 *pMem, int size)
 {
     // You'll want to put your own DMA8 reading code here.
     // Time to interact with your fake (or real) hardware.
+#ifndef __LIBRETRO__
     g_plugin_log.WriteLn("Reading DMA8 Mem.");
+#endif
 }
 
 EXPORT_C_(void)
 DEV9writeDMA8Mem(u32 *pMem, int size)
 {
     // See above.
+#ifndef __LIBRETRO__
     g_plugin_log.WriteLn("Writing DMA8 Mem.");
+#endif
 }
 
 EXPORT_C_(void)
@@ -309,8 +345,10 @@ DEV9irqHandler(void)
 EXPORT_C_(void)
 DEV9setSettingsDir(const char *dir)
 {
+#ifndef __LIBRETRO__
     // Grab the ini directory.
     s_strIniPath = (dir == NULL) ? "inis" : dir;
+#endif
 }
 
 EXPORT_C_(void)
