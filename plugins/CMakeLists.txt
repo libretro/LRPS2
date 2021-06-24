@@ -34,10 +34,6 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/onepad_legacy" AND onepad_legacy AND NOT 
 	add_subdirectory(onepad_legacy)
 endif()
 
-if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/PadNull" AND PadNull)
-	add_subdirectory(PadNull)
-endif()
-
 if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/USBnull" AND USBnull)
 	add_subdirectory(USBnull)
 endif()
