@@ -561,20 +561,11 @@ struct Stereo51Out32
 class SndBuffer
 {
 private:
-	static bool m_underrun_freeze;
 	static s32 m_predictData;
-	static float lastPct;
 
 	static StereoOut32* sndTempBuffer;
 	static StereoOut16* sndTempBuffer16;
 
-	static int sndTempProgress;
-	static int m_dsp_progress;
-
-	static int m_timestretch_progress;
-	static int m_timestretch_writepos;
-
-	static StereoOut32* m_buffer;
 	static s32 m_size;
 
 	static __aligned(4) volatile s32 m_rpos;
@@ -587,13 +578,6 @@ private:
 
 	static void _InitFail();
 	static bool CheckUnderrunStatus(int& nSamples, int& quietSampleCount);
-
-	static void soundtouchInit();
-	static void soundtouchClearContents();
-	static void soundtouchCleanup();
-	static void timeStretchWrite();
-	static void timeStretchUnderrun();
-	static s32 timeStretchOverrun();
 
 	static void PredictDataWrite(int samples);
 	static float GetStatusPct();

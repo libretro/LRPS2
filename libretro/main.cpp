@@ -885,7 +885,9 @@ unsigned int delayCycles = 4;
 
 static retro_audio_sample_batch_t batch_cb;
 static retro_audio_sample_t sample_cb;
+#if 0
 static int write_pos = 0;
+#endif
 
 void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb)
 {
@@ -916,7 +918,9 @@ void SndBuffer::Write(const StereoOut32& Sample)
 
 void SndBuffer::Init()
 {
+#if 0
 	write_pos = 0;
+#endif
 }
 
 void SndBuffer::Cleanup()

@@ -64,12 +64,10 @@ void SPU2setDMABaseAddr(uptr baseaddr)
 
 void SPU2setSettingsDir(const char* dir)
 {
-	CfgSetSettingsDir(dir);
 }
 
 void SPU2setLogDir(const char* dir)
 {
-	CfgSetLogDir(dir);
 }
 
 void SPU2readDMA4Mem(u16* pMem, u32 size) // size now in 16bit units
@@ -118,21 +116,11 @@ void SPU2writeDMA7Mem(u16* pMem, u32 size)
 
 s32 SPU2reset()
 {
-	if (SndBuffer::Test() == 0 && SampleRate != 48000)
+	if (SampleRate != 48000)
 	{
 		SampleRate = 48000;
 		SndBuffer::Cleanup();
-
-		try
-		{
-			SndBuffer::Init();
-		}
-		catch (std::exception& ex)
-		{
-			fprintf(stderr, "SPU2 Error: Could not initialize device, or something.\nReason: %s", ex.what());
-			SPU2close();
-			return -1;
-		}
+      SndBuffer::Init();
 	}
 	else
 		SampleRate = 48000;
@@ -149,21 +137,11 @@ s32 SPU2ps1reset()
 {
 	printf("RESET PS1 \n");
 
-	if (SndBuffer::Test() == 0 && SampleRate != 44100)
+	if (SampleRate != 44100)
 	{
 		SampleRate = 44100;
 		SndBuffer::Cleanup();
-
-		try
-		{
-			SndBuffer::Init();
-		}
-		catch (std::exception& ex)
-		{
-			fprintf(stderr, "SPU2 Error: Could not initialize device, or something.\nReason: %s", ex.what());
-			SPU2close();
-			return -1;
-		}
+      SndBuffer::Init();
 	}
 	else
 		SampleRate = 44100;
@@ -313,8 +291,6 @@ void SPU2setClockPtr(u32* ptr)
 
 void SPU2async(u32 cycles)
 {
-	DspUpdate();
-
 	if (cyclePtr != nullptr)
 	{
 		TimeUpdate(*cyclePtr);
@@ -475,6 +451,3 @@ void SPU2DoFreezeIn(pxInputStream& infp)
 	if (SPU2freeze(FREEZE_LOAD, &fP) != 0)
 		throw std::runtime_error(" * SPU2: Error loading state!\n");
 }
-
-void CfgSetSettingsDir(const char *dir) { }
-void CfgSetLogDir(const char *dir) { }
