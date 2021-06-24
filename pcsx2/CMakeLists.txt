@@ -742,15 +742,15 @@ set(pcsx2WindowsSources
 	CDVD/Windows/DriveUtility.cpp
 	CDVD/Windows/IOCtlSrc.cpp
 	windows/FlatFileReaderWindows.cpp
-	windows/Optimus.cpp
 	windows/VCprojects/IopSif.cpp
 	windows/WinCompressNTFS.cpp
-	windows/WinKeyCodes.cpp
 	)
 if(NOT LIBRETRO)
    set(pcsx2WindowsSources ${pcsx2WindowsSources}
       windows/PatchBrowser.cpp
+      windows/Optimus.cpp
       windows/WinConsolePipe.cpp
+      windows/WinKeyCodes.cpp
       gui/CpuUsageProviderMSW.cpp
    	)
 endif()
@@ -842,15 +842,11 @@ if(LIBRETRO)
 		${pcsx2SPU2Headers}
 		${pcsx2DebugToolsSources}
 		${pcsx2GuiSources}
-		${pcsx2GuiResources}
 		${pcsx2GuiHeaders}
 		${pcsx2IPUSources}
 		${pcsx2IPUHeaders}
 		${pcsx2ps2Sources}
 		${pcsx2ps2Headers}
-#		${pcsx2RecordingSources}
-#		${pcsx2RecordingVirtualPadResources}
-#		${pcsx2RecordingHeaders}
 		${pcsx2SystemSources}
 		${pcsx2SystemHeaders}
 		${pcsx2UtilitiesSources}
