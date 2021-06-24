@@ -186,6 +186,7 @@ USBread16(u32 addr)
 #ifndef __LIBRETRO__
             g_plugin_log.WriteLn("(USBnull) 16 bit read at address %lx", addr);
 #endif
+            break;
     }
     return value;
 }
@@ -208,6 +209,7 @@ USBread32(u32 addr)
 #ifndef __LIBRETRO__
             g_plugin_log.WriteLn("(USBnull) 32 bit read at address %lx", addr);
 #endif
+            break;
     }
     return value;
 }
@@ -228,6 +230,7 @@ USBwrite8(u32 addr, u8 value)
 #ifndef __LIBRETRO__
             g_plugin_log.WriteLn("(USBnull) 8 bit write at address %lx value %x", addr, value);
 #endif
+            break;
     }
 }
 
@@ -247,6 +250,7 @@ USBwrite16(u32 addr, u16 value)
 #ifndef __LIBRETRO__
             g_plugin_log.WriteLn("(USBnull) 16 bit write at address %lx value %x", addr, value);
 #endif
+            break;
     }
 }
 
@@ -266,6 +270,7 @@ USBwrite32(u32 addr, u32 value)
 #ifndef __LIBRETRO__
             g_plugin_log.WriteLn("(USBnull) 32 bit write at address %lx value %x", addr, value);
 #endif
+            break;
     }
 }
 
