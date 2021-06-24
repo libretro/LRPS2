@@ -694,3 +694,9 @@ void SPU2DoFreezeIn(pxInputStream& infp)
 	if (SPU2freeze(FREEZE_LOAD, &fP) != 0)
 		throw std::runtime_error(" * SPU2: Error loading state!\n");
 }
+
+#ifdef __LIBRETRO__
+void SysMessage(const char* fmt, ...) { }
+void CfgSetSettingsDir(const char *dir) { }
+void CfgSetLogDir(const char *dir) { }
+#endif

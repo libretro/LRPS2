@@ -244,32 +244,9 @@ if(LIBRETRO)
 		SPU2/RegLog.cpp
 		SPU2/RegTable.cpp
 		SPU2/Reverb.cpp
-#		SPU2/SndOut.cpp
-#		SPU2/SndOut_SDL.cpp
-#		SPU2/SndOut_Portaudio.cpp
 		SPU2/spu2freeze.cpp
 		SPU2/spu2sys.cpp
-#		SPU2/Timestretcher.cpp
-#     SPU2/Wavedump_wav.cpp
-#     SPU2/WavFile.cpp
-#		SPU2/wx/wxConfig.cpp
 		 )
-       if(MSVC)
-          set(pcsx2SPU2Sources ${pcsx2SPU2Sources}
-             SPU2/Windows/RealtimeDebugger.cpp
-             SPU2/Windows/ConfigDebug.cpp
-             SPU2/Windows/CfgHelpers.cpp
-             )
-       else()
-          set(pcsx2SPU2Sources ${pcsx2SPU2Sources}
-       #		SPU2/Linux/Alsa.cpp
-             SPU2/Linux/CfgHelpers.cpp
-       #		SPU2/Linux/Config.cpp
-             SPU2/Linux/ConfigDebug.cpp
-       #		SPU2/Linux/ConfigSoundTouch.cpp
-       #		SPU2/Linux/Dialogs.cpp
-          )
-       endif()
 
 else()
 	# SPU2 sources
