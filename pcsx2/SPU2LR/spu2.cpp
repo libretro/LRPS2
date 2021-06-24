@@ -17,12 +17,6 @@
 #include "Global.h"
 #include "spu2.h"
 #include "Dma.h"
-#ifdef __linux__
-#include "Linux/Dialogs.h"
-#include "Linux/Config.h"
-#elif defined(_WIN32)
-#include "Windows/Dialogs.h"
-#endif
 #include "R3000A.h"
 #include "Utilities/pxStreams.h"
 #include "AppCoreThread.h"
@@ -33,9 +27,6 @@ MutexRecursive mtx_SPU2Status;
 
 #include "svnrev.h"
 
-#ifdef _MSC_VER
-#define snprintf sprintf_s
-#endif
 int SampleRate = 48000;
 
 static bool IsOpened = false;
