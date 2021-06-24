@@ -27,18 +27,6 @@
 #include <stdio.h>
 #include <assert.h>
 
-#ifdef _WIN32
-#include <windows.h>
-#include <windowsx.h>
-
-#else
-
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/keysym.h>
-
-#endif
-
 #include <array>
 #include <vector>
 #include <map>

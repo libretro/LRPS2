@@ -25,7 +25,6 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "keyboard.h"
 #include "onepad.h"
 #include "svnrev.h"
 #include "state_management.h"
@@ -44,10 +43,6 @@ const u32 build = 0; // increase that with each version
 
 KeyStatus g_key_status;
 
-static void InitLibraryName()
-{
-    strcpy(libraryName, "OnePAD");
-}
 #ifndef BUILTIN_PAD_PLUGIN
 EXPORT_C_(u32)
 PS2EgetLibType()
@@ -58,7 +53,7 @@ PS2EgetLibType()
 EXPORT_C_(const char *)
 PS2EgetLibName()
 {
-    InitLibraryName();
+    strcpy(libraryName, "OnePAD");
     return libraryName;
 }
 
