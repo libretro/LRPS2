@@ -133,9 +133,11 @@ static void __forceinline IncrementNextA(V_Core& thiscore, uint voiceidx)
 // invalided when DMA transfers and memory writes are performed.
 PcmCacheEntry* pcm_cache_data = nullptr;
 
+#ifdef DEBUG
 int g_counter_cache_hits = 0;
 int g_counter_cache_misses = 0;
 int g_counter_cache_ignores = 0;
+#endif
 
 // LOOP/END sets the ENDX bit and sets NAX to LSA, and the voice is muted if LOOP is not set
 // LOOP seems to only have any effect on the block with LOOP/END set, where it prevents muting the voice
@@ -197,9 +199,10 @@ static __forceinline s32 GetNextDataBuffered(V_Core& thiscore, uint voiceidx)
 			vc.Prev2 = vc.SBuffer[26];
 
 			//ConLog( "* SPU2: Cache Hit! NextA=0x%x, cacheIdx=0x%x\n", vc.NextA, cacheIdx );
-
+#ifdef DEBUG
 			if (IsDevBuild)
 				g_counter_cache_hits++;
+#endif
 		}
 		else
 		{
@@ -207,6 +210,7 @@ static __forceinline s32 GetNextDataBuffered(V_Core& thiscore, uint voiceidx)
 			if (vc.NextA >= SPU2_DYN_MEMLINE)
 				cacheLine.Validated = true;
 
+#ifdef DEBUG
 			if (IsDevBuild)
 			{
 				if (vc.NextA < SPU2_DYN_MEMLINE)
@@ -214,6 +218,7 @@ static __forceinline s32 GetNextDataBuffered(V_Core& thiscore, uint voiceidx)
 				else
 					g_counter_cache_misses++;
 			}
+#endif
 
 			XA_decode_block(vc.SBuffer, memptr, vc.Prev1, vc.Prev2);
 		}
