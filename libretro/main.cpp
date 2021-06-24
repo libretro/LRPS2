@@ -882,6 +882,7 @@ int Interpolation = 4;
 bool EffectsDisabled = false;
 bool postprocess_filter_dealias = false;
 unsigned int delayCycles = 4;
+int SynchMode = 0;
 
 static retro_audio_sample_batch_t batch_cb;
 static retro_audio_sample_t sample_cb;
@@ -939,10 +940,6 @@ void DspUpdate()
 s32 DspLoadLibrary(wchar_t* fileName, int modnum)
 {
 	return 0;
-}
-
-void ReadSettings()
-{
 }
 #ifndef _WIN32
 void SysMessage(const char* fmt, ...)

@@ -229,8 +229,6 @@ s32 SPU2ps1reset()
 }
 
 #ifdef __LIBRETRO__
-bool EffectsDisabled = false;
-
 float FinalVolume; // Global
 float VolumeAdjustFLdb; // decibels settings, cos audiophiles love that
 float VolumeAdjustCdb;
@@ -248,10 +246,8 @@ float VolumeAdjustBR;
 float VolumeAdjustSL;
 float VolumeAdjustSR;
 float VolumeAdjustLFE;
-unsigned int delayCycles;
 
 bool postprocess_filter_enabled = 1;
-bool postprocess_filter_dealias = false;
 
 void ReadSettings()
 {
