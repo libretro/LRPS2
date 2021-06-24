@@ -65,3 +65,4 @@ static __forceinline T GetClamped(T src, T min, T max)
 
 #include "Config.h"
 #include "Mixer.h"
+#include "SndOut.h"

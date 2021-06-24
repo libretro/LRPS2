@@ -256,6 +256,7 @@ set(pcsx2SPU2Headers
    SPU2LR/Mixer.h
    SPU2LR/spu2.h
    SPU2LR/regs.h
+   SPU2LR/SndOut.h
    SPU2LR/spdif.h
 )
 

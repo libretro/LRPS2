@@ -16,6 +16,7 @@
 #pragma once
 
 #include "Mixer.h"
+#include "SndOut.h"
 #include "Global.h"
 
 // --------------------------------------------------------------------------------------
@@ -187,35 +188,6 @@ struct V_Voice
 	bool Start();
 	void Stop();
 };
-
-// ** Begin Debug-only variables section **
-// Separated from the V_Voice struct to improve cache performance of
-// the Public Release build.
-struct V_VoiceDebug
-{
-	s8 FirstBlock;
-	s32 SampleData;
-	s32 PeakX;
-	s32 displayPeak;
-	s32 lastSetStartA;
-};
-
-struct V_CoreDebug
-{
-	V_VoiceDebug Voices[24];
-	// Last Transfer Size
-	u32 lastsize;
-
-	// draw adma waveform in the visual debugger
-	s32 admaWaveformL[0x100];
-	s32 admaWaveformR[0x100];
-
-	// Enabled when a dma write starts, disabled when the visual debugger showed it once
-	s32 dmaFlag;
-};
-
-// Debug tracking information - 24 voices and 2 cores.
-extern V_CoreDebug DebugCores[2];
 
 struct V_Reverb
 {
