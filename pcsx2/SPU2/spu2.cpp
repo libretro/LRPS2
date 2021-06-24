@@ -272,7 +272,6 @@ void ReadSettings()
 	VolumeAdjustSL = powf(10, VolumeAdjustSLdb / 10);
 	VolumeAdjustSR = powf(10, VolumeAdjustSRdb / 10);
 	VolumeAdjustLFE = powf(10, VolumeAdjustLFEdb / 10);
-	SynchMode = 0;
 }
 #endif
 
@@ -744,7 +743,6 @@ void SPU2DoFreezeIn(pxInputStream& infp)
 }
 
 #ifdef __LIBRETRO__
-void SysMessage(const char* fmt, ...) { }
 void CfgSetSettingsDir(const char *dir) { }
 void CfgSetLogDir(const char *dir) { }
 #endif
