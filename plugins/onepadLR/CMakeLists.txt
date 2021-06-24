@@ -31,8 +31,6 @@ set(onepadSources
 
 set(onepadFinalLibs
     ${onepadFinalLibs}
-    ${GTK2_LIBRARIES}
-    ${X11_LIBRARIES}
 )
 
 set(onepadFinalSources
