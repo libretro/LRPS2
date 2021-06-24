@@ -25,7 +25,6 @@ set(onepadSources
      bitwise.h
      controller.h
      GamePad.h
-     SDL/joystick.h
      KeyStatus.h
      onepad.h
      state_management.h)
