@@ -26,8 +26,12 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/LilyPad" AND LilyPad AND NOT LIBRETRO)
 	add_subdirectory(LilyPad)
 endif()
 
-if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/onepad" AND onepad)
+if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/onepad" AND onepad AND NOT LIBRETRO)
 	add_subdirectory(onepad)
+endif()
+
+if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/onepad" AND onepad AND LIBRETRO)
+   add_subdirectory(onepadLR)
 endif()
 
 if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/onepad_legacy" AND onepad_legacy AND NOT LIBRETRO)
