@@ -228,6 +228,58 @@ s32 SPU2ps1reset()
 	return 0;
 }
 
+#ifdef __LIBRETRO__
+bool EffectsDisabled = false;
+
+float FinalVolume; // Global
+float VolumeAdjustFLdb; // decibels settings, cos audiophiles love that
+float VolumeAdjustCdb;
+float VolumeAdjustFRdb;
+float VolumeAdjustBLdb;
+float VolumeAdjustBRdb;
+float VolumeAdjustSLdb;
+float VolumeAdjustSRdb;
+float VolumeAdjustLFEdb;
+float VolumeAdjustFL; // linear coefs calcualted from decibels,
+float VolumeAdjustC;
+float VolumeAdjustFR;
+float VolumeAdjustBL;
+float VolumeAdjustBR;
+float VolumeAdjustSL;
+float VolumeAdjustSR;
+float VolumeAdjustLFE;
+unsigned int delayCycles;
+
+bool postprocess_filter_enabled = 1;
+bool postprocess_filter_dealias = false;
+
+void ReadSettings()
+{
+   Interpolation = 4;
+	EffectsDisabled = false;
+	postprocess_filter_dealias = false;
+	FinalVolume = 1.0f;
+	VolumeAdjustCdb = 0;
+	VolumeAdjustFLdb = 0;
+	VolumeAdjustFRdb = 0;
+	VolumeAdjustBLdb = 0;
+	VolumeAdjustBRdb = 0;
+	VolumeAdjustSLdb = 0;
+	VolumeAdjustSRdb = 0;
+	VolumeAdjustLFEdb = 0;
+	delayCycles = 4;
+	VolumeAdjustC = powf(10, VolumeAdjustCdb / 10);
+	VolumeAdjustFL = powf(10, VolumeAdjustFLdb / 10);
+	VolumeAdjustFR = powf(10, VolumeAdjustFRdb / 10);
+	VolumeAdjustBL = powf(10, VolumeAdjustBLdb / 10);
+	VolumeAdjustBR = powf(10, VolumeAdjustBRdb / 10);
+	VolumeAdjustSL = powf(10, VolumeAdjustSLdb / 10);
+	VolumeAdjustSR = powf(10, VolumeAdjustSRdb / 10);
+	VolumeAdjustLFE = powf(10, VolumeAdjustLFEdb / 10);
+	SynchMode = 0;
+}
+#endif
+
 s32 SPU2init()
 {
 	assert(regtable[0x400] == nullptr);
@@ -699,7 +751,4 @@ void SPU2DoFreezeIn(pxInputStream& infp)
 void SysMessage(const char* fmt, ...) { }
 void CfgSetSettingsDir(const char *dir) { }
 void CfgSetLogDir(const char *dir) { }
-void ReadSettings()
-{
-}
 #endif
