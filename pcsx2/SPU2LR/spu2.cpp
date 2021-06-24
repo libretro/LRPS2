@@ -253,7 +253,6 @@ s32 SPU2init()
 
 	if ((spu2regs == nullptr) || (_spu2mem == nullptr) || (pcm_cache_data == nullptr))
 	{
-		SysMessage("SPU2: Error allocating Memory\n");
 		return -1;
 	}
 

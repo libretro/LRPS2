@@ -249,7 +249,6 @@ if(LIBRETRO)
 # SPU2 headers
 set(pcsx2SPU2Headers
    SPU2LR/Config.h
-   SPU2LR/Debug.h
    SPU2LR/defs.h
    SPU2LR/Dma.h
    SPU2LR/Global.h
@@ -257,7 +256,6 @@ set(pcsx2SPU2Headers
    SPU2LR/Mixer.h
    SPU2LR/spu2.h
    SPU2LR/regs.h
-   SPU2LR/SndOut.h
    SPU2LR/spdif.h
 )
 
