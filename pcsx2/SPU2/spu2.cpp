@@ -699,4 +699,7 @@ void SPU2DoFreezeIn(pxInputStream& infp)
 void SysMessage(const char* fmt, ...) { }
 void CfgSetSettingsDir(const char *dir) { }
 void CfgSetLogDir(const char *dir) { }
+void ReadSettings()
+{
+}
 #endif
