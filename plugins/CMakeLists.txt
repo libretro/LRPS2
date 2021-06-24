@@ -18,10 +18,6 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/GSdx" AND GSdx)
 	add_subdirectory(GSdx)
 endif()
 
-if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/GSnull" AND GSnull)
-	add_subdirectory(GSnull)
-endif()
-
 if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/LilyPad" AND LilyPad AND NOT LIBRETRO)
 	add_subdirectory(LilyPad)
 endif()
