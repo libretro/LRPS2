@@ -33,7 +33,6 @@
 #include <unistd.h>
 #endif
 
-PADconf g_conf;
 static char libraryName[256];
 
 const u32 version = PS2E_PAD_VERSION;
