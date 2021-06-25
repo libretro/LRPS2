@@ -173,9 +173,7 @@ set(GSdxHeaders
     Renderers/OpenGL/GSTextureOGL.h
     Renderers/OpenGL/GSUniformBufferOGL.h
     Renderers/OpenGL/GSVertexArrayOGL.h
-    Window/GSDialog.h
     Window/GSSetting.h
-    Window/GSSettingsDlg.h
     Window/GSWnd.h
     xbyak/xbyak.h
     xbyak/xbyak_mnemonic.h
@@ -189,14 +187,11 @@ endif()
 if(Windows)
     LIST(APPEND GSdxSources
         Renderers/DX11/GSDevice11.cpp
-        Window/GSDialog.cpp
         Renderers/DX11/GSRendererDX11.cpp
         Renderers/DX11/GSTexture11.cpp
         Renderers/DX11/GSTextureCache11.cpp
         Renderers/DX11/GSTextureFX11.cpp
-#        GSVertexList.cpp
         Renderers/SW/GSVertexSW.cpp
-        Window/GSSettingsDlg.cpp
         GSdx.rc
         )
 
