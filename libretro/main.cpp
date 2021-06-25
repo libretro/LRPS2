@@ -383,7 +383,7 @@ void retro_deinit(void)
 	main thread tries to call vu1Thread.Cancel() within pcsx2's destructor
 	and it gets stuck waiting for a mutex that will never unlock */
 	vu1Thread.WaitVU();
-	vu1Thread.Cancel();
+	//vu1Thread.Cancel();
 
 	pcsx2->CleanupOnExit();
 	pcsx2->OnExit();
