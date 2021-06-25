@@ -114,12 +114,10 @@
     <ClCompile Include="Renderers\SW\GSDrawScanlineCodeGenerator.x86.avx.cpp" />
     <ClCompile Include="Renderers\SW\GSDrawScanlineCodeGenerator.x86.avx2.cpp" />
     <ClCompile Include="Renderers\SW\GSDrawScanlineCodeGenerator.x86.cpp" />
-    <ClCompile Include="GSDump.cpp" />
     <ClCompile Include="GSdx.cpp" />
     <ClCompile Include="Renderers\Common\GSFunctionMap.cpp" />
     <ClCompile Include="Renderers\HW\GSHwHack.cpp" />
     <ClCompile Include="GSLocalMemory.cpp" />
-    <ClCompile Include="GSLzma.cpp" />
     <ClCompile Include="GSPerfMon.cpp" />
     <ClCompile Include="Renderers\Common\GSOsdManager.cpp" />
     <ClCompile Include="GSPng.cpp" />
@@ -184,12 +182,10 @@
     <ClInclude Include="GSDrawingEnvironment.h" />
     <ClInclude Include="Renderers\SW\GSDrawScanline.h" />
     <ClInclude Include="Renderers\SW\GSDrawScanlineCodeGenerator.h" />
-    <ClInclude Include="GSDump.h" />
     <ClInclude Include="GSdx.h" />
     <ClInclude Include="Renderers\Common\GSFastList.h" />
     <ClInclude Include="Renderers\Common\GSFunctionMap.h" />
     <ClInclude Include="GSLocalMemory.h" />
-    <ClInclude Include="GSLzma.h" />
     <ClInclude Include="GSPerfMon.h" />
     <ClInclude Include="Renderers\Common\GSOsdManager.h" />
     <ClInclude Include="GSPng.h" />

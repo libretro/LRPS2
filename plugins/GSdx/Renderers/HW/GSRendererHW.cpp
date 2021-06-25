@@ -98,8 +98,6 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 		m_userHacks_merge_sprite         = false;
 		m_userhacks_wildhack = false;
 	}
-	
-	m_dump_root = root_hw;
 }
 
 void GSRendererHW::UpdateRendererOptions()

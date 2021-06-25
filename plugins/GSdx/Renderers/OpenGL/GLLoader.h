@@ -135,7 +135,6 @@ namespace GLLoader {
 	extern bool amd_legacy_buggy_driver;
 	extern bool mesa_driver;
 	extern bool buggy_sso_dual_src;
-	extern bool in_replayer;
 
 	// GL
 	extern bool found_geometry_shader;

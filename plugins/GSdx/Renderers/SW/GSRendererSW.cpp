@@ -22,10 +22,6 @@
 #include "stdafx.h"
 #include "GSRendererSW.h"
 
-#define LOG 0
-
-static FILE* s_fp = LOG ? fopen("c:\\temp1\\_.txt", "w") : NULL;
-
 GSVector4 GSRendererSW::m_pos_scale;
 #if _M_SSE >= 0x501
 GSVector8 GSRendererSW::m_pos_scale2;
@@ -75,11 +71,9 @@ GSRendererSW::GSRendererSW(int threads)
 	InitCVB(GS_TRIANGLE_CLASS);
 	InitCVB(GS_SPRITE_CLASS);
 
-	m_dump_root = root_sw;
-
 	// Reset handler with the auto flush hack enabled on the SW renderer.
 	// Some games run better without the hack so rely on ini/gui option.
-	if (!GLLoader::in_replayer && theApp.GetConfigB("autoflush_sw")) {
+	if (theApp.GetConfigB("autoflush_sw")) {
 		m_userhacks_auto_flush = true;
 		ResetHandlers();
 	}
@@ -111,22 +105,6 @@ void GSRendererSW::Reset()
 void GSRendererSW::VSync(int field)
 {
 	Sync(0); // IncAge might delete a cached texture in use
-
-	if(0) if(LOG)
-	{
-		fprintf(s_fp, "%llu\n", m_perfmon.GetFrame());
-
-		GSVector4i dr = GetDisplayRect();
-		GSVector4i fr = GetFrameRect();
-
-		fprintf(s_fp, "dr %d %d %d %d, fr %d %d %d %d\n",
-			dr.x, dr.y, dr.z, dr.w,
-			fr.x, fr.y, fr.z, fr.w);
-
-		m_regs->Dump(s_fp);
-
-		fflush(s_fp);
-	}
 
 	/*
 	int draw[8], sum = 0;
@@ -424,28 +402,6 @@ void GSRendererSW::Draw()
 		return;
 	}
 
-	if(0) if(LOG)
-	{
-		int n = GSUtil::GetVertexCount(PRIM->PRIM);
-		
-		for(uint32 i = 0, j = 0; i < m_index.tail; i += n, j++)
-		{
-			for(int k = 0; k < n; k++)
-			{
-				GSVertex* v = &m_vertex.buff[m_index.buff[i + k]];
-				GSVertex* vn = &m_vertex.buff[m_index.buff[i + n - 1]];
-				
-				fprintf(s_fp, "%d:%d %f %f %f %f\n", 
-					j, k,
-					(float)(v->XYZ.X - context->XYOFFSET.OFX) / 16,
-					(float)(v->XYZ.Y - context->XYOFFSET.OFY) / 16,
-					PRIM->FST ? (float)(v->U) / 16 : v->ST.S / (PRIM->PRIM == GS_SPRITE ? vn->RGBAQ.Q : v->RGBAQ.Q),
-					PRIM->FST ? (float)(v->V) / 16 : v->ST.T / (PRIM->PRIM == GS_SPRITE ? vn->RGBAQ.Q : v->RGBAQ.Q)
-					);
-			}
-		}
-	}
-
 	//
 
 	// GSScanlineGlobalData& gd = sd->global;
@@ -486,17 +442,6 @@ void GSRendererSW::Draw()
 	{
 		Queue(data);
 	}
-
-	/*
-	if(0)//stats.ticks > 5000000)
-	{
-		printf("* [%lld | %012llx] ticks %lld prims %d (%d) pixels %d (%d)\n",
-			m_perfmon.GetFrame(), gd->sel.key,
-			stats.ticks,
-			stats.prims, stats.prims > 0 ? (int)(stats.ticks / stats.prims) : -1,
-			stats.pixels, stats.pixels > 0 ? (int)(stats.ticks / stats.pixels) : -1);
-	}
-	*/
 }
 
 void GSRendererSW::Queue(std::shared_ptr<GSRasterizerData>& item)
@@ -515,20 +460,6 @@ void GSRendererSW::Queue(std::shared_ptr<GSRasterizerData>& item)
 	if(sd->m_syncpoint == SharedData::SyncTarget)
 	{
 		Sync(5);
-	}
-
-	if(LOG)
-	{
-		GSScanlineGlobalData& gd = ((SharedData*)item.get())->global;
-
-		fprintf(s_fp, "[%d] queue %05x %d (%d) %05x %d (%d) %05x %d %dx%d (%d %d %d) | %u %d %d\n",
-			sd->counter,
-			m_context->FRAME.Block(), m_context->FRAME.PSM, gd.sel.fwrite, 
-			m_context->ZBUF.Block(), m_context->ZBUF.PSM, gd.sel.zwrite,
-			PRIM->TME ? m_context->TEX0.TBP0 : 0xfffff, m_context->TEX0.PSM, (int)m_context->TEX0.TW, (int)m_context->TEX0.TH, m_context->TEX0.CSM, m_context->TEX0.CPSM, m_context->TEX0.CSA,
-			PRIM->PRIM, sd->vertex_count, sd->index_count); 
-
-		fflush(s_fp);
 	}
 
 	m_rl->Queue(item);
@@ -558,38 +489,15 @@ void GSRendererSW::Sync(int reason)
 
 	m_rl->Sync();
 
-	if(0) if(LOG)
-	{
-		std::string s;
-		
-		if(s_save)
-		{
-			s = format("%05d_f%lld_rt1_%05x_%s.bmp", s_n, m_perfmon.GetFrame(), m_context->FRAME.Block(), psm_str(m_context->FRAME.PSM));
-
-			m_mem.SaveBMP(m_dump_root+s, m_context->FRAME.Block(), m_context->FRAME.FBW, m_context->FRAME.PSM, GetFrameRect().width(), 512);
-		}
-
-		if(s_savez)
-		{
-			s = format("%05d_f%lld_zb1_%05x_%s.bmp", s_n, m_perfmon.GetFrame(), m_context->ZBUF.Block(), psm_str(m_context->ZBUF.PSM));
-
-			m_mem.SaveBMP(m_dump_root+s, m_context->ZBUF.Block(), m_context->FRAME.FBW, m_context->ZBUF.PSM, GetFrameRect().width(), 512);
-		}
-	}
-
 	t = __rdtsc() - t;
 
 	int pixels = m_rl->GetPixels();
-
-	if(LOG) {fprintf(s_fp, "sync n=%d r=%d t=%llu p=%d %c\n", s_n, reason, t, pixels, t > 10000000 ? '*' : ' '); fflush(s_fp);}
 
 	m_perfmon.Put(GSPerfMon::Fillrate, pixels);
 }
 
 void GSRendererSW::InvalidateVideoMem(const GIFRegBITBLTBUF& BITBLTBUF, const GSVector4i& r)
 {
-	if(LOG) {fprintf(s_fp, "w %05x %u %u, %d %d %d %d\n", BITBLTBUF.DBP, BITBLTBUF.DBW, BITBLTBUF.DPSM, r.x, r.y, r.z, r.w); fflush(s_fp);}
-	
 	GSOffset* off = m_mem.GetOffset(BITBLTBUF.DBP, BITBLTBUF.DBW, BITBLTBUF.DPSM);
 
 	off->GetPages(r, m_tmp_pages);
@@ -614,8 +522,6 @@ void GSRendererSW::InvalidateVideoMem(const GIFRegBITBLTBUF& BITBLTBUF, const GS
 
 void GSRendererSW::InvalidateLocalMem(const GIFRegBITBLTBUF& BITBLTBUF, const GSVector4i& r, bool clut)
 {
-	if(LOG) {fprintf(s_fp, "%s %05x %u %u, %d %d %d %d\n", clut ? "rp" : "r", BITBLTBUF.SBP, BITBLTBUF.SBW, BITBLTBUF.SPSM, r.x, r.y, r.z, r.w); fflush(s_fp);}
-
 	if(!m_rl->IsSynced())
 	{
 		GSOffset* off = m_mem.GetOffset(BITBLTBUF.SBP, BITBLTBUF.SBW, BITBLTBUF.SPSM);
@@ -728,13 +634,7 @@ bool GSRendererSW::CheckTargetPages(const uint32* fb_pages, const uint32* zb_pag
 		if(!synced)
 		{
 			if(used)
-			{
-				if(LOG) {fprintf(s_fp, "syncpoint 0\n"); fflush(s_fp);}
-
 				res = true;
-			}
-
-			//if(LOG) {fprintf(s_fp, "no syncpoint *\n"); fflush(s_fp);}
 		}
 	}
 	else
@@ -789,11 +689,7 @@ bool GSRendererSW::CheckTargetPages(const uint32* fb_pages, const uint32* zb_pag
 			if(!synced)
 			{
 				if(used)
-				{
-					if(LOG) {fprintf(s_fp, "syncpoint 1\n"); fflush(s_fp);}
-
 					res = true;
-				}
 			}
 		}
 
@@ -808,10 +704,7 @@ bool GSRendererSW::CheckTargetPages(const uint32* fb_pages, const uint32* zb_pag
 				{
 					if(m_fzb_pages[*p] & 0xffff0000)
 					{
-						if(LOG) {fprintf(s_fp, "syncpoint 2\n"); fflush(s_fp);}
-
 						res = true;
-
 						break;
 					}
 				}
@@ -823,8 +716,6 @@ bool GSRendererSW::CheckTargetPages(const uint32* fb_pages, const uint32* zb_pag
 				{
 					if(m_fzb_pages[*p] & 0x0000ffff)
 					{
-						if(LOG) {fprintf(s_fp, "syncpoint 3\n"); fflush(s_fp);}
-
 						res = true;
 
 						break;
@@ -1358,14 +1249,6 @@ GSRendererSW::SharedData::~SharedData()
 
 	if(global.clut) _aligned_free(global.clut);
 	if(global.dimx) _aligned_free(global.dimx);
-
-	if(LOG) {fprintf(s_fp, "[%d] done t=%lld p=%d | %d %d %d | %08x_%08x\n", 
-		counter, 
-		__rdtsc() - start, pixels,
-		primclass, vertex_count, index_count,
-		global.sel.hi, global.sel.lo 
-		); 
-	fflush(s_fp);}
 }
 
 //static TransactionScope::Lock s_lock;

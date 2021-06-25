@@ -367,40 +367,14 @@ extern void vmfree(void* ptr, size_t size);
 extern void* fifo_alloc(size_t size, size_t repeat);
 extern void fifo_free(void* ptr, size_t size, size_t repeat);
 
-#ifdef ENABLE_VTUNE
-
-	#include "jitprofiling.h"
-
-	#ifdef _WIN32
-
-	#pragma comment(lib, "jitprofiling.lib")
-
-	#endif
-
-#endif
-
 // Note: GL messages are present in common code, so in all renderers.
 
 #define GL_INSERT(type, code, sev, ...) \
 	do if (glDebugMessageInsert) glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, type, code, sev, -1, format(__VA_ARGS__).c_str()); while(0);
 
-#if defined(_DEBUG)
-#define GL_CACHE(...) GL_INSERT(GL_DEBUG_TYPE_OTHER, 0xFEAD, GL_DEBUG_SEVERITY_NOTIFICATION, __VA_ARGS__)
-#else
 #define GL_CACHE(...) (void)(0);
-#endif
-
-#if defined(ENABLE_TRACE_REG) && defined(_DEBUG)
-#define GL_REG(...) GL_INSERT(GL_DEBUG_TYPE_OTHER, 0xB0B0, GL_DEBUG_SEVERITY_NOTIFICATION, __VA_ARGS__)
-#else
 #define GL_REG(...) (void)(0);
-#endif
-
-#if defined(ENABLE_EXTRA_LOG) && defined(_DEBUG)
-#define GL_DBG(...) GL_INSERT(GL_DEBUG_TYPE_OTHER, 0xD0D0, GL_DEBUG_SEVERITY_NOTIFICATION, __VA_ARGS__)
-#else
 #define GL_DBG(...) (void)(0);
-#endif
 
 #if defined(ENABLE_OGL_DEBUG)
 struct GLAutoPop {

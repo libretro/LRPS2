@@ -338,11 +338,6 @@ bool GSDeviceOGL::Create(const std::shared_ptr<GSWnd> &wnd)
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo_read);
 		glReadBuffer(GL_COLOR_ATTACHMENT0);
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, GL_DEFAULT_FRAMEBUFFER);
-
-		// Some timers to help profiling
-		if (GLLoader::in_replayer) {
-			glCreateQueries(GL_TIMESTAMP, 1 << 16, m_profiler.timer_query);
-		}
 	}
 
 	// ****************************************************************
@@ -627,11 +622,6 @@ void GSDeviceOGL::SetVSync(int vsync)
 void GSDeviceOGL::Flip()
 {
 	m_wnd->Flip();
-
-	if (GLLoader::in_replayer) {
-		glQueryCounter(m_profiler.timer(), GL_TIMESTAMP);
-		m_profiler.last_query++;
-	}
 }
 
 void GSDeviceOGL::BeforeDraw()

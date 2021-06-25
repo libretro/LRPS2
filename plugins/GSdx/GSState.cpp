@@ -47,7 +47,7 @@ GSState::GSState()
 {
 	// m_nativeres seems to be a hack. Unfortunately it impacts draw call number which make debug painful in the replayer.
 	// Let's keep it disabled to ease debug.
-	m_nativeres             = theApp.GetConfigI("upscale_multiplier") == 1 || GLLoader::in_replayer;
+	m_nativeres             = theApp.GetConfigI("upscale_multiplier") == 1;
 	m_mipmap                = theApp.GetConfigI("mipmap");
 	m_NTSC_Saturation       = theApp.GetConfigB("NTSC_Saturation");
 	m_clut_load_before_draw = theApp.GetConfigB("clut_load_before_draw");
@@ -72,7 +72,6 @@ GSState::GSState()
 	s_savez = theApp.GetConfigB("savez");
 	s_savef = theApp.GetConfigB("savef");
 	s_savel = theApp.GetConfigI("savel");
-	m_dump_root = "";
 
 	//s_save = 1;
 	//s_savez = 1;
@@ -1807,16 +1806,8 @@ void GSState::Read(uint8* mem, int len)
 	int h = m_env.TRXREG.RRH;
 	GSVector4i r(sx, sy, sx + w, sy + h);
 
-	// Function is called from the EE thread. Unforunately gl stuff can only be used from a single thread (AKA MTGS)
-	if (GLLoader::in_replayer) {
-		GL_CACHE("Read! len=%d SBP=%05x SBW=%d SPSM=%s SSAX=%d SSAY=%d RRW=%d RRH=%d",
-				len, (int)m_env.BITBLTBUF.SBP, (int)m_env.BITBLTBUF.SBW, psm_str(m_env.BITBLTBUF.SPSM), sx, sy, w, h);
-	}
-
 	if(!m_tr.Update(w, h, GSLocalMemory::m_psm[m_env.BITBLTBUF.SPSM].trbpp, len))
-	{
 		return;
-	}
 
 	if(!m_init_read_fifo_supported)
 	{
@@ -2068,11 +2059,6 @@ void GSState::ReadFIFO(uint8* mem, int size)
 	size *= 16;
 
 	Read(mem, size);
-
-	if(m_dump)
-	{
-		m_dump->ReadFIFO(size);
-	}
 }
 
 template void GSState::Transfer<0>(const uint8* mem, uint32 size);
@@ -2286,11 +2272,6 @@ template<int index> void GSState::Transfer(const uint8* mem, uint32 size)
 				break;
 			}
 		}
-	}
-
-	if(m_dump && mem > start)
-	{
-		m_dump->Transfer(index, start, mem - start);
 	}
 
 	if(index == 0)

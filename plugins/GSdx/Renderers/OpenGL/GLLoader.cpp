@@ -145,7 +145,6 @@ namespace GLLoader {
 	bool vendor_id_nvidia   = false;
 	bool vendor_id_intel    = false;
 	bool mesa_driver        = false;
-	bool in_replayer        = false;
 	bool buggy_sso_dual_src = false;
 
 	bool found_geometry_shader = true; // we require GL3.3 so geometry must be supported by default
