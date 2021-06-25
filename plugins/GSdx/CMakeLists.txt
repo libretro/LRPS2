@@ -98,6 +98,7 @@ set(GSdxSources
     Renderers/OpenGL/GSShaderOGL.cpp
     Renderers/OpenGL/GSTextureCacheOGL.cpp
     Renderers/OpenGL/GSTextureOGL.cpp
+    Window/GSWnd.cpp
     )
 if(NOT MSVC)
    set(GSdxSources ${GSdxSources}
