@@ -20,9 +20,6 @@
  */
 #include "GSWnd.h"
 
-#define GS_EGL_X11 1
-#define GS_EGL_WL 0
-
 class GSWndRetroGL : public GSWndGL
 {
 	void BindAPI();

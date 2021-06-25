@@ -221,11 +221,8 @@ set(GSdxFinalSources
 )
 
 set(GSdxFinalLibs
-    ${X11_LIBRARIES}
     ${OPENGL_LIBRARIES}
-    ${X11_XCB_LIBRARIES}
     ${LIBC_LIBRARIES}
-    ${LIBLZMA_LIBRARIES}
 )
 
 if(USE_VTUNE)
