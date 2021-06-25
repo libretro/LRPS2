@@ -109,8 +109,6 @@ if(NOT MSVC)
 endif()
 if(NOT LIBRETRO)
    set(GSdxSources ${GSdxSources}
-      GSCapture.cpp
-      GSPng.cpp
       Renderers/Common/GSOsdManager.cpp
       )
 endif()
@@ -119,7 +117,6 @@ set(GSdxHeaders
     config.h
     GSAlignedClass.h
     GSBlock.h
-    GSCapture.h
     GSClut.h
     GSCodeBuffer.h
     GSCrc.h
@@ -131,7 +128,6 @@ set(GSdxHeaders
     GSLocalMemory.h
     GSLzma.h
     GSPerfMon.h
-    GSPng.h
     GSState.h
     GSTables.h
     GSThread_CXX11.h
@@ -177,7 +173,6 @@ set(GSdxHeaders
     Renderers/OpenGL/GSTextureOGL.h
     Renderers/OpenGL/GSUniformBufferOGL.h
     Renderers/OpenGL/GSVertexArrayOGL.h
-    Window/GSCaptureDlg.h
     Window/GSDialog.h
     Window/GSSetting.h
     Window/GSSettingsDlg.h
@@ -201,7 +196,6 @@ if(Windows)
         Renderers/DX11/GSTextureFX11.cpp
 #        GSVertexList.cpp
         Renderers/SW/GSVertexSW.cpp
-        Window/GSCaptureDlg.cpp
         Window/GSSettingsDlg.cpp
         GSdx.rc
         )
@@ -258,8 +252,6 @@ set(GSdxFinalLibs
     ${X11_XCB_LIBRARIES}
     ${GTK2_LIBRARIES}
     ${LIBC_LIBRARIES}
-    ${PNG_LIBRARIES}
-    ${FREETYPE_LIBRARIES}
     ${LIBLZMA_LIBRARIES}
 )
 
