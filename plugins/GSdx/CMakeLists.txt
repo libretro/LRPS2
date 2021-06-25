@@ -311,13 +311,3 @@ else()
 endif()
 
 target_compile_features(${Output} PRIVATE cxx_std_17)
-
-################################### Replay Loader
-if(BUILD_REPLAY_LOADERS)
-    set(Replay pcsx2_GSReplayLoader)
-    set(GSdxReplayLoaderFinalSources
-        linux_replay.cpp
-    )
-    add_pcsx2_executable(${Replay} "${GSdxReplayLoaderFinalSources}" "${LIBC_LIBRARIES}" "${GSdxFinalFlags}")
-    target_compile_features(${Replay} PRIVATE cxx_std_17)
-endif(BUILD_REPLAY_LOADERS)
