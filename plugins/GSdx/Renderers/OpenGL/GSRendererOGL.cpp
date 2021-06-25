@@ -177,7 +177,7 @@ void GSRendererOGL::EmulateZbuffer()
 	const bool clamp_z = (uint32)(GSVector4i(m_vt.m_max.p).z) > max_z;
 
 	vs_cb.MaxDepth = GSVector2i(0xFFFFFFFF);
-	ps_cb.MaxDepth = GSVector4(0.0f, 0.0f, 0.0f, 1.0f);
+	//ps_cb.MaxDepth = GSVector4(0.0f, 0.0f, 0.0f, 1.0f);
 	m_ps_sel.zclamp = 0;
 
 	if (clamp_z) {
@@ -453,24 +453,15 @@ void GSRendererOGL::EmulateBlending(bool& DATE_GL42, bool& DATE_GL45)
 	bool sw_blending         = false;
 
 	// No blending so early exit
-	if (!(PRIM->ABE || PRIM->AA1 && m_vt.m_primclass == GS_LINE_CLASS)) {
-#ifdef ENABLE_OGL_DEBUG
-		if (m_env.PABE.PABE)
-			GL_INS("ERROR: ENV PABE without ABE!");
-#endif
+   if (!(PRIM->ABE || m_env.PABE.PABE || (PRIM->AA1 && m_vt.m_primclass == GS_LINE_CLASS))) {
 		dev->OMSetBlendState();
 		return;
 	}
 
 	if (m_env.PABE.PABE) {
-		GL_INS("ERROR: ENV PABE not supported!");
-		if (m_sw_blending >= ACC_BLEND_MEDIUM) {
-			// m_ps_sel.pabe = 1;
-			m_require_full_barrier |= (ALPHA.C == 1);
-			sw_blending = true;
-		}
-		// Breath of Fire Dragon Quarter, Strawberry Shortcake, Super Robot Wars.
-		//ASSERT(0);
+      // Breath of Fire Dragon Quarter, Strawberry Shortcake, Super Robot Wars, Cartoon Network Racing.
+		GL_INS("PABE mode ENABLED");
+		m_ps_sel.pabe = 1;
 	}
 
 	// Compute the blending equation to detect special case

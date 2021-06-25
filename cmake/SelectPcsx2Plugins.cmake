@@ -108,12 +108,6 @@ endif()
 #---------------------------------------
 
 #---------------------------------------
-#			GSnull
-#---------------------------------------
-if(GTKn_FOUND AND EXTRA_PLUGINS)
-    set(GSnull TRUE)
-endif()
-#---------------------------------------
 
 #---------------------------------------
 #			GSdx
@@ -130,14 +124,6 @@ elseif(NOT EXISTS "${CMAKE_SOURCE_DIR}/plugins/GSdx")
 else()
     set(GSdx FALSE)
     print_dep("Skip build of GSdx: missing dependencies" "${msg_dep_gsdx}")
-endif()
-#---------------------------------------
-
-#---------------------------------------
-#			PadNull
-#---------------------------------------
-if(GTKn_FOUND AND EXTRA_PLUGINS)
-    set(PadNull TRUE)
 endif()
 #---------------------------------------
 

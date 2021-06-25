@@ -892,7 +892,9 @@ unsigned int delayCycles = 4;
 
 static retro_audio_sample_batch_t batch_cb;
 static retro_audio_sample_t sample_cb;
+#if 0
 static int write_pos = 0;
+#endif
 
 void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb)
 {
@@ -923,7 +925,9 @@ void SndBuffer::Write(const StereoOut32& Sample)
 
 void SndBuffer::Init()
 {
+#if 0
 	write_pos = 0;
+#endif
 }
 
 void SndBuffer::Cleanup()
@@ -948,10 +952,6 @@ s32 DspLoadLibrary(wchar_t* fileName, int modnum)
 	return 0;
 }
 
-void ReadSettings()
-{
-}
-#ifndef _WIN32
 void SysMessage(const char* fmt, ...)
 {
 	va_list list;
@@ -959,7 +959,7 @@ void SysMessage(const char* fmt, ...)
 	vprintf(fmt, list);
 	va_end(list);
 }
-#endif
+
 wxEventLoopBase* Pcsx2AppTraits::CreateEventLoop()
 {
 	return new wxEventLoop();

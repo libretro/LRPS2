@@ -3,7 +3,9 @@
 #-------------------------------------------------------------------------------
 ## Use cmake package to find module
 if (Linux)
+if (NOT LIBRETRO)
     find_package(ALSA)
+endif()
     find_package(PCAP)
     find_package(LibXml2)
 endif()

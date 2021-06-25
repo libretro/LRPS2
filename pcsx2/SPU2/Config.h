@@ -16,6 +16,26 @@
 #pragma once
 
 #include "Global.h"
+
+#ifdef __LIBRETRO__
+static __forceinline bool MsgToConsole() { return false; }
+
+static __forceinline bool MsgKeyOnOff() { return false; }
+static __forceinline bool MsgVoiceOff() { return false; }
+static __forceinline bool MsgDMA() { return false; }
+static __forceinline bool MsgAutoDMA() { return false; }
+static __forceinline bool MsgOverruns() { return false; }
+static __forceinline bool MsgCache() { return false; }
+
+static __forceinline bool AccessLog() { return false; }
+static __forceinline bool DMALog() { return false; }
+static __forceinline bool WaveLog() { return false; }
+
+static __forceinline bool CoresDump() { return false; }
+static __forceinline bool MemDump() { return false; }
+static __forceinline bool RegDump() { return false; }
+static __forceinline bool VisualDebug() { return false; }
+#else
 #ifdef _WIN32
 #include <soundtouch\soundtouch\SoundTouch.h>
 #endif
@@ -64,6 +84,25 @@ extern wxString CoresDumpFileName;
 extern wxString MemDumpFileName;
 extern wxString RegDumpFileName;
 
+#ifndef __POSIX__
+extern wchar_t dspPlugin[];
+extern int dspPluginModule;
+
+extern bool dspPluginEnabled;
+#endif
+
+namespace SoundtouchCfg
+{
+	extern void ApplySettings(soundtouch::SoundTouch& sndtouch);
+}
+
+//////
+
+extern void ReadSettings();
+extern void WriteSettings();
+extern void configure();
+#endif
+
 extern int Interpolation;
 extern int numSpeakers;
 extern bool EffectsDisabled;
@@ -86,20 +125,3 @@ extern u32 OutputModule;
 extern int SndOutLatencyMS;
 extern int SynchMode;
 
-#ifndef __POSIX__
-extern wchar_t dspPlugin[];
-extern int dspPluginModule;
-
-extern bool dspPluginEnabled;
-#endif
-
-namespace SoundtouchCfg
-{
-	extern void ApplySettings(soundtouch::SoundTouch& sndtouch);
-}
-
-//////
-
-extern void ReadSettings();
-extern void WriteSettings();
-extern void configure();

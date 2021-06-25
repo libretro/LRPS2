@@ -233,43 +233,32 @@ set(pcsx2CDVDHeaders
 if(LIBRETRO)
 	# SPU2 sources
 	set(pcsx2SPU2Sources
-		SPU2/ADSR.cpp
-		SPU2/Debug.cpp
-		SPU2/DplIIdecoder.cpp
-		SPU2/Dma.cpp
-		SPU2/Lowpass.cpp
-		SPU2/Mixer.cpp
-		SPU2/spu2.cpp
-		SPU2/ReadInput.cpp
-		SPU2/RegLog.cpp
-		SPU2/RegTable.cpp
-		SPU2/Reverb.cpp
-#		SPU2/SndOut.cpp
-#		SPU2/SndOut_SDL.cpp
-#		SPU2/SndOut_Portaudio.cpp
-		SPU2/spu2freeze.cpp
-		SPU2/spu2sys.cpp
-#		SPU2/Timestretcher.cpp
-#     SPU2/Wavedump_wav.cpp
-#     SPU2/WavFile.cpp
-#		SPU2/wx/wxConfig.cpp
+      SPU2LR/ADSR.cpp
+      SPU2LR/DplIIdecoder.cpp
+      SPU2LR/Dma.cpp
+      SPU2LR/Lowpass.cpp
+      SPU2LR/Mixer.cpp
+      SPU2LR/spu2.cpp
+      SPU2LR/ReadInput.cpp
+      SPU2LR/RegTable.cpp
+      SPU2LR/Reverb.cpp
+      SPU2LR/spu2freeze.cpp
+      SPU2LR/spu2sys.cpp
 		 )
-       if(MSVC)
-          set(pcsx2SPU2Sources ${pcsx2SPU2Sources}
-             SPU2/Windows/RealtimeDebugger.cpp
-             SPU2/Windows/ConfigDebug.cpp
-             SPU2/Windows/CfgHelpers.cpp
-             )
-       else()
-          set(pcsx2SPU2Sources ${pcsx2SPU2Sources}
-       #		SPU2/Linux/Alsa.cpp
-             SPU2/Linux/CfgHelpers.cpp
-       #		SPU2/Linux/Config.cpp
-             SPU2/Linux/ConfigDebug.cpp
-       #		SPU2/Linux/ConfigSoundTouch.cpp
-       #		SPU2/Linux/Dialogs.cpp
-          )
-       endif()
+
+# SPU2 headers
+set(pcsx2SPU2Headers
+   SPU2LR/Config.h
+   SPU2LR/defs.h
+   SPU2LR/Dma.h
+   SPU2LR/Global.h
+   SPU2LR/Lowpass.h
+   SPU2LR/Mixer.h
+   SPU2LR/spu2.h
+   SPU2LR/regs.h
+   SPU2LR/SndOut.h
+   SPU2LR/spdif.h
+)
 
 else()
 	# SPU2 sources
@@ -301,7 +290,6 @@ else()
 		SPU2/Linux/Dialogs.cpp
 		SPU2/wx/wxConfig.cpp
 		 )
-endif()
 
 # SPU2 headers
 set(pcsx2SPU2Headers
@@ -322,6 +310,8 @@ set(pcsx2SPU2Headers
 	SPU2/Linux/Dialogs.h
 	SPU2/wx/wxConfig.h
 )
+endif()
+
 
 # DebugTools sources
 set(pcsx2DebugToolsSources
@@ -766,15 +756,15 @@ set(pcsx2WindowsSources
 	CDVD/Windows/DriveUtility.cpp
 	CDVD/Windows/IOCtlSrc.cpp
 	windows/FlatFileReaderWindows.cpp
-	windows/Optimus.cpp
 	windows/VCprojects/IopSif.cpp
 	windows/WinCompressNTFS.cpp
-	windows/WinKeyCodes.cpp
 	)
 if(NOT LIBRETRO)
    set(pcsx2WindowsSources ${pcsx2WindowsSources}
       windows/PatchBrowser.cpp
+      windows/Optimus.cpp
       windows/WinConsolePipe.cpp
+      windows/WinKeyCodes.cpp
       gui/CpuUsageProviderMSW.cpp
    	)
 endif()
@@ -866,15 +856,11 @@ if(LIBRETRO)
 		${pcsx2SPU2Headers}
 		${pcsx2DebugToolsSources}
 		${pcsx2GuiSources}
-		${pcsx2GuiResources}
 		${pcsx2GuiHeaders}
 		${pcsx2IPUSources}
 		${pcsx2IPUHeaders}
 		${pcsx2ps2Sources}
 		${pcsx2ps2Headers}
-#		${pcsx2RecordingSources}
-#		${pcsx2RecordingVirtualPadResources}
-#		${pcsx2RecordingHeaders}
 		${pcsx2SystemSources}
 		${pcsx2SystemHeaders}
 		${pcsx2UtilitiesSources}

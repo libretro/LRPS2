@@ -226,8 +226,7 @@ public:
 			GSVector4i* b = (GSVector4i*)cb;
 
 			// if WH matches both HalfTexel and TC_OH_TS do too
-			// MinMax depends on WH and MskFix so no need to check it too
-			if(!((a[0] == b[0]) & (a[1] == b[1]) & (a[2] == b[2]) & (a[3] == b[3]) & (a[4] == b[4])
+         if (!((a[0] == b[0]) & (a[1] == b[1]) & (a[2] == b[2]) & (a[3] == b[3]) & (a[4] == b[4]) & (a[6] == b[6])
 				& (a[8] == b[8]) & (a[9] == b[9]) & (a[10] == b[10]) & (a[11] == b[11]) & (a[12] == b[12])).alltrue())
 			{
 				// Note previous check uses SSE already, a plain copy will be faster than any memcpy
@@ -237,6 +236,7 @@ public:
 				a[3] = b[3];
 				a[4] = b[4];
 				a[5] = b[5];
+            a[6] = b[6];
 
 				a[8] = b[8];
 
@@ -300,7 +300,7 @@ public:
 				uint32 clr1:1; // useful?
 				uint32 hdr:1;
 				uint32 colclip:1;
-				// uint32 pabe:1;
+				uint32 pabe:1;
 
 				// Others ways to fetch the texture
 				uint32 channel:3;
@@ -321,7 +321,7 @@ public:
 				uint32 point_sampler:1;
 				uint32 invalid_tex0:1; // Lupin the 3rd
 
-				uint32 _free2:7;
+				uint32 _free2:6;
 			};
 
 			uint64 key;
