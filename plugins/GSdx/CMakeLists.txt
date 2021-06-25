@@ -218,15 +218,6 @@ if(Windows)
           Window/GSWndWGL.h
           )
    endif()
-elseif(NOT LIBRETRO)
-    LIST(APPEND GSdxSources
-        Window/GSLinuxDialog.cpp
-        Window/GSWndEGL.cpp
-        )
-
-    LIST(APPEND GSdxHeaders
-        Window/GSWndEGL.h
-        )
 endif()
 
 if(LIBRETRO)
@@ -248,9 +239,7 @@ set(GSdxFinalSources
 set(GSdxFinalLibs
     ${X11_LIBRARIES}
     ${OPENGL_LIBRARIES}
-    ${EGL_LIBRARIES}
     ${X11_XCB_LIBRARIES}
-    ${GTK2_LIBRARIES}
     ${LIBC_LIBRARIES}
     ${LIBLZMA_LIBRARIES}
 )
