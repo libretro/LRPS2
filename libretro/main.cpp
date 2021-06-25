@@ -247,8 +247,6 @@ void retro_init(void)
 		break;
 	}
 
-	custom_memcard_list_slot1.clear();
-	custom_memcard_list_slot2.clear();
 
 	// instantiate the pcsx2 app and so some things on it
 
@@ -302,7 +300,7 @@ void retro_init(void)
 		break;
 	}
 
-	bios_files.clear();
+
 
 	// loads the options structure to the frontend
 
