@@ -63,7 +63,6 @@ public:
 	virtual void ResetDevice();
 	virtual void VSync(int field);
 	virtual bool MakeSnapshot(const std::string& path);
-	virtual void KeyEvent(GSKeyEventData* e);
 	virtual bool CanUpscale() {return false;}
 	virtual int GetUpscaleMultiplier() {return 1;}
 	virtual GSVector2i GetCustomResolution() {return GSVector2i(0,0);}
