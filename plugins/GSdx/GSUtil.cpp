@@ -260,47 +260,10 @@ CRCHackLevel GSUtil::GetRecommendedCRCHackLevel(GSRendererType type)
 //  Stripped down because of unnecessary complexity and false positives
 //  e.g. (d3d11_beta.dll would fail at device creation time) --pseudonym
 
-static int s_DXGI;
-static int s_D3D11;
-
-bool GSUtil::CheckDXGI()
-{
-	if (0 == s_DXGI)
-	{
-		HMODULE hmod = LoadLibrary("dxgi.dll");
-		s_DXGI = hmod ? 1 : -1;
-		if (hmod)
-			FreeLibrary(hmod);
-	}
-
-	return s_DXGI > 0;
-}
-
-bool GSUtil::CheckD3D11()
-{
-	if (!CheckDXGI())
-		return false;
-
-	if (0 == s_D3D11)
-	{
-		HMODULE hmod = LoadLibrary("d3d11.dll");
-		s_D3D11 = hmod ? 1 : -1;
-		if (hmod)
-			FreeLibrary(hmod);
-	}
-
-	return s_D3D11 > 0;
-}
-
 D3D_FEATURE_LEVEL GSUtil::CheckDirect3D11Level(IDXGIAdapter *adapter, D3D_DRIVER_TYPE type)
 {
-	HRESULT hr;
 	D3D_FEATURE_LEVEL level;
-
-	if(!CheckD3D11())
-		return (D3D_FEATURE_LEVEL)0;
-
-	hr = D3D11CreateDevice(adapter, type, NULL, 0, NULL, 0, D3D11_SDK_VERSION, NULL, &level, NULL);
+	HRESULT hr = D3D11CreateDevice(adapter, type, NULL, 0, NULL, 0, D3D11_SDK_VERSION, NULL, &level, NULL);
 
 	return SUCCEEDED(hr) ? level : (D3D_FEATURE_LEVEL)0;
 }
