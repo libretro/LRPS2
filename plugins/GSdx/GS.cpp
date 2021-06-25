@@ -45,7 +45,6 @@
 static GSRenderer* s_gs = NULL;
 static void (*s_irq)() = NULL;
 static uint8* s_basemem = NULL;
-static int s_vsync = 0;
 
 EXPORT_C_(uint32) PS2EgetLibType()
 {
@@ -146,16 +145,9 @@ EXPORT_C GSclose()
 
 	s_gs->ResetDevice();
 
-	// Opengl requirement: It must be done before the Detach() of
-	// the context
 	delete s_gs->m_dev;
 
 	s_gs->m_dev = NULL;
-
-	if (s_gs->m_wnd)
-	{
-		s_gs->m_wnd->Detach();
-	}
 }
 
 static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int threads = -1)
@@ -229,7 +221,6 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 					}
 					else
 					{
-						wnd->Attach(win_handle, false);
 					}
 
 					window = wnd; // Previous code will throw if window isn't supported
@@ -238,7 +229,6 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 				}
 				catch (GSDXRecoverableError)
 				{
-					wnd->Detach();
 				}
 			}
 
@@ -322,7 +312,6 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 
 	s_gs->SetRegsMem(s_basemem);
 	s_gs->SetIrqCallback(s_irq);
-	s_gs->SetVSync(s_vsync);
 
 	if(!old_api)
 		s_gs->SetMultithreaded(true);
@@ -443,9 +432,6 @@ EXPORT_C_(int) GSopen(void** dsp, const char* title, int mt)
 	GSRendererType renderer = GSRendererType::Default;
 
 	// Legacy GUI expects to acquire vsync from the configuration files.
-
-	s_vsync = theApp.GetConfigI("vsync");
-
 	if(mt == 2)
 	{
 		// pcsx2 sent a switch renderer request
@@ -616,34 +602,7 @@ EXPORT_C GSgifTransfer3(uint8* mem, uint32 size)
 
 EXPORT_C GSvsync(int field)
 {
-	try
-	{
-#ifdef _WIN32
-
-		if(s_gs->m_wnd->IsManaged())
-		{
-			MSG msg;
-
-			memset(&msg, 0, sizeof(msg));
-
-			while(msg.message != WM_QUIT && PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-		}
-
-#endif
-
-		s_gs->VSync(field);
-	}
-	catch (GSDXRecoverableError)
-	{
-	}
-	catch (const std::bad_alloc&)
-	{
-		fprintf(stderr, "GSdx: Memory allocation error\n");
-	}
+   s_gs->VSync(field);
 }
 
 EXPORT_C_(void) GSchangeSaveState(int, const char *filename)
@@ -767,18 +726,8 @@ EXPORT_C GSsetFrameSkip(int frameskip)
 
 EXPORT_C GSsetVsync(int vsync)
 {
-	s_vsync = vsync;
-
-	if(s_gs)
-	{
-		s_gs->SetVSync(s_vsync);
-	}
 }
 
 EXPORT_C GSsetExclusive(int enabled)
 {
-	if(s_gs)
-	{
-		s_gs->SetVSync(s_vsync);
-	}
 }
