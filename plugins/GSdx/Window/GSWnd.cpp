@@ -45,10 +45,7 @@ void GSWndGL::PopulateGlFunction()
 
 void GSWndGL::FullContextInit()
 {
-	CreateContext(3, 3);
-	AttachContext();
 	PopulateGlFunction();
-	PopulateWndGlFunction();
 }
 
 void GSWndGL::SetVSync(int vsync)

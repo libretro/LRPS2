@@ -146,16 +146,9 @@ EXPORT_C GSclose()
 
 	s_gs->ResetDevice();
 
-	// Opengl requirement: It must be done before the Detach() of
-	// the context
 	delete s_gs->m_dev;
 
 	s_gs->m_dev = NULL;
-
-	if (s_gs->m_wnd)
-	{
-		s_gs->m_wnd->Detach();
-	}
 }
 
 static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int threads = -1)
@@ -222,14 +215,7 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 					{
 						// old-style API expects us to create and manage our own window:
 						wnd->Create(title, w, h);
-
-						wnd->Show();
-
 						*dsp = wnd->GetDisplay();
-					}
-					else
-					{
-						wnd->Attach(win_handle, false);
 					}
 
 					window = wnd; // Previous code will throw if window isn't supported
@@ -238,7 +224,6 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 				}
 				catch (GSDXRecoverableError)
 				{
-					wnd->Detach();
 				}
 			}
 
