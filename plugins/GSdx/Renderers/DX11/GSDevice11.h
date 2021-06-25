@@ -25,10 +25,8 @@
 #include "GSVector.h"
 #include "Renderers/Common/GSDevice.h"
 
-#ifdef __LIBRETRO__
 #include "libretro_d3d.h"
 extern retro_environment_t environ_cb;
-#endif
 
 struct GSVertexShader11
 {
@@ -393,9 +391,6 @@ private:
 	CComPtr<IDXGIFactory2> m_factory;
 	CComPtr<ID3D11Device> m_dev;
 	CComPtr<ID3D11DeviceContext> m_ctx;
-#ifndef __LIBRETRO__
-	CComPtr<IDXGISwapChain1> m_swapchain;
-#endif
 	CComPtr<ID3D11Buffer> m_vb;
 	CComPtr<ID3D11Buffer> m_vb_old;
 	CComPtr<ID3D11Buffer> m_ib;
@@ -500,9 +495,6 @@ private:
 	VSConstantBuffer m_vs_cb_cache;
 	GSConstantBuffer m_gs_cb_cache;
 	PSConstantBuffer m_ps_cb_cache;
-#ifndef __LIBRETRO__
-	std::unique_ptr<GSTexture> m_font;
-#endif
 protected:
 	struct {D3D_FEATURE_LEVEL level; std::string model, vs, gs, ps, cs;} m_shader;
 public:

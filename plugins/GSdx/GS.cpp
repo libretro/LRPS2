@@ -47,11 +47,9 @@ extern bool RunLinuxDialog();
 
 #endif
 
-#ifdef __LIBRETRO__
 #include "Window/GSWndRetro.h"
 //#include "options.h"
 #include "options_tools.h"
-#endif
 
 #define PS2E_LT_GS 0x01
 #define PS2E_GS_VERSION 0x0006
@@ -232,7 +230,6 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 		{
 			// Select the window first to detect the GL requirement
 			std::vector<std::shared_ptr<GSWnd>> wnds;
-#ifdef __LIBRETRO__
 			switch (renderer)
 			{
 				case GSRendererType::OGL_HW:
@@ -243,41 +240,6 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 					wnds.push_back(std::make_shared<GSWndRetro>());
 					break;
 			}
-#else
-			switch (renderer)
-			{
-				case GSRendererType::OGL_HW:
-				case GSRendererType::OGL_SW:
-#if defined(__unix__)
-					// Note: EGL code use GLX otherwise maybe it could be also compatible with Windows
-					// Yes OpenGL code isn't complicated enough !
-					switch (GSWndEGL::SelectPlatform()) {
-#if GS_EGL_X11
-						case EGL_PLATFORM_X11_KHR:
-							wnds.push_back(std::make_shared<GSWndEGL_X11>());
-							break;
-#endif
-#if GS_EGL_WL
-						case EGL_PLATFORM_WAYLAND_KHR:
-							wnds.push_back(std::make_shared<GSWndEGL_WL>());
-							break;
-#endif
-						default:
-							break;
-					}
-#else
-					wnds.push_back(std::make_shared<GSWndWGL>());
-#endif
-					break;
-				default:
-#ifdef _WIN32
-					wnds.push_back(std::make_shared<GSWndDX>());
-#else
-					wnds.push_back(std::make_shared<GSWndEGL_X11>());
-#endif
-					break;
-			}
-#endif
 			int w = theApp.GetConfigI("ModeWidth");
 			int h = theApp.GetConfigI("ModeHeight");
 #if defined(__unix__)
@@ -352,9 +314,7 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 		}
 
 		printf("Current Renderer: %s\n", renderer_name.c_str());
-#ifdef __LIBRETRO__
 		log_cb(RETRO_LOG_INFO, "Launching with Renderer:%s\n", renderer_name.c_str());
-#endif
 
 		if (dev == NULL)
 		{
@@ -427,33 +387,24 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 }
 
 
-#ifdef __LIBRETRO__
 void GSUpdateOptions()
 {
 	s_gs->UpdateRendererOptions();
 }
-#endif
 
 
 EXPORT_C_(void) GSosdLog(const char *utf8, uint32 color)
 {
-#ifndef __LIBRETRO__
-	if(s_gs && s_gs->m_dev) s_gs->m_dev->m_osd.Log(utf8);
-#endif
 }
 
 EXPORT_C_(void) GSosdMonitor(const char *key, const char *value, uint32 color)
 {
-#ifndef __LIBRETRO__
-	if(s_gs && s_gs->m_dev) s_gs->m_dev->m_osd.Monitor(key, value);
-#endif
 }
 
 EXPORT_C_(int) GSopen2(void** dsp, uint32 flags)
 {
 	static bool stored_toggle_state = false;
 	const bool toggle_state = !!(flags & 4);
-#ifdef __LIBRETRO__
 
 	switch (hw_render.context_type)
 	{
@@ -479,7 +430,6 @@ EXPORT_C_(int) GSopen2(void** dsp, uint32 flags)
 			break;
 	}
 	
-#endif
 	auto current_renderer = theApp.GetCurrentRendererType();
 
 	if (current_renderer != GSRendererType::Undefined && stored_toggle_state != toggle_state)
@@ -805,34 +755,10 @@ EXPORT_C_(int) GSfreeze(int mode, GSFreezeData* data)
 
 EXPORT_C GSconfigure()
 {
-	try
-	{
-		if(!GSUtil::CheckSSE()) return;
+   if(!GSUtil::CheckSSE())
+      return;
 
-		theApp.Init();
-
-#ifndef __LIBRETRO__
-#ifdef _WIN32
-		GSDialog::InitCommonControls();
-		if(GSSettingsDlg().DoModal() == IDOK)
-		{
-			// Force a reload of the gs state
-			theApp.SetCurrentRendererType(GSRendererType::Undefined);
-		}
-
-#else
-
-		if (RunLinuxDialog()) {
-			theApp.ReloadConfig();
-			// Force a reload of the gs state
-			theApp.SetCurrentRendererType(GSRendererType::Undefined);
-		}
-#endif
-#endif
-
-	} catch (GSDXRecoverableError)
-	{
-	}
+   theApp.Init();
 }
 
 EXPORT_C_(int) GStest()
@@ -916,24 +842,6 @@ EXPORT_C GSgetLastTag(uint32* tag)
 
 EXPORT_C GSgetTitleInfo2(char* dest, size_t length)
 {
-#ifndef __LIBRETRO__
-	std::string s;
-	s.append(s_renderer_name);
-	// TODO: this gets called from a different thread concurrently with GSOpen (on linux)
-	if (gsopen_done && s_gs != NULL && s_gs->m_GStitleInfoBuffer[0])
-	{
-		std::lock_guard<std::mutex> lock(s_gs->m_pGSsetTitle_Crit);
-
-		s.append(" | ").append(s_gs->m_GStitleInfoBuffer);
-
-		if(s.size() > length - 1)
-		{
-			s = s.substr(0, length - 1);
-		}
-	}
-
-	strcpy(dest, s.c_str());
-#endif
 }
 
 EXPORT_C GSsetFrameSkip(int frameskip)

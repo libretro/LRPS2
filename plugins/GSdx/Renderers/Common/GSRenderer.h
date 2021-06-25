@@ -28,10 +28,6 @@
 
 class GSRenderer : public GSState
 {
-#ifndef __LIBRETRO__
-	GSCapture m_capture;
-	std::string m_snapshot;
-#endif
 	int m_shader;
 
 	bool Merge(int field);
@@ -61,9 +57,7 @@ public:
 public:
 	GSRenderer();
 	
-#ifdef __LIBRETRO__
 	virtual void UpdateRendererOptions();
-#endif
 
 	virtual ~GSRenderer();
 	virtual bool CreateDevice(GSDevice* dev);
@@ -82,11 +76,4 @@ public:
 	virtual void EndCapture();
 
 	void PurgePool();
-
-public:
-#ifndef __LIBRETRO__
-	std::mutex m_pGSsetTitle_Crit;
-
-	char m_GStitleInfoBuffer[128];
-#endif
 };

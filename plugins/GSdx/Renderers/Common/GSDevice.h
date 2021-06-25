@@ -26,9 +26,6 @@
 #include "GSTexture.h"
 #include "GSVertex.h"
 #include "GSAlignedClass.h"
-#ifndef __LIBRETRO__
-#include "GSOsdManager.h"
-#endif
 enum ShaderConvert
 {
 	ShaderConvert_COPY = 0,
@@ -174,9 +171,6 @@ protected:
 	virtual uint16 ConvertBlendEnum(uint16 generic) = 0; // Convert blend factors/ops from the generic enum to DX11/OGl specific.
 
 public:
-#ifndef __LIBRETRO__
-	GSOsdManager m_osd;
-#endif
 	GSDevice();
 	virtual ~GSDevice();
 
@@ -189,11 +183,7 @@ public:
 	virtual bool IsLost(bool update = false) {return false;}
 	virtual void Present(const GSVector4i& r, int shader);
 	virtual void Present(GSTexture* sTex, GSTexture* dTex, const GSVector4& dRect, int shader = 0);
-#ifdef __LIBRETRO__
 	virtual void Flip() { m_wnd->Flip(); }
-#else
-	virtual void Flip() {}
-#endif
 
 	virtual void SetVSync(int vsync) {m_vsync = vsync;}
 

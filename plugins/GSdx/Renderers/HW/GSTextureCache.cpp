@@ -466,9 +466,7 @@ void GSTextureCache::ScaleTexture(GSTexture* texture)
 {
 	if (!m_renderer->CanUpscale())
 	{
-#ifdef __LIBRETRO__
 		texture->SetScale({1,1});
-#endif
 		return;
 	}
 

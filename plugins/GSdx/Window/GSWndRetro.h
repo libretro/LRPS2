@@ -18,8 +18,6 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-#ifdef __LIBRETRO__
-
 #include "GSWnd.h"
 
 #define GS_EGL_X11 1
@@ -91,5 +89,3 @@ public:
 
 	void Flip() final;
 };
-
-#endif

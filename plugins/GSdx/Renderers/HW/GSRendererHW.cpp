@@ -21,9 +21,7 @@
 
 #include "stdafx.h"
 #include "GSRendererHW.h"
-#ifdef __LIBRETRO__
 #include "options_tools.h"
-#endif
 
 const float GSRendererHW::SSR_UV_TOLERANCE = 1e-3f;
 
@@ -104,7 +102,6 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 	m_dump_root = root_hw;
 }
 
-#ifdef __LIBRETRO__
 void GSRendererHW::UpdateRendererOptions()
 {
 
@@ -157,8 +154,6 @@ void GSRendererHW::UpdateRendererOptions()
 
 	log_cb(RETRO_LOG_INFO, "Rendering Options Updated!\n");
 }
-#endif
-
 
 void GSRendererHW::SetScaling()
 {
