@@ -67,27 +67,17 @@ GSState::GSState()
 	}
 
 	s_n = 0;
-	s_dump  = theApp.GetConfigB("dump");
 	s_save  = theApp.GetConfigB("save");
 	s_savet = theApp.GetConfigB("savet");
 	s_savez = theApp.GetConfigB("savez");
 	s_savef = theApp.GetConfigB("savef");
-	s_saven = theApp.GetConfigI("saven");
 	s_savel = theApp.GetConfigI("savel");
 	m_dump_root = "";
-#if defined(__unix__)
-	if (s_dump) {
-		GSmkdir(root_hw.c_str());
-		GSmkdir(root_sw.c_str());
-	}
-#endif
 
-	//s_dump = 1;
 	//s_save = 1;
 	//s_savez = 1;
 	//s_savet = 1;
 	//s_savef = 1;
-	//s_saven = 0;
 	//s_savel = 0;
 
 	m_crc_hack_level = theApp.GetConfigT<CRCHackLevel>("crc_hack_level");
@@ -1837,13 +1827,6 @@ void GSState::Read(uint8* mem, int len)
 	}
 
 	m_mem.ReadImageX(m_tr.x, m_tr.y, mem, len, m_env.BITBLTBUF, m_env.TRXPOS, m_env.TRXREG);
-
-	if(s_dump && s_save && s_n >= s_saven) {
-		std::string s = m_dump_root + format("%05d_read_%05x_%d_%d_%d_%d_%d_%d.bmp",
-				s_n, (int)m_env.BITBLTBUF.SBP, (int)m_env.BITBLTBUF.SBW, (int)m_env.BITBLTBUF.SPSM,
-				r.left, r.top, r.right, r.bottom);
-		m_mem.SaveBMP(s, m_env.BITBLTBUF.SBP, m_env.BITBLTBUF.SBW, m_env.BITBLTBUF.SPSM, r.right, r.bottom);
-	}
 }
 
 void GSState::Move()

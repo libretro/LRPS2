@@ -403,16 +403,6 @@ GSTexture* GSRendererHW::GetOutput(int i, int& y_offset)
 			y_offset = y_pages * GSLocalMemory::m_psm[DISPFB.PSM].pgs.y;
 			GL_CACHE("Frame y offset %d pixels, unit %d", y_offset, i);
 		}
-
-#ifdef ENABLE_OGL_DEBUG
-		if(s_dump)
-		{
-			if(s_savef && s_n >= s_saven)
-			{
-				t->Save(m_dump_root + format("%05d_f%lld_fr%d_%05x_%s.bmp", s_n, m_perfmon.GetFrame(), i, (int)TEX0.TBP0, psm_str(TEX0.PSM)));
-			}
-		}
-#endif
 	}
 
 	return t;
@@ -429,11 +419,6 @@ GSTexture* GSRendererHW::GetFeedbackOutput()
 	GSTextureCache::Target* rt = m_tc->LookupTarget(TEX0, m_width, m_height, /*GetFrameRect(i).bottom*/0);
 
 	GSTexture* t = rt->m_texture;
-
-#ifdef ENABLE_OGL_DEBUG
-	if(s_dump && s_savef && s_n >= s_saven)
-		t->Save(m_dump_root + format("%05d_f%lld_fr%d_%05x_%s.bmp", s_n, m_perfmon.GetFrame(), 3, (int)TEX0.TBP0, psm_str(TEX0.PSM)));
-#endif
 
 	return t;
 }
@@ -1412,56 +1397,6 @@ void GSRendererHW::Draw()
 		rt->m_32_bits_fmt = m_texture_shuffle || (GSLocalMemory::m_psm[context->FRAME.PSM].bpp != 16);
 	}
 
-	if(s_dump)
-	{
-		uint64 frame = m_perfmon.GetFrame();
-
-		std::string s;
-
-		if (s_n >= s_saven) {
-			// Dump Register state
-			s = format("%05d_context.txt", s_n);
-
-			m_env.Dump(m_dump_root+s);
-			m_context->Dump(m_dump_root+s);
-		}
-
-		if(s_savet && s_n >= s_saven && m_src)
-		{
-			s = format("%05d_f%lld_itex_%05x_%s_%d%d_%02x_%02x_%02x_%02x.dds",
-				s_n, frame, (int)context->TEX0.TBP0, psm_str(context->TEX0.PSM),
-				(int)context->CLAMP.WMS, (int)context->CLAMP.WMT,
-				(int)context->CLAMP.MINU, (int)context->CLAMP.MAXU,
-				(int)context->CLAMP.MINV, (int)context->CLAMP.MAXV);
-
-			m_src->m_texture->Save(m_dump_root+s);
-
-			if(m_src->m_palette)
-			{
-				s = format("%05d_f%lld_itpx_%05x_%s.dds", s_n, frame, context->TEX0.CBP, psm_str(context->TEX0.CPSM));
-
-				m_src->m_palette->Save(m_dump_root+s);
-			}
-		}
-
-		if(s_save && s_n >= s_saven)
-		{
-			s = format("%05d_f%lld_rt0_%05x_%s.bmp", s_n, frame, context->FRAME.Block(), psm_str(context->FRAME.PSM));
-
-			if (rt)
-				rt->m_texture->Save(m_dump_root+s);
-		}
-
-		if(s_savez && s_n >= s_saven)
-		{
-			s = format("%05d_f%lld_rz0_%05x_%s.bmp", s_n, frame, context->ZBUF.Block(), psm_str(context->ZBUF.PSM));
-
-			if (ds_tex)
-				ds_tex->Save(m_dump_root+s);
-		}
-
-	}
-
 	// The rectangle of the draw
 	m_r = GSVector4i(m_vt.m_min.p.xyxy(m_vt.m_max.p)).rintersect(GSVector4i(context->scissor.in));
 
@@ -1580,34 +1515,6 @@ void GSRendererHW::Draw()
 	if(m_hacks.m_oo)
 	{
 		(this->*m_hacks.m_oo)();
-	}
-
-	if(s_dump)
-	{
-		uint64 frame = m_perfmon.GetFrame();
-
-		std::string s;
-
-		if(s_save && s_n >= s_saven)
-		{
-			s = format("%05d_f%lld_rt1_%05x_%s.bmp", s_n, frame, context->FRAME.Block(), psm_str(context->FRAME.PSM));
-
-			if (rt)
-				rt->m_texture->Save(m_dump_root+s);
-		}
-
-		if(s_savez && s_n >= s_saven)
-		{
-			s = format("%05d_f%lld_rz1_%05x_%s.bmp", s_n, frame, context->ZBUF.Block(), psm_str(context->ZBUF.PSM));
-
-			if (ds_tex)
-				ds_tex->Save(m_dump_root+s);
-		}
-
-		if(s_savel > 0 && (s_n - s_saven) > s_savel)
-		{
-			s_dump = 0;
-		}
 	}
 
 	#ifdef DISABLE_HW_TEXTURE_CACHE

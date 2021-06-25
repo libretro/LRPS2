@@ -184,14 +184,6 @@ GSTexture* GSRendererSW::GetOutput(int i, int& y_offset)
 		(m_mem.*psm.rtx)(m_mem.GetOffset(DISPFB.Block(), DISPFB.FBW, DISPFB.PSM), r.ralign<Align_Outside>(psm.bs), m_output, pitch, m_env.TEXA);
 
 		m_texture[i]->Update(r, m_output, pitch);
-
-		if(s_dump)
-		{
-			if(s_savef && s_n >= s_saven)
-			{
-				m_texture[i]->Save(m_dump_root + format("%05d_f%lld_fr%d_%05x_%s.bmp", s_n, m_perfmon.GetFrame(), i, (int)DISPFB.Block(), psm_str(DISPFB.PSM)));
-			}
-		}
 	}
 
 	return m_texture[i];
@@ -491,87 +483,6 @@ void GSRendererSW::Draw()
 
 	//
 
-	if(s_dump)
-	{
-		Sync(2);
-
-		uint64 frame = m_perfmon.GetFrame();
-		// Dump the texture in 32 bits format. It helps to debug texture shuffle effect
-		// It will breaks the few games that really uses 16 bits RT
-		bool texture_shuffle = ((context->FRAME.PSM & 0x2) && ((context->TEX0.PSM & 3) == 2) && (m_vt.m_primclass == GS_SPRITE_CLASS));
-
-		std::string s;
-
-		if(s_n >= s_saven)
-		{
-			// Dump Register state
-			s = format("%05d_context.txt", s_n);
-
-			m_env.Dump(m_dump_root+s);
-			m_context->Dump(m_dump_root+s);
-		}
-
-		if(s_savet && s_n >= s_saven && PRIM->TME)
-		{
-			if (texture_shuffle) {
-				// Dump the RT in 32 bits format. It helps to debug texture shuffle effect
-				s = format("%05d_f%lld_itexraw_%05x_32bits.bmp", s_n, frame, (int)m_context->TEX0.TBP0);
-				m_mem.SaveBMP(m_dump_root+s, m_context->TEX0.TBP0, m_context->TEX0.TBW, 0, 1 << m_context->TEX0.TW, 1 << m_context->TEX0.TH);
-			}
-
-			s = format("%05d_f%lld_itexraw_%05x_%s.bmp", s_n, frame, (int)m_context->TEX0.TBP0, psm_str(m_context->TEX0.PSM));
-			m_mem.SaveBMP(m_dump_root+s, m_context->TEX0.TBP0, m_context->TEX0.TBW, m_context->TEX0.PSM, 1 << m_context->TEX0.TW, 1 << m_context->TEX0.TH);
-		}
-
-		if(s_save && s_n >= s_saven)
-		{
-
-			if (texture_shuffle) {
-				// Dump the RT in 32 bits format. It helps to debug texture shuffle effect
-				s = format("%05d_f%lld_rt0_%05x_32bits.bmp", s_n, frame, m_context->FRAME.Block());
-				m_mem.SaveBMP(m_dump_root+s, m_context->FRAME.Block(), m_context->FRAME.FBW, 0, GetFrameRect().width(), 512);
-			}
-
-			s = format("%05d_f%lld_rt0_%05x_%s.bmp", s_n, frame, m_context->FRAME.Block(), psm_str(m_context->FRAME.PSM));
-			m_mem.SaveBMP(m_dump_root+s, m_context->FRAME.Block(), m_context->FRAME.FBW, m_context->FRAME.PSM, GetFrameRect().width(), 512);
-		}
-
-		if(s_savez && s_n >= s_saven)
-		{
-			s = format("%05d_f%lld_rz0_%05x_%s.bmp", s_n, frame, m_context->ZBUF.Block(), psm_str(m_context->ZBUF.PSM));
-
-			m_mem.SaveBMP(m_dump_root+s, m_context->ZBUF.Block(), m_context->FRAME.FBW, m_context->ZBUF.PSM, GetFrameRect().width(), 512);
-		}
-
-		Queue(data);
-
-		Sync(3);
-
-		if(s_save && s_n >= s_saven)
-		{
-			if (texture_shuffle) {
-				// Dump the RT in 32 bits format. It helps to debug texture shuffle effect
-				s = format("%05d_f%lld_rt1_%05x_32bits.bmp", s_n, frame, m_context->FRAME.Block());
-				m_mem.SaveBMP(m_dump_root+s, m_context->FRAME.Block(), m_context->FRAME.FBW, 0, GetFrameRect().width(), 512);
-			}
-
-			s = format("%05d_f%lld_rt1_%05x_%s.bmp", s_n, frame, m_context->FRAME.Block(), psm_str(m_context->FRAME.PSM));
-			m_mem.SaveBMP(m_dump_root+s, m_context->FRAME.Block(), m_context->FRAME.FBW, m_context->FRAME.PSM, GetFrameRect().width(), 512);
-		}
-
-		if(s_savez && s_n >= s_saven)
-		{
-			s = format("%05d_f%lld_rz1_%05x_%s.bmp", s_n, frame, m_context->ZBUF.Block(), psm_str(m_context->ZBUF.PSM));
-
-			m_mem.SaveBMP(m_dump_root+s, m_context->ZBUF.Block(), m_context->FRAME.FBW, m_context->ZBUF.PSM, GetFrameRect().width(), 512);
-		}
-
-		if(s_savel > 0 && (s_n - s_saven) > s_savel)
-		{
-			s_dump = 0;
-		}
-	}
-	else
 	{
 		Queue(data);
 	}
@@ -1545,40 +1456,6 @@ void GSRendererSW::SharedData::UpdateSource()
 			printf("GSdx: out-of-memory, texturing temporarily disabled\n");
 
 			global.sel.tfx = TFX_NONE;
-		}
-	}
-
-	// TODO
-		
-	if(m_parent->s_dump)
-	{
-		uint64 frame = m_parent->m_perfmon.GetFrame();
-
-		std::string s;
-
-		if(m_parent->s_savet && m_parent->s_n >= m_parent->s_saven)
-		{
-			for(size_t i = 0; m_tex[i].t != NULL; i++)
-			{
-				const GIFRegTEX0& TEX0 = m_parent->GetTex0Layer(i);
-
-				s = format("%05d_f%lld_itex%d_%05x_%s.bmp", m_parent->s_n, frame, i, TEX0.TBP0, psm_str(TEX0.PSM));
-
-				m_tex[i].t->Save(root_sw+s);
-			}
-
-			if(global.clut != NULL)
-			{
-				GSTextureSW* t = new GSTextureSW(0, 256, 1);
-
-				t->Update(GSVector4i(0, 0, 256, 1), global.clut, sizeof(uint32) * 256);
-
-				s = format("%05d_f%lld_itexp_%05x_%s.bmp", m_parent->s_n, frame, (int)m_parent->m_context->TEX0.CBP, psm_str(m_parent->m_context->TEX0.CPSM));
-
-				t->Save(root_sw+s);
-
-				delete t;
-			}
 		}
 	}
 }
