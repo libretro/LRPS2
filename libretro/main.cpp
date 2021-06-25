@@ -148,7 +148,7 @@ void retro_init(void)
 	// get other 'custom' memcards put by the user in the slot 1 folder, if any
 
 	wxArrayString memcard_files_slot1;
-	//wxString shared_path = wxString(shared_memcards_dir);
+
 
 	wxDir::GetAllFiles(slot1_file.GetPath(), &memcard_files_slot1, L"*.*", wxDIR_FILES);
 	static std::vector<std::string> custom_memcard_list_slot1;
@@ -247,7 +247,8 @@ void retro_init(void)
 		break;
 	}
 
-
+	custom_memcard_list_slot1.clear();
+	custom_memcard_list_slot2.clear();
 
 	// instantiate the pcsx2 app and so some things on it
 
@@ -276,10 +277,14 @@ void retro_init(void)
 	{
 			wxString description;
 			if (IsBIOS(bios_file, description)) {
+				std::string log_bios = (std::string)description;
+				log_cb(RETRO_LOG_DEBUG, "adding bios entry to array: %s\n", log_bios.c_str());
+				
 				bios_files.push_back((std::string)bios_file);
 				bios_files.push_back((std::string)description);
 			}
 	}
+	
 
 	for (retro_core_option_definition& def : option_defs)
 	{
@@ -288,7 +293,7 @@ void retro_init(void)
 		int cont = 0;
 		for (size_t f = 0; f != numfiles; f += 2)
 		{
-
+			log_cb(RETRO_LOG_DEBUG, "adding bios entry to option structure: %s\n", bios_files[f + 1].c_str());
 			def.values[i++] = { bios_files[f].c_str(), bios_files[f + 1].c_str() };
 			cont++;
 		}
@@ -296,6 +301,8 @@ void retro_init(void)
 		def.default_value = def.values[0].value;
 		break;
 	}
+
+	bios_files.clear();
 
 	// loads the options structure to the frontend
 
