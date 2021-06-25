@@ -616,34 +616,7 @@ EXPORT_C GSgifTransfer3(uint8* mem, uint32 size)
 
 EXPORT_C GSvsync(int field)
 {
-	try
-	{
-#ifdef _WIN32
-
-		if(s_gs->m_wnd->IsManaged())
-		{
-			MSG msg;
-
-			memset(&msg, 0, sizeof(msg));
-
-			while(msg.message != WM_QUIT && PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-		}
-
-#endif
-
-		s_gs->VSync(field);
-	}
-	catch (GSDXRecoverableError)
-	{
-	}
-	catch (const std::bad_alloc&)
-	{
-		fprintf(stderr, "GSdx: Memory allocation error\n");
-	}
+   s_gs->VSync(field);
 }
 
 EXPORT_C_(void) GSchangeSaveState(int, const char *filename)

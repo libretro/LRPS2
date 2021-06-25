@@ -60,8 +60,6 @@ class GSWndGL : public GSWnd
 {
 protected:
 	bool m_ctx_attached;
-	std::atomic<bool> m_vsync_change_requested;
-	std::atomic<int> m_vsync;
 
 	bool IsContextAttached() const { return m_ctx_attached; }
 	void PopulateGlFunction();
@@ -73,7 +71,7 @@ protected:
 	virtual bool HasLateVsyncSupport() = 0;
 
 public:
-	GSWndGL() : m_ctx_attached(false), m_vsync_change_requested(false), m_vsync(0) {};
+	GSWndGL() : m_ctx_attached(false) {};
 	virtual ~GSWndGL() {};
 
 	virtual bool Create(const std::string& title, int w, int h) = 0;
