@@ -210,12 +210,9 @@ void GSdxApp::Init()
 
 #ifdef _WIN32
 	m_gs_renderers.push_back(GSSetting(static_cast<uint32>(GSRendererType::DX1011_HW), "Direct3D 11", ""));
-	m_gs_renderers.push_back(GSSetting(static_cast<uint32>(GSRendererType::OGL_HW), "OpenGL", ""));
-	m_gs_renderers.push_back(GSSetting(static_cast<uint32>(GSRendererType::OGL_SW), "Software", ""));
-#else // Linux
-	m_gs_renderers.push_back(GSSetting(static_cast<uint32>(GSRendererType::OGL_HW), "OpenGL", ""));
-	m_gs_renderers.push_back(GSSetting(static_cast<uint32>(GSRendererType::OGL_SW), "Software", ""));
 #endif
+	m_gs_renderers.push_back(GSSetting(static_cast<uint32>(GSRendererType::OGL_HW), "OpenGL", ""));
+	m_gs_renderers.push_back(GSSetting(static_cast<uint32>(GSRendererType::OGL_SW), "Software", ""));
 
 	// The null renderer goes third, it has use for benchmarking purposes in a release build
 	m_gs_renderers.push_back(GSSetting(static_cast<uint32>(GSRendererType::Null), "Null", ""));
@@ -313,26 +310,15 @@ void GSdxApp::Init()
 
 	// Avoid to clutter the ini file with useless options
 #ifdef _WIN32
-	// Per OS option.
-	m_default_configuration["Adapter"]                                    = "default";
-	m_default_configuration["CaptureFileName"]                            = "";
-	m_default_configuration["CaptureVideoCodecDisplayName"]               = "";
 	m_default_configuration["dx_break_on_severity"]                       = "0";
 	// D3D Blending option
 	m_default_configuration["accurate_blending_unit_d3d11"]               = "1";
-#else
-	m_default_configuration["linux_replay"]                               = "1";
 #endif
 	m_default_configuration["aa1"]                                        = "0";
 	m_default_configuration["accurate_date"]                              = "1";
 	m_default_configuration["accurate_blending_unit"]                     = "1";
 	m_default_configuration["AspectRatio"]                                = "1";
 	m_default_configuration["autoflush_sw"]                               = "1";
-	m_default_configuration["capture_enabled"]                            = "0";
-	m_default_configuration["capture_out_dir"]                            = "/tmp/GSdx_Capture";
-	m_default_configuration["capture_threads"]                            = "4";
-	m_default_configuration["CaptureHeight"]                              = "480";
-	m_default_configuration["CaptureWidth"]                               = "640";
 	m_default_configuration["clut_load_before_draw"]                      = "0";
 	m_default_configuration["crc_hack_level"]                             = std::to_string(static_cast<int8>(CRCHackLevel::Automatic));
 	m_default_configuration["CrcHacksExclusions"]                         = "";
@@ -355,20 +341,6 @@ void GSdxApp::Init()
 	m_default_configuration["ModeHeight"]                                 = "480";
 	m_default_configuration["ModeWidth"]                                  = "640";
 	m_default_configuration["NTSC_Saturation"]                            = "1";
-#ifdef _WIN32
-	m_default_configuration["osd_fontname"]                               = "C:\\Windows\\Fonts\\my_favorite_font_e_g_tahoma.ttf";
-#else
-	m_default_configuration["osd_fontname"]                               = "/usr/share/fonts/truetype/my_favorite_font_e_g_DejaVu Sans.ttf";
-#endif
-	m_default_configuration["osd_color_r"]                                = "0";
-	m_default_configuration["osd_color_g"]                                = "160";
-	m_default_configuration["osd_color_b"]                                = "255";
-	m_default_configuration["osd_color_opacity"]                          = "100";
-	m_default_configuration["osd_fontsize"]                               = "25";
-	m_default_configuration["osd_log_enabled"]                            = "1";
-	m_default_configuration["osd_log_timeout"]                            = "4";
-	m_default_configuration["osd_monitor_enabled"]                        = "0";
-	m_default_configuration["osd_max_log_messages"]                       = "2";
 	m_default_configuration["override_geometry_shader"]                   = "-1";
 	m_default_configuration["override_GL_ARB_compute_shader"]             = "-1";
 	m_default_configuration["override_GL_ARB_copy_image"]                 = "-1";
