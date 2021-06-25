@@ -466,12 +466,6 @@ private:
 		CComPtr<ID3D11Buffer> cb;
 	} m_fxaa;
 
-	struct 
-	{
-		CComPtr<ID3D11PixelShader> ps;
-		CComPtr<ID3D11Buffer> cb;
-	} m_shadeboost;
-
 	struct
 	{
 		CComPtr<ID3D11DepthStencilState> dss;

@@ -240,25 +240,6 @@ bool GSDevice11::Create(const std::shared_ptr<GSWnd> &wnd)
 		CreateShader(shader, "interlace.fx", nullptr, format("ps_main%d", i).c_str(), sm_model.GetPtr(), &m_interlace.ps[i]);
 	}
 
-	// Shade Boost
-
-	ShaderMacro sm_sboost(m_shader.model);
-
-	sm_sboost.AddMacro("SB_SATURATION", std::max(0, std::min(theApp.GetConfigI("ShadeBoost_Saturation"), 100)));
-	sm_sboost.AddMacro("SB_BRIGHTNESS", std::max(0, std::min(theApp.GetConfigI("ShadeBoost_Brightness"), 100)));
-	sm_sboost.AddMacro("SB_CONTRAST", std::max(0, std::min(theApp.GetConfigI("ShadeBoost_Contrast"), 100)));
-
-	memset(&bd, 0, sizeof(bd));
-
-	bd.ByteWidth = sizeof(ShadeBoostConstantBuffer);
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-
-	hr = m_dev->CreateBuffer(&bd, NULL, &m_shadeboost.cb);
-
-	theApp.LoadResource(IDR_SHADEBOOST_FX, shader);
-	CreateShader(shader, "shadeboost.fx", nullptr, "ps_main", sm_sboost.GetPtr(), &m_shadeboost.ps);
-
 	// External fx shader
 
 	memset(&bd, 0, sizeof(bd));
@@ -914,23 +895,6 @@ void GSDevice11::DoFXAA(GSTexture* sTex, GSTexture* dTex)
 
 	//sTex->Save("c:\\temp1\\1.bmp");
 	//dTex->Save("c:\\temp1\\2.bmp");
-}
-
-void GSDevice11::DoShadeBoost(GSTexture* sTex, GSTexture* dTex)
-{
-	GSVector2i s = dTex->GetSize();
-
-	GSVector4 sRect(0, 0, 1, 1);
-	GSVector4 dRect(0, 0, s.x, s.y);
-
-	ShadeBoostConstantBuffer cb;
-
-	cb.rcpFrame = GSVector4(1.0f / s.x, 1.0f / s.y, 0.0f, 0.0f);
-	cb.rcpFrameOpt = GSVector4::zero();
-
-	m_ctx->UpdateSubresource(m_shadeboost.cb, 0, NULL, &cb, 0, 0);
-
-	StretchRect(sTex, sRect, dTex, dRect, m_shadeboost.ps, m_shadeboost.cb, true);
 }
 
 void GSDevice11::SetupDATE(GSTexture* rt, GSTexture* ds, const GSVertexPT1* vertices, bool datm)

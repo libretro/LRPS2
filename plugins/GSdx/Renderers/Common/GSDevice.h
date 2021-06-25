@@ -101,15 +101,6 @@ public:
 	FXAAConstantBuffer() {memset(this, 0, sizeof(*this));}
 };
 
-class ShadeBoostConstantBuffer
-{
-public:
-	GSVector4 rcpFrame;
-	GSVector4 rcpFrameOpt;
-
-	ShadeBoostConstantBuffer() {memset(this, 0, sizeof(*this));}
-};
-
 #pragma pack(pop)
 
 enum HWBlendFlags
@@ -166,7 +157,6 @@ protected:
 	virtual void DoMerge(GSTexture* sTex[3], GSVector4* sRect, GSTexture* dTex, GSVector4* dRect, const GSRegPMODE& PMODE, const GSRegEXTBUF& EXTBUF, const GSVector4& c) = 0;
 	virtual void DoInterlace(GSTexture* sTex, GSTexture* dTex, int shader, bool linear, float yoffset) = 0;
 	virtual void DoFXAA(GSTexture* sTex, GSTexture* dTex) {}
-	virtual void DoShadeBoost(GSTexture* sTex, GSTexture* dTex) {}
 	virtual void DoExternalFX(GSTexture* sTex, GSTexture* dTex) {}
 	virtual uint16 ConvertBlendEnum(uint16 generic) = 0; // Convert blend factors/ops from the generic enum to DX11/OGl specific.
 
@@ -225,7 +215,6 @@ public:
 	void Merge(GSTexture* sTex[3], GSVector4* sRect, GSVector4* dRect, const GSVector2i& fs, const GSRegPMODE& PMODE, const GSRegEXTBUF& EXTBUF, const GSVector4& c);
 	void Interlace(const GSVector2i& ds, int field, int mode, float yoffset);
 	void FXAA();
-	void ShadeBoost();
 	void ExternalFX();
 
 	bool ResizeTexture(GSTexture** t, int type, int w, int h);

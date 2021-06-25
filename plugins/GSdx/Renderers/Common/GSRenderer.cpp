@@ -46,7 +46,6 @@ GSRenderer::GSRenderer()
 	m_aa1         = theApp.GetConfigB("aa1");
 	m_fxaa        = theApp.GetConfigB("fxaa");
 	m_shaderfx    = theApp.GetConfigB("shaderfx");
-	m_shadeboost  = theApp.GetConfigB("ShadeBoost");
 	m_dithering   = theApp.GetConfigI("dithering_ps2"); // 0 off, 1 auto, 2 auto no scale
 }
 
@@ -277,11 +276,6 @@ bool GSRenderer::Merge(int field)
 				int mode = (m_interlace - 1) >> 1;
 				m_dev->Interlace(ds, field ^ field2, mode, tex[1] ? tex[1]->GetScale().y : tex[0]->GetScale().y);
 			}
-		}
-
-		if(m_shadeboost)
-		{
-			m_dev->ShadeBoost();
 		}
 
 		if(m_shaderfx)

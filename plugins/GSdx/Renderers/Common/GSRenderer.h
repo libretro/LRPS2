@@ -42,7 +42,6 @@ protected:
 	bool m_aa1;
 	bool m_shaderfx;
 	bool m_fxaa;
-	bool m_shadeboost;
 	bool m_texture_shuffle;
 	GSVector2i m_real_size;
 

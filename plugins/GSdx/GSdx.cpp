@@ -370,10 +370,6 @@ void GSdxApp::Init()
 	m_default_configuration["saven"]                                      = "0";
 	m_default_configuration["savet"]                                      = "0";
 	m_default_configuration["savez"]                                      = "0";
-	m_default_configuration["ShadeBoost"]                                 = "0";
-	m_default_configuration["ShadeBoost_Brightness"]                      = "50";
-	m_default_configuration["ShadeBoost_Contrast"]                        = "50";
-	m_default_configuration["ShadeBoost_Saturation"]                      = "50";
 	m_default_configuration["shaderfx"]                                   = "0";
 	m_default_configuration["shaderfx_conf"]                              = "shaders/GSdx_FX_Settings.ini";
 	m_default_configuration["shaderfx_glsl"]                              = "shaders/GSdx.fx";
