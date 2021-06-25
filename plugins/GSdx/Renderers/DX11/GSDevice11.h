@@ -382,7 +382,6 @@ private:
 	void DoExternalFX(GSTexture* sTex, GSTexture* dTex) final;
 	void InitExternalFX();
 	void InitFXAA(); // Bug workaround! Stack corruption? Heap corruption? No idea
-	void RenderOsd(GSTexture* dt);
 	void BeforeDraw();
 	void AfterDraw();
 	

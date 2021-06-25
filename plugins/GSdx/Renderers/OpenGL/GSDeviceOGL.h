@@ -510,7 +510,6 @@ private:
 	void DoFXAA(GSTexture* sTex, GSTexture* dTex) final;
 	void DoShadeBoost(GSTexture* sTex, GSTexture* dTex) final;
 	void DoExternalFX(GSTexture* sTex, GSTexture* dTex) final;
-	void RenderOsd(GSTexture* dt);
 
 	void OMAttachRt(GSTextureOGL* rt = NULL);
 	void OMAttachDs(GSTextureOGL* ds = NULL);

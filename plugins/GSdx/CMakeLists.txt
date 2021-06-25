@@ -107,11 +107,6 @@ if(NOT MSVC)
    set(GSdxSources ${GSdxSources}
        GSdxResources.cpp)
 endif()
-if(NOT LIBRETRO)
-   set(GSdxSources ${GSdxSources}
-      Renderers/Common/GSOsdManager.cpp
-      )
-endif()
 
 set(GSdxHeaders
     config.h
@@ -143,7 +138,6 @@ set(GSdxHeaders
     Renderers/Common/GSDirtyRect.h
     Renderers/Common/GSFastList.h
     Renderers/Common/GSFunctionMap.h
-    Renderers/Common/GSOsdManager.h
     Renderers/Common/GSRenderer.h
     Renderers/Common/GSTexture.h
     Renderers/Common/GSVertex.h

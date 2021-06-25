@@ -1378,10 +1378,6 @@ void GSDeviceOGL::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture
 	EndScene();
 }
 
-void GSDeviceOGL::RenderOsd(GSTexture* dt)
-{
-}
-
 void GSDeviceOGL::DoMerge(GSTexture* sTex[3], GSVector4* sRect, GSTexture* dTex, GSVector4* dRect, const GSRegPMODE& PMODE, const GSRegEXTBUF& EXTBUF, const GSVector4& c)
 {
 	GL_PUSH("DoMerge");
