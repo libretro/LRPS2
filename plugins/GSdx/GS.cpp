@@ -323,13 +323,6 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 		return -1;
 	}
 
-	if (renderer == GSRendererType::OGL_HW && theApp.GetConfigI("debug_glsl_shader") == 2) {
-		printf("GSdx: test OpenGL shader. Please wait...\n\n");
-		static_cast<GSDeviceOGL*>(s_gs->m_dev)->SelfShaderTest();
-		printf("\nGSdx: test OpenGL shader done. It will now exit\n");
-		return -1;
-	}
-	
 	return 0;
 }
 

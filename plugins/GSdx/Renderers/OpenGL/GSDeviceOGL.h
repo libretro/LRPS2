@@ -574,10 +574,6 @@ public:
 	GLuint CreateSampler(PSSamplerSelector sel);
 	GSDepthStencilOGL* CreateDepthStencil(OMDepthStencilSelector dssel);
 
-	void SelfShaderTestPrint(const std::string& test, int& nb_shader);
-	void SelfShaderTestRun(const std::string& dir, const std::string& file, const PSSelector& sel, int& nb_shader);
-	void SelfShaderTest();
-
 	void SetupPipeline(const VSSelector& vsel, const GSSelector& gsel, const PSSelector& psel);
 	void SetupCB(const VSConstantBuffer* vs_cb, const PSConstantBuffer* ps_cb);
 	void SetupCBMisc(const GSVector4i& channel);
