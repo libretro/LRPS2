@@ -48,6 +48,4 @@ class GSShaderOGL {
 
 	GLuint CompileShader(const std::string& glsl_file, const std::string& entry, GLenum type, const char* glsl_h_code, const std::string& macro_sel = "");
 	GLuint LinkProgram(GLuint vs, GLuint gs, GLuint ps);
-
-	int DumpAsm(const std::string& file, GLuint p);
 };
