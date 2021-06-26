@@ -240,7 +240,6 @@ set(RESOURCE_FILES
     res/glsl/convert.glsl
     res/glsl/interlace.glsl
     res/glsl/merge.glsl
-    res/glsl/shadeboost.glsl
     res/glsl/tfx_fs.glsl
     res/glsl/tfx_vgs.glsl)
 
