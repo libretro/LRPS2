@@ -31,8 +31,6 @@
 //
 StereoOut32 V_Core::ReadInput_HiFi()
 {
-	if (psxmode)
-		ConLog("ReadInput_HiFi!!!!!\n");
 	InputPosRead &= ~1;
 	//
 	//#ifdef PCM24_S1_INTERLEAVE
@@ -82,16 +80,6 @@ StereoOut32 V_Core::ReadInput_HiFi()
 
 			if (InputDataLeft < 0x200)
 			{
-				FileLog("[%10d] %s AutoDMA%c block end.\n", (Index == 1) ? "CDDA" : "SPDIF", Cycles, GetDmaIndexChar());
-
-				if (IsDevBuild)
-				{
-					if (InputDataLeft > 0)
-					{
-						if (MsgAutoDMA())
-							ConLog("WARNING: adma buffer didn't finish with a whole block!!\n");
-					}
-				}
 				InputDataLeft = 0;
 				// Hack, kinda. We call the interrupt early here, since PCSX2 doesn't like them delayed.
 				//DMAICounter		= 1;
@@ -125,11 +113,6 @@ StereoOut32 V_Core::ReadInput()
 			(s32)(*GetMemPtr(0x2200 + (Index << 10) + InputPosRead)));
 	}
 
-#if defined(PCSX2_DEVBUILD) && defined(HAVE_LOGGING)
-	DebugCores[Index].admaWaveformL[InputPosRead % 0x100] = retval.Left;
-	DebugCores[Index].admaWaveformR[InputPosRead % 0x100] = retval.Right;
-#endif
-
 	InputPosRead++;
 
 	if (AutoDMACtrl & (Index + 1) && (InputPosRead == 0x100 || InputPosRead == 0x200))
@@ -147,16 +130,6 @@ StereoOut32 V_Core::ReadInput()
 			if (InputDataLeft < 0x200)
 			{
 				AutoDMACtrl |= ~3;
-
-				if (IsDevBuild)
-				{
-					FileLog("[%10d] AutoDMA%c block end.\n", Cycles, GetDmaIndexChar());
-					if (InputDataLeft > 0)
-					{
-						if (MsgAutoDMA())
-							ConLog("WARNING: adma buffer didn't finish with a whole block!!\n");
-					}
-				}
 
 				InputDataLeft = 0;
 				// Hack, kinda. We call the interrupt early here, since PCSX2 doesn't like them delayed.

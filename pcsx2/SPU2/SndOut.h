@@ -32,8 +32,6 @@ static const int SndOutVolumeShift32 = 16 - SndOutVolumeShift; // shift up, not 
 // is too problematic. :)
 extern int SampleRate;
 
-extern int FindOutputModuleById(const wchar_t* omodid);
-
 // Implemented in Config.cpp
 extern float VolumeAdjustFL;
 extern float VolumeAdjustC;
@@ -563,20 +561,11 @@ struct Stereo51Out32
 class SndBuffer
 {
 private:
-	static bool m_underrun_freeze;
 	static s32 m_predictData;
-	static float lastPct;
 
 	static StereoOut32* sndTempBuffer;
 	static StereoOut16* sndTempBuffer16;
 
-	static int sndTempProgress;
-	static int m_dsp_progress;
-
-	static int m_timestretch_progress;
-	static int m_timestretch_writepos;
-
-	static StereoOut32* m_buffer;
 	static s32 m_size;
 
 	static __aligned(4) volatile s32 m_rpos;
@@ -589,13 +578,6 @@ private:
 
 	static void _InitFail();
 	static bool CheckUnderrunStatus(int& nSamples, int& quietSampleCount);
-
-	static void soundtouchInit();
-	static void soundtouchClearContents();
-	static void soundtouchCleanup();
-	static void timeStretchWrite();
-	static void timeStretchUnderrun();
-	static s32 timeStretchOverrun();
 
 	static void PredictDataWrite(int samples);
 	static float GetStatusPct();
@@ -629,65 +611,8 @@ public:
 	static void ReadSamples(T* bData);
 };
 
-class SndOutModule
-{
-public:
-	// Virtual destructor, because it helps fight C+++ funny-business.
-	virtual ~SndOutModule() {}
-
-	// Returns a unique identification string for this driver.
-	// (usually just matches the driver's cpp filename)
-	virtual const wchar_t* GetIdent() const = 0;
-
-	// Returns the long name / description for this driver.
-	// (for use in configuration screen)
-	virtual const wchar_t* GetLongName() const = 0;
-
-	virtual s32 Init() = 0;
-	virtual void Close() = 0;
-	virtual s32 Test() const = 0;
-
-	// Gui function: Used to open the configuration box for this driver.
-	virtual void Configure(uptr parent) = 0;
-
-	// Loads settings from the INI file for this driver
-	virtual void ReadSettings() = 0;
-
-	// Set output API for this driver
-	virtual void SetApiSettings(wxString api) = 0;
-
-	// Saves settings to the INI file for this driver
-	virtual void WriteSettings() const = 0;
-
-	// Returns the number of empty samples in the output buffer.
-	// (which is effectively the amount of data played since the last update)
-	virtual int GetEmptySampleCount() = 0;
-};
-
-#ifdef _MSC_VER
-//internal
-extern SndOutModule* WaveOut;
-extern SndOutModule* XAudio2Out;
-#endif
-#if defined(SPU2X_PORTAUDIO)
-extern SndOutModule* PortaudioOut;
-#endif
-extern SndOutModule* const SDLOut;
-#ifdef __linux__
-extern SndOutModule* AlsaOut;
-#endif
-
-extern SndOutModule* mods[];
-
 // =====================================================================================================
-
-extern bool WavRecordEnabled;
 
 extern void RecordStart(std::wstring* filename);
 extern void RecordStop();
 extern void RecordWrite(const StereoOut16& sample);
-
-extern s32 DspLoadLibrary(wchar_t* fileName, int modNum);
-extern void DspCloseLibrary();
-extern int DspProcess(s16* buffer, int samples);
-extern void DspUpdate(); // to let the Dsp process window messages

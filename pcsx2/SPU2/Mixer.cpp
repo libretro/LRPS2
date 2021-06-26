@@ -81,10 +81,6 @@ static void __forceinline XA_decode_block(s16* buffer, const s16* block, s32& pr
 	const s32 header = *block;
 	const s32 shift = (header & 0xF) + 16;
 	const int id = header >> 4 & 0xF;
-#ifdef HAVE_LOGGING
-	if (id > 4 && MsgToConsole())
-		ConLog("* SPU2: Unknown ADPCM coefficients table id %d\n", id);
-#endif
 	const s32 pred1 = tbl_XA_Factor[id][0];
 	const s32 pred2 = tbl_XA_Factor[id][1];
 
@@ -137,9 +133,11 @@ static void __forceinline IncrementNextA(V_Core& thiscore, uint voiceidx)
 // invalided when DMA transfers and memory writes are performed.
 PcmCacheEntry* pcm_cache_data = nullptr;
 
+#ifdef DEBUG
 int g_counter_cache_hits = 0;
 int g_counter_cache_misses = 0;
 int g_counter_cache_ignores = 0;
+#endif
 
 // LOOP/END sets the ENDX bit and sets NAX to LSA, and the voice is muted if LOOP is not set
 // LOOP seems to only have any effect on the block with LOOP/END set, where it prevents muting the voice
@@ -165,17 +163,7 @@ static __forceinline s32 GetNextDataBuffered(V_Core& thiscore, uint voiceidx)
 				thiscore.Regs.ENDX |= (1 << voiceidx);
 				vc.NextA = vc.LoopStartA | 1;
 				if (!(vc.LoopFlags & XAFLAG_LOOP))
-				{
 					vc.Stop();
-
-#ifdef HAVE_LOGGING
-					if (IsDevBuild)
-					{
-						if (MsgVoiceOff())
-							ConLog("* SPU2: Voice Off by EndPoint: %d \n", voiceidx);
-					}
-#endif
-				}
 			}
 			else
 				vc.NextA++; // no, don't IncrementNextA here.  We haven't read the header yet.
@@ -211,9 +199,10 @@ static __forceinline s32 GetNextDataBuffered(V_Core& thiscore, uint voiceidx)
 			vc.Prev2 = vc.SBuffer[26];
 
 			//ConLog( "* SPU2: Cache Hit! NextA=0x%x, cacheIdx=0x%x\n", vc.NextA, cacheIdx );
-
+#ifdef DEBUG
 			if (IsDevBuild)
 				g_counter_cache_hits++;
+#endif
 		}
 		else
 		{
@@ -221,6 +210,7 @@ static __forceinline s32 GetNextDataBuffered(V_Core& thiscore, uint voiceidx)
 			if (vc.NextA >= SPU2_DYN_MEMLINE)
 				cacheLine.Validated = true;
 
+#ifdef DEBUG
 			if (IsDevBuild)
 			{
 				if (vc.NextA < SPU2_DYN_MEMLINE)
@@ -228,6 +218,7 @@ static __forceinline s32 GetNextDataBuffered(V_Core& thiscore, uint voiceidx)
 				else
 					g_counter_cache_misses++;
 			}
+#endif
 
 			XA_decode_block(vc.SBuffer, memptr, vc.Prev1, vc.Prev2);
 		}
@@ -339,16 +330,7 @@ static __forceinline void CalculateADSR(V_Core& thiscore, uint voiceidx)
 	}
 
 	if (!vc.ADSR.Calculate())
-	{
-#ifdef HAVE_LOGGING
-		if (IsDevBuild)
-		{
-			if (MsgVoiceOff())
-				ConLog("* SPU2: Voice Off by ADSR: %d \n", voiceidx);
-		}
-#endif
 		vc.Stop();
-	}
 
 	pxAssume(vc.ADSR.Value >= 0); // ADSR should never be negative...
 }
@@ -586,14 +568,7 @@ static __forceinline StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 			vc.NextCrest = -0x8000;
 		}
 		if (vc.PV1 > vc.PV2)
-		{
 			vc.NextCrest = vc.PV1;
-		}
-
-#ifdef HAVE_LOGGING
-		if (IsDevBuild)
-			DebugCores[coreidx].Voices[voiceidx].displayPeak = std::max(DebugCores[coreidx].Voices[voiceidx].displayPeak, (s32)vc.OutX);
-#endif
 
 		// Write-back of raw voice data (post ADSR applied)
 
@@ -659,12 +634,6 @@ StereoOut32 V_Core::Mix(const VoiceMixSet& inVoices, const StereoOut32& Input, c
 	spu2M_WriteFast(((0 == Index) ? 0x1400 : 0x1C00) + OutPos, Voices.Wet.Left);
 	spu2M_WriteFast(((0 == Index) ? 0x1600 : 0x1E00) + OutPos, Voices.Wet.Right);
 
-	// Write mixed results to logfile (if enabled)
-#ifdef WAVE_DUMP
-	WaveDump::WriteCore(Index, CoreSrc_DryVoiceMix, Voices.Dry);
-	WaveDump::WriteCore(Index, CoreSrc_WetVoiceMix, Voices.Wet);
-#endif
-
 	// Mix in the Input data
 
 	StereoOut32 TD(
@@ -722,15 +691,7 @@ StereoOut32 V_Core::Mix(const VoiceMixSet& inVoices, const StereoOut32& Input, c
 	TW.Left += Ext.Left & WetGate.ExtL;
 	TW.Right += Ext.Right & WetGate.ExtR;
 
-#ifdef WAVE_DUMP
-	WaveDump::WriteCore(Index, CoreSrc_PreReverb, TW);
-#endif
-
 	StereoOut32 RV = DoReverb(TW);
-
-#ifdef WAVE_DUMP
-	WaveDump::WriteCore(Index, CoreSrc_PostReverb, RV);
-#endif
 
 	// Mix Dry + Wet
 	// (master volume is applied later to the result of both outputs added together).
@@ -838,11 +799,6 @@ __forceinline
 			// CDDA is on Core 1:
 			(PlayMode & 8) ? StereoOut32(0, 0) : ApplyVolume(Cores[1].ReadInput(), Cores[1].InpVol)};
 
-#ifdef WAVE_DUMP
-	WaveDump::WriteCore(0, CoreSrc_Input, InputData[0]);
-	WaveDump::WriteCore(1, CoreSrc_Input, InputData[1]);
-#endif
-
 	// Todo: Replace me with memzero initializer!
 	VoiceMixSet VoiceData[2] = {VoiceMixSet::Empty, VoiceMixSet::Empty}; // mixed voice data for each core.
 	MixCoreVoices(VoiceData[0], 0);
@@ -861,10 +817,6 @@ __forceinline
 	spu2M_WriteFast(0x800 + OutPos, Ext.Left);
 	spu2M_WriteFast(0xA00 + OutPos, Ext.Right);
 
-#ifdef WAVE_DUMP
-	WaveDump::WriteCore(0, CoreSrc_External, Ext);
-#endif
-
 	Ext = ApplyVolume(Ext, Cores[1].ExtVol);
 	StereoOut32 Out(Cores[1].Mix(VoiceData[1], InputData[1], Ext));
 
@@ -881,9 +833,6 @@ __forceinline
 		Out.Left = MulShr32(Out.Left << (SndOutVolumeShift + 1), Cores[1].MasterVol.Left.Value);
 		Out.Right = MulShr32(Out.Right << (SndOutVolumeShift + 1), Cores[1].MasterVol.Right.Value);
 
-#ifdef DEBUG_KEYS
-		if (postprocess_filter_enabled)
-#endif
 		{
 			if (postprocess_filter_dealias)
 			{
@@ -903,35 +852,10 @@ __forceinline
 		// Good thing though that this code gets the volume exactly right, as per tests :)
 		Out = clamp_mix(Out, SndOutVolumeShift);
 	}
-#ifndef __LIBRETRO__
-	// Configurable output volume
-	Out.Left *= FinalVolume;
-	Out.Right *= FinalVolume;
-#endif
 	SndBuffer::Write(Out);
 
 	// Update AutoDMA output positioning
 	OutPos++;
 	if (OutPos >= 0x200)
 		OutPos = 0;
-
-#ifdef HAVE_LOGGING
-	if (IsDevBuild)
-	{
-		p_cachestat_counter++;
-		if (p_cachestat_counter > (48000 * 10))
-		{
-			p_cachestat_counter = 0;
-			if (MsgCache())
-				ConLog(" * SPU2 > CacheStats > Hits: %d  Misses: %d  Ignores: %d\n",
-					   g_counter_cache_hits,
-					   g_counter_cache_misses,
-					   g_counter_cache_ignores);
-
-			g_counter_cache_hits =
-				g_counter_cache_misses =
-					g_counter_cache_ignores = 0;
-		}
-	}
-#endif
 }

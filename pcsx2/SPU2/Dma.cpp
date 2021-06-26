@@ -21,88 +21,9 @@
 
 extern u8 callirq;
 
-#ifdef HAVE_LOGGING
-static FILE* DMA4LogFile = nullptr;
-static FILE* DMA7LogFile = nullptr;
-static FILE* ADMA4LogFile = nullptr;
-static FILE* ADMA7LogFile = nullptr;
-static FILE* ADMAOutLogFile = nullptr;
-
-static FILE* REGWRTLogFile[2] = {0, 0};
-
-void DMALogOpen()
-{
-	if (!DMALog())
-		return;
-	DMA4LogFile = OpenBinaryLog(DMA4LogFileName);
-	DMA7LogFile = OpenBinaryLog(DMA7LogFileName);
-	ADMA4LogFile = OpenBinaryLog(L"adma4.raw");
-	ADMA7LogFile = OpenBinaryLog(L"adma7.raw");
-	ADMAOutLogFile = OpenBinaryLog(L"admaOut.raw");
-}
-
-void DMA4LogWrite(void* lpData, u32 ulSize)
-{
-	if (!DMALog())
-		return;
-	if (!DMA4LogFile)
-		return;
-	fwrite(lpData, ulSize, 1, DMA4LogFile);
-}
-
-void DMA7LogWrite(void* lpData, u32 ulSize)
-{
-	if (!DMALog())
-		return;
-	if (!DMA7LogFile)
-		return;
-	fwrite(lpData, ulSize, 1, DMA7LogFile);
-}
-
-void ADMAOutLogWrite(void* lpData, u32 ulSize)
-{
-	if (!DMALog())
-		return;
-	if (!ADMAOutLogFile)
-		return;
-	fwrite(lpData, ulSize, 1, ADMAOutLogFile);
-}
-
-void RegWriteLog(u32 core, u16 value)
-{
-	if (!DMALog())
-		return;
-	if (!REGWRTLogFile[core])
-		return;
-	fwrite(&value, 2, 1, REGWRTLogFile[core]);
-}
-
-void DMALogClose()
-{
-	safe_fclose(DMA4LogFile);
-	safe_fclose(DMA7LogFile);
-	safe_fclose(REGWRTLogFile[0]);
-	safe_fclose(REGWRTLogFile[1]);
-	safe_fclose(ADMA4LogFile);
-	safe_fclose(ADMA7LogFile);
-	safe_fclose(ADMAOutLogFile);
-}
-
-void V_Core::LogAutoDMA(FILE* fp)
-{
-	if (!DMALog() || !fp || !DMAPtr)
-		return;
-	fwrite(DMAPtr + InputDataProgress, 0x400, 1, fp);
-}
-#endif
-
 void V_Core::AutoDMAReadBuffer(int mode) //mode: 0= split stereo; 1 = do not split stereo
 {
 	int spos = ((InputPosRead + 0xff) & 0x100); //starting position of the free buffer
-
-#ifdef HAVE_LOGGING
-	LogAutoDMA(Index ? ADMA7LogFile : ADMA4LogFile);
-#endif
 
 	// HACKFIX!! DMAPtr can be invalid after a savestate load, so the savestate just forces it
 	// to nullptr and we ignore it here.  (used to work in old VM editions of PCSX2 with fixed
@@ -140,12 +61,6 @@ void V_Core::AutoDMAReadBuffer(int mode) //mode: 0= split stereo; 1 = do not spl
 void V_Core::StartADMAWrite(u16* pMem, u32 sz)
 {
 	int size = (sz) & (~511);
-
-#ifdef HAVE_LOGGING
-	if (MsgAutoDMA())
-		ConLog("* SPU2: DMA%c AutoDMA Transfer of %d bytes to %x (%02x %x %04x).\n",
-			   GetDmaIndexChar(), size << 1, TSA, DMABits, AutoDMACtrl, (~Regs.ATTR) & 0x7fff);
-#endif
 
 	InputDataProgress = 0;
 	if ((AutoDMACtrl & (Index + 1)) == 0)
@@ -210,26 +125,6 @@ void V_Core::PlainDMAWrite(u16* pMem, u32 size)
 	// Perform an alignment check.
 	// Not really important.  Everything should work regardless,
 	// but it could be indicative of an emulation foopah elsewhere.
-#ifdef HAVE_LOGGING
-	if (MsgToConsole())
-	{
-		// Don't need this anymore. Target may still be good to know though.
-		/*if((uptr)pMem & 15)
-		{
-			ConLog("* SPU2 DMA Write > Misaligned source. Core: %d  IOP: %p  TSA: 0x%x  Size: 0x%x\n", Index, (void*)pMem, TSA, size);
-		}*/
-
-		if (TSA & 7)
-		{
-			ConLog("* SPU2 DMA Write > Misaligned target. Core: %d  IOP: %p  TSA: 0x%x  Size: 0x%x\n", Index, (void*)pMem, TSA, size);
-		}
-	}
-
-	if (Index == 0)
-		DMA4LogWrite(pMem, size << 1);
-	else
-		DMA7LogWrite(pMem, size << 1);
-#endif
 
 	TSA &= 0xfffff;
 
@@ -423,22 +318,6 @@ void V_Core::DoDMAwrite(u16* pMem, u32 size)
 		return;
 	}
 
-#ifdef HAVE_LOGGING
-	if (IsDevBuild)
-	{
-		DebugCores[Index].lastsize = size;
-		DebugCores[Index].dmaFlag = 2;
-	}
-
-	if (MsgToConsole())
-	{
-		if (TSA > 0xfffff)
-		{
-			ConLog("* SPU2: Transfer Start Address out of bounds. TSA is %x\n", TSA);
-		}
-	}
-#endif
-
 	TSA &= 0xfffff;
 
 	bool adma_enable = ((AutoDMACtrl & (Index + 1)) == (Index + 1));
@@ -450,13 +329,6 @@ void V_Core::DoDMAwrite(u16* pMem, u32 size)
 	}
 	else
 	{
-#ifdef HAVE_LOGGING
-		if (MsgDMA())
-			ConLog("* SPU2: DMA%c Transfer of %d bytes to %x (%02x %x %04x). IRQE = %d IRQA = %x \n",
-				   GetDmaIndexChar(), size << 1, TSA, DMABits, AutoDMACtrl, (~Regs.ATTR) & 0x7fff,
-				   Cores[0].IRQEnable, Cores[0].IRQA);
-#endif
-
 		PlainDMAWrite(pMem, size);
 	}
 	Regs.STATX &= ~0x80;

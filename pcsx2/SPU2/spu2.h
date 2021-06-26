@@ -62,7 +62,6 @@ extern u8 callirq;
 extern u32 lClocks;
 extern u32* cyclePtr;
 
-extern void SPU2writeLog(const char* action, u32 rmem, u16 value);
 extern void TimeUpdate(u32 cClocks);
 extern void SPU2_FastWrite(u32 rmem, u16 value);
 

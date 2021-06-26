@@ -17,12 +17,6 @@
 #include "Global.h"
 #include "spu2.h"
 #include "Dma.h"
-#ifdef __linux__
-#include "Linux/Dialogs.h"
-#include "Linux/Config.h"
-#elif defined(_WIN32)
-#include "Windows/Dialogs.h"
-#endif
 #include "R3000A.h"
 #include "Utilities/pxStreams.h"
 #include "AppCoreThread.h"
@@ -33,9 +27,6 @@ MutexRecursive mtx_SPU2Status;
 
 #include "svnrev.h"
 
-#ifdef _MSC_VER
-#define snprintf sprintf_s
-#endif
 int SampleRate = 48000;
 
 static bool IsOpened = false;
@@ -50,32 +41,7 @@ u32 lClocks = 0;
 static bool CheckSSE()
 {
 	return true;
-
-#if 0
-	if( !cpu_detected )
-	{
-		cpudetectInit();
-		cpu_detected = true;
-	}
-	if( !x86caps.hasStreamingSIMDExtensions || !x86caps.hasStreamingSIMD2Extensions )
-	{
-		SysMessage( "Your CPU does not support SSE2 instructions.\nThe SPU2 plugin requires SSE2 to run." );
-		return false;
-	}
-	return true;
-#endif
 }
-#ifndef __LIBRETRO__
-void SPU2configure()
-{
-	if (!CheckSSE())
-		return;
-
-	ScopedCoreThreadPause paused_core;
-	configure();
-	paused_core.AllowResume();
-}
-#endif
 // --------------------------------------------------------------------------------------
 //  DMA 4/7 Callbacks from Core Emulator
 // --------------------------------------------------------------------------------------
@@ -98,12 +64,10 @@ void SPU2setDMABaseAddr(uptr baseaddr)
 
 void SPU2setSettingsDir(const char* dir)
 {
-	CfgSetSettingsDir(dir);
 }
 
 void SPU2setLogDir(const char* dir)
 {
-	CfgSetLogDir(dir);
 }
 
 void SPU2readDMA4Mem(u16* pMem, u32 size) // size now in 16bit units
@@ -111,9 +75,6 @@ void SPU2readDMA4Mem(u16* pMem, u32 size) // size now in 16bit units
 	if (cyclePtr != nullptr)
 		TimeUpdate(*cyclePtr);
 
-#ifdef HAVE_LOGGING
-	FileLog("[%10d] SPU2 readDMA4Mem size %x\n", Cycles, size << 1);
-#endif
 	Cores[0].DoDMAread(pMem, size);
 }
 
@@ -122,26 +83,17 @@ void SPU2writeDMA4Mem(u16* pMem, u32 size) // size now in 16bit units
 	if (cyclePtr != nullptr)
 		TimeUpdate(*cyclePtr);
 
-#ifdef HAVE_LOGGING
-	FileLog("[%10d] SPU2 writeDMA4Mem size %x at address %x\n", Cycles, size << 1, Cores[0].TSA);
-#endif
 	Cores[0].DoDMAwrite(pMem, size);
 }
 
 void SPU2interruptDMA4()
 {
-#ifdef HAVE_LOGGING
-	FileLog("[%10d] SPU2 interruptDMA4\n", Cycles);
-#endif
 	Cores[0].Regs.STATX |= 0x80;
 	//Cores[0].Regs.ATTR &= ~0x30;
 }
 
 void SPU2interruptDMA7()
 {
-#ifdef HAVE_LOGGING
-	FileLog("[%10d] SPU2 interruptDMA7\n", Cycles);
-#endif
 	Cores[1].Regs.STATX |= 0x80;
 	//Cores[1].Regs.ATTR &= ~0x30;
 }
@@ -151,9 +103,6 @@ void SPU2readDMA7Mem(u16* pMem, u32 size)
 	if (cyclePtr != nullptr)
 		TimeUpdate(*cyclePtr);
 
-#ifdef HAVE_LOGGING
-	FileLog("[%10d] SPU2 readDMA7Mem size %x\n", Cycles, size << 1);
-#endif
 	Cores[1].DoDMAread(pMem, size);
 }
 
@@ -162,29 +111,16 @@ void SPU2writeDMA7Mem(u16* pMem, u32 size)
 	if (cyclePtr != nullptr)
 		TimeUpdate(*cyclePtr);
 
-#ifdef HAVE_LOGGING
-	FileLog("[%10d] SPU2 writeDMA7Mem size %x at address %x\n", Cycles, size << 1, Cores[1].TSA);
-#endif
 	Cores[1].DoDMAwrite(pMem, size);
 }
 
 s32 SPU2reset()
 {
-	if (SndBuffer::Test() == 0 && SampleRate != 48000)
+	if (SampleRate != 48000)
 	{
 		SampleRate = 48000;
 		SndBuffer::Cleanup();
-
-		try
-		{
-			SndBuffer::Init();
-		}
-		catch (std::exception& ex)
-		{
-			fprintf(stderr, "SPU2 Error: Could not initialize device, or something.\nReason: %s", ex.what());
-			SPU2close();
-			return -1;
-		}
+      SndBuffer::Init();
 	}
 	else
 		SampleRate = 48000;
@@ -201,21 +137,11 @@ s32 SPU2ps1reset()
 {
 	printf("RESET PS1 \n");
 
-	if (SndBuffer::Test() == 0 && SampleRate != 44100)
+	if (SampleRate != 44100)
 	{
 		SampleRate = 44100;
 		SndBuffer::Cleanup();
-
-		try
-		{
-			SndBuffer::Init();
-		}
-		catch (std::exception& ex)
-		{
-			fprintf(stderr, "SPU2 Error: Could not initialize device, or something.\nReason: %s", ex.what());
-			SPU2close();
-			return -1;
-		}
+      SndBuffer::Init();
 	}
 	else
 		SampleRate = 44100;
@@ -228,8 +154,6 @@ s32 SPU2ps1reset()
 	return 0;
 }
 
-#ifdef __LIBRETRO__
-float FinalVolume; // Global
 float VolumeAdjustFLdb; // decibels settings, cos audiophiles love that
 float VolumeAdjustCdb;
 float VolumeAdjustFRdb;
@@ -247,14 +171,11 @@ float VolumeAdjustSL;
 float VolumeAdjustSR;
 float VolumeAdjustLFE;
 
-bool postprocess_filter_enabled = 1;
-
 void ReadSettings()
 {
    Interpolation = 4;
 	EffectsDisabled = false;
 	postprocess_filter_dealias = false;
-	FinalVolume = 1.0f;
 	VolumeAdjustCdb = 0;
 	VolumeAdjustFLdb = 0;
 	VolumeAdjustFRdb = 0;
@@ -273,7 +194,6 @@ void ReadSettings()
 	VolumeAdjustSR = powf(10, VolumeAdjustSRdb / 10);
 	VolumeAdjustLFE = powf(10, VolumeAdjustLFEdb / 10);
 }
-#endif
 
 s32 SPU2init()
 {
@@ -286,14 +206,6 @@ s32 SPU2init()
 
 	ReadSettings();
 
-#ifdef SPU2_LOG
-	if (AccessLog())
-	{
-		spu2Log = OpenLog(AccessLogFileName);
-		setvbuf(spu2Log, nullptr, _IONBF, 0);
-		FileLog("SPU2init\n");
-	}
-#endif
 	srand((unsigned)time(nullptr));
 
 	spu2regs = (s16*)malloc(0x010000);
@@ -310,7 +222,6 @@ s32 SPU2init()
 
 	if ((spu2regs == nullptr) || (_spu2mem == nullptr) || (pcm_cache_data == nullptr))
 	{
-		SysMessage("SPU2: Error allocating Memory\n");
 		return -1;
 	}
 
@@ -329,58 +240,10 @@ s32 SPU2init()
 
 	SPU2reset();
 
-#ifdef HAVE_LOGGING
-	DMALogOpen();
-#endif
 	InitADSR();
 
 	return 0;
 }
-
-#ifdef _MSC_VER
-#ifdef PCSX2_DEVBUILD
-// Bit ugly to have this here instead of in RealttimeDebugger.cpp, but meh :p
-extern bool debugDialogOpen;
-extern HWND hDebugDialog;
-
-static INT_PTR CALLBACK DebugProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	int wmId;
-
-	switch (uMsg)
-	{
-		case WM_PAINT:
-			return FALSE;
-		case WM_INITDIALOG:
-		{
-			debugDialogOpen = true;
-		}
-		break;
-
-		case WM_COMMAND:
-			wmId = LOWORD(wParam);
-			// Parse the menu selections:
-			switch (wmId)
-			{
-				case IDOK:
-				case IDCANCEL:
-					debugDialogOpen = false;
-					EndDialog(hWnd, 0);
-					break;
-				default:
-					return FALSE;
-			}
-			break;
-
-		default:
-			return FALSE;
-	}
-	return TRUE;
-}
-#endif
-#endif
-
-uptr gsWindowHandle = 0;
 
 s32 SPU2open(void* pDsp)
 {
@@ -388,52 +251,10 @@ s32 SPU2open(void* pDsp)
 	if (IsOpened)
 		return 0;
 
-	FileLog("[%10d] SPU2 Open\n", Cycles);
-
-	if (pDsp != nullptr)
-		gsWindowHandle = *(uptr*)pDsp;
-	else
-		gsWindowHandle = 0;
-
-#ifdef _MSC_VER
-#ifdef PCSX2_DEVBUILD // Define may not be needed but not tested yet. Better make sure.
-	if (IsDevBuild && VisualDebug())
-	{
-		if (debugDialogOpen == 0)
-		{
-			hDebugDialog = CreateDialogParam(nullptr, MAKEINTRESOURCE(IDD_DEBUG), 0, DebugProc, 0);
-			ShowWindow(hDebugDialog, SW_SHOWNORMAL);
-			debugDialogOpen = 1;
-		}
-	}
-	else if (debugDialogOpen)
-	{
-		DestroyWindow(hDebugDialog);
-		debugDialogOpen = 0;
-	}
-#endif
-#endif
-
 	IsOpened = true;
 	lClocks = (cyclePtr != nullptr) ? *cyclePtr : 0;
 
-	try
-	{
-		SndBuffer::Init();
-
-#if !defined(__POSIX__) && !defined(__LIBRETRO__)
-		DspLoadLibrary(dspPlugin, dspPluginModule);
-#endif
-#ifdef WAVE_DUMP
-		WaveDump::Open();
-#endif
-	}
-	catch (std::exception& ex)
-	{
-		fprintf(stderr, "SPU2 Error: Could not initialize device, or something.\nReason: %s", ex.what());
-		SPU2close();
-		return -1;
-	}
+   SndBuffer::Init();
 	SPU2setDMABaseAddr((uptr)iopMem->Main);
 	SPU2setClockPtr(&psxRegs.cycle);
 	return 0;
@@ -446,13 +267,6 @@ void SPU2close()
 		return;
 	IsOpened = false;
 
-#ifdef HAVE_LOGGING
-	FileLog("[%10d] SPU2 Close\n", Cycles);
-#endif
-
-#if !defined(__POSIX__) && !defined(__LIBRETRO__)
-	DspCloseLibrary();
-#endif
 
 	SndBuffer::Cleanup();
 }
@@ -463,39 +277,11 @@ void SPU2shutdown()
 		return;
 	IsInitialized = false;
 
-	ConLog("* SPU2: Shutting down.\n");
-
 	SPU2close();
-
-	DoFullDump();
-#ifdef STREAM_DUMP
-	fclose(il0);
-	fclose(il1);
-#endif
-#ifdef EFFECTS_DUMP
-	fclose(el0);
-	fclose(el1);
-#endif
-#ifdef WAVE_DUMP
-	WaveDump::Close();
-#endif
-
-#ifdef HAVE_LOGGING
-	DMALogClose();
-#endif
 
 	safe_free(spu2regs);
 	safe_free(_spu2mem);
 	safe_free(pcm_cache_data);
-
-
-#ifdef SPU2_LOG
-	if (!AccessLog())
-		return;
-	FileLog("[%10d] SPU2shutdown\n", Cycles);
-	if (spu2Log)
-		fclose(spu2Log);
-#endif
 }
 
 void SPU2setClockPtr(u32* ptr)
@@ -503,15 +289,8 @@ void SPU2setClockPtr(u32* ptr)
 	cyclePtr = ptr;
 }
 
-#ifdef DEBUG_KEYS
-static u32 lastTicks;
-static bool lState[6];
-#endif
-
 void SPU2async(u32 cycles)
 {
-	DspUpdate();
-
 	if (cyclePtr != nullptr)
 	{
 		TimeUpdate(*cyclePtr);
@@ -521,58 +300,6 @@ void SPU2async(u32 cycles)
 		pClocks += cycles;
 		TimeUpdate(pClocks);
 	}
-
-#ifdef DEBUG_KEYS
-	u32 curTicks = GetTickCount();
-	if ((curTicks - lastTicks) >= 50)
-	{
-		int oldI = Interpolation;
-		bool cState[6];
-		for (int i = 0; i < 6; i++)
-		{
-			cState[i] = !!(GetAsyncKeyState(VK_NUMPAD0 + i) & 0x8000);
-
-			if ((cState[i] && !lState[i]) && i != 5)
-				Interpolation = i;
-
-			if ((cState[i] && !lState[i]) && i == 5)
-			{
-				postprocess_filter_enabled = !postprocess_filter_enabled;
-				printf("Post process filters %s \n", postprocess_filter_enabled ? "enabled" : "disabled");
-			}
-
-			lState[i] = cState[i];
-		}
-
-		if (Interpolation != oldI)
-		{
-			printf("Interpolation set to %d", Interpolation);
-			switch (Interpolation)
-			{
-				case 0:
-					printf(" - Nearest.\n");
-					break;
-				case 1:
-					printf(" - Linear.\n");
-					break;
-				case 2:
-					printf(" - Cubic.\n");
-					break;
-				case 3:
-					printf(" - Hermite.\n");
-					break;
-				case 4:
-					printf(" - Catmull-Rom.\n");
-					break;
-				default:
-					printf(" (unknown).\n");
-					break;
-			}
-		}
-
-		lastTicks = curTicks;
-	}
-#endif
 }
 
 u16 SPU2read(u32 rmem)
@@ -601,17 +328,10 @@ u16 SPU2read(u32 rmem)
 		else if (mem >= 0x800)
 		{
 			ret = spu2Ru16(mem);
-#ifdef HAVE_LOGGING
-			ConLog("* SPU2: Read from reg>=0x800: %x value %x\n", mem, ret);
-#endif
 		}
 		else
 		{
 			ret = *(regtable[(mem >> 1)]);
-#ifdef HAVE_LOGGING
-			//FileLog("[%10d] SPU2 read mem %x (core %d, register %x): %x\n",Cycles, mem, core, (omem & 0x7ff), ret);
-			SPU2writeLog("read", rmem, ret);
-#endif
 		}
 	}
 
@@ -631,9 +351,6 @@ void SPU2write(u32 rmem, u16 value)
 		Cores[0].WriteRegPS1(rmem, value);
 	else
 	{
-#ifdef HAVE_LOGGING
-		SPU2writeLog("write", rmem, value);
-#endif
 		SPU2_FastWrite(rmem, value);
 	}
 }
@@ -643,13 +360,6 @@ void SPU2write(u32 rmem, u16 value)
 // for now, pData is not used
 int SPU2setupRecording(int start, std::wstring* filename)
 {
-#ifdef WAVE_DUMP
-	if (start == 0)
-		RecordStop();
-	else if (start == 1)
-		RecordStart(filename);
-#endif
-
 	return 0;
 }
 
@@ -741,8 +451,3 @@ void SPU2DoFreezeIn(pxInputStream& infp)
 	if (SPU2freeze(FREEZE_LOAD, &fP) != 0)
 		throw std::runtime_error(" * SPU2: Error loading state!\n");
 }
-
-#ifdef __LIBRETRO__
-void CfgSetSettingsDir(const char *dir) { }
-void CfgSetLogDir(const char *dir) { }
-#endif
