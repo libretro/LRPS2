@@ -24,7 +24,4 @@
     <gresource prefix="/GSdx/res/">
         <file>glsl/tfx_fs.glsl</file>
     </gresource>
-    <gresource prefix="/GSdx/res/">
-        <file>fonts-roboto/Roboto-Regular.ttf</file>
-    </gresource>
 </gresources>
