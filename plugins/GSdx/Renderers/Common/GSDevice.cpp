@@ -319,20 +319,6 @@ void GSDevice::Interlace(const GSVector2i& ds, int field, int mode, float yoffse
 	}
 }
 
-void GSDevice::ExternalFX()
-{
-	GSVector2i s = m_current->GetSize();
-
-	if (ResizeTarget(&m_target_tmp))
-	{
-		GSVector4 sRect(0, 0, 1, 1);
-		GSVector4 dRect(0, 0, s.x, s.y);
-
-		StretchRect(m_current, sRect, m_target_tmp, dRect, ShaderConvert_TRANSPARENCY_FILTER, false);
-		DoExternalFX(m_target_tmp, m_current);
-	}
-}
-
 void GSDevice::FXAA()
 {
 	GSVector2i s = m_current->GetSize();

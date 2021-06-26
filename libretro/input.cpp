@@ -6,10 +6,10 @@
 #include "input.h"
 #include "PS2Edefs.h"
 
-#include "../plugins/onepadLR/GamePad.h"
-#include "../plugins/onepadLR/onepad.h"
-#include "../plugins/onepadLR/state_management.h"
-#include "../plugins/onepadLR/KeyStatus.h"
+#include "../plugins/onepad/GamePad.h"
+#include "../plugins/onepad/onepad.h"
+#include "../plugins/onepad/state_management.h"
+#include "../plugins/onepad/KeyStatus.h"
 
 extern retro_environment_t environ_cb;
 static retro_input_poll_t poll_cb;

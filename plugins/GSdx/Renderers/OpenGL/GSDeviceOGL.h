@@ -512,8 +512,6 @@ public:
 	GSDeviceOGL();
 	virtual ~GSDeviceOGL();
 
-	void GenerateProfilerData();
-
 	// Used by OpenGL, so the same calling convention is required.
 	static void APIENTRY DebugOutputToFile(GLenum gl_source, GLenum gl_type, GLuint id, GLenum gl_severity, GLsizei gl_length, const GLchar *gl_message, const void* userParam);
 
@@ -573,10 +571,6 @@ public:
 	GLuint CompilePS(PSSelector sel);
 	GLuint CreateSampler(PSSamplerSelector sel);
 	GSDepthStencilOGL* CreateDepthStencil(OMDepthStencilSelector dssel);
-
-	void SelfShaderTestPrint(const std::string& test, int& nb_shader);
-	void SelfShaderTestRun(const std::string& dir, const std::string& file, const PSSelector& sel, int& nb_shader);
-	void SelfShaderTest();
 
 	void SetupPipeline(const VSSelector& vsel, const GSSelector& gsel, const PSSelector& psel);
 	void SetupCB(const VSConstantBuffer* vs_cb, const PSConstantBuffer* ps_cb);

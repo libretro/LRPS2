@@ -50,9 +50,6 @@ public:
 #endif
 };
 
-void GSmkdir(const char* dir);
-std::string GStempdir();
-
 const char* psm_str(int psm);
 
 extern Xbyak::util::Cpu g_cpu;

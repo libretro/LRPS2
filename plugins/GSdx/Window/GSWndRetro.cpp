@@ -20,6 +20,7 @@
  */
 
 #include "../stdafx.h"
+#include "GSWnd.h"
 #include "GSWndRetro.h"
 #include <libretro.h>
 #include "options_tools.h"
@@ -27,6 +28,35 @@
 extern struct retro_hw_render_callback hw_render;
 extern retro_video_refresh_t video_cb;
 extern retro_environment_t environ_cb;
+
+void GSWndGL::PopulateGlFunction()
+{
+	// Load mandatory function pointer
+#define GL_EXT_LOAD(ext)     *(void**)&(ext) = GetProcAddress(#ext, false)
+	// Load extra function pointer
+#define GL_EXT_LOAD_OPT(ext) *(void**)&(ext) = GetProcAddress(#ext, true)
+
+#include "PFN_WND.h"
+
+	// GL1.X mess
+#ifdef __unix__
+	GL_EXT_LOAD(glBlendFuncSeparate);
+#endif
+	GL_EXT_LOAD_OPT(glTexturePageCommitmentEXT);
+
+	// Check openGL requirement as soon as possible so we can switch to another
+	// renderer/device
+	GLLoader::check_gl_requirements();
+}
+
+void GSWndGL::FullContextInit()
+{
+	PopulateGlFunction();
+}
+
+void GSWndGL::SetVSync(int vsync)
+{
+}
 
 GSWndRetroGL::GSWndRetroGL()
 {

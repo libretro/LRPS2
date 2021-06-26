@@ -27,18 +27,6 @@
 #include <stdio.h>
 #include <assert.h>
 
-#ifdef _WIN32
-#include <windows.h>
-#include <windowsx.h>
-
-#else
-
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/keysym.h>
-
-#endif
-
 #include <array>
 #include <vector>
 #include <map>
@@ -118,21 +106,12 @@ enum gamePadValues {
 #define EXPORT_C_(type) extern "C" __attribute__((stdcall, externally_visible, visibility("default"))) type
 #endif
 #endif
-extern FILE *padLog;
-extern void initLogging();
-
-#define PAD_LOG __Log
-//#define PAD_LOG __LogToConsole
-
 extern keyEvent event;
-extern MtQueue<keyEvent> g_ev_fifo;
 
 s32 _PADopen(void *pDsp);
 void _PADclose();
 void PADsetMode(int pad, int mode);
 
-void __Log(const char *fmt, ...);
-void __LogToConsole(const char *fmt, ...);
 void PADLoadConfig();
 void PADSaveConfig();
 
