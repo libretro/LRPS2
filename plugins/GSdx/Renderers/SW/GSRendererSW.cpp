@@ -22,10 +22,6 @@
 #include "stdafx.h"
 #include "GSRendererSW.h"
 
-#define LOG 0
-
-static FILE* s_fp = LOG ? fopen("c:\\temp1\\_.txt", "w") : NULL;
-
 GSVector4 GSRendererSW::m_pos_scale;
 #if _M_SSE >= 0x501
 GSVector8 GSRendererSW::m_pos_scale2;
@@ -75,11 +71,9 @@ GSRendererSW::GSRendererSW(int threads)
 	InitCVB(GS_TRIANGLE_CLASS);
 	InitCVB(GS_SPRITE_CLASS);
 
-	m_dump_root = root_sw;
-
 	// Reset handler with the auto flush hack enabled on the SW renderer.
 	// Some games run better without the hack so rely on ini/gui option.
-	if (!GLLoader::in_replayer && theApp.GetConfigB("autoflush_sw")) {
+	if (theApp.GetConfigB("autoflush_sw")) {
 		m_userhacks_auto_flush = true;
 		ResetHandlers();
 	}
@@ -111,22 +105,6 @@ void GSRendererSW::Reset()
 void GSRendererSW::VSync(int field)
 {
 	Sync(0); // IncAge might delete a cached texture in use
-
-	if(0) if(LOG)
-	{
-		fprintf(s_fp, "%llu\n", m_perfmon.GetFrame());
-
-		GSVector4i dr = GetDisplayRect();
-		GSVector4i fr = GetFrameRect();
-
-		fprintf(s_fp, "dr %d %d %d %d, fr %d %d %d %d\n",
-			dr.x, dr.y, dr.z, dr.w,
-			fr.x, fr.y, fr.z, fr.w);
-
-		m_regs->Dump(s_fp);
-
-		fflush(s_fp);
-	}
 
 	/*
 	int draw[8], sum = 0;
@@ -184,14 +162,6 @@ GSTexture* GSRendererSW::GetOutput(int i, int& y_offset)
 		(m_mem.*psm.rtx)(m_mem.GetOffset(DISPFB.Block(), DISPFB.FBW, DISPFB.PSM), r.ralign<Align_Outside>(psm.bs), m_output, pitch, m_env.TEXA);
 
 		m_texture[i]->Update(r, m_output, pitch);
-
-		if(s_dump)
-		{
-			if(s_savef && s_n >= s_saven)
-			{
-				m_texture[i]->Save(m_dump_root + format("%05d_f%lld_fr%d_%05x_%s.bmp", s_n, m_perfmon.GetFrame(), i, (int)DISPFB.Block(), psm_str(DISPFB.PSM)));
-			}
-		}
 	}
 
 	return m_texture[i];
@@ -432,28 +402,6 @@ void GSRendererSW::Draw()
 		return;
 	}
 
-	if(0) if(LOG)
-	{
-		int n = GSUtil::GetVertexCount(PRIM->PRIM);
-		
-		for(uint32 i = 0, j = 0; i < m_index.tail; i += n, j++)
-		{
-			for(int k = 0; k < n; k++)
-			{
-				GSVertex* v = &m_vertex.buff[m_index.buff[i + k]];
-				GSVertex* vn = &m_vertex.buff[m_index.buff[i + n - 1]];
-				
-				fprintf(s_fp, "%d:%d %f %f %f %f\n", 
-					j, k,
-					(float)(v->XYZ.X - context->XYOFFSET.OFX) / 16,
-					(float)(v->XYZ.Y - context->XYOFFSET.OFY) / 16,
-					PRIM->FST ? (float)(v->U) / 16 : v->ST.S / (PRIM->PRIM == GS_SPRITE ? vn->RGBAQ.Q : v->RGBAQ.Q),
-					PRIM->FST ? (float)(v->V) / 16 : v->ST.T / (PRIM->PRIM == GS_SPRITE ? vn->RGBAQ.Q : v->RGBAQ.Q)
-					);
-			}
-		}
-	}
-
 	//
 
 	// GSScanlineGlobalData& gd = sd->global;
@@ -491,101 +439,9 @@ void GSRendererSW::Draw()
 
 	//
 
-	if(s_dump)
-	{
-		Sync(2);
-
-		uint64 frame = m_perfmon.GetFrame();
-		// Dump the texture in 32 bits format. It helps to debug texture shuffle effect
-		// It will breaks the few games that really uses 16 bits RT
-		bool texture_shuffle = ((context->FRAME.PSM & 0x2) && ((context->TEX0.PSM & 3) == 2) && (m_vt.m_primclass == GS_SPRITE_CLASS));
-
-		std::string s;
-
-		if(s_n >= s_saven)
-		{
-			// Dump Register state
-			s = format("%05d_context.txt", s_n);
-
-			m_env.Dump(m_dump_root+s);
-			m_context->Dump(m_dump_root+s);
-		}
-
-		if(s_savet && s_n >= s_saven && PRIM->TME)
-		{
-			if (texture_shuffle) {
-				// Dump the RT in 32 bits format. It helps to debug texture shuffle effect
-				s = format("%05d_f%lld_itexraw_%05x_32bits.bmp", s_n, frame, (int)m_context->TEX0.TBP0);
-				m_mem.SaveBMP(m_dump_root+s, m_context->TEX0.TBP0, m_context->TEX0.TBW, 0, 1 << m_context->TEX0.TW, 1 << m_context->TEX0.TH);
-			}
-
-			s = format("%05d_f%lld_itexraw_%05x_%s.bmp", s_n, frame, (int)m_context->TEX0.TBP0, psm_str(m_context->TEX0.PSM));
-			m_mem.SaveBMP(m_dump_root+s, m_context->TEX0.TBP0, m_context->TEX0.TBW, m_context->TEX0.PSM, 1 << m_context->TEX0.TW, 1 << m_context->TEX0.TH);
-		}
-
-		if(s_save && s_n >= s_saven)
-		{
-
-			if (texture_shuffle) {
-				// Dump the RT in 32 bits format. It helps to debug texture shuffle effect
-				s = format("%05d_f%lld_rt0_%05x_32bits.bmp", s_n, frame, m_context->FRAME.Block());
-				m_mem.SaveBMP(m_dump_root+s, m_context->FRAME.Block(), m_context->FRAME.FBW, 0, GetFrameRect().width(), 512);
-			}
-
-			s = format("%05d_f%lld_rt0_%05x_%s.bmp", s_n, frame, m_context->FRAME.Block(), psm_str(m_context->FRAME.PSM));
-			m_mem.SaveBMP(m_dump_root+s, m_context->FRAME.Block(), m_context->FRAME.FBW, m_context->FRAME.PSM, GetFrameRect().width(), 512);
-		}
-
-		if(s_savez && s_n >= s_saven)
-		{
-			s = format("%05d_f%lld_rz0_%05x_%s.bmp", s_n, frame, m_context->ZBUF.Block(), psm_str(m_context->ZBUF.PSM));
-
-			m_mem.SaveBMP(m_dump_root+s, m_context->ZBUF.Block(), m_context->FRAME.FBW, m_context->ZBUF.PSM, GetFrameRect().width(), 512);
-		}
-
-		Queue(data);
-
-		Sync(3);
-
-		if(s_save && s_n >= s_saven)
-		{
-			if (texture_shuffle) {
-				// Dump the RT in 32 bits format. It helps to debug texture shuffle effect
-				s = format("%05d_f%lld_rt1_%05x_32bits.bmp", s_n, frame, m_context->FRAME.Block());
-				m_mem.SaveBMP(m_dump_root+s, m_context->FRAME.Block(), m_context->FRAME.FBW, 0, GetFrameRect().width(), 512);
-			}
-
-			s = format("%05d_f%lld_rt1_%05x_%s.bmp", s_n, frame, m_context->FRAME.Block(), psm_str(m_context->FRAME.PSM));
-			m_mem.SaveBMP(m_dump_root+s, m_context->FRAME.Block(), m_context->FRAME.FBW, m_context->FRAME.PSM, GetFrameRect().width(), 512);
-		}
-
-		if(s_savez && s_n >= s_saven)
-		{
-			s = format("%05d_f%lld_rz1_%05x_%s.bmp", s_n, frame, m_context->ZBUF.Block(), psm_str(m_context->ZBUF.PSM));
-
-			m_mem.SaveBMP(m_dump_root+s, m_context->ZBUF.Block(), m_context->FRAME.FBW, m_context->ZBUF.PSM, GetFrameRect().width(), 512);
-		}
-
-		if(s_savel > 0 && (s_n - s_saven) > s_savel)
-		{
-			s_dump = 0;
-		}
-	}
-	else
 	{
 		Queue(data);
 	}
-
-	/*
-	if(0)//stats.ticks > 5000000)
-	{
-		printf("* [%lld | %012llx] ticks %lld prims %d (%d) pixels %d (%d)\n",
-			m_perfmon.GetFrame(), gd->sel.key,
-			stats.ticks,
-			stats.prims, stats.prims > 0 ? (int)(stats.ticks / stats.prims) : -1,
-			stats.pixels, stats.pixels > 0 ? (int)(stats.ticks / stats.pixels) : -1);
-	}
-	*/
 }
 
 void GSRendererSW::Queue(std::shared_ptr<GSRasterizerData>& item)
@@ -604,20 +460,6 @@ void GSRendererSW::Queue(std::shared_ptr<GSRasterizerData>& item)
 	if(sd->m_syncpoint == SharedData::SyncTarget)
 	{
 		Sync(5);
-	}
-
-	if(LOG)
-	{
-		GSScanlineGlobalData& gd = ((SharedData*)item.get())->global;
-
-		fprintf(s_fp, "[%d] queue %05x %d (%d) %05x %d (%d) %05x %d %dx%d (%d %d %d) | %u %d %d\n",
-			sd->counter,
-			m_context->FRAME.Block(), m_context->FRAME.PSM, gd.sel.fwrite, 
-			m_context->ZBUF.Block(), m_context->ZBUF.PSM, gd.sel.zwrite,
-			PRIM->TME ? m_context->TEX0.TBP0 : 0xfffff, m_context->TEX0.PSM, (int)m_context->TEX0.TW, (int)m_context->TEX0.TH, m_context->TEX0.CSM, m_context->TEX0.CPSM, m_context->TEX0.CSA,
-			PRIM->PRIM, sd->vertex_count, sd->index_count); 
-
-		fflush(s_fp);
 	}
 
 	m_rl->Queue(item);
@@ -647,38 +489,15 @@ void GSRendererSW::Sync(int reason)
 
 	m_rl->Sync();
 
-	if(0) if(LOG)
-	{
-		std::string s;
-		
-		if(s_save)
-		{
-			s = format("%05d_f%lld_rt1_%05x_%s.bmp", s_n, m_perfmon.GetFrame(), m_context->FRAME.Block(), psm_str(m_context->FRAME.PSM));
-
-			m_mem.SaveBMP(m_dump_root+s, m_context->FRAME.Block(), m_context->FRAME.FBW, m_context->FRAME.PSM, GetFrameRect().width(), 512);
-		}
-
-		if(s_savez)
-		{
-			s = format("%05d_f%lld_zb1_%05x_%s.bmp", s_n, m_perfmon.GetFrame(), m_context->ZBUF.Block(), psm_str(m_context->ZBUF.PSM));
-
-			m_mem.SaveBMP(m_dump_root+s, m_context->ZBUF.Block(), m_context->FRAME.FBW, m_context->ZBUF.PSM, GetFrameRect().width(), 512);
-		}
-	}
-
 	t = __rdtsc() - t;
 
 	int pixels = m_rl->GetPixels();
-
-	if(LOG) {fprintf(s_fp, "sync n=%d r=%d t=%llu p=%d %c\n", s_n, reason, t, pixels, t > 10000000 ? '*' : ' '); fflush(s_fp);}
 
 	m_perfmon.Put(GSPerfMon::Fillrate, pixels);
 }
 
 void GSRendererSW::InvalidateVideoMem(const GIFRegBITBLTBUF& BITBLTBUF, const GSVector4i& r)
 {
-	if(LOG) {fprintf(s_fp, "w %05x %u %u, %d %d %d %d\n", BITBLTBUF.DBP, BITBLTBUF.DBW, BITBLTBUF.DPSM, r.x, r.y, r.z, r.w); fflush(s_fp);}
-	
 	GSOffset* off = m_mem.GetOffset(BITBLTBUF.DBP, BITBLTBUF.DBW, BITBLTBUF.DPSM);
 
 	off->GetPages(r, m_tmp_pages);
@@ -703,8 +522,6 @@ void GSRendererSW::InvalidateVideoMem(const GIFRegBITBLTBUF& BITBLTBUF, const GS
 
 void GSRendererSW::InvalidateLocalMem(const GIFRegBITBLTBUF& BITBLTBUF, const GSVector4i& r, bool clut)
 {
-	if(LOG) {fprintf(s_fp, "%s %05x %u %u, %d %d %d %d\n", clut ? "rp" : "r", BITBLTBUF.SBP, BITBLTBUF.SBW, BITBLTBUF.SPSM, r.x, r.y, r.z, r.w); fflush(s_fp);}
-
 	if(!m_rl->IsSynced())
 	{
 		GSOffset* off = m_mem.GetOffset(BITBLTBUF.SBP, BITBLTBUF.SBW, BITBLTBUF.SPSM);
@@ -817,13 +634,7 @@ bool GSRendererSW::CheckTargetPages(const uint32* fb_pages, const uint32* zb_pag
 		if(!synced)
 		{
 			if(used)
-			{
-				if(LOG) {fprintf(s_fp, "syncpoint 0\n"); fflush(s_fp);}
-
 				res = true;
-			}
-
-			//if(LOG) {fprintf(s_fp, "no syncpoint *\n"); fflush(s_fp);}
 		}
 	}
 	else
@@ -878,11 +689,7 @@ bool GSRendererSW::CheckTargetPages(const uint32* fb_pages, const uint32* zb_pag
 			if(!synced)
 			{
 				if(used)
-				{
-					if(LOG) {fprintf(s_fp, "syncpoint 1\n"); fflush(s_fp);}
-
 					res = true;
-				}
 			}
 		}
 
@@ -897,10 +704,7 @@ bool GSRendererSW::CheckTargetPages(const uint32* fb_pages, const uint32* zb_pag
 				{
 					if(m_fzb_pages[*p] & 0xffff0000)
 					{
-						if(LOG) {fprintf(s_fp, "syncpoint 2\n"); fflush(s_fp);}
-
 						res = true;
-
 						break;
 					}
 				}
@@ -912,8 +716,6 @@ bool GSRendererSW::CheckTargetPages(const uint32* fb_pages, const uint32* zb_pag
 				{
 					if(m_fzb_pages[*p] & 0x0000ffff)
 					{
-						if(LOG) {fprintf(s_fp, "syncpoint 3\n"); fflush(s_fp);}
-
 						res = true;
 
 						break;
@@ -1447,14 +1249,6 @@ GSRendererSW::SharedData::~SharedData()
 
 	if(global.clut) _aligned_free(global.clut);
 	if(global.dimx) _aligned_free(global.dimx);
-
-	if(LOG) {fprintf(s_fp, "[%d] done t=%lld p=%d | %d %d %d | %08x_%08x\n", 
-		counter, 
-		__rdtsc() - start, pixels,
-		primclass, vertex_count, index_count,
-		global.sel.hi, global.sel.lo 
-		); 
-	fflush(s_fp);}
 }
 
 //static TransactionScope::Lock s_lock;
@@ -1545,40 +1339,6 @@ void GSRendererSW::SharedData::UpdateSource()
 			printf("GSdx: out-of-memory, texturing temporarily disabled\n");
 
 			global.sel.tfx = TFX_NONE;
-		}
-	}
-
-	// TODO
-		
-	if(m_parent->s_dump)
-	{
-		uint64 frame = m_parent->m_perfmon.GetFrame();
-
-		std::string s;
-
-		if(m_parent->s_savet && m_parent->s_n >= m_parent->s_saven)
-		{
-			for(size_t i = 0; m_tex[i].t != NULL; i++)
-			{
-				const GIFRegTEX0& TEX0 = m_parent->GetTex0Layer(i);
-
-				s = format("%05d_f%lld_itex%d_%05x_%s.bmp", m_parent->s_n, frame, i, TEX0.TBP0, psm_str(TEX0.PSM));
-
-				m_tex[i].t->Save(root_sw+s);
-			}
-
-			if(global.clut != NULL)
-			{
-				GSTextureSW* t = new GSTextureSW(0, 256, 1);
-
-				t->Update(GSVector4i(0, 0, 256, 1), global.clut, sizeof(uint32) * 256);
-
-				s = format("%05d_f%lld_itexp_%05x_%s.bmp", m_parent->s_n, frame, (int)m_parent->m_context->TEX0.CBP, psm_str(m_parent->m_context->TEX0.CPSM));
-
-				t->Save(root_sw+s);
-
-				delete t;
-			}
 		}
 	}
 }

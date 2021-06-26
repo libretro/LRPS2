@@ -117,6 +117,7 @@ GIFRegTEX0 GSDrawingContext::GetSizeFixedTEX0(const GSVector4& st, bool linear, 
 		th = extend(uv.y, th);
 	}
 
+#ifdef DEBUG
 	if((theApp.GetCurrentRendererType() == GSRendererType::OGL_SW) && ((int)TEX0.TW != tw || (int)TEX0.TH != th))
 	{
 		GL_DBG("FixedTEX0 %05x %d %d tw %d=>%d th %d=>%d st (%.0f,%.0f,%.0f,%.0f) uvmax %d,%d wm %d,%d (%d,%d,%d,%d)",
@@ -126,6 +127,7 @@ GIFRegTEX0 GSDrawingContext::GetSizeFixedTEX0(const GSVector4& st, bool linear, 
 			uv.x, uv.y,
 			wms, wmt, minu, maxu, minv, maxv);
 	}
+#endif
 
 	GIFRegTEX0 res = TEX0;
 
@@ -168,8 +170,10 @@ void GSDrawingContext::ComputeFixedTEX0(const GSVector4& st)
 		TEX0.TW = tw;
 		TEX0.TH = th;
 
+#ifdef DEBUG
 		GL_DBG("FixedTEX0 TW %d=>%d, TH %d=>%d wm %d,%d",
 			(int)stack.TEX0.TW, (int)TEX0.TW, (int)stack.TEX0.TH, (int)TEX0.TH,
 			(int)CLAMP.WMS, (int)CLAMP.WMT);
+#endif
 	}
 }

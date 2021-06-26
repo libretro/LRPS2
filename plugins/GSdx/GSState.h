@@ -33,7 +33,6 @@
 #include "Renderers/Common/GSDevice.h"
 #include "GSCrc.h"
 #include "GSAlignedClass.h"
-#include "GSDump.h"
 
 struct GSFrameInfo
 {
@@ -220,7 +219,6 @@ public:
 	GSPerfMon m_perfmon;
 	uint32 m_crc;
 	CRC::Game m_game;
-	std::unique_ptr<GSDumpBase> m_dump;
 	int m_options;
 	int m_frameskip;
 	bool m_NTSC_Saturation;
@@ -228,14 +226,11 @@ public:
 	int m_mipmap;
 
 	static int s_n;
-	bool s_dump;
 	bool s_save;
 	bool s_savet;
 	bool s_savez;
 	bool s_savef;
-	int s_saven;
 	int s_savel;
-	std::string m_dump_root;
 
 public:
 	GSState();

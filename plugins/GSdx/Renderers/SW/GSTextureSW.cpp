@@ -21,7 +21,6 @@
 
 #include "stdafx.h"
 #include "GSTextureSW.h"
-#include "GSPng.h"
 
 GSTextureSW::GSTextureSW(int type, int width, int height)
 {
@@ -87,15 +86,5 @@ void GSTextureSW::Unmap()
 
 bool GSTextureSW::Save(const std::string& fn)
 {
-#ifdef __LIBRETRO__
 	return true;
-#else
-#ifdef ENABLE_OGL_DEBUG
-	GSPng::Format fmt = GSPng::RGB_A_PNG;
-#else
-	GSPng::Format fmt = GSPng::RGB_PNG;
-#endif
-	int compression = theApp.GetConfigI("png_compression_level");
-	return GSPng::Save(fmt, fn, static_cast<uint8*>(m_data), m_size.x, m_size.y, m_pitch, compression);
-#endif
 }

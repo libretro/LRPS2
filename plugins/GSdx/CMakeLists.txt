@@ -52,9 +52,7 @@ set(GSdxSources
     GSCodeBuffer.cpp
     GSCrc.cpp
     GSDrawingContext.cpp
-    GSDump.cpp
     GSLocalMemory.cpp
-    GSLzma.cpp
     GSPerfMon.cpp
     GSState.cpp
     GSTables.cpp
@@ -100,38 +98,26 @@ set(GSdxSources
     Renderers/OpenGL/GSShaderOGL.cpp
     Renderers/OpenGL/GSTextureCacheOGL.cpp
     Renderers/OpenGL/GSTextureOGL.cpp
-    Window/GSSetting.cpp
     Window/GSWnd.cpp
     )
 if(NOT MSVC)
    set(GSdxSources ${GSdxSources}
        GSdxResources.cpp)
 endif()
-if(NOT LIBRETRO)
-   set(GSdxSources ${GSdxSources}
-      GSCapture.cpp
-      GSPng.cpp
-      Renderers/Common/GSOsdManager.cpp
-      )
-endif()
 
 set(GSdxHeaders
     config.h
     GSAlignedClass.h
     GSBlock.h
-    GSCapture.h
     GSClut.h
     GSCodeBuffer.h
     GSCrc.h
     GSDrawingContext.h
     GSDrawingEnvironment.h
-    GSDump.h
     GSdx.h
     GS.h
     GSLocalMemory.h
-    GSLzma.h
     GSPerfMon.h
-    GSPng.h
     GSState.h
     GSTables.h
     GSThread_CXX11.h
@@ -147,7 +133,6 @@ set(GSdxHeaders
     Renderers/Common/GSDirtyRect.h
     Renderers/Common/GSFastList.h
     Renderers/Common/GSFunctionMap.h
-    Renderers/Common/GSOsdManager.h
     Renderers/Common/GSRenderer.h
     Renderers/Common/GSTexture.h
     Renderers/Common/GSVertex.h
@@ -177,10 +162,7 @@ set(GSdxHeaders
     Renderers/OpenGL/GSTextureOGL.h
     Renderers/OpenGL/GSUniformBufferOGL.h
     Renderers/OpenGL/GSVertexArrayOGL.h
-    Window/GSCaptureDlg.h
-    Window/GSDialog.h
     Window/GSSetting.h
-    Window/GSSettingsDlg.h
     Window/GSWnd.h
     xbyak/xbyak.h
     xbyak/xbyak_mnemonic.h
@@ -194,15 +176,11 @@ endif()
 if(Windows)
     LIST(APPEND GSdxSources
         Renderers/DX11/GSDevice11.cpp
-        Window/GSDialog.cpp
         Renderers/DX11/GSRendererDX11.cpp
         Renderers/DX11/GSTexture11.cpp
         Renderers/DX11/GSTextureCache11.cpp
         Renderers/DX11/GSTextureFX11.cpp
-#        GSVertexList.cpp
         Renderers/SW/GSVertexSW.cpp
-        Window/GSCaptureDlg.cpp
-        Window/GSSettingsDlg.cpp
         GSdx.rc
         )
 
@@ -224,15 +202,6 @@ if(Windows)
           Window/GSWndWGL.h
           )
    endif()
-elseif(NOT LIBRETRO)
-    LIST(APPEND GSdxSources
-        Window/GSLinuxDialog.cpp
-        Window/GSWndEGL.cpp
-        )
-
-    LIST(APPEND GSdxHeaders
-        Window/GSWndEGL.h
-        )
 endif()
 
 if(LIBRETRO)
@@ -252,15 +221,8 @@ set(GSdxFinalSources
 )
 
 set(GSdxFinalLibs
-    ${X11_LIBRARIES}
     ${OPENGL_LIBRARIES}
-    ${EGL_LIBRARIES}
-    ${X11_XCB_LIBRARIES}
-    ${GTK2_LIBRARIES}
     ${LIBC_LIBRARIES}
-    ${PNG_LIBRARIES}
-    ${FREETYPE_LIBRARIES}
-    ${LIBLZMA_LIBRARIES}
 )
 
 if(USE_VTUNE)
@@ -311,13 +273,3 @@ else()
 endif()
 
 target_compile_features(${Output} PRIVATE cxx_std_17)
-
-################################### Replay Loader
-if(BUILD_REPLAY_LOADERS)
-    set(Replay pcsx2_GSReplayLoader)
-    set(GSdxReplayLoaderFinalSources
-        linux_replay.cpp
-    )
-    add_pcsx2_executable(${Replay} "${GSdxReplayLoaderFinalSources}" "${LIBC_LIBRARIES}" "${GSdxFinalFlags}")
-    target_compile_features(${Replay} PRIVATE cxx_std_17)
-endif(BUILD_REPLAY_LOADERS)

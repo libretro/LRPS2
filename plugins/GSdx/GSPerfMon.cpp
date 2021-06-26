@@ -24,10 +24,7 @@
 
 GSPerfMon::GSPerfMon()
 	: m_frame(0)
-	, m_lastframe(0)
-	, m_count(0)
 {
-	memset(m_counters, 0, sizeof(m_counters));
 	memset(m_stats, 0, sizeof(m_stats));
 	memset(m_total, 0, sizeof(m_total));
 	memset(m_begin, 0, sizeof(m_begin));
@@ -35,73 +32,18 @@ GSPerfMon::GSPerfMon()
 
 void GSPerfMon::Put(counter_t c, double val)
 {
-#ifndef DISABLE_PERF_MON
-	if(c == Frame)
-	{
-#if defined(__unix__)
-		// clock on linux will return CLOCK_PROCESS_CPUTIME_ID.
-		// CLOCK_THREAD_CPUTIME_ID is much more useful to measure the fps
-		struct timespec ts;
-		clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ts);
-		uint64 now =  (uint64) ts.tv_sec * (uint64) 1e6 + (uint64) ts.tv_nsec / (uint64) 1e3;
-#else
-		clock_t now = clock();
-#endif
-
-		if(m_lastframe != 0)
-		{
-			m_counters[c] += (now - m_lastframe) * 1000 / CLOCKS_PER_SEC;
-		}
-
-		m_lastframe = now;
-		m_frame++;
-		m_count++;
-	}
-	else
-	{
-		m_counters[c] += val;
-	}
-#endif
 }
 
 void GSPerfMon::Update()
 {
-#ifndef DISABLE_PERF_MON
-	if(m_count > 0)
-	{
-		for(size_t i = 0; i < countof(m_counters); i++)
-		{
-			m_stats[i] = m_counters[i] / m_count;
-		}
-
-		m_count = 0;
-	}
-
-	memset(m_counters, 0, sizeof(m_counters));
-#endif
 }
 
 void GSPerfMon::Start(int timer)
 {
-#ifndef DISABLE_PERF_MON
-	m_start[timer] = __rdtsc();
-
-	if(m_begin[timer] == 0)
-	{
-		m_begin[timer] = m_start[timer];
-	}
-#endif
 }
 
 void GSPerfMon::Stop(int timer)
 {
-#ifndef DISABLE_PERF_MON
-	if(m_start[timer] > 0)
-	{
-		m_total[timer] += __rdtsc() - m_start[timer];
-		m_start[timer] = 0;
-	}
-#endif
 }
 
 int GSPerfMon::CPU(int timer, bool reset)

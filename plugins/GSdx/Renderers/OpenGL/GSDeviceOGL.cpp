@@ -43,7 +43,6 @@ uint64 g_uniform_upload_byte = 0;
 
 static const uint32 g_merge_cb_index      = 10;
 static const uint32 g_interlace_cb_index  = 11;
-static const uint32 g_fx_cb_index         = 14;
 static const uint32 g_convert_index       = 15;
 static const uint32 g_vs_cb_index         = 20;
 static const uint32 g_ps_cb_index         = 21;
@@ -68,9 +67,7 @@ GSDeviceOGL::GSDeviceOGL()
 	memset(&m_interlace, 0, sizeof(m_interlace));
 	memset(&m_convert, 0, sizeof(m_convert));
 	memset(&m_fxaa, 0, sizeof(m_fxaa));
-	memset(&m_shaderfx, 0, sizeof(m_shaderfx));
 	memset(&m_date, 0, sizeof(m_date));
-	memset(&m_shadeboost, 0, sizeof(m_shadeboost));
 	memset(&m_om_dss, 0, sizeof(m_om_dss));
 	memset(&m_profiler, 0 , sizeof(m_profiler));
 	GLState::Clear();
@@ -123,9 +120,6 @@ GSDeviceOGL::~GSDeviceOGL()
 
 	// Clean m_fxaa
 	delete m_fxaa.cb;
-
-	// Clean m_shaderfx
-	delete m_shaderfx.cb;
 
 	// Clean m_date
 	delete m_date.dss;
@@ -338,11 +332,6 @@ bool GSDeviceOGL::Create(const std::shared_ptr<GSWnd> &wnd)
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo_read);
 		glReadBuffer(GL_COLOR_ATTACHMENT0);
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, GL_DEFAULT_FRAMEBUFFER);
-
-		// Some timers to help profiling
-		if (GLLoader::in_replayer) {
-			glCreateQueries(GL_TIMESTAMP, 1 << 16, m_profiler.timer_query);
-		}
 	}
 
 	// ****************************************************************
@@ -450,25 +439,6 @@ bool GSDeviceOGL::Create(const std::shared_ptr<GSWnd> &wnd)
 	}
 
 	// ****************************************************************
-	// Shade boost
-	// ****************************************************************
-	{
-		GL_PUSH("GSDeviceOGL::Shadeboost");
-
-		int ShadeBoost_Contrast = std::max(0, std::min(theApp.GetConfigI("ShadeBoost_Contrast"), 100));
-		int ShadeBoost_Brightness = std::max(0, std::min(theApp.GetConfigI("ShadeBoost_Brightness"), 100));
-		int ShadeBoost_Saturation = std::max(0, std::min(theApp.GetConfigI("ShadeBoost_Saturation"), 100));
-		std::string shade_macro = format("#define SB_SATURATION %d.0\n", ShadeBoost_Saturation)
-			+ format("#define SB_BRIGHTNESS %d.0\n", ShadeBoost_Brightness)
-			+ format("#define SB_CONTRAST %d.0\n", ShadeBoost_Contrast);
-
-		theApp.LoadResource(IDR_SHADEBOOST_GLSL, shader);
-
-		ps = m_shader->Compile("shadeboost.glsl", "ps_main", GL_FRAGMENT_SHADER, shader.data(), shade_macro);
-		m_shadeboost.ps = m_shader->LinkPipeline("ShadeBoost pipe", vs, 0, ps);
-	}
-
-	// ****************************************************************
 	// rasterization configuration
 	// ****************************************************************
 	{
@@ -551,16 +521,6 @@ bool GSDeviceOGL::Create(const std::shared_ptr<GSWnd> &wnd)
 		GLState::available_vram = (int64)(vram[0]) * 1024ul * 2ul;
 
 	fprintf(stdout, "Available VRAM/RAM:%lldMB for textures\n", GLState::available_vram >> 20u);
-#ifndef __LIBRETRO__
-	// ****************************************************************
-	// Texture Font (OSD)
-	// ****************************************************************
-	GSVector2i tex_font = m_osd.get_texture_font_size();
-
-	m_font = std::unique_ptr<GSTexture>(
-		new GSTextureOGL(GSTextureOGL::Texture, tex_font.x, tex_font.y, GL_R8, m_fbo_read, false)
-	);
-#endif
 	// ****************************************************************
 	// Finish window setup and backbuffer
 	// ****************************************************************
@@ -637,11 +597,6 @@ void GSDeviceOGL::SetVSync(int vsync)
 void GSDeviceOGL::Flip()
 {
 	m_wnd->Flip();
-
-	if (GLLoader::in_replayer) {
-		glQueryCounter(m_profiler.timer(), GL_TIMESTAMP);
-		m_profiler.last_query++;
-	}
 }
 
 void GSDeviceOGL::BeforeDraw()
@@ -1388,38 +1343,6 @@ void GSDeviceOGL::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture
 	EndScene();
 }
 
-void GSDeviceOGL::RenderOsd(GSTexture* dt)
-{
-#ifndef __LIBRETRO__
-	BeginScene();
-
-	m_shader->BindPipeline(m_convert.ps[ShaderConvert_OSD]);
-
-	OMSetDepthStencilState(m_convert.dss);
-	OMSetBlendState((uint8)GSDeviceOGL::m_MERGE_BLEND);
-	OMSetRenderTargets(dt, NULL);
-
-	if(m_osd.m_texture_dirty) {
-		m_osd.upload_texture_atlas(m_font.get());
-	}
-
-	PSSetShaderResource(0, m_font.get());
-	PSSetSamplerState(m_convert.pt);
-
-	IASetPrimitiveTopology(GL_TRIANGLES);
-
-	// Note scaling could also be done in shader (require gl3/dx10)
-	size_t count = m_osd.Size();
-	GSVertexPT1* dst = (GSVertexPT1*)m_va->MapVB(count);
-	count = m_osd.GeneratePrimitives(dst, count);
-	m_va->UnmapVB();
-
-	DrawPrimitive();
-
-	EndScene();
-#endif
-}
-
 void GSDeviceOGL::DoMerge(GSTexture* sTex[3], GSVector4* sRect, GSTexture* dTex, GSVector4* dRect, const GSRegPMODE& PMODE, const GSRegEXTBUF& EXTBUF, const GSVector4& c)
 {
 	GL_PUSH("DoMerge");
@@ -1525,72 +1448,6 @@ void GSDeviceOGL::DoFXAA(GSTexture* sTex, GSTexture* dTex)
 	GSVector4 dRect(0, 0, s.x, s.y);
 
 	StretchRect(sTex, sRect, dTex, dRect, m_fxaa.ps, true);
-}
-
-void GSDeviceOGL::DoExternalFX(GSTexture* sTex, GSTexture* dTex)
-{
-	// Lazy compile
-	if (!m_shaderfx.ps) {
-		if (!GLLoader::found_GL_ARB_gpu_shader5) { // GL4.0 extension
-			return;
-		}
-
-		std::string   config_name(theApp.GetConfigS("shaderfx_conf"));
-		std::ifstream fconfig(config_name);
-		std::stringstream config;
-		config << "#extension GL_ARB_gpu_shader5 : require\n";
-		if (fconfig.good())
-			config << fconfig.rdbuf();
-		else
-			fprintf(stderr, "Warning failed to load '%s'. External Shader might be wrongly configured\n", config_name.c_str());
-
-		std::string   shader_name(theApp.GetConfigS("shaderfx_glsl"));
-		std::ifstream fshader(shader_name);
-		std::stringstream shader;
-		if (!fshader.good()) {
-			fprintf(stderr, "Error failed to load '%s'. External Shader will be disabled !\n", shader_name.c_str());
-			return;
-		}
-		shader << fshader.rdbuf();
-
-
-		m_shaderfx.cb = new GSUniformBufferOGL("eFX UBO", g_fx_cb_index, sizeof(ExternalFXConstantBuffer));
-		GLuint ps = m_shader->Compile("Extra", "ps_main", GL_FRAGMENT_SHADER, shader.str().c_str(), config.str());
-		m_shaderfx.ps = m_shader->LinkPipeline("eFX pipie", m_convert.vs, 0, ps);
-	}
-
-	GL_PUSH("DoExternalFX");
-
-	OMSetColorMaskState();
-
-	GSVector2i s = dTex->GetSize();
-
-	GSVector4 sRect(0, 0, 1, 1);
-	GSVector4 dRect(0, 0, s.x, s.y);
-
-	ExternalFXConstantBuffer cb;
-
-	cb.xyFrame = GSVector2((float)s.x, (float)s.y);
-	cb.rcpFrame = GSVector4(1.0f / s.x, 1.0f / s.y, 0.0f, 0.0f);
-	cb.rcpFrameOpt = GSVector4::zero();
-
-	m_shaderfx.cb->cache_upload(&cb);
-
-	StretchRect(sTex, sRect, dTex, dRect, m_shaderfx.ps, true);
-}
-
-void GSDeviceOGL::DoShadeBoost(GSTexture* sTex, GSTexture* dTex)
-{
-	GL_PUSH("DoShadeBoost");
-
-	OMSetColorMaskState();
-
-	GSVector2i s = dTex->GetSize();
-
-	GSVector4 sRect(0, 0, 1, 1);
-	GSVector4 dRect(0, 0, s.x, s.y);
-
-	StretchRect(sTex, sRect, dTex, dRect, m_shadeboost.ps, true);
 }
 
 void GSDeviceOGL::SetupDATE(GSTexture* rt, GSTexture* ds, const GSVertexPT1* vertices, bool datm)

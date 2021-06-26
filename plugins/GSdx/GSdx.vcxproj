@@ -96,8 +96,6 @@
     <ClCompile Include="GS.cpp" />
     <ClCompile Include="GSAlignedClass.cpp" />
     <ClCompile Include="GSBlock.cpp" />
-    <ClCompile Include="GSCapture.cpp" />
-    <ClCompile Include="Window\GSCaptureDlg.cpp" />
     <ClCompile Include="GSClut.cpp" />
     <ClCompile Include="GSCodeBuffer.cpp" />
     <ClCompile Include="GSCrc.cpp" />
@@ -116,12 +114,10 @@
     <ClCompile Include="Renderers\SW\GSDrawScanlineCodeGenerator.x86.avx.cpp" />
     <ClCompile Include="Renderers\SW\GSDrawScanlineCodeGenerator.x86.avx2.cpp" />
     <ClCompile Include="Renderers\SW\GSDrawScanlineCodeGenerator.x86.cpp" />
-    <ClCompile Include="GSDump.cpp" />
     <ClCompile Include="GSdx.cpp" />
     <ClCompile Include="Renderers\Common\GSFunctionMap.cpp" />
     <ClCompile Include="Renderers\HW\GSHwHack.cpp" />
     <ClCompile Include="GSLocalMemory.cpp" />
-    <ClCompile Include="GSLzma.cpp" />
     <ClCompile Include="GSPerfMon.cpp" />
     <ClCompile Include="Renderers\Common\GSOsdManager.cpp" />
     <ClCompile Include="GSPng.cpp" />
@@ -173,8 +169,6 @@
     <ClInclude Include="GS.h" />
     <ClInclude Include="GSAlignedClass.h" />
     <ClInclude Include="GSBlock.h" />
-    <ClInclude Include="GSCapture.h" />
-    <ClInclude Include="Window\GSCaptureDlg.h" />
     <ClInclude Include="GSClut.h" />
     <ClInclude Include="GSCodeBuffer.h" />
     <ClInclude Include="GSCrc.h" />
@@ -188,12 +182,10 @@
     <ClInclude Include="GSDrawingEnvironment.h" />
     <ClInclude Include="Renderers\SW\GSDrawScanline.h" />
     <ClInclude Include="Renderers\SW\GSDrawScanlineCodeGenerator.h" />
-    <ClInclude Include="GSDump.h" />
     <ClInclude Include="GSdx.h" />
     <ClInclude Include="Renderers\Common\GSFastList.h" />
     <ClInclude Include="Renderers\Common\GSFunctionMap.h" />
     <ClInclude Include="GSLocalMemory.h" />
-    <ClInclude Include="GSLzma.h" />
     <ClInclude Include="GSPerfMon.h" />
     <ClInclude Include="Renderers\Common\GSOsdManager.h" />
     <ClInclude Include="GSPng.h" />

@@ -28,32 +28,7 @@ extern struct retro_hw_render_callback hw_render;
 extern retro_video_refresh_t video_cb;
 extern retro_environment_t environ_cb;
 
-// static method
-int GSWndRetroGL::SelectPlatform()
-{
-	return 0;
-}
-
-
 GSWndRetroGL::GSWndRetroGL()
-{
-}
-
-void GSWndRetroGL::CreateContext(int major, int minor)
-{
-}
-
-void GSWndRetroGL::AttachContext()
-{
-	m_ctx_attached = true;
-}
-
-void GSWndRetroGL::DetachContext()
-{
-	m_ctx_attached = false;
-}
-
-void GSWndRetroGL::PopulateWndGlFunction()
 {
 }
 
@@ -61,21 +36,8 @@ void GSWndRetroGL::BindAPI()
 {
 }
 
-bool GSWndRetroGL::Attach(void* handle, bool managed)
-{
-	m_managed = managed;
-	return true;
-}
-
-void GSWndRetroGL::Detach()
-{
-	DetachContext();
-	DestroyNativeResources();
-}
-
 bool GSWndRetroGL::Create(const std::string& title, int w, int h)
 {
-	m_managed = true;
 	FullContextInit();
 	return true;
 }
@@ -99,56 +61,15 @@ GSVector4i GSWndRetroGL::GetClientRect()
 	return GSVector4i(0, 0, GSgetInternalResolution().x, GSgetInternalResolution().y);
 }
 
-void GSWndRetroGL::SetSwapInterval()
-{
-}
-
 void GSWndRetroGL::Flip()
 {
 	video_cb(RETRO_HW_FRAME_BUFFER_VALID, GSgetInternalResolution().x, GSgetInternalResolution().y, 0);
 }
 
 
-void* GSWndRetroGL::CreateNativeDisplay()
-{
-	return nullptr;
-}
-
-void* GSWndRetroGL::CreateNativeWindow(int w, int h)
-{
-	return nullptr;
-}
-
-void* GSWndRetroGL::AttachNativeWindow(void* handle)
-{
-	return handle;
-}
-
-void GSWndRetroGL::DestroyNativeResources()
-{
-}
-
-bool GSWndRetroGL::SetWindowText(const char* title)
-{
-	return true;
-}
-
 bool GSWndRetro::Create(const std::string& title, int w, int h)
 {
-	m_managed = true;
-
 	return true;
-}
-
-bool GSWndRetro::Attach(void* handle, bool managed)
-{
-	m_managed = managed;
-	return true;
-}
-
-void GSWndRetro::Detach()
-{
-	m_managed = true;
 }
 
 GSVector4i GSWndRetro::GetClientRect()
@@ -157,13 +78,6 @@ GSVector4i GSWndRetro::GetClientRect()
 //	return GSVector4i(0, 0, 640 , 480);
 	return GSVector4i(0, 0, 640 * upscale_mult, 480 * upscale_mult);
 //	return GSVector4i(0, 0, GSgetInternalResolution().x, GSgetInternalResolution().y);
-}
-
-bool GSWndRetro::SetWindowText(const char* title)
-{
-	if (!m_managed)
-		return false;
-	return true;
 }
 
 void GSWndRetro::Flip()

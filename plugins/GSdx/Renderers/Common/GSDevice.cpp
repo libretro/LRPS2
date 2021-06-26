@@ -108,7 +108,6 @@ void GSDevice::Present(const GSVector4i& r, int shader)
 			ShaderConvert_COMPLEX_FILTER}; // FIXME
 
 		Present(m_current, m_backbuffer, GSVector4(r), s_shader[shader]);
-		RenderOsd(m_backbuffer);
 	}
 
 	Flip();
@@ -348,20 +347,6 @@ void GSDevice::FXAA()
 	}
 }
 
-void GSDevice::ShadeBoost()
-{
-	GSVector2i s = m_current->GetSize();
-
-	if(ResizeTarget(&m_target_tmp))
-	{
-		GSVector4 sRect(0, 0, 1, 1);
-		GSVector4 dRect(0, 0, s.x, s.y);
-
-		StretchRect(m_current, sRect, m_target_tmp, dRect, ShaderConvert_COPY, false);
-		DoShadeBoost(m_target_tmp, m_current);
-	}
-}
-
 bool GSDevice::ResizeTexture(GSTexture** t, int type, int w, int h)
 {
 	if(t == NULL) {ASSERT(0); return false;}
@@ -395,34 +380,6 @@ bool GSDevice::ResizeTarget(GSTexture** t)
 	GSVector2i s = m_current->GetSize();
 	return ResizeTexture(t, GSTexture::RenderTarget, s.x, s.y);
 }
-
-GSAdapter::operator std::string() const
-{
-	char buf[sizeof "12345678:12345678:12345678:12345678"];
-	sprintf(buf, "%.4X:%.4X:%.8X:%.2X", vendor, device, subsys, rev);
-	return buf;
-}
-
-bool GSAdapter::operator==(const GSAdapter &desc_dxgi) const
-{
-	return vendor == desc_dxgi.vendor
-		&& device == desc_dxgi.device
-		&& subsys == desc_dxgi.subsys
-		&& rev == desc_dxgi.rev;
-}
-
-#ifdef _WIN32
-GSAdapter::GSAdapter(const DXGI_ADAPTER_DESC1 &desc_dxgi)
-	: vendor(desc_dxgi.VendorId)
-	, device(desc_dxgi.DeviceId)
-	, subsys(desc_dxgi.SubSysId)
-	, rev(desc_dxgi.Revision)
-{
-}
-#endif
-#ifdef __linux__
-// TODO
-#endif
 
 HWBlend GSDevice::GetBlend(size_t index)
 {

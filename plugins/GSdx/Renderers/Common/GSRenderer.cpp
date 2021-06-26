@@ -39,18 +39,12 @@ GSRenderer::GSRenderer()
 	, m_wnd()
 	, m_dev(NULL)
 {
-#ifndef __LIBRETRO__
-	m_GStitleInfoBuffer[0] = 0;
-#endif
-
 	m_interlace   = theApp.GetConfigI("interlace") % s_interlace_nb;
 	m_aspectratio = theApp.GetConfigI("AspectRatio") % s_aspect_ratio_nb;
 	m_shader      = theApp.GetConfigI("TVShader") % s_post_shader_nb;
 	m_vsync       = theApp.GetConfigI("vsync");
 	m_aa1         = theApp.GetConfigB("aa1");
 	m_fxaa        = theApp.GetConfigB("fxaa");
-	m_shaderfx    = theApp.GetConfigB("shaderfx");
-	m_shadeboost  = theApp.GetConfigB("ShadeBoost");
 	m_dithering   = theApp.GetConfigI("dithering_ps2"); // 0 off, 1 auto, 2 auto no scale
 }
 
@@ -283,16 +277,6 @@ bool GSRenderer::Merge(int field)
 			}
 		}
 
-		if(m_shadeboost)
-		{
-			m_dev->ShadeBoost();
-		}
-
-		if(m_shaderfx)
-		{
-			m_dev->ExternalFX();
-		}
-
 		if(m_fxaa)
 		{
 			m_dev->FXAA();
@@ -322,11 +306,6 @@ void GSRenderer::VSync(int field)
 
 	Flush();
 
-	if(s_dump && s_n >= s_saven)
-	{
-		m_regs->Dump(root_sw + format("%05d_f%lld_gs_reg.txt", s_n, m_perfmon.GetFrame()));
-	}
-
 	if(!m_dev->IsLost(true))
 	{
 		if(!Merge(field ? 1 : 0))
@@ -341,297 +320,25 @@ void GSRenderer::VSync(int field)
 
 	m_dev->AgePool();
 
-	// osd
-#ifndef __LIBRETRO__
-	if((m_perfmon.GetFrame() & 0x1f) == 0)
-	{
-		m_perfmon.Update();
-
-		double fps = 1000.0f / m_perfmon.Get(GSPerfMon::Frame);
-
-		std::string s;
-
-#ifdef GSTITLEINFO_API_FORCE_VERBOSE
-		if(1)//force verbose reply
-#else
-		if(m_wnd->IsManaged())
-#endif
-		{
-			//GSdx owns the window's title, be verbose.
-
-			std::string s2 = m_regs->SMODE2.INT ? (std::string("Interlaced ") + (m_regs->SMODE2.FFMD ? "(frame)" : "(field)")) : "Progressive";
-
-			s = format(
-				"%lld | %d x %d | %.2f fps (%d%%) | %s - %s | %s | %d S/%d P/%d D | %d%% CPU | %.2f | %.2f",
-				m_perfmon.GetFrame(), GetInternalResolution().x, GetInternalResolution().y, fps, (int)(100.0 * fps / GetTvRefreshRate()),
-				s2.c_str(),
-				theApp.m_gs_interlace[m_interlace].name.c_str(),
-				theApp.m_gs_aspectratio[m_aspectratio].name.c_str(),
-				(int)m_perfmon.Get(GSPerfMon::SyncPoint),
-				(int)m_perfmon.Get(GSPerfMon::Prim),
-				(int)m_perfmon.Get(GSPerfMon::Draw),
-				m_perfmon.CPU(),
-				m_perfmon.Get(GSPerfMon::Swizzle) / 1024,
-				m_perfmon.Get(GSPerfMon::Unswizzle) / 1024
-			);
-
-			double fillrate = m_perfmon.Get(GSPerfMon::Fillrate);
-
-			if(fillrate > 0)
-			{
-				s += format(" | %.2f mpps", fps * fillrate / (1024 * 1024));
-
-				int sum = 0;
-
-				for(int i = 0; i < 16; i++)
-				{
-					sum += m_perfmon.CPU(GSPerfMon::WorkerDraw0 + i);
-				}
-
-				s += format(" | %d%% CPU", sum);
-			}
-		}
-		else
-		{
-			// Satisfy PCSX2's request for title info: minimal verbosity due to more external title text
-
-			s = format("%dx%d | %s", GetInternalResolution().x, GetInternalResolution().y, theApp.m_gs_interlace[m_interlace].name.c_str());
-		}
-#ifndef __LIBRETRO__
-		if(m_capture.IsCapturing())
-		{
-			s += " | Recording...";
-		}
-#endif
-		if(m_wnd->IsManaged())
-		{
-			m_wnd->SetWindowText(s.c_str());
-		}
-		else
-		{
-			// note: do not use TryEnterCriticalSection.  It is unnecessary code complication in
-			// an area that absolutely does not matter (even if it were 100 times slower, it wouldn't
-			// be noticeable).  Besides, these locks are extremely short -- overhead of conditional
-			// is way more expensive than just waiting for the CriticalSection in 1 of 10,000,000 tries. --air
-
-			std::lock_guard<std::mutex> lock(m_pGSsetTitle_Crit);
-
-			strncpy(m_GStitleInfoBuffer, s.c_str(), countof(m_GStitleInfoBuffer) - 1);
-
-			m_GStitleInfoBuffer[sizeof(m_GStitleInfoBuffer) - 1] = 0; // make sure null terminated even if text overflows
-		}
-	}
-	else
-	{
-		// [TODO]
-		// We don't have window title rights, or the window has no title,
-		// so let's use actual OSD!
-	}
-#endif
-
 	if(m_frameskip)
-	{
 		return;
-	}
 
 	// present
-#ifndef __LIBRETRO__
-	// This will scale the OSD to the window's size.
-	// Will maintiain the font size no matter what size the window is.
-	GSVector4i window_size = m_wnd->GetClientRect();
-	m_dev->m_osd.m_real_size.x = window_size.v[2];
-	m_dev->m_osd.m_real_size.y = window_size.v[3];
-#endif
 	m_dev->Present(m_wnd->GetClientRect().fit(m_aspectratio), m_shader);
-
-#ifndef __LIBRETRO__
-	// snapshot
-	if(!m_snapshot.empty())
-	{
-		if(!m_dump && m_shift_key)
-		{
-			GSFreezeData fd = {0, nullptr};
-			Freeze(&fd, true);
-			fd.data = new uint8[fd.size];
-			Freeze(&fd, false);
-
-			if (m_control_key)
-				m_dump = std::unique_ptr<GSDumpBase>(new GSDump(m_snapshot, m_crc, fd, m_regs));
-			else
-				m_dump = std::unique_ptr<GSDumpBase>(new GSDumpXz(m_snapshot, m_crc, fd, m_regs));
-
-			delete [] fd.data;
-		}
-
-		if(GSTexture* t = m_dev->GetCurrent())
-		{
-			t->Save(m_snapshot + ".bmp");
-		}
-
-		m_snapshot.clear();
-	}
-	else if(m_dump)
-	{
-		if(m_dump->VSync(field, !m_control_key, m_regs))
-			m_dump.reset();
-	}
-	// capture
-
-	if(m_capture.IsCapturing())
-	{
-		if(GSTexture* current = m_dev->GetCurrent())
-		{
-			GSVector2i size = m_capture.GetSize();
-
-			if(GSTexture* offscreen = m_dev->CopyOffscreen(current, GSVector4(0, 0, 1, 1), size.x, size.y))
-			{
-				GSTexture::GSMap m;
-
-				if(offscreen->Map(m))
-				{
-					m_capture.DeliverFrame(m.bits, m.pitch, !m_dev->IsRBSwapped());
-
-					offscreen->Unmap();
-				}
-
-				m_dev->Recycle(offscreen);
-			}
-		}
-	}
-#endif
 }
 
 bool GSRenderer::MakeSnapshot(const std::string& path)
 {
-#ifndef __LIBRETRO__
-	if(m_snapshot.empty())
-	{
-		time_t cur_time = time(nullptr);
-		static time_t prev_snap;
-		// The variable 'n' is used for labelling the screenshots when multiple screenshots are taken in
-		// a single second, we'll start using this variable for naming when a second screenshot request is detected
-		// at the same time as the first one. Hence, we're initially setting this counter to 2 to imply that
-		// the captured image is the 2nd image captured at this specific time.
-		static int n = 2;
-		char local_time[16];
-
-		if (strftime(local_time, sizeof(local_time), "%Y%m%d%H%M%S", localtime(&cur_time)))
-		{
-			if (cur_time == prev_snap)
-			{
-				m_snapshot = format("%s_%s_(%d)", path.c_str(), local_time, n++);
-			}
-			else
-			{
-				n = 2;
-				m_snapshot = format("%s_%s", path.c_str(), local_time);
-			}
-			prev_snap = cur_time;
-		}
-	}
-#endif
-
 	return true;
 }
 
 std::wstring* GSRenderer::BeginCapture()
 {
-#ifdef __LIBRETRO__
 	return nullptr;
-#else
-	GSVector4i disp = m_wnd->GetClientRect().fit(m_aspectratio);
-	float aspect = (float)disp.width() / std::max(1, disp.height());
-
-	return m_capture.BeginCapture(GetTvRefreshRate(), GetInternalResolution(), aspect);
-#endif
 }
 
 void GSRenderer::EndCapture()
 {
-#ifndef __LIBRETRO__
-	m_capture.EndCapture();
-#endif
-}
-
-void GSRenderer::KeyEvent(GSKeyEventData* e)
-{
-#ifdef _WIN32
-	m_shift_key = !!(::GetAsyncKeyState(VK_SHIFT) & 0x8000);
-	m_control_key = !!(::GetAsyncKeyState(VK_CONTROL) & 0x8000);
-#else
-	switch(e->key)
-	{
-		case XK_Shift_L:
-		case XK_Shift_R:
-			m_shift_key = (e->type == KEYPRESS);
-			return;
-		case XK_Control_L:
-		case XK_Control_R:
-			m_control_key = (e->type == KEYPRESS);
-			return;
-	}
-#endif
-
-	if(e->type == KEYPRESS)
-	{
-
-		int step = m_shift_key ? -1 : 1;
-
-#if defined(__unix__)
-#define VK_F5 XK_F5
-#define VK_F6 XK_F6
-#define VK_F7 XK_F7
-#define VK_DELETE XK_Delete
-#define VK_INSERT XK_Insert
-#define VK_PRIOR XK_Prior
-#define VK_NEXT XK_Next
-#define VK_HOME XK_Home
-#endif
-
-		switch(e->key)
-		{
-		case VK_F5:
-			m_interlace = (m_interlace + s_interlace_nb + step) % s_interlace_nb;
-			theApp.SetConfig("interlace", m_interlace);
-			printf("GSdx: Set deinterlace mode to %d (%s).\n", m_interlace, theApp.m_gs_interlace.at(m_interlace).name.c_str());
-			return;
-		case VK_F6:
-			if( m_wnd->IsManaged() )
-				m_aspectratio = (m_aspectratio + s_aspect_ratio_nb + step) % s_aspect_ratio_nb;
-			return;
-		case VK_F7:
-			m_shader = (m_shader + s_post_shader_nb + step) % s_post_shader_nb;
-			theApp.SetConfig("TVShader", m_shader);
-			printf("GSdx: Set shader to: %d.\n", m_shader);
-			return;
-		case VK_DELETE:
-			m_aa1 = !m_aa1;
-			theApp.SetConfig("aa1", m_aa1);
-			printf("GSdx: (Software) Edge anti-aliasing is now %s.\n", m_aa1 ? "enabled" : "disabled");
-			return;
-		case VK_INSERT:
-			m_mipmap = (m_mipmap + s_mipmap_nb + step) % s_mipmap_nb;
-			theApp.SetConfig("mipmap_hw", m_mipmap);
-			printf("GSdx: Mipmapping is now %s.\n", theApp.m_gs_hack.at(m_mipmap).name.c_str());
-			return;
-		case VK_PRIOR:
-			m_fxaa = !m_fxaa;
-			theApp.SetConfig("fxaa", m_fxaa);
-			printf("GSdx: FXAA anti-aliasing is now %s.\n", m_fxaa ? "enabled" : "disabled");
-			return;
-		case VK_HOME:
-			m_shaderfx = !m_shaderfx;
-			theApp.SetConfig("shaderfx", m_shaderfx);
-			printf("GSdx: External post-processing is now %s.\n", m_shaderfx ? "enabled" : "disabled");
-			return;
-		case VK_NEXT: // As requested by Prafull, to be removed later
-			char dither_msg[3][16] = {"disabled", "auto", "auto unscaled"};
-			m_dithering = (m_dithering+1)%3;
-			printf("GSdx: Dithering is now %s.\n", dither_msg[m_dithering]);
-			return;
-		}
-
-	}
 }
 
 void GSRenderer::PurgePool()
@@ -639,8 +346,6 @@ void GSRenderer::PurgePool()
 	m_dev->PurgePool();
 }
 
-#ifdef __LIBRETRO__
 void GSRenderer::UpdateRendererOptions()
 {
 }
-#endif

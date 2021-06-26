@@ -25,10 +25,8 @@
 #include "GSVector.h"
 #include "Renderers/Common/GSDevice.h"
 
-#ifdef __LIBRETRO__
 #include "libretro_d3d.h"
 extern retro_environment_t environ_cb;
-#endif
 
 struct GSVertexShader11
 {
@@ -380,11 +378,7 @@ private:
 	void DoMerge(GSTexture* sTex[3], GSVector4* sRect, GSTexture* dTex, GSVector4* dRect, const GSRegPMODE& PMODE, const GSRegEXTBUF& EXTBUF, const GSVector4& c) final;
 	void DoInterlace(GSTexture* sTex, GSTexture* dTex, int shader, bool linear, float yoffset = 0) final;
 	void DoFXAA(GSTexture* sTex, GSTexture* dTex) final;
-	void DoShadeBoost(GSTexture* sTex, GSTexture* dTex) final;
-	void DoExternalFX(GSTexture* sTex, GSTexture* dTex) final;
-	void InitExternalFX();
 	void InitFXAA(); // Bug workaround! Stack corruption? Heap corruption? No idea
-	void RenderOsd(GSTexture* dt);
 	void BeforeDraw();
 	void AfterDraw();
 	
@@ -393,9 +387,6 @@ private:
 	CComPtr<IDXGIFactory2> m_factory;
 	CComPtr<ID3D11Device> m_dev;
 	CComPtr<ID3D11DeviceContext> m_ctx;
-#ifndef __LIBRETRO__
-	CComPtr<IDXGISwapChain1> m_swapchain;
-#endif
 	CComPtr<ID3D11Buffer> m_vb;
 	CComPtr<ID3D11Buffer> m_vb_old;
 	CComPtr<ID3D11Buffer> m_ib;
@@ -460,23 +451,11 @@ private:
 		CComPtr<ID3D11Buffer> cb;
 	} m_interlace;
 
-	struct
-	{
-		CComPtr<ID3D11PixelShader> ps;
-		CComPtr<ID3D11Buffer> cb;
-	} m_shaderfx;
-
 	struct 
 	{
 		CComPtr<ID3D11PixelShader> ps;
 		CComPtr<ID3D11Buffer> cb;
 	} m_fxaa;
-
-	struct 
-	{
-		CComPtr<ID3D11PixelShader> ps;
-		CComPtr<ID3D11Buffer> cb;
-	} m_shadeboost;
 
 	struct
 	{
@@ -500,9 +479,6 @@ private:
 	VSConstantBuffer m_vs_cb_cache;
 	GSConstantBuffer m_gs_cb_cache;
 	PSConstantBuffer m_ps_cb_cache;
-#ifndef __LIBRETRO__
-	std::unique_ptr<GSTexture> m_font;
-#endif
 protected:
 	struct {D3D_FEATURE_LEVEL level; std::string model, vs, gs, ps, cs;} m_shader;
 public:

@@ -38,8 +38,6 @@ struct GSSetting
 	}
 };
 
-const char* dialog_message(int ID, bool* updateText = NULL);
-
 #ifndef _WIN32
 enum {
 	IDC_FILTER,

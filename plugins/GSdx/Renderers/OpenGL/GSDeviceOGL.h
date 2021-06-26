@@ -467,18 +467,9 @@ private:
 	} m_fxaa;
 
 	struct {
-		GLuint ps;
-		GSUniformBufferOGL* cb;
-	} m_shaderfx;
-
-	struct {
 		GSDepthStencilOGL* dss;
 		GSTexture* t;
 	} m_date;
-
-	struct {
-		GLuint ps;
-	} m_shadeboost;
 
 	struct {
 		uint16 last_query;
@@ -502,18 +493,12 @@ private:
 	VSConstantBuffer m_vs_cb_cache;
 	PSConstantBuffer m_ps_cb_cache;
 	MiscConstantBuffer m_misc_cb_cache;
-#ifndef __LIBRETRO__
-	std::unique_ptr<GSTexture> m_font;
-#endif
 	GSTexture* CreateSurface(int type, int w, int h, int format);
 	GSTexture* FetchSurface(int type, int w, int h, int format);
 
 	void DoMerge(GSTexture* sTex[3], GSVector4* sRect, GSTexture* dTex, GSVector4* dRect, const GSRegPMODE& PMODE, const GSRegEXTBUF& EXTBUF, const GSVector4& c) final;
 	void DoInterlace(GSTexture* sTex, GSTexture* dTex, int shader, bool linear, float yoffset = 0) final;
 	void DoFXAA(GSTexture* sTex, GSTexture* dTex) final;
-	void DoShadeBoost(GSTexture* sTex, GSTexture* dTex) final;
-	void DoExternalFX(GSTexture* sTex, GSTexture* dTex) final;
-	void RenderOsd(GSTexture* dt);
 
 	void OMAttachRt(GSTextureOGL* rt = NULL);
 	void OMAttachDs(GSTextureOGL* ds = NULL);

@@ -24,14 +24,9 @@
 #include "GSdx.h"
 #include "Window/GSWnd.h"
 #include "GSState.h"
-#include "GSCapture.h"
 
 class GSRenderer : public GSState
 {
-#ifndef __LIBRETRO__
-	GSCapture m_capture;
-	std::string m_snapshot;
-#endif
 	int m_shader;
 
 	bool Merge(int field);
@@ -45,9 +40,7 @@ protected:
 	int m_aspectratio;
 	int m_vsync;
 	bool m_aa1;
-	bool m_shaderfx;
 	bool m_fxaa;
-	bool m_shadeboost;
 	bool m_texture_shuffle;
 	GSVector2i m_real_size;
 
@@ -61,16 +54,13 @@ public:
 public:
 	GSRenderer();
 	
-#ifdef __LIBRETRO__
 	virtual void UpdateRendererOptions();
-#endif
 
 	virtual ~GSRenderer();
 	virtual bool CreateDevice(GSDevice* dev);
 	virtual void ResetDevice();
 	virtual void VSync(int field);
 	virtual bool MakeSnapshot(const std::string& path);
-	virtual void KeyEvent(GSKeyEventData* e);
 	virtual bool CanUpscale() {return false;}
 	virtual int GetUpscaleMultiplier() {return 1;}
 	virtual GSVector2i GetCustomResolution() {return GSVector2i(0,0);}
@@ -82,11 +72,4 @@ public:
 	virtual void EndCapture();
 
 	void PurgePool();
-
-public:
-#ifndef __LIBRETRO__
-	std::mutex m_pGSsetTitle_Crit;
-
-	char m_GStitleInfoBuffer[128];
-#endif
 };

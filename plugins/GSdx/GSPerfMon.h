@@ -40,12 +40,9 @@ public:
 	};
 
 protected:
-	double m_counters[CounterLast];
 	double m_stats[CounterLast];
 	uint64 m_begin[TimerLast], m_total[TimerLast], m_start[TimerLast];
 	uint64 m_frame;
-	clock_t m_lastframe;
-	int m_count;
 
 	friend class GSPerfMonAutoTimer;
 
@@ -66,10 +63,7 @@ public:
 
 class GSPerfMonAutoTimer
 {
-	GSPerfMon* m_pm;
-	int m_timer;
-
 public:
-	GSPerfMonAutoTimer(GSPerfMon* pm, int timer = GSPerfMon::Main) {m_timer = timer; (m_pm = pm)->Start(m_timer);}
-	~GSPerfMonAutoTimer() {m_pm->Stop(m_timer);}
+	GSPerfMonAutoTimer(GSPerfMon* pm, int timer = GSPerfMon::Main) {}
+	~GSPerfMonAutoTimer() {}
 };

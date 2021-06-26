@@ -103,7 +103,6 @@ bool GSDevice11::Create(const std::shared_ptr<GSWnd> &wnd)
 	D3D11_RASTERIZER_DESC rd;
 	D3D11_BLEND_DESC bsd;
 
-#ifdef __LIBRETRO__
 	retro_hw_render_interface_d3d11 *d3d11 = nullptr;
 	if (!environ_cb(RETRO_ENVIRONMENT_GET_HW_RENDER_INTERFACE, (void **)&d3d11) || !d3d11) {
 		printf("Failed to get HW rendering interface!\n");
@@ -118,106 +117,6 @@ bool GSDevice11::Create(const std::shared_ptr<GSWnd> &wnd)
 	m_dev = d3d11->device;
 	m_ctx = d3d11->context;
 	D3D_FEATURE_LEVEL level = d3d11->featureLevel;
-#else
-	// create factory
-	{
-		const HRESULT result = CreateDXGIFactory2(0, IID_PPV_ARGS(&m_factory));
-		if (FAILED(result))
-		{
-			fprintf(stderr, "D3D11: Unable to create DXGIFactory2 (reason: %x)\n", result);
-			return false;
-		}
-	}
-
-	// enumerate adapters
-	CComPtr<IDXGIAdapter1> adapter;
-	D3D_DRIVER_TYPE driver_type = D3D_DRIVER_TYPE_HARDWARE;
-
-	{
-		std::string adapter_id = theApp.GetConfigS("Adapter");
-
-		if (adapter_id == "ref")
-			driver_type = D3D_DRIVER_TYPE_REFERENCE;
-		else
-		{
-			for (int i = 0;; i++)
-			{
-				CComPtr<IDXGIAdapter1> enum_adapter;
-				if (S_OK != m_factory->EnumAdapters1(i, &enum_adapter))
-					break;
-				DXGI_ADAPTER_DESC1 desc;
-				hr = enum_adapter->GetDesc1(&desc);
-				if (S_OK == hr && (GSAdapter(desc) == adapter_id || adapter_id == "default"))
-				{
-					if (desc.VendorId == 0x10DE)
-						nvidia_vendor = true;
-
-					adapter = enum_adapter;
-					driver_type = D3D_DRIVER_TYPE_UNKNOWN;
-					break;
-				}
-			}
-		}
-	}
-
-	D3D_FEATURE_LEVEL level;
-
-	// device creation
-	{
-		uint32 flags = D3D11_CREATE_DEVICE_SINGLETHREADED;
-
-#ifdef DEBUG
-		flags |= D3D11_CREATE_DEVICE_DEBUG;
-#endif
-
-		constexpr std::array<D3D_FEATURE_LEVEL, 3> supported_levels = {
-			D3D_FEATURE_LEVEL_11_0,
-			D3D_FEATURE_LEVEL_10_1,
-			D3D_FEATURE_LEVEL_10_0,
-		};
-
-		const HRESULT result = D3D11CreateDevice(
-			adapter, driver_type, nullptr, flags,
-			supported_levels.data(), supported_levels.size(),
-			D3D11_SDK_VERSION, &m_dev, &level, &m_ctx
-		);
-
-		if (FAILED(result))
-		{
-			fprintf(stderr, "D3D11: Unable to create D3D11 device (reason %x)\n", result);
-			return false;
-		}
-	}
-
-	// swapchain creation
-	{
-		DXGI_SWAP_CHAIN_DESC1 swapchain_description = {};
-
-		// let the runtime get window size
-		swapchain_description.Width = 0;
-		swapchain_description.Height = 0;
-
-		swapchain_description.BufferCount = 2;
-		swapchain_description.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		swapchain_description.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapchain_description.SampleDesc.Count = 1;
-		swapchain_description.SampleDesc.Quality = 0;
-
-		// TODO: update swap effect
-		swapchain_description.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-
-		const HRESULT result = m_factory->CreateSwapChainForHwnd(
-			m_dev, reinterpret_cast<HWND>(m_wnd->GetHandle()),
-			&swapchain_description, nullptr, nullptr, &m_swapchain
-		);
-
-		if (FAILED(result))
-		{
-			fprintf(stderr, "D3D11: Failed to create swapchain (reason: %x)\n", result);
-			return false;
-		}
-	}
-#endif
 	if(!SetFeatureLevel(level, true))
 		return false;
 
@@ -341,35 +240,6 @@ bool GSDevice11::Create(const std::shared_ptr<GSWnd> &wnd)
 		CreateShader(shader, "interlace.fx", nullptr, format("ps_main%d", i).c_str(), sm_model.GetPtr(), &m_interlace.ps[i]);
 	}
 
-	// Shade Boost
-
-	ShaderMacro sm_sboost(m_shader.model);
-
-	sm_sboost.AddMacro("SB_SATURATION", std::max(0, std::min(theApp.GetConfigI("ShadeBoost_Saturation"), 100)));
-	sm_sboost.AddMacro("SB_BRIGHTNESS", std::max(0, std::min(theApp.GetConfigI("ShadeBoost_Brightness"), 100)));
-	sm_sboost.AddMacro("SB_CONTRAST", std::max(0, std::min(theApp.GetConfigI("ShadeBoost_Contrast"), 100)));
-
-	memset(&bd, 0, sizeof(bd));
-
-	bd.ByteWidth = sizeof(ShadeBoostConstantBuffer);
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-
-	hr = m_dev->CreateBuffer(&bd, NULL, &m_shadeboost.cb);
-
-	theApp.LoadResource(IDR_SHADEBOOST_FX, shader);
-	CreateShader(shader, "shadeboost.fx", nullptr, "ps_main", sm_sboost.GetPtr(), &m_shadeboost.ps);
-
-	// External fx shader
-
-	memset(&bd, 0, sizeof(bd));
-
-	bd.ByteWidth = sizeof(ExternalFXConstantBuffer);
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-
-	hr = m_dev->CreateBuffer(&bd, NULL, &m_shaderfx.cb);
-
 	// Fxaa
 
 	memset(&bd, 0, sizeof(bd));
@@ -450,13 +320,6 @@ bool GSDevice11::Create(const std::shared_ptr<GSWnd> &wnd)
 	memset(&blend, 0, sizeof(blend));
 
 	m_dev->CreateBlendState(&blend, &m_date.bs);
-#ifndef __LIBRETRO__
-	GSVector2i tex_font = m_osd.get_texture_font_size();
-
-	m_font = std::unique_ptr<GSTexture>(
-		CreateSurface(GSTexture::Texture, tex_font.x, tex_font.y, DXGI_FORMAT_R8_UNORM)
-	);
-#endif
 	return true;
 }
 
@@ -464,7 +327,6 @@ bool GSDevice11::Reset(int w, int h)
 {
 	if(!__super::Reset(w, h))
 		return false;
-#ifdef __LIBRETRO__
 	D3D11_TEXTURE2D_DESC desc{};
 	desc.Width = w;
 	desc.Height = h;
@@ -491,26 +353,6 @@ bool GSDevice11::Reset(int w, int h)
 	free((void*)srsc.pSysMem);
 
 	m_backbuffer = new GSTexture11(texture);
-#else
-	if(m_swapchain)
-	{
-		DXGI_SWAP_CHAIN_DESC scd;
-
-		memset(&scd, 0, sizeof(scd));
-
-		m_swapchain->GetDesc(&scd);
-		m_swapchain->ResizeBuffers(scd.BufferCount, w, h, scd.BufferDesc.Format, 0);
-
-		CComPtr<ID3D11Texture2D> backbuffer;
-
-		if(FAILED(m_swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backbuffer)))
-		{
-			return false;
-		}
-
-		m_backbuffer = new GSTexture11(backbuffer);
-	}
-#endif
 
 	return true;
 }
@@ -519,7 +361,7 @@ void GSDevice11::SetVSync(int vsync)
 {
 	m_vsync = vsync ? 1 : 0;
 }
-#ifdef __LIBRETRO__
+
 void GSDevice11::Flip()
 {
 //	if(!m_current)
@@ -560,12 +402,6 @@ void GSDevice11::Flip()
 	m_ctx->RSSetScissorRects(1, m_state.scissor);
 #endif
 }
-#else
-void GSDevice11::Flip()
-{
-	m_swapchain->Present(m_vsync, 0);
-}
-#endif
 
 void GSDevice11::BeforeDraw()
 {
@@ -917,49 +753,6 @@ void GSDevice11::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture*
 	PSSetShaderResources(NULL, NULL);
 }
 
-void GSDevice11::RenderOsd(GSTexture* dt)
-{
-#ifndef __LIBRETRO__
-	BeginScene();
-
-	// om
-	OMSetDepthStencilState(m_convert.dss, 0);
-	OMSetBlendState(m_merge.bs, 0);
-	OMSetRenderTargets(dt, NULL);
-
-	if(m_osd.m_texture_dirty) {
-		m_osd.upload_texture_atlas(m_font.get());
-	}
-
-	// ps
-	PSSetShaderResource(0, m_font.get());
-	PSSetSamplerState(m_convert.pt, NULL);
-	PSSetShader(m_convert.ps[ShaderConvert_OSD], NULL);
-
-	// ia
-	IASetInputLayout(m_convert.il);
-	IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	// Note scaling could also be done in shader (require gl3/dx10)
-	size_t count = m_osd.Size();
-	void* dst = NULL;
-
-	IAMapVertexBuffer(&dst, sizeof(GSVertexPT1), count);
-	count = m_osd.GeneratePrimitives((GSVertexPT1*)dst, count);
-	IAUnmapVertexBuffer();
-
-	// vs
-	VSSetShader(m_convert.vs, NULL);
-
-	// gs
-	GSSetShader(NULL, NULL);
-
-	DrawPrimitive();
-
-	EndScene();
-#endif
-}
-
 void GSDevice11::DoMerge(GSTexture* sTex[3], GSVector4* sRect, GSTexture* dTex, GSVector4* dRect, const GSRegPMODE& PMODE, const GSRegEXTBUF& EXTBUF, const GSVector4& c)
 {
 	bool slbg = PMODE.SLBG;
@@ -995,62 +788,6 @@ void GSDevice11::DoInterlace(GSTexture* sTex, GSTexture* dTex, int shader, bool 
 	m_ctx->UpdateSubresource(m_interlace.cb, 0, NULL, &cb, 0, 0);
 
 	StretchRect(sTex, sRect, dTex, dRect, m_interlace.ps[shader], m_interlace.cb, linear);
-}
-
-//Included an init function for this also. Just to be safe.
-void GSDevice11::InitExternalFX()
-{
-	if (!ExShader_Compiled)
-	{
-		try {
-			std::string config_name(theApp.GetConfigS("shaderfx_conf"));
-			std::ifstream fconfig(config_name);
-			std::stringstream shader;
-			if (fconfig.good())
-				shader << fconfig.rdbuf() << "\n";
-			else
-				fprintf(stderr, "GSdx: External shader config '%s' not loaded.\n", config_name.c_str());
-
-			std::string shader_name(theApp.GetConfigS("shaderfx_glsl"));
-			std::ifstream fshader(shader_name);
-			if (fshader.good())
-			{
-				shader << fshader.rdbuf();
-				const std::string& s = shader.str();
-				std::vector<char> buff(s.begin(), s.end());
-				ShaderMacro sm(m_shader.model);
-				CreateShader(buff, shader_name.c_str(), D3D_COMPILE_STANDARD_FILE_INCLUDE, "ps_main", sm.GetPtr(), &m_shaderfx.ps);
-			}
-			else
-			{
-				fprintf(stderr, "GSdx: External shader '%s' not loaded and will be disabled!\n", shader_name.c_str());
-			}
-		}
-		catch (GSDXRecoverableError) {
-			printf("GSdx: failed to compile external post-processing shader. \n");
-		}
-		ExShader_Compiled = true;
-	}
-}
-
-void GSDevice11::DoExternalFX(GSTexture* sTex, GSTexture* dTex)
-{
-	GSVector2i s = dTex->GetSize();
-
-	GSVector4 sRect(0, 0, 1, 1);
-	GSVector4 dRect(0, 0, s.x, s.y);
-
-	ExternalFXConstantBuffer cb;
-
-	InitExternalFX();
-
-	cb.xyFrame = GSVector2((float)s.x, (float)s.y);
-	cb.rcpFrame = GSVector4(1.0f / (float)s.x, 1.0f / (float)s.y, 0.0f, 0.0f);
-	cb.rcpFrameOpt = GSVector4::zero();
-
-	m_ctx->UpdateSubresource(m_shaderfx.cb, 0, NULL, &cb, 0, 0);
-
-	StretchRect(sTex, sRect, dTex, dRect, m_shaderfx.ps, m_shaderfx.cb, true);
 }
 
 // This shouldn't be necessary, we have some bug corrupting memory
@@ -1092,23 +829,6 @@ void GSDevice11::DoFXAA(GSTexture* sTex, GSTexture* dTex)
 
 	//sTex->Save("c:\\temp1\\1.bmp");
 	//dTex->Save("c:\\temp1\\2.bmp");
-}
-
-void GSDevice11::DoShadeBoost(GSTexture* sTex, GSTexture* dTex)
-{
-	GSVector2i s = dTex->GetSize();
-
-	GSVector4 sRect(0, 0, 1, 1);
-	GSVector4 dRect(0, 0, s.x, s.y);
-
-	ShadeBoostConstantBuffer cb;
-
-	cb.rcpFrame = GSVector4(1.0f / s.x, 1.0f / s.y, 0.0f, 0.0f);
-	cb.rcpFrameOpt = GSVector4::zero();
-
-	m_ctx->UpdateSubresource(m_shadeboost.cb, 0, NULL, &cb, 0, 0);
-
-	StretchRect(sTex, sRect, dTex, dRect, m_shadeboost.ps, m_shadeboost.cb, true);
 }
 
 void GSDevice11::SetupDATE(GSTexture* rt, GSTexture* ds, const GSVertexPT1* vertices, bool datm)

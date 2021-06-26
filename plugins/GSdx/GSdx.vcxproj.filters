@@ -69,9 +69,6 @@
     <ClCompile Include="Renderers\SW\GSDrawScanlineCodeGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GSDump.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GSdx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -231,9 +228,6 @@
     <ClCompile Include="GSPng.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GSLzma.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Window\GSSettingsDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -297,9 +291,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Renderers\SW\GSDrawScanlineCodeGenerator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GSDump.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GSdx.h">
@@ -465,9 +456,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GSThread_CXX11.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GSLzma.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Renderers\Common\GSFastList.h">

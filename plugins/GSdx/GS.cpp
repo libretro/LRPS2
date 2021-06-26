@@ -27,31 +27,15 @@
 #include "Renderers/Null/GSDeviceNull.h"
 #include "Renderers/OpenGL/GSDeviceOGL.h"
 #include "Renderers/OpenGL/GSRendererOGL.h"
-#include "GSLzma.h"
 
 #ifdef _WIN32
-
 #include "Renderers/DX11/GSRendererDX11.h"
 #include "Renderers/DX11/GSDevice11.h"
-#include "Window/GSWndDX.h"
-#include "Window/GSWndWGL.h"
-#include "Window/GSSettingsDlg.h"
-
-static HRESULT s_hr = E_FAIL;
-
-#else
-
-#include "Window/GSWndEGL.h"
-
-extern bool RunLinuxDialog();
-
 #endif
 
-#ifdef __LIBRETRO__
 #include "Window/GSWndRetro.h"
 //#include "options.h"
 #include "options_tools.h"
-#endif
 
 #define PS2E_LT_GS 0x01
 #define PS2E_GS_VERSION 0x0006
@@ -62,9 +46,6 @@ static GSRenderer* s_gs = NULL;
 static void (*s_irq)() = NULL;
 static uint8* s_basemem = NULL;
 static int s_vsync = 0;
-static bool s_exclusive = true;
-static std::string s_renderer_name;
-bool gsopen_done = false; // crash guard for GSgetTitleInfo2 and GSKeyEvent (replace with lock?)
 
 EXPORT_C_(uint32) PS2EgetLibType()
 {
@@ -148,50 +129,26 @@ EXPORT_C_(int) GSinit()
 	else
 		g_const->Init();
 
-#ifdef _WIN32
-	s_hr = ::CoInitializeEx(NULL, COINIT_MULTITHREADED);
-#endif
-
 	return 0;
 }
 
 EXPORT_C GSshutdown()
 {
-	gsopen_done = false;
-
 	delete s_gs;
 	s_gs = nullptr;
 
 	theApp.SetCurrentRendererType(GSRendererType::Undefined);
-
-#ifdef _WIN32
-	if(SUCCEEDED(s_hr))
-	{
-		::CoUninitialize();
-
-		s_hr = E_FAIL;
-	}
-#endif
 }
 
 EXPORT_C GSclose()
 {
-	gsopen_done = false;
-
 	if(s_gs == NULL) return;
 
 	s_gs->ResetDevice();
 
-	// Opengl requirement: It must be done before the Detach() of
-	// the context
 	delete s_gs->m_dev;
 
 	s_gs->m_dev = NULL;
-
-	if (s_gs->m_wnd)
-	{
-		s_gs->m_wnd->Detach();
-	}
 }
 
 static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int threads = -1)
@@ -232,7 +189,6 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 		{
 			// Select the window first to detect the GL requirement
 			std::vector<std::shared_ptr<GSWnd>> wnds;
-#ifdef __LIBRETRO__
 			switch (renderer)
 			{
 				case GSRendererType::OGL_HW:
@@ -243,41 +199,6 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 					wnds.push_back(std::make_shared<GSWndRetro>());
 					break;
 			}
-#else
-			switch (renderer)
-			{
-				case GSRendererType::OGL_HW:
-				case GSRendererType::OGL_SW:
-#if defined(__unix__)
-					// Note: EGL code use GLX otherwise maybe it could be also compatible with Windows
-					// Yes OpenGL code isn't complicated enough !
-					switch (GSWndEGL::SelectPlatform()) {
-#if GS_EGL_X11
-						case EGL_PLATFORM_X11_KHR:
-							wnds.push_back(std::make_shared<GSWndEGL_X11>());
-							break;
-#endif
-#if GS_EGL_WL
-						case EGL_PLATFORM_WAYLAND_KHR:
-							wnds.push_back(std::make_shared<GSWndEGL_WL>());
-							break;
-#endif
-						default:
-							break;
-					}
-#else
-					wnds.push_back(std::make_shared<GSWndWGL>());
-#endif
-					break;
-				default:
-#ifdef _WIN32
-					wnds.push_back(std::make_shared<GSWndDX>());
-#else
-					wnds.push_back(std::make_shared<GSWndEGL_X11>());
-#endif
-					break;
-			}
-#endif
 			int w = theApp.GetConfigI("ModeWidth");
 			int h = theApp.GetConfigI("ModeHeight");
 #if defined(__unix__)
@@ -294,14 +215,7 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 					{
 						// old-style API expects us to create and manage our own window:
 						wnd->Create(title, w, h);
-
-						wnd->Show();
-
 						*dsp = wnd->GetDisplay();
-					}
-					else
-					{
-						wnd->Attach(win_handle, false);
 					}
 
 					window = wnd; // Previous code will throw if window isn't supported
@@ -310,7 +224,6 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 				}
 				catch (GSDXRecoverableError)
 				{
-					wnd->Detach();
 				}
 			}
 
@@ -330,31 +243,25 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 #ifdef _WIN32
 		case GSRendererType::DX1011_HW:
 			dev = new GSDevice11();
-			s_renderer_name = "D3D11";
 			renderer_name = "Direct3D 11";
 			break;
 #endif
 		case GSRendererType::OGL_HW:
 			dev = new GSDeviceOGL();
-			s_renderer_name = "OGL";
 			renderer_name = "OpenGL";
 			break;
 		case GSRendererType::OGL_SW:
 			dev = new GSDeviceOGL();
-			s_renderer_name = "SW";
 			renderer_name = "Software";
 			break;
 		case GSRendererType::Null:
 			dev = new GSDeviceNull();
-			s_renderer_name = "NULL";
 			renderer_name = "Null";
 			break;
 		}
 
 		printf("Current Renderer: %s\n", renderer_name.c_str());
-#ifdef __LIBRETRO__
 		log_cb(RETRO_LOG_INFO, "Launching with Renderer:%s\n", renderer_name.c_str());
-#endif
 
 		if (dev == NULL)
 		{
@@ -427,33 +334,24 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 }
 
 
-#ifdef __LIBRETRO__
 void GSUpdateOptions()
 {
 	s_gs->UpdateRendererOptions();
 }
-#endif
 
 
 EXPORT_C_(void) GSosdLog(const char *utf8, uint32 color)
 {
-#ifndef __LIBRETRO__
-	if(s_gs && s_gs->m_dev) s_gs->m_dev->m_osd.Log(utf8);
-#endif
 }
 
 EXPORT_C_(void) GSosdMonitor(const char *key, const char *value, uint32 color)
 {
-#ifndef __LIBRETRO__
-	if(s_gs && s_gs->m_dev) s_gs->m_dev->m_osd.Monitor(key, value);
-#endif
 }
 
 EXPORT_C_(int) GSopen2(void** dsp, uint32 flags)
 {
 	static bool stored_toggle_state = false;
 	const bool toggle_state = !!(flags & 4);
-#ifdef __LIBRETRO__
 
 	switch (hw_render.context_type)
 	{
@@ -479,7 +377,6 @@ EXPORT_C_(int) GSopen2(void** dsp, uint32 flags)
 			break;
 	}
 	
-#endif
 	auto current_renderer = theApp.GetCurrentRendererType();
 
 	if (current_renderer != GSRendererType::Undefined && stored_toggle_state != toggle_state)
@@ -523,8 +420,6 @@ EXPORT_C_(int) GSopen2(void** dsp, uint32 flags)
 	if (s_gs != NULL)
 		s_gs->SetAspectRatio(0);	 // PCSX2 manages the aspect ratios
 
-	gsopen_done = true;
-
 	return retval;
 }
 
@@ -556,8 +451,6 @@ EXPORT_C_(int) GSopen(void** dsp, const char* title, int mt)
 	{
 		s_gs->SetMultithreaded(!!mt);
 	}
-
-	gsopen_done = true;
 
 	return retval;
 }
@@ -708,34 +601,7 @@ EXPORT_C GSgifTransfer3(uint8* mem, uint32 size)
 
 EXPORT_C GSvsync(int field)
 {
-	try
-	{
-#ifdef _WIN32
-
-		if(s_gs->m_wnd->IsManaged())
-		{
-			MSG msg;
-
-			memset(&msg, 0, sizeof(msg));
-
-			while(msg.message != WM_QUIT && PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-		}
-
-#endif
-
-		s_gs->VSync(field);
-	}
-	catch (GSDXRecoverableError)
-	{
-	}
-	catch (const std::bad_alloc&)
-	{
-		fprintf(stderr, "GSdx: Memory allocation error\n");
-	}
+   s_gs->VSync(field);
 }
 
 EXPORT_C_(void) GSchangeSaveState(int, const char *filename)
@@ -767,16 +633,6 @@ EXPORT_C_(uint32) GSmakeSnapshot(char* path)
 
 EXPORT_C GSkeyEvent(GSKeyEventData* e)
 {
-	try
-	{
-		if(gsopen_done)
-		{
-			s_gs->KeyEvent(e);
-		}
-	}
-	catch (GSDXRecoverableError)
-	{
-	}
 }
 
 EXPORT_C_(int) GSfreeze(int mode, GSFreezeData* data)
@@ -805,34 +661,10 @@ EXPORT_C_(int) GSfreeze(int mode, GSFreezeData* data)
 
 EXPORT_C GSconfigure()
 {
-	try
-	{
-		if(!GSUtil::CheckSSE()) return;
+   if(!GSUtil::CheckSSE())
+      return;
 
-		theApp.Init();
-
-#ifndef __LIBRETRO__
-#ifdef _WIN32
-		GSDialog::InitCommonControls();
-		if(GSSettingsDlg().DoModal() == IDOK)
-		{
-			// Force a reload of the gs state
-			theApp.SetCurrentRendererType(GSRendererType::Undefined);
-		}
-
-#else
-
-		if (RunLinuxDialog()) {
-			theApp.ReloadConfig();
-			// Force a reload of the gs state
-			theApp.SetCurrentRendererType(GSRendererType::Undefined);
-		}
-#endif
-#endif
-
-	} catch (GSDXRecoverableError)
-	{
-	}
+   theApp.Init();
 }
 
 EXPORT_C_(int) GStest()
@@ -869,39 +701,7 @@ void pt(const char* str){
 
 EXPORT_C_(std::wstring*) GSsetupRecording(int start)
 {
-	if (s_gs == NULL) {
-		printf("GSdx: no s_gs for recording\n");
-		return nullptr;
-	}
-#if defined(__unix__)
-	if (!theApp.GetConfigB("capture_enabled")) {
-		printf("GSdx: Recording is disabled\n");
-		return nullptr;
-	}
-#endif
-	std::wstring* filename = nullptr;
-	if(start & 1)
-	{
-		printf("GSdx: Recording start command\n");
-		filename = s_gs->BeginCapture();
-		if (filename)
-		{
-			pt(" - Capture started\n");
-		}
-		else
-		{
-			pt(" - Capture cancelled\n");
-			return nullptr;
-		}
-	}
-	else
-	{
-		printf("GSdx: Recording end command\n");
-		s_gs->EndCapture();
-		pt(" - Capture ended\n");
-	}
-
-	return filename;
+   return nullptr;
 }
 
 EXPORT_C GSsetGameCRC(uint32 crc, int options)
@@ -916,24 +716,6 @@ EXPORT_C GSgetLastTag(uint32* tag)
 
 EXPORT_C GSgetTitleInfo2(char* dest, size_t length)
 {
-#ifndef __LIBRETRO__
-	std::string s;
-	s.append(s_renderer_name);
-	// TODO: this gets called from a different thread concurrently with GSOpen (on linux)
-	if (gsopen_done && s_gs != NULL && s_gs->m_GStitleInfoBuffer[0])
-	{
-		std::lock_guard<std::mutex> lock(s_gs->m_pGSsetTitle_Crit);
-
-		s.append(" | ").append(s_gs->m_GStitleInfoBuffer);
-
-		if(s.size() > length - 1)
-		{
-			s = s.substr(0, length - 1);
-		}
-	}
-
-	strcpy(dest, s.c_str());
-#endif
 }
 
 EXPORT_C GSsetFrameSkip(int frameskip)
@@ -953,648 +735,8 @@ EXPORT_C GSsetVsync(int vsync)
 
 EXPORT_C GSsetExclusive(int enabled)
 {
-	s_exclusive = !!enabled;
-
 	if(s_gs)
 	{
 		s_gs->SetVSync(s_vsync);
 	}
 }
-
-#ifdef _WIN32
-
-#include <io.h>
-#include <fcntl.h>
-
-class Console
-{
-	HANDLE m_console;
-	std::string m_title;
-
-public:
-	Console::Console(LPCSTR title, bool open)
-		: m_console(NULL)
-		, m_title(title)
-	{
-		if(open) Open();
-	}
-
-	Console::~Console()
-	{
-		Close();
-	}
-
-	void Console::Open()
-	{
-		if(m_console == NULL)
-		{
-			CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
-
-			AllocConsole();
-
-			SetConsoleTitle(m_title.c_str());
-
-			m_console = GetStdHandle(STD_OUTPUT_HANDLE);
-
-			COORD size;
-
-			size.X = 100;
-			size.Y = 300;
-
-			SetConsoleScreenBufferSize(m_console, size);
-
-			GetConsoleScreenBufferInfo(m_console, &csbiInfo);
-
-			SMALL_RECT rect;
-
-			rect = csbiInfo.srWindow;
-			rect.Right = rect.Left + 99;
-			rect.Bottom = rect.Top + 64;
-
-			SetConsoleWindowInfo(m_console, TRUE, &rect);
-
-			freopen("CONOUT$", "w", stdout);
-			freopen("CONOUT$", "w", stderr);
-
-			setvbuf(stdout, nullptr, _IONBF, 0);
-			setvbuf(stderr, nullptr, _IONBF, 0);
-		}
-	}
-
-	void Console::Close()
-	{
-		if(m_console != NULL)
-		{
-			FreeConsole();
-
-			m_console = NULL;
-		}
-	}
-};
-
-// lpszCmdLine:
-//   First parameter is the renderer.
-//   Second parameter is the gs file to load and run.
-
-EXPORT_C GSReplay(HWND hwnd, HINSTANCE hinst, LPSTR lpszCmdLine, int nCmdShow)
-{
-	GSRendererType renderer = GSRendererType::Undefined;
-
-	{
-		char* start = lpszCmdLine;
-		char* end = NULL;
-		long n = strtol(lpszCmdLine, &end, 10);
-		if(end > start) {renderer = static_cast<GSRendererType>(n); lpszCmdLine = end;}
-	}
-
-	while(*lpszCmdLine == ' ') lpszCmdLine++;
-
-	::SetPriorityClass(::GetCurrentProcess(), HIGH_PRIORITY_CLASS);
-
-	Console console{"GSdx", true};
-
-	const std::string f{lpszCmdLine};
-	const bool is_xz = f.size() >= 4 && f.compare(f.size() - 3, 3, ".xz") == 0;
-
-	auto file = is_xz
-		? std::unique_ptr<GSDumpFile>{std::make_unique<GSDumpLzma>(lpszCmdLine, nullptr)}
-		: std::unique_ptr<GSDumpFile>{std::make_unique<GSDumpRaw>(lpszCmdLine, nullptr)};
-
-	GSinit();
-
-	std::array<uint8, 0x2000> regs;
-	GSsetBaseMem(regs.data());
-
-	s_vsync = theApp.GetConfigI("vsync");
-
-	HWND hWnd = nullptr;
-
-	_GSopen((void**)&hWnd, "", renderer);
-
-	uint32 crc;
-	file->Read(&crc, 4);
-	GSsetGameCRC(crc, 0);
-
-	{
-		GSFreezeData fd;
-		file->Read(&fd.size, 4);
-		std::vector<uint8> freeze_data(fd.size);
-		fd.data = freeze_data.data();
-		file->Read(fd.data, fd.size);
-		GSfreeze(FREEZE_LOAD, &fd);
-	}
-
-	file->Read(regs.data(), 0x2000);
-
-	GSvsync(1);
-
-	struct Packet {uint8 type, param; uint32 size, addr; std::vector<uint8> buff;};
-
-	auto read_packet = [&file](uint8 type) {
-		Packet p;
-		p.type = type;
-
-		switch(p.type) {
-		case 0:
-			file->Read(&p.param, 1);
-			file->Read(&p.size, 4);
-			switch(p.param) {
-			case 0:
-				p.buff.resize(0x4000);
-				p.addr = 0x4000 - p.size;
-				file->Read(&p.buff[p.addr], p.size);
-				break;
-			case 1:
-			case 2:
-			case 3:
-				p.buff.resize(p.size);
-				file->Read(p.buff.data(), p.size);
-				break;
-			}
-			break;
-		case 1:
-			file->Read(&p.param, 1);
-			break;
-		case 2:
-			file->Read(&p.size, 4);
-			break;
-		case 3:
-			p.buff.resize(0x2000);
-			file->Read(p.buff.data(), 0x2000);
-			break;
-		}
-
-		return p;
-	};
-
-	std::list<Packet> packets;
-	uint8 type;
-	while(file->Read(&type, 1))
-		packets.push_back(read_packet(type));
-
-	Sleep(100);
-
-	std::vector<uint8> buff;
-	while(IsWindowVisible(hWnd))
-	{
-		for(auto &p : packets)
-		{
-			switch(p.type)
-			{
-			case 0:
-				switch(p.param)
-				{
-				case 0: GSgifTransfer1(p.buff.data(), p.addr); break;
-				case 1: GSgifTransfer2(p.buff.data(), p.size / 16); break;
-				case 2: GSgifTransfer3(p.buff.data(), p.size / 16); break;
-				case 3: GSgifTransfer(p.buff.data(), p.size / 16); break;
-				}
-				break;
-			case 1:
-				GSvsync(p.param);
-				break;
-			case 2:
-				if(buff.size() < p.size) buff.resize(p.size);
-				GSreadFIFO2(p.buff.data(), p.size / 16);
-				break;
-			case 3:
-				memcpy(regs.data(), p.buff.data(), 0x2000);
-				break;
-			}
-		}
-	}
-
-	Sleep(100);
-
-	GSclose();
-	GSshutdown();
-}
-
-EXPORT_C GSBenchmark(HWND hwnd, HINSTANCE hinst, LPSTR lpszCmdLine, int nCmdShow)
-{
-	::SetPriorityClass(::GetCurrentProcess(), HIGH_PRIORITY_CLASS);
-
-	Console console("GSdx", true);
-
-	if(1)
-	{
-		GSLocalMemory* mem = new GSLocalMemory();		
-
-		static struct {int psm; const char* name;} s_format[] =
-		{
-			{PSM_PSMCT32, "32"},
-			{PSM_PSMCT24, "24"},
-			{PSM_PSMCT16, "16"},
-			{PSM_PSMCT16S, "16S"},
-			{PSM_PSMT8, "8"},
-			{PSM_PSMT4, "4"},
-			{PSM_PSMT8H, "8H"},
-			{PSM_PSMT4HL, "4HL"},
-			{PSM_PSMT4HH, "4HH"},
-			{PSM_PSMZ32, "32Z"},
-			{PSM_PSMZ24, "24Z"},
-			{PSM_PSMZ16, "16Z"},
-			{PSM_PSMZ16S, "16ZS"},
-		};
-
-		uint8* ptr = (uint8*)_aligned_malloc(1024 * 1024 * 4, 32);
-
-		for(int i = 0; i < 1024 * 1024 * 4; i++) ptr[i] = (uint8)i;
-
-		//
-
-		for(int tbw = 5; tbw <= 10; tbw++)
-		{
-			int n = 256 << ((10 - tbw) * 2);
-
-			int w = 1 << tbw;
-			int h = 1 << tbw;
-
-			printf("%d x %d\n\n", w, h);
-
-			for(size_t i = 0; i < countof(s_format); i++)
-			{
-				const GSLocalMemory::psm_t& psm = GSLocalMemory::m_psm[s_format[i].psm];
-
-				GSLocalMemory::writeImage wi = psm.wi;
-				GSLocalMemory::readImage ri = psm.ri;
-				GSLocalMemory::readTexture rtx = psm.rtx;
-				GSLocalMemory::readTexture rtxP = psm.rtxP;
-
-				GIFRegBITBLTBUF BITBLTBUF;
-
-				BITBLTBUF.SBP = 0;
-				BITBLTBUF.SBW = w / 64;
-				BITBLTBUF.SPSM = s_format[i].psm;
-				BITBLTBUF.DBP = 0;
-				BITBLTBUF.DBW = w / 64;
-				BITBLTBUF.DPSM = s_format[i].psm;
-
-				GIFRegTRXPOS TRXPOS;
-
-				TRXPOS.SSAX = 0;
-				TRXPOS.SSAY = 0;
-				TRXPOS.DSAX = 0;
-				TRXPOS.DSAY = 0;
-
-				GIFRegTRXREG TRXREG;
-
-				TRXREG.RRW = w;
-				TRXREG.RRH = h;
-
-				GSVector4i r(0, 0, w, h);
-
-				GIFRegTEX0 TEX0;
-
-				TEX0.TBP0 = 0;
-				TEX0.TBW = w / 64;
-
-				GIFRegTEXA TEXA;
-
-				TEXA.TA0 = 0;
-				TEXA.TA1 = 0x80;
-				TEXA.AEM = 0;
-
-				int trlen = w * h * psm.trbpp / 8;
-				int len = w * h * psm.bpp / 8;
-
-				clock_t start, end;
-
-				printf("[%4s] ", s_format[i].name);
-
-				start = clock();
-
-				for(int j = 0; j < n; j++)
-				{
-					int x = 0;
-					int y = 0;
-
-					(mem->*wi)(x, y, ptr, trlen, BITBLTBUF, TRXPOS, TRXREG);
-				}
-
-				end = clock();
-
-				printf("%6d %6d | ", (int)((float)trlen * n / (end - start) / 1000), (int)((float)(w * h) * n / (end - start) / 1000));
-
-				start = clock();
-
-				for(int j = 0; j < n; j++)
-				{
-					int x = 0;
-					int y = 0;
-
-					(mem->*ri)(x, y, ptr, trlen, BITBLTBUF, TRXPOS, TRXREG);
-				}
-
-				end = clock();
-
-				printf("%6d %6d | ", (int)((float)trlen * n / (end - start) / 1000), (int)((float)(w * h) * n / (end - start) / 1000));
-
-				const GSOffset* off = mem->GetOffset(TEX0.TBP0, TEX0.TBW, TEX0.PSM);
-
-				start = clock();
-
-				for(int j = 0; j < n; j++)
-				{
-					(mem->*rtx)(off, r, ptr, w * 4, TEXA);
-				}
-
-				end = clock();
-
-				printf("%6d %6d ", (int)((float)len * n / (end - start) / 1000), (int)((float)(w * h) * n / (end - start) / 1000));
-
-				if(psm.pal > 0)
-				{
-					start = clock();
-
-					for(int j = 0; j < n; j++)
-					{
-						(mem->*rtxP)(off, r, ptr, w, TEXA);
-					}
-
-					end = clock();
-
-					printf("| %6d %6d ", (int)((float)len * n / (end - start) / 1000), (int)((float)(w * h) * n / (end - start) / 1000));
-				}
-
-				printf("\n");
-			}
-
-			printf("\n");
-		}
-
-		_aligned_free(ptr);
-
-		delete mem;
-	}
-
-	//
-
-	if(0)
-	{
-		GSLocalMemory* mem = new GSLocalMemory();
-
-		uint8* ptr = (uint8*)_aligned_malloc(1024 * 1024 * 4, 32);
-
-		for(int i = 0; i < 1024 * 1024 * 4; i++) ptr[i] = (uint8)i;
-
-		const GSLocalMemory::psm_t& psm = GSLocalMemory::m_psm[PSM_PSMCT32];
-
-		GSLocalMemory::writeImage wi = psm.wi;
-
-		GIFRegBITBLTBUF BITBLTBUF;
-
-		BITBLTBUF.DBP = 0;
-		BITBLTBUF.DBW = 32;
-		BITBLTBUF.DPSM = PSM_PSMCT32;
-
-		GIFRegTRXPOS TRXPOS;
-
-		TRXPOS.DSAX = 0;
-		TRXPOS.DSAY = 1;
-
-		GIFRegTRXREG TRXREG;
-
-		TRXREG.RRW = 256;
-		TRXREG.RRH = 256;
-
-		int trlen = 256 * 256 * psm.trbpp / 8;
-
-		int x = 0;
-		int y = 0;
-
-		(mem->*wi)(x, y, ptr, trlen, BITBLTBUF, TRXPOS, TRXREG);
-
-		delete mem;
-	}
-
-	//
-
-	PostQuitMessage(0);
-}
-
-#endif
-
-#if defined(__unix__)
-
-inline unsigned long timeGetTime()
-{
-	struct timespec t;
-	clock_gettime(CLOCK_REALTIME, &t);
-	return (unsigned long)(t.tv_sec*1000 + t.tv_nsec/1000000);
-}
-
-// Note
-EXPORT_C GSReplay(char* lpszCmdLine, int renderer)
-{
-	GLLoader::in_replayer = true;
-	// Required by multithread driver
-	XInitThreads();
-
-	GSinit();
-
-	GSRendererType m_renderer;
-	// Allow to easyly switch between SW/HW renderer -> this effectively removes the ability to select the renderer by function args
-	m_renderer = static_cast<GSRendererType>(theApp.GetConfigI("Renderer"));
-
-	if (m_renderer != GSRendererType::OGL_HW && m_renderer != GSRendererType::OGL_SW)
-	{
-		fprintf(stderr, "wrong renderer selected %d\n", static_cast<int>(m_renderer));
-		return;
-	}
-
-	struct Packet {uint8 type, param; uint32 size, addr; std::vector<uint8> buff;};
-
-	std::list<Packet*> packets;
-	std::vector<uint8> buff;
-	uint8 regs[0x2000];
-
-	GSsetBaseMem(regs);
-
-	s_vsync = theApp.GetConfigI("vsync");
-	int finished = theApp.GetConfigI("linux_replay");
-	bool repack_dump = (finished < 0);
-
-	if (theApp.GetConfigI("dump")) {
-		fprintf(stderr, "Dump is enabled. Replay will be disabled\n");
-		finished = 1;
-	}
-
-	long frame_number = 0;
-
-	void* hWnd = NULL;
-	int err = _GSopen((void**)&hWnd, "", m_renderer);
-	if (err != 0) {
-		fprintf(stderr, "Error failed to GSopen\n");
-		return;
-	}
-	if (s_gs->m_wnd == NULL) return;
-
-	{ // Read .gs content
-		std::string f(lpszCmdLine);
-		bool is_xz = (f.size() >= 4) && (f.compare(f.size()-3, 3, ".xz") == 0);
-		if (is_xz)
-			f.replace(f.end()-6, f.end(), "_repack.gs");
-		else
-			f.replace(f.end()-3, f.end(), "_repack.gs");
-
-		GSDumpFile* file = is_xz
-			? (GSDumpFile*) new GSDumpLzma(lpszCmdLine, repack_dump ? f.c_str() : nullptr)
-			: (GSDumpFile*) new GSDumpRaw(lpszCmdLine, repack_dump ? f.c_str() : nullptr);
-
-		uint32 crc;
-		file->Read(&crc, 4);
-		GSsetGameCRC(crc, 0);
-
-		GSFreezeData fd;
-		file->Read(&fd.size, 4);
-		fd.data = new uint8[fd.size];
-		file->Read(fd.data, fd.size);
-
-		GSfreeze(FREEZE_LOAD, &fd);
-		delete [] fd.data;
-
-		file->Read(regs, 0x2000);
-
-		uint8 type;
-		while(file->Read(&type, 1))
-		{
-			Packet* p = new Packet();
-
-			p->type = type;
-
-			switch(type)
-			{
-			case 0:
-				file->Read(&p->param, 1);
-				file->Read(&p->size, 4);
-
-				switch(p->param)
-				{
-				case 0:
-					p->buff.resize(0x4000);
-					p->addr = 0x4000 - p->size;
-					file->Read(&p->buff[p->addr], p->size);
-					break;
-				case 1:
-				case 2:
-				case 3:
-					p->buff.resize(p->size);
-					file->Read(&p->buff[0], p->size);
-					break;
-				}
-
-				break;
-
-			case 1:
-				file->Read(&p->param, 1);
-				frame_number++;
-
-				break;
-
-			case 2:
-				file->Read(&p->size, 4);
-
-				break;
-
-			case 3:
-				p->buff.resize(0x2000);
-
-				file->Read(&p->buff[0], 0x2000);
-
-				break;
-			}
-
-			packets.push_back(p);
-
-			if (repack_dump && frame_number > -finished)
-				break;
-		}
-
-		delete file;
-	}
-
-	sleep(2);
-
-
-	frame_number = 0;
-
-	// Init vsync stuff
-	GSvsync(1);
-
-	while(finished > 0)
-	{
-		for(auto i = packets.begin(); i != packets.end(); i++)
-		{
-			Packet* p = *i;
-
-			switch(p->type)
-			{
-				case 0:
-
-					switch(p->param)
-					{
-						case 0: GSgifTransfer1(&p->buff[0], p->addr); break;
-						case 1: GSgifTransfer2(&p->buff[0], p->size / 16); break;
-						case 2: GSgifTransfer3(&p->buff[0], p->size / 16); break;
-						case 3: GSgifTransfer(&p->buff[0], p->size / 16); break;
-					}
-
-					break;
-
-				case 1:
-
-					GSvsync(p->param);
-					frame_number++;
-
-					break;
-
-				case 2:
-
-					if(buff.size() < p->size) buff.resize(p->size);
-
-					GSreadFIFO2(&buff[0], p->size / 16);
-
-					break;
-
-				case 3:
-
-					memcpy(regs, &p->buff[0], 0x2000);
-
-					break;
-			}
-		}
-
-		if (finished >= 200) {
-			; // Nop for Nvidia Profiler
-		} else if (finished > 90) {
-			sleep(1);
-		} else {
-			finished--;
-		}
-	}
-
-	static_cast<GSDeviceOGL*>(s_gs->m_dev)->GenerateProfilerData();
-
-#ifdef ENABLE_OGL_DEBUG_MEM_BW
-	unsigned long total_frame_nb = std::max(1l, frame_number) << 10;
-	fprintf(stderr, "memory bandwith. T: %f KB/f. V: %f KB/f. U: %f KB/f\n",
-			(float)g_real_texture_upload_byte/(float)total_frame_nb,
-			(float)g_vertex_upload_byte/(float)total_frame_nb,
-			(float)g_uniform_upload_byte/(float)total_frame_nb
-		   );
-#endif
-
-	for(auto i = packets.begin(); i != packets.end(); i++)
-	{
-		delete *i;
-	}
-
-	packets.clear();
-
-	sleep(2);
-
-	GSclose();
-	GSshutdown();
-}
-#endif
