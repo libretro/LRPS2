@@ -98,7 +98,6 @@ set(GSdxSources
     Renderers/OpenGL/GSShaderOGL.cpp
     Renderers/OpenGL/GSTextureCacheOGL.cpp
     Renderers/OpenGL/GSTextureOGL.cpp
-    Window/GSWnd.cpp
     )
 if(NOT MSVC)
    set(GSdxSources ${GSdxSources}
@@ -192,28 +191,16 @@ if(Windows)
         resource.h
         targetver.h
         )
-   if(NOT LIBRETRO)
-      LIST(APPEND GSdxSources
-          Window/GSWndDX.cpp
-          Window/GSWndWGL.cpp
-          )
-      LIST(APPEND GSdxHeaders
-          Window/GSWndDX.h
-          Window/GSWndWGL.h
-          )
-   endif()
 endif()
 
-if(LIBRETRO)
-    LIST(APPEND GSdxSources
-       Window/GSWndRetro.cpp
-       )
+LIST(APPEND GSdxSources
+   Window/GSWndRetro.cpp
+   )
 
-    LIST(APPEND GSdxHeaders
-        Window/GSWndRetro.h
-       )
-    include_directories(${CMAKE_SOURCE_DIR}/libretro)
-endif()
+LIST(APPEND GSdxHeaders
+   Window/GSWndRetro.h
+   )
+include_directories(${CMAKE_SOURCE_DIR}/libretro)
 
 set(GSdxFinalSources
     ${GSdxSources}
