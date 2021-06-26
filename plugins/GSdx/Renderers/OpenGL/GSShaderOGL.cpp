@@ -29,8 +29,7 @@
 #include "GSdxResources.h"
 #endif
 
-GSShaderOGL::GSShaderOGL(bool debug) :
-	m_pipeline(0),
+GSShaderOGL::GSShaderOGL() : m_pipeline(0)
 {
 	theApp.LoadResource(IDR_COMMON_GLSL, m_common_header);
 
