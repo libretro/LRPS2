@@ -58,6 +58,7 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 
 	m_upscale_multiplier			= option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 	option_upscale_mult = m_upscale_multiplier;
+	theApp.SetConfig("upscale_multiplier", m_upscale_multiplier);
 
 	m_userhacks_align_sprite_X		= option_value(BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE, KeyOptionBool::return_type);
 	m_userHacks_merge_sprite		= option_value(BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE, KeyOptionBool::return_type);
@@ -113,6 +114,7 @@ void GSRendererHW::UpdateRendererOptions()
 
 	m_upscale_multiplier				= option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 	option_upscale_mult = m_upscale_multiplier;
+	theApp.SetConfig("upscale_multiplier", m_upscale_multiplier);
 	
 	m_userhacks_align_sprite_X			= option_value(BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE, KeyOptionBool::return_type);
 	m_userHacks_merge_sprite			= option_value(BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE, KeyOptionBool::return_type);

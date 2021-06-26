@@ -301,6 +301,7 @@ void retro_init(void)
 	// loads the options structure to the frontend
 
 	libretro_set_core_options(environ_cb);
+	option_upscale_mult = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 
 
 	// some other stuffs about pcsx2
