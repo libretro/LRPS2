@@ -80,6 +80,10 @@ wxFileName legacy_memcard2;
 
 wxFileName save_game_folder;
 
+static std::vector<std::string> bios_files;
+static std::vector<std::string> custom_memcard_list_slot1;
+static std::vector<std::string> custom_memcard_list_slot2;
+
 void retro_set_video_refresh(retro_video_refresh_t cb)
 {
 	video_cb = cb;
@@ -151,7 +155,6 @@ void retro_init(void)
 
 
 	wxDir::GetAllFiles(slot1_file.GetPath(), &memcard_files_slot1, L"*.*", wxDIR_FILES);
-	static std::vector<std::string> custom_memcard_list_slot1;
 	for (wxString memcard_file : memcard_files_slot1)
 	{
 		wxFileName found_file;
@@ -176,7 +179,6 @@ void retro_init(void)
 	//wxString shared_path = wxString(shared_memcards_dir);
 
 	wxDir::GetAllFiles(slot2_file.GetPath(), &memcard_files_slot2, L"*.*", wxDIR_FILES);
-	static std::vector<std::string> custom_memcard_list_slot2;
 	for (wxString memcard_file : memcard_files_slot2)
 	{
 		wxFileName found_file;
@@ -270,14 +272,11 @@ void retro_init(void)
 
 	wxArrayString bios_list;
 	wxDir::GetAllFiles(bios_dir.GetFullPath(), &bios_list, L"*.*", wxDIR_FILES);
-	static std::vector<std::string> bios_files;
 	for (wxString bios_file : bios_list)
 	{
 			wxString description;
 			if (IsBIOS(bios_file, description)) {
-				std::string log_bios = (std::string)description;
-				log_cb(RETRO_LOG_DEBUG, "adding bios entry to array: %s\n", log_bios.c_str());
-				
+				std::string log_bios = (std::string)description;				
 				bios_files.push_back((std::string)bios_file);
 				bios_files.push_back((std::string)description);
 			}
@@ -291,7 +290,6 @@ void retro_init(void)
 		int cont = 0;
 		for (size_t f = 0; f != numfiles; f += 2)
 		{
-			log_cb(RETRO_LOG_DEBUG, "adding bios entry to option structure: %s\n", bios_files[f + 1].c_str());
 			def.values[i++] = { bios_files[f].c_str(), bios_files[f + 1].c_str() };
 			cont++;
 		}
@@ -299,8 +297,6 @@ void retro_init(void)
 		def.default_value = def.values[0].value;
 		break;
 	}
-
-
 
 	// loads the options structure to the frontend
 
@@ -392,6 +388,11 @@ void retro_deinit(void)
 
 	pcsx2->CleanupOnExit();
 	pcsx2->OnExit();
+
+	bios_files.clear();
+	custom_memcard_list_slot1.clear();
+	custom_memcard_list_slot2.clear();
+
 #ifdef PERF_TEST
 	perf_cb.perf_log();
 #endif
