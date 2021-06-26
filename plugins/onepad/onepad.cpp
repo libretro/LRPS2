@@ -25,68 +25,25 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "keyboard.h"
 #include "onepad.h"
 #include "svnrev.h"
 #include "state_management.h"
 
-#ifdef __linux__
+#ifdef _WIN32
+#include <direct.h>
+#else
 #include <unistd.h>
 #endif
-#ifdef _MSC_VER
-#define snprintf sprintf_s
-#endif
 
-PADconf g_conf;
 static char libraryName[256];
-
-keyEvent event;
-
-static keyEvent s_event;
-#ifdef BUILTIN_PAD_PLUGIN
-extern std::string s_strIniPath;
-extern std::string s_strLogPath;
-#else
-std::string s_strIniPath("inis/");
-std::string s_strLogPath("logs/");
-#endif
 
 const u32 version = PS2E_PAD_VERSION;
 const u32 revision = 2;
 const u32 build = 0; // increase that with each version
 #define PAD_SAVE_STATE_VERSION ((revision << 8) | (build << 0))
 
-FILE *padLog = NULL;
-
 KeyStatus g_key_status;
 
-MtQueue<keyEvent> g_ev_fifo;
-
-static void InitLibraryName()
-{
-#ifdef PUBLIC
-
-    // Public Release!
-    // Output a simplified string that's just our name:
-
-    strcpy(libraryName, "OnePAD");
-
-#else
-
-    // Use TortoiseSVN's SubWCRev utility's output
-    // to label the specific revision:
-
-    snprintf(libraryName, 255, "OnePAD %lld%s"
-#ifdef PCSX2_DEBUG
-                               "-Debug"
-#elif defined(PCSX2_DEVBUILD)
-                               "-Dev"
-#endif
-             ,
-             SVN_REV,
-             SVN_MODS ? "m" : "");
-#endif
-}
 #ifndef BUILTIN_PAD_PLUGIN
 EXPORT_C_(u32)
 PS2EgetLibType()
@@ -97,7 +54,7 @@ PS2EgetLibType()
 EXPORT_C_(const char *)
 PS2EgetLibName()
 {
-    InitLibraryName();
+    strcpy(libraryName, "OnePAD");
     return libraryName;
 }
 
@@ -106,63 +63,11 @@ PS2EgetLibVersion2(u32 type)
 {
     return (version << 16) | (revision << 8) | build;
 }
-
-void __Log(const char *fmt, ...)
-{
-    va_list list;
-
-    if (padLog == NULL)
-        return;
-    va_start(list, fmt);
-    vfprintf(padLog, fmt, list);
-    va_end(list);
-}
-
-void __LogToConsole(const char *fmt, ...)
-{
-    va_list list;
-
-    va_start(list, fmt);
-
-    if (padLog != NULL)
-        vfprintf(padLog, fmt, list);
-
-    printf("OnePAD: ");
-    vprintf(fmt, list);
-    va_end(list);
-}
 #endif
-void initLogging()
-{
-#ifdef PAD_LOG
-    if (padLog)
-        return;
-
-    const std::string LogFile(s_strLogPath + "padLog.txt");
-    padLog = fopen(LogFile.c_str(), "w");
-
-    if (padLog)
-        setvbuf(padLog, NULL, _IONBF, 0);
-
-    PAD_LOG("PADinit\n");
-#endif
-}
-
-void CloseLogging()
-{
-#ifdef PAD_LOG
-    if (padLog) {
-        fclose(padLog);
-        padLog = NULL;
-    }
-#endif
-}
 
 EXPORT_C_(s32)
 PADinit(u32 flags)
 {
-    initLogging();
-
     PADLoadConfig();
 
     Pad::reset_all();
@@ -170,7 +75,7 @@ PADinit(u32 flags)
     query.reset();
 
     for (int port = 0; port < 2; port++)
-    slots[port] = 0;
+       slots[port] = 0;
 
     return 0;
 }
@@ -178,40 +83,20 @@ PADinit(u32 flags)
 EXPORT_C_(void)
 PADshutdown()
 {
-    CloseLogging();
 }
 
 EXPORT_C_(s32)
 PADopen(void *pDsp)
 {
-    memset(&event, 0, sizeof(event));
     g_key_status.Init();
-
-    g_ev_fifo.reset();
-
-#if defined(__unix__) || defined(__APPLE__)
-    GamePad::EnumerateGamePads(s_vgamePad);
-#endif
     return _PADopen(pDsp);
 }
 
 EXPORT_C_(void)
-PADsetSettingsDir(const char *dir)
-{
-    // Get the path to the ini directory.
-    s_strIniPath = (dir == NULL) ? "inis/" : dir;
-}
+PADsetSettingsDir(const char *dir) { }
 
 EXPORT_C_(void)
-PADsetLogDir(const char *dir)
-{
-    // Get the path to the log directory.
-    s_strLogPath = (dir == NULL) ? "logs/" : dir;
-
-    // Reload the log file after updated the path
-    CloseLogging();
-    initLogging();
-}
+PADsetLogDir(const char *dir) { }
 
 EXPORT_C_(void)
 PADclose()
@@ -230,9 +115,8 @@ PADsetSlot(u8 port, u8 slot)
 {
     port--;
     slot--;
-    if (port > 1 || slot > 3) {
+    if (port > 1 || slot > 3)
         return 0;
-    }
     // Even if no pad there, record the slot, as it is the active slot regardless.
     slots[port] = slot;
 
@@ -330,41 +214,9 @@ PADpoll(u8 value)
 EXPORT_C_(keyEvent *)
 PADkeyEvent()
 {
-#ifndef __LIBRETRO__
-#ifdef SDL_BUILD
-    // Take the opportunity to handle hot plugging here
-    SDL_Event events;
-    while (SDL_PollEvent(&events)) {
-        switch (events.type) {
-            case SDL_CONTROLLERDEVICEADDED:
-            case SDL_CONTROLLERDEVICEREMOVED:
-                GamePad::EnumerateGamePads(s_vgamePad);
-                break;
-            default:
-                break;
-        }
-    }
-#endif
-    if (g_ev_fifo.size() == 0) {
-        // PAD_LOG("No events in queue, returning empty event\n");
-        s_event = event;
-        event.evt = 0;
-        event.key = 0;
-        return &s_event;
-    }
-    s_event = g_ev_fifo.dequeue();
-    AnalyzeKeyEvent(s_event);
-    // PAD_LOG("Returning Event. Event Type: %d, Key: %d\n", s_event.evt, s_event.key);
-#endif
-    return &s_event;
+    return NULL;
 }
 EXPORT_C_(void)
 PADWriteEvent(keyEvent &evt)
 {
-#if defined(__unix__)
-    // if (evt.evt != 6) { // Skip mouse move events for logging
-    //     PAD_LOG("Pushing Event. Event Type: %d, Key: %d\n", evt.evt, evt.key);
-    // }
-    g_ev_fifo.push(evt);
-#endif
 }

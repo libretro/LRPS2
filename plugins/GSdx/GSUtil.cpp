@@ -291,33 +291,6 @@ GSRendererType GSUtil::GetBestRenderer()
 
 #endif
 
-void GSmkdir(const char* dir)
-{
-#ifdef _WIN32
-	if (!CreateDirectory(dir, nullptr)) {
-		DWORD errorID = ::GetLastError();
-		if (errorID != ERROR_ALREADY_EXISTS) {
-			fprintf(stderr, "Failed to create directory: %s error %u\n", dir, errorID);
-		}
-	}
-#else
-	int err = mkdir(dir, 0777);
-	if (!err && errno != EEXIST)
-		fprintf(stderr, "Failed to create directory: %s\n", dir);
-#endif
-}
-
-std::string GStempdir()
-{
-#ifdef _WIN32
-	char path[MAX_PATH + 1];
-	GetTempPath(MAX_PATH, path);
-	return {path};
-#else
-	return "/tmp";
-#endif
-}
-
 const char* psm_str(int psm)
 {
 	switch(psm) {

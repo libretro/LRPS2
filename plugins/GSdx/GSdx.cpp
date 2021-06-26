@@ -86,17 +86,11 @@ bool GSdxApp::LoadResource(int id, std::vector<char>& buff, const char* type)
 		case IDR_MERGE_GLSL:
 			path = "/GSdx/res/glsl/merge.glsl";
 			break;
-		case IDR_SHADEBOOST_GLSL:
-			path = "/GSdx/res/glsl/shadeboost.glsl";
-			break;
 		case IDR_TFX_VGS_GLSL:
 			path = "/GSdx/res/glsl/tfx_vgs.glsl";
 			break;
 		case IDR_TFX_FS_GLSL:
 			path = "/GSdx/res/glsl/tfx_fs.glsl";
-			break;
-		case IDR_FONT_ROBOTO:
-			path = "/GSdx/res/fonts-roboto/Roboto-Regular.ttf";
 			break;
 		default:
 			printf("LoadResource not implemented for id %d\n", id);

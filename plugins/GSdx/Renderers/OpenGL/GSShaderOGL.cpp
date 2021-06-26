@@ -29,9 +29,7 @@
 #include "GSdxResources.h"
 #endif
 
-GSShaderOGL::GSShaderOGL(bool debug) :
-	m_pipeline(0),
-	m_debug_shader(debug)
+GSShaderOGL::GSShaderOGL() : m_pipeline(0)
 {
 	theApp.LoadResource(IDR_COMMON_GLSL, m_common_header);
 
@@ -78,8 +76,6 @@ GLuint GSShaderOGL::LinkProgram(GLuint vs, GLuint gs, GLuint ps)
 	if (gs) glAttachShader(p, gs);
 
 	glLinkProgram(p);
-
-	ValidateProgram(p);
 
 	m_prog_to_delete.push_back(p);
 	m_program[hash] = p;
@@ -142,72 +138,6 @@ void GSShaderOGL::BindPipeline(GLuint pipe)
 		GLState::program = 0;
 		glUseProgram(0);
 	}
-}
-
-bool GSShaderOGL::ValidateShader(GLuint s)
-{
-	if (!m_debug_shader) return true;
-
-	GLint status = 0;
-	glGetShaderiv(s, GL_COMPILE_STATUS, &status);
-	if (status) return true;
-
-	GLint log_length = 0;
-	glGetShaderiv(s, GL_INFO_LOG_LENGTH, &log_length);
-	if (log_length > 0) {
-		char* log = new char[log_length];
-		glGetShaderInfoLog(s, log_length, NULL, log);
-		fprintf(stderr, "%s", log);
-		delete[] log;
-	}
-	fprintf(stderr, "\n");
-
-	return false;
-}
-
-bool GSShaderOGL::ValidateProgram(GLuint p)
-{
-	if (!m_debug_shader) return true;
-
-	GLint status = 0;
-	glGetProgramiv(p, GL_LINK_STATUS, &status);
-	if (status) return true;
-
-	GLint log_length = 0;
-	glGetProgramiv(p, GL_INFO_LOG_LENGTH, &log_length);
-	if (log_length > 0) {
-		char* log = new char[log_length];
-		glGetProgramInfoLog(p, log_length, NULL, log);
-		fprintf(stderr, "%s", log);
-		delete[] log;
-	}
-	fprintf(stderr, "\n");
-
-	return false;
-}
-
-bool GSShaderOGL::ValidatePipeline(GLuint p)
-{
-	if (!m_debug_shader) return true;
-
-	// FIXME: might be mandatory to validate the pipeline
-	glValidateProgramPipeline(p);
-
-	GLint status = 0;
-	glGetProgramPipelineiv(p, GL_VALIDATE_STATUS, &status);
-	if (status) return true;
-
-	GLint log_length = 0;
-	glGetProgramPipelineiv(p, GL_INFO_LOG_LENGTH, &log_length);
-	if (log_length > 0) {
-		char* log = new char[log_length];
-		glGetProgramPipelineInfoLog(p, log_length, NULL, log);
-		fprintf(stderr, "%s", log);
-		delete[] log;
-	}
-	fprintf(stderr, "\n");
-
-	return false;
 }
 
 std::string GSShaderOGL::GenGlslHeader(const std::string& entry, GLenum type, const std::string& macro)
@@ -274,15 +204,6 @@ GLuint GSShaderOGL::Compile(const std::string& glsl_file, const std::string& ent
 
 	program = glCreateShaderProgramv(type, shader_nb, sources);
 
-	bool status = ValidateProgram(program);
-
-	if (!status) {
-		// print extra info
-		fprintf(stderr, "%s (entry %s, prog %d) :", glsl_file.c_str(), entry.c_str(), program);
-		fprintf(stderr, "\n%s", macro_sel.c_str());
-		fprintf(stderr, "\n");
-	}
-
 	m_prog_to_delete.push_back(program);
 
 	return program;
@@ -310,75 +231,7 @@ GLuint GSShaderOGL::CompileShader(const std::string& glsl_file, const std::strin
 	glShaderSource(shader, shader_nb, sources, NULL);
 	glCompileShader(shader);
 
-	bool status = ValidateShader(shader);
-
-	if (!status) {
-		// print extra info
-		fprintf(stderr, "%s (entry %s, prog %d) :", glsl_file.c_str(), entry.c_str(), shader);
-		fprintf(stderr, "\n%s", macro_sel.c_str());
-		fprintf(stderr, "\n");
-	}
-
 	m_shad_to_delete.push_back(shader);
 
 	return shader;
-}
-
-// This function will get the binary program. Normally it must be used a caching
-// solution but Nvidia also incorporates the ASM dump. Asm is nice because it allow
-// to have an overview of the program performance based on the instruction number
-// Note: initially I was using cg offline compiler but it doesn't support latest
-// GLSL improvement (unfortunately).
-int GSShaderOGL::DumpAsm(const std::string& file, GLuint p)
-{
-	if (!GLLoader::vendor_id_nvidia) return 0;
-
-	GLint   binaryLength;
-	glGetProgramiv(p, GL_PROGRAM_BINARY_LENGTH, &binaryLength);
-
-	char* binary = new char[binaryLength+4];
-	GLenum binaryFormat;
-	glGetProgramBinary(p, binaryLength, NULL, &binaryFormat, binary);
-
-	FILE* outfile = fopen(file.c_str(), "w");
-	ASSERT(outfile);
-
-	// Search the magic number "!!"
-	int asm_ = 0;
-	while (asm_ < binaryLength && (binary[asm_] != '!' || binary[asm_+1] != '!')) {
-		asm_ += 1;
-	}
-
-	int instructions = -1;
-	if (asm_ < binaryLength) {
-		// Now print asm as text
-		char* asm_txt = strtok(&binary[asm_], "\n");
-		while (asm_txt != NULL && (strncmp(asm_txt, "END", 3) || !strncmp(asm_txt, "ENDIF", 5))) {
-			if (!strncmp(asm_txt, "OUT", 3) || !strncmp(asm_txt, "TEMP", 4) || !strncmp(asm_txt, "LONG", 4)) {
-				instructions = 0;
-			} else if (instructions >= 0) {
-				if (instructions == 0)
-					fprintf(outfile, "\n");
-				instructions++;
-			}
-
-			fprintf(outfile, "%s\n", asm_txt);
-			asm_txt = strtok(NULL, "\n");
-		}
-		fprintf(outfile, "\nFound %d instructions\n", instructions);
-	}
-	fclose(outfile);
-
-	if (instructions < 0) {
-		// RAW dump in case of error
-		fprintf(stderr, "Error: failed to find the number of instructions!\n");
-		outfile = fopen(file.c_str(), "wb");
-		fwrite(binary, binaryLength, 1, outfile);
-		fclose(outfile);
-		ASSERT(0);
-	}
-
-	delete[] binary;
-
-	return instructions;
 }

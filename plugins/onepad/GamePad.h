@@ -22,10 +22,6 @@
 #include "onepad.h"
 #include "controller.h"
 
-#ifdef SDL_BUILD
-#include <SDL.h>
-#endif
-
 class GamePad
 {
 public:
@@ -90,5 +86,3 @@ protected:
     int m_deadzone;
     bool m_no_error;
 };
-
-extern std::vector<std::unique_ptr<GamePad>> s_vgamePad;
