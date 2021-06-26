@@ -31,7 +31,6 @@
 
 GSShaderOGL::GSShaderOGL(bool debug) :
 	m_pipeline(0),
-	m_debug_shader(debug)
 {
 	theApp.LoadResource(IDR_COMMON_GLSL, m_common_header);
 
@@ -78,8 +77,6 @@ GLuint GSShaderOGL::LinkProgram(GLuint vs, GLuint gs, GLuint ps)
 	if (gs) glAttachShader(p, gs);
 
 	glLinkProgram(p);
-
-	ValidateProgram(p);
 
 	m_prog_to_delete.push_back(p);
 	m_program[hash] = p;
@@ -142,72 +139,6 @@ void GSShaderOGL::BindPipeline(GLuint pipe)
 		GLState::program = 0;
 		glUseProgram(0);
 	}
-}
-
-bool GSShaderOGL::ValidateShader(GLuint s)
-{
-	if (!m_debug_shader) return true;
-
-	GLint status = 0;
-	glGetShaderiv(s, GL_COMPILE_STATUS, &status);
-	if (status) return true;
-
-	GLint log_length = 0;
-	glGetShaderiv(s, GL_INFO_LOG_LENGTH, &log_length);
-	if (log_length > 0) {
-		char* log = new char[log_length];
-		glGetShaderInfoLog(s, log_length, NULL, log);
-		fprintf(stderr, "%s", log);
-		delete[] log;
-	}
-	fprintf(stderr, "\n");
-
-	return false;
-}
-
-bool GSShaderOGL::ValidateProgram(GLuint p)
-{
-	if (!m_debug_shader) return true;
-
-	GLint status = 0;
-	glGetProgramiv(p, GL_LINK_STATUS, &status);
-	if (status) return true;
-
-	GLint log_length = 0;
-	glGetProgramiv(p, GL_INFO_LOG_LENGTH, &log_length);
-	if (log_length > 0) {
-		char* log = new char[log_length];
-		glGetProgramInfoLog(p, log_length, NULL, log);
-		fprintf(stderr, "%s", log);
-		delete[] log;
-	}
-	fprintf(stderr, "\n");
-
-	return false;
-}
-
-bool GSShaderOGL::ValidatePipeline(GLuint p)
-{
-	if (!m_debug_shader) return true;
-
-	// FIXME: might be mandatory to validate the pipeline
-	glValidateProgramPipeline(p);
-
-	GLint status = 0;
-	glGetProgramPipelineiv(p, GL_VALIDATE_STATUS, &status);
-	if (status) return true;
-
-	GLint log_length = 0;
-	glGetProgramPipelineiv(p, GL_INFO_LOG_LENGTH, &log_length);
-	if (log_length > 0) {
-		char* log = new char[log_length];
-		glGetProgramPipelineInfoLog(p, log_length, NULL, log);
-		fprintf(stderr, "%s", log);
-		delete[] log;
-	}
-	fprintf(stderr, "\n");
-
-	return false;
 }
 
 std::string GSShaderOGL::GenGlslHeader(const std::string& entry, GLenum type, const std::string& macro)
@@ -274,15 +205,6 @@ GLuint GSShaderOGL::Compile(const std::string& glsl_file, const std::string& ent
 
 	program = glCreateShaderProgramv(type, shader_nb, sources);
 
-	bool status = ValidateProgram(program);
-
-	if (!status) {
-		// print extra info
-		fprintf(stderr, "%s (entry %s, prog %d) :", glsl_file.c_str(), entry.c_str(), program);
-		fprintf(stderr, "\n%s", macro_sel.c_str());
-		fprintf(stderr, "\n");
-	}
-
 	m_prog_to_delete.push_back(program);
 
 	return program;
@@ -309,15 +231,6 @@ GLuint GSShaderOGL::CompileShader(const std::string& glsl_file, const std::strin
 	shader =  glCreateShader(type);
 	glShaderSource(shader, shader_nb, sources, NULL);
 	glCompileShader(shader);
-
-	bool status = ValidateShader(shader);
-
-	if (!status) {
-		// print extra info
-		fprintf(stderr, "%s (entry %s, prog %d) :", glsl_file.c_str(), entry.c_str(), shader);
-		fprintf(stderr, "\n%s", macro_sel.c_str());
-		fprintf(stderr, "\n");
-	}
 
 	m_shad_to_delete.push_back(shader);
 

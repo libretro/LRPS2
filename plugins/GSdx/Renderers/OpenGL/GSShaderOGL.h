@@ -24,21 +24,16 @@
 class GSShaderOGL {
 	GLuint m_pipeline;
 	std::unordered_map<uint32, GLuint> m_program;
-	const bool m_debug_shader;
 
 	std::vector<GLuint> m_shad_to_delete;
 	std::vector<GLuint> m_prog_to_delete;
 	std::vector<GLuint> m_pipe_to_delete;
 
-	bool ValidateShader(GLuint s);
-	bool ValidateProgram(GLuint p);
-	bool ValidatePipeline(GLuint p);
-
 	std::string GenGlslHeader(const std::string& entry, GLenum type, const std::string& macro);
 	std::vector<char> m_common_header;
 
 	public:
-	GSShaderOGL(bool debug);
+	GSShaderOGL();
 	~GSShaderOGL();
 
 	void BindPipeline(GLuint vs, GLuint gs, GLuint ps);

@@ -318,7 +318,7 @@ bool GSDeviceOGL::Create(const std::shared_ptr<GSWnd> &wnd)
 	{
 		GL_PUSH("GSDeviceOGL::Various");
 
-		m_shader = new GSShaderOGL(theApp.GetConfigB("debug_glsl_shader"));
+		m_shader = new GSShaderOGL();
 
 		glGenFramebuffers(1, &m_fbo);
 		// Always write to the first buffer
