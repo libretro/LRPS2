@@ -378,9 +378,6 @@ private:
 	void DoMerge(GSTexture* sTex[3], GSVector4* sRect, GSTexture* dTex, GSVector4* dRect, const GSRegPMODE& PMODE, const GSRegEXTBUF& EXTBUF, const GSVector4& c) final;
 	void DoInterlace(GSTexture* sTex, GSTexture* dTex, int shader, bool linear, float yoffset = 0) final;
 	void DoFXAA(GSTexture* sTex, GSTexture* dTex) final;
-	void DoShadeBoost(GSTexture* sTex, GSTexture* dTex) final;
-	void DoExternalFX(GSTexture* sTex, GSTexture* dTex) final;
-	void InitExternalFX();
 	void InitFXAA(); // Bug workaround! Stack corruption? Heap corruption? No idea
 	void BeforeDraw();
 	void AfterDraw();
@@ -453,12 +450,6 @@ private:
 		CComPtr<ID3D11PixelShader> ps[4];
 		CComPtr<ID3D11Buffer> cb;
 	} m_interlace;
-
-	struct
-	{
-		CComPtr<ID3D11PixelShader> ps;
-		CComPtr<ID3D11Buffer> cb;
-	} m_shaderfx;
 
 	struct 
 	{

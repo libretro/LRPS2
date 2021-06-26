@@ -240,16 +240,6 @@ bool GSDevice11::Create(const std::shared_ptr<GSWnd> &wnd)
 		CreateShader(shader, "interlace.fx", nullptr, format("ps_main%d", i).c_str(), sm_model.GetPtr(), &m_interlace.ps[i]);
 	}
 
-	// External fx shader
-
-	memset(&bd, 0, sizeof(bd));
-
-	bd.ByteWidth = sizeof(ExternalFXConstantBuffer);
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-
-	hr = m_dev->CreateBuffer(&bd, NULL, &m_shaderfx.cb);
-
 	// Fxaa
 
 	memset(&bd, 0, sizeof(bd));
@@ -798,62 +788,6 @@ void GSDevice11::DoInterlace(GSTexture* sTex, GSTexture* dTex, int shader, bool 
 	m_ctx->UpdateSubresource(m_interlace.cb, 0, NULL, &cb, 0, 0);
 
 	StretchRect(sTex, sRect, dTex, dRect, m_interlace.ps[shader], m_interlace.cb, linear);
-}
-
-//Included an init function for this also. Just to be safe.
-void GSDevice11::InitExternalFX()
-{
-	if (!ExShader_Compiled)
-	{
-		try {
-			std::string config_name(theApp.GetConfigS("shaderfx_conf"));
-			std::ifstream fconfig(config_name);
-			std::stringstream shader;
-			if (fconfig.good())
-				shader << fconfig.rdbuf() << "\n";
-			else
-				fprintf(stderr, "GSdx: External shader config '%s' not loaded.\n", config_name.c_str());
-
-			std::string shader_name(theApp.GetConfigS("shaderfx_glsl"));
-			std::ifstream fshader(shader_name);
-			if (fshader.good())
-			{
-				shader << fshader.rdbuf();
-				const std::string& s = shader.str();
-				std::vector<char> buff(s.begin(), s.end());
-				ShaderMacro sm(m_shader.model);
-				CreateShader(buff, shader_name.c_str(), D3D_COMPILE_STANDARD_FILE_INCLUDE, "ps_main", sm.GetPtr(), &m_shaderfx.ps);
-			}
-			else
-			{
-				fprintf(stderr, "GSdx: External shader '%s' not loaded and will be disabled!\n", shader_name.c_str());
-			}
-		}
-		catch (GSDXRecoverableError) {
-			printf("GSdx: failed to compile external post-processing shader. \n");
-		}
-		ExShader_Compiled = true;
-	}
-}
-
-void GSDevice11::DoExternalFX(GSTexture* sTex, GSTexture* dTex)
-{
-	GSVector2i s = dTex->GetSize();
-
-	GSVector4 sRect(0, 0, 1, 1);
-	GSVector4 dRect(0, 0, s.x, s.y);
-
-	ExternalFXConstantBuffer cb;
-
-	InitExternalFX();
-
-	cb.xyFrame = GSVector2((float)s.x, (float)s.y);
-	cb.rcpFrame = GSVector4(1.0f / (float)s.x, 1.0f / (float)s.y, 0.0f, 0.0f);
-	cb.rcpFrameOpt = GSVector4::zero();
-
-	m_ctx->UpdateSubresource(m_shaderfx.cb, 0, NULL, &cb, 0, 0);
-
-	StretchRect(sTex, sRect, dTex, dRect, m_shaderfx.ps, m_shaderfx.cb, true);
 }
 
 // This shouldn't be necessary, we have some bug corrupting memory

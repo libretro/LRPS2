@@ -43,7 +43,6 @@ uint64 g_uniform_upload_byte = 0;
 
 static const uint32 g_merge_cb_index      = 10;
 static const uint32 g_interlace_cb_index  = 11;
-static const uint32 g_fx_cb_index         = 14;
 static const uint32 g_convert_index       = 15;
 static const uint32 g_vs_cb_index         = 20;
 static const uint32 g_ps_cb_index         = 21;
@@ -68,7 +67,6 @@ GSDeviceOGL::GSDeviceOGL()
 	memset(&m_interlace, 0, sizeof(m_interlace));
 	memset(&m_convert, 0, sizeof(m_convert));
 	memset(&m_fxaa, 0, sizeof(m_fxaa));
-	memset(&m_shaderfx, 0, sizeof(m_shaderfx));
 	memset(&m_date, 0, sizeof(m_date));
 	memset(&m_om_dss, 0, sizeof(m_om_dss));
 	memset(&m_profiler, 0 , sizeof(m_profiler));
@@ -122,9 +120,6 @@ GSDeviceOGL::~GSDeviceOGL()
 
 	// Clean m_fxaa
 	delete m_fxaa.cb;
-
-	// Clean m_shaderfx
-	delete m_shaderfx.cb;
 
 	// Clean m_date
 	delete m_date.dss;
@@ -1453,58 +1448,6 @@ void GSDeviceOGL::DoFXAA(GSTexture* sTex, GSTexture* dTex)
 	GSVector4 dRect(0, 0, s.x, s.y);
 
 	StretchRect(sTex, sRect, dTex, dRect, m_fxaa.ps, true);
-}
-
-void GSDeviceOGL::DoExternalFX(GSTexture* sTex, GSTexture* dTex)
-{
-	// Lazy compile
-	if (!m_shaderfx.ps) {
-		if (!GLLoader::found_GL_ARB_gpu_shader5) { // GL4.0 extension
-			return;
-		}
-
-		std::string   config_name(theApp.GetConfigS("shaderfx_conf"));
-		std::ifstream fconfig(config_name);
-		std::stringstream config;
-		config << "#extension GL_ARB_gpu_shader5 : require\n";
-		if (fconfig.good())
-			config << fconfig.rdbuf();
-		else
-			fprintf(stderr, "Warning failed to load '%s'. External Shader might be wrongly configured\n", config_name.c_str());
-
-		std::string   shader_name(theApp.GetConfigS("shaderfx_glsl"));
-		std::ifstream fshader(shader_name);
-		std::stringstream shader;
-		if (!fshader.good()) {
-			fprintf(stderr, "Error failed to load '%s'. External Shader will be disabled !\n", shader_name.c_str());
-			return;
-		}
-		shader << fshader.rdbuf();
-
-
-		m_shaderfx.cb = new GSUniformBufferOGL("eFX UBO", g_fx_cb_index, sizeof(ExternalFXConstantBuffer));
-		GLuint ps = m_shader->Compile("Extra", "ps_main", GL_FRAGMENT_SHADER, shader.str().c_str(), config.str());
-		m_shaderfx.ps = m_shader->LinkPipeline("eFX pipie", m_convert.vs, 0, ps);
-	}
-
-	GL_PUSH("DoExternalFX");
-
-	OMSetColorMaskState();
-
-	GSVector2i s = dTex->GetSize();
-
-	GSVector4 sRect(0, 0, 1, 1);
-	GSVector4 dRect(0, 0, s.x, s.y);
-
-	ExternalFXConstantBuffer cb;
-
-	cb.xyFrame = GSVector2((float)s.x, (float)s.y);
-	cb.rcpFrame = GSVector4(1.0f / s.x, 1.0f / s.y, 0.0f, 0.0f);
-	cb.rcpFrameOpt = GSVector4::zero();
-
-	m_shaderfx.cb->cache_upload(&cb);
-
-	StretchRect(sTex, sRect, dTex, dRect, m_shaderfx.ps, true);
 }
 
 void GSDeviceOGL::SetupDATE(GSTexture* rt, GSTexture* ds, const GSVertexPT1* vertices, bool datm)

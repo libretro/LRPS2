@@ -467,11 +467,6 @@ private:
 	} m_fxaa;
 
 	struct {
-		GLuint ps;
-		GSUniformBufferOGL* cb;
-	} m_shaderfx;
-
-	struct {
 		GSDepthStencilOGL* dss;
 		GSTexture* t;
 	} m_date;
@@ -504,7 +499,6 @@ private:
 	void DoMerge(GSTexture* sTex[3], GSVector4* sRect, GSTexture* dTex, GSVector4* dRect, const GSRegPMODE& PMODE, const GSRegEXTBUF& EXTBUF, const GSVector4& c) final;
 	void DoInterlace(GSTexture* sTex, GSTexture* dTex, int shader, bool linear, float yoffset = 0) final;
 	void DoFXAA(GSTexture* sTex, GSTexture* dTex) final;
-	void DoExternalFX(GSTexture* sTex, GSTexture* dTex) final;
 
 	void OMAttachRt(GSTextureOGL* rt = NULL);
 	void OMAttachDs(GSTextureOGL* ds = NULL);

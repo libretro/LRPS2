@@ -40,7 +40,6 @@ protected:
 	int m_aspectratio;
 	int m_vsync;
 	bool m_aa1;
-	bool m_shaderfx;
 	bool m_fxaa;
 	bool m_texture_shuffle;
 	GSVector2i m_real_size;
