@@ -29,7 +29,9 @@
 #include "svnrev.h"
 #include "state_management.h"
 
-#ifdef __linux__
+#ifdef _WIN32
+#include <direct.h>
+#else
 #include <unistd.h>
 #endif
 

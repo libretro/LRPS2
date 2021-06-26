@@ -17,7 +17,6 @@ endif()
 
 # onepad sources
 set(onepadSources
-    controller.cpp
     onepad.cpp
     state_management.cpp)
  # onepad headers
