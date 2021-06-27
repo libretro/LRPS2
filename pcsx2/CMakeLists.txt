@@ -419,11 +419,6 @@ set(pcsx2LinuxSources
 	CDVD/Linux/IOCtlSrc.cpp
 	Linux/LnxFlatFileReader.cpp
    )
-if(NOT LIBRETRO)
-   set(pcsx2LinuxSources ${pcsx2LinuxSources}
-      Linux/LnxConsolePipe.cpp
-      gui/CpuUsageProviderLnx.cpp)
-endif()
 
 set(pcsx2OSXSources
 	CDVD/Linux/DriveUtility.cpp
@@ -431,23 +426,11 @@ set(pcsx2OSXSources
 	Darwin/DarwinFlatFileReader.cpp
 	)
 
-if(NOT LIBRETRO)
-   set(pcsx2OSXSources ${pcsx2OSXSources}
-      Linux/LnxConsolePipe.cpp
-      gui/CpuUsageProviderLnx.cpp)
-endif()
-
 set(pcsx2FreeBSDSources
 	CDVD/Linux/DriveUtility.cpp
 	CDVD/Linux/IOCtlSrc.cpp
 	Darwin/DarwinFlatFileReader.cpp
 	)
-
-if(NOT LIBRETRO)
-   set(pcsx2FreeBSDSources ${pcsx2FreeBSDSources}
-      Linux/LnxConsolePipe.cpp
-      gui/CpuUsageProviderLnx.cpp)
-endif()
 
 # Linux headers
 set(pcsx2LinuxHeaders
@@ -517,14 +500,6 @@ set(pcsx2WindowsSources
 	windows/VCprojects/IopSif.cpp
 	windows/WinCompressNTFS.cpp
 	)
-if(NOT LIBRETRO)
-   set(pcsx2WindowsSources ${pcsx2WindowsSources}
-      windows/PatchBrowser.cpp
-      windows/Optimus.cpp
-      windows/WinConsolePipe.cpp
-      gui/CpuUsageProviderMSW.cpp
-   	)
-endif()
 # Windows headers
 set(pcsx2WindowsHeaders
 	windows/resource.h
