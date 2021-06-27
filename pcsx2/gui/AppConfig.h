@@ -119,27 +119,6 @@ enum MemoryCardType
 class AppConfig
 {
 public:
-#if wxUSE_GUI
-	// ------------------------------------------------------------------------
-	struct ConsoleLogOptions
-	{
-		bool		Visible;
-		// if true, DisplayPos is ignored and the console is automatically docked to the main window.
-		bool		AutoDock;
-		// Display position used if AutoDock is false (ignored otherwise)
-		wxPoint		DisplayPosition;
-		wxSize		DisplaySize;
-
-		// Size of the font in points.
-		int			FontSize;
-
-		// Color theme by name!
-		wxString	Theme;
-
-		ConsoleLogOptions();
-		void LoadSave( IniInterface& conf, const wxChar* title );
-	};
-#endif
 	// ------------------------------------------------------------------------
 	struct FolderOptions
 	{
@@ -221,10 +200,6 @@ public:
 		Fixed100	OffsetX;
 		Fixed100	OffsetY;
 
-#if wxUSE_GUI
-		wxSize		WindowSize;
-		wxPoint		WindowPos;
-#endif
 		bool		IsMaximized;
 		bool		IsFullscreen;
 		bool		EnableVsyncWindowFlag;
@@ -252,16 +227,6 @@ public:
 		void SanityCheck();
 	};
 
-#ifndef DISABLE_RECORDING
-	struct InputRecordingOptions
-	{
-		wxPoint		VirtualPadPosition;
-
-		InputRecordingOptions();
-		void loadSave( IniInterface& conf );
-	};
-#endif
-
 	struct UiTemplateOptions {
 		UiTemplateOptions();
 		void LoadSave(IniInterface& conf);
@@ -276,15 +241,9 @@ public:
 		wxString OutputInterlaced;
 		wxString Paused;
 		wxString TitleTemplate;
-#ifndef DISABLE_RECORDING
-		wxString RecordingTemplate;
-#endif
 	};
 
 public:
-#if wxUSE_GUI
-	wxPoint		MainGuiPosition;
-#endif
 	// Because remembering the last used tab on the settings panel is cool (tab is remembered
 	// by it's UTF/ASCII name).
 	wxString	SysSettingsTabName;
@@ -348,16 +307,10 @@ public:
 	// slots (3 each)
 	McdOptions				Mcd[8];
 	wxString				GzipIsoIndexTemplate; // for quick-access index with gzipped ISO
-#if wxUSE_GUI
-	ConsoleLogOptions		ProgLogBox;
-#endif
 	FolderOptions			Folders;
 	FilenameOptions			BaseFilenames;
 	GSWindowOptions			GSWindow;
 	FramerateOptions		Framerate;
-#ifndef DISABLE_RECORDING
-	InputRecordingOptions   inputRecording;
-#endif
 	UiTemplateOptions		Templates;
 	
 	// PCSX2-core emulation options, which are passed to the emu core prior to initiating
@@ -380,11 +333,9 @@ public:
 	void LoadSaveMemcards( IniInterface& ini );
 
 	static int  GetMaxPresetIndex();
-#if wxUSE_GUI
-    static bool isOkGetPresetTextAndColor(int n, wxString& label, wxColor& c);
-#endif
 	
-	bool        IsOkApplyPreset(int n, bool ignoreMTVU);
+	bool IsOkApplyPreset(int n, bool ignoreMTVU);
+	void ResetPresetSettingsToDefault();
 
 
 	//The next 2 flags are used with ApplyConfigToGui which the presets system use:
@@ -411,7 +362,6 @@ extern void SysTraceLog_LoadSaveSettings( IniInterface& ini );
 
 
 extern wxFileConfig* OpenFileConfig( const wxString& filename );
-extern void RelocateLogfile();
 extern void AppConfig_OnChangedSettingsFolder( bool overwrite =  false );
 extern wxConfigBase* GetAppConfig();
 

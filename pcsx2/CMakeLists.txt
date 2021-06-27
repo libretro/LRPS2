@@ -297,36 +297,36 @@ set(pcsx2DebugToolsHeaders
 
 	# gui sources
 	set(pcsx2GuiSources
-		gui-libretro/AppConfig.cpp
-		gui-libretro/AppCorePlugins.cpp
-		gui-libretro/AppCoreThread.cpp
-		gui-libretro/AppEventSources.cpp
-		gui-libretro/AppGameDatabase.cpp
-		gui-libretro/AppUserMode.cpp
-		gui-libretro/AppInit.cpp
-		gui-libretro/AppMain.cpp
-		gui-libretro/AppRes.cpp
-		gui-libretro/ConsoleLogger.cpp
-		gui-libretro/ExecutorThread.cpp
-		gui-libretro/MemoryCardFile.cpp
-		gui-libretro/MemoryCardFolder.cpp
+		gui/AppConfig.cpp
+		gui/AppCorePlugins.cpp
+		gui/AppCoreThread.cpp
+		gui/AppEventSources.cpp
+		gui/AppGameDatabase.cpp
+		gui/AppUserMode.cpp
+		gui/AppInit.cpp
+		gui/AppMain.cpp
+		gui/AppRes.cpp
+		gui/ConsoleLogger.cpp
+		gui/ExecutorThread.cpp
+		gui/MemoryCardFile.cpp
+		gui/MemoryCardFolder.cpp
 		)
 	# gui headers
 	set(pcsx2GuiHeaders
-		gui-libretro/AppCommon.h
-		gui-libretro/AppConfig.h
-		gui-libretro/AppCorePlugins.h
-		gui-libretro/AppCoreThread.h
-		gui-libretro/AppEventListeners.h
-		gui-libretro/AppForwardDefs.h
-		gui-libretro/AppGameDatabase.h
-		gui-libretro/App.h
-		gui-libretro/ConsoleLogger.h
-		gui-libretro/DriveList.h
-		gui-libretro/MemoryCardFile.h
-		gui-libretro/MemoryCardFolder.h
-		gui-libretro/pxEventThread.h
-		gui-libretro/Saveslots.h
+		gui/AppCommon.h
+		gui/AppConfig.h
+		gui/AppCorePlugins.h
+		gui/AppCoreThread.h
+		gui/AppEventListeners.h
+		gui/AppForwardDefs.h
+		gui/AppGameDatabase.h
+		gui/App.h
+		gui/ConsoleLogger.h
+		gui/DriveList.h
+		gui/MemoryCardFile.h
+		gui/MemoryCardFolder.h
+		gui/pxEventThread.h
+		gui/Saveslots.h
 		)
 
 set(db_res_src "${CMAKE_SOURCE_DIR}/resources")
@@ -677,10 +677,10 @@ endif()
 
 # additonal include directories
 include_directories(
-    gui-libretro
+    gui
     x86
     ${db_res_bin}
-	${CMAKE_BINARY_DIR}/pcsx2/gui-libretro
+	${CMAKE_BINARY_DIR}/pcsx2/gui
 )
 
 if(MSVC)

@@ -25,14 +25,6 @@
 
 #include "AppCommon.h"
 #include "AppCoreThread.h"
-#if wxUSE_GUI
-#include "RecentIsoList.h"
-#include "DriveList.h"
-#endif
-#ifndef DISABLE_RECORDING
-#	include "Recording/VirtualPad/VirtualPad.h"
-#	include "Recording/NewRecordingFrame.h"
-#endif
 
 class DisassemblyDialog;
 
@@ -42,24 +34,10 @@ class DisassemblyDialog;
 typedef void FnType_OnThreadComplete(const wxCommandEvent& evt);
 typedef void (Pcsx2App::*FnPtr_Pcsx2App)();
 
-wxDECLARE_EVENT(pxEvt_SetSettingsPage, wxCommandEvent);
-
 // This is used when the GS plugin is handling its own window.  Messages from the PAD
 // are piped through to an app-level message handler, which dispatches them through
 // the universal Accelerator table.
 static const int pxID_PadHandler_Keydown = 8030;
-
-// Plugin ID sections are spaced out evenly at intervals to make it easy to use a
-// single for-loop to create them.
-static const int PluginMenuId_Interval = 0x10;
-
-// ID and return code used for modal popups that have a custom button.
-static const wxWindowID pxID_CUSTOM = wxID_LOWEST - 1;
-
-// Return code used by first time wizard if the dialog needs to be automatically recreated
-// (assigned an arbitrary value)
-static const wxWindowID pxID_RestartWizard = wxID_LOWEST - 100;
-
 
 // Forces the Interface to destroy the GS viewport window when the GS plugin is
 // destroyed.  This has the side effect of forcing all plugins to close and re-open
@@ -77,9 +55,6 @@ enum TopLevelMenuIndices
 	TopLevelMenu_Config,
 	TopLevelMenu_Window,
 	TopLevelMenu_Capture,
-#ifndef DISABLE_RECORDING
-	TopLevelMenu_InputRecording,
-#endif
 	TopLevelMenu_Help
 };
 
@@ -197,19 +172,6 @@ enum MenuIdentifiers
 	MenuId_Capture_Video_Record,
 	MenuId_Capture_Video_Stop,
 	MenuId_Capture_Screenshot,
-
-#ifndef DISABLE_RECORDING
-	// Input Recording Subsection
-	MenuId_Recording_New,
-	MenuId_Recording_Play,
-	MenuId_Recording_Stop,
-	MenuId_Recording_TogglePause,
-	MenuId_Recording_FrameAdvance,
-	MenuId_Recording_ToggleRecordingMode,
-	MenuId_Recording_VirtualPad_Port0,
-	MenuId_Recording_VirtualPad_Port1,
-#endif
-
 };
 
 namespace Exception
@@ -231,51 +193,6 @@ namespace Exception
 
 }
 
-// --------------------------------------------------------------------------------------
-//  AppImageIds  - Config and Toolbar Images and Icons
-// --------------------------------------------------------------------------------------
-struct AppImageIds
-{
-	struct ConfigIds
-	{
-		int	Paths,
-			Plugins,
-			Speedhacks,
-			Gamefixes,
-			MemoryCard,
-			Video,
-			Cpu;
-
-		ConfigIds()
-		{
-			Paths		= Plugins		=
-			Speedhacks	= Gamefixes		=
-			Video		= Cpu			= 
-			MemoryCard	= -1;
-		}
-	} Config;
-
-	struct ToolbarIds
-	{
-		int Settings,
-			Play,
-			Resume,
-			PluginVideo,
-			PluginAudio,
-			PluginPad;
-
-		ToolbarIds()
-		{
-			Settings    = -1;
-			Play        = -1;
-			Resume      = -1;
-			PluginVideo = -1;
-			PluginAudio = -1;
-			PluginPad   = -1;
-		}
-	} Toolbars;
-};
-
 // -------------------------------------------------------------------------------------------
 //  pxAppResources
 // -------------------------------------------------------------------------------------------
@@ -285,41 +202,10 @@ struct AppImageIds
 class pxAppResources
 {
 public:
-	AppImageIds					ImageId;
-#ifndef __LIBRETRO__
-	std::unique_ptr<wxImageList>		ConfigImages;
-	std::unique_ptr<wxImageList>		ToolbarImages;
-	std::unique_ptr<wxIconBundle>		IconBundle;
-	std::unique_ptr<wxBitmap>			Bitmap_Logo;
-	std::unique_ptr<wxBitmap>			ScreenshotBitmap;
-#endif
 	std::unique_ptr<AppGameDatabase>	GameDB;
 
 	pxAppResources();
 	virtual ~pxAppResources();
-};
-
-// --------------------------------------------------------------------------------------
-//  FramerateManager
-// --------------------------------------------------------------------------------------
-class FramerateManager
-{
-public:
-	static const uint FramerateQueueDepth = 64;
-
-protected:
-	u64 m_fpsqueue[FramerateQueueDepth];
-	int m_fpsqueue_writepos;
-	uint m_initpause;
-
-public:
-	FramerateManager() { Reset(); }
-	virtual ~FramerateManager() = default;
-
-	void Reset();
-	void Resume();
-	void DoFrame();
-	double GetFramerate() const;
 };
 
 class StartupOptions
@@ -509,42 +395,19 @@ public:
 	void DispatchEvent( CoreThreadStatus evt );
 	void DispatchUiSettingsEvent( IniInterface& ini );
 	void DispatchVmSettingsEvent( IniInterface& ini );
-#ifndef __LIBRETRO__
-	bool HasGUI() { return m_UseGUI; };
-	bool ExitPromptWithNoGUI() { return m_NoGuiExitPrompt; };
-#endif
 
 	// ----------------------------------------------------------------------------
 protected:
 	int								m_PendingSaves;
-	bool							m_ScheduledTermination;
-#ifndef __LIBRETRO__
-	bool							m_UseGUI;
-	bool							m_NoGuiExitPrompt;
-#endif
 
 	Threading::Mutex				m_mtx_Resources;
 	Threading::Mutex				m_mtx_LoadingGameDB;
 
 public:
-	FramerateManager				FpsManager;
-#ifndef __LIBRETRO__
-	std::unique_ptr<CommandDictionary> GlobalCommands;
-	std::unique_ptr<AcceleratorDictionary> GlobalAccels;
-#endif
 	StartupOptions					Startup;
 	CommandlineOverrides			Overrides;
 
-	std::unique_ptr<wxTimer> m_timer_Termination;
-
 protected:
-	std::unique_ptr<PipeRedirectionBase> m_StdoutRedirHandle;
-	std::unique_ptr<PipeRedirectionBase> m_StderrRedirHandle;
-
-#ifndef __LIBRETRO__
-	std::unique_ptr<RecentIsoList> m_RecentIsoList;
-	std::unique_ptr<DriveList> m_DriveList;
-#endif
 	std::unique_ptr<pxAppResources> m_Resources;
 
 public:
@@ -557,56 +420,23 @@ public:
 	std::unique_ptr<SysCpuProviderPack> m_CpuProviders;
 	std::unique_ptr<SysMainMemory> m_VmReserve;
 
-protected:
-	wxWindowID			m_id_MainFrame;
-	wxWindowID			m_id_GsFrame;
-	wxWindowID			m_id_ProgramLogBox;
-	wxWindowID			m_id_Disassembler;
-
-#ifndef DISABLE_RECORDING
-	wxWindowID			m_id_VirtualPad[2];
-	wxWindowID			m_id_NewRecordingFrame;
-#endif
-#if wxUSE_GUI
-	wxKeyEvent			m_kevt;
-#endif
 public:
 	Pcsx2App();
 	virtual ~Pcsx2App();
 
-	void PostMenuAction( MenuIdentifiers menu_id ) const;
 	void PostAppMethod( FnPtr_Pcsx2App method );
-	void PostIdleAppMethod( FnPtr_Pcsx2App method );
 
 	void SysApplySettings();
 	void SysExecute();
 	void SysExecute( CDVD_SourceType cdvdsrc, const wxString& elf_override=wxEmptyString );
-	void LogicalVsync();
 	
 	SysMainMemory& GetVmReserve();
 	
-	GSFrame&			GetGsFrame() const;
 	MainEmuFrame&		GetMainFrame() const;
-#if wxUSE_GUI
-	GSFrame*			GetGsFramePtr() const		{ return (GSFrame*)wxWindow::FindWindowById( m_id_GsFrame ); }
-	MainEmuFrame*		GetMainFramePtr() const		{ return (MainEmuFrame*)wxWindow::FindWindowById( m_id_MainFrame ); }
-	DisassemblyDialog*	GetDisassemblyPtr() const	{ return (DisassemblyDialog*)wxWindow::FindWindowById(m_id_Disassembler); }
-#endif
-#ifndef DISABLE_RECORDING
-	VirtualPad*			GetVirtualPadPtr(int port) const	{ return (VirtualPad*)wxWindow::FindWindowById(m_id_VirtualPad[port]); }
-	NewRecordingFrame*	GetNewRecordingFramePtr() const		{ return (NewRecordingFrame*)wxWindow::FindWindowById(m_id_NewRecordingFrame); }
-#endif
 
 	void enterDebugMode();
 	void leaveDebugMode();
-#if wxUSE_GUI
-	bool HasMainFrame() const	{ return GetMainFramePtr() != NULL; }
-
-	void OpenGsPanel();
-	void CloseGsPanel();
-	void OnGsFrameClosed( wxWindowID id );
-	void OnMainFrameClosed( wxWindowID id );
-#endif
+	void resetDebugger();
 
 	// --------------------------------------------------------------------------
 	//  Startup / Shutdown Helpers
@@ -614,10 +444,6 @@ public:
 
 	void DetectCpuAndUserMode();
 	void OpenProgramLog();
-#ifndef __LIBRETRO__
-	void OpenMainFrame();
-#endif
-	void PrepForExit();
 	void CleanupRestartable();
 	void CleanupResources();
 	void WipeUserModeSettings();
@@ -637,20 +463,7 @@ public:
 	// --------------------------------------------------------------------------
 	// All of these accessors cache the resources on first use and retain them in
 	// memory until the program exits.
-#ifndef __LIBRETRO__
-	wxMenu&				GetRecentIsoMenu();
-	RecentIsoManager&	GetRecentIsoManager();
-	wxMenu&				GetDriveListMenu();
-#endif
 	pxAppResources&		GetResourceCache();
-#ifndef __LIBRETRO__
-	const wxIconBundle&	GetIconBundle();
-	const wxBitmap&		GetLogoBitmap();
-	const wxBitmap&		GetScreenshotBitmap();
-	wxImageList&		GetImgList_Config();
-	wxImageList&		GetImgList_Toolbars();
-#endif
-	const AppImageIds& GetImgId() const;
 	AppGameDatabase* GetGameDatabase();
 
 	// --------------------------------------------------------------------------
@@ -666,26 +479,6 @@ public:
 	bool OnCmdLineError( wxCmdLineParser& parser );
 	bool ParseOverrides( wxCmdLineParser& parser );
 
-#ifdef __WXDEBUG__
-	void OnAssertFailure( const wxChar *file, int line, const wxChar *func, const wxChar *cond, const wxChar *msg );
-#endif
-
-	Threading::MutexRecursive	m_mtx_ProgramLog;
-	ConsoleLogFrame*			m_ptr_ProgramLog;
-
-	// ----------------------------------------------------------------------------
-	//   Console / Program Logging Helpers
-	// ----------------------------------------------------------------------------
-	ConsoleLogFrame* GetProgramLog();
-	const ConsoleLogFrame* GetProgramLog() const;
-	void ProgramLog_PostEvent( wxEvent& evt );
-	Threading::Mutex& GetProgramLogLock();
-
-	void EnableAllLogging();
-	void DisableWindowLogging() const;
-	void DisableDiskLogging() const;
-	void OnProgramLogClosed( wxWindowID id );
-
 	void AllocateCoreStuffs();
 	void CleanupOnExit();
 protected:
@@ -693,21 +486,9 @@ protected:
 	bool AppRpc_TryInvokeAsync( FnPtr_Pcsx2App method );
 
 	void InitDefaultGlobalAccelerators();
-	void BuildCommandHash();
 	bool TryOpenConfigCwd();
-	void OpenWizardConsole();
-	void PadKeyDispatch( const keyEvent& ev );
 
 protected:
-	void HandleEvent(wxEvtHandler* handler, wxEventFunction func, wxEvent& event) const;
-	void HandleEvent(wxEvtHandler* handler, wxEventFunction func, wxEvent& event);
-
-	void OnScheduledTermination( wxTimerEvent& evt );
-#ifndef __LIBRETRO__
-	void OnEmuKeyDown( wxKeyEvent& evt );
-	void OnSysExecutorTaskTimeout( wxTimerEvent& evt );
-	void OnDestroyWindow( wxWindowDestroyEvent& evt );
-#endif
 	// ----------------------------------------------------------------------------
 	//      Override wx default exception handling behavior
 	// ----------------------------------------------------------------------------
@@ -749,72 +530,6 @@ wxDECLARE_APP(Pcsx2App);
 //
 #define sApp \
 	if( Pcsx2App* __app_ = (Pcsx2App*)wxApp::GetInstance() ) (*__app_)
-#if wxUSE_GUI
-#define sLogFrame \
-	if( ConsoleLogFrame* __conframe_ = wxGetApp().GetProgramLog() ) (*__conframe_)
-
-#define sMainFrame \
-	if( MainEmuFrame* __frame_ = GetMainFramePtr() ) (*__frame_)
-
-// Use this within the scope of a wxWindow (wxDialog or wxFrame).  If the window has a valid menu
-// bar, the command will run, otherwise it will be silently ignored. :)
-#define sMenuBar \
-	if( wxMenuBar* __menubar_ = GetMenuBar() ) (*__menubar_)
-
-// --------------------------------------------------------------------------------------
-//  AppOpenDialog
-// --------------------------------------------------------------------------------------
-// Returns a wxWindow handle to the opened window.
-//
-template<typename DialogType>
-wxWindow* AppOpenDialog( wxWindow* parent=NULL )
-{
-	wxWindow* window = wxFindWindowByName( L"Dialog:" + DialogType::GetNameStatic() );
-	
-	if( !window ) window = new DialogType( parent );
-
-	window->Show();
-	window->SetFocus();
-	return window;
-}
-
-// --------------------------------------------------------------------------------------
-//  AppOpenModalDialog
-// --------------------------------------------------------------------------------------
-// Returns the ID of the button used to close the dialog.
-//
-template<typename DialogType>
-int AppOpenModalDialog(wxString panel_name, wxWindow* parent = NULL)
-{
-	if (wxWindow* window = wxFindWindowByName(L"Dialog:" + DialogType::GetNameStatic()))
-	{
-		window->SetFocus();
-		if (wxDialog* dialog = wxDynamicCast(window, wxDialog))
-		{
-			// Switch to the requested panel.
-			if (panel_name != wxEmptyString) {
-				wxCommandEvent evt(pxEvt_SetSettingsPage);
-				evt.SetString(panel_name);
-				dialog->GetEventHandler()->ProcessEvent(evt);
-			}
-
-			// It's legal to call ShowModal on a non-modal dialog, therefore making
-			// it modal in nature for the needs of whatever other thread of action wants
-			// to block against it:
-			if (!dialog->IsModal())
-			{
-				int result = dialog->ShowModal();
-				dialog->Destroy();
-				return result;
-			}
-		}
-		pxFailDev("Can only show wxDialog class windows as modal!");
-		return wxID_CANCEL;
-	} else
-		return DialogType(parent).ShowModal();
-}
-#endif
-extern pxDoAssertFnType AppDoAssert;
 
 // --------------------------------------------------------------------------------------
 //  External App-related Globals and Shortcuts
@@ -831,10 +546,6 @@ extern void SysUpdateIsoSrcFile( const wxString& newIsoFile );
 extern void SysUpdateDiscSrcDrive( const wxString& newDiscDrive );
 extern void SysStatus( const wxString& text );
 
-extern bool				HasMainFrame();
-extern MainEmuFrame&	GetMainFrame();
-extern MainEmuFrame*	GetMainFramePtr();
-
 extern __aligned16 SysMtgsThread mtgsThread;
 extern __aligned16 AppCoreThread CoreThread;
 #ifdef __LIBRETRO__
@@ -842,8 +553,6 @@ extern __aligned16 SysCorePlugins CorePlugins;
 #else
 extern __aligned16 AppCorePlugins CorePlugins;
 #endif
-
-extern void UI_UpdateSysControls();
 
 extern void UI_DisableStateActions();
 extern void UI_EnableStateActions();
@@ -853,17 +562,5 @@ extern void UI_EnableSysActions();
 
 extern void UI_DisableSysShutdown();
 
-#ifdef __LIBRETRO__
 #define AffinityAssert_AllowFrom_SysExecutor()
 #define AffinityAssert_DisallowFrom_SysExecutor()
-#else
-#define AffinityAssert_AllowFrom_SysExecutor() \
-	pxAssertMsg( wxGetApp().SysExecutorThread.IsSelf(), "Thread affinity violation: Call allowed from SysExecutor thread only." )
-
-#define AffinityAssert_DisallowFrom_SysExecutor() \
-	pxAssertMsg( !wxGetApp().SysExecutorThread.IsSelf(), "Thread affinity violation: Call is *not* allowed from SysExecutor thread." )
-
-extern ExecutorThread& GetSysExecutorThread();
-#endif
-
-extern bool g_ConfigPanelChanged; //Indicates that the main config panel is open and holds unapplied changes.

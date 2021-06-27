@@ -15,11 +15,7 @@
 
 #include "PrecompiledHeader.h"
 #include "Common.h"
-#ifndef __LIBRETRO__
 #include "gui/App.h"
-#else
-#include "gui-libretro/App.h"
-#endif
 #include "IopBios.h"
 #include "R5900.h"
 
@@ -253,9 +249,6 @@ void SysCoreThread::GameStartingInThread()
 
 	MIPSAnalyst::ScanForFunctions(ElfTextRange.first, ElfTextRange.first + ElfTextRange.second, true);
 	symbolMap.UpdateActiveSymbols();
-#ifndef __LIBRETRO__
-	sApp.PostAppMethod(&Pcsx2App::resetDebugger);
-#endif
 
 	ApplyLoadedPatches(PPT_ONCE_ON_LOAD);
 #ifdef USE_SAVESLOT_UI_UPDATES
