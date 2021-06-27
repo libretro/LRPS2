@@ -36,8 +36,6 @@ struct Component_FileMcd;
 
 #include "svnrev.h"
 
-#include "ConsoleLogger.h"
-
 #include <wx/ffile.h>
 #include <map>
 #include  "options_tools.h"
@@ -528,9 +526,9 @@ s32 FileMemoryCard::Save(uint slot, const u8* src, u32 adr, int size)
 		std::chrono::duration<float> elapsed = std::chrono::system_clock::now() - last;
 		if (elapsed > std::chrono::seconds(5))
 		{
+         /* Memory Card written */
 			wxString name, ext;
 			wxFileName::SplitPath(m_file[slot].GetName(), NULL, NULL, &name, &ext);
-			OSDlog(Color_StrongYellow, false, "Memory Card %s written.", (const char*)(name + "." + ext).c_str());
 			last = std::chrono::system_clock::now();
 		}
 		return 1;

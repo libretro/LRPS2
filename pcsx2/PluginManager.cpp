@@ -26,7 +26,6 @@
 #include "Utilities/pxStreams.h"
 
 #include "svnrev.h"
-#include "ConsoleLogger.h"
 
 SysPluginBindings SysPlugins;
 
@@ -486,7 +485,6 @@ wxString Exception::SaveStateLoadError::FormatDiagnosticMessage() const
 {
 	FastFormatUnicode retval;
 	retval.Write("Savestate is corrupt or incomplete!\n");
-	OSDlog(Color_Red, false, "Error: Savestate is corrupt or incomplete!");
 	_formatDiagMsg(retval);
 	return retval;
 }
@@ -496,7 +494,6 @@ wxString Exception::SaveStateLoadError::FormatDisplayMessage() const
 	FastFormatUnicode retval;
 	retval.Write(_("The savestate cannot be loaded, as it appears to be corrupt or incomplete."));
 	retval.Write("\n");
-	OSDlog(Color_Red, false, "Error: The savestate cannot be loaded, as it appears to be corrupt or incomplete.");
 	_formatUserMsg(retval);
 	return retval;
 }
@@ -599,7 +596,6 @@ static char* PS2E_CALLBACK pcsx2_GetStringAlloc( const char* name, void* (PS2E_C
 
 static void PS2E_CALLBACK pcsx2_OSD_WriteLn( int icon, const char* msg )
 {
-	OSDlog( Color_StrongYellow, false, msg );
 }
 
 // ---------------------------------------------------------------------------------

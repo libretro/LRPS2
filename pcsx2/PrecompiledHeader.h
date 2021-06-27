@@ -71,7 +71,6 @@ typedef int BOOL;
 // need a full recompile anyway, when modified (etc)
 
 #include "Pcsx2Defs.h"
-#include "i18n.h"
 
 #include "Utilities/FixedPointTypes.h"
 #include "Utilities/wxBaseTools.h"
