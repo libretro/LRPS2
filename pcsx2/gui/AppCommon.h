@@ -18,6 +18,16 @@
 #include "Utilities/SafeArray.h"
 #include "Utilities/EventSource.h"
 #include "Utilities/PersistentThread.h"
+#if wxUSE_GUI
+#include "Utilities/wxGuiTools.h"
+#include "Utilities/pxRadioPanel.h"
+#include "Utilities/pxCheckBox.h"
+#include "Utilities/pxStaticText.h"
+#include "Utilities/CheckedStaticBox.h"
+#endif
 #include "AppForwardDefs.h"
 #include "AppConfig.h"
 #include "AppEventListeners.h"
+
+extern wxString AddAppName( const wxChar* fmt );
+extern wxString AddAppName( const char* fmt );

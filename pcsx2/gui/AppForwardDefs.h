@@ -27,6 +27,7 @@
 
 class Pcsx2App;
 class MainEmuFrame;
+class GSFrame;
 class ConsoleLogFrame;
 class PipeRedirectionBase;
 class AppCoreThread;
@@ -36,6 +37,9 @@ class AppGameDatabase;
 class IScopedCoreThread;
 
 struct KeyAcceleratorCode;
+struct GlobalCommandDescriptor;
+class CommandDictionary;
+class AcceleratorDictionary;
 
 class IniInterface;
 

@@ -15,6 +15,9 @@
 
 #include "PrecompiledHeader.h"
 #include "App.h"
+#if wxUSE_GUI
+#include "MainFrame.h"
+#endif
 #include "Utilities/IniInterface.h"
 #ifndef __LIBRETRO__
 #include "Dialogs/ModalPopups.h"
@@ -135,7 +138,51 @@ wxConfigBase* Pcsx2App::TestForPortableInstall()
 		{
 			wxString accessFailedStr, createFailedStr;
 			if (TestUserPermissionsRights( portableDocsFolder, createFailedStr, accessFailedStr )) break;
+#ifndef __LIBRETRO__
+			wxDialogWithHelpers dialog( NULL, AddAppName(_("Portable mode error - %s")) );
+
+			wxTextCtrl* scrollText = new wxTextCtrl(
+				&dialog, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize,
+				wxTE_READONLY | wxTE_MULTILINE | wxTE_WORDWRAP
+			);
+
+			if (!createFailedStr.IsEmpty())
+				scrollText->AppendText( createFailedStr + L"\n" );
+
+			if (!accessFailedStr.IsEmpty())
+				scrollText->AppendText( accessFailedStr + L"\n" );
+
+			dialog += dialog.Heading( _("PCSX2 has been installed as a portable application but cannot run due to the following errors:" ) );
+			dialog += scrollText | pxExpand.Border(wxALL, 16);
+			dialog += 6;
+			dialog += dialog.Text( GetMsg_PortableModeRights() );
+			
+			// [TODO] : Add url for platform-relevant user permissions tutorials?  (low priority)
+
+			wxWindowID result = pxIssueConfirmation( dialog,
+				MsgButtons().Retry().Cancel().Custom(_("Switch to User Documents Mode"), "switchmode")
+			);
+			
+			switch (result)
+			{
+				case wxID_CANCEL:
+					throw Exception::StartupAborted( L"User canceled portable mode due to insufficient user access/permissions." );
+
+				case wxID_RETRY:
+					// do nothing (continues while loop)
+				break;
+				
+				case pxID_CUSTOM:
+					wxDialogWithHelpers dialog2( NULL, AddAppName(_("%s is switching to local install mode.")) );
+					dialog2 += dialog2.Heading( _("Try to remove the file called \"portable.ini\" from your installation directory manually." ) );
+					dialog2 += 6;
+					pxIssueConfirmation( dialog2, MsgButtons().OK() );
+					
+					return NULL;
+			}
+#else
 			return NULL;
+#endif
 		}
 	
 		// Success -- all user-based folders have write access.  PCSX2 should be able to run error-free!
@@ -170,6 +217,21 @@ void Pcsx2App::WipeUserModeSettings()
 
 static void DoFirstTimeWizard()
 {
+#ifndef __LIBRETRO__
+	// first time startup, so give the user the choice of user mode:
+	while(true)
+	{
+		// PCSX2's FTWizard allows improptu restarting of the wizard without cancellation.
+		// This is typically used to change the user's language selection.
+
+		FirstTimeWizard wiz( NULL );
+		if( wiz.RunWizard( wiz.GetFirstPage() ) ) break;
+		if (wiz.GetReturnCode() != pxID_RestartWizard)
+			throw Exception::StartupAborted( L"User canceled FirstTime Wizard." );
+
+		Console.WriteLn( Color_StrongBlack, "Restarting First Time Wizard!" );
+	}
+#endif
 }
 
 wxConfigBase* Pcsx2App::OpenInstallSettingsFile()
@@ -254,3 +316,4 @@ void Pcsx2App::EstablishAppUserMode()
 	// Wizard completed successfully, so let's not torture the user with this crap again!
 	conf_install->Write( L"RunWizard", false );
 }
+
