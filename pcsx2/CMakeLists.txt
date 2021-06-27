@@ -752,13 +752,35 @@ if(BUILTIN_DEV9)
   endif()
 endif()
 
-# additional include directories
+# additonal include directories
+if(NOT LIBRETRO)
+include_directories(
+    gui
+    x86
+	${db_res_bin} 
+    ${CMAKE_BINARY_DIR}/pcsx2/gui
+)
+else()
 include_directories(
     gui
     x86
     ${db_res_bin}
 	${CMAKE_BINARY_DIR}/pcsx2/gui
 )
+endif()
+
+### Generate Recording resource files
+### Drop them into the folder alongside the png files
+foreach(res_file IN ITEMS
+				circlePressed controllerFull controllerHalf controllerThreeQuarters crossPressed downPressed l1Pressed l2Pressed l3Pressed leftPressed
+				r1Pressed r2Pressed r3Pressed rightPressed selectPressed squarePressed startPressed trianglePressed upPressed)
+    add_custom_command(OUTPUT  "${res_rec_vp_src}/${res_file}.h" COMMAND perl ${CMAKE_SOURCE_DIR}/linux_various/hex2h.pl "${res_rec_vp_src}/${res_file}.png" "${res_rec_vp_src}/${res_file}" )
+endforeach()
+endif()
+
+if(USE_VTUNE)
+    set(pcsx2FinalLibs ${pcsx2FinalLibs} ${VTUNE_LIBRARIES})
+endif()
 
 if(MSVC)
 #   include_directories(x86/ix86-32 IPU System)
