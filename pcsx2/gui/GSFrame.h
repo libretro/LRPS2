@@ -31,57 +31,6 @@ enum LimiterModeType
 extern LimiterModeType g_LimiterMode;
 
 // --------------------------------------------------------------------------------------
-//  GSPanel
-// --------------------------------------------------------------------------------------
-class GSPanel : public wxWindow
-	, public EventListener_AppStatus
-	, public EventListener_CoreThread
-{
-	typedef wxWindow _parent;
-
-protected:
-	std::unique_ptr<AcceleratorDictionary> m_Accels;
-
-	wxTimer					m_HideMouseTimer;
-	bool					m_CursorShown;
-	bool					m_HasFocus;
-	bool					m_coreRunning;
-
-public:
-	GSPanel( wxWindow* parent );
-	virtual ~GSPanel();
-
-	void DoResize();
-	void DoShowMouse();
-	void DirectKeyCommand( wxKeyEvent& evt );
-	void DirectKeyCommand( const KeyAcceleratorCode& kac );
-	void InitDefaultAccelerators();
-	wxString GetAssociatedKeyCode(const char* id);
-#ifndef DISABLE_RECORDING
-	void InitRecordingAccelerators();
-	void RemoveRecordingAccelerators();
-#endif
-
-protected:
-	void AppStatusEvent_OnSettingsApplied();
-
-	void OnCloseWindow( wxCloseEvent& evt );
-	void OnResize(wxSizeEvent& event);
-	void OnMouseEvent( wxMouseEvent& evt );
-	void OnHideMouseTimeout( wxTimerEvent& evt );
-	void OnKeyDownOrUp( wxKeyEvent& evt );
-	void OnFocus( wxFocusEvent& evt );
-	void OnFocusLost( wxFocusEvent& evt );
-	void CoreThread_OnResumed();
-	void CoreThread_OnSuspended();
-
-	void OnLeftDclick( wxMouseEvent& evt );
-
-	void UpdateScreensaver();
-};
-
-
-// --------------------------------------------------------------------------------------
 //  GSFrame
 // --------------------------------------------------------------------------------------
 class GSFrame : public wxFrame
@@ -90,19 +39,10 @@ class GSFrame : public wxFrame
 	, public EventListener_Plugins
 {
 	typedef wxFrame _parent;
-
-protected:
-	wxTimer					m_timer_UpdateTitle;
-	wxWindowID				m_id_gspanel;
-	wxStatusBar*			m_statusbar;
-
-	CpuUsageProvider		m_CpuUsage;
-
 public:
 	GSFrame( const wxString& title);
 	virtual ~GSFrame() = default;
 
-	GSPanel* GetViewport();
 	void SetFocus();
 	bool Show( bool shown=true );
 

@@ -432,8 +432,6 @@ public:
 	
 	SysMainMemory& GetVmReserve();
 	
-	MainEmuFrame&		GetMainFrame() const;
-
 	void enterDebugMode();
 	void leaveDebugMode();
 	void resetDebugger();

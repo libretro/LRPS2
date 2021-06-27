@@ -35,8 +35,6 @@ class pxAppResources;
 class AppGameDatabase;
 class IScopedCoreThread;
 
-struct KeyAcceleratorCode;
-
 class IniInterface;
 
 // wxWidgets forward declarations
