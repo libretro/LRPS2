@@ -295,7 +295,6 @@ set(pcsx2DebugToolsHeaders
 	DebugTools/DisVUops.h
 	DebugTools/BiosDebugData.h)
 
-if(LIBRETRO)
 	# gui sources
 	set(pcsx2GuiSources
 		gui-libretro/AppConfig.cpp
@@ -329,138 +328,6 @@ if(LIBRETRO)
 		gui-libretro/pxEventThread.h
 		gui-libretro/Saveslots.h
 		)
-else()
-	# gui sources
-	set(pcsx2GuiSources
-		gui/AppAssert.cpp
-		gui/AppConfig.cpp
-		gui/AppCorePlugins.cpp
-		gui/AppCoreThread.cpp
-		gui/AppEventSources.cpp
-		gui/AppGameDatabase.cpp
-		gui/AppUserMode.cpp
-		gui/AppInit.cpp
-		gui/AppMain.cpp
-		gui/AppRes.cpp
-		gui/ConsoleLogger.cpp
-		gui/CpuUsageProvider.cpp
-		gui/Dialogs/AboutBoxDialog.cpp
-		gui/Dialogs/AssertionDialog.cpp
-		gui/Dialogs/BaseConfigurationDialog.cpp
-		gui/Dialogs/ConfirmationDialogs.cpp
-		gui/Dialogs/ConvertMemoryCardDialog.cpp
-		gui/Dialogs/CreateMemoryCardDialog.cpp
-		gui/Dialogs/FirstTimeWizard.cpp
-		gui/Dialogs/ImportSettingsDialog.cpp
-		gui/Dialogs/LogOptionsDialog.cpp
-		gui/Dialogs/McdConfigDialog.cpp
-		gui/Dialogs/PickUserModeDialog.cpp
-		gui/Dialogs/SysConfigDialog.cpp
-		gui/Debugger/BreakpointWindow.cpp
-		gui/Debugger/CtrlDisassemblyView.cpp
-		gui/Debugger/CtrlRegisterList.cpp
-		gui/Debugger/CtrlMemView.cpp
-		gui/Debugger/DebuggerLists.cpp
-		gui/Debugger/DisassemblyDialog.cpp
-		gui/Debugger/DebugEvents.cpp
-		gui/DriveList.cpp
-		gui/ExecutorThread.cpp
-		gui/FrameForGS.cpp
-		gui/GlobalCommands.cpp
-		gui/i18n.cpp
-		gui/IsoDropTarget.cpp
-		gui/MainFrame.cpp
-		gui/MainMenuClicks.cpp
-		gui/MemoryCardFile.cpp
-		gui/MemoryCardFolder.cpp
-		gui/MessageBoxes.cpp
-		gui/MSWstuff.cpp
-		gui/Panels/BaseApplicableConfigPanel.cpp
-		gui/Panels/BiosSelectorPanel.cpp
-		gui/Panels/CpuPanel.cpp
-		gui/Panels/DirPickerPanel.cpp
-		gui/Panels/GameFixesPanel.cpp
-		gui/Panels/GSWindowPanel.cpp
-		gui/Panels/LogOptionsPanels.cpp
-		gui/Panels/MemoryCardListPanel.cpp
-		gui/Panels/MemoryCardListView.cpp
-		gui/Panels/MiscPanelStuff.cpp
-		gui/Panels/PathsPanel.cpp
-		gui/Panels/PluginSelectorPanel.cpp
-		gui/Panels/SpeedhacksPanel.cpp
-		gui/Panels/VideoPanel.cpp
-		gui/RecentIsoList.cpp
-		gui/Saveslots.cpp
-		gui/SysState.cpp
-		gui/UpdateUI.cpp
-		)
-
-	# gui headers
-	set(pcsx2GuiHeaders
-		gui/AppAccelerators.h
-		gui/AppCommon.h
-		gui/AppConfig.h
-		gui/AppCorePlugins.h
-		gui/AppCoreThread.h
-		gui/AppEventListeners.h
-		gui/AppForwardDefs.h
-		gui/AppGameDatabase.h
-		gui/App.h
-		gui/ApplyState.h
-		gui/AppSaveStates.h
-		gui/ConsoleLogger.h
-		gui/CpuUsageProvider.h
-		gui/Debugger/BreakpointWindow.h
-		gui/Debugger/CtrlDisassemblyView.h
-		gui/Debugger/CtrlMemView.h
-		gui/Debugger/CtrlRegisterList.h
-		gui/Debugger/DebugEvents.h
-		gui/Debugger/DebuggerLists.h
-		gui/Debugger/DisassemblyDialog.h
-		gui/Dialogs/BaseConfigurationDialog.inl
-		gui/Dialogs/ConfigurationDialog.h
-		gui/Dialogs/LogOptionsDialog.h
-		gui/Dialogs/ModalPopups.h
-		gui/DriveList.h
-		gui/GSFrame.h
-		gui/i18n.h
-		gui/IsoDropTarget.h
-		gui/MainFrame.h
-		gui/MemoryCardFile.h
-		gui/MemoryCardFolder.h
-		gui/MSWstuff.h
-		gui/Panels/ConfigurationPanels.h
-		gui/Panels/LogOptionsPanels.h
-		gui/Panels/MemoryCardPanels.h
-		gui/pxEventThread.h
-		gui/RecentIsoList.h
-		gui/Saveslots.h
-		)
-endif()
-if(NOT MSVC)
-# Warning: the declaration of the .h are mandatory in case of resources files. It will ensure the creation
-# from the bin2cpp tools at right good moment (ie .h must be created before the pcsx2 compilation)
-# Gui resources headers
-set(res_bin "${CMAKE_BINARY_DIR}/pcsx2/gui/Resources")
-set(res_src "${CMAKE_SOURCE_DIR}/pcsx2/gui/Resources")
-set(pcsx2GuiResources
-    ${res_bin}/AppIcon16.h
-    ${res_bin}/AppIcon32.h
-    ${res_bin}/AppIcon64.h
-    ${res_bin}/BackgroundLogo.h
-    ${res_bin}/ButtonIcon_Camera.h
-    ${res_bin}/ConfigIcon_Cpu.h
-    ${res_bin}/ConfigIcon_Gamefixes.h
-    ${res_bin}/ConfigIcon_MemoryCard.h
-    ${res_bin}/ConfigIcon_Paths.h
-    ${res_bin}/ConfigIcon_Plugins.h
-    ${res_bin}/ConfigIcon_Speedhacks.h
-    ${res_bin}/ConfigIcon_Video.h
-    ${res_bin}/Logo.h
-    ${res_bin}/Breakpoint_Active.h
-    ${res_bin}/Breakpoint_Inactive.h
-    )
-endif()
 
 set(db_res_src "${CMAKE_SOURCE_DIR}/resources")
 set(db_res_bin "${CMAKE_BINARY_DIR}/resources")
@@ -626,58 +493,6 @@ set(pcsx2RDebugHeaders
 	RDebug/deci2_netmp.h
 	RDebug/deci2_ttyp.h)
 
-# Recording sources
-set(rec_src "Recording")
-set(rec_vp_src "${rec_src}/VirtualPad")
-set(pcsx2RecordingSources
-	${rec_src}/InputRecording.cpp
-	${rec_src}/InputRecordingControls.cpp
-	${rec_src}/InputRecordingFile.cpp
-	${rec_src}/NewRecordingFrame.cpp
-	${rec_src}/PadData.cpp
-	${rec_vp_src}/VirtualPad.cpp
-	${rec_vp_src}/VirtualPadData.cpp
-	${rec_vp_src}/VirtualPadResources.cpp
-)
-
-# Recording headers
-set(pcsx2RecordingHeaders
-	${rec_src}/InputRecording.h
-	${rec_src}/InputRecordingControls.h
-	${rec_src}/InputRecordingFile.h
-	${rec_src}/NewRecordingFrame.h
-	${rec_src}/PadData.h
-	${rec_vp_src}/VirtualPad.h
-	${rec_vp_src}/VirtualPadData.h
-	${rec_vp_src}/VirtualPadResources.h
-)
-
-# Warning: the declaration of the .h are mandatory in case of resources files. It will ensure the creation
-# from the bin2cpp tools at the right moment (ie .h must be created before the pcsx2 compilation)
-# Recording - VirtualPad resources headers
-set(res_rec_vp_src "${CMAKE_SOURCE_DIR}/pcsx2/Recording/VirtualPad/img")
-set(pcsx2RecordingVirtualPadResources
-	${res_rec_vp_src}/circlePressed.h
-	${res_rec_vp_src}/controllerFull.h
-	${res_rec_vp_src}/controllerHalf.h
-	${res_rec_vp_src}/controllerThreeQuarters.h
-	${res_rec_vp_src}/crossPressed.h
-	${res_rec_vp_src}/downPressed.h
-	${res_rec_vp_src}/l1Pressed.h
-	${res_rec_vp_src}/l2Pressed.h
-	${res_rec_vp_src}/l3Pressed.h
-	${res_rec_vp_src}/leftPressed.h
-	${res_rec_vp_src}/r1Pressed.h
-	${res_rec_vp_src}/r2Pressed.h
-	${res_rec_vp_src}/r3Pressed.h
-	${res_rec_vp_src}/rightPressed.h
-	${res_rec_vp_src}/selectPressed.h
-	${res_rec_vp_src}/squarePressed.h
-	${res_rec_vp_src}/startPressed.h
-	${res_rec_vp_src}/trianglePressed.h
-	${res_rec_vp_src}/upPressed.h
-)
-
 # System sources
 set(pcsx2SystemSources
 	System/SysCoreThread.cpp
@@ -791,7 +606,6 @@ set(pcsx2x86Headers
 	)
 
 # common Sources
-if(LIBRETRO)
 	set(Common
 		${db_resources}
 		${pcsx2Sources}
@@ -813,33 +627,6 @@ if(LIBRETRO)
 		${pcsx2UtilitiesHeaders}
 		${pcsx2x86Sources}
 		${pcsx2x86Headers})
-else()
-	set(Common
-		${db_resources}
-		${pcsx2Sources}
-		${pcsx2Headers}
-		${pcsx2CDVDSources}
-		${pcsx2CDVDHeaders}
-		${pcsx2SPU2Sources}
-		${pcsx2SPU2Headers}
-		${pcsx2DebugToolsSources}
-		${pcsx2GuiSources}
-		${pcsx2GuiResources}
-		${pcsx2GuiHeaders}
-		${pcsx2IPUSources}
-		${pcsx2IPUHeaders}
-		${pcsx2ps2Sources}
-		${pcsx2ps2Headers}
-		${pcsx2RecordingSources}
-		${pcsx2RecordingVirtualPadResources}
-		${pcsx2RecordingHeaders}
-		${pcsx2SystemSources}
-		${pcsx2SystemHeaders}
-		${pcsx2UtilitiesSources}
-		${pcsx2UtilitiesHeaders}
-		${pcsx2x86Sources}
-		${pcsx2x86Headers})
-endif()
 
 # platform sources
 # Linux
@@ -918,45 +705,12 @@ if(BUILTIN_DEV9)
 endif()
 
 # additonal include directories
-if(NOT LIBRETRO)
-include_directories(
-    gui
-    x86
-	${db_res_bin} 
-    ${CMAKE_BINARY_DIR}/pcsx2/gui
-)
-else()
 include_directories(
     gui-libretro
     x86
     ${db_res_bin}
 	${CMAKE_BINARY_DIR}/pcsx2/gui-libretro
 )
-endif()
-
-if(NOT MSVC)
-### Generate the resources files
-file(MAKE_DIRECTORY ${res_bin})
-
-foreach(res_file IN ITEMS
-        AppIcon16 AppIcon32 AppIcon64 BackgroundLogo Logo ButtonIcon_Camera
-        ConfigIcon_Cpu ConfigIcon_Gamefixes ConfigIcon_MemoryCard
-        ConfigIcon_Paths ConfigIcon_Plugins ConfigIcon_Speedhacks ConfigIcon_Video Breakpoint_Active Breakpoint_Inactive)
-    add_custom_command(OUTPUT  "${res_bin}/${res_file}.h" COMMAND perl ${CMAKE_SOURCE_DIR}/linux_various/hex2h.pl "${res_src}/${res_file}.png" "${res_bin}/${res_file}" )
-endforeach()
-
-### Generate Recording resource files
-### Drop them into the folder alongside the png files
-foreach(res_file IN ITEMS
-				circlePressed controllerFull controllerHalf controllerThreeQuarters crossPressed downPressed l1Pressed l2Pressed l3Pressed leftPressed
-				r1Pressed r2Pressed r3Pressed rightPressed selectPressed squarePressed startPressed trianglePressed upPressed)
-    add_custom_command(OUTPUT  "${res_rec_vp_src}/${res_file}.h" COMMAND perl ${CMAKE_SOURCE_DIR}/linux_various/hex2h.pl "${res_rec_vp_src}/${res_file}.png" "${res_rec_vp_src}/${res_file}" )
-endforeach()
-endif()
-
-if(USE_VTUNE)
-    set(pcsx2FinalLibs ${pcsx2FinalLibs} ${VTUNE_LIBRARIES})
-endif()
 
 if(MSVC)
 #   include_directories(x86/ix86-32 IPU System)
