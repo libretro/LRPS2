@@ -422,7 +422,6 @@ set(pcsx2LinuxSources
 if(NOT LIBRETRO)
    set(pcsx2LinuxSources ${pcsx2LinuxSources}
       Linux/LnxConsolePipe.cpp
-      Linux/LnxKeyCodes.cpp
       gui/CpuUsageProviderLnx.cpp)
 endif()
 
@@ -435,7 +434,6 @@ set(pcsx2OSXSources
 if(NOT LIBRETRO)
    set(pcsx2OSXSources ${pcsx2OSXSources}
       Linux/LnxConsolePipe.cpp
-      #	Linux/LnxKeyCodes.cpp
       gui/CpuUsageProviderLnx.cpp)
 endif()
 
@@ -448,7 +446,6 @@ set(pcsx2FreeBSDSources
 if(NOT LIBRETRO)
    set(pcsx2FreeBSDSources ${pcsx2FreeBSDSources}
       Linux/LnxConsolePipe.cpp
-      Linux/LnxKeyCodes.cpp
       gui/CpuUsageProviderLnx.cpp)
 endif()
 
@@ -525,7 +522,6 @@ if(NOT LIBRETRO)
       windows/PatchBrowser.cpp
       windows/Optimus.cpp
       windows/WinConsolePipe.cpp
-      windows/WinKeyCodes.cpp
       gui/CpuUsageProviderMSW.cpp
    	)
 endif()
