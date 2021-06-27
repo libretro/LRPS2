@@ -14,6 +14,7 @@
  */
 
 #include "PrecompiledHeader.h"
+#include "ConsoleLogger.h"
 #include "MTVU.h" // for thread cancellation on shutdown
 
 #include "Utilities/IniInterface.h"

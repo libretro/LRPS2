@@ -306,6 +306,7 @@ set(pcsx2DebugToolsHeaders
 		gui/AppInit.cpp
 		gui/AppMain.cpp
 		gui/AppRes.cpp
+		gui/ConsoleLogger.cpp
 		gui/ExecutorThread.cpp
 		gui/MemoryCardFile.cpp
 		gui/MemoryCardFolder.cpp
@@ -320,6 +321,7 @@ set(pcsx2DebugToolsHeaders
 		gui/AppForwardDefs.h
 		gui/AppGameDatabase.h
 		gui/App.h
+		gui/ConsoleLogger.h
 		gui/DriveList.h
 		gui/MemoryCardFile.h
 		gui/MemoryCardFolder.h
@@ -417,6 +419,12 @@ set(pcsx2LinuxSources
 	CDVD/Linux/IOCtlSrc.cpp
 	Linux/LnxFlatFileReader.cpp
    )
+if(NOT LIBRETRO)
+   set(pcsx2LinuxSources ${pcsx2LinuxSources}
+      Linux/LnxConsolePipe.cpp
+      Linux/LnxKeyCodes.cpp
+      gui/CpuUsageProviderLnx.cpp)
+endif()
 
 set(pcsx2OSXSources
 	CDVD/Linux/DriveUtility.cpp
@@ -424,11 +432,25 @@ set(pcsx2OSXSources
 	Darwin/DarwinFlatFileReader.cpp
 	)
 
+if(NOT LIBRETRO)
+   set(pcsx2OSXSources ${pcsx2OSXSources}
+      Linux/LnxConsolePipe.cpp
+      #	Linux/LnxKeyCodes.cpp
+      gui/CpuUsageProviderLnx.cpp)
+endif()
+
 set(pcsx2FreeBSDSources
 	CDVD/Linux/DriveUtility.cpp
 	CDVD/Linux/IOCtlSrc.cpp
 	Darwin/DarwinFlatFileReader.cpp
 	)
+
+if(NOT LIBRETRO)
+   set(pcsx2FreeBSDSources ${pcsx2FreeBSDSources}
+      Linux/LnxConsolePipe.cpp
+      Linux/LnxKeyCodes.cpp
+      gui/CpuUsageProviderLnx.cpp)
+endif()
 
 # Linux headers
 set(pcsx2LinuxHeaders
@@ -550,6 +572,15 @@ set(pcsx2WindowsSources
 	windows/VCprojects/IopSif.cpp
 	windows/WinCompressNTFS.cpp
 	)
+if(NOT LIBRETRO)
+   set(pcsx2WindowsSources ${pcsx2WindowsSources}
+      windows/PatchBrowser.cpp
+      windows/Optimus.cpp
+      windows/WinConsolePipe.cpp
+      windows/WinKeyCodes.cpp
+      gui/CpuUsageProviderMSW.cpp
+   	)
+endif()
 # Windows headers
 set(pcsx2WindowsHeaders
 	windows/resource.h
