@@ -298,7 +298,6 @@ set(pcsx2DebugToolsHeaders
 if(LIBRETRO)
 	# gui sources
 	set(pcsx2GuiSources
-		gui-libretro/AppAssert.cpp
 		gui-libretro/AppConfig.cpp
 		gui-libretro/AppCorePlugins.cpp
 		gui-libretro/AppCoreThread.cpp
