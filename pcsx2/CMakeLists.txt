@@ -295,44 +295,8 @@ set(pcsx2DebugToolsHeaders
 	DebugTools/DisVUops.h
 	DebugTools/BiosDebugData.h)
 
-if(LIBRETRO)
 	# gui sources
 	set(pcsx2GuiSources
-		gui-libretro/AppConfig.cpp
-		gui-libretro/AppCorePlugins.cpp
-		gui-libretro/AppCoreThread.cpp
-		gui-libretro/AppEventSources.cpp
-		gui-libretro/AppGameDatabase.cpp
-		gui-libretro/AppUserMode.cpp
-		gui-libretro/AppInit.cpp
-		gui-libretro/AppMain.cpp
-		gui-libretro/AppRes.cpp
-		gui-libretro/ConsoleLogger.cpp
-		gui-libretro/ExecutorThread.cpp
-		gui-libretro/MemoryCardFile.cpp
-		gui-libretro/MemoryCardFolder.cpp
-		)
-	# gui headers
-	set(pcsx2GuiHeaders
-		gui-libretro/AppCommon.h
-		gui-libretro/AppConfig.h
-		gui-libretro/AppCorePlugins.h
-		gui-libretro/AppCoreThread.h
-		gui-libretro/AppEventListeners.h
-		gui-libretro/AppForwardDefs.h
-		gui-libretro/AppGameDatabase.h
-		gui-libretro/App.h
-		gui-libretro/ConsoleLogger.h
-		gui-libretro/DriveList.h
-		gui-libretro/MemoryCardFile.h
-		gui-libretro/MemoryCardFolder.h
-		gui-libretro/pxEventThread.h
-		gui-libretro/Saveslots.h
-		)
-else()
-	# gui sources
-	set(pcsx2GuiSources
-		gui/AppAssert.cpp
 		gui/AppConfig.cpp
 		gui/AppCorePlugins.cpp
 		gui/AppCoreThread.cpp
@@ -343,61 +307,12 @@ else()
 		gui/AppMain.cpp
 		gui/AppRes.cpp
 		gui/ConsoleLogger.cpp
-		gui/CpuUsageProvider.cpp
-		gui/Dialogs/AboutBoxDialog.cpp
-		gui/Dialogs/AssertionDialog.cpp
-		gui/Dialogs/BaseConfigurationDialog.cpp
-		gui/Dialogs/ConfirmationDialogs.cpp
-		gui/Dialogs/ConvertMemoryCardDialog.cpp
-		gui/Dialogs/CreateMemoryCardDialog.cpp
-		gui/Dialogs/FirstTimeWizard.cpp
-		gui/Dialogs/ImportSettingsDialog.cpp
-		gui/Dialogs/LogOptionsDialog.cpp
-		gui/Dialogs/McdConfigDialog.cpp
-		gui/Dialogs/PickUserModeDialog.cpp
-		gui/Dialogs/SysConfigDialog.cpp
-		gui/Debugger/BreakpointWindow.cpp
-		gui/Debugger/CtrlDisassemblyView.cpp
-		gui/Debugger/CtrlRegisterList.cpp
-		gui/Debugger/CtrlMemView.cpp
-		gui/Debugger/DebuggerLists.cpp
-		gui/Debugger/DisassemblyDialog.cpp
-		gui/Debugger/DebugEvents.cpp
-		gui/DriveList.cpp
 		gui/ExecutorThread.cpp
-		gui/FrameForGS.cpp
-		gui/GlobalCommands.cpp
-		gui/i18n.cpp
-		gui/IsoDropTarget.cpp
-		gui/MainFrame.cpp
-		gui/MainMenuClicks.cpp
 		gui/MemoryCardFile.cpp
 		gui/MemoryCardFolder.cpp
-		gui/MessageBoxes.cpp
-		gui/MSWstuff.cpp
-		gui/Panels/BaseApplicableConfigPanel.cpp
-		gui/Panels/BiosSelectorPanel.cpp
-		gui/Panels/CpuPanel.cpp
-		gui/Panels/DirPickerPanel.cpp
-		gui/Panels/GameFixesPanel.cpp
-		gui/Panels/GSWindowPanel.cpp
-		gui/Panels/LogOptionsPanels.cpp
-		gui/Panels/MemoryCardListPanel.cpp
-		gui/Panels/MemoryCardListView.cpp
-		gui/Panels/MiscPanelStuff.cpp
-		gui/Panels/PathsPanel.cpp
-		gui/Panels/PluginSelectorPanel.cpp
-		gui/Panels/SpeedhacksPanel.cpp
-		gui/Panels/VideoPanel.cpp
-		gui/RecentIsoList.cpp
-		gui/Saveslots.cpp
-		gui/SysState.cpp
-		gui/UpdateUI.cpp
 		)
-
 	# gui headers
 	set(pcsx2GuiHeaders
-		gui/AppAccelerators.h
 		gui/AppCommon.h
 		gui/AppConfig.h
 		gui/AppCorePlugins.h
@@ -406,61 +321,13 @@ else()
 		gui/AppForwardDefs.h
 		gui/AppGameDatabase.h
 		gui/App.h
-		gui/ApplyState.h
-		gui/AppSaveStates.h
 		gui/ConsoleLogger.h
-		gui/CpuUsageProvider.h
-		gui/Debugger/BreakpointWindow.h
-		gui/Debugger/CtrlDisassemblyView.h
-		gui/Debugger/CtrlMemView.h
-		gui/Debugger/CtrlRegisterList.h
-		gui/Debugger/DebugEvents.h
-		gui/Debugger/DebuggerLists.h
-		gui/Debugger/DisassemblyDialog.h
-		gui/Dialogs/BaseConfigurationDialog.inl
-		gui/Dialogs/ConfigurationDialog.h
-		gui/Dialogs/LogOptionsDialog.h
-		gui/Dialogs/ModalPopups.h
 		gui/DriveList.h
-		gui/GSFrame.h
-		gui/i18n.h
-		gui/IsoDropTarget.h
-		gui/MainFrame.h
 		gui/MemoryCardFile.h
 		gui/MemoryCardFolder.h
-		gui/MSWstuff.h
-		gui/Panels/ConfigurationPanels.h
-		gui/Panels/LogOptionsPanels.h
-		gui/Panels/MemoryCardPanels.h
 		gui/pxEventThread.h
-		gui/RecentIsoList.h
 		gui/Saveslots.h
 		)
-endif()
-if(NOT MSVC)
-# Warning: the declaration of the .h are mandatory in case of resources files. It will ensure the creation
-# from the bin2cpp tools at right good moment (ie .h must be created before the pcsx2 compilation)
-# Gui resources headers
-set(res_bin "${CMAKE_BINARY_DIR}/pcsx2/gui/Resources")
-set(res_src "${CMAKE_SOURCE_DIR}/pcsx2/gui/Resources")
-set(pcsx2GuiResources
-    ${res_bin}/AppIcon16.h
-    ${res_bin}/AppIcon32.h
-    ${res_bin}/AppIcon64.h
-    ${res_bin}/BackgroundLogo.h
-    ${res_bin}/ButtonIcon_Camera.h
-    ${res_bin}/ConfigIcon_Cpu.h
-    ${res_bin}/ConfigIcon_Gamefixes.h
-    ${res_bin}/ConfigIcon_MemoryCard.h
-    ${res_bin}/ConfigIcon_Paths.h
-    ${res_bin}/ConfigIcon_Plugins.h
-    ${res_bin}/ConfigIcon_Speedhacks.h
-    ${res_bin}/ConfigIcon_Video.h
-    ${res_bin}/Logo.h
-    ${res_bin}/Breakpoint_Active.h
-    ${res_bin}/Breakpoint_Inactive.h
-    )
-endif()
 
 set(db_res_src "${CMAKE_SOURCE_DIR}/resources")
 set(db_res_bin "${CMAKE_BINARY_DIR}/resources")
@@ -824,7 +691,6 @@ else()
 		${pcsx2SPU2Headers}
 		${pcsx2DebugToolsSources}
 		${pcsx2GuiSources}
-		${pcsx2GuiResources}
 		${pcsx2GuiHeaders}
 		${pcsx2IPUSources}
 		${pcsx2IPUHeaders}
@@ -927,10 +793,10 @@ include_directories(
 )
 else()
 include_directories(
-    gui-libretro
+    gui
     x86
     ${db_res_bin}
-	${CMAKE_BINARY_DIR}/pcsx2/gui-libretro
+	${CMAKE_BINARY_DIR}/pcsx2/gui
 )
 endif()
 

@@ -43,11 +43,6 @@ public:
 	bool Error( const pxEvtQueue* evtHandler, const SysExecEvent* evt, const wxChar* msg );
 };
 
-extern ConsoleLogSource_Event pxConLog_Event;
-
-#define pxEvtLog pxConLog_Event.IsActive() && pxConLog_Event
-
-
 // --------------------------------------------------------------------------------------
 //  SysExecEvent
 // --------------------------------------------------------------------------------------
@@ -206,12 +201,6 @@ protected:
 	wxThreadIdType				m_OwnerThreadId;
 	std::atomic<bool>			m_Quitting;
 
-	// Used for performance measuring the execution of individual events,
-	// and also for detecting deadlocks during message processing.
-	// Clang-3.7 failed to link (maybe 64 bits atomic isn't supported on 32 bits)
-	// std::atomic<unsigned long long>				m_qpc_Start;
-	u64				m_qpc_Start;
-
 public:
 	pxEvtQueue();
 	virtual ~pxEvtQueue() = default;
@@ -238,9 +227,6 @@ public:
 	bool Rpc_TryInvokeAsync( FnType_Void* method, const wxChar* traceName=NULL );
 	bool Rpc_TryInvoke( FnType_Void* method, const wxChar* traceName=NULL );
 	void SetActiveThread();
-
-protected:
-	virtual void _DoIdle() {}
 };
 #ifndef __LIBRETRO__
 // --------------------------------------------------------------------------------------

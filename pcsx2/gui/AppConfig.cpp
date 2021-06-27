@@ -15,19 +15,17 @@
 
 #include "PrecompiledHeader.h"
 #include "App.h"
-#if wxUSE_GUI
-#include "MainFrame.h"
-#endif
 #include "Plugins.h"
 
 #include "MemoryCardFile.h"
-
 #include "Utilities/IniInterface.h"
 
 #include <wx/stdpaths.h>
 #include "DebugTools/Debug.h"
 #include <memory>
 
+
+#include "options_tools.h"
 //////////////////////////////////////////////////////////////////////////////////////////
 // PathDefs Namespace -- contains default values for various pcsx2 path names and locations.
 //
@@ -499,7 +497,18 @@ wxString GetUiKeysFilename()
 wxString AppConfig::FullpathToBios() const				{ return Path::Combine( Folders.Bios, BaseFilenames.Bios ); }
 wxString AppConfig::FullpathToMcd( uint slot ) const
 {
+#ifdef __LIBRETRO__
+	if (Mcd[slot].Type == MemoryCardType::MemoryCard_File)
+	{
+		return Mcd[slot].Filename.GetFullPath();
+	}
+	else
+	{
+		return Mcd[slot].Filename.GetPath();
+	}
+#else
 	return Path::Combine( Folders.MemoryCards, Mcd[slot].Filename );
+#endif
 }
 
 bool IsPortable()
@@ -513,9 +522,6 @@ AppConfig::AppConfig()
 	, ComponentsTabName( L"Plugins" )
 	, AppSettingsTabName( L"none" )
 	, GameDatabaseTabName( L"none" )
-#if wxUSE_GUI
-	, MainGuiPosition( wxDefaultPosition )
-#endif
 {
 	LanguageId			= wxLANGUAGE_DEFAULT;
 	LanguageCode		= L"default";
@@ -627,9 +633,6 @@ void AppConfig::LoadSaveMemcards( IniInterface& ini )
 
 void AppConfig::LoadSaveRootItems( IniInterface& ini )
 {
-#if wxUSE_GUI
-	IniEntry( MainGuiPosition );
-#endif
 	IniEntry( SysSettingsTabName );
 	IniEntry( McdSettingsTabName );
 	IniEntry( ComponentsTabName );
@@ -673,44 +676,14 @@ void AppConfig::LoadSave( IniInterface& ini )
 	LoadSaveMemcards( ini );
 
 	// Process various sub-components:
-#if wxUSE_GUI
-	ProgLogBox		.LoadSave( ini, L"ProgramLog" );
-#endif
 	Folders			.LoadSave( ini );
 	BaseFilenames	.LoadSave( ini );
 	GSWindow		.LoadSave( ini );
 	Framerate		.LoadSave( ini );
-#ifndef DISABLE_RECORDING
-	inputRecording.loadSave(ini);
-#endif
 	Templates		.LoadSave( ini );
 
 	ini.Flush();
 }
-#if wxUSE_GUI
-// ------------------------------------------------------------------------
-AppConfig::ConsoleLogOptions::ConsoleLogOptions()
-	: DisplayPosition( wxDefaultPosition )
-	, DisplaySize( wxSize( 680, 560 ) )
-	, Theme(L"Default")
-{
-	Visible		= true;
-	AutoDock	= true;
-	FontSize	= 8;
-}
-
-void AppConfig::ConsoleLogOptions::LoadSave( IniInterface& ini, const wxChar* logger )
-{
-	ScopedIniGroup path( ini, logger );
-
-	IniEntry( Visible );
-	IniEntry( AutoDock );
-	IniEntry( DisplayPosition );
-	IniEntry( DisplaySize );
-	IniEntry( FontSize );
-	IniEntry( Theme );
-}
-#endif
 void AppConfig::FolderOptions::ApplyDefaults()
 {
 	if( UseDefaultBios )		Bios		  = PathDefs::GetBios();
@@ -837,10 +810,6 @@ AppConfig::GSWindowOptions::GSWindowOptions()
 	StretchY				= 100;
 	OffsetX					= 0;
 	OffsetY					= 0;
-#if wxUSE_GUI
-	WindowSize				= wxSize( 640, 480 );
-	WindowPos				= wxDefaultPosition;
-#endif
 	IsMaximized				= false;
 	IsFullscreen			= false;
 	EnableVsyncWindowFlag	= false;
@@ -851,18 +820,6 @@ AppConfig::GSWindowOptions::GSWindowOptions()
 void AppConfig::GSWindowOptions::SanityCheck()
 {
 	// Ensure Conformation of various options...
-#if wxUSE_GUI
-	WindowSize.x = std::max( WindowSize.x, 8 );
-	WindowSize.x = std::min( WindowSize.x, wxGetDisplayArea().GetWidth()-16 );
-
-	WindowSize.y = std::max( WindowSize.y, 8 );
-	WindowSize.y = std::min( WindowSize.y, wxGetDisplayArea().GetHeight()-48 );
-
-	// Make sure the upper left corner of the window is visible enought o grab and
-	// move into view:
-	if( !wxGetDisplayArea().Contains( wxRect( WindowPos, wxSize( 48,48 ) ) ) )
-		WindowPos = wxDefaultPosition;
-#endif
 	if( (uint)AspectRatio >= (uint)AspectRatio_MaxCount )
 		AspectRatio = AspectRatio_4_3;
 }
@@ -876,10 +833,6 @@ void AppConfig::GSWindowOptions::LoadSave( IniInterface& ini )
 	IniEntry( AlwaysHideMouse );
 	IniEntry( DisableResizeBorders );
 	IniEntry( DisableScreenSaver );
-#if wxUSE_GUI
-	IniEntry( WindowSize );
-	IniEntry( WindowPos );
-#endif
 	IniEntry( IsMaximized );
 	IniEntry( IsFullscreen );
 	IniEntry( EnableVsyncWindowFlag );
@@ -911,20 +864,6 @@ void AppConfig::GSWindowOptions::LoadSave( IniInterface& ini )
 
 	if( ini.IsLoading() ) SanityCheck();
 }
-
-#ifndef DISABLE_RECORDING
-AppConfig::InputRecordingOptions::InputRecordingOptions()
-	: VirtualPadPosition(wxDefaultPosition)
-{
-}
-
-void AppConfig::InputRecordingOptions::loadSave(IniInterface& ini)
-{
-	ScopedIniGroup path(ini, L"InputRecording");
-
-	IniEntry(VirtualPadPosition);
-}
-#endif
 
 // ----------------------------------------------------------------------------
 AppConfig::FramerateOptions::FramerateOptions()
@@ -970,9 +909,6 @@ AppConfig::UiTemplateOptions::UiTemplateOptions()
 	OutputInterlaced	= L"Interlaced";
 	Paused				= L"<PAUSED> ";
 	TitleTemplate		= L"Slot: ${slot} | Speed: ${speed} (${vfps}) | ${videomode} | Limiter: ${limiter} | ${gsdx} | ${omodei} | ${cpuusage}";
-#ifndef DISABLE_RECORDING
-	RecordingTemplate	= L"Slot: ${slot} | Frame: ${frame}/${maxFrame} | Rec. Mode: ${mode} | Speed: ${speed} (${vfps}) | Limiter: ${limiter}";
-#endif
 }
 
 void AppConfig::UiTemplateOptions::LoadSave(IniInterface& ini)
@@ -989,36 +925,12 @@ void AppConfig::UiTemplateOptions::LoadSave(IniInterface& ini)
 	IniEntry(OutputInterlaced);
 	IniEntry(Paused);
 	IniEntry(TitleTemplate);
-#ifndef DISABLE_RECORDING
-	IniEntry(RecordingTemplate);
-#endif
 }
 
 int AppConfig::GetMaxPresetIndex()
 {
 	return 5;
 }
-#if wxUSE_GUI
-bool AppConfig::isOkGetPresetTextAndColor( int n, wxString& label, wxColor& c )
-{
-	const wxString presetNamesAndColors[][2] =
-	{
-		{ _t("Safest (No hacks)"),	L"Blue" },
-		{ _t("Safe (Default)"),		L"Dark Green" },
-		{ _t("Balanced"),			L"Forest Green" },
-		{ _t("Aggressive"),			L"Orange" },
-		{ _t("Very Aggressive"),	L"Red"},
-		{ _t("Mostly Harmful"),		L"Purple" }
-	};
-	if( n<0 || n>GetMaxPresetIndex() )
-		return false;
-
-	label = wxsFormat(L"%d - ", n+1) + presetNamesAndColors[n][0];
-	c	  = wxColor(presetNamesAndColors[n][1]);
-
-    return true;
-}
-#endif
 
 // Apply one of several (currently 6) configuration subsets.
 // The scope of the subset which each preset controlls is hardcoded here.
@@ -1028,11 +940,12 @@ bool AppConfig::IsOkApplyPreset(int n, bool ignoreMTVU)
 {
 	if (n < 0 || n > GetMaxPresetIndex() )
 	{
-		Console.WriteLn("DEV Warning: ApplyPreset(%d): index out of range, Aborting.", n);
+		Console.WriteLn("", n);
+		log_cb(RETRO_LOG_INFO, "DEV Warning: ApplyPreset(%i): index out of range, Aborting.\n", n);
 		return false;
 	}
 
-	//Console.WriteLn("Applying Preset %d ...", n);
+	log_cb(RETRO_LOG_INFO, "Applying preset n: %i\n", n);
 
 	//Have some original and default values at hand to be used later.
 	Pcsx2Config::GSOptions        original_GS = EmuOptions.GS;
@@ -1068,13 +981,14 @@ bool AppConfig::IsOkApplyPreset(int n, bool ignoreMTVU)
 	EmuOptions.GS					= default_Pcsx2Config.GS;
 	EmuOptions.GS.FrameLimitEnable	= original_GS.FrameLimitEnable;	//Frame limiter is not modified by presets
 	
+	EmuOptions.GS.VsyncQueueSize	= original_GS.VsyncQueueSize;
 	EmuOptions.Cpu					= default_Pcsx2Config.Cpu;
 	EmuOptions.Gamefixes			= default_Pcsx2Config.Gamefixes;
 	EmuOptions.Speedhacks			= default_Pcsx2Config.Speedhacks;
 	EmuOptions.Speedhacks.bitset	= 0; //Turn off individual hacks to make it visually clear they're not used.
 	EmuOptions.Speedhacks.vuThread	= original_SpeedHacks.vuThread;
+	EmuOptions.Speedhacks.vu1Instant = original_SpeedHacks.vu1Instant;
 	EnableSpeedHacks = true;
-
 	// Actual application of current preset over the base settings which all presets use (mostly pcsx2's default values).
 
 	bool isRateSet = false, isSkipSet = false, isMTVUSet = ignoreMTVU ? true : false; // used to prevent application of specific lower preset values on fallthrough.
@@ -1084,7 +998,7 @@ bool AppConfig::IsOkApplyPreset(int n, bool ignoreMTVU)
 			isRateSet ? 0 : (isRateSet = true, EmuOptions.Speedhacks.EECycleRate = 1); // +1 EE cyclerate
 			isSkipSet ? 0 : (isSkipSet = true, EmuOptions.Speedhacks.EECycleSkip = 1); // +1 EE cycle skip
             // Fall through
-		
+
 		case 4: // Very Aggressive
 			isRateSet ? 0 : (isRateSet = true, EmuOptions.Speedhacks.EECycleRate = -2); // -2 EE cyclerate
             // Fall through
@@ -1101,12 +1015,14 @@ bool AppConfig::IsOkApplyPreset(int n, bool ignoreMTVU)
 			EmuOptions.Speedhacks.IntcStat = true;
 			EmuOptions.Speedhacks.WaitLoop = true;
 			EmuOptions.Speedhacks.vuFlagHack = true;
-			
+			EmuOptions.Speedhacks.vu1Instant = true;
+
 			// If waterfalling from > Safe, break to avoid MTVU disable.
 			if (n > 1) break;
             // Fall through
 			
 		case 0: // Safest
+			if (n == 0) EmuOptions.Speedhacks.vu1Instant = false;
 			isMTVUSet ? 0 : (isMTVUSet = true, EmuOptions.Speedhacks.vuThread = false); // Disable MTVU
 			break;
 
@@ -1121,36 +1037,25 @@ bool AppConfig::IsOkApplyPreset(int n, bool ignoreMTVU)
 	return true;
 }
 
+void AppConfig::ResetPresetSettingsToDefault() {
+	EmuOptions.Speedhacks.EECycleRate = 0;
+	EmuOptions.Speedhacks.EECycleSkip = 0;
+	EmuOptions.Speedhacks.vuThread = false;
+	EmuOptions.Speedhacks.vu1Instant = true;
+	EmuOptions.Speedhacks.IntcStat = true;
+	EmuOptions.Speedhacks.WaitLoop = true;
+	EmuOptions.Speedhacks.vuFlagHack = true;
+	PresetIndex = 1;
+	log_cb(RETRO_LOG_INFO, "Reset of speedhack preset to n:1 - Safe (default)\n");
+}
+
+
 
 wxFileConfig* OpenFileConfig( const wxString& filename )
 {
 	return new wxFileConfig( wxEmptyString, wxEmptyString, filename, wxEmptyString, wxCONFIG_USE_RELATIVE_PATH );
 }
-#ifndef __LIBRETRO__
-void RelocateLogfile()
-{
-	g_Conf->Folders.Logs.Mkdir();
 
-	wxString newlogname( Path::Combine( g_Conf->Folders.Logs.ToString(), L"emuLog.txt" ) );
-
-	if( (emuLog != NULL) && (emuLogName != newlogname) )
-	{
-		Console.WriteLn( L"\nRelocating Logfile...\n\tFrom: %s\n\tTo  : %s\n", WX_STR(emuLogName), WX_STR(newlogname) );
-		wxGetApp().DisableDiskLogging();
-
-		fclose( emuLog );
-		emuLog = NULL;
-	}
-
-	if( emuLog == NULL )
-	{
-		emuLogName = newlogname;
-		emuLog = wxFopen( emuLogName, "wb" );
-	}
-
-	wxGetApp().EnableAllLogging();
-}
-#endif
 // Parameters:
 //   overwrite - this option forces the current settings to overwrite any existing settings
 //      that might be saved to the configured ini/settings folder.
@@ -1239,11 +1144,6 @@ protected:
 
 	virtual bool DoWriteString(const wxString& , const wxString& )  { return false; }
 	virtual bool DoWriteLong(const wxString& , long )  { return false; }
-
-#if wxUSE_BASE64
-	virtual bool DoReadBinary(const wxString& key, wxMemoryBuffer* buf) const { return false; }
-	virtual bool DoWriteBinary(const wxString& key, const wxMemoryBuffer& buf) { return false; }
-#endif
 };
 
 static pxDudConfig _dud_config;
@@ -1315,12 +1215,23 @@ static void LoadVmSettings()
 	g_Conf->EmuOptions.LoadSave( vmloader );
 	g_Conf->EmuOptions.GS.LimitScalar = g_Conf->Framerate.NominalScalar;
 
-	if (g_Conf->EnablePresets){
-		g_Conf->IsOkApplyPreset(g_Conf->PresetIndex, true);
+	g_Conf->EnablePresets = true;
+	g_Conf->PresetIndex = option_value(INT_PCSX2_OPT_SPEEDHACKS_PRESET, KeyOptionInt::return_type);
+	
+
+	if (g_Conf->EnablePresets) 
+	{
+		g_Conf->IsOkApplyPreset(g_Conf->PresetIndex, false);
+	}
+	else
+	{
+		g_Conf->ResetPresetSettingsToDefault();
 	}
 
 	sApp.DispatchVmSettingsEvent( vmloader );
 }
+
+
 
 void AppLoadSettings()
 {
@@ -1347,9 +1258,6 @@ static void SaveUiSettings()
 	{
 		g_Conf->Folders.RunDisc.Clear();
 	}
-#endif
-#ifndef __LIBRETRO__
-	sApp.GetRecentIsoManager().Add( g_Conf->CurrentIso );
 #endif
 	AppIniSaver saver;
 	g_Conf->LoadSave( saver );
@@ -1390,12 +1298,7 @@ void AppSaveSettings()
 	static std::atomic<bool> isPosted(false);
 
 	if( !wxThread::IsMain() )
-	{
-		if( !isPosted.exchange(true) )
-			wxGetApp().PostIdleMethod( AppSaveSettings );
-
 		return;
-	}
 
 	//Console.WriteLn("Saving ini files...");
 

@@ -15,13 +15,11 @@
 
 #include "PrecompiledHeader.h"
 #include "App.h"
-#include "AppSaveStates.h"
 #include "AppGameDatabase.h"
 
 #include <wx/stdpaths.h>
-#if wxUSE_GUI
-#include "Debugger/DisassemblyDialog.h"
-#endif
+#include "fmt/core.h"
+
 #include "Utilities/Threading.h"
 
 #include "ps2/BiosTools.h"
@@ -33,6 +31,27 @@
 #include "Patch.h"
 #include "R5900Exceptions.h"
 #include "Sio.h"
+
+
+#ifdef __LIBRETRO__
+#include "retro_messager.h"
+#endif 
+
+
+
+#ifdef __LIBRETRO__
+
+/*
+* This bool variable is used to keep trace if the messages to the frontend about "cheat ws found" is already sent.
+* This is a side effect of a strange problem that at game boot the function _ApplySettings runs multiple time:
+* this is to be investigate deeper, if it's the cause of the very long boot time when cheat ws are enabled
+*/
+bool msg_cheat_ws_found_sent = false;
+bool msg_cheats_found_sent = false;
+
+
+#endif
+
 
 __aligned16 SysMtgsThread mtgsThread;
 __aligned16 AppCoreThread CoreThread;
@@ -80,6 +99,22 @@ static void PostCoreStatus(CoreThreadStatus pevt)
 {
 	sApp.PostAction(CoreThreadStatusEvent(pevt));
 }
+
+#ifdef __LIBRETRO__
+/*
+* Resets stuffs related to content, 
+* needed when closing and reopening a game
+* * it's called from retro_load_game
+*/
+void ResetContentStuffs()
+{
+	msg_cheat_ws_found_sent = false;
+	msg_cheats_found_sent = false;
+	ElfCRC = 0;
+
+}
+
+#endif // __LIBRETRO__
 
 // --------------------------------------------------------------------------------------
 //  AppCoreThread Implementations
@@ -217,71 +252,64 @@ void AppCoreThread::OnResumeReady()
 {
 	wxGetApp().SysApplySettings();
 	wxGetApp().PostMethod(AppSaveSettings);
-#ifndef __LIBRETRO__
-	sApp.PostAppMethod(&Pcsx2App::leaveDebugMode);
-#endif
 	_parent::OnResumeReady();
 }
 
 void AppCoreThread::OnPause()
 {
-	//sApp.PostAppMethod( &Pcsx2App::enterDebugMode );
 	_parent::OnPause();
 }
 
 void AppCoreThread::OnPauseDebug()
 {
-#ifndef __LIBRETRO__
-	sApp.PostAppMethod(&Pcsx2App::enterDebugMode);
-#endif
 	_parent::OnPause();
 }
 
 // Load Game Settings found in database
 // (game fixes, round modes, clamp modes, etc...)
 // Returns number of gamefixes set
-static int loadGameSettings(Pcsx2Config& dest, const Game_Data& game)
+static int loadGameSettings(Pcsx2Config& dest, const GameDatabaseSchema::GameEntry& game)
 {
-	if (!game.IsOk())
+	if (!game.isValid)
 		return 0;
 
 	int gf = 0;
 
-	if (game.keyExists("eeRoundMode"))
+	if (game.eeRoundMode != GameDatabaseSchema::RoundMode::Undefined)
 	{
-		SSE_RoundMode eeRM = (SSE_RoundMode)game.getInt("eeRoundMode");
+		SSE_RoundMode eeRM = (SSE_RoundMode)enum_cast(game.eeRoundMode);
 		if (EnumIsValid(eeRM))
 		{
-			PatchesCon->WriteLn("(GameDB) Changing EE/FPU roundmode to %d [%s]", eeRM, EnumToString(eeRM));
+			PatchesCon->WriteLn(L"(GameDB) Changing EE/FPU roundmode to %d [%s]", eeRM, EnumToString(eeRM));
 			dest.Cpu.sseMXCSR.SetRoundMode(eeRM);
-			++gf;
+			gf++;
 		}
 	}
 
-	if (game.keyExists("vuRoundMode"))
+	if (game.vuRoundMode != GameDatabaseSchema::RoundMode::Undefined)
 	{
-		SSE_RoundMode vuRM = (SSE_RoundMode)game.getInt("vuRoundMode");
+		SSE_RoundMode vuRM = (SSE_RoundMode)enum_cast(game.vuRoundMode);
 		if (EnumIsValid(vuRM))
 		{
-			PatchesCon->WriteLn("(GameDB) Changing VU0/VU1 roundmode to %d [%s]", vuRM, EnumToString(vuRM));
+			PatchesCon->WriteLn(L"(GameDB) Changing VU0/VU1 roundmode to %d [%s]", vuRM, EnumToString(vuRM));
 			dest.Cpu.sseVUMXCSR.SetRoundMode(vuRM);
-			++gf;
+			gf++;
 		}
 	}
 
-	if (game.keyExists("eeClampMode"))
+	if (game.eeClampMode != GameDatabaseSchema::ClampMode::Undefined)
 	{
-		int clampMode = game.getInt("eeClampMode");
-		PatchesCon->WriteLn("(GameDB) Changing EE/FPU clamp mode [mode=%d]", clampMode);
+		int clampMode = enum_cast(game.eeClampMode);
+		PatchesCon->WriteLn(L"(GameDB) Changing EE/FPU clamp mode [mode=%d]", clampMode);
 		dest.Cpu.Recompiler.fpuOverflow = (clampMode >= 1);
 		dest.Cpu.Recompiler.fpuExtraOverflow = (clampMode >= 2);
 		dest.Cpu.Recompiler.fpuFullMode = (clampMode >= 3);
 		gf++;
 	}
 
-	if (game.keyExists("vuClampMode"))
+	if (game.vuClampMode != GameDatabaseSchema::ClampMode::Undefined)
 	{
-		int clampMode = game.getInt("vuClampMode");
+		int clampMode = enum_cast(game.vuClampMode);
 		PatchesCon->WriteLn("(GameDB) Changing VU0/VU1 clamp mode [mode=%d]", clampMode);
 		dest.Cpu.Recompiler.vuOverflow = (clampMode >= 1);
 		dest.Cpu.Recompiler.vuExtraOverflow = (clampMode >= 2);
@@ -289,29 +317,38 @@ static int loadGameSettings(Pcsx2Config& dest, const Game_Data& game)
 		gf++;
 	}
 
-
-	if (game.keyExists("mvuFlagSpeedHack"))
+	// TODO - config - this could be simplified with maps instead of bitfields and enums
+	for (SpeedhackId id = SpeedhackId_FIRST; id < pxEnumEnd; id++)
 	{
-		bool vuFlagHack = game.getInt("mvuFlagSpeedHack") ? 1 : 0;
-		PatchesCon->WriteLn("(GameDB) Changing mVU flag speed hack [mode=%d]", vuFlagHack);
-		dest.Speedhacks.vuFlagHack = vuFlagHack;
-		gf++;
+		std::string key = fmt::format("{}SpeedHack", wxString(EnumToString(id)));
+
+		// Gamefixes are already guaranteed to be valid, any invalid ones are dropped
+		if (game.speedHacks.count(key) == 1)
+		{
+			// Legacy note - speedhacks are setup in the GameDB as integer values, but
+			// are effectively booleans like the gamefixes
+			bool mode = game.speedHacks.at(key) ? 1 : 0;
+			dest.Speedhacks.Set(id, mode);
+			PatchesCon->WriteLn(L"(GameDB) Setting Speedhack '" + key + "' to [mode=%d]", mode);
+			gf++;
+		}
 	}
 
-	for (GamefixId id = GamefixId_FIRST; id < pxEnumEnd; ++id)
+	// TODO - config - this could be simplified with maps instead of bitfields and enums
+	for (GamefixId id = GamefixId_FIRST; id < pxEnumEnd; id++)
 	{
-		wxString key(EnumToString(id));
-		key += L"Hack";
+		std::string key = fmt::format("{}Hack", wxString(EnumToString(id)));
 
-		if (game.keyExists(key))
+		// Gamefixes are already guaranteed to be valid, any invalid ones are dropped
+		if (std::find(game.gameFixes.begin(), game.gameFixes.end(), key) != game.gameFixes.end())
 		{
-			bool enableIt = game.getBool(key);
-			dest.Gamefixes.Set(id, enableIt);
-			PatchesCon->WriteLn(L"(GameDB) %s Gamefix: " + key, enableIt ? L"Enabled" : L"Disabled");
+			// if the fix is present, it is said to be enabled
+			dest.Gamefixes.Set(id, true);
+			PatchesCon->WriteLn(L"(GameDB) Enabled Gamefix: " + key);
 			gf++;
 
 			// The LUT is only used for 1 game so we allocate it only when the gamefix is enabled (save 4MB)
-			if (id == Fix_GoemonTlbMiss && enableIt)
+			if (id == Fix_GoemonTlbMiss && true)
 				vtlb_Alloc_Ppmap();
 		}
 	}
@@ -404,7 +441,11 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 	// settings as if the game is already running (title, loadeding patches, etc).
 	bool ingame = (ElfCRC && (g_GameLoading || g_GameStarted));
 	if (ingame)
+	{
 		gameCRC.Printf(L"%8.8x", ElfCRC);
+		log_cb(RETRO_LOG_INFO, "Game CRC: %8.8x\n", ElfCRC);
+	}
+		
 	if (ingame && !DiscSerial.IsEmpty())
 		gameSerial = L" [" + DiscSerial + L"]";
 
@@ -421,14 +462,13 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 	{
 		if (IGameDatabase* GameDB = AppHost_GetGameDatabase())
 		{
-			Game_Data game;
-			if (GameDB->findGame(game, curGameKey))
+			GameDatabaseSchema::GameEntry game = GameDB->findGame(std::string(curGameKey));
+			if (game.isValid)
 			{
-				int compat = game.getInt("Compat");
-				gameName = game.getString("Name");
-				gameName += L" (" + game.getString("Region") + L")";
-				gameCompat = L" [Status = " + compatToStringWX(compat) + L"]";
-				gameMemCardFilter = game.getString("MemCardFilter");
+				gameName = game.name;
+				gameName += L" (" + game.region + L")";
+				gameCompat = L" [Status = " + compatToStringWX(game.compat) + L"]";
+				gameMemCardFilter = game.memcardFiltersAsString();
 			}
 
 			if (fixup.EnablePatches)
@@ -466,8 +506,23 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 	}
 
 	// regular cheat patches
-	if (fixup.EnableCheats)
+	if (fixup.EnableCheats) {
+#ifdef __LIBRETRO__
+		int numcheatsfound = 0;
+		if (numcheatsfound = LoadPatchesFromDir(gameCRC, GetCheatsFolder(), L"Cheats")) {
+			if (!msg_cheats_found_sent)
+			{
+				RetroMessager::Notification("Found and applied cheats");
+				log_cb(RETRO_LOG_INFO, "Found and applied cheats\n");
+				msg_cheats_found_sent = true;
+			}
+		}
+		gameCheats.Printf(L" [%d Cheats]", numcheatsfound);
+#else
 		gameCheats.Printf(L" [%d Cheats]", LoadPatchesFromDir(gameCRC, GetCheatsFolder(), L"Cheats"));
+#endif
+	}
+
 
 	// wide screen patches
 	if (fixup.EnableWideScreenPatches)
@@ -476,14 +531,33 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 		{
 			gameWsHacks.Printf(L" [%d widescreen hacks]", numberLoadedWideScreenPatches);
 			Console.WriteLn(Color_Gray, "Found widescreen patches in the cheats_ws folder --> skipping cheats_ws.zip");
+#ifdef __LIBRETRO__
+			if (!msg_cheat_ws_found_sent) 
+			{
+				RetroMessager::Notification("Found and applied Widescreen Patch");
+				log_cb(RETRO_LOG_INFO, "Found and applied Widescreen Patch\n");
+				msg_cheat_ws_found_sent = true;
+			}
+#endif
 		}
 		else
 		{
 			// No ws cheat files found at the cheats_ws folder, try the ws cheats zip file.
-			wxString cheats_ws_archive = Path::Combine(PathDefs::GetProgramDataDir(), wxFileName(L"cheats_ws.zip"));
-			int numberDbfCheatsLoaded = LoadPatchesFromZip(gameCRC, cheats_ws_archive);
+			int numberDbfCheatsLoaded = LoadWidescreenPatchesFromDatabase(gameCRC.ToStdString());
 			PatchesCon->WriteLn(Color_Green, "(Wide Screen Cheats DB) Patches Loaded: %d", numberDbfCheatsLoaded);
 			gameWsHacks.Printf(L" [%d widescreen hacks]", numberDbfCheatsLoaded);
+
+#ifdef __LIBRETRO__
+			if (numberDbfCheatsLoaded) {
+				if (!msg_cheat_ws_found_sent)
+				{
+					RetroMessager::Notification("Found and applied Widescreen Patch");
+					log_cb(RETRO_LOG_INFO, "Found and applied Widescreen Patch\n");
+					msg_cheat_ws_found_sent = true;
+				}
+			}
+#endif
+
 		}
 	}
 
@@ -494,9 +568,7 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 	consoleTitle += L" [" + gameCRC.MakeUpper() + L"]" + gameCompat + gameFixes + gamePatch + gameCheats + gameWsHacks;
 	if (ingame)
 		Console.SetTitle(consoleTitle);
-#ifndef __LIBRETRO__
 	gsUpdateFrequency(fixup);
-#endif
 }
 
 // FIXME: This function is not for general consumption. Its only consumer (and
@@ -515,11 +587,6 @@ void LoadAllPatchesAndStuff(const Pcsx2Config& cfg)
 	Pcsx2Config dummy;
 	PatchesVerboseReset();
 	_ApplySettings(cfg, dummy);
-
-	// And I'm hacking in updating the UI here too.
-#ifdef USE_SAVESLOT_UI_UPDATES
-	UI_UpdateSysControls();
-#endif
 }
 
 void AppCoreThread::ApplySettings(const Pcsx2Config& src)
@@ -591,14 +658,6 @@ void AppCoreThread::OnCleanupInThread()
 	m_ExecMode = ExecMode_Closing;
 	PostCoreStatus(CoreThread_Stopped);
 	_parent::OnCleanupInThread();
-}
-
-void AppCoreThread::VsyncInThread()
-{
-//#ifndef __LIBRETRO__
-	wxGetApp().LogicalVsync();
-//#endif
-	_parent::VsyncInThread();
 }
 
 void AppCoreThread::GameStartingInThread()

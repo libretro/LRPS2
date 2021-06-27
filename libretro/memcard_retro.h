@@ -24,7 +24,7 @@ namespace MemCardRetro
 	}
 
 	/*
-	* This is a copy  of the fucntion in gui-libretro/MemoryCardFile.cpp
+	* This is a copy  of the function in gui/MemoryCardFile.cpp
 	* I made a copy because I tried to include MemoryCardFile.h but it
 	* gave me a mess of dependency errors which I wasn't able 
 	* to resolve. Because only this function is needed, the best thing 

@@ -16,9 +16,6 @@
 #include "PrecompiledHeader.h"
 #include "App.h"
 #include <memory>
-#if wxUSE_GUI
-using namespace pxSizerFlags;
-#endif
 // --------------------------------------------------------------------------------------
 //  ConsoleLogSource_Event  (implementations)
 // --------------------------------------------------------------------------------------
@@ -43,8 +40,6 @@ ConsoleLogSource_Event::ConsoleLogSource_Event()
 	
 	m_Descriptor = &myDesc;
 }
-
-ConsoleLogSource_Event pxConLog_Event;
 
 // --------------------------------------------------------------------------------------
 //  SysExecEvent  (implementations)
@@ -157,7 +152,7 @@ void SysExecEvent::PostResult() const
 //  pxEvtQueue Implementations
 // --------------------------------------------------------------------------------------
 pxEvtQueue::pxEvtQueue() :
-	m_OwnerThreadId(), m_Quitting(false), m_qpc_Start(0)
+	m_OwnerThreadId(), m_Quitting(false)
 {
 }
 
@@ -192,50 +187,35 @@ struct ScopedThreadCancelDisable
 // isIdle  - parameter is useful for logging only (currently)
 void pxEvtQueue::ProcessEvents( pxEvtList& list, bool isIdle )
 {
-	ScopedLock synclock( m_mtx_pending );
-    
-    pxEvtList::iterator node;
-    while( node = list.begin(), node != list.end() )
-    {
-        std::unique_ptr<SysExecEvent> deleteMe(*node);
+   ScopedLock synclock( m_mtx_pending );
 
-		list.erase( node );
-		if( !m_Quitting || deleteMe->IsCriticalEvent() )
-		{
-			// Some messages can be blocking, so we should release the mutex lock while
-			// processing, to avoid having cases where the main thread deadlocks simply
-			// trying to add a message to the queue due to the basic mutex acquire needed.
+   pxEvtList::iterator node;
+   while( node = list.begin(), node != list.end() )
+   {
+      std::unique_ptr<SysExecEvent> deleteMe(*node);
 
-			m_qpc_Start = GetCPUTicks();
+      list.erase( node );
+      if( !m_Quitting || deleteMe->IsCriticalEvent() )
+      {
+         // Some messages can be blocking, so we should release the mutex lock while
+         // processing, to avoid having cases where the main thread deadlocks simply
+         // trying to add a message to the queue due to the basic mutex acquire needed.
 
-			synclock.Release();
+         synclock.Release();
 
-			pxEvtLog.Write( this, deleteMe.get(), wxsFormat(L"Executing... [%s]%s",
-				deleteMe->AllowCancelOnExit() ? L"Cancelable" : L"Noncancelable", isIdle ? L"(Idle)" : wxEmptyString).wc_str()
-			);
+         if( deleteMe->AllowCancelOnExit() )
+            deleteMe->_DoInvokeEvent();
+         else
+         {
+            ScopedThreadCancelDisable thr_cancel_scope;
+            deleteMe->_DoInvokeEvent();
+         }
 
-			if( deleteMe->AllowCancelOnExit() )
-				deleteMe->_DoInvokeEvent();
-			else
-			{
-				ScopedThreadCancelDisable thr_cancel_scope;
-				deleteMe->_DoInvokeEvent();
-			}
-
-			u64 qpc_end = GetCPUTicks();
-			pxEvtLog.Write( this, deleteMe.get(), wxsFormat(L"Event completed in %ums",
-				(u32)(((qpc_end-m_qpc_Start)*1000) / GetTickFrequency())).wc_str()
-			);
-
-			synclock.Acquire();
-			m_qpc_Start = 0;		// lets the main thread know the message completed.
-		}
-		else
-		{
-			pxEvtLog.Write( this, deleteMe.get(), L"Skipping Event: %s" );
-			deleteMe->PostResult();
-		}
-	}
+         synclock.Acquire();
+      }
+      else
+         deleteMe->PostResult();
+   }
 }
 
 void pxEvtQueue::ProcessIdleEvents()
@@ -274,8 +254,6 @@ void pxEvtQueue::PostEvent( SysExecEvent* evt )
 
 	ScopedLock synclock( m_mtx_pending );
 	
-	pxEvtLog.Write( this, evt, pxsFmt(L"Posting event! (pending=%d, idle=%d)", m_pendingEvents.size(), m_idleEvents.size()) );
-
 	m_pendingEvents.push_back( sevt.release() );
 	if( m_pendingEvents.size() == 1)
 		m_wakeup.Post();
@@ -297,8 +275,6 @@ void pxEvtQueue::PostIdleEvent( SysExecEvent* evt )
 	}
 
 	ScopedLock synclock( m_mtx_pending );
-
-	pxEvtLog.Write( this, evt, pxsFmt(L"Posting event! (pending=%d, idle=%d) [idle]", m_pendingEvents.size(), m_idleEvents.size()) );
 
 	if( m_pendingEvents.empty() )
 	{
@@ -376,13 +352,10 @@ bool pxEvtQueue::Rpc_TryInvoke( FnType_Void* method, const wxChar* traceName )
 // This method invokes the derived class Idle implementations (if any) and then enters
 // the sleep state until such time that new messages are received.
 //
-// Extending: Derived classes should override _DoIdle instead, unless it is necessary
-// to implement post-wakeup behavior.
 //
 void pxEvtQueue::Idle()
 {
 	ProcessIdleEvents();
-	_DoIdle();
 	m_wakeup.WaitWithoutYield();
 }
 
