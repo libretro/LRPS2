@@ -16,7 +16,6 @@
 #include "PrecompiledHeader.h"
 #include "App.h"
 #include "GS.h"
-#include "AppSaveStates.h"
 
 #include "Plugins.h"
 #include "ps2/BiosTools.h"

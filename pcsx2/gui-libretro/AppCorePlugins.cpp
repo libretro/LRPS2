@@ -15,7 +15,6 @@
 
 #include "PrecompiledHeader.h"
 #include "App.h"
-#include "AppSaveStates.h"
 #include <wx/dir.h>
 #include <wx/file.h>
 

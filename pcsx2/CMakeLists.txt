@@ -323,7 +323,6 @@ if(LIBRETRO)
 		gui-libretro/AppForwardDefs.h
 		gui-libretro/AppGameDatabase.h
 		gui-libretro/App.h
-		gui-libretro/AppSaveStates.h
 		gui-libretro/ConsoleLogger.h
 		gui-libretro/DriveList.h
 		gui-libretro/MemoryCardFile.h
