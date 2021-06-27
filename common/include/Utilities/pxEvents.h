@@ -15,7 +15,6 @@
 
 #pragma once
 #include "wx/windowid.h"
-#include "wx/event.h"
 
 #if wxUSE_GUI
 wxDECLARE_EVENT(pxEvt_StartIdleEventTimer, wxCommandEvent);
