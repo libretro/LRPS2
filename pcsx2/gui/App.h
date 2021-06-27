@@ -599,7 +599,6 @@ public:
 
 	void enterDebugMode();
 	void leaveDebugMode();
-	void resetDebugger();
 #if wxUSE_GUI
 	bool HasMainFrame() const	{ return GetMainFramePtr() != NULL; }
 
