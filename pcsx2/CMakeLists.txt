@@ -769,6 +769,17 @@ include_directories(
 )
 endif()
 
+if(NOT MSVC)
+### Generate the resources files
+file(MAKE_DIRECTORY ${res_bin})
+
+foreach(res_file IN ITEMS
+        AppIcon16 AppIcon32 AppIcon64 BackgroundLogo Logo ButtonIcon_Camera
+        ConfigIcon_Cpu ConfigIcon_Gamefixes ConfigIcon_MemoryCard
+        ConfigIcon_Paths ConfigIcon_Plugins ConfigIcon_Speedhacks ConfigIcon_Video Breakpoint_Active Breakpoint_Inactive)
+    add_custom_command(OUTPUT  "${res_bin}/${res_file}.h" COMMAND perl ${CMAKE_SOURCE_DIR}/linux_various/hex2h.pl "${res_src}/${res_file}.png" "${res_bin}/${res_file}" )
+endforeach()
+
 ### Generate Recording resource files
 ### Drop them into the folder alongside the png files
 foreach(res_file IN ITEMS
