@@ -446,15 +446,6 @@ void GSdxApp::BuildConfigurationMap(const char* lpFileName)
 	}
 }
 
-void* GSdxApp::GetModuleHandlePtr()
-{
-#ifdef _WIN32
-	return s_hModule;
-#else
-	return nullptr;
-#endif
-}
-
 void GSdxApp::SetConfigDir(const char* dir)
 {
 	if( dir == NULL )

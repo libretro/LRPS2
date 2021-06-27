@@ -36,11 +36,6 @@ public:
 	GSdxApp();
 
 	void Init();
-	void* GetModuleHandlePtr();
-
-#ifdef _WIN32
- 	HMODULE GetModuleHandle() {return (HMODULE)GetModuleHandlePtr();}
-#endif
 
 	void BuildConfigurationMap(const char* lpFileName);
 	void ReloadConfig();
