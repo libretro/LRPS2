@@ -250,22 +250,6 @@ void retro_init(void)
 	}
 
 
-	// instantiate the pcsx2 app and so some things on it
-
-	//pcsx2 = new Pcsx2App;
-	//wxApp::SetInstance(pcsx2);
-	pcsx2 = &wxGetApp();
-	#if 0
-		int argc = 0;
-		pcsx2->Initialize(argc, (wchar_t**)nullptr);
-		wxModule::RegisterModules();
-		wxModule::InitializeModules();
-	#endif
-	InitCPUTicks();
-	pxDoOutOfMemory = SysOutOfMemory_EmergencyResponse;
-	g_Conf = std::make_unique<AppConfig>();
-
-
 	// get the BIOS available and fill the option
 
 	bios_dir = Path::Combine(system, "pcsx2/bios");
@@ -303,6 +287,20 @@ void retro_init(void)
 	libretro_set_core_options(environ_cb);
 	option_upscale_mult = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 
+	// instantiate the pcsx2 app and so some things on it
+
+	//pcsx2 = new Pcsx2App;
+	//wxApp::SetInstance(pcsx2);
+	pcsx2 = &wxGetApp();
+#if 0
+	int argc = 0;
+	pcsx2->Initialize(argc, (wchar_t**)nullptr);
+	wxModule::RegisterModules();
+	wxModule::InitializeModules();
+#endif
+	InitCPUTicks();
+	pxDoOutOfMemory = SysOutOfMemory_EmergencyResponse;
+	g_Conf = std::make_unique<AppConfig>();
 
 	// some other stuffs about pcsx2
 

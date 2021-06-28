@@ -25,6 +25,7 @@
 #include "GLState.h"
 #include "GSUtil.h"
 #include <fstream>
+#include "options_tools.h"
 
 //#define ONLY_LINES
 
@@ -300,7 +301,7 @@ bool GSDeviceOGL::Create(const std::shared_ptr<GSWnd> &wnd)
 		// Upload once and forget about it.
 		// Use value of 1 when upscale multiplier is 0 for ScalingFactor,
 		// this is to avoid doing math with 0 in shader. It helps custom res be less broken.
-		m_misc_cb_cache.ScalingFactor = GSVector4i(std::max(1, theApp.GetConfigI("upscale_multiplier")));
+		m_misc_cb_cache.ScalingFactor = GSVector4i(std::max(1, option_upscale_mult));
 		m_convert.cb->cache_upload(&m_misc_cb_cache);
 
 		theApp.LoadResource(IDR_CONVERT_GLSL, shader);

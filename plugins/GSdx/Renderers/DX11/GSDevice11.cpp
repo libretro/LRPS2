@@ -26,6 +26,7 @@
 #include "resource.h"
 #include <fstream>
 #include <VersionHelpers.h>
+#include "options_tools.h"
 
 GSDevice11::GSDevice11()
 {
@@ -41,7 +42,7 @@ GSDevice11::GSDevice11()
 	m_state.bf = -1;
 
 	m_mipmap = theApp.GetConfigI("mipmap");
-	m_upscale_multiplier = theApp.GetConfigI("upscale_multiplier");
+	m_upscale_multiplier = option_upscale_mult;
 	
 	const BiFiltering nearest_filter = static_cast<BiFiltering>(theApp.GetConfigI("filter"));
 	const int aniso_level = theApp.GetConfigI("MaxAnisotropy");
