@@ -187,7 +187,20 @@ struct retro_core_option_definition option_defs[] = {
 
 		{NULL, NULL},
 	},
-	"0" },
+	"-1" },
+
+	{ "pcsx2_conservative_buffer",
+	"Video: Conservative Buffer Allocation",
+	"Disabled: Reserves a larger framebuffer to prevent FMV flickers. Increases GPU/memory requirements."
+		"\n\nDisabling this can amplify stuttering due to low RAM/VRAM."
+		"\nNote: It should be enabled for Armored Core, Destroy All Humans, Gran Turismo and possibly others."
+		"\nThis option does not improve the graphics or the FPS.",
+	{
+		{"disabled", NULL},
+		{"enabled", NULL},
+		{NULL, NULL},
+	},
+	"enabled" },
 
 
 	{ "pcsx2_frameskip",
