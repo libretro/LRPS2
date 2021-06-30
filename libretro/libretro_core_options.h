@@ -202,6 +202,17 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	"enabled" },
 
+	{ "pcsx2_accurate_date",
+	"Video: Accurate DATE",
+	"Implement a more accurate algorithm to compute GS destination alpha testing. It improves shadow and transparency rendering."
+				"\nNote: Direct3D 11 is less accurate.",
+	{
+		{"disabled", NULL},
+		{"enabled", NULL},
+		{NULL, NULL},
+	},
+	"enabled" },
+
 
 	{ "pcsx2_frameskip",
 	"Video: Frame Skip",

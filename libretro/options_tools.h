@@ -29,6 +29,7 @@ static const char* BOOL_PCSX2_OPT_BOOT_TO_BIOS				= "pcsx2_boot_bios";
 static const char* BOOL_PCSX2_OPT_ENABLE_CHEATS				= "pcsx2_enable_cheats";
 static const char* BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH		= "pcsx2_userhack_auto_flush";
 static const char* BOOL_PCSX2_OPT_CONSERVATIVE_BUFFER		= "pcsx2_conservative_buffer";
+static const char* BOOL_PCSX2_OPT_ACCURATE_DATE			    = "pcsx2_accurate_date";
 
 
 
