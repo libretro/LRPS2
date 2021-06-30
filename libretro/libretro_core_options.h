@@ -172,6 +172,24 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	"2" },
 
+	{ "pcsx2_mipmapping",
+	 "Video: Mipmapping",
+	 "Control the accuracy level of the mipmapping emulation."
+		"\nAutomatic: Automatically sets the mipmapping level based on the game.This is the recommended setting."
+		"\nOff: Mipmapping emulation is disabled."
+		"\nBasic (Fast): Partially emulates mipmapping, performance impact is negligible in most cases."
+		"\nFull (Slow):  Completely emulates the mipmapping function of the GS, might significantly impact performance.",
+	{
+		{"-1", "Automatic (default)"},
+		{"0", "Off"},
+		{"1", "Basic"},
+		{"2", "Full"},
+
+		{NULL, NULL},
+	},
+	"0" },
+
+
 	{ "pcsx2_frameskip",
 	"Video: Frame Skip",
 	NULL,
