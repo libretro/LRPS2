@@ -172,6 +172,48 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	"2" },
 
+	{ "pcsx2_mipmapping",
+	 "Video: Mipmapping",
+	 "Control the accuracy level of the mipmapping emulation."
+		"\nAutomatic: Automatically sets the mipmapping level based on the game.This is the recommended setting."
+		"\nOff: Mipmapping emulation is disabled."
+		"\nBasic (Fast): Partially emulates mipmapping, performance impact is negligible in most cases."
+		"\nFull (Slow):  Completely emulates the mipmapping function of the GS, might significantly impact performance.",
+	{
+		{"-1", "Automatic (default)"},
+		{"0", "Off"},
+		{"1", "Basic"},
+		{"2", "Full"},
+
+		{NULL, NULL},
+	},
+	"-1" },
+
+	{ "pcsx2_conservative_buffer",
+	"Video: Conservative Buffer Allocation",
+	"Disabled: Reserves a larger framebuffer to prevent FMV flickers. Increases GPU/memory requirements."
+		"\n\nDisabling this can amplify stuttering due to low RAM/VRAM."
+		"\nNote: It should be enabled for Armored Core, Destroy All Humans, Gran Turismo and possibly others."
+		"\nThis option does not improve the graphics or the FPS.",
+	{
+		{"disabled", NULL},
+		{"enabled", NULL},
+		{NULL, NULL},
+	},
+	"enabled" },
+
+	{ "pcsx2_accurate_date",
+	"Video: Accurate DATE",
+	"Implement a more accurate algorithm to compute GS destination alpha testing. It improves shadow and transparency rendering."
+				"\nNote: Direct3D 11 is less accurate.",
+	{
+		{"disabled", NULL},
+		{"enabled", NULL},
+		{NULL, NULL},
+	},
+	"enabled" },
+
+
 	{ "pcsx2_frameskip",
 	"Video: Frame Skip",
 	NULL,

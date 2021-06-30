@@ -28,6 +28,9 @@ static const char* BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE		= "pcsx2_rumble_enable"
 static const char* BOOL_PCSX2_OPT_BOOT_TO_BIOS				= "pcsx2_boot_bios";
 static const char* BOOL_PCSX2_OPT_ENABLE_CHEATS				= "pcsx2_enable_cheats";
 static const char* BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH		= "pcsx2_userhack_auto_flush";
+static const char* BOOL_PCSX2_OPT_CONSERVATIVE_BUFFER		= "pcsx2_conservative_buffer";
+static const char* BOOL_PCSX2_OPT_ACCURATE_DATE			    = "pcsx2_accurate_date";
+
 
 
 
@@ -53,7 +56,10 @@ static const char* INT_PCSX2_OPT_GAMEPAD_RUMBLE_FORCE		= "pcsx2_rumble_intensity
 static const char* INT_PCSX2_OPT_DEINTERLACING_MODE			= "pcsx2_deinterlace_mode";
 static const char* INT_PCSX2_OPT_FXAA						= "pcsx2_fxaa";
 static const char* INT_PCSX2_OPT_TEXTURE_FILTERING			= "pcsx2_texture_filtering";
-static const char* INT_PCSX2_OPT_VSYNC_MTGS_QUEUE = "pcsx2_vsync_mtgs_queue";
+static const char* INT_PCSX2_OPT_VSYNC_MTGS_QUEUE			= "pcsx2_vsync_mtgs_queue";
+static const char* INT_PCSX2_OPT_MIPMAPPING					= "pcsx2_mipmapping";
+
+
 
 static const char* INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_HUNDREDS	= "pcsx2_userhack_texture_offset_x_hundreds";
 static const char* INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_TENS		= "pcsx2_userhack_texture_offset_x_tens";

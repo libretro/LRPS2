@@ -40,9 +40,10 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 	, m_channel_shuffle(false)
 	, m_lod(GSVector2i(0,0))
 {
-	m_mipmap = theApp.GetConfigI("mipmap_hw");
-	m_large_framebuffer  = theApp.GetConfigB("large_framebuffer");
-	m_accurate_date = theApp.GetConfigI("accurate_date");
+	m_mipmap = option_value(INT_PCSX2_OPT_MIPMAPPING, KeyOptionInt::return_type);
+
+	m_large_framebuffer  = ! option_value(BOOL_PCSX2_OPT_CONSERVATIVE_BUFFER, KeyOptionBool::return_type);
+	m_accurate_date = option_value(BOOL_PCSX2_OPT_ACCURATE_DATE, KeyOptionBool::return_type);
 
 	theApp.SetConfig("MaxAnisotropy", option_value(INT_PCSX2_OPT_ANISOTROPIC_FILTER, KeyOptionInt::return_type));
 	theApp.SetConfig("filter", option_value(INT_PCSX2_OPT_TEXTURE_FILTERING, KeyOptionInt::return_type));
@@ -103,6 +104,9 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 
 void GSRendererHW::UpdateRendererOptions()
 {
+	m_large_framebuffer = !option_value(BOOL_PCSX2_OPT_CONSERVATIVE_BUFFER, KeyOptionBool::return_type);
+	m_mipmap = option_value(INT_PCSX2_OPT_MIPMAPPING, KeyOptionInt::return_type);
+	m_accurate_date = option_value(BOOL_PCSX2_OPT_ACCURATE_DATE, KeyOptionBool::return_type);
 
 	theApp.SetConfig("MaxAnisotropy", option_value(INT_PCSX2_OPT_ANISOTROPIC_FILTER, KeyOptionInt::return_type));
 	theApp.SetConfig("filter", option_value(INT_PCSX2_OPT_TEXTURE_FILTERING, KeyOptionInt::return_type));
