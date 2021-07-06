@@ -330,6 +330,31 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	"2" },
 
+	{ "pcsx2_clamping_mode",
+	"Emulation: Clamping Mode",
+	"Clamping mode can fix some bugs on some games. Default value is fine for most games. (Content restart required)",
+	{
+		{"0", "None"},
+		{"1", "Normal (default)"},
+		{"2", "Extra + Preserve Sign"},
+		{"3", "Full"},
+		{NULL, NULL},
+	},
+	"1" },
+
+
+	{ "pcsx2_round_mode",
+	"Emulation: Round Mode",
+	"Round mode can fix some bugs on some games. Default value is fine for most games. (Content restart required)",
+	{
+		{"0", "Nearest"},
+		{"1", "Negative"},
+		{"2", "Positive"},
+		{"3", "Chop/Zero (default)"},
+		{NULL, NULL},
+	},
+	"3" },
+
 
 	{ "pcsx2_userhack_align_sprite",
 	"Hack: Align Sprite",
