@@ -358,6 +358,19 @@ void retro_init(void)
 	g_Conf->EmuOptions.EnableCheats = option_value(BOOL_PCSX2_OPT_ENABLE_CHEATS, KeyOptionBool::return_type);
 	
 
+	int clampMode = option_value(INT_PCSX2_OPT_CLAMPING_MODE, KeyOptionInt::return_type);
+	g_Conf->EmuOptions.Cpu.Recompiler.fpuOverflow = (clampMode >= 1);
+	g_Conf->EmuOptions.Cpu.Recompiler.fpuExtraOverflow = (clampMode >= 2);
+	g_Conf->EmuOptions.Cpu.Recompiler.fpuFullMode = (clampMode >= 3);
+
+	g_Conf->EmuOptions.Cpu.Recompiler.vuOverflow = (clampMode >= 1);
+	g_Conf->EmuOptions.Cpu.Recompiler.vuExtraOverflow = (clampMode >= 2);
+	g_Conf->EmuOptions.Cpu.Recompiler.vuSignOverflow = (clampMode >= 3);
+
+	SSE_RoundMode roundMode = (SSE_RoundMode)option_value(INT_PCSX2_OPT_ROUND_MODE, KeyOptionInt::return_type);;
+	g_Conf->EmuOptions.Cpu.sseMXCSR.SetRoundMode(roundMode);
+	g_Conf->EmuOptions.Cpu.sseVUMXCSR.SetRoundMode(roundMode);
+
 
 	static retro_disk_control_ext_callback disk_control = {
 		DiskControl::set_eject_state,
@@ -829,6 +842,7 @@ void retro_run(void)
 			option_value(BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE, KeyOptionBool::return_type),
 			option_value(INT_PCSX2_OPT_GAMEPAD_RUMBLE_FORCE, KeyOptionInt::return_type)
 		);
+
 	}
 
 	Input::Update();
