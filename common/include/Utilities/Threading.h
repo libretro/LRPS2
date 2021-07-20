@@ -91,8 +91,6 @@ class RwMutex;
 extern void pxTestCancel();
 extern pxThread *pxGetCurrentThread();
 extern wxString pxGetCurrentThreadName();
-extern u64 GetThreadCpuTime();
-extern u64 GetThreadTicksPerSecond();
 
 // Yields the current thread and provides cancellation points if the thread is managed by
 // pxThread.  Unmanaged threads use standard Sleep.

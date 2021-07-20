@@ -256,7 +256,6 @@ public:
 	virtual void Cancel(bool isBlocking = true) { m_running = false; }
 	virtual void RethrowException() const {}
 
-	u64 GetCpuTime() const { return GetThreadCpuTime(); }
 	bool HasPendingException() const { return false; }
 
 protected:

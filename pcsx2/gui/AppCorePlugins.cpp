@@ -218,7 +218,6 @@ void AppCorePlugins::Load( PluginsEnum_t pid, const wxString& srcfile )
 { 
 	if( !wxThread::IsMain() )
 	{
-		Sleep( 5 );
 		LoadSinglePluginEvent evt( pid, srcfile );
 		wxGetApp().ProcessAction( evt);
 		return;
@@ -231,7 +230,6 @@ void AppCorePlugins::Unload( PluginsEnum_t pid )
 {
 	if( !wxThread::IsMain() )
 	{
-		Sleep( 5 );
 		SinglePluginMethodEvent evt( &AppCorePlugins::Unload, pid );
 		wxGetApp().ProcessAction( evt );
 		return;
@@ -268,7 +266,6 @@ void AppCorePlugins::Init( PluginsEnum_t pid )
 	{
 		SinglePluginMethodEvent evt(&AppCorePlugins::Init, pid);
 		wxGetApp().ProcessAction( evt );
-		Sleep( 5 );
 		return;
 	}
 
@@ -281,7 +278,6 @@ void AppCorePlugins::Shutdown( PluginsEnum_t pid )
 	{
 		SinglePluginMethodEvent evt( &AppCorePlugins::Shutdown, pid );
 		wxGetApp().ProcessAction( evt );
-		Sleep( 5 );
 		return;
 	}
 

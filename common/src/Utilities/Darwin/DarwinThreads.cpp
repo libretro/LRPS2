@@ -55,64 +55,6 @@ __forceinline void Threading::DisableHiresScheduler()
     // see EnableHiresScheduler()
 }
 
-// Just like on Windows, this is not really the number of ticks per second,
-// but just a factor by which one has to divide GetThreadCpuTime() or
-// pxThread::GetCpuTime() if one wants to receive a value in seconds. NOTE:
-// doing this will of course yield precision loss.
-u64 Threading::GetThreadTicksPerSecond()
-{
-    return 1000000; // the *CpuTime() functions return values in microseconds
-}
-
-// gets the CPU time used by the current thread (both system and user), in
-// microseconds, returns 0 on failure
-static u64 getthreadtime(thread_port_t thread)
-{
-    mach_msg_type_number_t count = THREAD_BASIC_INFO_COUNT;
-    thread_basic_info_data_t info;
-
-    kern_return_t kr = thread_info(thread, THREAD_BASIC_INFO,
-                                   (thread_info_t)&info, &count);
-    if (kr != KERN_SUCCESS) {
-        return 0;
-    }
-
-    // add system and user time
-    return (u64)info.user_time.seconds * (u64)1e6 +
-           (u64)info.user_time.microseconds +
-           (u64)info.system_time.seconds * (u64)1e6 +
-           (u64)info.system_time.microseconds;
-}
-
-// Returns the current timestamp (not relative to a real world clock) in
-// units of 100 nanoseconds. The weird units are to mirror the Windows
-// counterpart in WinThreads.cpp, which uses the GetThreadTimes() API.  On
-// OSX/Darwin, this is only accurate up until 1ms (and possibly less), so
-// not very good.
-u64 Threading::GetThreadCpuTime()
-{
-    // we could also use mach_thread_self() and mach_port_deallocate(), but
-    // that calls upon mach traps (kinda like system calls). Unless I missed
-    // something in the COMMPAGE (like Linux vDSO) which makes overrides it
-    // to be user-space instead. In contract,
-    // pthread_mach_thread_np(pthread_self()) is entirely in user-space.
-    u64 us = getthreadtime(pthread_mach_thread_np(pthread_self()));
-    return us * 10ULL;
-}
-
-u64 Threading::pxThread::GetCpuTime() const
-{
-    // Get the cpu time for the thread belonging to this object.  Use m_native_id and/or
-    // m_native_handle to implement it. Return value should be a measure of total time the
-    // thread has used on the CPU (scaled by the value returned by GetThreadTicksPerSecond(),
-    // which typically would be an OS-provided scalar or some sort).
-    if (!m_native_id) {
-        return 0;
-    }
-
-    return getthreadtime((thread_port_t)m_native_id) * 10ULL;
-}
-
 void Threading::pxThread::_platform_specific_OnStartInThread()
 {
     m_native_id = (uptr)mach_thread_self();

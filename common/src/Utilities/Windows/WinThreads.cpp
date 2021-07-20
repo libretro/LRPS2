@@ -52,41 +52,6 @@ __fi void Threading::DisableHiresScheduler()
     timeEndPeriod(1);
 }
 
-// This hacky union would probably fail on some cpu platforms if the contents of FILETIME aren't
-// packed (but for any x86 CPU and microsoft compiler, they will be).
-union FileTimeSucks
-{
-    FILETIME filetime;
-    u64 u64time;
-};
-
-u64 Threading::GetThreadCpuTime()
-{
-    FileTimeSucks user, kernel;
-    FILETIME dummy;
-    GetThreadTimes(GetCurrentThread(), &dummy, &dummy, &kernel.filetime, &user.filetime);
-    return user.u64time + kernel.u64time;
-}
-
-u64 Threading::GetThreadTicksPerSecond()
-{
-    return 10000000;
-}
-
-u64 Threading::pxThread::GetCpuTime() const
-{
-    if (!m_native_handle)
-        return 0;
-
-    FileTimeSucks user, kernel;
-    FILETIME dummy;
-
-    if (GetThreadTimes((HANDLE)m_native_handle, &dummy, &dummy, &kernel.filetime, &user.filetime))
-        return user.u64time + kernel.u64time;
-
-    return 0; // thread prolly doesn't exist anymore.
-}
-
 void Threading::pxThread::_platform_specific_OnStartInThread()
 {
     // OpenThread Note: Vista and Win7 need only THREAD_QUERY_LIMITED_INFORMATION (XP and 2k need more),

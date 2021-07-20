@@ -912,8 +912,6 @@ void SysCorePlugins::Load( const wxString (&folders)[PluginId_Count] )
 		NULL, // Menu_AddItem
 
 		{ 0 }, // MenuItem
-		{ 0 }, // Console
-		{ 0 }, // ConsoleW
 
 		{ 0,0,0,0,0,0,0,0 },
 	};

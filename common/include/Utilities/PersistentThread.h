@@ -120,7 +120,6 @@ public:
     pxThread(const wxString &name = L"pxThread");
 
     pthread_t GetId() const { return m_thread; }
-    u64 GetCpuTime() const;
 
     virtual void Start();
     virtual void Cancel(bool isBlocking = true);

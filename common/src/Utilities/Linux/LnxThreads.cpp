@@ -60,52 +60,6 @@ __forceinline void Threading::DisableHiresScheduler()
 {
 }
 
-// Unit of time of GetThreadCpuTime/GetCpuTime
-u64 Threading::GetThreadTicksPerSecond()
-{
-    return 1000000;
-}
-
-// Helper function to get either either the current cpu usage
-// in called thread or in id thread
-static u64 get_thread_time(uptr id = 0)
-{
-    clockid_t cid;
-    if (id) {
-        int err = pthread_getcpuclockid((pthread_t)id, &cid);
-        if (err)
-            return 0;
-    } else {
-        cid = CLOCK_THREAD_CPUTIME_ID;
-    }
-
-    struct timespec ts;
-    int err = clock_gettime(cid, &ts);
-    if (err)
-        return 0;
-
-    return (u64)ts.tv_sec * (u64)1e6 + (u64)ts.tv_nsec / (u64)1e3;
-}
-
-// Returns the current timestamp (not relative to a real world clock)
-u64 Threading::GetThreadCpuTime()
-{
-    return get_thread_time();
-}
-
-u64 Threading::pxThread::GetCpuTime() const
-{
-    // Get the cpu time for the thread belonging to this object.  Use m_native_id and/or
-    // m_native_handle to implement it. Return value should be a measure of total time the
-    // thread has used on the CPU (scaled by the value returned by GetThreadTicksPerSecond(),
-    // which typically would be an OS-provided scalar or some sort).
-
-    if (!m_native_id)
-        return 0;
-
-    return get_thread_time(m_native_id);
-}
-
 void Threading::pxThread::_platform_specific_OnStartInThread()
 {
     // Obtain linux-specific thread IDs or Handles here, which can be used to query

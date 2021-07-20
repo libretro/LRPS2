@@ -194,73 +194,6 @@ typedef void *PS2E_MenuHandle;
 typedef void *PS2E_MenuItemHandle;
 typedef void PS2E_CALLBACK PS2E_OnMenuItemClicked(PS2E_THISPTR *thisptr, void *userptr);
 
-// --------------------------------------------------------------------------------------
-//  PS2E_ConsoleWriterAPI
-// --------------------------------------------------------------------------------------
-// APIs for writing text to the console.  Typically the emulator will write the text to
-// both a console window and to a disk file, however actual implementation is up to the
-// emulator.  All text must be either 7-bit ASCII or UTF8 encoded.  Other codepages or
-// MBCS encodings will not be displayed properly.
-//
-// Standard streams STDIO and STDERR can be used instead, however there is no guarantee
-// that they will be handled in a convenient fashion.  Different platforms and operating
-// systems have different methods of standard stream pipes, which is why the ConsoleWriter
-// API has been exposed to plugins.
-//
-// Development Notes:
-//   'char' was chosen over 'wchar_t' because 'wchar_t' is a very loosely defined type that
-//   can vary greatly between compilers (it can be as small as 8 bits and as large as a
-//   compiler wants it to be).  Because of this we can't even make assumptions about its
-//   size within the context of a single operating system; so it just won't do.  Just make
-//   sure everything going into the function is UTF8 encoded and all is find.
-//
-typedef struct _PS2E_ConsoleWriterAPI
-{
-    // Writes text to console; no newline is appended.
-    void(PS2E_CALLBACK *Write)(const char *fmt, ...);
-
-    // Appends an automatic newline to the specified formatted output.
-    void(PS2E_CALLBACK *WriteLn)(const char *fmt, ...);
-
-    // This function always appends a newline.
-    void(PS2E_CALLBACK *Error)(const char *fmt, ...);
-
-    // This function always appends a newline.
-    void(PS2E_CALLBACK *Warning)(const char *fmt, ...);
-
-    void *reserved[4];
-
-} PS2E_ConsoleWriterAPI;
-
-// --------------------------------------------------------------------------------------
-//  PS2E_ConsoleWriterWideAPI
-// --------------------------------------------------------------------------------------
-// This is the wide character version of the ConsoleWriter APi.  Please see the description
-// of PS2E_ConsoleWriterAPI for details.
-//
-// Important Usage Note to Plugin Authors:
-//   Before using the functions in this structure, you *must* confirm that the emulator's
-//   size of wchar_t matches the size provided by your own compiler.  The size of wchar_t
-//   is provided in the PS2E_EmulatorInfo struct.
-//
-typedef struct _PS2E_ConsoleWriterWideAPI
-{
-    // Writes text to console; no newline is appended.
-    void(PS2E_CALLBACK *Write)(const wchar_t *fmt, ...);
-
-    // Appends an automatic newline to the specified formatted output.
-    void(PS2E_CALLBACK *WriteLn)(const wchar_t *fmt, ...);
-
-    // This function always appends a newline.
-    void(PS2E_CALLBACK *Error)(const wchar_t *fmt, ...);
-
-    // This function always appends a newline.
-    void(PS2E_CALLBACK *Warning)(const wchar_t *fmt, ...);
-
-    void *reserved[4];
-
-} PS2E_ConsoleWriterWideAPI;
-
 
 // --------------------------------------------------------------------------------------
 //  PS2E_Image
@@ -576,17 +509,6 @@ typedef struct _PS2E_EmulatorInfo
 
     // Interface for creating menu items and modifying their properties.
     PS2E_MenuItemAPI MenuItem;
-
-    // Provides a set of basic console functions for writing text to the emulator's
-    // console.  Some emulators may not support a console, in which case these functions
-    // will be NOPs.   For plain and simple to-disk logging, plugins should create and use
-    // their own logging facilities.
-    PS2E_ConsoleWriterAPI Console;
-
-    // Optional wide-version of the Console API.  Use with caution -- wchar_t is platform and
-    // compiler dependent, and so plugin authors should be sure to check the emulator's wchar_t
-    // side before using this interface.  See PS2E_ConsoleWriterWideAPI comments for more info.
-    PS2E_ConsoleWriterWideAPI ConsoleW;
 
     void *reserved2[8];
 
