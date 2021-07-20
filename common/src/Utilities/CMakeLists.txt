@@ -14,7 +14,6 @@ set(CommonFlags
 set(UtilitiesFinalFlags ${CommonFlags})
 
 # variable with all sources of this library
-if(LIBRETRO)
 	set(UtilitiesSources
 		VirtualMemory.cpp
 		../../include/Utilities/FixedPointTypes.inl
@@ -33,58 +32,13 @@ if(LIBRETRO)
 		RwMutex.cpp
 		StringHelpers.cpp
 		ThreadTools.cpp
-#		EventSource.cpp
-#		CheckedStaticBox.cpp
-#		pxCheckBox.cpp
-#		pxRadioPanel.cpp
-
-#		pxStaticText.cpp
-#		pxWindowTextWriter.cpp
-#		ThreadingDialogs.cpp
-#		wxGuiTools.cpp
-#		wxHelpers.cpp
-
-
-      wxAppWithHelpersLibretro.cpp
+      		wxAppWithHelpers.cpp
 		)
    if(NOT MSVC)
    set(UtilitiesSources ${UtilitiesSources}
       AlignedMalloc.cpp
       Linux/LnxHostSys.cpp)
    endif()
-else()
-	set(UtilitiesSources
-		VirtualMemory.cpp
-		AlignedMalloc.cpp
-		../../include/Utilities/FixedPointTypes.inl
-		../../include/Utilities/EventSource.inl
-		../../include/Utilities/SafeArray.inl
-		CheckedStaticBox.cpp
-		Console.cpp
-		EventSource.cpp
-		Exceptions.cpp
-		FastFormatString.cpp
-		IniInterface.cpp
-		Linux/LnxHostSys.cpp
-		Mutex.cpp
-		PathUtils.cpp
-		PrecompiledHeader.cpp
-		Perf.cpp
-		pxCheckBox.cpp
-		pxRadioPanel.cpp
-		pxStaticText.cpp
-		pxStreams.cpp
-		pxTranslate.cpp
-		pxWindowTextWriter.cpp
-		RwMutex.cpp
-		StringHelpers.cpp
-		ThreadingDialogs.cpp
-		ThreadTools.cpp
-		wxAppWithHelpers.cpp
-		wxGuiTools.cpp
-		wxHelpers.cpp
-		)
-endif()
 
 # variable with all headers of this library
 set(UtilitiesHeaders
