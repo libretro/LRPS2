@@ -16,3 +16,69 @@
 #pragma once
 
 #include "AppCommon.h"
+
+// --------------------------------------------------------------------------------------
+//  RecentIsoManager
+// --------------------------------------------------------------------------------------
+class RecentIsoManager : public wxEvtHandler,
+	public EventListener_AppStatus
+{
+protected:
+	struct RecentItem
+	{
+		wxString	Filename;
+		wxMenuItem*	ItemPtr;
+
+		RecentItem() { ItemPtr = NULL; }
+
+		RecentItem( const wxString& src )
+			: Filename( src )
+		{
+			ItemPtr = NULL;
+		}
+	};
+
+	std::vector<RecentItem> m_Items;
+
+	wxMenu*		m_Menu;
+	uint		m_MaxLength;
+	int			m_cursel;
+
+	int m_firstIdForMenuItems_or_wxID_ANY;
+
+	wxMenuItem* m_Separator;
+	wxMenuItem* m_ClearSeparator;
+	wxMenuItem* m_Clear;
+
+public:
+	RecentIsoManager( wxMenu* menu , int firstIdForMenuItems_or_wxID_ANY );
+	virtual ~RecentIsoManager();
+
+	void RemoveAllFromMenu();
+	void EnableItems(bool display);
+	void Repopulate();
+	void Clear();
+	void Add( const wxString& src );
+
+protected:
+	void InsertIntoMenu( int id );
+	void OnChangedSelection( wxCommandEvent& evt );
+	void LoadListFrom( IniInterface& ini );
+
+	void AppStatusEvent_OnUiSettingsLoadSave( const AppSettingsEventInfo& ini );
+	void AppStatusEvent_OnSettingsApplied();
+};
+
+
+// --------------------------------------------------------------------------------------
+//  RecentIsoList
+// --------------------------------------------------------------------------------------
+struct RecentIsoList
+{
+	std::unique_ptr<RecentIsoManager>		Manager;
+	std::unique_ptr<wxMenu>				Menu;
+
+	RecentIsoList(int firstIdForMenuItems_or_wxID_ANY);
+	virtual ~RecentIsoList() = default;
+};
+

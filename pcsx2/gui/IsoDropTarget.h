@@ -17,3 +17,25 @@
 
 #include "AppCommon.h"
 #include <wx/dnd.h>
+
+// --------------------------------------------------------------------------------------
+//  IsoDropTarget
+// --------------------------------------------------------------------------------------
+class IsoDropTarget : public wxFileDropTarget
+{
+protected:
+	wxWindow* m_WindowBound;
+
+public:
+	virtual ~IsoDropTarget() = default;
+	IsoDropTarget( wxWindow* parent ) : wxFileDropTarget()
+	{
+		m_WindowBound = parent;
+	}
+
+	virtual bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames);
+};
+
+
+extern wxString GetMsg_ConfirmSysReset();
+extern wxWindowID SwapOrReset_Iso( wxWindow* owner, IScopedCoreThread& core_control, const wxString& isoFilename, const wxString& descpart1 );

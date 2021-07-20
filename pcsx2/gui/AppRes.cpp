@@ -18,6 +18,9 @@
 #include "AppGameDatabase.h"
 
 #include <wx/wfstream.h>
+#ifndef __LIBRETRO__
+#include <wx/imaglist.h>
+#endif
 #include <memory>
 
 pxAppResources::pxAppResources()

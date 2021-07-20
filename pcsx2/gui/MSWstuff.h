@@ -14,4 +14,9 @@
  */
 
 #pragma once
+#if wxUSE_GUI
+// FIXME: Missing some includes.
+extern void MSW_SetWindowAfter( WXWidget hwnd, WXWidget hwndAfter );
+#endif
 extern void MSW_OutputDebugString( const wxString& text );
+extern float MSW_GetDPIScale();

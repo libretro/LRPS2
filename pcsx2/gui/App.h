@@ -26,6 +26,8 @@
 #include "AppCommon.h"
 #include "AppCoreThread.h"
 
+class DisassemblyDialog;
+
 #include "System.h"
 #include "System/SysThreads.h"
 
@@ -172,6 +174,25 @@ enum MenuIdentifiers
 	MenuId_Capture_Screenshot,
 };
 
+namespace Exception
+{
+	// --------------------------------------------------------------------------
+	// Exception used to perform an "errorless" termination of the app during OnInit
+	// procedures.  This happens when a user cancels out of startup prompts/wizards.
+	//
+	class StartupAborted : public CancelEvent
+	{
+		DEFINE_RUNTIME_EXCEPTION( StartupAborted, CancelEvent, L"Startup initialization was aborted by the user." )
+
+	public:
+		StartupAborted( const wxString& reason )
+		{
+			m_message_diag = L"Startup aborted: " + reason;
+		}
+	};
+
+}
+
 // -------------------------------------------------------------------------------------------
 //  pxAppResources
 // -------------------------------------------------------------------------------------------
@@ -185,6 +206,46 @@ public:
 
 	pxAppResources();
 	virtual ~pxAppResources();
+};
+
+class StartupOptions
+{
+public:
+	bool			ForceWizard;
+	bool			ForceConsole;
+	bool			PortableMode;
+
+	// Disables the fast boot option when auto-running games.  This option only applies
+	// if SysAutoRun is also true.
+	bool			NoFastBoot;
+
+	// Specifies the Iso file to boot; used only if SysAutoRun is enabled and CdvdSource
+	// is set to ISO.
+	wxString		IsoFile;
+
+	wxString		ElfFile;
+
+	wxString		GameLaunchArgs;
+
+	// Specifies the CDVD source type to use when AutoRunning
+	CDVD_SourceType CdvdSource;
+
+	// Indicates if PCSX2 should autorun the configured CDVD source and/or ISO file.
+	bool			SysAutoRun;
+	bool			SysAutoRunElf;
+	bool			SysAutoRunIrx;
+
+	StartupOptions()
+	{
+		ForceWizard				= false;
+		ForceConsole			= false;
+		PortableMode			= false;
+		NoFastBoot				= false;
+		SysAutoRun				= false;
+		SysAutoRunElf			= false;
+		SysAutoRunIrx			= false;
+		CdvdSource				= CDVD_SourceType::NoDisc;
+	}
 };
 
 enum GsWindowMode_t
@@ -343,6 +404,7 @@ protected:
 	Threading::Mutex				m_mtx_LoadingGameDB;
 
 public:
+	StartupOptions					Startup;
 	CommandlineOverrides			Overrides;
 
 protected:
@@ -382,6 +444,13 @@ public:
 	void OpenProgramLog();
 	void CleanupRestartable();
 	void CleanupResources();
+	void WipeUserModeSettings();
+	bool TestUserPermissionsRights( const wxDirName& testFolder, wxString& createFailedStr, wxString& accessFailedStr );
+	void EstablishAppUserMode();
+	void ForceFirstTimeWizardOnNextRun();
+
+	wxConfigBase* OpenInstallSettingsFile();
+	wxConfigBase* TestForPortableInstall();
 
 	bool HasPendingSaves() const;
 	void StartPendingSave();

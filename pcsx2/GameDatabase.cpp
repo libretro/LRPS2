@@ -21,7 +21,6 @@
 #include "fmt/ranges.h"
 #include "yaml-cpp/yaml.h"
 #include <algorithm>
-#include <cctype>
 
 std::string strToLower(std::string str)
 {

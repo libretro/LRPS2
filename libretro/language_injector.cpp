@@ -10,7 +10,6 @@
 #include <fstream>
 #include <vector>
 #include <string>
-#include <cctype>
 
 #include "SPU2/Global.h"
 #include "ps2/BiosTools.h"

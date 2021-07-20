@@ -16,3 +16,27 @@
 #pragma once
 
 #include <wx/wx.h>
+
+
+class LangPackEnumeration
+{
+public:
+	wxLanguage	wxLangId;
+	wxString	canonicalName;
+	wxString	englishName;
+
+	// [TODO] : Might be nice, but have no idea how to implement it...
+	//wxString	xlatedName;
+
+public:
+	LangPackEnumeration( wxLanguage langId );
+	LangPackEnumeration();
+};
+
+typedef std::vector<LangPackEnumeration> LangPackList;
+
+extern bool i18n_SetLanguage( wxLanguage wxLangId, const wxString& langCode=wxEmptyString );
+extern void i18n_EnumeratePackages( LangPackList& langs );
+extern bool i18n_IsLegacyLanguageId( wxLanguage lang );
+extern void i18n_SetLanguagePath();
+
