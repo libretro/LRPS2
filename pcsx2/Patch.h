@@ -118,8 +118,6 @@ extern void ApplyLoadedPatches(patch_place_type place);
 // Following ApplyLoadedPatches calls will do nothing until some LoadPatchesFrom* are invoked.
 extern void ForgetLoadedPatches();
 
-extern const IConsoleWriter *PatchesCon;
-
 // Patch loading is verbose only once after the crc changes, this makes it think that the crc changed.
 extern void PatchesVerboseReset();
 

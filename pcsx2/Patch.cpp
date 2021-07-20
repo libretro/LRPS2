@@ -30,6 +30,8 @@
 #include <wx/wfstream.h>
 #include <PathDefs.h>
 
+#include "retro_messager.h"
+
 // This is a declaration for PatchMemory.cpp::_ApplyPatch where we're (patch.cpp)
 // the only consumer, so it's not made public via Patch.h
 // Applies a single patch line to emulation memory regardless of its "place" value.
@@ -185,13 +187,13 @@ static int _LoadPatchFiles(const wxDirName& folderName, wxString& fileSpec, cons
 	{
 		if (buffer.Upper().Matches(fileSpec.Upper()))
 		{
-			PatchesCon->WriteLn(Color_Green, L"Found %s file: '%s'", WX_STR(friendlyName), WX_STR(buffer));
+			log_cb(RETRO_LOG_INFO, "Found %s file: '%s'\n", WX_STR(friendlyName), WX_STR(buffer));
 			int before = Patch.size();
 			f.Open(Path::Combine(dir.GetName(), buffer));
 			inifile_process(f);
 			f.Close();
 			int loaded = Patch.size() - before;
-			PatchesCon->WriteLn((loaded ? Color_Green : Color_Gray), L"Loaded %d %s from '%s' at '%s'",
+			log_cb(RETRO_LOG_INFO, "Loaded %d %s from '%s' at '%s'\n",
 				loaded, WX_STR(friendlyName), WX_STR(buffer), WX_STR(folderName.ToString()));
 			numberFoundPatchFiles++;
 		}
@@ -236,10 +238,12 @@ int LoadPatchesFromDir(wxString name, const wxDirName& folderName, const wxStrin
 	if (folderName.ToString().IsSameAs(PathDefs::GetCheats().ToString()) && numberFoundPatchFiles == 0) 
 	{
 		wxString pathName = Path::Combine(folderName, name.MakeUpper() + L".pnach");
-		PatchesCon->WriteLn(Color_Gray, L"Not found %s file: %s", WX_STR(friendlyName), WX_STR(pathName));
+		log_cb(RETRO_LOG_INFO, 
+				"Not found %s file: %s\n", WX_STR(friendlyName), WX_STR(pathName));
 	}
 
-	PatchesCon->WriteLn((loaded ? Color_Green : Color_Gray), L"Overall %d %s loaded", loaded, WX_STR(friendlyName));
+	log_cb(RETRO_LOG_INFO, 
+		"Overall %d %s loaded", loaded, WX_STR(friendlyName));
 	return loaded;
 }
 
@@ -262,12 +266,12 @@ namespace PatchFunc
 {
 	void comment(const wxString& text1, const wxString& text2)
 	{
-		PatchesCon->WriteLn(L"comment: " + text2);
+		log_cb(RETRO_LOG_INFO, "comment: %s\n", WX_STR(text2));
 	}
 
 	void author(const wxString& text1, const wxString& text2)
 	{
-		PatchesCon->WriteLn(L"Author: " + text2);
+		log_cb(RETRO_LOG_INFO, "Author: %s\n", WX_STR(text2));
 	}
 
 	struct PatchPieces
