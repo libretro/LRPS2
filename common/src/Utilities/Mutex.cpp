@@ -198,48 +198,13 @@ bool Threading::Mutex::TryAcquire()
 //
 void Threading::Mutex::Acquire()
 {
-#if wxUSE_GUI
-    if (!wxThread::IsMain() || (wxTheApp == NULL)) {
-        pthread_mutex_lock(&m_mutex);
-    } else if (_WaitGui_RecursionGuard(L"Mutex::Acquire")) {
-        ScopedBusyCursor hourglass(Cursor_ReallyBusy);
-        pthread_mutex_lock(&m_mutex);
-    } else {
-        //ScopedBusyCursor hourglass( Cursor_KindaBusy );
-        while (!AcquireWithoutYield(def_yieldgui_interval))
-            YieldToMain();
-    }
-#else
     pthread_mutex_lock(&m_mutex);
-#endif
 }
 
 bool Threading::Mutex::Acquire(const wxTimeSpan &timeout)
 {
-#if wxUSE_GUI
-    if (!wxThread::IsMain() || (wxTheApp == NULL)) {
-        return AcquireWithoutYield(timeout);
-    } else if (_WaitGui_RecursionGuard(L"Mutex::TimedAcquire")) {
-        ScopedBusyCursor hourglass(Cursor_ReallyBusy);
-        return AcquireWithoutYield(timeout);
-    } else {
-        //ScopedBusyCursor hourglass( Cursor_KindaBusy );
-        wxTimeSpan countdown((timeout));
-
-        do {
-            if (AcquireWithoutYield(def_yieldgui_interval))
-                break;
-            YieldToMain();
-            countdown -= def_yieldgui_interval;
-        } while (countdown.GetMilliseconds() > 0);
-
-        return countdown.GetMilliseconds() > 0;
-    }
-
-#else
     AcquireWithoutYield();
     return true;
-#endif
 }
 
 // Performs a wait on a locked mutex, or returns instantly if the mutex is unlocked.

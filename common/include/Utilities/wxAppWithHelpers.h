@@ -42,22 +42,6 @@ extern ConsoleLogSource_App pxConLog_App;
 
 #define pxAppLog pxConLog_App.IsActive() && pxConLog_App
 
-#if wxUSE_GUI
-// --------------------------------------------------------------------------------------
-//  ModalButtonPanel
-// --------------------------------------------------------------------------------------
-class ModalButtonPanel : public wxPanelWithHelpers
-{
-public:
-    ModalButtonPanel(wxWindow *window, const MsgButtons &buttons);
-    virtual ~ModalButtonPanel() = default;
-
-    virtual void AddActionButton(wxWindowID id);
-    virtual void AddCustomButton(wxWindowID id, const wxString &label);
-
-    virtual void OnActionButtonClicked(wxCommandEvent &evt);
-};
-#endif
 typedef std::list<wxEvent *> wxEventList;
 
 // --------------------------------------------------------------------------------------
@@ -188,12 +172,6 @@ protected:
 
     void OnIdleEvent(wxIdleEvent &evt);
     void OnIdleEventTimeout(wxTimerEvent &evt);
-#if wxUSE_GUI
-    void OnStartIdleEventTimer(wxCommandEvent &evt);
-    void OnDeleteObject(wxCommandEvent &evt);
-    void OnDeleteThread(wxCommandEvent &evt);
-    void OnSynchronousCommand(pxSynchronousCommandEvent &evt);
-#endif
     void OnInvokeAction(pxActionEvent &evt);
 };
 #endif

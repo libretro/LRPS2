@@ -111,29 +111,6 @@ typedef int BOOL;
 #endif
 
 // --------------------------------------------------------------------------------------
-//  PS2E_HWND  -  OS-independent window handle
-// --------------------------------------------------------------------------------------
-// HWND is our only operating system dependent type.  For it to be defined as accurately
-// as possible, this header file needs to be included after whatever window/GUI platform
-// headers you need (wxWidgets, Windows.h, GTK, etc).
-//
-// We could be lazy with this typedef, because window handles are always a (void*) on all
-// platforms that matter to us (windows, gtk, OSX).  But Windows has some type strictness
-// on its HWND define that could be useful, and well it's probably good practice to use
-// platform available defines when they exist.
-//
-#if defined(_WX_DEFS_H_) && wxUSE_GUI
-typedef WXWidget PS2E_HWND;
-#elif defined(_WINDEF_)
-// For Windows let's use HWND, since it has some type strictness applied to it.
-typedef HWND PS2E_HWND;
-#else
-// Unsupported platform... use void* as a best guess.  Should work fine for almost
-// any GUI platform, and certainly works for any currently supported one.
-typedef void *PS2E_HWND;
-#endif
-
-// --------------------------------------------------------------------------------------
 //  PS2E_THISPTR - (ps2 component scope 'this' object pointer type)
 // --------------------------------------------------------------------------------------
 // This macro provides C++ plugin authors with a reasonably friendly way to automatically
@@ -447,8 +424,6 @@ typedef struct _PS2E_VersionInfo
 //
 typedef struct _PS2E_SessionInfo
 {
-    PS2E_HWND window;
-
     u32 *CycleEE;  // current EE cycle count
     u32 *CycleIOP; // current IOP cycle count
 

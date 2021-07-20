@@ -18,21 +18,6 @@
 #include "Dependencies.h"
 
 // --------------------------------------------------------------------------------------
-// wxBaseTools.h
-//
-// This file is meant to contain utility classes for users of the wxWidgets library.
-// All classes in this file are strictly dependent on wxBase libraries only, meaning
-// you don't need to include or link against wxCore (GUI) to build them.  For tools
-// which require wxCore, see wxGuiTools.h
-// --------------------------------------------------------------------------------------
-#if wxUSE_GUI
-extern void pxExplore(const wxString &path);
-extern void pxExplore(const char *path);
-
-extern void pxLaunch(const wxString &path);
-extern void pxLaunch(const char *path);
-#endif
-// --------------------------------------------------------------------------------------
 //  wxDoNotLogInThisScope
 // --------------------------------------------------------------------------------------
 // This class is used to disable wx's sometimes inappropriate amount of forced error logging

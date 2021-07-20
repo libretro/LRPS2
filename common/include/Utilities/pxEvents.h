@@ -16,12 +16,6 @@
 #pragma once
 #include "wx/windowid.h"
 
-#if wxUSE_GUI
-wxDECLARE_EVENT(pxEvt_StartIdleEventTimer, wxCommandEvent);
-wxDECLARE_EVENT(pxEvt_DeleteObject, wxCommandEvent);
-wxDECLARE_EVENT(pxEvt_DeleteThread, wxCommandEvent);
-#endif
-
 typedef void FnType_Void();
 
 // --------------------------------------------------------------------------------------
@@ -164,40 +158,6 @@ public:
 protected:
     void InvokeEvent();
 };
-
-// --------------------------------------------------------------------------------------
-//  pxSynchronousCommandEvent
-// --------------------------------------------------------------------------------------
-#if wxUSE_GUI
-class pxSynchronousCommandEvent : public wxCommandEvent
-{
-    wxDECLARE_DYNAMIC_CLASS_NO_ASSIGN(pxSynchronousCommandEvent);
-
-protected:
-    SynchronousActionState *m_sync;
-    wxEventType m_realEvent;
-
-public:
-    virtual ~pxSynchronousCommandEvent() = default;
-    virtual pxSynchronousCommandEvent *Clone() const { return new pxSynchronousCommandEvent(*this); }
-
-    pxSynchronousCommandEvent(SynchronousActionState *sema = NULL, wxEventType commandType = wxEVT_NULL, int winid = 0);
-    pxSynchronousCommandEvent(SynchronousActionState &sema, wxEventType commandType = wxEVT_NULL, int winid = 0);
-
-    pxSynchronousCommandEvent(SynchronousActionState *sema, const wxCommandEvent &evt);
-    pxSynchronousCommandEvent(SynchronousActionState &sema, const wxCommandEvent &evt);
-
-    pxSynchronousCommandEvent(const pxSynchronousCommandEvent &src);
-
-    Threading::Semaphore *GetSemaphore() { return m_sync ? &m_sync->GetSemaphore() : NULL; }
-    wxEventType GetRealEventType() const { return m_realEvent; }
-
-    void SetException(BaseException *ex);
-    void SetException(const BaseException &ex);
-};
-
-wxDECLARE_EVENT(pxEvt_SynchronousCommand, pxSynchronousCommandEvent);
-#endif
 
 // --------------------------------------------------------------------------------------
 //  BaseMessageBoxEvent

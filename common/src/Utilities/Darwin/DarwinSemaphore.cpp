@@ -160,20 +160,7 @@ bool Threading::Semaphore::WaitWithoutYield(const wxTimeSpan &timeout)
 // called from another thread, no message pumping is performed.
 void Threading::Semaphore::Wait()
 {
-#if wxUSE_GUI
-    if (!wxThread::IsMain() || (wxTheApp == NULL)) {
-        WaitWithoutYield();
-    } else if (_WaitGui_RecursionGuard(L"Semaphore::Wait")) {
-        ScopedBusyCursor hourglass(Cursor_ReallyBusy);
-        WaitWithoutYield();
-    } else {
-        while (!WaitWithoutYield(def_yieldgui_interval)) {
-            YieldToMain();
-        }
-    }
-#else
     WaitWithoutYield();
-#endif
 }
 
 // This is a wxApp-safe implementation of WaitWithoutYield, which makes sure and executes the App's
@@ -187,28 +174,7 @@ void Threading::Semaphore::Wait()
 //
 bool Threading::Semaphore::Wait(const wxTimeSpan &timeout)
 {
-#if wxUSE_GUI
-    if (!wxThread::IsMain() || (wxTheApp == NULL)) {
-        return WaitWithoutYield(timeout);
-    } else if (_WaitGui_RecursionGuard(L"Semaphore::TimedWait")) {
-        ScopedBusyCursor hourglass(Cursor_ReallyBusy);
-        return WaitWithoutYield(timeout);
-    } else {
-        //ScopedBusyCursor hourglass( Cursor_KindaBusy );
-        wxTimeSpan countdown((timeout));
-
-        do {
-            if (WaitWithoutYield(def_yieldgui_interval))
-                break;
-            YieldToMain();
-            countdown -= def_yieldgui_interval;
-        } while (countdown.GetMilliseconds() > 0);
-
-        return countdown.GetMilliseconds() > 0;
-    }
-#else
     return WaitWithoutYield(timeout);
-#endif
 }
 
 // Performs an uncancellable wait on a semaphore; restoring the thread's previous cancel state

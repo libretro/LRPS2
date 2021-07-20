@@ -20,9 +20,6 @@
 #include "Utilities/IniInterface.h"
 #include "Config.h"
 #include "GS.h"
-#if wxUSE_GUI
-#include "gui/GSFrame.h"
-#endif
 void TraceLogFilters::LoadSave( IniInterface& ini )
 {
 	ScopedIniGroup path( ini, L"TraceLog" );

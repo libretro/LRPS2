@@ -25,15 +25,9 @@
 // does cache an instance of the traits, so the object construction need not be trivial
 // (translation: it can be complicated-ish -- it won't affect performance).
 //
-#if wxUSE_GUI
-class Pcsx2AppTraits : public wxGUIAppTraits
-{
-    typedef wxGUIAppTraits _parent;
-#else
 class Pcsx2AppTraits : public wxConsoleAppTraits
 {
     typedef wxConsoleAppTraits _parent;
-#endif
 public:
     virtual ~Pcsx2AppTraits() {}
     wxMessageOutput *CreateMessageOutput();

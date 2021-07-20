@@ -61,33 +61,15 @@ DEV9about()
 EXPORT_C_(void)
 DEV9configure()
 {
-#ifndef __LIBRETRO__
-    const std::string ini_path = s_strIniPath + "/Dev9null.ini";
-    LoadConfig(ini_path);
-    ConfigureLogging();
-    SaveConfig(ini_path);
-#endif
 }
 
 void DEV9LogInit()
 {
-#ifndef __LIBRETRO__
-    const std::string LogFile(s_strLogPath + "/dev9null.log");
-    g_plugin_log.Open(LogFile);
-#endif
 }
 
 EXPORT_C_(void)
 DEV9setLogDir(const char *dir)
 {
-#ifndef __LIBRETRO__
-    // Get the path to the log directory.
-    s_strLogPath = (dir == NULL) ? "logs" : dir;
-
-    // Reload the log file after updated the path
-    g_plugin_log.Close();
-    DEV9LogInit();
-#endif
 }
 #ifndef BUILTIN_DEV9_PLUGIN
 EXPORT_C_(u32)

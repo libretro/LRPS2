@@ -189,36 +189,5 @@ wxString Path::GetRootDirectory(const wxString &src)
     size_t pos = src.find_first_of(wxFileName::GetPathSeparators());
     if (pos == wxString::npos)
         return wxString();
-    else
-        return wxString(src.begin(), src.begin() + pos);
+    return wxString(src.begin(), src.begin() + pos);
 }
-#if wxUSE_GUI
-// ------------------------------------------------------------------------
-// Launches the specified file according to its mime type
-//
-void pxLaunch(const wxString &filename)
-{
-    wxLaunchDefaultBrowser(filename);
-}
-
-void pxLaunch(const char *filename)
-{
-    pxLaunch(fromUTF8(filename));
-}
-
-// ------------------------------------------------------------------------
-// Launches a file explorer window on the specified path.  If the given path is not
-// a qualified URI (with a prefix:// ), file:// is automatically prepended.  This
-// bypasses wxWidgets internal filename checking, which can end up launching things
-// through browser more often than desired.
-//
-void pxExplore(const wxString &path)
-{
-    wxLaunchDefaultBrowser(!path.Contains(L"://") ? L"file://" + path : path);
-}
-
-void pxExplore(const char *path)
-{
-    pxExplore(fromUTF8(path));
-}
-#endif

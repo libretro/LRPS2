@@ -21,9 +21,6 @@
 #include "GS.h"
 #include "Gif_Unit.h"
 #include "Counters.h"
-#if wxUSE_GUI
-#include "GSFrame.h"
-#endif
 
 using namespace Threading;
 using namespace R5900;
