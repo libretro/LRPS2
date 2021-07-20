@@ -42,8 +42,6 @@ void Pcsx2App::DetectCpuAndUserMode()
 	}
 #endif
 
-	EstablishAppUserMode();
-
 	// force unload plugins loaded by the wizard.  If we don't do this the recompilers might
 	// fail to allocate the memory they need to function.
 #ifdef __LIBRETRO__
