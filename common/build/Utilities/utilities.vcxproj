@@ -64,14 +64,12 @@
     <ClCompile Include="..\..\src\Utilities\AlignedMalloc.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\src\Utilities\CheckedStaticBox.cpp" />
     <ClCompile Include="..\..\src\Utilities\Console.cpp" />
     <ClCompile Include="..\..\src\Utilities\Exceptions.cpp" />
     <ClCompile Include="..\..\src\Utilities\FastFormatString.cpp" />
     <ClCompile Include="..\..\src\Utilities\IniInterface.cpp" />
     <ClCompile Include="..\..\src\Utilities\pxStreams.cpp" />
     <ClCompile Include="..\..\src\Utilities\pxTranslate.cpp" />
-    <ClCompile Include="..\..\src\Utilities\pxWindowTextWriter.cpp" />
     <ClCompile Include="..\..\src\Utilities\ThreadingDialogs.cpp" />
     <ClCompile Include="..\..\src\Utilities\VirtualMemory.cpp" />
     <ClCompile Include="..\..\src\Utilities\x86\MemcpyFast.cpp">
@@ -82,9 +80,6 @@
     <ClCompile Include="..\..\src\Utilities\PrecompiledHeader.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\..\src\Utilities\pxCheckBox.cpp" />
-    <ClCompile Include="..\..\src\Utilities\pxRadioPanel.cpp" />
-    <ClCompile Include="..\..\src\Utilities\pxStaticText.cpp" />
     <ClCompile Include="..\..\src\Utilities\StringHelpers.cpp" />
     <ClCompile Include="..\..\src\Utilities\wxAppWithHelpers.cpp" />
     <ClCompile Include="..\..\src\Utilities\wxGuiTools.cpp" />
@@ -110,12 +105,10 @@
     <None Include="..\..\include\Utilities\EventSource.inl" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\Utilities\EmbeddedImage.h" />
     <ClInclude Include="..\..\include\Utilities\boost_spsc_queue.hpp" />
     <ClInclude Include="..\..\include\Utilities\ScopedAlloc.h" />
     <ClInclude Include="..\..\src\Utilities\ThreadingInternal.h" />
     <ClInclude Include="..\..\include\Utilities\Assertions.h" />
-    <ClInclude Include="..\..\include\Utilities\CheckedStaticBox.h" />
     <ClInclude Include="..\..\include\Utilities\Console.h" />
     <ClInclude Include="..\..\include\Utilities\Dependencies.h" />
     <ClInclude Include="..\..\include\Utilities\EventSource.h" />
@@ -127,10 +120,7 @@
     <ClInclude Include="..\..\include\Utilities\MemcpyFast.h" />
     <ClInclude Include="..\..\include\Utilities\Path.h" />
     <ClInclude Include="..\..\src\Utilities\PrecompiledHeader.h" />
-    <ClInclude Include="..\..\include\Utilities\pxCheckBox.h" />
     <ClInclude Include="..\..\include\Utilities\pxEvents.h" />
-    <ClInclude Include="..\..\include\Utilities\pxRadioPanel.h" />
-    <ClInclude Include="..\..\include\Utilities\pxStaticText.h" />
     <ClInclude Include="..\..\include\Utilities\RedtapeWindows.h" />
     <ClInclude Include="..\..\include\Utilities\SafeArray.h" />
     <ClInclude Include="..\..\include\Utilities\StringHelpers.h" />

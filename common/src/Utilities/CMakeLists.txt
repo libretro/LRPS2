@@ -44,7 +44,6 @@ set(UtilitiesFinalFlags ${CommonFlags})
 set(UtilitiesHeaders
 	../../include/Utilities/Assertions.h
 	../../include/Utilities/boost_spsc_queue.hpp
-	../../include/Utilities/CheckedStaticBox.h
 	../../include/Utilities/Console.h
 	../../include/Utilities/Dependencies.h
 	../../include/Utilities/EventSource.h
@@ -56,10 +55,7 @@ set(UtilitiesHeaders
 	../../include/Utilities/MemsetFast.inl
 	../../include/Utilities/Path.h
 	../../include/Utilities/PageFaultSource.h
-	../../include/Utilities/pxCheckBox.h
 	../../include/Utilities/pxForwardDefs.h
-	../../include/Utilities/pxRadioPanel.h
-	../../include/Utilities/pxStaticText.h
 	../../include/Utilities/pxStreams.h
 	../../include/Utilities/RedtapeWindows.h
 	../../include/Utilities/RwMutex.h
@@ -68,7 +64,6 @@ set(UtilitiesHeaders
 	../../include/Utilities/ScopedPtrMT.h
 	../../include/Utilities/StringHelpers.h
 	../../include/Utilities/Threading.h
-	../../include/Utilities/ThreadingDialogs.h
 	../../include/Utilities/TraceLog.h
 	../../include/Utilities/wxAppWithHelpers.h
 	../../include/Utilities/wxBaseTools.h

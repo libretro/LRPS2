@@ -417,19 +417,9 @@ void Threading::pxThread::RethrowException() const
         ptr->Rethrow();
 }
 
-static bool m_BlockDeletions = false;
-
-bool Threading::AllowDeletions()
-{
-    AffinityAssert_AllowFrom_MainUI();
-    return !m_BlockDeletions;
-}
-
 void Threading::YieldToMain()
 {
-    m_BlockDeletions = true;
     wxTheApp->Yield(true);
-    m_BlockDeletions = false;
 }
 
 void Threading::pxThread::_selfRunningTest(const wxChar *name) const
@@ -706,41 +696,6 @@ void Threading::pxThread::_DoSetThreadName(const wxString &name)
 {
     _DoSetThreadName(static_cast<const char *>(name.ToUTF8()));
 }
-
-// --------------------------------------------------------------------------------------
-//  pthread Cond is an evil api that is not suited for Pcsx2 needs.
-//  Let's not use it. (Air)
-// --------------------------------------------------------------------------------------
-
-#if 0
-Threading::WaitEvent::WaitEvent()
-{
-	int err = 0;
-
-	err = pthread_cond_init(&cond, NULL);
-	err = pthread_mutex_init(&mutex, NULL);
-}
-
-Threading::WaitEvent::~WaitEvent()
-{
-	pthread_cond_destroy( &cond );
-	pthread_mutex_destroy( &mutex );
-}
-
-void Threading::WaitEvent::Set()
-{
-	pthread_mutex_lock( &mutex );
-	pthread_cond_signal( &cond );
-	pthread_mutex_unlock( &mutex );
-}
-
-void Threading::WaitEvent::Wait()
-{
-	pthread_mutex_lock( &mutex );
-	pthread_cond_wait( &cond, &mutex );
-	pthread_mutex_unlock( &mutex );
-}
-#endif
 
 // --------------------------------------------------------------------------------------
 //  BaseThreadError
