@@ -10,20 +10,6 @@
 #ifndef _WX_DISPLAY_H_BASE_
 #define _WX_DISPLAY_H_BASE_
 
-// NB: no #if wxUSE_DISPLAY here, the display geometry part of this class (but
-//     not the video mode stuff) is always available but if wxUSE_DISPLAY == 0
-//     it becomes just a trivial wrapper around the old wxDisplayXXX() functions
-
-#if wxUSE_DISPLAY
-    #include "wx/dynarray.h"
-    #include "wx/vidmode.h"
-
-    WX_DECLARE_EXPORTED_OBJARRAY(wxVideoMode, wxArrayVideoModes);
-
-    // default, uninitialized, video mode object
-    extern WXDLLIMPEXP_DATA_CORE(const wxVideoMode) wxDefaultVideoMode;
-#endif // wxUSE_DISPLAY
-
 class WXDLLIMPEXP_FWD_CORE wxWindow;
 class WXDLLIMPEXP_FWD_CORE wxPoint;
 class WXDLLIMPEXP_FWD_CORE wxRect;
@@ -78,30 +64,6 @@ public:
 
     // display 0 is usually the primary display
     bool IsPrimary() const;
-
-
-#if wxUSE_DISPLAY
-    // enumerate all video modes supported by this display matching the given
-    // one (in the sense of wxVideoMode::Match())
-    //
-    // as any mode matches the default value of the argument and there is
-    // always at least one video mode supported by display, the returned array
-    // is only empty for the default value of the argument if this function is
-    // not supported at all on this platform
-    wxArrayVideoModes
-        GetModes(const wxVideoMode& mode = wxDefaultVideoMode) const;
-
-    // get current video mode
-    wxVideoMode GetCurrentMode() const;
-
-    // change current mode, return true if succeeded, false otherwise
-    //
-    // for the default value of the argument restores the video mode to default
-    bool ChangeMode(const wxVideoMode& mode = wxDefaultVideoMode);
-
-    // restore the default video mode (just a more readable synonym)
-    void ResetMode() { (void)ChangeMode(); }
-#endif // wxUSE_DISPLAY
 
 private:
     // returns the factory used to implement our static methods and create new

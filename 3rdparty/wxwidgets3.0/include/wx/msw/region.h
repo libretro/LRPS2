@@ -20,18 +20,6 @@ public:
     wxRegion(const wxRect& rect);
     wxRegion(WXHRGN hRegion); // Hangs on to this region
     wxRegion(size_t n, const wxPoint *points, wxPolygonFillMode fillStyle = wxODDEVEN_RULE );
-#if wxUSE_IMAGE
-    wxRegion( const wxBitmap& bmp)
-    {
-        Union(bmp);
-    }
-    wxRegion( const wxBitmap& bmp,
-              const wxColour& transColour, int tolerance = 0)
-    {
-        Union(bmp, transColour, tolerance);
-    }
-#endif // wxUSE_IMAGE
-
     virtual ~wxRegion();
 
     // wxRegionBase methods

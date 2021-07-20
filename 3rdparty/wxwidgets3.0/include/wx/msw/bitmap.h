@@ -21,9 +21,6 @@ class WXDLLIMPEXP_FWD_CORE wxBitmapRefData;
 class WXDLLIMPEXP_FWD_CORE wxControl;
 class WXDLLIMPEXP_FWD_CORE wxCursor;
 class WXDLLIMPEXP_FWD_CORE wxDC;
-#if wxUSE_WXDIB
-class WXDLLIMPEXP_FWD_CORE wxDIB;
-#endif
 class WXDLLIMPEXP_FWD_CORE wxIcon;
 class WXDLLIMPEXP_FWD_CORE wxMask;
 class WXDLLIMPEXP_FWD_CORE wxPalette;
@@ -79,16 +76,6 @@ public:
     // Create a bitmap compatible with the given DC
     wxBitmap(int width, int height, const wxDC& dc);
 
-#if wxUSE_IMAGE
-    // Convert from wxImage
-    wxBitmap(const wxImage& image, int depth = -1)
-        { (void)CreateFromImage(image, depth); }
-
-    // Create a DDB compatible with the given DC from wxImage
-    wxBitmap(const wxImage& image, const wxDC& dc)
-        { (void)CreateFromImage(image, dc); }
-#endif // wxUSE_IMAGE
-
     // we must have this, otherwise icons are silently copied into bitmaps using
     // the copy ctor but the resulting bitmap is invalid!
     wxBitmap(const wxIcon& icon,
@@ -113,11 +100,6 @@ public:
 
     virtual ~wxBitmap();
 
-#if wxUSE_IMAGE
-    wxImage ConvertToImage() const;
-    wxBitmap ConvertToDisabled(unsigned char brightness = 255) const;
-#endif // wxUSE_IMAGE
-
     // get the given part of bitmap
     wxBitmap GetSubBitmap( const wxRect& rect ) const;
 
@@ -132,13 +114,6 @@ public:
     // copies the contents and mask of the given cursor to the bitmap
     bool CopyFromCursor(const wxCursor& cursor,
                         wxBitmapTransparency transp = wxBitmapTransparency_Auto);
-
-#if wxUSE_WXDIB
-    // copies from a device independent bitmap
-    bool CopyFromDIB(const wxDIB& dib);
-    bool IsDIB() const;
-    bool ConvertToDIB();
-#endif
 
     virtual bool Create(int width, int height, int depth = wxBITMAP_SCREEN_DEPTH);
     virtual bool Create(const wxSize& sz, int depth = wxBITMAP_SCREEN_DEPTH)
@@ -158,11 +133,6 @@ public:
     // raw bitmap access support functions
     void *GetRawData(wxPixelDataBase& data, int bpp);
     void UngetRawData(wxPixelDataBase& data);
-
-#if wxUSE_PALETTE
-    wxPalette* GetPalette() const;
-    void SetPalette(const wxPalette& palette);
-#endif // wxUSE_PALETTE
 
     wxMask *GetMask() const;
     void SetMask(wxMask *mask);
@@ -200,17 +170,6 @@ protected:
 
     // creates an uninitialized bitmap, called from Create()s above
     bool DoCreate(int w, int h, int depth, WXHDC hdc);
-
-#if wxUSE_IMAGE
-    // creates the bitmap from wxImage, supposed to be called from ctor
-    bool CreateFromImage(const wxImage& image, int depth);
-
-    // creates a DDB from wxImage, supposed to be called from ctor
-    bool CreateFromImage(const wxImage& image, const wxDC& dc);
-
-    // common part of the 2 methods above (hdc may be 0)
-    bool CreateFromImage(const wxImage& image, int depth, WXHDC hdc);
-#endif // wxUSE_IMAGE
 
 private:
     // common part of CopyFromIcon/CopyFromCursor for Win32

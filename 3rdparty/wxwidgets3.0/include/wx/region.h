@@ -127,16 +127,6 @@ public:
     bool Union(const wxRegion& region)
         { return DoUnionWithRegion(region); }
 
-#if wxUSE_IMAGE
-    // Use the non-transparent pixels of a wxBitmap for the region to combine
-    // with this region.  First version takes transparency from bitmap's mask,
-    // second lets the user specify the colour to be treated as transparent
-    // along with an optional tolerance value.
-    // NOTE: implemented in common/rgncmn.cpp
-    bool Union(const wxBitmap& bmp);
-    bool Union(const wxBitmap& bmp, const wxColour& transp, int tolerance = 0);
-#endif // wxUSE_IMAGE
-
     // Intersect rectangle or region with this one.
     bool Intersect(wxCoord x, wxCoord y, wxCoord w, wxCoord h);
     bool Intersect(const wxRect& rect);

@@ -13,10 +13,7 @@
 
 #include "wx/defs.h"
 
-#ifndef wxHAS_NATIVE_TAB_TRAVERSAL
-    // We need wxEVT_XXX declarations in this case.
-    #include "wx/event.h"
-#endif
+#include "wx/event.h"
 
 class WXDLLIMPEXP_FWD_CORE wxWindow;
 class WXDLLIMPEXP_FWD_CORE wxWindowBase;
@@ -126,21 +123,6 @@ private:
     bool m_inSetFocus;
 };
 
-#ifdef wxHAS_NATIVE_TAB_TRAVERSAL
-
-// ----------------------------------------------------------------------------
-// wxControlContainer for native TAB navigation
-// ----------------------------------------------------------------------------
-
-// this must be a real class as we forward-declare it elsewhere
-class WXDLLIMPEXP_CORE wxControlContainer : public wxControlContainerBase
-{
-protected:
-    // set the focus to the child which had it the last time
-    virtual bool SetFocusToChild();
-};
-
-#else // !wxHAS_NATIVE_TAB_TRAVERSAL
 
 // ----------------------------------------------------------------------------
 // wxControlContainer for TAB navigation implemented in wx itself
@@ -166,8 +148,6 @@ protected:
     wxDECLARE_NO_COPY_CLASS(wxControlContainer);
 };
 
-#endif // wxHAS_NATIVE_TAB_TRAVERSAL/!wxHAS_NATIVE_TAB_TRAVERSAL
-
 // this function is for wxWidgets internal use only
 extern WXDLLIMPEXP_CORE bool wxSetFocusToChild(wxWindow *win, wxWindow **child);
 
@@ -188,7 +168,6 @@ public:
     {
         m_container.SetContainerWindow(this);
 
-#ifndef wxHAS_NATIVE_TAB_TRAVERSAL
         BaseWindowClass::Connect(wxEVT_NAVIGATION_KEY,
                 wxNavigationKeyEventHandler(wxNavigationEnabled::OnNavigationKey));
 
@@ -197,7 +176,6 @@ public:
 
         BaseWindowClass::Connect(wxEVT_CHILD_FOCUS,
                 wxChildFocusEventHandler(wxNavigationEnabled::OnChildFocus));
-#endif // !wxHAS_NATIVE_TAB_TRAVERSAL
     }
 
     WXDLLIMPEXP_INLINE_CORE virtual bool AcceptsFocus() const
@@ -230,9 +208,7 @@ public:
 
     WXDLLIMPEXP_INLINE_CORE virtual void RemoveChild(wxWindowBase *child)
     {
-#ifndef wxHAS_NATIVE_TAB_TRAVERSAL
         m_container.HandleOnWindowDestroy(child);
-#endif // !wxHAS_NATIVE_TAB_TRAVERSAL
 
         BaseWindowClass::RemoveChild(child);
 
@@ -253,7 +229,6 @@ public:
     }
 
 protected:
-#ifndef wxHAS_NATIVE_TAB_TRAVERSAL
     void OnNavigationKey(wxNavigationKeyEvent& event)
     {
         m_container.HandleOnNavigationKey(event);
@@ -269,7 +244,6 @@ protected:
         m_container.SetLastFocus(event.GetWindow());
         event.Skip();
     }
-#endif // !wxHAS_NATIVE_TAB_TRAVERSAL
 
     wxControlContainer m_container;
 
@@ -335,29 +309,6 @@ protected:                                                                    \
     }
 
 
-#ifdef wxHAS_NATIVE_TAB_TRAVERSAL
-
-#define WX_EVENT_TABLE_CONTROL_CONTAINER(classname)
-
-#define WX_DECLARE_CONTROL_CONTAINER WX_DECLARE_CONTROL_CONTAINER_BASE
-
-#define WX_DELEGATE_TO_CONTROL_CONTAINER(classname, basename)                 \
-    WX_DELEGATE_TO_CONTROL_CONTAINER_BASE(classname, basename)                \
-                                                                              \
-    void classname::RemoveChild(wxWindowBase *child)                          \
-    {                                                                         \
-        basename::RemoveChild(child);                                         \
-                                                                              \
-        m_container.UpdateCanFocusChildren();                                 \
-    }                                                                         \
-                                                                              \
-    void classname::SetFocusIgnoringChildren()                                \
-    {                                                                         \
-        basename::SetFocus();                                                 \
-    }
-
-#else // !wxHAS_NATIVE_TAB_TRAVERSAL
-
 // declare the methods to be forwarded
 #define WX_DECLARE_CONTROL_CONTAINER()                                        \
     WX_DECLARE_CONTROL_CONTAINER_BASE();                                      \
@@ -406,8 +357,6 @@ public:                                                                       \
     {                                                                         \
         m_container.HandleOnFocus(event);                                     \
     }
-
-#endif // wxHAS_NATIVE_TAB_TRAVERSAL/!wxHAS_NATIVE_TAB_TRAVERSAL
 
 #endif // WXWIN_COMPATIBILITY_2_8
 

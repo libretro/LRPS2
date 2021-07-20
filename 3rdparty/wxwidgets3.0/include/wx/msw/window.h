@@ -118,10 +118,6 @@ public:
                                              wxCoord width,
                                              wxCoord widthTotal) const;
 
-#if wxUSE_DRAG_AND_DROP
-    virtual void SetDropTarget( wxDropTarget *dropTarget );
-#endif // wxUSE_DRAG_AND_DROP
-
     // Accept files for dragging
     virtual void DragAcceptFiles(bool accept);
 
@@ -133,12 +129,6 @@ public:
     wxWindow* GetWindowChild1(wxWindowID id);
     wxWindow* GetWindowChild(wxWindowID id);
 #endif // __WXUNIVERSAL__
-
-#if wxUSE_HOTKEY
-    // install and deinstall a system wide hotkey
-    virtual bool RegisterHotKey(int hotkeyId, int modifiers, int keycode);
-    virtual bool UnregisterHotKey(int hotkeyId);
-#endif // wxUSE_HOTKEY
 
 #ifdef __POCKETPC__
     bool IsContextMenuEnabled() const { return m_contextMenuEnabled; }
@@ -211,11 +201,6 @@ public:
 
     // MSW only: true if this control is part of the main control
     virtual bool ContainsHWND(WXHWND WXUNUSED(hWnd)) const { return false; }
-
-#if wxUSE_TOOLTIPS
-    // MSW only: true if this window or any of its children have a tooltip
-    virtual bool HasToolTips() const { return GetToolTip() != NULL; }
-#endif // wxUSE_TOOLTIPS
 
     // translate wxWidgets style flags for this control into the Windows style
     // and optional extended style for the corresponding native control
@@ -353,9 +338,6 @@ public:
     bool HandleChar(WXWPARAM wParam, WXLPARAM lParam);
     bool HandleKeyDown(WXWPARAM wParam, WXLPARAM lParam);
     bool HandleKeyUp(WXWPARAM wParam, WXLPARAM lParam);
-#if wxUSE_HOTKEY
-    bool HandleHotKey(WXWPARAM wParam, WXLPARAM lParam);
-#endif
 #ifdef __WIN32__
     int HandleMenuChar(int chAccel, WXLPARAM lParam);
 #endif
@@ -549,10 +531,6 @@ protected:
     // that makes most sense for this Windows environment
     virtual wxBorder TranslateBorder(wxBorder border) const;
 
-#if wxUSE_MENUS_NATIVE
-    virtual bool DoPopupMenu( wxMenu *menu, int x, int y );
-#endif // wxUSE_MENUS_NATIVE
-
     // the window handle
     WXHWND                m_hWnd;
 
@@ -606,16 +584,6 @@ protected:
     // ::MoveWindow() except for composite controls which will want to arrange
     // themselves inside the given rectangle
     virtual void DoMoveWindow(int x, int y, int width, int height);
-
-#if wxUSE_TOOLTIPS
-    virtual void DoSetToolTip( wxToolTip *tip );
-
-    // process TTN_NEEDTEXT message properly (i.e. fixing the bugs in
-    // comctl32.dll in our code -- see the function body for more info)
-    bool HandleTooltipNotify(WXUINT code,
-                             WXLPARAM lParam,
-                             const wxString& ttip);
-#endif // wxUSE_TOOLTIPS
 
     // This is used by CreateKeyEvent() and also for wxEVT_CHAR[_HOOK] event
     // creation. Notice that this method doesn't initialize wxKeyEvent

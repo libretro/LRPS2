@@ -25,15 +25,6 @@
 
 #include <string.h>
 
-#if wxUSE_DEBUG_CONTEXT
-    #if defined(__VISAGECPP__)
-        #define DEBUG_PRINTF(NAME) { static int raz=0; \
-            printf( #NAME " %i\n",raz); fflush(stdout); raz++; }
-    #else
-        #define DEBUG_PRINTF(NAME)
-    #endif
-#endif // wxUSE_DEBUG_CONTEXT
-
 // we must disable optimizations for VC.NET because otherwise its too eager
 // linker discards wxClassInfo objects in release build thus breaking many,
 // many things
@@ -41,29 +32,9 @@
     #pragma optimize("", off)
 #endif
 
-#if wxUSE_EXTENDED_RTTI
-const wxClassInfo* wxObject::ms_classParents[] = { NULL } ;
-wxObject* wxVariantOfPtrToObjectConverterwxObject ( const wxAny &data )
-{ return wxANY_AS(data, wxObject*); }
- wxAny wxObjectToVariantConverterwxObject ( wxObject *data )
- { return wxAny( dynamic_cast<wxObject*> (data)  ) ; }
-
- wxClassInfo wxObject::ms_classInfo(ms_classParents , wxEmptyString , wxT("wxObject"),
-            (int) sizeof(wxObject),                              \
-            (wxObjectConstructorFn) 0   ,
-            NULL,NULL,0 , 0 ,
-            0 , wxVariantOfPtrToObjectConverterwxObject , 0 , wxObjectToVariantConverterwxObject);
-
- template<> void wxStringWriteValue(wxString & , wxObject* const & ){ wxFAIL_MSG("unreachable"); }
- template<> void wxStringWriteValue(wxString & , wxObject const & ){ wxFAIL_MSG("unreachable"); }
-
- wxClassTypeInfo s_typeInfo(wxT_OBJECT_PTR , &wxObject::ms_classInfo , NULL , NULL , typeid(wxObject*).name() ) ;
- wxClassTypeInfo s_typeInfowxObject(wxT_OBJECT , &wxObject::ms_classInfo , NULL , NULL , typeid(wxObject).name() ) ;
-#else
 wxClassInfo wxObject::ms_classInfo( wxT("wxObject"), 0, 0,
                                         (int) sizeof(wxObject),
                                         (wxObjectConstructorFn) 0 );
-#endif
 
 // restore optimizations
 #if defined __VISUALC__ && __VISUALC__ >= 1300
@@ -79,14 +50,11 @@ wxHashTable* wxClassInfo::sm_classTable = NULL;
 // all wx classes and this solves linking problems for HP-UX native toolchain
 // and possibly others (we could make dtor non-inline as well but it's more
 // useful to keep it inline than this function)
-#if !wxUSE_EXTENDED_RTTI
 
 wxClassInfo *wxObject::GetClassInfo() const
 {
     return &wxObject::ms_classInfo;
 }
-
-#endif // wxUSE_EXTENDED_RTTI
 
 // this variable exists only so that we can avoid 'always true/false' warnings
 const bool wxFalse = false;
@@ -100,11 +68,6 @@ bool wxObject::IsKindOf(const wxClassInfo *info) const
     const wxClassInfo *thisInfo = GetClassInfo();
     return (thisInfo) ? thisInfo->IsKindOf(info) : false ;
 }
-
-#if wxUSE_MEMORY_TRACING && defined( new )
-    #undef new
-#endif
-
 
 #ifdef _WX_WANT_NEW_SIZET_WXCHAR_INT
 void *wxObject::operator new ( size_t size, const wxChar *fileName, int lineNum )
@@ -288,10 +251,6 @@ void wxClassInfo::Unregister()
 
 wxObject *wxCreateDynamicObject(const wxString& name)
 {
-#if wxUSE_DEBUG_CONTEXT
-    DEBUG_PRINTF(wxObject *wxCreateDynamicObject)
-#endif
-
     if ( wxClassInfo::sm_classTable )
     {
         wxClassInfo *info = (wxClassInfo *)wxClassInfo::sm_classTable->Get(name);
@@ -362,10 +321,6 @@ void wxRefCounter::DecRef()
 
 void wxObject::Ref(const wxObject& clone)
 {
-#if wxUSE_DEBUG_CONTEXT
-    DEBUG_PRINTF(wxObject::Ref)
-#endif
-
     // nothing to be done
     if (m_refData == clone.m_refData)
         return;

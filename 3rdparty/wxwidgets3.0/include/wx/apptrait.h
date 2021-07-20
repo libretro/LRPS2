@@ -17,9 +17,6 @@
 class WXDLLIMPEXP_FWD_BASE wxArrayString;
 class WXDLLIMPEXP_FWD_BASE wxConfigBase;
 class WXDLLIMPEXP_FWD_BASE wxEventLoopBase;
-#if wxUSE_FONTMAP
-    class WXDLLIMPEXP_FWD_CORE wxFontMapper;
-#endif // wxUSE_FONTMAP
 class WXDLLIMPEXP_FWD_BASE wxLog;
 class WXDLLIMPEXP_FWD_BASE wxMessageOutput;
 class WXDLLIMPEXP_FWD_BASE wxObject;
@@ -52,18 +49,8 @@ public:
     virtual wxConfigBase *CreateConfig();
 #endif // wxUSE_CONFIG
 
-#if wxUSE_LOG
-    // create the default log target
-    virtual wxLog *CreateLogTarget() = 0;
-#endif // wxUSE_LOG
-
     // create the global object used for printing out messages
     virtual wxMessageOutput *CreateMessageOutput() = 0;
-
-#if wxUSE_FONTMAP
-    // create the global font mapper object used for encodings/charset mapping
-    virtual wxFontMapper *CreateFontMapper() = 0;
-#endif // wxUSE_FONTMAP
 
     // get the renderer to use for drawing the generic controls (return value
     // may be NULL in which case the default renderer for the current platform
@@ -91,24 +78,6 @@ public:
 
     // return true if fprintf(stderr) goes somewhere, false otherwise
     virtual bool HasStderr() = 0;
-
-#if wxUSE_SOCKETS
-    // this function is used by wxNet library to set the default socket manager
-    // to use: doing it like this allows us to keep all socket-related code in
-    // wxNet instead of having to pull it in wxBase itself as we'd have to do
-    // if we really implemented wxSocketManager here
-    //
-    // we don't take ownership of this pointer, it should have a lifetime
-    // greater than that of any socket (e.g. be a pointer to a static object)
-    static void SetDefaultSocketManager(wxSocketManager *manager)
-    {
-        ms_manager = manager;
-    }
-
-    // return socket manager: this is usually different for console and GUI
-    // applications (although some ports use the same implementation for both)
-    virtual wxSocketManager *GetSocketManager() { return ms_manager; }
-#endif
 
     // create a new, port specific, instance of the event loop used by wxApp
     virtual wxEventLoopBase *CreateEventLoop() = 0;
@@ -151,14 +120,6 @@ public:
 
         return wxEmptyString;
     }
-
-
-protected:
-#if wxUSE_STACKWALKER
-    // utility function: returns the stack frame as a plain wxString
-    virtual wxString GetAssertStackTrace();
-#endif
-
 private:
     static wxSocketManager *ms_manager;
 };
@@ -198,13 +159,7 @@ public:
     virtual wxEventLoopBase *CreateEventLoop() { return NULL; }
 #endif // !wxUSE_CONSOLE_EVENTLOOP
 
-#if wxUSE_LOG
-    virtual wxLog *CreateLogTarget();
-#endif // wxUSE_LOG
     virtual wxMessageOutput *CreateMessageOutput();
-#if wxUSE_FONTMAP
-    virtual wxFontMapper *CreateFontMapper();
-#endif // wxUSE_FONTMAP
     virtual wxRendererNative *CreateRenderer();
 
     virtual bool ShowAssertDialog(const wxString& msg);
@@ -226,41 +181,6 @@ public:
 };
 
 // ----------------------------------------------------------------------------
-// wxGUIAppTraitsBase: wxAppTraits implementation for the GUI apps
-// ----------------------------------------------------------------------------
-
-#if wxUSE_GUI
-
-class WXDLLIMPEXP_CORE wxGUIAppTraitsBase : public wxAppTraits
-{
-public:
-#if wxUSE_LOG
-    virtual wxLog *CreateLogTarget();
-#endif // wxUSE_LOG
-    virtual wxMessageOutput *CreateMessageOutput();
-#if wxUSE_FONTMAP
-    virtual wxFontMapper *CreateFontMapper();
-#endif // wxUSE_FONTMAP
-    virtual wxRendererNative *CreateRenderer();
-
-    virtual bool ShowAssertDialog(const wxString& msg);
-    virtual bool HasStderr();
-
-    virtual bool IsUsingUniversalWidgets() const
-    {
-    #ifdef __WXUNIVERSAL__
-        return true;
-    #else
-        return false;
-    #endif
-    }
-
-    virtual wxString GetDesktopEnvironment() const { return wxEmptyString; }
-};
-
-#endif // wxUSE_GUI
-
-// ----------------------------------------------------------------------------
 // include the platform-specific version of the classes above
 // ----------------------------------------------------------------------------
 
@@ -274,11 +194,6 @@ public:
 #elif defined(__DOS__)
     #include "wx/msdos/apptrait.h"
 #else
-    #if wxUSE_GUI
-        class wxGUIAppTraits : public wxGUIAppTraitsBase
-        {
-        };
-    #endif // wxUSE_GUI
     class wxConsoleAppTraits: public wxConsoleAppTraitsBase
     {
     };

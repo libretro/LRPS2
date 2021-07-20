@@ -12,8 +12,6 @@
 #ifndef _WX_RTTIH__
 #define _WX_RTTIH__
 
-#if !wxUSE_EXTENDED_RTTI     // XTI system is meant to replace these macros
-
 // ----------------------------------------------------------------------------
 // headers
 // ----------------------------------------------------------------------------
@@ -315,5 +313,4 @@ WXDLLIMPEXP_BASE wxObject *wxCreateDynamicObject(const wxString& name);
 
 #define wxEMPTY_HANDLERS_TABLE(name) wxEMPTY_PARAMETER_VALUE
 
-#endif // !wxUSE_EXTENDED_RTTI
 #endif // _WX_RTTIH__

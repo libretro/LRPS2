@@ -76,25 +76,6 @@
 #endif
 
 // Needed by window.cpp
-#if wxUSE_MOUSEWHEEL
-    #ifndef WM_MOUSEWHEEL
-        #define WM_MOUSEWHEEL           0x020A
-    #endif
-    #ifndef WM_MOUSEHWHEEL
-        #define WM_MOUSEHWHEEL          0x020E
-    #endif
-    #ifndef WHEEL_DELTA
-        #define WHEEL_DELTA             120
-    #endif
-    #ifndef SPI_GETWHEELSCROLLLINES
-        #define SPI_GETWHEELSCROLLLINES 104
-    #endif
-    #ifndef SPI_GETWHEELSCROLLCHARS
-        #define SPI_GETWHEELSCROLLCHARS 108
-    #endif
-#endif // wxUSE_MOUSEWHEEL
-
-// Needed by window.cpp
 #ifndef VK_OEM_1
     #define VK_OEM_1        0xBA
     #define VK_OEM_2        0xBF

@@ -5,8 +5,6 @@ set(wxUnixSources
    src/unix/dlunix.cpp
    src/unix/evtloopunix.cpp
    src/unix/epolldispatcher.cpp
-   src/unix/fdiounix.cpp
-   src/unix/stackwalk.cpp
    src/unix/stdpaths.cpp
    src/unix/threadpsx.cpp
    src/unix/timerunx.cpp
@@ -19,28 +17,19 @@ endif()
 if(WIN32)
 set(wxWindowsSources
    src/msw/basemsw.cpp
-   src/msw/crashrpt.cpp
-   src/msw/dde.cpp
-   src/msw/debughlp.cpp
    src/msw/dir.cpp
    src/msw/dlmsw.cpp
    src/msw/evtloopconsole.cpp
-   src/msw/fswatcher.cpp
    src/msw/main.cpp
-   src/msw/mimetype.cpp
    src/msw/mslu.cpp
-   src/msw/power.cpp
    src/msw/regconf.cpp
    src/msw/registry.cpp
-   src/msw/snglinst.cpp
-   src/msw/stackwalk.cpp
    src/msw/stdpaths.cpp
    src/msw/thread.cpp
    src/msw/timer.cpp
    src/msw/utils.cpp
    src/msw/utilsexc.cpp
    src/msw/volume.cpp
-   src/common/ipcbase.cpp
    )
 endif()
 add_library(wxwidgets
@@ -61,13 +50,11 @@ add_library(wxwidgets
    src/common/fileconf.cpp
    src/common/filefn.cpp
    src/common/filename.cpp
-   src/common/fmapbase.cpp
    src/common/hashmap.cpp
    src/common/init.cpp
    src/common/intl.cpp
    src/common/languageinfo.cpp
    src/common/list.cpp
-   src/common/log.cpp
    src/common/longlong.cpp
    src/common/module.cpp
    src/common/msgout.cpp
@@ -80,8 +67,6 @@ add_library(wxwidgets
    src/common/string.cpp
    src/common/stringimpl.cpp
    src/common/strvararg.cpp
-   src/common/sysopt.cpp
-   src/common/tarstrm.cpp
    src/common/textbuf.cpp
    src/common/textfile.cpp
    src/common/threadinfo.cpp
@@ -96,17 +81,12 @@ add_library(wxwidgets
    src/common/wfstream.cpp
    src/common/wxcrt.cpp
    src/common/xlocale.cpp
-   src/common/zipstrm.cpp
-   src/common/zstream.cpp
-   src/common/any.cpp
-   src/common/archive.cpp
-   src/common/base64.cpp
+   
    src/common/datstrm.cpp
    src/common/encconv.cpp
    src/common/extended.c
    src/common/hash.cpp
    src/common/process.cpp
-   src/common/variant.cpp
    ${wxUnixSources}
    ${wxWindowsSources}
 )

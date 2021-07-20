@@ -11,18 +11,7 @@
 #ifndef _WX_MENU_H_
 #define _WX_MENU_H_
 
-#if wxUSE_ACCEL
-    #include "wx/accel.h"
-    #include "wx/dynarray.h"
-
-    WX_DEFINE_EXPORTED_ARRAY_PTR(wxAcceleratorEntry *, wxAcceleratorArray);
-#endif // wxUSE_ACCEL
-
 class WXDLLIMPEXP_FWD_CORE wxFrame;
-
-#if defined(__WXWINCE__) && wxUSE_TOOLBAR
-class WXDLLIMPEXP_FWD_CORE wxToolBar;
-#endif
 
 class wxMenuRadioItemsData;
 
@@ -86,46 +75,6 @@ public:
     // containing this position.
     bool MSWGetRadioGroupRange(int pos, int *start, int *end) const;
 
-#if wxUSE_ACCEL
-    // called by wxMenuBar to build its accel table from the accels of all menus
-    bool HasAccels() const { return !m_accels.empty(); }
-    size_t GetAccelCount() const { return m_accels.size(); }
-    size_t CopyAccels(wxAcceleratorEntry *accels) const;
-
-    // called by wxMenuItem when its accels changes
-    void UpdateAccel(wxMenuItem *item);
-
-    // helper used by wxMenu itself (returns the index in m_accels)
-    int FindAccel(int id) const;
-
-    // used only by wxMDIParentFrame currently but could be useful elsewhere:
-    // returns a new accelerator table with accelerators for just this menu
-    // (shouldn't be called if we don't have any accelerators)
-    wxAcceleratorTable *CreateAccelTable() const;
-#endif // wxUSE_ACCEL
-
-#if wxUSE_OWNER_DRAWN
-
-    int GetMaxAccelWidth()
-    {
-        if (m_maxAccelWidth == -1)
-            CalculateMaxAccelWidth();
-        return m_maxAccelWidth;
-    }
-
-    void ResetMaxAccelWidth()
-    {
-        m_maxAccelWidth = -1;
-    }
-
-    // get the menu with given handle (recursively)
-    wxMenu* MSWGetMenu(WXHMENU hMenu);
-
-private:
-    void CalculateMaxAccelWidth();
-
-#endif // wxUSE_OWNER_DRAWN
-
 protected:
     virtual wxMenuItem* DoAppend(wxMenuItem *item);
     virtual wxMenuItem* DoInsert(size_t pos, wxMenuItem *item);
@@ -158,22 +107,6 @@ private:
 
     // the menu handle of this menu
     WXHMENU m_hMenu;
-
-#if wxUSE_ACCEL
-    // the accelerators for our menu items
-    wxAcceleratorArray m_accels;
-#endif // wxUSE_ACCEL
-
-#if wxUSE_OWNER_DRAWN
-    // true if the menu has any ownerdrawn items
-    bool m_ownerDrawn;
-
-    // the max width of menu items bitmaps
-    int m_maxBitmapWidth;
-
-    // the max width of menu items accels
-    int m_maxAccelWidth;
-#endif // wxUSE_OWNER_DRAWN
 
     DECLARE_DYNAMIC_CLASS_NO_COPY(wxMenu)
 };
@@ -210,21 +143,10 @@ public:
     virtual void Detach();
     virtual void Attach(wxFrame *frame);
 
-#if defined(__WXWINCE__) && wxUSE_TOOLBAR
-    // Under WinCE, a menubar is owned by the frame's toolbar
-    void SetToolBar(wxToolBar* toolBar) { m_toolBar = toolBar; }
-    wxToolBar* GetToolBar() const { return m_toolBar; }
-#endif
-
 #ifdef WINCE_WITH_COMMANDBAR
     WXHWND GetCommandBar() const { return m_commandBar; }
     bool AddAdornments(long style);
 #endif
-
-#if wxUSE_ACCEL
-    // update the accel table (must be called after adding/deleting a menu)
-    void RebuildAccelTable();
-#endif // wxUSE_ACCEL
 
         // get the menu handle
     WXHMENU GetHMenu() const { return m_hMenu; }
@@ -249,10 +171,6 @@ protected:
     // Return the MSW position for a wxMenu which is sometimes different from
     // the wxWidgets position.
     int MSWPositionForWxMenu(wxMenu *menu, int wxpos);
-
-#if defined(__WXWINCE__) && wxUSE_TOOLBAR
-    wxToolBar*  m_toolBar;
-#endif
 
 #ifdef WINCE_WITH_COMMANDBAR
     WXHWND      m_commandBar;

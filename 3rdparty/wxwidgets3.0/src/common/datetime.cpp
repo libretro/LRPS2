@@ -89,26 +89,6 @@
 #include "wx/datetime.h"
 
 // ----------------------------------------------------------------------------
-// wxXTI
-// ----------------------------------------------------------------------------
-
-#if wxUSE_EXTENDED_RTTI
-
-template<> void wxStringReadValue(const wxString &s , wxDateTime &data )
-{
-    data.ParseFormat(s,"%Y-%m-%d %H:%M:%S", NULL);
-}
-
-template<> void wxStringWriteValue(wxString &s , const wxDateTime &data )
-{
-    s = data.Format("%Y-%m-%d %H:%M:%S");
-}
-
-wxCUSTOM_TYPE_INFO(wxDateTime, wxToStringConverter<wxDateTime> , wxFromStringConverter<wxDateTime>)
-
-#endif // wxUSE_EXTENDED_RTTI
-
-// ----------------------------------------------------------------------------
 // macros
 // ----------------------------------------------------------------------------
 

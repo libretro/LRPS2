@@ -100,4 +100,3 @@ inline wxEventLoopSource::~wxEventLoopSource() { }
 #endif // wxUSE_EVENTLOOP_SOURCE
 
 #endif // _WX_EVTLOOPSRC_H_
-

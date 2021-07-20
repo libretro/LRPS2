@@ -82,14 +82,6 @@ public:
     static int ChooseMatchingPixelFormat(HDC hdc, const int *attribList,
                                          PIXELFORMATDESCRIPTOR *pfd = NULL);
 
-#if wxUSE_PALETTE
-    // palette stuff
-    bool SetupPalette(const wxPalette& palette);
-    virtual wxPalette CreateDefaultPalette();
-    void OnQueryNewPalette(wxQueryNewPaletteEvent& event);
-    void OnPaletteChanged(wxPaletteChangedEvent& event);
-#endif // wxUSE_PALETTE
-
     // deprecated methods using the implicit wxGLContext, associate the context
     // explicitly with the window instead
 #if WXWIN_COMPATIBILITY_2_8

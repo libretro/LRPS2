@@ -80,11 +80,6 @@ public:
     virtual void ShowWindowModal () ;
     virtual void SendWindowModalDialogEvent ( wxEventType type );
 
-#ifdef wxHAS_EVENT_BIND
-    template<typename Functor>
-    void ShowWindowModalThenDo(const Functor& onEndModal);
-#endif // wxHAS_EVENT_BIND
-
     // Modal dialogs have a return code - usually the id of the last
     // pressed button
     void SetReturnCode(int returnCode) { m_returnCode = returnCode; }
@@ -149,10 +144,6 @@ public:
     // this is just a combination of CreateButtonSizer() and
     // CreateSeparatedSizer()
     wxSizer *CreateSeparatedButtonSizer(long flags);
-
-#if wxUSE_BUTTON
-    wxStdDialogButtonSizer *CreateStdDialogButtonSizer( long flags );
-#endif // wxUSE_BUTTON
 
     // Do layout adaptation
     virtual bool DoLayoutAdaptation();
@@ -319,20 +310,6 @@ public:
     // Create the scrolled window
     virtual wxScrolledWindow* CreateScrolledWindow(wxWindow* parent);
 
-#if wxUSE_BUTTON
-    // Find a standard or horizontal box sizer
-    virtual wxSizer* FindButtonSizer(bool stdButtonSizer, wxDialog* dialog, wxSizer* sizer, int& retBorder, int accumlatedBorder = 0);
-
-    // Check if this sizer contains standard buttons, and so can be repositioned in the dialog
-    virtual bool IsOrdinaryButtonSizer(wxDialog* dialog, wxBoxSizer* sizer);
-
-    // Check if this is a standard button
-    virtual bool IsStandardButton(wxDialog* dialog, wxButton* button);
-
-    // Find 'loose' main buttons in the existing layout and add them to the standard dialog sizer
-    virtual bool FindLooseButtons(wxDialog* dialog, wxStdDialogButtonSizer* buttonSizer, wxSizer* sizer, int& count);
-#endif // wxUSE_BUTTON
-
     // Reparent the controls to the scrolled window, except those in buttonSizer
     virtual void ReparentControls(wxWindow* parent, wxWindow* reparentTo, wxSizer* buttonSizer = NULL);
     static void DoReparentControls(wxWindow* parent, wxWindow* reparentTo, wxSizer* buttonSizer = NULL);
@@ -396,46 +373,6 @@ typedef void (wxEvtHandler::*wxWindowModalDialogEventFunction)(wxWindowModalDial
 
 #define EVT_WINDOW_MODAL_DIALOG_CLOSED(winid, func) \
     wx__DECLARE_EVT1(wxEVT_WINDOW_MODAL_DIALOG_CLOSED, winid, wxWindowModalDialogEventHandler(func))
-
-#ifdef wxHAS_EVENT_BIND
-template<typename Functor>
-class wxWindowModalDialogEventFunctor
-{
-public:
-    wxWindowModalDialogEventFunctor(const Functor& f)
-        : m_f(new Functor(f))
-    {}
-
-    void operator()(wxWindowModalDialogEvent& event)
-    {
-        if ( m_f )
-        {
-            // We only want to call this handler once. Also, by deleting
-            // the functor here, its data (such as wxWindowPtr pointing to
-            // the dialog) are freed immediately after exiting this operator().
-            wxSharedPtr<Functor> functor(m_f);
-            m_f.reset();
-
-            (*functor)(event.GetReturnCode());
-        }
-        else // was already called once
-        {
-            event.Skip();
-        }
-    }
-
-private:
-    wxSharedPtr<Functor> m_f;
-};
-
-template<typename Functor>
-void wxDialogBase::ShowWindowModalThenDo(const Functor& onEndModal)
-{
-    Bind(wxEVT_WINDOW_MODAL_DIALOG_CLOSED,
-         wxWindowModalDialogEventFunctor<Functor>(onEndModal));
-    ShowWindowModal();
-}
-#endif // wxHAS_EVENT_BIND
 
 #endif
     // _WX_DIALOG_H_BASE_

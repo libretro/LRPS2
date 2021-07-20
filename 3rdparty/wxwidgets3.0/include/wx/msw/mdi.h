@@ -62,28 +62,7 @@ public:
     virtual void ActivateNext();
     virtual void ActivatePrevious();
 
-#if wxUSE_MENUS
-    virtual void SetWindowMenu(wxMenu* menu);
-
-    virtual void DoMenuUpdates(wxMenu* menu = NULL);
-
-    // return the active child menu, if any
-    virtual WXHMENU MSWGetActiveMenu() const;
-#endif // wxUSE_MENUS
-
-
     // implementation only from now on
-
-    // MDI helpers
-    // -----------
-
-#if wxUSE_MENUS
-    // called by wxMDIChildFrame after it was successfully created
-    virtual void AddMDIChild(wxMDIChildFrame *child);
-
-    // called by wxMDIChildFrame just before it is destroyed
-    virtual void RemoveMDIChild(wxMDIChildFrame *child);
-#endif // wxUSE_MENUS
 
     // handlers
     // --------
@@ -102,17 +81,7 @@ public:
     virtual WXLRESULT MSWDefWindowProc(WXUINT, WXWPARAM, WXLPARAM);
     virtual bool MSWTranslateMessage(WXMSG* msg);
 
-#if wxUSE_MENUS
-    // override wxFrameBase function to also look in the active child menu bar
-    // and the "Window" menu
-    virtual wxMenuItem *FindItemInMenuBar(int menuId) const;
-#endif // wxUSE_MENUS
-
 protected:
-#if wxUSE_MENUS_NATIVE
-    virtual void InternalSetMenuBar();
-#endif // wxUSE_MENUS_NATIVE
-
     virtual WXHICON GetDefaultIcon() const;
 
     // set the size of the MDI client window to match the frame size
@@ -121,25 +90,6 @@ protected:
 private:
     // common part of all ctors
     void Init();
-
-#if wxUSE_MENUS
-    // "Window" menu commands event handlers
-    void OnMDICommand(wxCommandEvent& event);
-    void OnMDIChild(wxCommandEvent& event);
-
-
-    // add/remove window menu if we have it (i.e. m_windowMenu != NULL)
-    void AddWindowMenu();
-    void RemoveWindowMenu();
-
-    // update the window menu (if we have it) to enable or disable the commands
-    // which only make sense when we have more than one child
-    void UpdateWindowMenu(bool enable);
-
-#if wxUSE_ACCEL
-    wxAcceleratorTable *m_accelWindowMenu;
-#endif // wxUSE_ACCEL
-#endif // wxUSE_MENUS
 
     // return the number of child frames we currently have (maybe 0)
     int GetChildFramesCount() const;

@@ -121,16 +121,7 @@ public:
 
     virtual WXDWORD MSWGetStyle(long style, WXDWORD *exstyle) const;
 
-#if wxUSE_UXTHEME
-    // override wxTextEntry method to work around Windows bug
-    virtual bool SetHint(const wxString& hint);
-#endif // wxUSE_UXTHEME
-
 protected:
-#if wxUSE_TOOLTIPS
-    virtual void DoSetToolTip(wxToolTip *tip);
-#endif
-
     virtual wxSize DoGetSizeFromTextSize(int xlen, int ylen = -1) const;
 
     // Override this one to avoid eating events from our popup listbox.

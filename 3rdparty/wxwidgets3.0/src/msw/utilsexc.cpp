@@ -74,10 +74,6 @@
 #endif
 #include <stdarg.h>
 
-#if wxUSE_IPC
-    #include "wx/dde.h"         // for WX_DDE hack in wxExecute
-#endif // wxUSE_IPC
-
 #include "wx/msw/private/hiddenwin.h"
 
 // FIXME-VC6: These are not defined in VC6 SDK headers.
@@ -546,55 +542,6 @@ size_t wxPipeOutputStream::OnSysWrite(const void *buffer, size_t len)
 
 #endif // wxUSE_STREAMS
 
-// ============================================================================
-// wxExecute functions family
-// ============================================================================
-
-#if wxUSE_IPC
-
-// connect to the given server via DDE and ask it to execute the command
-bool
-wxExecuteDDE(const wxString& ddeServer,
-             const wxString& ddeTopic,
-             const wxString& ddeCommand)
-{
-    bool ok wxDUMMY_INITIALIZE(false);
-
-    wxDDEClient client;
-    wxConnectionBase *
-        conn = client.MakeConnection(wxEmptyString, ddeServer, ddeTopic);
-    if ( !conn )
-    {
-        ok = false;
-    }
-    else // connected to DDE server
-    {
-        // the added complication here is that although most programs use
-        // XTYP_EXECUTE for their DDE API, some important ones -- like Word
-        // and other MS stuff - use XTYP_REQUEST!
-        //
-        // moreover, anotheri mportant program (IE) understands both but
-        // returns an error from Execute() so we must try Request() first
-        // to avoid doing it twice
-        {
-            // we're prepared for this one to fail, so don't show errors
-            wxLogNull noErrors;
-
-            ok = conn->Request(ddeCommand) != NULL;
-        }
-
-        if ( !ok )
-        {
-            // now try execute -- but show the errors
-            ok = conn->Execute(ddeCommand);
-        }
-    }
-
-    return ok;
-}
-
-#endif // wxUSE_IPC
-
 long wxExecute(const wxString& cmd, int flags, wxProcess *handler,
                const wxExecuteEnv *env)
 {
@@ -608,99 +555,7 @@ long wxExecute(const wxString& cmd, int flags, wxProcess *handler,
                     wxT("wxExecute() can be called only from the main thread") );
 #endif // wxUSE_THREADS
 
-    wxString command;
-
-#if wxUSE_IPC
-    // DDE hack: this is really not pretty, but we need to allow this for
-    // transparent handling of DDE servers in wxMimeTypesManager. Usually it
-    // returns the command which should be run to view/open/... a file of the
-    // given type. Sometimes, however, this command just launches the server
-    // and an additional DDE request must be made to really open the file. To
-    // keep all this well hidden from the application, we allow a special form
-    // of command: WX_DDE#<command>#DDE_SERVER#DDE_TOPIC#DDE_COMMAND in which
-    // case we execute just <command> and process the rest below
-    wxString ddeServer, ddeTopic, ddeCommand;
-    static const size_t lenDdePrefix = 7;   // strlen("WX_DDE:")
-    if ( cmd.Left(lenDdePrefix) == wxT("WX_DDE#") )
-    {
-        // speed up the concatenations below
-        ddeServer.reserve(256);
-        ddeTopic.reserve(256);
-        ddeCommand.reserve(256);
-
-        const wxChar *p = cmd.c_str() + 7;
-        while ( *p && *p != wxT('#') )
-        {
-            command += *p++;
-        }
-
-        if ( *p )
-        {
-            // skip '#'
-            p++;
-        }
-        else
-        {
-            wxFAIL_MSG(wxT("invalid WX_DDE command in wxExecute"));
-        }
-
-        while ( *p && *p != wxT('#') )
-        {
-            ddeServer += *p++;
-        }
-
-        if ( *p )
-        {
-            // skip '#'
-            p++;
-        }
-        else
-        {
-            wxFAIL_MSG(wxT("invalid WX_DDE command in wxExecute"));
-        }
-
-        while ( *p && *p != wxT('#') )
-        {
-            ddeTopic += *p++;
-        }
-
-        if ( *p )
-        {
-            // skip '#'
-            p++;
-        }
-        else
-        {
-            wxFAIL_MSG(wxT("invalid WX_DDE command in wxExecute"));
-        }
-
-        while ( *p )
-        {
-            ddeCommand += *p++;
-        }
-
-        // if we want to just launch the program and not wait for its
-        // termination, try to execute DDE command right now, it can succeed if
-        // the process is already running - but as it fails if it's not
-        // running, suppress any errors it might generate
-        if ( !(flags & wxEXEC_SYNC) )
-        {
-            wxLogNull noErrors;
-            if ( wxExecuteDDE(ddeServer, ddeTopic, ddeCommand) )
-            {
-                // a dummy PID - this is a hack, of course, but it's well worth
-                // it as we don't open a new server each time we're called
-                // which would be quite bad
-                return -1;
-            }
-        }
-    }
-    else
-#endif // wxUSE_IPC
-    {
-        // no DDE
-        command = cmd;
-    }
+    wxString command = cmd;
 
     // the IO redirection is only supported with wxUSE_STREAMS
     BOOL redirect = FALSE;
@@ -1003,46 +858,6 @@ long wxExecute(const wxString& cmd, int flags, wxProcess *handler,
 
     gs_asyncThreads.push_back(hThread);
     data->hThread = hThread;
-
-#if wxUSE_IPC && !defined(__WXWINCE__)
-    // second part of DDE hack: now establish the DDE conversation with the
-    // just launched process
-    if ( !ddeServer.empty() )
-    {
-        bool ddeOK;
-
-        // give the process the time to init itself
-        //
-        // we use a very big timeout hoping that WaitForInputIdle() will return
-        // much sooner, but not INFINITE just in case the process hangs
-        // completely - like this we will regain control sooner or later
-        switch ( ::WaitForInputIdle(pi.hProcess, 10000 /* 10 seconds */) )
-        {
-            default:
-                wxFAIL_MSG( wxT("unexpected WaitForInputIdle() return code") );
-                // fall through
-
-            case WAIT_FAILED:
-                wxLogLastError(wxT("WaitForInputIdle() in wxExecute"));
-
-            case WAIT_TIMEOUT:
-                wxLogDebug(wxT("Timeout too small in WaitForInputIdle"));
-
-                ddeOK = false;
-                break;
-
-            case 0:
-                // ok, process ready to accept DDE requests
-                ddeOK = wxExecuteDDE(ddeServer, ddeTopic, ddeCommand);
-        }
-
-        if ( !ddeOK )
-        {
-            wxLogDebug(wxT("Failed to send DDE request to the process \"%s\"."),
-                       cmd.c_str());
-        }
-    }
-#endif // wxUSE_IPC
 
     if ( !(flags & wxEXEC_SYNC) )
     {

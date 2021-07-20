@@ -17,11 +17,6 @@
 #endif
 /* --- start common options --- */
 
-#ifndef wxUSE_GUI
-    #define wxUSE_GUI 0
-#endif
-
-
 #define WXWIN_COMPATIBILITY_2_6 0
 
 #define WXWIN_COMPATIBILITY_2_8 0
@@ -31,41 +26,11 @@
 
 #define wxUSE_ON_FATAL_EXCEPTION 1
 
-#define wxUSE_STACKWALKER 1
-
-#define wxUSE_DEBUGREPORT 1
-
-
-#define wxUSE_DEBUG_CONTEXT 0
-
-#define wxUSE_MEMORY_TRACING 0
-
-#define wxUSE_GLOBAL_MEMORY_OPERATORS 0
-
-#define wxUSE_DEBUG_NEW_ALWAYS 0
-
-
-
 #ifndef wxUSE_UNICODE
     #define wxUSE_UNICODE 1
 #endif
 
 #define wxUSE_WCHAR_T 1
-
-
-#define wxUSE_EXCEPTIONS 1
-
-#define wxUSE_EXTENDED_RTTI 0
-
-#define wxUSE_LOG 1
-
-#define wxUSE_LOGWINDOW 1
-
-#define wxUSE_LOGGUI 1
-
-#define wxUSE_LOG_DIALOG 1
-
-#define wxUSE_CMDLINE_PARSER 1
 
 #define wxUSE_THREADS 1
 
@@ -99,14 +64,10 @@
 
 #define wxUSE_LONGLONG 1
 
-#define wxUSE_BASE64 1
-
 #define wxUSE_CONSOLE_EVENTLOOP 1
 
 #define wxUSE_FILE 1
 #define wxUSE_FFILE 1
-
-#define wxUSE_FSVOLUME 1
 
 #define wxUSE_STDPATHS 1
 
@@ -122,21 +83,11 @@
 
 #define wxUSE_TIMER 1
 
-#define wxUSE_STOPWATCH 1
-
-#define wxUSE_FSWATCHER 0
-
 #define wxUSE_CONFIG 1
 
 #define wxUSE_CONFIG_NATIVE 1
 
-#define wxUSE_DIALUP_MANAGER 1
-
 #define wxUSE_DYNLIB_CLASS 1
-
-#define wxUSE_DYNAMIC_LOADER 1
-
-#define wxUSE_SOCKETS 1
 
 #define wxUSE_IPV6          0
 
@@ -158,115 +109,20 @@
 
 #define wxUSE_APPLE_IEEE 1
 
-#define wxUSE_JOYSTICK 1
-
-#define wxUSE_FONTENUM 1
-
-#define wxUSE_FONTMAP 0 /* 1 */
-
-#define wxUSE_MIMETYPE 1
-
 #define wxUSE_PROTOCOL 1
 
 #define wxUSE_PROTOCOL_FILE 1
 #define wxUSE_PROTOCOL_FTP 1
 #define wxUSE_PROTOCOL_HTTP 1
 
-#define wxUSE_URL 1
-
-#define wxUSE_URL_NATIVE 0
-
-#define wxUSE_VARIANT 1
-
-#define wxUSE_ANY 1
-
-#define wxUSE_REGEX 1
-
-#define wxUSE_SYSTEM_OPTIONS 1
-
-#define wxUSE_SOUND 1
-
-#define wxUSE_MEDIACTRL 0
-
-#define wxUSE_XRC 1
-
-#define wxUSE_XML 1
-
-#define wxUSE_AUI 1
-
-#define wxUSE_RIBBON 1
-
-#define wxUSE_PROPGRID 1
-
-#define wxUSE_STC 1
-
-#define wxUSE_WEBVIEW 1
-
-#ifdef __WXMSW__
-#define wxUSE_WEBVIEW_IE 0
-#else
-#define wxUSE_WEBVIEW_IE 0
-#endif
-
-#if (defined(__WXGTK__) && !defined(__WXGTK3__)) || defined(__WXOSX__)
-#define wxUSE_WEBVIEW_WEBKIT 0
-#else
-#define wxUSE_WEBVIEW_WEBKIT 0
-#endif
-
-#if defined(__WXGTK3__)
-#define wxUSE_WEBVIEW_WEBKIT2 1
-#else
-#define wxUSE_WEBVIEW_WEBKIT2 1
-#endif
-
-
-#ifdef _MSC_VER
-#   if _MSC_VER >= 1310
-
-
-#define wxUSE_GRAPHICS_CONTEXT 1
-#   else
-
-
-#       define wxUSE_GRAPHICS_CONTEXT 0
-#   endif
-#else
-
-
-
-
-
-#   define wxUSE_GRAPHICS_CONTEXT 1
-#endif
-
-#define wxUSE_CAIRO 0
-
-
-
-#define wxUSE_CONTROLS 1
-
-#define wxUSE_MARKUP 1
-
-#define wxUSE_POPUPWIN 1
-
-#define wxUSE_TIPWINDOW 1
-
-#define wxUSE_ANIMATIONCTRL 1
 #define wxUSE_BANNERWINDOW 1
-#define wxUSE_BUTTON 1
 #define wxUSE_BMPBUTTON 1
 #define wxUSE_CALENDARCTRL 1
 #define wxUSE_CHECKBOX 1
-#define wxUSE_CHECKLISTBOX 1
 #define wxUSE_CHOICE 1
 #define wxUSE_COLLPANE 1
-#define wxUSE_COLOURPICKERCTRL 1
 #define wxUSE_COMBOBOX 1
 #define wxUSE_COMMANDLINKBUTTON 1
-#define wxUSE_DATAVIEWCTRL 1
-#define wxUSE_DATEPICKCTRL 1
-#define wxUSE_DIRPICKERCTRL 1
 #define wxUSE_EDITABLELISTBOX 1
 #define wxUSE_FILECTRL 1
 #define wxUSE_FILEPICKERCTRL 1
@@ -289,76 +145,6 @@
 #define wxUSE_STATTEXT 1
 #define wxUSE_STATBMP 1
 #define wxUSE_TEXTCTRL 1
-#define wxUSE_TIMEPICKCTRL 1
-#define wxUSE_TOGGLEBTN 1
-#define wxUSE_TREECTRL 1
-#define wxUSE_TREELISTCTRL 1
-
-#define wxUSE_STATUSBAR 1
-
-#define wxUSE_NATIVE_STATUSBAR 1
-
-#define wxUSE_TOOLBAR 1
-#define wxUSE_TOOLBAR_NATIVE 1
-
-#define wxUSE_NOTEBOOK 1
-
-#define wxUSE_LISTBOOK 1
-
-#define wxUSE_CHOICEBOOK 1
-
-#define wxUSE_TREEBOOK 1
-
-#define wxUSE_TOOLBOOK 1
-
-#define wxUSE_TASKBARICON 1
-
-#define wxUSE_GRID 1
-
-#define wxUSE_MINIFRAME 1
-
-#define wxUSE_COMBOCTRL 1
-
-#define wxUSE_ODCOMBOBOX 1
-
-#define wxUSE_BITMAPCOMBOBOX 1
-
-#define wxUSE_REARRANGECTRL 1
-
-
-#define wxUSE_ACCEL 1
-
-#define wxUSE_ARTPROVIDER_STD 1
-
-#define wxUSE_ARTPROVIDER_TANGO 0 /* 1 */
-
-#define wxUSE_HOTKEY 0 /* 1 */
-
-#define wxUSE_CARET 1
-
-#define wxUSE_DISPLAY 1
-
-#define wxUSE_GEOMETRY 1
-
-#define wxUSE_IMAGLIST 1
-
-#define wxUSE_INFOBAR 1
-
-#define wxUSE_MENUS 1
-
-#define wxUSE_NOTIFICATION_MESSAGE 1
-
-#define wxUSE_PREFERENCES_EDITOR 1
-
-#define wxUSE_RICHTOOLTIP 1
-
-#define wxUSE_SASH 1
-
-#define wxUSE_SPLITTER 1
-
-#define wxUSE_TOOLTIPS 1
-
-#define wxUSE_VALIDATORS 1
 
 #ifdef __WXMSW__
 #define wxUSE_AUTOID_MANAGEMENT 0
@@ -366,109 +152,7 @@
 #define wxUSE_AUTOID_MANAGEMENT 0
 #endif
 
-
-#define wxUSE_COMMON_DIALOGS 0 /* 1 */
-
-#define wxUSE_BUSYINFO 1
-
-#define wxUSE_CHOICEDLG 1
-
-#define wxUSE_COLOURDLG 1
-
-#define wxUSE_DIRDLG 1
-
-
-#define wxUSE_FILEDLG 1
-
-#define wxUSE_FINDREPLDLG 1
-
-#define wxUSE_FONTDLG 1
-
-#define wxUSE_MSGDLG 1
-
-#define wxUSE_PROGRESSDLG 1
-
-#define wxUSE_STARTUP_TIPS 1
-
-#define wxUSE_TEXTDLG 1
-
-#define wxUSE_NUMBERDLG 1
-
-#define wxUSE_SPLASH 1
-
-#define wxUSE_WIZARDDLG 1
-
-#define wxUSE_ABOUTDLG 1
-
-#define wxUSE_FILE_HISTORY 1
-
-
-#define wxUSE_METAFILE              0 /* 1 */
-#define wxUSE_ENH_METAFILE          0 /* 1 */
 #define wxUSE_WIN_METAFILES_ALWAYS  0
-
-
-#define wxUSE_MDI 1
-
-#define wxUSE_DOC_VIEW_ARCHITECTURE 1
-
-#define wxUSE_MDI_ARCHITECTURE 1
-
-#define wxUSE_PRINTING_ARCHITECTURE 1
-
-#define wxUSE_HTML 1
-
-#define wxUSE_GLCANVAS 1
-
-#define wxUSE_RICHTEXT 1
-
-
-#define wxUSE_CLIPBOARD 1
-
-#define wxUSE_DATAOBJ 0 /* 1 */
-
-#define wxUSE_DRAG_AND_DROP 1
-
-#define wxUSE_ACCESSIBILITY 0
-
-
-#define wxUSE_SNGLINST_CHECKER 1
-
-#define wxUSE_DRAGIMAGE 1
-
-#define wxUSE_IPC 1
-
-#define wxUSE_HELP 1
-
-
-#define wxUSE_MS_HTML_HELP 0
-
-
-#define wxUSE_WXHTML_HELP 1
-
-#define wxUSE_CONSTRAINTS 1
-
-
-#define wxUSE_SPLINES 1
-
-
-#define wxUSE_MOUSEWHEEL 1
-
-
-#define wxUSE_UIACTIONSIMULATOR 1
-
-
-#define wxUSE_POSTSCRIPT 1/* 0 */
-
-#define wxUSE_AFM_FOR_POSTSCRIPT 1
-
-#define wxUSE_SVG 1
-
-#define wxUSE_DC_TRANSFORM_MATRIX 1
-
-
-
-#define wxUSE_IMAGE 1
 
 #define wxUSE_LIBPNG 1
 
@@ -478,28 +162,11 @@
 
 #define wxUSE_TGA 1
 
-#define wxUSE_GIF 1
-
 #define wxUSE_PNM 1
 
 #define wxUSE_PCX 1
 
 #define wxUSE_IFF 1
-
-#define wxUSE_XPM 1/* 0 */
-
-#define wxUSE_ICO_CUR 1
-
-#define wxUSE_PALETTE 1
-
-
-#define wxUSE_ALL_THEMES    0 /* 1 */
-
-#define wxUSE_THEME_GTK     0
-#define wxUSE_THEME_METAL   0
-#define wxUSE_THEME_MONO    0
-#define wxUSE_THEME_WIN32   0
-
 
 /* --- end common options --- */
 #if __unix__
@@ -511,16 +178,6 @@
 
 #define wxUSE_UNICODE_UTF8 0
 #define wxUSE_UTF8_LOCALE_ONLY 0
-
-/*
-   Use GStreamer for Unix.
-
-   Default is 0 as this requires a lot of dependencies which might not be
-   available.
-
-   Recommended setting: 1 (wxMediaCtrl won't work by default without it).
- */
-#define wxUSE_GSTREAMER 1
 #else
 /* --- start MSW options --- */
 
@@ -530,41 +187,8 @@
 
 #define wxUSE_MFC           0
 
-#define wxUSE_OLE           0 /* 1 */
-
-#define wxUSE_OLE_AUTOMATION 0 /* 1 */
-
-#define wxUSE_ACTIVEX 0 /* 1 */
-
-#define wxUSE_DC_CACHEING 0 /* 1 */
-
-#define wxUSE_WXDIB 0 /* 1 */
-
-#define wxUSE_POSTSCRIPT_ARCHITECTURE_IN_MSW 0 /* 1 */
-
 #define wxUSE_REGKEY 1 /* 1 */
 
-#define wxUSE_RICHEDIT 1
-
-#define wxUSE_RICHEDIT2 1
-
-#define wxUSE_OWNER_DRAWN 0 /* 1 */
-
-#define wxUSE_TASKBARICON_BALLOONS 1
-
-#define wxUSE_UXTHEME           0 /* 1 */
-
-#define wxUSE_INKEDIT  0
-
-#define wxUSE_INICONF 0
-
-
-#define wxUSE_DATEPICKCTRL_GENERIC 0
-
-#define wxUSE_TIMEPICKCTRL_GENERIC 0
-
-
-#define wxUSE_CRASHREPORT 0 /* 1 */
 /* --- end MSW options --- */
 #endif
 #ifndef _WIN32
@@ -681,39 +305,6 @@
 #define wxUSE_LIBSDL 0
 
 /*
- * Compile sound backends as plugins
- */
-#define wxUSE_PLUGINS 0
-
-/*
- * Use GTK print for printing under GTK+ 2.10+
- */
-#define wxUSE_GTKPRINT 0
-/*
- * Use GNOME VFS for MIME types
- */
-#define wxUSE_LIBGNOMEVFS 0
-/*
- * Use the Hildon framework
- */
-#define wxUSE_LIBHILDON 0
-/*
- * Use the Hildon 2.0 framework
- */
-#define wxUSE_LIBHILDON2 0
-/*
- * Use libnotify library.
- */
-#define wxUSE_LIBNOTIFY 0
-/*
- * Use libnotify 0.7+ API.
- */
-#define wxUSE_LIBNOTIFY_0_7 0
-/*
- * Use libXpm
- */
-#define wxHAVE_LIB_XPM 0
-/*
  * Define if you have pthread_cleanup_push/pop()
  */
 #define wxHAVE_PTHREAD_CLEANUP 1
@@ -725,26 +316,6 @@
  * Define if large (64 bit file offsets) files are supported.
  */
 #define HAVE_LARGEFILE_SUPPORT 1
-
-/*
- * Use OpenGL
- */
-#define wxUSE_OPENGL 0
-
-/*
- * Use MS HTML Help via libmspack (Unix)
- */
-#define wxUSE_LIBMSPACK 0
-
-/*
- * Matthews garbage collection (used for MrEd?)
- */
-#define WXGARBAGE_COLLECTION_ON 0
-
-/*
- * wxWebKitCtrl
- */
-#define wxUSE_WEBKIT 0
 
 /*
  * wxMediaCtrl on OS X
@@ -766,12 +337,6 @@
  *       headers may not work and program size will be larger.
  */
 #define CONST_COMPATIBILITY 0
-
-/*
- * use the session manager to detect KDE/GNOME
- */
-#define wxUSE_DETECT_SM 1
-
 
 /* define with the name of timezone variable */
 #define WX_TIMEZONE timezone
@@ -1128,11 +693,6 @@
 /* Define if locale_t is available */
 /* #undef HAVE_LOCALE_T */
 
-/* Define if you have inotify_xxx() functions. */
-#define wxHAS_INOTIFY 1
-
-/* Define if you have kqueu_xxx() functions. */
-/* #undef wxHAS_KQUEUE */
 #endif
 
 #endif /* __WX_SETUP_H__ */

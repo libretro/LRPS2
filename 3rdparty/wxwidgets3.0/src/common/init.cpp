@@ -244,26 +244,6 @@ static bool DoCommonPreInit()
     setlocale(LC_CTYPE, "UTF-8");
 #endif // wxUSE_UNICODE && defined(__WXOSX__)
 
-#if wxUSE_LOG
-    // Reset logging in case we were cleaned up and are being reinitialized.
-    wxLog::DoCreateOnDemand();
-
-    // force wxLog to create a log target now: we do it because wxTheApp
-    // doesn't exist yet so wxLog will create a special log target which is
-    // safe to use even when the GUI is not available while without this call
-    // we could create wxApp in wxEntryStart() below, then log an error about
-    // e.g. failure to establish connection to the X server and wxLog would
-    // send it to wxLogGui (because wxTheApp does exist already) which, of
-    // course, can't be used in this case
-    //
-    // notice also that this does nothing if the user had set up a custom log
-    // target before -- which is fine as we want to give him this possibility
-    // (as it's impossible to override logging by overriding wxAppTraits::
-    // CreateLogTarget() before wxApp is created) and we just assume he knows
-    // what he is doing
-    wxLog::GetActiveTarget();
-#endif // wxUSE_LOG
-
 #ifdef __WINDOWS__
     // GUI applications obtain HINSTANCE in their WinMain() but we also need to
     // initialize the global wxhInstance variable for the console programs as
@@ -354,14 +334,6 @@ bool wxEntryStart(int& argc, wxChar **argv)
     // and the cleanup object from doing cleanup
     callAppCleanup.Dismiss();
 
-#if wxUSE_LOG
-    // now that we have a valid wxApp (wxLogGui would have crashed if we used
-    // it before now), we can delete the temporary sink we had created for the
-    // initialization messages -- the next time logging function is called, the
-    // sink will be recreated but this time wxAppTraits will be used
-    delete wxLog::SetActiveTarget(NULL);
-#endif // wxUSE_LOG
-
     return true;
 }
 
@@ -391,17 +363,6 @@ bool wxEntryStart(int& argc, char **argv)
 // cleanup done before destroying wxTheApp
 static void DoCommonPreCleanup()
 {
-#if wxUSE_LOG
-    // flush the logged messages if any and don't use the current probably
-    // unsafe log target any more: the default one (wxLogGui) can't be used
-    // after the resources are freed which happens when we return and the user
-    // supplied one might be even more unsafe (using any wxWidgets GUI function
-    // is unsafe starting from now)
-    //
-    // notice that wxLog will still recreate a default log target if any
-    // messages are logged but that one will be safe to use until the very end
-    delete wxLog::SetActiveTarget(NULL);
-#endif // wxUSE_LOG
 }
 
 // cleanup done after destroying wxTheApp
@@ -418,22 +379,6 @@ static void DoCommonPostCleanup()
     // use Set(NULL) and not Get() to avoid creating a message output object on
     // demand when we just want to delete it
     delete wxMessageOutput::Set(NULL);
-
-#if wxUSE_LOG
-    // call this first as it has a side effect: in addition to flushing all
-    // logs for this thread, it also flushes everything logged from other
-    // threads
-    wxLog::FlushActive();
-
-    // and now delete the last logger as well
-    //
-    // we still don't disable log target auto-vivification even if any log
-    // objects created now will result in memory leaks because it seems better
-    // to leak memory which doesn't matter much considering the application is
-    // exiting anyhow than to not show messages which could still be logged
-    // from the user code (e.g. static dtors and such)
-    delete wxLog::SetActiveTarget(NULL);
-#endif // wxUSE_LOG
 }
 
 void wxEntryCleanup()
@@ -474,10 +419,6 @@ int wxEntryReal(int& argc, wxChar **argv)
 
     if ( !initializer.IsOk() )
     {
-#if wxUSE_LOG
-        // flush any log messages explaining why we failed
-        delete wxLog::SetActiveTarget(NULL);
-#endif
         return -1;
     }
 

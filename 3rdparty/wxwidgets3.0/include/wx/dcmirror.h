@@ -40,10 +40,6 @@ public:
     virtual void SetBackground(const wxBrush& brush)
         { m_dc.SetBackground(brush); }
     virtual void SetBackgroundMode(int mode) { m_dc.SetBackgroundMode(mode); }
-#if wxUSE_PALETTE
-    virtual void SetPalette(const wxPalette& palette)
-        { m_dc.SetPalette(palette); }
-#endif // wxUSE_PALETTE
     virtual void DestroyClippingRegion() { m_dc.DestroyClippingRegion(); }
     virtual wxCoord GetCharHeight() const { return m_dc.GetCharHeight(); }
     virtual wxCoord GetCharWidth() const { return m_dc.GetCharWidth(); }

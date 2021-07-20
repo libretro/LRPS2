@@ -316,12 +316,6 @@ protected:
     // removed as this also affects the controller
     void DoInvalidateBestSize();
 
-#if wxUSE_HELP
-    // Show the help for the corresponding page
-    void OnHelp(wxHelpEvent& event);
-#endif // wxUSE_HELP
-
-
     // the array of all pages of this control
     wxArrayPages m_pages;
 
@@ -410,23 +404,13 @@ typedef void (wxEvtHandler::*wxBookCtrlEventFunction)(wxBookCtrlEvent&);
 #define wxBookCtrlBaseEvent wxBookCtrlEvent
 
 // make a default book control for given platform
-#if wxUSE_NOTEBOOK
-    // dedicated to majority of desktops
-    #include "wx/notebook.h"
-    #define wxBookCtrl                             wxNotebook
-    #define wxEVT_BOOKCTRL_PAGE_CHANGED            wxEVT_NOTEBOOK_PAGE_CHANGED
-    #define wxEVT_BOOKCTRL_PAGE_CHANGING           wxEVT_NOTEBOOK_PAGE_CHANGING
-    #define EVT_BOOKCTRL_PAGE_CHANGED(id, fn)      EVT_NOTEBOOK_PAGE_CHANGED(id, fn)
-    #define EVT_BOOKCTRL_PAGE_CHANGING(id, fn)     EVT_NOTEBOOK_PAGE_CHANGING(id, fn)
-#else
-    // dedicated to Smartphones
-    #include "wx/choicebk.h"
-    #define wxBookCtrl                             wxChoicebook
-    #define wxEVT_BOOKCTRL_PAGE_CHANGED            wxEVT_CHOICEBOOK_PAGE_CHANGED
-    #define wxEVT_BOOKCTRL_PAGE_CHANGING           wxEVT_CHOICEBOOK_PAGE_CHANGING
-    #define EVT_BOOKCTRL_PAGE_CHANGED(id, fn)      EVT_CHOICEBOOK_PAGE_CHANGED(id, fn)
-    #define EVT_BOOKCTRL_PAGE_CHANGING(id, fn)     EVT_CHOICEBOOK_PAGE_CHANGING(id, fn)
-#endif
+// dedicated to Smartphones
+#include "wx/choicebk.h"
+#define wxBookCtrl                             wxChoicebook
+#define wxEVT_BOOKCTRL_PAGE_CHANGED            wxEVT_CHOICEBOOK_PAGE_CHANGED
+#define wxEVT_BOOKCTRL_PAGE_CHANGING           wxEVT_CHOICEBOOK_PAGE_CHANGING
+#define EVT_BOOKCTRL_PAGE_CHANGED(id, fn)      EVT_CHOICEBOOK_PAGE_CHANGED(id, fn)
+#define EVT_BOOKCTRL_PAGE_CHANGING(id, fn)     EVT_CHOICEBOOK_PAGE_CHANGING(id, fn)
 
 // old wxEVT_COMMAND_* constants
 #define wxEVT_COMMAND_BOOKCTRL_PAGE_CHANGED    wxEVT_BOOKCTRL_PAGE_CHANGED

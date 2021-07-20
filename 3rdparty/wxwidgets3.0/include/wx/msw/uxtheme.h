@@ -136,15 +136,7 @@ typedef HRESULT (__stdcall *PFNWXUENABLETHEMING)(BOOL);
 // wxUxThemeEngine: provides all theme functions from uxtheme.dll
 // ----------------------------------------------------------------------------
 
-// we always define this class, even if wxUSE_UXTHEME == 0, but we just make it
-// empty in this case -- this allows to use it elsewhere without any #ifdefs
-#if wxUSE_UXTHEME
-    #include "wx/dynlib.h"
-
-    #define wxUX_THEME_DECLARE(type, func) type func;
-#else
-    #define wxUX_THEME_DECLARE(type, func) type func(...) { return 0; }
-#endif
+#define wxUX_THEME_DECLARE(type, func) type func(...) { return 0; }
 
 class WXDLLIMPEXP_CORE wxUxThemeEngine
 {
@@ -214,41 +206,8 @@ private:
     // not virtual as we're not supposed to be derived from
     ~wxUxThemeEngine() { }
 
-#if wxUSE_UXTHEME
-    // initialize the theme engine: load the DLL, resolve the functions
-    //
-    // return true if we can be used, false if themes are not available
-    bool Initialize();
-
-
-    // uxtheme.dll
-    wxDynamicLibrary m_dllUxTheme;
-
-
-    // the one and only theme engine, initially NULL
-    static wxUxThemeEngine *ms_themeEngine;
-
-    // this is a bool which initially has the value -1 meaning "unknown"
-    static int ms_isThemeEngineAvailable;
-
-    // it must be able to delete us
-    friend class wxUxThemeModule;
-#endif // wxUSE_UXTHEME
-
     wxDECLARE_NO_COPY_CLASS(wxUxThemeEngine);
 };
-
-#if wxUSE_UXTHEME
-
-/* static */ inline wxUxThemeEngine *wxUxThemeEngine::GetIfActive()
-{
-    wxUxThemeEngine *engine = Get();
-    return engine && engine->IsAppThemed() && engine->IsThemeActive()
-                ? engine
-                : NULL;
-}
-
-#else // !wxUSE_UXTHEME
 
 /* static */ inline wxUxThemeEngine *wxUxThemeEngine::Get()
 {
@@ -259,8 +218,6 @@ private:
 {
     return NULL;
 }
-
-#endif // wxUSE_UXTHEME/!wxUSE_UXTHEME
 
 // ----------------------------------------------------------------------------
 // wxUxThemeHandle: encapsulates ::Open/CloseThemeData()

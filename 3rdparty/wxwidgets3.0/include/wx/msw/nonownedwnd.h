@@ -25,13 +25,6 @@ public:
 protected:
     virtual bool DoClearShape();
     virtual bool DoSetRegionShape(const wxRegion& region);
-#if wxUSE_GRAPHICS_CONTEXT
-    virtual bool DoSetPathShape(const wxGraphicsPath& path);
-
-private:
-    wxNonOwnedWindowShapeImpl* m_shapeImpl;
-#endif // wxUSE_GRAPHICS_CONTEXT
-
     wxDECLARE_NO_COPY_CLASS(wxNonOwnedWindow);
 };
 

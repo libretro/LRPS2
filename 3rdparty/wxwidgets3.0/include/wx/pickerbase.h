@@ -115,12 +115,6 @@ public:     // public API
     virtual void UpdateTextCtrlFromPicker() = 0;
 
 protected:
-    // overridden base class methods
-#if wxUSE_TOOLTIPS
-    virtual void DoSetToolTip(wxToolTip *tip);
-#endif // wxUSE_TOOLTIPS
-
-
     // event handlers
     void OnTextCtrlDelete(wxWindowDestroyEvent &);
     void OnTextCtrlUpdate(wxCommandEvent &);

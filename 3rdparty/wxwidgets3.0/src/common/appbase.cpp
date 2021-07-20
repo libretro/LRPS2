@@ -47,10 +47,6 @@
 #include "wx/thread.h"
 
 #if wxUSE_STL
-    #if wxUSE_EXCEPTIONS
-        #include <exception>
-        #include <typeinfo>
-    #endif
     #if wxUSE_INTL
         #include <locale>
     #endif
@@ -62,18 +58,7 @@
 
 #include <locale.h>
 
-#if wxUSE_FONTMAP
-    #include "wx/fontmap.h"
-#endif // wxUSE_FONTMAP
-
 #if wxDEBUG_LEVEL
-    #if wxUSE_STACKWALKER
-        #include "wx/stackwalk.h"
-        #ifdef __WINDOWS__
-            #include "wx/msw/debughlp.h"
-        #endif
-    #endif // wxUSE_STACKWALKER
-
     #include "wx/recguard.h"
 #endif // wxDEBUG_LEVEL
 
@@ -226,31 +211,6 @@ void wxAppConsoleBase::CleanUp()
 
 bool wxAppConsoleBase::OnInit()
 {
-#if wxUSE_CMDLINE_PARSER
-    wxCmdLineParser parser(argc, argv);
-
-    OnInitCmdLine(parser);
-
-    bool cont;
-    switch ( parser.Parse(false /* don't show usage */) )
-    {
-        case -1:
-            cont = OnCmdLineHelp(parser);
-            break;
-
-        case 0:
-            cont = OnCmdLineParsed(parser);
-            break;
-
-        default:
-            cont = OnCmdLineError(parser);
-            break;
-    }
-
-    if ( !cont )
-        return false;
-#endif // wxUSE_CMDLINE_PARSER
-
     return true;
 }
 
@@ -386,12 +346,6 @@ bool wxAppConsoleBase::ProcessIdle()
     wxIdleEvent event;
     event.SetEventObject(this);
     ProcessEvent(event);
-
-#if wxUSE_LOG
-    // flush the logged messages if any (do this after processing the events
-    // which could have logged new messages)
-    wxLog::FlushActive();
-#endif
 
     // Garbage collect all objects previously scheduled for destruction.
     DeletePendingObjects();
@@ -597,149 +551,6 @@ void wxAppConsoleBase::DeletePendingObjects()
 }
 
 // ----------------------------------------------------------------------------
-// exception handling
-// ----------------------------------------------------------------------------
-
-#if wxUSE_EXCEPTIONS
-
-void
-wxAppConsoleBase::HandleEvent(wxEvtHandler *handler,
-                              wxEventFunction func,
-                              wxEvent& event) const
-{
-    // by default, simply call the handler
-    (handler->*func)(event);
-}
-
-void wxAppConsoleBase::CallEventHandler(wxEvtHandler *handler,
-                                        wxEventFunctor& functor,
-                                        wxEvent& event) const
-{
-    // If the functor holds a method then, for backward compatibility, call
-    // HandleEvent():
-    wxEventFunction eventFunction = functor.GetEvtMethod();
-
-    if ( eventFunction )
-        HandleEvent(handler, eventFunction, event);
-    else
-        functor(handler, event);
-}
-
-void wxAppConsoleBase::OnUnhandledException()
-{
-#ifdef __WXDEBUG__
-    // we're called from an exception handler so we can re-throw the exception
-    // to recover its type
-    wxString what;
-    try
-    {
-        throw;
-    }
-#if wxUSE_STL
-    catch ( std::exception& e )
-    {
-        what.Printf("std::exception of type \"%s\", what() = \"%s\"",
-                    typeid(e).name(), e.what());
-    }
-#endif // wxUSE_STL
-    catch ( ... )
-    {
-        what = "unknown exception";
-    }
-
-    wxMessageOutputBest().Printf(
-        "*** Caught unhandled %s; terminating\n", what
-    );
-#endif // __WXDEBUG__
-}
-
-// ----------------------------------------------------------------------------
-// exceptions support
-// ----------------------------------------------------------------------------
-
-bool wxAppConsoleBase::OnExceptionInMainLoop()
-{
-    throw;
-
-    // some compilers are too stupid to know that we never return after throw
-#if defined(__DMC__) || (defined(_MSC_VER) && _MSC_VER < 1200)
-    return false;
-#endif
-}
-
-#endif // wxUSE_EXCEPTIONS
-
-// ----------------------------------------------------------------------------
-// cmd line parsing
-// ----------------------------------------------------------------------------
-
-#if wxUSE_CMDLINE_PARSER
-
-#define OPTION_VERBOSE "verbose"
-
-void wxAppConsoleBase::OnInitCmdLine(wxCmdLineParser& parser)
-{
-    // the standard command line options
-    static const wxCmdLineEntryDesc cmdLineDesc[] =
-    {
-        {
-            wxCMD_LINE_SWITCH,
-            "h",
-            "help",
-            gettext_noop("show this help message"),
-            wxCMD_LINE_VAL_NONE,
-            wxCMD_LINE_OPTION_HELP
-        },
-
-#if wxUSE_LOG
-        {
-            wxCMD_LINE_SWITCH,
-            NULL,
-            OPTION_VERBOSE,
-            gettext_noop("generate verbose log messages"),
-            wxCMD_LINE_VAL_NONE,
-            0x0
-        },
-#endif // wxUSE_LOG
-
-        // terminator
-        wxCMD_LINE_DESC_END
-    };
-
-    parser.SetDesc(cmdLineDesc);
-}
-
-bool wxAppConsoleBase::OnCmdLineParsed(wxCmdLineParser& parser)
-{
-#if wxUSE_LOG
-    if ( parser.Found(OPTION_VERBOSE) )
-    {
-        wxLog::SetVerbose(true);
-    }
-#else
-    wxUnusedVar(parser);
-#endif // wxUSE_LOG
-
-    return true;
-}
-
-bool wxAppConsoleBase::OnCmdLineHelp(wxCmdLineParser& parser)
-{
-    parser.Usage();
-
-    return false;
-}
-
-bool wxAppConsoleBase::OnCmdLineError(wxCmdLineParser& parser)
-{
-    parser.Usage();
-
-    return false;
-}
-
-#endif // wxUSE_CMDLINE_PARSER
-
-// ----------------------------------------------------------------------------
 // debugging support
 // ----------------------------------------------------------------------------
 
@@ -819,28 +630,10 @@ void wxAppConsoleBase::SetCLocale()
 // wxConsoleAppTraitsBase
 // ----------------------------------------------------------------------------
 
-#if wxUSE_LOG
-
-wxLog *wxConsoleAppTraitsBase::CreateLogTarget()
-{
-    return new wxLogStderr;
-}
-
-#endif // wxUSE_LOG
-
 wxMessageOutput *wxConsoleAppTraitsBase::CreateMessageOutput()
 {
     return new wxMessageOutputStderr;
 }
-
-#if wxUSE_FONTMAP
-
-wxFontMapper *wxConsoleAppTraitsBase::CreateFontMapper()
-{
-    return (wxFontMapper *)new wxFontMapperBase;
-}
-
-#endif // wxUSE_FONTMAP
 
 wxRendererNative *wxConsoleAppTraitsBase::CreateRenderer()
 {
@@ -896,17 +689,6 @@ bool wxAppTraitsBase::ShowAssertDialog(const wxString& msgOriginal)
 {
 #if wxDEBUG_LEVEL
     wxString msg;
-
-#if wxUSE_STACKWALKER
-    const wxString stackTrace = GetAssertStackTrace();
-    if ( !stackTrace.empty() )
-    {
-        msg << wxT("\n\nCall stack:\n") << stackTrace;
-
-        wxMessageOutputDebug().Output(msg);
-    }
-#endif // wxUSE_STACKWALKER
-
     return DoShowAssertDialog(msgOriginal + msg);
 #else // !wxDEBUG_LEVEL
     wxUnusedVar(msgOriginal);
@@ -914,85 +696,6 @@ bool wxAppTraitsBase::ShowAssertDialog(const wxString& msgOriginal)
     return false;
 #endif // wxDEBUG_LEVEL/!wxDEBUG_LEVEL
 }
-
-#if wxUSE_STACKWALKER
-wxString wxAppTraitsBase::GetAssertStackTrace()
-{
-#if wxDEBUG_LEVEL
-
-#if !defined(__WINDOWS__)
-    // on Unix stack frame generation may take some time, depending on the
-    // size of the executable mainly... warn the user that we are working
-    wxFprintf(stderr, "Collecting stack trace information, please wait...");
-    fflush(stderr);
-#endif // !__WINDOWS__
-
-
-    wxString stackTrace;
-
-    class StackDump : public wxStackWalker
-    {
-    public:
-        StackDump() { }
-
-        const wxString& GetStackTrace() const { return m_stackTrace; }
-
-    protected:
-        virtual void OnStackFrame(const wxStackFrame& frame)
-        {
-            m_stackTrace << wxString::Format
-                            (
-                              wxT("[%02d] "),
-                              wx_truncate_cast(int, frame.GetLevel())
-                            );
-
-            wxString name = frame.GetName();
-            if ( !name.empty() )
-            {
-                m_stackTrace << wxString::Format(wxT("%-40s"), name.c_str());
-            }
-            else
-            {
-                m_stackTrace << wxString::Format(wxT("%p"), frame.GetAddress());
-            }
-
-            if ( frame.HasSourceLocation() )
-            {
-                m_stackTrace << wxT('\t')
-                             << frame.GetFileName()
-                             << wxT(':')
-                             << frame.GetLine();
-            }
-
-            m_stackTrace << wxT('\n');
-        }
-
-    private:
-        wxString m_stackTrace;
-    };
-
-    // don't show more than maxLines or we could get a dialog too tall to be
-    // shown on screen: 20 should be ok everywhere as even with 15 pixel high
-    // characters it is still only 300 pixels...
-    static const int maxLines = 20;
-
-    StackDump dump;
-    dump.Walk(8, maxLines); // 8 is chosen to hide all OnAssert() calls
-    stackTrace = dump.GetStackTrace();
-
-    const int count = stackTrace.Freq(wxT('\n'));
-    for ( int i = 0; i < count - maxLines; i++ )
-        stackTrace = stackTrace.BeforeLast(wxT('\n'));
-
-    return stackTrace;
-#else // !wxDEBUG_LEVEL
-    // this function is still present for ABI-compatibility even in debug level
-    // 0 build but is not used there and so can simply do nothing
-    return wxString();
-#endif // wxDEBUG_LEVEL/!wxDEBUG_LEVEL
-}
-#endif // wxUSE_STACKWALKER
-
 
 // ============================================================================
 // global functions implementation
@@ -1189,15 +892,6 @@ void wxOnAssert(const char *file,
 
 static void LINKAGEMODE SetTraceMasks()
 {
-#if wxUSE_LOG
-    wxString mask;
-    if ( wxGetEnv(wxT("WXTRACE"), &mask) )
-    {
-        wxStringTokenizer tkn(mask, wxT(",;:"));
-        while ( tkn.HasMoreTokens() )
-            wxLog::AddTraceMask(tkn.GetNextToken());
-    }
-#endif // wxUSE_LOG
 }
 
 #endif // __WXDEBUG__

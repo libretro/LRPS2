@@ -66,7 +66,6 @@
 #include "wx/file.h"
 #include "wx/filename.h"
 #include "wx/tokenzr.h"
-#include "wx/fontmap.h"
 #include "wx/scopedptr.h"
 #include "wx/apptrait.h"
 #include "wx/stdpaths.h"
@@ -419,26 +418,6 @@ bool wxLocale::Init(int language, int flags)
         // Some C libraries don't like xx_YY form and require xx only
         retloc = wxSetlocaleTryUTF8(LC_ALL, langOnly);
     }
-
-#if wxUSE_FONTMAP
-    // some systems (e.g. FreeBSD and HP-UX) don't have xx_YY aliases but
-    // require the full xx_YY.encoding form, so try using UTF-8 because this is
-    // the only thing we can do generically
-    //
-    // TODO: add encodings applicable to each language to the lang DB and try
-    //       them all in turn here
-    if ( !retloc )
-    {
-        const wxChar **names =
-            wxFontMapperBase::GetAllEncodingNames(wxFONTENCODING_UTF8);
-        while ( *names )
-        {
-            retloc = wxSetlocale(LC_ALL, locale + wxS('.') + *names++);
-            if ( retloc )
-                break;
-        }
-    }
-#endif // wxUSE_FONTMAP
 
     if ( !retloc )
     {
@@ -917,43 +896,9 @@ wxFontEncoding wxLocale::GetSystemEncoding()
     CFStringEncoding encoding = 0 ;
     encoding = CFStringGetSystemEncoding() ;
     return wxMacGetFontEncFromSystemEnc( encoding ) ;
-#elif defined(__UNIX_LIKE__) && wxUSE_FONTMAP
-    const wxString encname = GetSystemEncodingName();
-    if ( !encname.empty() )
-    {
-        wxFontEncoding enc = wxFontMapperBase::GetEncodingFromName(encname);
-
-        // on some modern Linux systems (RedHat 8) the default system locale
-        // is UTF8 -- but it isn't supported by wxGTK1 in ANSI build at all so
-        // don't even try to use it in this case
-#if !wxUSE_UNICODE && \
-        ((defined(__WXGTK__) && !defined(__WXGTK20__)) || defined(__WXMOTIF__))
-        if ( enc == wxFONTENCODING_UTF8 )
-        {
-            // the most similar supported encoding...
-            enc = wxFONTENCODING_ISO8859_1;
-        }
-#endif // !wxUSE_UNICODE
-
-        // GetEncodingFromName() returns wxFONTENCODING_DEFAULT for C locale
-        // (a.k.a. US-ASCII) which is arguably a bug but keep it like this for
-        // backwards compatibility and just take care to not return
-        // wxFONTENCODING_DEFAULT from here as this surely doesn't make sense
-        if ( enc == wxFONTENCODING_DEFAULT )
-        {
-            // we don't have wxFONTENCODING_ASCII, so use the closest one
-            return wxFONTENCODING_ISO8859_1;
-        }
-
-        if ( enc != wxFONTENCODING_MAX )
-        {
-            return enc;
-        }
-        //else: return wxFONTENCODING_SYSTEM below
-    }
-#endif // Win32/Unix
-
+#else
     return wxFONTENCODING_SYSTEM;
+#endif
 }
 
 /* static */

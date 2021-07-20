@@ -47,15 +47,6 @@ const unsigned char wxALPHA_OPAQUE = 0xff;
 #define wxTransparentColour wxColour(0, 0, 0, wxALPHA_TRANSPARENT)
 #define wxTransparentColor wxTransparentColour
 
-// ----------------------------------------------------------------------------
-// wxVariant support
-// ----------------------------------------------------------------------------
-
-#if wxUSE_VARIANT
-#include "wx/variant.h"
-DECLARE_VARIANT_OBJECT_EXPORTED(wxColour,WXDLLIMPEXP_CORE)
-#endif
-
 //-----------------------------------------------------------------------------
 // wxColourBase: this class has no data members, just some functions to avoid
 //               code redundancy in all native wxColour implementations

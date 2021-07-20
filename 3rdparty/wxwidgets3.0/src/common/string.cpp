@@ -2169,55 +2169,6 @@ int wxString::PrintfV(const wxString& format, va_list argptr)
 // of them)
 bool wxString::Matches(const wxString& mask) const
 {
-    // I disable this code as it doesn't seem to be faster (in fact, it seems
-    // to be much slower) than the old, hand-written code below and using it
-    // here requires always linking with libregex even if the user code doesn't
-    // use it
-#if 0 // wxUSE_REGEX
-    // first translate the shell-like mask into a regex
-    wxString pattern;
-    pattern.reserve(wxStrlen(pszMask));
-
-    pattern += wxT('^');
-    while ( *pszMask )
-    {
-        switch ( *pszMask )
-        {
-            case wxT('?'):
-                pattern += wxT('.');
-                break;
-
-            case wxT('*'):
-                pattern += wxT(".*");
-                break;
-
-            case wxT('^'):
-            case wxT('.'):
-            case wxT('$'):
-            case wxT('('):
-            case wxT(')'):
-            case wxT('|'):
-            case wxT('+'):
-            case wxT('\\'):
-                // these characters are special in a RE, quote them
-                // (however note that we don't quote '[' and ']' to allow
-                // using them for Unix shell like matching)
-                pattern += wxT('\\');
-                // fall through
-
-            default:
-                pattern += *pszMask;
-        }
-
-        pszMask++;
-    }
-    pattern += wxT('$');
-
-    // and now use it
-    return wxRegEx(pattern, wxRE_NOSUB | wxRE_EXTENDED).Matches(c_str());
-#else // !wxUSE_REGEX
-  // TODO: this is, of course, awfully inefficient...
-
   // FIXME-UTF8: implement using iterators, remove #if
 #if wxUSE_UNICODE_UTF8
   const wxScopedWCharBuffer maskBuf = mask.wc_str();
@@ -2308,7 +2259,6 @@ match:
   }
 
   return false;
-#endif // wxUSE_REGEX/!wxUSE_REGEX
 }
 
 // Count the number of chars

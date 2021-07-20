@@ -30,11 +30,6 @@ class WXDLLIMPEXP_FWD_BASE wxCmdLineParser;
 class WXDLLIMPEXP_FWD_BASE wxEventLoopBase;
 class WXDLLIMPEXP_FWD_BASE wxMessageOutput;
 
-#if wxUSE_GUI
-    struct WXDLLIMPEXP_FWD_CORE wxVideoMode;
-    class WXDLLIMPEXP_FWD_CORE wxWindow;
-#endif
-
 // this macro should be used in any main() or equivalent functions defined in wx
 #define wxDISABLE_DEBUG_SUPPORT() \
     wxDISABLE_ASSERTS_IN_RELEASE_BUILD(); \
@@ -181,37 +176,6 @@ public:
     }
 
 
-    // cmd line parsing stuff
-    // ----------------------
-
-    // all of these methods may be overridden in the derived class to
-    // customize the command line parsing (by default only a few standard
-    // options are handled)
-    //
-    // you also need to call wxApp::OnInit() from YourApp::OnInit() for all
-    // this to work
-
-#if wxUSE_CMDLINE_PARSER
-    // this one is called from OnInit() to add all supported options
-    // to the given parser (don't forget to call the base class version if you
-    // override it!)
-    virtual void OnInitCmdLine(wxCmdLineParser& parser);
-
-    // called after successfully parsing the command line, return true
-    // to continue and false to exit (don't forget to call the base class
-    // version if you override it!)
-    virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
-
-    // called if "--help" option was specified, return true to continue
-    // and false to exit
-    virtual bool OnCmdLineHelp(wxCmdLineParser& parser);
-
-    // called if incorrect command line options were given, return
-    // false to abort and true to continue
-    virtual bool OnCmdLineError(wxCmdLineParser& parser);
-#endif // wxUSE_CMDLINE_PARSER
-
-
     // miscellaneous customization functions
     // -------------------------------------
 
@@ -269,41 +233,6 @@ public:
     // return true if we're running event loop, i.e. if the events can
     // (already) be dispatched
     static bool IsMainLoopRunning();
-
-#if wxUSE_EXCEPTIONS
-    // execute the functor to handle the given event
-    //
-    // this is a generalization of HandleEvent() below and the base class
-    // implementation of CallEventHandler() still calls HandleEvent() for
-    // compatibility for functors which are just wxEventFunctions (i.e. methods
-    // of wxEvtHandler)
-    virtual void CallEventHandler(wxEvtHandler *handler,
-                                  wxEventFunctor& functor,
-                                  wxEvent& event) const;
-
-    // call the specified handler on the given object with the given event
-    //
-    // this method only exists to allow catching the exceptions thrown by any
-    // event handler, it would lead to an extra (useless) virtual function call
-    // if the exceptions were not used, so it doesn't even exist in that case
-    virtual void HandleEvent(wxEvtHandler *handler,
-                             wxEventFunction func,
-                             wxEvent& event) const;
-
-    // Called when an unhandled C++ exception occurs inside OnRun(): note that
-    // the main event loop has already terminated by now and the program will
-    // exit, if you need to really handle the exceptions you need to override
-    // OnExceptionInMainLoop()
-    virtual void OnUnhandledException();
-
-    // Function called if an uncaught exception is caught inside the main
-    // event loop: it may return true to continue running the event loop or
-    // false to stop it (in the latter case it may rethrow the exception as
-    // well)
-    virtual bool OnExceptionInMainLoop();
-
-#endif // wxUSE_EXCEPTIONS
-
 
     // pending events
     // --------------
@@ -527,208 +456,10 @@ protected:
 // wxAppBase: the common part of wxApp implementations for all platforms
 // ----------------------------------------------------------------------------
 
-#if wxUSE_GUI
-
-class WXDLLIMPEXP_CORE wxAppBase : public wxAppConsole
-{
-public:
-    wxAppBase();
-    virtual ~wxAppBase();
-
-    // the virtual functions which may/must be overridden in the derived class
-    // -----------------------------------------------------------------------
-
-        // very first initialization function
-        //
-        // Override: very rarely
-    virtual bool Initialize(int& argc, wxChar **argv);
-
-        // a platform-dependent version of OnInit(): the code here is likely to
-        // depend on the toolkit. default version does nothing.
-        //
-        // Override: rarely.
-    virtual bool OnInitGui();
-
-        // called to start program execution - the default version just enters
-        // the main GUI loop in which events are received and processed until
-        // the last window is not deleted (if GetExitOnFrameDelete) or
-        // ExitMainLoop() is called. In console mode programs, the execution
-        // of the program really starts here
-        //
-        // Override: rarely in GUI applications, always in console ones.
-    virtual int OnRun();
-
-        // a matching function for OnInit()
-    virtual int OnExit();
-
-        // very last clean up function
-        //
-        // Override: very rarely
-    virtual void CleanUp();
-
-
-    // the worker functions - usually not used directly by the user code
-    // -----------------------------------------------------------------
-
-        // safer alternatives to Yield(), using wxWindowDisabler
-    virtual bool SafeYield(wxWindow *win, bool onlyIfNeeded);
-    virtual bool SafeYieldFor(wxWindow *win, long eventsToProcess);
-
-        // this virtual function is called in the GUI mode when the application
-        // becomes idle and normally just sends wxIdleEvent to all interested
-        // parties
-        //
-        // it should return true if more idle events are needed, false if not
-    virtual bool ProcessIdle();
-
-        // override base class version: GUI apps always use an event loop
-    virtual bool UsesEventLoop() const { return true; }
-
-
-    // top level window functions
-    // --------------------------
-
-        // return true if our app has focus
-    virtual bool IsActive() const { return m_isActive; }
-
-        // set the "main" top level window
-    void SetTopWindow(wxWindow *win) { m_topWindow = win; }
-
-        // return the "main" top level window (if it hadn't been set previously
-        // with SetTopWindow(), will return just some top level window and, if
-        // there are none, will return NULL)
-    virtual wxWindow *GetTopWindow() const;
-
-        // control the exit behaviour: by default, the program will exit the
-        // main loop (and so, usually, terminate) when the last top-level
-        // program window is deleted. Beware that if you disable this behaviour
-        // (with SetExitOnFrameDelete(false)), you'll have to call
-        // ExitMainLoop() explicitly from somewhere.
-    void SetExitOnFrameDelete(bool flag)
-        { m_exitOnFrameDelete = flag ? Yes : No; }
-    bool GetExitOnFrameDelete() const
-        { return m_exitOnFrameDelete == Yes; }
-
-
-    // display mode, visual, printing mode, ...
-    // ------------------------------------------------------------------------
-
-        // Get display mode that is used use. This is only used in framebuffer
-        // wxWin ports such as wxDFB.
-    virtual wxVideoMode GetDisplayMode() const;
-        // Set display mode to use. This is only used in framebuffer wxWin
-        // ports such as wxDFB. This method should be called from
-        // wxApp::OnInitGui
-    virtual bool SetDisplayMode(const wxVideoMode& WXUNUSED(info)) { return true; }
-
-        // set use of best visual flag (see below)
-    void SetUseBestVisual( bool flag, bool forceTrueColour = false )
-        { m_useBestVisual = flag; m_forceTrueColour = forceTrueColour; }
-    bool GetUseBestVisual() const { return m_useBestVisual; }
-
-        // set/get printing mode: see wxPRINT_XXX constants.
-        //
-        // default behaviour is the normal one for Unix: always use PostScript
-        // printing.
-    virtual void SetPrintMode(int WXUNUSED(mode)) { }
-    int GetPrintMode() const { return wxPRINT_POSTSCRIPT; }
-
-    // Return the layout direction for the current locale or wxLayout_Default
-    // if it's unknown
-    virtual wxLayoutDirection GetLayoutDirection() const;
-
-    // Change the theme used by the application, return true on success.
-    virtual bool SetNativeTheme(const wxString& WXUNUSED(theme)) { return false; }
-
-
-    // command line parsing (GUI-specific)
-    // ------------------------------------------------------------------------
-
-#if wxUSE_CMDLINE_PARSER
-    virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
-    virtual void OnInitCmdLine(wxCmdLineParser& parser);
-#endif
-
-    // miscellaneous other stuff
-    // ------------------------------------------------------------------------
-
-    // called by toolkit-specific code to set the app status: active (we have
-    // focus) or not and also the last window which had focus before we were
-    // deactivated
-    virtual void SetActive(bool isActive, wxWindow *lastFocus);
-
-#if WXWIN_COMPATIBILITY_2_6
-    // returns true if the program is successfully initialized
-    wxDEPRECATED_MSG("always returns true now, don't call")
-    bool Initialized();
-#endif // WXWIN_COMPATIBILITY_2_6
-
-protected:
-    // override base class method to use GUI traits
-    virtual wxAppTraits *CreateTraits();
-
-
-    // the main top level window (may be NULL)
-    wxWindow *m_topWindow;
-
-    // if Yes, exit the main loop when the last top level window is deleted, if
-    // No don't do it and if Later -- only do it once we reach our OnRun()
-    //
-    // the explanation for using this strange scheme is given in appcmn.cpp
-    enum
-    {
-        Later = -1,
-        No,
-        Yes
-    } m_exitOnFrameDelete;
-
-    // true if the app wants to use the best visual on systems where
-    // more than one are available (Sun, SGI, XFree86 4.0 ?)
-    bool m_useBestVisual;
-    // force TrueColour just in case "best" isn't TrueColour
-    bool m_forceTrueColour;
-
-    // does any of our windows have focus?
-    bool m_isActive;
-
-    wxDECLARE_NO_COPY_CLASS(wxAppBase);
-};
-
-#if WXWIN_COMPATIBILITY_2_6
-    inline bool wxAppBase::Initialized() { return true; }
-#endif // WXWIN_COMPATIBILITY_2_6
-
-// ----------------------------------------------------------------------------
-// now include the declaration of the real class
-// ----------------------------------------------------------------------------
-
-#if defined(__WXMSW__)
-    #include "wx/msw/app.h"
-#elif defined(__WXMOTIF__)
-    #include "wx/motif/app.h"
-#elif defined(__WXDFB__)
-    #include "wx/dfb/app.h"
-#elif defined(__WXGTK20__)
-    #include "wx/gtk/app.h"
-#elif defined(__WXGTK__)
-    #include "wx/gtk1/app.h"
-#elif defined(__WXX11__)
-    #include "wx/x11/app.h"
-#elif defined(__WXMAC__)
-    #include "wx/osx/app.h"
-#elif defined(__WXCOCOA__)
-    #include "wx/cocoa/app.h"
-#elif defined(__WXPM__)
-    #include "wx/os2/app.h"
-#endif
-
-#else // !GUI
 
 // wxApp is defined in core and we cannot define another one in wxBase,
 // so use the preprocessor to allow using wxApp in console programs too
 #define wxApp wxAppConsole
-
-#endif // GUI/!GUI
 
 // ----------------------------------------------------------------------------
 // the global data

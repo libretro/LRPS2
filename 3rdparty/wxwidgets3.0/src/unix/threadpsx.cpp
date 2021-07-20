@@ -730,19 +730,6 @@ public:
     wxThreadState GetState() const { return m_state; }
     void SetState(wxThreadState state)
     {
-#if wxUSE_LOG_TRACE
-        static const wxChar *const stateNames[] =
-        {
-            wxT("NEW"),
-            wxT("RUNNING"),
-            wxT("PAUSED"),
-            wxT("EXITED"),
-        };
-
-        wxLogTrace(TRACE_THREADS, wxT("Thread %p: %s => %s."),
-                   THR_ID(this), stateNames[m_state], stateNames[state]);
-#endif // wxUSE_LOG_TRACE
-
         m_state = state;
     }
         // id

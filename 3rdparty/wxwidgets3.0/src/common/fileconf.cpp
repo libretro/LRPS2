@@ -912,22 +912,6 @@ bool wxFileConfig::DoReadLong(const wxString& key, long *pl) const
     return str.ToLong(pl);
 }
 
-#if wxUSE_BASE64
-
-bool wxFileConfig::DoReadBinary(const wxString& key, wxMemoryBuffer* buf) const
-{
-    wxCHECK_MSG( buf, false, wxT("NULL buffer") );
-
-    wxString str;
-    if ( !Read(key, &str) )
-        return false;
-
-    *buf = wxBase64Decode(str);
-    return true;
-}
-
-#endif // wxUSE_BASE64
-
 bool wxFileConfig::DoWriteString(const wxString& key, const wxString& szValue)
 {
     wxConfigPathChanger     path(this, key);
@@ -992,15 +976,6 @@ bool wxFileConfig::DoWriteLong(const wxString& key, long lValue)
 {
   return Write(key, wxString::Format(wxT("%ld"), lValue));
 }
-
-#if wxUSE_BASE64
-
-bool wxFileConfig::DoWriteBinary(const wxString& key, const wxMemoryBuffer& buf)
-{
-  return Write(key, wxBase64Encode(buf));
-}
-
-#endif // wxUSE_BASE64
 
 bool wxFileConfig::Flush(bool /* bCurrentOnly */)
 {

@@ -78,14 +78,6 @@ public:
     virtual bool EmulateKeyPress(const wxKeyEvent& event);
 #endif // __WIN32__
 
-#if wxUSE_RICHEDIT
-    // apply text attribute to the range of text (only works with richedit
-    // controls)
-    virtual bool SetStyle(long start, long end, const wxTextAttr& style);
-    virtual bool SetDefaultStyle(const wxTextAttr& style);
-    virtual bool GetStyle(long position, wxTextAttr& style);
-#endif // wxUSE_RICHEDIT
-
     // translate between the position (which is just an index in the text ctrl
     // considering all its contents as a single strings) and (x, y) coordinates
     // which represent column and line.
@@ -108,36 +100,15 @@ public:
     // Implementation from now on
     // --------------------------
 
-#if wxUSE_DRAG_AND_DROP && wxUSE_RICHEDIT
-    virtual void SetDropTarget(wxDropTarget *dropTarget);
-#endif // wxUSE_DRAG_AND_DROP && wxUSE_RICHEDIT
-
     virtual void SetWindowStyleFlag(long style);
 
     virtual void Command(wxCommandEvent& event);
     virtual bool MSWCommand(WXUINT param, WXWORD id);
     virtual WXHBRUSH MSWControlColor(WXHDC hDC, WXHWND hWnd);
 
-#if wxUSE_RICHEDIT
-    virtual bool MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result);
-
-    int GetRichVersion() const { return m_verRichEdit; }
-    bool IsRich() const { return m_verRichEdit != 0; }
-
-    // rich edit controls are not compatible with normal ones and we must set
-    // the colours and font for them otherwise
-    virtual bool SetBackgroundColour(const wxColour& colour);
-    virtual bool SetForegroundColour(const wxColour& colour);
-    virtual bool SetFont(const wxFont& font);
-#else
     bool IsRich() const { return false; }
-#endif // wxUSE_RICHEDIT
 
-#if wxUSE_INKEDIT && wxUSE_RICHEDIT
-    bool IsInkEdit() const { return m_isInkEdit != 0; }
-#else
     bool IsInkEdit() const { return false; }
-#endif
 
     virtual void AdoptAttributesFromHWND();
 
@@ -217,15 +188,6 @@ protected:
     // false if we hit the limit set by SetMaxLength() and so didn't change it.
     bool AdjustSpaceLimit();
 
-#if wxUSE_RICHEDIT && (!wxUSE_UNICODE || wxUSE_UNICODE_MSLU)
-    // replace the selection or the entire control contents with the given text
-    // in the specified encoding
-    bool StreamIn(const wxString& value, wxFontEncoding encoding, bool selOnly);
-
-    // get the contents of the control out as text in the given encoding
-    wxString StreamOut(wxFontEncoding encoding, bool selOnly = false) const;
-#endif // wxUSE_RICHEDIT
-
     // replace the contents of the selection or of the entire control with the
     // given text
     void DoWriteText(const wxString& text,
@@ -243,27 +205,6 @@ protected:
 
     virtual wxSize DoGetBestSize() const;
     virtual wxSize DoGetSizeFromTextSize(int xlen, int ylen = -1) const;
-
-#if wxUSE_RICHEDIT
-    // Apply the character-related parts of wxTextAttr to the given selection
-    // or the entire control if start == end == -1.
-    //
-    // This function is private and should only be called for rich edit
-    // controls and with (from, to) already in correct order, i.e. from <= to.
-    bool MSWSetCharFormat(const wxTextAttr& attr, long from = -1, long to = -1);
-
-    // Same as above for paragraph-related parts of wxTextAttr. Note that this
-    // can only be applied to the selection as RichEdit doesn't support setting
-    // the paragraph styles globally.
-    bool MSWSetParaFormat(const wxTextAttr& attr, long from, long to);
-
-
-    // we're using RICHEDIT (and not simple EDIT) control if this field is not
-    // 0, it also gives the version of the RICHEDIT control being used
-    // (although not directly: 1 is for 1.0, 2 is for either 2.0 or 3.0 as we
-    // can't nor really need to distinguish between them and 4 is for 4.1)
-    int m_verRichEdit;
-#endif // wxUSE_RICHEDIT
 
     // number of EN_UPDATE events sent by Windows when we change the controls
     // text ourselves: we want this to be exactly 1
@@ -287,11 +228,6 @@ private:
     wxMenu* m_privateContextMenu;
 
     bool m_isNativeCaretShown;
-
-#if wxUSE_INKEDIT && wxUSE_RICHEDIT
-    int  m_isInkEdit;
-#endif
-
 };
 
 #endif // _WX_TEXTCTRL_H_

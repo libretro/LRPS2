@@ -179,12 +179,6 @@ int wxEventLoopManual::DoRun()
     // situations because it is supposed to be called synchronously,
     // wxModalEventLoop depends on this (so we can't just use ON_BLOCK_EXIT or
     // something similar here)
-#if wxUSE_EXCEPTIONS
-    for ( ;; )
-    {
-        try
-        {
-#endif // wxUSE_EXCEPTIONS
 
             // this is the event loop itself
             for ( ;; )
@@ -237,33 +231,6 @@ int wxEventLoopManual::DoRun()
                     break;
             }
 
-#if wxUSE_EXCEPTIONS
-            // exit the outer loop as well
-            break;
-        }
-        catch ( ... )
-        {
-            try
-            {
-                if ( !wxTheApp || !wxTheApp->OnExceptionInMainLoop() )
-                {
-                    OnExit();
-                    break;
-                }
-                //else: continue running the event loop
-            }
-            catch ( ... )
-            {
-                // OnException() throwed, possibly rethrowing the same
-                // exception again: very good, but we still need OnExit() to
-                // be called
-                OnExit();
-                throw;
-            }
-        }
-    }
-#endif // wxUSE_EXCEPTIONS
-
     return m_exitcode;
 }
 
@@ -288,4 +255,3 @@ void wxEventLoopManual::ScheduleExit(int rc)
 }
 
 #endif // __WINDOWS__ || __WXMAC__ || __WXDFB__
-

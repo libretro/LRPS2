@@ -11,9 +11,7 @@
 #ifndef   __CHECKLST__H_
 #define   __CHECKLST__H_
 
-#if !wxUSE_OWNER_DRAWN
-  #error  "wxCheckListBox class requires owner-drawn functionality."
-#endif
+#error  "wxCheckListBox class requires owner-drawn functionality."
 
 class WXDLLIMPEXP_FWD_CORE wxOwnerDrawn;
 class WXDLLIMPEXP_FWD_CORE wxCheckListBoxItem; // fwd decl, defined in checklst.cpp

@@ -143,22 +143,6 @@ private:
 };
 
 // ----------------------------------------------------------------------------
-// implementation which shows output in a message box
-// ----------------------------------------------------------------------------
-
-#if wxUSE_GUI && wxUSE_MSGDLG
-
-class WXDLLIMPEXP_CORE wxMessageOutputMessageBox : public wxMessageOutput
-{
-public:
-    wxMessageOutputMessageBox() { }
-
-    virtual void Output(const wxString& str);
-};
-
-#endif // wxUSE_GUI && wxUSE_MSGDLG
-
-// ----------------------------------------------------------------------------
 // implementation using the native way of outputting debug messages
 // ----------------------------------------------------------------------------
 

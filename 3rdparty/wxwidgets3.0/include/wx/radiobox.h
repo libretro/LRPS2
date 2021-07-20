@@ -17,16 +17,6 @@
 
 #include "wx/ctrlsub.h"
 
-#if wxUSE_TOOLTIPS
-
-#include "wx/dynarray.h"
-
-class WXDLLIMPEXP_FWD_CORE wxToolTip;
-
-WX_DEFINE_EXPORTED_ARRAY_PTR(wxToolTip *, wxToolTipArray);
-
-#endif // wxUSE_TOOLTIPS
-
 extern WXDLLIMPEXP_DATA_CORE(const char) wxRadioBoxNameStr[];
 
 // ----------------------------------------------------------------------------
@@ -54,29 +44,12 @@ public:
     // the left/right of the given one
     int GetNextItem(int item, wxDirection dir, long style) const;
 
-#if wxUSE_TOOLTIPS
-    // set the tooltip text for a radio item, empty string unsets any tooltip
-    void SetItemToolTip(unsigned int item, const wxString& text);
-
-    // get the individual items tooltip; returns NULL if none
-    wxToolTip *GetItemToolTip(unsigned int item) const
-        { return m_itemsTooltips ? (*m_itemsTooltips)[item] : NULL; }
-#endif // wxUSE_TOOLTIPS
-
-#if wxUSE_HELP
-    // set helptext for a particular item, pass an empty string to erase it
-    void SetItemHelpText(unsigned int n, const wxString& helpText);
-
-    // retrieve helptext for a particular item, empty string means no help text
-    wxString GetItemHelpText(unsigned int n) const;
-#else // wxUSE_HELP
     // just silently ignore the help text, it's better than requiring using
     // conditional compilation in all code using this function
     void SetItemHelpText(unsigned int WXUNUSED(n),
                          const wxString& WXUNUSED(helpText))
     {
     }
-#endif // wxUSE_HELP
 
     // returns the radio item at the given position or wxNOT_FOUND if none
     // (currently implemented only under MSW and GTK)
@@ -93,9 +66,6 @@ protected:
         m_numRows =
         m_majorDim = 0;
 
-#if wxUSE_TOOLTIPS
-        m_itemsTooltips = NULL;
-#endif // wxUSE_TOOLTIPS
     }
 
     virtual wxBorder GetDefaultBorder() const { return wxBORDER_NONE; }
@@ -109,27 +79,6 @@ protected:
     // the style parameter should be the style of the radiobox itself
     void SetMajorDim(unsigned int majorDim, long style);
 
-#if wxUSE_TOOLTIPS
-    // called from SetItemToolTip() to really set the tooltip for the specified
-    // item in the box (or, if tooltip is NULL, to remove any existing one).
-    //
-    // NB: this function should really be pure virtual but to avoid breaking
-    //     the build of the ports for which it's not implemented yet we provide
-    //     an empty stub in the base class for now
-    virtual void DoSetItemToolTip(unsigned int item, wxToolTip *tooltip);
-
-    // returns true if we have any item tooltips
-    bool HasItemToolTips() const { return m_itemsTooltips != NULL; }
-#endif // wxUSE_TOOLTIPS
-
-#if wxUSE_HELP
-    // Retrieve help text for an item: this is a helper for the implementation
-    // of wxWindow::GetHelpTextAtPoint() in the real radiobox class
-    wxString DoGetHelpTextAtPoint(const wxWindow *derived,
-                                  const wxPoint& pt,
-                                  wxHelpEvent::Origin origin) const;
-#endif // wxUSE_HELP
-
 private:
     // the number of elements in major dimension (i.e. number of columns if
     // wxRA_SPECIFY_COLS or the number of rows if wxRA_SPECIFY_ROWS) and also
@@ -138,17 +87,6 @@ private:
                  m_numCols,
                  m_numRows;
 
-#if wxUSE_TOOLTIPS
-    // array of tooltips for the individual items
-    //
-    // this array is initially NULL and initialized on first use
-    wxToolTipArray *m_itemsTooltips;
-#endif
-
-#if wxUSE_HELP
-    // help text associated with a particular item or empty string if none
-    wxArrayString m_itemsHelpTexts;
-#endif // wxUSE_HELP
 };
 
 #if defined(__WXUNIVERSAL__)

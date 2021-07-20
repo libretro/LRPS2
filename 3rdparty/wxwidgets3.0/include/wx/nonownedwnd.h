@@ -43,21 +43,6 @@ public:
         return region.IsEmpty() ? DoClearShape() : DoSetRegionShape(region);
     }
 
-#if wxUSE_GRAPHICS_CONTEXT
-    // Set the shape using the specified path.
-    bool SetShape(const wxGraphicsPath& path)
-    {
-        wxCHECK_MSG
-        (
-            HasFlag(wxFRAME_SHAPED), false,
-            wxS("Shaped windows must be created with the wxFRAME_SHAPED style.")
-        );
-
-        return DoSetPathShape(path);
-    }
-#endif // wxUSE_GRAPHICS_CONTEXT
-
-
     // Overridden base class methods.
     // ------------------------------
 
@@ -85,13 +70,6 @@ protected:
     {
         return false;
     }
-
-#if wxUSE_GRAPHICS_CONTEXT
-    virtual bool DoSetPathShape(const wxGraphicsPath& WXUNUSED(path))
-    {
-        return false;
-    }
-#endif // wxUSE_GRAPHICS_CONTEXT
 };
 
 #if defined(__WXDFB__)

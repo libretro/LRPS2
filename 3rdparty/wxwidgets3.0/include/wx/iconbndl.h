@@ -47,28 +47,10 @@ public:
     // default constructor
     wxIconBundle();
 
-    // initializes the bundle with the icon(s) found in the file
-#if wxUSE_STREAMS && wxUSE_IMAGE
-#if wxUSE_FFILE || wxUSE_FILE
-    wxIconBundle(const wxString& file, wxBitmapType type = wxBITMAP_TYPE_ANY);
-#endif // wxUSE_FFILE || wxUSE_FILE
-    wxIconBundle(wxInputStream& stream, wxBitmapType type = wxBITMAP_TYPE_ANY);
-#endif // wxUSE_STREAMS && wxUSE_IMAGE
-
     // initializes the bundle with a single icon
     wxIconBundle(const wxIcon& icon);
 
     // default copy ctor and assignment operator are OK
-
-    // adds all the icons contained in the file to the collection,
-    // if the collection already contains icons with the same
-    // width and height, they are replaced
-#if wxUSE_STREAMS && wxUSE_IMAGE
-#if wxUSE_FFILE || wxUSE_FILE
-    void AddIcon(const wxString& file, wxBitmapType type = wxBITMAP_TYPE_ANY);
-#endif // wxUSE_FFILE || wxUSE_FILE
-    void AddIcon(wxInputStream& stream, wxBitmapType type = wxBITMAP_TYPE_ANY);
-#endif // wxUSE_STREAMS && wxUSE_IMAGE
 
     // adds the icon to the collection, if the collection already
     // contains an icon with the same width and height, it is
@@ -101,22 +83,6 @@ public:
 
     // check if we have any icons at all
     bool IsEmpty() const { return GetIconCount() == 0; }
-
-#if WXWIN_COMPATIBILITY_2_8
-#if wxUSE_STREAMS && wxUSE_IMAGE && (wxUSE_FFILE || wxUSE_FILE)
-    wxDEPRECATED( void AddIcon(const wxString& file, long type)
-        {
-            AddIcon(file, (wxBitmapType)type);
-        }
-    )
-
-    wxDEPRECATED_CONSTRUCTOR( wxIconBundle (const wxString& file, long type)
-        {
-            AddIcon(file, (wxBitmapType)type);
-        }
-    )
-#endif // wxUSE_STREAMS && wxUSE_IMAGE && (wxUSE_FFILE || wxUSE_FILE)
-#endif // WXWIN_COMPATIBILITY_2_8
 
 protected:
     virtual wxGDIRefData *CreateGDIRefData() const;

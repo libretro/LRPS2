@@ -28,15 +28,6 @@ class WXDLLIMPEXP_FWD_CORE wxPalette;
 class WXDLLIMPEXP_FWD_CORE wxDC;
 
 // ----------------------------------------------------------------------------
-// wxVariant support
-// ----------------------------------------------------------------------------
-
-#if wxUSE_VARIANT
-#include "wx/variant.h"
-DECLARE_VARIANT_OBJECT_EXPORTED(wxBitmap,WXDLLIMPEXP_CORE)
-#endif
-
-// ----------------------------------------------------------------------------
 // wxMask represents the transparent area of the bitmap
 // ----------------------------------------------------------------------------
 
@@ -47,11 +38,6 @@ class WXDLLIMPEXP_CORE wxMaskBase : public wxObject
 public:
     // create the mask from bitmap pixels of the given colour
     bool Create(const wxBitmap& bitmap, const wxColour& colour);
-
-#if wxUSE_PALETTE
-    // create the mask from bitmap pixels with the given palette index
-    bool Create(const wxBitmap& bitmap, int paletteIndex);
-#endif // wxUSE_PALETTE
 
     // create the mask from the given mono bitmap
     bool Create(const wxBitmap& bitmap);
@@ -191,13 +177,6 @@ public:
     virtual wxSize GetScaledSize() const
     { return wxSize(GetScaledWidth(), GetScaledHeight()); }
 
-#if wxUSE_IMAGE
-    virtual wxImage ConvertToImage() const = 0;
-
-    // Convert to disabled (dimmed) bitmap.
-    wxBitmap ConvertToDisabled(unsigned char brightness = 255) const;
-#endif // wxUSE_IMAGE
-
     virtual wxMask *GetMask() const = 0;
     virtual void SetMask(wxMask *mask) = 0;
 
@@ -214,11 +193,6 @@ public:
        virtual bool GetRawData(wxRawBitmapData *data) = 0;
        virtual void UngetRawData(wxRawBitmapData *data) = 0;
      */
-
-#if wxUSE_PALETTE
-    virtual wxPalette *GetPalette() const = 0;
-    virtual void SetPalette(const wxPalette& palette) = 0;
-#endif // wxUSE_PALETTE
 
     // copies the contents and mask of the given (colour) icon to the bitmap
     virtual bool CopyFromIcon(const wxIcon& icon) = 0;
@@ -294,20 +268,6 @@ protected:
     #define wxBITMAP_DEFAULT_TYPE    wxBITMAP_TYPE_BMP_RESOURCE
     #include "wx/os2/bitmap.h"
 #endif
-
-#if wxUSE_IMAGE
-inline
-wxBitmap
-#if wxUSE_BITMAP_BASE
-wxBitmapBase::
-#else
-wxBitmap::
-#endif
-ConvertToDisabled(unsigned char brightness) const
-{
-    return ConvertToImage().ConvertToDisabled(brightness);
-}
-#endif // wxUSE_IMAGE
 
 // we must include generic mask.h after wxBitmap definition
 #if defined(__WXDFB__)

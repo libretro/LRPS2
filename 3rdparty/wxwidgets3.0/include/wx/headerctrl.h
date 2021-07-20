@@ -122,28 +122,6 @@ public:
     // UI helpers
     // ----------
 
-#if wxUSE_MENUS
-    // show the popup menu containing all columns with check marks for the ones
-    // which are currently shown and return true if something was done using it
-    // (in this case UpdateColumnVisibility() will have been called) or false
-    // if the menu was cancelled
-    //
-    // this is called from the default right click handler for the controls
-    // with wxHD_ALLOW_HIDE style
-    bool ShowColumnsMenu(const wxPoint& pt, const wxString& title = wxString());
-
-    // append the entries for all our columns to the given menu, with the
-    // currently visible columns being checked
-    //
-    // this is used by ShowColumnsMenu() but can also be used if you use your
-    // own custom columns menu but nevertheless want to show all the columns in
-    // it
-    //
-    // the ids of the items corresponding to the columns are consecutive and
-    // start from idColumnsBase
-    void AddColumnsItems(wxMenu& menu, int idColumnsBase = 0);
-#endif // wxUSE_MENUS
-
     // show the columns customization dialog and return true if something was
     // changed using it (in which case UpdateColumnVisibility() and/or
     // UpdateColumnsOrder() will have been called)
@@ -228,9 +206,6 @@ private:
 
     // event handlers
     void OnSeparatorDClick(wxHeaderCtrlEvent& event);
-#if wxUSE_MENUS
-    void OnRClick(wxHeaderCtrlEvent& event);
-#endif // wxUSE_MENUS
 
     DECLARE_EVENT_TABLE()
 };

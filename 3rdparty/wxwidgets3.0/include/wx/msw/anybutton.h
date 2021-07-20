@@ -20,9 +20,6 @@ public:
     wxAnyButton()
     {
         m_imageData = NULL;
-#if wxUSE_MARKUP
-        m_markupText = NULL;
-#endif // wxUSE_MARKUP
     }
 
     virtual ~wxAnyButton();
@@ -51,10 +48,6 @@ protected:
     virtual void DoSetBitmapMargins(wxCoord x, wxCoord y);
     virtual void DoSetBitmapPosition(wxDirection dir);
 
-#if wxUSE_MARKUP
-    virtual bool DoSetLabelMarkup(const wxString& markup);
-#endif // wxUSE_MARKUP
-
     // Increases the passed in size to account for the button image.
     //
     // Should only be called if we do have a button, i.e. if m_imageData is
@@ -62,10 +55,6 @@ protected:
     void AdjustForBitmapSize(wxSize& size) const;
 
     class wxButtonImageData *m_imageData;
-
-#if wxUSE_MARKUP
-    class wxMarkupText *m_markupText;
-#endif // wxUSE_MARKUP
 
     // Switches button into owner-drawn mode: this is used if we need to draw
     // something not supported by the native control, such as using non default

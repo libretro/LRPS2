@@ -18,28 +18,6 @@
 // macros
 // ---------------------------------------------------------------------------
 
-#if wxUSE_DC_CACHEING
-/*
- * Cached blitting, maintaining a cache
- * of bitmaps required for transparent blitting
- * instead of constant creation/deletion
- */
-
-class wxDCCacheEntry: public wxObject
-{
-public:
-    wxDCCacheEntry(WXHBITMAP hBitmap, int w, int h, int depth);
-    wxDCCacheEntry(WXHDC hDC, int depth);
-    virtual ~wxDCCacheEntry();
-
-    WXHBITMAP   m_bitmap;
-    WXHDC       m_dc;
-    int         m_width;
-    int         m_height;
-    int         m_depth;
-};
-#endif
-
 // this is an ABC: use one of the derived classes to create a DC associated
 // with a window, screen, printer and so on
 class WXDLLIMPEXP_CORE wxMSWDCImpl: public wxDCImpl
@@ -64,9 +42,6 @@ public:
     virtual void SetBrush(const wxBrush& brush);
     virtual void SetBackground(const wxBrush& brush);
     virtual void SetBackgroundMode(int mode);
-#if wxUSE_PALETTE
-    virtual void SetPalette(const wxPalette& palette);
-#endif // wxUSE_PALETTE
 
     virtual void DestroyClippingRegion();
 
@@ -86,13 +61,6 @@ public:
     virtual void SetDeviceOrigin(wxCoord x, wxCoord y);
     virtual void SetAxisOrientation(bool xLeftRight, bool yBottomUp);
 
-#if wxUSE_DC_TRANSFORM_MATRIX
-    virtual bool CanUseTransformMatrix() const;
-    virtual bool SetTransformMatrix(const wxAffineMatrix2D& matrix);
-    virtual wxAffineMatrix2D GetTransformMatrix() const;
-    virtual void ResetTransformMatrix();
-#endif // wxUSE_DC_TRANSFORM_MATRIX
-
     virtual void SetLogicalFunction(wxRasterOperationMode function);
 
     // implementation from now on
@@ -104,11 +72,6 @@ public:
     void SetWindow(wxWindow *win)
     {
         m_window = win;
-
-#if wxUSE_PALETTE
-        // if we have palettes use the correct one for this window
-        InitializePalette();
-#endif // wxUSE_PALETTE
     }
 
     WXHDC GetHDC() const { return m_hDC; }
@@ -133,15 +96,6 @@ public:
     // update the internal clip box variables
     void UpdateClipBox();
 
-#if wxUSE_DC_CACHEING
-    static wxDCCacheEntry* FindBitmapInCache(WXHDC hDC, int w, int h);
-    static wxDCCacheEntry* FindDCInCache(wxDCCacheEntry* notThis, WXHDC hDC);
-
-    static void AddToBitmapCache(wxDCCacheEntry* entry);
-    static void AddToDCCache(wxDCCacheEntry* entry);
-    static void ClearCache();
-#endif
-
     // RTL related functions
     // ---------------------
 
@@ -160,10 +114,6 @@ protected:
         m_oldPen = NULL;
         m_oldBrush = NULL;
         m_oldFont = NULL;
-
-#if wxUSE_PALETTE
-        m_oldPalette = NULL;
-#endif // wxUSE_PALETTE
     }
 
     // create an uninitialized DC: this should be only used by the derived
@@ -213,10 +163,6 @@ public:
                                         double radius);
     virtual void DoDrawEllipse(wxCoord x, wxCoord y, wxCoord width, wxCoord height);
 
-#if wxUSE_SPLINES && !defined(__WXWINCE__)
-    virtual void DoDrawSpline(const wxPointList *points);
-#endif
-
     virtual void DoCrossHair(wxCoord x, wxCoord y);
 
     virtual void DoDrawIcon(const wxIcon& icon, wxCoord x, wxCoord y);
@@ -263,17 +209,6 @@ public:
     }
 
 
-#if wxUSE_PALETTE
-    // MSW specific, select a logical palette into the HDC
-    // (tell windows to translate pixel from other palettes to our custom one
-    // and vice versa)
-    // Realize tells it to also reset the system palette to this one.
-    void DoSelectPalette(bool realize = false);
-
-    // Find out what palette our parent window has, then select it into the dc
-    void InitializePalette();
-#endif // wxUSE_PALETTE
-
 protected:
     // common part of DoDrawText() and DoDrawRotatedText()
     void DrawAnyText(const wxString& text, wxCoord x, wxCoord y);
@@ -313,15 +248,6 @@ protected:
     WXHPEN            m_oldPen;
     WXHBRUSH          m_oldBrush;
     WXHFONT           m_oldFont;
-
-#if wxUSE_PALETTE
-    WXHPALETTE        m_oldPalette;
-#endif // wxUSE_PALETTE
-
-#if wxUSE_DC_CACHEING
-    static wxObjectList     sm_bitmapCache;
-    static wxObjectList     sm_dcCache;
-#endif
 
     DECLARE_CLASS(wxMSWDCImpl)
     wxDECLARE_NO_COPY_CLASS(wxMSWDCImpl);

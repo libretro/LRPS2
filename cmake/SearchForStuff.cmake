@@ -24,63 +24,8 @@ set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL)
 find_package(PNG)
 find_package(Vtune)
-if(LIBRETRO)
-   set(wxWidgets_FOUND 1)
-   set(wxWidgets_USE_FILE 3rdparty/wxwidgets3.0-libretro/UsewxWidgets.cmake)
-else()
-# The requirement of wxWidgets is checked in SelectPcsx2Plugins module
-# Does not require the module (allow to compile non-wx plugins)
-# Force the unicode build (the variable is only supported on cmake 2.8.3 and above)
-# Warning do not put any double-quote for the argument...
-# set(wxWidgets_CONFIG_OPTIONS --unicode=yes --debug=yes) # In case someone want to debug inside wx
-#
-# Fedora uses an extra non-standard option ... Arch must be the first option.
-# They do uname -m if missing so only fix for cross compilations.
-# http://pkgs.fedoraproject.org/cgit/wxGTK.git/plain/wx-config
-if(Fedora AND CMAKE_CROSSCOMPILING)
-    set(wxWidgets_CONFIG_OPTIONS --arch ${PCSX2_TARGET_ARCHITECTURES} --unicode=yes)
-else()
-    set(wxWidgets_CONFIG_OPTIONS --unicode=yes)
-endif()
-
-list(APPEND wxWidgets_CONFIG_OPTIONS --version=3.0)
-
-if(GTK3_API AND NOT APPLE)
-    list(APPEND wxWidgets_CONFIG_OPTIONS --toolkit=gtk3)
-elseif(NOT APPLE)
-    list(APPEND wxWidgets_CONFIG_OPTIONS --toolkit=gtk2)
-endif()
-
-# wx2.8 => /usr/bin/wx-config-2.8
-# lib32-wx2.8 => /usr/bin/wx-config32-2.8
-# wx3.0 => /usr/bin/wx-config-3.0
-# I'm going to take a wild guess and predict this:
-# lib32-wx3.0 => /usr/bin/wx-config32-3.0
-# FindwxWidgets only searches for wx-config.
-if(CMAKE_CROSSCOMPILING)
-    # May need to fix the filenames for lib32-wx3.0.
-    if(${PCSX2_TARGET_ARCHITECTURES} MATCHES "i386")
-        if (Fedora AND EXISTS "/usr/bin/wx-config-3.0")
-            set(wxWidgets_CONFIG_EXECUTABLE "/usr/bin/wx-config-3.0")
-        endif()
-        if (EXISTS "/usr/bin/wx-config32")
-            set(wxWidgets_CONFIG_EXECUTABLE "/usr/bin/wx-config32")
-        endif()
-        if (EXISTS "/usr/bin/wx-config32-3.0")
-            set(wxWidgets_CONFIG_EXECUTABLE "/usr/bin/wx-config32-3.0")
-        endif()
-    endif()
-else()
-    if (${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
-        set(wxWidgets_CONFIG_EXECUTABLE "/usr/local/bin/wxgtk3u-3.0-config")
-    endif()
-    if(EXISTS "/usr/bin/wx-config-3.0")
-        set(wxWidgets_CONFIG_EXECUTABLE "/usr/bin/wx-config-3.0")
-    endif()
-endif()
-
-find_package(wxWidgets COMPONENTS base core adv)
-endif()
+set(wxWidgets_FOUND 1)
+set(wxWidgets_USE_FILE 3rdparty/wxwidgets3.0/UsewxWidgets.cmake)
 find_package(ZLIB)
 
 ## Use pcsx2 package to find module

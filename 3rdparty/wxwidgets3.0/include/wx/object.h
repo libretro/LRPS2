@@ -179,42 +179,6 @@ inline T *wxCheckCast(const void *ptr, T * = NULL)
     _WX_WANT_ARRAY_DELETE_VOID_WXCHAR_INT     = void operator delete[] (void* buf, wxChar*, int )
 */
 
-#if wxUSE_MEMORY_TRACING
-
-// All compilers get this one
-#define _WX_WANT_NEW_SIZET_WXCHAR_INT
-
-// Everyone except Visage gets the next one
-#ifndef __VISAGECPP__
-    #define _WX_WANT_DELETE_VOID
-#endif
-
-// Only visage gets this one under the correct circumstances
-#if defined(__VISAGECPP__) && __DEBUG_ALLOC__
-    #define _WX_WANT_DELETE_VOID_CONSTCHAR_SIZET
-#endif
-
-// Only VC++ 6 gets overloaded delete that matches new
-#if (defined(__VISUALC__) && (__VISUALC__ >= 1200))
-    #define _WX_WANT_DELETE_VOID_WXCHAR_INT
-#endif
-
-// Now see who (if anyone) gets the array memory operators
-#if wxUSE_ARRAY_MEMORY_OPERATORS
-
-    // Everyone except Visual C++ (cause problems for VC++ - crashes)
-    #if !defined(__VISUALC__)
-        #define _WX_WANT_ARRAY_NEW_SIZET_WXCHAR_INT
-    #endif
-
-    // Everyone except Visual C++ (cause problems for VC++ - crashes)
-    #if !defined(__VISUALC__)
-        #define _WX_WANT_ARRAY_DELETE_VOID
-    #endif
-#endif // wxUSE_ARRAY_MEMORY_OPERATORS
-
-#endif // wxUSE_MEMORY_TRACING
-
 // ----------------------------------------------------------------------------
 // Compatibility macro aliases DECLARE group
 // ----------------------------------------------------------------------------
@@ -451,22 +415,6 @@ inline wxObject *wxCheckDynamicCast(wxObject *obj, wxClassInfo *classInfo)
 }
 
 #include "wx/xti2.h"
-
-// ----------------------------------------------------------------------------
-// more debugging macros
-// ----------------------------------------------------------------------------
-
-#if wxUSE_DEBUG_NEW_ALWAYS
-    #define WXDEBUG_NEW new(__TFILE__,__LINE__)
-
-    #if wxUSE_GLOBAL_MEMORY_OPERATORS
-        #define new WXDEBUG_NEW
-    #elif defined(__VISUALC__)
-        // Including this file redefines new and allows leak reports to
-        // contain line numbers
-        #include "wx/msw/msvcrt.h"
-    #endif
-#endif // wxUSE_DEBUG_NEW_ALWAYS
 
 // ----------------------------------------------------------------------------
 // Compatibility macro aliases IMPLEMENT group

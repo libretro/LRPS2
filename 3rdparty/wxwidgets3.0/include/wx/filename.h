@@ -395,14 +395,6 @@ public:
         return !m_dontFollowLinks;
     }
 
-#if defined(__WIN32__) && !defined(__WXWINCE__) && wxUSE_OLE
-        // if the path is a shortcut, return the target and optionally,
-        // the arguments
-    bool GetShortcutTarget(const wxString& shortcutPath,
-                           wxString& targetFilename,
-                           wxString* arguments = NULL) const;
-#endif
-
 #ifndef __WXWINCE__
         // if the path contains the value of the environment variable named envname
         // then this function replaces it with the string obtained from

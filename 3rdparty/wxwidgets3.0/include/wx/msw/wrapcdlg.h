@@ -17,10 +17,6 @@
 #include "wx/msw/private.h"
 #include "wx/msw/missing.h"
 
-#if wxUSE_COMMON_DIALOGS && !defined(__SMARTPHONE__) && !defined(__WXMICROWIN__)
-    #include <commdlg.h>
-#endif
-
 #include "wx/msw/winundef.h"
 
 #endif // _WX_MSW_WRAPCDLG_H_

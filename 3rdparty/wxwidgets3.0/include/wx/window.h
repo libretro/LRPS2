@@ -28,27 +28,6 @@
 
 #include "wx/validate.h"        // for wxDefaultValidator (always include it)
 
-#if wxUSE_PALETTE
-    #include "wx/palette.h"
-#endif // wxUSE_PALETTE
-
-#if wxUSE_ACCEL
-    #include "wx/accel.h"
-#endif // wxUSE_ACCEL
-
-#if wxUSE_ACCESSIBILITY
-#include "wx/access.h"
-#endif
-
-// when building wxUniv/Foo we don't want the code for native menu use to be
-// compiled in - it should only be used when building real wxFoo
-#ifdef __WXUNIVERSAL__
-    #define wxUSE_MENUS_NATIVE 0
-#else // !__WXUNIVERSAL__
-    #define wxUSE_MENUS_NATIVE wxUSE_MENUS
-#endif // __WXUNIVERSAL__/!__WXUNIVERSAL__
-
-
 // Define this macro if the corresponding operating system handles the state
 // of children windows automatically when the parent is enabled/disabled.
 // Otherwise wx itself must ensure that when the parent is disabled its
@@ -84,10 +63,6 @@ class WXDLLIMPEXP_FWD_CORE wxWindowBase;
 class WXDLLIMPEXP_FWD_CORE wxWindow;
 class WXDLLIMPEXP_FWD_CORE wxScrollHelper;
 
-#if wxUSE_ACCESSIBILITY
-class WXDLLIMPEXP_FWD_CORE wxAccessible;
-#endif
-
 // ----------------------------------------------------------------------------
 // helper stuff used by wxWindow
 // ----------------------------------------------------------------------------
@@ -116,10 +91,6 @@ enum wxWindowVariant
     wxWINDOW_VARIANT_LARGE,   // Large size (about 25 % larger than normal)
     wxWINDOW_VARIANT_MAX
 };
-
-#if wxUSE_SYSTEM_OPTIONS
-    #define wxWINDOW_DEFAULT_VARIANT wxT("window-default-variant")
-#endif
 
 // valid values for Show/HideWithEffect()
 enum wxShowEffect
@@ -914,17 +885,6 @@ protected:
 
 public:
 
-    // validators
-    // ----------
-
-#if wxUSE_VALIDATORS
-        // a window may have an associated validator which is used to control
-        // user input
-    virtual void SetValidator( const wxValidator &validator );
-    virtual wxValidator *GetValidator() { return m_windowValidator; }
-#endif // wxUSE_VALIDATORS
-
-
     // dialog oriented functions
     // -------------------------
 
@@ -936,25 +896,6 @@ public:
     virtual bool TransferDataFromWindow();
 
     virtual void InitDialog();
-
-#if wxUSE_ACCEL
-    // accelerators
-    // ------------
-    virtual void SetAcceleratorTable( const wxAcceleratorTable& accel )
-        { m_acceleratorTable = accel; }
-    wxAcceleratorTable *GetAcceleratorTable()
-        { return &m_acceleratorTable; }
-
-#endif // wxUSE_ACCEL
-
-#if wxUSE_HOTKEY
-    // hot keys (system wide accelerators)
-    // -----------------------------------
-
-    virtual bool RegisterHotKey(int hotkeyId, int modifiers, int keycode);
-    virtual bool UnregisterHotKey(int hotkeyId);
-#endif // wxUSE_HOTKEY
-
 
     // dialog units translations
     // -------------------------
@@ -1130,13 +1071,6 @@ public:
     virtual bool SetCursor( const wxCursor &cursor );
     const wxCursor& GetCursor() const { return m_cursor; }
 
-#if wxUSE_CARET
-        // associate a caret with the window
-    void SetCaret(wxCaret *caret);
-        // get the current caret (may be NULL)
-    wxCaret *GetCaret() const { return m_caret; }
-#endif // wxUSE_CARET
-
         // get the (average) character size for the current font
     virtual int GetCharHeight() const = 0;
     virtual int GetCharWidth() const = 0;
@@ -1209,22 +1143,6 @@ public:
     // do the window-specific processing after processing the update event
     virtual void DoUpdateWindowUI(wxUpdateUIEvent& event) ;
 
-#if wxUSE_MENUS
-    // show popup menu at the given position, generate events for the items
-    // selected in it
-    bool PopupMenu(wxMenu *menu, const wxPoint& pos = wxDefaultPosition)
-        { return PopupMenu(menu, pos.x, pos.y); }
-    bool PopupMenu(wxMenu *menu, int x, int y);
-
-    // simply return the id of the selected item or wxID_NONE without
-    // generating any events
-    int GetPopupMenuSelectionFromUser(wxMenu& menu,
-                                      const wxPoint& pos = wxDefaultPosition)
-        { return DoGetPopupMenuSelectionFromUser(menu, pos.x, pos.y); }
-    int GetPopupMenuSelectionFromUser(wxMenu& menu, int x, int y)
-        { return DoGetPopupMenuSelectionFromUser(menu, x, y); }
-#endif // wxUSE_MENUS
-
     // override this method to return true for controls having multiple pages
     virtual bool HasMultiplePages() const { return false; }
 
@@ -1284,117 +1202,21 @@ public:
 
     // these are the convenience functions wrapping wxHelpProvider methods
 
-#if wxUSE_HELP
-        // associate this help text with this window
-    void SetHelpText(const wxString& text);
-
-#if WXWIN_COMPATIBILITY_2_8
-    // Associate this help text with all windows with the same id as this one.
-    // Don't use this, do wxHelpProvider::Get()->AddHelp(id, text);
-    wxDEPRECATED( void SetHelpTextForId(const wxString& text) );
-#endif // WXWIN_COMPATIBILITY_2_8
-
-        // get the help string associated with the given position in this window
-        //
-        // notice that pt may be invalid if event origin is keyboard or unknown
-        // and this method should return the global window help text then
-    virtual wxString GetHelpTextAtPoint(const wxPoint& pt,
-                                        wxHelpEvent::Origin origin) const;
-        // returns the position-independent help text
-    wxString GetHelpText() const
-    {
-        return GetHelpTextAtPoint(wxDefaultPosition, wxHelpEvent::Origin_Unknown);
-    }
-
-#else // !wxUSE_HELP
     // silently ignore SetHelpText() calls
     void SetHelpText(const wxString& WXUNUSED(text)) { }
     void SetHelpTextForId(const wxString& WXUNUSED(text)) { }
-#endif // wxUSE_HELP
 
     // tooltips
     // --------
 
-#if wxUSE_TOOLTIPS
-        // the easiest way to set a tooltip for a window is to use this method
-    void SetToolTip( const wxString &tip );
-        // attach a tooltip to the window, pointer can be NULL to remove
-        // existing tooltip
-    void SetToolTip( wxToolTip *tip ) { DoSetToolTip(tip); }
-        // more readable synonym for SetToolTip(NULL)
-    void UnsetToolTip() { SetToolTip(NULL); }
-        // get the associated tooltip or NULL if none
-    wxToolTip* GetToolTip() const { return m_tooltip; }
-    wxString GetToolTipText() const;
-
-    // Use the same tool tip as the given one (which can be NULL to indicate
-    // that no tooltip should be used) for this window. This is currently only
-    // used by wxCompositeWindow::DoSetToolTip() implementation and is not part
-    // of the public wx API.
-    //
-    // Returns true if tip was valid and we copied it or false if it was NULL
-    // and we reset our own tooltip too.
-    bool CopyToolTip(wxToolTip *tip);
-#else // !wxUSE_TOOLTIPS
         // make it much easier to compile apps in an environment
         // that doesn't support tooltips, such as PocketPC
     void SetToolTip(const wxString & WXUNUSED(tip)) { }
     void UnsetToolTip() { }
-#endif // wxUSE_TOOLTIPS/!wxUSE_TOOLTIPS
 
-    // drag and drop
-    // -------------
-#if wxUSE_DRAG_AND_DROP
-        // set/retrieve the drop target associated with this window (may be
-        // NULL; it's owned by the window and will be deleted by it)
-    virtual void SetDropTarget( wxDropTarget *dropTarget ) = 0;
-    virtual wxDropTarget *GetDropTarget() const { return m_dropTarget; }
-
-    // Accept files for dragging
-    virtual void DragAcceptFiles(bool accept)
-#ifdef __WXMSW__
-    // it does have common implementation but not for MSW which has its own
-    // native version of it
-    = 0
-#endif // __WXMSW__
-    ;
-
-#endif // wxUSE_DRAG_AND_DROP
-
-    // constraints and sizers
-    // ----------------------
-#if wxUSE_CONSTRAINTS
-        // set the constraints for this window or retrieve them (may be NULL)
-    void SetConstraints( wxLayoutConstraints *constraints );
-    wxLayoutConstraints *GetConstraints() const { return m_constraints; }
-
-        // implementation only
-    void UnsetConstraints(wxLayoutConstraints *c);
-    wxWindowList *GetConstraintsInvolvedIn() const
-        { return m_constraintsInvolvedIn; }
-    void AddConstraintReference(wxWindowBase *otherWin);
-    void RemoveConstraintReference(wxWindowBase *otherWin);
-    void DeleteRelatedConstraints();
-    void ResetConstraints();
-
-        // these methods may be overridden for special layout algorithms
-    virtual void SetConstraintSizes(bool recurse = true);
-    virtual bool LayoutPhase1(int *noChanges);
-    virtual bool LayoutPhase2(int *noChanges);
-    virtual bool DoPhase(int phase);
-
-        // these methods are virtual but normally won't be overridden
-    virtual void SetSizeConstraint(int x, int y, int w, int h);
-    virtual void MoveConstraint(int x, int y);
-    virtual void GetSizeConstraint(int *w, int *h) const ;
-    virtual void GetClientSizeConstraint(int *w, int *h) const ;
-    virtual void GetPositionConstraint(int *x, int *y) const ;
-
-#endif // wxUSE_CONSTRAINTS
-
-        // when using constraints or sizers, it makes sense to update
-        // children positions automatically whenever the window is resized
-        // - this is done if autoLayout is on
+    // when using constraints or sizers, it makes sense to update
+    // children positions automatically whenever the window is resized
+    // - this is done if autoLayout is on
     void SetAutoLayout( bool autoLayout ) { m_autoLayout = autoLayout; }
     bool GetAutoLayout() const { return m_autoLayout; }
 
@@ -1411,23 +1233,6 @@ public:
     void SetContainingSizer(wxSizer* sizer);
     wxSizer *GetContainingSizer() const { return m_containingSizer; }
 
-    // accessibility
-    // ----------------------
-#if wxUSE_ACCESSIBILITY
-    // Override to create a specific accessible object.
-    virtual wxAccessible* CreateAccessible();
-
-    // Sets the accessible object.
-    void SetAccessible(wxAccessible* accessible) ;
-
-    // Returns the accessible object.
-    wxAccessible* GetAccessible() { return m_accessible; }
-
-    // Returns the accessible object, creating if necessary.
-    wxAccessible* GetOrCreateAccessible() ;
-#endif
-
-
     // Set window transparency if the platform supports it
     virtual bool SetTransparent(wxByte WXUNUSED(alpha)) { return false; }
     virtual bool CanSetTransparent() { return false; }
@@ -1440,9 +1245,6 @@ public:
     void OnSysColourChanged( wxSysColourChangedEvent& event );
     void OnInitDialog( wxInitDialogEvent &event );
     void OnMiddleClick( wxMouseEvent& event );
-#if wxUSE_HELP
-    void OnHelp(wxHelpEvent& event);
-#endif // wxUSE_HELP
 
         // virtual function for implementing internal idle
         // behaviour
@@ -1460,22 +1262,6 @@ public:
     virtual void AssociateHandle(WXWidget WXUNUSED(handle)) { }
         // dissociate the current native handle from the window
     virtual void DissociateHandle() { }
-
-#if wxUSE_PALETTE
-        // Store the palette used by DCs in wxWindow so that the dcs can share
-        // a palette. And we can respond to palette messages.
-    wxPalette GetPalette() const { return m_palette; }
-
-        // When palette is changed tell the DC to set the system palette to the
-        // new one.
-    void SetPalette(const wxPalette& pal);
-
-        // return true if we have a specific palette
-    bool HasCustomPalette() const { return m_hasCustomPalette; }
-
-        // return the first parent window with a custom palette or NULL
-    wxWindow *GetAncestorWithCustomPalette() const;
-#endif // wxUSE_PALETTE
 
     // inherit the parents visual attributes if they had been explicitly set
     // by the user (i.e. we don't inherit default attributes) and if we don't
@@ -1550,11 +1336,6 @@ protected:
     // implementation of Navigate() and NavigateIn()
     virtual bool DoNavigateIn(int flags);
 
-#if wxUSE_CONSTRAINTS
-    // satisfy the constraints for the windows but don't set the window sizes
-    void SatisfyConstraints();
-#endif // wxUSE_CONSTRAINTS
-
     // Send the wxWindowDestroyEvent if not done yet and sets m_isBeingDeleted
     // to true
     void SendDestroyEvent();
@@ -1586,47 +1367,14 @@ protected:
     // changed with SetEventHandler()
     wxEvtHandler        *m_eventHandler;
 
-#if wxUSE_VALIDATORS
-    // associated validator or NULL if none
-    wxValidator         *m_windowValidator;
-#endif // wxUSE_VALIDATORS
-
-#if wxUSE_DRAG_AND_DROP
-    wxDropTarget        *m_dropTarget;
-#endif // wxUSE_DRAG_AND_DROP
-
     // visual window attributes
     wxCursor             m_cursor;
     wxFont               m_font;                // see m_hasFont
     wxColour             m_backgroundColour,    //     m_hasBgCol
                          m_foregroundColour;    //     m_hasFgCol
 
-#if wxUSE_CARET
-    wxCaret             *m_caret;
-#endif // wxUSE_CARET
-
     // the region which should be repainted in response to paint event
     wxRegion             m_updateRegion;
-
-#if wxUSE_ACCEL
-    // the accelerator table for the window which translates key strokes into
-    // command events
-    wxAcceleratorTable   m_acceleratorTable;
-#endif // wxUSE_ACCEL
-
-    // the tooltip for this window (may be NULL)
-#if wxUSE_TOOLTIPS
-    wxToolTip           *m_tooltip;
-#endif // wxUSE_TOOLTIPS
-
-    // constraints and sizers
-#if wxUSE_CONSTRAINTS
-    // the constraints for this window or NULL
-    wxLayoutConstraints *m_constraints;
-
-    // constraints this window is involved in
-    wxWindowList        *m_constraintsInvolvedIn;
-#endif // wxUSE_CONSTRAINTS
 
     // this window's sizer
     wxSizer             *m_windowSizer;
@@ -1658,14 +1406,6 @@ protected:
     wxString             m_windowName;
     bool                 m_themeEnabled;
     wxBackgroundStyle    m_backgroundStyle;
-#if wxUSE_PALETTE
-    wxPalette            m_palette;
-    bool                 m_hasCustomPalette;
-#endif // wxUSE_PALETTE
-
-#if wxUSE_ACCESSIBILITY
-    wxAccessible*       m_accessible;
-#endif
 
     // Virtual size (scrolling)
     wxSize                m_virtualSize;
@@ -1791,14 +1531,6 @@ protected:
     // TLWs
     virtual void DoCentre(int dir);
 
-#if wxUSE_TOOLTIPS
-    virtual void DoSetToolTip( wxToolTip *tip );
-#endif // wxUSE_TOOLTIPS
-
-#if wxUSE_MENUS
-    virtual bool DoPopupMenu(wxMenu *menu, int x, int y) = 0;
-#endif // wxUSE_MENUS
-
     // Makes an adjustment to the window position to make it relative to the
     // parents client area, e.g. if the parent is a frame with a toolbar, its
     // (0, 0) is just below the toolbar
@@ -1823,15 +1555,6 @@ private:
     // enabled/disabled status changed because a parent window had been
     // enabled/disabled
     void NotifyWindowOnEnableChange(bool enabled);
-
-#if wxUSE_MENUS
-    // temporary event handlers used by GetPopupMenuSelectionFromUser()
-    void InternalOnPopupMenu(wxCommandEvent& event);
-    void InternalOnPopupMenuUpdate(wxUpdateUIEvent& event);
-
-    // implementation of the public GetPopupMenuSelectionFromUser() method
-    int DoGetPopupMenuSelectionFromUser(wxMenu& menu, int x, int y);
-#endif // wxUSE_MENUS
 
     // layout the window children when its size changes unless this was
     // explicitly disabled with SetAutoLayout(false)
@@ -1977,103 +1700,5 @@ WXDLLIMPEXP_CORE wxWindow* wxGetTopLevelParent(wxWindow *win);
     wxDEPRECATED_MSG("use wxWindow::NewControlId() instead")
     inline wxWindowID NewControlId() { return wxWindowBase::NewControlId(); }
 #endif // WXWIN_COMPATIBILITY_2_6
-
-#if wxUSE_ACCESSIBILITY
-// ----------------------------------------------------------------------------
-// accessible object for windows
-// ----------------------------------------------------------------------------
-
-class WXDLLIMPEXP_CORE wxWindowAccessible: public wxAccessible
-{
-public:
-    wxWindowAccessible(wxWindow* win): wxAccessible(win) { if (win) win->SetAccessible(this); }
-    virtual ~wxWindowAccessible() {}
-
-// Overridables
-
-        // Can return either a child object, or an integer
-        // representing the child element, starting from 1.
-    virtual wxAccStatus HitTest(const wxPoint& pt, int* childId, wxAccessible** childObject);
-
-        // Returns the rectangle for this object (id = 0) or a child element (id > 0).
-    virtual wxAccStatus GetLocation(wxRect& rect, int elementId);
-
-        // Navigates from fromId to toId/toObject.
-    virtual wxAccStatus Navigate(wxNavDir navDir, int fromId,
-                int* toId, wxAccessible** toObject);
-
-        // Gets the name of the specified object.
-    virtual wxAccStatus GetName(int childId, wxString* name);
-
-        // Gets the number of children.
-    virtual wxAccStatus GetChildCount(int* childCount);
-
-        // Gets the specified child (starting from 1).
-        // If *child is NULL and return value is wxACC_OK,
-        // this means that the child is a simple element and
-        // not an accessible object.
-    virtual wxAccStatus GetChild(int childId, wxAccessible** child);
-
-        // Gets the parent, or NULL.
-    virtual wxAccStatus GetParent(wxAccessible** parent);
-
-        // Performs the default action. childId is 0 (the action for this object)
-        // or > 0 (the action for a child).
-        // Return wxACC_NOT_SUPPORTED if there is no default action for this
-        // window (e.g. an edit control).
-    virtual wxAccStatus DoDefaultAction(int childId);
-
-        // Gets the default action for this object (0) or > 0 (the action for a child).
-        // Return wxACC_OK even if there is no action. actionName is the action, or the empty
-        // string if there is no action.
-        // The retrieved string describes the action that is performed on an object,
-        // not what the object does as a result. For example, a toolbar button that prints
-        // a document has a default action of "Press" rather than "Prints the current document."
-    virtual wxAccStatus GetDefaultAction(int childId, wxString* actionName);
-
-        // Returns the description for this object or a child.
-    virtual wxAccStatus GetDescription(int childId, wxString* description);
-
-        // Returns help text for this object or a child, similar to tooltip text.
-    virtual wxAccStatus GetHelpText(int childId, wxString* helpText);
-
-        // Returns the keyboard shortcut for this object or child.
-        // Return e.g. ALT+K
-    virtual wxAccStatus GetKeyboardShortcut(int childId, wxString* shortcut);
-
-        // Returns a role constant.
-    virtual wxAccStatus GetRole(int childId, wxAccRole* role);
-
-        // Returns a state constant.
-    virtual wxAccStatus GetState(int childId, long* state);
-
-        // Returns a localized string representing the value for the object
-        // or child.
-    virtual wxAccStatus GetValue(int childId, wxString* strValue);
-
-        // Selects the object or child.
-    virtual wxAccStatus Select(int childId, wxAccSelectionFlags selectFlags);
-
-        // Gets the window with the keyboard focus.
-        // If childId is 0 and child is NULL, no object in
-        // this subhierarchy has the focus.
-        // If this object has the focus, child should be 'this'.
-    virtual wxAccStatus GetFocus(int* childId, wxAccessible** child);
-
-#if wxUSE_VARIANT
-        // Gets a variant representing the selected children
-        // of this object.
-        // Acceptable values:
-        // - a null variant (IsNull() returns true)
-        // - a list variant (GetType() == wxT("list")
-        // - an integer representing the selected child element,
-        //   or 0 if this object is selected (GetType() == wxT("long")
-        // - a "void*" pointer to a wxAccessible child object
-    virtual wxAccStatus GetSelections(wxVariant* selections);
-#endif // wxUSE_VARIANT
-};
-
-#endif // wxUSE_ACCESSIBILITY
-
 
 #endif // _WX_WINDOW_H_BASE_

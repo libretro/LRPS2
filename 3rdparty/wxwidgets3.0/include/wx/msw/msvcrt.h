@@ -25,7 +25,7 @@
 #if defined(_DEBUG) && defined(__VISUALC__) && (__VISUALC__ >= 1000) \
     && !defined(UNDER_CE)
     // it doesn't combine well with wxWin own memory debugging methods
-    #if !wxUSE_GLOBAL_MEMORY_OPERATORS && !wxUSE_MEMORY_TRACING && !defined(__NO_VC_CRTDBG__)
+    #if !defined(__NO_VC_CRTDBG__)
         #define wxUSE_VC_CRTDBG
     #endif
 #endif

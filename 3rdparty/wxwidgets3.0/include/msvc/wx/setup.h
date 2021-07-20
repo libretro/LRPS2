@@ -155,74 +155,6 @@
     #endif
     #pragma comment(lib, wxBASE_LIB_NAME("net"))
 #endif
-#if wxUSE_XML && !defined(wxNO_XML_LIB)
-    #pragma comment(lib, wxBASE_LIB_NAME("xml"))
-#endif
-#if wxUSE_REGEX && !defined(wxNO_REGEX_LIB) && !defined(WXUSINGDLL)
-    #pragma comment(lib, wx3RD_PARTY_LIB_NAME_U("regex"))
-#endif
-
-#if wxUSE_GUI
-    #if wxUSE_XML && !defined(wxNO_EXPAT_LIB) && !defined(WXUSINGDLL)
-        #pragma comment(lib, wx3RD_PARTY_LIB_NAME("expat"))
-    #endif
-    #if wxUSE_LIBJPEG && !defined(wxNO_JPEG_LIB) && !defined(WXUSINGDLL)
-        #pragma comment(lib, wx3RD_PARTY_LIB_NAME("jpeg"))
-    #endif
-    #if wxUSE_LIBPNG && !defined(wxNO_PNG_LIB) && !defined(WXUSINGDLL)
-        #pragma comment(lib, wx3RD_PARTY_LIB_NAME("png"))
-    #endif
-    #if wxUSE_LIBTIFF && !defined(wxNO_TIFF_LIB) && !defined(WXUSINGDLL)
-        #pragma comment(lib, wx3RD_PARTY_LIB_NAME("tiff"))
-    #endif
-    #if wxUSE_ZLIB && !defined(wxNO_ZLIB_LIB) && !defined(WXUSINGDLL)
-        #pragma comment(lib, wx3RD_PARTY_LIB_NAME("zlib"))
-    #endif
-
-    #pragma comment(lib, wxTOOLKIT_LIB_NAME("core"))
-
-    #ifndef wxNO_ADV_LIB
-        #pragma comment(lib, wxTOOLKIT_LIB_NAME("adv"))
-    #endif
-
-    #if wxUSE_HTML && !defined(wxNO_HTML_LIB)
-        #pragma comment(lib, wxTOOLKIT_LIB_NAME("html"))
-    #endif
-    #if wxUSE_GLCANVAS && !defined(wxNO_GL_LIB)
-        #pragma comment(lib, wxTOOLKIT_LIB_NAME("gl"))
-    #endif
-    #if wxUSE_DEBUGREPORT && !defined(wxNO_QA_LIB)
-        #pragma comment(lib, wxTOOLKIT_LIB_NAME("qa"))
-    #endif
-    #if wxUSE_XRC && !defined(wxNO_XRC_LIB)
-        #pragma comment(lib, wxTOOLKIT_LIB_NAME("xrc"))
-    #endif
-    #if wxUSE_AUI && !defined(wxNO_AUI_LIB)
-        #pragma comment(lib, wxTOOLKIT_LIB_NAME("aui"))
-    #endif
-    #if wxUSE_PROPGRID && !defined(wxNO_PROPGRID_LIB)
-        #pragma comment(lib, wxTOOLKIT_LIB_NAME("propgrid"))
-    #endif
-    #if wxUSE_RIBBON && !defined(wxNO_RIBBON_LIB)
-        #pragma comment(lib, wxTOOLKIT_LIB_NAME("ribbon"))
-    #endif
-    #if wxUSE_RICHTEXT && !defined(wxNO_RICHTEXT_LIB)
-        #pragma comment(lib, wxTOOLKIT_LIB_NAME("richtext"))
-    #endif
-    #if wxUSE_MEDIACTRL && !defined(wxNO_MEDIA_LIB)
-        #pragma comment(lib, wxTOOLKIT_LIB_NAME("media"))
-    #endif
-    #if wxUSE_STC && !defined(wxNO_STC_LIB)
-        #pragma comment(lib, wxTOOLKIT_LIB_NAME("stc"))
-        #ifndef WXUSINGDLL
-            #pragma comment(lib, wx3RD_PARTY_LIB_NAME("scintilla"))
-        #endif
-    #endif
-    #if wxUSE_WEBVIEW && !defined(wxNO_WEBVIEW_LIB)
-        #pragma comment(lib, wxTOOLKIT_LIB_NAME("webview"))
-    #endif
-#endif // wxUSE_GUI
-
 
 #ifndef WXUSINGDLL
     // Make sure all required system libraries are added to the linker too when
@@ -240,9 +172,6 @@
     #pragma comment(lib, "uuid")
     #pragma comment(lib, "rpcrt4")
     #pragma comment(lib, "advapi32")
-    #if wxUSE_URL_NATIVE
-        #pragma comment(lib, "wininet")
-    #endif
 
     #ifdef __WXGTK__
         #pragma comment(lib, "gtk-win32-2.0.lib")

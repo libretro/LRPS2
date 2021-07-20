@@ -79,12 +79,6 @@ public:
     // Gets the current Undo menu label.
     wxString GetRedoMenuLabel() const;
 
-#if wxUSE_MENUS
-    // Call this to manage an edit menu.
-    void SetEditMenu(wxMenu *menu) { m_commandEditMenu = menu; }
-    wxMenu *GetEditMenu() const { return m_commandEditMenu; }
-#endif // wxUSE_MENUS
-
     // command list access
     wxList& GetCommands() { return m_commands; }
     const wxList& GetCommands() const { return m_commands; }
@@ -123,10 +117,6 @@ protected:
     wxList        m_commands;
     wxList::compatibility_iterator m_currentCommand,
                                    m_lastSavedCommand;
-
-#if wxUSE_MENUS
-    wxMenu*       m_commandEditMenu;
-#endif // wxUSE_MENUS
 
     wxString      m_undoAccelerator;
     wxString      m_redoAccelerator;

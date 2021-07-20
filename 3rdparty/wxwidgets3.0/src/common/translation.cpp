@@ -45,7 +45,6 @@
 #include "wx/file.h"
 #include "wx/filename.h"
 #include "wx/tokenzr.h"
-#include "wx/fontmap.h"
 #include "wx/stdpaths.h"
 #include "wx/private/threadinfo.h"
 
@@ -95,26 +94,8 @@ wxStringToStringHashMap gs_msgIdCharset;
 // Platform specific helpers
 // ----------------------------------------------------------------------------
 
-#if wxUSE_LOG_TRACE
-
-void LogTraceArray(const char *prefix, const wxArrayString& arr)
-{
-    wxLogTrace(TRACE_I18N, "%s: [%s]", prefix, wxJoin(arr, ','));
-}
-
-void LogTraceLargeArray(const wxString& prefix, const wxArrayString& arr)
-{
-    wxLogTrace(TRACE_I18N, "%s:", prefix);
-    for ( wxArrayString::const_iterator i = arr.begin(); i != arr.end(); ++i )
-        wxLogTrace(TRACE_I18N, "    %s", *i);
-}
-
-#else // !wxUSE_LOG_TRACE
-
 #define LogTraceArray(prefix, arr)
 #define LogTraceLargeArray(prefix, arr)
-
-#endif // wxUSE_LOG_TRACE/!wxUSE_LOG_TRACE
 
 // Use locale-based detection as a fallback
 wxString GetPreferredUILanguageFallback(const wxArrayString& WXUNUSED(available))
@@ -188,23 +169,6 @@ wxString GetPreferredUILanguage(const wxArrayString& available)
 }
 
 #elif defined(__WXOSX__)
-
-#if wxUSE_LOG_TRACE
-
-void LogTraceArray(const char *prefix, CFArrayRef arr)
-{
-    wxString s;
-    const unsigned count = CFArrayGetCount(arr);
-    if ( count )
-    {
-        s += wxCFStringRef::AsString((CFStringRef)CFArrayGetValueAtIndex(arr, 0));
-        for ( unsigned i = 1 ; i < count; i++ )
-            s += "," + wxCFStringRef::AsString((CFStringRef)CFArrayGetValueAtIndex(arr, i));
-    }
-    wxLogTrace(TRACE_I18N, "%s: [%s]", prefix, s);
-}
-
-#endif // wxUSE_LOG_TRACE
 
 wxString GetPreferredUILanguage(const wxArrayString& available)
 {
@@ -1205,11 +1169,6 @@ bool wxMsgCatalogFile::FillHash(wxStringToStringHashMap& hash,
 
     if ( !m_charset.empty() )
     {
-#if !wxUSE_UNICODE && wxUSE_FONTMAP
-        // determine if we need any conversion at all
-        wxFontEncoding encCat = wxFontMapperBase::GetEncodingFromName(m_charset);
-        if ( encCat != wxLocale::GetSystemEncoding() )
-#endif
         {
             inputConvPtr =
             inputConv = new wxCSConv(m_charset);
@@ -1527,28 +1486,7 @@ bool wxTranslations::LoadCatalog(const wxString& domain, const wxString& lang, c
 {
     wxCHECK_MSG( m_loader, false, "loader can't be NULL" );
 
-    wxMsgCatalog *cat = NULL;
-
-#if wxUSE_FONTMAP
-    // first look for the catalog for this language and the current locale:
-    // notice that we don't use the system name for the locale as this would
-    // force us to install catalogs in different locations depending on the
-    // system but always use the canonical name
-    wxFontEncoding encSys = wxLocale::GetSystemEncoding();
-    if ( encSys != wxFONTENCODING_SYSTEM )
-    {
-        wxString fullname(lang);
-        fullname << wxS('.') << wxFontMapperBase::GetEncodingName(encSys);
-
-        cat = m_loader->LoadCatalog(domain, fullname);
-    }
-#endif // wxUSE_FONTMAP
-
-    if ( !cat )
-    {
-        // Next try: use the provided name language name:
-        cat = m_loader->LoadCatalog(domain, lang);
-    }
+    wxMsgCatalog *cat = m_loader->LoadCatalog(domain, lang);
 
     if ( !cat )
     {
