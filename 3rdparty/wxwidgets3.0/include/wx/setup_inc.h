@@ -449,50 +449,6 @@
 #define wxUSE_PROTOCOL_HTTP 1
 
 // ----------------------------------------------------------------------------
-// Individual GUI controls
-// ----------------------------------------------------------------------------
-
-// Each of the settings below corresponds to one wxWidgets control. They are
-// all switched on by default but may be disabled if you are sure that your
-// program (including any standard dialogs it can show!) doesn't need them and
-// if you desperately want to save some space. If you use any of these you must
-// set wxUSE_CONTROLS as well.
-//
-// Default is 1
-//
-// Recommended setting: 1
-#define wxUSE_BANNERWINDOW  1   // wxBannerWindow
-#define wxUSE_BMPBUTTON     1   // wxBitmapButton
-#define wxUSE_CALENDARCTRL  1   // wxCalendarCtrl
-#define wxUSE_CHECKBOX      1   // wxCheckBox
-#define wxUSE_CHOICE        1   // wxChoice
-#define wxUSE_COLLPANE      1   // wxCollapsiblePane
-#define wxUSE_COMBOBOX      1   // wxComboBox
-#define wxUSE_COMMANDLINKBUTTON 1   // wxCommandLinkButton
-#define wxUSE_EDITABLELISTBOX 1 // wxEditableListBox
-#define wxUSE_FILECTRL      1   // wxFileCtrl
-#define wxUSE_FILEPICKERCTRL 1  // wxFilePickerCtrl
-#define wxUSE_FONTPICKERCTRL 1  // wxFontPickerCtrl
-#define wxUSE_GAUGE         1   // wxGauge
-#define wxUSE_HEADERCTRL    1   // wxHeaderCtrl
-#define wxUSE_HYPERLINKCTRL 1   // wxHyperlinkCtrl
-#define wxUSE_LISTBOX       1   // wxListBox
-#define wxUSE_LISTCTRL      1   // wxListCtrl
-#define wxUSE_RADIOBOX      1   // wxRadioBox
-#define wxUSE_RADIOBTN      1   // wxRadioButton
-#define wxUSE_RICHMSGDLG    1   // wxRichMessageDialog
-#define wxUSE_SCROLLBAR     1   // wxScrollBar
-#define wxUSE_SEARCHCTRL    1   // wxSearchCtrl
-#define wxUSE_SLIDER        1   // wxSlider
-#define wxUSE_SPINBTN       1   // wxSpinButton
-#define wxUSE_SPINCTRL      1   // wxSpinCtrl
-#define wxUSE_STATBOX       1   // wxStaticBox
-#define wxUSE_STATLINE      1   // wxStaticLine
-#define wxUSE_STATTEXT      1   // wxStaticText
-#define wxUSE_STATBMP       1   // wxStaticBitmap
-#define wxUSE_TEXTCTRL      1   // wxTextCtrl
-
-// ----------------------------------------------------------------------------
 // Miscellaneous GUI stuff
 // ----------------------------------------------------------------------------
 

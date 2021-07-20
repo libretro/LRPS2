@@ -115,17 +115,6 @@ public:
         return GetParentForModalDialog(GetParent(), GetWindowStyle());
     }
 
-#if wxUSE_STATTEXT // && wxUSE_TEXTCTRL
-    // splits text up at newlines and places the lines into a vertical
-    // wxBoxSizer
-    wxSizer *CreateTextSizer( const wxString& message );
-
-    // same as above but uses a customized wxTextSizerWrapper to create
-    // non-standard controls for the lines
-    wxSizer *CreateTextSizer( const wxString& message,
-                              wxTextSizerWrapper& wrapper );
-#endif // wxUSE_STATTEXT // && wxUSE_TEXTCTRL
-
     // returns a horizontal wxBoxSizer containing the given buttons
     //
     // notice that the returned sizer can be NULL if no buttons are put in the

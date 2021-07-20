@@ -92,13 +92,6 @@
     #define wxUSE_MFC 0
 #endif /* !defined(wxUSE_MFC) */
 
-#if wxUSE_SPINCTRL
-#   if !wxUSE_SPINBTN
-#           undef wxUSE_SPINBTN
-#           define wxUSE_SPINBTN 1
-#   endif
-#endif
-
 /*
    Compiler-specific checks.
  */

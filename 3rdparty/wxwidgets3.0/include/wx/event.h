@@ -338,21 +338,6 @@ wxDECLARE_EXPORTED_EVENT(WXDLLIMPEXP_CORE, wxEVT_SCROLL_THUMBTRACK, wxScrollEven
 wxDECLARE_EXPORTED_EVENT(WXDLLIMPEXP_CORE, wxEVT_SCROLL_THUMBRELEASE, wxScrollEvent);
 wxDECLARE_EXPORTED_EVENT(WXDLLIMPEXP_CORE, wxEVT_SCROLL_CHANGED, wxScrollEvent);
 
-// Due to a bug in older wx versions, wxSpinEvents were being sent with type of
-// wxEVT_SCROLL_LINEUP, wxEVT_SCROLL_LINEDOWN and wxEVT_SCROLL_THUMBTRACK. But
-// with the type-safe events in place, these event types are associated with
-// wxScrollEvent. To allow handling of spin events, new event types have been
-// defined in spinbutt.h/spinnbuttcmn.cpp. To maintain backward compatibility
-// the spin event types are being initialized with the scroll event types.
-
-#if wxUSE_SPINBTN
-
-wxDECLARE_EXPORTED_EVENT_ALIAS( WXDLLIMPEXP_CORE, wxEVT_SPIN_UP,   wxSpinEvent );
-wxDECLARE_EXPORTED_EVENT_ALIAS( WXDLLIMPEXP_CORE, wxEVT_SPIN_DOWN, wxSpinEvent );
-wxDECLARE_EXPORTED_EVENT_ALIAS( WXDLLIMPEXP_CORE, wxEVT_SPIN,      wxSpinEvent );
-
-#endif
-
     // Scroll events from wxWindow
 wxDECLARE_EXPORTED_EVENT(WXDLLIMPEXP_CORE, wxEVT_SCROLLWIN_TOP, wxScrollWinEvent);
 wxDECLARE_EXPORTED_EVENT(WXDLLIMPEXP_CORE, wxEVT_SCROLLWIN_BOTTOM, wxScrollWinEvent);

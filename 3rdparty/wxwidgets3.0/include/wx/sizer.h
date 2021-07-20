@@ -1013,45 +1013,6 @@ private:
     DECLARE_CLASS(wxBoxSizer)
 };
 
-//---------------------------------------------------------------------------
-// wxStaticBoxSizer
-//---------------------------------------------------------------------------
-
-#if wxUSE_STATBOX
-
-class WXDLLIMPEXP_FWD_CORE wxStaticBox;
-
-class WXDLLIMPEXP_CORE wxStaticBoxSizer: public wxBoxSizer
-{
-public:
-    wxStaticBoxSizer(wxStaticBox *box, int orient);
-    wxStaticBoxSizer(int orient, wxWindow *win, const wxString& label = wxEmptyString);
-    virtual ~wxStaticBoxSizer();
-
-    void RecalcSizes();
-    wxSize CalcMin();
-
-    wxStaticBox *GetStaticBox() const
-        { return m_staticBox; }
-
-    // override to hide/show the static box as well
-    virtual void ShowItems (bool show);
-    virtual bool AreAnyItemsShown() const;
-
-    virtual bool Detach( wxWindow *window );
-    virtual bool Detach( wxSizer *sizer ) { return wxBoxSizer::Detach(sizer); }
-    virtual bool Detach( int index ) { return wxBoxSizer::Detach(index); }
-
-protected:
-    wxStaticBox   *m_staticBox;
-
-private:
-    DECLARE_CLASS(wxStaticBoxSizer)
-    wxDECLARE_NO_COPY_CLASS(wxStaticBoxSizer);
-};
-
-#endif // wxUSE_STATBOX
-
 // ----------------------------------------------------------------------------
 // inline functions implementation
 // ----------------------------------------------------------------------------
