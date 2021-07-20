@@ -405,31 +405,6 @@
 // Recommended setting: 1 if you need IPv6 support
 #define wxUSE_IPV6          0
 
-// Set to 1 to enable virtual file systems (required by wxHTML)
-#define wxUSE_FILESYSTEM    1
-
-// Set to 1 to enable virtual ZIP filesystem (requires wxUSE_FILESYSTEM)
-#define wxUSE_FS_ZIP        1
-
-// Set to 1 to enable virtual archive filesystem (requires wxUSE_FILESYSTEM)
-#define wxUSE_FS_ARCHIVE    1
-
-// Set to 1 to enable virtual Internet filesystem (requires wxUSE_FILESYSTEM)
-#define wxUSE_FS_INET       1
-
-// wxArchive classes for accessing archives such as zip and tar
-#define wxUSE_ARCHIVE_STREAMS     1
-
-// Set to 1 to compile wxZipInput/OutputStream classes.
-#define wxUSE_ZIPSTREAM     1
-
-// Set to 1 to compile wxTarInput/OutputStream classes.
-#define wxUSE_TARSTREAM     1
-
-// Set to 1 to compile wxZlibInput/OutputStream classes. Also required by
-// wxUSE_LIBPNG
-#define wxUSE_ZLIB          1
-
 // If enabled, the code written by Apple will be used to write, in a portable
 // way, float on the disk. See extended.c for the license which is different
 // from wxWidgets one.
@@ -488,39 +463,6 @@
 //
 // Recommended setting: default or 0 for everything for portable programs.
 #define wxUSE_WIN_METAFILES_ALWAYS  0
-
-// ----------------------------------------------------------------------------
-// image format support
-// ----------------------------------------------------------------------------
-
-// wxImage supports many different image formats which can be configured at
-// compile-time. BMP is always supported, others are optional and can be safely
-// disabled if you don't plan to use images in such format sometimes saving
-// substantial amount of code in the final library.
-//
-// Some formats require an extra library which is included in wxWin sources
-// which is mentioned if it is the case.
-
-// Set to 1 for PNG format support (requires libpng). Also requires wxUSE_ZLIB.
-#define wxUSE_LIBPNG        1
-
-// Set to 1 for JPEG format support (requires libjpeg)
-#define wxUSE_LIBJPEG       1
-
-// Set to 1 for TIFF format support (requires libtiff)
-#define wxUSE_LIBTIFF       1
-
-// Set to 1 for TGA format support (loading only)
-#define wxUSE_TGA           1
-
-// Set to 1 for PNM format support
-#define wxUSE_PNM           1
-
-// Set to 1 for PCX format support
-#define wxUSE_PCX           1
-
-// Set to 1 for IFF format support (Amiga format)
-#define wxUSE_IFF           0
 
 /* --- end common options --- */
 

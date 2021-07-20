@@ -75,14 +75,6 @@
 #define wxUSE_DYNLIB_CLASS 0
 #endif /* !defined(wxUSE_DYNLIB_CLASS) */
 
-#ifndef wxUSE_FILESYSTEM
-#define wxUSE_FILESYSTEM 0
-#endif /* !defined(wxUSE_FILESYSTEM) */
-
-#ifndef wxUSE_FS_ARCHIVE
-#define wxUSE_FS_ARCHIVE 0
-#endif /* !defined(wxUSE_FS_ARCHIVE) */
-
 #ifndef wxUSE_INTL
 #       define wxUSE_INTL 0
 #endif /* !defined(wxUSE_INTL) */
@@ -216,13 +208,6 @@
 #   endif
 #endif /* WXWIN_COMPATIBILITY_2_6 */
 
-#if wxUSE_ARCHIVE_STREAMS
-#   if !wxUSE_DATETIME
-#           undef wxUSE_ARCHIVE_STREAMS
-#           define wxUSE_ARCHIVE_STREAMS 0
-#   endif
-#endif /* wxUSE_ARCHIVE_STREAMS */
-
 #if wxUSE_PROTOCOL_FILE || wxUSE_PROTOCOL_FTP || wxUSE_PROTOCOL_HTTP
 #   if !wxUSE_PROTOCOL
 #            undef wxUSE_PROTOCOL
@@ -236,37 +221,6 @@
 #           define wxUSE_STREAMS 1
 #   endif
 #endif /* wxUSE_PROTOCOL */
-
-#if wxUSE_FS_ARCHIVE
-#   if !wxUSE_FILESYSTEM
-#           undef wxUSE_FILESYSTEM
-#           define wxUSE_FILESYSTEM 1
-#   endif
-#   if !wxUSE_ARCHIVE_STREAMS
-#           undef wxUSE_ARCHIVE_STREAMS
-#           define wxUSE_ARCHIVE_STREAMS 1
-#   endif
-#endif /* wxUSE_FS_ARCHIVE */
-
-#if wxUSE_FILESYSTEM
-#   if !wxUSE_STREAMS
-#           undef wxUSE_STREAMS
-#           define wxUSE_STREAMS 1
-#   endif
-#   if !wxUSE_FILE && !wxUSE_FFILE
-#           undef wxUSE_FILE
-#           define wxUSE_FILE 1
-#           undef wxUSE_FFILE
-#           define wxUSE_FFILE 1
-#   endif
-#endif /* wxUSE_FILESYSTEM */
-
-#if wxUSE_FS_INET
-#   if !wxUSE_PROTOCOL
-#           undef wxUSE_PROTOCOL
-#           define wxUSE_PROTOCOL 1
-#   endif
-#endif /* wxUSE_FS_INET */
 
 #if wxUSE_DATETIME
 #    if !wxUSE_LONGLONG
@@ -284,23 +238,5 @@
 #       undef wxUSE_FILE
 #       define wxUSE_FILE 1
 #endif /* wxUSE_TEXTFILE */
-
-#if wxUSE_ZIPSTREAM
-#   if !wxUSE_ZLIB
-#           undef wxUSE_ZLIB
-#           define wxUSE_ZLIB 1
-#   endif
-#   if !wxUSE_ARCHIVE_STREAMS
-#           undef wxUSE_ARCHIVE_STREAMS
-#           define wxUSE_ARCHIVE_STREAMS 1
-#   endif
-#endif /* wxUSE_ZIPSTREAM */
-
-#if wxUSE_TARSTREAM
-#   if !wxUSE_ARCHIVE_STREAMS
-#           undef wxUSE_ARCHIVE_STREAMS
-#           define wxUSE_ARCHIVE_STREAMS 1
-#   endif
-#endif /* wxUSE_TARSTREAM */
 
 #endif /* _WX_CHKCONF_H_ */

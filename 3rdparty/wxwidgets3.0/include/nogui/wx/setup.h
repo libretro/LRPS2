@@ -91,22 +91,6 @@
 
 #define wxUSE_IPV6          0
 
-#define wxUSE_FILESYSTEM 1
-
-#define wxUSE_FS_ZIP 1
-
-#define wxUSE_FS_ARCHIVE 1
-
-#define wxUSE_FS_INET 1
-
-#define wxUSE_ARCHIVE_STREAMS 1
-
-#define wxUSE_ZIPSTREAM 1
-
-#define wxUSE_TARSTREAM 1
-
-#define wxUSE_ZLIB 1
-
 #define wxUSE_APPLE_IEEE 1
 
 #define wxUSE_PROTOCOL 1
@@ -122,20 +106,6 @@
 #endif
 
 #define wxUSE_WIN_METAFILES_ALWAYS  0
-
-#define wxUSE_LIBPNG 1
-
-#define wxUSE_LIBJPEG 1
-
-#define wxUSE_LIBTIFF 1/* 0 */
-
-#define wxUSE_TGA 1
-
-#define wxUSE_PNM 1
-
-#define wxUSE_PCX 1
-
-#define wxUSE_IFF 1
 
 /* --- end common options --- */
 #if __unix__

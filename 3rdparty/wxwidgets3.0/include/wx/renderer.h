@@ -40,11 +40,6 @@ class WXDLLIMPEXP_FWD_CORE wxWindow;
     #undef wxHAS_NATIVE_RENDERER
 #endif
 
-// only MSW and OS X currently provides DrawTitleBarBitmap() method
-#if defined(__WXMSW__) || (defined(__WXMAC__) && wxUSE_LIBPNG)
-    #define wxHAS_DRAW_TITLE_BAR_BITMAP
-#endif
-
 // ----------------------------------------------------------------------------
 // constants
 // ----------------------------------------------------------------------------
@@ -303,24 +298,6 @@ public:
                                  const wxRect& rect,
                                  int flags = 0) = 0;
 
-#ifdef wxHAS_DRAW_TITLE_BAR_BITMAP
-    // Draw one of the standard title bar buttons
-    //
-    // This is currently implemented only for MSW and OS X (for the close
-    // button only) because there is no way to render standard title bar
-    // buttons under the other platforms, the best can be done is to use normal
-    // (only) images which wxArtProvider provides for wxART_HELP and
-    // wxART_CLOSE (but not any other title bar buttons)
-    //
-    // NB: make sure PNG handler is enabled if using this function under OS X
-    virtual void DrawTitleBarBitmap(wxWindow *win,
-                                    wxDC& dc,
-                                    const wxRect& rect,
-                                    wxTitleBarButton button,
-                                    int flags = 0) = 0;
-#endif // wxHAS_DRAW_TITLE_BAR_BITMAP
-
-
     // geometry functions
     // ------------------
 
@@ -489,15 +466,6 @@ public:
                                  const wxRect& rect,
                                  int flags = 0)
         { m_rendererNative.DrawRadioBitmap(win, dc, rect, flags); }
-
-#ifdef wxHAS_DRAW_TITLE_BAR_BITMAP
-    virtual void DrawTitleBarBitmap(wxWindow *win,
-                                    wxDC& dc,
-                                    const wxRect& rect,
-                                    wxTitleBarButton button,
-                                    int flags = 0)
-        { m_rendererNative.DrawTitleBarBitmap(win, dc, rect, button, flags); }
-#endif // wxHAS_DRAW_TITLE_BAR_BITMAP
 
     virtual wxSplitterRenderParams GetSplitterParams(const wxWindow *win)
         { return m_rendererNative.GetSplitterParams(win); }

@@ -15,10 +15,6 @@
 #include "wx/html/htmlwin.h"
 #include "wx/ctrlsub.h"
 
-#if wxUSE_FILESYSTEM
-    #include "wx/filesys.h"
-#endif // wxUSE_FILESYSTEM
-
 class WXDLLIMPEXP_FWD_HTML wxHtmlCell;
 class WXDLLIMPEXP_FWD_HTML wxHtmlWinParser;
 class WXDLLIMPEXP_FWD_HTML wxHtmlListBoxCache;
@@ -72,13 +68,6 @@ public:
     virtual void RefreshRows(size_t from, size_t to);
     virtual void RefreshAll();
     virtual void SetItemCount(size_t count);
-
-#if wxUSE_FILESYSTEM
-    // retrieve the file system used by the wxHtmlWinParser: if you use
-    // relative paths in your HTML, you should use its ChangePathTo() method
-    wxFileSystem& GetFileSystem() { return m_filesystem; }
-    const wxFileSystem& GetFileSystem() const { return m_filesystem; }
-#endif // wxUSE_FILESYSTEM
 
     virtual void OnInternalIdle();
 
@@ -168,11 +157,6 @@ private:
 
     // HTML parser we use
     wxHtmlWinParser *m_htmlParser;
-
-#if wxUSE_FILESYSTEM
-    // file system used by m_htmlParser
-    wxFileSystem m_filesystem;
-#endif // wxUSE_FILESYSTEM
 
     // rendering style for the parser which allows us to customize our colours
     wxHtmlListBoxStyle *m_htmlRendStyle;

@@ -96,17 +96,6 @@
    Compiler-specific checks.
  */
 
-/* Borland */
-#ifdef __BORLANDC__
-
-#if __BORLANDC__ < 0x500
-    /* BC++ 4.0 can't compile JPEG library */
-#   undef wxUSE_LIBJPEG
-#   define wxUSE_LIBJPEG 0
-#endif
-
-#endif /* __BORLANDC__ */
-
 /*
    un/redefine the options which we can't compile (after checking that they're
    defined
