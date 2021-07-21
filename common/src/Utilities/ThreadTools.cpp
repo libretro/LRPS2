@@ -84,11 +84,6 @@ static void unmake_curthread_key()
     curthread_key = 0;
 }
 
-void Threading::pxTestCancel()
-{
-    pthread_testcancel();
-}
-
 // Returns a handle to the current persistent thread.  If the current thread does not belong
 // to the pxThread table, NULL is returned.  Since the main/ui thread is not created
 // through pxThread it will also return NULL.  Callers can use wxThread::IsMain() to

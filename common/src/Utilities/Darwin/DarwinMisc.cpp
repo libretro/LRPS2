@@ -143,8 +143,3 @@ wxString GetOSVersionString()
 
     return version;
 }
-
-void ScreensaverAllow(bool allow)
-{
-    // no-op
-}

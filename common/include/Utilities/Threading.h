@@ -56,7 +56,6 @@ namespace Threading
 class pxThread;
 class RwMutex;
 
-extern void pxTestCancel();
 extern pxThread *pxGetCurrentThread();
 extern wxString pxGetCurrentThreadName();
 

@@ -68,14 +68,10 @@ public:
     }
 };
 
-extern void px_fputs(FILE *fp, const char *src);
-
 // wxWidgets lacks one of its own...
 extern const wxRect wxDefaultRect;
 
 extern void SplitString(wxArrayString &dest, const wxString &src, const wxString &delims, wxStringTokenizerMode mode = wxTOKEN_RET_EMPTY_ALL);
-extern wxString JoinString(const wxArrayString &src, const wxString &separator);
-extern wxString JoinString(const wxChar **src, const wxString &separator);
 
 extern wxString ToString(const wxPoint &src, const wxString &separator = L",");
 extern wxString ToString(const wxSize &src, const wxString &separator = L",");

@@ -84,41 +84,6 @@ void SplitString(wxArrayString &dest, const wxString &src, const wxString &delim
         dest.Add(parts.GetNextToken());
 }
 
-// Joins a list of strings into one larger string, using the given string concatenation
-// character as a separator.  If you want to be able to split the string later then the
-// concatenation string needs to be a single character.
-//
-// Note: wxWidgets 2.9 / 3.0 has a wxJoin function, but we're using 2.8 so I had to make
-// my own.
-wxString JoinString(const wxArrayString &src, const wxString &separator)
-{
-    wxString dest;
-    for (int i = 0, len = src.GetCount(); i < len; ++i) {
-        if (src[i].IsEmpty())
-            continue;
-        if (!dest.IsEmpty())
-            dest += separator;
-        dest += src[i];
-    }
-    return dest;
-}
-
-wxString JoinString(const wxChar **src, const wxString &separator)
-{
-    wxString dest;
-    while (*src != NULL) {
-        if (*src[0] == 0)
-            continue;
-
-        if (!dest.IsEmpty())
-            dest += separator;
-        dest += *src;
-        ++src;
-    }
-    return dest;
-}
-
-
 // Attempts to parse and return a value for the given template type, and throws a ParseError
 // exception if the parse fails.  The template type can be anything that is supported/
 // implemented via one of the TryParse() method overloads.
@@ -238,47 +203,4 @@ bool pxParseAssignmentString(const wxString &src, wxString &ldest, wxString &rde
 ParsedAssignmentString::ParsedAssignmentString(const wxString &src)
 {
     IsComment = pxParseAssignmentString(src, lvalue, rvalue);
-}
-
-// Performs a cross-platform puts operation, which adds CRs to naked LFs on Win32 platforms,
-// so that Notepad won't throw a fit and Rama can read the logs again! On Unix and Mac platforms,
-// the input string is written unmodified.
-//
-// PCSX2 generally uses Unix-style newlines -- LF (\n) only -- hence there's no need to strip CRs
-// from incoming data.  Mac platforms may need an implementation of their own that converts
-// newlines to CRs...?
-//
-void px_fputs(FILE *fp, const char *src)
-{
-    if (fp == NULL)
-        return;
-
-#ifdef _WIN32
-    // Windows needs CR's partnered with all newlines, or else notepad.exe can't view
-    // the stupid logfile.  Best way is to write one char at a time.. >_<
-
-    const char *curchar = src;
-    bool prevcr = false;
-    while (*curchar != 0) {
-        if (*curchar == '\r') {
-            prevcr = true;
-        } else {
-            // Only write a CR/LF pair if the current LF is not prefixed nor
-            // post-fixed by a CR.
-            if (*curchar == '\n' && !prevcr && (*(curchar + 1) != '\r'))
-                fputs("\r\n", fp);
-            else
-                fputc(*curchar, fp);
-
-            prevcr = false;
-        }
-        ++curchar;
-    }
-
-#else
-    // Linux is happy with plain old LFs.  Not sure about Macs... does OSX still
-    // go by the old school Mac style of using Crs only?
-
-    fputs(src, fp); // fputs does not do automatic newlines, so it's ok!
-#endif
 }

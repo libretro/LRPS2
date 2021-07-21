@@ -67,15 +67,8 @@ public:
 };
 
 // --------------------------------------------------------------------------------------
-//  ICloneable / IActionInvocation / IDeletableObject
+//  ICloneable / IDeletableObject
 // --------------------------------------------------------------------------------------
-class IActionInvocation
-{
-public:
-    virtual ~IActionInvocation() = default;
-    virtual void InvokeAction() = 0;
-};
-
 class ICloneable
 {
 public:
@@ -267,5 +260,3 @@ extern u64 GetCPUTicks();
 extern u64 GetPhysicalMemory();
 
 extern wxString GetOSVersionString();
-
-void ScreensaverAllow(bool allow);
