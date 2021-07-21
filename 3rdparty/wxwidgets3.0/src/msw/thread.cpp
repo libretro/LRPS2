@@ -168,21 +168,7 @@ void wxCriticalSection::Enter()
 
 bool wxCriticalSection::TryEnter()
 {
-#if wxUSE_DYNLIB_CLASS
-    typedef BOOL
-      (WINAPI *TryEnterCriticalSection_t)(LPCRITICAL_SECTION lpCriticalSection);
-
-    static TryEnterCriticalSection_t
-        pfnTryEnterCriticalSection = (TryEnterCriticalSection_t)
-            wxDynamicLibrary(wxT("kernel32.dll")).
-                GetSymbol(wxT("TryEnterCriticalSection"));
-
-    return pfnTryEnterCriticalSection
-            ? (*pfnTryEnterCriticalSection)((CRITICAL_SECTION *)m_buffer) != 0
-            : false;
-#else
     return false;
-#endif
 }
 
 void wxCriticalSection::Leave()

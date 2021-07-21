@@ -20,7 +20,6 @@
 #include "wx/thread.h"
 #include "wx/tracker.h"
 #include "wx/typeinfo.h"
-#include "wx/any.h"
 
 // Currently VC6 and VC7 are known to not be able to compile CallAfter() code,
 // so disable it for them.

@@ -53,7 +53,6 @@ class WXDLLIMPEXP_BASE const_iterator                                    \
 // only one of the RTTI system will be compiled:
 // - the "old" one (defined by rtti.h) or
 // - the "new" one (defined by xti.h)
-#include "wx/xti.h"
 #include "wx/rtti.h"
 
 #define wxIMPLEMENT_CLASS(name, basename)                                     \
@@ -413,8 +412,6 @@ inline wxObject *wxCheckDynamicCast(wxObject *obj, wxClassInfo *classInfo)
 {
     return obj && obj->GetClassInfo()->IsKindOf(classInfo) ? obj : NULL;
 }
-
-#include "wx/xti2.h"
 
 // ----------------------------------------------------------------------------
 // Compatibility macro aliases IMPLEMENT group

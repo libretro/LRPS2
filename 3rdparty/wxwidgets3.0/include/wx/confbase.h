@@ -16,7 +16,6 @@
 #include "wx/defs.h"
 #include "wx/string.h"
 #include "wx/object.h"
-#include "wx/base64.h"
 
 class WXDLLIMPEXP_FWD_BASE wxArrayString;
 

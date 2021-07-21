@@ -279,20 +279,6 @@ class StaticLibrary : public DynamicStaticLibrary
 	bool HasSymbol(const wxString &name);
 };
 
-class DynamicLibrary : public DynamicStaticLibrary
-{
-	wxDynamicLibrary		Lib;
-
-	public:
-
-	DynamicLibrary();
-	virtual ~DynamicLibrary() {};
-
-	bool Load(const wxString& name);
-	void* GetSymbol(const wxString &name);
-	bool HasSymbol(const wxString &name);
-};
-
 class SysCorePlugins
 {
 	DeclareNoncopyableObject( SysCorePlugins );

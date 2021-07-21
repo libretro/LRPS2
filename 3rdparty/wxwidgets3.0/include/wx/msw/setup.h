@@ -365,16 +365,6 @@
 // Recommended setting: 1
 #define wxUSE_CONFIG_NATIVE   1
 
-// Compile in classes for run-time DLL loading and function calling.
-// Required by wxUSE_DIALUP_MANAGER.
-//
-// This setting is for Win32 only
-//
-// Default is 1.
-//
-// Recommended setting: 1
-#define wxUSE_DYNLIB_CLASS    1
-
 // Set to 1 to use ipv6 socket classes (requires wxUSE_SOCKETS)
 //
 // Notice that currently setting this option under Windows will result in

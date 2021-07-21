@@ -33,7 +33,6 @@
 #include "wx/msw/registry.h"
 #include "wx/apptrait.h"
 #include "wx/dynlib.h"
-#include "wx/dynload.h"
 #include "wx/scopeguard.h"
 #include "wx/filename.h"
 
@@ -794,27 +793,6 @@ static void InitToolHelp32()
     lpfCreateToolhelp32Snapshot = NULL;
     lpfProcess32First = NULL;
     lpfProcess32Next = NULL;
-
-#if wxUSE_DYNLIB_CLASS
-
-    wxDynamicLibrary dllKernel(wxT("kernel32.dll"), wxDL_VERBATIM);
-
-    // Get procedure addresses.
-    // We are linking to these functions of Kernel32
-    // explicitly, because otherwise a module using
-    // this code would fail to load under Windows NT,
-    // which does not have the Toolhelp32
-    // functions in the Kernel 32.
-    lpfCreateToolhelp32Snapshot =
-        (CreateToolhelp32Snapshot_t)dllKernel.RawGetSymbol(wxT("CreateToolhelp32Snapshot"));
-
-    lpfProcess32First =
-        (Process32_t)dllKernel.RawGetSymbol(wxT("Process32First"));
-
-    lpfProcess32Next =
-        (Process32_t)dllKernel.RawGetSymbol(wxT("Process32Next"));
-
-#endif // wxUSE_DYNLIB_CLASS
 }
 
 // By John Skiff
@@ -993,21 +971,7 @@ unsigned long wxGetProcessId()
 
 bool wxIsDebuggerRunning()
 {
-#if wxUSE_DYNLIB_CLASS
-    // IsDebuggerPresent() is not available under Win95, so load it dynamically
-    wxDynamicLibrary dll(wxT("kernel32.dll"), wxDL_VERBATIM);
-
-    typedef BOOL (WINAPI *IsDebuggerPresent_t)();
-    if ( !dll.HasSymbol(wxT("IsDebuggerPresent")) )
-    {
-        // no way to know, assume no
-        return false;
-    }
-
-    return (*(IsDebuggerPresent_t)dll.GetSymbol(wxT("IsDebuggerPresent")))() != 0;
-#else
     return false;
-#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -1283,22 +1247,6 @@ bool wxIsPlatform64Bit()
 {
 #if defined(__WIN64__)
     return true;  // 64-bit programs run only on Win64
-#elif wxUSE_DYNLIB_CLASS // Win32
-    // 32-bit programs run on both 32-bit and 64-bit Windows so check
-    typedef BOOL (WINAPI *IsWow64Process_t)(HANDLE, BOOL *);
-
-    wxDynamicLibrary dllKernel32(wxT("kernel32.dll"));
-    IsWow64Process_t pfnIsWow64Process =
-        (IsWow64Process_t)dllKernel32.RawGetSymbol(wxT("IsWow64Process"));
-
-    BOOL wow64 = FALSE;
-    if ( pfnIsWow64Process )
-    {
-        pfnIsWow64Process(::GetCurrentProcess(), &wow64);
-    }
-    //else: running under a system without Win64 support
-
-    return wow64 != FALSE;
 #else
     return false;
 #endif // Win64/Win32

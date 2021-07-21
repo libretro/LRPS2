@@ -41,8 +41,6 @@
 #include  "wx/fileconf.h"
 #include  "wx/filefn.h"
 
-#include "wx/base64.h"
-
 #include  "wx/stdpaths.h"
 
 #if defined(__WINDOWS__)

@@ -29,7 +29,6 @@
 #include "wx/math.h"
 #include "wx/image.h"
 #include "wx/region.h"
-#include "wx/affinematrix2d.h"
 
 #define wxUSE_NEW_DC 1
 

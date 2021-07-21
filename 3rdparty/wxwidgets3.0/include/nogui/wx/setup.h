@@ -83,8 +83,6 @@
 
 #define wxUSE_CONFIG_NATIVE 1
 
-#define wxUSE_DYNLIB_CLASS 1
-
 #define wxUSE_IPV6          0
 
 #define wxUSE_APPLE_IEEE 1

@@ -511,7 +511,6 @@ wxDECLARE_APP(Pcsx2App);
 //  External App-related Globals and Shortcuts
 // --------------------------------------------------------------------------------------
 
-extern int  EnumeratePluginsInFolder( const wxDirName& searchPath, wxArrayString* dest );
 extern void LoadPluginsPassive();
 extern void LoadPluginsImmediate();
 extern void UnloadPlugins();

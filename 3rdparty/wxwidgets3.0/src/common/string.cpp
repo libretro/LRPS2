@@ -38,7 +38,6 @@
 
 #include "wx/hashmap.h"
 #include "wx/vector.h"
-#include "wx/xlocale.h"
 
 #ifdef __WINDOWS__
     #include "wx/msw/wrapwin.h"

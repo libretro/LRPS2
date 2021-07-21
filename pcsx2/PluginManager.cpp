@@ -658,25 +658,6 @@ bool StaticLibrary::HasSymbol(const wxString &name)
 	return false;
 }
 
-DynamicLibrary::DynamicLibrary() : Lib()
-{
-}
-
-bool DynamicLibrary::Load(const wxString& name)
-{
-	return Lib.Load(name);
-}
-
-void* DynamicLibrary::GetSymbol(const wxString &name)
-{
-	return Lib.GetSymbol(name);
-}
-
-bool DynamicLibrary::HasSymbol(const wxString &name)
-{
-	return Lib.HasSymbol(name);
-}
-
 // ---------------------------------------------------------------------------------
 //  PluginStatus_t Implementations
 // ---------------------------------------------------------------------------------
@@ -707,12 +688,9 @@ SysCorePlugins::PluginStatus_t::PluginStatus_t( PluginsEnum_t _pid, const wxStri
 		case PluginId_USB:
 #endif
 		case PluginId_Count:
+		default:
 			IsStatic	= true;
 			Lib			= new StaticLibrary(_pid);
-			break;
-		default:
-			IsStatic	= false;
-			Lib			= new DynamicLibrary();
 			break;
 	}
 

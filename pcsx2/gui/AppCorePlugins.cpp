@@ -391,45 +391,6 @@ protected:
 //  Public API / Interface
 // --------------------------------------------------------------------------------------
 
-int EnumeratePluginsInFolder(const wxDirName& searchpath, wxArrayString* dest)
-{
-	if (!searchpath.Exists()) return 0;
-
-	std::unique_ptr<wxArrayString> placebo;
-	wxArrayString* realdest = dest;
-	if (realdest == NULL)
-	{
-		placebo = std::make_unique<wxArrayString>();
-		realdest = placebo.get();
-	}
-
-#ifdef __WXMSW__
-	// Windows pretty well has a strict "must end in .dll" rule.
-	wxString pattern( L"*%s" );
-#else
-	// Other platforms seem to like to version their libs after the .so extension:
-	//    blah.so.3.1.fail?
-	wxString pattern( L"*%s*" );
-#endif
-
-	wxDir::GetAllFiles( searchpath.ToString(), realdest, pxsFmt( pattern, WX_STR(wxDynamicLibrary::GetDllExt())), wxDIR_FILES );
-
-	// SECURITY ISSUE:  (applies primarily to Windows, but is a good idea on any platform)
-	//   The search folder order for plugins can vary across operating systems, and in some poorly designed
-	//   cases (old versions of windows), the search order is a security hazard because it does not
-	//   search where you might really expect.  In our case wedo not want *any* searching.  The only
-	//   plugins we want to load are the ones we found in the directly the user specified, so make
-	//   sure all paths are FULLY QUALIFIED ABSOLUTE PATHS.
-	//
-	// (for details, read: http://msdn.microsoft.com/en-us/library/ff919712.aspx )
-
-	for (uint i=0; i<realdest->GetCount(); ++i )
-	{
-		(*realdest)[i] = Path::MakeAbsolute((*realdest)[i]);
-	}
-
-	return realdest->GetCount();
-}
 #ifndef __LIBRETRO__
 // Posts a message to the App to reload plugins.  Plugins are loaded via a background thread
 // which is started on a pending event, so don't expect them to be ready  "right now."

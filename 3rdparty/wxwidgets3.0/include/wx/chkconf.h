@@ -71,10 +71,6 @@
 #define wxUSE_CONSOLE_EVENTLOOP 0
 #endif /* !defined(wxUSE_CONSOLE_EVENTLOOP) */
 
-#ifndef wxUSE_DYNLIB_CLASS
-#define wxUSE_DYNLIB_CLASS 0
-#endif /* !defined(wxUSE_DYNLIB_CLASS) */
-
 #ifndef wxUSE_IPV6
 #       define wxUSE_IPV6 0
 #endif /* !defined(wxUSE_IPV6) */

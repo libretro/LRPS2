@@ -112,56 +112,6 @@ ShellFunctions gs_shellFuncs;
 
 void ResolveShellFunctions()
 {
-#if wxUSE_DYNLIB_CLASS
-
-    // start with the newest functions, fall back to the oldest ones
-#ifdef __WXWINCE__
-    wxString shellDllName(wxT("coredll"));
-#else
-    // first check for SHGetFolderPath (shell32.dll 5.0)
-    wxString shellDllName(wxT("shell32"));
-#endif
-
-    wxDynamicLibrary dllShellFunctions( shellDllName );
-    if ( !dllShellFunctions.IsLoaded() )
-    {
-        wxLogTrace(TRACE_MASK, wxT("Failed to load %s.dll"), shellDllName.c_str() );
-    }
-
-    // don't give errors if the functions are unavailable, we're ready to deal
-    // with this
-    wxLogNull noLog;
-
-#if wxUSE_UNICODE
-    #ifdef __WXWINCE__
-        static const wchar_t UNICODE_SUFFIX = L''; // WinCE SH functions don't seem to have 'W'
-    #else
-        static const wchar_t UNICODE_SUFFIX = L'W';
-    #endif
-#else // !Unicode
-    static const char UNICODE_SUFFIX = 'A';
-#endif // Unicode/!Unicode
-
-    wxString funcname(wxT("SHGetFolderPath"));
-    gs_shellFuncs.pSHGetFolderPath =
-        (SHGetFolderPath_t)dllShellFunctions.GetSymbol(funcname + UNICODE_SUFFIX);
-
-    // then for SHGetSpecialFolderPath (shell32.dll 4.71)
-    if ( !gs_shellFuncs.pSHGetFolderPath )
-    {
-        funcname = wxT("SHGetSpecialFolderPath");
-        gs_shellFuncs.pSHGetSpecialFolderPath = (SHGetSpecialFolderPath_t)
-            dllShellFunctions.GetSymbol(funcname + UNICODE_SUFFIX);
-    }
-
-    // finally we fall back on SHGetSpecialFolderLocation (shell32.dll 4.0),
-    // but we don't need to test for it -- it is available even under Win95
-
-    // shell32.dll is going to be unloaded, but it still remains in memory
-    // because we also link to it statically, so it's ok
-
-    gs_shellFuncs.initialized = true;
-#endif
 }
 
 } // anonymous namespace
