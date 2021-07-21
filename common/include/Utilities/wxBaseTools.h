@@ -23,4 +23,3 @@ extern void pxReadLine(wxInputStream &input, wxString &dest, std::string &interm
 extern bool pxReadLine(wxInputStream &input, std::string &dest);
 extern void pxWriteLine(wxOutputStream &output);
 extern void pxWriteLine(wxOutputStream &output, const wxString &text);
-extern void pxWriteMultiline(wxOutputStream &output, const wxString &src);

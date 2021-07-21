@@ -237,16 +237,3 @@ void pxWriteLine(wxOutputStream &output, const wxString &text)
     }
     pxWriteLine(output);
 }
-
-void pxWriteMultiline(wxOutputStream &output, const wxString &src)
-{
-    if (src.IsEmpty())
-        return;
-
-    wxString result(src);
-    result.Replace(L"\r\n", L"\n");
-    result.Replace(L"\r", L"\n");
-
-    pxToUTF8 utf8(result);
-    output.Write(utf8, utf8.Length());
-}
