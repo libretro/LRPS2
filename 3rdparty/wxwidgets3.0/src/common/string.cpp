@@ -1737,47 +1737,6 @@ bool wxString::ToDouble(double *pVal) const
     WX_STRING_TO_X_TYPE_END
 }
 
-#if wxUSE_XLOCALE
-
-bool wxString::ToCLong(long *pVal, int base) const
-{
-    wxASSERT_MSG( !base || (base > 1 && base <= 36), wxT("invalid base") );
-
-    WX_STRING_TO_X_TYPE_START
-#if (wxUSE_UNICODE_UTF8 || !wxUSE_UNICODE) && defined(wxHAS_XLOCALE_SUPPORT)
-    long val = wxStrtol_lA(start, &end, base, wxCLocale);
-#else
-    long val = wxStrtol_l(start, &end, base, wxCLocale);
-#endif
-    WX_STRING_TO_X_TYPE_END
-}
-
-bool wxString::ToCULong(unsigned long *pVal, int base) const
-{
-    wxASSERT_MSG( !base || (base > 1 && base <= 36), wxT("invalid base") );
-
-    WX_STRING_TO_X_TYPE_START
-#if (wxUSE_UNICODE_UTF8 || !wxUSE_UNICODE) && defined(wxHAS_XLOCALE_SUPPORT)
-    unsigned long val = wxStrtoul_lA(start, &end, base, wxCLocale);
-#else
-    unsigned long val = wxStrtoul_l(start, &end, base, wxCLocale);
-#endif
-    WX_STRING_TO_X_TYPE_END
-}
-
-bool wxString::ToCDouble(double *pVal) const
-{
-    WX_STRING_TO_X_TYPE_START
-#if (wxUSE_UNICODE_UTF8 || !wxUSE_UNICODE) && defined(wxHAS_XLOCALE_SUPPORT)
-    double val = wxStrtod_lA(start, &end, wxCLocale);
-#else
-    double val = wxStrtod_l(start, &end, wxCLocale);
-#endif
-    WX_STRING_TO_X_TYPE_END
-}
-
-#else // wxUSE_XLOCALE
-
 // Provide implementation of these functions even when wxUSE_XLOCALE is
 // disabled, we still need them in wxWidgets internal code.
 
@@ -1801,15 +1760,6 @@ bool wxString::ToCDouble(double *pVal) const
 
     // Create a copy of this string using the decimal point instead of whatever
     // separator the current locale uses.
-#if wxUSE_INTL
-    wxString sep = wxLocale::GetInfo(wxLOCALE_DECIMAL_POINT,
-                                     wxLOCALE_CAT_NUMBER);
-    if ( sep == "." )
-    {
-        // We can avoid an unnecessary string copy in this case.
-        return ToDouble(pVal);
-    }
-#else // !wxUSE_INTL
     // We don't know what the current separator is so it might even be a point
     // already, try to parse the string as a double:
     if ( ToDouble(pVal) )
@@ -1820,14 +1770,11 @@ bool wxString::ToCDouble(double *pVal) const
 
     // Try to guess the separator, using the most common alternative value.
     wxString sep(",");
-#endif // wxUSE_INTL/!wxUSE_INTL
     wxString cstr(*this);
     cstr.Replace(".", sep);
 
     return cstr.ToDouble(pVal);
 }
-
-#endif  // wxUSE_XLOCALE/!wxUSE_XLOCALE
 
 // ----------------------------------------------------------------------------
 // number to string conversion
@@ -1870,15 +1817,10 @@ wxString wxString::FromCDouble(double val, int precision)
     // can't do this neither and are reduced to this hack.
 
     wxString s = FromDouble(val, precision);
-#if wxUSE_INTL
-    wxString sep = wxLocale::GetInfo(wxLOCALE_DECIMAL_POINT,
-                                     wxLOCALE_CAT_NUMBER);
-#else // !wxUSE_INTL
     // As above, this is the most common alternative value. Notice that here it
     // doesn't matter if we guess wrongly and the current separator is already
     // ".": we'll just waste a call to Replace() in this case.
     wxString sep(",");
-#endif // wxUSE_INTL/!wxUSE_INTL
 
     s.Replace(sep, ".");
     return s;

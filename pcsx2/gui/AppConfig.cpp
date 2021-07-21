@@ -523,7 +523,6 @@ AppConfig::AppConfig()
 	, AppSettingsTabName( L"none" )
 	, GameDatabaseTabName( L"none" )
 {
-	LanguageId			= wxLANGUAGE_DEFAULT;
 	LanguageCode		= L"default";
 	RecentIsoCount		= 20;
 	Listbook_ImageSize	= 32;
@@ -638,7 +637,6 @@ void AppConfig::LoadSaveRootItems( IniInterface& ini )
 	IniEntry( ComponentsTabName );
 	IniEntry( AppSettingsTabName );
 	IniEntry( GameDatabaseTabName );
-	ini.EnumEntry( L"LanguageId", LanguageId, NULL, LanguageId );
 	IniEntry( LanguageCode );
 	IniEntry( RecentIsoCount );
 	IniEntry( GzipIsoIndexTemplate );

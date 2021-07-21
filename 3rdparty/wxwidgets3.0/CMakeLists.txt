@@ -51,8 +51,6 @@ add_library(wxwidgets
    src/common/filename.cpp
    src/common/hashmap.cpp
    src/common/init.cpp
-   src/common/intl.cpp
-   src/common/languageinfo.cpp
    src/common/list.cpp
    src/common/longlong.cpp
    src/common/module.cpp
@@ -73,13 +71,11 @@ add_library(wxwidgets
    src/common/timercmn.cpp
    src/common/timerimpl.cpp
    src/common/tokenzr.cpp
-   src/common/translation.cpp
    src/common/txtstrm.cpp
    src/common/unichar.cpp
    src/common/utilscmn.cpp
    src/common/wfstream.cpp
    src/common/wxcrt.cpp
-   src/common/xlocale.cpp
    
    src/common/datstrm.cpp
    src/common/encconv.cpp

@@ -46,12 +46,6 @@
 #include "wx/tokenzr.h"
 #include "wx/thread.h"
 
-#if wxUSE_STL
-    #if wxUSE_INTL
-        #include <locale>
-    #endif
-#endif // wxUSE_STL
-
 #if !defined(__WINDOWS__) || defined(__WXMICROWIN__)
   #include  <signal.h>      // for SIGTRAP used by wxTrap()
 #endif  //Win/Unix

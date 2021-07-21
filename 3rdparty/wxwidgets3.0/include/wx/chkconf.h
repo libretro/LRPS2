@@ -75,10 +75,6 @@
 #define wxUSE_DYNLIB_CLASS 0
 #endif /* !defined(wxUSE_DYNLIB_CLASS) */
 
-#ifndef wxUSE_INTL
-#       define wxUSE_INTL 0
-#endif /* !defined(wxUSE_INTL) */
-
 #ifndef wxUSE_IPV6
 #       define wxUSE_IPV6 0
 #endif /* !defined(wxUSE_IPV6) */
@@ -148,10 +144,6 @@
 #ifndef wxUSE_UNICODE
 #       define wxUSE_UNICODE 0
 #endif /* !defined(wxUSE_UNICODE) */
-
-#ifndef wxUSE_XLOCALE
-#       define wxUSE_XLOCALE 0
-#endif /* !defined(wxUSE_XLOCALE) */
 
 /*
    Section 2: platform-specific checks.

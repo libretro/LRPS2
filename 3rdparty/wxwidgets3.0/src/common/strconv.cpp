@@ -2849,11 +2849,7 @@ void wxCSConv::SetEncoding(wxFontEncoding encoding)
                 // Fall back to the system default encoding in this case (not
                 // sure how much sense does this make but this is how the old
                 // code used to behave).
-#if wxUSE_INTL
-                m_encoding = wxLocale::GetSystemEncoding();
-                if ( m_encoding == wxFONTENCODING_SYSTEM )
-#endif // wxUSE_INTL
-                    m_encoding = wxFONTENCODING_ISO8859_1;
+		m_encoding = wxFONTENCODING_ISO8859_1;
             }
             break;
 

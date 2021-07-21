@@ -50,9 +50,6 @@ public:
     virtual WXDWORD MSWGetStyle(long style, WXDWORD *exstyle) const;
 
 protected:
-#if wxUSE_INTL
-    virtual wxLocaleInfo MSWGetFormat() const;
-#endif // wxUSE_INTL
     virtual bool MSWAllowsNone() const { return false; }
     virtual bool MSWOnDateTimeChange(const tagNMDATETIMECHANGE& dtch);
 

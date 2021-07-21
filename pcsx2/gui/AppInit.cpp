@@ -161,11 +161,6 @@ void Pcsx2App::CleanupOnExit()
 
 void Pcsx2App::CleanupResources()
 {
-	//delete wxConfigBase::Set( NULL );
-
-	while( wxGetLocale() != NULL )
-		delete wxGetLocale();
-
 	m_mtx_LoadingGameDB.Wait();
 	ScopedLock lock(m_mtx_Resources);
 	m_Resources = NULL;

@@ -14,13 +14,6 @@
 
 class WXDLLIMPEXP_FWD_BASE wxLog;
 
-#if wxUSE_INTL
-#include "wx/hashset.h"
-WX_DECLARE_HASH_SET(wxString, wxStringHash, wxStringEqual,
-                    wxLocaleUntranslatedStrings);
-#endif
-
-
 // ----------------------------------------------------------------------------
 // wxThreadSpecificInfo: contains all thread-specific information used by wx
 // ----------------------------------------------------------------------------
@@ -46,11 +39,6 @@ public:
     //     because the default, for 0-initialized struct, should be to enable
     //     logging
     bool loggingDisabled;
-
-#if wxUSE_INTL
-    // Storage for wxTranslations::GetUntranslatedString()
-    wxLocaleUntranslatedStrings untranslatedStrings;
-#endif
 
 #if wxUSE_THREADS
     // Cleans up storage for the current thread. Should be called when a thread
