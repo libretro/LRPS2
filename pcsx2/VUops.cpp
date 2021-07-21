@@ -189,7 +189,7 @@ static __ri void __fastcall _vuFMACAdd(VURegs * VU, int reg, int xyzw) {
 		VU->fmac[i].statusflag = VU->statusflag;
 		VU->fmac[i].clipflag = VU->clipflag;
 	} else {
-		//Console.Error("*PCSX2*: error , out of fmacs %d", VU->cycle);
+		//log_cb(RETRO_LOG_ERROR, "*PCSX2*: error , out of fmacs %d\n", VU->cycle);
 	}
 }
 

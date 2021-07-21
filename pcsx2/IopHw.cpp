@@ -96,13 +96,12 @@ void psxDmaInterrupt2(int n)
 	}
 	else if (HW_DMA_ICR2 & (1 << (16 + n)))
 	{
-		/*
-		if (HW_DMA_ICR2 & (1 << (24 + n))) {
-			Console.WriteLn("*PCSX2*: HW_DMA_ICR2 n=%d already set", n);
-		}
-		if (psxHu32(0x1070) & 8) {
-			Console.WriteLn("*PCSX2*: psxHu32(0x1070) 8 already set (n=%d)", n);
-		}*/
+#if 0
+		if (HW_DMA_ICR2 & (1 << (24 + n)))
+			log_cb(RETRO_LOG_DEBUG, "*PCSX2*: HW_DMA_ICR2 n=%d already set\n", n);
+		if (psxHu32(0x1070) & 8)
+			log_cb(RETRO_LOG_DEBUG, "*PCSX2*: psxHu32(0x1070) 8 already set (n=%d)\n", n);
+#endif
 		fire_interrupt = true;
 	}
 

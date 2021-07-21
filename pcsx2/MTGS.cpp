@@ -156,7 +156,7 @@ void SysMtgsThread::PostVsyncStart()
 	if ((m_QueuedFrameCount.fetch_add(1) < EmuConfig.GS.VsyncQueueSize) /*|| (!EmuConfig.GS.VsyncEnable && !EmuConfig.GS.FrameLimitEnable)*/) return;
 
 	m_VsyncSignalListener.store(true, std::memory_order_release);
-	//Console.WriteLn( Color_Blue, "(EEcore Sleep) Vsync\t\tringpos=0x%06x, writepos=0x%06x", m_ReadPos.load(), m_WritePos.load() );
+	//log_cb(RETRO_LOG_DEBUG, "(EEcore Sleep) Vsync\t\tringpos=0x%06x, writepos=0x%06x\n", m_ReadPos.load(), m_WritePos.load() );
 
 	// We will wait a vsync event from the MTGS ring. If the ring is already purged, the event will never come !
 	// To avoid this potential deadlock, ring must be wake up after m_VsyncSignalListener
@@ -338,7 +338,7 @@ void SysMtgsThread::ExecuteTaskInThread()
 			uptr stackpos = ringposStack.back();
 			if( stackpos != local_ReadPos )
 			{
-				Console.Error( "MTGS Ringbuffer Critical Failure ---> %x to %x (prevCmd: %x)\n", stackpos, local_ReadPos, prevCmd.command );
+				log_cb(RETRO_LOG_ERROR, "MTGS Ringbuffer Critical Failure ---> %x to %x (prevCmd: %x)\n", stackpos, local_ReadPos, prevCmd.command );
 			}
 			pxAssert( stackpos == local_ReadPos );
 			prevCmd = tag;
@@ -552,7 +552,7 @@ void SysMtgsThread::ExecuteTaskInThread()
 
 #ifdef PCSX2_DEVBUILD
 						default:
-							Console.Error("GSThreadProc, bad packet (%x) at m_ReadPos: %x, m_WritePos: %x", tag.command, local_ReadPos, m_WritePos.load());
+							log_cb(RETRO_LOG_ERROR, "GSThreadProc, bad packet (%x) at m_ReadPos: %x, m_WritePos: %x\n", tag.command, local_ReadPos, m_WritePos.load());
 							pxFail( "Bad packet encountered in the MTGS Ringbuffer." );
 							m_ReadPos.store(m_WritePos.load(std::memory_order_acquire), std::memory_order_release);
 						continue;
@@ -592,7 +592,7 @@ void SysMtgsThread::ExecuteTaskInThread()
 #endif
 				if( m_SignalRingEnable.exchange(false) )
 				{
-					//Console.Warning( "(MTGS Thread) Dangling RingSignal on empty buffer!  signalpos=0x%06x", m_SignalRingPosition.exchange(0) ) );
+					//log_cb(RETRO_LOG_WARN, "(MTGS Thread) Dangling RingSignal on empty buffer!  signalpos=0x%06x\n", m_SignalRingPosition.exchange(0) ) );
 					m_SignalRingPosition.store(0, std::memory_order_release);
 					m_sem_OnRingReset.Post();
 				}
@@ -611,7 +611,7 @@ void SysMtgsThread::ExecuteTaskInThread()
 		// parallel to this handler aren't accidentally blocked.
 		if( m_SignalRingEnable.exchange(false) )
 		{
-			//Console.Warning( "(MTGS Thread) Dangling RingSignal on empty buffer!  signalpos=0x%06x", m_SignalRingPosition.exchange(0) ) );
+			//log_cb(RETRO_LOG_WARN, "(MTGS Thread) Dangling RingSignal on empty buffer!  signalpos=0x%06x\n", m_SignalRingPosition.exchange(0) ) );
 			m_SignalRingPosition.store(0, std::memory_order_release);
 			m_sem_OnRingReset.Post();
 		}
@@ -619,7 +619,7 @@ void SysMtgsThread::ExecuteTaskInThread()
 		if (m_VsyncSignalListener.exchange(false))
 			m_sem_Vsync.Post();
 
-		//Console.Warning( "(MTGS Thread) Nothing to do!  ringpos=0x%06x", m_ReadPos );
+		//log_cb(RETRO_LOG_WARN, "(MTGS Thread) Nothing to do!  ringpos=0x%06x\n", m_ReadPos );
 	}
 }
 
@@ -627,7 +627,7 @@ void SysMtgsThread::FinishTaskInThread()
 {
 	if( m_SignalRingEnable.exchange(false) )
 	{
-		//Console.Warning( "(MTGS Thread) Dangling RingSignal on empty buffer!  signalpos=0x%06x", m_SignalRingPosition.exchange(0) ) );
+		//log_cb(RETRO_LOG_WARN, "(MTGS Thread) Dangling RingSignal on empty buffer!  signalpos=0x%06x\n", m_SignalRingPosition.exchange(0) ) );
 		m_SignalRingPosition.store(0, std::memory_order_release);
 		m_sem_OnRingReset.Post();
 	}
@@ -799,14 +799,14 @@ void SysMtgsThread::GenericStall( uint size )
 			pxAssertDev( m_SignalRingEnable == 0, "MTGS Thread Synchronization Error" );
 			m_SignalRingPosition.store(somedone, std::memory_order_release);
 
-			//Console.WriteLn( Color_Blue, "(EEcore Sleep) PrepDataPacker \tringpos=0x%06x, writepos=0x%06x, signalpos=0x%06x", readpos, writepos, m_SignalRingPosition );
+			//log_cb(RETRO_LOG_DEBUG, "(EEcore Sleep) PrepDataPacker \tringpos=0x%06x, writepos=0x%06x, signalpos=0x%06x\n", readpos, writepos, m_SignalRingPosition );
 
 			while(true) {
 				m_SignalRingEnable.store(true, std::memory_order_release);
 				SetEvent();
 				m_sem_OnRingReset.WaitWithoutYield();
 				readpos = m_ReadPos.load(std::memory_order_acquire);
-				//Console.WriteLn( Color_Blue, "(EEcore Awake) Report!\tringpos=0x%06x", readpos );
+				//log_cb(RETRO_LOG_DEBUG, "(EEcore Awake) Report!\tringpos=0x%06x\n", readpos );
 
 				if (writepos < readpos)
 					freeroom = readpos - writepos;
@@ -820,7 +820,7 @@ void SysMtgsThread::GenericStall( uint size )
 		}
 		else
 		{
-			//Console.WriteLn( Color_StrongGray, "(EEcore Spin) PrepDataPacket!" );
+			//log_cb(RETRO_LOG_DEBUG, "(EEcore Spin) PrepDataPacket!\n" );
 			SetEvent();
 			while(true) {
 				SpinWait();

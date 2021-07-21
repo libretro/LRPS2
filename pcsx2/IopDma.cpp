@@ -44,7 +44,9 @@ static void __fastcall psxDmaGeneric(u32 madr, u32 bcr, u32 chcr, u32 spuCore)
 	// Update the spu2 to the current cycle before initiating the DMA
 
 	SPU2async(psxRegs.cycle - psxCounters[6].sCycleT);
-	//Console.Status("cycles sent to SPU2 %x\n", psxRegs.cycle - psxCounters[6].sCycleT);
+#if 0
+	log_cb(RETRO_LOG_DEBUG, "cycles sent to SPU2 %x\n", psxRegs.cycle - psxCounters[6].sCycleT);
+#endif
 
 	psxCounters[6].sCycleT = psxRegs.cycle;
 	psxCounters[6].CycleT = size * 3;
@@ -95,7 +97,7 @@ void psxDma4(u32 madr, u32 bcr, u32 chcr) // SPU2's Core 0
 int psxDma4Interrupt()
 {
 #ifdef SPU2IRQTEST
-	Console.Warning("psxDma4Interrupt()");
+	log_cb(RETRO_LOG_DEBUG, "psxDma4Interrupt()\n");
 #endif
 	HW_DMA4_CHCR &= ~0x01000000;
 	psxDmaInterrupt(4);
@@ -106,7 +108,7 @@ int psxDma4Interrupt()
 void spu2DMA4Irq()
 {
 #ifdef SPU2IRQTEST
-	Console.Warning("spu2DMA4Irq()");
+	log_cb(RETRO_LOG_DEBUG, "spu2DMA4Irq()\n");
 #endif
 	SPU2interruptDMA4();
 	HW_DMA4_CHCR &= ~0x01000000;
@@ -121,7 +123,7 @@ void psxDma7(u32 madr, u32 bcr, u32 chcr) // SPU2's Core 1
 int psxDma7Interrupt()
 {
 #ifdef SPU2IRQTEST
-	Console.Warning("psxDma7Interrupt()");
+	log_cb(RETRO_LOG_WARN, "psxDma7Interrupt()\n");
 #endif
 	HW_DMA7_CHCR &= ~0x01000000;
 	psxDmaInterrupt2(0);
@@ -131,7 +133,7 @@ int psxDma7Interrupt()
 void spu2DMA7Irq()
 {
 #ifdef SPU2IRQTEST
-	Console.Warning("spu2DMA7Irq()");
+	log_cb(RETRO_LOG_WARN, "spu2DMA7Irq()\n");
 #endif
 	SPU2interruptDMA7();
 	HW_DMA7_CHCR &= ~0x01000000;

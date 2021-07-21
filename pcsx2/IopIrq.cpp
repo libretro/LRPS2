@@ -49,9 +49,9 @@ void fwIrq()
 
 void spu2Irq()
 {
-	#ifdef SPU2IRQTEST
-		Console.Warning("spu2Irq");
-	#endif
+#ifdef SPU2IRQTEST
+	log_cb(RETRO_LOG_WARN, "spu2Irq\n");
+#endif
 	iopIntcIrq(9);
 }
 

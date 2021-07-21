@@ -75,7 +75,7 @@ void psxShutdown() {
 void __fastcall psxException(u32 code, u32 bd)
 {
 //	PSXCPU_LOG("psxException %x: %x, %x", code, psxHu32(0x1070), psxHu32(0x1074));
-	//Console.WriteLn("!! psxException %x: %x, %x", code, psxHu32(0x1070), psxHu32(0x1074));
+	//log_cb(RETRO_LOG_DEBUG, "!! psxException %x: %x, %x\n", code, psxHu32(0x1070), psxHu32(0x1074));
 	// Set the Cause
 	psxRegs.CP0.n.Cause &= ~0x7f;
 	psxRegs.CP0.n.Cause |= code;
@@ -238,7 +238,7 @@ void iopTestIntc()
 
 		cpuSetNextEventDelta( 16 );
 		iopEventAction = true;
-		//Console.Error( "** IOP Needs an EE EventText, kthx **  %d", iopCycleEE );
+		//log_cb(RETRO_LOG_ERROR, "** IOP Needs an EE EventText, kthx **  %d\n", iopCycleEE );
 
 		// Note: No need to set the iop's branch delta here, since the EE
 		// will run an IOP branch test regardless.

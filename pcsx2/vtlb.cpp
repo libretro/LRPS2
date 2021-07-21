@@ -146,7 +146,7 @@ DataType __fastcall vtlb_memRead(u32 addr)
 
 	//has to: translate, find function, call function
 	u32 paddr=vmv.assumeHandlerGetPAddr(addr);
-	//Console.WriteLn("Translated 0x%08X to 0x%08X", addr,paddr);
+	//log_cb(RETRO_LOG_DEBUG, "Translated 0x%08X to 0x%08X\n", addr,paddr);
 	//return reinterpret_cast<TemplateHelper<DataSize,false>::HandlerType*>(vtlbdata.RWFT[TemplateHelper<DataSize,false>::sidx][0][hand])(paddr,data);
 
 	switch( DataSize )
@@ -184,7 +184,7 @@ void __fastcall vtlb_memRead64(u32 mem, mem64_t *out)
 	{
 		//has to: translate, find function, call function
 		u32 paddr = vmv.assumeHandlerGetPAddr(mem);
-		//Console.WriteLn("Translated 0x%08X to 0x%08X", addr,paddr);
+		//log_cb(RETRO_LOG_DEBUG, "Translated 0x%08X to 0x%08X\n", addr,paddr);
 		vmv.assumeHandler<64, false>()(paddr, out);
 	}
 }
@@ -210,7 +210,7 @@ void __fastcall vtlb_memRead128(u32 mem, mem128_t *out)
 	{
 		//has to: translate, find function, call function
 		u32 paddr = vmv.assumeHandlerGetPAddr(mem);
-		//Console.WriteLn("Translated 0x%08X to 0x%08X", addr,paddr);
+		//log_cb(RETRO_LOG_DEBUG, "Translated 0x%08X to 0x%08X\n", addr,paddr);
 		vmv.assumeHandler<128, false>()(paddr, out);
 	}
 }
@@ -249,7 +249,7 @@ void __fastcall vtlb_memWrite(u32 addr, DataType data)
 	{
 		//has to: translate, find function, call function
 		u32 paddr = vmv.assumeHandlerGetPAddr(addr);
-		//Console.WriteLn("Translated 0x%08X to 0x%08X", addr,paddr);
+		//log_cb(RETRO_LOG_DEBUG, "Translated 0x%08X to 0x%08X\n", addr,paddr);
 		return vmv.assumeHandler<sizeof(DataType)*8, true>()(paddr, data);
 	}
 }
@@ -275,7 +275,7 @@ void __fastcall vtlb_memWrite64(u32 mem, const mem64_t* value)
 	{
 		//has to: translate, find function, call function
 		u32 paddr = vmv.assumeHandlerGetPAddr(mem);
-		//Console.WriteLn("Translated 0x%08X to 0x%08X", addr,paddr);
+		//log_cb(RETRO_LOG_DEBUG, "Translated 0x%08X to 0x%08X\n", addr,paddr);
 
 		vmv.assumeHandler<64, true>()(paddr, value);
 	}
@@ -302,7 +302,7 @@ void __fastcall vtlb_memWrite128(u32 mem, const mem128_t *value)
 	{
 		//has to: translate, find function, call function
 		u32 paddr = vmv.assumeHandlerGetPAddr(mem);
-		//Console.WriteLn("Translated 0x%08X to 0x%08X", addr,paddr);
+		//log_cb(RETRO_LOG_DEBUG, "Translated 0x%08X to 0x%08X\n", addr,paddr);
 
 		vmv.assumeHandler<128, true>()(paddr, value);
 	}
@@ -410,6 +410,7 @@ static __ri void vtlb_Miss(u32 addr,u32 mode)
 		throw Exception::CancelInstruction();
 	}
 
+#ifndef NDEBUG
 	if( IsDevBuild )
 		Cpu->ThrowCpuException( R5900Exception::TLBMiss( addr, !!mode ) );
 	else
@@ -418,10 +419,11 @@ static __ri void vtlb_Miss(u32 addr,u32 mode)
 		if ( spamStop++ < 50 )
 		{
 #if 0
-			Console.Error( R5900Exception::TLBMiss( addr, !!mode ).FormatMessage() );
+			log_cb(RETRO_LOG_ERROR, R5900Exception::TLBMiss( addr, !!mode ).FormatMessage().c_str() );
 #endif
 		}
 	}
+#endif
 }
 
 // BusError exception: more serious than a TLB miss.  If properly emulated the PS2 kernel
@@ -429,18 +431,6 @@ static __ri void vtlb_Miss(u32 addr,u32 mode)
 // time of the exception.
 static __ri void vtlb_BusError(u32 addr,u32 mode)
 {
-	// The exception terminate the program on linux which is very annoying
-	// Just disable it for the moment
-#ifdef __linux__
-	if (0)
-#else
-	if( IsDevBuild )
-#endif
-		Cpu->ThrowCpuException( R5900Exception::BusError( addr, !!mode ) );
-#if 0
-	else
-		Console.Error( R5900Exception::TLBMiss( addr, !!mode ).FormatMessage() );
-#endif
 }
 
 template<typename OperandType, u32 saddr>

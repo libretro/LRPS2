@@ -131,7 +131,7 @@ void MultipartFileReader::FindParts()
 		++m_numparts;
 	}
 
-	//Console.WriteLn( Color_Blue, "isoFile: multi-part ISO loaded (%u parts found)", m_numparts );
+	//log_cb(RETRO_LOG_DEBUG, "isoFile: multi-part ISO loaded (%u parts found)\n", m_numparts );
 }
 
 bool MultipartFileReader::Open(const wxString& fileName)

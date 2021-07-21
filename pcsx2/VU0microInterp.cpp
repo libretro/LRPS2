@@ -57,7 +57,7 @@ static void _vu0Exec(VURegs* VU)
 	}
 	if (ptr[1] & 0x20000000) { /* M flag */
 		VU->flags|= VUFLAG_MFLAGSET;
-//		Console.WriteLn("fixme: M flag set");
+//		log_cb(RETRO_LOG_DEBUG, "fixme: M flag set\n");
 	}
 	if (ptr[1] & 0x10000000) { /* D flag */
 		if (VU0.VI[REG_FBRST].UL & 0x4) {
@@ -100,12 +100,12 @@ static void _vu0Exec(VURegs* VU)
 		vfreg = 0; vireg = 0;
 		if (uregs.VFwrite) {
 			if (lregs.VFwrite == uregs.VFwrite) {
-//				Console.Warning("*PCSX2*: Warning, VF write to the same reg in both lower/upper cycle");
+//				log_cb(RETRO_LOG_WARN, "*PCSX2*: Warning, VF write to the same reg in both lower/upper cycle\n");
 				discard = 1;
 			}
 			if (lregs.VFread0 == uregs.VFwrite ||
 				lregs.VFread1 == uregs.VFwrite) {
-//				Console.WriteLn("saving reg %d at pc=%x", i, VU->VI[REG_TPC].UL);
+//				log_cb(RETRO_LOG_DEBUG, "saving reg %d at pc=%x\n", i, VU->VI[REG_TPC].UL);
 				_VF = VU->VF[uregs.VFwrite];
 				vfreg = uregs.VFwrite;
 			}
