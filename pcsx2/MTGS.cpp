@@ -438,14 +438,13 @@ void SysMtgsThread::ExecuteTaskInThread()
 					MTVU_LOG("MTGS - Waiting on semaXGkick!");
 #endif
 					vu1Thread.KickStart(true);
-#ifndef __LIBRETRO__
-					busy.PartialRelease();
-#endif
-					// Wait for MTVU to complete vu1 program
-					vu1Thread.semaXGkick.WaitWithoutYield();
-#ifndef __LIBRETRO__
-					busy.PartialAcquire();
-#endif
+					if (!vu1Thread.semaXGkick.TryWait())
+					{
+						busy.PartialRelease();
+						// Wait for MTVU to complete vu1 program
+						vu1Thread.semaXGkick.WaitWithoutYield();
+						busy.PartialAcquire();
+					}
 					Gif_Path& path   = gifUnit.gifPath[GIF_PATH_1];
 					GS_Packet gsPack = path.GetGSPacketMTVU(); // Get vu1 program's xgkick packet(s)
 					if (gsPack.size) GSgifTransfer((u32*)&path.buffer[gsPack.offset], gsPack.size/16);
