@@ -32,10 +32,6 @@
 
 #include "Sio.h"
 
-#ifndef DISABLE_RECORDING
-#	include "Recording/InputRecordingControls.h"
-#endif
-
 using namespace Threading;
 
 extern u8 psxhblankgate;
@@ -585,12 +581,6 @@ __fi void rcntUpdate_vSync()
 	}
 	else	// VSYNC end / VRENDER begin
 	{
-#ifndef DISABLE_RECORDING
-		if (g_Conf->EmuOptions.EnableRecordingTools)
-		{
-			g_InputRecordingControls.HandleFrameAdvanceAndPausing();
-		}
-#endif
 		VSyncStart(vsyncCounter.sCycle);
 
 		vsyncCounter.sCycle += vSyncInfo.Render;

@@ -346,8 +346,3 @@ extern void __Log( const char* fmt, ... );
 #define eeDeci2Log		SysConsole.deci2.IsActive()			&& SysConsole.deci2.Write
 #define iopConLog		SysConsole.iopConsole.IsActive()	&& SysConsole.iopConsole.Write
 #define sysConLog		SysConsole.sysoutConsole.IsActive()	&& SysConsole.sysoutConsole.Write
-
-#ifndef DISABLE_RECORDING
-#	define recordingConLog	SysConsole.recordingConsole.IsActive()	&& SysConsole.recordingConsole.Write
-#	define controlLog		SysConsole.controlInfo.IsActive()		&& SysConsole.controlInfo.Write
-#endif

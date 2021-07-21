@@ -121,17 +121,6 @@ TLD_sysoutConsole = {
 	pxDt("Shows strings printed to the system output stream.")
 }
 
-#ifndef DISABLE_RECORDING
-,TLD_recordingConsole = {
-	L"Input Recording",			L"Input Recording Console",
-	pxDt("Shows recording related logs and information")
-},
-
-TLD_controlInfo = {
-	L"Controller Info",			L"Controller Info",
-	pxDt("Shows detailed controller input values for port 1, every frame")
-}
-#endif
 ; // End init of TraceLogDescriptors
 
 SysConsoleLogPack::SysConsoleLogPack()

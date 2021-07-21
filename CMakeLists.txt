@@ -42,8 +42,6 @@ write_svnrev_h()
 set(CMAKE_BUILD_PO FALSE)
 if (LIBRETRO)
     set(BUILD_REPLAY_LOADERS FALSE)
-    #add_definitions(-D__LIBRETRO__ -DDISABLE_RECORDING)
-    #add_definitions(-D__LIBRETRO__ -DDISABLE_RECORDING -DwxUSE_UNICODE=0)
     add_definitions(-D__LIBRETRO__ -DDISABLE_RECORDING -DwxUSE_GUI=0)
 endif()
 
