@@ -453,10 +453,5 @@ void ExecutorThread::OnCleanupInThread()
 void Pcsx2App::OnSysExecutorTaskTimeout( wxTimerEvent& evt )
 {
 	if( !SysExecutorThread.IsRunning() ) return;
-
-	//BaseThreadedInvocation* task = SysExecutorThread.GetTask();
-	//if( !task ) return;
-
-	//task->ShowModalStatus();
 }
 #endif

@@ -16,9 +16,6 @@
 #include "PrecompiledHeader.h"
 #include "App.h"
 #include "Utilities/IniInterface.h"
-#ifndef __LIBRETRO__
-#include "Dialogs/ModalPopups.h"
-#endif
 
 #include <wx/stdpaths.h>
 

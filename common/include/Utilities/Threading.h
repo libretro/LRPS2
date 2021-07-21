@@ -129,9 +129,6 @@ namespace Threading
 // The following set of documented functions have Linux/Win32 specific implementations,
 // which are found in WinThreads.cpp and LnxThreads.cpp
 
-// Releases a timeslice to other threads.
-extern void Timeslice();
-
 // For use in spin/wait loops.
 extern void SpinWait();
 
@@ -142,22 +139,6 @@ extern void DisableHiresScheduler();
 
 // sleeps the current thread for the given number of milliseconds.
 extern void Sleep(int ms);
-
-// pthread Cond is an evil api that is not suited for Pcsx2 needs.
-// Let's not use it. Use mutexes and semaphores instead to create waits. (Air)
-#if 0
-	struct WaitEvent
-	{
-		pthread_cond_t cond;
-		pthread_mutex_t mutex;
-
-		WaitEvent();
-		~WaitEvent();
-
-		void Set();
-		void Wait();
-	};
-#endif
 
 // --------------------------------------------------------------------------------------
 //  NonblockingMutex

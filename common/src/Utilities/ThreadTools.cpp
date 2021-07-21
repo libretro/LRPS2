@@ -140,11 +140,6 @@ bool Threading::_WaitGui_RecursionGuard(const wxChar *name)
     return true;
 }
 
-__fi void Threading::Timeslice()
-{
-    sched_yield();
-}
-
 void Threading::pxThread::_pt_callback_cleanup(void *handle)
 {
     ((pxThread *)handle)->_ThreadCleanup();
