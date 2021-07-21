@@ -29,7 +29,6 @@ set(wxWindowsSources
    src/msw/timer.cpp
    src/msw/utils.cpp
    src/msw/utilsexc.cpp
-   src/msw/volume.cpp
    )
 endif()
 add_library(wxwidgets

@@ -120,7 +120,6 @@ set(GSdxHeaders
     GSState.h
     GSTables.h
     GSThread_CXX11.h
-    GSThread.h
     GSUtil.h
     GSVector.h
     GSVector4.h
