@@ -16,6 +16,9 @@
 #include "PrecompiledHeader.h"
 #include "Global.h"
 
+/* Forward declaration */
+extern retro_audio_sample_t sample_cb;
+
 // Games have turned out to be surprisingly sensitive to whether a parked, silent voice is being fully emulated.
 // With Silent Hill: Shattered Memories requiring full processing for no obvious reason, we've decided to
 // disable the optimisation until we can tie it to the game database.
@@ -852,7 +855,7 @@ __forceinline
 		// Good thing though that this code gets the volume exactly right, as per tests :)
 		Out = clamp_mix(Out, SndOutVolumeShift);
 	}
-	SndBuffer::Write(Out);
+	sample_cb(Out.Left >> 12, Out.Right >> 12);
 
 	// Update AutoDMA output positioning
 	OutPos++;

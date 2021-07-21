@@ -26,7 +26,14 @@ using namespace Threading;
 
 MutexRecursive mtx_SPU2Status;
 
+extern retro_audio_sample_t sample_cb;
+
 #include "svnrev.h"
+
+int Interpolation = 4;
+bool EffectsDisabled = false;
+bool postprocess_filter_dealias = false;
+unsigned int delayCycles = 4;
 
 int SampleRate = 48000;
 
@@ -120,11 +127,9 @@ s32 SPU2reset()
 	if (SampleRate != 48000)
 	{
 		SampleRate = 48000;
-		SndBuffer::Cleanup();
-      SndBuffer::Init();
+		/* TODO/FIXME - we would want to call
+		   set_av_info here to set the audio samplerate */
 	}
-	else
-		SampleRate = 48000;
 
 	memset(spu2regs, 0, 0x010000);
 	memset(_spu2mem, 0, 0x200000);
@@ -141,11 +146,9 @@ s32 SPU2ps1reset()
 	if (SampleRate != 44100)
 	{
 		SampleRate = 44100;
-		SndBuffer::Cleanup();
-      SndBuffer::Init();
+		/* TODO/FIXME - we would want to call
+		   set_av_info here to set the audio samplerate */
 	}
-	else
-		SampleRate = 44100;
 
 	/* memset(spu2regs, 0, 0x010000);
     memset(_spu2mem, 0, 0x200000);
@@ -255,7 +258,6 @@ s32 SPU2open(void* pDsp)
 	IsOpened = true;
 	lClocks = (cyclePtr != nullptr) ? *cyclePtr : 0;
 
-   SndBuffer::Init();
 	SPU2setDMABaseAddr((uptr)iopMem->Main);
 	SPU2setClockPtr(&psxRegs.cycle);
 	return 0;
@@ -267,9 +269,6 @@ void SPU2close()
 	if (!IsOpened)
 		return;
 	IsOpened = false;
-
-
-	SndBuffer::Cleanup();
 }
 
 void SPU2shutdown()

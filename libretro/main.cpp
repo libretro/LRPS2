@@ -887,45 +887,15 @@ void retro_cheat_set(unsigned index, bool enabled, const char* code)
 {
 }
 
-int Interpolation = 4;
-bool EffectsDisabled = false;
-bool postprocess_filter_dealias = false;
-unsigned int delayCycles = 4;
-
-static retro_audio_sample_batch_t batch_cb;
-static retro_audio_sample_t sample_cb;
+retro_audio_sample_t sample_cb;
 
 void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb)
 {
-	batch_cb = cb;
 }
 
 void retro_set_audio_sample(retro_audio_sample_t cb)
 {
 	sample_cb = cb;
-}
-
-
-void SndBuffer::Write(const StereoOut32& Sample)
-{
-	sample_cb(Sample.Left >> 12, Sample.Right >> 12);
-}
-
-void SndBuffer::Init()
-{
-}
-
-void SndBuffer::Cleanup()
-{
-}
-
-s32 SndBuffer::Test()
-{
-	return 0;
-}
-
-void SndBuffer::ClearContents()
-{
 }
 
 void DspUpdate()

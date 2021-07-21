@@ -102,8 +102,6 @@ s32 __fastcall SPU2Savestate::ThawIt(DataBlock& spud)
 	}
 	else
 	{
-		SndBuffer::ClearContents();
-
 		pxAssertMsg(spu2regs && _spu2mem, "Looks like PCSX2 is trying to loadstate while components are shut down.  That's a no-no!  It shouldn't crash, but the savestate will probably be corrupted.");
 
 		// base stuff
