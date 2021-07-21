@@ -115,6 +115,4 @@ void PADsetMode(int pad, int mode);
 void PADLoadConfig();
 void PADSaveConfig();
 
-void SysMessage(char *fmt, ...);
-
 #endif

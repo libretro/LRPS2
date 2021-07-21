@@ -598,7 +598,7 @@ static char* PS2E_CALLBACK pcsx2_GetStringAlloc( const char* name, void* (PS2E_C
 
 static void PS2E_CALLBACK pcsx2_OSD_WriteLn( int icon, const char* msg )
 {
-	log_cb(RETRO_LOG_INFO, false, msg );
+	log_cb(RETRO_LOG_INFO, msg );
 }
 
 // ---------------------------------------------------------------------------------

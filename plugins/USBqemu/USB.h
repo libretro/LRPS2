@@ -57,9 +57,6 @@ void LoadConfig();
 extern FILE *usbLog;
 void __Log(char *fmt, ...);
 
-extern void SysMessage(const char *fmt, ...);
-extern void SysMessage(const wchar_t *fmt, ...);
-
 extern HWND gsWindowHandle;
 
 #endif

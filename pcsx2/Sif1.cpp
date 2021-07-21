@@ -109,7 +109,7 @@ static __fi bool ProcessEETag()
 
 	if (sif1ch.chcr.TIE && ptag->IRQ)
 	{
-		//Console.WriteLn("SIF1 TIE");
+		//log_cb(RETRO_LOG_DEBUG, "SIF1 TIE\n");
 		sif1.ee.end = true;
 	}
 

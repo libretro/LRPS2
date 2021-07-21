@@ -43,15 +43,6 @@ static char libraryName[256];
 void (*DEV9irq)(int);
 
 __aligned16 s8 dev9regs[0x10000];
-#ifndef __LIBRETRO__
-#ifdef BUILTIN_DEV9_PLUGIN
-extern std::string s_strIniPath;
-extern std::string s_strLogPath;
-#else
-std::string s_strIniPath = "inis";
-std::string s_strLogPath = "logs";
-#endif
-#endif
 
 EXPORT_C_(void)
 DEV9about()
@@ -94,12 +85,6 @@ PS2EgetLibVersion2(u32 type)
 EXPORT_C_(s32)
 DEV9init()
 {
-#ifndef __LIBRETRO__
-    LoadConfig(s_strIniPath + "/Dev9null.ini");
-    DEV9LogInit();
-    g_plugin_log.WriteLn("dev9null plugin version %d,%d", revision, build);
-    g_plugin_log.WriteLn("Initializing dev9null");
-#endif
     // Initialize anything that needs to be initialized.
     memset(dev9regs, 0, sizeof(dev9regs));
     return 0;
@@ -327,10 +312,6 @@ DEV9irqHandler(void)
 EXPORT_C_(void)
 DEV9setSettingsDir(const char *dir)
 {
-#ifndef __LIBRETRO__
-    // Grab the ini directory.
-    s_strIniPath = (dir == NULL) ? "inis" : dir;
-#endif
 }
 
 EXPORT_C_(void)

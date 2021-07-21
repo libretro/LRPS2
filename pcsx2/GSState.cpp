@@ -74,8 +74,8 @@ __fi void GSVSYNC(void) {
 {
 	if( g_SaveGSStream ) return;
 
-	Console.WriteLn( "Saving GS State..." );
-	Console.WriteLn( L"\t%s", file.c_str() );
+	log_cb(RETRO_LOG_INFO, "Saving GS State...\n" );
+	log_cb(RETRO_LOG_INFO, "\t%s\n", file.c_str() );
 
 	SafeArray<u8> buf;
 	g_fGSSave = std::unique_ptr<memSavingState>(new memSavingState( buf ));
@@ -90,7 +90,7 @@ void LoadGSState(const wxString& file)
 {
 	int ret;
 
-	Console.WriteLn( "Loading GS State..." );
+	log_cb(RETRO_LOG_INFO, "Loading GS State...\n" );
 
 	wxString src( file );
 
@@ -262,7 +262,7 @@ void vSyncDebugStuff( uint frame )
 		if( --g_nLeftGSFrames <= 0 ) {
 			safe_delete( g_fGSSave );
 			g_SaveGSStream = 0;
-			Console.WriteLn("Done saving GS stream");
+			log_cb(RETRO_LOG_INFO, "Done saving GS stream\n");
 		}
 	}
 #endif

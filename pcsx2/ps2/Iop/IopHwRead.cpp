@@ -271,7 +271,9 @@ static __fi T _HwRead_16or32_Page1( u32 addr )
 			mcase(HW_SIO_STAT):
 				ret = sio.StatReg;
 				sioStatRead();
-				// Console.WriteLn( "SIO0 Read STAT %02X INT_STAT= %08X IOPpc= %08X " , ret, psxHu32(0x1070), psxRegs.pc);
+#if 0
+				log_cb(RETRO_LOG_DEBUG, "SIO0 Read STAT %02X INT_STAT= %08X IOPpc= %08X \n" , ret, psxHu32(0x1070), psxRegs.pc);
+#endif
 			break;
 
 			mcase(HW_SIO_MODE):

@@ -7,16 +7,6 @@
 
 HINSTANCE hInst;
 
-void SysMessage(TCHAR *fmt, ...) {
-	va_list list;
-	TCHAR tmp[512];
-
-	va_start(list,fmt);
-	_vswprintf(tmp,fmt,list);
-	va_end(list);
-	MessageBox(0, tmp, L"USBqemu Msg", 0);
-}
-
 BOOL CALLBACK ConfigureDlgProc(HWND hW, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     
 	switch(uMsg) {

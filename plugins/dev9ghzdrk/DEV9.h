@@ -44,11 +44,7 @@
 
 //#define DEV9_LOG_ENABLE
 
-#ifdef DEV9_LOG_ENABLE
-#define DEV9_LOG __Log
-#else
 #define DEV9_LOG(...)
-#endif
 
 void rx_process(NetPacket* pk);
 bool rx_fifo_can_rx();
@@ -123,15 +119,9 @@ EXTERN  int ThreadRun;
 s32  _DEV9open();
 void _DEV9close();
 EXTERN  DEV9callback DEV9irq;
-//void DEV9thread();
 
-EXTERN  PluginLog DEV9Log;
-//Yes these are meant to be a lowercase extern
-extern  std::string s_strIniPath;
-extern  std::string s_strLogPath;
 void __Log(char *fmt, ...);
 
-void SysMessage(char *fmt, ...);
 
 #define DEV9_R_REV	0x1f80146e
 

@@ -77,7 +77,9 @@
 bool checkOverflow(u32& xReg, u32 cFlagsToSet)
 {
 	if ( (xReg & ~0x80000000) == PosInfinity ) {
-		/*Console.Warning( "FPU OVERFLOW!: Changing to +/-Fmax!!!!!!!!!!!!\n" );*/
+#if 0
+		log_cb(RETRO_LOG_WARN, "FPU OVERFLOW!: Changing to +/-Fmax!!!!!!!!!!!!\n" );
+#endif
 		xReg = (xReg & 0x80000000) | posFmax;
 		_ContVal_ |= (cFlagsToSet);
 		return true;
@@ -89,7 +91,9 @@ bool checkOverflow(u32& xReg, u32 cFlagsToSet)
 // If we have a denormal value, then Underflow has occured.
 bool checkUnderflow(u32& xReg, u32 cFlagsToSet) {
 	if ( ( (xReg & 0x7F800000) == 0 ) && ( (xReg & 0x007FFFFF) != 0 ) ) {
-		/*Console.Warning( "FPU UNDERFLOW!: Changing to +/-0!!!!!!!!!!!!\n" );*/
+#if 0
+		log_cb(RETRO_LOG_WARN, "FPU UNDERFLOW!: Changing to +/-0!!!!!!!!!!!!\n" );
+#endif
 		xReg &= 0x80000000;
 		_ContVal_ |= (cFlagsToSet);
 		return true;

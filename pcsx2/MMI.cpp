@@ -1007,9 +1007,9 @@ void QFSRV() {				// JayteeMaster: changed a bit to avoid screw up
 		cpuRegs.GPR.r[_Rd_].UD[1] = cpuRegs.GPR.r[_Rt_].UD[1];
 		//saZero++;
 		//if( saZero >= 388800 )
-			//Console.WriteLn( "SA Is Zero, Bitch: %d zeros and counting.", saZero );
+			//log_cb(RETRO_LOG_DEBUG, "SA Is Zero, Bitch: %d zeros and counting.\n", saZero );
 	} else {
-		//Console.WriteLn( "SA Properly Valued at: %d (after %d zeros)", sa_amt, saZero );
+		//log_cb(RETRO_LOG_DEBUG, "SA Properly Valued at: %d (after %d zeros)\n", sa_amt, saZero );
 		//saZero = 0;
 		if (sa_amt < 64) {
 			/*

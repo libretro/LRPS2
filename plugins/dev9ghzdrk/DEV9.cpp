@@ -122,46 +122,10 @@ PS2EgetLibVersion2(u32 type) {
 #endif
 
 
-#ifndef __LIBRETRO__
-std::string s_strIniPath = "inis";
-std::string s_strLogPath = "logs";
-#endif
 // Warning: The below log function is SLOW. Better fix it before attempting to use it.
-#ifdef _DEBUG
-int Log = 1;
-#else
 int Log = 0;
-#endif
 
 void __Log(char *fmt, ...) {
-	if (!Log) return;
-	va_list list;
-
-	static int ticks=-1;
-	int nticks=GetTickCount();
-
-	if(ticks==-1) ticks=nticks;
-
-	if(iopPC!=NULL)
-	{
-		DEV9Log.Write("[%10d + %4d, IOP PC = %08x] ", nticks, nticks - ticks, *iopPC);
-	}
-	else
-	{
-		DEV9Log.Write( "[%10d + %4d] ", nticks, nticks - ticks);
-	}
-	ticks=nticks;
-
-	va_start(list, fmt);
-	DEV9Log.Write(fmt, list);
-	va_end(list);
-}
-
-void DEV9LogInit()
-{
-	const std::string LogFile(s_strLogPath + "/dev9Log.txt");
-	DEV9Log.WriteToFile = true;
-	DEV9Log.Open(LogFile);
 }
 
 EXPORT_C_(s32)
@@ -252,9 +216,6 @@ DEV9init()
 EXPORT_C_(void)
 DEV9shutdown() {
 	DEV9_LOG("DEV9shutdown\n");
-#ifdef DEV9_LOG_ENABLE
-	DEV9Log.Close();
-#endif
 }
 
 EXPORT_C_(s32)
@@ -730,21 +691,11 @@ EXPORT_C_(s32)
 EXPORT_C_(void)
 DEV9setSettingsDir(const char* dir)
 {
-	// Grab the ini directory.
-	// TODO: Use
-    s_strIniPath = (dir == NULL) ? "inis" : dir;
 }
 
 EXPORT_C_(void)
 DEV9setLogDir(const char* dir)
 {
-	// Get the path to the log directory.
-	s_strLogPath = (dir == NULL) ? "logs" : dir;
-
-	// Reload the log file after updated the path
-	// Currently dosn't change winPcap log directories post DEV9open()
-	DEV9Log.Close();
-	DEV9LogInit();
 }
 
 EXPORT_C_(void)

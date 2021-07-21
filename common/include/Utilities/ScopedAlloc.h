@@ -15,14 +15,6 @@
 
 #pragma once
 
-#include "Exceptions.h"
-
-// pxUSE_SECURE_MALLOC - enables bounds checking on scoped malloc allocations.
-
-#ifndef pxUSE_SECURE_MALLOC
-#define pxUSE_SECURE_MALLOC 0
-#endif
-
 //////////////////////////////////////////////////////////////////////////////////////////
 // Safe deallocation macros -- checks pointer validity (non-null) when needed, and sets
 // pointer to null after deallocation.
@@ -140,25 +132,16 @@ public:
 
     T *GetPtr(uint idx = 0) const
     {
-#if pxUSE_SECURE_MALLOC
-        IndexBoundsAssumeDev("ScopedAlloc", idx, m_size);
-#endif
         return &m_buffer[idx];
     }
 
     T &operator[](uint idx)
     {
-#if pxUSE_SECURE_MALLOC
-        IndexBoundsAssumeDev("ScopedAlloc", idx, m_size);
-#endif
         return m_buffer[idx];
     }
 
     const T &operator[](uint idx) const
     {
-#if pxUSE_SECURE_MALLOC
-        IndexBoundsAssumeDev("ScopedAlloc", idx, m_size);
-#endif
         return m_buffer[idx];
     }
 };
@@ -197,17 +180,12 @@ public:
             return;
 
         this->m_buffer = (T *)malloc(this->m_size * sizeof(T));
-        if (!this->m_buffer)
-            throw Exception::OutOfMemory(L"ScopedAlloc");
     }
 
     virtual void Resize(size_t newsize)
     {
         this->m_size = newsize;
         this->m_buffer = (T *)realloc(this->m_buffer, this->m_size * sizeof(T));
-
-        if (!this->m_buffer)
-            throw Exception::OutOfMemory(L"ScopedAlloc::Resize");
     }
 
     using _parent::operator[];
@@ -247,17 +225,12 @@ public:
             return;
 
         this->m_buffer = (T *)_aligned_malloc(this->m_size * sizeof(T), align);
-        if (!this->m_buffer)
-            throw Exception::OutOfMemory(L"ScopedAlignedAlloc");
     }
 
     virtual void Resize(size_t newsize)
     {
         this->m_buffer = (T *)pcsx2_aligned_realloc(this->m_buffer, newsize * sizeof(T), align, this->m_size * sizeof(T));
         this->m_size = newsize;
-
-        if (!this->m_buffer)
-            throw Exception::OutOfMemory(L"ScopedAlignedAlloc::Resize");
     }
 
     using _parent::operator[];

@@ -29,16 +29,6 @@ extern HINSTANCE hInst;
 //HANDLE handleDEV9Thread = NULL;
 //DWORD dwThreadId, dwThrdParam;
 
-void SysMessage(char *fmt, ...) {
-	va_list list;
-	char tmp[512];
-
-	va_start(list,fmt);
-	vsprintf(tmp,fmt,list);
-	va_end(list);
-	MessageBox(0, tmp, "Dev9 Msg", 0);
-}
-
 void OnInitDialog(HWND hW) {
 	char *dev;
 	//int i;
@@ -79,7 +69,6 @@ void OnOk(HWND hW) {
 		{
 			//Trying to use an ethernet without
 			//selected adapter, we can't have that
-			SysMessage("Please select an ethernet adapter");
 			return;
 		}
 		else
@@ -147,7 +136,6 @@ DEV9configure() {
               MAKEINTRESOURCE(IDD_CONFIG),
               GetActiveWindow(),
              (DLGPROC)ConfigureDlgProc);
-		//SysMessage("Nothing to Configure");
 }
 
 EXPORT_C_(void)

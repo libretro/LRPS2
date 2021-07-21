@@ -126,7 +126,7 @@ static __fi bool ProcessEETag()
 
 	if (sif2dma.chcr.TIE && ptag.IRQ)
 	{
-		//Console.WriteLn("SIF2 TIE");
+		//log_cb(RETRO_LOG_DEBUG, "SIF2 TIE\n");
 		sif2.ee.end = true;
 	}
 

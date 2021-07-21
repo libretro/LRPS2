@@ -105,10 +105,12 @@ int GetMACAddress(char *adapter, mac_address* addr)
 		retval = 1;
 		memcpy(addr,ifr.ifr_hwaddr.sa_data,6);
 	}
+#if 0
 	else
 	{
-		SysMessage("Could not get MAC address for adapter: %s", adapter);
+		log_cb(RETRO_LOG_ERROR, "Could not get MAC address for adapter: %s\n", adapter);
 	}
+#endif
 	close(fd);
 #endif
 	return retval;
@@ -178,7 +180,9 @@ int pcap_io_init(char *adapter)
 	//case DLT_IEEE802_11:
 		break;
 	default:
-		SysMessage("ERROR: Unsupported DataLink Type (%d): %s",dlt,dlt_name);
+#if 0
+		log_cb(RETRO_LOG_ERROR, "Unsupported DataLink Type (%d): %s\n",dlt,dlt_name);
+#endif
 		pcap_close(adhandle);
 		return -1;
 	}
@@ -340,7 +344,9 @@ PCAPAdapter::PCAPAdapter()
 {
 	if (config.ethEnable == 0) return;
 	if (pcap_io_init(config.Eth) == -1) {
-		SysMessage("Can't open Device '%s'\n", config.Eth);
+#if 0
+		log_cb(RETRO_LOG_ERROR, "Can't open Device '%s'\n", config.Eth);
+#endif
 	}
 }
 bool PCAPAdapter::blocks()

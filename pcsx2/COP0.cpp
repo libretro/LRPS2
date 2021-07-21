@@ -273,7 +273,7 @@ void MapTLB(int i)
 
 void UnmapTLB(int i)
 {
-	//Console.WriteLn("Clear TLB %d: %08x-> [%08x %08x] S=%d G=%d ASID=%d Mask= %03X", i,tlb[i].VPN2,tlb[i].PFN0,tlb[i].PFN1,tlb[i].S,tlb[i].G,tlb[i].ASID,tlb[i].Mask);
+	//log_cb(RETRO_LOG_DEBUG, "Clear TLB %d: %08x-> [%08x %08x] S=%d G=%d ASID=%d Mask= %03X\n", i,tlb[i].VPN2,tlb[i].PFN0,tlb[i].PFN1,tlb[i].S,tlb[i].G,tlb[i].ASID,tlb[i].Mask);
 	u32 mask, addr;
 	u32 saddr, eaddr;
 
@@ -288,7 +288,7 @@ void UnmapTLB(int i)
 		mask  = ((~tlb[i].Mask) << 1) & 0xfffff;
 		saddr = tlb[i].VPN2 >> 12;
 		eaddr = saddr + tlb[i].Mask + 1;
-	//	Console.WriteLn("Clear TLB: %08x ~ %08x",saddr,eaddr-1);
+		//log_cb(RETRO_LOG_DEBUG, "Clear TLB: %08x ~ %08x\n",saddr,eaddr-1);
 		for (addr=saddr; addr<eaddr; addr++) {
 			if ((addr & mask) == ((tlb[i].VPN2 >> 12) & mask)) { //match
 				memClearPageAddr(addr << 12);
@@ -301,7 +301,7 @@ void UnmapTLB(int i)
 		mask  = ((~tlb[i].Mask) << 1) & 0xfffff;
 		saddr = (tlb[i].VPN2 >> 12) + tlb[i].Mask + 1;
 		eaddr = saddr + tlb[i].Mask + 1;
-	//	Console.WriteLn("Clear TLB: %08x ~ %08x",saddr,eaddr-1);
+		//log_cb(RETRO_LOG_DEBUG, "Clear TLB: %08x ~ %08x\n",saddr,eaddr-1);
 		for (addr=saddr; addr<eaddr; addr++) {
 			if ((addr & mask) == ((tlb[i].VPN2 >> 12) & mask)) { //match
 				memClearPageAddr(addr << 12);
@@ -417,7 +417,10 @@ void MFC0()
 	// Note on _Rd_ Condition 9: CP0.Count should be updated even if _Rt_ is 0.
 	if ((_Rd_ != 9) && !_Rt_ ) return;
 
-	//if(bExecBIOS == FALSE && _Rd_ == 25) Console.WriteLn("MFC0 _Rd_ %x = %x", _Rd_, cpuRegs.CP0.r[_Rd_]);
+#if 0
+	if(bExecBIOS == FALSE && _Rd_ == 25)
+		log_cb(RETRO_LOG_DEBUG, "MFC0 _Rd_ %x = %x\n", _Rd_, cpuRegs.CP0.r[_Rd_]);
+#endif
 	switch (_Rd_)
 	{
 		case 12:
@@ -439,8 +442,10 @@ void MFC0()
 				COP0_UpdatePCCR();
 				cpuRegs.GPR.r[_Rt_].SD[0] = (s32)cpuRegs.PERF.n.pcr1;
 			}
-		    /*Console.WriteLn("MFC0 PCCR = %x PCR0 = %x PCR1 = %x IMM= %x",  params
-		    cpuRegs.PERF.n.pccr, cpuRegs.PERF.n.pcr0, cpuRegs.PERF.n.pcr1, _Imm_ & 0x3F);*/
+			/*
+			   log_cb(RETRO_LOG_DEBUG, "MFC0 PCCR = %x PCR0 = %x PCR1 = %x IMM= %x\n",  params
+			   cpuRegs.PERF.n.pccr, cpuRegs.PERF.n.pcr0, cpuRegs.PERF.n.pcr1, _Imm_ & 0x3F);
+			 */
 		break;
 
 		case 24:
@@ -463,7 +468,10 @@ void MFC0()
 
 void MTC0()
 {
-	//if(bExecBIOS == FALSE && _Rd_ == 25) Console.WriteLn("MTC0 _Rd_ %x = %x", _Rd_, cpuRegs.CP0.r[_Rd_]);
+#if 0
+	if(bExecBIOS == FALSE && _Rd_ == 25)
+		log_cb(RETRO_LOG_DEBUG, "MTC0 _Rd_ %x = %x\n", _Rd_, cpuRegs.CP0.r[_Rd_]);
+#endif
 	switch (_Rd_)
 	{
 		case 9:
@@ -480,8 +488,11 @@ void MTC0()
 		break;
 
 		case 25:
-			/*if(bExecBIOS == FALSE && _Rd_ == 25) Console.WriteLn("MTC0 PCCR = %x PCR0 = %x PCR1 = %x IMM= %x", params
-				cpuRegs.PERF.n.pccr, cpuRegs.PERF.n.pcr0, cpuRegs.PERF.n.pcr1, _Imm_ & 0x3F);*/
+#if 0
+		if(bExecBIOS == FALSE && _Rd_ == 25)
+			log_cb(RETRO_LOG_DEBUG, "MTC0 PCCR = %x PCR0 = %x PCR1 = %x IMM= %x\n", params
+					cpuRegs.PERF.n.pccr, cpuRegs.PERF.n.pcr0, cpuRegs.PERF.n.pcr1, _Imm_ & 0x3F);
+#endif
 			if (0 == (_Imm_ & 1)) // MTPS
 			{
 				if (0 != (_Imm_ & 0x3E)) // only effective when the register is 0

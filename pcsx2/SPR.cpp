@@ -314,7 +314,7 @@ void SPRFROMinterrupt()
 						log_cb(RETRO_LOG_INFO, "GIF MFIFO Write outside MFIFO area\n");
 #endif
 					spr0ch.madr = dmacRegs.rbor.ADDR + (spr0ch.madr & dmacRegs.rbsr.RMSK);
-					//Console.WriteLn("mfifoGIFtransfer %x madr %x, tadr %x", gif->chcr._u32, gif->madr, gif->tadr);
+					//log_cb(RETRO_LOG_DEBUG, "mfifoGIFtransfer %x madr %x, tadr %x\n", gif->chcr._u32, gif->madr, gif->tadr);
 					hwMFIFOResume(mfifotransferred);
 					mfifotransferred = 0;
 					break;
@@ -485,7 +485,7 @@ void _dmaSPR1()   // toSPR work function
 			{
 				SPR_LOG("dmaIrq Set");
 
-				//Console.WriteLn("SPR1 TIE");
+				//log_cb(RETRO_LOG_DEBUG, "SPR1 TIE\n");
 				done = true;
 			}
 

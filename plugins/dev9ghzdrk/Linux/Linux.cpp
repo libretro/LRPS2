@@ -30,34 +30,8 @@
 #include "pcap_io.h"
 #include "net.h"
 
-#ifndef __LIBRETRO__
-static GtkBuilder * builder;
-#endif
-
-void SysMessage(char *fmt, ...) {
-    va_list list;
-    char tmp[512];
-
-    va_start(list,fmt);
-    vsprintf(tmp,fmt,list);
-    va_end(list);
-
-#ifndef __LIBRETRO__
-    GtkWidget *dialog = gtk_message_dialog_new (NULL,
-                        GTK_DIALOG_MODAL,
-                        GTK_MESSAGE_ERROR,
-                        GTK_BUTTONS_CLOSE,
-                        "%s", tmp);
-    gtk_dialog_run (GTK_DIALOG (dialog));
-    gtk_widget_hide(dialog);
-#endif
-}
 
 void OnInitDialog() {
-#ifndef __LIBRETRO__
-    char *dev;
-    gint idx = 0;
-#endif
     static int initialized = 0;
 
     LoadConf();
@@ -65,100 +39,20 @@ void OnInitDialog() {
     if( initialized )
         return;
 
-#ifndef __LIBRETRO__
-    gtk_combo_box_text_append_text((GtkComboBoxText *)gtk_builder_get_object(builder,"IDC_BAYTYPE"),"Expansion");
-    gtk_combo_box_text_append_text((GtkComboBoxText *)gtk_builder_get_object(builder,"IDC_BAYTYPE"),"PC Card");
-    for (int i=0; i<pcap_io_get_dev_num(); i++) {
-        dev = pcap_io_get_dev_name(i);
-        gtk_combo_box_text_append_text((GtkComboBoxText *)gtk_builder_get_object(builder,"IDC_ETHDEV"), dev);
-        if (strcmp(dev, config.Eth) == 0) {
-        gtk_combo_box_set_active((GtkComboBox *)gtk_builder_get_object(builder,"IDC_ETHDEV"),idx);
-        }
-        idx++;
-    }
-    gtk_entry_set_text ((GtkEntry *)gtk_builder_get_object(builder,"IDC_HDDFILE"), config.Hdd);
-    gtk_toggle_button_set_active ((GtkToggleButton *)gtk_builder_get_object(builder,"IDC_ETHENABLED"),
-                  config.ethEnable);
-    gtk_toggle_button_set_active ((GtkToggleButton *)gtk_builder_get_object(builder,"IDC_HDDENABLED"),
-                  config.hddEnable);
-#endif
-
     initialized = 1;
 }
 
 void OnOk() {
 
-#ifndef __LIBRETRO__
-    char* ptr = gtk_combo_box_text_get_active_text((GtkComboBoxText *)gtk_builder_get_object(builder,"IDC_ETHDEV"));
-    strcpy(config.Eth, ptr);
-
-    strcpy(config.Hdd, gtk_entry_get_text ((GtkEntry *)gtk_builder_get_object(builder,"IDC_HDDFILE")));
-
-    config.ethEnable = gtk_toggle_button_get_active ((GtkToggleButton *)gtk_builder_get_object(builder,"IDC_ETHENABLED"));
-    config.hddEnable = gtk_toggle_button_get_active ((GtkToggleButton *)gtk_builder_get_object(builder,"IDC_HDDENABLED"));
-#endif
-
     SaveConf();
 
 }
 
-/* Simple GTK+2 variant of gtk_builder_add_from_resource() */
-#ifndef __LIBRETRO__
-static guint builder_add_from_resource(GtkBuilder *builder
-    , const gchar *resource_path
-    , GError **error)
-{
-    GBytes *data;
-    const gchar *buffer;
-    gsize buffer_length;
-    guint ret;
-
-    g_assert(error && *error == NULL);
-
-    data = g_resources_lookup_data(resource_path, G_RESOURCE_LOOKUP_FLAGS_NONE, error);
-    if (data == NULL) {
-        return 0;
-    }
-
-    buffer_length = 0;
-    buffer = (const gchar *)g_bytes_get_data(data, &buffer_length);
-    g_assert(buffer != NULL);
-
-    ret = gtk_builder_add_from_string(builder, buffer, buffer_length, error);
-
-    g_bytes_unref(data);
-
-    return ret;
-}
-#endif
-
 EXPORT_C_(void)
 DEV9configure() {
 
-#ifdef __LIBRETRO__
   LoadConf();
   SaveConf();
-#else
-    gtk_init (NULL, NULL);
-    GError *error = NULL;
-    builder = gtk_builder_new();
-    if (!builder_add_from_resource(builder, "/net/pcsx2/dev9ghzdrk/Linux/dev9ghzdrk.ui", &error)) {
-        g_warning("Could not build config ui: %s", error->message);
-        g_error_free(error);
-        g_object_unref(G_OBJECT(builder));
-    }
-    GtkDialog *dlg = GTK_DIALOG (gtk_builder_get_object(builder, "IDD_CONFDLG"));
-    OnInitDialog();
-    gint result = gtk_dialog_run (dlg);
-    switch(result) {
-    case -5: //IDOK
-    OnOk();
-    break;
-    case -6: //IDCANCEL
-    break;
-    }
-    gtk_widget_hide (GTK_WIDGET(dlg));
-#endif
 
 }
 

@@ -92,7 +92,9 @@ void LoadConf() {
     doc = xmlReadFile(file.c_str(), NULL, 0);
 
     if (doc == NULL){
-        SysMessage("Unable to parse configuration file! Suggest deleting it and starting over.");
+#if 0
+        log_cb(RETRO_LOG_ERROR, "Unable to parse configuration file! Suggest deleting it and starting over.\n");
+#endif
     }
 
     for (cur_node = xmlDocGetRootElement(doc)->children; cur_node; cur_node = cur_node->next) {
