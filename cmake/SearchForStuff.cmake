@@ -136,10 +136,6 @@ if(SDL_FOUND AND NOT SDL2_API)
 	include_directories(${SDL_INCLUDE_DIR})
 endif()
 
-if(USE_VTUNE AND VTUNE_FOUND)
-    include_directories(${VTUNE_INCLUDE_DIRS})
-endif()
-
 if(wxWidgets_FOUND)
 	include(${wxWidgets_USE_FILE})
 endif()

@@ -218,7 +218,6 @@ for ARG in "$@"; do
         --cross-multilib    ) flags="$flags -DCMAKE_TOOLCHAIN_FILE=$toolfile"; useCross=1; ;;
         --no-cross-multilib ) useCross=0; ;;
         --coverity          ) CoverityBuild=1; cleanBuild=1; ;;
-        --vtune             ) flags="$flags -DUSE_VTUNE=TRUE" ;;
         -D*                 ) flags="$flags $ARG" ;;
 
         *)
@@ -258,7 +257,6 @@ for ARG in "$@"; do
             echo "--clang-tidy    : Do a clang-tidy analysis. Results can be found in build directory"
             echo "--cppcheck      : Do a cppcheck analysis. Results can be found in build directory"
             echo "--coverity      : Do a build for coverity"
-            echo "--vtune         : Plug GSdx with VTUNE"
             echo "--ftime-trace   : Analyse build time. Clang only."
 
             exit 1

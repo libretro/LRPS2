@@ -211,10 +211,6 @@ set(GSdxFinalLibs
     ${LIBC_LIBRARIES}
 )
 
-if(USE_VTUNE)
-    set(GSdxFinalLibs ${GSdxFinalLibs} ${VTUNE_LIBRARIES})
-endif()
-
 if(MSVC)
    set(GSdxFinalLibs ${GSdxFinalLibs} d3dcompiler d3d11 dxgi dxguid winmm strmiids opengl32 comsuppw comctl32)
 else()

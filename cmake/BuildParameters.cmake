@@ -30,8 +30,6 @@ if(DISABLE_BUILD_DATE OR openSUSE)
     add_definitions(-DDISABLE_BUILD_DATE)
 endif()
 
-option(USE_VTUNE "Plug VTUNE to profile GSdx JIT.")
-
 #-------------------------------------------------------------------------------
 # Graphical option
 #-------------------------------------------------------------------------------
@@ -313,10 +311,6 @@ option(USE_PGO_OPTIMIZE "Enable PGO optimization (use profile)")
 # Note1: Builtin strcmp/memcmp was proved to be slower on Mesa than stdlib version.
 # Note2: float operation SSE is impacted by the PCSX2 SSE configuration. In particular, flush to zero denormal.
 set(COMMON_FLAG "-pipe -fvisibility=hidden -pthread -fno-builtin-strcmp -fno-builtin-memcmp -mfpmath=sse")
-
-if(USE_VTUNE)
-    set(COMMON_FLAG "${COMMON_FLAG} -DENABLE_VTUNE")
-endif()
 
 # Remove FORTIFY_SOURCE when compiling as debug, because it spams a lot of warnings on clang due to no optimization.
 if (CMAKE_BUILD_TYPE MATCHES "Debug")
