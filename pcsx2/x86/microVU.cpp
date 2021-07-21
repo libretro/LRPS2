@@ -28,7 +28,7 @@ static u8 __pagealigned vu1_RecDispatchers[mVUdispCacheSize];
 static __fi void mVUthrowHardwareDeficiency(const wxChar* extFail, int vuIndex) {
 	throw Exception::HardwareDeficiency()
 		.SetDiagMsg(pxsFmt(L"microVU%d recompiler init failed: %s is not available.", vuIndex, extFail))
-		.SetUserMsg(pxsFmt(_("%s Extensions not found.  microVU requires a host CPU with SSE2 extensions."), extFail));
+		.SetUserMsg(pxsFmt(L"%s Extensions not found.  microVU requires a host CPU with SSE2 extensions.", extFail));
 }
 
 void mVUreserveCache(microVU& mVU) {

@@ -97,8 +97,7 @@ void PluginInitErrorEvent::InvokeEvent()
 // are multiple variations on the BIOS and BIOS folder checks).
 wxString BIOS_GetMsg_Required()
 {
-	return pxE(L"PCSX2 requires a PS2 BIOS in order to run.  For legal reasons, you *must* obtain a BIOS from an actual PS2 unit that you own (borrowing doesn't count).  Please consult the FAQs and Guides for further instructions."
-		);
+	return L"PCSX2 requires a PS2 BIOS in order to run.  For legal reasons, you *must* obtain a BIOS from an actual PS2 unit that you own (borrowing doesn't count).  Please consult the FAQs and Guides for further instructions.";
 }
 
 class BIOSLoadErrorEvent : public pxExceptionEvent

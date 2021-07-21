@@ -87,7 +87,7 @@ static void LoadBiosVersion( pxInputStream& fp, u32& version, wxString& descript
 	{
 		throw Exception::BadStream( fp.GetStreamName() )
 			.SetDiagMsg(L"BIOS version check failed: 'RESET' tag could not be found.")
-			.SetUserMsg(_("The selected BIOS file is not a valid PS2 BIOS.  Please re-configure."));
+			.SetUserMsg(L"The selected BIOS file is not a valid PS2 BIOS.  Please re-configure.");
 	}
 
 	uint fileOffset = 0;
@@ -155,7 +155,7 @@ static void LoadBiosVersion( pxInputStream& fp, u32& version, wxString& descript
 	if (description.IsEmpty())
 		throw Exception::BadStream( fp.GetStreamName() )
 			.SetDiagMsg(L"BIOS version check failed: 'ROMDIR' tag could not be found.")
-			.SetUserMsg(_("The selected BIOS file is not a valid PS2 BIOS.  Please re-configure."));
+			.SetUserMsg(L"The selected BIOS file is not a valid PS2 BIOS.  Please re-configure.");
 
 	wxFileOffset fileSize = fp.Length();
 	if (fileSize < (int)fileOffset)
@@ -268,14 +268,14 @@ void LoadBIOS()
 		if( !g_Conf->BaseFilenames.Bios.IsOk() || g_Conf->BaseFilenames.Bios.IsDir() )
 			throw Exception::FileNotFound( Bios )
 				.SetDiagMsg(L"BIOS has not been configured, or the configuration has been corrupted.")
-				.SetUserMsg(_("The PS2 BIOS could not be loaded.  The BIOS has not been configured, or the configuration has been corrupted.  Please re-configure."));
+				.SetUserMsg(L"The PS2 BIOS could not be loaded.  The BIOS has not been configured, or the configuration has been corrupted.  Please re-configure.");
 
 		s64 filesize = Path::GetFileSize( Bios );
 		if( filesize <= 0 )
 		{
 			throw Exception::FileNotFound( Bios )
 				.SetDiagMsg(L"Configured BIOS file does not exist, or has a file size of zero.")
-				.SetUserMsg(_("The configured BIOS file does not exist.  Please re-configure."));
+				.SetUserMsg(L"The configured BIOS file does not exist.  Please re-configure.");
 		}
 
 		BiosChecksum = 0;

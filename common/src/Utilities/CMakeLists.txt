@@ -26,7 +26,6 @@ set(UtilitiesFinalFlags ${CommonFlags})
 		PathUtils.cpp
 		PrecompiledHeader.cpp
 		pxStreams.cpp
-		pxTranslate.cpp
 		RwMutex.cpp
 		StringHelpers.cpp
 		ThreadTools.cpp

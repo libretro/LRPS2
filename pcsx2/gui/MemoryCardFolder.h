@@ -579,12 +579,12 @@ protected:
 
 	wxString GetDisabledMessage(uint slot) const
 	{
-		return wxsFormat(pxE(L"The PS2-slot %d has been automatically disabled.  You can correct the problem\nand re-enable it at any time using Config:Memory cards from the main menu."), slot //TODO: translate internal slot index to human-readable slot description
+		return wxsFormat(L"The PS2-slot %d has been automatically disabled.  You can correct the problem\nand re-enable it at any time using Config:Memory cards from the main menu.", slot //TODO: translate internal slot index to human-readable slot description
 		);
 	}
 	wxString GetCardFullMessage(const wxString& filePath) const
 	{
-		return wxsFormat(pxE(L"(FolderMcd) Memory Card is full, could not add: %s"), WX_STR(filePath));
+		return wxsFormat(L"(FolderMcd) Memory Card is full, could not add: %s", WX_STR(filePath));
 	}
 
 	// get the list of files (and their timestamps) in directory ordered as specified by the index file

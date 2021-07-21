@@ -50,8 +50,8 @@ static wxFileName GetPortableIniPath()
 
 static wxString GetMsg_PortableModeRights()
 {
-	return pxE( L"Please ensure that these folders are created and that your user account is granted write permissions to them -- or re-run PCSX2 with elevated (administrator) rights, which should grant PCSX2 the ability to create the necessary folders itself.  If you do not have elevated rights on this computer, then you will need to switch to User Documents mode (click button below)."
-	);
+	return L"Please ensure that these folders are created and that your user account is granted write permissions to them -- or re-run PCSX2 with elevated (administrator) rights, which should grant PCSX2 the ability to create the necessary folders itself.  If you do not have elevated rights on this computer, then you will need to switch to User Documents mode (click button below)."
+	;
 };
 
 bool Pcsx2App::TestUserPermissionsRights( const wxDirName& testFolder, wxString& createFailedStr, wxString& accessFailedStr )
@@ -88,12 +88,12 @@ bool Pcsx2App::TestUserPermissionsRights( const wxDirName& testFolder, wxString&
 
 	if (!accessme.IsEmpty())
 	{
-		accessFailedStr = (wxString)_("The following folders exist, but are not writable:") + L"\n" + accessme;
+		accessFailedStr = (wxString)L"The following folders exist, but are not writable:" + L"\n" + accessme;
 	}
 	
 	if (!createme.IsEmpty())
 	{
-		createFailedStr = (wxString)_("The following folders are missing and cannot be created:") + L"\n" + createme;
+		createFailedStr = (wxString)L"The following folders are missing and cannot be created:" + L"\n" + createme;
 	}
 
 	return (createFailedStr.IsEmpty() && accessFailedStr.IsEmpty());

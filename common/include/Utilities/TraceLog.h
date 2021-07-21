@@ -104,7 +104,7 @@ public:
     virtual const wxChar *GetName() const { return m_Descriptor->Name; }
     virtual const wxChar *GetDescription() const
     {
-        return (m_Descriptor->Description != NULL) ? pxGetTranslation(m_Descriptor->Description) : wxEmptyString;
+        return (m_Descriptor->Description != NULL) ? m_Descriptor->Description : wxEmptyString;
     }
 
     virtual bool HasDescription() const { return m_Descriptor->Description != NULL; }

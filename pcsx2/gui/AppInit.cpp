@@ -38,7 +38,7 @@ void Pcsx2App::DetectCpuAndUserMode()
 		// SSE2 is required for any decent speed and is supported by more than decade old x86 CPUs
 		throw Exception::HardwareDeficiency()
 			.SetDiagMsg(L"Critical Failure: SSE2 Extensions not available.")
-			.SetUserMsg(_("SSE2 extensions are not available.  PCSX2 requires a cpu that supports the SSE2 instruction set."));
+			.SetUserMsg(L"SSE2 extensions are not available.  PCSX2 requires a cpu that supports the SSE2 instruction set.");
 	}
 #endif
 

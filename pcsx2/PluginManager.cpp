@@ -494,7 +494,7 @@ wxString Exception::SaveStateLoadError::FormatDiagnosticMessage() const
 wxString Exception::SaveStateLoadError::FormatDisplayMessage() const
 {
 	FastFormatUnicode retval;
-	retval.Write(_("The savestate cannot be loaded, as it appears to be corrupt or incomplete."));
+	retval.Write("The savestate cannot be loaded, as it appears to be corrupt or incomplete.");
 	retval.Write("\n");
 	log_cb(RETRO_LOG_ERROR, "Error: The savestate cannot be loaded, as it appears to be corrupt or incomplete.\n");
 	_formatUserMsg(retval);
@@ -505,14 +505,14 @@ Exception::PluginOpenError::PluginOpenError( PluginsEnum_t pid )
 {
 	PluginId = pid;
 	m_message_diag = L"%s plugin failed to open!";
-	m_message_user = _("%s plugin failed to open.  Your computer may have insufficient resources, or incompatible hardware/drivers.");
+	m_message_user = "%s plugin failed to open.  Your computer may have insufficient resources, or incompatible hardware/drivers.";
 }
 
 Exception::PluginInitError::PluginInitError( PluginsEnum_t pid )
 {
 	PluginId = pid;
 	m_message_diag = L"%s plugin initialization failed!";
-	m_message_user = _("%s plugin failed to initialize.  Your system may have insufficient memory or resources needed.");
+	m_message_user = "%s plugin failed to initialize.  Your system may have insufficient memory or resources needed.";
 }
 
 Exception::PluginLoadError::PluginLoadError( PluginsEnum_t pid )
@@ -725,11 +725,11 @@ SysCorePlugins::PluginStatus_t::PluginStatus_t( PluginsEnum_t _pid, const wxStri
 
 		if( !wxFile::Exists( Filename ) )
 			throw Exception::PluginLoadError( pid ).SetStreamName(srcfile)
-				.SetBothMsgs(pxL("The configured %s plugin file was not found"));
+				.SetBothMsgs(L"The configured %s plugin file was not found");
 
 		if( !Lib->Load( Filename ) )
 			throw Exception::PluginLoadError( pid ).SetStreamName(Filename)
-				.SetBothMsgs(pxL("The configured %s plugin file is not a valid dynamic library"));
+				.SetBothMsgs(L"The configured %s plugin file is not a valid dynamic library");
 
 
 		// Try to enumerate the new v2.0 plugin interface first.
@@ -746,7 +746,7 @@ SysCorePlugins::PluginStatus_t::PluginStatus_t( PluginsEnum_t _pid, const wxStri
 		if( GetLibName == NULL || GetLibVersion2 == NULL )
 			throw Exception::PluginLoadError( pid ).SetStreamName(Filename)
 				.SetDiagMsg(L"%s plugin init failed: Method binding failure on GetLibName or GetLibVersion2.")
-				.SetUserMsg(_( "The configured %s plugin is not a PCSX2 plugin, or is for an older unsupported version of PCSX2."));
+				.SetUserMsg(L"The configured %s plugin is not a PCSX2 plugin, or is for an older unsupported version of PCSX2.");
 
 		Name = fromUTF8( GetLibName() );
 		int version = GetLibVersion2( tbl_PluginInfo[pid].typemask );
@@ -769,7 +769,7 @@ SysCorePlugins::PluginStatus_t::PluginStatus_t( PluginsEnum_t _pid, const wxStri
 	if( testres != 0 )
 		throw Exception::PluginLoadError( pid ).SetStreamName(Filename)
 			.SetDiagMsg(wxsFormat( L"Plugin Test failure, return code: %d", testres ))
-			.SetUserMsg(_("The plugin reports that your hardware or software/drivers are not supported."));
+			.SetUserMsg(L"The plugin reports that your hardware or software/drivers are not supported.");
 }
 
 void SysCorePlugins::PluginStatus_t::BindCommon( PluginsEnum_t pid )
@@ -790,7 +790,7 @@ void SysCorePlugins::PluginStatus_t::BindCommon( PluginsEnum_t pid )
 		{
 			throw Exception::PluginLoadError( pid ).SetStreamName(Filename)
 				.SetDiagMsg(wxsFormat( L"\nMethod binding failure on: %s\n", WX_STR(current->GetMethodName( pid )) ))
-				.SetUserMsg(_("Configured plugin is not a PCSX2 plugin, or is for an older unsupported version of PCSX2."));
+				.SetUserMsg(L"Configured plugin is not a PCSX2 plugin, or is for an older unsupported version of PCSX2.");
 		}
 
 		target++;
@@ -815,7 +815,7 @@ void SysCorePlugins::PluginStatus_t::BindRequired( PluginsEnum_t pid )
 		{
 			throw Exception::PluginLoadError( pid ).SetStreamName(Filename)
 				.SetDiagMsg(wxsFormat( L"\n%s plugin init error; Method binding failed: %s\n", WX_STR(current->GetMethodName()) ))
-				.SetUserMsg(_( "Configured %s plugin is not a valid PCSX2 plugin, or is for an older unsupported version of PCSX2."));
+				.SetUserMsg(L"Configured %s plugin is not a valid PCSX2 plugin, or is for an older unsupported version of PCSX2.");
 		}
 
 		current++;
@@ -1206,7 +1206,7 @@ bool SysCorePlugins::Init()
 		{
 			// fixme: use plugin's GetLastError (not implemented yet!)
 			throw Exception::PluginInitError( PluginId_Mcd )
-				.SetBothMsgs(pxLt("Internal Memorycard Plugin failed to initialize."));
+				.SetBothMsgs(L"Internal Memorycard Plugin failed to initialize.");
 		}
 	}
 
@@ -1587,7 +1587,7 @@ const wxString SysCorePlugins::GetName( PluginsEnum_t pid ) const
 {
 	ScopedLock lock( m_mtx_PluginStatus );
 	pxAssert( (uint)pid < PluginId_Count );
-	return m_info[pid] ? m_info[pid]->Name : (wxString)_("Unloaded Plugin");
+	return m_info[pid] ? m_info[pid]->Name : (wxString)L"Unloaded Plugin";
 }
 
 const wxString SysCorePlugins::GetVersion( PluginsEnum_t pid ) const

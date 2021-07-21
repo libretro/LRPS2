@@ -201,7 +201,7 @@ wxString Exception::OutOfMemory::FormatDiagnosticMessage() const
 wxString Exception::OutOfMemory::FormatDisplayMessage() const
 {
     FastFormatUnicode retmsg;
-    retmsg.Write(L"%s", _("Oh noes! Out of memory!"));
+    retmsg.Write(L"%s", "Out of memory!");
 
     if (!m_message_user.IsEmpty())
         retmsg.Write(L"\n\n%s", WX_STR(m_message_user));
@@ -216,7 +216,7 @@ wxString Exception::OutOfMemory::FormatDisplayMessage() const
 Exception::VirtualMemoryMapConflict::VirtualMemoryMapConflict(const wxString &allocdesc)
 {
     AllocDescription = allocdesc;
-    m_message_user = _("Virtual memory mapping failure!  Your system may have conflicting device drivers, services, or may simply have insufficient memory or resources to meet PCSX2's lofty needs.");
+    m_message_user = "Virtual memory mapping failure!  Your system may have conflicting device drivers, services, or may simply have insufficient memory or resources to meet PCSX2's lofty needs.";
 }
 
 wxString Exception::VirtualMemoryMapConflict::FormatDiagnosticMessage() const
@@ -236,7 +236,7 @@ wxString Exception::VirtualMemoryMapConflict::FormatDisplayMessage() const
 {
     FastFormatUnicode retmsg;
     retmsg.Write(L"%s",
-                 pxE(L"There is not enough virtual memory available, or necessary virtual memory mappings have already been reserved by other processes, services, or DLLs."));
+                 L"There is not enough virtual memory available, or necessary virtual memory mappings have already been reserved by other processes, services, or DLLs.");
 
     if (!m_message_diag.IsEmpty())
         retmsg.Write(L"\n\n%s", WX_STR(m_message_diag));
@@ -287,11 +287,11 @@ void Exception::BadStream::_formatDiagMsg(FastFormatUnicode &dest) const
 
 void Exception::BadStream::_formatUserMsg(FastFormatUnicode &dest) const
 {
-    dest.Write(_("Path: "));
+    dest.Write("Path: ");
     if (!StreamName.IsEmpty())
         dest.Write(L"%s", WX_STR(StreamName));
     else
-        dest.Write(_("[Unnamed or unknown]"));
+        dest.Write("[Unnamed or unknown]");
 
     if (!m_message_user.IsEmpty())
         dest.Write(L"\n%s", WX_STR(m_message_user));
@@ -311,7 +311,7 @@ wxString Exception::CannotCreateStream::FormatDiagnosticMessage() const
 wxString Exception::CannotCreateStream::FormatDisplayMessage() const
 {
     FastFormatUnicode retval;
-    retval.Write(_("A file could not be created."));
+    retval.Write("A file could not be created.");
     retval.Write("\n");
     _formatUserMsg(retval);
     return retval;
@@ -331,7 +331,7 @@ wxString Exception::FileNotFound::FormatDiagnosticMessage() const
 wxString Exception::FileNotFound::FormatDisplayMessage() const
 {
     FastFormatUnicode retval;
-    retval.Write(_("File not found."));
+    retval.Write("File not found.");
     retval.Write("\n");
     _formatUserMsg(retval);
     return retval;
@@ -351,7 +351,7 @@ wxString Exception::AccessDenied::FormatDiagnosticMessage() const
 wxString Exception::AccessDenied::FormatDisplayMessage() const
 {
     FastFormatUnicode retval;
-    retval.Write(_("Permission denied while trying to open file, likely due to insufficient user account rights."));
+    retval.Write("Permission denied while trying to open file, likely due to insufficient user account rights.");
     retval.Write("\n");
     _formatUserMsg(retval);
     return retval;
@@ -371,7 +371,7 @@ wxString Exception::EndOfStream::FormatDiagnosticMessage() const
 wxString Exception::EndOfStream::FormatDisplayMessage() const
 {
     FastFormatUnicode retval;
-    retval.Write(_("Unexpected end of file or stream encountered.  File is probably truncated or corrupted."));
+    retval.Write("Unexpected end of file or stream encountered.  File is probably truncated or corrupted.");
     retval.Write("\n");
     _formatUserMsg(retval);
     return retval;

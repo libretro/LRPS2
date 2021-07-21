@@ -191,7 +191,7 @@ protected:
 
 	wxString GetDisabledMessage(uint slot) const
 	{
-		return wxsFormat(pxE(L"The PS2-slot %d has been automatically disabled.  You can correct the problem\nand re-enable it at any time using Config:Memory cards from the main menu."), slot //TODO: translate internal slot index to human-readable slot description
+		return wxsFormat(L"The PS2-slot %d has been automatically disabled.  You can correct the problem\nand re-enable it at any time using Config:Memory cards from the main menu.", slot //TODO: translate internal slot index to human-readable slot description
 		);
 	}
 };
@@ -319,7 +319,7 @@ void FileMemoryCard::Open()
 			if (!Create(str, 8))
 			{
 				log_cb(RETRO_LOG_ERROR,
-					wxsFormat(_("Could not create a memory card: \n\n%s\n\n %s\n"), str.c_str(), GetDisabledMessage(slot).c_str()).c_str());
+					wxsFormat("Could not create a memory card: \n\n%s\n\n %s\n", str.c_str(), GetDisabledMessage(slot).c_str()).c_str());
 			}
 		}
 
@@ -347,7 +347,7 @@ void FileMemoryCard::Open()
 			// Translation note: detailed description should mention that the memory card will be disabled
 			// for the duration of this session.
 			log_cb(RETRO_LOG_ERROR,
-					wxsFormat(_("Access denied to memory card: \n\n%s\n\n %s\n"), str.c_str(), GetDisabledMessage(slot).c_str()).c_str()
+					wxsFormat("Access denied to memory card: \n\n%s\n\n %s\n", str.c_str(), GetDisabledMessage(slot).c_str()).c_str()
 			      );
 		}
 		else // Load checksum
@@ -871,31 +871,31 @@ bool isValidNewFilename(wxString filenameStringToTest, wxDirName atBasePath, wxS
 {
 	if (filenameStringToTest.Length() < 1 || filenameStringToTest.Length() < minNumCharacters)
 	{
-		out_errorMessage = _("File name empty or too short");
+		out_errorMessage = "File name empty or too short";
 		return false;
 	}
 
 	if ((atBasePath + wxFileName(filenameStringToTest)).GetFullPath() != (atBasePath + wxFileName(filenameStringToTest).GetFullName()).GetFullPath())
 	{
-		out_errorMessage = _("File name outside of required directory");
+		out_errorMessage = "File name outside of required directory";
 		return false;
 	}
 
 	if (wxFileExists((atBasePath + wxFileName(filenameStringToTest)).GetFullPath()))
 	{
-		out_errorMessage = _("File name already exists");
+		out_errorMessage = "File name already exists";
 		return false;
 	}
 	if (wxDirExists((atBasePath + wxFileName(filenameStringToTest)).GetFullPath()))
 	{
-		out_errorMessage = _("File name already exists");
+		out_errorMessage = "File name already exists";
 		return false;
 	}
 
 	wxFile fp;
 	if (!fp.Create((atBasePath + wxFileName(filenameStringToTest)).GetFullPath()))
 	{
-		out_errorMessage = _("The Operating-System prevents this file from being created");
+		out_errorMessage = "The Operating-System prevents this file from being created";
 		return false;
 	}
 	fp.Close();

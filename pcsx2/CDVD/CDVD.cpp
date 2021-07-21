@@ -2164,7 +2164,7 @@ static void cdvdWrite16(u8 rt) // SCOMMAND
 	{
 		Cpu->ThrowException(Exception::RuntimeError()
 								.SetDiagMsg(L"Failed to read/write NVM/MEC file.")
-								.SetUserMsg(pxE(L"Failed to read/write NVM/MEC file. Check your BIOS setup/permission settings.")));
+								.SetUserMsg(L"Failed to read/write NVM/MEC file. Check your BIOS setup/permission settings."));
 	}
 }
 
