@@ -37,8 +37,6 @@ using namespace Internal;
 template< typename T >
 static __fi void _generic_write( u32 addr, T val )
 {
-	//int bitsize = (sizeof(T) == 1) ? 8 : ( (sizeof(T) == 2) ? 16 : 32 );
-	IopHwTraceLog<T>( addr, val, false );
 	psxHu(addr) = val;
 }
 
@@ -54,7 +52,6 @@ static __fi T _generic_read( u32 addr )
 	//int bitsize = (sizeof(T) == 1) ? 8 : ( (sizeof(T) == 2) ? 16 : 32 );
 
 	T ret = psxHu(addr);
-	IopHwTraceLog<T>( addr, ret, true );
 	return ret;
 }
 
@@ -111,8 +108,6 @@ void __fastcall iopHwWrite8_Page1( u32 addr, mem8_t val )
 			}
 		break;
 	}
-
-	IopHwTraceLog<mem8_t>( addr, val, false );
 }
 
 void __fastcall iopHwWrite8_Page3( u32 addr, mem8_t val )
@@ -148,7 +143,6 @@ void __fastcall iopHwWrite8_Page3( u32 addr, mem8_t val )
 #endif
 
 	psxHu8( addr ) = val;
-	IopHwTraceLog<mem8_t>( addr, val, false );
 }
 
 void __fastcall iopHwWrite8_Page8( u32 addr, mem8_t val )
@@ -160,8 +154,6 @@ void __fastcall iopHwWrite8_Page8( u32 addr, mem8_t val )
 		sio2_serialIn( val );
 	else
 		psxHu8( addr ) = val;
-
-	IopHwTraceLog<mem8_t>( addr, val, false );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -558,8 +550,6 @@ static __fi void _HwWrite_16or32_Page1( u32 addr, T val )
 			break;
 		}
 	}
-
-	IopHwTraceLog<T>( addr, val, false );
 }
 
 
@@ -575,7 +565,6 @@ void __fastcall iopHwWrite16_Page3( u32 addr, mem16_t val )
 	// all addresses are assumed to be prefixed with 0x1f803xxx:
 	pxAssert( (addr >> 12) == 0x1f803 );
 	psxHu16(addr) = val;
-	IopHwTraceLog<mem16_t>( addr, val, false );
 }
 
 void __fastcall iopHwWrite16_Page8( u32 addr, mem16_t val )
@@ -583,7 +572,6 @@ void __fastcall iopHwWrite16_Page8( u32 addr, mem16_t val )
 	// all addresses are assumed to be prefixed with 0x1f808xxx:
 	pxAssert( (addr >> 12) == 0x1f808 );
 	psxHu16(addr) = val;
-	IopHwTraceLog<mem16_t>( addr, val, false );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -598,7 +586,6 @@ void __fastcall iopHwWrite32_Page3( u32 addr, mem32_t val )
 	// all addresses are assumed to be prefixed with 0x1f803xxx:
 	pxAssert( (addr >> 12) == 0x1f803 );
 	psxHu16(addr) = val;
-	IopHwTraceLog<mem32_t>( addr, val, false );
 }
 
 void __fastcall iopHwWrite32_Page8( u32 addr, mem32_t val )
@@ -644,8 +631,6 @@ void __fastcall iopHwWrite32_Page8( u32 addr, mem32_t val )
 		}
 	}
 	else psxHu32(addr) = val;
-
-	IopHwTraceLog<mem32_t>( addr, val, false );
 }
 
 }
