@@ -99,6 +99,11 @@ bool Threading::Semaphore::Wait(const wxTimeSpan &timeout)
     return WaitWithoutYield(timeout);
 }
 
+bool Threading::Semaphore::TryWait()
+{
+    return sem_trywait(&m_sema) == 0;
+}
+
 // Performs an uncancellable wait on a semaphore; restoring the thread's previous cancel state
 // after the wait has completed.  Useful for situations where the semaphore itself is stored on
 // the stack and passed to another thread via GUI message or such, avoiding complications where

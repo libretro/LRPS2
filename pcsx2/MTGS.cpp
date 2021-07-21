@@ -287,9 +287,7 @@ void SysMtgsThread::ExecuteTaskInThread()
 	PacketTagType prevCmd;
 #endif
 
-#ifndef __LIBRETRO__
 	RingBufferLock busy (*this);
-#endif
 
 //	OpenGS();
 	while(true) {
