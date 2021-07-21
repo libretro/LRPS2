@@ -16,37 +16,13 @@
 #include "PS2Eext.h"
 #if defined(_WIN32)
 #include <windows.h>
-#include "resource.h"
-#elif defined(__unix__) || defined(__APPLE__)
-#include <wx/wx.h>
 #endif
 #include <string>
 
-static PluginLog g_plugin_log;
-
 static void SaveConfig(const std::string &pathname)
 {
-    PluginConf ini;
-    if (!ini.Open(pathname, WRITE_FILE)) {
-        g_plugin_log.WriteLn("Failed to open %s", pathname.c_str());
-        return;
-    }
-
-    ini.WriteInt("write_to_console", g_plugin_log.WriteToConsole);
-    ini.WriteInt("write_to_file", g_plugin_log.WriteToFile);
-    ini.Close();
 }
 
 static void LoadConfig(const std::string &pathname)
 {
-    PluginConf ini;
-    if (!ini.Open(pathname, READ_FILE)) {
-        g_plugin_log.WriteLn("Failed to open %s", pathname.c_str());
-        SaveConfig(pathname);
-        return;
-    }
-
-    g_plugin_log.WriteToConsole = ini.ReadInt("write_to_console", 0) != 0;
-    g_plugin_log.WriteToFile = ini.ReadInt("write_to_file", 0) != 0;
-    ini.Close();
 }

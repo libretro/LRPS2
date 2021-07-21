@@ -259,10 +259,7 @@ s32 CALLBACK USBfreeze(int mode, freezeData *data) {
 	if (mode == FREEZE_LOAD) 
 	{
 		if(data->size < sizeof(USBfreezeData))
-		{
-			SysMessage("ERROR: Unable to load freeze data! Got %d bytes, expected >= %d.", data->size, sizeof(USBfreezeData));
 			return -1;
-		}
 
 		usbd = *(USBfreezeData*)data->data;
 		usbd.freezeID[9] = 0;
@@ -270,10 +267,7 @@ s32 CALLBACK USBfreeze(int mode, freezeData *data) {
 		usbd.remaining = static_cast<int>(remaining);
 		
 		if( strcmp(usbd.freezeID, USBfreezeID) != 0)
-		{
-			SysMessage("ERROR: Unable to load freeze data! Found ID '%s', expected ID '%s'.", usbd.freezeID, USBfreezeID);
 			return -1;
-		}
 
 		if (data->size != sizeof(USBfreezeData))
 			return -1;

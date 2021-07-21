@@ -42,29 +42,35 @@ long sockOpen(char *Device) {
 	lpAdapter = PacketOpenAdapter(Device);
 	if (lpAdapter == NULL) return -1;
 
-#ifdef DEV9_LOG
-	DEV9_LOG("PacketOpenAdapter %s: %p\n", Device, lpAdapter);
-#endif
-
 	if(PacketSetHwFilter(lpAdapter,NDIS_PACKET_TYPE_PROMISCUOUS)==FALSE){
-		SysMessage("Warning: unable to set promiscuous mode!");
+#if 0
+		log_cb(RETRO_LOG_ERROR, "Warning: unable to set promiscuous mode!\n");
+#endif
 	}
 
 	if(PacketSetBuff(lpAdapter,512000)==FALSE){
-		SysMessage("Unable to set the kernel buffer!");
+#if 0
+		log_cb(RETRO_LOG_ERROR, "Unable to set the kernel buffer!\n");
+#endif
 		return -1;
 	}
 
 	if(PacketSetReadTimeout(lpAdapter,100)==FALSE){
-		SysMessage("Warning: unable to set the read tiemout!");
+#if 0
+		log_cb(RETRO_LOG_ERROR, "Warning: unable to set the read tiemout!\n");
+#endif
 	}
 
 	if((lpRecvPacket = PacketAllocatePacket())==NULL){
-		SysMessage("Error: failed to allocate the LPPACKET structure.");
+#if 0
+		log_cb(RETRO_LOG_ERROR, "Error: failed to allocate the LPPACKET structure.\n");
+#endif
 		return (-1);
 	}
 	if((lpSendPacket = PacketAllocatePacket())==NULL){
-		SysMessage("Error: failed to allocate the LPPACKET structure.");
+#if 0
+		log_cb(RETRO_LOG_ERROR, "Error: failed to allocate the LPPACKET structure.\n");
+#endif
 		return (-1);
 	}
 

@@ -963,14 +963,6 @@ s32 DspLoadLibrary(wchar_t* fileName, int modnum)
 	return 0;
 }
 
-void SysMessage(const char* fmt, ...)
-{
-	va_list list;
-	va_start(list, fmt);
-	vprintf(fmt, list);
-	va_end(list);
-}
-
 wxEventLoopBase* Pcsx2AppTraits::CreateEventLoop()
 {
 	return new wxEventLoop();

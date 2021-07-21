@@ -75,11 +75,11 @@ void FlatFileReader::BeginRead(void* pBuffer, uint sector, uint count)
 	if (aio_read(&m_aiocb) != 0) {
 #if defined(__FreeBSD__)
 		if (errno == ENOSYS)
-			Console.Error("AIO read failed: Check the aio kernel module is loaded");
+			log_cb(RETRO_LOG_ERROR, "AIO read failed: Check the aio kernel module is loaded\n");
 		else
-			Console.Error("AIO read failed: error code %d", errno);
+			log_cb(RETRO_LOG_ERROR, "AIO read failed: error code %d\n", errno);
 #else
-		Console.Error("AIO read failed: error code %d\n", errno);
+		log_cb(RETRO_LOG_ERROR, "AIO read failed: error code %d\n", errno);
 #endif
 		return;
 	}

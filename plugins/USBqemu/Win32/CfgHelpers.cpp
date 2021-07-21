@@ -16,35 +16,6 @@
  */
 #include "../USB.h"
 
-void SysMessage(const char *fmt, ...)
-{
-	va_list list;
-	char tmp[512];
-	wchar_t wtmp[512];
-
-	va_start(list,fmt);
-	vsprintf_s(tmp,fmt,list);
-	va_end(list);
-	swprintf_s(wtmp, L"%S", tmp);
-	MessageBox( (!!gsWindowHandle) ? (HWND)gsWindowHandle : GetActiveWindow(), wtmp,
-		L"USBqemu System Message", MB_OK | MB_SETFOREGROUND);
-}
-
-void SysMessage(const wchar_t *fmt, ...)
-{
-	va_list list;
-	wchar_t tmp[512];
-
-	va_start(list,fmt);
-	vswprintf_s(tmp,fmt,list);
-	va_end(list);
-
-	MessageBox( (!!gsWindowHandle) ? (HWND)gsWindowHandle : GetActiveWindow(), tmp,
-		L"USBqemu System Message", MB_OK | MB_SETFOREGROUND);
-}
-
-//////
-
 static TCHAR CfgFile[260] = L"inis/USBqemu.ini";
 
 void CfgSetSettingsDir( const char* dir )

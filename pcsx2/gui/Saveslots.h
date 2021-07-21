@@ -97,22 +97,6 @@ public:
 		return wxsFormat(_("Slot %d - Unknown Time"), slot_num);
 	}
 
-	void ConsoleDump()
-	{
-		Console.WriteLn("Slot %i information:", slot_num);
-		Console.WriteLn("Internal CRC = %i; Current CRC = %i.", crc, ElfCRC);
-		if (empty)
-			Console.WriteLn("Slot cache says it is empty.");
-		else
-			Console.WriteLn("Slot cache says it is used.");
-
-		if (updated != wxInvalidDateTime)
-			Console.WriteLn(wxsFormat(_("Write time is %s %s."), updated.FormatDate(), updated.FormatTime()));
-
-		//if (isUsed())
-		//	Console.WriteLn(wxsFormat(_("The disk has a file on it dated %s %s."), GetTimestamp().FormatDate(), GetTimestamp().FormatTime()));
-	}
-
 	void Used()
 	{
 		// Update the saveslot cache with the new saveslot, and give it the current timestamp, 

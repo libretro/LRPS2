@@ -80,7 +80,6 @@ static void SysPageFaultSignalFilter(int signal, siginfo_t *siginfo, void *)
 
 void _platform_InstallSignalHandler()
 {
-    Console.WriteLn("Installing POSIX SIGSEGV handler...");
     struct sigaction sa;
 
     sigemptyset(&sa.sa_mask);

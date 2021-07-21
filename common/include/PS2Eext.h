@@ -47,111 +47,14 @@
 //#include "PS2Edefs.h"
 
 #if !defined(_MSC_VER) || !defined(UNICODE)
-static void SysMessage(const char *fmt, ...);
 static void __forceinline PluginNullConfigure(std::string desc, s32 &log);
 #else
-static void SysMessage(const wchar_t *fmt, ...);
 static void __forceinline PluginNullConfigure(std::wstring desc, s32 &log);
 #endif
 
 enum FileMode {
     READ_FILE = 0,
     WRITE_FILE
-};
-
-struct PluginLog
-{
-    bool WriteToFile, WriteToConsole;
-    FILE *LogFile;
-
-    bool Open(std::string logname)
-    {
-        LogFile = px_fopen(logname, "w");
-
-        if (LogFile) {
-            setvbuf(LogFile, NULL, _IONBF, 0);
-            return true;
-        }
-        return false;
-    }
-
-    void Close()
-    {
-        if (LogFile) {
-            fclose(LogFile);
-            LogFile = NULL;
-        }
-    }
-
-    void Write(const char *fmt, ...)
-    {
-        if (LogFile == NULL)
-            return;
-
-        va_list list;
-        if (WriteToFile) {
-            va_start(list, fmt);
-            vfprintf(LogFile, fmt, list);
-            va_end(list);
-        }
-        if (WriteToConsole) {
-            va_start(list, fmt);
-            vfprintf(stdout, fmt, list);
-            va_end(list);
-        }
-    }
-
-    void WriteLn(const char *fmt, ...)
-    {
-        if (LogFile == NULL)
-            return;
-
-        va_list list;
-        if (WriteToFile) {
-            va_start(list, fmt);
-            vfprintf(LogFile, fmt, list);
-            va_end(list);
-            fprintf(LogFile, "\n");
-        }
-        if (WriteToConsole) {
-            va_start(list, fmt);
-            vfprintf(stdout, fmt, list);
-            va_end(list);
-            fprintf(stdout, "\n");
-        }
-    }
-
-#if !defined(_MSC_VER) || !defined(UNICODE)
-    void Message(const char *fmt, ...)
-    {
-        va_list list;
-        char buf[256];
-
-        if (LogFile == NULL)
-            return;
-
-        va_start(list, fmt);
-        vsprintf(buf, fmt, list);
-        va_end(list);
-
-        SysMessage(buf);
-    }
-#else
-    void Message(const wchar_t *fmt, ...)
-    {
-        va_list list;
-        wchar_t buf[256];
-
-        if (LogFile == NULL)
-            return;
-
-        va_start(list, fmt);
-        vswprintf(buf, 256, fmt, list);
-        va_end(list);
-
-        SysMessage(buf);
-    }
-#endif
 };
 
 struct PluginConf
@@ -202,107 +105,15 @@ struct PluginConf
     }
 };
 
-#if defined(__unix__)
-static void SysMessage(const char *fmt, ...)
-{
-    va_list list;
-    char msg[512];
-
-    va_start(list, fmt);
-    vsprintf(msg, fmt, list);
-    va_end(list);
-    if (msg[strlen(msg) - 1] == '\n')
-        msg[strlen(msg) - 1] = 0;
-
-    Console.WriteLn(msg);
-}
-
-#define ENTRY_POINT /* We don't need no stinkin' entry point! */
-
-
-#elif defined(__WXMAC__) || defined(__APPLE__)
-
-static void SysMessage(const char *fmt, ...)
-{
-    va_list list;
-    char msg[512];
-
-    va_start(list, fmt);
-    vsprintf(msg, fmt, list);
-    va_end(list);
-
-    if (msg[strlen(msg) - 1] == '\n')
-        msg[strlen(msg) - 1] = 0;
-
-    // TODO OSX can we use WX MessageBox here or should Cocoa MessageBox used?
-}
-
-static void SysMessage(const wchar_t *fmt, ...)
-{
-    va_list list;
-    wchar_t msg[512];
-
-    va_start(list, fmt);
-    //vsprintf(msg, fmt, list);
-    va_end(list);
-
-    // TODO OSX can we use WX MessageBox here or should Cocoa MessageBox used?
-}
-
 static void __forceinline PluginNullConfigure(std::string desc, int &log)
 {
-    SysMessage("This space is intentionally left blank.");
 }
-
+#if defined(__unix__)
+#define ENTRY_POINT /* We don't need no stinkin' entry point! */
+#elif defined(__WXMAC__) || defined(__APPLE__)
 #define ENTRY_POINT /* We don't need no stinkin' entry point! */ // TODO OSX WTF is this anyway?
-
-
 #else
-
 #define usleep(x) Sleep(x / 1000)
-
-#ifndef UNICODE
-
-static void __forceinline SysMessage(const char *fmt, ...)
-{
-    va_list list;
-    char tmp[512];
-    va_start(list, fmt);
-    vsprintf(tmp, fmt, list);
-    va_end(list);
-    MessageBox(GetActiveWindow(), tmp, "Message", MB_SETFOREGROUND | MB_OK);
-}
-
-static void __forceinline PluginNullConfigure(std::string desc, s32 &log)
-{
-    /* To do: Write a dialog box that displays a dialog box with the text in desc,
-	   and a check box that says "Logging", checked if log !=0, and set log to
-	   1 if it is checked on return, and 0 if it isn't. */
-    SysMessage("This space is intentionally left blank.");
-}
-
-#else
-
-static void __forceinline SysMessage(const wchar_t *fmt, ...)
-{
-    va_list list;
-    wchar_t tmp[512];
-    va_start(list, fmt);
-    vswprintf(tmp, 512, fmt, list);
-    va_end(list);
-    MessageBox(GetActiveWindow(), tmp, L"Message", MB_SETFOREGROUND | MB_OK);
-}
-
-static void __forceinline PluginNullConfigure(std::string desc, s32 &log)
-{
-    /* To do: Write a dialog box that displays a dialog box with the text in desc,
-	and a check box that says "Logging", checked if log !=0, and set log to
-	1 if it is checked on return, and 0 if it isn't. */
-    SysMessage(L"This space is intentionally left blank.");
-}
-
-#endif
-
 #define ENTRY_POINT                                     \
     HINSTANCE hInst;                                    \
                                                         \
@@ -313,6 +124,6 @@ static void __forceinline PluginNullConfigure(std::string desc, s32 &log)
         hInst = (HINSTANCE)hModule;                     \
         return TRUE; /* very quick :)*/                 \
     }
-
 #endif
+
 #endif // PS2EEXT_H_INCLUDED
