@@ -33,8 +33,13 @@ void sendTTYP(u16 protocol, u8 source, char *data){
 	((DECI2_TTYP_HEADER*)tmp)->h.source		=source;
 	((DECI2_TTYP_HEADER*)tmp)->h.destination='H';
 	((DECI2_TTYP_HEADER*)tmp)->flushreq		=0;
+
 	if (((DECI2_TTYP_HEADER*)tmp)->h.length>2048)
-		Msgbox::Alert(L"TTYP: Buffer overflow");
+	{
+#if 0
+		log_cb(RETRO_LOG_DEBUG, "TTYP: Buffer overflow\n");
+#endif
+	}
 	else
 		memcpy(&tmp[sizeof(DECI2_TTYP_HEADER)], data, strlen(data));
 	//writeData(tmp);

@@ -195,21 +195,3 @@ extern SysMainMemory& GetVmMemory();
 #else
 #	define __unique_stackframe
 #endif
-
-
-//////////////////////////////////////////////////////////////////////////////////////////
-// Different types of message boxes that the emulator can employ from the friendly confines
-// of it's blissful unawareness of whatever GUI it runs under. :)  All message boxes exhibit
-// blocking behavior -- they prompt the user for action and only return after the user has
-// responded to the prompt.
-//
-
-namespace Msgbox
-{
-	extern bool	Alert( const wxString& text, const wxString& caption=_("PCSX2 Message"), int icon=wxICON_EXCLAMATION );
-	extern bool	OkCancel( const wxString& text, const wxString& caption=_("PCSX2 Message"), int icon=0 );
-	extern bool	YesNo( const wxString& text, const wxString& caption=_("PCSX2 Message"), int icon=wxICON_QUESTION );
-
-	extern int	Assertion( const wxString& text, const wxString& stacktrace );
-}
-

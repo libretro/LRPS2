@@ -24,7 +24,9 @@ SSE_MXCSR g_sseVUMXCSR	= { DEFAULT_sseVUMXCSR };
 //
 void SetCPUState(SSE_MXCSR sseMXCSR, SSE_MXCSR sseVUMXCSR)
 {
-	//Msgbox::Alert("SetCPUState: Config.sseMXCSR = %x; Config.sseVUMXCSR = %x \n", Config.sseMXCSR, Config.sseVUMXCSR);
+#if 0
+	log_cb(RETRO_LOG_DEBUG, "SetCPUState: Config.sseMXCSR = %x; Config.sseVUMXCSR = %x \n", Config.sseMXCSR, Config.sseVUMXCSR);
+#endif
 
 	g_sseMXCSR		= sseMXCSR.ApplyReserveMask();
 	g_sseVUMXCSR	= sseVUMXCSR.ApplyReserveMask();

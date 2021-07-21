@@ -318,11 +318,8 @@ void FileMemoryCard::Open()
 
 			if (!Create(str, 8))
 			{
-#ifndef __LIBRETRO__
-				Msgbox::Alert(
-					wxsFormat(_("Could not create a memory card: \n\n%s\n\n"), str.c_str()) +
-					GetDisabledMessage(slot));
-#endif
+				log_cb(RETRO_LOG_ERROR,
+					wxsFormat(_("Could not create a memory card: \n\n%s\n\n %s\n"), str.c_str(), GetDisabledMessage(slot).c_str()).c_str());
 			}
 		}
 
@@ -347,13 +344,11 @@ void FileMemoryCard::Open()
 
 		if (!m_file[slot].Open(str.c_str(), L"r+b"))
 		{
-#ifndef __LIBRETRO__
 			// Translation note: detailed description should mention that the memory card will be disabled
 			// for the duration of this session.
-			Msgbox::Alert(
-				wxsFormat(_("Access denied to memory card: \n\n%s\n\n"), str.c_str()) +
-				GetDisabledMessage(slot));
-#endif
+			log_cb(RETRO_LOG_ERROR,
+					wxsFormat(_("Access denied to memory card: \n\n%s\n\n %s\n"), str.c_str(), GetDisabledMessage(slot).c_str()).c_str()
+			      );
 		}
 		else // Load checksum
 		{

@@ -37,11 +37,6 @@ typedef void (Pcsx2App::*FnPtr_Pcsx2App)();
 // the universal Accelerator table.
 static const int pxID_PadHandler_Keydown = 8030;
 
-// Forces the Interface to destroy the GS viewport window when the GS plugin is
-// destroyed.  This has the side effect of forcing all plugins to close and re-open
-// along with the GS, since the GS viewport window handle will have changed.
-static const bool CloseViewportWithPlugins = false;
-
 // ------------------------------------------------------------------------
 // All Menu Options for the Main Window! :D
 // ------------------------------------------------------------------------
@@ -298,14 +293,9 @@ public:
 // =====================================================================================================
 //  Pcsx2App  -  main wxApp class
 // =====================================================================================================
-#if defined(__LIBRETRO__) && 0
-class Pcsx2App
-{
-#else
 class Pcsx2App : public wxAppWithHelpers
 {
 	typedef wxAppWithHelpers _parent;
-#endif
 
 	// ----------------------------------------------------------------------------
 	// Event Sources!

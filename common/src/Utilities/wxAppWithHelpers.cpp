@@ -20,8 +20,6 @@
 #include "PersistentThread.h"
 wxDEFINE_EVENT(pxEvt_InvokeAction, pxActionEvent);
 
-wxIMPLEMENT_DYNAMIC_CLASS(pxSimpleEvent, wxEvent);
-
 // --------------------------------------------------------------------------------------
 //  SynchronousActionState Implementations
 // --------------------------------------------------------------------------------------
