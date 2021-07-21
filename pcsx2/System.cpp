@@ -26,7 +26,6 @@
 #include "System/RecTypes.h"
 
 #include "Utilities/MemsetFast.inl"
-#include "Utilities/Perf.h"
 
 // --------------------------------------------------------------------------------------
 //  RecompiledCodeReserve  (implementations)
@@ -43,18 +42,6 @@ RecompiledCodeReserve::RecompiledCodeReserve( const wxString& name, uint defComm
 
 RecompiledCodeReserve::~RecompiledCodeReserve()
 {
-	_termProfiler();
-}
-
-void RecompiledCodeReserve::_registerProfiler()
-{
-	if (m_profiler_name.IsEmpty() || !IsOk()) return;
-
-	Perf::any.map((uptr)m_baseptr, GetReserveSizeInBytes(), m_profiler_name.ToUTF8());
-}
-
-void RecompiledCodeReserve::_termProfiler()
-{
 }
 
 void* RecompiledCodeReserve::Assign( VirtualMemoryManagerPtr allocator, void *baseptr, size_t size )
@@ -62,8 +49,6 @@ void* RecompiledCodeReserve::Assign( VirtualMemoryManagerPtr allocator, void *ba
 	if (!_parent::Assign(std::move(allocator), baseptr, size)) return NULL;
 
 	Commit();
-
-	_registerProfiler();
 
 	return m_baseptr;
 }
@@ -92,16 +77,6 @@ bool RecompiledCodeReserve::Commit()
 
 	return status;
 #endif
-}
-
-// Sets the abbreviated name used by the profiler.  Name should be under 10 characters long.
-// After a name has been set, a profiler source will be automatically registered and cleared
-// in accordance with changes in the reserve area.
-RecompiledCodeReserve& RecompiledCodeReserve::SetProfilerName( const wxString& shortname )
-{
-	m_profiler_name = shortname;
-	_registerProfiler();
-	return *this;
 }
 
 // This error message is shared by R5900, R3000, and microVU recompilers.

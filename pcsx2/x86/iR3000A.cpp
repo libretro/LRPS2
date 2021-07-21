@@ -35,8 +35,6 @@
 
 #include "AppConfig.h"
 
-#include "Utilities/Perf.h"
-
 using namespace x86Emitter;
 
 extern u32 g_iopNextEventCycle;
@@ -206,8 +204,6 @@ static void _DynGen_Dispatchers()
 	HostSys::MemProtectStatic( iopRecDispatchers, PageAccess_ExecOnly() );
 
 	recBlocks.SetJITCompile( iopJITCompile );
-
-	Perf::any.map((uptr)&iopRecDispatchers, 4096, "IOP Dispatcher");
 }
 
 ////////////////////////////////////////////////////
@@ -624,7 +620,6 @@ static const uint m_recBlockAllocSize =
 static void recReserveCache()
 {
 	if (!recMem) recMem = new RecompiledCodeReserve(L"R3000A Recompiler Cache", _8mb);
-	recMem->SetProfilerName("IOPrec");
 
 	while (!recMem->IsOk())
 	{
@@ -679,8 +674,6 @@ static void recAlloc()
 void recResetIOP()
 {
 	log_cb(RETRO_LOG_DEBUG, "iR3000A Recompiler reset.\n" );
-
-	Perf::iop.reset();
 
 	recAlloc();
 	recMem->Reset();
@@ -745,9 +738,6 @@ static void recShutdown()
 
 	safe_free( s_pInstCache );
 	s_nInstCacheSize = 0;
-
-	// FIXME Warning thread unsafe
-	Perf::dump();
 }
 
 static void iopClearRecLUT(BASEBLOCK* base, int count)
@@ -1295,8 +1285,6 @@ StartRecomp:
 
 	pxAssert(xGetPtr() - recPtr < _64kb);
 	s_pCurBlockEx->x86size = xGetPtr() - recPtr;
-
-	Perf::iop.map(s_pCurBlockEx->fnptr, s_pCurBlockEx->x86size, s_pCurBlockEx->startpc);
 
 	recPtr = xGetPtr();
 

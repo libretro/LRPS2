@@ -719,7 +719,7 @@ void* mVUcompile(microVU& mVU, u32 startPC, uptr pState)
 				mVUendProgram(mVU, &mFC, 0);
 				normBranchCompile(mVU, xPC);
 				incPC(-2);
-				goto perf_and_return;
+				return thisPtr;
 			}
 		}
 
@@ -730,7 +730,7 @@ void* mVUcompile(microVU& mVU, u32 startPC, uptr pState)
 		if (isEvilBlock) {
 			mVUsetupRange(mVU, xPC, false);
 			normJumpCompile(mVU, mFC, true);
-			goto perf_and_return;
+			return thisPtr;
 		}
 		else if (!mVUinfo.isBdelay) {
 			// Handle range wrapping
@@ -750,29 +750,29 @@ void* mVUcompile(microVU& mVU, u32 startPC, uptr pState)
 			case 1: // B/BAL
 			case 2:
 				normBranch(mVU, mFC);
-				goto perf_and_return;
+				return thisPtr;
 			case 9: // JR/JALR
 			case 10:
 				normJump(mVU, mFC);
-				goto perf_and_return;
+				return thisPtr;
 			case 3: // IBEQ
 				condBranch(mVU, mFC, Jcc_Equal);
-				goto perf_and_return;
+				return thisPtr;
 			case 4: // IBGEZ
 				condBranch(mVU, mFC, Jcc_GreaterOrEqual);
-				goto perf_and_return;
+				return thisPtr;
 			case 5: // IBGTZ
 				condBranch(mVU, mFC, Jcc_Greater);
-				goto perf_and_return;
+				return thisPtr;
 			case 6: // IBLEQ
 				condBranch(mVU, mFC, Jcc_LessOrEqual);
-				goto perf_and_return;
+				return thisPtr;
 			case 7: // IBLTZ
 				condBranch(mVU, mFC, Jcc_Less);
-				goto perf_and_return;
+				return thisPtr;
 			case 8: // IBNEQ
 				condBranch(mVU, mFC, Jcc_NotEqual);
-				goto perf_and_return;
+				return thisPtr;
 			}
 		}
 	}
@@ -785,10 +785,6 @@ void* mVUcompile(microVU& mVU, u32 startPC, uptr pState)
 	// E-bit End
 	mVUsetupRange(mVU, xPC - 8, false);
 	mVUendProgram(mVU, &mFC, 1);
-
-perf_and_return:
-
-	Perf::vu.map((uptr)thisPtr, x86Ptr - thisPtr, startPC);
 
 	return thisPtr;
 }

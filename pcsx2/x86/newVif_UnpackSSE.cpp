@@ -427,7 +427,6 @@ void VifUnpackSSE_Init()
 #endif
 
 	nVifUpkExec = new RecompiledCodeReserve(L"VIF SSE-optimized Unpacking Functions", _64kb);
-	nVifUpkExec->SetProfilerName("iVIF-SSE");
 	nVifUpkExec->Reserve(GetVmMemory().BumpAllocator(), _64kb);
 
 	nVifUpkExec->ThrowIfNotOk();

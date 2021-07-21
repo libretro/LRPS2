@@ -41,7 +41,6 @@
 
 
 #include "Utilities/MemsetFast.inl"
-#include "Utilities/Perf.h"
 
 
 using namespace x86Emitter;
@@ -455,8 +454,6 @@ static void _DynGen_Dispatchers()
 	HostSys::MemProtectStatic( eeRecDispatchers, PageAccess_ExecOnly() );
 
 	recBlocks.SetJITCompile( JITCompile );
-
-	Perf::any.map((uptr)&eeRecDispatchers, 4096, "EE Dispatcher");
 }
 
 
@@ -480,7 +477,6 @@ static void recThrowHardwareDeficiency( const wxChar* extFail )
 static void recReserveCache()
 {
 	if (!recMem) recMem = new RecompiledCodeReserve(L"R5900-32 Recompiler Cache", _16mb);
-	recMem->SetProfilerName("EErec");
 
 	while (!recMem->IsOk())
 	{
@@ -590,8 +586,6 @@ static int g_patchesNeedRedo = 0;
 ////////////////////////////////////////////////////
 static void recResetRaw()
 {
-	Perf::ee.reset();
-
 	EE::Profiler.Reset();
 
 	recAlloc();
@@ -638,9 +632,6 @@ static void recShutdown()
 	safe_aligned_free( recConstBuf );
 	safe_free( s_pInstCache );
 	s_nInstCacheSize = 0;
-
-	// FIXME Warning thread unsafe
-	Perf::dump();
 }
 
 static void recResetEE()
@@ -737,9 +728,6 @@ static void recExecute()
 
 	if(m_cpuException)	m_cpuException->Rethrow();
 	if(m_Exception)		m_Exception->Rethrow();
-
-	// FIXME Warning thread unsafe
-	Perf::dump();
 #endif
 
 	EE::Profiler.Print();
@@ -1610,18 +1598,7 @@ static void memory_protect_recompiled_code(u32 startpc, u32 size)
 				xJC(DispatchPageReset);
 
 				// note: clearcnt is measured per-page, not per-block!
-#if 0
-				eeRecPerfLog.Write( "Manual block @ %08X : size =%3d  page/offs = 0x%05X/0x%03X  inpgsz = %d  clearcnt = %d",
-					startpc, size, inpage_ptr>>12, inpage_ptr&0xfff, inpage_sz, manual_counter[inpage_ptr >> 12] );
-#endif
 			}
-#if 0
-			else
-			{
-				eeRecPerfLog.Write( "Uncounted Manual block @ 0x%08X : size =%3d page/offs = 0x%05X/0x%03X  inpgsz = %d",
-					startpc, size, inpage_ptr>>12, inpage_ptr&0xfff, inpage_sz );
-			}
-#endif
             break;
 	}
 }
@@ -1816,8 +1793,6 @@ static void __fastcall recRecompile( const u32 startpc )
 			{
 				willbranch3 = 1;
 				s_nEndBlock = i;
-
-				//eeRecPerfLog.Write( "Pagesplit @ %08X : size=%d insts", startpc, (i-startpc) / 4 );
 				break;
 			}
 
@@ -2156,7 +2131,6 @@ StartRecomp:
 		iDumpBlock(s_pCurBlockEx->startpc, s_pCurBlockEx->size*4, s_pCurBlockEx->fnptr, s_pCurBlockEx->x86size);
 	}
 #endif
-	Perf::ee.map(s_pCurBlockEx->fnptr, s_pCurBlockEx->x86size, s_pCurBlockEx->startpc);
 
 	recPtr = xGetPtr();
 

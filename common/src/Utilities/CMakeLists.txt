@@ -25,7 +25,6 @@ set(UtilitiesFinalFlags ${CommonFlags})
 		Mutex.cpp
 		PathUtils.cpp
 		PrecompiledHeader.cpp
-		Perf.cpp
 		pxStreams.cpp
 		pxTranslate.cpp
 		RwMutex.cpp

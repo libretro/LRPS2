@@ -18,7 +18,6 @@
 #include "PrecompiledHeader.h"
 #include "microVU.h"
 
-#include "Utilities/Perf.h"
 
 //------------------------------------------------------------------
 // Micro VU - Main Functions
@@ -35,7 +34,6 @@ static __fi void mVUthrowHardwareDeficiency(const wxChar* extFail, int vuIndex) 
 void mVUreserveCache(microVU& mVU) {
 
 	mVU.cache_reserve = new RecompiledCodeReserve(pxsFmt("Micro VU%u Recompiler Cache", mVU.index), _16mb);
-	mVU.cache_reserve->SetProfilerName(pxsFmt("mVU%urec", mVU.index));
 	
 	mVU.cache = mVU.index ?
 		(u8*)mVU.cache_reserve->Reserve(GetVmMemory().MainMemory(), HostMemoryMap::mVU1recOffset, mVU.cacheSize * _1mb):
@@ -127,9 +125,6 @@ void mVUreset(microVU& mVU, bool resetReserve) {
 	}
 
 	HostSys::MemProtect(mVU.dispCache, mVUdispCacheSize, PageAccess_ExecOnly());
-
-	if (mVU.index) Perf::any.map((uptr)&mVU.dispCache, mVUdispCacheSize, "mVU1 Dispatcher");
-	else           Perf::any.map((uptr)&mVU.dispCache, mVUdispCacheSize, "mVU0 Dispatcher");
 }
 
 // Free Allocated Resources

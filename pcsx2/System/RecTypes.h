@@ -27,9 +27,6 @@ class RecompiledCodeReserve : public VirtualMemoryReserve
 {
 	typedef VirtualMemoryReserve _parent;
 
-protected:
-	wxString	m_profiler_name;
-
 public:
 	RecompiledCodeReserve( const wxString& name=wxEmptyString, uint defCommit = 0 );
 	virtual ~RecompiledCodeReserve();
@@ -37,12 +34,6 @@ public:
 	virtual void* Assign( VirtualMemoryManagerPtr allocator, void *baseptr, size_t size ) override;
 	virtual void Reset() override;
 	virtual bool Commit() override;
-
-	virtual RecompiledCodeReserve& SetProfilerName( const wxString& shortname );
-	virtual RecompiledCodeReserve& SetProfilerName( const char* shortname )
-	{
-		return SetProfilerName( fromUTF8(shortname) );
-	}
 
 	void ThrowIfNotOk() const;
 
@@ -54,7 +45,4 @@ public:
 
 protected:
 	void ResetProcessReserves() const;
-
-	void _registerProfiler();
-	void _termProfiler();
 };
