@@ -35,7 +35,6 @@
 
 #include <cstring>
 #include <wx/defs.h>
-#include "Utilities/Console.h"
 #define EXPORT_C_(type) extern "C" __attribute__((stdcall, externally_visible, visibility("default"))) type
 
 #else
