@@ -197,7 +197,7 @@ protected:
 };
 
 // --------------------------------------------------------------------------------------
-//  ScopedCoreThreadClose / ScopedCoreThreadPause / ScopedCoreThreadPopup
+//  ScopedCoreThreadClose / ScopedCoreThreadPause
 // --------------------------------------------------------------------------------------
 // This class behaves a bit differently from other scoped classes due to the "standard"
 // assumption that we actually do *not* want to resume CoreThread operations when an
@@ -209,10 +209,6 @@ protected:
 // This can be useful for troubleshooting, and also allows the log a second line of info
 // indicating the status of CoreThread execution at the time of the exception.
 //
-// ScopedCoreThreadPopup is intended for use where message boxes are popped up to the user.
-// The old style GUI (without GSopen2) must use a full close of the CoreThread, in order to
-// ensure that the GS window isn't blocking the popup, and to avoid crashes if the GS window
-// is maximized or fullscreen.
 //
 class ScopedCoreThreadClose : public BaseScopedCoreThread
 {
@@ -232,17 +228,4 @@ struct ScopedCoreThreadPause : public BaseScopedCoreThread
 public:
 	ScopedCoreThreadPause( BaseSysExecEvent_ScopedCore* abuse_me=NULL );
 	virtual ~ScopedCoreThreadPause();
-};
-
-struct ScopedCoreThreadPopup : public IScopedCoreThread
-{
-protected:
-	std::unique_ptr<BaseScopedCoreThread>		m_scoped_core;
-
-public:
-	ScopedCoreThreadPopup();
-	virtual ~ScopedCoreThreadPopup() = default;
-
-	virtual void AllowResume();
-	virtual void DisallowResume();
 };
