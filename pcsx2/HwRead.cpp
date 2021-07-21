@@ -19,7 +19,6 @@
 #include "Hardware.h"
 #include "IopCommon.h"
 #include "ps2/HwInternal.h"
-#include "ps2/eeHwTraceLog.inl"
 
 #include "ps2/pgif.h"
 
@@ -212,14 +211,12 @@ template< uint page >
 mem32_t __fastcall hwRead32(u32 mem)
 {
 	mem32_t retval = _hwRead32<page,false>(mem);
-	eeHwTraceLog( mem, retval, true );
 	return retval;
 }
 
 mem32_t __fastcall hwRead32_page_0F_INTC_HACK(u32 mem)
 {
 	mem32_t retval = _hwRead32<0x0f,true>(mem);
-	eeHwTraceLog( mem, retval, true );
 	return retval;
 }
 
@@ -238,7 +235,6 @@ template< uint page >
 mem8_t __fastcall hwRead8(u32 mem)
 {
 	mem8_t ret8 = _hwRead8<page>(mem);
-	eeHwTraceLog( mem, ret8, true );
 	return ret8;
 }
 
@@ -255,7 +251,6 @@ template< uint page >
 mem16_t __fastcall hwRead16(u32 mem)
 {
 	u16 ret16 = _hwRead16<page>(mem);
-	eeHwTraceLog( mem, ret16, true );
 	return ret16;
 }
 
@@ -266,7 +261,6 @@ mem16_t __fastcall hwRead16_page_0F_INTC_HACK(u32 mem)
 	u32 ret32 = _hwRead32<0x0f, true>(mem & ~0x03);
 	u16 ret16 = ((u16*)&ret32)[(mem>>1) & 0x01];
 
-	eeHwTraceLog( mem, ret16, true );
 	return ret16;
 }
 
@@ -325,7 +319,6 @@ template< uint page >
 void __fastcall hwRead64(u32 mem, mem64_t* result )
 {
 	_hwRead64<page>( mem, result );
-	eeHwTraceLog( mem, *result, true );
 }
 
 template< uint page >
@@ -398,7 +391,6 @@ template< uint page >
 void __fastcall hwRead128(u32 mem, mem128_t* result )
 {
 	_hwRead128<page>( mem, result );
-	eeHwTraceLog( mem, *result, true );
 }
 
 #define InstantizeHwRead(pageidx) \

@@ -443,7 +443,6 @@ set(pcsx2ps2Sources
 # ps2 headers
 set(pcsx2ps2Headers
 	ps2/BiosTools.h
-	ps2/eeHwTraceLog.inl
 	ps2/pgif.h
 	ps2/HwInternal.h
 	ps2/Iop/IopHw_Internal.h)

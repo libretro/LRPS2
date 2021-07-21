@@ -20,7 +20,6 @@
 #include "Gif_Unit.h"
 #include "IopCommon.h"
 #include "ps2/HwInternal.h"
-#include "ps2/eeHwTraceLog.inl"
 
 #include "ps2/pgif.h"
 #include "SPU2/spu2.h"
@@ -275,7 +274,6 @@ void __fastcall _hwWrite32( u32 mem, u32 value )
 template<uint page>
 void __fastcall hwWrite32( u32 mem, u32 value )
 {
-	eeHwTraceLog( mem, value, false );
 	_hwWrite32<page>( mem, value );
 }
 
@@ -338,7 +336,6 @@ void __fastcall _hwWrite8(u32 mem, u8 value)
 template< uint page >
 void __fastcall hwWrite8(u32 mem, u8 value)
 {
-	eeHwTraceLog( mem, value, false );
 	_hwWrite8<page>(mem, value);
 }
 
@@ -370,7 +367,6 @@ void __fastcall _hwWrite16(u32 mem, u16 value)
 template< uint page >
 void __fastcall hwWrite16(u32 mem, u16 value)
 {
-	eeHwTraceLog( mem, value, false );
 	_hwWrite16<page>(mem, value);
 }
 
@@ -419,7 +415,6 @@ void __fastcall _hwWrite64( u32 mem, const mem64_t* srcval )
 template<uint page>
 void __fastcall hwWrite64( u32 mem, const mem64_t* srcval )
 {
-	eeHwTraceLog( mem, *srcval, false );
 	_hwWrite64<page>(mem, srcval);
 }
 
@@ -484,7 +479,6 @@ void __fastcall _hwWrite128(u32 mem, const mem128_t* srcval)
 template< uint page >
 void __fastcall hwWrite128(u32 mem, const mem128_t* srcval)
 {
-	eeHwTraceLog( mem, *srcval, false );
 	_hwWrite128<page>(mem, srcval);
 }
 
