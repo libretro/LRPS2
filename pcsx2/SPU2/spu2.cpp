@@ -28,8 +28,6 @@ MutexRecursive mtx_SPU2Status;
 
 extern retro_audio_sample_t sample_cb;
 
-#include "svnrev.h"
-
 int Interpolation = 4;
 bool EffectsDisabled = false;
 bool postprocess_filter_dealias = false;
@@ -44,7 +42,6 @@ static u32 pClocks = 0;
 
 u32* cyclePtr = nullptr;
 u32 lClocks = 0;
-//static bool cpu_detected = false;
 
 static bool CheckSSE()
 {
@@ -54,8 +51,6 @@ static bool CheckSSE()
 //  DMA 4/7 Callbacks from Core Emulator
 // --------------------------------------------------------------------------------------
 
-u16* DMABaseAddr;
-
 u32 SPU2ReadMemAddr(int core)
 {
 	return Cores[core].MADR;
@@ -63,11 +58,6 @@ u32 SPU2ReadMemAddr(int core)
 void SPU2WriteMemAddr(int core, u32 value)
 {
 	Cores[core].MADR = value;
-}
-
-void SPU2setDMABaseAddr(uptr baseaddr)
-{
-	DMABaseAddr = (u16*)baseaddr;
 }
 
 void SPU2setSettingsDir(const char* dir)
@@ -256,9 +246,8 @@ s32 SPU2open(void* pDsp)
 		return 0;
 
 	IsOpened = true;
-	lClocks = (cyclePtr != nullptr) ? *cyclePtr : 0;
+	lClocks  = (cyclePtr != nullptr) ? *cyclePtr : 0;
 
-	SPU2setDMABaseAddr((uptr)iopMem->Main);
 	SPU2setClockPtr(&psxRegs.cycle);
 	return 0;
 }

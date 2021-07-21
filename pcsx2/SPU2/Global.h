@@ -34,9 +34,7 @@ struct V_Core;
 #include <ctime>
 #include <stdexcept>
 
-#include "Utilities/Dependencies.h"
 #include "Pcsx2Defs.h"
-#include "Pcsx2Types.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Override Win32 min/max macros with the STL's type safe and macro
@@ -56,9 +54,6 @@ static __forceinline T GetClamped(T src, T min, T max)
 {
 	return std::min(std::max(src, min), max);
 }
-
-#include "Utilities/Exceptions.h"
-#include "Utilities/SafeArray.h"
 
 #include "defs.h"
 #include "regs.h"

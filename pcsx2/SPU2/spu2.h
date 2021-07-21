@@ -15,7 +15,6 @@
 
 #pragma once
 
-#include "Pcsx2Defs.h"
 #include "Utilities/Threading.h"
 #include "SaveState.h"
 
@@ -47,7 +46,6 @@ void SPU2configure();
 
 u32 SPU2ReadMemAddr(int core);
 void SPU2WriteMemAddr(int core, u32 value);
-void SPU2setDMABaseAddr(uptr baseaddr);
 void SPU2setSettingsDir(const char* dir);
 void SPU2setLogDir(const char* dir);
 void SPU2readDMA4Mem(u16* pMem, u32 size);
@@ -64,7 +62,5 @@ extern u32* cyclePtr;
 
 extern void TimeUpdate(u32 cClocks);
 extern void SPU2_FastWrite(u32 rmem, u16 value);
-
-extern void LowPassFilterInit();
 
 //#define PCM24_S1_INTERLEAVE

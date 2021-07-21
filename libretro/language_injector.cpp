@@ -8,10 +8,10 @@
 #include "language_injector.h"
 #include "options_tools.h"
 #include <fstream>
-#include <vector>
 #include <string>
 #include <cctype>
 
+#include "Utilities/Dependencies.h"
 #include "SPU2/Global.h"
 #include "ps2/BiosTools.h"
 
