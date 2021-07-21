@@ -287,16 +287,7 @@ void retro_init(void)
 	option_upscale_mult = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 
 	// instantiate the pcsx2 app and so some things on it
-
-	//pcsx2 = new Pcsx2App;
-	//wxApp::SetInstance(pcsx2);
 	pcsx2 = &wxGetApp();
-#if 0
-	int argc = 0;
-	pcsx2->Initialize(argc, (wchar_t**)nullptr);
-	wxModule::RegisterModules();
-	wxModule::InitializeModules();
-#endif
 	InitCPUTicks();
 	pxDoOutOfMemory = SysOutOfMemory_EmergencyResponse;
 	g_Conf = std::make_unique<AppConfig>();
@@ -903,9 +894,6 @@ unsigned int delayCycles = 4;
 
 static retro_audio_sample_batch_t batch_cb;
 static retro_audio_sample_t sample_cb;
-#if 0
-static int write_pos = 0;
-#endif
 
 void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb)
 {
@@ -920,25 +908,11 @@ void retro_set_audio_sample(retro_audio_sample_t cb)
 
 void SndBuffer::Write(const StereoOut32& Sample)
 {
-#if 0
-	static s16 snd_buffer[0x100 << 1];
-	snd_buffer[write_pos++] = Sample.Left >> 12;
-	snd_buffer[write_pos++] = Sample.Right >> 12;
-	if(write_pos == (0x100 << 1))
-	{
-		batch_cb(snd_buffer, write_pos >> 1);
-		write_pos = 0;
-	}
-#else
 	sample_cb(Sample.Left >> 12, Sample.Right >> 12);
-#endif
 }
 
 void SndBuffer::Init()
 {
-#if 0
-	write_pos = 0;
-#endif
 }
 
 void SndBuffer::Cleanup()
@@ -966,8 +940,6 @@ s32 DspLoadLibrary(wchar_t* fileName, int modnum)
 wxEventLoopBase* Pcsx2AppTraits::CreateEventLoop()
 {
 	return new wxEventLoop();
-	//	 return new wxGUIEventLoop();
-	//	 return new wxConsoleEventLoop();
 }
 
 #ifdef wxUSE_STDPATHS
