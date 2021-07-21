@@ -678,7 +678,6 @@ void AppConfig::LoadSave( IniInterface& ini )
 	BaseFilenames	.LoadSave( ini );
 	GSWindow		.LoadSave( ini );
 	Framerate		.LoadSave( ini );
-	Templates		.LoadSave( ini );
 
 	ini.Flush();
 }
@@ -893,36 +892,6 @@ void AppConfig::FramerateOptions::LoadSave( IniInterface& ini )
 
 	IniEntry( SkipOnLimit );
 	IniEntry( SkipOnTurbo );
-}
-
-AppConfig::UiTemplateOptions::UiTemplateOptions()
-{
-	LimiterUnlimited	= L"Max";
-	LimiterTurbo		= L"Turbo";
-	LimiterSlowmo		= L"Slowmo";
-	LimiterNormal		= L"Normal";
-	OutputFrame			= L"Frame";
-	OutputField			= L"Field";
-	OutputProgressive	= L"Progressive";
-	OutputInterlaced	= L"Interlaced";
-	Paused				= L"<PAUSED> ";
-	TitleTemplate		= L"Slot: ${slot} | Speed: ${speed} (${vfps}) | ${videomode} | Limiter: ${limiter} | ${gsdx} | ${omodei} | ${cpuusage}";
-}
-
-void AppConfig::UiTemplateOptions::LoadSave(IniInterface& ini)
-{
-	ScopedIniGroup path(ini, L"UiTemplates");
-
-	IniEntry(LimiterUnlimited);
-	IniEntry(LimiterTurbo);
-	IniEntry(LimiterSlowmo);
-	IniEntry(LimiterNormal);
-	IniEntry(OutputFrame);
-	IniEntry(OutputField);
-	IniEntry(OutputProgressive);
-	IniEntry(OutputInterlaced);
-	IniEntry(Paused);
-	IniEntry(TitleTemplate);
 }
 
 int AppConfig::GetMaxPresetIndex()
@@ -1175,10 +1144,6 @@ AppIniLoader::AppIniLoader()
 static void LoadUiSettings()
 {
 	AppIniLoader loader;
-#ifndef __LIBRETRO__
-	ConLog_LoadSaveSettings( loader );
-	SysTraceLog_LoadSaveSettings( loader );
-#endif
 	g_Conf = std::make_unique<AppConfig>();
 	g_Conf->LoadSave( loader );
 
@@ -1258,10 +1223,6 @@ static void SaveUiSettings()
 #endif
 	AppIniSaver saver;
 	g_Conf->LoadSave( saver );
-#ifndef __LIBRETRO__
-	ConLog_LoadSaveSettings( saver );
-	SysTraceLog_LoadSaveSettings( saver );
-#endif
 	sApp.DispatchUiSettingsEvent( saver );
 }
 

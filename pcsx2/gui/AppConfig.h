@@ -227,22 +227,6 @@ public:
 		void SanityCheck();
 	};
 
-	struct UiTemplateOptions {
-		UiTemplateOptions();
-		void LoadSave(IniInterface& conf);
-
-		wxString LimiterUnlimited;
-		wxString LimiterTurbo;
-		wxString LimiterSlowmo;
-		wxString LimiterNormal;
-		wxString OutputFrame;
-		wxString OutputField;
-		wxString OutputProgressive;
-		wxString OutputInterlaced;
-		wxString Paused;
-		wxString TitleTemplate;
-	};
-
 public:
 	// Because remembering the last used tab on the settings panel is cool (tab is remembered
 	// by it's UTF/ASCII name).
@@ -307,7 +291,6 @@ public:
 	FilenameOptions			BaseFilenames;
 	GSWindowOptions			GSWindow;
 	FramerateOptions		Framerate;
-	UiTemplateOptions		Templates;
 	
 	// PCSX2-core emulation options, which are passed to the emu core prior to initiating
 	// an emulation session.  Note these are the options saved into the GUI ini file and
@@ -352,10 +335,6 @@ extern void AppApplySettings( const AppConfig* oldconf=NULL );
 extern void App_LoadSaveInstallSettings( IniInterface& ini );
 extern void App_SaveInstallSettings( wxConfigBase* ini );
 extern void App_LoadInstallSettings( wxConfigBase* ini );
-
-extern void ConLog_LoadSaveSettings( IniInterface& ini );
-extern void SysTraceLog_LoadSaveSettings( IniInterface& ini );
-
 
 extern wxFileConfig* OpenFileConfig( const wxString& filename );
 extern void AppConfig_OnChangedSettingsFolder( bool overwrite =  false );
