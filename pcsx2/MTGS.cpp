@@ -287,7 +287,9 @@ void SysMtgsThread::ExecuteTaskInThread()
 	PacketTagType prevCmd;
 #endif
 
+#ifndef __LIBRETRO__
 	RingBufferLock busy (*this);
+#endif
 
 //	OpenGS();
 	while(true) {
@@ -436,13 +438,14 @@ void SysMtgsThread::ExecuteTaskInThread()
 					MTVU_LOG("MTGS - Waiting on semaXGkick!");
 #endif
 					vu1Thread.KickStart(true);
-					if (!vu1Thread.semaXGkick.TryWait())
-					{
-						busy.PartialRelease();
-						// Wait for MTVU to complete vu1 program
-						vu1Thread.semaXGkick.WaitWithoutYield();
-						busy.PartialAcquire();
-					}
+#ifndef __LIBRETRO__
+					busy.PartialRelease();
+#endif
+					// Wait for MTVU to complete vu1 program
+					vu1Thread.semaXGkick.WaitWithoutYield();
+#ifndef __LIBRETRO__
+					busy.PartialAcquire();
+#endif
 					Gif_Path& path   = gifUnit.gifPath[GIF_PATH_1];
 					GS_Packet gsPack = path.GetGSPacketMTVU(); // Get vu1 program's xgkick packet(s)
 					if (gsPack.size) GSgifTransfer((u32*)&path.buffer[gsPack.offset], gsPack.size/16);
