@@ -109,43 +109,6 @@ extern pxDoAssertFnType *pxDoAssert;
 #define pxAssumeRel(cond, msg) ((void)((!likely(cond)) && (pxOnAssert(pxAssertSpot(cond), msg), false)))
 #define pxFailRel(msg) pxAssertRel(false, msg)
 
-#if defined(PCSX2_DEBUG)
-
-#define pxAssertMsg(cond, msg) pxAssertRel(cond, msg)
-#define pxAssertDev(cond, msg) pxAssertMsg(cond, msg)
-
-#define pxAssumeMsg(cond, msg) pxAssumeRel(cond, msg)
-#define pxAssumeDev(cond, msg) pxAssumeRel(cond, msg)
-
-#define pxFail(msg) pxAssertMsg(false, msg)
-#define pxFailDev(msg) pxAssertDev(false, msg)
-
-#elif defined(PCSX2_DEVBUILD)
-
-// Devel builds now will give you a release-mode assertion dialog window if any of the
-// following macro's 'cond' field is false.
-// Note: Only use pxAssume/Msg/Dev if you know what you're doing, __assume is supposed
-// to be used as an optimization hint, yet many devs have been using psAssume
-// thinking its the same as an assertion.
-// __assume(0) is also very dangerous because it is a special case of __assume() which
-// tells the compiler that the code path is not reachable, and it can cause unpredictable
-// results if the code path can be reached.
-// i.e. if (1) { __assume(0); something(); }
-// In the above example, something() may never be called.
-// __assume(0)'s real use is in optimizing stuff such as "default:" cases on a switch
-// statement. See jNO_DEFAULT
-
-#define pxAssertMsg(cond, msg) pxAssertRel(cond, msg)
-#define pxAssertDev(cond, msg) pxAssertRel(cond, msg)
-
-#define pxAssumeMsg(cond, msg) pxAssumeRel(cond, msg) //(__assume(cond))
-#define pxAssumeDev(cond, msg) pxAssumeRel(cond, msg)
-
-#define pxFail(msg) pxAssertDev(false, msg)
-#define pxFailDev(msg) pxAssertDev(false, msg)
-
-#else
-
 // Release Builds just use __assume as an optimization, and return the conditional
 // as a result (which is optimized to nil if unused).
 
@@ -161,8 +124,6 @@ extern pxDoAssertFnType *pxDoAssert;
 #define pxFailDev(msg) \
     do {               \
     } while (0)
-
-#endif
 
 #define pxAssert(cond) pxAssertMsg(cond, wxNullChar)
 #define pxAssume(cond) pxAssumeMsg(cond, wxNullChar)

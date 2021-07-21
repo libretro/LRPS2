@@ -27,6 +27,7 @@
 #include <cstdio>  // stdio.h under c++
 #include <cstdlib>
 
+#include "Utilities/Exceptions.h"
 #include "Utilities/General.h"
 #include "Utilities/MemcpyFast.h"
 
