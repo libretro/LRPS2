@@ -26,9 +26,6 @@
 //
 
 class Pcsx2App;
-class MainEmuFrame;
-class ConsoleLogFrame;
-class PipeRedirectionBase;
 class AppCoreThread;
 class Pcsx2AppMethodEvent;
 class pxAppResources;
@@ -41,16 +38,5 @@ class IniInterface;
 
 class wxConfigBase;
 class wxFileConfig;
-class wxDirPickerCtrl;
-class wxFilePickerCtrl;
-class wxFileDirPickerEvent;
-class wxListBox;
-class wxListCtrl;
-class wxListView;
-class wxListbook;
-class wxSpinCtrl;
-class wxBookCtrlBase;
 
 class wxListEvent;
-class wxImageList;
-class wxBitmap;

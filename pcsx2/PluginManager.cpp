@@ -16,6 +16,7 @@
 #include "PrecompiledHeader.h"
 #include "IopCommon.h"
 
+#include <wx/wx.h>
 #include <wx/dir.h>
 #include <wx/file.h>
 #include <memory>

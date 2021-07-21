@@ -188,34 +188,6 @@ public:
 
 Pcsx2App::Pcsx2App() 
 {
-	// Warning: Do not delete this comment block! Gettext will parse it to allow
-	// the translation of some wxWidget internal strings. -- greg
-	#if 0
-	{
-		// Some common labels provided by wxWidgets.  wxWidgets translation files are chucked full
-		// of worthless crap, and tally more than 200k each.  We only need these couple.
-
-		_("OK");
-		_("&OK");
-		_("Cancel");
-		_("&Cancel");
-		_("&Apply");
-		_("&Next >");
-		_("< &Back");
-		_("&Back");
-		_("&Finish");
-		_("&Yes");
-		_("&No");
-		_("Browse");
-		_("&Save");
-		_("Save &As...");
-		_("&Help");
-		_("&Home");
-
-		_("Show about dialog")
-	}
-	#endif
-
 	m_PendingSaves			= 0;
 
 	SetAppName( L"PCSX2" );

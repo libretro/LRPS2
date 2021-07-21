@@ -319,11 +319,9 @@ set(pcsx2DebugToolsHeaders
 		gui/AppForwardDefs.h
 		gui/AppGameDatabase.h
 		gui/App.h
-		gui/DriveList.h
 		gui/MemoryCardFile.h
 		gui/MemoryCardFolder.h
 		gui/pxEventThread.h
-		gui/Saveslots.h
 		)
 
 set(db_res_src "${CMAKE_SOURCE_DIR}/resources")

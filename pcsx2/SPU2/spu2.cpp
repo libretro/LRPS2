@@ -13,6 +13,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "wx/wx.h"
 #include "PrecompiledHeader.h"
 #include "Global.h"
 #include "spu2.h"

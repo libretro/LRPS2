@@ -14,6 +14,7 @@
  */
 
 #include "PrecompiledHeader.h"
+#include "wx/wx.h"
 
 #include "DebugInterface.h"
 #include "Memory.h"

@@ -26,8 +26,6 @@
 #include "AppCommon.h"
 #include "AppCoreThread.h"
 
-class DisassemblyDialog;
-
 #include "System.h"
 #include "System/SysThreads.h"
 
@@ -248,13 +246,6 @@ public:
 	}
 };
 
-enum GsWindowMode_t
-{
-	GsWinMode_Unspecified = 0,
-	GsWinMode_Windowed,
-	GsWinMode_Fullscreen,
-};
-
 class CommandlineOverrides
 {
 public:
@@ -270,14 +261,11 @@ public:
 	Pcsx2Config::GamefixOptions	Gamefixes;
 	bool			ApplyCustomGamefixes;
 
-	GsWindowMode_t	GsWindowMode;
-
 public:
 	CommandlineOverrides()
 	{
 		DisableSpeedhacks		= false;
 		ApplyCustomGamefixes	= false;
-		GsWindowMode			= GsWinMode_Unspecified;
 		ProfilingMode			= false;
 	}
 	

@@ -477,25 +477,18 @@
     <ClCompile Include="..\..\gui\AppInit.cpp" />
     <ClCompile Include="..\..\gui\AppMain.cpp" />
     <ClCompile Include="..\..\gui\AppRes.cpp" />
-    <ClCompile Include="..\..\gui\ConsoleLogger.cpp" />
     <ClCompile Include="..\..\gui\CpuUsageProvider.cpp" />
     <ClCompile Include="..\..\gui\CpuUsageProviderLnx.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\gui\CpuUsageProviderMSW.cpp" />
     <ClCompile Include="..\..\gui\ExecutorThread.cpp" />
-    <ClCompile Include="..\..\gui\FrameForGS.cpp" />
     <ClCompile Include="..\..\gui\GlobalCommands.cpp" />
     <ClCompile Include="..\..\gui\i18n.cpp" />
-    <ClCompile Include="..\..\gui\IsoDropTarget.cpp" />
-    <ClCompile Include="..\..\gui\MainFrame.cpp" />
-    <ClCompile Include="..\..\gui\MainMenuClicks.cpp" />
     <ClCompile Include="..\..\gui\MemoryCardFile.cpp" />
     <ClCompile Include="..\..\gui\MemoryCardFolder.cpp" />
     <ClCompile Include="..\..\gui\MessageBoxes.cpp" />
     <ClCompile Include="..\..\gui\MSWstuff.cpp" />
-    <ClCompile Include="..\..\gui\RecentIsoList.cpp" />
-    <ClCompile Include="..\..\gui\UpdateUI.cpp" />
     <ClCompile Include="..\..\gui\Dialogs\AboutBoxDialog.cpp" />
     <ClCompile Include="..\..\gui\Dialogs\AssertionDialog.cpp" />
     <ClCompile Include="..\..\gui\Dialogs\BaseConfigurationDialog.cpp" />
@@ -718,15 +711,8 @@
     <ClInclude Include="..\..\gui\AppCoreThread.h" />
     <ClInclude Include="..\..\gui\AppEventListeners.h" />
     <ClInclude Include="..\..\gui\AppForwardDefs.h" />
-    <ClInclude Include="..\..\gui\ApplyState.h" />
-    <ClInclude Include="..\..\gui\AppSaveStates.h" />
-    <ClInclude Include="..\..\gui\ConsoleLogger.h" />
     <ClInclude Include="..\..\gui\CpuUsageProvider.h" />
-    <ClInclude Include="..\..\gui\GSFrame.h" />
-    <ClInclude Include="..\..\gui\IsoDropTarget.h" />
-    <ClInclude Include="..\..\gui\MainFrame.h" />
     <ClInclude Include="..\..\gui\pxEventThread.h" />
-    <ClInclude Include="..\..\gui\RecentIsoList.h" />
     <ClInclude Include="..\..\ZipTools\ThreadedZipTools.h" />
   </ItemGroup>
   <ItemGroup>

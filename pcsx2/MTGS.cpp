@@ -17,7 +17,7 @@
 #include "Common.h"
 
 #include <list>
-#include <wx/datetime.h>
+#include <wx/wx.h>
 
 #include "GS.h"
 #include "Gif_Unit.h"
