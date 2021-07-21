@@ -62,7 +62,7 @@ SysMtgsThread::SysMtgsThread() :
 
 void SysMtgsThread::OnStart()
 {
-	m_PluginOpened		= false;
+	m_Opened		= false;
 
 	m_ReadPos			= 0;
 	m_WritePos			= 0;
@@ -186,13 +186,13 @@ static void dummyIrqCallback()
 	// (and zerogs does >_<)
 }
 
-void SysMtgsThread::OpenPlugin()
+void SysMtgsThread::OpenGS()
 {
 #ifdef __LIBRETRO__
 	m_thread = pthread_self();
 #endif
 
-	if( m_PluginOpened ) return;
+	if( m_Opened ) return;
 
 	memcpy( RingBuffer.Regs, PS2MEM_GS, sizeof(PS2MEM_GS) );
 	GSsetBaseMem( RingBuffer.Regs );
@@ -234,7 +234,7 @@ void SysMtgsThread::OpenPlugin()
 	}
 #endif
 
-	m_PluginOpened = true;
+	m_Opened = true;
 	m_sem_OpenDone.Post();
 
 	GSsetGameCRC( ElfCRC, 0 );
@@ -291,7 +291,7 @@ void SysMtgsThread::ExecuteTaskInThread()
 	RingBufferLock busy (*this);
 #endif
 
-//	OpenPlugin();
+//	OpenGS();
 	while(true) {
 #ifndef __LIBRETRO__
 		busy.Release();
@@ -509,7 +509,7 @@ void SysMtgsThread::ExecuteTaskInThread()
 						{
 							MTGS_FreezeData* data = (MTGS_FreezeData*)tag.pointer;
 							int mode = tag.data[0];
-							data->retval = GetCorePlugins().DoFreeze( PluginId_GS, mode, data->fdata );
+							data->retval = GSfreeze( mode, data->fdata );
 						}
 						break;
 
@@ -536,18 +536,12 @@ void SysMtgsThread::ExecuteTaskInThread()
 
 						case GS_RINGTYPE_INIT_READ_FIFO1:
 							MTGS_LOG( "(MTGS Packet Read) ringtype=Fifo1" );
-#ifndef BUILTIN_GS_PLUGIN
-							if (GSinitReadFIFO)
-#endif
-								GSinitReadFIFO( (u64*)tag.pointer);
+							GSinitReadFIFO( (u64*)tag.pointer);
 						break;
 
 						case GS_RINGTYPE_INIT_READ_FIFO2:
 							MTGS_LOG( "(MTGS Packet Read) ringtype=Fifo2, size=%d", tag.data[0] );
-#ifndef BUILTIN_GS_PLUGIN
-							if (GSinitReadFIFO2)
-#endif
-								GSinitReadFIFO2( (u64*)tag.pointer, tag.data[0]);
+							GSinitReadFIFO2( (u64*)tag.pointer, tag.data[0]);
 						break;
 
 #ifdef PCSX2_DEVBUILD
@@ -635,11 +629,11 @@ void SysMtgsThread::FinishTaskInThread()
 		m_sem_Vsync.Post();
 }
 
-void SysMtgsThread::ClosePlugin()
+void SysMtgsThread::CloseGS()
 {
-	if( !m_PluginOpened ) return;
-	m_PluginOpened = false;
-	GetCorePlugins().Close( PluginId_GS );
+	if( !m_Opened ) return;
+	m_Opened = false;
+	GSclose();
 #ifdef __LIBRETRO__
 	m_thread = {};
 #endif
@@ -647,21 +641,21 @@ void SysMtgsThread::ClosePlugin()
 
 void SysMtgsThread::OnSuspendInThread()
 {
-	ClosePlugin();
+	CloseGS();
 	_parent::OnSuspendInThread();
 }
 
 void SysMtgsThread::OnResumeInThread( bool isSuspended )
 {
 	if( isSuspended )
-		OpenPlugin();
+		OpenGS();
 
 	_parent::OnResumeInThread( isSuspended );
 }
 
 void SysMtgsThread::OnCleanupInThread()
 {
-	ClosePlugin();
+	CloseGS();
 	_parent::OnCleanupInThread();
 }
 
@@ -926,7 +920,7 @@ void SysMtgsThread::SendGameCRC( u32 crc )
 
 void SysMtgsThread::WaitForOpen()
 {
-	if( m_PluginOpened ) return;
+	if( m_Opened ) return;
 	Resume();
 
 	// Two-phase timeout on MTGS opening, so that possible errors are handled
@@ -956,8 +950,9 @@ void SysMtgsThread::WaitForOpen()
 
 void SysMtgsThread::Freeze( int mode, MTGS_FreezeData& data )
 {
-	GetCorePlugins().Open( PluginId_GS );
+	pxAssertDev(!IsSelf(), "This method is only allowed from threads *not* named MTGS.");
 	SendPointerPacket( GS_RINGTYPE_FREEZE, mode, &data );
+	// make sure MTGS is processing the packet we send it
 	Resume();
 	WaitGS();
 }

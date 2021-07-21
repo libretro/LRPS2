@@ -150,36 +150,6 @@ static void CALLBACK fallback_configure() {}
 static void CALLBACK fallback_about() {}
 static s32  CALLBACK fallback_test() { return 0; }
 
-#ifndef BUILTIN_GS_PLUGIN
-_GSvsync           GSvsync;
-_GSosdLog          GSosdLog;
-_GSosdMonitor      GSosdMonitor;
-_GSopen            GSopen;
-_GSopen2           GSopen2;
-_GSgifTransfer     GSgifTransfer;
-_GSgifTransfer1    GSgifTransfer1;
-_GSgifTransfer2    GSgifTransfer2;
-_GSgifTransfer3    GSgifTransfer3;
-_GSgifSoftReset    GSgifSoftReset;
-_GSreadFIFO        GSreadFIFO;
-_GSreadFIFO2       GSreadFIFO2;
-_GSinitReadFIFO    GSinitReadFIFO;
-_GSinitReadFIFO2   GSinitReadFIFO2;
-_GSchangeSaveState GSchangeSaveState;
-_GSgetTitleInfo2   GSgetTitleInfo2;
-_GSmakeSnapshot	   GSmakeSnapshot;
-_GSmakeSnapshot2   GSmakeSnapshot2;
-_GSirqCallback 	   GSirqCallback;
-_GSsetBaseMem		GSsetBaseMem;
-_GSsetGameCRC		GSsetGameCRC;
-_GSsetFrameSkip		GSsetFrameSkip;
-_GSsetVsync			GSsetVsync;
-_GSsetExclusive		GSsetExclusive;
-_GSsetupRecording	GSsetupRecording;
-_GSreset			GSreset;
-_GSwriteCSR			GSwriteCSR;
-#endif
-
 static void CALLBACK GS_makeSnapshot(const char *path) {}
 static void CALLBACK GS_setGameCRC(u32 crc, int gameopts) {}
 static void CALLBACK GS_irqCallback(void (*callback)()) {}
@@ -633,9 +603,7 @@ void* StaticLibrary::GetSymbol(const wxString &name)
 	RETURN_SYMBOL(p##configure) \
 	RETURN_SYMBOL(p##about)
 
-#ifdef BUILTIN_GS_PLUGIN
 	RETURN_COMMON_SYMBOL(GS);
-#endif
 #ifdef BUILTIN_PAD_PLUGIN
 	RETURN_COMMON_SYMBOL(PAD);
 #endif
@@ -675,9 +643,7 @@ SysCorePlugins::PluginStatus_t::PluginStatus_t( PluginsEnum_t _pid, const wxStri
 	IsOpened		= false;
 
 	switch (_pid) {
-#ifdef BUILTIN_GS_PLUGIN
 		case PluginId_GS:
-#endif
 #ifdef BUILTIN_PAD_PLUGIN
 		case PluginId_PAD:
 #endif
@@ -1017,14 +983,9 @@ void SysCorePlugins::Open()
 		// several places. Save yourself of multithread headache. Wait few seconds the end of 
 		// gsopen -- Gregory
 		if (pi->id == PluginId_GS) GetMTGS().WaitForOpen();
-#elif !defined(BUILTIN_GS_PLUGIN)
-		if (pi->id == PluginId_GS && !GSopen2) GetMTGS().WaitForOpen();
 #endif
 	});
-#ifndef BUILTIN_GS_PLUGIN
-	if (GSopen2)
-#endif
-		GetMTGS().WaitForOpen();
+	GetMTGS().WaitForOpen();
 
 	if( !m_mcdOpen.exchange(true) )
 	{
@@ -1049,9 +1010,6 @@ void SysCorePlugins::ClosePlugin_GS()
 		_generalclose( PluginId_GS );
 	else
 	{
-#ifndef BUILTIN_GS_PLUGIN
-		if( !GSopen2 ) Close( PluginId_PAD );
-#endif
 		GetMTGS().Suspend();
 	}
 }

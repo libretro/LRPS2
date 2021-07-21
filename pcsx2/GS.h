@@ -345,7 +345,7 @@ public:
 	int				m_CopyDataTally;
 
 	Semaphore			m_sem_OpenDone;
-	std::atomic<bool>	m_PluginOpened;
+	std::atomic<bool>	m_Opened;
 
 	// These vars maintain instance data for sending Data Packets.
 	// Only one data packet can be constructed and uploaded at a time.
@@ -381,12 +381,12 @@ public:
 	void SetEvent();
 	void PostVsyncStart();
 
-	bool IsPluginOpened() const { return m_PluginOpened; }
+	bool IsOpened() const { return m_Opened; }
 
 	void ExecuteTaskInThread();
 	void FinishTaskInThread();
-	void OpenPlugin();
-	void ClosePlugin();
+	void OpenGS();
+	void CloseGS();
 
 protected:
 	void OnStart();

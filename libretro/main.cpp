@@ -451,7 +451,7 @@ void retro_reset(void)
 
 static void context_reset(void)
 {
-	GetMTGS().OpenPlugin();
+	GetMTGS().OpenGS();
 }
 
 static void context_destroy(void)
@@ -460,7 +460,7 @@ static void context_destroy(void)
 
 	while (pcsx2->HasPendingEvents())
 		pcsx2->ProcessPendingEvents();
-	GetMTGS().ClosePlugin();
+	GetMTGS().CloseGS();
 	while (pcsx2->HasPendingEvents())
 		pcsx2->ProcessPendingEvents();
 }
@@ -805,12 +805,12 @@ bool retro_load_game_special(unsigned game_type, const struct retro_game_info* i
 void retro_unload_game(void)
 {
 	//	GetMTGS().FinishTaskInThread();
-	//		GetMTGS().ClosePlugin();
+	//		GetMTGS().CloseGS();
 	GetMTGS().FinishTaskInThread();
 
 	while (pcsx2->HasPendingEvents())
 		pcsx2->ProcessPendingEvents();
-	GetMTGS().ClosePlugin();
+	GetMTGS().CloseGS();
 
 	while (pcsx2->HasPendingEvents())
 		pcsx2->ProcessPendingEvents();

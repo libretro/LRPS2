@@ -25,27 +25,8 @@
 #include <fstream>
 
 #ifdef _WIN32
-
-#ifdef BUILTIN_GS_PLUGIN
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 static void* s_hModule = &__ImageBase;
-#else
-static void* s_hModule;
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
-{
-	switch(ul_reason_for_call)
-	{
-	case DLL_PROCESS_ATTACH:
-		s_hModule = hModule;
-	case DLL_THREAD_ATTACH:
-	case DLL_THREAD_DETACH:
-	case DLL_PROCESS_DETACH:
-		break;
-	}
-
-	return TRUE;
-}
-#endif
 
 bool GSdxApp::LoadResource(int id, std::vector<char>& buff, const char* type)
 {
