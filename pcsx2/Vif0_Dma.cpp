@@ -145,10 +145,10 @@ __fi void vif0VUFinish()
 	if ((VU0.VI[REG_VPU_STAT].UL & 1))
 	{
 		int _cycles = VU0.cycle;
-		//DevCon.Warning("Finishing VU0");
+		//log_cb(RETRO_LOG_DEBUG, "Finishing VU0\n");
 		vu0Finish();
 		_cycles = VU0.cycle - _cycles;
-		//DevCon.Warning("Finishing VU0 %d cycles", _cycles);
+		//log_cb(RETRO_LOG_DEBUG, "Finishing VU0 %d cycles\n", _cycles);
 		CPU_INT(VIF_VU0_FINISH, _cycles * BIAS); 
 		return;
 	}
@@ -162,7 +162,7 @@ __fi void vif0VUFinish()
 		if (!(cpuRegs.interrupt & 0x1) && vif0ch.chcr.STR && !vif0Regs.stat.test(VIF0_STAT_VSS | VIF0_STAT_VIS | VIF0_STAT_VFS))
 			vif0Interrupt();
 	}
-	//DevCon.Warning("VU0 state cleared");
+	//log_cb(RETRO_LOG_DEBUG, "VU0 state cleared\n");
 }
 
 __fi void vif0Interrupt()
@@ -173,7 +173,11 @@ __fi void vif0Interrupt()
 
 	vif0Regs.stat.FQC = std::min(vif0ch.qwc, (u32)8);
 
-	if (!(vif0ch.chcr.STR)) Console.WriteLn("vif0 running when CHCR == %x", vif0ch.chcr._u32);
+#ifndef NDEBUG
+	if (!(vif0ch.chcr.STR))
+		log_cb(RETRO_LOG_INFO,
+				"vif0 running when CHCR == %x\n", vif0ch.chcr._u32);
+#endif
 
 	if(vif0.waitforvu)
 	{
@@ -235,7 +239,7 @@ __fi void vif0Interrupt()
 
 		if (!(dmacRegs.ctrl.DMAE) || vif0Regs.stat.VSS) //Stopped or DMA Disabled
 		{
-			//Console.WriteLn("vif0 dma masked");
+			//log_cb(RETRO_LOG_INFO, "vif0 dma masked\n");
 			return;
 		}
 
@@ -247,13 +251,15 @@ __fi void vif0Interrupt()
 
 	if (vif0.vifstalled.enabled && vif0.done)
 	{
-		DevCon.WriteLn("VIF0 looping on stall at end\n");
+		log_cb(RETRO_LOG_DEBUG, "VIF0 looping on stall at end\n");
 		CPU_INT(DMAC_VIF0, 0);
 		return; //Dont want to end if vif is stalled.
 	}
 #ifdef PCSX2_DEVBUILD
-	if (vif0ch.qwc > 0) Console.WriteLn("vif0 Ending with %x QWC left", vif0ch.qwc);
-	if (vif0.cmd != 0) Console.WriteLn("vif0.cmd still set %x tag size %x", vif0.cmd, vif0.tag.size);
+	if (vif0ch.qwc > 0)
+		log_cb(RETRO_LOG_INFO, "vif0 Ending with %x QWC left\n", vif0ch.qwc);
+	if (vif0.cmd != 0)
+		log_cb(RETRO_LOG_INFO, "vif0.cmd still set %x tag size %x\n", vif0.cmd, vif0.tag.size);
 #endif
 
 	vif0ch.chcr.STR = false;
@@ -295,7 +301,10 @@ void dmaVIF0()
 		{
 			vif0.dmamode = VIF_NORMAL_FROM_MEM_MODE;
 
-			if (vif0.irqoffset.enabled && !vif0.done) DevCon.Warning("Warning! VIF0 starting a Normal transfer with vif offset set (Possible force stop?)");
+#ifndef NDEBUG
+			if (vif0.irqoffset.enabled && !vif0.done)
+				log_cb(RETRO_LOG_DEBUG, "Warning! VIF0 starting a Normal transfer with vif offset set (Possible force stop?)\n");
+#endif
 			vif0.done = true;
 		}
 

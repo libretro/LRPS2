@@ -156,7 +156,9 @@ _vifT int nVifUnpack(const u8* data) {
 				if (vif.cl <= vifRegs.cycle.cl)			size -= vSize;
 				else if (vif.cl == vifRegs.cycle.wl)	vif.cl = 0;
 			}
-			DevCon.Warning("Fill!! Partial num left = %x, guessed %x", vifRegs.num, guessedsize);
+#ifndef NDEBUG
+			log_cb(RETRO_LOG_DEBUG, "Fill!! Partial num left = %x, guessed %x\n", vifRegs.num, guessedsize);
+#endif
 		}
 	}
 
@@ -226,7 +228,9 @@ __ri void __fastcall _nVifUnpackLoop(const u8* data) {
 	// skipSize used for skipping writes only
 	const int skipSize  = (vifRegs.cycle.cl - vifRegs.cycle.wl) * 16;
 
-	//DevCon.WriteLn("[%d][%d][%d][num=%d][upk=%d][cl=%d][bl=%d][skip=%d]", isFill, doMask, doMode, vifRegs.num, upkNum, vif.cl, blockSize, skipSize);
+#if 0
+	log_cb(RETRO_LOG_DEBUG, "[%d][%d][%d][num=%d][upk=%d][cl=%d][bl=%d][skip=%d]\n", isFill, doMask, doMode, vifRegs.num, upkNum, vif.cl, blockSize, skipSize);
+#endif
 
 	if (!doMode && (vif.cmd & 0x10)) setMasks(vif, vifRegs);
 
@@ -251,7 +255,7 @@ __ri void __fastcall _nVifUnpackLoop(const u8* data) {
 			ft(dest, data);
 		}
 		else {
-			//DevCon.WriteLn("SSE Unpack!");
+			//log_cb(RETRO_LOG_DEBUG, "SSE Unpack!\n");
 			uint cl3 = std::min(vif.cl, 3);
 			fnbase[cl3](dest, data);
 		}
@@ -261,7 +265,7 @@ __ri void __fastcall _nVifUnpackLoop(const u8* data) {
 		++vif.cl;
 
 		if (isFill) {
-			//DevCon.WriteLn("isFill!");
+			//log_cb(RETRO_LOG_DEBUG, "isFill!\n");
 			if (vif.cl <= vifRegs.cycle.cl)			data += vSize;
 			else if (vif.cl == vifRegs.cycle.wl)	vif.cl = 0;
 		}

@@ -54,7 +54,9 @@ static __fi bool mfifoVIF1rbTransfer()
 	bool ret;
 	
 	if (mfifoqwc == 0) {
-		DevCon.Warning("VIF MFIFO no QWC before transfer (in transfer function, bit late really)");
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "VIF MFIFO no QWC before transfer (in transfer function, bit late really)\n");
+#endif
 		return true; //Cant do anything, lets forget it 
 	}
 
@@ -78,9 +80,11 @@ static __fi bool mfifoVIF1rbTransfer()
 
 		if (ret)
 		{
-			if(vif1.irqoffset.value != 0) DevCon.Warning("VIF1 MFIFO Offest != 0! vifoffset=%x", vif1.irqoffset.value);
+#ifndef NDEBUG
+			if(vif1.irqoffset.value != 0) log_cb(RETRO_LOG_DEBUG, "VIF1 MFIFO Offest != 0! vifoffset=%x\n", vif1.irqoffset.value);
+#endif
             /* and second copy 's2' bytes from 'maddr' to '&data[s1]' */
-			//DevCon.Warning("Loopyloop");
+			//log_cb(RETRO_LOG_DEBUG, "Loopyloop\n");
 			vif1ch.tadr = qwctag(vif1ch.tadr);
 			vif1ch.madr = qwctag(vif1ch.madr);
 
@@ -117,7 +121,7 @@ static __fi void mfifo_VIF1chain()
 	if (vif1ch.madr >= dmacRegs.rbor.ADDR &&
 	        vif1ch.madr < (dmacRegs.rbor.ADDR + dmacRegs.rbsr.RMSK + 16u))
 	{
-		//if(vif1ch.madr == (dmacRegs.rbor.ADDR + dmacRegs.rbsr.RMSK + 16)) DevCon.Warning("Edge VIF1");
+		//if(vif1ch.madr == (dmacRegs.rbor.ADDR + dmacRegs.rbsr.RMSK + 16)) log_cb(RETRO_LOG_DEBUG, "Edge VIF1\n");
 		if (QWCinVIFMFIFO(vif1ch.madr, vif1ch.qwc) == 0) {
 			VIF_LOG("VIF MFIFO Empty before transfer");
 			vif1.inprogress |= 0x10;
@@ -161,12 +165,12 @@ void mfifoVifMaskMem(int id)
 		case TAG_END:
 			if(vif1ch.madr < dmacRegs.rbor.ADDR) //probably not needed but we will check anyway.
 			{
-				//DevCon.Warning("VIF MFIFO MADR below bottom of ring buffer, wrapping VIF MADR = %x Ring Bottom %x", vif1ch.madr, dmacRegs.rbor.ADDR);
+				//log_cb(RETRO_LOG_DEBUG, "VIF MFIFO MADR below bottom of ring buffer, wrapping VIF MADR = %x Ring Bottom %x\n", vif1ch.madr, dmacRegs.rbor.ADDR);
 				vif1ch.madr = qwctag(vif1ch.madr);
 			}
 			if(vif1ch.madr > (dmacRegs.rbor.ADDR + (u32)dmacRegs.rbsr.RMSK)) //Usual scenario is the tag is near the end (Front Mission 4)
 			{
-				//DevCon.Warning("VIF MFIFO MADR outside top of ring buffer, wrapping VIF MADR = %x Ring Top %x", vif1ch.madr, (dmacRegs.rbor.ADDR + dmacRegs.rbsr.RMSK)+16);
+				//log_cb(RETRO_LOG_DEBUG, "VIF MFIFO MADR outside top of ring buffer, wrapping VIF MADR = %x Ring Top %x\n", vif1ch.madr, (dmacRegs.rbor.ADDR + dmacRegs.rbsr.RMSK)+16);
 				vif1ch.madr = qwctag(vif1ch.madr);
 			}
 			break;
@@ -194,10 +198,12 @@ void mfifoVIF1transfer()
 		vif1ch.tadr = qwctag(vif1ch.tadr);
 		ptag = dmaGetAddr(vif1ch.tadr, false);
 
+#ifndef NDEBUG
 		if (dmacRegs.ctrl.STD == STD_VIF1 && (ptag->ID == TAG_REFS))
 		{
-			Console.WriteLn("VIF MFIFO DMA Stall not implemented - Report which game to PCSX2 Team");
+			log_cb(RETRO_LOG_INFO, "VIF MFIFO DMA Stall not implemented - Report which game to PCSX2 Team\n");
 		}
+#endif
 
 		if (vif1ch.chcr.TTE)
 		{
@@ -255,13 +261,14 @@ void mfifoVIF1transfer()
 
 		if(vif1ch.qwc > 0) 	vif1.inprogress |= 1;
 	}
+#ifndef NDEBUG
 	else
 	{
-		DevCon.Warning("Vif MFIFO QWC not 0 on tag");
+		log_cb(RETRO_LOG_DEBUG, "Vif MFIFO QWC not 0 on tag\n");
 	}
-	
 
 	VIF_LOG("mfifoVIF1transfer end %x madr %x, tadr %x", vif1ch.chcr._u32, vif1ch.madr, vif1ch.tadr);
+#endif
 }
 
 void vifMFIFOInterrupt()
@@ -294,7 +301,7 @@ void vifMFIFOInterrupt()
 	}
 	if(vif1.waitforvu)
 	{
-	//	DevCon.Warning("Waiting on VU1 MFIFO");
+	//	log_cb(RETRO_LOG_DEBUG, "Waiting on VU1 MFIFO\n");
 		CPU_INT(VIF_VU1_FINISH, 16);
 		return;
 	}

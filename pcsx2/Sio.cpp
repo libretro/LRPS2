@@ -17,7 +17,6 @@
 #include "IopCommon.h"
 
 #include "Common.h"
-#include "ConsoleLogger.h"
 #include "Sio.h"
 #include "sio_internal.h"
 
@@ -160,8 +159,10 @@ SIO_WRITE sioWriteStart(u8 data)
 	//u16 size1 = (sioreg >>  8) & 0x1FF;
 	u16 size2 = (sioreg >> 18) & 0x1FF;
 
-	//if(size1 != size2)
-	//	DevCon.Warning("SIO: Bad command length [%02X] (%02X|%02X)", data, size1, size2);
+#if 0
+	if(size1 != size2)
+		log_cb(RETRO_LOG_DEBUG, "SIO: Bad command length [%02X] (%02X|%02X)\n", data, size1, size2);
+#endif
 	
 	// On mismatch, sio2.cmdlength (size1) is smaller than what it should (Persona 3)
 	// while size2 is the proper length. -KrossX
@@ -178,7 +179,9 @@ SIO_WRITE sioWriteStart(u8 data)
 	case 0x81: siomode = SIO_MEMCARD; break;
 
 	default:
-		DevCon.Warning("%s cmd: %02X??", __FUNCTION__, data);
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "%s cmd: %02X??\n", __FUNCTION__, data);
+#endif
 		DEVICE_UNPLUGGED();
 		siomode = SIO_DUMMY;
 		break;
@@ -224,7 +227,7 @@ SIO_WRITE sioWriteController(u8 data)
 #endif
 		break;
 	}
-	//Console.WriteLn( "SIO: sent = %02X  From pad data =  %02X  bufCnt %08X ", data, sio.buf[sio.bufCount], sio.bufCount);
+	//log_cb(RETRO_LOG_DEBUG, "SIO: sent = %02X  From pad data =  %02X  bufCnt %08X \n", data, sio.buf[sio.bufCount], sio.bufCount);
 	sioInterrupt(); //Don't all commands(transfers) cause an interrupt?
 }
 
@@ -274,7 +277,9 @@ SIO_WRITE sioWriteMultitap(u8 data)
 			break;
 
 		default:
-			DevCon.Warning("%s cmd: %02X??", __FUNCTION__, data);
+#ifndef NDEBUG
+			log_cb(RETRO_LOG_DEBUG, "%s cmd: %02X??\n", __FUNCTION__, data);
+#endif
 			sio.buf[3] = 0x00;
 			sio.buf[4] = 0x00;
 			sio.buf[5] = 0x00;
@@ -381,7 +386,9 @@ SIO_WRITE memcardErase(u8 data)
 				break;
 
 			default:
-				DevCon.Warning("%s cmd: %02X??", __FUNCTION__, data);
+#ifndef NDEBUG
+				log_cb(RETRO_LOG_DEBUG, "%s cmd: %02X??\n", __FUNCTION__, data);
+#endif
 				sio.bufCount = -1;
 				//sio.bufSize = 3;
 				//sio.bufCount = 4;
@@ -442,7 +449,9 @@ SIO_WRITE memcardWrite(u8 data)
 				}
 
 			default:
-				DevCon.Warning("%s cmd: %02X??", __FUNCTION__, data);
+#ifndef NDEBUG
+				log_cb(RETRO_LOG_DEBUG, "%s cmd: %02X??\n", __FUNCTION__, data);
+#endif
 				sio.bufCount = -1;
 				//sio.bufSize = 3;
 				//sio.bufCount = 4;
@@ -474,7 +483,7 @@ SIO_WRITE memcardWrite(u8 data)
 			u8 xor_check = mcd->DoXor(&sio.buf[4], checksum_pos - 4);
 				
 			if(xor_check != sio.buf[sio.bufCount])
-				Console.Warning("MemWrite: Checksum invalid! XOR: %02X, IN: %02X\n", xor_check, sio.buf[sio.bufCount]);
+				log_cb(RETRO_LOG_WARN, "MemWrite: Checksum invalid! XOR: %02X, IN: %02X\n", xor_check, sio.buf[sio.bufCount]);
 
 			sio.buf[sio.bufCount] = xor_check;
 			mcd->Write(&sio.buf[4], transfer_size);
@@ -532,7 +541,9 @@ SIO_WRITE memcardRead(u8 data)
 				}
 
 			default:
-				DevCon.Warning("%s cmd: %02X??", __FUNCTION__, data);
+#ifndef NDEBUG
+				log_cb(RETRO_LOG_DEBUG, "%s cmd: %02X??\n", __FUNCTION__, data);
+#endif
 				sio.bufCount = -1;
 				//sio.bufSize = 3;
 				//sio.bufCount = 4;
@@ -606,7 +617,7 @@ SIO_WRITE memcardInit()
 	if(mcd->ForceEjection_Timeout)
 	{
 		if(mcd->ForceEjection_Timeout == FORCED_MCD_EJECTION_MAX_TRIES && mcd->IsPresent())
-			Console.WriteLn( Color_Green,  L"[%s] Auto-ejecting memcard [port:%d, slot:%d]", WX_STR(GetTimeMsStr()), sio.GetPort(), sio.GetSlot());
+			log_cb(RETRO_LOG_INFO,  "[%s] Auto-ejecting memcard [port:%d, slot:%d]\n", WX_STR(GetTimeMsStr()), sio.GetPort(), sio.GetSlot());
 
 		mcd->ForceEjection_Timeout--;
 		forceEject = true;
@@ -622,13 +633,15 @@ SIO_WRITE memcardInit()
 			wxTimeSpan delta = wxDateTime::UNow().Subtract(mcd->ForceEjection_Timestamp);
 			if(delta.GetMilliseconds() >= FORCED_MCD_EJECTION_MAX_MS_AFTER_MIN_TRIES)
 			{
-				DevCon.Warning( L"[%s] Auto-eject: Timeout reached after mcd was accessed %d times [port:%d, slot:%d]", WX_STR(GetTimeMsStr()), numTimesAccessed, sio.GetPort(), sio.GetSlot());
+#ifndef NDEBUG
+				log_cb(RETRO_LOG_DEBUG, "[%s] Auto-eject: Timeout reached after mcd was accessed %d times [port:%d, slot:%d]\n", WX_STR(GetTimeMsStr()), numTimesAccessed, sio.GetPort(), sio.GetSlot());
+#endif
 				mcd->ForceEjection_Timeout = 0;	//Done. on next sio access the card will be seen as inserted.
 			}
 		}
 
 		if(mcd->ForceEjection_Timeout == 0 && mcd->IsPresent())
-			Console.WriteLn( Color_Green,  L"[%s] Re-inserting auto-ejected memcard [port:%d, slot:%d]", WX_STR(GetTimeMsStr()), sio.GetPort(), sio.GetSlot());
+			log_cb(RETRO_LOG_INFO,  "[%s] Re-inserting auto-ejected memcard [port:%d, slot:%d]\n", WX_STR(GetTimeMsStr()), sio.GetPort(), sio.GetSlot());
 	}
 			
 	if(!forceEject && mcd->IsPresent())
@@ -724,7 +737,9 @@ SIO_WRITE sioWriteMemcard(u8 data)
 			break;
 
 		default:
-			DevCon.Warning("%s cmd: %02X??", __FUNCTION__, data);
+#ifndef NDEBUG
+			log_cb(RETRO_LOG_DEBUG, "%s cmd: %02X??\n", __FUNCTION__, data);
+#endif
 			siomode = SIO_DUMMY;
 			break;
 		}
@@ -895,7 +910,7 @@ void chkTriggerInt() {
 
 static void sioWrite8inl(u8 data)
 {
-//	Console.WriteLn( "SIO DATA write %02X  mode %08X " , data, siomode);
+//	log_cb(RETRO_LOG_DEBUG, "SIO DATA write %02X  mode %08X \n" , data, siomode);
 	switch(siomode)
 	{
 	case SIO_START: sioWriteStart(data); break;
@@ -918,7 +933,7 @@ static void sioWrite8inl(u8 data)
 
 	sioInterrupt();
 	//chkTriggerInt();
-	//Console.WriteLn( "SIO0 WR DATA COMMON %02X  INT_STAT= %08X  IOPpc= %08X " , data, psxHu32(0x1070), psxRegs.pc);
+	//log_cb(RETRO_LOG_DEBUG, "SIO0 WR DATA COMMON %02X  INT_STAT= %08X  IOPpc= %08X \n" , data, psxHu32(0x1070), psxRegs.pc);
 	byteCnt++;
 }
 
@@ -947,7 +962,7 @@ void sioWriteCtrl16(u16 value)
 {
 	static u8 tcount[2];
 
-//	Console.WriteLn( "SIO0 WR CTRL %02X  IOPpc= %08X " , value, psxRegs.pc);
+//	log_cb(RETRO_LOG_DEBUG, "SIO0 WR CTRL %02X  IOPpc= %08X \n" , value, psxRegs.pc);
 
 	tcount[sio.port] = sio.bufCount;
 	sio.port = (value >> 13) & 1;
@@ -990,7 +1005,7 @@ u8 sioRead8()
 		ret = sio.ret;
 	}
 		//	sio.StatReg &= ~TX_RDY; //all clear (transfer of byte ended)
-//	Console.WriteLn( "SIO DATA read %02X  stat= %08X " , ret, sio.StatReg);
+//	log_cb(RETRO_LOG_DEBUG, "SIO DATA read %02X  stat= %08X \n" , ret, sio.StatReg);
 	return ret;
 }
 

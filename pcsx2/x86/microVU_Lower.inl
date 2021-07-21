@@ -595,8 +595,12 @@ mVUop(mVU_FMOR) {
 mVUop(mVU_FSAND) {
 	pass1 { mVUanalyzeSflag(mVU, _It_); }
 	pass2 {
-		if (_Imm12_ & 0x0c30) DevCon.WriteLn(Color_Green, "mVU_FSAND: Checking I/D/IS/DS Flags");
-		if (_Imm12_ & 0x030c) DevCon.WriteLn(Color_Green, "mVU_FSAND: Checking U/O/US/OS Flags");
+#ifndef NDEBUG
+		if (_Imm12_ & 0x0c30)
+			log_cb(RETRO_LOG_DEBUG, "mVU_FSAND: Checking I/D/IS/DS Flags\n");
+		if (_Imm12_ & 0x030c)
+			log_cb(RETRO_LOG_DEBUG, "mVU_FSAND: Checking U/O/US/OS Flags\n");
+#endif
 		mVUallocSFLAGc(gprT1, gprT2, sFLAG.read);
 		xAND(gprT1, _Imm12_);
 		mVUallocVIb(mVU, gprT1, _It_);
@@ -622,8 +626,12 @@ mVUop(mVU_FSEQ) {
 	pass1 { mVUanalyzeSflag(mVU, _It_); }
 	pass2 {
 		int imm = 0;
-		if (_Imm12_ & 0x0c30) DevCon.WriteLn(Color_Green, "mVU_FSEQ: Checking I/D/IS/DS Flags");
-		if (_Imm12_ & 0x030c) DevCon.WriteLn(Color_Green, "mVU_FSEQ: Checking U/O/US/OS Flags");
+#ifndef NDEBUG
+		if (_Imm12_ & 0x0c30)
+			log_cb(RETRO_LOG_DEBUG, "mVU_FSEQ: Checking I/D/IS/DS Flags\n");
+		if (_Imm12_ & 0x030c)
+			log_cb(RETRO_LOG_DEBUG, "mVU_FSEQ: Checking U/O/US/OS Flags\n");
+#endif
 		if (_Imm12_ & 0x0001) imm |= 0x0000f00; // Z
 		if (_Imm12_ & 0x0002) imm |= 0x000f000; // S
 		if (_Imm12_ & 0x0004) imm |= 0x0010000; // U
@@ -1260,7 +1268,7 @@ void __fastcall mVU_XGKICK_(u32 addr) {
 	u32 size = gifUnit.GetGSPacketSize(GIF_PATH_1, vuRegs[1].Mem, addr);
 
 	if (size > diff) {
-		//DevCon.WriteLn(Color_Green, "microVU1: XGkick Wrap!");
+		//log_cb(RETRO_LOG_DEBUG, "microVU1: XGkick Wrap!\n");
 		gifUnit.gifPath[GIF_PATH_1].CopyGSPacketData(  &vuRegs[1].Mem[addr],  diff,true);
 		gifUnit.TransferGSPacketData(GIF_TRANS_XGKICK, &vuRegs[1].Mem[0],size-diff,true);
 	}
@@ -1309,7 +1317,7 @@ void setBranchA(mP, int x, int _x_) {
 
 	pass1 {
 		if (_Imm11_ == 1 && !_x_ && !isBranchDelaySlot) {
-			DevCon.WriteLn(Color_Green, "microVU%d: Branch Optimization", mVU.index);
+			log_cb(RETRO_LOG_DEBUG, "microVU%d: Branch Optimization\n", mVU.index);
 			mVUlow.isNOP = true;
 			return;
 		}
@@ -1341,7 +1349,10 @@ void condEvilBranch(mV, int JMPcc) {
 		xMOV(ptr32[&mVU.evilBranch], gprT1);
 	cJMP.SetTarget();
 	incPC(-2);
-	if(mVUlow.branch >= 9) DevCon.Warning("Conditional in JALR/JR delay slot - If game broken report to PCSX2 Team"); 
+#ifndef NDEBUG
+	if(mVUlow.branch >= 9)
+		log_cb(RETRO_LOG_DEBUG, "Conditional in JALR/JR delay slot - If game broken report to PCSX2 Team\n"); 
+#endif
 	incPC(2);
 }
 
@@ -1495,7 +1506,9 @@ mVUop(mVU_JALR) {
 			if(mVUlow.branch >= 9) //Previous branch is a jump of some type so 
 								   //we need to take the branch address from the register it uses.
 			{
-				DevCon.Warning("Linking JALR from JALR/JR branch target! - If game broken report to PCSX2 Team");
+#ifndef NDEBUG
+				log_cb(RETRO_LOG_DEBUG, "Linking JALR from JALR/JR branch target! - If game broken report to PCSX2 Team\n");
+#endif
 				mVUallocVIa(mVU, gprT1, _Is_);
 				xADD(gprT1, 8);
 				xSHR(gprT1, 3);

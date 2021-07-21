@@ -184,7 +184,9 @@ static int __Deci2Call(int call, u32 *addr)
 			else
 			{
 				deci2handler = 0;
-				DevCon.Warning( "Deci2Call.Open > NULL address ignored." );
+#ifndef NDEBUG
+				log_cb(RETRO_LOG_DEBUG, "Deci2Call.Open > NULL address ignored.\n" );
+#endif
 			}
 			return 1;
 
@@ -209,7 +211,7 @@ static int __Deci2Call(int call, u32 *addr)
 				d2ptr[3], d2ptr[2], d2ptr[1], d2ptr[0]);
 
 //			cpuRegs.pc = deci2handler;
-//			Console.WriteLn("deci2msg: %s",  (char*)PSM(d2ptr[4]+0xc));
+//			log_cb(RETRO_LOG_INFO, "deci2msg: %s\n",  (char*)PSM(d2ptr[4]+0xc));
 
 			if (d2ptr[1]>0xc){
 				// this looks horribly wrong, justification please?
@@ -223,7 +225,9 @@ static int __Deci2Call(int call, u32 *addr)
 				memcpy(deci2buffer, pdeciaddr, copylen );
 				deci2buffer[copylen] = '\0';
 
+#if 0
 				eeConLog( ShiftJIS_ConvertString(deci2buffer) );
+#endif
 			}
 			((u32*)PSM(deci2addr))[3] = 0;
 			return 1;
@@ -241,10 +245,12 @@ static int __Deci2Call(int call, u32 *addr)
 			return 1;
 
 		case 0x10://kputs
+#if 0
 			if( addr != NULL )
 			{
 				eeDeci2Log( ShiftJIS_ConvertString((char*)PSM(*addr)) );
 			}
+#endif
 			return 1;
 	}
 
@@ -268,9 +274,9 @@ void Unknown() {
 	CPU_LOG("%8.8lx: Unknown opcode called", cpuRegs.pc);
 }
 
-void MMI_Unknown() { Console.Warning("Unknown MMI opcode called"); }
-void COP0_Unknown() { Console.Warning("Unknown COP0 opcode called"); }
-void COP1_Unknown() { Console.Warning("Unknown FPU/COP1 opcode called"); }
+void MMI_Unknown() { log_cb(RETRO_LOG_WARN, "Unknown MMI opcode called\n"); }
+void COP0_Unknown() { log_cb(RETRO_LOG_WARN, "Unknown COP0 opcode called\n"); }
+void COP1_Unknown() { log_cb(RETRO_LOG_WARN, "Unknown FPU/COP1 opcode called\n"); }
 
 
 
@@ -937,10 +943,14 @@ void SYSCALL()
 						case 0x73: mode = "DVD PAL 720x480 @ ??.???"; gsSetVideoMode(GS_VideoMode::DVD_PAL); break;
 
 						default:
-							DevCon.Error("Mode %x is not supported. Report me upstream", cpuRegs.GPR.n.a1.UC[0]);
+#ifndef NDEBUG
+							log_cb(RETRO_LOG_DEBUG, "Mode %x is not supported. Report me upstream\n", cpuRegs.GPR.n.a1.UC[0]);
+#endif
 							gsSetVideoMode(GS_VideoMode::Unknown);
 					}
-					DevCon.Warning("Set GS CRTC configuration. %s %s (%s)",mode.c_str(), inter, field);
+#ifndef NDEBUG
+					log_cb(RETRO_LOG_DEBUG, "Set GS CRTC configuration. %s %s (%s)\n",mode.c_str(), inter, field);
+#endif
 				}
 				break;
 		case Syscall::GetOSParamConfig:
@@ -980,7 +990,9 @@ void SYSCALL()
 			break;
 
 		case Syscall::SetVTLBRefillHandler:
-			DevCon.Warning("A tlb refill handler is set. New handler %x", (u32*)PSM(cpuRegs.GPR.n.a1.UL[0]));
+#ifndef NDEBUG
+			log_cb(RETRO_LOG_DEBUG, "A tlb refill handler is set. New handler %x\n", (u32*)PSM(cpuRegs.GPR.n.a1.UL[0]));
+#endif
 			break;
 
 
@@ -1014,7 +1026,9 @@ void SYSCALL()
 		{
 			if (cpuRegs.GPR.n.a0.UL[0] == 0x10)
 			{
+#if 0
 				eeConLog(ShiftJIS_ConvertString((char*)PSM(memRead32(cpuRegs.GPR.n.a1.UL[0]))));
+#endif
 			}
 			else
 				__Deci2Call(cpuRegs.GPR.n.a0.UL[0], (u32*)PSM(cpuRegs.GPR.n.a1.UL[0]));
@@ -1027,6 +1041,7 @@ void SYSCALL()
 			{
 				// TODO: Only supports 7 format arguments. Need to read from the stack for more.
 				// Is there a function which collects PS2 arguments?
+#if 0
 				sysConLog(
 					ShiftJIS_ConvertString((char*)PSM(cpuRegs.GPR.n.a0.UL[0])),
 					cpuRegs.GPR.n.a1.UL[0],
@@ -1037,6 +1052,7 @@ void SYSCALL()
 					cpuRegs.GPR.n.t2.UL[0],
 					cpuRegs.GPR.n.t3.UL[0]
 				);
+#endif
 			}
 			break;
 		}
@@ -1085,7 +1101,7 @@ static void trap(u16 code=0)
 	// throw R5900Exception::Trap(code);
 
 	cpuRegs.pc -= 4;
-	Console.Warning("Trap exception at 0x%08x", cpuRegs.pc);
+	log_cb(RETRO_LOG_WARN, "Trap exception at 0x%08x\n", cpuRegs.pc);
 	cpuException(0x34, cpuRegs.branch);
 }
 

@@ -27,4 +27,6 @@
 #include "SafeArray.h"
 #include "General.h"
 
+#include "../../libretro/retro_messager.h"
+
 #endif

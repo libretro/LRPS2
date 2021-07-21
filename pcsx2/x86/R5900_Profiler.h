@@ -271,16 +271,18 @@ struct eeProfiler {
 		std::sort   (v.begin(), v.end());
 		std::reverse(v.begin(), v.end());
 
-		DevCon.WriteLn("EE Profiler:");
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "EE Profiler:\n");
 		for(u32 i = 0; i < v.size(); i++) {
 			u64    count = v[i].first;
 			double stat  = (double)count / (double)total * 100.0;
-			DevCon.WriteLn("%-8s - [%3.4f%%][count=%u]",
+			log_cb(RETRO_LOG_DEBUG, "%-8s - [%3.4f%%][count=%u]\n",
 					eeOpcodeName[v[i].second], stat, (u32)count);
 			if (stat < 0.01)
 				break;
 		}
-		//DevCon.WriteLn("Total = 0x%x_%x", (u32)(u64)(total>>32),(u32)total);
+		//log_cb(RETRO_LOG_DEBUG, "Total = 0x%x_%x\n", (u32)(u64)(total>>32),(u32)total);
+#endif
 
 		// Compute memory stat
 		total = 0;
@@ -316,16 +318,18 @@ struct eeProfiler {
 		double ram_const_p = per(ram_const, ram);
 		double reg_const_p = per(reg_const, reg);
 
-		DevCon.WriteLn("\nEE Memory Profiler:");
-		DevCon.WriteLn("Total = 0x%08x_%08x", (u32)(u64)(total>>32),(u32)total);
-		DevCon.WriteLn("  RAM = 0x%08x_%08x [%3.4f%%] Const[%3.4f%%]", (u32)(u64)(ram>>32),(u32)ram, ram_p, ram_const_p);
-		DevCon.WriteLn("  REG = 0x%08x_%08x [%3.4f%%] Const[%3.4f%%]", (u32)(u64)(reg>>32),(u32)reg, reg_p, reg_const_p);
-		DevCon.WriteLn("  GS  = 0x%08x_%08x [%3.4f%%]", (u32)(u64)( gs>>32),(u32) gs, gs_p);
-		DevCon.WriteLn("  VU  = 0x%08x_%08x [%3.4f%%]", (u32)(u64) (vu>>32),(u32) vu, vu_p);
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "EE Memory Profiler:\n");
+		log_cb(RETRO_LOG_DEBUG, "Total = 0x%08x_%08x\n", (u32)(u64)(total>>32),(u32)total);
+		log_cb(RETRO_LOG_DEBUG, "  RAM = 0x%08x_%08x [%3.4f%%] Const[%3.4f%%]\n", (u32)(u64)(ram>>32),(u32)ram, ram_p, ram_const_p);
+		log_cb(RETRO_LOG_DEBUG, "  REG = 0x%08x_%08x [%3.4f%%] Const[%3.4f%%]\n", (u32)(u64)(reg>>32),(u32)reg, reg_p, reg_const_p);
+		log_cb(RETRO_LOG_DEBUG, "  GS  = 0x%08x_%08x [%3.4f%%]\n", (u32)(u64)( gs>>32),(u32) gs, gs_p);
+		log_cb(RETRO_LOG_DEBUG, "  VU  = 0x%08x_%08x [%3.4f%%]\n", (u32)(u64) (vu>>32),(u32) vu, vu_p);
 
 		u64 total_ram = memStatsSlow + memStatsFast;
-		DevCon.WriteLn("\n  RAM Fast [%3.4f%%] RAM Slow [%3.4f%%]. Total 0x%08x_%08x [%3.4f%%]",
+		log_cb(RETRO_LOG_DEBUG, "  RAM Fast [%3.4f%%] RAM Slow [%3.4f%%]. Total 0x%08x_%08x [%3.4f%%]\n",
 				per(memStatsFast, total_ram), per(memStatsSlow, total_ram), (u32)(u64)(total_ram>>32),(u32)total_ram, per(total_ram, total));
+#endif
 
 		v.clear();
 		vc.clear();
@@ -343,26 +347,28 @@ struct eeProfiler {
 		std::sort   (vc.begin(), vc.end());
 		std::reverse(vc.begin(), vc.end());
 
-		DevCon.WriteLn("\nEE Reg Profiler:");
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "EE Reg Profiler:\n");
+
 		for(u32 i = 0; i < v.size(); i++) {
 			u64    count = v[i].first;
 			double stat  = (double)count / (double)(reg - reg_const) * 100.0;
-			DevCon.WriteLn("%04x - [%3.4f%%][count=%u]",
+			log_cb(RETRO_LOG_DEBUG, "%04x - [%3.4f%%][count=%u]\n",
 					v[i].second, stat, (u32)count);
 			if (stat < 0.01)
 				break;
 		}
 
-		DevCon.WriteLn("\nEE Const Reg Profiler:");
+		log_cb(RETRO_LOG_DEBUG, "EE Const Reg Profiler:\n");
 		for(u32 i = 0; i < vc.size(); i++) {
 			u64    count = vc[i].first;
 			double stat  = (double)count / (double)reg_const * 100.0;
-			DevCon.WriteLn("%04x - [%3.4f%%][count=%u]",
+			log_cb(RETRO_LOG_DEBUG, "%04x - [%3.4f%%][count=%u]\n",
 					vc[i].second, stat, (u32)count);
 			if (stat < 0.01)
 				break;
 		}
-
+#endif
 	}
 
 	// Warning dirty ebx

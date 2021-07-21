@@ -56,7 +56,7 @@ bool Gif_HandlerAD(u8* pMem)
 					bpp = 8;
 					break;
 				default: // 4 is 4 bit but this is forbidden
-					Console.Error("Illegal format for GS upload: SPSM=0%02o", vif1.BITBLTBUF.SPSM);
+					log_cb(RETRO_LOG_ERROR, "Illegal format for GS upload: SPSM=0%02o\n", vif1.BITBLTBUF.SPSM);
 					break;
 			}
 			// qwords, rounded down; any extra bits are lost
@@ -96,10 +96,12 @@ bool Gif_HandlerAD(u8* pMem)
 		GUNIT_WARN("GIF Handler - LABEL");
 		GSSIGLBLID.LBLID = (GSSIGLBLID.LBLID & ~data[1]) | (data[0] & data[1]);
 	}
+#ifndef NDEBUG
 	else if (reg >= 0x63 && reg != 0x7f)
 	{
-		//DevCon.Warning("GIF Handler - Write to unknown register! [reg=%x]", reg);
+		log_cb(RETRO_LOG_DEBUG, "GIF Handler - Write to unknown register! [reg=%x]\n", reg);
 	}
+#endif
 	return false;
 }
 
@@ -113,7 +115,11 @@ bool Gif_HandlerAD_MTVU(u8* pMem)
 	{ // SIGNAL
 		GUNIT_WARN("GIF Handler - SIGNAL");
 		if (vu1Thread.gsInterrupts.load(std::memory_order_acquire) & VU_Thread::InterruptFlagSignal)
-			Console.Error("GIF Handler MTVU - Double SIGNAL Not Handled");
+		{
+#ifndef NDEBUG
+			log_cb(RETRO_LOG_ERROR, "GIF Handler MTVU - Double SIGNAL Not Handled\n");
+#endif
+		}
 		vu1Thread.gsSignal.store(((u64)data[1] << 32) | data[0], std::memory_order_relaxed);
 		vu1Thread.gsInterrupts.fetch_or(VU_Thread::InterruptFlagSignal, std::memory_order_release);
 	} 	
@@ -121,8 +127,10 @@ bool Gif_HandlerAD_MTVU(u8* pMem)
 	{ // FINISH
 		GUNIT_WARN("GIF Handler - FINISH");
 		u32 old = vu1Thread.gsInterrupts.fetch_or(VU_Thread::InterruptFlagFinish, std::memory_order_relaxed);
+#ifndef NDEBUG
 		if (old & VU_Thread::InterruptFlagFinish)
-			Console.Error("GIF Handler MTVU - Double FINISH Not Handled");
+			log_cb(RETRO_LOG_ERROR, "GIF Handler MTVU - Double FINISH Not Handled\n");
+#endif
 	} 	
 	else if (reg == 0x62)
 	{ // LABEL
@@ -142,10 +150,12 @@ bool Gif_HandlerAD_MTVU(u8* pMem)
 		}
 		vu1Thread.gsInterrupts.fetch_or(VU_Thread::InterruptFlagLabel, std::memory_order_release);
 	} 	
+#ifndef NDEBUG
 	else if (reg >= 0x63 && reg != 0x7f)
 	{
-		DevCon.Warning("GIF Handler Debug - Write to unknown register! [reg=%x]", reg);
+		log_cb(RETRO_LOG_DEBUG, "GIF Handler Debug - Write to unknown register! [reg=%x]\n", reg);
 	}
+#endif
 	return 0;
 }
 
@@ -155,38 +165,40 @@ bool Gif_HandlerAD_Debug(u8* pMem)
 	u32 reg = pMem[8];
 	if (reg == 0x50)
 	{
-		Console.Error("GIF Handler Debug - BITBLTBUF");
+		log_cb(RETRO_LOG_ERROR, "GIF Handler Debug - BITBLTBUF\n");
 		return 1;
 	} 	
 	else if (reg == 0x52)
 	{
-		Console.Error("GIF Handler Debug - TRXREG");
+		log_cb(RETRO_LOG_ERROR, "GIF Handler Debug - TRXREG\n");
 		return 1;
 	} 	
 	else if (reg == 0x53)
 	{
-		Console.Error("GIF Handler Debug - TRXDIR");
+		log_cb(RETRO_LOG_ERROR, "GIF Handler Debug - TRXDIR\n");
 		return 1;
 	} 	
 	else if (reg == 0x60)
 	{
-		Console.Error("GIF Handler Debug - SIGNAL");
+		log_cb(RETRO_LOG_ERROR, "GIF Handler Debug - SIGNAL\n");
 		return 1;
 	} 	
 	else if (reg == 0x61)
 	{
-		Console.Error("GIF Handler Debug - FINISH");
+		log_cb(RETRO_LOG_ERROR, "GIF Handler Debug - FINISH\n");
 		return 1;
 	} 	
 	else if (reg == 0x62)
 	{
-		Console.Error("GIF Handler Debug - LABEL");
+		log_cb(RETRO_LOG_ERROR, "GIF Handler Debug - LABEL\n");
 		return 1;
 	} 	
+#ifndef NDEBUG
 	else if (reg >= 0x63 && reg != 0x7f)
 	{
-		DevCon.Warning("GIF Handler Debug - Write to unknown register! [reg=%x]", reg);
+		log_cb(RETRO_LOG_DEBUG, "GIF Handler Debug - Write to unknown register! [reg=%x]\n", reg);
 	}
+#endif
 	return 0;
 }
 
@@ -207,7 +219,7 @@ void Gif_AddGSPacketMTVU(GS_Packet& gsPack, GIF_PATH path)
 
 void Gif_AddCompletedGSPacket(GS_Packet& gsPack, GIF_PATH path)
 {
-	//DevCon.WriteLn("Adding Completed Gif Packet [size=%x]", gsPack.size);
+	//log_cb(RETRO_LOG_DEBUG, "Adding Completed Gif Packet [size=%x]\n", gsPack.size);
 	if (COPY_GS_PACKET_TO_MTGS)
 	{
 		GetMTGS().PrepDataPacket(path, gsPack.size / 16);
@@ -225,7 +237,7 @@ void Gif_AddCompletedGSPacket(GS_Packet& gsPack, GIF_PATH path)
 
 void Gif_AddBlankGSPacket(u32 size, GIF_PATH path) 
 {
-	//DevCon.WriteLn("Adding Blank Gif Packet [size=%x]", size);
+	//log_cb(RETRO_LOG_DEBUG, "Adding Blank Gif Packet [size=%x]\n", size);
 	gifUnit.gifPath[path].readAmount.fetch_add(size);
 	GetMTGS().SendSimpleGSPacket(GS_RINGTYPE_GSPACKET, ~0u, size, path);
 }
@@ -278,10 +290,12 @@ void SaveStateBase::gifFreeze()
 	gifPathFreeze(GIF_PATH_3);
 	if (!IsSaving())
 	{
+#ifndef NDEBUG
 		if (mtvuMode != THREAD_VU1)
 		{
-			DevCon.Warning("gifUnit: MTVU Mode has switched between save/load state");
+			log_cb(RETRO_LOG_DEBUG, "gifUnit: MTVU Mode has switched between save/load state\n");
 			// ToDo: gifUnit.SwitchMTVU(mtvuMode);
 		}
+#endif
 	}
 }

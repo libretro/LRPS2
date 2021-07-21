@@ -49,13 +49,13 @@ SocketIPC::SocketIPC(SysCoreThread* vm)
 
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 	{
-		Console.WriteLn(Color_Red, "IPC: Cannot initialize winsock! Shutting down...");
+		log_cb(RETRO_LOG_ERROR, "IPC: Cannot initialize winsock! Shutting down...\n");
 		return;
 	}
 
 	if ((m_sock = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
 	{
-		Console.WriteLn(Color_Red, "IPC: Cannot open socket! Shutting down...");
+		log_cb(RETRO_LOG_ERROR, "IPC: Cannot open socket! Shutting down...\n");
 		return;
 	}
 
@@ -67,7 +67,7 @@ SocketIPC::SocketIPC(SysCoreThread* vm)
 
 	if (bind(m_sock, (struct sockaddr*)&server, sizeof(server)) == SOCKET_ERROR)
 	{
-		Console.WriteLn(Color_Red, "IPC: Error while binding to socket! Shutting down...");
+		log_cb(RETRO_LOG_ERROR, "IPC: Error while binding to socket! Shutting down...\n");
 		return;
 	}
 
@@ -91,7 +91,7 @@ SocketIPC::SocketIPC(SysCoreThread* vm)
 	m_sock = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (m_sock < 0)
 	{
-		Console.WriteLn(Color_Red, "IPC: Cannot open socket! Shutting down...");
+		log_cb(RETRO_LOG_ERROR, "IPC: Cannot open socket! Shutting down...\n");
 		return;
 	}
 	server.sun_family = AF_UNIX;
@@ -102,7 +102,7 @@ SocketIPC::SocketIPC(SysCoreThread* vm)
 	unlink(m_socket_name);
 	if (bind(m_sock, (struct sockaddr*)&server, sizeof(struct sockaddr_un)))
 	{
-		Console.WriteLn(Color_Red, "IPC: Error while binding to socket! Shutting down...");
+		log_cb(RETRO_LOG_ERROR, "IPC: Error while binding to socket! Shutting down...\n");
 		return;
 	}
 #endif

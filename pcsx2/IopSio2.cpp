@@ -54,7 +54,9 @@ only recv2 & dataout influences padman
 
 
 void sio2Reset() {
-	DevCon.WriteLn( "Sio2 Reset" );
+#ifndef NDEBUG
+	log_cb(RETRO_LOG_DEBUG, "Sio2 Reset\n");
+#endif
 	memzero(sio2);
 	sio2.packet.recvVal1 = 0x1D100; // Nothing is connected at start
 }
@@ -157,7 +159,7 @@ void sio2_serialIn(u8 value){
 	sioWrite8(value);
 
 	if (sio2.packet.sendSize >= BUFSIZE) {//asadr
-		Console.Warning("*PCSX2*: sendSize >= %d", BUFSIZE);
+		log_cb(RETRO_LOG_WARN, "*PCSX2*: sendSize >= %d\n", BUFSIZE);
 	} else {
 		sio2.buf[sio2.packet.sendSize] = sioRead8();
 		sio2.packet.sendSize++;
@@ -184,7 +186,7 @@ void sio2_fifoIn(u8 value){
 	SIODMAWrite(value);
 
 	if (sio2.packet.sendSize >= BUFSIZE) {//asadr
-		Console.WriteLn("*PCSX2*: sendSize >= %d", BUFSIZE);
+		log_cb(RETRO_LOG_INFO, "*PCSX2*: sendSize >= %d\n", BUFSIZE);
 	} else {
 		sio2.buf[sio2.packet.sendSize] = sioRead8();
 		sio2.packet.sendSize++;
@@ -196,7 +198,7 @@ u8 sio2_fifoOut(){
 		//PAD_LOG("READING %x\n",sio2.buf[sio2.recvIndex]);
 		return sio2.buf[sio2.recvIndex++];
 	} else {
-		Console.Error( "*PCSX2*: buffer overrun" );
+		log_cb(RETRO_LOG_ERROR, "*PCSX2*: buffer overrun\n" );
 	}
 	return 0; // No Data
 }

@@ -29,11 +29,11 @@ bool ChdFileReader::Open(const wxString &fileName)
     chd_error error;
 
     do {
-      // Console.Error(L"chd_open checking: %s", static_cast<const char*>(chds[chd_depth]));
+      // log_cb(RETRO_LOG_ERROR, "chd_open checking: %s\n", static_cast<const char*>(chds[chd_depth]));
       error = chd_open(static_cast<const char*>(chds[chd_depth]), CHD_OPEN_READ, NULL, &child);
       if (error == CHDERR_REQUIRES_PARENT) {
         if (chd_read_header(static_cast<const char*>(chds[chd_depth]), header) != CHDERR_NONE) {
-          Console.Error(L"chd_open chd_read_header error: %s: %s", chd_error_string(error), static_cast<const char*>(chds[chd_depth]));
+          log_cb(RETRO_LOG_ERROR, "chd_open chd_read_header error: %s: %s\n", chd_error_string(error), static_cast<const char*>(chds[chd_depth]));
           delete header;
           delete parent_header;
           return false;
@@ -57,7 +57,7 @@ bool ChdFileReader::Open(const wxString &fileName)
           }
         }
         if (!found_parent) {
-		      Console.Error(L"chd_open no parent for: %s", static_cast<const char*>(chds[chd_depth]));
+		      log_cb(RETRO_LOG_ERROR, "chd_open no parent for: %s\n", static_cast<const char*>(chds[chd_depth]));
           break;
         }
       }
@@ -65,28 +65,28 @@ bool ChdFileReader::Open(const wxString &fileName)
     delete parent_header;
 
     if (error != CHDERR_NONE) {
-		    Console.Error(L"chd_open return error: %s", chd_error_string(error));
+		    log_cb(RETRO_LOG_ERROR, "chd_open return error: %s\n", chd_error_string(error));
         delete header;
         return false;
     }
 
-		// Console.Error(L"chd_opened parent: %d %s", chd_depth, static_cast<const char*>(chds[chd_depth]));
+		// log_cb(RETRO_LOG_INFO, "chd_opened parent: %d %s\n", chd_depth, static_cast<const char*>(chds[chd_depth]));
     for (int d = chd_depth-1; d >= 0; d--) {
       // parent = child;
       // child = (chd_file**)malloc(sizeof(chd_file*));
       parent = child;
       child = NULL;
-		  // Console.Error(L"chd_open opening chd: %d %s", d, static_cast<const char*>(chds[d]));
+      // log_cb(RETRO_LOG_ERROR, "chd_open opening chd: %d %s\n", d, static_cast<const char*>(chds[d]));
       error = chd_open(static_cast<const char*>(chds[d]), CHD_OPEN_READ, parent, &child);
       if (error != CHDERR_NONE) {
-		    Console.Error(L"chd_open return error: %s", chd_error_string(error));
+		    log_cb(RETRO_LOG_ERROR, "chd_open return error: %s\n", chd_error_string(error));
         delete header;
         return false;
       }
     }
     ChdFile = child;
     if (chd_read_header(static_cast<const char*>(chds[0]), header) != CHDERR_NONE) {
-      Console.Error(L"chd_open chd_read_header error: %s: %s", chd_error_string(error), static_cast<const char*>(chds[0]));
+      log_cb(RETRO_LOG_ERROR, "chd_open chd_read_header error: %s: %s\n", chd_error_string(error), static_cast<const char*>(chds[0]));
       delete header;
       return false;
     }
@@ -113,7 +113,7 @@ int ChdFileReader::ReadSync(void *pBuffer, uint sector, uint count)
       if (current_hunk != hunk) {
         error = chd_read(ChdFile, hunk, hunk_buffer);
         if (error != CHDERR_NONE) {
-            Console.Error(L"chd_read return error: %s", chd_error_string(error));
+            log_cb(RETRO_LOG_ERROR, "chd_read return error: %s\n", chd_error_string(error));
             // return i * m_blocksize;
         }
         current_hunk = hunk;

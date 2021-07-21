@@ -133,7 +133,7 @@ void FolderMemoryCard::Open(const wxString& fullPath, const AppConfig::McdOption
 		return;
 	}
 
-	Console.WriteLn(disabled ? Color_Gray : Color_Green, L"McdSlot %u: [Folder] " + str, m_slot);
+	log_cb(RETRO_LOG_INFO, "McdSlot %u: [Folder] %s\n", m_slot, WX_STR(str));
 	if (disabled)
 		return;
 
@@ -207,11 +207,11 @@ void FolderMemoryCard::LoadMemoryCardData(const u32 sizeInClusters, const bool e
 	{
 		if (enableFiltering)
 		{
-			Console.WriteLn(Color_Green, L"(FolderMcd) Indexing slot %u with filter \"%s\".", m_slot, WX_STR(filter));
+			log_cb(RETRO_LOG_INFO, "(FolderMcd) Indexing slot %u with filter \"%s\".\n", m_slot, WX_STR(filter));
 		}
 		else
 		{
-			Console.WriteLn(Color_Green, L"(FolderMcd) Indexing slot %u without filter.", m_slot);
+			log_cb(RETRO_LOG_INFO, "(FolderMcd) Indexing slot %u without filter.\n", m_slot);
 		}
 
 		CreateFat();
@@ -447,7 +447,7 @@ bool FolderMemoryCard::AddFolder(MemoryCardFileEntry* const dirEntry, const wxSt
 				const u32 newNeededClusters = CalculateRequiredClustersOfDirectory(dirPath + L"/" + file.m_fileName) + ((dirEntry->entry.data.length % 2) == 0 ? 1 : 0);
 				if (newNeededClusters > GetAmountFreeDataClusters())
 				{
-					Console.Warning(GetCardFullMessage(file.m_fileName));
+					log_cb(RETRO_LOG_WARN, GetCardFullMessage(file.m_fileName));
 					continue;
 				}
 
@@ -529,7 +529,7 @@ bool FolderMemoryCard::AddFile(MemoryCardFileEntry* const dirEntry, const wxStri
 		const u32 newNeededClusters = (dirEntry->entry.data.length % 2) == 0 ? countClusters + 1 : countClusters;
 		if (newNeededClusters > GetAmountFreeDataClusters())
 		{
-			Console.Warning(GetCardFullMessage(relativeFilePath.GetFullPath()));
+			log_cb(RETRO_LOG_WARN, GetCardFullMessage(relativeFilePath.GetFullPath()));
 			return false;
 		}
 
@@ -596,7 +596,7 @@ bool FolderMemoryCard::AddFile(MemoryCardFileEntry* const dirEntry, const wxStri
 	}
 	else
 	{
-		Console.WriteLn(L"(FolderMcd) Could not open file: %s", WX_STR(relativeFilePath.GetFullPath()));
+		log_cb(RETRO_LOG_INFO, "(FolderMcd) Could not open file: %s\n", WX_STR(relativeFilePath.GetFullPath()));
 		return false;
 	}
 }
@@ -1049,7 +1049,7 @@ void FolderMemoryCard::Flush()
 	WriteToFile(m_folderName.GetFullPath().RemoveLast() + L"-debug_" + wxDateTime::Now().Format(L"%Y-%m-%d-%H-%M-%S") + L"_pre-flush.ps2");
 #endif
 
-	Console.WriteLn(L"(FolderMcd) Writing data for slot %u to file system...", m_slot);
+	log_cb(RETRO_LOG_INFO, "(FolderMcd) Writing data for slot %u to file system...\n", m_slot);
 	const u64 timeFlushStart = wxGetLocalTimeMillis().GetValue();
 
 	// Keep a copy of the old file entries so we can figure out which files and directories, if any, have been deleted from the memory card.
@@ -1071,7 +1071,7 @@ void FolderMemoryCard::Flush()
 	FlushBlock(m_superBlock.data.backup_block2);
 	if (m_backupBlock2.programmedBlock != 0xFFFFFFFFu)
 	{
-		Console.Warning(L"(FolderMcd) Aborting flush of slot %u, emulation was interrupted during save process!", m_slot);
+		log_cb(RETRO_LOG_WARN, "(FolderMcd) Aborting flush of slot %u, emulation was interrupted during save process!\n", m_slot);
 		return;
 	}
 
@@ -1118,7 +1118,7 @@ void FolderMemoryCard::Flush()
 	m_oldDataCache.clear();
 
 	const u64 timeFlushEnd = wxGetLocalTimeMillis().GetValue();
-	Console.WriteLn(L"(FolderMcd) Done! Took %u ms.", timeFlushEnd - timeFlushStart);
+	log_cb(RETRO_LOG_INFO, "(FolderMcd) Done! Took %u ms.\n", timeFlushEnd - timeFlushStart);
 
 #ifdef DEBUG_WRITE_FOLDER_CARD_IN_MEMORY_TO_FILE_ON_CHANGE
 	WriteToFile(m_folderName.GetFullPath().RemoveLast() + L"-debug_" + wxDateTime::Now().Format(L"%Y-%m-%d-%H-%M-%S") + L"_post-flush.ps2");

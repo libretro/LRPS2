@@ -26,7 +26,6 @@
 #include "Utilities/pxStreams.h"
 
 #include "svnrev.h"
-#include "ConsoleLogger.h"
 
 SysPluginBindings SysPlugins;
 
@@ -486,7 +485,7 @@ wxString Exception::SaveStateLoadError::FormatDiagnosticMessage() const
 {
 	FastFormatUnicode retval;
 	retval.Write("Savestate is corrupt or incomplete!\n");
-	OSDlog(Color_Red, false, "Error: Savestate is corrupt or incomplete!");
+	log_cb(RETRO_LOG_ERROR, "Error: Savestate is corrupt or incomplete!\n");
 	_formatDiagMsg(retval);
 	return retval;
 }
@@ -496,7 +495,7 @@ wxString Exception::SaveStateLoadError::FormatDisplayMessage() const
 	FastFormatUnicode retval;
 	retval.Write(_("The savestate cannot be loaded, as it appears to be corrupt or incomplete."));
 	retval.Write("\n");
-	OSDlog(Color_Red, false, "Error: The savestate cannot be loaded, as it appears to be corrupt or incomplete.");
+	log_cb(RETRO_LOG_ERROR, "Error: The savestate cannot be loaded, as it appears to be corrupt or incomplete.\n");
 	_formatUserMsg(retval);
 	return retval;
 }
@@ -599,7 +598,7 @@ static char* PS2E_CALLBACK pcsx2_GetStringAlloc( const char* name, void* (PS2E_C
 
 static void PS2E_CALLBACK pcsx2_OSD_WriteLn( int icon, const char* msg )
 {
-	OSDlog( Color_StrongYellow, false, msg );
+	log_cb(RETRO_LOG_INFO, false, msg );
 }
 
 // ---------------------------------------------------------------------------------
@@ -857,7 +856,7 @@ void SysCorePlugins::Load( PluginsEnum_t pid, const wxString& srcfile )
 
 	m_info[pid] = std::make_unique<PluginStatus_t>(pid, srcfile);
 
-	Console.Indent().WriteLn(L"Bound %4s: %s [%s %s]", WX_STR(tbl_PluginInfo[pid].GetShortname()), 
+	log_cb(RETRO_LOG_INFO, "Bound %4s: %s [%s %s]\n", WX_STR(tbl_PluginInfo[pid].GetShortname()), 
 		WX_STR(wxFileName(srcfile).GetFullName()), WX_STR(m_info[pid]->Name), WX_STR(m_info[pid]->Version));
 }
 
@@ -867,23 +866,18 @@ void SysCorePlugins::Load( const wxString (&folders)[PluginId_Count] )
 
 	wxDoNotLogInThisScope please;
 
-	Console.WriteLn(Color_StrongBlue, L"\nLoading plugins from %s...", WX_STR(g_Conf->Folders[FolderId_Plugins].ToString()));
-
-	ConsoleIndentScope indent;
-
 	ForPlugins([&] (const PluginInfo * pi) {
 		Load( pi->id, folders[pi->id] );
 		pxYield( 2 );
 	});
 
-	indent.LeaveScope();
 	// Hack for PAD's stupid parameter passed on Init
 #ifndef BUILTIN_PAD_PLUGIN
 	PADinit = (_PADinit)m_info[PluginId_PAD]->CommonBindings.Init;
 #endif
 	m_info[PluginId_PAD]->CommonBindings.Init = _hack_PADinit;
 
-	Console.WriteLn( Color_StrongBlue, "Plugins loaded successfully.\n" );
+	log_cb(RETRO_LOG_INFO, "Plugins loaded successfully.\n" );
 
 	// HACK!  Manually bind the Internal MemoryCard plugin for now, until
 	// we get things more completed in the new plugin api.
@@ -937,18 +931,18 @@ void SysCorePlugins::Unload(PluginsEnum_t pid)
 void SysCorePlugins::Unload()
 {
 	if( NeedsShutdown() )
-		Console.Warning( "(SysCorePlugins) Warning: Unloading plugins prior to shutdown!" );
+		log_cb(RETRO_LOG_WARN, "(SysCorePlugins) Warning: Unloading plugins prior to shutdown!\n");
 
 	//Shutdown();
 
 	if( !NeedsUnload() ) return;
 
-	DbgCon.WriteLn( Color_StrongBlue, "Unloading plugins..." );
+	log_cb(RETRO_LOG_DEBUG, "Unloading plugins...\n" );
 
 	for( int i=PluginId_Count-1; i>=0; --i )
 		Unload( tbl_PluginInfo[i].id );
 
-	DbgCon.WriteLn( Color_StrongBlue, "Plugins unloaded successfully." );
+	log_cb(RETRO_LOG_DEBUG, "Plugins unloaded successfully.\n" );
 }
 
 // Exceptions:
@@ -1010,7 +1004,7 @@ void SysCorePlugins::Open( PluginsEnum_t pid )
 	pxAssert( (uint)pid < PluginId_Count );
 	if( IsOpen(pid) ) return;
 
-	Console.Indent().WriteLn( "Opening %s", tbl_PluginInfo[pid].shortname );
+	log_cb(RETRO_LOG_INFO, "Opening %s\n", tbl_PluginInfo[pid].shortname );
 
 	// Each Open needs to be called explicitly. >_<
 
@@ -1037,7 +1031,7 @@ void SysCorePlugins::Open()
 
 	if( !NeedsOpen() ) return;		// Spam stopper:  returns before writing any logs. >_<
 
-	Console.WriteLn( Color_StrongBlue, "Opening plugins..." );
+	log_cb(RETRO_LOG_INFO, "Opening plugins...\n");
 
 	SendSettingsFolder();
 
@@ -1063,11 +1057,11 @@ void SysCorePlugins::Open()
 
 	if( !m_mcdOpen.exchange(true) )
 	{
-		DbgCon.Indent().WriteLn( "Opening Memorycards");
+		log_cb(RETRO_LOG_DEBUG, "Opening Memorycards\n");
 		OpenPlugin_Mcd();
 	}
 
-	Console.WriteLn( Color_StrongBlue, "Plugins opened successfully." );
+	log_cb(RETRO_LOG_INFO, "Plugins opened successfully.\n");
 }
 
 void SysCorePlugins::_generalclose( PluginsEnum_t pid )
@@ -1119,7 +1113,7 @@ void SysCorePlugins::Close( PluginsEnum_t pid )
 	if( !IsOpen(pid) ) return;
 	
 	if( !GetMTGS().IsSelf() )		// stop the spam!
-		Console.Indent().WriteLn( "Closing %s", tbl_PluginInfo[pid].shortname );
+		log_cb(RETRO_LOG_INFO, "Closing %s\n", tbl_PluginInfo[pid].shortname );
 
 	switch( pid )
 	{
@@ -1143,18 +1137,18 @@ void SysCorePlugins::Close()
 	// Close plugins in reverse order of the initialization procedure, which
 	// ensures the GS gets closed last.
 
-	Console.WriteLn( Color_StrongBlue, "Closing plugins..." );
+	log_cb(RETRO_LOG_INFO, "Closing plugins...\n" );
 
 	if( m_mcdOpen.exchange(false) )
 	{
-		DbgCon.Indent().WriteLn( "Closing Memorycards");
+		log_cb(RETRO_LOG_DEBUG, "Closing Memorycards\n");
 		ClosePlugin_Mcd();
 	}
 
 	for( int i=PluginId_Count-1; i>=0; --i )
 		Close( tbl_PluginInfo[i].id );
 	
-	Console.WriteLn( Color_StrongBlue, "Plugins closed successfully." );
+	log_cb(RETRO_LOG_INFO, "Plugins closed successfully.\n");
 }
 
 void SysCorePlugins::Init( PluginsEnum_t pid )
@@ -1163,7 +1157,7 @@ void SysCorePlugins::Init( PluginsEnum_t pid )
 
 	if( !m_info[pid] || m_info[pid]->IsInitialized ) return;
 
-	Console.Indent().WriteLn( "Init %s", tbl_PluginInfo[pid].shortname );
+	log_cb(RETRO_LOG_INFO, "Init %s\n", tbl_PluginInfo[pid].shortname );
 	if( 0 != m_info[pid]->CommonBindings.Init() )
 		throw Exception::PluginInitError( pid );
 
@@ -1174,8 +1168,11 @@ void SysCorePlugins::Shutdown( PluginsEnum_t pid )
 {
 	ScopedLock lock( m_mtx_PluginStatus );
 
-	if( !m_info[pid] || !m_info[pid]->IsInitialized ) return;
-	DevCon.Indent().WriteLn( "Shutdown %s", tbl_PluginInfo[pid].shortname );
+	if( !m_info[pid] || !m_info[pid]->IsInitialized )
+		return;
+#ifndef NDEBUG
+	log_cb(RETRO_LOG_DEBUG, "Shutdown %s\n", tbl_PluginInfo[pid].shortname );
+#endif
 	m_info[pid]->IsInitialized = false;
 	m_info[pid]->CommonBindings.Shutdown();
 }
@@ -1195,7 +1192,7 @@ bool SysCorePlugins::Init()
 {
 	if( !NeedsInit() ) return false;
 
-	Console.WriteLn( Color_StrongBlue, "Initializing plugins..." );
+	log_cb(RETRO_LOG_INFO, "Initializing plugins...\n");
 
 	ForPlugins([&] (const PluginInfo * pi) {
 		Init( pi->id );
@@ -1212,7 +1209,7 @@ bool SysCorePlugins::Init()
 		}
 	}
 
-	Console.WriteLn( Color_StrongBlue, "Plugins initialized successfully.\n" );
+	log_cb(RETRO_LOG_INFO, "Plugins initialized successfully.\n" );
 
 	return true;
 }
@@ -1234,7 +1231,7 @@ bool SysCorePlugins::Shutdown()
 	
 	GetMTGS().Cancel();	// cancel it for speedier shutdown!
 	
-	Console.WriteLn( Color_StrongGreen, "Shutting down plugins..." );
+	log_cb(RETRO_LOG_INFO, "Shutting down plugins...\n");
 
 	// Shutdown plugins in reverse order (probably doesn't matter...
 	//  ... but what the heck, right?)
@@ -1252,7 +1249,7 @@ bool SysCorePlugins::Shutdown()
 		SysPlugins.Mcd = NULL;
 	}
 
-	Console.WriteLn( Color_StrongGreen, "Plugins shutdown successfully." );
+	log_cb(RETRO_LOG_INFO, "Plugins shutdown successfully.\n");
 	
 	return true;
 }
@@ -1293,15 +1290,16 @@ void SysCorePlugins::Freeze( PluginsEnum_t pid, SaveStateBase& state )
 	int fsize = fP.size;
 	state.Freeze( fsize );
 
-	Console.Indent().WriteLn( "%s %s", state.IsSaving() ? "Saving" : "Loading",
-		tbl_PluginInfo[pid].shortname );
+	log_cb(RETRO_LOG_INFO,
+			"%s %s\n", state.IsSaving() ? "Saving" : "Loading",
+			tbl_PluginInfo[pid].shortname );
 
 	if( state.IsLoading() && (fsize == 0) )
 	{
 		// no state data to read, but the plugin expects some state data.
 		// Issue a warning to console...
 		if( fP.size != 0 )
-			Console.Indent().Warning( "Warning: No data for this plugin was found. Plugin status may be unpredictable." );
+			log_cb(RETRO_LOG_WARN, "Warning: No data for this plugin was found. Plugin status may be unpredictable.\n" );
 		return;
 
 		// Note: Size mismatch check could also be done here on loading, but
@@ -1346,7 +1344,7 @@ void SysCorePlugins::FreezeOut( PluginsEnum_t pid, void* dest )
 	if (!DoFreeze( pid, FREEZE_SIZE, &fP)) return;
 	if (!fP.size) return;
 
-	Console.Indent().WriteLn( "Saving %s", tbl_PluginInfo[pid].shortname );
+	log_cb(RETRO_LOG_INFO, "Saving %s\n", tbl_PluginInfo[pid].shortname );
 
 	if (!DoFreeze(pid, FREEZE_SAVE, &fP))
 		throw Exception::FreezePluginFailure( pid );
@@ -1361,7 +1359,7 @@ void SysCorePlugins::FreezeOut( PluginsEnum_t pid, pxOutputStream& outfp )
 	if (!DoFreeze( pid, FREEZE_SIZE, &fP)) return;
 	if (!fP.size) return;
 
-	Console.Indent().WriteLn( "Saving %s", tbl_PluginInfo[pid].shortname );
+	log_cb(RETRO_LOG_INFO, "Saving %s\n", tbl_PluginInfo[pid].shortname );
 
 	ScopedAlloc<s8> data( fP.size );
 	fP.data = data.GetPtr();
@@ -1381,14 +1379,14 @@ void SysCorePlugins::FreezeIn( PluginsEnum_t pid, pxInputStream& infp )
 	if (!DoFreeze( pid, FREEZE_SIZE, &fP ))
 		fP.size = 0;
 
-	Console.Indent().WriteLn( "Loading %s", tbl_PluginInfo[pid].shortname );
+	log_cb(RETRO_LOG_INFO, "Loading %s\n", tbl_PluginInfo[pid].shortname );
 
 	if (!infp.IsOk() || !infp.Length())
 	{
 		// no state data to read, but the plugin expects some state data?
 		// Issue a warning to console...
 		if( fP.size != 0 )
-			Console.Indent().Warning( "Warning: No data for this plugin was found. Plugin status may be unpredictable." );
+			log_cb(RETRO_LOG_WARN, "Warning: No data for this plugin was found. Plugin status may be unpredictable.\n" );
 
 		return;
 

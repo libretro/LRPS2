@@ -61,12 +61,14 @@ mem8_t __fastcall iopHwRead8_Page1( u32 addr )
 		default:
 			if( masked_addr >= 0x100 && masked_addr < 0x130 )
 			{
-				DevCon.Warning( "HwRead8 from Counter16 [ignored] @ 0x%08x = 0x%02x", addr, psxHu8(addr) );
+#ifndef NDEBUG
+				log_cb(RETRO_LOG_DEBUG, "HwRead8 from Counter16 [ignored] @ 0x%08x = 0x%02x\n", addr, psxHu8(addr) );
+#endif
 				ret = psxHu8( addr );
 			}
 			else if( masked_addr >= 0x480 && masked_addr < 0x4a0 )
 			{
-				DevCon.Warning( "HwRead8 from Counter32 [ignored] @ 0x%08x = 0x%02x", addr, psxHu8(addr) );
+				log_cb(RETRO_LOG_DEBUG, "HwRead8 from Counter32 [ignored] @ 0x%08x = 0x%02x\n", addr, psxHu8(addr) );
 				ret = psxHu8( addr );
 			}
 			else if( (masked_addr >= pgmsk(HW_USB_START)) && (masked_addr < pgmsk(HW_USB_END)) )
@@ -165,7 +167,9 @@ static __fi T _HwRead_16or32_Page1( u32 addr )
 			break;
 			
 			default:
-				DevCon.Warning("Unknown 16bit counter read %x", addr);
+#ifndef NDEBUG
+				log_cb(RETRO_LOG_DEBUG, "Unknown 16bit counter read %x\n", addr);
+#endif
 				ret = psxHu32(addr);
 			break;
 		}
@@ -205,7 +209,9 @@ static __fi T _HwRead_16or32_Page1( u32 addr )
 			break;
 
 			default:
-				DevCon.Warning("Unknown 32bit counter read %x", addr);
+#ifndef NDEBUG
+				log_cb(RETRO_LOG_DEBUG, "Unknown 32bit counter read %x\n", addr);
+#endif
 				ret = psxHu32(addr);
 			break;
 		}
@@ -226,7 +232,9 @@ static __fi T _HwRead_16or32_Page1( u32 addr )
 			ret = SPU2read( addr );
 		else
 		{
-			DevCon.Warning( "HwRead32 from SPU2? @ 0x%08X .. What manner of trickery is this?!", addr );
+#ifndef NDEBUG
+			log_cb(RETRO_LOG_DEBUG, "HwRead32 from SPU2? @ 0x%08X .. What manner of trickery is this?!\n", addr );
+#endif
 			ret = psxHu32(addr);
 		}
 	}
@@ -235,9 +243,11 @@ static __fi T _HwRead_16or32_Page1( u32 addr )
 	//
 	else if( (masked_addr >= pgmsk(HW_PS1_GPU_START)) && (masked_addr < pgmsk(HW_PS1_GPU_END)) )
 	{
+#ifndef NDEBUG
 		// todo: psx mode: this is new
 		if( sizeof(T) == 2 )
-			DevCon.Warning( "HwRead16 from PS1 GPU? @ 0x%08X .. What manner of trickery is this?!", addr );
+			log_cb(RETRO_LOG_DEBUG, "HwRead16 from PS1 GPU? @ 0x%08X .. What manner of trickery is this?!\n", addr );
+#endif
 
 		pxAssert(sizeof(T) == 4);
 
@@ -314,13 +324,15 @@ static __fi T _HwRead_16or32_Page1( u32 addr )
 			//
 			mcase(0x1f8010ac) :
 				ret = psxHu32(addr);
-				DevCon.Warning("SIF2 IOP TADR?? read");
+#ifndef NDEBUG
+				log_cb(RETRO_LOG_DEBUG, "SIF2 IOP TADR?? read\n");
+#endif
 			break;
 
 			mcase(HW_PS1_GPU_DATA) :
 				ret = psxGPUr(addr);
 				//ret = psxHu32(addr); // old
-				DevCon.Warning("GPU Data Read %x", ret);
+				log_cb(RETRO_LOG_DEBUG, "GPU Data Read %x\n", ret);
 			break;
 			
 			mcase(HW_PS1_GPU_STATUS) :
@@ -331,7 +343,7 @@ static __fi T _HwRead_16or32_Page1( u32 addr )
 				// ret = psxHu32(addr); // old
 				ret = mdecRead0();
 #if PSX_EXTRALOGS
-				DevCon.Warning("MDEC 1820 Read %x", ret);
+				log_cb(RETRO_LOG_DEBUG, "MDEC 1820 Read %x\n", ret);
 #endif
 			break;
 			
@@ -339,7 +351,7 @@ static __fi T _HwRead_16or32_Page1( u32 addr )
 				//ret = psxHu32(addr); // old
 				ret = mdecRead1();
 #if PSX_EXTRALOGS
-			DevCon.Warning("MDEC 1824 Read %x", ret);
+			log_cb(RETRO_LOG_DEBUG, "MDEC 1824 Read %x\n", ret);
 #endif
 			break;
 
@@ -459,7 +471,9 @@ mem32_t __fastcall iopHwRead32_Page8( u32 addr )
 					//ret |= sio2_fifoOut() << 16;
 					//ret |= sio2_fifoOut() << 24;
 				//break;
-					DevCon.Warning("HW_SIO2_FIFO read");
+#ifndef NDEBUG
+					log_cb(RETRO_LOG_DEBUG, "HW_SIO2_FIFO read\n");
+#endif
 					ret = psxHu32(addr);
 				break;
 

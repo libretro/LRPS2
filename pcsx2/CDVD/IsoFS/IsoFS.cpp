@@ -63,18 +63,24 @@ IsoDirectory::IsoDirectory(SectorSource& r)
 			switch (sector[0])
 			{
 				case 0:
-					DevCon.WriteLn(Color_Green, "(IsoFS) Block 0x%x: Boot partition info.", i);
+#ifndef NDEBUG
+					log_cb(RETRO_LOG_DEBUG, "(IsoFS) Block 0x%x: Boot partition info.\n", i);
+#endif
 					break;
 
 				case 1:
-					DevCon.WriteLn("(IsoFS) Block 0x%x: Primary partition info.", i);
+#ifndef NDEBUG
+					log_cb(RETRO_LOG_DEBUG, "(IsoFS) Block 0x%x: Primary partition info.\n", i);
+#endif
 					rootDirEntry.Load(sector + 156, 38);
 					isValid = true;
 					break;
 
 				case 2:
 					// Probably means Joliet (long filenames support), which PCSX2 doesn't care about.
-					DevCon.WriteLn(Color_Green, "(IsoFS) Block 0x%x: Extended partition info.", i);
+#ifndef NDEBUG
+					log_cb(RETRO_LOG_DEBUG, "(IsoFS) Block 0x%x: Extended partition info.\n", i);
+#endif
 					m_fstype = FStype_Joliet;
 					break;
 
@@ -84,14 +90,14 @@ IsoDirectory::IsoDirectory(SectorSource& r)
 					break;
 
 				default:
-					Console.Error("(IsoFS) Unknown partition type ID=%d, encountered at block 0x%x", sector[0], i);
+					log_cb(RETRO_LOG_ERROR, "(IsoFS) Unknown partition type ID=%d, encountered at block 0x%x\n", sector[0], i);
 					break;
 			}
 		}
 		else
 		{
 			sector[9] = 0;
-			Console.Error("(IsoFS) Invalid partition descriptor encountered at block 0x%x: '%s'", i, &sector[1]);
+			log_cb(RETRO_LOG_ERROR, "(IsoFS) Invalid partition descriptor encountered at block 0x%x: '%s'\n", i, &sector[1]);
 			break; // if no valid root partition was found, an exception will be thrown below.
 		}
 
@@ -102,7 +108,9 @@ IsoDirectory::IsoDirectory(SectorSource& r)
 		throw Exception::FileNotFound(L"IsoFileSystem") // FIXME: Should report the name of the ISO here...
 			.SetDiagMsg(L"IsoFS could not find the root directory on the ISO image.");
 
-	DevCon.WriteLn(L"(IsoFS) Filesystem is " + FStype_ToString());
+#ifndef NDEBUG
+	log_cb(RETRO_LOG_DEBUG, "(IsoFS) Filesystem is %s", FStype_ToString().c_str());
+#endif
 	Init(rootDirEntry);
 }
 

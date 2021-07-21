@@ -33,19 +33,6 @@ template class EventSource<EventListener_Thread>;
 // to avoid gui deadlock).
 const wxTimeSpan Threading::def_yieldgui_interval(0, 0, 0, 100);
 
-ConsoleLogSource_Threading::ConsoleLogSource_Threading()
-{
-    static const TraceLogDescriptor myDesc =
-        {
-            L"p&xThread", L"pxThread",
-            pxLt("Threading activity: start, detach, sync, deletion, etc.")};
-
-    m_Descriptor = &myDesc;
-}
-
-ConsoleLogSource_Threading pxConLog_Thread;
-
-
 class StaticMutex : public Mutex
 {
 protected:
@@ -78,7 +65,6 @@ static void make_curthread_key(const pxThread *thr)
         return;
 
     if (0 != pthread_key_create(&curthread_key, NULL)) {
-        pxThreadLog.Error(thr->GetName(), L"Thread key creation failed (probably out of memory >_<)");
         curthread_key = 0;
     }
 }
@@ -151,8 +137,6 @@ bool Threading::_WaitGui_RecursionGuard(const wxChar *name)
 
     if (!guard.IsReentrant())
         return false;
-    pxThreadLog.Write(pxGetCurrentThreadName(),
-                      pxsFmt(L"Yield recursion in %s; opening modal dialog.", name));
     return true;
 }
 
@@ -187,12 +171,8 @@ Threading::pxThread::pxThread(const wxString &name)
 Threading::pxThread::~pxThread()
 {
     try {
-        pxThreadLog.Write(GetName(), L"Executing default destructor!");
-
         if (m_running) {
-            pxThreadLog.Write(GetName(), L"Waiting for running thread to end...");
             m_mtx_InThread.Wait();
-            pxThreadLog.Write(GetName(), L"Thread ended gracefully.");
         }
         Threading::Sleep(1);
         Detach();
@@ -227,8 +207,6 @@ void Threading::pxThread::FrankenMutex(Mutex &mutex)
     if (mutex.RecreateIfLocked()) {
         // Our lock is bupkis, which means  the previous thread probably deadlocked.
         // Let's create a new mutex lock to replace it.
-
-        pxThreadLog.Error(GetName(), L"Possible deadlock detected on restarted mutex!");
     }
 }
 
@@ -243,7 +221,6 @@ void Threading::pxThread::Start()
     // Prevents sudden parallel startup, and or parallel startup + cancel:
     ScopedLock startlock(m_mtx_start);
     if (m_running) {
-        pxThreadLog.Write(GetName(), L"Start() called on running thread; ignorning...");
         return;
     }
 
@@ -252,7 +229,6 @@ void Threading::pxThread::Start()
 
     m_except = NULL;
 
-    pxThreadLog.Write(GetName(), L"Calling pthread_create...");
     if (pthread_create(&m_thread, NULL, _internal_callback, this) != 0)
         throw Exception::ThreadCreationError(this).SetDiagMsg(L"Thread creation error: " + wxString(std::strerror(errno)));
 
@@ -308,7 +284,6 @@ bool Threading::pxThread::_basecancel()
         return false;
 
     if (m_detached) {
-        pxThreadLog.Warn(GetName(), L"Ignoring attempted cancellation of detached thread.");
         return false;
     }
 
@@ -425,7 +400,6 @@ void Threading::YieldToMain()
 void Threading::pxThread::_selfRunningTest(const wxChar *name) const
 {
     if (HasPendingException()) {
-        pxThreadLog.Error(GetName(), pxsFmt(L"An exception was thrown while waiting on a %s.", name));
         RethrowException();
     }
 

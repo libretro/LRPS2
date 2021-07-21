@@ -47,7 +47,7 @@ int InputIsoFile::ReadSync(u8* dst, uint lsn)
 		msg.Write("isoFile error: Block index is past the end of file! (%u >= %u).", lsn, m_blocks);
 
 		pxAssertDev(false, msg);
-		Console.Error(msg.c_str());
+		log_cb(RETRO_LOG_ERROR, "%s\n", msg.c_str());
 		return -1;
 	}
 
@@ -62,7 +62,7 @@ void InputIsoFile::BeginRead2(uint lsn)
 	{
 		// While this usually indicates that the ISO is corrupted, some games do attempt
 		// to read past the end of the disc, so don't error here.
-		DevCon.Warning("isoFile error: Block index is past the end of file! (%u >= %u).", lsn, m_blocks);
+		log_cb(RETRO_LOG_DEBUG, "isoFile error: Block index is past the end of file! (%u >= %u).\n", lsn, m_blocks);
 		return;
 	}
 
@@ -270,16 +270,16 @@ bool InputIsoFile::Open(const wxString& srcfile, bool testOnly)
 
 	m_blocks = m_reader->GetBlockCount();
 
-	Console.WriteLn(Color_StrongBlue, L"isoFile open ok: %s", WX_STR(m_filename));
+	log_cb(RETRO_LOG_INFO, "isoFile open ok: %s\n", WX_STR(m_filename));
 
-	ConsoleIndentScope indent;
-
-	Console.WriteLn("Image type  = %s", nameFromType(m_type));
-	//Console.WriteLn("Fileparts   = %u", m_numparts); // Pointless print, it's 1 unless it says otherwise above
-	DevCon.WriteLn("blocks      = %u", m_blocks);
-	DevCon.WriteLn("offset      = %d", m_offset);
-	DevCon.WriteLn("blocksize   = %u", m_blocksize);
-	DevCon.WriteLn("blockoffset = %d", m_blockofs);
+	log_cb(RETRO_LOG_INFO, "Image type  = %s\n", nameFromType(m_type));
+#ifndef NDEBUG
+	//log_cb(RETRO_LOG_INFO, "Fileparts   = %u\n", m_numparts); // Pointless print, it's 1 unless it says otherwise above
+	log_cb(RETRO_LOG_DEBUG, "blocks      = %u\n", m_blocks);
+	log_cb(RETRO_LOG_DEBUG, "offset      = %d\n", m_offset);
+	log_cb(RETRO_LOG_DEBUG, "blocksize   = %u\n", m_blocksize);
+	log_cb(RETRO_LOG_DEBUG, "blockoffset = %d\n", m_blockofs);
+#endif
 
 	return true;
 }

@@ -118,7 +118,7 @@ bool BlockdumpFileReader::Open(const wxString& fileName)
 int BlockdumpFileReader::ReadSync(void* pBuffer, uint lsn, uint count)
 {
 	u8* dst = (u8*)pBuffer;
-	//	Console.WriteLn("_isoReadBlockD %u, blocksize=%u, blockofs=%u\n", lsn, iso->blocksize, iso->blockofs);
+	//log_cb(RETRO_LOG_INFO, "_isoReadBlockD %u, blocksize=%u, blockofs=%u\n", lsn, iso->blocksize, iso->blockofs);
 
 	while (count > 0)
 	{
@@ -148,7 +148,9 @@ int BlockdumpFileReader::ReadSync(void* pBuffer, uint lsn, uint count)
 
 		if (!ok)
 		{
-			Console.WriteLn("Block %u not found in dump", lsn);
+#ifndef NDEBUG
+			log_cb(RETRO_LOG_ERROR, "Block %u not found in dump\n", lsn);
+#endif
 			return -1;
 		}
 

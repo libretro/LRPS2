@@ -222,7 +222,7 @@ void psxDma0(u32 adr, u32 bcr, u32 chcr) {
 	int size = (bcr >> 16)*(bcr & 0xffff);
 	if (size < 0) {
 		// Need to investigate what happen if the transfer is huge
-		Console.Error("psxDma0 DMA transfer overflow !");
+		log_cb(RETRO_LOG_ERROR, "psxDma0 DMA transfer overflow !\n");
 		return;
 	}
 
@@ -259,7 +259,7 @@ void psxDma1(u32 adr, u32 bcr, u32 chcr) {
 	int size2 = (bcr >> 16)*(bcr & 0xffff);
 	if (size < 0) {
 		// Need to investigate what happen if the transfer is huge
-		Console.Error("psxDma1 DMA transfer overflow !");
+		log_cb(RETRO_LOG_ERROR, "psxDma1 DMA transfer overflow !\n");
 		return;
 	}
 

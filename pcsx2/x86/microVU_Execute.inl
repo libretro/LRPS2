@@ -134,9 +134,11 @@ _mVUt void* __fastcall mVUexecute(u32 startPC, u32 cycles) {
 
 	microVU& mVU = mVUx;
 	u32 vuLimit  = vuIndex ? 0x3ff8 : 0xff8;
+#ifndef NDEBUG
 	if (startPC  > vuLimit + 7) {
-		DevCon.Warning("microVU%x Warning: startPC = 0x%x, cycles = 0x%x", vuIndex, startPC, cycles);
+		log_cb(RETRO_LOG_DEBUG, "microVU%x Warning: startPC = 0x%x, cycles = 0x%x\n", vuIndex, startPC, cycles);
 	}
+#endif
 
 	mVU.cycles		= cycles;
 	mVU.totalCycles = cycles;
@@ -158,7 +160,7 @@ _mVUt void mVUcleanUp() {
 	mVU.prog.x86ptr = x86Ptr;
 
 	if ((xGetPtr() < mVU.prog.x86start) || (xGetPtr() >= mVU.prog.x86end)) {
-		Console.WriteLn(vuIndex ? Color_Orange : Color_Magenta, "microVU%d: Program cache limit reached.", mVU.index);
+		log_cb(RETRO_LOG_DEBUG, "microVU%d: Program cache limit reached.\n", mVU.index);
 		mVUreset(mVU, false);
 	}
 

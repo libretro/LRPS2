@@ -251,12 +251,12 @@ public:
 _mVUt void __fc mVUprintRegs() {
 	microVU& mVU = mVUx;
 	for(int i = 0; i < 8; i++) {
-		Console.WriteLn("xmm%d = [0x%08x,0x%08x,0x%08x,0x%08x]", i,
+		log_cb(RETRO_LOG_DEBUG, "xmm%d = [0x%08x,0x%08x,0x%08x,0x%08x]\n", i,
 			mVU.xmmBackup[i][0], mVU.xmmBackup[i][1],
 			mVU.xmmBackup[i][2], mVU.xmmBackup[i][3]);
 	}
 	for(int i = 0; i < 8; i++) {
-		Console.WriteLn("xmm%d = [%f,%f,%f,%f]", i,
+		log_cb(RETRO_LOG_DEBUG, "xmm%d = [%f,%f,%f,%f]\n", i,
 			(float&)mVU.xmmBackup[i][0], (float&)mVU.xmmBackup[i][1],
 			(float&)mVU.xmmBackup[i][2], (float&)mVU.xmmBackup[i][3]);
 	}
@@ -264,7 +264,7 @@ _mVUt void __fc mVUprintRegs() {
 
 // Gets called by mVUaddrFix at execution-time
 static void __fc mVUwarningRegAccess(u32 prog, u32 pc) {
-	Console.Error("microVU0 Warning: Accessing VU1 Regs! [%04x] [%x]", pc, prog);
+	log_cb(RETRO_LOG_ERROR, "microVU0 Warning: Accessing VU1 Regs! [%04x] [%x]\n", pc, prog);
 }
 
 static inline u32 branchAddrN(const mV)
@@ -281,7 +281,9 @@ static inline u32 branchAddr(const mV)
 }
 
 static void __fc mVUwaitMTVU() {
-	if (IsDevBuild) DevCon.WriteLn("microVU0: Waiting on VU1 thread to access VU1 regs!");
+#ifndef NDEBUG
+	if (IsDevBuild) log_cb(RETRO_LOG_DEBUG, "microVU0: Waiting on VU1 thread to access VU1 regs!\n");
+#endif
 	vu1Thread.WaitVU();
 }
 

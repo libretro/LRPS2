@@ -34,32 +34,40 @@ static void TestClearVUs(u32 madr, u32 qwc, bool isWrite)
 		{
 			if(isWrite)
 			{
-				DbgCon.Warning("scratch pad clearing vu0");
+#ifndef NDEBUG
+				log_cb(RETRO_LOG_DEBUG, "scratch pad clearing vu0\n");
+#endif
 
 				CpuVU0->Clear(madr&0xfff, qwc * 16);
 			}
 
+#ifndef NDEBUG
 			if(((madr & 0xff0) + (qwc * 16)) > 0x1000 )
 			{
-				DevCon.Warning("Warning! SPR%d Crossing in to VU0 Micro Mirror address! Start MADR = %x, End MADR = %x", isWrite ? 0 : 1, madr, madr + (qwc * 16));
+				log_cb(RETRO_LOG_DEBUG, "Warning! SPR%d Crossing in to VU0 Micro Mirror address! Start MADR = %x, End MADR = %x\n", isWrite ? 0 : 1, madr, madr + (qwc * 16));
 			}
+#endif
 		}
 		else if (madr >= 0x11008000 && madr < 0x1100c000)
 		{
 			if(isWrite)
 			{
-				DbgCon.Warning("scratch pad clearing vu1");
+#ifndef NDEBUG
+				log_cb(RETRO_LOG_DEBUG, "scratch pad clearing vu1\n");
+#endif
 
 				CpuVU1->Clear(madr&0x3fff, qwc * 16);
 			}
 		}
 		else if (madr >= 0x11004000 && madr < 0x11008000)
 		{
+#ifndef NDEBUG
 			// SPR trying to write to to VU0 Mem mirror address.
 			if(((madr & 0xff0) + (qwc * 16)) > 0x1000)
 			{
-				DevCon.Warning("Warning! SPR%d Crossing in to VU0 Mem Mirror address! Start MADR = %x, End MADR = %x", isWrite ? 0 : 1, madr, madr + (qwc * 16));
+				log_cb(RETRO_LOG_DEBUG, "Warning! SPR%d Crossing in to VU0 Mem Mirror address! Start MADR = %x, End MADR = %x\n", isWrite ? 0 : 1, madr, madr + (qwc * 16));
 			}
+#endif
 		}
 	}
 }
@@ -107,7 +115,7 @@ int  _SPR0chain()
 			partialqwc = spr0ch.qwc;
 
 			if ((spr0ch.madr & ~dmacRegs.rbsr.RMSK) != dmacRegs.rbor.ADDR)
-				Console.WriteLn("SPR MFIFO Write outside MFIFO area");
+				log_cb(RETRO_LOG_INFO, "SPR MFIFO Write outside MFIFO area\n");
 			else
 				mfifotransferred += partialqwc;
 
@@ -142,7 +150,9 @@ int  _SPR0chain()
 	{
 		if (spr0ch.chcr.MOD == NORMAL_MODE || ((spr0ch.chcr.TAG >> 28) & 0x7) == TAG_CNTS)
 		{
-			//DevCon.Warning("SPR0 %s Stall Control", spr0ch.chcr.MOD == NORMAL_MODE ? "Normal" : "Chain");
+#ifndef NDEBUG
+			log_cb(RETRO_LOG_DEBUG, "SPR0 %s Stall Control\n", spr0ch.chcr.MOD == NORMAL_MODE ? "Normal" : "Chain");
+#endif
 			dmacRegs.stadr.ADDR = spr0ch.madr; // Copy MADR to DMAC_STADR stall addr register
 		}
 	}
@@ -164,7 +174,7 @@ void _SPR0interleave()
 	tDMA_TAG *pMem;
 
 	if (tqwc == 0) tqwc = qwc;
-	//Console.WriteLn("dmaSPR0 interleave");
+	//log_cb(RETRO_LOG_INFO, "dmaSPR0 interleave\n");
 	SPR_LOG("SPR0 interleave size=%d, tqwc=%d, sqwc=%d, addr=%lx sadr=%lx",
 	        spr0ch.qwc, tqwc, sqwc, spr0ch.madr, spr0ch.sadr);
 
@@ -197,7 +207,9 @@ void _SPR0interleave()
 	}
 	if (dmacRegs.ctrl.STS == STS_fromSPR)
 	{
-		//DevCon.Warning("SPR0 Interleave Stall Control");
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "SPR0 Interleave Stall Control\n");
+#endif
 		dmacRegs.stadr.ADDR = spr0ch.madr; // Copy MADR to DMAC_STADR stall addr register
 	}
 	spr0ch.qwc = 0;
@@ -262,7 +274,7 @@ static __fi void _dmaSPR0()
 
 			if (spr0ch.chcr.TIE && ptag->IRQ) // Check TIE bit of CHCR and IRQ bit of tag
 			{
-				//Console.WriteLn("SPR0 TIE");
+				//log_cb(RETRO_LOG_INFO, "SPR0 TIE\n");
 				done = true;
 			}
 
@@ -297,7 +309,10 @@ void SPRFROMinterrupt()
 				case MFD_VIF1: // Most common case.
 				case MFD_GIF:
 				{
-					if ((spr0ch.madr & ~dmacRegs.rbsr.RMSK) != dmacRegs.rbor.ADDR) Console.WriteLn("GIF MFIFO Write outside MFIFO area");
+#ifndef NDEBUG
+					if ((spr0ch.madr & ~dmacRegs.rbsr.RMSK) != dmacRegs.rbor.ADDR)
+						log_cb(RETRO_LOG_INFO, "GIF MFIFO Write outside MFIFO area\n");
+#endif
 					spr0ch.madr = dmacRegs.rbor.ADDR + (spr0ch.madr & dmacRegs.rbsr.RMSK);
 					//Console.WriteLn("mfifoGIFtransfer %x madr %x, tadr %x", gif->chcr._u32, gif->madr, gif->tadr);
 					hwMFIFOResume(mfifotransferred);
@@ -329,7 +344,9 @@ void dmaSPR0()   // fromSPR
 
 	if(spr0ch.chcr.MOD == CHAIN_MODE && spr0ch.qwc > 0)
 	{
-		//DevCon.Warning(L"SPR0 QWC on Chain " + spr0ch.chcr.desc());
+#ifdef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "SPR0 QWC on Chain %s", spr0ch.chcr.desc().c_str());
+#endif
 		if (spr0ch.chcr.tag().ID == TAG_END) // But not TAG_REFE?
 		{									 // correct not REFE, Destination Chain doesnt have REFE!
 			spr0finished = true;
@@ -496,7 +513,9 @@ void dmaSPR1()   // toSPR
 
 	if(spr1ch.chcr.MOD == CHAIN_MODE && spr1ch.qwc > 0)
 	{
-		//DevCon.Warning(L"SPR1 QWC on Chain " + spr1ch.chcr.desc());
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "SPR1 QWC on Chain %s", spr1ch.chcr.desc().c_str());
+#endif
 		if ((spr1ch.chcr.tag().ID == TAG_END) || (spr1ch.chcr.tag().ID == TAG_REFE) || (spr1ch.chcr.tag().IRQ && spr1ch.chcr.TIE))
 		{
 			spr1finished = true;

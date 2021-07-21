@@ -1,4 +1,4 @@
-#include <libretro.h>
+#include "libretro.h"
 extern unsigned libretro_msg_interface_version;
 extern retro_environment_t environ_cb;
 extern retro_log_printf_t log_cb;

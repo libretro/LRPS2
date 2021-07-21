@@ -214,7 +214,7 @@ void SysMtgsThread::OpenPlugin()
 
 	if( result != 0 )
 	{
-		DevCon.WriteLn( "GSopen Failed: return code: 0x%x", result );
+		log_cb(RETRO_LOG_ERROR, "GSopen Failed: return code: 0x%x\n", result );
 		throw Exception::PluginOpenError( PluginId_GS );
 	}
 
@@ -438,7 +438,9 @@ void SysMtgsThread::ExecuteTaskInThread()
 				}
 
 				case GS_RINGTYPE_MTVU_GSPACKET: {
+#if 0
 					MTVU_LOG("MTGS - Waiting on semaXGkick!");
+#endif
 					vu1Thread.KickStart(true);
 #ifndef __LIBRETRO__
 					busy.PartialRelease();

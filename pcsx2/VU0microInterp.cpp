@@ -19,6 +19,8 @@
 
 #include "VUmicro.h"
 
+#include "retro_messager.h"
+
 extern void _vuFlushAll(VURegs* VU);
 
 static void _vu0ExecUpper(VURegs* VU, u32 *ptr) {
@@ -110,7 +112,7 @@ static void _vu0Exec(VURegs* VU)
 		}
 		if (uregs.VIread & (1 << REG_CLIP_FLAG)) {
 			if (lregs.VIwrite & (1 << REG_CLIP_FLAG)) {
-				Console.Warning("*PCSX2*: Warning, VI write to the same reg in both lower/upper cycle");
+				log_cb(RETRO_LOG_WARN, "*PCSX2*: Warning, VI write to the same reg in both lower/upper cycle\n");
 				discard = 1;
 			}
 			if (lregs.VIread & (1 << REG_CLIP_FLAG)) {
@@ -158,7 +160,9 @@ static void _vu0Exec(VURegs* VU)
 			if(VU->takedelaybranch)
 			{				
 				VU->branch = 1;
-				DevCon.Warning("VU0 - Branch/Jump in Delay Slot");
+#ifndef NDEBUG
+				log_cb(RETRO_LOG_DEBUG, "VU0 - Branch/Jump in Delay Slot\n");
+#endif
 				VU->branchpc = VU->delaybranchpc;
 				VU->delaybranchpc = 0;
 				VU->takedelaybranch = false;
@@ -182,11 +186,18 @@ void vu0Exec(VURegs* VU)
 	_vu0Exec(VU);
 	VU->cycle++;
 
-	if (VU->VI[0].UL != 0) DbgCon.Error("VI[0] != 0!!!!\n");
-	if (VU->VF[0].f.x != 0.0f) DbgCon.Error("VF[0].x != 0.0!!!!\n");
-	if (VU->VF[0].f.y != 0.0f) DbgCon.Error("VF[0].y != 0.0!!!!\n");
-	if (VU->VF[0].f.z != 0.0f) DbgCon.Error("VF[0].z != 0.0!!!!\n");
-	if (VU->VF[0].f.w != 1.0f) DbgCon.Error("VF[0].w != 1.0!!!!\n");
+#if 0
+	if (VU->VI[0].UL != 0)
+		log_cb(RETRO_LOG_DEBUG, "VI[0] != 0!!!!\n");
+	if (VU->VF[0].f.x != 0.0f)
+		log_cb(RETRO_LOG_DEBUG, "VF[0].x != 0.0!!!!\n");
+	if (VU->VF[0].f.y != 0.0f)
+		log_cb(RETRO_LOG_DEBUG, "VF[0].y != 0.0!!!!\n");
+	if (VU->VF[0].f.z != 0.0f)
+		log_cb(RETRO_LOG_DEBUG, "VF[0].z != 0.0!!!!\n");
+	if (VU->VF[0].f.w != 1.0f)
+		log_cb(RETRO_LOG_DEBUG, "VF[0].w != 1.0!!!!\n");
+#endif
 }
 
 // --------------------------------------------------------------------------------------

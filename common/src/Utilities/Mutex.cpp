@@ -109,8 +109,10 @@ void Threading::Mutex::Detach()
 
     if (Wait(def_detach_timeout))
         pthread_mutex_destroy(&m_mutex);
+#ifndef NDEBUG
     else
-        Console.Error("(Thread Log) Mutex cleanup failed due to possible deadlock.");
+        log_cb(RETRO_LOG_ERROR, "(Thread Log) Mutex cleanup failed due to possible deadlock.\n");
+#endif
 }
 
 Threading::Mutex::~Mutex()
@@ -132,7 +134,11 @@ Threading::MutexRecursive::MutexRecursive()
     }
 
     if (pthread_mutex_init(&m_mutex, &_attr_recursive))
-        Console.Error("(Thread Log) Failed to initialize mutex.");
+    {
+#ifndef NDEBUG
+	    log_cb(RETRO_LOG_ERROR, "(Thread Log) Failed to initialize mutex.\n");
+#endif
+    }
 }
 
 Threading::MutexRecursive::~MutexRecursive()

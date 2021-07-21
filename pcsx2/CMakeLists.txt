@@ -306,7 +306,6 @@ set(pcsx2DebugToolsHeaders
 		gui/AppInit.cpp
 		gui/AppMain.cpp
 		gui/AppRes.cpp
-		gui/ConsoleLogger.cpp
 		gui/ExecutorThread.cpp
 		gui/MemoryCardFile.cpp
 		gui/MemoryCardFolder.cpp
@@ -321,7 +320,6 @@ set(pcsx2DebugToolsHeaders
 		gui/AppForwardDefs.h
 		gui/AppGameDatabase.h
 		gui/App.h
-		gui/ConsoleLogger.h
 		gui/DriveList.h
 		gui/MemoryCardFile.h
 		gui/MemoryCardFolder.h

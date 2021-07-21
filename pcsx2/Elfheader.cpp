@@ -54,7 +54,9 @@ ElfObject::ElfObject( const wxString& srcfile, uint hdrsize )
 
 void ElfObject::initElfHeaders()
 {
-	DevCon.WriteLn( L"Initializing Elf: %d bytes", data.GetSizeInBytes());
+#ifndef NDEBUG
+	log_cb(RETRO_LOG_DEBUG, "Initializing Elf: %d bytes\n", data.GetSizeInBytes());
+#endif
 
 	if ( header.e_phnum > 0 )
 		proghead = (ELF_PHR*)&data[header.e_phoff];
@@ -62,11 +64,13 @@ void ElfObject::initElfHeaders()
 	if ( header.e_shnum > 0 )
 		secthead = (ELF_SHR*)&data[header.e_shoff];
 
+#ifndef NDEBUG
 	if ( ( header.e_shnum > 0 ) && ( header.e_shentsize != sizeof(ELF_SHR) ) )
-		Console.Error( "(ELF) Size of section headers is not standard" );
+		log_cb(RETRO_LOG_ERROR, "(ELF) Size of section headers is not standard\n" );
 
 	if ( ( header.e_phnum > 0 ) && ( header.e_phentsize != sizeof(ELF_PHR) ) )
-		Console.Error( "(ELF) Size of program headers is not standard" );
+		log_cb(RETRO_LOG_ERROR, "(ELF) Size of program headers is not standard\n" );
+#endif
 
 	//getCRC();
 
@@ -283,7 +287,7 @@ void ElfObject::loadSectionHeaders()
 
 		SymNames = (char*)data.GetPtr(secthead[i_dt].sh_offset);
 		eS = (Elf32_Sym*)data.GetPtr(secthead[i_st].sh_offset);
-		Console.WriteLn("found %d symbols", secthead[i_st].sh_size / sizeof(Elf32_Sym));
+		log_cb(RETRO_LOG_INFO, "found %d symbols\n", secthead[i_st].sh_size / sizeof(Elf32_Sym));
 
 		for(uint i = 1; i < (secthead[i_st].sh_size / sizeof(Elf32_Sym)); i++) {
 			if ((eS[i].st_value != 0) && (ELF32_ST_TYPE(eS[i].st_info) == 2))
@@ -323,47 +327,46 @@ int GetPS2ElfName( wxString& name )
 			if( parts.lvalue.IsEmpty() && parts.rvalue.IsEmpty() ) continue;
 			if( parts.rvalue.IsEmpty() && file.getLength() != file.getSeekPos() )
 			{ // Some games have a character on the last line of the file, don't print the error in those cases.
-				Console.Warning( "(SYSTEM.CNF) Unusual or malformed entry in SYSTEM.CNF ignored:" );
-				Console.Indent().WriteLn( original );
+				log_cb(RETRO_LOG_WARN, "(SYSTEM.CNF) Unusual or malformed entry in SYSTEM.CNF ignored: %s\n", WX_STR(original) );
 				continue;
 			}
 
 			if( parts.lvalue == L"BOOT2" )
 			{
 				name = parts.rvalue;
-				Console.WriteLn( Color_StrongBlue, L"(SYSTEM.CNF) Detected PS2 Disc = " + name );
+				log_cb(RETRO_LOG_INFO, "(SYSTEM.CNF) Detected PS2 Disc = %s\n", WX_STR(name));
 				retype = 2;
 			}
 			else if( parts.lvalue == L"BOOT" )
 			{
 				name = parts.rvalue;
-				Console.WriteLn( Color_StrongBlue, L"(SYSTEM.CNF) Detected PSX/PSone Disc = " + name );
+				log_cb(RETRO_LOG_INFO, "(SYSTEM.CNF) Detected PSX/PSone Disc = %s\n", WX_STR(name));
 				retype = 1;
 			}
 			else if( parts.lvalue == L"VMODE" )
 			{
-				Console.WriteLn( Color_Blue, L"(SYSTEM.CNF) Disc region type = " + parts.rvalue );
+				log_cb(RETRO_LOG_INFO, "(SYSTEM.CNF) Disc region type = %d\n", parts.rvalue );
 			}
 			else if( parts.lvalue == L"VER" )
 			{
-				Console.WriteLn( Color_Blue, L"(SYSTEM.CNF) Software version = " + parts.rvalue );
+				log_cb(RETRO_LOG_INFO, "(SYSTEM.CNF) Software version = %d\n", parts.rvalue );
 			}
 		}
 
 		if( retype == 0 )
 		{
-			Console.Error("(GetElfName) Disc image is *not* a Playstation or PS2 game!");
+			log_cb(RETRO_LOG_ERROR, "(GetElfName) Disc image is *not* a Playstation or PS2 game!\n");
 			return 0;
 		}
 	}
 	catch( Exception::FileNotFound& )
 	{
-		//Console.Warning(ex.FormatDiagnosticMessage());
+		//log_cb(RETRO_LOG_ERROR, ex.FormatDiagnosticMessage().c_str());
 		return 0;		// no SYSTEM.CNF, not a PS1/PS2 disc.
 	}
 	catch (Exception::BadStream& ex)
 	{
-		Console.Error(ex.FormatDiagnosticMessage());
+		log_cb(RETRO_LOG_ERROR, ex.FormatDiagnosticMessage().c_str());
 		return 0;		// ISO error
 	}
 

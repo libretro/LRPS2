@@ -37,7 +37,7 @@ AsyncFileReader* MultipartFileReader::DetectMultipart(AsyncFileReader* reader)
 	multi->FindParts();
 	if (multi->m_numparts > 1)
 	{
-		Console.WriteLn( Color_Blue, "isoFile: multi-part ISO detected.  %u parts found.", multi->m_numparts);
+		log_cb(RETRO_LOG_INFO, "isoFile: multi-part ISO detected.  %u parts found.\n", multi->m_numparts);
 
 		return multi;
 	}
@@ -91,8 +91,7 @@ void MultipartFileReader::FindParts()
 	if (!pxFileExists_WithExt(nameparts, extbuf))
 		return;
 
-	DevCon.WriteLn( Color_Blue, "isoFile: multi-part %s detected...", WX_STR(curext.Upper()) );
-	ConsoleIndentScope indent;
+	log_cb(RETRO_LOG_DEBUG, "isoFile: multi-part %s detected...\n", WX_STR(curext.Upper()) );
 
 	int bsize = m_parts[0].reader->GetBlockSize();
 	int blocks = m_parts[0].end;
@@ -122,10 +121,12 @@ void MultipartFileReader::FindParts()
 
 		thispart->end = blocks;
 
-		DevCon.WriteLn( Color_Blue, L"\tblocks %u - %u in: %s",
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "\tblocks %u - %u in: %s\n",
 			thispart->start, thispart->end,
 			WX_STR(nameparts.GetFullPath())
 		);
+#endif
 
 		++m_numparts;
 	}

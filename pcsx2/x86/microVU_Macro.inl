@@ -27,7 +27,6 @@ static VURegs& vu0Regs = vuRegs[0];
 using namespace R5900::Dynarec;
 
 #define printCOP2(...) (void)0
-//#define printCOP2 DevCon.Status
 
 void setupMacroOp(int mode, const char* opName) {
 	printCOP2(opName);
@@ -477,7 +476,7 @@ void recCOP2_BC2();
 void recCOP2_SPEC1();
 void recCOP2_SPEC2();
 void rec_C2UNK() {
-	Console.Error("Cop2 bad opcode: %x", cpuRegs.code);
+	log_cb(RETRO_LOG_ERROR, "Cop2 bad opcode: %x\n", cpuRegs.code);
 }
 
 // This is called by EE Recs to setup sVU info, this isn't needed for mVU Macro (cottonvibes)

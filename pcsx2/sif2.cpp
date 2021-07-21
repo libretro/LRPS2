@@ -71,7 +71,9 @@ static __fi bool WriteFifoToEE()
 	ptag = sif2dma.getAddr(sif2dma.madr, DMAC_SIF2, true);
 	if (ptag == NULL)
 	{
-		DevCon.Warning("Write Fifo to EE: ptag == NULL");
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_WARN, "Write Fifo to EE: ptag == NULL\n");
+#endif
 		return false;
 	}
 
@@ -147,7 +149,9 @@ static __fi bool ProcessIOPTag()
 {
 	//sif2.iop.data = *(sifData *)iopPhysMem(hw_dma2.madr); //comment this out and replace words below
 	// Process DMA tag at hw_dma9.tadr
-	if (HW_DMA2_CHCR & 0x400) DevCon.Warning("First bit %x", sif2.iop.data.data);
+#ifndef NDEBUG
+	if (HW_DMA2_CHCR & 0x400) log_cb(RETRO_LOG_DEBUG, "First bit %x\n", sif2.iop.data.data);
+#endif
 	
 	sif2.iop.data.words = sif2.iop.data.data >> 24; // Round up to nearest 4.
 
@@ -166,7 +170,9 @@ static __fi bool ProcessIOPTag()
 	else hw_dma2.madr += 2;
 	// IOP tags have an IRQ bit and an End of Transfer bit:
 	if ((sif2data & 0xFFFFFF) == 0xFFFFFF || (HW_DMA2_CHCR & 0x200)) */sif2.iop.end = true;
-	DevCon.Warning("SIF2 IOP Tag: madr=%lx, counter=%lx (%08X_%08X)", hw_dma2.madr, sif2.iop.counter, sif2words, sif2data);
+#ifndef NDEBUG
+	log_cb(RETRO_LOG_DEBUG, "SIF2 IOP Tag: madr=%lx, counter=%lx (%08X_%08X)\n", hw_dma2.madr, sif2.iop.counter, sif2words, sif2data);
+#endif
 
 	return true;
 }
@@ -196,7 +202,9 @@ static __fi void EndIOP()
 
 	if (sif2.iop.cycles == 0)
 	{
-		DevCon.Warning("SIF2 IOP: cycles = 0");
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "SIF2 IOP: cycles = 0\n");
+#endif
 		sif2.iop.cycles = 1;
 	}
 	// iop is 1/8th the clock rate of the EE and psxcycles is in words (not quadwords)
@@ -210,7 +218,7 @@ static __fi void HandleEETransfer()
 {
 	if (!sif2dma.chcr.STR)
 	{
-		//DevCon.Warning("Replacement for irq prevention hack EE SIF2");
+		//log_cb(RETRO_LOG_DEBUG, "Replacement for irq prevention hack EE SIF2\n");
 		sif2.ee.end = false;
 		sif2.ee.busy = false;
 		return;
@@ -219,7 +227,7 @@ static __fi void HandleEETransfer()
 	/*if (sif2dma.qwc == 0)
 	if (sif2dma.chcr.MOD == NORMAL_MODE)
 	if (!sif2.ee.end){
-	DevCon.Warning("sif2 irq prevented");
+	log_cb(RETRO_LOG_DEBUG, "sif2 irq prevented\n");
 	done = true;
 	return;
 	}*/
@@ -236,7 +244,7 @@ static __fi void HandleEETransfer()
 		{
 			// Read Fifo into an ee tag, transfer it to sif2dma
 			// and process it.
-			DevCon.Warning("SIF2 EE Chain?!");
+			log_cb(RETRO_LOG_DEBUG, "SIF2 EE Chain?!\n");
 			ProcessEETag();
 		}
 	}
@@ -304,7 +312,10 @@ static __fi void HandleIOPTransfer()
 		{
 			WriteIOPtoFifo();
 		}
-		else DevCon.Warning("Nothing free!");
+#ifndef NDEBUG
+		else
+			log_cb(RETRO_LOG_DEBUG, "Nothing free!\n");
+#endif
 	}
 }
 
@@ -369,7 +380,8 @@ __fi void  EEsif2Interrupt()
 
 __fi void dmaSIF2()
 {
-	DevCon.Warning("SIF2 EE CHCR %x", sif2dma.chcr._u32);
+#ifndef NDEBUG
+	log_cb(RETRO_LOG_DEBUG, "SIF2 EE CHCR %x\n", sif2dma.chcr._u32);
 	SIF_LOG(wxString(L"dmaSIF2" + sif2dma.cmqt_to_str()).To8BitData());
 
 	if (sif2.fifo.readPos != sif2.fifo.writePos)
@@ -377,7 +389,9 @@ __fi void dmaSIF2()
 		SIF_LOG("warning, sif2.fifoReadPos != sif2.fifoWritePos");
 	}
 
-	//if(sif2dma.chcr.MOD == CHAIN_MODE && sif2dma.qwc > 0) DevCon.Warning(L"SIF2 QWC on Chain CHCR " + sif2dma.chcr.desc());
+	//if(sif2dma.chcr.MOD == CHAIN_MODE && sif2dma.qwc > 0)
+	//log_cb(RETRO_LOG_DEBUG, "SIF2 QWC on Chain CHCR %s\n", sif2dma.chcr.desc().c_str());
+#endif
 	psHu32(SBUS_F240) |= 0x8000;
 	sif2.ee.busy = true;
 

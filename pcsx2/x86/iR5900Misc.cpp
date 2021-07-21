@@ -156,32 +156,32 @@ void recMTSAH()
 	////////////////////////////////////////////////////
 	void recNULL()
 	{
-		Console.Error("EE: Unimplemented op %x", cpuRegs.code);
+		log_cb(RETRO_LOG_ERROR, "EE: Unimplemented op %x\n", cpuRegs.code);
 	}
 
 	////////////////////////////////////////////////////
 	void recUnknown()
 	{
 		// TODO : Unknown ops should throw an exception.
-		Console.Error("EE: Unrecognized op %x", cpuRegs.code);
+		log_cb(RETRO_LOG_ERROR, "EE: Unrecognized op %x\n", cpuRegs.code);
 	}
 
 	void recMMI_Unknown()
 	{
 		// TODO : Unknown ops should throw an exception.
-		Console.Error("EE: Unrecognized MMI op %x", cpuRegs.code);
+		log_cb(RETRO_LOG_ERROR, "EE: Unrecognized MMI op %x\n", cpuRegs.code);
 	}
 
 	void recCOP0_Unknown()
 	{
 		// TODO : Unknown ops should throw an exception.
-		Console.Error("EE: Unrecognized COP0 op %x", cpuRegs.code);
+		log_cb(RETRO_LOG_ERROR, "EE: Unrecognized COP0 op %x\n", cpuRegs.code);
 	}
 
 	void recCOP1_Unknown()
 	{
 		// TODO : Unknown ops should throw an exception.
-		Console.Error("EE: Unrecognized FPU/COP1 op %x", cpuRegs.code);
+		log_cb(RETRO_LOG_ERROR, "EE: Unrecognized FPU/COP1 op %x\n", cpuRegs.code);
 	}
 
 	/**********************************************************

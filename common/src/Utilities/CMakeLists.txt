@@ -19,7 +19,6 @@ set(UtilitiesFinalFlags ${CommonFlags})
 		../../include/Utilities/FixedPointTypes.inl
 		../../include/Utilities/EventSource.inl
 		../../include/Utilities/SafeArray.inl
-		Console.cpp
 		Exceptions.cpp
 		FastFormatString.cpp
 		IniInterface.cpp
@@ -44,7 +43,6 @@ set(UtilitiesFinalFlags ${CommonFlags})
 set(UtilitiesHeaders
 	../../include/Utilities/Assertions.h
 	../../include/Utilities/boost_spsc_queue.hpp
-	../../include/Utilities/Console.h
 	../../include/Utilities/Dependencies.h
 	../../include/Utilities/EventSource.h
 	../../include/Utilities/Exceptions.h

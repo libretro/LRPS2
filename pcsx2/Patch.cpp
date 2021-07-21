@@ -174,7 +174,7 @@ static int _LoadPatchFiles(const wxDirName& folderName, wxString& fileSpec, cons
 
 	if (!folderName.Exists())
 	{
-		Console.WriteLn(Color_Red, L"The %s folder ('%s') is inaccessible. Skipping...", WX_STR(friendlyName), WX_STR(folderName.ToString()));
+		log_cb(RETRO_LOG_WARN, "The %s folder ('%s') is inaccessible. Skipping...\n", WX_STR(friendlyName), WX_STR(folderName.ToString()));
 		return 0;
 	}
 	wxDir dir(folderName.ToString());
@@ -300,8 +300,9 @@ namespace PatchFunc
 		// exception a little bit.
 
 		// print the actual patch lines only in verbose mode (even in devel)
-		if (DevConWriterEnabled)
-			DevCon.WriteLn(cmd + L" " + param);
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "%s %s",  WX_STR(cmd), WX_STR(param));
+#endif
 
 		try
 		{
@@ -330,8 +331,7 @@ namespace PatchFunc
 		}
 		catch (wxString& exmsg)
 		{
-			Console.Error(L"(Patch) Error Parsing: %s=%s", WX_STR(cmd), WX_STR(param));
-			Console.Indent().Error(exmsg);
+			log_cb(RETRO_LOG_ERROR, "(Patch) Error Parsing: %s=%s\n", WX_STR(cmd), WX_STR(param));
 		}
 	}
 	void patch(const wxString& cmd, const wxString& param) { patchHelper(cmd, param); }

@@ -26,22 +26,6 @@ using namespace Threading;
 
 class pxSynchronousCommandEvent;
 
-// --------------------------------------------------------------------------------------
-//  pxAppLog / ConsoleLogSource_App
-// --------------------------------------------------------------------------------------
-
-class ConsoleLogSource_App : public ConsoleLogSource
-{
-    typedef ConsoleLogSource _parent;
-
-public:
-    ConsoleLogSource_App();
-};
-
-extern ConsoleLogSource_App pxConLog_App;
-
-#define pxAppLog pxConLog_App.IsActive() && pxConLog_App
-
 typedef std::list<wxEvent *> wxEventList;
 
 // --------------------------------------------------------------------------------------

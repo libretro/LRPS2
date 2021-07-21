@@ -121,16 +121,22 @@ struct microProfiler {
 			std::sort   (v.begin(), v.end());
 			std::reverse(v.begin(), v.end());
 			double dTotal = (double)total;
-			DevCon.WriteLn("microVU%d Profiler:", index);
+#ifndef NDEBUG
+			log_cb(RETRO_LOG_DEBUG, "microVU%d Profiler:\n", index);
+#endif
 			for(u32 i = 0; i < v.size(); i++) {
 				u64    count = v[i].first;
 				double stat  = (double)count / dTotal * 100.0;
 				std::string str = microOpcodeName[v[i].second];
 				str.resize(8, ' ');
-				DevCon.WriteLn("%s - [%3.4f%%][count=%u]",
+#ifndef NDEBUG
+				log_cb(RETRO_LOG_DEBUG, "%s - [%3.4f%%][count=%u]\n",
 					str.c_str(), stat, (u32)count);
+#endif
 			}
-			DevCon.WriteLn("Total = 0x%x%x\n\n", (u32)(u64)(total>>32),(u32)total);
+#ifndef NDEBUG
+			log_cb(RETRO_LOG_DEBUG, "Total = 0x%x%x\n\n", (u32)(u64)(total>>32),(u32)total);
+#endif
 		}
 	}
 };

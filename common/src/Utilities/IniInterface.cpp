@@ -240,7 +240,7 @@ void IniLoader::_EnumEntry(const wxString &var, int &value, const wxChar *const 
 
     const int cnt = _calcEnumLength(enumArray);
     if (!IndexBoundsCheck(L"IniLoader EnumDefaultValue", defvalue, cnt)) {
-        Console.Error("(LoadSettings) Default enumeration index is out of bounds. Truncating.");
+        log_cb(RETRO_LOG_INFO, "(LoadSettings) Default enumeration index is out of bounds. Truncating.\n");
         defvalue = cnt - 1;
     }
 
@@ -259,7 +259,7 @@ void IniLoader::_EnumEntry(const wxString &var, int &value, const wxChar *const 
         i++;
 
     if (enumArray[i] == NULL) {
-        Console.Warning(L"(LoadSettings) Warning: Unrecognized value '%s' on key '%s'\n\tUsing the default setting of '%s'.",
+        log_cb(RETRO_LOG_WARN, "(LoadSettings) Warning: Unrecognized value '%s' on key '%s'\n\tUsing the default setting of '%s'.\n",
                         WX_STR(retval), WX_STR(var), enumArray[defvalue]);
         value = defvalue;
     } else
@@ -400,7 +400,7 @@ void IniSaver::_EnumEntry(const wxString &var, int &value, const wxChar *const *
     // Confirm default value sanity...
 
     if (!IndexBoundsCheck(L"IniSaver EnumDefaultValue", defvalue, cnt)) {
-        Console.Error("(SaveSettings) Default enumeration index is out of bounds. Truncating.");
+        log_cb(RETRO_LOG_ERROR, "(SaveSettings) Default enumeration index is out of bounds. Truncating.\n");
         defvalue = cnt - 1;
     }
 
@@ -408,11 +408,12 @@ void IniSaver::_EnumEntry(const wxString &var, int &value, const wxChar *const *
         return;
 
     if (value >= cnt) {
-        Console.Warning(L"(SaveSettings) An illegal enumerated index was detected when saving '%s'", WX_STR(var));
-        Console.Indent().Warning(
-            L"Illegal Value: %d\n"
-            L"Using Default: %d (%s)\n",
+#ifndef NDEBUG
+        log_cb(RETRO_LOG_WARN, "(SaveSettings) An illegal enumerated index was detected when saving '%s'\n", WX_STR(var));
+        log_cb(RETRO_LOG_WARN,
+            "Illegal Value: %d\nUsing Default: %d (%s)\n",
             value, defvalue, enumArray[defvalue]);
+#endif
 
         // Cause a debug assertion, since this is a fully recoverable error.
         pxAssert(value < cnt);

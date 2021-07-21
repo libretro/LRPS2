@@ -422,7 +422,9 @@ void VifUnpackSSE_Init()
 {
 	if (nVifUpkExec) return;
 
-	DevCon.WriteLn( "Generating SSE-optimized unpacking functions for VIF interpreters..." );
+#ifndef NDEBUG
+	log_cb(RETRO_LOG_DEBUG, "Generating SSE-optimized unpacking functions for VIF interpreters...\n" );
+#endif
 
 	nVifUpkExec = new RecompiledCodeReserve(L"VIF SSE-optimized Unpacking Functions", _64kb);
 	nVifUpkExec->SetProfilerName("iVIF-SSE");
@@ -440,14 +442,15 @@ void VifUnpackSSE_Init()
 
 	nVifUpkExec->ForbidModification();
 
-	DevCon.WriteLn( "Unpack function generation complete.  Generated function statistics:" );
-	DevCon.Indent().WriteLn(
-		L"Reserved buffer    : %u bytes @ %ls\n"
-		L"x86 code generated : %u bytes\n",
+#ifndef NDEBUG
+	log_cb(RETRO_LOG_DEBUG, "Unpack function generation complete.  Generated function statistics:\n" );
+	log_cb(RETRO_LOG_DEBUG,
+		"Reserved buffer    : %u bytes @ %ls\nx86 code generated : %u bytes\n",
 		(uint)nVifUpkExec->GetCommittedBytes(),
 		pxsPtr(nVifUpkExec->GetPtr()),
 		(uint)(xGetPtr() - nVifUpkExec->GetPtr())
 	);
+#endif
 }
 
 void VifUnpackSSE_Destroy()

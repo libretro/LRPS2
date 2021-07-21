@@ -357,9 +357,11 @@ static __fi float vuADD_TriAceHack(u32 a, u32 b) {
 		if (aExp - bExp >= 25) b &= 0x80000000;
 		if (aExp - bExp <=-25) a &= 0x80000000;
 		float ret = vuDouble(a) + vuDouble(b);
-		DevCon.WriteLn("aExp = %d, bExp = %d", aExp, bExp);
-		DevCon.WriteLn("0x%08x + 0x%08x = 0x%08x", a, b, (u32&)ret);
-		DevCon.WriteLn("%f + %f = %f", vuDouble(a), vuDouble(b), ret);
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "aExp = %d, bExp = %d\n", aExp, bExp);
+		log_cb(RETRO_LOG_DEBUG, "0x%08x + 0x%08x = 0x%08x\n", a, b, (u32&)ret);
+		log_cb(RETRO_LOG_DEBUG, "%f + %f = %f\n", vuDouble(a), vuDouble(b), ret);
+#endif
 		return ret;
 	}
 	return vuDouble(a) + vuDouble(b);
@@ -1909,7 +1911,7 @@ s32 _branchAddr(VURegs * VU) {
 static __fi void _setBranch(VURegs * VU, u32 bpc) {
 	if(VU->branch == 1) 
 	{		
-		//DevCon.Warning("Branch in Branch Delay slot!");
+		//log_cb(RETRO_LOG_DEBUG, "Branch in Branch Delay slot!\n");
 		VU->delaybranchpc = bpc;
 		VU->takedelaybranch = true;
 	}
@@ -2214,7 +2216,7 @@ static __ri void _vuXGKICK(VURegs * VU)
 	u32 size = gifUnit.GetGSPacketSize(GIF_PATH_1, VU->Mem, addr);
 
 	if (size > diff) {
-		//DevCon.WriteLn(Color_Green, "VU1 Int: XGkick Wrap!");
+		//log_cb(RETRO_LOG_DEBUG, "VU1 Int: XGkick Wrap!\n");
 		gifUnit.gifPath[GIF_PATH_1].CopyGSPacketData(  &VU->Mem[addr],  diff,true);
 		gifUnit.TransferGSPacketData(GIF_TRANS_XGKICK, &VU->Mem[0],size-diff,true);
 	}

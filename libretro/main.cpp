@@ -57,7 +57,6 @@ int option_upscale_mult = 1;
 retro_environment_t environ_cb;
 retro_video_refresh_t video_cb;
 struct retro_hw_render_callback hw_render;
-static ConsoleColors log_color = Color_Default;
 unsigned libretro_msg_interface_version = 0;
 retro_log_printf_t log_cb;
 

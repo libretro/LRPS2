@@ -82,7 +82,7 @@ wxString DMACh::cmqt_to_str() const
 
 __fi void throwBusError(const char *s)
 {
-    Console.Error("%s BUSERR", s);
+    log_cb(RETRO_LOG_ERROR, "%s BUSERR\n", s);
     dmacRegs.stat.BEIS = true;
 }
 
@@ -117,7 +117,9 @@ __fi tDMA_TAG* SPRdmaGetAddr(u32 addr, bool write)
 	{
 		if (addr >= 0x11008000 && THREAD_VU1)
 		{
-			DevCon.Warning("MTVU: SPR Accessing VU1 Memory");
+#ifndef NDEBUG
+			log_cb(RETRO_LOG_DEBUG, "MTVU: SPR Accessing VU1 Memory\n");
+#endif
 			vu1Thread.WaitVU();
 		}
 		
@@ -125,26 +127,26 @@ __fi tDMA_TAG* SPRdmaGetAddr(u32 addr, bool write)
 
 		if((addr >= 0x1100c000) && (addr < 0x11010000))
 		{
-			//DevCon.Warning("VU1 Mem %x", addr);
+			//log_cb(RETRO_LOG_DEBUG, "VU1 Mem %x\n", addr);
 			return (tDMA_TAG*)(VU1.Mem + (addr & 0x3ff0));
 		}
 
 		if((addr >= 0x11004000) && (addr < 0x11008000))
 		{
-			//DevCon.Warning("VU0 Mem %x", addr);
+			//log_cb(RETRO_LOG_DEBUG, "VU0 Mem %x\n", addr);
 			return (tDMA_TAG*)(VU0.Mem + (addr & 0xff0));
 		}
 		
 		//Possibly not needed but the manual doesn't say SPR cannot access it.
 		if((addr >= 0x11000000) && (addr < 0x11004000))
 		{
-			//DevCon.Warning("VU0 Micro %x", addr);
+			//log_cb(RETRO_LOG_DEBUG, "VU0 Micro %x\n", addr);
 			return (tDMA_TAG*)(VU0.Micro + (addr & 0xff0));
 		}
 
 		if((addr >= 0x11008000) && (addr < 0x1100c000))
 		{
-			//DevCon.Warning("VU1 Micro %x", addr);
+			//log_cb(RETRO_LOG_DEBUG, "VU1 Micro %x\n", addr);
 			return (tDMA_TAG*)(VU1.Micro + (addr & 0x3ff0));
 		}
 		
@@ -154,7 +156,7 @@ __fi tDMA_TAG* SPRdmaGetAddr(u32 addr, bool write)
 	}
 	else
 	{
-		Console.Error( "*PCSX2*: DMA error: %8.8x", addr);
+		log_cb(RETRO_LOG_ERROR, "*PCSX2*: DMA error: %8.8x\n", addr);
 		return NULL;
 	}
 }
@@ -179,14 +181,11 @@ __ri tDMA_TAG *dmaGetAddr(u32 addr, bool write)
 	else if (addr < 0x10004000)
 	{
 		// Secret scratchpad address for DMA = end of maximum main memory?
-		//Console.Warning("Writing to the scratchpad without the SPR flag set!");
+		//log_cb(RETRO_LOG_WARN, "Writing to the scratchpad without the SPR flag set!\n");
 		return (tDMA_TAG*)&eeMem->Scratch[addr & 0x3ff0];
 	}
-	else
-	{
-		Console.Error( "*PCSX2*: DMA error: %8.8x", addr);
-		return NULL;
-	}
+	log_cb(RETRO_LOG_ERROR, "*PCSX2*: DMA error: %8.8x\n", addr);
+	return NULL;
 }
 
 
@@ -241,7 +240,7 @@ static __ri void DmaExec( void (*func)(), u32 mem, u32 value )
 		//it will not work before or during this event.
 		if(chcr.STR == 0)
 		{
-			//DevCon.Warning(L"32bit Force Stopping %s (Current CHCR %x) while DMA active", ChcrName(mem), reg.chcr._u32, chcr._u32);
+			//log_cb(RETRO_LOG_DEBUG, "32bit Force Stopping %s (Current CHCR %x) while DMA active\n", ChcrName(mem), reg.chcr._u32, chcr._u32);
 			reg.chcr.STR = 0;
 			//We need to clear any existing DMA loops that are in progress else they will continue!
 
@@ -259,11 +258,11 @@ static __ri void DmaExec( void (*func)(), u32 mem, u32 value )
 			cpuClearInt( channel );
 			QueuedDMA._u16 &= ~(1 << channel); //Clear any queued DMA requests for this channel
 		}
-		//else DevCon.Warning(L"32bit Attempted to change %s CHCR (Currently %x) with %x while DMA active, ignoring QWC = %x", ChcrName(mem), reg.chcr._u32, chcr._u32, reg.qwc);
+		//else log_cb(RETRO_LOG_DEBUG, "32bit Attempted to change %s CHCR (Currently %x) with %x while DMA active, ignoring QWC = %x\n", ChcrName(mem), reg.chcr._u32, chcr._u32, reg.qwc);
 		return;
 	}
 
-	//if(reg.chcr.TAG != chcr.TAG && chcr.MOD == CHAIN_MODE) DevCon.Warning(L"32bit CHCR Tag on %s changed to %x from %x QWC = %x Channel Not Active", ChcrName(mem), chcr.TAG, reg.chcr.TAG, reg.qwc);
+	//if(reg.chcr.TAG != chcr.TAG && chcr.MOD == CHAIN_MODE) log_cb(RETRO_LOG_DEBUG, "32bit CHCR Tag on %s changed to %x from %x QWC = %x Channel Not Active\n", ChcrName(mem), chcr.TAG, reg.chcr.TAG, reg.qwc);
 
 	reg.chcr.set(value);
 
@@ -273,7 +272,9 @@ static __ri void DmaExec( void (*func)(), u32 mem, u32 value )
 		static bool warned; //Check if the warning has already been output to console, to prevent constant spam.
 		if (!warned)
 		{
-			DevCon.Warning(L"%s CHCR.MOD set to 3, assuming 1 (chain)", ChcrName(mem));
+#ifndef NDEBUG
+			log_cb(RETRO_LOG_DEBUG, "%s CHCR.MOD set to 3, assuming 1 (chain)\n", ChcrName(mem));
+#endif
 			warned = true;
 		}
 		reg.chcr.MOD = 0x1;
@@ -290,7 +291,7 @@ static __ri void DmaExec( void (*func)(), u32 mem, u32 value )
 	}
 	else if(reg.chcr.STR)
 	{
-		//DevCon.Warning(L"32bit %s DMA Start while DMAC Disabled\n", ChcrName(mem));
+		//log_cb(RETRO_LOG_DEBUG, "32bit %s DMA Start while DMAC Disabled\n", ChcrName(mem));
 		QueuedDMA._u16 |= (1 << ChannelNumber(mem)); //Queue the DMA up to be started then the DMA's are Enabled and or the Suspend is lifted
 	} //else QueuedDMA._u16 &~= (1 << ChannelNumber(mem)); //
 }
@@ -507,7 +508,7 @@ __fi bool dmacWrite32( u32 mem, mem32_t& value )
 					new_source = "None";
 					break;
 				}
-				DevCon.Warning("32bit Stall Source Changed to %s", new_source.c_str());
+				log_cb(RETRO_LOG_DEBUG, "32bit Stall Source Changed to %s\n", new_source.c_str());
 			}
 			if ((oldvalue & 0xC0) != (value & 0xC0))
 			{
@@ -528,7 +529,7 @@ __fi bool dmacWrite32( u32 mem, mem32_t& value )
 					new_dest = "None";
 					break;
 				}
-				DevCon.Warning("32bit Stall Destination Changed to %s", new_dest.c_str());
+				log_cb(RETRO_LOG_DEBUG, "32bit Stall Destination Changed to %s\n", new_dest.c_str());
 			}
 #endif
 			return false;
@@ -538,7 +539,7 @@ __fi bool dmacWrite32( u32 mem, mem32_t& value )
 		//Which causes a CPCOND0 to fail.
 		icase(DMAC_FAKESTAT)
 		{
-			//DevCon.Warning("Midway fixup addr=%x writing %x for DMA_STAT", mem, value);
+			//log_cb(RETRO_LOG_DEBUG, "Midway fixup addr=%x writing %x for DMA_STAT\n", mem, value);
 			HW_LOG("Midways own DMAC_STAT Write 32bit %x", value);
 
 			// lower 16 bits: clear on 1
@@ -585,7 +586,9 @@ __fi bool dmacWrite32( u32 mem, mem32_t& value )
 	{
 		if((psHu32(mem & ~0xff) & 0x100) && dmacRegs.ctrl.DMAE && !psHu8(DMAC_ENABLER+2))
 		{
-			DevCon.Warning("Gamefix: Write to DMA addr %x while STR is busy! Ignoring", mem);
+#ifndef NDEBUG
+			log_cb(RETRO_LOG_DEBUG, "Gamefix: Write to DMA addr %x while STR is busy! Ignoring\n", mem);
+#endif
 			return false;
 		}
 	}

@@ -49,7 +49,7 @@ static Access* ReadIndexFromFile(const wxString& filename)
 	s64 size = fsize(filename);
 	if (size <= 0)
 	{
-		Console.Error(L"Error: Can't open index file: '%s'", WX_STR(filename));
+		log_cb(RETRO_LOG_ERROR, "Error: Can't open index file: '%s'\n", WX_STR(filename));
 		return 0;
 	}
 	std::ifstream infile(PX_wfilename(filename), std::ifstream::binary);
@@ -58,7 +58,7 @@ static Access* ReadIndexFromFile(const wxString& filename)
 	infile.read(fileId, GZIP_ID_LEN);
 	if (wxString::From8BitData(GZIP_ID) != wxString::From8BitData(fileId))
 	{
-		Console.Error(L"Error: Incompatible gzip index, please delete it manually: '%s'", WX_STR(filename));
+		log_cb(RETRO_LOG_ERROR, "Error: Incompatible gzip index, please delete it manually: '%s'\n", WX_STR(filename));
 		infile.close();
 		return 0;
 	}
@@ -69,7 +69,7 @@ static Access* ReadIndexFromFile(const wxString& filename)
 	s64 datasize = size - GZIP_ID_LEN - sizeof(Access);
 	if (datasize != (s64)index->have * sizeof(Point))
 	{
-		Console.Error(L"Error: unexpected size of gzip index, please delete it manually: '%s'.", WX_STR(filename));
+		log_cb(RETRO_LOG_ERROR, "Error: unexpected size of gzip index, please delete it manually: '%s'.\n", WX_STR(filename));
 		infile.close();
 		free(index);
 		return 0;
@@ -86,7 +86,7 @@ static void WriteIndexToFile(Access* index, const wxString filename)
 {
 	if (wxFileName::FileExists(filename))
 	{
-		Console.Warning(L"WARNING: Won't write index - file name exists (please delete it manually): '%s'", WX_STR(filename));
+		log_cb(RETRO_LOG_WARN, "WARNING: Won't write index - file name exists (please delete it manually): '%s'\n", WX_STR(filename));
 		return;
 	}
 
@@ -104,11 +104,11 @@ static void WriteIndexToFile(Access* index, const wxString filename)
 	// Verify
 	if (fsize(filename) != (s64)GZIP_ID_LEN + sizeof(Access) + sizeof(Point) * index->have)
 	{
-		Console.Warning(L"Warning: Can't write index file to disk: '%s'", WX_STR(filename));
+		log_cb(RETRO_LOG_WARN, "Warning: Can't write index file to disk: '%s'\n", WX_STR(filename));
 	}
 	else
 	{
-		Console.WriteLn(Color_Green, L"OK: Gzip quick access index file saved to disk: '%s'", WX_STR(filename));
+		log_cb(RETRO_LOG_INFO, "OK: Gzip quick access index file saved to disk: '%s'\n", WX_STR(filename));
 	}
 }
 
@@ -135,9 +135,8 @@ static wxString ApplyTemplate(const wxString& name, const wxDirName& base,
 		|| first != tem.rfind(key) // more than one instance
 		|| !canEndWithKey && first == tem.length() - key.length())
 	{
-		Console.Error(L"Invalid %s template '%s'.\n"
-					  L"Template must contain exactly one '%s' and must not end with it. Abotring.",
-					  WX_STR(name), WX_STR(tem), WX_STR(key));
+		log_cb(RETRO_LOG_ERROR, "Invalid %s template '%s'.\nTemplate must contain exactly one '%s' and must not end with it. Aborting.\n",
+				WX_STR(name), WX_STR(tem), WX_STR(key));
 		return L"";
 	}
 
@@ -172,7 +171,7 @@ static void TestTemplate(const wxDirName &base, const wxString &fname, bool canE
 
 	for (int i = 0; ins[i]; i++) {
 		wxString tem(wxString::From8BitData(ins[i]));
-		Console.WriteLn(Color_Green, L"test: '%s' -> '%s'",
+		log_cb(RETRO_LOG_INFO, L"test: '%s' -> '%s'\n",
 		                WX_STR(tem),
 		                WX_STR(ApplyTemplate(L"test", base, tem, fname, canEndWithKey)));
 	}
@@ -262,7 +261,7 @@ void GzippedFileReader::AsyncPrefetchChunk(PX_off_t start)
 {
 	if (hOverlappedFile == INVALID_HANDLE_VALUE || asyncInProgress)
 	{
-		Console.Warning(L"Unexpected file handle or progress state. Aborting prefetch.");
+		log_cb(RETRO_LOG_ERROR, "Unexpected file handle or progress state. Aborting prefetch.\n");
 		return;
 	}
 
@@ -287,7 +286,7 @@ void GzippedFileReader::AsyncPrefetchCancel()
 
 	if (!CancelIo(hOverlappedFile))
 	{
-		Console.Warning("canceling gz prefetch failed. following prefetching will not work.");
+		log_cb(RETRO_LOG_ERROR, "canceling gz prefetch failed. following prefetching will not work.\n");
 		return;
 	}
 
@@ -313,20 +312,22 @@ bool GzippedFileReader::OkIndex()
 
 	if (wxFileName::FileExists(indexfile) && (m_pIndex = ReadIndexFromFile(indexfile)))
 	{
-		Console.WriteLn(Color_Green, L"OK: Gzip quick access index read from disk: '%s'", WX_STR(indexfile));
+		log_cb(RETRO_LOG_INFO, "OK: Gzip quick access index read from disk: '%s'\n", WX_STR(indexfile));
+#ifndef NDEBUG
 		if (m_pIndex->span != GZFILE_SPAN_DEFAULT)
 		{
-			Console.Warning(L"Note: This index has %1.1f MB intervals, while the current default for new indexes is %1.1f MB.",
+			log_cb(RETRO_LOG_WARN, "Note: This index has %1.1f MB intervals, while the current default for new indexes is %1.1f MB.\n",
 							(float)m_pIndex->span / 1024 / 1024, (float)GZFILE_SPAN_DEFAULT / 1024 / 1024);
-			Console.Warning(L"It will work fine, but if you want to generate a new index with default intervals, delete this index file.");
-			Console.Warning(L"(smaller intervals mean bigger index file and quicker but more frequent decompressions)");
+			log_cb(RETRO_LOG_WARN, "It will work fine, but if you want to generate a new index with default intervals, delete this index file.\n");
+			log_cb(RETRO_LOG_WARN, "(smaller intervals mean bigger index file and quicker but more frequent decompressions)\n");
 		}
+#endif
 		InitZstates();
 		return true;
 	}
 
 	// No valid index file. Generate an index
-	Console.Warning(L"This may take a while (but only once). Scanning compressed file to generate a quick access index...");
+	log_cb(RETRO_LOG_WARN, "This may take a while (but only once). Scanning compressed file to generate a quick access index...\n");
 
 	Access* index;
 	FILE* infile = PX_fopen_rb(m_filename);
@@ -341,7 +342,7 @@ bool GzippedFileReader::OkIndex()
 	}
 	else
 	{
-		Console.Error(L"ERROR (%d): index could not be generated for file '%s'", len, WX_STR(m_filename));
+		log_cb(RETRO_LOG_ERROR, "ERROR (%d): index could not be generated for file '%s'\n", len, WX_STR(m_filename));
 		free_index(index);
 		InitZstates();
 		return false;
@@ -387,8 +388,10 @@ int GzippedFileReader::ReadSync(void* pBuffer, uint sector, uint count)
 	PX_off_t offset = (s64)sector * m_blocksize + m_dataoffset;
 	int bytesToRead = count * m_blocksize;
 	int res = _ReadSync(pBuffer, offset, bytesToRead);
+#ifndef NDEBUG
 	if (res < 0)
-		Console.Error(L"Error: iso-gzip read unsuccessful.");
+		log_cb(RETRO_LOG_ERROR, "Error: iso-gzip read unsuccessful.\n");
+#endif
 	return res;
 }
 
@@ -489,12 +492,14 @@ int GzippedFileReader::_ReadSync(void* pBuffer, PX_off_t offset, uint bytesToRea
 	}
 
 	int duration = NOW() - s;
+#ifndef NDEBUG
 	if (duration > 10)
-		Console.WriteLn(Color_Gray, L"gunzip: chunk #%5d-%2d : %1.2f MB - %d ms",
+		log_cb(RETRO_LOG_INFO, "gunzip: chunk #%5d-%2d : %1.2f MB - %d ms\n",
 						(int)(offset / 4 / 1024 / 1024),
 						(int)(offset % (4 * 1024 * 1024) / GZFILE_READ_CHUNK_SIZE),
 						(float)size / 1024 / 1024,
 						duration);
+#endif
 
 	return copied;
 }

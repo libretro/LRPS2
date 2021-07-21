@@ -209,39 +209,6 @@ public:
 };
 
 // --------------------------------------------------------------------------------------
-//  ConsoleLogFromVM
-// --------------------------------------------------------------------------------------
-// Special console logger for Virtual Machine log sources, such as the EE and IOP console
-// writes (actual game developer messages and such).  These logs do *not* automatically
-// append newlines, since the VM generates them manually; and they do *not* support printf
-// formatting, since anything coming over the EE/IOP consoles should be considered raw
-// string data.  (otherwise %'s would get mis-interpreted).
-//
-template< ConsoleColors conColor >
-class ConsoleLogFromVM : public BaseTraceLogSource
-{
-	typedef BaseTraceLogSource _parent;
-
-public:
-	ConsoleLog_ImplementBaseAPI(ConsoleLogFromVM)
-
-	ConsoleLogFromVM( const TraceLogDescriptor* desc ) : _parent( desc ) {}
-
-	bool Write( const wxString &msg ) const
-	{
-		ConsoleColorScope cs(conColor);
-		Console.WriteRaw( msg );
-
-		// Buffered output isn't compatible with the testsuite. The end of test
-		// doesn't always get flushed. Let's just flush all the output if EE/IOP
-		// print anything.
-		fflush(NULL);
-
-		return false;
-	}
-};
-
-// --------------------------------------------------------------------------------------
 //  SysTraceLogPack
 // --------------------------------------------------------------------------------------
 struct SysTraceLogPack
@@ -310,19 +277,6 @@ struct SysTraceLogPack
 
 struct SysConsoleLogPack
 {
-	ConsoleLogSource		ELF;
-	ConsoleLogSource		eeRecPerf;
-	ConsoleLogSource		sysoutConsole;
-
-	ConsoleLogFromVM<Color_Cyan>		eeConsole;
-	ConsoleLogFromVM<Color_Yellow>		iopConsole;
-	ConsoleLogFromVM<Color_Cyan>		deci2;
-
-#ifndef DISABLE_RECORDING
-	ConsoleLogFromVM<Color_StrongMagenta>	recordingConsole;
-	ConsoleLogFromVM<Color_Red>				controlInfo;
-#endif
-
 	SysConsoleLogPack();
 };
 
@@ -386,7 +340,7 @@ extern void __Log( const char* fmt, ... );
 #define MDEC_LOG		macTrace(IOP.MDEC)
 
 
-#define ELF_LOG			SysConsole.ELF.IsActive()			&& SysConsole.ELF.Write
+#define ELF_LOG
 #define eeRecPerfLog	SysConsole.eeRecPerf.IsActive()		&& SysConsole.eeRecPerf
 #define eeConLog		SysConsole.eeConsole.IsActive()		&& SysConsole.eeConsole.Write
 #define eeDeci2Log		SysConsole.deci2.IsActive()			&& SysConsole.deci2.Write

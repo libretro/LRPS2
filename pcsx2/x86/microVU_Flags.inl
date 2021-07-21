@@ -58,7 +58,9 @@ __fi void mVUstatusFlagOp(mV) {
 		}
 	}
 	iPC = curPC;
-	DevCon.WriteLn(Color_Green, "microVU%d: FSSET Optimization", getIndex);
+#ifndef NDEBUG
+	log_cb(RETRO_LOG_DEBUG, "microVU%d: FSSET Optimization\n", getIndex);
+#endif
 }
 
 int findFlagInst(int* fFlag, int cycles) {
@@ -237,7 +239,9 @@ __fi void mVUsetFlags(mV, microFlagCycles& mFC) {
 	iPC = endPC;
 
 	if (doFullFlagOpt && (mVUregs.flagInfo & 1)) {
-		//if (mVUregs.needExactMatch) DevCon.Error("mVU ERROR!!!");
+#ifndef NDEBUG
+		//if (mVUregs.needExactMatch) log_cb(RETRO_LOG_DEBUG, "mVU ERROR!!!\n");
+#endif
 		int bS[4], bM[4], bC[4];
 		sortFullFlag(mFC.xStatus, bS);
 		sortFullFlag(mFC.xMac,    bM);
@@ -248,8 +252,11 @@ __fi void mVUsetFlags(mV, microFlagCycles& mFC) {
 		mVUregs.fullFlags0    |= ((bC[1]<<3)|(bC[0]<<0)) << (12*2);
 		mVUregs.fullFlags1     = ((bC[3]<<3)|(bC[2]<<0)) << (12*0);
 		mVUregs.needExactMatch = 0;
-		DevCon.WriteLn("MVU FULL FLAG!!!!!!!! [0x%04x][0x%08x][0x%02x]",
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG,
+"MVU FULL FLAG!!!!!!!! [0x%04x][0x%08x][0x%02x]\n",
 			   xPC, mVUregs.fullFlags0, (u32)mVUregs.fullFlags1);
+#endif
 	}
 }
 
@@ -262,16 +269,24 @@ __fi void mVUsetFlags(mV, microFlagCycles& mFC) {
 // Recompiles Code for Proper Flags on Block Linkings
 __fi void mVUsetupFlags(mV, microFlagCycles& mFC) {
 
+#ifndef NDEBUG
 	if (mVUregs.flagInfo & 1) {
-		if (mVUregs.needExactMatch) DevCon.Error("mVU ERROR!!!");
+		if (mVUregs.needExactMatch) log_cb(RETRO_LOG_DEBUG, "mVU ERROR!!!\n");
 	}
+#endif
 
 	const bool pf = false; // Print Flag Info
-	if (pf)	DevCon.WriteLn("mVU%d - [#%d][sPC=%04x][bPC=%04x][mVUBranch=%d][branch=%d]",
-			mVU.index, mVU.prog.cur->idx, mVUstartPC/2*8, xPC, mVUbranch, mVUlow.branch);
+#ifndef NDEBUG
+	if (pf)
+		log_cb(RETRO_LOG_DEBUG,
+				"mVU%d - [#%d][sPC=%04x][bPC=%04x][mVUBranch=%d][branch=%d]\n",
+				mVU.index, mVU.prog.cur->idx, mVUstartPC/2*8, xPC, mVUbranch, mVUlow.branch);
+#endif
 
 	if (doSFlagInsts && __Status) {
-		if (pf) DevCon.WriteLn("mVU%d - Status Flag", mVU.index);
+#ifndef NDEBUG
+		if (pf) log_cb(RETRO_LOG_DEBUG, "mVU%d - Status Flag\n", mVU.index);
+#endif
 		int bStatus[4];
 		int sortRegs = sortFlag(mFC.xStatus, bStatus, mFC.cycles);
 		// DevCon::Status("sortRegs = %d", params sortRegs);
@@ -310,7 +325,10 @@ __fi void mVUsetupFlags(mV, microFlagCycles& mFC) {
 	}
 	
 	if (doMFlagInsts && __Mac) {
-		if (pf) DevCon.WriteLn("mVU%d - Mac Flag", mVU.index);
+#ifndef NDEBUG
+		if (pf)
+			log_cb(RETRO_LOG_DEBUG, "mVU%d - Mac Flag\n", mVU.index);
+#endif
 		int bMac[4];
 		sortFlag(mFC.xMac, bMac, mFC.cycles);
 		xMOVAPS(xmmT1, ptr128[mVU.macFlag]);
@@ -319,7 +337,9 @@ __fi void mVUsetupFlags(mV, microFlagCycles& mFC) {
 	}
 
 	if (doCFlagInsts && __Clip) {
-		if (pf) DevCon.WriteLn("mVU%d - Clip Flag", mVU.index);
+#ifndef NDEBUG
+		if (pf) log_cb(RETRO_LOG_DEBUG, "mVU%d - Clip Flag\n", mVU.index);
+#endif
 		int bClip[4];
 		sortFlag(mFC.xClip, bClip, mFC.cycles);
 		xMOVAPS(xmmT2, ptr128[mVU.clipFlag]);
@@ -367,7 +387,7 @@ void _mVUflagPass(mV, u32 startPC, u32 sCount, u32 found, std::vector<u32>& v) {
 		if ( (curI & _Dbit_) && doDBitHandling ) { branch = 6; }
 		if (!(curI & _Ibit_) )	{ incPC(-1); mVUopL(mVU, 3); incPC(1); }
 		
-		// if (mVUbranch&&(branch>=3)&&(branch<=5)) { DevCon.Error("Double Branch [%x]", xPC); mVUregs.needExactMatch |= 7; break; }
+		// if (mVUbranch&&(branch>=3)&&(branch<=5)) { log_cb(RETRO_LOG_DEBUG, "Double Branch [%x]\n", xPC); mVUregs.needExactMatch |= 7; break; }
 		
 		if		(branch >= 2)	{ shortBranch(); }
 		else if (branch == 1)	{ branch = 2; }

@@ -136,7 +136,7 @@ static void LoadBiosVersion( pxInputStream& fp, u32& version, wxString& descript
 			version = strtol(vermaj, (char**)NULL, 0) << 8;
 			version|= strtol(vermin, (char**)NULL, 0);
 
-			Console.WriteLn(L"Bios Found: %ls", result.c_str());
+			log_cb(RETRO_LOG_INFO, "Bios Found: %ls\n", result.c_str());
 
 			description = result.c_str();
 			zoneStr = fromUTF8(zone);
@@ -205,7 +205,7 @@ static void LoadExtraRom( const wxChar* ext, u8 (&dest)[_size] )
 			Bios1 = Path::ReplaceExtension( Bios, ext );
 			if( (filesize=Path::GetFileSize( Bios1 ) ) <= 0 )
 			{
-				Console.WriteLn( Color_Gray, L"BIOS %s module not found, skipping...", ext );
+				log_cb(RETRO_LOG_INFO, "BIOS %s module not found, skipping...\n", ext );
 				return;
 			}
 		}
@@ -222,9 +222,9 @@ static void LoadExtraRom( const wxChar* ext, u8 (&dest)[_size] )
 		// Log it, but don't make a big stink.  99% of games and stuff will
 		// still work fine.
 
-		Console.Warning(L"BIOS Warning: %s could not be read (permission denied?)", ext);
-		Console.Indent().WriteLn(L"Details: %s", WX_STR(ex.FormatDiagnosticMessage()));
-		Console.Indent().WriteLn(L"File size: %llu", filesize);
+		log_cb(RETRO_LOG_WARN, "BIOS Warning: %s could not be read (permission denied?)\n", ext);
+		log_cb(RETRO_LOG_INFO, "Details: %s\n", WX_STR(ex.FormatDiagnosticMessage()));
+		log_cb(RETRO_LOG_INFO, "File size: %llu\n", filesize);
 	}
 }
 
@@ -235,7 +235,7 @@ static void LoadIrx( const wxString& filename, u8* dest )
 	{
 		wxFile irx(filename);
 		if( (filesize=Path::GetFileSize( filename ) ) <= 0 ) {
-			Console.Warning(L"IRX Warning: %s could not be read", WX_STR(filename));
+			log_cb(RETRO_LOG_WARN, "IRX Warning: %s could not be read\n", WX_STR(filename));
 			return;
 		}
 
@@ -243,8 +243,8 @@ static void LoadIrx( const wxString& filename, u8* dest )
 	}
 	catch (Exception::BadStream& ex)
 	{
-		Console.Warning(L"IRX Warning: %s could not be read", WX_STR(filename));
-		Console.Indent().WriteLn(L"Details: %s", WX_STR(ex.FormatDiagnosticMessage()));
+		log_cb(RETRO_LOG_WARN, "IRX Warning: %s could not be read\n", WX_STR(filename));
+		log_cb(RETRO_LOG_INFO, "Details: %s\n", WX_STR(ex.FormatDiagnosticMessage()));
 	}
 }
 
@@ -288,10 +288,6 @@ void LoadBIOS()
 
 		pxInputStream memfp( Bios, new wxMemoryInputStream( eeMem->ROM, sizeof(eeMem->ROM) ) );
 		LoadBiosVersion( memfp, BiosVersion, BiosDescription, biosZone );
-
-		Console.SetTitle( pxsFmt( L"Running BIOS (%s v%u.%u)",
-			WX_STR(biosZone), BiosVersion >> 8, BiosVersion & 0xff
-		));
 
 		//injectIRX("host.irx");	//not fully tested; still buggy
 

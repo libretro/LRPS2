@@ -109,7 +109,7 @@ s32 DoSifRead(u32 iopAvailable)
 	tDMA_TAG *ptag = sif0ch.getAddr(sif0ch.madr, DMAC_SIF0, true);
 	if (ptag == NULL)
 	{
-		DevCon.Warning("Write IOP to EE: ptag == NULL");
+		log_cb(RETRO_LOG_WARN, "Write IOP to EE: ptag == NULL\n");
 		return false;
 	}
 
@@ -146,7 +146,7 @@ s32  CALLBACK sif0DmaRead  (s32 channel, u32* data, u32 bytesLeft, u32* bytesPro
 
 s32  CALLBACK sif0DmaWrite (s32 channel, u32* data, u32 bytesLeft, u32* bytesProcessed)
 {
-	DevCon.Warning("SIF0 Dma Write to iop?!");
+	log_cb(RETRO_LOG_WARN, "SIF0 Dma Write to iop?!\n");
 	*bytesProcessed=0; return 0;
 }
 
@@ -157,7 +157,7 @@ void CALLBACK sif0DmaInterrupt (s32 channel)
 
 s32  CALLBACK sif1DmaRead  (s32 channel, u32* data, u32 bytesLeft, u32* bytesProcessed)
 {
-	DevCon.Warning("SIF1 Dma Read from iop?!");
+	log_cb(RETRO_LOG_WARN, "SIF1 Dma Read from iop?!\n");
 	*bytesProcessed=0; return 0;
 }
 

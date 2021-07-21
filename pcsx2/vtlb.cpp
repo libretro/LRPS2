@@ -82,7 +82,7 @@ __inline int CheckCache(u32 addr)
 
 	if(((cpuRegs.CP0.n.Config >> 16) & 0x1) == 0) 
 	{
-		//DevCon.Warning("Data Cache Disabled! %x", cpuRegs.CP0.n.Config);
+		//log_cb(RETRO_LOG_DEBUG, "Data Cache Disabled! %x\n", cpuRegs.CP0.n.Config);
 		return false;//
 	}
 
@@ -92,7 +92,7 @@ __inline int CheckCache(u32 addr)
 			mask  = tlb[i].PageMask;
 			
 			if ((addr >= tlb[i].PFN1) && (addr <= tlb[i].PFN1 + mask)) {
-				//DevCon.Warning("Yay! Cache check cache addr=%x, mask=%x, addr+mask=%x, VPN2=%x PFN0=%x", addr, mask, (addr & mask), tlb[i].VPN2, tlb[i].PFN0); 
+				//log_cb(RETRO_LOG_DEBUG, "Yay! Cache check cache addr=%x, mask=%x, addr+mask=%x, VPN2=%x PFN0=%x\n", addr, mask, (addr & mask), tlb[i].VPN2, tlb[i].PFN0); 
 				return true;
 			}
 		}
@@ -100,7 +100,7 @@ __inline int CheckCache(u32 addr)
 			mask  = tlb[i].PageMask;
 			
 			if ((addr >= tlb[i].PFN0) && (addr <= tlb[i].PFN0 + mask)) {
-				//DevCon.Warning("Yay! Cache check cache addr=%x, mask=%x, addr+mask=%x, VPN2=%x PFN0=%x", addr, mask, (addr & mask), tlb[i].VPN2, tlb[i].PFN0); 
+				//log_cb(RETRO_LOG_DEBUG, "Yay! Cache check cache addr=%x, mask=%x, addr+mask=%x, VPN2=%x PFN0=%x\n", addr, mask, (addr & mask), tlb[i].VPN2, tlb[i].PFN0); 
 				return true;
 			}
 		}
@@ -325,8 +325,7 @@ template void vtlb_memWrite<mem32_t>(u32 mem, mem32_t data);
 //
 // Important recompiler note: Mid-block Exception handling isn't reliable *yet* because
 // memory ops don't flush the PC prior to invoking the indirect handlers.
-
-
+#ifndef NDEBUG
 static void GoemonTlbMissDebug()
 {
 	// 0x3d5580 is the address of the TLB cache
@@ -334,11 +333,12 @@ static void GoemonTlbMissDebug()
 
 	for (u32 i = 0; i < 150; i++) {
 		if (tlb[i].valid == 0x1 && tlb[i].low_add != tlb[i].high_add)
-			DevCon.WriteLn("GoemonTlbMissDebug: Entry %d is valid. Key %x. From V:0x%8.8x to V:0x%8.8x (P:0x%8.8x)", i, tlb[i].key, tlb[i].low_add, tlb[i].high_add, tlb[i].physical_add);
+			log_cb(RETRO_LOG_DEBUG, "GoemonTlbMissDebug: Entry %d is valid. Key %x. From V:0x%8.8x to V:0x%8.8x (P:0x%8.8x)\n", i, tlb[i].key, tlb[i].low_add, tlb[i].high_add, tlb[i].physical_add);
 		else if (tlb[i].low_add != tlb[i].high_add)
-			DevCon.WriteLn("GoemonTlbMissDebug: Entry %d is invalid. Key %x. From V:0x%8.8x to V:0x%8.8x (P:0x%8.8x)", i, tlb[i].key, tlb[i].low_add, tlb[i].high_add, tlb[i].physical_add);
+			log_cb(RETRO_LOG_DEBUG, "GoemonTlbMissDebug: Entry %d is invalid. Key %x. From V:0x%8.8x to V:0x%8.8x (P:0x%8.8x)\n", i, tlb[i].key, tlb[i].low_add, tlb[i].high_add, tlb[i].physical_add);
 	}
 }
+#endif
 
 void __fastcall GoemonPreloadTlb()
 {
@@ -356,7 +356,7 @@ void __fastcall GoemonPreloadTlb()
 			//if ((uptr)vtlbdata.vmap[vaddr>>VTLB_PAGE_BITS] == POINTER_SIGN_BIT) {
 			auto vmv = vtlbdata.vmap[vaddr>>VTLB_PAGE_BITS];
 			if (vmv.isHandler(vaddr) && vmv.assumeHandlerGetID() == 0) {
-				DevCon.WriteLn("GoemonPreloadTlb: Entry %d. Key %x. From V:0x%8.8x to P:0x%8.8x (%d pages)", i, tlb[i].key, vaddr, paddr, size >> VTLB_PAGE_BITS);
+				log_cb(RETRO_LOG_DEBUG, "GoemonPreloadTlb: Entry %d. Key %x. From V:0x%8.8x to P:0x%8.8x (%d pages)\n", i, tlb[i].key, vaddr, paddr, size >> VTLB_PAGE_BITS);
 				vtlb_VMap(           vaddr , paddr, size);
 				vtlb_VMap(0x20000000|vaddr , paddr, size);
 			}
@@ -373,7 +373,7 @@ void __fastcall GoemonUnloadTlb(u32 key)
 			if (tlb[i].valid == 0x1) {
 				u32 size  = tlb[i].high_add - tlb[i].low_add;
 				u32 vaddr = tlb[i].low_add;
-				DevCon.WriteLn("GoemonUnloadTlb: Entry %d. Key %x. From V:0x%8.8x to V:0x%8.8x (%d pages)", i, tlb[i].key, vaddr, vaddr+size, size >> VTLB_PAGE_BITS);
+				log_cb(RETRO_LOG_DEBUG, "GoemonUnloadTlb: Entry %d. Key %x. From V:0x%8.8x to V:0x%8.8x (%d pages)\n", i, tlb[i].key, vaddr, vaddr+size, size >> VTLB_PAGE_BITS);
 
 				vtlb_VMapUnmap(           vaddr , size);
 				vtlb_VMapUnmap(0x20000000|vaddr , size);
@@ -385,7 +385,7 @@ void __fastcall GoemonUnloadTlb(u32 key)
 				tlb[i].low_add  = 0xFEFEFEFE;
 				tlb[i].high_add = 0xFEFEFEFE;
 			} else {
-				DevCon.Error("GoemonUnloadTlb: Entry %d is not valid. Key %x", i, tlb[i].key);
+				log_cb(RETRO_LOG_ERROR, "GoemonUnloadTlb: Entry %d is not valid. Key %x\n", i, tlb[i].key);
 			}
 		}
 	}
@@ -394,8 +394,10 @@ void __fastcall GoemonUnloadTlb(u32 key)
 // Generates a tlbMiss Exception
 static __ri void vtlb_Miss(u32 addr,u32 mode)
 {
+#ifndef NDEBUG
 	if (EmuConfig.Gamefixes.GoemonTlbHack)
 		GoemonTlbMissDebug();
+#endif
 
 	// Hack to handle expected tlb miss by some games.
 	if (Cpu == &intCpu) {
@@ -414,7 +416,11 @@ static __ri void vtlb_Miss(u32 addr,u32 mode)
 	{
 		static int spamStop = 0;
 		if ( spamStop++ < 50 )
+		{
+#if 0
 			Console.Error( R5900Exception::TLBMiss( addr, !!mode ).FormatMessage() );
+#endif
+		}
 	}
 }
 
@@ -431,8 +437,10 @@ static __ri void vtlb_BusError(u32 addr,u32 mode)
 	if( IsDevBuild )
 #endif
 		Cpu->ThrowCpuException( R5900Exception::BusError( addr, !!mode ) );
+#if 0
 	else
 		Console.Error( R5900Exception::TLBMiss( addr, !!mode ).FormatMessage() );
+#endif
 }
 
 template<typename OperandType, u32 saddr>

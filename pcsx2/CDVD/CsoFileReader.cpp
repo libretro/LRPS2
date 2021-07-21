@@ -67,17 +67,17 @@ bool CsoFileReader::ValidateHeader(const CsoHeader& hdr)
 	}
 	if (hdr.ver > 1)
 	{
-		Console.Error(L"Only CSOv1 files are supported.");
+		log_cb(RETRO_LOG_ERROR, "Only CSOv1 files are supported.\n");
 		return false;
 	}
 	if ((hdr.frame_size & (hdr.frame_size - 1)) != 0)
 	{
-		Console.Error(L"CSO frame size must be a power of two.");
+		log_cb(RETRO_LOG_ERROR, "CSO frame size must be a power of two.\n");
 		return false;
 	}
 	if (hdr.frame_size < 2048)
 	{
-		Console.Error(L"CSO frame size must be at least one sector.");
+		log_cb(RETRO_LOG_ERROR, "CSO frame size must be at least one sector.\n");
 		return false;
 	}
 
@@ -112,13 +112,13 @@ bool CsoFileReader::ReadFileHeader()
 	PX_fseeko(m_src, m_dataoffset, SEEK_SET);
 	if (fread(&hdr, 1, sizeof(hdr), m_src) != sizeof(hdr))
 	{
-		Console.Error(L"Failed to read CSO file header.");
+		log_cb(RETRO_LOG_ERROR, "Failed to read CSO file header.\n");
 		return false;
 	}
 
 	if (!ValidateHeader(hdr))
 	{
-		Console.Error(L"CSO has invalid header.");
+		log_cb(RETRO_LOG_ERROR, "CSO has invalid header.\n");
 		return false;
 	}
 
@@ -160,7 +160,7 @@ bool CsoFileReader::InitializeBuffers()
 	m_index = new u32[indexSize];
 	if (fread(m_index, sizeof(u32), indexSize, m_src) != indexSize)
 	{
-		Console.Error(L"Unable to read index data from CSO.");
+		log_cb(RETRO_LOG_ERROR, "Unable to read index data from CSO.\n");
 		return false;
 	}
 
@@ -170,7 +170,7 @@ bool CsoFileReader::InitializeBuffers()
 	m_z_stream->opaque = Z_NULL;
 	if (inflateInit2(m_z_stream, -15) != Z_OK)
 	{
-		Console.Error("Unable to initialize zlib for CSO decompression.");
+		log_cb(RETRO_LOG_ERROR, "Unable to initialize zlib for CSO decompression.\n");
 		return false;
 	}
 
@@ -289,7 +289,7 @@ int CsoFileReader::ReadFromFrame(u8* dest, u64 pos, int maxBytes)
 		// Just read directly, easy.
 		if (PX_fseeko(m_src, m_dataoffset + frameRawPos + offset, SEEK_SET) != 0)
 		{
-			Console.Error("Unable to seek to uncompressed CSO data.");
+			log_cb(RETRO_LOG_ERROR, "Unable to seek to uncompressed CSO data.\n");
 			return 0;
 		}
 		return fread(dest, 1, bytes, m_src);
@@ -301,7 +301,7 @@ int CsoFileReader::ReadFromFrame(u8* dest, u64 pos, int maxBytes)
 		{
 			if (PX_fseeko(m_src, m_dataoffset + frameRawPos, SEEK_SET) != 0)
 			{
-				Console.Error("Unable to seek to compressed CSO data.");
+				log_cb(RETRO_LOG_ERROR, "Unable to seek to compressed CSO data.\n");
 				return 0;
 			}
 			// This might be less bytes than frameRawSize in case of padding on the last frame.
@@ -336,7 +336,7 @@ bool CsoFileReader::DecompressFrame(u32 frame, u32 readBufferSize)
 	}
 	else
 	{
-		Console.Error("Unable to decompress CSO frame using zlib.");
+		log_cb(RETRO_LOG_ERROR, "Unable to decompress CSO frame using zlib.\n");
 		m_zlibBufferFrame = (u32)-1;
 	}
 

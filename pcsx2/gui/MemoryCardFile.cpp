@@ -36,8 +36,6 @@ struct Component_FileMcd;
 
 #include "svnrev.h"
 
-#include "ConsoleLogger.h"
-
 #include <wx/ffile.h>
 #include <map>
 #include  "options_tools.h"
@@ -307,7 +305,7 @@ void FileMemoryCard::Open()
 			cont = true;
 		}
 
-		Console.WriteLn(cont ? Color_Gray : Color_Green, L"McdSlot %u [File]: " + str, slot);
+		log_cb(RETRO_LOG_INFO, "McdSlot %u [File]: %s\n", slot, WX_STR(str));
 		if (cont)
 			continue;
 
@@ -340,7 +338,7 @@ void FileMemoryCard::Open()
 			wxString newname = str + "x";
 			if (!ConvertNoECCtoRAW(str, newname))
 			{
-				Console.Error(L"Could convert memory card: " + str);
+				log_cb(RETRO_LOG_ERROR, "Could convert memory card: %s", WX_STR(str));
 				wxRemoveFile(newname);
 				continue;
 			}
@@ -419,7 +417,7 @@ bool FileMemoryCard::Create(const wxString& mcdFile, uint sizeInMB)
 {
 	//int enc[16] = {0x77,0x7f,0x7f,0x77,0x7f,0x7f,0x77,0x7f,0x7f,0x77,0x7f,0x7f,0,0,0,0};
 
-	Console.WriteLn(L"(FileMcd) Creating new %uMB memory card: " + mcdFile, sizeInMB);
+	log_cb(RETRO_LOG_INFO, "(FileMcd) Creating new %uMB memory card: %s\n", sizeInMB, WX_STR(mcdFile));
 
 	wxFFile fp(mcdFile, L"wb");
 	if (!fp.IsOpened())
@@ -463,7 +461,7 @@ s32 FileMemoryCard::Read(uint slot, u8* dest, u32 adr, int size)
 	wxFFile& mcfp(m_file[slot]);
 	if (!mcfp.IsOpened())
 	{
-		DevCon.Error("(FileMcd) Ignoring attempted read from disabled slot.");
+		log_cb(RETRO_LOG_ERROR, "(FileMcd) Ignoring attempted read from disabled slot.\n");
 		memset(dest, 0, size);
 		return 1;
 	}
@@ -478,7 +476,7 @@ s32 FileMemoryCard::Save(uint slot, const u8* src, u32 adr, int size)
 
 	if (!mcfp.IsOpened())
 	{
-		DevCon.Error("(FileMcd) Ignoring attempted save/write to disabled slot.");
+		log_cb(RETRO_LOG_ERROR, "(FileMcd) Ignoring attempted save/write to disabled slot.\n");
 		return 1;
 	}
 
@@ -499,14 +497,14 @@ s32 FileMemoryCard::Save(uint slot, const u8* src, u32 adr, int size)
 		for (int i = 0; i < size; i++)
 		{
 			if ((m_currentdata[i] & src[i]) != src[i])
-				Console.Warning("(FileMcd) Warning: writing to uncleared data. (%d) [%08X]", slot, adr);
+				log_cb(RETRO_LOG_WARN, "(FileMcd) Warning: writing to uncleared data. (%d) [%08X]\n", slot, adr);
 			m_currentdata[i] &= src[i];
 		}
 
 		// Checksumness
 		{
 			if (adr == m_chkaddr)
-				Console.Warning("(FileMcd) Warning: checksum sector overwritten. (%d)", slot);
+				log_cb(RETRO_LOG_WARN, "(FileMcd) Warning: checksum sector overwritten. (%d)\n", slot);
 
 			u64* pdata = (u64*)&m_currentdata[0];
 			u32 loops = size / 8;
@@ -530,7 +528,7 @@ s32 FileMemoryCard::Save(uint slot, const u8* src, u32 adr, int size)
 		{
 			wxString name, ext;
 			wxFileName::SplitPath(m_file[slot].GetName(), NULL, NULL, &name, &ext);
-			OSDlog(Color_StrongYellow, false, "Memory Card %s written.", (const char*)(name + "." + ext).c_str());
+			log_cb(RETRO_LOG_INFO, "Memory Card %s written.\n", (const char*)(name + "." + ext).c_str());
 			last = std::chrono::system_clock::now();
 		}
 		return 1;
@@ -545,7 +543,7 @@ s32 FileMemoryCard::EraseBlock(uint slot, u32 adr)
 
 	if (!mcfp.IsOpened())
 	{
-		DevCon.Error("MemoryCard: Ignoring erase for disabled slot.");
+		log_cb(RETRO_LOG_ERROR, "MemoryCard: Ignoring erase for disabled slot.\n");
 		return 1;
 	}
 
@@ -833,7 +831,7 @@ static PS2E_THISPTR PS2E_CALLBACK FileMcd_NewComponentInstance(u32 component)
 	}
 	catch (std::bad_alloc&)
 	{
-		Console.Error("Allocation failed on Component_FileMcd! (out of memory?)");
+		log_cb(RETRO_LOG_ERROR, "Allocation failed on Component_FileMcd! (out of memory?)\n");
 	}
 	return NULL;
 }

@@ -26,24 +26,6 @@ class pxEvtQueue;
 class SysExecEvent;
 
 // --------------------------------------------------------------------------------------
-//  pxEvtLog / ConsoleLogSource_Event
-// --------------------------------------------------------------------------------------
-
-class ConsoleLogSource_Event : ConsoleLogSource
-{
-	typedef ConsoleLogSource _parent;
-
-public:
-	using _parent::IsActive;
-
-	ConsoleLogSource_Event();
-
-	bool Write( const pxEvtQueue* evtHandler, const SysExecEvent* evt, const wxChar* msg );
-	bool Warn( const pxEvtQueue* evtHandler, const SysExecEvent* evt, const wxChar* msg );
-	bool Error( const pxEvtQueue* evtHandler, const SysExecEvent* evt, const wxChar* msg );
-};
-
-// --------------------------------------------------------------------------------------
 //  SysExecEvent
 // --------------------------------------------------------------------------------------
 // Base class for all pxEvtQueue processable events.

@@ -32,14 +32,14 @@ AppGameDatabase& AppGameDatabase::Load()
 
 	if (!this->initDatabase(stream))
 	{
-		Console.Error(L"[GameDB] Database could not be loaded successfully");
+		log_cb(RETRO_LOG_ERROR, "[GameDB] Database could not be loaded successfully\n");
 		return *this;
 	}
 
 	const u64 qpc_end = GetCPUTicks();
 
-	Console.WriteLn(fmt::format("[GameDB] {} games on record (loaded in {}ms)", this->numGames(),
-		(u32)(((qpc_end - qpc_Start) * 1000) / GetTickFrequency())));
+	log_cb(RETRO_LOG_INFO, "%s\n", fmt::format("[GameDB] {} games on record (loaded in {}ms)", this->numGames(),
+		(u32)(((qpc_end - qpc_Start) * 1000) / GetTickFrequency())).c_str());
 
 	return *this;
 }

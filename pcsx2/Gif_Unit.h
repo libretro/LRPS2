@@ -243,13 +243,15 @@ struct Gif_Path
 	// Waits on the MTGS to process gs packets
 	void mtgsReadWait()
 	{
+#ifndef NDEBUG
 		if (IsDevBuild)
 		{
-			DevCon.WriteLn(Color_Red, "Gif Path[%d] - MTGS Wait! [r=0x%x]", idx + 1, getReadAmount());
+			log_cb(RETRO_LOG_DEBUG, "Gif Path[%d] - MTGS Wait! [r=0x%x]\n", idx + 1, getReadAmount());
 			Gif_MTGS_Wait(isMTVU());
-			DevCon.WriteLn(Color_Green, "Gif Path[%d] - MTGS Wait! [r=0x%x]", idx + 1, getReadAmount());
+			log_cb(RETRO_LOG_DEBUG, "Gif Path[%d] - MTGS Wait! [r=0x%x]\n", idx + 1, getReadAmount());
 			return;
 		}
+#endif
 		Gif_MTGS_Wait(isMTVU());
 	}
 
@@ -276,7 +278,7 @@ struct Gif_Path
 			else
 				Gif_AddBlankGSPacket(buffLimit - offset, idx);
 		}
-		//DevCon.WriteLn("Realign Packet [%d]", curSize - offset);
+		//log_cb(RETRO_LOG_DEBUG, "Realign Packet [%d]\n", curSize - offset);
 		if (intersect)
 			memmove(buffer, &buffer[offset], curSize - offset);
 		else
@@ -468,11 +470,9 @@ struct Gif_Path
 	{
 		// FIXME is the error path useful ?
 		if (!mtvu.gsPackQueue.empty())
-		{
 			return mtvu.gsPackQueue.front();
-		}
 
-		Console.Error("MTVU: Expected gsPackQueue to have elements!");
+		log_cb(RETRO_LOG_ERROR, "MTVU: Expected gsPackQueue to have elements!\n");
 		pxAssert(0);
 		return GS_Packet(); // gsPack.size will be 0
 	}
@@ -562,7 +562,7 @@ struct Gif_Unit
 			incTag(offset, curSize, 16 + gifTag.len); // Tag + Data length
 			if (pathIdx == GIF_PATH_1 && curSize >= 0x4000)
 			{
-				DevCon.Warning("Gif Unit - GS packet size exceeded VU memory size!");
+				log_cb(RETRO_LOG_DEBUG, "Gif Unit - GS packet size exceeded VU memory size!\n");
 				return 0; // Bios does this... (Fixed if you delay vu1's xgkick by 103 vu cycles)
 			}
 			if (curSize >= size)
@@ -611,8 +611,10 @@ struct Gif_Unit
 
 		if (tranType == GIF_TRANS_FIFO)
 		{
+#ifndef NDEBUG
 			if (!CanDoPath3())
-				DevCon.Warning("Gif Unit - Path 3 FIFO transfer while !CanDoPath3()");
+				log_cb(RETRO_LOG_DEBUG, "Gif Unit - Path 3 FIFO transfer while !CanDoPath3()\n");
+#endif
 		}
 		if (tranType == GIF_TRANS_DMA)
 		{
@@ -622,7 +624,7 @@ struct Gif_Unit
 					stat.P3Q = 1;
 				return 0;
 			} // DMA Stall
-			  //if (stat.P2Q) DevCon.WriteLn("P2Q while path 3");
+			  //if (stat.P2Q) log_cb(RETRO_LOG_DEBUG, "P2Q while path 3\n");
 		}
 		if (tranType == GIF_TRANS_XGKICK)
 		{
@@ -696,7 +698,7 @@ struct Gif_Unit
 	{
 		if (!CanDoGif())
 		{
-			DevCon.Error("Gif Unit - Signal or PSE Set or Dir = GS to EE");
+			log_cb(RETRO_LOG_DEBUG, "Gif Unit - Signal or PSE Set or Dir = GS to EE\n");
 			return 0;
 		}
 		bool didPath3 = false;
@@ -738,10 +740,10 @@ struct Gif_Unit
 						}
 					}
 					//FlushToMTGS();
-					//DevCon.WriteLn("Incomplete GS Packet for path %d, size=%d", stat.APATH, gsPack.size);
+					//log_cb(RETRO_LOG_DEBUG, "Incomplete GS Packet for path %d, size=%d\n", stat.APATH, gsPack.size);
 					break; // Not finished with GS packet
 				}
-				//DevCon.WriteLn("Adding GS Packet for path %d", stat.APATH);
+				//log_cb(RETRO_LOG_DEBUG, "Adding GS Packet for path %d\n", stat.APATH);
 				if (gifPath[curPath].state == GIF_PATH_WAIT || gifPath[curPath].state == GIF_PATH_IDLE)
 				{
 					AddCompletedGSPacket(gsPack, (GIF_PATH)(stat.APATH - 1));

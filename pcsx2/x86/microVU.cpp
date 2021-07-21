@@ -189,9 +189,10 @@ __ri microProgram* mVUcreateProg(microVU& mVU, int startPC) {
 	double cacheSize = (double)((uptr)mVU.prog.x86end - (uptr)mVU.prog.x86start);
 	double cacheUsed =((double)((uptr)mVU.prog.x86ptr - (uptr)mVU.prog.x86start)) / (double)_1mb;
 	double cachePerc =((double)((uptr)mVU.prog.x86ptr - (uptr)mVU.prog.x86start)) / cacheSize * 100;
-	ConsoleColors c = mVU.index ? Color_Orange : Color_Magenta;
-	DevCon.WriteLn(c, "microVU%d: Cached Prog = [%03d] [PC=%04x] [List=%02d] (Cache=%3.3f%%) [%3.1fmb]",
+#ifndef NDEBUG
+	log_cb(RETRO_LOG_DEBUG, "microVU%d: Cached Prog = [%03d] [PC=%04x] [List=%02d] (Cache=%3.3f%%) [%3.1fmb]\n",
 				   mVU.index, prog->idx, startPC*8, mVU.prog.prog[startPC]->size()+1, cachePerc, cacheUsed);
+#endif
 	return prog;
 }
 
@@ -211,7 +212,9 @@ u64 mVUrangesHash(microVU& mVU, microProgram& prog) {
 
 	std::deque<microRange>::const_iterator it(prog.ranges->begin());
 	for ( ; it != prog.ranges->end(); ++it) {
-		if((it[0].start<0)||(it[0].end<0))  { DevCon.Error("microVU%d: Negative Range![%d][%d]", mVU.index, it[0].start, it[0].end); }
+#ifndef NDEBUG
+		if((it[0].start<0)||(it[0].end<0))  { log_cb(RETRO_LOG_DEBUG, "microVU%d: Negative Range![%d][%d]\n", mVU.index, it[0].start, it[0].end); }
+#endif
 		for(int i = it[0].start/4; i < it[0].end/4; i++) {
 			hash.v32[0] -= prog.data[i];
 			hash.v32[1] ^= prog.data[i];
@@ -235,7 +238,9 @@ void mVUprintUniqueRatio(microVU& mVU) {
 	sortVector(v);
 	makeUnique(v);
 	if (!total) return;
-	DevCon.WriteLn("%d / %d [%3.1f%%]", v.size(), total, 100.-(double)v.size()/(double)total*100.);
+#ifndef NDEBUG
+	log_cb(RETRO_LOG_DEBUG, "%d / %d [%3.1f%%]\n", v.size(), total, 100.-(double)v.size()/(double)total*100.);
+#endif
 }
 
 // Compare Cached microProgram to mVU.regs().Micro
@@ -249,7 +254,9 @@ __fi bool mVUcmpProg(microVU& mVU, microProgram& prog, const bool cmpWholeProg) 
 	{
 		for (const auto& range : *prog.ranges) {
 			auto cmpOffset = [&](void* x) { return (u8*)x + range.start; };
-			if ((range.start < 0) || (range.end < 0)) { DevCon.Error("microVU%d: Negative Range![%d][%d]", mVU.index, range.start, range.end); }
+#ifndef NDEBUG
+			if ((range.start < 0) || (range.end < 0)) { log_cb(RETRO_LOG_DEBUG, "microVU%d: Negative Range![%d][%d]\n", mVU.index, range.start, range.end); }
+#endif
 			if (memcmp_mmx(cmpOffset(prog.data), cmpOffset(mVU.regs().Micro), ((range.end + 8) - range.start))) {
 				return false;
 			}
@@ -430,13 +437,17 @@ uint recMicroVU1::GetCacheReserve() const {
 }
 
 void recMicroVU0::SetCacheReserve(uint reserveInMegs) const {
-	DevCon.WriteLn("microVU0: Changing cache size [%dmb]", reserveInMegs);
+#ifndef NDEBUG
+	log_cb(RETRO_LOG_DEBUG, "microVU0: Changing cache size [%dmb]\n", reserveInMegs);
+#endif
 	microVU0.cacheSize = std::min(reserveInMegs, mVU0cacheReserve);
 	safe_delete(microVU0.cache_reserve); // I assume this unmaps the memory
 	mVUreserveCache(microVU0); // Need rec-reset after this
 }
 void recMicroVU1::SetCacheReserve(uint reserveInMegs) const {
-	DevCon.WriteLn("microVU1: Changing cache size [%dmb]", reserveInMegs);
+#ifndef NDEBUG
+	log_cb(RETRO_LOG_DEBUG, "microVU1: Changing cache size [%dmb]\n", reserveInMegs);
+#endif
 	microVU1.cacheSize = std::min(reserveInMegs, mVU1cacheReserve);
 	safe_delete(microVU1.cache_reserve); // I assume this unmaps the memory
 	mVUreserveCache(microVU1); // Need rec-reset after this

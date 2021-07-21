@@ -39,7 +39,7 @@ namespace MemCardRetro
 		u8 m_effeffs[528 * 16];
 		memset8<0xff>(m_effeffs);
 
-		Console.WriteLn(L"(FileMcd) Creating new %uMB memory card: " + mcdFile, sizeInMB);
+		log_cb(RETRO_LOG_INFO, "(FileMcd) Creating new %uMB memory card: %s\n", sizeInMB, WX_STR(mcdFile));
 
 		wxFFile fp(mcdFile, L"wb");
 		if (!fp.IsOpened()) return false;

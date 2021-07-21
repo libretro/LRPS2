@@ -56,11 +56,11 @@ SingleCoreAffinity::SingleCoreAffinity()
 
     if (s_oldmask == ERROR_INVALID_PARAMETER) {
         const int hexWidth = 2 * sizeof(DWORD_PTR);
-        Console.Warning(
+        log_cb(RETRO_LOG_WARN,
             "CpuDetect: SetThreadAffinityMask failed...\n"
             "\tSystem Affinity : 0x%0*x\n"
             "\tProcess Affinity: 0x%0*x\n"
-            "\tAttempted Thread Affinity CPU: %i",
+            "\tAttempted Thread Affinity CPU: %i\n",
             hexWidth, availProcCpus, hexWidth, availSysCpus, cpu);
     }
 

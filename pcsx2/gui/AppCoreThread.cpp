@@ -470,7 +470,7 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 	//Till the end of this function, entry CRC will be 00000000
 	if (!gameCRC.Length())
 	{
-		Console.WriteLn(Color_Gray, "Patches: No CRC found, using 00000000 instead.");
+		log_cb(RETRO_LOG_WARN, "Patches: No CRC found, using 00000000 instead.\n");
 		gameCRC = L"00000000";
 	}
 
@@ -495,7 +495,7 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 		if (int numberLoadedWideScreenPatches = LoadPatchesFromDir(gameCRC, GetCheatsWsFolder(), L"Widescreen hacks"))
 		{
 			gameWsHacks.Printf(L" [%d widescreen hacks]", numberLoadedWideScreenPatches);
-			Console.WriteLn(Color_Gray, "Found widescreen patches in the cheats_ws folder --> skipping cheats_ws.zip");
+			log_cb(RETRO_LOG_INFO, "Found widescreen patches in the cheats_ws folder --> skipping cheats_ws.zip\n");
 			if (!msg_cheat_ws_found_sent) 
 			{
 				RetroMessager::Notification("Found and applied Widescreen Patch");
@@ -522,13 +522,6 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 		}
 	}
 
-	// When we're booting, the bios loader will set a a title which would be more interesting than this
-	// to most users - with region, version, etc, so don't overwrite it with patch info. That's OK. Those
-	// users which want to know the status of the patches at the bios can check the console content.
-	wxString consoleTitle = gameName + gameSerial;
-	consoleTitle += L" [" + gameCRC.MakeUpper() + L"]" + gameCompat + gameFixes + gamePatch + gameCheats + gameWsHacks;
-	if (ingame)
-		Console.SetTitle(consoleTitle);
 	gsUpdateFrequency(fixup);
 }
 
@@ -664,7 +657,7 @@ void AppCoreThread::DoCpuExecute()
 	}
 	catch (BaseR5900Exception& ex)
 	{
-		Console.Error(ex.FormatMessage());
+		log_cb(RETRO_LOG_ERROR, "%s\n", ex.FormatMessage().c_str());
 
 		// [TODO] : Debugger Hook!
 
@@ -677,7 +670,7 @@ void AppCoreThread::DoCpuExecute()
 			//Suspend();
 
 			// [TODO] Issue error dialog to the user here...
-			Console.Error("Too many execution errors.  VM execution has been suspended!");
+			log_cb(RETRO_LOG_ERROR, "Too many execution errors.  VM execution has been suspended!\n");
 
 			// Hack: this keeps the EE thread from running more code while the SysExecutor
 			// thread catches up and signals it for suspension.
@@ -795,7 +788,9 @@ void BaseScopedCoreThread::DoResume()
 #ifndef __LIBRETRO__
 	if (!GetSysExecutorThread().IsSelf())
 	{
-		//DbgCon.WriteLn("(ScopedCoreThreadPause) Threaded Scope Created!");
+#if 0
+		log_cb(RETRO_LOG_DEBUG, "(ScopedCoreThreadPause) Threaded Scope Created!\n");
+#endif
 		m_sync_resume.PostResult(m_allowResume ? ScopedCore_NonblockingResume : ScopedCore_SkipResume);
 		m_mtx_resume.Wait();
 	}

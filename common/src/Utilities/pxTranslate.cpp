@@ -37,12 +37,14 @@ const wxChar *__fastcall pxExpandMsg(const wxChar *englishContent)
 //
 const wxChar *__fastcall pxGetTranslation(const wxChar *message)
 {
+#ifndef NDEBUG
     if (IsDevBuild) {
         if (wxStrlen(message) > 128) {
-            Console.Warning("pxGetTranslation: Long message detected, maybe use pxE() instead?");
-            Console.WriteLn(Color_Green, L"Message: %s", message);
+            log_cb(RETRO_LOG_INFO, "pxGetTranslation: Long message detected, maybe use pxE() instead?\n");
+            log_cb(RETRO_LOG_INFO, "Message: %s\n", message);
         }
     }
+#endif
 
     return wxGetTranslation(message).wc_str();
 }

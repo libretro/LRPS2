@@ -55,6 +55,7 @@
 #include <sys/stat.h>
 #include <pthread.h>
 
+#include "../libretro/retro_messager.h"
 
 // As plugins which use C have to be used with PCSX2, the BOOL type is redefined
 // to prevent any C/C++ compatibility issues.
@@ -76,7 +77,6 @@ typedef int BOOL;
 #include "Utilities/FixedPointTypes.h"
 #include "Utilities/wxBaseTools.h"
 #include "Utilities/Path.h"
-#include "Utilities/Console.h"
 #include "Utilities/MemcpyFast.h"
 #include "Utilities/General.h"
 #include "x86emitter/tools.h"

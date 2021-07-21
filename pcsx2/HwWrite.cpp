@@ -49,8 +49,10 @@ void __fastcall _hwWrite32( u32 mem, u32 value )
 	// reads.  Bus error is only generated for registers outside the first 16k of mapped
 	// register space (which is handled by the VTLB mapping, so no need for checks here).
 #if PSX_EXTRALOGS
-	if ((mem & 0x1000ff00) == 0x1000f300) DevCon.Warning("32bit Write to SIF Register %x value %x", mem, value);
-	//if ((mem & 0x1000ff00) == 0x1000f200) DevCon.Warning("Write to SIF Register %x value %x", mem, value);
+	if ((mem & 0x1000ff00) == 0x1000f300)
+		log_cb(RETRO_LOG_DEBUG, "32bit Write to SIF Register %x value %x\n", mem, value);
+	//if ((mem & 0x1000ff00) == 0x1000f200)
+	//log_cb(RETRO_LOG_DEBUG, "Write to SIF Register %x value %x\n", mem, value);
 #endif
 
 	switch (page)
@@ -76,7 +78,7 @@ void __fastcall _hwWrite32( u32 mem, u32 value )
 			u128 zerofill = u128::From32(0);
 			zerofill._u32[(mem >> 2) & 0x03] = value;
 
-			DevCon.WriteLn( Color_Cyan, "Writing 32-bit FIFO data (zero-extended to 128 bits)" );
+			log_cb(RETRO_LOG_DEBUG, "Writing 32-bit FIFO data (zero-extended to 128 bits)\n" );
 			_hwWrite128<page>(mem & ~0x0f, &zerofill);
 		}
 		return;
@@ -115,7 +117,7 @@ void __fastcall _hwWrite32( u32 mem, u32 value )
 					//Need to kickstart the GIF if the M3R mask comes off
 					if (gifRegs.stat.M3R == 1 && gifRegs.mode.M3R == 0 && gifch.chcr.STR)
 					{
-						DevCon.Warning("GIF Mode cancelling P3 Disable");
+						log_cb(RETRO_LOG_DEBUG, "GIF Mode cancelling P3 Disable\n");
 						CPU_INT(DMAC_GIF, 8);
 					}
 						
@@ -198,7 +200,7 @@ void __fastcall _hwWrite32( u32 mem, u32 value )
 
 				mcase(SBUS_F260):
 #if PSX_EXTRALOGS
-					DevCon.Warning("Write  SBUS_F260  %x ", psHu32(SBUS_F260));
+					log_cb(RETRO_LOG_DEBUG, "Write  SBUS_F260  %x \n", psHu32(SBUS_F260));
 #endif
 					psHu32(mem) = value;
 				return;
@@ -212,19 +214,19 @@ void __fastcall _hwWrite32( u32 mem, u32 value )
 				switch ((psxHu32(HW_PS1_GPU_STATUS) >> 29) & 0x3)
 					{
 					case 0x0:
-						//DevCon.Warning("Set DMA Mode OFF");
+						//log_cb(RETRO_LOG_DEBUG, "Set DMA Mode OFF\n");
 						psxHu32(HW_PS1_GPU_STATUS) &= ~0x2000000;
 						break;
 					case 0x1:
-						//DevCon.Warning("Set DMA Mode FIFO");
+						//log_cb(RETRO_LOG_DEBUG, "Set DMA Mode FIFO\n");
 						psxHu32(HW_PS1_GPU_STATUS) |= 0x2000000;
 						break;
 					case 0x2:
-						//DevCon.Warning("Set DMA Mode CPU->GPU");
+						//log_cb(RETRO_LOG_DEBUG, "Set DMA Mode CPU->GPU\n");
 						psxHu32(HW_PS1_GPU_STATUS) = (psxHu32(HW_PS1_GPU_STATUS) & ~0x2000000) | ((psxHu32(HW_PS1_GPU_STATUS) & 0x10000000) >> 3);
 						break;
 					case 0x3:
-						//DevCon.Warning("Set DMA Mode GPUREAD->CPU");
+						//log_cb(RETRO_LOG_DEBUG, "Set DMA Mode GPUREAD->CPU\n");
 						psxHu32(HW_PS1_GPU_STATUS) = (psxHu32(HW_PS1_GPU_STATUS) & ~0x2000000) | ((psxHu32(HW_PS1_GPU_STATUS) & 0x8000000) >> 2);
 						break;
 					}*/
@@ -285,7 +287,7 @@ template< uint page >
 void __fastcall _hwWrite8(u32 mem, u8 value)
 {
 #if PSX_EXTRALOGS
-	if ((mem & 0x1000ff00) == 0x1000f300) DevCon.Warning("8bit Write to SIF Register %x value %x wibble", mem, value);
+	if ((mem & 0x1000ff00) == 0x1000f300) log_cb(RETRO_LOG_DEBUG, "8bit Write to SIF Register %x value %x wibble\n", mem, value);
 #endif
 	iswitch (mem)
 	icase(SIO_TXFIFO)
@@ -308,7 +310,9 @@ void __fastcall _hwWrite8(u32 mem, u8 value)
 		if ((sio_count == ArraySize(sio_buffer)-1) || (sio_count != 0 && sio_buffer[sio_count-1] == '\n'))
 		{
 			sio_buffer[sio_count] = 0;
+#if 0
 			eeConLog( ShiftJIS_ConvertString(sio_buffer) );
+#endif
 			sio_count = 0;
 		}
 		return;
@@ -320,7 +324,7 @@ void __fastcall _hwWrite8(u32 mem, u8 value)
 		case INTC_STAT:
 		case INTC_MASK:
 		case DMAC_FAKESTAT:
-			DevCon.Warning ( "8bit write mem = %x value %x", mem, value );
+			log_cb (RETRO_LOG_DEBUG, "8bit write mem = %x value %x\n", mem, value );
 			_hwWrite32<page>(mem & ~3, (u32)value << (mem & 3) * 8);
 			return;
 	}
@@ -343,7 +347,8 @@ void __fastcall _hwWrite16(u32 mem, u16 value)
 {
 	pxAssume( (mem & 0x01) == 0 );
 #if PSX_EXTRALOGS
-	if ((mem & 0x1000ff00) == 0x1000f300) DevCon.Warning("16bit Write to SIF Register %x wibble", mem);
+	if ((mem & 0x1000ff00) == 0x1000f300)
+		log_cb(RETRO_LOG_DEBUG, "16bit Write to SIF Register %x wibble\n", mem);
 #endif
 	switch(mem & ~3)
 	{
@@ -351,7 +356,7 @@ void __fastcall _hwWrite16(u32 mem, u16 value)
 		case INTC_STAT:
 		case INTC_MASK:
 		case DMAC_FAKESTAT:
-			DevCon.Warning ( "16bit write mem = %x value %x", mem, value );
+			log_cb (RETRO_LOG_DEBUG, "16bit write mem = %x value %x\n", mem, value );
 			_hwWrite32<page>(mem & ~3, (u32)value << (mem & 3) * 8);
 			return;
 	}
@@ -379,7 +384,8 @@ void __fastcall _hwWrite64( u32 mem, const mem64_t* srcval )
 	// * All other registers likely disregard the upper 32-bits and simply act as normal
 	//   32-bit writes.
 #if PSX_EXTRALOGS
-	if ((mem & 0x1000ff00) == 0x1000f300) DevCon.Warning("64bit Write to SIF Register %x wibble", mem);
+	if ((mem & 0x1000ff00) == 0x1000f300)
+		log_cb(RETRO_LOG_DEBUG, "64bit Write to SIF Register %x wibble\n", mem);
 #endif
 	switch (page)
 	{
@@ -392,7 +398,7 @@ void __fastcall _hwWrite64( u32 mem, const mem64_t* srcval )
 		case 0x06:
 		case 0x07:
 		{
-			DevCon.WriteLn( Color_Cyan, "Writing 64-bit FIFO data (zero-extended to 128 bits)" );
+			log_cb(RETRO_LOG_DEBUG, "Writing 64-bit FIFO data (zero-extended to 128 bits)\n" );
 
 			u128 zerofill = u128::From32(0);
 			zerofill._u64[(mem >> 3) & 0x01] = *srcval;
@@ -426,7 +432,8 @@ void __fastcall _hwWrite128(u32 mem, const mem128_t* srcval)
 	// all other registers fall back on the 64-bit handler (and from there
 	// most of them fall back to the 32-bit handler).
 #if PSX_EXTRALOGS
-	if ((mem & 0x1000ff00) == 0x1000f300) DevCon.Warning("128bit Write to SIF Register %x wibble", mem);
+	if ((mem & 0x1000ff00) == 0x1000f300)
+		log_cb(RETRO_LOG_DEBUG, "128bit Write to SIF Register %x wibble\n", mem);
 #endif
 	switch (page)
 	{

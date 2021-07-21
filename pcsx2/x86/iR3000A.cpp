@@ -225,7 +225,7 @@ static void iIopDumpBlock( int startpc, u8 * ptr )
 	u8 used[34];
 	int numused, count;
 
-	Console.WriteLn( "dump1 %x:%x, %x", startpc, psxpc, psxRegs.cycle );
+	log_cb(RETRO_LOG_DEBUG, "dump1 %x:%x, %x\n", startpc, psxpc, psxRegs.cycle );
 	g_Conf->Folders.Logs.Mkdir();
 
 	wxString filename( Path::Combine( g_Conf->Folders.Logs, wxsFormat( L"psxdump%.8X.txt", startpc ) ) );
@@ -287,7 +287,7 @@ static void iIopDumpBlock( int startpc, u8 * ptr )
 				"mydump1", WX_STR(filename), "mydump1").mb_str() );
 
 	if (!WIFEXITED(status))
-		Console.Error("IOP dump didn't terminate normally");
+		log_cb(RETRO_LOG_ERROR, "IOP dump didn't terminate normally\n");
 #endif
 }
 
@@ -682,7 +682,7 @@ static void recAlloc()
 
 void recResetIOP()
 {
-	DevCon.WriteLn( "iR3000A Recompiler reset." );
+	log_cb(RETRO_LOG_DEBUG, "iR3000A Recompiler reset.\n" );
 
 	Perf::iop.reset();
 
@@ -841,7 +841,7 @@ static __fi u32 psxRecClearMem(u32 pc)
 	while(BASEBLOCKEX* pexblock = recBlocks[blockidx++])
 	{
 		if (pc >= pexblock->startpc && pc < pexblock->startpc + pexblock->size * 4) {
-			DevCon.Error("Impossible block clearing failure");
+			log_cb(RETRO_LOG_DEBUG, "Impossible block clearing failure\n");
 			pxFailDev( "Impossible block clearing failure" );
 		}
 	}
@@ -982,7 +982,7 @@ static void checkcodefn()
 #else
     __asm__ __volatile__("movl %%eax, %[pctemp]" : [pctemp]"m="(pctemp) );
 #endif
-	Console.WriteLn("iop code changed! %x", pctemp);
+	log_cb(RETRO_LOG_DEBUG, "iop code changed! %x\n", pctemp);
 }
 #endif
 #endif

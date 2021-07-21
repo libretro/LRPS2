@@ -76,12 +76,15 @@ __fi void vif0FBRST(u32 value) {
 
 	if (value & 0x1) // Reset Vif.
 	{
-		//Console.WriteLn("Vif0 Reset %x", vif0Regs.stat._u32);
+		//log_cb(RETRO_LOG_WARN, "Vif0 Reset %x\n", vif0Regs.stat._u32);
 		u128 SaveCol;
 		u128 SaveRow;
 
-	//	if(vif0ch.chcr.STR) DevCon.Warning("FBRST While Vif0 active");
+#if 0
+		if(vif0ch.chcr.STR)
+			log_cb(RETRO_LOG_WARN, "FBRST While Vif0 active\n");
 		//Must Preserve Row/Col registers! (Downhill Domination for testing)
+#endif
 		SaveCol._u64[0] = vif0.MaskCol._u64[0];
 		SaveCol._u64[1] = vif0.MaskCol._u64[1];
 		SaveRow._u64[0] = vif0.MaskRow._u64[0];
@@ -113,7 +116,7 @@ __fi void vif0FBRST(u32 value) {
 		cpuRegs.interrupt &= ~1; //Stop all vif0 DMA's
 		vif0Regs.stat.VFS = true;
 		vif0Regs.stat.VPS = VPS_IDLE;
-		Console.WriteLn("vif0 force break");
+		log_cb(RETRO_LOG_DEBUG, "vif0 force break\n");
 	}
 
 	if (value & 0x4) // Stop Vif.
@@ -152,8 +155,11 @@ __fi void vif1FBRST(u32 value) {
 	{
 		u128 SaveCol;
 		u128 SaveRow;
-		//if(vif1ch.chcr.STR) DevCon.Warning("FBRST While Vif1 active");
+#if 0
+		if(vif1ch.chcr.STR)
+			log_cb(RETRO_LOG_WARN, "FBRST While Vif1 active\n");
 		//Must Preserve Row/Col registers! (Downhill Domination for testing) - Really shouldnt be part of the vifstruct.
+#endif
 		SaveCol._u64[0] = vif1.MaskCol._u64[0];
 		SaveCol._u64[1] = vif1.MaskCol._u64[1];
 		SaveRow._u64[0] = vif1.MaskRow._u64[0];
@@ -187,7 +193,7 @@ __fi void vif1FBRST(u32 value) {
 		cpuRegs.interrupt &= ~((1 << 1) | (1 << 10)); //Stop all vif1 DMA's
 		vif1.vifstalled.enabled = VifStallEnable(vif1ch);
 		vif1.vifstalled.value = VIF_IRQ_STALL;
-		Console.WriteLn("vif1 force break");
+		log_cb(RETRO_LOG_DEBUG, "vif1 force break\n");
 	}
 
 	if (FBRST(value).STP) // Stop Vif.
@@ -203,7 +209,7 @@ __fi void vif1FBRST(u32 value) {
 	if (FBRST(value).STC) // Cancel Vif Stall.
 	{
 		bool cancel = false;
-		//DevCon.Warning("Cancel stall. Stat = %x", vif1Regs.stat._u32);
+		//log_cb(RETRO_LOG_WARN, "Cancel stall. Stat = %x\n", vif1Regs.stat._u32);
 		/* Cancel stall, first check if there is a stall to cancel, and then clear VIF1_STAT VSS|VFS|VIS|INT|ER0|ER1 bits */
 		if (vif1Regs.stat.test(VIF1_STAT_VSS | VIF1_STAT_VIS | VIF1_STAT_VFS))
 		{
@@ -220,7 +226,7 @@ __fi void vif1FBRST(u32 value) {
 				switch(dmacRegs.ctrl.MFD)
 				{
 				    case MFD_VIF1:
-                        //Console.WriteLn("MFIFO Stall");
+                        //log_cb(RETRO_LOG_WARN, "MFIFO Stall\n");
 						//MFIFO active and not empty
                         if(vif1ch.chcr.STR) CPU_INT(DMAC_MFIFO_VIF, 0);
                         break;
@@ -246,7 +252,9 @@ __fi void vif1STAT(u32 value) {
 		bool isStalled = false;
 		// different so can't be stalled
 		if (vif1Regs.stat.test(VIF1_STAT_INT | VIF1_STAT_VSS | VIF1_STAT_VIS | VIF1_STAT_VFS)) {
-			DbgCon.WriteLn("changing dir when vif1 fifo stalled done = %x qwc = %x stat = %x", vif1.done, vif1ch.qwc, vif1Regs.stat._u32);
+#ifndef NDEBUG
+			log_cb(RETRO_LOG_DEBUG, "changing dir when vif1 fifo stalled done = %x qwc = %x stat = %x\n", vif1.done, vif1ch.qwc, vif1Regs.stat._u32);
+#endif
 			isStalled = true;
 		}
 
@@ -274,7 +282,7 @@ __fi void vif1STAT(u32 value) {
 		// was expecting data, the GS should already be sending it over (buffering in the FIFO)
 
 		vif1Regs.stat.FQC = std::min((u32)16, vif1.GSLastDownloadSize);
-		//Console.Warning("Reversing VIF Transfer for %x QWC", vif1.GSLastDownloadSize);
+		//log_cb(RETRO_LOG_WARN, "Reversing VIF Transfer for %x QWC\n", vif1.GSLastDownloadSize);
 
 	}
 	else // Memory transferring to Vif.

@@ -16,6 +16,7 @@
 #pragma once
 
 #include "Assertions.h"
+#include "StringHelpers.h"
 #include <memory>
 
 // Because wxTrap isn't available on Linux builds of wxWidgets (non-Debug, typically)
@@ -34,8 +35,8 @@ void pxTrap();
     catch (BaseException & ex)                                                     \
     {                                                                              \
         try {                                                                      \
-            Console.Error("Unhandled BaseException in %s (ignored!):", funcname);  \
-            Console.Error(ex.FormatDiagnosticMessage());                           \
+            log_cb(RETRO_LOG_ERROR, "Unhandled BaseException in %s (ignored!):\n", funcname);  \
+            log_cb(RETRO_LOG_ERROR, "%s\n", ex.FormatDiagnosticMessage());                           \
         } catch (...) {                                                            \
             fprintf(stderr, "ERROR: (out of memory?)\n");                          \
         }                                                                          \
@@ -43,8 +44,8 @@ void pxTrap();
     catch (std::exception & ex)                                                    \
     {                                                                              \
         try {                                                                      \
-            Console.Error("Unhandled std::exception in %s (ignored!):", funcname); \
-            Console.Error(ex.what());                                              \
+            log_cb(RETRO_LOG_ERROR, "Unhandled std::exception in %s (ignored!):\n", funcname); \
+            log_cb(RETRO_LOG_ERROR, "%s\n", ex.what());                                              \
         } catch (...) {                                                            \
             fprintf(stderr, "ERROR: (out of memory?)\n");                          \
         }                                                                          \

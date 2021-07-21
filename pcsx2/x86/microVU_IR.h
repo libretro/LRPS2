@@ -314,7 +314,9 @@ public:
 						continue;
 
 					if (mapI.VFreg == mapX.VFreg) {
-						if (mapI.xyzw && mapI.xyzw < 0xf) DevCon.Error("microVU Error: writeBackReg() [%d]", mapI.VFreg);
+#ifndef NDEBUG
+						if (mapI.xyzw && mapI.xyzw < 0xf) log_cb(RETRO_LOG_DEBUG, "microVU Error: writeBackReg() [%d]\n", mapI.VFreg);
+#endif
 						clearReg(i); // Invalidate any Cached Regs of same vf Reg
 					}
 				}
@@ -351,9 +353,11 @@ public:
 					if (i == reg.Id) continue;
 					microMapXMM& mapI = xmmMap[i];
 					if (mapI.VFreg == clear.VFreg) {
+#ifndef NDEBUG
 						if (mapI.xyzw && mapI.xyzw < 0xf) {
-							DevCon.Error("microVU Error: clearNeeded() [%d]", mapI.VFreg);
+							log_cb(RETRO_LOG_DEBUG, "microVU Error: clearNeeded() [%d]\n", mapI.VFreg);
 						}
+#endif
 						if (mergeRegs == 1) {
 							mVUmergeRegs(xmm(i), reg, clear.xyzw, true);
 							mapI.xyzw  = 0xf;
@@ -382,7 +386,7 @@ public:
 	// To load a full reg which won't be modified and you want cached, specify vfLoadReg >= 0 and vfWriteReg = -1
 	// To load a reg which you don't want written back or cached, specify vfLoadReg >= 0 and vfWriteReg = 0
 	const xmm& allocReg(int vfLoadReg = -1, int vfWriteReg = -1, int xyzw = 0, bool cloneWrite = 1) {
-		//DevCon.WriteLn("vfLoadReg = %02d, vfWriteReg = %02d, xyzw = %x, clone = %d",vfLoadReg,vfWriteReg,xyzw,(int)cloneWrite);
+		//log_cb(RETRO_LOG_DEBUG, "vfLoadReg = %02d, vfWriteReg = %02d, xyzw = %x, clone = %d\n",vfLoadReg,vfWriteReg,xyzw,(int)cloneWrite);
 		counter++;
 		if (vfLoadReg >= 0) { // Search For Cached Regs
 			for(int i = 0; i < xmmTotal; i++) {

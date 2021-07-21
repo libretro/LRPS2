@@ -27,7 +27,7 @@ public:
 	{
 		try
 		{
-			Console.WriteLn("(GameDB) Unloading...");
+			log_cb(RETRO_LOG_INFO, "(GameDB) Unloading...\n");
 		}
 		DESTRUCTOR_CATCHALL
 	}

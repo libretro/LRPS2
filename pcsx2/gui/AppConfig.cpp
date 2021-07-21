@@ -940,7 +940,6 @@ bool AppConfig::IsOkApplyPreset(int n, bool ignoreMTVU)
 {
 	if (n < 0 || n > GetMaxPresetIndex() )
 	{
-		Console.WriteLn("", n);
 		log_cb(RETRO_LOG_INFO, "DEV Warning: ApplyPreset(%i): index out of range, Aborting.\n", n);
 		return false;
 	}
@@ -1027,7 +1026,7 @@ bool AppConfig::IsOkApplyPreset(int n, bool ignoreMTVU)
 			break;
 
 		default:
-			Console.WriteLn("Developer Warning: Preset #%d is not implemented. (--> Using application default).", n);
+			log_cb(RETRO_LOG_WARN, "Developer Warning: Preset #%d is not implemented. (--> Using application default).\n", n);
 	}
 
 
@@ -1300,7 +1299,7 @@ void AppSaveSettings()
 	if( !wxThread::IsMain() )
 		return;
 
-	//Console.WriteLn("Saving ini files...");
+	//log_cb(RETRO_LOG_INFO, "Saving ini files...\n");
 
 	SaveUiSettings();
 	SaveVmSettings();

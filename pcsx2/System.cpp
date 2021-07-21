@@ -157,7 +157,7 @@ const Pcsx2Config EmuConfig;
 // changed "on the fly" by the *main/gui thread only*.
 Pcsx2Config::GSOptions& SetGSConfig()
 {
-	//DbgCon.WriteLn( "Direct modification of EmuConfig.GS detected" );
+	log_cb(RETRO_LOG_DEBUG, "Direct modification of EmuConfig.GS detected\n" );
 	AffinityAssert_AllowFrom_MainUI();
 	return const_cast<Pcsx2Config::GSOptions&>(EmuConfig.GS);
 }
@@ -166,7 +166,7 @@ Pcsx2Config::GSOptions& SetGSConfig()
 // Used by loadGameSettings() to set clamp modes via database at game startup.
 Pcsx2Config::RecompilerOptions& SetRecompilerConfig()
 {
-	//DbgCon.WriteLn( "Direct modification of EmuConfig.Gamefixes detected" );
+	log_cb(RETRO_LOG_DEBUG, "Direct modification of EmuConfig.Gamefixes detected\n" );
 	AffinityAssert_AllowFrom_MainUI();
 	return const_cast<Pcsx2Config::RecompilerOptions&>(EmuConfig.Cpu.Recompiler);
 }
@@ -175,101 +175,18 @@ Pcsx2Config::RecompilerOptions& SetRecompilerConfig()
 // Used by loadGameSettings() to set gamefixes via database at game startup.
 Pcsx2Config::GamefixOptions& SetGameFixConfig()
 {
-	//DbgCon.WriteLn( "Direct modification of EmuConfig.Gamefixes detected" );
+	log_cb(RETRO_LOG_DEBUG, "Direct modification of EmuConfig.Gamefixes detected\n" );
 	AffinityAssert_AllowFrom_MainUI();
 	return const_cast<Pcsx2Config::GamefixOptions&>(EmuConfig.Gamefixes);
 }
 
 TraceLogFilters& SetTraceConfig()
 {
-	//DbgCon.WriteLn( "Direct modification of EmuConfig.TraceLog detected" );
+	log_cb(RETRO_LOG_DEBUG, "Direct modification of EmuConfig.TraceLog detected\n");
 	AffinityAssert_AllowFrom_MainUI();
 	return const_cast<TraceLogFilters&>(EmuConfig.Trace);
 }
 
-
-// This function should be called once during program execution.
-void SysLogMachineCaps()
-{
-	if ( !PCSX2_isReleaseVersion )
-	{
-		Console.WriteLn(Color_StrongGreen, "PCSX2 %u.%u.%u-%lld %s"
-#ifndef DISABLE_BUILD_DATE
-			"- compiled on " __DATE__
-#endif
-			, PCSX2_VersionHi, PCSX2_VersionMid, PCSX2_VersionLo,
-			SVN_REV, SVN_MODS ? "(modded)" : ""
-			);
-	}
-	else { // shorter release version string
-		Console.WriteLn(Color_StrongGreen, "PCSX2 %u.%u.%u-%lld"
-#ifndef DISABLE_BUILD_DATE
-			"- compiled on " __DATE__
-#endif
-			, PCSX2_VersionHi, PCSX2_VersionMid, PCSX2_VersionLo,
-			SVN_REV );
-	}
-
-	Console.WriteLn( "Savestate version: 0x%x", g_SaveVersion);
-	Console.Newline();
-
-	Console.WriteLn( Color_StrongBlack, "Host Machine Init:" );
-
-	Console.Indent().WriteLn(
-		L"Operating System =  %s\n"
-		L"Physical RAM     =  %u MB",
-
-		WX_STR(GetOSVersionString()),
-		(u32)(GetPhysicalMemory() / _1mb)
-	);
-
-	u32 speed = x86caps.CalculateMHz();
-
-	Console.Indent().WriteLn(
-		L"CPU name         =  %s\n"
-		L"Vendor/Model     =  %s (stepping %02X)\n"
-		L"CPU speed        =  %u.%03u ghz (%u logical thread%ls)\n"
-		L"x86PType         =  %s\n"
-		L"x86Flags         =  %08x %08x\n"
-		L"x86EFlags        =  %08x",
-			WX_STR(fromUTF8( x86caps.FamilyName ).Trim().Trim(false)),
-			WX_STR(fromUTF8( x86caps.VendorName )), x86caps.StepID,
-			speed / 1000, speed % 1000,
-			x86caps.LogicalCores, (x86caps.LogicalCores==1) ? L"" : L"s",
-			WX_STR(x86caps.GetTypeName()),
-			x86caps.Flags, x86caps.Flags2,
-			x86caps.EFlags
-	);
-
-	Console.Newline();
-
-	wxArrayString features[2];	// 2 lines, for readability!
-
-	if( x86caps.hasStreamingSIMD2Extensions )		features[0].Add( L"SSE2" );
-	if( x86caps.hasStreamingSIMD3Extensions )		features[0].Add( L"SSE3" );
-	if( x86caps.hasSupplementalStreamingSIMD3Extensions ) features[0].Add( L"SSSE3" );
-	if( x86caps.hasStreamingSIMD4Extensions )		features[0].Add( L"SSE4.1" );
-	if( x86caps.hasStreamingSIMD4Extensions2 )		features[0].Add( L"SSE4.2" );
-	if( x86caps.hasAVX )							features[0].Add( L"AVX" );
-	if( x86caps.hasAVX2 )							features[0].Add( L"AVX2" );
-	if( x86caps.hasFMA)								features[0].Add( L"FMA" );
-
-	if( x86caps.hasStreamingSIMD4ExtensionsA )		features[1].Add( L"SSE4a " );
-
-	const wxString result[2] =
-	{
-		JoinString( features[0], L".. " ),
-		JoinString( features[1], L".. " )
-	};
-
-	Console.WriteLn( Color_StrongBlack,	L"x86 Features Detected:" );
-    Console.Indent().WriteLn(result[0] + (result[1].IsEmpty() ? L"" : (L"\n" + result[1])));
-#ifdef __M_X86_64
-    Console.Indent().WriteLn("Pcsx2 was compiled as 64-bits.");
-#endif
-
-	Console.Newline();
-}
 
 template< typename CpuType >
 class CpuInitializer
@@ -307,13 +224,13 @@ CpuInitializer< CpuType >::CpuInitializer()
 	}
 	catch( Exception::RuntimeError& ex )
 	{
-		Console.Error( L"CPU provider error:\n\t" + ex.FormatDiagnosticMessage() );
+		log_cb(RETRO_LOG_ERROR, "CPU provider error:\n\t%s\n", ex.FormatDiagnosticMessage().c_str() );
 		MyCpu = nullptr;
 		ExThrown = ScopedExcept(ex.Clone());
 	}
 	catch( std::runtime_error& ex )
 	{
-		Console.Error( L"CPU provider error (STL Exception)\n\tDetails:" + fromUTF8( ex.what() ) );
+		log_cb(RETRO_LOG_ERROR, "CPU provider error (STL Exception)\n\tDetails:%s\n", fromUTF8( ex.what() ).c_str() );
 		MyCpu = nullptr;
 		ExThrown = ScopedExcept(new Exception::RuntimeError(ex));
 	}
@@ -422,9 +339,9 @@ void SysMainMemory::ReserveAll()
 {
 	pxInstallSignalHandler();
 
-	DevCon.WriteLn( Color_StrongBlue, "Mapping host memory for virtual systems..." );
-	ConsoleIndentScope indent(1);
-
+#ifndef NDEBUG
+	log_cb(RETRO_LOG_DEBUG, "Mapping host memory for virtual systems...\n" );
+#endif
 	m_ee.Reserve(MainMemory());
 	m_iop.Reserve(MainMemory());
 	m_vu.Reserve(MainMemory());
@@ -435,9 +352,9 @@ void SysMainMemory::CommitAll()
 	vtlb_Core_Alloc();
 	if (m_ee.IsCommitted() && m_iop.IsCommitted() && m_vu.IsCommitted()) return;
 
-	DevCon.WriteLn( Color_StrongBlue, "Allocating host memory for virtual systems..." );
-	ConsoleIndentScope indent(1);
-
+#ifndef NDEBUG
+	log_cb(RETRO_LOG_DEBUG, "Allocating host memory for virtual systems...\n" );
+#endif
 	m_ee.Commit();
 	m_iop.Commit();
 	m_vu.Commit();
@@ -448,9 +365,9 @@ void SysMainMemory::ResetAll()
 {
 	CommitAll();
 
-	DevCon.WriteLn( Color_StrongBlue, "Resetting host memory for virtual systems..." );
-	ConsoleIndentScope indent(1);
-
+#ifndef NDEBUG
+	log_cb(RETRO_LOG_DEBUG, "Resetting host memory for virtual systems...\n" );
+#endif
 	m_ee.Reset();
 	m_iop.Reset();
 	m_vu.Reset();
@@ -462,8 +379,7 @@ void SysMainMemory::DecommitAll()
 {
 	if (!m_ee.IsCommitted() && !m_iop.IsCommitted() && !m_vu.IsCommitted()) return;
 
-	Console.WriteLn( Color_Blue, "Decommitting host memory for virtual systems..." );
-	ConsoleIndentScope indent(1);
+	log_cb(RETRO_LOG_INFO, "Decommitting host memory for virtual systems...\n" );
 
 	// On linux, the MTVU isn't empty and the thread still uses the m_ee/m_vu memory
 	vu1Thread.WaitVU();
@@ -485,8 +401,7 @@ void SysMainMemory::ReleaseAll()
 {
 	DecommitAll();
 
-	Console.WriteLn( Color_Blue, "Releasing host memory maps for virtual systems..." );
-	ConsoleIndentScope indent(1);
+	log_cb(RETRO_LOG_INFO, "Releasing host memory maps for virtual systems...\n" );
 
 	vtlb_Core_Free();		// Just to be sure... (calling order could result in it getting missed during Decommit).
 
@@ -506,8 +421,7 @@ void SysMainMemory::ReleaseAll()
 // --------------------------------------------------------------------------------------
 SysCpuProviderPack::SysCpuProviderPack()
 {
-	Console.WriteLn( Color_StrongBlue, "Reserving memory for recompilers..." );
-	ConsoleIndentScope indent(1);
+	log_cb(RETRO_LOG_INFO, "Reserving memory for recompilers...\n" );
 
 	CpuProviders = std::make_unique<CpuInitializerSet>();
 
@@ -517,7 +431,7 @@ SysCpuProviderPack::SysCpuProviderPack()
 	catch( Exception::RuntimeError& ex )
 	{
 		m_RecExceptionEE = ScopedExcept(ex.Clone());
-		Console.Error( L"EE Recompiler Reservation Failed:\n" + ex.FormatDiagnosticMessage() );
+		log_cb(RETRO_LOG_ERROR, "EE Recompiler Reservation Failed:\n%s\n", ex.FormatDiagnosticMessage().c_str() );
 		recCpu.Shutdown();
 	}
 
@@ -527,7 +441,7 @@ SysCpuProviderPack::SysCpuProviderPack()
 	catch( Exception::RuntimeError& ex )
 	{
 		m_RecExceptionIOP = ScopedExcept(ex.Clone());
-		Console.Error( L"IOP Recompiler Reservation Failed:\n" + ex.FormatDiagnosticMessage() );
+		log_cb(RETRO_LOG_ERROR, "IOP Recompiler Reservation Failed:\n%s\n", ex.FormatDiagnosticMessage().c_str() );
 		psxRec.Shutdown();
 	}
 
@@ -632,7 +546,7 @@ u8* SysMmapEx(uptr base, u32 size, uptr bounds, const char *caller)
 	{
 		if( base )
 		{
-			DbgCon.Warning( "First try failed allocating %s at address 0x%x", caller, base );
+			log_cb(RETRO_LOG_DEBUG, "First try failed allocating %s at address 0x%x\n", caller, base );
 
 			// Let's try again at an OS-picked memory area, and then hope it meets needed
 			// boundschecking criteria below.
@@ -642,7 +556,7 @@ u8* SysMmapEx(uptr base, u32 size, uptr bounds, const char *caller)
 
 		if( (bounds != 0) && (((uptr)Mem + size) > bounds) )
 		{
-			DevCon.Warning( "Second try failed allocating %s, block ptr 0x%x does not meet required criteria.", caller, Mem );
+			log_cb(RETRO_LOG_WARN, "Second try failed allocating %s, block ptr 0x%x does not meet required criteria.\n", caller, Mem );
 			SafeSysMunmap( Mem, size );
 
 			// returns NULL, caller should throw an exception.

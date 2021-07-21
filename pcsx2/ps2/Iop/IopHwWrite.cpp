@@ -89,12 +89,16 @@ void __fastcall iopHwWrite8_Page1( u32 addr, mem8_t val )
 		default:
 			if( masked_addr >= 0x100 && masked_addr < 0x130 )
 			{
-				DbgCon.Warning( "HwWrite8 to Counter16 [ignored] @ addr 0x%08x = 0x%02x", addr, psxHu8(addr) );
+#if 0
+				log_cb(RETRO_LOG_DEBUG, "HwWrite8 to Counter16 [ignored] @ addr 0x%08x = 0x%02x\n", addr, psxHu8(addr) );
+#endif
 				psxHu8( addr ) = val;
 			}
 			else if( masked_addr >= 0x480 && masked_addr < 0x4a0 )
 			{
-				DbgCon.Warning( "HwWrite8 to Counter32 [ignored] @ addr 0x%08x = 0x%02x", addr, psxHu8(addr) );
+#if 0
+				log_cb(RETRO_LOG_DEBUG, "HwWrite8 to Counter32 [ignored] @ addr 0x%08x = 0x%02x\n", addr, psxHu8(addr) );
+#endif
 				psxHu8( addr ) = val;
 			}
 			else if( (masked_addr >= pgmsk(HW_USB_START)) && (masked_addr < pgmsk(HW_USB_END)) )
@@ -116,6 +120,7 @@ void __fastcall iopHwWrite8_Page3( u32 addr, mem8_t val )
 	// all addresses are assumed to be prefixed with 0x1f803xxx:
 	pxAssert( (addr >> 12) == 0x1f803 );
 
+#if 0
 	if( SysConsole.iopConsole.IsActive() && (addr == 0x1f80380c) )	// STDOUT
 	{
 		static char pbuf[1024];
@@ -140,6 +145,7 @@ void __fastcall iopHwWrite8_Page3( u32 addr, mem8_t val )
 			pidx = 0;
 		}
 	}
+#endif
 
 	psxHu8( addr ) = val;
 	IopHwTraceLog<mem8_t>( addr, val, false );
@@ -247,20 +253,24 @@ static __fi void _HwWrite_16or32_Page1( u32 addr, T val )
 	{
 		if( sizeof(T) == 2 )
 			SPU2write( addr, val );
+#if 0
 		else
 		{
-			DbgCon.Warning( "HwWrite32 to SPU2? @ 0x%08X .. What manner of trickery is this?!", addr );
+			log_cb(RETRO_LOG_DEBUG, "HwWrite32 to SPU2? @ 0x%08X .. What manner of trickery is this?!\n", addr );
 			//psxHu(addr) = val;
 		}
+#endif
 	}
 	// ------------------------------------------------------------------------
 	// PS1 GPU access
 	//
 	else if( (masked_addr >= pgmsk(HW_PS1_GPU_START)) && (masked_addr < pgmsk(HW_PS1_GPU_END)) )
 	{
+#ifndef NDEBUG
 		// todo: psx mode: this is new
 		if( sizeof(T) == 2 )
-			DevCon.Warning( "HwWrite16 to PS1 GPU? @ 0x%08X .. What manner of trickery is this?!", addr );
+			log_cb(RETRO_LOG_DEBUG, "HwWrite16 to PS1 GPU? @ 0x%08X .. What manner of trickery is this?!\n", addr );
+#endif
 
 		pxAssert(sizeof(T) == 4);
 
@@ -373,7 +383,9 @@ static __fi void _HwWrite_16or32_Page1( u32 addr, T val )
 				psxDma1(HW_DMA1_MADR, HW_DMA1_BCR, HW_DMA1_CHCR);
 			break;
 			mcase(0x1f8010ac):
-				DevCon.Warning("SIF2 IOP TADR?? write");
+#ifndef NDEBUG
+				log_cb(RETRO_LOG_DEBUG, "SIF2 IOP TADR?? write\n");
+#endif
 				psxHu(addr) = val;
 			break;
 
@@ -449,10 +461,12 @@ static __fi void _HwWrite_16or32_Page1( u32 addr, T val )
 					newtmp &= ~0x80000000;
 				}
 				//if (newtmp != old)
-				//	DevCon.Warning("ICR Old %x New %x", old, newtmp);
+				//	log_cb(RETRO_LOG_DEBUG, "ICR Old %x New %x\n", old, newtmp);
 				psxHu(addr) = newtmp;
 				if ((HW_DMA_ICR >> 15) & 0x1) {
-					DevCon.Warning("Force ICR IRQ!");
+#ifndef NDEBUG
+					log_cb(RETRO_LOG_DEBUG, "Force ICR IRQ!\n");
+#endif
 					psxRegs.CP0.n.Cause &= ~0x7C;
 					iopIntcIrq(3);
 				}
@@ -464,7 +478,9 @@ static __fi void _HwWrite_16or32_Page1( u32 addr, T val )
 			
 			mcase(0x1f8010f6):		// ICR_hi (16 bit?) [dunno if it ever happens]
 			{
-				DevCon.Warning("High ICR Write!!");
+#ifndef NDEBUG
+				log_cb(RETRO_LOG_DEBUG, "High ICR Write!!\n");
+#endif
 				const u32 val2 = (u32)val << 16;
 				const u32 tmp = (~val2) & HW_DMA_ICR;
 				psxHu(addr) = (((tmp ^ val2) & 0xffffff) ^ tmp) >> 16;
@@ -487,10 +503,10 @@ static __fi void _HwWrite_16or32_Page1( u32 addr, T val )
 					newtmp &= ~0x80000000;
 				}
 				//if (newtmp != old)
-				//	DevCon.Warning("ICR2 Old %x New %x", old, newtmp);
+				//	log_cb(RETRO_LOG_DEBUG, "ICR2 Old %x New %x\n", old, newtmp);
 				psxHu(addr) = newtmp;
 				if ((HW_DMA_ICR2 >> 15) & 0x1) {
-					DevCon.Warning("Force ICR2 IRQ!");
+					log_cb(RETRO_LOG_DEBUG, "Force ICR2 IRQ!\n");
 					psxRegs.CP0.n.Cause &= ~0x7C;
 					iopIntcIrq(3);
 				}
@@ -502,7 +518,7 @@ static __fi void _HwWrite_16or32_Page1( u32 addr, T val )
 
 			mcase(0x1f801576):		// ICR2_hi (16 bit?) [dunno if it ever happens]
 			{
-				DevCon.Warning("ICR2 high write!");
+				log_cb(RETRO_LOG_DEBUG, "ICR2 high write!\n");
 				const u32 val2 = (u32)val << 16;
 				const u32 tmp = (~val2) & HW_DMA_ICR2;
 				psxHu(addr) = (((tmp ^ val2) & 0xffffff) ^ tmp) >> 16;

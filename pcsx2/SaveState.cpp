@@ -133,11 +133,9 @@ SaveStateBase& SaveStateBase::FreezeBios()
 
 	if (bioscheck != BiosChecksum)
 	{
-		Console.Newline();
-		Console.Indent(1).Error( "Warning: BIOS Version Mismatch, savestate may be unstable!" );
-		Console.Indent(2).Error(
-			"Current BIOS:   %ls (crc=0x%08x)\n"
-			"Savestate BIOS: %s (crc=0x%08x)\n",
+		log_cb(RETRO_LOG_ERROR, "Warning: BIOS Version Mismatch, savestate may be unstable!\n" );
+		log_cb(RETRO_LOG_ERROR,
+			"Current BIOS:   %ls (crc=0x%08x)\nSavestate BIOS: %s (crc=0x%08x)\n",
 			BiosDescription.wx_str(), BiosChecksum,
 			biosdesc, bioscheck
 		);
@@ -178,7 +176,10 @@ SaveStateBase& SaveStateBase::FreezeInternals()
 {
 	vu1Thread.WaitVU(); // Finish VU1 just in-case...
 	// Print this until the MTVU problem in gifPathFreeze is taken care of (rama)
-	if (THREAD_VU1) Console.Warning("MTVU speedhack is enabled, saved states may not be stable");
+#ifndef NDEBUG
+	if (THREAD_VU1)
+		log_cb(RETRO_LOG_WARN, "MTVU speedhack is enabled, saved states may not be stable\n");
+#endif
 	
 	if (IsLoading()) PreLoadPrep();
 

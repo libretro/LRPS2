@@ -412,7 +412,7 @@ void SPU2DoFreezeOut(void* dest)
 	if (!fP.size)
 		return;
 
-	Console.Indent().WriteLn("Saving SPU2");
+	log_cb(RETRO_LOG_INFO, "Saving SPU2\n");
 
 	if (SPU2freeze(FREEZE_SAVE, &fP) != 0)
 		throw std::runtime_error(" * SPU2: Error saving state!\n");
@@ -427,14 +427,14 @@ void SPU2DoFreezeIn(pxInputStream& infp)
 	if (SPU2freeze(FREEZE_SIZE, &fP) != 0)
 		fP.size = 0;
 
-	Console.Indent().WriteLn("Loading SPU2");
+	log_cb(RETRO_LOG_INFO, "Loading SPU2\n");
 
 	if (!infp.IsOk() || !infp.Length())
 	{
 		// no state data to read, but SPU2 expects some state data?
 		// Issue a warning to console...
 		if (fP.size != 0)
-			Console.Indent().Warning("Warning: No data for SPU2 found. Status may be unpredictable.");
+			log_cb(RETRO_LOG_WARN, "Warning: No data for SPU2 found. Status may be unpredictable.\n");
 
 		return;
 

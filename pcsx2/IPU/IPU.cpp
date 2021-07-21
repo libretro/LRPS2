@@ -87,25 +87,9 @@ void ipuReset()
 	ipu_cmd.clear();
 }
 
-void ReportIPU()
-{
-	//Console.WriteLn(g_nDMATransfer.desc());
-	Console.WriteLn(ipu_fifo.in.desc());
-	Console.WriteLn(ipu_fifo.out.desc());
-	Console.WriteLn(g_BP.desc());
-	Console.WriteLn("vqclut = 0x%x.", vqclut);
-	Console.WriteLn("s_thresh = 0x%x.", s_thresh);
-	Console.WriteLn("coded_block_pattern = 0x%x.", coded_block_pattern);
-	Console.WriteLn("g_decoder = 0x%x.", &decoder);
-	Console.WriteLn("mpeg2_scan = 0x%x.", &mpeg2_scan);
-	Console.WriteLn(ipu_cmd.desc());
-	Console.Newline();
-}
-
 void SaveStateBase::ipuFreeze()
 {
 	// Get a report of the status of the ipu variables when saving and loading savestates.
-	//ReportIPU();
 	FreezeTag("IPU");
 	Freeze(ipu_fifo);
 
@@ -270,11 +254,15 @@ __fi u64 ipuRead64(u32 mem)
 		}
 
 		ipucase(IPU_CTRL):
-			DevCon.Warning("reading 64bit IPU ctrl");
+#ifndef NDEBUG
+			log_cb(RETRO_LOG_DEBUG, "reading 64bit IPU ctrl\n");
+#endif
 			break;
 
 		ipucase(IPU_BP):
-			DevCon.Warning("reading 64bit IPU top");
+#ifndef NDEBUG
+			log_cb(RETRO_LOG_DEBUG, "reading 64bit IPU top\n");
+#endif
 			break;
 
 		ipucase(IPU_TOP): // IPU_TOP
@@ -326,7 +314,7 @@ __fi bool ipuWrite32(u32 mem, u32 value)
 			ipuRegs.ctrl.write(value);
 			if (ipuRegs.ctrl.IDP == 3)
 			{
-				Console.WriteLn("IPU Invalid Intra DC Precision, switching to 9 bits");
+				log_cb(RETRO_LOG_WARN, "IPU Invalid Intra DC Precision, switching to 9 bits\n");
 				ipuRegs.ctrl.IDP = 1;
 			}
 
@@ -857,7 +845,7 @@ u8 getBits8(u8 *address, bool advance)
 __fi void IPUCMD_WRITE(u32 val)
 {
 	// don't process anything if currently busy
-	//if (ipuRegs.ctrl.BUSY) Console.WriteLn("IPU BUSY!"); // wait for thread
+	//if (ipuRegs.ctrl.BUSY) log_cb(RETRO_LOG_WARN, "IPU BUSY!\n"); // wait for thread
 
 	ipuRegs.ctrl.ECD = 0;
 	ipuRegs.ctrl.SCD = 0;

@@ -134,7 +134,7 @@ static __fi void StartReading(u32 type)
 	cdr.Reading = type;
 	cdr.FirstSector = 1;
 	cdr.Readed = 0xff;
-	//DevCon.Warning("ReadN/ReadS delay: %d", sectorSeekReadDelay);
+	//log_cb(RETRO_LOG_DEBUG, "ReadN/ReadS delay: %d\n", sectorSeekReadDelay);
 	AddIrqQueue(READ_ACK, sectorSeekReadDelay);
 	sectorSeekReadDelay = shortSectorSeekReadDelay;
 }
@@ -171,8 +171,10 @@ static void ReadTrack()
 	cdr.Prev[2] = itob(cdr.SetSector[2]);
 
 	CDVD_LOG("KEY *** %x:%x:%x", cdr.Prev[0], cdr.Prev[1], cdr.Prev[2]);
+#ifndef NDEBUG
 	if (EmuConfig.CdvdVerboseReads)
-		DevCon.WriteLn("CD Read Sector %x", msf_to_lsn(cdr.SetSector));
+		log_cb(RETRO_LOG_DEBUG, "CD Read Sector %x\n", msf_to_lsn(cdr.SetSector));
+#endif
 	cdr.RErr = DoCDVDreadTrack(msf_to_lsn(cdr.SetSector), CDVD_MODE_2340);
 }
 
@@ -568,7 +570,9 @@ void cdrReadInterrupt()
 
 	if (cdr.RErr == -1)
 	{
-		DevCon.Warning("CD err");
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "CD err\n");
+#endif
 		memzero(cdr.Transfer);
 		cdr.Stat = DiskError;
 		cdr.Result[0] |= STATUS_ERROR;
@@ -598,13 +602,13 @@ void cdrReadInterrupt()
 
 	if ((cdr.Transfer[4 + 2] & 0x80) && (cdr.Mode & 0x2))
 	{ // EOF
-		DevCon.Warning("CD AutoPausing Read");
+		log_cb(RETRO_LOG_DEBUG, "CD AutoPausing Read\n");
 		AddIrqQueue(CdlPause, 0x800);
 	}
 	else
 	{
 		ReadTrack();
-		//DevCon.Warning("normal: %d",cdReadTime);
+		//log_cb(RETRO_LOG_DEBUG, "normal: %d\n",cdReadTime);
 		CDREAD_INT((cdr.Mode & 0x80) ? (cdReadTime / 2) : cdReadTime);
 	}
 
@@ -696,16 +700,16 @@ void cdrWrite1(u8 rt)
 
 //#define CDRCMD_DEBUG
 #ifdef CDRCMD_DEBUG
-	DevCon.Warning("CD1 write: %x (%s)", rt, CmdName[rt]);
+	log_cb(RETRO_LOG_DEBUG, "CD1 write: %x (%s)\n", rt, CmdName[rt]);
 	if (cdr.ParamC)
 	{
-		DevCon.Warning(" Param[%d] = {", cdr.ParamC);
+		log_cb(RETRO_LOG_DEBUG, " Param[%d] = {\n", cdr.ParamC);
 		for (i = 0; i < cdr.ParamC; i++)
-			DevCon.Warning(" %x,", cdr.Param[i]);
-		DevCon.Warning("}\n");
+			log_cb(RETRO_LOG_DEBUG, " %x,\n", cdr.Param[i]);
+		log_cb(RETRO_LOG_DEBUG, "}\n");
 	}
 	else
-		DevCon.Warning("\n");
+		log_cb(RETRO_LOG_DEBUG, "\n");
 #endif
 
 	if (cdr.Ctrl & 0x1)
@@ -744,7 +748,7 @@ void cdrWrite1(u8 rt)
 			sectorSeekReadDelay = abs(newSector - oldSector) * 100;
 			if (sectorSeekReadDelay < shortSectorSeekReadDelay)
 				sectorSeekReadDelay = shortSectorSeekReadDelay;
-			//DevCon.Warning("CdlSetloc sectorSeekReadDelay: %d", sectorSeekReadDelay);
+			//log_cb(RETRO_LOG_DEBUG, "CdlSetloc sectorSeekReadDelay: %d\n", sectorSeekReadDelay);
 
 			cdr.Ctrl |= 0x80;
 			cdr.Stat = NoIntr;
@@ -882,7 +886,7 @@ void cdrWrite1(u8 rt)
 			cdr.Ctrl |= 0x80;
 			cdr.Stat = NoIntr;
 
-			//DevCon.Warning("CdlSeekL delay: %d", sectorSeekReadDelay);
+			//log_cb(RETRO_LOG_DEBUG, "CdlSeekL delay: %d\n", sectorSeekReadDelay);
 			AddIrqQueue(cdr.Cmd, sectorSeekReadDelay);
 			sectorSeekReadDelay = shortSectorSeekReadDelay;
 			break;
@@ -892,7 +896,7 @@ void cdrWrite1(u8 rt)
 			cdr.Ctrl |= 0x80;
 			cdr.Stat = NoIntr;
 
-			//DevCon.Warning("CdlSeekP delay: %d", sectorSeekReadDelay);
+			//log_cb(RETRO_LOG_DEBUG, "CdlSeekP delay: %d\n", sectorSeekReadDelay);
 			AddIrqQueue(cdr.Cmd, sectorSeekReadDelay);
 			sectorSeekReadDelay = shortSectorSeekReadDelay;
 			break;
@@ -924,7 +928,9 @@ void cdrWrite1(u8 rt)
 			break;
 
 		default:
-			DevCon.Warning("Unknown CD Cmd: %x\n", cdr.Cmd);
+#ifndef NDEBUG
+			log_cb(RETRO_LOG_DEBUG, "Unknown CD Cmd: %x\n", cdr.Cmd);
+#endif
 			return;
 	}
 	if (cdr.Stat != NoIntr)
@@ -1043,7 +1049,7 @@ void psxDma3(u32 madr, u32 bcr, u32 chcr)
 		case 0x11400100:
 			if (cdr.Readed == 0)
 			{
-				DevCon.Warning("*** DMA 3 *** NOT READY");
+				log_cb(RETRO_LOG_DEBUG, "*** DMA 3 *** NOT READY\n");
 				HW_DMA3_CHCR &= ~0x01000000; //hack
 				psxDmaInterrupt(3);          //hack
 				return;

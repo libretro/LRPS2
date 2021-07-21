@@ -242,7 +242,7 @@ _vifT void vifUnpackSetup(const u32 *data) {
 	//the W vector becomes 0, so we need to know how far through the current QW the data begins.
 	//same happens with V3 8
 	vifX.start_aligned = 4-((vifX.vifpacketsize-1) & 0x3);
-	//DevCon.Warning("Aligned %d packetsize at data start %d", vifX.start_aligned, vifX.vifpacketsize - 1);
+	//log_cb(RETRO_LOG_DEBUG, "Aligned %d packetsize at data start %d\n", vifX.start_aligned, vifX.vifpacketsize - 1);
 }
 
 template void vifUnpackSetup<0>(const u32 *data);

@@ -45,7 +45,7 @@ static __fi bool WriteFifoToEE()
 	ptag = sif0ch.getAddr(sif0ch.madr, DMAC_SIF0, true);
 	if (ptag == NULL)
 	{
-		DevCon.Warning("Write Fifo to EE: ptag == NULL");
+		log_cb(RETRO_LOG_WARN, "Write Fifo to EE: ptag == NULL");
 		return false;
 	}
 
@@ -60,7 +60,7 @@ static __fi bool WriteFifoToEE()
 
 	if (sif0ch.qwc == 0 && dmacRegs.ctrl.STS == STS_SIF0)
 	{
-		//DevCon.Warning("SIF0 Stall Control");
+		//log_cb(RETRO_LOG_WARN, "SIF0 Stall Control");
 		if ((sif0ch.chcr.MOD == NORMAL_MODE) || ((sif0ch.chcr.TAG >> 28) & 0x7) == TAG_CNTS)
 			dmacRegs.stadr.ADDR = sif0ch.madr;
 	}
@@ -147,7 +147,10 @@ static __fi bool ProcessIOPTag()
 
 	// We're only copying the first 24 bits.  Bits 30 and 31 (checked below) are Stop/IRQ bits.
 	hw_dma9.madr = sif0data & 0xFFFFFF;
-	if (sif0words > 0xFFFFF) DevCon.Warning("SIF0 Overrun %x", sif0words);
+#ifndef NDEBUG
+	if (sif0words > 0xFFFFF)
+		log_cb(RETRO_LOG_DEBUG, "SIF0 Overrun %x", sif0words);
+#endif
 	//Maximum transfer amount 1mb-16 also masking out top part which is a "Mode" cache stuff, we don't care :)
 	sif0.iop.counter = sif0words & 0xFFFFF;
 
@@ -184,7 +187,9 @@ static __fi void EndIOP()
 
 	if (sif0.iop.cycles == 0)
 	{
-		DevCon.Warning("SIF0 IOP: cycles = 0");
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "SIF0 IOP: cycles = 0\n");
+#endif
 		sif0.iop.cycles = 1;
 	}
 	// iop is 1/8th the clock rate of the EE and psxcycles is in words (not quadwords)
@@ -198,7 +203,9 @@ static __fi void HandleEETransfer()
 {
 	if(!sif0ch.chcr.STR)
 	{
-		//DevCon.Warning("Replacement for irq prevention hack EE SIF0");
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "Replacement for irq prevention hack EE SIF0\n");
+#endif
 		sif0.ee.end = false;
 		sif0.ee.busy = false;
 		return;
@@ -207,7 +214,7 @@ static __fi void HandleEETransfer()
 	/*if (sif0ch.qwc == 0)
 		if (sif0ch.chcr.MOD == NORMAL_MODE)
 			if (!sif0.ee.end){
-				DevCon.Warning("sif0 irq prevented");
+				log_cb(RETRO_LOG_DEBUG, "sif0 irq prevented\n");
 				done = true;
 				return;
 			}*/
@@ -350,12 +357,17 @@ __fi void dmaSIF0()
 {
 	SIF_LOG(wxString(L"dmaSIF0" + sif0ch.cmqt_to_str()).To8BitData());
 
+#ifndef NDEBUG
 	if (sif0.fifo.readPos != sif0.fifo.writePos)
 	{
 		SIF_LOG("warning, sif0.fifoReadPos != sif0.fifoWritePos");
 	}
+#endif
 
-	//if(sif0ch.chcr.MOD == CHAIN_MODE && sif0ch.qwc > 0) DevCon.Warning(L"SIF0 QWC on Chain CHCR " + sif0ch.chcr.desc());
+#if 0
+	if(sif0ch.chcr.MOD == CHAIN_MODE && sif0ch.qwc > 0) 
+		log_cb(RETRO_LOG_DEBUG, "SIF0 QWC on Chain CHCR %s", sif0ch.chcr.desc().c_str());
+#endif
 	psHu32(SBUS_F240) |= 0x2000;
 	sif0.ee.busy = true;
 

@@ -46,7 +46,9 @@ static __fi bool WriteEEtoFifo()
 	ptag = sif1ch.getAddr(sif1ch.madr, DMAC_SIF1, false);
 	if (ptag == NULL)
 	{
-		DevCon.Warning("Write EE to Fifo: ptag == NULL");
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "Write EE to Fifo: ptag == NULL\n");
+#endif
 		return false;
 	}
 
@@ -90,13 +92,13 @@ static __fi bool ProcessEETag()
 	ptag = sif1ch.DMAtransfer(sif1ch.tadr, DMAC_SIF1);
 	if (ptag == NULL)
 	{
-		Console.WriteLn("Sif1 ProcessEETag: ptag = NULL");
+		log_cb(RETRO_LOG_INFO, "Sif1 ProcessEETag: ptag = NULL");
 		return false;
 	}
 
 	if (sif1ch.chcr.TTE)
 	{
-		Console.WriteLn("SIF1 TTE");
+		log_cb(RETRO_LOG_INFO, "SIF1 TTE");
 		sif1.fifo.write((u32*)ptag + 2, 2);
 	}
 
@@ -127,7 +129,9 @@ static __fi bool SIFIOPReadTag()
 	hw_dma10.madr = sif1data & 0xffffff;
 
 	
-	if (sif1words > 0xFFFFC) DevCon.Warning("SIF1 Overrun %x", sif1words);
+#ifndef NDEBUG
+	if (sif1words > 0xFFFFC) log_cb(RETRO_LOG_DEBUG, "SIF1 Overrun %x\n", sif1words);
+#endif
 	//Maximum transfer amount 1mb-16 also masking out top part which is a "Mode" cache stuff, we don't care :)
 	sif1.iop.counter = sif1words & 0xFFFFC;
 
@@ -170,7 +174,9 @@ static __fi void EndIOP()
 	//Total cycles over 1024 makes SIF too slow to keep up the sound stream in so3...
 	if (sif1.iop.cycles == 0)
 	{
-		DevCon.Warning("SIF1 IOP: cycles = 0");
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "SIF1 IOP: cycles = 0\n");
+#endif
 		sif1.iop.cycles = 1;
 	}
 	// iop is 1/8th the clock rate of the EE and psxcycles is in words (not quadwords)
@@ -182,7 +188,7 @@ static __fi void HandleEETransfer()
 {
 	if(!sif1ch.chcr.STR)
 	{
-		//DevCon.Warning("Replacement for irq prevention hack EE SIF1");
+		//log_cb(RETRO_LOG_DEBUG, "Replacement for irq prevention hack EE SIF1\n");
 		sif1.ee.end = false;
 		sif1.ee.busy = false;
 		return;
@@ -191,7 +197,7 @@ static __fi void HandleEETransfer()
 	/*if (sif1ch.qwc == 0)
 		if (sif1ch.chcr.MOD == NORMAL_MODE)
 			if (!sif1.ee.end){
-				DevCon.Warning("sif1 irq prevented CHCR %x QWC %x", sif1ch.chcr, sif1ch.qwc);
+				log_cb(RETRO_LOG_DEBUG, "sif1 irq prevented CHCR %x QWC %x\n", sif1ch.chcr, sif1ch.qwc);
 				done = true;
 				return;
 			}*/
@@ -217,7 +223,9 @@ static __fi void HandleEETransfer()
 		{
 			if ((sif1ch.chcr.MOD == NORMAL_MODE) || ((sif1ch.chcr.TAG >> 28) & 0x7) == TAG_REFS)
 			{
-				//DevCon.Warning("SIF1 Stall Control");
+#ifndef NDEBUG
+				log_cb(RETRO_LOG_DEBUG, "SIF1 Stall Control\n");
+#endif
 				const int writeSize = std::min((s32)sif1ch.qwc, sif1.fifo.sif_free() >> 2);
 				if ((sif1ch.madr + (writeSize * 16)) > dmacRegs.stadr.ADDR)
 				{
@@ -226,7 +234,7 @@ static __fi void HandleEETransfer()
 					return;
 				}
 			}
-				//DevCon.Warning("SIF1 stall control Not Implemented"); // STD == fromSIF1
+				//log_cb(RETRO_LOG_DEBUG, "SIF1 stall control Not Implemented\n"); // STD == fromSIF1
 		}
 		if (sif1.fifo.sif_free() > 0)
 		{

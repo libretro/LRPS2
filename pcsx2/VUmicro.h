@@ -66,7 +66,7 @@ public:
 	{
 		try {
 			if( m_Reserved != 0 )
-				Console.Warning( "Cleanup miscount detected on CPU provider.  Count=%d", m_Reserved.load() );
+				log_cb(RETRO_LOG_WARN, "Cleanup miscount detected on CPU provider.  Count=%d\n", m_Reserved.load() );
 		}
 		DESTRUCTOR_CATCHALL
 	}

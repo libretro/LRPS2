@@ -200,7 +200,7 @@ void recPMFHL()
 			}
 			break;
 		default:
-			Console.Error("PMFHL??  *pcsx2 head esplode!*");
+			log_cb(RETRO_LOG_ERROR, "PMFHL??  *pcsx2 head esplode!*\n");
 			pxFail("PMFHL??  *pcsx2 head esplode!*");
 	}
 
@@ -1490,7 +1490,7 @@ static __aligned16 u32 tempqw[8];
 void recQFSRV()
 {
 	if ( !_Rd_ ) return;
-	//Console.WriteLn("recQFSRV()");
+	//log_cb(RETRO_LOG_ERROR, "recQFSRV()\n");
 
 	EE::Profiler.EmitOp(eeOpcode::QFSRV);
 

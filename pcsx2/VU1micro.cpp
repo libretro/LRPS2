@@ -37,7 +37,10 @@ void vu1ResetRegs()
 
 void vu1Finish(bool add_cycles) {
 	if (THREAD_VU1) {
-		if (VU0.VI[REG_VPU_STAT].UL & 0x100) DevCon.Error("MTVU: VU0.VI[REG_VPU_STAT].UL & 0x100");
+#ifndef NDEBUG
+		if (VU0.VI[REG_VPU_STAT].UL & 0x100)
+			log_cb(RETRO_LOG_DEBUG, "MTVU: VU0.VI[REG_VPU_STAT].UL & 0x100\n");
+#endif
 		return;
 	}
 	u32 vu1cycles = VU1.cycle;
@@ -46,7 +49,9 @@ void vu1Finish(bool add_cycles) {
 		CpuVU1->Execute(vu1RunCycles);
 	}
 	if (VU0.VI[REG_VPU_STAT].UL & 0x100) {
-		DevCon.Warning("Force Stopping VU1, ran for too long");
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "Force Stopping VU1, ran for too long\n");
+#endif
 		VU0.VI[REG_VPU_STAT].UL &= ~0x100;
 	}
 	if (add_cycles)

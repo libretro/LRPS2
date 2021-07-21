@@ -22,16 +22,6 @@ wxDEFINE_EVENT(pxEvt_InvokeAction, pxActionEvent);
 
 wxIMPLEMENT_DYNAMIC_CLASS(pxSimpleEvent, wxEvent);
 
-ConsoleLogSource_App::ConsoleLogSource_App()
-{
-    static const TraceLogDescriptor myDesc =
-        {
-            L"AppEvents", L"App Events",
-            pxLt("Includes idle event processing and some other uncommon event usages.")};
-
-    m_Descriptor = &myDesc;
-}
-
 // --------------------------------------------------------------------------------------
 //  SynchronousActionState Implementations
 // --------------------------------------------------------------------------------------

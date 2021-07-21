@@ -472,7 +472,7 @@ void LoadPluginsImmediate()
 //
 void ScopedCoreThreadClose::LoadPlugins()
 {
-	DbgCon.WriteLn("(ScopedCoreThreadClose) Loading plugins!");
+	log_cb(RETRO_LOG_DEBUG, "(ScopedCoreThreadClose) Loading plugins!\n");
 	_LoadPluginsImmediate();
 }
 
@@ -533,7 +533,7 @@ void SysExecEvent_SaveSinglePlugin::InvokeEvent()
 
 		if( CoreThread.HasActiveMachine() )
 		{
-			Console.WriteLn( Color_Green, L"Suspending single plugin: " + tbl_PluginInfo[m_pid].GetShortname() );
+			log_cb(RETRO_LOG_INFO, "Suspending single plugin: %s\n", tbl_PluginInfo[m_pid].GetShortname().c_str());
 			plugstore = std::make_unique<VmStateBuffer>(L"StateCopy_SinglePlugin");
 			memSavingState save( plugstore.get() );
 			GetCorePlugins().Freeze( m_pid, save );
@@ -544,7 +544,7 @@ void SysExecEvent_SaveSinglePlugin::InvokeEvent()
 
 		if( plugstore )
 		{
-			Console.WriteLn( Color_Green, L"Recovering single plugin: " + tbl_PluginInfo[m_pid].GetShortname() );
+			log_cb(RETRO_LOG_INFO, "Recovering single plugin: %s\n", tbl_PluginInfo[m_pid].GetShortname().c_str());
 			memLoadingState load( plugstore.get() );
 			GetCorePlugins().Freeze( m_pid, load );
 		}

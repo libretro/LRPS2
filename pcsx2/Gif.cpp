@@ -79,7 +79,7 @@ void GIF_Fifo::init()
 int GIF_Fifo::write(u32* pMem, int size)
 {
 	if (gifRegs.stat.FQC == 16) {
-		//DevCon.Warning("Full");
+		//log_cb(RETRO_LOG_DEBUG, "Full\n");
 		return 0;
 	}
 	int transsize;
@@ -105,11 +105,11 @@ int GIF_Fifo::read(bool calledFromDMA)
 
 	if (!gifUnit.CanDoPath3() || gifRegs.stat.FQC == 0)
 	{
-		//DevCon.Warning("Path3 not masked");
+		//log_cb(RETRO_LOG_DEBUG, "Path3 not masked\n");
 		if (gifch.chcr.STR == true && !(cpuRegs.interrupt & (1 << DMAC_GIF)) && calledFromDMA == false) {
 			GifDMAInt(16);
 		}
-		//DevCon.Warning("P3 Masked");
+		//log_cb(RETRO_LOG_DEBUG, "P3 Masked\n");
 		return 0;
 	}
 
@@ -146,7 +146,10 @@ void incGifChAddr(u32 qwc) {
 		gifch.qwc  -= qwc;
 		hwDmacSrcTadrInc(gifch);
 	}
-	else DevCon.Error("incGifAddr() Error!");
+#if 0
+	else
+		log_cb(RETRO_LOG_DEBUG, "incGifAddr() Error!\n");
+#endif
 }
 
 __fi void gifCheckPathStatus() {
@@ -191,7 +194,7 @@ __fi void gifInterrupt()
 	}
 
 	if (dmacRegs.ctrl.MFD == MFD_GIF) { // GIF MFIFO
-		//Console.WriteLn("GIF MFIFO");
+		//log_cb(RETRO_LOG_INFO, "GIF MFIFO\n");
 		gifMFIFOInterrupt();
 		return;
 	}	
@@ -244,7 +247,7 @@ __fi void gifInterrupt()
 
 	if ((gifch.qwc > 0) || (!gif.gspath3done)) {
 		if (!dmacRegs.ctrl.DMAE) {
-			Console.Warning("gs dma masked, re-scheduling...");
+			log_cb(RETRO_LOG_WARN, "gs dma masked, re-scheduling...\n");
 			// re-raise the int shortly in the future
 			GifDMAInt( 64 );
 			return;
@@ -299,7 +302,7 @@ int  _GIFchain()
 		//must increment madr and clear qwc, else it loops
 		gifch.madr += gifch.qwc * 16;
 		gifch.qwc = 0;
-		Console.Warning("Hackfix - NULL GIFchain");
+		log_cb(RETRO_LOG_WARN, "Hackfix - NULL GIFchain\n");
 		return -1;
 	}
 
@@ -370,13 +373,13 @@ void GIFdma()
 		gif.gscycles = gif.prevcycles;
 
 		if (gifRegs.ctrl.PSE) { // temporarily stop
-			Console.WriteLn("Gif dma temp paused? (non MFIFO GIF)");
+			log_cb(RETRO_LOG_INFO, "Gif dma temp paused? (non MFIFO GIF)\n");
 			GifDMAInt(16);
 			return;
 		}
 
 		if ((dmacRegs.ctrl.STD == STD_GIF) && (gif.prevcycles != 0)) {
-			//Console.WriteLn("GS Stall Control Source = %x, Drain = %x\n MADR = %x, STADR = %x", (psHu32(0xe000) >> 4) & 0x3, (psHu32(0xe000) >> 6) & 0x3, gifch.madr, psHu32(DMAC_STADR));
+			//log_cb(RETRO_LOG_INFO, "GS Stall Control Source = %x, Drain = %x\n MADR = %x, STADR = %x\n", (psHu32(0xe000) >> 4) & 0x3, (psHu32(0xe000) >> 6) & 0x3, gifch.madr, psHu32(DMAC_STADR));
 			if ((gifch.madr + (gifch.qwc * 16)) > dmacRegs.stadr.ADDR) {
 				GifDMAInt(4);
 				gif.gscycles = 0;
@@ -390,7 +393,7 @@ void GIFdma()
 		{
 			ptag = ReadTag();
 			if (ptag == NULL) return;
-			//DevCon.Warning("GIF Reading Tag MSK = %x", vif1Regs.mskpath3);
+			//log_cb(RETRO_LOG_DEBUG, "GIF Reading Tag MSK = %x\n", vif1Regs.mskpath3);
 			GIF_LOG("gifdmaChain %8.8x_%8.8x size=%d, id=%d, addr=%lx tadr=%lx", ptag[1]._u32, ptag[0]._u32, gifch.qwc, ptag->ID, gifch.madr, gifch.tadr);
 			if (!CHECK_GIFFIFOHACK)gifRegs.stat.FQC = std::min((u32)0x10, gifch.qwc);// FQC=31, hack ;) (for values of 31 that equal 16) [ used to be 0xE00; // APATH=3]
 			if (dmacRegs.ctrl.STD == STD_GIF)
@@ -400,7 +403,7 @@ void GIFdma()
 				{
 					// stalled.
 					// We really need to test this. Pay attention to prevcycles, as it used to trigger GIFchains in the code above. (rama)
-					//DevCon.Warning("GS Stall Control start Source = %x, Drain = %x\n MADR = %x, STADR = %x", (psHu32(0xe000) >> 4) & 0x3, (psHu32(0xe000) >> 6) & 0x3,gifch.madr, psHu32(DMAC_STADR));
+					//log_cb(RETRO_LOG_DEBUG, "GS Stall Control start Source = %x, Drain = %x\n MADR = %x, STADR = %x\n", (psHu32(0xe000) >> 4) & 0x3, (psHu32(0xe000) >> 6) & 0x3,gifch.madr, psHu32(DMAC_STADR));
 					gif.prevcycles = gif.gscycles;
 					gifch.tadr -= 16;
 					gifch.qwc = 0;
@@ -413,10 +416,12 @@ void GIFdma()
 
 			checkTieBit(ptag);
 		}
+#ifndef NDEBUG
 		else if (dmacRegs.ctrl.STD == STD_GIF && gifch.chcr.MOD == NORMAL_MODE)
 		{
-			Console.WriteLn("GIF DMA Stall in Normal mode not implemented - Report which game to PCSX2 Team");
+			log_cb(RETRO_LOG_INFO, "GIF DMA Stall in Normal mode not implemented - Report which game to PCSX2 Team\n");
 		}
+#endif
 
 
 		if (!CHECK_GIFFIFOHACK) {
@@ -430,7 +435,10 @@ void GIFdma()
 			if (CheckPaths() == false) return;
 
 			GIFchain();	//Transfers the data set by the switch
-			//if (gscycles < 8) DevCon.Warning("GSCycles = %d", gscycles);
+#if 0
+			if (gscycles < 8)
+				log_cb(RETRO_LOG_DEBUG, "GSCycles = %d\n", gscycles);
+#endif
 			GifDMAInt(gif.gscycles);
 			return;
 		}
@@ -438,7 +446,10 @@ void GIFdma()
 
 	//QWC == 0 && gspath3done == true - End of DMA
 	gif.prevcycles = 0;
-	//if (gscycles < 8) DevCon.Warning("1 GSCycles = %d", gscycles);
+#if 0
+	if (gscycles < 8)
+		log_cb(RETRO_LOG_ERROR, "1 GSCycles = %d\n", gscycles);
+#endif
 	GifDMAInt(16);
 }
 
@@ -446,7 +457,7 @@ void dmaGIF()
 {
 	 //We used to add wait time for the buffer to fill here, fixing some timing problems in path 3 masking
 	//It takes the time of 24 QW for the BUS to become ready - The Punisher And Streetball
-	//DevCon.Warning("dmaGIFstart chcr = %lx, madr = %lx, qwc  = %lx\n tadr = %lx, asr0 = %lx, asr1 = %lx", gifch.chcr._u32, gifch.madr, gifch.qwc, gifch.tadr, gifch.asr0, gifch.asr1);
+	//log_cb(RETRO_LOG_DEBUG, "dmaGIFstart chcr = %lx, madr = %lx, qwc  = %lx\n tadr = %lx, asr0 = %lx, asr1 = %lx\n", gifch.chcr._u32, gifch.madr, gifch.qwc, gifch.tadr, gifch.asr0, gifch.asr1);
 
 	gif.gspath3done = false; // For some reason this doesn't clear? So when the system starts the thread, we will clear it :)
 
@@ -461,7 +472,7 @@ void dmaGIF()
 
 
 	if(gifch.chcr.MOD == CHAIN_MODE && gifch.qwc > 0) {
-		//DevCon.Warning(L"GIF QWC on Chain " + gifch.chcr.desc());
+		//log_cb(RETRO_LOG_DEBUG, "GIF QWC on Chain %s\n" + gifch.chcr.desc().c_str());
 		if ((gifch.chcr.tag().ID == TAG_REFE) || (gifch.chcr.tag().ID == TAG_END) || (gifch.chcr.tag().IRQ && gifch.chcr.TIE)) {
 			gif.gspath3done = true;
 		}
@@ -496,9 +507,10 @@ static u32 QWCinGIFMFIFO(u32 DrainADDR)
 static __fi bool mfifoGIFrbTransfer()
 {
 	u32 qwc = std::min(QWCinGIFMFIFO(gifch.madr), gifch.qwc);
-	if (qwc == 0) {
-		DevCon.Warning("GIF FIFO EMPTY before transfer (how?)");
-	}
+#if 0
+	if (qwc == 0)
+		log_cb(RETRO_LOG_DEBUG, "GIF FIFO EMPTY before transfer (how?)\n");
+#endif
 
 	u8* src = (u8*)PSM(gifch.madr);
 	if (src == NULL) return false;
@@ -625,7 +637,7 @@ void mfifoGIFtransfer()
 	
 
 	if (gifRegs.ctrl.PSE) { // temporarily stop
-		Console.WriteLn("Gif dma temp paused?");
+		log_cb(RETRO_LOG_INFO, "Gif dma temp paused?\n");
 		CPU_INT(DMAC_MFIFO_GIF, 16);
 		return;
 	}
@@ -653,10 +665,12 @@ void mfifoGIFtransfer()
 
 		gif.gspath3done = hwDmacSrcChainWithStack(gifch, ptag->ID);
 
+#ifndef NDEBUG
 		if (dmacRegs.ctrl.STD == STD_GIF && (ptag->ID == TAG_REFS))
 		{
-			Console.WriteLn("GIF MFIFO DMA Stall not implemented - Report which game to PCSX2 Team");
+			log_cb(RETRO_LOG_INFO, "GIF MFIFO DMA Stall not implemented - Report which game to PCSX2 Team\n");
 		}
+#endif
 		mfifoGifMaskMem(ptag->ID);
 
 		gifch.tadr = qwctag(gifch.tadr);
@@ -668,7 +682,9 @@ void mfifoGIFtransfer()
 	 }
 
 	if (!mfifoGIFchain()) {
-		Console.WriteLn("mfifoGIF dmaChain error size=%d, madr=%lx, tadr=%lx", gifch.qwc, gifch.madr, gifch.tadr);
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_INFO, "mfifoGIF dmaChain error size=%d, madr=%lx, tadr=%lx\n", gifch.qwc, gifch.madr, gifch.tadr);
+#endif
 		gif.gspath3done = true;
 		gifch.qwc = 0; //Sanity
 	}
@@ -684,7 +700,9 @@ void gifMFIFOInterrupt()
 	gif.mfifocycles = 0;
 
 	if (dmacRegs.ctrl.MFD != MFD_GIF) { // GIF not in MFIFO anymore, come out.
-		DevCon.WriteLn("GIF Leaving MFIFO - Report if any errors");
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "GIF Leaving MFIFO - Report if any errors\n");
+#endif
 		gifInterrupt();
 		return;
 	}
@@ -757,7 +775,9 @@ void gifMFIFOInterrupt()
 	}
 
 	if (!gifch.chcr.STR) {
-		Console.WriteLn("WTF GIFMFIFO");
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_INFO, "WTF GIFMFIFO\n");
+#endif
 		cpuRegs.interrupt &= ~(1 << 11);
 		return;
 	}

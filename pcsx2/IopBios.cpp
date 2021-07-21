@@ -45,7 +45,7 @@ static char HostRoot[1024];
 void Hle_SetElfPath(const char* elfFileName)
 {
 #if USE_HOST_REWRITE
-	DevCon.WriteLn("HLE Host: Will load ELF: %s\n", elfFileName);
+	log_cb(RETRO_LOG_DEBUG, "HLE Host: Will load ELF: %s\n", elfFileName);
 
 	const char* pos1 = strrchr(elfFileName,'/');
 	const char* pos2 = strrchr(elfFileName,'\\');
@@ -55,13 +55,13 @@ void Hle_SetElfPath(const char* elfFileName)
 
 	if(!pos1) // if pos1 is NULL, then pos2 was not > pos1, so it must also be NULL
 	{
-		Console.WriteLn("HLE Notice: ELF does not have a path.\n");
+		log_cb(RETRO_LOG_INFO, "HLE Notice: ELF does not have a path.\n");
 
 		// use %CD%/host/
 		char* cwd = getcwd(HostRoot,1000); // save the other 23 chars to append /host/ :P
 		HostRoot[1000]=0; // Be Safe.
 		if (cwd == nullptr) {
-			Console.Error("Hle_SetElfPath: getcwd: buffer is too small");
+			log_cb(RETRO_LOG_ERROR, "Hle_SetElfPath: getcwd: buffer is too small\n");
 			return;
 		}
 
@@ -79,7 +79,7 @@ void Hle_SetElfPath(const char* elfFileName)
 	memcpy(HostRoot,elfFileName,len); // include the / (or \\)
 	HostRoot[len] = 0;
 
-	Console.WriteLn("HLE Host: Set 'host:' root path to: %s\n", HostRoot);
+	log_cb(RETRO_LOG_INFO, "HLE Host: Set 'host:' root path to: %s\n", HostRoot);
 
 #endif
 }
@@ -449,7 +449,7 @@ namespace ioman {
 		if (fd == 1) // stdout
 		{
 			const std::string s = Ra1;
-			iopConLog(ShiftJIS_ConvertString(s.data(), a2));
+			//iopConLog(ShiftJIS_ConvertString(s.data(), a2));
 			pc = ra;
 			v0 = a2;
 			return 1;
@@ -486,98 +486,6 @@ namespace sysmem {
 		iopMemWrite32(sp + 12, a3);
 		pc = ra;
 
-		const std::string fmt = Ra0;
-
-		// From here we're intercepting the Kprintf and piping it to our console, complete with
-		// printf-style formatting processing.  This part can be skipped if the user has the
-		// console disabled.
-
-		if (!SysConsole.iopConsole.IsActive()) return 1;
-
-		char tmp[1024], tmp2[1024];
-		char *ptmp = tmp;
-		int n=1, i=0, j = 0;
-
-		while (fmt[i])
-		{
-			switch (fmt[i])
-			{
-				case '%':
-					j = 0;
-					tmp2[j++] = '%';
-_start:
-					switch (fmt[++i])
-					{
-						case '.':
-						case 'l':
-							tmp2[j++] = fmt[i];
-							goto _start;
-						default:
-							if (fmt[i] >= '0' && fmt[i] <= '9')
-							{
-								tmp2[j++] = fmt[i];
-								goto _start;
-							}
-							break;
-					}
-
-					tmp2[j++] = fmt[i];
-					tmp2[j] = 0;
-
-					switch (fmt[i])
-					{
-						case 'f': case 'F':
-							ptmp+= sprintf(ptmp, tmp2, (float)iopMemRead32(sp + n * 4));
-							n++;
-							break;
-
-						case 'a': case 'A':
-						case 'e': case 'E':
-						case 'g': case 'G':
-							ptmp+= sprintf(ptmp, tmp2, (double)iopMemRead32(sp + n * 4));
-							n++;
-							break;
-
-						case 'p':
-						case 'i':
-						case 'd': case 'D':
-						case 'o': case 'O':
-						case 'x': case 'X':
-							ptmp+= sprintf(ptmp, tmp2, (u32)iopMemRead32(sp + n * 4));
-							n++;
-							break;
-
-						case 'c':
-							ptmp+= sprintf(ptmp, tmp2, (u8)iopMemRead32(sp + n * 4));
-							n++;
-							break;
-
-						case 's':
-							{
-								std::string s = iopMemReadString(iopMemRead32(sp + n * 4));
-								ptmp += sprintf(ptmp, tmp2, s.data());
-								n++;
-							}
-							break;
-
-						case '%':
-							*ptmp++ = fmt[i];
-							break;
-
-						default:
-							break;
-					}
-					i++;
-					break;
-
-				default:
-					*ptmp++ = fmt[i++];
-					break;
-			}
-		}
-		*ptmp = 0;
-		iopConLog( ShiftJIS_ConvertString(tmp, 1023) );
-
 		return 1;
 	}
 }
@@ -585,8 +493,10 @@ _start:
 namespace loadcore {
 	void RegisterLibraryEntries_DEBUG()
 	{
+#ifndef NDEBUG
 		const std::string modname = iopMemReadString(a0 + 12);
-		DevCon.WriteLn(Color_Gray, "RegisterLibraryEntries: %8.8s version %x.%02x", modname.data(), (unsigned)iopMemRead8(a0 + 9), (unsigned)iopMemRead8(a0 + 8));
+		log_cb(RETRO_LOG_DEBUG, "RegisterLibraryEntries: %8.8s version %x.%02x\n", modname.data(), (unsigned)iopMemRead8(a0 + 9), (unsigned)iopMemRead8(a0 + 8));
+#endif
 	}
 }
 
@@ -613,14 +523,14 @@ namespace intrman {
 
 	void RegisterIntrHandler_DEBUG()
 	{
-		DevCon.WriteLn(Color_Gray, "RegisterIntrHandler: intr %s, handler %x", intrname[a0], a2);
+		log_cb(RETRO_LOG_DEBUG, "RegisterIntrHandler: intr %s, handler %x\n", intrname[a0], a2);
 	}
 }
 
 namespace sifcmd {
 	void sceSifRegisterRpc_DEBUG()
 	{
-		DevCon.WriteLn( Color_Gray, "sifcmd sceSifRegisterRpc: rpc_id %x", a1);
+		log_cb(RETRO_LOG_DEBUG, "sifcmd sceSifRegisterRpc: rpc_id %x\n", a1);
 	}
 }
 

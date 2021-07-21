@@ -353,7 +353,9 @@ void VU_Thread::Get_GSChanges()
 		{
 			GUNIT_WARN("Queue SIGNAL");
 			gifUnit.gsSIGNAL.queued = true;
-			//DevCon.Warning("Firing pending signal");
+#if 0
+			log_cb(RETRO_LOG_DEBUG, "Firing pending signal\n");
+#endif
 			gifUnit.gsSIGNAL.data[0] = signalData;
 			gifUnit.gsSIGNAL.data[1] = signalMsk;
 		} 		
@@ -403,13 +405,17 @@ bool VU_Thread::IsDone()
 
 void VU_Thread::WaitVU()
 {
+#if 0
 	MTVU_LOG("MTVU - WaitVU!");
+#endif
 	for (;;)
 	{
 		if (IsDone())
 			break;
-		//DevCon.WriteLn("WaitVU()");
-		//pxAssert(THREAD_VU1);
+#if 0
+		log_cb(RETRO_LOG_DEBUG, "WaitVU()\n");
+		pxAssert(THREAD_VU1);
+#endif
 		KickStart();
 		std::this_thread::yield(); // Give a chance to the MTVU thread to actually start
 		ScopedLock lock(mtxBusy);
@@ -418,7 +424,9 @@ void VU_Thread::WaitVU()
 
 void VU_Thread::ExecuteVU(u32 vu_addr, u32 vif_top, u32 vif_itop)
 {
+#if 0
 	MTVU_LOG("MTVU - ExecuteVU!");
+#endif
 	Get_GSChanges(); // Clear any pending interrupts
 	ReserveSpace(4);
 	Write(MTVU_VU_EXECUTE);
@@ -436,7 +444,9 @@ void VU_Thread::ExecuteVU(u32 vu_addr, u32 vif_top, u32 vif_itop)
 
 void VU_Thread::VifUnpack(vifStruct& _vif, VIFregisters& _vifRegs, u8* data, u32 size)
 {
+#if 0
 	MTVU_LOG("MTVU - VifUnpack!");
+#endif
 	u32 vif_copy_size = (uptr)&_vif.StructEnd - (uptr)&_vif.tag;
 	ReserveSpace(1 + size_u32(vif_copy_size) + size_u32(sizeof(VIFregistersMTVU)) + 1 + size_u32(size));
 	Write(MTVU_VIF_UNPACK);
@@ -450,7 +460,9 @@ void VU_Thread::VifUnpack(vifStruct& _vif, VIFregisters& _vifRegs, u8* data, u32
 
 void VU_Thread::WriteMicroMem(u32 vu_micro_addr, void* data, u32 size)
 {
+#if 0
 	MTVU_LOG("MTVU - WriteMicroMem!");
+#endif
 	ReserveSpace(3 + size_u32(size));
 	Write(MTVU_VU_WRITE_MICRO);
 	Write(vu_micro_addr);
@@ -462,7 +474,9 @@ void VU_Thread::WriteMicroMem(u32 vu_micro_addr, void* data, u32 size)
 
 void VU_Thread::WriteDataMem(u32 vu_data_addr, void* data, u32 size)
 {
+#if 0
 	MTVU_LOG("MTVU - WriteDataMem!");
+#endif
 	ReserveSpace(3 + size_u32(size));
 	Write(MTVU_VU_WRITE_DATA);
 	Write(vu_data_addr);
@@ -474,7 +488,9 @@ void VU_Thread::WriteDataMem(u32 vu_data_addr, void* data, u32 size)
 
 void VU_Thread::WriteCol(vifStruct& _vif)
 {
+#if 0
 	MTVU_LOG("MTVU - WriteCol!");
+#endif
 	ReserveSpace(1 + size_u32(sizeof(_vif.MaskCol)));
 	Write(MTVU_VIF_WRITE_COL);
 	Write(&_vif.MaskCol, sizeof(_vif.MaskCol));
@@ -483,7 +499,9 @@ void VU_Thread::WriteCol(vifStruct& _vif)
 
 void VU_Thread::WriteRow(vifStruct& _vif)
 {
+#if 0
 	MTVU_LOG("MTVU - WriteRow!");
+#endif
 	ReserveSpace(1 + size_u32(sizeof(_vif.MaskRow)));
 	Write(MTVU_VIF_WRITE_ROW);
 	Write(&_vif.MaskRow, sizeof(_vif.MaskRow));

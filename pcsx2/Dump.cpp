@@ -55,9 +55,10 @@ void iDumpPsxRegisters(u32 startpc, u32 temp)
 
 	for(i = 0; i < 34; i+=2) __Log("%spsx%s: %x %x", pstr, disRNameGPR[i], psxRegs.GPR.r[i], psxRegs.GPR.r[i+1]);
 
-	DbgCon.WriteLn("%scycle: %x %x %x; counters %x %x", pstr, psxRegs.cycle, g_iopNextEventCycle, EEsCycle,
+	log_cb(RETRO_LOG_DEBUG, "%scycle: %x %x %x; counters %x %x\n", pstr, psxRegs.cycle, g_iopNextEventCycle, EEsCycle,
 		psxNextsCounter, psxNextCounter);
 
+#if 0
 	DbgCon.WriteLn(wxsFormat(L"psxdma%d ", 2) + hw_dma(2).desc());
 	DbgCon.WriteLn(wxsFormat(L"psxdma%d ", 3) + hw_dma(3).desc());
 	DbgCon.WriteLn(wxsFormat(L"psxdma%d ", 4) + hw_dma(4).desc());
@@ -71,6 +72,7 @@ void iDumpPsxRegisters(u32 startpc, u32 temp)
 
 	for(i = 0; i < 7; ++i)
 		DbgCon.WriteLn("%scounter%d: mode %x count %I64x rate %x scycle %x target %I64x", pstr, i, psxCounters[i].mode, psxCounters[i].count, psxCounters[i].rate, psxCounters[i].sCycleT, psxCounters[i].target);
+#endif
 #endif
 }
 
@@ -206,7 +208,7 @@ void iDumpBlock(u32 ee_pc, u32 ee_size, uptr x86_pc, u32 x86_size)
 {
 	u32 ee_end = ee_pc + ee_size;
 
-	DbgCon.WriteLn( Color_Gray, "dump block %x:%x (x86:0x%x)", ee_pc, ee_end, x86_pc );
+	log_cb(RETRO_LOG_DEBUG, "dump block %x:%x (x86:0x%x)\n", ee_pc, ee_end, x86_pc );
 
 	g_Conf->Folders.Logs.Mkdir();
 	wxString dump_filename = Path::Combine( g_Conf->Folders.Logs, wxsFormat(L"R5900dump_%.8X:%.8X.txt", ee_pc, ee_end) );
@@ -270,7 +272,7 @@ void iDumpBlock( int startpc, u8 * ptr )
 	u8 fpuused[33];
 	int numused, fpunumused;
 
-	DbgCon.WriteLn( Color_Gray, "dump1 %x:%x, %x", startpc, pc, cpuRegs.cycle );
+	log_cb(RETRO_LOG_DEBUG, "dump1 %x:%x, %x\n", startpc, pc, cpuRegs.cycle );
 
 	g_Conf->Folders.Logs.Mkdir();
 	AsciiFile eff(

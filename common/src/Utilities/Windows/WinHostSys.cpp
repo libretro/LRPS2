@@ -85,7 +85,7 @@ bool HostSys::MmapCommitPtr(void *base, size_t size, const PageProtectionMode &m
 
     const DWORD errcode = GetLastError();
     if (errcode == ERROR_COMMITMENT_MINIMUM) {
-        Console.Warning("(MmapCommit) Received windows error %u {Virtual Memory Minimum Too Low}.", ERROR_COMMITMENT_MINIMUM);
+        log_cb(RETRO_LOG_WARN, "(MmapCommit) Received windows error %u {Virtual Memory Minimum Too Low}.\n", ERROR_COMMITMENT_MINIMUM);
         Sleep(1000); // Cut windows some time to rework its memory...
     } else if (errcode != ERROR_NOT_ENOUGH_MEMORY && errcode != ERROR_OUTOFMEMORY) {
         pxFailDev(L"VirtualAlloc COMMIT failed: " + Exception::WinApiError().GetMsgFromWindows());

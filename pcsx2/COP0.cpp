@@ -110,11 +110,13 @@ static __fi bool PERF_ShouldCountEvent( uint evt )
 // might save some debugging effort. :)
 void COP0_DiagnosticPCCR()
 {
+#ifndef NDEBUG
 	if( cpuRegs.PERF.n.pccr.b.Event0 >= 7 && cpuRegs.PERF.n.pccr.b.Event0 <= 10 )
-		Console.Warning( "PERF/PCR0 Unsupported Update Event Mode = 0x%x", cpuRegs.PERF.n.pccr.b.Event0 );
+		log_cb(RETRO_LOG_WARN, "PERF/PCR0 Unsupported Update Event Mode = 0x%x\n", cpuRegs.PERF.n.pccr.b.Event0 );
 
 	if( cpuRegs.PERF.n.pccr.b.Event1 >= 7 && cpuRegs.PERF.n.pccr.b.Event1 <= 10 )
-		Console.Warning( "PERF/PCR1 Unsupported Update Event Mode = 0x%x", cpuRegs.PERF.n.pccr.b.Event1 );
+		log_cb(RETRO_LOG_WARN, "PERF/PCR1 Unsupported Update Event Mode = 0x%x\n", cpuRegs.PERF.n.pccr.b.Event1 );
+#endif
 }
 extern int branch;
 __fi void COP0_UpdatePCCR()
@@ -368,9 +370,11 @@ void TLBWR() {
 
 	//if (j > 48) return;
 
-DevCon.Warning("COP0_TLBWR %d:%x,%x,%x,%x\n",
+#ifndef NDEBUG
+	log_cb(RETRO_LOG_DEBUG, "COP0_TLBWR %d:%x,%x,%x,%x\n",
 			cpuRegs.CP0.n.Random,   cpuRegs.CP0.n.PageMask, cpuRegs.CP0.n.EntryHi,
 			cpuRegs.CP0.n.EntryLo0, cpuRegs.CP0.n.EntryLo1);
+#endif
 
 	//if (j > 48) return;
 
@@ -545,10 +549,10 @@ void ERET() {
 	// quick_exit vs exit: quick_exit won't call static storage destructor (OS will manage). It helps
 	// avoiding the race condition between threads destruction.
 	if (vtune > 30 * million) {
-		Console.WriteLn("VTUNE: quick_exit");
+		log_cb(RETRO_LOG_INFO, "VTUNE: quick_exit\n");
 		std::quick_exit(EXIT_SUCCESS);
 	} else if (!(vtune % million)) {
-		Console.WriteLn("VTUNE: ERET was called %uM times", vtune/million);
+		log_cb(RETRO_LOG_INFO, "VTUNE: ERET was called %uM times\n", vtune/million);
 	}
 
 #endif

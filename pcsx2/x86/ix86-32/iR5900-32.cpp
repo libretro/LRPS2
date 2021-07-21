@@ -265,7 +265,7 @@ u32* recGetImm64(u32 hi, u32 lo)
 
 	if (recConstBufPtr >= recConstBuf + RECCONSTBUF_SIZE)
 	{
-		Console.WriteLn( "EErec const buffer filled; Resetting..." );
+		log_cb(RETRO_LOG_DEBUG, "EErec const buffer filled; Resetting...\n" );
 		throw Exception::ExitCpuExecute();
 
 		/*for (u32 *p = recConstBuf; p < recConstBuf + RECCONSTBUF_SIZE; p += 2)
@@ -286,7 +286,7 @@ u32* recGetImm64(u32 hi, u32 lo)
 	imm64[0] = lo;
 	imm64[1] = hi;
 
-	//Console.Warning("Consts allocated: %d of %u", (recConstBufPtr - recConstBuf) / 2, count);
+	//log_cb(RETRO_LOG_WARN, "Consts allocated: %d of %u\n", (recConstBufPtr - recConstBuf) / 2, count);
 
 	return imm64;
 }
@@ -603,7 +603,7 @@ static void recResetRaw()
 	if( eeRecIsReset.exchange(true) ) return;
 	eeRecNeedsReset = false;
 
-	Console.WriteLn( Color_StrongBlack, "EE/iR5900-32 Recompiler Reset" );
+	log_cb(RETRO_LOG_INFO, "EE/iR5900-32 Recompiler Reset\n" );
 
 	recMem->Reset();
 	ClearRecLUT((BASEBLOCK*)recLutReserve_RAM, recLutSize);
@@ -840,10 +840,12 @@ void recClear(u32 addr, u32 size)
 		u32 blockend = pexblock->startpc + pexblock->size * 4;
 		if (pexblock->startpc >= addr && pexblock->startpc < addr + size * 4
 		 || pexblock->startpc < addr && blockend > addr) {
-			if( !IsDevBuild )
-				Console.Error( "Impossible block clearing failure" );
-			else
+#ifndef NDEBUG
+			if( IsDevBuild )
 				pxFailDev( "Impossible block clearing failure" );
+			else
+#endif
+				log_cb(RETRO_LOG_DEBUG, "Impossible block clearing failure\n" );
 		}
 	}
 
@@ -1021,7 +1023,7 @@ static u32 scaleblockcycles()
 	unscaled_overall += unscaled;
 	float ratio = static_cast<float>(unscaled_overall) / scaled_overall;
 
-	DevCon.WriteLn(L"Unscaled overall: %d,  scaled overall: %d,  relative EE clock speed: %d %%",
+	log_cb(RETRO_LOG_DEBUG, "Unscaled overall: %d,  scaled overall: %d,  relative EE clock speed: %d %%\n",
 	               unscaled_overall, scaled_overall, static_cast<int>(100 * ratio));
 #endif
 
@@ -1045,7 +1047,7 @@ u32 scaleblockcycles_clear()
 	unscaled_overall += unscaled;
 	float ratio = static_cast<float>(unscaled_overall) / scaled_overall;
 
-	DevCon.WriteLn(L"Unscaled overall: %d,  scaled overall: %d,  relative EE clock speed: %d %%",
+	log_cb(RETRO_LOG_DEBUG, "Unscaled overall: %d,  scaled overall: %d,  relative EE clock speed: %d %%\n",
 		unscaled_overall, scaled_overall, static_cast<int>(100 * ratio));
 #endif
 	s_nBlockCycles &= 0x7;
@@ -1207,10 +1209,12 @@ void dynarecMemcheck()
 
 void __fastcall dynarecMemLogcheck(u32 start, bool store)
 {
+#ifndef NDEBUG
 	if (store)
-		DevCon.WriteLn("Hit store breakpoint @0x%x", start);
+		log_cb(RETRO_LOG_DEBUG, "Hit store breakpoint @0x%x\n", start);
 	else
-		DevCon.WriteLn("Hit load breakpoint @0x%x", start);
+		log_cb(RETRO_LOG_DEBUG, "Hit load breakpoint @0x%x\n", start);
+#endif
 }
 
 void recMemcheck(u32 op, u32 bits, bool store)
@@ -1350,7 +1354,7 @@ void recompileNextInstruction(int delayslot)
 	const OPCODE& opcode = GetCurrentInstruction();
 
  	//pxAssert( !(g_pCurInstInfo->info & EEINSTINFO_NOREC) );
-	//Console.Warning("opcode name = %s, it's cycles = %d\n",opcode.Name,opcode.cycles);
+	//log_cb(RETRO_LOG_WARN, "opcode name = %s, it's cycles = %d\n",opcode.Name,opcode.cycles);
 	// if this instruction is a jump or a branch, exit right away
 	if( delayslot ) {
 		bool check_branch_delay = false;
@@ -1369,7 +1373,9 @@ void recompileNextInstruction(int delayslot)
 		// Gregory tested this in 2017 using the ps2autotests suite and remarked "So far we return 1 (even with this PR), and the HW 2.
 		// Original PR and discussion at https://github.com/PCSX2/pcsx2/pull/1783 so we don't forget this information.
 		if (check_branch_delay) {
-			DevCon.Warning("Branch %x in delay slot!", cpuRegs.code);
+#ifndef NDEBUG
+			log_cb(RETRO_LOG_DEBUG, "Branch %x in delay slot!\n", cpuRegs.code);
+#endif
 			_clearNeededX86regs();
 			_clearNeededXMMregs();
 			pc += 4;
@@ -1461,12 +1467,16 @@ void recompileNextInstruction(int delayslot)
 					if (_Rd_ == 16 && s & 1 || _Rd_ == 17 && s & 2 || _Rd_ == 18 && s & 4)
 					{
 						std::string disasm;
-						DevCon.Warning("Possible old value used in COP2 code");
+#ifndef NDEBUG
+						log_cb(RETRO_LOG_DEBUG, "Possible old value used in COP2 code\n");
+#endif
 						for (u32 i = s_pCurBlockEx->startpc; i < s_nEndBlock; i += 4)
 						{
 							disasm = "";
 							disR5900Fasm(disasm, memRead32(i), i,false);
-							DevCon.Warning("%x %s%08X %s", i, i == pc - 4 ? "*" : i == p ? "=" : " ", memRead32(i), disasm.c_str());
+#ifndef NDEBUG
+							log_cb(RETRO_LOG_DEBUG, "%x %s%08X %s\n", i, i == pc - 4 ? "*" : i == p ? "=" : " ", memRead32(i), disasm.c_str());
+#endif
 						}
 						break;
 					}
@@ -1520,7 +1530,7 @@ static u32 s_recblocks[] = {0};
 //  less likely, self-modifying code)
 void __fastcall dyna_block_discard(u32 start,u32 sz)
 {
-	eeRecPerfLog.Write( Color_StrongGray, "Clearing Manual Block @ 0x%08X  [size=%d]", start, sz*4);
+	//log_cb(RETRO_LOG_DEBUG, "Clearing Manual Block @ 0x%08X  [size=%d]\n", start, sz*4);
 	recClear(start, sz);
 }
 
@@ -1604,15 +1614,18 @@ static void memory_protect_recompiled_code(u32 startpc, u32 size)
 				xJC(DispatchPageReset);
 
 				// note: clearcnt is measured per-page, not per-block!
-				ConsoleColorScope cs( Color_Gray );
+#if 0
 				eeRecPerfLog.Write( "Manual block @ %08X : size =%3d  page/offs = 0x%05X/0x%03X  inpgsz = %d  clearcnt = %d",
 					startpc, size, inpage_ptr>>12, inpage_ptr&0xfff, inpage_sz, manual_counter[inpage_ptr >> 12] );
+#endif
 			}
+#if 0
 			else
 			{
 				eeRecPerfLog.Write( "Uncounted Manual block @ 0x%08X : size =%3d page/offs = 0x%05X/0x%03X  inpgsz = %d",
 					startpc, size, inpage_ptr>>12, inpage_ptr&0xfff, inpage_sz );
 			}
+#endif
             break;
 	}
 }
@@ -1636,7 +1649,7 @@ bool skipMPEG_By_Pattern(u32 sPC) {
 		iBranchTest();
 		g_branch = 1;
 		pc = s_nEndBlock;
-		Console.WriteLn(Color_StrongGreen, "sceMpegIsEnd pattern found! Recompiling skip video fix...");
+		log_cb(RETRO_LOG_DEBUG, "sceMpegIsEnd pattern found! Recompiling skip video fix...\n");
 		return 1;
 	}
 	return 0;
@@ -1668,7 +1681,7 @@ static void __fastcall recRecompile( const u32 startpc )
 		eeRecNeedsReset = true;
 	}
 	else if ((recConstBufPtr - recConstBuf) >= RECCONSTBUF_SIZE - 64) {
-		Console.WriteLn("EE recompiler stack reset");
+		log_cb(RETRO_LOG_DEBUG, "EE recompiler stack reset\n");
 		eeRecNeedsReset = true;
 	}
 
@@ -1677,8 +1690,10 @@ static void __fastcall recRecompile( const u32 startpc )
 	xSetPtr( recPtr );
 	recPtr = xGetAlignedCallTarget();
 
+#ifndef NDEBUG
 	if (0x8000d618 == startpc)
-		DbgCon.WriteLn("Compiling block @ 0x%08x", startpc);
+		log_cb(RETRO_LOG_DEBUG, "Compiling block @ 0x%08x\n", startpc);
+#endif
 
 	s_pCurBlock = PC_GETBLOCK(startpc);
 
@@ -1717,7 +1732,7 @@ static void __fastcall recRecompile( const u32 startpc )
 				g_eeloadExec = EELOAD_START + 0x170;
 			else // There might be other types of EELOAD, because these models' BIOSs have not been examined: 18000, 3500x, 3700x,
 				 // 5500x, and 7900x. However, all BIOS versions have been examined except for v1.01 and v1.10.
-				Console.WriteLn("recRecompile: Could not enable launch arguments for fast boot mode; unidentified BIOS version! Please report this to the PCSX2 developers.");
+				log_cb(RETRO_LOG_DEBUG, "recRecompile: Could not enable launch arguments for fast boot mode; unidentified BIOS version! Please report this to the PCSX2 developers.\n");
 		}
 
 		// On fast/full boot this will have a crc of 0x0. But when the game/elf itself is
@@ -1734,7 +1749,7 @@ static void __fastcall recRecompile( const u32 startpc )
 
 	// this is the only way patches get applied, doesn't depend on a hack
 	if (g_GameLoading && HWADDR(startpc) == ElfEntry) {
-		Console.WriteLn(L"Elf entry point @ 0x%08x about to get recompiled. Load patches first.", startpc);
+		log_cb(RETRO_LOG_DEBUG, "Elf entry point @ 0x%08x about to get recompiled. Load patches first.\n", startpc);
 		xFastCall((void*)eeGameStarting);
 
 		// Apply patch as soon as possible. Normally it is done in
@@ -1806,7 +1821,7 @@ static void __fastcall recRecompile( const u32 startpc )
 				willbranch3 = 1;
 				s_nEndBlock = i;
 
-				eeRecPerfLog.Write( "Pagesplit @ %08X : size=%d insts", startpc, (i-startpc) / 4 );
+				//eeRecPerfLog.Write( "Pagesplit @ %08X : size=%d insts", startpc, (i-startpc) / 4 );
 				break;
 			}
 

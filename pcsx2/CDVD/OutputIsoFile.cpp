@@ -63,7 +63,7 @@ void OutputIsoFile::Create(const wxString& filename, int version)
 	m_outstream = std::make_unique<wxFileOutputStream>(m_filename);
 	pxStream_OpenCheck(*m_outstream, m_filename, L"writing");
 
-	Console.WriteLn("isoFile create ok: %s ", WX_STR(m_filename));
+	log_cb(RETRO_LOG_INFO, "isoFile create ok: %s \n", WX_STR(m_filename));
 }
 
 // Generates format header information for blockdumps.
@@ -73,9 +73,9 @@ void OutputIsoFile::WriteHeader(int _blockofs, uint _blocksize, uint _blocks)
 	m_blocks = _blocks;
 	m_blockofs = _blockofs;
 
-	Console.WriteLn("blockoffset = %d", m_blockofs);
-	Console.WriteLn("blocksize   = %u", m_blocksize);
-	Console.WriteLn("blocks	     = %u", m_blocks);
+	log_cb(RETRO_LOG_INFO, "blockoffset = %d\n", m_blockofs);
+	log_cb(RETRO_LOG_INFO, "blocksize   = %u\n", m_blocksize);
+	log_cb(RETRO_LOG_INFO, "blocks	     = %u\n", m_blocks);
 
 	if (m_version == 2)
 	{

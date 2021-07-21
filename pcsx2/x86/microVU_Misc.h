@@ -233,7 +233,7 @@ typedef u32 (__fastcall *mVUCall)(void*, void*);
 #define aWrap(x, m)	 ((x > m) ? 0 : x)
 #define shuffleSS(x) ((x==1)?(0x27):((x==2)?(0xc6):((x==4)?(0xe1):(0xe4))))
 #define clampE       CHECK_VU_EXTRA_OVERFLOW
-#define varPrint(x)  DevCon.WriteLn(#x " = %d", (int)x)
+#define varPrint(x)  log_cb(RETRO_LOG_DEBUG, #x " = %d", (int)x)
 #define islowerOP    ((iPC & 1) == 0)
 
 #define blockCreate(addr) {												\

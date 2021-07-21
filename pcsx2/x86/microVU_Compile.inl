@@ -19,12 +19,12 @@
 // Messages Called at Execution Time...
 //------------------------------------------------------------------
 
-static void __fc mVUbadOp0  (u32 prog, u32 pc)	{ Console.Error("microVU0 Warning: Exiting... Block contains an illegal opcode. [%04x] [%03d]", pc, prog); }
-static void __fc mVUbadOp1  (u32 prog, u32 pc)	{ Console.Error("microVU1 Warning: Exiting... Block contains an illegal opcode. [%04x] [%03d]", pc, prog); }
-static void __fc mVUwarning0(u32 prog, u32 pc)	{ Console.Error("microVU0 Warning: Exiting from Possible Infinite Loop [%04x] [%03d]", pc, prog); }
-static void __fc mVUwarning1(u32 prog, u32 pc)	{ Console.Error("microVU1 Warning: Exiting from Possible Infinite Loop [%04x] [%03d]", pc, prog); }
-static void __fc mVUprintPC1(u32 pc)			{ Console.WriteLn("Block Start PC = 0x%04x", pc); }
-static void __fc mVUprintPC2(u32 pc)			{ Console.WriteLn("Block End PC   = 0x%04x", pc); }
+static void __fc mVUbadOp0  (u32 prog, u32 pc)	{ log_cb(RETRO_LOG_ERROR, "microVU0 Warning: Exiting... Block contains an illegal opcode. [%04x] [%03d]\n", pc, prog); }
+static void __fc mVUbadOp1  (u32 prog, u32 pc)	{ log_cb(RETRO_LOG_ERROR, "microVU1 Warning: Exiting... Block contains an illegal opcode. [%04x] [%03d]\n", pc, prog); }
+static void __fc mVUwarning0(u32 prog, u32 pc)	{ log_cb(RETRO_LOG_ERROR, "microVU0 Warning: Exiting from Possible Infinite Loop [%04x] [%03d]\n", pc, prog); }
+static void __fc mVUwarning1(u32 prog, u32 pc)	{ log_cb(RETRO_LOG_ERROR, "microVU1 Warning: Exiting from Possible Infinite Loop [%04x] [%03d]\n", pc, prog); }
+static void __fc mVUprintPC1(u32 pc)			{ log_cb(RETRO_LOG_DEBUG, "Block Start PC = 0x%04x\n", pc); }
+static void __fc mVUprintPC2(u32 pc)			{ log_cb(RETRO_LOG_DEBUG, "Block End PC   = 0x%04x\n", pc); }
 
 //------------------------------------------------------------------
 // Program Range Checking and Setting up Ranges
@@ -85,12 +85,14 @@ void mVUsetupRange(microVU& mVU, s32 pc, bool isStartPC) {
 			}
 		}
 		if (mergedRange) {
-			//DevCon.WriteLn(Color_Green, "microVU%d: Prog Range Merging", mVU.index);
+			//log_cb(RETRO_LOG_DEBUG, "microVU%d: Prog Range Merging\n", mVU.index);
 			ranges->erase(ranges->begin());
 		}
 	}
 	else {
-		DevCon.WriteLn(Color_Green, "microVU%d: Prog Range Wrap [%04x] [%d]", mVU.index, mVUrange.start, mVUrange.end);
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "microVU%d: Prog Range Wrap [%04x] [%d]\n", mVU.index, mVUrange.start, mVUrange.end);
+#endif
 		mVUrange.end = mVU.microMemSize;
 		microRange mRange = {0, pc};
 		ranges->push_front(mRange);
@@ -116,7 +118,9 @@ void doIbit(mV) {
 		else {
 			u32 tempI;
 			if (CHECK_VU_OVERFLOW && ((curI & 0x7fffffff) >= 0x7f800000)) {
-				DevCon.WriteLn(Color_Green, "microVU%d: Clamping I Reg", mVU.index);
+#ifndef NDEBUG
+				log_cb(RETRO_LOG_DEBUG, "microVU%d: Clamping I Reg\n", mVU.index);
+#endif
 				tempI = (0x80000000 & curI) | 0x7f7fffff; // Clamp I Reg
 			}
 			else tempI = curI;
@@ -129,7 +133,9 @@ void doIbit(mV) {
 
 void doSwapOp(mV) { 
 	if (mVUinfo.backupVF && !mVUlow.noWriteVF) {
-		DevCon.WriteLn(Color_Green, "microVU%d: Backing Up VF Reg [%04x]", getIndex, xPC);
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "microVU%d: Backing Up VF Reg [%04x]\n", getIndex, xPC);
+#endif
 
 		// Allocate t1 first for better chance of reg-alloc
 		const xmm& t1 = mVU.regAlloc->allocReg(mVUlow.VF_write.reg);
@@ -189,7 +195,9 @@ __fi void mVUcheckBadOp(mV) {
 	if (mVUinfo.isBadOp && mVU.code != 0x8000033c) {
 		
 		mVUinfo.isEOB = true;
-		DevCon.Warning("microVU Warning: Block contains an illegal opcode...");
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "microVU Warning: Block contains an illegal opcode...\n");
+#endif
 
 	}
 }
@@ -211,7 +219,9 @@ __ri void branchWarning(mV) {
 	incPC(-2);
 	if (mVUup.eBit && mVUbranch) {
 		incPC(2);
-		DevCon.Warning("microVU%d Warning: Branch in E-bit delay slot! [%04x]", mVU.index, xPC);
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "microVU%d Warning: Branch in E-bit delay slot! [%04x]\n", mVU.index, xPC);
+#endif
 		mVUlow.isNOP = true;
 	}
 	else incPC(2);
@@ -232,11 +242,17 @@ __fi void eBitPass1(mV, int& branch) {
 }
 
 __ri void eBitWarning(mV) {
-	if (mVUpBlock->pState.blockType == 1) Console.Error("microVU%d Warning: Branch, E-bit, Branch! [%04x]",  mVU.index, xPC);
-	if (mVUpBlock->pState.blockType == 2) Console.Error("microVU%d Warning: Branch, Branch, Branch! [%04x]", mVU.index, xPC);
+#ifndef NDEBUG
+	if (mVUpBlock->pState.blockType == 1)
+		log_cb(RETRO_LOG_ERROR, "microVU%d Warning: Branch, E-bit, Branch! [%04x]\n",  mVU.index, xPC);
+	if (mVUpBlock->pState.blockType == 2)
+		log_cb(RETRO_LOG_ERROR, "microVU%d Warning: Branch, Branch, Branch! [%04x]\n", mVU.index, xPC);
+#endif
 	incPC(2);
 	if (curI & _Ebit_) {
-		DevCon.Warning("microVU%d: E-bit in Branch delay slot! [%04x]", mVU.index, xPC);
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "microVU%d: E-bit in Branch delay slot! [%04x]\n", mVU.index, xPC);
+#endif
 		mVUregs.blockType = 1;
 	}
 	incPC(-2);
@@ -407,9 +423,11 @@ void mVUtestCycles(microVU& mVU, microFlagCycles& mFC) {
 
 // This gets run at the start of every loop of mVU's first pass
 __fi void startLoop(mV) {
-	if (curI & _Mbit_ && isVU0)	{ DevCon.WriteLn (Color_Green, "microVU%d: M-bit set! PC = %x", getIndex, xPC); }
-	if (curI & _Dbit_)	{ DevCon.WriteLn (Color_Green, "microVU%d: D-bit set! PC = %x", getIndex, xPC); }
-	if (curI & _Tbit_)	{ DevCon.WriteLn (Color_Green, "microVU%d: T-bit set! PC = %x", getIndex, xPC); }
+#ifndef NDEBUG
+	if (curI & _Mbit_ && isVU0)	{ log_cb (RETRO_LOG_DEBUG, "microVU%d: M-bit set! PC = %x\n", getIndex, xPC); }
+	if (curI & _Dbit_)	{ log_cb (RETRO_LOG_DEBUG, "microVU%d: D-bit set! PC = %x\n", getIndex, xPC); }
+	if (curI & _Tbit_)	{ log_cb (RETRO_LOG_DEBUG, "microVU%d: T-bit set! PC = %x\n", getIndex, xPC); }
+#endif
 	memzero(mVUinfo);
 	memzero(mVUregsTemp);
 }
@@ -472,11 +490,30 @@ void* mVUcompileSingleInstruction(microVU& mVU, u32 startPC, uptr pState, microF
 	mVUincCycles(mVU, 1);
 	mVUopU(mVU, 0);
 	mVUcheckBadOp(mVU);
-	if (curI & _Ebit_)  { eBitPass1(mVU, g_branch); DevCon.Warning("E Bit on single instruction");}
+	if (curI & _Ebit_) 
+	{
+		eBitPass1(mVU, g_branch);
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "E Bit on single instruction\n");
+#endif
+	}
 	if (curI & _Dbit_) { mVUup.dBit = true; }
 	if (curI & _Tbit_) { mVUup.tBit = true; }
-	if (curI & _Mbit_)  { mVUup.mBit = true; DevCon.Warning("M Bit on single instruction");}
-	if (curI & _Ibit_)  { mVUlow.isNOP = true; mVUup.iBit = true; DevCon.Warning("I Bit on single instruction");}
+	if (curI & _Mbit_)
+	{
+		mVUup.mBit = true;
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "M Bit on single instruction\n");
+#endif
+	}
+	if (curI & _Ibit_)  
+	{ 
+		mVUlow.isNOP = true;
+		mVUup.iBit   = true;
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "I Bit on single instruction\n");
+#endif
+	}
 	else			    { incPC(-1); mVUopL(mVU, 0); incPC(1); }
 	mVUsetCycles(mVU);
 	mVUinfo.readQ  =  mVU.q;
@@ -739,9 +776,11 @@ void* mVUcompile(microVU& mVU, u32 startPC, uptr pState)
 			}
 		}
 	}
+#ifndef NDEBUG
 	if ((x == endCount) && (x != 1)) {
-		Console.Error("microVU%d: Possible infinite compiling loop!", mVU.index);
+		log_cb(RETRO_LOG_ERROR, "microVU%d: Possible infinite compiling loop!\n", mVU.index);
 	}
+#endif
 
 	// E-bit End
 	mVUsetupRange(mVU, xPC - 8, false);

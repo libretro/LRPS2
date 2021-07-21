@@ -78,7 +78,7 @@ void PluginErrorEvent::InvokeEvent()
 	m_except = NULL;
 
 	if( !HandlePluginError( *deleteMe ) )
-		Console.Error( L"User-canceled plugin configuration; Plugins not loaded!" );
+		log_cb(RETRO_LOG_ERROR, "User-canceled plugin configuration; Plugins not loaded!\n" );
 }
 
 void PluginInitErrorEvent::InvokeEvent()
@@ -89,7 +89,7 @@ void PluginInitErrorEvent::InvokeEvent()
 	m_except = NULL;
 
 	if( !HandlePluginError( *deleteMe ) )
-		Console.Error( L"User-canceled plugin configuration after plugin initialization failure.  Plugins unloaded." );
+		log_cb(RETRO_LOG_ERROR, "User-canceled plugin configuration after plugin initialization failure.  Plugins unloaded.\n" );
 }
 
 // Returns a string message telling the user to consult guides for obtaining a legal BIOS.
@@ -130,9 +130,7 @@ void BIOSLoadErrorEvent::InvokeEvent()
 	m_except = NULL;
 
 	if (!HandleBIOSError(*deleteMe))
-	{
-		Console.Warning("User canceled BIOS configuration.");
-	}
+		log_cb(RETRO_LOG_WARN, "User canceled BIOS configuration.\n");
 }
 
 // --------------------------------------------------------------------------------------
@@ -367,7 +365,7 @@ void Pcsx2App::SysExecute( CDVD_SourceType cdvdsrc, const wxString& elf_override
 	// it, because apparently too much stuff is going on and the emulation states are wonky.
 	if( !CorePlugins.AreLoaded() ) return;
 
-	DbgCon.WriteLn( Color_Gray, "(SysExecute) received." );
+	log_cb(RETRO_LOG_DEBUG, "(SysExecute) received.\n");
 
 	CoreThread.ResetQuick();
 	CDVDsys_SetFile(CDVD_SourceType::Iso, g_Conf->CurrentIso );

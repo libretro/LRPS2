@@ -16,30 +16,6 @@
 #include "PrecompiledHeader.h"
 #include "App.h"
 #include <memory>
-// --------------------------------------------------------------------------------------
-//  ConsoleLogSource_Event  (implementations)
-// --------------------------------------------------------------------------------------
-
-bool ConsoleLogSource_Event::Write( const pxEvtQueue* evtHandler, const SysExecEvent* evt, const wxChar* msg ) {
-	return _parent::Write( pxsFmt(L"(%s:%s) ", WX_STR(evtHandler->GetEventHandlerName()), WX_STR(evt->GetEventName())) + msg );
-}
-bool ConsoleLogSource_Event::Warn( const pxEvtQueue* evtHandler, const SysExecEvent* evt, const wxChar* msg )	{
-	return _parent::Write( pxsFmt(L"(%s:%s) ", WX_STR(evtHandler->GetEventHandlerName()), WX_STR(evt->GetEventName())) + msg );
-}
-bool ConsoleLogSource_Event::Error( const pxEvtQueue* evtHandler, const SysExecEvent* evt, const wxChar* msg ) {
-	return _parent::Write( pxsFmt(L"(%s:%s) ", WX_STR(evtHandler->GetEventHandlerName()), WX_STR(evt->GetEventName())) + msg );
-}
-
-ConsoleLogSource_Event::ConsoleLogSource_Event()
-{
-	static const TraceLogDescriptor myDesc =
-	{
-		L"SysEvents",	L"S&ysVM Control Events",
-		pxLt("Logs events as they are passed to the PS2 virtual machine."),
-	};
-	
-	m_Descriptor = &myDesc;
-}
 
 // --------------------------------------------------------------------------------------
 //  SysExecEvent  (implementations)

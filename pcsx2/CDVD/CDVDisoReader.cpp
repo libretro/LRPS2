@@ -46,7 +46,7 @@ s32 CALLBACK ISOopen(const char* pTitle)
 
 	if ((pTitle == NULL) || (pTitle[0] == 0))
 	{
-		Console.Error("CDVDiso Error: No filename specified.");
+		log_cb(RETRO_LOG_ERROR, "CDVDiso Error: No filename specified.\n");
 		return -1;
 	}
 
@@ -59,7 +59,7 @@ s32 CALLBACK ISOopen(const char* pTitle)
 	}
 	catch (BaseException& ex)
 	{
-		Console.Error(ex.FormatDiagnosticMessage());
+		log_cb(RETRO_LOG_ERROR, "%s\n", ex.FormatDiagnosticMessage());
 		return -1;
 	}
 
@@ -149,7 +149,8 @@ static void FindLayer1Start()
 	iso.ReadSync(buffer.data(), 16);
 	if (!testForPrimaryVolumeDescriptor(buffer))
 	{
-		Console.Error("isoFile: Invalid layer0 Primary Volume Descriptor");
+		log_cb(RETRO_LOG_ERROR,
+"isoFile: Invalid layer0 Primary Volume Descriptor\n");
 		return;
 	}
 
@@ -169,11 +170,11 @@ static void FindLayer1Start()
 
 		if (!testForPrimaryVolumeDescriptor(buffer))
 		{
-			Console.Error("isoFile: Invalid layer1 Primary Volume Descriptor");
+			log_cb(RETRO_LOG_ERROR, "isoFile: Invalid layer1 Primary Volume Descriptor\n");
 			return;
 		}
 		layer1start = blockresult;
-		Console.WriteLn(Color_Blue, "isoFile: second layer found at sector 0x%08x", layer1start);
+		log_cb(RETRO_LOG_INFO, "isoFile: second layer found at sector 0x%08x\n", layer1start);
 	}
 }
 

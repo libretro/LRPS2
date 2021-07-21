@@ -319,8 +319,10 @@ __ri void mVUanalyzeSflag(mV, int It) {
 		mVUinfo.swapOps = 1;
 		flagSet(mVU, 0);
 		if (mVUcount < 4) {
+#ifndef NDEBUG
 			if (!(mVUpBlock->pState.needExactMatch & 1)) // The only time this should happen is on the first program block
-				DevCon.WriteLn(Color_Green, "microVU%d: pState's sFlag Info was expected to be set [%04x]", getIndex, xPC);
+				log_cb(RETRO_LOG_DEBUG, "microVU%d: pState's sFlag Info was expected to be set [%04x]\n", getIndex, xPC);
+#endif
 		}
 	}
 }
@@ -343,8 +345,10 @@ __ri void mVUanalyzeMflag(mV, int Is, int It) {
 		mVUinfo.swapOps = 1;
 		flagSet(mVU, 1);
 		if (mVUcount < 4) { 
+#ifndef NDEBUG
 			if (!(mVUpBlock->pState.needExactMatch & 2)) // The only time this should happen is on the first program block
-				DevCon.WriteLn(Color_Green, "microVU%d: pState's mFlag Info was expected to be set [%04x]", getIndex, xPC);
+				log_cb(RETRO_LOG_DEBUG, "microVU%d: pState's mFlag Info was expected to be set [%04x]\n", getIndex, xPC);
+#endif
 		}
 	}
 }
@@ -357,8 +361,10 @@ __fi void mVUanalyzeCflag(mV, int It) {
 	mVUinfo.swapOps = 1;
 	mVUlow.readFlags = true;
 	if (mVUcount < 4) { 
+#ifndef NDEBUG
 		if (!(mVUpBlock->pState.needExactMatch & 4)) // The only time this should happen is on the first program block
-			DevCon.WriteLn(Color_Green, "microVU%d: pState's cFlag Info was expected to be set [%04x]", getIndex, xPC);
+			log_cb(RETRO_LOG_DEBUG, "microVU%d: pState's cFlag Info was expected to be set [%04x]\n", getIndex, xPC);
+#endif
 	}
 	analyzeVIreg2(mVU, It, mVUlow.VI_write, 1);
 }
@@ -390,7 +396,7 @@ __fi void mVUanalyzeXGkick(mV, int Fs, int xCycles) {
 static void analyzeBranchVI(mV, int xReg, bool& infoVar) {
 	if (!xReg) return;
 	if (mVUstall) { // I assume a stall on branch means the vi reg is not modified directly b4 the branch...
-		DevCon.Warning("microVU%d: %d cycle stall on branch instruction [%04x]", getIndex, mVUstall, xPC);
+		log_cb(RETRO_LOG_DEBUG, "microVU%d: %d cycle stall on branch instruction [%04x]\n", getIndex, mVUstall, xPC);
 		return;
 	}
 	int i, j = 0;
@@ -399,9 +405,11 @@ static void analyzeBranchVI(mV, int xReg, bool& infoVar) {
 	int bPC  = iPC;
 	incPC2(-2);
 	for (i = 0; i < iEnd && cyc < iEnd; i++) {
+#ifndef NDEBUG
 		if (i && mVUstall) {
-			DevCon.Warning("microVU%d: Branch VI-Delay with %d cycle stall (%d) [%04x]", getIndex, mVUstall, i, xPC);
+			log_cb(RETRO_LOG_DEBUG, "microVU%d: Branch VI-Delay with %d cycle stall (%d) [%04x]\n", getIndex, mVUstall, i, xPC);
 		}
+#endif
 		if (i == (int)mVUcount) {
 			bool warn = false;
 
@@ -409,7 +417,9 @@ static void analyzeBranchVI(mV, int xReg, bool& infoVar) {
 				warn = true;
 
 			if (mVUpBlock->pState.viBackUp == xReg) {
-				DevCon.WriteLn(Color_Green, "microVU%d: Loading Branch VI value from previous block", getIndex);
+#ifndef NDEBUG
+				log_cb(RETRO_LOG_DEBUG, "microVU%d: Loading Branch VI value from previous block\n", getIndex);
+#endif
 
 				if (i == 0)
 					warn = true;
@@ -417,12 +427,16 @@ static void analyzeBranchVI(mV, int xReg, bool& infoVar) {
 				infoVar = true;
 				j = i; i++;
 			}
-			if (warn) DevCon.Warning("microVU%d: Branch VI-Delay with small block (%d) [%04x]", getIndex, i, xPC);
+#ifndef NDEBUG
+			if (warn) log_cb(RETRO_LOG_DEBUG, "microVU%d: Branch VI-Delay with small block (%d) [%04x]\n", getIndex, i, xPC);
+#endif
 			break; // if (warn), we don't have enough information to always guarantee the correct result.
 		}
 		if ((mVUlow.VI_write.reg == xReg) && mVUlow.VI_write.used) {
 			if (mVUlow.readFlags) {
-				if (i) DevCon.Warning("microVU%d: Branch VI-Delay with Read Flags Set (%d) [%04x]", getIndex, i, xPC);
+#ifndef NDEBUG
+				if (i) log_cb(RETRO_LOG_DEBUG, "microVU%d: Branch VI-Delay with Read Flags Set (%d) [%04x]\n", getIndex, i, xPC);
+#endif
 				break; // Not sure if on the above "if (i)" case, if we need to "continue" or if we should "break"
 			}
 			j = i;
@@ -442,7 +456,9 @@ static void analyzeBranchVI(mV, int xReg, bool& infoVar) {
 			infoVar = true;
 		}
 		iPC = bPC;
-		DevCon.WriteLn(Color_Green, "microVU%d: Branch VI-Delay (%d) [%04x][%03d]", getIndex, j+1, xPC, mVU.prog.cur->idx);
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "microVU%d: Branch VI-Delay (%d) [%04x][%03d]\n", getIndex, j+1, xPC, mVU.prog.cur->idx);
+#endif
 	}
 	else {
 		iPC = bPC;
@@ -481,7 +497,9 @@ __fi void analyzeBranchVI(mV, int xReg, bool& infoVar) {
 			infoVar = 1;
 		}
 		iPC = bPC;
-		DevCon.WriteLn( Color_Green, "microVU%d: Branch VI-Delay (%d) [%04x]", getIndex, i, xPC);
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "microVU%d: Branch VI-Delay (%d) [%04x]\n", getIndex, i, xPC);
+#endif
 	}
 	else iPC = bPC;
 }
@@ -505,12 +523,13 @@ __ri int mVUbranchCheck(mV) {
 			{
 				if(branchType <= 2 || branchType >= 9) //First branch is not conditional so we know what the link will be
 				{								       //So we can let the existing evil block do its thing! We know where to get the addr :)
-					DevCon.Warning("yo");
-					DevCon.Warning("yo");
-					DevCon.Warning("yo");
-					DevCon.Warning("yo");
-					DevCon.Warning("yo");
-					DevCon.Warning("----");
+#ifndef NDEBUG
+					log_cb(RETRO_LOG_DEBUG, "yo\n");
+					log_cb(RETRO_LOG_DEBUG, "yo\n");
+					log_cb(RETRO_LOG_DEBUG, "yo\n");
+					log_cb(RETRO_LOG_DEBUG, "yo\n");
+					log_cb(RETRO_LOG_DEBUG, "----\n");
+#endif
 					
 					mVUregs.blockType = 2;
 				} //Else it is conditional, so we need to do some nasty processing later in microVU_Branch.inl
@@ -523,15 +542,19 @@ __ri int mVUbranchCheck(mV) {
 			mVUregs.flagInfo   = 0;
 			mVUregs.fullFlags0 = 0;
 			mVUregs.fullFlags1 = 0;
-			DevCon.Warning("microVU%d: %s in %s delay slot! [%04x]  - If game broken report to PCSX2 Team", mVU.index,
+#ifndef NDEBUG
+			log_cb(RETRO_LOG_DEBUG, "microVU%d: %s in %s delay slot! [%04x]  - If game broken report to PCSX2 Team\n", mVU.index,
 							branchSTR[mVUlow.branch&0xf], branchSTR[branchType&0xf], xPC);
+#endif
 			return 1;
 		}
 		else {
 			incPC(2);
 			mVUlow.isNOP = true;
-			DevCon.Warning("microVU%d: %s in %s delay slot! [%04x]", mVU.index,
+#ifndef NDEBUG
+			log_cb(RETRO_LOG_DEBUG, "microVU%d: %s in %s delay slot! [%04x]\n", mVU.index,
 							branchSTR[mVUlow.branch&0xf], branchSTR[branchType&0xf], xPC);
+#endif
 			return 0;
 		}
 	}
@@ -569,7 +592,7 @@ __ri void mVUanalyzeJump(mV, int Is, int It, bool isJALR) {
 	if (mVUconstReg[Is].isValid && doConstProp) {
 		mVUlow.constJump.isValid  = 1;
 		mVUlow.constJump.regValue = mVUconstReg[Is].regValue;
-		//DevCon.Status("microVU%d: Constant JR/JALR Address Optimization", mVU.index);
+		//log_cb(RETRO_LOG_DEBUG, "microVU%d: Constant JR/JALR Address Optimization\n", mVU.index);
 	}
 	analyzeVIreg1(mVU, Is, mVUlow.VI_read[0]);
 	if (isJALR) {

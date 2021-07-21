@@ -14,7 +14,7 @@
  */
 
 #include "PrecompiledHeader.h"
-#include "ConsoleLogger.h"
+#include "App.h"
 #include "MTVU.h" // for thread cancellation on shutdown
 
 #include "Utilities/IniInterface.h"
@@ -60,7 +60,6 @@ void Pcsx2App::AllocateCoreStuffs()
 {
 	if( AppRpc_TryInvokeAsync( &Pcsx2App::AllocateCoreStuffs ) ) return;
 
-	SysLogMachineCaps();
 	AppApplySettings();
 
 	GetVmReserve().ReserveAll();
@@ -147,8 +146,8 @@ void Pcsx2App::CleanupOnExit()
 		// that we just don't care about by now, and just want to "get 'er done!" so
 		// we can exit the app. ;)
 
-		Console.Error( L"Runtime exception handled during CleanupOnExit:\n" );
-		Console.Indent().Error( ex.FormatDiagnosticMessage() );
+		log_cb(RETRO_LOG_ERROR, "Runtime exception handled during CleanupOnExit:\n" );
+		log_cb(RETRO_LOG_ERROR, ex.FormatDiagnosticMessage() );
 	}
 
 	// Notice: deleting the plugin manager (unloading plugins) here causes Lilypad to crash,
@@ -158,8 +157,6 @@ void Pcsx2App::CleanupOnExit()
 	// during the wxApp destructor. -- air
 	
 	// FIXME: performing a wxYield() here may fix that problem. -- air
-
-	Console_SetActiveHandler( ConsoleWriter_Stdout );
 }
 
 void Pcsx2App::CleanupResources()

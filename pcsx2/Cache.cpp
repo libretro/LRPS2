@@ -116,7 +116,9 @@ namespace
 
 			uptr target = addr();
 
+#ifndef NDEBUG
 			CACHE_LOG("Write back at %zx", target);
+#endif
 			*reinterpret_cast<CacheData*>(target) = data;
 			tag.clearDirty();
 		}
@@ -190,13 +192,17 @@ static int getFreeCache(u32 mem, int* way)
 	pxAssertMsg(!vmv.isHandler(mem), "Cache currently only supports non-handler addresses!");
 	uptr ppf = vmv.assumePtr(mem);
 
+#ifndef NDEBUG
 	if((cpuRegs.CP0.n.Config & 0x10000) == 0)
 		CACHE_LOG("Cache off!");
+#endif
 
 	if (findInCache(set, ppf, way))
 	{
+#ifndef NDEBUG
 		if (set.tags[*way].isLocked())
 			CACHE_LOG("Index %x Way %x Locked!!", setIdx, *way);
+#endif
 	}
 	else
 	{
@@ -218,7 +224,9 @@ void writeCache(u32 mem, Int value)
 	int way = 0;
 	const int idx = getFreeCache(mem, &way);
 
+#ifndef NDEBUG
 	CACHE_LOG("writeCache%d %8.8x adding to %d, way %d, value %llx", 8 * sizeof(value), mem, idx, way, value);
+#endif
 	CacheLine line = cache.lineAt(idx, way);
 	line.tag.setDirty(); // Set dirty bit for writes;
 	u32 aligned = mem & ~(sizeof(value) - 1);
@@ -250,7 +258,9 @@ void writeCache128(u32 mem, const mem128_t* value)
 	int way = 0;
 	const int idx = getFreeCache(mem, &way);
 
+#ifndef NDEBUG
 	CACHE_LOG("writeCache128 %8.8x adding to %d, way %x, lo %x, hi %x", mem, idx, way, value->lo, value->hi);
+#endif
 	CacheLine line = cache.lineAt(idx, way);
 	line.tag.setDirty(); // Set dirty bit for writes;
 	u32 aligned = mem & ~0xF;
@@ -266,7 +276,9 @@ Int readCache(u32 mem)
 	CacheLine line = cache.lineAt(idx, way);
 	u32 aligned = mem & ~(sizeof(Int) - 1);
 	Int value = *reinterpret_cast<Int*>(&line.data.bytes[aligned & 0x3f]);
+#ifndef NDEBUG
 	CACHE_LOG("readCache%d %8.8x from %d, way %d, value %llx", 8 * sizeof(value), mem, idx, way, value);
+#endif
 	return value;
 }
 
@@ -302,11 +314,15 @@ void doCacheHitOp(u32 addr, const char* name, Op op)
 
 	if (!findInCache(set, ppf, &way))
 	{
+#ifndef NDEBUG
 		CACHE_LOG("CACHE %s NO HIT addr %x, index %d, tag0 %zx tag1 %zx", name, addr, index, set.tags[0].rawValue, set.tags[1].rawValue);
+#endif
 		return;
 	}
 
+#ifndef NDEBUG
 	CACHE_LOG("CACHE %s addr %x, index %d, way %d, flags %x OP %x", name, addr, index, way, set.tags[way].flags(), cpuRegs.code);
+#endif
 
 	op(cache.lineAt(index, way));
 }
@@ -353,7 +369,9 @@ void CACHE()
 			const int way = addr & 0x1;
 			CacheLine line = cache.lineAt(index, way);
 
+#ifndef NDEBUG
 			CACHE_LOG("CACHE DXIN addr %x, index %d, way %d, flag %x", addr, index, way, line.tag.flags());
+#endif
 
 			line.clear();
 			break;
@@ -367,7 +385,9 @@ void CACHE()
 
 			cpuRegs.CP0.n.TagLo = *reinterpret_cast<u32*>(&line.data.bytes[addr & 0x3C]);
 
+#ifndef NDEBUG
 			CACHE_LOG("CACHE DXLDT addr %x, index %d, way %d, DATA %x OP %x", addr, index, way, cpuRegs.CP0.n.TagLo, cpuRegs.code);
+#endif
 			break;
 		}
 
@@ -384,8 +404,10 @@ void CACHE()
 			// Our tags don't contain PS2 paddrs (instead they contain x86 addrs)
 			cpuRegs.CP0.n.TagLo = line.tag.flags();
 
+#ifndef NDEBUG
 			CACHE_LOG("CACHE DXLTG addr %x, index %d, way %d, DATA %x OP %x ", addr, index, way, cpuRegs.CP0.n.TagLo, cpuRegs.code);
 			CACHE_LOG("WARNING: DXLTG emulation supports flags only, things could break");
+#endif
 			break;
 		}
 
@@ -397,7 +419,9 @@ void CACHE()
 
 			*reinterpret_cast<u32*>(&line.data.bytes[addr & 0x3C]) = cpuRegs.CP0.n.TagLo;
 
+#ifndef NDEBUG
 			CACHE_LOG("CACHE DXSDT addr %x, index %d, way %d, DATA %x OP %x", addr, index, way, cpuRegs.CP0.n.TagLo, cpuRegs.code);
+#endif
 			break;
 		}
 
@@ -410,8 +434,10 @@ void CACHE()
 			line.tag.rawValue &= ~CacheTag::ALL_FLAGS;
 			line.tag.rawValue |= (cpuRegs.CP0.n.TagLo & CacheTag::ALL_FLAGS);
 
+#ifndef NDEBUG
 			CACHE_LOG("CACHE DXSTG addr %x, index %d, way %d, DATA %x OP %x", addr, index, way, cpuRegs.CP0.n.TagLo, cpuRegs.code);
 			CACHE_LOG("WARNING: DXSTG emulation supports flags only, things will probably break");
+#endif
 			break;
 		}
 
@@ -421,7 +447,9 @@ void CACHE()
 			const int way = addr & 0x1;
 			CacheLine line = cache.lineAt(index, way);
 
+#ifndef NDEBUG
 			CACHE_LOG("CACHE DXWBIN addr %x, index %d, way %d, flags %x paddr %zx", addr, index, way, line.tag.flags(), line.addr());
+#endif
 			line.writeBackIfNeeded();
 			line.clear();
 			break;
@@ -440,7 +468,9 @@ void CACHE()
 		}
 
 		default:
-			DevCon.Warning("Cache mode %x not implemented", _Rt_);
+#ifndef NDEBUG
+			log_cb(RETRO_LOG_DEBUG, "Cache mode %x not implemented\n", _Rt_);
+#endif
 			break;
 	}
 }

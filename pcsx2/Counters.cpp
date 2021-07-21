@@ -249,7 +249,7 @@ static void vSyncInfoCalc(vSyncTimingInfo* info, Fixed100 framesPerSecond, u32 s
 		u32 hSyncCycles = ((info->hRender + info->hBlank) * scansPerFrame) / 2;
 		u32 vSyncCycles = (info->Render + info->Blank);
 		info->hSyncError = vSyncCycles - hSyncCycles;
-		//Console.Warning("%d",info->hSyncError);
+		//log_cb(RETRO_LOG_WARN, "%d\n",info->hSyncError);
 	}
 	else info->hSyncError = 0;
 	// Note: In NTSC modes there is some small rounding error in the vsync too,
@@ -349,7 +349,7 @@ u32 UpdateVSyncRate()
 		// For Release builds, keep using the NTSC timing values when unknown video mode is detected.
 		// Assert will be triggered for debug/dev builds.
 		scanlines = SCANLINES_TOTAL_NTSC;
-		Console.Error("PCSX2-Counters: Unknown video mode detected");
+		log_cb(RETRO_LOG_ERROR, "PCSX2-Counters: Unknown video mode detected\n");
 		pxAssertDev(false , "Unknown video mode detected via SetGsCrt");
 	}
 
@@ -359,10 +359,10 @@ u32 UpdateVSyncRate()
 		vSyncInfo.VideoMode = gsVideoMode;
 		vSyncInfoCalc( &vSyncInfo, framerate, scanlines );
 		if(ActiveVideoMode)
-			Console.WriteLn( Color_Green, "(UpdateVSyncRate) Mode Changed to %s.", ReportVideoMode());
+			log_cb(RETRO_LOG_INFO, "(UpdateVSyncRate) Mode Changed to %s.\n", ReportVideoMode());
 		
 		if( isCustom && ActiveVideoMode)
-			Console.Indent().WriteLn( Color_StrongGreen, "... with user configured refresh rate: %.02f Hz", 2 * framerate.ToFloat() );
+			log_cb(RETRO_LOG_INFO, "... with user configured refresh rate: %.02f Hz\n", 2 * framerate.ToFloat() );
 
 		hsyncCounter.CycleT = vSyncInfo.hRender;	// Amount of cycles before the counter will be updated
 		vsyncCounter.CycleT = vSyncInfo.Render;		// Amount of cycles before the counter will be updated
@@ -381,7 +381,7 @@ u32 UpdateVSyncRate()
 		m_iTicks = ticks;
 		gsOnModeChanged( vSyncInfo.Framerate, m_iTicks );
 		if (ActiveVideoMode)
-			Console.WriteLn( Color_Green, "(UpdateVSyncRate) FPS Limit Changed : %.02f fps", fpslimit.ToFloat()*2 );
+			log_cb(RETRO_LOG_INFO, "(UpdateVSyncRate) FPS Limit Changed : %.02f fps\n", fpslimit.ToFloat()*2 );
 	}
 
 	m_iStart = GetCPUTicks();
@@ -605,7 +605,7 @@ __fi void rcntUpdate_vSync()
 		if( vblankinc > 1 )
 		{
 			if( hsc != vSyncInfo.hScanlinesPerFrame )
-				Console.WriteLn( " ** vSync > Abnormal Scanline Count: %d", hsc );
+				log_cb(RETRO_LOG_INFO, " ** vSync > Abnormal Scanline Count: %d\n", hsc );
 			hsc = 0;
 			vblankinc = 0;
 		}

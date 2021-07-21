@@ -86,17 +86,20 @@ VirtualMemoryManager::VirtualMemoryManager(const wxString &name, uptr base, size
 
     m_baseptr = (uptr)HostSys::MmapReserve(base, reserved_bytes);
 
-    if (!m_baseptr || (upper_bounds != 0 && (((uptr)m_baseptr + reserved_bytes) > upper_bounds))) {
-        DevCon.Warning(L"%s: host memory @ %ls -> %ls is unavailable; attempting to map elsewhere...",
-                       WX_STR(m_name), pxsPtr(base), pxsPtr(base + size));
+    if (!m_baseptr || (upper_bounds != 0 && (((uptr)m_baseptr + reserved_bytes) > upper_bounds)))
+    {
+#ifndef NDEBUG
+	    log_cb(RETRO_LOG_DEBUG, "%s: host memory @ %ls -> %ls is unavailable; attempting to map elsewhere...\n",
+			    WX_STR(m_name), pxsPtr(base), pxsPtr(base + size));
+#endif
 
-        SafeSysMunmap(m_baseptr, reserved_bytes);
+	    SafeSysMunmap(m_baseptr, reserved_bytes);
 
-        if (base) {
-            // Let's try again at an OS-picked memory area, and then hope it meets needed
-            // boundschecking criteria below.
-            m_baseptr = (uptr)HostSys::MmapReserve(0, reserved_bytes);
-        }
+	    if (base) {
+		    // Let's try again at an OS-picked memory area, and then hope it meets needed
+		    // boundschecking criteria below.
+		    m_baseptr = (uptr)HostSys::MmapReserve(0, reserved_bytes);
+	    }
     }
 
     bool fulfillsRequirements = true;
@@ -119,8 +122,10 @@ VirtualMemoryManager::VirtualMemoryManager(const wxString &name, uptr base, size
     else
         mbkb.Write("[%ukb]", reserved_bytes / 1024);
 
-    DevCon.WriteLn(Color_Gray, L"%-32s @ %ls -> %ls %ls", WX_STR(m_name),
-                   pxsPtr(m_baseptr), pxsPtr((uptr)m_baseptr + reserved_bytes), mbkb.c_str());
+#ifndef NDEBUG
+    log_cb(RETRO_LOG_DEBUG, "%-32s @ %ls -> %ls %ls\n", WX_STR(m_name),
+		    pxsPtr(m_baseptr), pxsPtr((uptr)m_baseptr + reserved_bytes), mbkb.c_str());
+#endif
 }
 
 VirtualMemoryManager::~VirtualMemoryManager()
@@ -273,8 +278,10 @@ void *VirtualMemoryReserve::Assign(VirtualMemoryManagerPtr allocator, void * bas
     else
         mbkb.Write("[%ukb]", reserved_bytes / 1024);
 
-    DevCon.WriteLn(Color_Gray, L"%-32s @ %ls -> %ls %ls", WX_STR(m_name),
+#ifndef NDEBUG
+    log_cb(RETRO_LOG_DEBUG, "%-32s @ %ls -> %ls %ls\n", WX_STR(m_name),
                    pxsPtr(m_baseptr), pxsPtr((uptr)m_baseptr + reserved_bytes), mbkb.c_str());
+#endif
 
     return m_baseptr;
 }
@@ -346,16 +353,21 @@ bool VirtualMemoryReserve::TryResize(uint newsize)
         uint toReservePages = newPages - m_pages_reserved;
         uint toReserveBytes = toReservePages * __pagesize;
 
-        DevCon.WriteLn(L"%-32s is being expanded by %u pages.", WX_STR(m_name), toReservePages);
+#ifndef NDEBUG
+	log_cb(RETRO_LOG_DEBUG,
+			"%-32s is being expanded by %u pages.\n", WX_STR(m_name), toReservePages);
+#endif
 
         if (!m_allocator->AllocAtAddress(GetPtrEnd(), toReserveBytes)) {
-            Console.Warning("%-32s could not be passively resized due to virtual memory conflict!", WX_STR(m_name));
-            Console.Indent().Warning("(attempted to map memory @ %08p -> %08p)", m_baseptr, (uptr)m_baseptr + toReserveBytes);
+            log_cb(RETRO_LOG_DEBUG, "%-32s could not be passively resized due to virtual memory conflict!\n", WX_STR(m_name));
+            log_cb(RETRO_LOG_INFO, "(attempted to map memory @ %08p -> %08p)\n", m_baseptr, (uptr)m_baseptr + toReserveBytes);
             return false;
         }
 
-        DevCon.WriteLn(Color_Gray, L"%-32s @ %08p -> %08p [%umb]", WX_STR(m_name),
-                       m_baseptr, (uptr)m_baseptr + toReserveBytes, toReserveBytes / _1mb);
+#ifndef NDEBUG
+	log_cb(RETRO_LOG_DEBUG, "%-32s @ %08p -> %08p [%umb]\n", WX_STR(m_name),
+			m_baseptr, (uptr)m_baseptr + toReserveBytes, toReserveBytes / _1mb);
+#endif
     } else if (newPages < m_pages_reserved) {
         if (m_pages_commited > newsize)
             return false;
@@ -363,12 +375,16 @@ bool VirtualMemoryReserve::TryResize(uint newsize)
         uint toRemovePages = m_pages_reserved - newPages;
         uint toRemoveBytes = toRemovePages * __pagesize;
 
-        DevCon.WriteLn(L"%-32s is being shrunk by %u pages.", WX_STR(m_name), toRemovePages);
+#ifndef NDEBUG
+        log_cb(RETRO_LOG_DEBUG, "%-32s is being shrunk by %u pages.\n", WX_STR(m_name), toRemovePages);
+#endif
 
         m_allocator->Free(GetPtrEnd() - toRemoveBytes, toRemoveBytes);
 
-        DevCon.WriteLn(Color_Gray, L"%-32s @ %08p -> %08p [%umb]", WX_STR(m_name),
+#ifndef NDEBUG
+        log_cb(RETRO_LOG_DEBUG, "%-32s @ %08p -> %08p [%umb]\n", WX_STR(m_name),
                        m_baseptr, GetPtrEnd(), GetReserveSizeInBytes() / _1mb);
+#endif
     }
 
     m_pages_reserved = newPages;

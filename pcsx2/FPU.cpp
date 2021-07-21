@@ -386,14 +386,22 @@ void SUBA_S() {
 void LWC1() {
 	u32 addr;
 	addr = cpuRegs.GPR.r[_Rs_].UL[0] + (s16)(cpuRegs.code & 0xffff);	// force sign extension to 32bit
-	if (addr & 0x00000003) { Console.Error( "FPU (LWC1 Opcode): Invalid Unaligned Memory Address" ); return; }  // Should signal an exception?
+	if (addr & 0x00000003)
+	{
+		log_cb(RETRO_LOG_ERROR, "FPU (LWC1 Opcode): Invalid Unaligned Memory Address\n");
+		return; 
+	}  // Should signal an exception?
 	fpuRegs.fpr[_Rt_].UL = memRead32(addr);
 }
 
 void SWC1() {
 	u32 addr;
 	addr = cpuRegs.GPR.r[_Rs_].UL[0] + (s16)(cpuRegs.code & 0xffff);	// force sign extension to 32bit
-	if (addr & 0x00000003) { Console.Error( "FPU (SWC1 Opcode): Invalid Unaligned Memory Address" ); return; }  // Should signal an exception?
+	if (addr & 0x00000003)
+{
+		log_cb(RETRO_LOG_ERROR, "FPU (SWC1 Opcode): Invalid Unaligned Memory Address" );
+		return;
+	}  // Should signal an exception?
 	memWrite32(addr, fpuRegs.fpr[_Rt_].UL);
 }
 

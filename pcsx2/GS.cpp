@@ -79,7 +79,7 @@ static __fi void gsCSRwrite( const tGS_CSR& csr )
 {
 	if (csr.RESET) {
 		GUNIT_WARN("GUNIT_WARN: csr.RESET");
-		//Console.Warning( "csr.RESET" );
+		//log_cb(RETRO_LOG_INFO, "csr.RESET\n" );
 		//gifUnit.Reset(true); // Don't think gif should be reset...
 		gifUnit.gsSIGNAL.queued = false;
 		GetMTGS().SendSimplePacket(GS_RINGTYPE_RESET, 0, 0, 0);
@@ -91,7 +91,7 @@ static __fi void gsCSRwrite( const tGS_CSR& csr )
 	if(csr.FLUSH)
 	{
 		// Our emulated GS has no FIFO, but if it did, it would flush it here...
-		//Console.WriteLn("GS_CSR FLUSH GS fifo: %x (CSRr=%x)", value, GSCSRr);
+		//log_cb(RETRO_LOG_INFO, "GS_CSR FLUSH GS fifo: %x (CSRr=%x)\n", value, GSCSRr);
 	}
 	
 	if(csr.SIGNAL)
@@ -100,7 +100,7 @@ static __fi void gsCSRwrite( const tGS_CSR& csr )
 		//  here or when the IMR is cleared (below).
 		GUNIT_LOG("csr.SIGNAL");
 		if (gifUnit.gsSIGNAL.queued) {
-			//DevCon.Warning("Firing pending signal");
+			//log_cb(RETRO_LOG_INFO, "Firing pending signal\n");
 			GSSIGLBLID.SIGID = (GSSIGLBLID.SIGID & ~gifUnit.gsSIGNAL.data[1])
 				        | (gifUnit.gsSIGNAL.data[0]&gifUnit.gsSIGNAL.data[1]);
 
