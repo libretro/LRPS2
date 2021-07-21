@@ -17,42 +17,6 @@
 
 #include "Dependencies.h"
 
-// --------------------------------------------------------------------------------------
-//  wxDoNotLogInThisScope
-// --------------------------------------------------------------------------------------
-// This class is used to disable wx's sometimes inappropriate amount of forced error logging
-// during specific activities.  For example, when using wxDynamicLibrary to detect the
-// validity of DLLs, wx will log errors for missing symbols. (sigh)
-//
-// Usage: Basic auto-cleanup destructor class.  Create an instance inside a scope, and
-// logging will be re-enabled when scope is terminated. :)
-//
-class wxDoNotLogInThisScope
-{
-    DeclareNoncopyableObject(wxDoNotLogInThisScope);
-
-#ifndef __LIBRETRO__
-protected:
-    bool m_prev;
-#endif
-
-public:
-    wxDoNotLogInThisScope()
-    {
-#ifndef __LIBRETRO__
-        m_prev = wxLog::EnableLogging(false);
-#endif
-    }
-
-    virtual ~wxDoNotLogInThisScope()
-    {
-#ifndef __LIBRETRO__
-        wxLog::EnableLogging(m_prev);
-#endif
-    }
-};
-
-
 extern wxString pxReadLine(wxInputStream &input);
 extern void pxReadLine(wxInputStream &input, wxString &dest);
 extern void pxReadLine(wxInputStream &input, wxString &dest, std::string &intermed);

@@ -777,8 +777,6 @@ void SysCorePlugins::PluginStatus_t::BindCommon( PluginsEnum_t pid )
 	const LegacyApi_CommonMethod* current = s_MethMessCommon;
 	VoidMethod** target = (VoidMethod**)&CommonBindings;
 
-	wxDoNotLogInThisScope please;
-
 	while( current->MethodName != NULL )
 	{
 		*target = (VoidMethod*)Lib->GetSymbol( current->GetMethodName( pid ) );
@@ -802,8 +800,6 @@ void SysCorePlugins::PluginStatus_t::BindRequired( PluginsEnum_t pid )
 {
 	const LegacyApi_ReqMethod* current = s_MethMessReq[pid];
 
-	wxDoNotLogInThisScope please;
-
 	while( current->MethodName != NULL )
 	{
 		*(current->Dest) = (VoidMethod*)Lib->GetSymbol( current->GetMethodName() );
@@ -825,8 +821,6 @@ void SysCorePlugins::PluginStatus_t::BindRequired( PluginsEnum_t pid )
 void SysCorePlugins::PluginStatus_t::BindOptional( PluginsEnum_t pid )
 {
 	const LegacyApi_OptMethod* current = s_MethMessOpt[pid];
-
-	wxDoNotLogInThisScope please;
 
 	while( current->MethodName != NULL )
 	{
@@ -864,8 +858,6 @@ void SysCorePlugins::Load( PluginsEnum_t pid, const wxString& srcfile )
 void SysCorePlugins::Load( const wxString (&folders)[PluginId_Count] )
 {
 	if( !NeedsLoad() ) return;
-
-	wxDoNotLogInThisScope please;
 
 	ForPlugins([&] (const PluginInfo * pi) {
 		Load( pi->id, folders[pi->id] );
