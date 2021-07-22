@@ -18,7 +18,6 @@
 #include "AppGameDatabase.h"
 
 #include <wx/stdpaths.h>
-#include "fmt/core.h"
 
 #include "Utilities/Threading.h"
 
@@ -309,7 +308,7 @@ static int loadGameSettings(Pcsx2Config& dest, const GameDatabaseSchema::GameEnt
 	// TODO - config - this could be simplified with maps instead of bitfields and enums
 	for (SpeedhackId id = SpeedhackId_FIRST; id < pxEnumEnd; id++)
 	{
-		std::string key = fmt::format("{}SpeedHack", wxString(EnumToString(id)));
+		std::string key = wxString(EnumToString(id)) + "SpeedHack";
 
 		// Gamefixes are already guaranteed to be valid, any invalid ones are dropped
 		if (game.speedHacks.count(key) == 1)
@@ -326,7 +325,7 @@ static int loadGameSettings(Pcsx2Config& dest, const GameDatabaseSchema::GameEnt
 	// TODO - config - this could be simplified with maps instead of bitfields and enums
 	for (GamefixId id = GamefixId_FIRST; id < pxEnumEnd; id++)
 	{
-		std::string key = fmt::format("{}Hack", wxString(EnumToString(id)));
+		std::string key = wxString(EnumToString(id)) + "Hack";
 
 		// Gamefixes are already guaranteed to be valid, any invalid ones are dropped
 		if (std::find(game.gameFixes.begin(), game.gameFixes.end(), key) != game.gameFixes.end())
