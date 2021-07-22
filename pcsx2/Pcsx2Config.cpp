@@ -71,7 +71,6 @@ void Pcsx2Config::SpeedhackOptions::LoadSave( IniInterface& ini )
 
 	IniBitfield(EECycleRate);
 	IniBitfield(EECycleSkip);
-	IniBitBool(fastCDVD);
 	IniBitBool(IntcStat);
 	IniBitBool(WaitLoop);
 	IniBitBool(vuFlagHack);

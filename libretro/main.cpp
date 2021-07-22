@@ -339,6 +339,7 @@ void retro_init(void)
 	g_Conf->BaseFilenames.Plugins[PluginId_USB] = "Built-in";
 	g_Conf->BaseFilenames.Plugins[PluginId_DEV9] = "Built-in";
 	g_Conf->EmuOptions.EnableIPC = false;
+	g_Conf->EmuOptions.Speedhacks.fastCDVD  = option_value(BOOL_PCSX2_OPT_FASTCDVD, KeyOptionBool::return_type);
 
 	g_Conf->EmuOptions.EnableWideScreenPatches = option_value(BOOL_PCSX2_OPT_ENABLE_WIDESCREEN_PATCHES, KeyOptionBool::return_type);
 	g_Conf->EmuOptions.GS.FrameSkipEnable = option_value(BOOL_PCSX2_OPT_FRAMESKIP, KeyOptionBool::return_type);

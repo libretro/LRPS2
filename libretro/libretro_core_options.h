@@ -32,6 +32,16 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	"English"},
 
+	{"pcsx2_fastcdvd",
+	"System: Fast Loading",
+	"A hack that reduces loading times by setting a faster disc access mode. Check the HDLoader compatibility list for games that will not work with this (Content restart required)",
+	{
+		{"disabled", NULL},
+		{"enabled", NULL},
+		{NULL, NULL},
+	},
+	"disabled"},
+
 	{"pcsx2_fastboot",
 	"System: Fast Boot",
 	"Bypass the intial BIOS logo. (Content restart required)",

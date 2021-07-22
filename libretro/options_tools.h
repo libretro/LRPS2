@@ -18,6 +18,7 @@ extern void ResetContentStuffs();
 extern int option_upscale_mult;
 
 
+static const char* BOOL_PCSX2_OPT_FASTCDVD					= "pcsx2_fastcdvd";
 static const char* BOOL_PCSX2_OPT_FASTBOOT					= "pcsx2_fastboot";
 static const char* BOOL_PCSX2_OPT_ENABLE_WIDESCREEN_PATCHES = "pcsx2_enable_widescreen_patches";
 static const char* BOOL_PCSX2_OPT_FRAMESKIP					= "pcsx2_frameskip";
