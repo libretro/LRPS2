@@ -517,17 +517,8 @@ bool IsPortable()
 }
 
 AppConfig::AppConfig()
-	: SysSettingsTabName( L"Cpu" )
-	, McdSettingsTabName( L"none" )
-	, ComponentsTabName( L"Plugins" )
-	, AppSettingsTabName( L"none" )
-	, GameDatabaseTabName( L"none" )
 {
-	LanguageCode		= L"default";
 	RecentIsoCount		= 20;
-	Listbook_ImageSize	= 32;
-	Toolbar_ImageSize	= 24;
-	Toolbar_ShowLabels	= true;
 
 	#ifdef __WXMSW__
 	McdCompressNTFS		= true;
@@ -632,17 +623,8 @@ void AppConfig::LoadSaveMemcards( IniInterface& ini )
 
 void AppConfig::LoadSaveRootItems( IniInterface& ini )
 {
-	IniEntry( SysSettingsTabName );
-	IniEntry( McdSettingsTabName );
-	IniEntry( ComponentsTabName );
-	IniEntry( AppSettingsTabName );
-	IniEntry( GameDatabaseTabName );
-	IniEntry( LanguageCode );
 	IniEntry( RecentIsoCount );
 	IniEntry( GzipIsoIndexTemplate );
-	IniEntry( Listbook_ImageSize );
-	IniEntry( Toolbar_ImageSize );
-	IniEntry( Toolbar_ShowLabels );
 
 	wxFileName res(CurrentIso);
 	ini.Entry( L"CurrentIso", res, res, ini.IsLoading() || IsPortable() );
@@ -658,7 +640,6 @@ void AppConfig::LoadSaveRootItems( IniInterface& ini )
 
 	IniEntry( EnablePresets );
 	IniEntry( PresetIndex );
-	IniEntry( AskOnBoot );
 	
 	#ifdef __WXMSW__
 	IniEntry( McdCompressNTFS );
@@ -795,23 +776,8 @@ void AppConfig::FilenameOptions::LoadSave( IniInterface& ini )
 // ------------------------------------------------------------------------
 AppConfig::GSWindowOptions::GSWindowOptions()
 {
-	CloseOnEsc				= true;
-	DefaultToFullscreen		= false;
-	AlwaysHideMouse			= false;
-	DisableResizeBorders	= false;
-	DisableScreenSaver		= true;
-
 	AspectRatio				= AspectRatio_4_3;
 	FMVAspectRatioSwitch	= FMV_AspectRatio_Switch_Off;
-	Zoom					= 100;
-	StretchY				= 100;
-	OffsetX					= 0;
-	OffsetY					= 0;
-	IsMaximized				= false;
-	IsFullscreen			= false;
-	EnableVsyncWindowFlag	= false;
-
-	IsToggleFullscreenOnDoubleClick = true;
 }
 
 void AppConfig::GSWindowOptions::SanityCheck()
@@ -824,17 +790,6 @@ void AppConfig::GSWindowOptions::SanityCheck()
 void AppConfig::GSWindowOptions::LoadSave( IniInterface& ini )
 {
 	ScopedIniGroup path( ini, L"GSWindow" );
-
-	IniEntry( CloseOnEsc );
-	IniEntry( DefaultToFullscreen );
-	IniEntry( AlwaysHideMouse );
-	IniEntry( DisableResizeBorders );
-	IniEntry( DisableScreenSaver );
-	IniEntry( IsMaximized );
-	IniEntry( IsFullscreen );
-	IniEntry( EnableVsyncWindowFlag );
-
-	IniEntry( IsToggleFullscreenOnDoubleClick );
 
 	static const wxChar* AspectRatioNames[] =
 	{
@@ -856,8 +811,6 @@ void AppConfig::GSWindowOptions::LoadSave( IniInterface& ini )
 		NULL
 	};
 	ini.EnumEntry(L"FMVAspectRatioSwitch", FMVAspectRatioSwitch, FMVAspectRatioSwitchNames, FMVAspectRatioSwitch);
-
-	IniEntry( Zoom );
 
 	if( ini.IsLoading() ) SanityCheck();
 }
@@ -884,14 +837,6 @@ void AppConfig::FramerateOptions::SanityCheck()
 
 void AppConfig::FramerateOptions::LoadSave( IniInterface& ini )
 {
-	ScopedIniGroup path( ini, L"Framerate" );
-
-	IniEntry( NominalScalar );
-	IniEntry( TurboScalar );
-	IniEntry( SlomoScalar );
-
-	IniEntry( SkipOnLimit );
-	IniEntry( SkipOnTurbo );
 }
 
 int AppConfig::GetMaxPresetIndex()

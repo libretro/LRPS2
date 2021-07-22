@@ -185,26 +185,8 @@ public:
 	//
 	struct GSWindowOptions
 	{
-		// Closes the GS/Video port on escape (good for fullscreen activity)
-		bool		CloseOnEsc;
-		
-		bool		DefaultToFullscreen;
-		bool		AlwaysHideMouse;
-		bool		DisableResizeBorders;
-		bool		DisableScreenSaver;
-
 		AspectRatioType AspectRatio;
 		FMVAspectRatioSwitchType FMVAspectRatioSwitch;
-		Fixed100	Zoom;
-		Fixed100	StretchY;
-		Fixed100	OffsetX;
-		Fixed100	OffsetY;
-
-		bool		IsMaximized;
-		bool		IsFullscreen;
-		bool		EnableVsyncWindowFlag;
-
-		bool		IsToggleFullscreenOnDoubleClick;
 
 		GSWindowOptions();
 
@@ -228,30 +210,7 @@ public:
 	};
 
 public:
-	// Because remembering the last used tab on the settings panel is cool (tab is remembered
-	// by it's UTF/ASCII name).
-	wxString	SysSettingsTabName;
-	wxString	McdSettingsTabName;
-	wxString	ComponentsTabName;
-	wxString	AppSettingsTabName;
-	wxString	GameDatabaseTabName;
-
-	// Current language in use (correlates to the universal language codes, such as "en_US", "de_DE", etc).
-	// This code is not always unique, which is why we use the language ID also.
-	wxString	LanguageCode;
-
 	int			RecentIsoCount;		// number of files displayed in the Recent Isos list.
-
-	// Specifies the size of icons used in Listbooks; specifically the PCSX2 Properties dialog box.
-	// Realistic values range from 96x96 to 24x24.
-	int			Listbook_ImageSize;
-
-	// Specifies the size of each toolbar icon, in pixels (any value >= 2 is valid, but realistically
-	// values should be between 64 and 16 for usability reasons)
-	int			Toolbar_ImageSize;
-
-	// Enables display of toolbar text labels.
-	bool		Toolbar_ShowLabels;
 
 	// uses automatic ntfs compression when creating new memory cards (Win32 only)
 #ifdef __WXMSW__
@@ -273,8 +232,6 @@ public:
 	// The next 2 vars enable/disable presets alltogether, and select/reflect current preset, respectively.
 	bool		EnablePresets;
 	int			PresetIndex;
-
-	bool		AskOnBoot;
 
 	wxString				CurrentIso;
     wxString				CurrentBlockdump;
