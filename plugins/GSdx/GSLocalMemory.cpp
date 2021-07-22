@@ -1869,8 +1869,9 @@ void GSLocalMemory::ReadTexture(const GSOffset* RESTRICT off, const GSVector4i& 
 		if(cr.rempty() || !aligned)
 		{
 			// TODO: expand r to block size, read into temp buffer
-
+#ifndef NDEBUG
 			if(!aligned) printf("unaligned memory pointer passed to ReadTexture\n");
+#endif
 
 			for(int y = r.top; y < r.bottom; y++, dst += dstpitch)
 			{

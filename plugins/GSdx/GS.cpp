@@ -34,7 +34,6 @@
 #endif
 
 #include "Window/GSWndRetro.h"
-//#include "options.h"
 #include "options_tools.h"
 
 #define PS2E_LT_GS 0x01
@@ -260,7 +259,6 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 			break;
 		}
 
-		printf("Current Renderer: %s\n", renderer_name.c_str());
 		log_cb(RETRO_LOG_INFO, "Launching with Renderer:%s\n", renderer_name.c_str());
 
 		if (dev == NULL)
@@ -676,16 +674,6 @@ EXPORT_C GSirqCallback(void (*irq)())
 	{
 		s_gs->SetIrqCallback(s_irq);
 	}
-}
-
-void pt(const char* str){
-	struct tm *current;
-	time_t now;
-	
-	time(&now);
-	current = localtime(&now);
-
-	printf("%02i:%02i:%02i%s", current->tm_hour, current->tm_min, current->tm_sec, str);
 }
 
 EXPORT_C_(std::wstring*) GSsetupRecording(int start)

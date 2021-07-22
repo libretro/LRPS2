@@ -1083,7 +1083,7 @@ void GSRendererDX11::DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Sou
 			//
 			// Use an HLE shader to sample depth directly as the alpha channel
 
-			// OutputDebugString("ICO HLE");
+			// log_cb(RETRO_LOG_DEBUG, "ICO HLE\n");
 
 			m_ps_sel.depth_fmt = 1;
 			m_ps_sel.channel = ChannelFetch_BLUE;

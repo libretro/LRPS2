@@ -74,7 +74,9 @@ void GSVertexTrace::Update(const void* vertex, const uint32* index, int v_count,
 	// Note: If Q is too big, 1/Q will end up as 0. 1e30 is a random number
 	// that feel big enough.
 	if (!fst && !m_accurate_stq && m_min.t.z > 1e30) {
+#ifndef NDEBUG
 		fprintf(stderr, "Vertex Trace: float overflow detected ! min %e max %e\n", m_min.t.z, m_max.t.z);
+#endif
 		m_accurate_stq = true;
 		(this->*m_fmm[m_accurate_stq][color][fst][tme][iip][primclass])(vertex, index, i_count);
 	}
