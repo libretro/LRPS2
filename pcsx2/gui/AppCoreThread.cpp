@@ -308,7 +308,7 @@ static int loadGameSettings(Pcsx2Config& dest, const GameDatabaseSchema::GameEnt
 	// TODO - config - this could be simplified with maps instead of bitfields and enums
 	for (SpeedhackId id = SpeedhackId_FIRST; id < pxEnumEnd; id++)
 	{
-		std::string key = wxString(EnumToString(id)) + "SpeedHack";
+		std::string key = wxString(EnumToString(id)).ToStdString() + "SpeedHack";
 
 		// Gamefixes are already guaranteed to be valid, any invalid ones are dropped
 		if (game.speedHacks.count(key) == 1)
@@ -325,7 +325,7 @@ static int loadGameSettings(Pcsx2Config& dest, const GameDatabaseSchema::GameEnt
 	// TODO - config - this could be simplified with maps instead of bitfields and enums
 	for (GamefixId id = GamefixId_FIRST; id < pxEnumEnd; id++)
 	{
-		std::string key = wxString(EnumToString(id)) + "Hack";
+		std::string key = wxString(EnumToString(id)).ToStdString() + "Hack";
 
 		// Gamefixes are already guaranteed to be valid, any invalid ones are dropped
 		if (std::find(game.gameFixes.begin(), game.gameFixes.end(), key) != game.gameFixes.end())
