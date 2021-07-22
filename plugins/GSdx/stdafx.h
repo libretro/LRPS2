@@ -397,10 +397,6 @@ struct GLAutoPop {
 #define GL_PERF(...) (void)(0);
 #endif
 
-// Helper path to dump texture
-extern const std::string root_sw;
-extern const std::string root_hw;
-
 #include <libretro.h>
 extern retro_hw_render_callback hw_render;
 #define GL_DEFAULT_FRAMEBUFFER hw_render.get_current_framebuffer()

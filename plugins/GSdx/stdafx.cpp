@@ -46,22 +46,7 @@ std::string format(const char* fmt, ...)
 	return {buffer.data()};
 }
 
-// Helper path to dump texture
 #ifdef _WIN32
-const std::string root_sw("c:\\temp1\\_");
-const std::string root_hw("c:\\temp2\\_");
-#else
-#ifdef _M_AMD64
-const std::string root_sw("/tmp/GS_SW_dump64/");
-const std::string root_hw("/tmp/GS_HW_dump64/");
-#else
-const std::string root_sw("/tmp/GS_SW_dump32/");
-const std::string root_hw("/tmp/GS_HW_dump32/");
-#endif
-#endif
-
-#ifdef _WIN32
-
 void* vmalloc(size_t size, bool code)
 {
 	return VirtualAlloc(NULL, size, MEM_COMMIT | MEM_RESERVE, code ? PAGE_EXECUTE_READWRITE : PAGE_READWRITE);

@@ -41,7 +41,7 @@ public:
 	void ReloadConfig();
 
 	size_t GetIniString(const char* lpAppName, const char* lpKeyName, const char* lpDefault, char* lpReturnedString, size_t nSize, const char* lpFileName);
-	bool WriteIniString(const char* lpAppName, const char* lpKeyName, const char* pString, const char* lpFileName);
+	void WriteIniString(const char* lpAppName, const char* lpKeyName, const char* pString, const char* lpFileName);
 	int GetIniInt(const char* lpAppName, const char* lpKeyName, int nDefault, const char* lpFileName);
 
 	bool LoadResource(int id, std::vector<char>& buff, const char* type = nullptr);

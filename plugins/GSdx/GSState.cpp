@@ -1534,25 +1534,6 @@ void GSState::FlushWrite()
 	m_tr.start += len;
 
 	m_perfmon.Put(GSPerfMon::Swizzle, len);
-
-	/*
-	GSVector4i r;
-
-	r.left = m_env.TRXPOS.DSAX;
-	r.top = y;
-	r.right = r.left + m_env.TRXREG.RRW;
-	r.bottom = std::min<int>(r.top + m_env.TRXREG.RRH, m_tr.x == r.left ? m_tr.y : m_tr.y + 1);
-
-	InvalidateVideoMem(m_env.BITBLTBUF, r);
-	*/
-/*
-	static int n = 0;
-	std::string s;
-	s = format("c:\\temp1\\[%04d]_%05x_%d_%d_%d_%d_%d_%d.bmp",
-		n++, (int)m_env.BITBLTBUF.DBP, (int)m_env.BITBLTBUF.DBW, (int)m_env.BITBLTBUF.DPSM,
-		r.left, r.top, r.right, r.bottom);
-	m_mem.SaveBMP(s, m_env.BITBLTBUF.DBP, m_env.BITBLTBUF.DBW, m_env.BITBLTBUF.DPSM, r.right, r.bottom);
-*/
 }
 
 void GSState::FlushPrim()
@@ -1746,14 +1727,6 @@ void GSState::Write(const uint8* mem, int len)
 
 		m_perfmon.Put(GSPerfMon::Swizzle, len);
 
-		/*
-		static int n = 0;
-		std::string s;
-		s = format("c:\\temp1\\[%04d]_%05x_%d_%d_%d_%d_%d_%d.bmp",
-			n++, (int)blit.DBP, (int)blit.DBW, (int)blit.DPSM,
-			r.left, r.top, r.right, r.bottom);
-		m_mem.SaveBMP(s, blit.DBP, blit.DBW, blit.DPSM, r.right, r.bottom);
-		*/
 	}
 	else
 	{
@@ -1853,14 +1826,6 @@ void GSState::Move()
 		m_env.BITBLTBUF.DBP, m_env.BITBLTBUF.DBW, m_env.BITBLTBUF.DPSM,
 		m_env.TRXPOS.DIRX, m_env.TRXPOS.DIRY,
 		sx, sy, dx, dy, w, h);
-*/
-/*
-	GSLocalMemory::readPixel rp = GSLocalMemory::m_psm[m_env.BITBLTBUF.SPSM].rp;
-	GSLocalMemory::writePixel wp = GSLocalMemory::m_psm[m_env.BITBLTBUF.DPSM].wp;
-
-	for(int y = 0; y < h; y++, sy += yinc, dy += yinc, sx -= xinc*w, dx -= xinc*w)
-		for(int x = 0; x < w; x++, sx += xinc, dx += xinc)
-			(m_mem.*wp)(dx, dy, (m_mem.*rp)(sx, sy, m_env.BITBLTBUF.SBP, m_env.BITBLTBUF.SBW), m_env.BITBLTBUF.DBP, m_env.BITBLTBUF.DBW);
 */
 
 	const GSLocalMemory::psm_t& spsm = GSLocalMemory::m_psm[m_env.BITBLTBUF.SPSM];

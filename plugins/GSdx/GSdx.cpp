@@ -114,35 +114,13 @@ size_t GSdxApp::GetIniString(const char* lpAppName, const char* lpKeyName, const
     return 0;
 }
 
-bool GSdxApp::WriteIniString(const char* lpAppName, const char* lpKeyName, const char* pString, const char* lpFileName)
+void GSdxApp::WriteIniString(const char* lpAppName, const char* lpKeyName, const char* pString, const char* lpFileName)
 {
 	BuildConfigurationMap(lpFileName);
 
 	std::string key(lpKeyName);
 	std::string value(pString);
 	m_configuration_map[key] = value;
-
-	// Save config to a file
-	FILE* f = px_fopen(lpFileName, "w");
-
-	if (f == NULL) return false; // FIXME print a nice message
-
-	// Maintain compatibility with GSDumpGUI/old Windows ini.
-#ifdef _WIN32
-	fprintf(f, "[Settings]\n");
-#endif
-
-	for (const auto& entry : m_configuration_map) {
-		// Do not save the inifile key which is not an option
-		if (entry.first.compare("inifile") == 0) continue;
-
-		// Only keep option that have a default value (allow to purge old option of the GSdx.ini)
-		if (!entry.second.empty() && m_default_configuration.find(entry.first) != m_default_configuration.end())
-			fprintf(f, "%s = %s\n", entry.first.c_str(), entry.second.c_str());
-	}
-	fclose(f);
-
-	return false;
 }
 
 int GSdxApp::GetIniInt(const char* lpAppName, const char* lpKeyName, int nDefault, const char* lpFileName)

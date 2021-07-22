@@ -77,9 +77,6 @@ void* GSWndRetroGL::GetProcAddress(const char* name, bool opt)
 	void* ptr = (void*)hw_render.get_proc_address(name);
 	if (ptr == nullptr)
 	{
-		if (theApp.GetConfigB("debug_opengl"))
-			fprintf(stderr, "Failed to find %s\n", name);
-
 		if (!opt)
 			throw GSDXRecoverableError();
 	}
