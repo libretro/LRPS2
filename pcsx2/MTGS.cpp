@@ -198,41 +198,9 @@ void SysMtgsThread::OpenGS()
 	GSsetBaseMem( RingBuffer.Regs );
 	GSirqCallback( dummyIrqCallback );
 
-	int result;
-
-	if( GSopen2 != NULL )
-		result = GSopen2( (void*)pDsp, 1 | (renderswitch ? 4 : 0) );
-	else
-		result = GSopen( (void*)pDsp, "PCSX2", renderswitch ? 2 : 1 );
-
+	GSopen2( (void*)pDsp, 1 | (renderswitch ? 4 : 0) );
 
 	GSsetVsync(EmuConfig.GS.GetVsync());
-
-	if( result != 0 )
-	{
-		log_cb(RETRO_LOG_ERROR, "GSopen Failed: return code: 0x%x\n", result );
-		throw Exception::PluginOpenError( PluginId_GS );
-	}
-
-// This is the preferred place to implement DXGI fullscreen overrides, using LoadLibrary.
-// But I hate COM, I don't know to make this work, and I don't have DX10, so I give up
-// and enjoy my working DX9 alt-enter instead. Someone else can fix this mess. --air
-
-// Also: Prolly needs some DX10 header includes?  Which ones?  Too many, I gave up.
-
-#if 0    // defined(__WXMSW__) && defined(_MSC_VER)
-	wxDynamicLibrary dynlib( L"dxgi.dll" );
-	SomeFuncTypeIDunno isThisEvenTheRightFunctionNameIDunno = dynlib.GetSymbol("CreateDXGIFactory");
-	if( isThisEvenTheRightFunctionNameIDunno )
-	{
-		// Is this how LoadLibrary for COM works?  I dunno.  I dont care.
-
-		IDXGIFactory* pFactory;
-		hr = isThisEvenTheRightFunctionNameIDunno(__uuidof(IDXGIFactory), (void**)(&pFactory) );
-		pFactory->MakeWindowAssociation((HWND)&pDsp, DXGI_MWA_NO_WINDOW_CHANGES);
-		pFactory->Release();
-	}
-#endif
 
 	m_Opened = true;
 	m_sem_OpenDone.Post();
@@ -481,10 +449,14 @@ void SysMtgsThread::ExecuteTaskInThread()
 							GSvsync(((u32&)RingBuffer.Regs[0x1000]) & 0x2000);
 							gsFrameSkip();
 
+#if 0
+							/* TODO/FIXME - we might need to return to this later for latency reasons */
+
 							// if we're not using GSOpen2, then the GS window is on this thread (MTGS thread),
 							// so we need to call PADupdate from here.
 							if( (GSopen2 == NULL) && (PADupdate != NULL) )
 								PADupdate(0);
+#endif
 
 							m_QueuedFrameCount.fetch_sub(1);
 							if (m_VsyncSignalListener.exchange(false))
@@ -515,7 +487,7 @@ void SysMtgsThread::ExecuteTaskInThread()
 
 						case GS_RINGTYPE_RESET:
 							MTGS_LOG( "(MTGS Packet Read) ringtype=Reset" );
-							if( GSreset != NULL ) GSreset();
+							GSreset();
 						break;
 
 						case GS_RINGTYPE_SOFTRESET:
