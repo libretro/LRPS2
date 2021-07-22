@@ -32,7 +32,6 @@
 
 #include "wx/msw/registry.h"
 #include "wx/apptrait.h"
-#include "wx/dynlib.h"
 #include "wx/scopeguard.h"
 #include "wx/filename.h"
 

@@ -23,8 +23,6 @@
 
 #include "Utilities/Threading.h"
 
-#include <wx/dynlib.h>
-
 #ifdef _MSC_VER
 
 // Disabling C4673: throwing 'Exception::Blah' the following types will not be considered at the catch site

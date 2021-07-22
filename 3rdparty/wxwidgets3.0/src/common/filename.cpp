@@ -90,7 +90,6 @@
 #include "wx/private/filename.h"
 #include "wx/tokenzr.h"
 #include "wx/config.h"          // for wxExpandEnvVars
-#include "wx/dynlib.h"
 #include "wx/dir.h"
 #include "wx/longlong.h"
 

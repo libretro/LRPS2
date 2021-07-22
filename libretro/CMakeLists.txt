@@ -32,14 +32,9 @@ if(LIBRETRO_STATIC)
       Utilities
       x86emitter
       ${wxWidgets_LIBRARIES}
-      ${GTK2_LIBRARIES}
       ${ZLIB_LIBRARIES}
       ${AIO_LIBRARIES}
       ${GCOV_LIBRARIES}
-      ${ALSA_LIBRARIES}
-      ${SOUNDTOUCH_LIBRARIES}
-      ${SDL2_LIBRARIES}
-      ${PORTAUDIO_LIBRARIES}
       ${LIBUDEV_LIBRARIES}
       "${pcsx2FinalFlags}"
       "-static-libgcc -static-libstdc++"

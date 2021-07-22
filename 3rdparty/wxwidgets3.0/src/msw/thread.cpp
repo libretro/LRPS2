@@ -41,8 +41,6 @@
 
 #include "wx/except.h"
 
-#include "wx/dynlib.h"
-
 // must have this symbol defined to get _beginthread/_endthread declarations
 #ifndef _MT
     #define _MT

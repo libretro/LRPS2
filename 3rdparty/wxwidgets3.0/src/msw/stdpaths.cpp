@@ -31,7 +31,6 @@
     #include "wx/utils.h"
 #endif //WX_PRECOMP
 
-#include "wx/dynlib.h"
 #include "wx/filename.h"
 
 #include "wx/msw/private.h"

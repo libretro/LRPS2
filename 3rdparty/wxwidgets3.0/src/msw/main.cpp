@@ -30,7 +30,6 @@
 #endif //WX_PRECOMP
 
 #include "wx/cmdline.h"
-#include "wx/dynlib.h"
 #include "wx/scopeguard.h"
 
 #include "wx/msw/private.h"

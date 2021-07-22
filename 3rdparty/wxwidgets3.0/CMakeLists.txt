@@ -2,7 +2,6 @@ if(UNIX)
 set(wxUnixSources
    src/unix/appunix.cpp
    src/unix/dir.cpp
-   src/unix/dlunix.cpp
    src/unix/evtloopunix.cpp
    src/unix/epolldispatcher.cpp
    src/unix/stdpaths.cpp
@@ -18,7 +17,6 @@ if(WIN32)
 set(wxWindowsSources
    src/msw/basemsw.cpp
    src/msw/dir.cpp
-   src/msw/dlmsw.cpp
    src/msw/evtloopconsole.cpp
    src/msw/main.cpp
    src/msw/mslu.cpp
@@ -41,7 +39,6 @@ add_library(wxwidgets
    src/common/datetimefmt.cpp
    src/common/dircmn.cpp
    src/common/dynarray.cpp
-   src/common/dynlib.cpp
    src/common/event.cpp
    src/common/evtloopcmn.cpp
    src/common/ffile.cpp
