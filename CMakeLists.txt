@@ -70,12 +70,6 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/plugins")
     add_subdirectory(plugins)
 endif()
 
-# tests
-if(ACTUALLY_ENABLE_TESTS)
-    add_subdirectory(3rdparty/gtest EXCLUDE_FROM_ALL)
-    add_subdirectory(tests/ctest)
-endif()
-
 #-------------------------------------------------------------------------------
 
 # Install some files to ease package creation
