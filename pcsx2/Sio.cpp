@@ -467,9 +467,10 @@ SIO_WRITE memcardWrite(u8 data)
 		else if(sio.bufCount == checksum_pos)
 		{
 			u8 xor_check = mcd->DoXor(&sio.buf[4], checksum_pos - 4);
-				
+#ifndef NDEBUG
 			if(xor_check != sio.buf[sio.bufCount])
 				log_cb(RETRO_LOG_WARN, "MemWrite: Checksum invalid! XOR: %02X, IN: %02X\n", xor_check, sio.buf[sio.bufCount]);
+#endif
 
 			sio.buf[sio.bufCount] = xor_check;
 			mcd->Write(&sio.buf[4], transfer_size);
