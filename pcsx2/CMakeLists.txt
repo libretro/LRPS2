@@ -639,10 +639,6 @@ set(pcsx2FinalLibs
     ${ZLIB_LIBRARIES}
     ${AIO_LIBRARIES}
     ${GCOV_LIBRARIES}
-    ${ALSA_LIBRARIES}
-    ${SOUNDTOUCH_LIBRARIES}
-    ${SDL2_LIBRARIES}
-    ${PORTAUDIO_LIBRARIES}
     ${Platform_Libs}
 )
 

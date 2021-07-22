@@ -77,10 +77,6 @@ if(UNIX)
 	endif()
 endif()
 
-if(ALSA_FOUND)
-	include_directories(${ALSA_INCLUDE_DIRS})
-endif()
-
 if(CG_FOUND)
 	include_directories(${CG_INCLUDE_DIRS})
 endif()
@@ -95,10 +91,6 @@ endif()
 
 if(OPENGL_FOUND)
 	include_directories(${OPENGL_INCLUDE_DIR})
-endif()
-
-if(SDL_FOUND AND NOT SDL2_API)
-	include_directories(${SDL_INCLUDE_DIR})
 endif()
 
 if(wxWidgets_FOUND)
