@@ -20,19 +20,6 @@
 #include "Utilities/IniInterface.h"
 #include "Config.h"
 #include "GS.h"
-void TraceLogFilters::LoadSave( IniInterface& ini )
-{
-	ScopedIniGroup path( ini, L"TraceLog" );
-
-	IniEntry( Enabled );
-	
-	// Retaining backwards compat of the trace log enablers isn't really important, and
-	// doing each one by hand would be murder.  So let's cheat and just save it as an int:
-
-	IniEntry( EE.bitset );
-	IniEntry( IOP.bitset );
-}
-
 const wxChar* const tbl_SpeedhackNames[] =
 {
 	L"mvuFlag",
@@ -459,8 +446,6 @@ void Pcsx2Config::LoadSave( IniInterface& ini )
 	GS				.LoadSave( ini );
 	Gamefixes		.LoadSave( ini );
 	Profiler		.LoadSave( ini );
-
-	Trace			.LoadSave( ini );
 
 	ini.Flush();
 }

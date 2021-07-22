@@ -74,7 +74,7 @@ public:
 	void DoWrite( const char *fmt ) const override;
 	bool IsActive() const override
 	{
-		return EmuConfig.Trace.Enabled && Enabled;
+		return false;
 	}
 };
 
@@ -88,7 +88,7 @@ public:
 	void ApplyPrefix( FastFormatAscii& ascii ) const override;
 	bool IsActive() const override
 	{
-		return SysTraceLog::IsActive() && EmuConfig.Trace.EE.m_EnableAll;
+		return false;
 	}
 	
 	wxString GetCategory() const override { return L"EE"; }
@@ -113,7 +113,7 @@ public:
 
 	bool IsActive() const override
 	{
-		return _parent::IsActive() && EmuConfig.Trace.EE.m_EnableDisasm;
+		return false;
 	}
 
 	wxString GetCategory() const override { return _parent::GetCategory() + L".Disasm"; }
@@ -128,7 +128,7 @@ public:
 
 	bool IsActive() const override
 	{
-		return _parent::IsActive() && EmuConfig.Trace.EE.m_EnableRegisters;
+		return false;
 	}
 
 	wxString GetCategory() const override { return _parent::GetCategory() + L".Registers"; }
@@ -143,7 +143,7 @@ public:
 
 	bool IsActive() const override
 	{
-		return _parent::IsActive() && EmuConfig.Trace.EE.m_EnableEvents;
+		return false;
 	}
 
 	wxString GetCategory() const override { return _parent::GetCategory() + L".Events"; }
@@ -160,7 +160,7 @@ public:
 	void ApplyPrefix( FastFormatAscii& ascii ) const override;
 	bool IsActive() const override
 	{
-		return SysTraceLog::IsActive() && EmuConfig.Trace.IOP.m_EnableAll;
+		return false;
 	}
 
 	wxString GetCategory() const override { return L"IOP"; }
@@ -174,7 +174,7 @@ public:
 	SysTraceLog_IOP_Disasm( const SysTraceLogDescriptor* desc ) : _parent( desc ) {}
 	bool IsActive() const override
 	{
-		return _parent::IsActive() && EmuConfig.Trace.IOP.m_EnableDisasm;
+		return false;
 	}
 
 	wxString GetCategory() const override { return _parent::GetCategory() + L".Disasm"; }
@@ -188,7 +188,7 @@ public:
 	SysTraceLog_IOP_Registers( const SysTraceLogDescriptor* desc ) : _parent( desc ) {}
 	bool IsActive() const override
 	{
-		return _parent::IsActive() && EmuConfig.Trace.IOP.m_EnableRegisters;
+		return false;
 	}
 
 	wxString GetCategory() const override { return _parent::GetCategory() + L".Registers"; }
@@ -202,7 +202,7 @@ public:
 	SysTraceLog_IOP_Events( const SysTraceLogDescriptor* desc ) : _parent( desc ) {}
 	bool IsActive() const override
 	{
-		return _parent::IsActive() && EmuConfig.Trace.IOP.m_EnableEvents;
+		return false;
 	}
 
 	wxString GetCategory() const override { return _parent::GetCategory() + L".Events"; }
@@ -290,11 +290,7 @@ extern void __Log( const char* fmt, ... );
 // against Trace.Enabled, to avoid extra overhead in Debug builds when logging is disabled.
 // (specifically this allows debug builds to skip havingto resolve all the parameters being
 //  passed into the function)
-#ifdef PCSX2_DEVBUILD
-#	define SysTraceActive(trace)	SysTrace.trace.IsActive()
-#else
-#	define SysTraceActive(trace)	(false)
-#endif
+#define SysTraceActive(trace)	(false)
 
 #ifdef __WXMAC__
     // Not available on OSX, apparently always double buffered window.
@@ -341,8 +337,8 @@ extern void __Log( const char* fmt, ... );
 
 
 #define ELF_LOG
-#define eeRecPerfLog	SysConsole.eeRecPerf.IsActive()		&& SysConsole.eeRecPerf
-#define eeConLog		SysConsole.eeConsole.IsActive()		&& SysConsole.eeConsole.Write
-#define eeDeci2Log		SysConsole.deci2.IsActive()			&& SysConsole.deci2.Write
-#define iopConLog		SysConsole.iopConsole.IsActive()	&& SysConsole.iopConsole.Write
-#define sysConLog		SysConsole.sysoutConsole.IsActive()	&& SysConsole.sysoutConsole.Write
+#define eeRecPerfLog		false	
+#define eeConLog		false
+#define eeDeci2Log		false
+#define iopConLog		false
+#define sysConLog		false

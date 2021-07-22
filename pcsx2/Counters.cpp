@@ -443,14 +443,6 @@ static __fi void VSyncStart(u32 sCycle)
 	GetCoreThread().VsyncInThread();
 	Cpu->CheckExecutionState();
 
-	if(EmuConfig.Trace.Enabled && EmuConfig.Trace.EE.m_EnableAll)
-		SysTrace.EE.Counters.Write( "    ================  EE COUNTER VSYNC START (frame: %d)  ================", g_FrameCount );
-
-	// EE Profiling and Debug code.
-	// FIXME: should probably be moved to VsyncInThread, and handled
-	// by UI implementations.  (ie, AppCoreThread in PCSX2-wx interface).
-	vSyncDebugStuff( g_FrameCount );
-
 	CpuVU0->Vsync();
 	CpuVU1->Vsync();
 
@@ -494,12 +486,7 @@ static __fi void GSVSync()
 
 static __fi void VSyncEnd(u32 sCycle)
 {
-	if(EmuConfig.Trace.Enabled && EmuConfig.Trace.EE.m_EnableAll)
-		SysTrace.EE.Counters.Write( "    ================  EE COUNTER VSYNC END (frame: %d)  ================", g_FrameCount );
-
 	g_FrameCount++;
-
-
 
 	hwIntcIrq(INTC_VBLANK_E);  // HW Irq
 	psxVBlankEnd(); // psxCounters vBlank End

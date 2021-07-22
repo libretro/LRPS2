@@ -160,7 +160,6 @@ extern void SysClearExecutionCache();	// clears recompiled execution caches!
 extern void SysOutOfMemory_EmergencyResponse(uptr blocksize);
 
 extern u8 *SysMmapEx(uptr base, u32 size, uptr bounds, const char *caller="Unnamed");
-extern void vSyncDebugStuff( uint frame );
 extern void NTFS_CompressFile( const wxString& file, bool compressStatus=true );
 
 extern wxString SysGetBiosDiscID();

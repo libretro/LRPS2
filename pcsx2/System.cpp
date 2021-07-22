@@ -155,14 +155,6 @@ Pcsx2Config::GamefixOptions& SetGameFixConfig()
 	return const_cast<Pcsx2Config::GamefixOptions&>(EmuConfig.Gamefixes);
 }
 
-TraceLogFilters& SetTraceConfig()
-{
-	log_cb(RETRO_LOG_DEBUG, "Direct modification of EmuConfig.TraceLog detected\n");
-	AffinityAssert_AllowFrom_MainUI();
-	return const_cast<TraceLogFilters&>(EmuConfig.Trace);
-}
-
-
 template< typename CpuType >
 class CpuInitializer
 {

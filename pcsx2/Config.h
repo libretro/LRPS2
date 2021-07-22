@@ -94,98 +94,6 @@ ImplementEnumOperators( SpeedhackId );
 #define DEFAULT_sseVUMXCSR	0xffc0 //VU  rounding > DaZ, FtZ, "chop"
 
 // --------------------------------------------------------------------------------------
-//  TraceFiltersEE
-// --------------------------------------------------------------------------------------
-struct TraceFiltersEE
-{
-	BITFIELD32()
-	bool
-		m_EnableAll		:1,		// Master Enable switch (if false, no logs at all)
-		m_EnableDisasm	:1,
-		m_EnableRegisters:1,
-		m_EnableEvents	:1;		// Enables logging of event-driven activity -- counters, DMAs, etc.
-	BITFIELD_END
-
-	TraceFiltersEE()
-	{
-		bitset = 0;
-	}
-
-	bool operator ==( const TraceFiltersEE& right ) const
-	{
-		return OpEqu( bitset );
-	}
-
-	bool operator !=( const TraceFiltersEE& right ) const
-	{
-		return !this->operator ==( right );
-	}
-};
-
-// --------------------------------------------------------------------------------------
-//  TraceFiltersIOP
-// --------------------------------------------------------------------------------------
-struct TraceFiltersIOP
-{
-	BITFIELD32()
-	bool
-		m_EnableAll		:1,		// Master Enable switch (if false, no logs at all)
-		m_EnableDisasm	:1,
-		m_EnableRegisters:1,
-		m_EnableEvents	:1;		// Enables logging of event-driven activity -- counters, DMAs, etc.
-	BITFIELD_END
-
-	TraceFiltersIOP()
-	{
-		bitset = 0;
-	}
-
-	bool operator ==( const TraceFiltersIOP& right ) const
-	{
-		return OpEqu( bitset );
-	}
-
-	bool operator !=( const TraceFiltersIOP& right ) const
-	{
-		return !this->operator ==( right );
-	}
-};
-
-// --------------------------------------------------------------------------------------
-//  TraceLogFilters
-// --------------------------------------------------------------------------------------
-struct TraceLogFilters
-{
-	// Enabled - global toggle for high volume logging.  This is effectively the equivalent to
-	// (EE.Enabled() || IOP.Enabled() || SIF) -- it's cached so that we can use the macros
-	// below to inline the conditional check.  This is desirable because these logs are
-	// *very* high volume, and debug builds get noticably slower if they have to invoke
-	// methods/accessors to test the log enable bits.  Debug builds are slow enough already,
-	// so I prefer this to help keep them usable.
-	bool	Enabled;
-
-	TraceFiltersEE	EE;
-	TraceFiltersIOP	IOP;
-
-	TraceLogFilters()
-	{
-		Enabled	= false;
-	}
-
-	void LoadSave( IniInterface& ini );
-
-	bool operator ==( const TraceLogFilters& right ) const
-	{
-		return OpEqu( Enabled ) && OpEqu( EE ) && OpEqu( IOP );
-	}
-
-	bool operator !=( const TraceLogFilters& right ) const
-	{
-		return !this->operator ==( right );
-	}
-};
-
-// --------------------------------------------------------------------------------------
 //  Pcsx2Config class
 // --------------------------------------------------------------------------------------
 // This is intended to be a public class library between the core emulator and GUI only.
@@ -459,8 +367,6 @@ struct Pcsx2Config
 	GamefixOptions		Gamefixes;
 	ProfilerOptions		Profiler;
 
-	TraceLogFilters		Trace;
-
 	wxFileName			BiosFilename;
 
 	Pcsx2Config();
@@ -482,7 +388,6 @@ struct Pcsx2Config
 			OpEqu( Speedhacks )	&&
 			OpEqu( Gamefixes )	&&
 			OpEqu( Profiler )	&&
-			OpEqu( Trace )		&&
 			OpEqu( BiosFilename );
 	}
 
@@ -497,7 +402,6 @@ extern const Pcsx2Config EmuConfig;
 Pcsx2Config::GSOptions&			SetGSConfig();
 Pcsx2Config::RecompilerOptions& SetRecompilerConfig();
 Pcsx2Config::GamefixOptions&	SetGameFixConfig();
-TraceLogFilters&				SetTraceConfig();
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
