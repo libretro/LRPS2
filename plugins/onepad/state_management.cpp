@@ -19,7 +19,6 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
 
-#include "bitwise.h"
 #include "state_management.h"
 #include "GamePad.h"
 
@@ -263,19 +262,19 @@ u8 pad_poll(u8 value)
                     if (pad->mode != MODE_ANALOG) { // DS2 native
                         query.numBytes = 21;
 
-                        query.response[9] = !test_bit(buttons, 13) ? g_key_status.get(query.port, PAD_RIGHT) : 0;
-                        query.response[10] = !test_bit(buttons, 15) ? g_key_status.get(query.port, PAD_LEFT) : 0;
-                        query.response[11] = !test_bit(buttons, 12) ? g_key_status.get(query.port, PAD_UP) : 0;
-                        query.response[12] = !test_bit(buttons, 14) ? g_key_status.get(query.port, PAD_DOWN) : 0;
+                        query.response[9]  = !(buttons & (1 << 13)) ? g_key_status.get(query.port, PAD_RIGHT) : 0;
+                        query.response[10] = !(buttons & (1 << 15)) ? g_key_status.get(query.port, PAD_LEFT) : 0;
+                        query.response[11] = !(buttons & (1 << 12)) ? g_key_status.get(query.port, PAD_UP) : 0;
+                        query.response[12] = !(buttons & (1 << 14)) ? g_key_status.get(query.port, PAD_DOWN) : 0;
 
-                        query.response[13] = !test_bit(buttons, 4) ? g_key_status.get(query.port, PAD_TRIANGLE) : 0;
-                        query.response[14] = !test_bit(buttons, 5) ? g_key_status.get(query.port, PAD_CIRCLE) : 0;
-                        query.response[15] = !test_bit(buttons, 6) ? g_key_status.get(query.port, PAD_CROSS) : 0;
-                        query.response[16] = !test_bit(buttons, 7) ? g_key_status.get(query.port, PAD_SQUARE) : 0;
-                        query.response[17] = !test_bit(buttons, 2) ? g_key_status.get(query.port, PAD_L1) : 0;
-                        query.response[18] = !test_bit(buttons, 3) ? g_key_status.get(query.port, PAD_R1) : 0;
-                        query.response[19] = !test_bit(buttons, 0) ? g_key_status.get(query.port, PAD_L2) : 0;
-                        query.response[20] = !test_bit(buttons, 1) ? g_key_status.get(query.port, PAD_R2) : 0;
+                        query.response[13] = !(buttons & (1 <<  4)) ? g_key_status.get(query.port, PAD_TRIANGLE) : 0;
+                        query.response[14] = !(buttons & (1 <<  5)) ? g_key_status.get(query.port, PAD_CIRCLE) : 0;
+                        query.response[15] = !(buttons & (1 <<  6)) ? g_key_status.get(query.port, PAD_CROSS) : 0;
+                        query.response[16] = !(buttons & (1 <<  7)) ? g_key_status.get(query.port, PAD_SQUARE) : 0;
+                        query.response[17] = !(buttons & (1 <<  2)) ? g_key_status.get(query.port, PAD_L1) : 0;
+                        query.response[18] = !(buttons & (1 <<  3)) ? g_key_status.get(query.port, PAD_R1) : 0;
+                        query.response[19] = !(buttons & (1 <<  0)) ? g_key_status.get(query.port, PAD_L2) : 0;
+                        query.response[20] = !(buttons & (1 <<  1)) ? g_key_status.get(query.port, PAD_R2) : 0;
                     }
                 }
 

@@ -21,7 +21,6 @@ set(onepadSources
     state_management.cpp)
  # onepad headers
  set(onepadHeaders
-     bitwise.h
      GamePad.h
      KeyStatus.h
      onepad.h
