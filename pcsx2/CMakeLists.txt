@@ -627,7 +627,6 @@ set(pcsx2FinalSources
 set(pcsx2FinalLibs
     Utilities
     x86emitter
-	fmt::fmt
     ${wxWidgets_LIBRARIES}
     ${GLIB_LIBRARIES}
     ${GLIB_GIO_LIBRARIES}
