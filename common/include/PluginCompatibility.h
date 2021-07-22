@@ -30,13 +30,3 @@ inline std::wstring convert_utf8_to_utf16(const std::string &utf8_string)
     return {converted_string.data()};
 }
 #endif
-
-// _wfopen has to be used on Windows for pathnames containing non-ASCII characters.
-inline FILE *px_fopen(const std::string &filename, const std::string &mode)
-{
-#ifdef _WIN32
-    return _wfopen(convert_utf8_to_utf16(filename).c_str(), convert_utf8_to_utf16(mode).c_str());
-#else
-    return fopen(filename.c_str(), mode.c_str());
-#endif
-}

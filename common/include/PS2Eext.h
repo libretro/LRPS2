@@ -57,54 +57,6 @@ enum FileMode {
     WRITE_FILE
 };
 
-struct PluginConf
-{
-    FILE *ConfFile;
-    char *PluginName;
-
-    bool Open(std::string name, FileMode mode = READ_FILE)
-    {
-        if (mode == READ_FILE) {
-            ConfFile = px_fopen(name, "r");
-        } else {
-            ConfFile = px_fopen(name, "w");
-        }
-
-        if (ConfFile == NULL)
-            return false;
-
-        return true;
-    }
-
-    void Close()
-    {
-        if (ConfFile) {
-            fclose(ConfFile);
-            ConfFile = NULL;
-        }
-    }
-
-    int ReadInt(const std::string &item, int defval)
-    {
-        int value = defval;
-        std::string buf = item + " = %d\n";
-
-        if (ConfFile)
-            if (fscanf(ConfFile, buf.c_str(), &value) < 0)
-                fprintf(stderr, "Error reading %s\n", item.c_str());
-
-        return value;
-    }
-
-    void WriteInt(std::string item, int value)
-    {
-        std::string buf = item + " = %d\n";
-
-        if (ConfFile)
-            fprintf(ConfFile, buf.c_str(), value);
-    }
-};
-
 static void __forceinline PluginNullConfigure(std::string desc, int &log)
 {
 }
