@@ -16,7 +16,6 @@
 #pragma once
 
 #define COPY_GS_PACKET_TO_MTGS 0
-#define PRINT_GIF_PACKET 0
 
 #define GUNIT_LOG(...) do {} while(0)
 #define GUNIT_WARN(...) do {} while(0)

@@ -32,8 +32,6 @@ extern bool Gif_HandlerAD_Debug(u8* pMem);
 extern void Gif_AddBlankGSPacket(u32 size, GIF_PATH path);
 extern void Gif_AddGSPacketMTVU(GS_Packet& gsPack, GIF_PATH path);
 extern void Gif_AddCompletedGSPacket(GS_Packet& gsPack, GIF_PATH path);
-extern void Gif_ParsePacket(u8* data, u32 size, GIF_PATH path);
-extern void Gif_ParsePacket(GS_Packet& gsPack, GIF_PATH path);
 
 struct Gif_Tag
 {
@@ -547,8 +545,6 @@ struct Gif_Unit
 			Gif_AddGSPacketMTVU(gsPack, path);
 		else
 			Gif_AddCompletedGSPacket(gsPack, path);
-		if (PRINT_GIF_PACKET)
-			Gif_ParsePacket(gsPack, path);
 	}
 
 	// Returns GS Packet Size in bytes
