@@ -430,36 +430,6 @@ struct Pcsx2Config
 		}
 	};
 
-	struct DebugOptions
-	{
-		BITFIELD32()
-			bool
-				ShowDebuggerOnStart	:1;
-			bool
-				AlignMemoryWindowStart :1;
-		BITFIELD_END
-
-		u8 FontWidth;
-		u8 FontHeight;
-		u32 WindowWidth;
-		u32 WindowHeight;
-		u32 MemoryViewBytesPerRow;
-
-		DebugOptions();
-		void LoadSave( IniInterface& conf );
-		
-		bool operator ==( const DebugOptions& right ) const
-		{
-			return OpEqu( bitset ) && OpEqu( FontWidth ) && OpEqu( FontHeight )
-				&& OpEqu( WindowWidth ) && OpEqu( WindowHeight ) && OpEqu( MemoryViewBytesPerRow );
-		}
-
-		bool operator !=( const DebugOptions& right ) const
-		{
-			return !this->operator ==( right );
-		}
-	};
-
 	BITFIELD32()
 		bool
 			CdvdVerboseReads	:1,		// enables cdvd read activity verbosely dumped to the console
@@ -488,7 +458,6 @@ struct Pcsx2Config
 	SpeedhackOptions	Speedhacks;
 	GamefixOptions		Gamefixes;
 	ProfilerOptions		Profiler;
-	DebugOptions		Debugger;
 
 	TraceLogFilters		Trace;
 

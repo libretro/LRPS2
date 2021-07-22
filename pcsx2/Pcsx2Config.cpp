@@ -422,34 +422,6 @@ void Pcsx2Config::GamefixOptions::LoadSave( IniInterface& ini )
 	IniBitBool( VU0KickstartHack );
 }
 
-
-Pcsx2Config::DebugOptions::DebugOptions()
-{
-	ShowDebuggerOnStart = false;
-	AlignMemoryWindowStart = true;
-	FontWidth = 8;
-	FontHeight = 12;
-	WindowWidth = 0;
-	WindowHeight = 0;
-	MemoryViewBytesPerRow = 16;
-}
-
-void Pcsx2Config::DebugOptions::LoadSave( IniInterface& ini )
-{
-	ScopedIniGroup path( ini, L"Debugger" );
-
-	IniBitBool( ShowDebuggerOnStart );
-	IniBitBool( AlignMemoryWindowStart );
-	IniBitfield( FontWidth );
-	IniBitfield( FontHeight );
-	IniBitfield( WindowWidth );
-	IniBitfield( WindowHeight );
-	IniBitfield( MemoryViewBytesPerRow );
-}
-
-
-
-
 Pcsx2Config::Pcsx2Config()
 {
 	bitset = 0;
@@ -488,7 +460,6 @@ void Pcsx2Config::LoadSave( IniInterface& ini )
 	Gamefixes		.LoadSave( ini );
 	Profiler		.LoadSave( ini );
 
-	Debugger		.LoadSave( ini );
 	Trace			.LoadSave( ini );
 
 	ini.Flush();
