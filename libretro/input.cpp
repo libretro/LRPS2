@@ -162,10 +162,6 @@ PADupdate(int pad)
 {
 }
 
-void GamePad::EnumerateGamePads(std::vector<std::unique_ptr<GamePad>>& vgamePad)
-{
-}
-
 void GamePad::DoRumble(unsigned type, unsigned pad)
 {
 	if (rumble_enabled)

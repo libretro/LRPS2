@@ -22,7 +22,6 @@ set(onepadSources
  # onepad headers
  set(onepadHeaders
      bitwise.h
-     controller.h
      GamePad.h
      KeyStatus.h
      onepad.h

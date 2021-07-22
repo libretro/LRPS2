@@ -26,14 +26,13 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 #include <array>
 #include <vector>
 #include <map>
 #include <string>
 #include <memory>
-#include <mutex>
-#include <queue>
 
 #define PADdefs
 #include "PS2Edefs.h"
@@ -90,10 +89,7 @@ enum gamePadValues {
 };
 
 #include "GamePad.h"
-#include "bitwise.h"
-#include "controller.h"
 #include "KeyStatus.h"
-#include "mt_queue.h"
 
 #define EXPORT_C_(type) extern "C" type CALLBACK
 extern keyEvent event;
