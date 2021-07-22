@@ -316,27 +316,22 @@ void V_Core::UpdateEffectsBufferSize()
 bool V_Voice::Start()
 {
 	if (StartA & 7)
-	{
-		//fprintf(stderr, " *** Misaligned StartA %05x!\n", StartA);
 		StartA = (StartA + 0xFFFF8) + 0x8;
+	ADSR.Releasing = false;
+	ADSR.Value = 1;
+	ADSR.Phase = 1;
+	SCurrent = 28;
+	LoopMode = 0;
+	LoopFlags = 0;
+	NextA = StartA | 1;
+	Prev1 = 0;
+	Prev2 = 0;
 
-		ADSR.Releasing = false;
-		ADSR.Value = 1;
-		ADSR.Phase = 1;
-		SCurrent = 28;
-		LoopMode = 0;
-		LoopFlags = 0;
-		NextA = StartA | 1;
-		Prev1 = 0;
-		Prev2 = 0;
-
-		PV1 = PV2 = 0;
-		PV3 = PV4 = 0;
-		NextCrest = -0x8000;
-		PlayCycle = Cycles;
-		return true;
-	}
-	return false;
+	PV1 = PV2 = 0;
+	PV3 = PV4 = 0;
+	NextCrest = -0x8000;
+	PlayCycle = Cycles;
+	return true;
 }
 
 void V_Voice::Stop()
