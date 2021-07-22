@@ -227,20 +227,6 @@ static void CALLBACK GS_Legacy_GSreadFIFO2(u64* pMem, int qwc) {
 	while(qwc--) GSreadFIFO(pMem);
 }
 
-// PAD
-#ifndef BUILTIN_PAD_PLUGIN
-_PADinit           PADinit;
-_PADopen           PADopen;
-_PADstartPoll      PADstartPoll;
-_PADpoll           PADpoll;
-_PADquery          PADquery;
-_PADupdate         PADupdate;
-_PADkeyEvent       PADkeyEvent;
-_PADsetSlot        PADsetSlot;
-_PADqueryMtap      PADqueryMtap;
-_PADWriteEvent	   PADWriteEvent;
-#endif
-
 static void PAD_update( u32 padslot ) { }
 
 // DEV9
@@ -604,9 +590,7 @@ void* StaticLibrary::GetSymbol(const wxString &name)
 	RETURN_SYMBOL(p##about)
 
 	RETURN_COMMON_SYMBOL(GS);
-#ifdef BUILTIN_PAD_PLUGIN
 	RETURN_COMMON_SYMBOL(PAD);
-#endif
 #ifdef BUILTIN_DEV9_PLUGIN
 	RETURN_COMMON_SYMBOL(DEV9);
 #endif
@@ -644,9 +628,7 @@ SysCorePlugins::PluginStatus_t::PluginStatus_t( PluginsEnum_t _pid, const wxStri
 
 	switch (_pid) {
 		case PluginId_GS:
-#ifdef BUILTIN_PAD_PLUGIN
 		case PluginId_PAD:
-#endif
 #ifdef BUILTIN_DEV9_PLUGIN
 		case PluginId_DEV9:
 #endif
@@ -808,10 +790,6 @@ void SysCorePlugins::Load( const wxString (&folders)[PluginId_Count] )
 		pxYield( 2 );
 	});
 
-	// Hack for PAD's stupid parameter passed on Init
-#ifndef BUILTIN_PAD_PLUGIN
-	PADinit = (_PADinit)m_info[PluginId_PAD]->CommonBindings.Init;
-#endif
 	m_info[PluginId_PAD]->CommonBindings.Init = _hack_PADinit;
 
 	log_cb(RETRO_LOG_INFO, "Plugins loaded successfully.\n" );

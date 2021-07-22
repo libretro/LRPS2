@@ -190,41 +190,30 @@ PADconfigure()
 {
 }
 
-void PADSaveConfig()
-{
-}
-
-void PADLoadConfig()
-{
-}
-
-void KeyStatus::Init()
-{
-}
-
 static int keymap[] =
-	{
-		RETRO_DEVICE_ID_JOYPAD_L2,     // PAD_L2
-		RETRO_DEVICE_ID_JOYPAD_R2,     // PAD_R2
-		RETRO_DEVICE_ID_JOYPAD_L,      // PAD_L1
-		RETRO_DEVICE_ID_JOYPAD_R,      // PAD_R1
-		RETRO_DEVICE_ID_JOYPAD_X,      // PAD_TRIANGLE
-		RETRO_DEVICE_ID_JOYPAD_A,      // PAD_CIRCLE
-		RETRO_DEVICE_ID_JOYPAD_B,      // PAD_CROSS
-		RETRO_DEVICE_ID_JOYPAD_Y,      // PAD_SQUARE
-		RETRO_DEVICE_ID_JOYPAD_SELECT, // PAD_SELECT
-		RETRO_DEVICE_ID_JOYPAD_L3,     // PAD_L3
-		RETRO_DEVICE_ID_JOYPAD_R3,     // PAD_R3
-		RETRO_DEVICE_ID_JOYPAD_START,  // PAD_START
-		RETRO_DEVICE_ID_JOYPAD_UP,     // PAD_UP
-		RETRO_DEVICE_ID_JOYPAD_RIGHT,  // PAD_RIGHT
-		RETRO_DEVICE_ID_JOYPAD_DOWN,   // PAD_DOWN
-		RETRO_DEVICE_ID_JOYPAD_LEFT,   // PAD_LEFT
+{
+	RETRO_DEVICE_ID_JOYPAD_L2,     // PAD_L2
+	RETRO_DEVICE_ID_JOYPAD_R2,     // PAD_R2
+	RETRO_DEVICE_ID_JOYPAD_L,      // PAD_L1
+	RETRO_DEVICE_ID_JOYPAD_R,      // PAD_R1
+	RETRO_DEVICE_ID_JOYPAD_X,      // PAD_TRIANGLE
+	RETRO_DEVICE_ID_JOYPAD_A,      // PAD_CIRCLE
+	RETRO_DEVICE_ID_JOYPAD_B,      // PAD_CROSS
+	RETRO_DEVICE_ID_JOYPAD_Y,      // PAD_SQUARE
+	RETRO_DEVICE_ID_JOYPAD_SELECT, // PAD_SELECT
+	RETRO_DEVICE_ID_JOYPAD_L3,     // PAD_L3
+	RETRO_DEVICE_ID_JOYPAD_R3,     // PAD_R3
+	RETRO_DEVICE_ID_JOYPAD_START,  // PAD_START
+	RETRO_DEVICE_ID_JOYPAD_UP,     // PAD_UP
+	RETRO_DEVICE_ID_JOYPAD_RIGHT,  // PAD_RIGHT
+	RETRO_DEVICE_ID_JOYPAD_DOWN,   // PAD_DOWN
+	RETRO_DEVICE_ID_JOYPAD_LEFT,   // PAD_LEFT
 };
 
 u16 KeyStatus::get(u32 pad)
 {
-	u16 mask = input_cb(pad, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_MASK);
+	u16 mask     = input_cb(pad, RETRO_DEVICE_JOYPAD,
+			0, RETRO_DEVICE_ID_JOYPAD_MASK);
 	u16 new_mask = 0;
 	for (int i = 0; i < 16; i++)
 		new_mask |= !(mask & (1 << keymap[i])) << i;
@@ -259,10 +248,10 @@ u8 KeyStatus::get(u32 pad, u32 index)
 
 		default:
 			if (index < 16)
-         {
+			{
 				val = input_cb(pad, RETRO_DEVICE_JOYPAD, RETRO_DEVICE_INDEX_ANALOG_BUTTON, keymap[index]);
-            return 0xFF - (val >> 7);
-         }
+				return 0xFF - (val >> 7);
+			}
 			break;
 	}
 

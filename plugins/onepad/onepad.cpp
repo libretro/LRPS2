@@ -44,32 +44,9 @@ const u32 build = 0; // increase that with each version
 
 KeyStatus g_key_status;
 
-#ifndef BUILTIN_PAD_PLUGIN
-EXPORT_C_(u32)
-PS2EgetLibType()
-{
-    return PS2E_LT_PAD;
-}
-
-EXPORT_C_(const char *)
-PS2EgetLibName()
-{
-    strcpy(libraryName, "OnePAD");
-    return libraryName;
-}
-
-EXPORT_C_(u32)
-PS2EgetLibVersion2(u32 type)
-{
-    return (version << 16) | (revision << 8) | build;
-}
-#endif
-
 EXPORT_C_(s32)
 PADinit(u32 flags)
 {
-    PADLoadConfig();
-
     Pad::reset_all();
 
     query.reset();
@@ -88,7 +65,6 @@ PADshutdown()
 EXPORT_C_(s32)
 PADopen(void *pDsp)
 {
-    g_key_status.Init();
     return _PADopen(pDsp);
 }
 
@@ -135,65 +111,71 @@ PADfreeze(int mode, freezeData *data)
     if (!data)
         return -1;
 
-    if (mode == FREEZE_SIZE) {
-        data->size = sizeof(PadPluginFreezeData);
+    if (mode == FREEZE_SIZE)
+	    data->size = sizeof(PadPluginFreezeData);
+    else if (mode == FREEZE_LOAD)
+    {
+	    PadPluginFreezeData *pdata = (PadPluginFreezeData *)(data->data);
 
-    } else if (mode == FREEZE_LOAD) {
-        PadPluginFreezeData *pdata = (PadPluginFreezeData *)(data->data);
+	    Pad::stop_vibrate_all();
 
-        Pad::stop_vibrate_all();
+	    if (data->size != sizeof(PadPluginFreezeData) || pdata->version != PAD_SAVE_STATE_VERSION ||
+			    strncmp(pdata->format, "OnePad", sizeof(pdata->format)))
+		    return 0;
 
-        if (data->size != sizeof(PadPluginFreezeData) || pdata->version != PAD_SAVE_STATE_VERSION ||
-            strncmp(pdata->format, "OnePad", sizeof(pdata->format)))
-            return 0;
+	    query = pdata->query;
+	    if (pdata->query.slot < 4) {
+		    query = pdata->query;
+	    }
 
-        query = pdata->query;
-        if (pdata->query.slot < 4) {
-            query = pdata->query;
-        }
+	    // Tales of the Abyss - pad fix
+	    // - restore data for both ports
+	    for (int port = 0; port < 2; port++)
+	    {
+		    for (int slot = 0; slot < 4; slot++)
+		    {
+			    u8 mode = pdata->padData[port][slot].mode;
 
-        // Tales of the Abyss - pad fix
-        // - restore data for both ports
-        for (int port = 0; port < 2; port++) {
-            for (int slot = 0; slot < 4; slot++) {
-                u8 mode = pdata->padData[port][slot].mode;
+			    if (
+					    mode != MODE_DIGITAL 
+					    && mode != MODE_ANALOG 
+					    && mode != MODE_DS2_NATIVE)
+				    break;
 
-                if (mode != MODE_DIGITAL && mode != MODE_ANALOG && mode != MODE_DS2_NATIVE) {
-                    break;
-                }
+			    memcpy(&pads[port][slot], &pdata->padData[port][slot], sizeof(PadFreezeData));
+		    }
 
-                memcpy(&pads[port][slot], &pdata->padData[port][slot], sizeof(PadFreezeData));
-            }
+		    if (pdata->slot[port] < 4)
+			    slots[port] = pdata->slot[port];
+	    }
 
-            if (pdata->slot[port] < 4)
-            slots[port] = pdata->slot[port];
-        }
-
-    } else if (mode == FREEZE_SAVE) {
-        if (data->size != sizeof(PadPluginFreezeData))
-            return 0;
-
-        PadPluginFreezeData *pdata = (PadPluginFreezeData *)(data->data);
-
-        // Tales of the Abyss - pad fix
-        // - PCSX2 only saves port0 (save #1), then port1 (save #2)
-
-        memset(pdata, 0, data->size);
-        strncpy(pdata->format, "OnePad", sizeof(pdata->format));
-        pdata->version = PAD_SAVE_STATE_VERSION;
-        pdata->query = query;
-
-        for (int port = 0; port < 2; port++) {
-            for (int slot = 0; slot < 4; slot++) {
-                pdata->padData[port][slot] = pads[port][slot];
-            }
-
-            pdata->slot[port] = slots[port];
-        }
-
-    } else {
-        return -1;
     }
+    else if (mode == FREEZE_SAVE)
+    {
+	    if (data->size != sizeof(PadPluginFreezeData))
+		    return 0;
+
+	    PadPluginFreezeData *pdata = (PadPluginFreezeData *)(data->data);
+
+	    // Tales of the Abyss - pad fix
+	    // - PCSX2 only saves port0 (save #1), then port1 (save #2)
+
+	    memset(pdata, 0, data->size);
+	    strncpy(pdata->format, "OnePad", sizeof(pdata->format));
+	    pdata->version = PAD_SAVE_STATE_VERSION;
+	    pdata->query = query;
+
+	    for (int port = 0; port < 2; port++)
+	    {
+		    for (int slot = 0; slot < 4; slot++)
+			    pdata->padData[port][slot] = pads[port][slot];
+
+		    pdata->slot[port] = slots[port];
+	    }
+
+    }
+    else
+        return -1;
 
     return 0;
 }

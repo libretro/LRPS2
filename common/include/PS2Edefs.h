@@ -209,8 +209,6 @@ s32 CALLBACK GStest();
 
 // if this file is included with this define
 // the next api will not be skipped by the compiler
-#if defined(PADdefs) || defined(BUILTIN_PAD_PLUGIN)
-
 // basic funcs
 
 s32 CALLBACK PADinit(u32 flags);
@@ -253,8 +251,6 @@ s32 CALLBACK PADqueryMtap(u8 port);
 void CALLBACK PADconfigure();
 void CALLBACK PADabout();
 s32 CALLBACK PADtest();
-
-#endif
 
 /* DEV9 plugin API */
 
@@ -453,20 +449,6 @@ extern _GSsetVsync GSsetVsync;
 extern _GSsetupRecording GSsetupRecording;
 extern _GSreset GSreset;
 extern _GSwriteCSR GSwriteCSR;
-#endif
-
-// PAD
-#ifndef BUILTIN_PAD_PLUGIN
-extern _PADopen PADopen;
-extern _PADstartPoll PADstartPoll;
-extern _PADpoll PADpoll;
-extern _PADquery PADquery;
-extern _PADupdate PADupdate;
-extern _PADkeyEvent PADkeyEvent;
-extern _PADgsDriverInfo PADgsDriverInfo;
-extern _PADsetSlot PADsetSlot;
-extern _PADqueryMtap PADqueryMtap;
-extern _PADWriteEvent PADWriteEvent;
 #endif
 
 // DEV9

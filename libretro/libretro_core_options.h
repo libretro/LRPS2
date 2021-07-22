@@ -44,7 +44,7 @@ struct retro_core_option_definition option_defs[] = {
 
 	{"pcsx2_fastboot",
 	"System: Fast Boot",
-	"Bypass the intial BIOS logo. (Content restart required)",
+	"Bypass the initial BIOS logo. (Content restart required)",
 	{
 		{"disabled", NULL},
 		{"enabled", NULL},

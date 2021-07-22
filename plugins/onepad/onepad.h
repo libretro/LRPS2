@@ -89,30 +89,17 @@ enum gamePadValues {
     PAD_R_LEFT    // Right joystick (Left) ←
 };
 
-#if defined(__unix__) || defined(__APPLE__)
 #include "GamePad.h"
-#endif
 #include "bitwise.h"
 #include "controller.h"
 #include "KeyStatus.h"
 #include "mt_queue.h"
 
-#ifdef BUILTIN_PAD_PLUGIN
 #define EXPORT_C_(type) extern "C" type CALLBACK
-#else
-#ifdef _MSC_VER
-#define EXPORT_C_(type) extern "C" __declspec(dllexport) type CALLBACK
-#else
-#define EXPORT_C_(type) extern "C" __attribute__((stdcall, externally_visible, visibility("default"))) type
-#endif
-#endif
 extern keyEvent event;
 
 s32 _PADopen(void *pDsp);
 void _PADclose();
 void PADsetMode(int pad, int mode);
-
-void PADLoadConfig();
-void PADSaveConfig();
 
 #endif
