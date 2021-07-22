@@ -236,11 +236,9 @@ void V_Core::PlainDMAWrite(u16* pMem, u32 size)
 	TADR = MADR + (size << 1);
 }
 
-void V_Core::DoDMAread(u16* pMem, u32 size)
+void V_Core::FinishDMAread()
 {
-	TSA &= 0xfffff;
-
-	u32 buff1end = TSA + size;
+	u32 buff1end = TSA + ReadSize;
 	u32 buff2end = 0;
 	if (buff1end > 0x100000)
 	{
@@ -249,7 +247,7 @@ void V_Core::DoDMAread(u16* pMem, u32 size)
 	}
 
 	const u32 buff1size = (buff1end - TSA);
-	memcpy(pMem, GetMemPtr(TSA), buff1size * 2);
+	memcpy(DMARPtr, GetMemPtr(TSA), buff1size * 2);
 
 	// Note on TSA's position after our copy finishes:
 	// IRQA should be measured by the end of the writepos+0x20.  But the TDA
@@ -262,7 +260,7 @@ void V_Core::DoDMAread(u16* pMem, u32 size)
 		// second branch needs cleared:
 		// It starts at the beginning of memory and moves forward to buff2end
 
-		memcpy(&pMem[buff1size], GetMemPtr(0), buff2end * 2);
+		memcpy(&DMARPtr[buff1size], GetMemPtr(0), buff2end * 2);
 
 		TDA = (buff2end + 0x20) & 0xfffff;
 
@@ -298,6 +296,15 @@ void V_Core::DoDMAread(u16* pMem, u32 size)
 	}
 
 	TSA = TDA;
+	IsDMARead = false;
+}
+
+void V_Core::DoDMAread(u16* pMem, u32 size)
+{
+	TSA &= 0xfffff;
+	DMARPtr = pMem;
+	ReadSize = size;
+	IsDMARead = true;
 
 	DMAICounter = size;
 	Regs.STATX &= ~0x80;
