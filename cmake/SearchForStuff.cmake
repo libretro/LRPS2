@@ -3,14 +3,8 @@
 #-------------------------------------------------------------------------------
 ## Use cmake package to find module
 if (Linux)
-if (NOT LIBRETRO)
-    find_package(ALSA)
-endif()
     find_package(PCAP)
     find_package(LibXml2)
-endif()
-if (NOT LIBRETRO)
-   find_package(Freetype) # GSdx OSD
 endif()
 find_package(Gettext) # translation tool
 if(EXISTS ${PROJECT_SOURCE_DIR}/.git)
@@ -55,23 +49,8 @@ if(Linux)
         check_lib(LIBUDEV libudev libudev.h)
     endif()
 endif()
-if(NOT LIBRETRO)
-if(PORTAUDIO_API)
-    check_lib(PORTAUDIO portaudio portaudio.h pa_linux_alsa.h)
-endif()
-check_lib(SOUNDTOUCH SoundTouch soundtouch/SoundTouch.h)
-
-if(SDL2_API)
-    check_lib(SDL2 SDL2 SDL.h PATH_SUFFIXES SDL2)
-else()
-    # Tell cmake that we use SDL as a library and not as an application
-    set(SDL_BUILDING_LIBRARY TRUE)
-    find_package(SDL)
-endif()
-endif()
 
 if(UNIX)
-   if(LIBRETRO)
       pkg_check_modules(PC_GLIB QUIET glib-2.0)
       find_library(GLIB_LIBRARIES NAMES glib-2.0 HINTS ${PC_GLIB_LIBRARY_DIRS})
       get_filename_component(_GLIB_LIBRARY_DIR ${GLIB_LIBRARIES} PATH)
@@ -79,40 +58,15 @@ if(UNIX)
       find_path(GLIB_INCLUDE_DIR NAMES glib.h HINTS ${PC_GLIB_INCLUDE_DIRS} PATH_SUFFIXES glib-2.0)
       set(GLIB_INCLUDE_DIRS ${GLIB_INCLUDE_DIR} ${GLIBCONFIG_INCLUDE_DIR})
       find_library(GLIB_GIO_LIBRARIES NAMES gio-2.0 HINTS ${_GLIB_LIBRARY_DIR})
-   else()
-      find_package(X11)
-      # Most plugins (if not all) and PCSX2 core need gtk2, so set the required flags
-      if (GTK3_API)
-          if(CMAKE_CROSSCOMPILING)
-              find_package(GTK3 REQUIRED gtk)
-          else()
-              check_lib(GTK3 gtk+-3.0 gtk/gtk.h)
-          endif()
-      else()
-          find_package(GTK2 REQUIRED gtk)
-      endif()
-   endif()
 endif()
 
 #----------------------------------------
 #		    Use system include
 #----------------------------------------
 if(UNIX)
-	if(GTK2_FOUND)
-		include_directories(${GTK2_INCLUDE_DIRS})
-    elseif(GTK3_FOUND)
-		include_directories(${GTK3_INCLUDE_DIRS})
-        # A lazy solution
-        set(GTK2_LIBRARIES ${GTK3_LIBRARIES})
-	endif()
-
 	if(X11_FOUND)
 		include_directories(${X11_INCLUDE_DIR})
 	endif()
-endif()
-
-if(ALSA_FOUND)
-	include_directories(${ALSA_INCLUDE_DIRS})
 endif()
 
 if(CG_FOUND)
@@ -129,10 +83,6 @@ endif()
 
 if(OPENGL_FOUND)
 	include_directories(${OPENGL_INCLUDE_DIR})
-endif()
-
-if(SDL_FOUND AND NOT SDL2_API)
-	include_directories(${SDL_INCLUDE_DIR})
 endif()
 
 if(wxWidgets_FOUND)
@@ -155,19 +105,6 @@ else()
    add_subdirectory(${CMAKE_SOURCE_DIR}/3rdparty/zlib)
    include_directories(${CMAKE_SOURCE_DIR}/3rdparty)
    include_directories(${CMAKE_SOURCE_DIR}/3rdparty/zlib)
-endif()
-
-if (NOT LIBRETRO)
-   find_package(HarfBuzz)
-endif()
-
-if(HarfBuzz_FOUND)
-include_directories(${HarfBuzz_INCLUDE_DIRS})
-endif()
-
-if (NOT FREETYPE_FOUND)
-   set(FREETYPE_FOUND 1)
-   set(FREETYPE_LIBRARIES)
 endif()
 
 if(NOT LIBLZMA_FOUND)

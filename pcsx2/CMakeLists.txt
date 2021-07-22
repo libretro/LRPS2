@@ -46,11 +46,7 @@ if(XDG_STD)
     set(pcsx2FinalFlags ${pcsx2FinalFlags} -DXDG_STD)
 endif()
 
-if(LIBRETRO)
-   set(Output pcsx2_libretro)
-else()
-   set(Output PCSX2)
-endif()
+set(Output pcsx2_libretro)
 
 # Main pcsx2 source
 set(pcsx2Sources
@@ -633,16 +629,11 @@ set(pcsx2FinalLibs
     x86emitter
 	fmt::fmt
     ${wxWidgets_LIBRARIES}
-    ${GTK2_LIBRARIES}
     ${GLIB_LIBRARIES}
     ${GLIB_GIO_LIBRARIES}
     ${ZLIB_LIBRARIES}
     ${AIO_LIBRARIES}
     ${GCOV_LIBRARIES}
-    ${ALSA_LIBRARIES}
-    ${SOUNDTOUCH_LIBRARIES}
-    ${SDL2_LIBRARIES}
-    ${PORTAUDIO_LIBRARIES}
     ${Platform_Libs}
 )
 
@@ -683,7 +674,6 @@ if(MSVC)
    set(pcsx2FinalLibs ${pcsx2FinalLibs} comctl32 ws2_32 shlwapi winmm rpcrt4)
 endif()
 
-if(LIBRETRO)
 #   add_link_options(-fuse-ld=gold)
 #   add_link_options(-Wl,--gc-sections,--print-symbol-counts,sym.log)
 
@@ -716,9 +706,6 @@ if(LIBRETRO)
    else(PACKAGE_MODE)
        install(TARGETS ${Output} DESTINATION ${CMAKE_SOURCE_DIR}/bin)
    endif(PACKAGE_MODE)
-else()
-   add_pcsx2_executable(${Output} "${pcsx2FinalSources}" "${pcsx2FinalLibs}" "${pcsx2FinalFlags}")
-endif()
 target_compile_features(${Output} PRIVATE cxx_std_17)
 
 #if(COMMAND target_precompile_headers)

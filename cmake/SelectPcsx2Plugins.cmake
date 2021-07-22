@@ -5,7 +5,7 @@ set(msg_dep_common_libs "check these libraries -> wxWidgets (>=3.0), aio")
 set(msg_dep_pcsx2       "check these libraries -> wxWidgets (>=3.0), gtk2, zlib (>=1.2.4), pcsx2 common libs")
 set(msg_dep_gsdx        "check these libraries -> opengl, png (>=1.2), zlib (>=1.2.4), X11, liblzma")
 set(msg_dep_onepad      "check these libraries -> sdl2, X11, gtk2")
-set(msg_dep_spu2x       "check these libraries -> soundtouch (>=1.5), alsa, portaudio (optional, >=1.9), sdl (>=1.2), pcsx2 common libs")
+set(msg_dep_spu2x       "")
 set(msg_dep_dev         "check these libraries -> gtk2, pcap, libxml2")
 
 macro(print_dep str dep)
@@ -22,19 +22,7 @@ endmacro(print_dep)
 # Check for additional dependencies.
 # If all dependencies are available, including OS, build it
 #-------------------------------------------------------------------------------
-if (GTK2_FOUND OR GTK3_FOUND)
-    set(GTKn_FOUND TRUE)
-elseif(APPLE) # Not we have but that we don't change all if(gtkn) entries
-    set(GTKn_FOUND TRUE)
-else()
-    set(GTKn_FOUND FALSE)
-endif()
-
-if(SDL_FOUND OR SDL2_FOUND)
-    set(SDLn_FOUND TRUE)
-else()
-    set(SDLn_FOUND FALSE)
-endif()
+set(GTKn_FOUND FALSE)
 
 #---------------------------------------
 #			Common libs
@@ -66,11 +54,6 @@ else()
     set(pcsx2_core FALSE)
     print_dep("Skip build of pcsx2 core: missing dependencies" "${msg_dep_pcsx2}")
 endif()
-# Linux, BSD, use gtk2, but not OSX
-if(UNIX AND pcsx2_core AND NOT GTKn_FOUND AND NOT APPLE AND NOT LIBRETRO)
-    set(pcsx2_core FALSE)
-    print_dep("Skip build of pcsx2 core: missing dependencies" "${msg_dep_pcsx2}")
-endif()
 
 
 #-------------------------------------------------------------------------------
@@ -85,7 +68,7 @@ endif()
 #---------------------------------------
 #			dev9null
 #---------------------------------------
-if((GTKn_FOUND OR LIBRETRO) AND NOT ENABLE_DEV9GHZDRK)
+if(NOT ENABLE_DEV9GHZDRK)
     set(dev9null TRUE)
 endif()
 
@@ -93,13 +76,10 @@ endif()
 #			dev9ghzdrk
 #---------------------------------------
 if(NOT DISABLE_DEV9GHZDRK AND ENABLE_DEV9GHZDRK)
-if((GTKn_FOUND OR LIBRETRO) AND PCAP_FOUND AND LIBXML2_FOUND)
+if(PCAP_FOUND AND LIBXML2_FOUND)
     set(dev9ghzdrk TRUE)
     list(APPEND CMAKE_MODULE_PATH
         ${CMAKE_MODULE_PATH}/macros)
-if(NOT LIBRETRO)
-    include(GlibCompileResourcesSupport) 
-endif()
 else()
     set(dev9ghzdrk FALSE)
     print_dep("Skip build of dev9ghzdrk: missing dependencies" "${msg_dep_dev}")
@@ -117,62 +97,31 @@ endif()
 #           -X11
 #           -zlib
 #---------------------------------------
-if(LIBRETRO OR (OPENGL_FOUND AND X11_FOUND AND GTKn_FOUND AND ZLIB_FOUND AND PNG_FOUND AND FREETYPE_FOUND AND LIBLZMA_FOUND AND EGL_FOUND AND X11_XCB_FOUND))
-    set(GSdx TRUE)
-elseif(NOT EXISTS "${CMAKE_SOURCE_DIR}/plugins/GSdx")
-    set(GSdx FALSE)
-else()
-    set(GSdx FALSE)
-    print_dep("Skip build of GSdx: missing dependencies" "${msg_dep_gsdx}")
-endif()
+set(GSdx TRUE)
 #---------------------------------------
 
-#---------------------------------------
-#			LilyPad
-# requires: -X11
-#---------------------------------------
-# Not ready to be packaged
-if(EXTRA_PLUGINS OR NOT PACKAGE_MODE)
-    if(wxWidgets_FOUND AND Linux AND GTKn_FOUND AND X11_FOUND)
-        set(LilyPad TRUE)
-    endif()
-endif()
 #---------------------------------------
 
 #---------------------------------------
 #			onepad
 #---------------------------------------
-# requires: -SDL2
-#			-X11
 #---------------------------------------
-if(LIBRETRO OR (wxWidgets_FOUND AND GTKn_FOUND AND SDL2_FOUND AND X11_FOUND))
-	set(onepad TRUE)
-elseif(NOT EXISTS "${CMAKE_SOURCE_DIR}/plugins/onepad")
-	set(onepad FALSE)
-else()
-	set(onepad FALSE)
-    print_dep("Skip build of onepad: missing dependencies" "${msg_dep_onepad}")
-endif()
+set(onepad TRUE)
 
 # old version of the plugin that still supports SDL1
 # Was never ported to macOS
-if(wxWidgets_FOUND AND GTKn_FOUND AND SDLn_FOUND AND X11_FOUND AND NOT APPLE)
+	if(wxWidgets_FOUND AND GTKn_FOUND AND X11_FOUND AND NOT APPLE)
 	set(onepad_legacy TRUE)
 elseif(NOT EXISTS "${CMAKE_SOURCE_DIR}/plugins/onepad_legacy" OR APPLE)
 	set(onepad_legacy FALSE)
 else()
 	set(onepad_legacy FALSE)
-	if(NOT LIBRETRO)
-		print_dep("Skip build of onepad_legacy: missing dependencies" "${msg_dep_onepad}")
-	endif()
 endif()
 #---------------------------------------
 
 #---------------------------------------
 #			USBnull
 #---------------------------------------
-if(GTKn_FOUND OR LIBRETRO)
-    set(USBnull TRUE)
-endif()
+set(USBnull TRUE)
 #---------------------------------------
 #-------------------------------------------------------------------------------
