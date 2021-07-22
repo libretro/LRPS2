@@ -17,8 +17,6 @@
 
 #include "GameDatabase.h"
 
-#include "fmt/core.h"
-#include "fmt/ranges.h"
 #include "yaml-cpp/yaml.h"
 #include <algorithm>
 #include <cctype>
@@ -38,9 +36,19 @@ bool compareStrNoCase(const std::string str1, const std::string str2)
 		});
 }
 
+static std::string join(const std::vector<std::string> & v, const std::string & delimiter = "/")
+{
+	std::string out;
+	if (auto i = v.begin(), e = v.end(); i != e) {
+		out += *i++;
+		for (; i != e; ++i) out.append(delimiter).append(*i);
+	}
+	return out;
+}
+
 std::string GameDatabaseSchema::GameEntry::memcardFiltersAsString() const
 {
-	return fmt::to_string(fmt::join(memcardFilters, "/"));
+	return join(memcardFilters);
 }
 
 bool GameDatabaseSchema::GameEntry::findPatch(const std::string crc, Patch& patch) const
