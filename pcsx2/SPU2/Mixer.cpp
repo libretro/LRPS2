@@ -19,11 +19,6 @@
 /* Forward declaration */
 extern retro_audio_sample_t sample_cb;
 
-// Games have turned out to be surprisingly sensitive to whether a parked, silent voice is being fully emulated.
-// With Silent Hill: Shattered Memories requiring full processing for no obvious reason, we've decided to
-// disable the optimisation until we can tie it to the game database.
-#define NEVER_SKIP_VOICES 1
-
 void ADMAOutLogWrite(void* lpData, u32 ulSize);
 
 static const s32 tbl_XA_Factor[16][2] =
@@ -518,12 +513,13 @@ static __forceinline StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 	// have to run through all the motions of updating the voice regardless of it's
 	// audible status.  Otherwise IRQs might not trigger and emulation might fail.
 
+	UpdatePitch(coreidx, voiceidx);
+
+	StereoOut32 voiceOut(0, 0);
+	s32 Value = 0;
+
 	if (vc.ADSR.Phase > 0)
 	{
-		UpdatePitch(coreidx, voiceidx);
-
-		s32 Value = 0;
-
 		if (vc.Noise)
 			Value = GetNoiseValues(thiscore, voiceidx);
 		else
@@ -561,48 +557,25 @@ static __forceinline StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 		// use a full 64-bit multiply/result here.
 
 		CalculateADSR(thiscore, voiceidx);
-		Value = MulShr32(Value, vc.ADSR.Value);
+		Value    = MulShr32(Value, vc.ADSR.Value);
+		vc.OutX  = Value;
 
-		// Store Value for eventual modulation later
-		// Pseudonym's Crest calculation idea. Actually calculates a crest, unlike the old code which was just peak.
-		if (vc.PV1 < vc.NextCrest)
-		{
-			vc.OutX = MulShr32(vc.NextCrest, vc.ADSR.Value);
-			vc.NextCrest = -0x8000;
-		}
-		if (vc.PV1 > vc.PV2)
-			vc.NextCrest = vc.PV1;
-
-		// Write-back of raw voice data (post ADSR applied)
-
-		if (voiceidx == 1)
-			spu2M_WriteFast(((0 == coreidx) ? 0x400 : 0xc00) + OutPos, vc.OutX);
-		else if (voiceidx == 3)
-			spu2M_WriteFast(((0 == coreidx) ? 0x600 : 0xe00) + OutPos, vc.OutX);
-
-		return ApplyVolume(StereoOut32(Value, Value), vc.Volume);
+		voiceOut = ApplyVolume(StereoOut32(Value, Value), vc.Volume);
 	}
 	else
 	{
-		// Continue processing voice, even if it's "off". Or else we miss interrupts! (Fatal Frame engine died because of this.)
-		if (NEVER_SKIP_VOICES || (*GetMemPtr(vc.NextA & 0xFFFF8) >> 8 & 3) != 3 || vc.LoopStartA != (vc.NextA & ~7)    // not in a tight loop
-			|| (Cores[0].IRQEnable && (Cores[0].IRQA & ~7) == vc.LoopStartA)                                           // or should be interrupting regularly
-			|| (Cores[1].IRQEnable && (Cores[1].IRQA & ~7) == vc.LoopStartA) || !(thiscore.Regs.ENDX & 1 << voiceidx)) // or isn't currently flagged as having passed the endpoint
-		{
-			UpdatePitch(coreidx, voiceidx);
+		while (vc.SP > 0)
+			GetNextDataDummy(thiscore, voiceidx); // Dummy is enough
 
-			while (vc.SP > 0)
-				GetNextDataDummy(thiscore, voiceidx); // Dummy is enough
-		}
-
-		// Write-back of raw voice data (some zeros since the voice is "dead")
-		if (voiceidx == 1)
-			spu2M_WriteFast(((0 == coreidx) ? 0x400 : 0xc00) + OutPos, 0);
-		else if (voiceidx == 3)
-			spu2M_WriteFast(((0 == coreidx) ? 0x600 : 0xe00) + OutPos, 0);
-
-		return StereoOut32(0, 0);
 	}
+
+	// Write-back of raw voice data (post ADSR applied)
+	if (voiceidx == 1)
+		spu2M_WriteFast(((0 == coreidx) ? 0x400 : 0xc00) + OutPos, Value);
+	else if (voiceidx == 3)
+		spu2M_WriteFast(((0 == coreidx) ? 0x600 : 0xe00) + OutPos, Value);
+
+	return voiceOut;
 }
 
 const VoiceMixSet VoiceMixSet::Empty((StereoOut32()), (StereoOut32())); // Don't use SteroOut32::Empty because C++ doesn't make any dep/order checks on global initializers.
