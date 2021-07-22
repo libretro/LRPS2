@@ -21,12 +21,10 @@
 
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <fcntl.h>
 #include <string.h>
 #include <stdarg.h>
 
 #include "onepad.h"
-#include "svnrev.h"
 #include "state_management.h"
 
 #ifdef _WIN32
@@ -34,8 +32,6 @@
 #else
 #include <unistd.h>
 #endif
-
-static char libraryName[256];
 
 const u32 version = PS2E_PAD_VERSION;
 const u32 revision = 2;
