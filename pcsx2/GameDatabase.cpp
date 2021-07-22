@@ -171,7 +171,7 @@ GameDatabaseSchema::GameEntry YamlGameDatabaseImpl::entryFromYaml(const std::str
 		gameEntry.isValid = false;
 	} catch (const std::exception& e)
 	{
-		log_cb(RETRO_LOG_ERROR, "[GameDB] Unexpected error occurred when reading serial: '{%s}'. Error Details - {%s}\n", serial.c_str(), e.what().c_str());
+		log_cb(RETRO_LOG_ERROR, "[GameDB] Unexpected error occurred when reading serial: '{%s}'. Error Details - {%s}\n", serial.c_str(), e.what());
 		gameEntry.isValid = false;
 	}
 	return gameEntry;
@@ -234,7 +234,7 @@ bool YamlGameDatabaseImpl::initDatabase(std::istream& stream)
 		}
 	} catch (const std::exception& e)
 	{
-		log_cb(RETRO_LOG_ERROR, "[GameDB] Error occured when initializing GameDB: {%s}\n", e.what().c_str());
+		log_cb(RETRO_LOG_ERROR, "[GameDB] Error occured when initializing GameDB: {%s}\n", e.what());
 		return false;
 	}
 
