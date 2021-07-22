@@ -477,18 +477,12 @@
     <ClCompile Include="..\..\gui\AppInit.cpp" />
     <ClCompile Include="..\..\gui\AppMain.cpp" />
     <ClCompile Include="..\..\gui\AppRes.cpp" />
-    <ClCompile Include="..\..\gui\CpuUsageProvider.cpp" />
-    <ClCompile Include="..\..\gui\CpuUsageProviderLnx.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\gui\CpuUsageProviderMSW.cpp" />
     <ClCompile Include="..\..\gui\ExecutorThread.cpp" />
     <ClCompile Include="..\..\gui\GlobalCommands.cpp" />
     <ClCompile Include="..\..\gui\i18n.cpp" />
     <ClCompile Include="..\..\gui\MemoryCardFile.cpp" />
     <ClCompile Include="..\..\gui\MemoryCardFolder.cpp" />
     <ClCompile Include="..\..\gui\MessageBoxes.cpp" />
-    <ClCompile Include="..\..\gui\MSWstuff.cpp" />
     <ClCompile Include="..\..\gui\Dialogs\AboutBoxDialog.cpp" />
     <ClCompile Include="..\..\gui\Dialogs\AssertionDialog.cpp" />
     <ClCompile Include="..\..\gui\Dialogs\BaseConfigurationDialog.cpp" />
@@ -700,7 +694,6 @@
     <ClInclude Include="..\..\gui\Dialogs\ConfigurationDialog.h" />
     <ClInclude Include="..\..\gui\Dialogs\LogOptionsDialog.h" />
     <ClInclude Include="..\..\gui\Dialogs\ModalPopups.h" />
-    <ClInclude Include="..\..\gui\MSWstuff.h" />
     <ClInclude Include="..\resource.h" />
     <ClInclude Include="..\..\gui\Panels\ConfigurationPanels.h" />
     <ClInclude Include="..\..\gui\Panels\LogOptionsPanels.h" />
@@ -711,7 +704,6 @@
     <ClInclude Include="..\..\gui\AppCoreThread.h" />
     <ClInclude Include="..\..\gui\AppEventListeners.h" />
     <ClInclude Include="..\..\gui\AppForwardDefs.h" />
-    <ClInclude Include="..\..\gui\CpuUsageProvider.h" />
     <ClInclude Include="..\..\gui\pxEventThread.h" />
     <ClInclude Include="..\..\ZipTools\ThreadedZipTools.h" />
   </ItemGroup>
