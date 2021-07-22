@@ -313,25 +313,12 @@ void V_Core::UpdateEffectsBufferSize()
 	RevBuffers.APF2_R_SRC = EffectsBufferIndexer(Revb.APF2_R_DST - Revb.APF2_SIZE);
 }
 
-void V_Voice::QueueStart()
-{
-	if (Cycles - PlayCycle < delayCycles)
-	{
-		// Required by The Legend of Spyro: The Eternal Night (probably the other two legend games too)
-		return;
-	}
-	PlayCycle = Cycles;
-}
-
 bool V_Voice::Start()
 {
-	if ((Cycles - PlayCycle) >= delayCycles)
+	if (StartA & 7)
 	{
-		if (StartA & 7)
-		{
-			//fprintf(stderr, " *** Misaligned StartA %05x!\n", StartA);
-			StartA = (StartA + 0xFFFF8) + 0x8;
-		}
+		//fprintf(stderr, " *** Misaligned StartA %05x!\n", StartA);
+		StartA = (StartA + 0xFFFF8) + 0x8;
 
 		ADSR.Releasing = false;
 		ADSR.Value = 1;
@@ -346,10 +333,10 @@ bool V_Voice::Start()
 		PV1 = PV2 = 0;
 		PV3 = PV4 = 0;
 		NextCrest = -0x8000;
+		PlayCycle = Cycles;
 		return true;
 	}
-	else
-		return false;
+	return false;
 }
 
 void V_Voice::Stop()
@@ -434,13 +421,6 @@ __forceinline void TimeUpdate(u32 cClocks)
 		dClocks -= TickInterval;
 		lClocks += TickInterval;
 		Cycles++;
-
-		for (int i = 0; i < 2; i++)
-			if (Cores[i].KeyOn)
-				for (int j = 0; j < 24; j++)
-					if (Cores[i].KeyOn >> j & 1)
-						if (Cores[i].Voices[j].Start())
-							Cores[i].KeyOn &= ~(1 << j);
 
 		// Note: IOP does not use MMX regs, so no need to save them.
 		//SaveMMXRegs();
@@ -1764,34 +1744,44 @@ void SPU2_FastWrite(u32 rmem, u16 value)
 
 void StartVoices(int core, u32 value)
 {
+	//log_cb(RETRO_LOG_DEBUG, "KeyOn Write %x\n", value);
+
 	// Optimization: Games like to write zero to the KeyOn reg a lot, so shortcut
 	// this loop if value is zero.
 
 	if (value == 0)
 		return;
 
+	Cores[core].KeyOn |= value;
 	Cores[core].Regs.ENDX &= ~value;
 
-	Cores[core].KeyOn |= value;
 
 	for (u8 vc = 0; vc < V_Core::NumVoices; vc++)
 	{
 		if (!((value >> vc) & 1))
 			continue;
 
-		Cores[core].Voices[vc].QueueStart();
-
+		Cores[core].Voices[vc].Start();
+		Cores[core].KeyOn &= ~(1 << vc);
 	}
 }
 
 void StopVoices(int core, u32 value)
 {
+	//log_cb(RETRO_LOG_DEBUG, "KeyOff Write %x\n", value);
+
 	if (value == 0)
 		return;
 	for (u8 vc = 0; vc < V_Core::NumVoices; vc++)
 	{
 		if (!((value >> vc) & 1))
 			continue;
+
+		if (Cycles - Cores[core].Voices[vc].PlayCycle < 2)
+		{
+			//log_cb(RETRO_LOG_DEBUG, "Attempt to stop voice %d on core %d in less than 2T since KeyOn\n", vc, core);
+			continue;
+		}
 
 		Cores[core].Voices[vc].ADSR.Releasing = true;
 	}
