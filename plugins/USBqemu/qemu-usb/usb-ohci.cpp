@@ -33,8 +33,6 @@
 s64 last_cycle = 0;
 #define MIN_IRQ_INTERVAL 64 /* hack */
 
-extern FILE* usbLog;
-
 int dprintf(const char *fmt,...)
 {
 #ifdef DEBUG_OHCI
@@ -44,13 +42,6 @@ int dprintf(const char *fmt,...)
 	va_start(list, fmt);
 	t=vfprintf(stderr, fmt, list);
 	va_end(list);
-
-	if(usbLog)
-	{
-		va_start(list, fmt);
-		vfprintf(usbLog, fmt, list);
-		va_end(list);
-	}
 
 	return t;
 #else

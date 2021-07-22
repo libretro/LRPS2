@@ -17,8 +17,6 @@
 #include "IopCommon.h"
 
 #include <wx/wx.h>
-#include <wx/dir.h>
-#include <wx/file.h>
 #include <memory>
 
 #include "GS.h"
@@ -109,125 +107,17 @@ struct LegacyApi_CommonMethod
 	}
 };
 
-// ----------------------------------------------------------------------------
-struct LegacyApi_ReqMethod
-{
-	const char*		MethodName;
-	VoidMethod**	Dest;		// Target function where the binding is saved.
-
-	// fallback is used if the method is null.  If the method is null and fallback is null
-	// also, the plugin is considered incomplete or invalid, and an error is generated.
-	VoidMethod*	Fallback;
-
-	// returns the method name as a wxString, converted from UTF8.
-	wxString GetMethodName( ) const
-	{
-		return fromUTF8( MethodName );
-	}
-};
-
-// ----------------------------------------------------------------------------
-struct LegacyApi_OptMethod
-{
-	const char*		MethodName;
-	VoidMethod**	Dest;		// Target function where the binding is saved.
-
-	// returns the method name as a wxString, converted from UTF8.
-	wxString GetMethodName() const { return fromUTF8( MethodName ); }
-};
-
-
 static s32  CALLBACK fallback_freeze(int mode, freezeData *data)
 {
 	if( mode == FREEZE_SIZE ) data->size = 0;
 	return 0;
 }
 
-static void CALLBACK fallback_keyEvent(keyEvent *ev) {}
 static void CALLBACK fallback_setSettingsDir(const char* dir) {}
 static void CALLBACK fallback_setLogDir(const char* dir) {}
 static void CALLBACK fallback_configure() {}
 static void CALLBACK fallback_about() {}
 static s32  CALLBACK fallback_test() { return 0; }
-
-static void CALLBACK GS_makeSnapshot(const char *path) {}
-static void CALLBACK GS_setGameCRC(u32 crc, int gameopts) {}
-static void CALLBACK GS_irqCallback(void (*callback)()) {}
-static void CALLBACK GS_setFrameSkip(int frameskip) {}
-static void CALLBACK GS_setVsync(int enabled) {}
-static void CALLBACK GS_setExclusive(int isExcl) {}
-static void CALLBACK GS_changeSaveState( int, const char* filename ) {}
-
-void CALLBACK GS_getTitleInfo2( char* dest, size_t length )
-{
-	// Just return a generic "GS" title -- a plugin actually implementing this feature
-	// should return a title such as "GSdx" instead.  --air
-
-	dest[0] = 'G';
-	dest[1] = 'S';
-	dest[2] = 0;
-}
-
-#if COPY_GS_PACKET_TO_MTGS == 1
-// This legacy passthrough function is needed because the old GS plugins tended to assume that
-// a PATH1 transfer that didn't EOP needed an automatic EOP (which was needed to avoid a crash
-// in the BIOS when it starts an XGKICK prior to having an EOP written to VU1 memory).  The new
-// MTGS wraps data around the end of the MTGS buffer, so it often splits PATH1 data into two
-// transfers now.
-static void CALLBACK GS_Legacy_gifTransfer( const u32* src, u32 data )
-{
-	static __aligned16 u128 path1queue[0x400];
-	static uint path1size = 0;
-
-	const u128* src128 = (u128*)src;
-
-	if( (src128 + data) >= &RingBuffer.m_Ring[RingBufferSize] )
-	{
-		// the transfer is most likely wrapped/partial.  We need to queue it into a linear buffer
-		// and then send it on its way on the next copy.
-
-		memcpy( path1queue, src128, data*16);
-		path1size = data;
-	}
-	else
-	{
-		if (path1size != 0)
-		{
-			// Previous transfer check.  *Most* likely this one should be added to it, but to know for
-			// sure we need to check to see if src points to the head of RingBuffer.  If its pointing
-			// to like Ringbuffer[1] instead it means the last transfer finished and this transfer is
-			// a new one.
-
-			if (src128 == RingBuffer.m_Ring)
-			{
-				pxAssert( (data+path1size) <= 0x400 );
-				memcpy( &path1queue[path1size], src128, data*16);
-				path1size += data;
-			}
-			GSgifTransfer1( (u32*)path1queue, 0 );
-			path1size = 0;
-		}
-		else
-		{
-			GSgifTransfer1( (u32*)src128, 0 );
-		}
-	}
-}
-#else
-// In this case the MTGS thread will only be using the "GSgifTransfer"
-// callback, which falls back to this function if its an old plugin.
-// Since GSgifTransfer2 is the least hacky old call-back, and MTGS will
-// just be using a single gif path, we'll just solely use path 2...
-static void CALLBACK GS_Legacy_gifTransfer(const u32* src, u32 data) {
-	GSgifTransfer2((u32*)src, data);
-}
-#endif
-
-static void CALLBACK GS_Legacy_GSreadFIFO2(u64* pMem, int qwc) {
-	while(qwc--) GSreadFIFO(pMem);
-}
-
-static void PAD_update( u32 padslot ) { }
 
 // DEV9
 #ifndef BUILTIN_DEV9_PLUGIN
@@ -282,7 +172,6 @@ static const LegacyApi_CommonMethod s_MethMessCommon[] =
 	{	"close",			NULL	},
 	{	"shutdown",			NULL	},
 
-	{	"keyEvent",			(vMeth*)fallback_keyEvent },
 	{	"setSettingsDir",	(vMeth*)fallback_setSettingsDir },
 	{	"setLogDir",	    (vMeth*)fallback_setLogDir },
 
@@ -294,137 +183,6 @@ static const LegacyApi_CommonMethod s_MethMessCommon[] =
 	{ NULL }
 
 };
-
-// ----------------------------------------------------------------------------
-//  GS Mess!
-// ----------------------------------------------------------------------------
-static const LegacyApi_ReqMethod s_MethMessReq_GS[] =
-{
-	{	"GSopen",			(vMeth**)&GSopen,			NULL	},
-	{	"GSvsync",			(vMeth**)&GSvsync,			NULL	},
-	{	"GSgifTransfer",	(vMeth**)&GSgifTransfer,	(vMeth*)GS_Legacy_gifTransfer },
-	{	"GSgifTransfer2",	(vMeth**)&GSgifTransfer2,	NULL	},
-	{	"GSgifTransfer3",	(vMeth**)&GSgifTransfer3,	NULL	},
-	{	"GSreadFIFO2",		(vMeth**)&GSreadFIFO2,		(vMeth*)GS_Legacy_GSreadFIFO2 },
-
-	{	"GSmakeSnapshot",	(vMeth**)&GSmakeSnapshot,	(vMeth*)GS_makeSnapshot },
-	{	"GSirqCallback",	(vMeth**)&GSirqCallback,	(vMeth*)GS_irqCallback },
-	{	"GSsetBaseMem",		(vMeth**)&GSsetBaseMem,		NULL	},
-	{	"GSwriteCSR",		(vMeth**)&GSwriteCSR,		NULL	},
-	{	"GSsetGameCRC",		(vMeth**)&GSsetGameCRC,		(vMeth*)GS_setGameCRC },
-
-	{	"GSsetFrameSkip",	(vMeth**)&GSsetFrameSkip,	(vMeth*)GS_setFrameSkip	},
-	{	"GSsetVsync",		(vMeth**)&GSsetVsync,		(vMeth*)GS_setVsync	},
-	{	"GSsetExclusive",	(vMeth**)&GSsetExclusive,	(vMeth*)GS_setExclusive	},
-	{	"GSchangeSaveState",(vMeth**)&GSchangeSaveState,(vMeth*)GS_changeSaveState },
-	{	"GSgetTitleInfo2",	(vMeth**)&GSgetTitleInfo2,	(vMeth*)GS_getTitleInfo2 },
-	{ NULL }
-};
-
-static const LegacyApi_OptMethod s_MethMessOpt_GS[] =
-{
-	{	"GSosdLog",			(vMeth**)&GSosdLog			},
-	{	"GSosdMonitor",		(vMeth**)&GSosdMonitor		},
-	{	"GSopen2",			(vMeth**)&GSopen2			},
-	{	"GSreset",			(vMeth**)&GSreset			},
-	{	"GSsetupRecording",	(vMeth**)&GSsetupRecording	},
-	{	"GSmakeSnapshot2",	(vMeth**)&GSmakeSnapshot2	},
-	{	"GSgifSoftReset",	(vMeth**)&GSgifSoftReset	},
-	{	"GSreadFIFO",		(vMeth**)&GSreadFIFO		},
-	{	"GSinitReadFIFO",	(vMeth**)&GSinitReadFIFO	},
-	{	"GSinitReadFIFO2",	(vMeth**)&GSinitReadFIFO2	},
-	{	"GSgifTransfer1",	(vMeth**)&GSgifTransfer1	},
-	{ NULL }
-};
-
-// ----------------------------------------------------------------------------
-//  PAD Mess!
-// ----------------------------------------------------------------------------
-static s32 CALLBACK PAD_queryMtap( u8 slot ) { return 0; }
-static s32 CALLBACK PAD_setSlot(u8 port, u8 slot) { return 0; }
-
-static const LegacyApi_ReqMethod s_MethMessReq_PAD[] =
-{
-	{	"PADopen",			(vMeth**)&PADopen,		NULL },
-	{	"PADstartPoll",		(vMeth**)&PADstartPoll,	NULL },
-	{	"PADpoll",			(vMeth**)&PADpoll,		NULL },
-	{	"PADquery",			(vMeth**)&PADquery,		NULL },
-	{	"PADkeyEvent",		(vMeth**)&PADkeyEvent,	NULL },
-
-	// fixme - Following functions are new as of some revison post-0.9.6, and
-	// are for multitap support only.  They should either be optional or offer
-	// NOP fallbacks, to allow older plugins to retain functionality.
-	{	"PADsetSlot",		(vMeth**)&PADsetSlot,	(vMeth*)PAD_setSlot },
-	{	"PADqueryMtap",		(vMeth**)&PADqueryMtap,	(vMeth*)PAD_queryMtap },
-	{ NULL },
-};
-
-static const LegacyApi_OptMethod s_MethMessOpt_PAD[] =
-{
-	{	"PADupdate",		(vMeth**)&PADupdate },
-	{   "PADWriteEvent",	(vMeth**)&PADWriteEvent },
-	{ NULL },
-};
-
-// ----------------------------------------------------------------------------
-//  DEV9 Mess!
-// ----------------------------------------------------------------------------
-static const LegacyApi_ReqMethod s_MethMessReq_DEV9[] =
-{
-	{	"DEV9open",			(vMeth**)&DEV9open,			NULL },
-	{	"DEV9read8",		(vMeth**)&DEV9read8,		NULL },
-	{	"DEV9read16",		(vMeth**)&DEV9read16,		NULL },
-	{	"DEV9read32",		(vMeth**)&DEV9read32,		NULL },
-	{	"DEV9write8",		(vMeth**)&DEV9write8,		NULL },
-	{	"DEV9write16",		(vMeth**)&DEV9write16,		NULL },
-	{	"DEV9write32",		(vMeth**)&DEV9write32,		NULL },
-	{	"DEV9readDMA8Mem",	(vMeth**)&DEV9readDMA8Mem,	NULL },
-	{	"DEV9writeDMA8Mem",	(vMeth**)&DEV9writeDMA8Mem,	NULL },
-	{	"DEV9irqCallback",	(vMeth**)&DEV9irqCallback,	NULL },
-	{	"DEV9irqHandler",	(vMeth**)&DEV9irqHandler,	NULL },
-
-	{ NULL }
-};
-
-static const LegacyApi_OptMethod s_MethMessOpt_DEV9[] =
-{
-	{ "DEV9async", (vMeth**)&DEV9async },
-	{ NULL }
-};
-
-// ----------------------------------------------------------------------------
-//  USB Mess!
-// ----------------------------------------------------------------------------
-static const LegacyApi_ReqMethod s_MethMessReq_USB[] =
-{
-	{	"USBopen",			(vMeth**)&USBopen,			NULL },
-	{	"USBread8",			(vMeth**)&USBread8,			NULL },
-	{	"USBread16",		(vMeth**)&USBread16,		NULL },
-	{	"USBread32",		(vMeth**)&USBread32,		NULL },
-	{	"USBwrite8",		(vMeth**)&USBwrite8,		NULL },
-	{	"USBwrite16",		(vMeth**)&USBwrite16,		NULL },
-	{	"USBwrite32",		(vMeth**)&USBwrite32,		NULL },
-	{	"USBirqCallback",	(vMeth**)&USBirqCallback,	NULL },
-	{	"USBirqHandler",	(vMeth**)&USBirqHandler,	NULL },
-	{ NULL }
-};
-
-static const LegacyApi_OptMethod s_MethMessOpt_USB[] =
-{
-	{	"USBasync",		(vMeth**)&USBasync },
-	{	"USBsetRAM",	(vMeth**)&USBsetRAM },
-	{ NULL }
-};
-
-static const LegacyApi_ReqMethod* const s_MethMessReq[] =
-{
-	s_MethMessReq_GS,
-	s_MethMessReq_PAD,
-	s_MethMessReq_USB,
-	s_MethMessReq_DEV9
-};
-
-SysCorePlugins *g_plugins = NULL;
 
 // ---------------------------------------------------------------------------------
 //       Plugin-related Exception Implementations
@@ -553,9 +311,6 @@ static void PS2E_CALLBACK pcsx2_OSD_WriteLn( int icon, const char* msg )
 // ---------------------------------------------------------------------------------
 // DynamicStaticLibrary
 // ---------------------------------------------------------------------------------
-std::string s_strIniPath = "inis";
-std::string s_strLogPath = "logs";
-
 StaticLibrary::StaticLibrary(PluginsEnum_t _pid) : pid(_pid)
 {
 }

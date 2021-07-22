@@ -220,19 +220,9 @@ void Gif_AddGSPacketMTVU(GS_Packet& gsPack, GIF_PATH path)
 void Gif_AddCompletedGSPacket(GS_Packet& gsPack, GIF_PATH path)
 {
 	//log_cb(RETRO_LOG_DEBUG, "Adding Completed Gif Packet [size=%x]\n", gsPack.size);
-	if (COPY_GS_PACKET_TO_MTGS)
-	{
-		GetMTGS().PrepDataPacket(path, gsPack.size / 16);
-		MemCopy_WrappedDest((u128*)&gifUnit.gifPath[path].buffer[gsPack.offset], RingBuffer.m_Ring,
-			GetMTGS().m_packet_writepos, RingBufferSize, gsPack.size / 16);
-		GetMTGS().SendDataPacket();
-	}
-	else 
-	{
-		pxAssertDev(!gsPack.readAmount, "Gif Unit - gsPack.readAmount only valid for MTVU path 1!");
-		gifUnit.gifPath[path].readAmount.fetch_add(gsPack.size);
-		GetMTGS().SendSimpleGSPacket(GS_RINGTYPE_GSPACKET, gsPack.offset, gsPack.size, path);
-	}
+	//pxAssertDev(!gsPack.readAmount, "Gif Unit - gsPack.readAmount only valid for MTVU path 1!");
+	gifUnit.gifPath[path].readAmount.fetch_add(gsPack.size);
+	GetMTGS().SendSimpleGSPacket(GS_RINGTYPE_GSPACKET, gsPack.offset, gsPack.size, path);
 }
 
 void Gif_AddBlankGSPacket(u32 size, GIF_PATH path) 

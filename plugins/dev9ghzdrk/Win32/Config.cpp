@@ -23,32 +23,3 @@ BOOL WritePrivateProfileInt(LPCSTR lpAppName, LPCSTR lpKeyName, int intvar, LPCS
 {
 	return WritePrivateProfileString(lpAppName, lpKeyName, std::to_string(intvar).c_str(), lpFileName);
 }
-bool FileExists(std::string szPath)
-{
-	DWORD dwAttrib = GetFileAttributes(szPath.c_str());
-	return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
-		!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
-}
-
-void SaveConf() {
-	const std::string file(s_strIniPath + "dev9ghz.ini");
-	DeleteFile(file.c_str());
-
-	WritePrivateProfileString("DEV9", "Eth", config.Eth, file.c_str());
-	WritePrivateProfileString("DEV9", "Hdd", config.Hdd, file.c_str());
-	WritePrivateProfileInt("DEV9", "HddSize", config.HddSize, file.c_str());
-	WritePrivateProfileInt("DEV9", "ethEnable", config.ethEnable, file.c_str());
-	WritePrivateProfileInt("DEV9", "hddEnable", config.hddEnable, file.c_str());
-}
-
-void LoadConf() {
-	const std::string file(s_strIniPath + "dev9ghz.ini");
-	if (FileExists(file.c_str()) == false)
-		return;
-
-	GetPrivateProfileString("DEV9", "Eth", ETH_DEF, config.Eth, sizeof(config.Eth), file.c_str());
-	GetPrivateProfileString("DEV9", "Hdd", HDD_DEF, config.Hdd, sizeof(config.Hdd), file.c_str());
-	config.HddSize = GetPrivateProfileInt("DEV9", "HddSize", config.HddSize, file.c_str());
-	config.ethEnable = GetPrivateProfileInt("DEV9", "ethEnable", config.ethEnable, file.c_str());
-	config.hddEnable = GetPrivateProfileInt("DEV9", "hddEnable", config.hddEnable, file.c_str());
-}

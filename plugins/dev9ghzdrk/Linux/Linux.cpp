@@ -15,10 +15,6 @@
 
 #include <stdio.h>
 
-#ifndef __LIBRETRO__
-#include <gtk/gtk.h>
-#endif
-
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
@@ -34,8 +30,6 @@
 void OnInitDialog() {
     static int initialized = 0;
 
-    LoadConf();
-
     if( initialized )
         return;
 
@@ -43,17 +37,10 @@ void OnInitDialog() {
 }
 
 void OnOk() {
-
-    SaveConf();
-
 }
 
 EXPORT_C_(void)
 DEV9configure() {
-
-  LoadConf();
-  SaveConf();
-
 }
 
 NetAdapter* GetNetAdapter()

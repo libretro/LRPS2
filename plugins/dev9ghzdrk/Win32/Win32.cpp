@@ -33,8 +33,6 @@ void OnInitDialog(HWND hW) {
 	char *dev;
 	//int i;
 
-	LoadConf();
-
 	ComboBox_AddString(GetDlgItem(hW, IDC_BAYTYPE), "Expansion");
 	ComboBox_AddString(GetDlgItem(hW, IDC_BAYTYPE), "PC Card");
 	for (int i=0; i<pcap_io_get_dev_num(); i++) {
@@ -89,8 +87,6 @@ void OnOk(HWND hW) {
 
 	config.ethEnable = Button_GetCheck(GetDlgItem(hW, IDC_ETHENABLED));
 	config.hddEnable = Button_GetCheck(GetDlgItem(hW, IDC_HDDENABLED));
-
-	SaveConf();
 
 	EndDialog(hW, TRUE);
 }

@@ -37,7 +37,6 @@ HWND gsWindowHandle=NULL;
 
 u8 *ram;
 USBcallback _USBirq;
-FILE *usbLog;
 int64_t usb_frame_time=0;
 int64_t usb_bit_time=0;
 
@@ -47,16 +46,6 @@ s64 remaining=0;
 int64_t get_ticks_per_sec()
 {
 	return PSXCLK;
-}
-
-void __Log(char *fmt, ...) {
-	va_list list;
-
-	if (!conf.Log) return;
-
-	va_start(list, fmt);
-	vfprintf(usbLog, fmt, list);
-	va_end(list);
 }
 
 static void InitLibraryName()
@@ -131,15 +120,6 @@ void USBirq(int cycles)
 }
 
 s32 CALLBACK USBinit() {
-    LoadConfig();
-	if (conf.Log)
-	{
-		usbLog = fopen("logs/usbLog.txt", "w");
-		setvbuf(usbLog, NULL,  _IONBF, 0);
-		USB_LOG("USBqemu plugin version %d,%d\n",revision,build);
-		USB_LOG("USBinit\n");
-	}
-
 	qemu_ohci = ohci_create(0x1f801600,2);
 	qemu_ohci->rhport[0].port.dev = usb_keyboard_init();
 	qemu_ohci->rhport[0].port.ops->attach(&(qemu_ohci->rhport[0].port));
@@ -159,10 +139,6 @@ void CALLBACK USBshutdown() {
 
 	free(qemu_ohci);
 
-#ifdef _DEBUG
-	if(usbLog)
-		fclose(usbLog);
-#endif
 }
 
 s32 CALLBACK USBopen(void *pDsp) {

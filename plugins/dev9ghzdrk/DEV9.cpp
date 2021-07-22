@@ -222,10 +222,6 @@ EXPORT_C_(s32)
 DEV9open(void *pDsp)
 {
 	DEV9_LOG("DEV9open\n");
-	LoadConf();
-#ifdef __LIBRETRO__
-  SaveConf();
-#endif
 	DEV9_LOG("open r+: %s\n", config.Hdd);
 	config.HddSize = 8*1024;
 	

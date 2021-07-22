@@ -42,7 +42,7 @@
 #define USB_LOG __Log
 
 typedef struct {
-  bool Log;
+	void *empty;
 } Config;
 
 extern Config conf;
@@ -50,12 +50,6 @@ extern Config conf;
 #define PSXCLK	36864000	/* 36.864 Mhz */
 
 void USBirq(int);
-
-void SaveConfig();
-void LoadConfig();
-
-extern FILE *usbLog;
-void __Log(char *fmt, ...);
 
 extern HWND gsWindowHandle;
 
