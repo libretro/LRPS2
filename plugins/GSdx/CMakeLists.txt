@@ -234,10 +234,6 @@ if(MSVC)
    add_definitions(/wd4456 /wd4458 /wd4996 /wd4995 /wd4324 /wd4100 /wd4101 /wd4201 /wd4556 /wd4127 /wd4512)
 endif()
 
-if(NOT GTKn_FOUND)
-   include_directories(${FREETYPE_INCLUDE_DIR_ft2build} ${FREETYPE_INCLUDE_DIR_freetype2} ${GLIB_INCLUDE_DIRS})
-endif()
-
 if(BUILTIN_GS)
     add_pcsx2_lib(${Output} "${GSdxFinalSources}" "${GSdxFinalLibs}" "${GSdxFinalFlags}")
 else()
