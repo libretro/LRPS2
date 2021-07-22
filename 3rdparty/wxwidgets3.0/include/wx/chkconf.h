@@ -79,10 +79,6 @@
 #       define wxUSE_LONGLONG 0
 #endif /* !defined(wxUSE_LONGLONG) */
 
-#ifndef wxUSE_ON_FATAL_EXCEPTION
-#       define wxUSE_ON_FATAL_EXCEPTION 0
-#endif /* !defined(wxUSE_ON_FATAL_EXCEPTION) */
-
 #ifndef wxUSE_PRINTF_POS_PARAMS
 #       define wxUSE_PRINTF_POS_PARAMS 0
 #endif /* !defined(wxUSE_PRINTF_POS_PARAMS) */

@@ -30,10 +30,6 @@
     #define wxUSE_LIBTIFF 0
 #endif
 
-// eVC doesn't support SEH
-#undef wxUSE_ON_FATAL_EXCEPTION
-#define wxUSE_ON_FATAL_EXCEPTION 0
-
 // Standard SDK lacks a few things, forcefully disable them
 #ifdef WCE_PLATFORM_STANDARDSDK
     // no shell functions support

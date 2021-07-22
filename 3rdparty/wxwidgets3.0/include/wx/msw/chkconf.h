@@ -64,16 +64,6 @@
 #   endif
 #endif
 
-/*
- * All of the settings below require SEH support (__try/__catch) and can't work
- * without it.
- */
-#if !defined(_MSC_VER) && \
-    (!defined(__BORLANDC__) || __BORLANDC__ < 0x0550)
-#    undef wxUSE_ON_FATAL_EXCEPTION
-#    define wxUSE_ON_FATAL_EXCEPTION 0
-#endif /* compiler doesn't support SEH */
-
 #if defined(__GNUWIN32__)
     /* These don't work as expected for mingw32 and cygwin32 */
 /* some Cygwin versions don't have wcslen */

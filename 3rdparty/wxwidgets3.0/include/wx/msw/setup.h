@@ -60,19 +60,6 @@
 //  #define wxDEBUG_LEVEL 2
 // #endif
 
-// wxHandleFatalExceptions() may be used to catch the program faults at run
-// time and, instead of terminating the program with a usual GPF message box,
-// call the user-defined wxApp::OnFatalException() function. If you set
-// wxUSE_ON_FATAL_EXCEPTION to 0, wxHandleFatalExceptions() will not work.
-//
-// This setting is for Win32 only and can only be enabled if your compiler
-// supports Win32 structured exception handling (currently only VC++ does)
-//
-// Default is 1
-//
-// Recommended setting: 1 if your compiler supports it.
-#define wxUSE_ON_FATAL_EXCEPTION 1
-
 // Generic comment about debugging settings: they are very useful if you don't
 // use any other memory leak detection tools such as Purify/BoundsChecker, but
 // are probably redundant otherwise. Also, Visual C++ CRT has the same features

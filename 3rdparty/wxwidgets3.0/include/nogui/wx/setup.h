@@ -23,9 +23,6 @@
 
 #define wxDIALOG_UNIT_COMPATIBILITY   0
 
-
-#define wxUSE_ON_FATAL_EXCEPTION 1
-
 #ifndef wxUSE_UNICODE
     #define wxUSE_UNICODE 1
 #endif
