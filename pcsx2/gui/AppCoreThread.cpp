@@ -397,10 +397,6 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 
 	wxString gameCRC;
 	wxString gameSerial;
-	wxString gamePatch;
-	wxString gameFixes;
-	wxString gameCheats;
-	wxString gameWsHacks;
 
 	wxString gameName;
 	wxString gameCompat;
@@ -444,11 +440,10 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 			{
 				if (int patches = LoadPatchesFromGamesDB(gameCRC, game))
 				{
-					gamePatch.Printf(L" [%d Patches]", patches);
 					log_cb(RETRO_LOG_INFO, "(GameDB) Patches Loaded: %d\n", patches);
 				}
 				if (int fixes = loadGameSettings(fixup, game))
-					gameFixes.Printf(L" [%d Fixes]", fixes);
+					log_cb(RETRO_LOG_INFO, "(GameDB) Fixes Loaded: %d\n", fixes);
 			}
 		}
 	}
@@ -475,7 +470,9 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 	}
 
 	// regular cheat patches
-	if (fixup.EnableCheats) {
+	if (fixup.EnableCheats)
+	{
+		log_cb(RETRO_LOG_INFO, "Attempt to apply cheats if available...\n");
 		int numcheatsfound = 0;
 		if (numcheatsfound = LoadPatchesFromDir(gameCRC, GetCheatsFolder(), L"Cheats")) {
 			if (!msg_cheats_found_sent)
@@ -485,16 +482,16 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 				msg_cheats_found_sent = true;
 			}
 		}
-		gameCheats.Printf(L" [%d Cheats]", numcheatsfound);
+		log_cb(RETRO_LOG_INFO, "(GameDB) Cheats Loaded: %d\n", numcheatsfound);
 	}
 
 
 	// wide screen patches
 	if (fixup.EnableWideScreenPatches)
 	{
+		log_cb(RETRO_LOG_INFO, "Attempt to apply widescreen patches if available...\n");
 		if (int numberLoadedWideScreenPatches = LoadPatchesFromDir(gameCRC, GetCheatsWsFolder(), L"Widescreen hacks"))
 		{
-			gameWsHacks.Printf(L" [%d widescreen hacks]", numberLoadedWideScreenPatches);
 			log_cb(RETRO_LOG_INFO, "Found widescreen patches in the cheats_ws folder --> skipping cheats_ws.zip\n");
 			if (!msg_cheat_ws_found_sent) 
 			{
@@ -508,7 +505,6 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 			// No ws cheat files found at the cheats_ws folder, try the ws cheats zip file.
 			int numberDbfCheatsLoaded = LoadWidescreenPatchesFromDatabase(gameCRC.ToStdString());
 			log_cb(RETRO_LOG_INFO, "(Wide Screen Cheats DB) Patches Loaded: %d\n", numberDbfCheatsLoaded);
-			gameWsHacks.Printf(L" [%d widescreen hacks]", numberDbfCheatsLoaded);
 
 			if (numberDbfCheatsLoaded) {
 				if (!msg_cheat_ws_found_sent)

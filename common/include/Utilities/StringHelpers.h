@@ -21,12 +21,7 @@
 
 #include <wx/tokenzr.h>
 
-#if _WIN32
-#define WX_STR(str) (str.wc_str())
-#else
-// Stupid wx3.0 doesn't support c_str for vararg function
 #define WX_STR(str) (static_cast<const char *>(str.c_str()))
-#endif
 
 // --------------------------------------------------------------------------------------
 //  pxToUTF8
