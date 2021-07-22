@@ -307,7 +307,6 @@ class SysCoreThread : public SysThreadBase
 
 protected:
 	bool			m_resetRecompilers;
-	bool			m_resetProfilers;
 	bool			m_resetVsyncTimers;
 	bool			m_resetVirtualMachine;
 

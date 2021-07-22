@@ -108,32 +108,6 @@ ImplementEnumOperators( SpeedhackId );
 //
 struct Pcsx2Config
 {
-	struct ProfilerOptions
-	{
-		BITFIELD32()
-			bool
-				Enabled:1,			// universal toggle for the profiler.
-				RecBlocks_EE:1,		// Enables per-block profiling for the EE recompiler [unimplemented]
-				RecBlocks_IOP:1,	// Enables per-block profiling for the IOP recompiler [unimplemented]
-				RecBlocks_VU0:1,	// Enables per-block profiling for the VU0 recompiler [unimplemented]
-				RecBlocks_VU1:1;	// Enables per-block profiling for the VU1 recompiler [unimplemented]
-		BITFIELD_END
-
-		// Default is Disabled, with all recs enabled underneath.
-		ProfilerOptions() : bitset( 0xfffffffe ) {}
-		void LoadSave( IniInterface& conf );
-
-		bool operator ==( const ProfilerOptions& right ) const
-		{
-			return OpEqu( bitset );
-		}
-
-		bool operator !=( const ProfilerOptions& right ) const
-		{
-			return !OpEqu( bitset );
-		}
-	};
-
 	// ------------------------------------------------------------------------
 	struct RecompilerOptions
 	{
@@ -365,7 +339,6 @@ struct Pcsx2Config
 	GSOptions			GS;
 	SpeedhackOptions	Speedhacks;
 	GamefixOptions		Gamefixes;
-	ProfilerOptions		Profiler;
 
 	wxFileName			BiosFilename;
 
@@ -387,7 +360,6 @@ struct Pcsx2Config
 			OpEqu( GS )			&&
 			OpEqu( Speedhacks )	&&
 			OpEqu( Gamefixes )	&&
-			OpEqu( Profiler )	&&
 			OpEqu( BiosFilename );
 	}
 

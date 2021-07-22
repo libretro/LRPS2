@@ -51,7 +51,6 @@ SysCoreThread::SysCoreThread()
 {
 	m_name = L"EE Core";
 	m_resetRecompilers = true;
-	m_resetProfilers = true;
 	m_resetVsyncTimers = true;
 	m_resetVirtualMachine = true;
 
@@ -161,7 +160,6 @@ void SysCoreThread::ApplySettings(const Pcsx2Config& src)
 		return;
 
 	m_resetRecompilers = (src.Cpu != EmuConfig.Cpu) || (src.Gamefixes != EmuConfig.Gamefixes) || (src.Speedhacks != EmuConfig.Speedhacks);
-	m_resetProfilers = (src.Profiler != EmuConfig.Profiler);
 	m_resetVsyncTimers = (src.GS != EmuConfig.GS);
 
 	const_cast<Pcsx2Config&>(EmuConfig) = src;
@@ -194,14 +192,13 @@ void SysCoreThread::_reset_stuff_as_needed()
 
 	GetVmMemory().CommitAll();
 
-	if (m_resetVirtualMachine || m_resetRecompilers || m_resetProfilers)
+	if (m_resetVirtualMachine || m_resetRecompilers)
 	{
 		SysClearExecutionCache();
 		memBindConditionalHandlers();
 		SetCPUState(EmuConfig.Cpu.sseMXCSR, EmuConfig.Cpu.sseVUMXCSR);
 
 		m_resetRecompilers = false;
-		m_resetProfilers = false;
 	}
 
 	if (m_resetVirtualMachine)

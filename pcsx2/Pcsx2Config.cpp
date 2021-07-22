@@ -79,17 +79,6 @@ void Pcsx2Config::SpeedhackOptions::LoadSave( IniInterface& ini )
 	IniBitBool(vu1Instant);
 }
 
-void Pcsx2Config::ProfilerOptions::LoadSave( IniInterface& ini )
-{
-	ScopedIniGroup path( ini, L"Profiler" );
-
-	IniBitBool( Enabled );
-	IniBitBool( RecBlocks_EE );
-	IniBitBool( RecBlocks_IOP );
-	IniBitBool( RecBlocks_VU0 );
-	IniBitBool( RecBlocks_VU1 );
-}
-
 Pcsx2Config::RecompilerOptions::RecompilerOptions()
 {
 	bitset		= 0;
@@ -445,7 +434,6 @@ void Pcsx2Config::LoadSave( IniInterface& ini )
 	Cpu				.LoadSave( ini );
 	GS				.LoadSave( ini );
 	Gamefixes		.LoadSave( ini );
-	Profiler		.LoadSave( ini );
 
 	ini.Flush();
 }
