@@ -64,14 +64,6 @@ endif()
 #		    Use system include
 #----------------------------------------
 if(UNIX)
-	if(GTK2_FOUND)
-		include_directories(${GTK2_INCLUDE_DIRS})
-    elseif(GTK3_FOUND)
-		include_directories(${GTK3_INCLUDE_DIRS})
-        # A lazy solution
-        set(GTK2_LIBRARIES ${GTK3_LIBRARIES})
-	endif()
-
 	if(X11_FOUND)
 		include_directories(${X11_INCLUDE_DIR})
 	endif()
@@ -113,11 +105,6 @@ else()
    add_subdirectory(${CMAKE_SOURCE_DIR}/3rdparty/zlib)
    include_directories(${CMAKE_SOURCE_DIR}/3rdparty)
    include_directories(${CMAKE_SOURCE_DIR}/3rdparty/zlib)
-endif()
-
-if (NOT FREETYPE_FOUND)
-   set(FREETYPE_FOUND 1)
-   set(FREETYPE_LIBRARIES)
 endif()
 
 if(NOT LIBLZMA_FOUND)

@@ -111,7 +111,7 @@ set(dev9ghzdrkFinalSources
 )
 
 set(dev9ghzdrkFinalLibs
-    ${GTK2_LIBRARIES} ${PCAP_LIBRARY} ${LIBXML2_LIBRARIES}
+    ${PCAP_LIBRARY} ${LIBXML2_LIBRARIES}
 )
 
 if(BUILTIN_DEV9)

@@ -39,11 +39,6 @@ include_directories(
     ${CMAKE_BINARY_DIR}/plugins/onepad/
 )
 
-if(NOT GTKn_FOUND)
-   include_directories(${GLIB_INCLUDE_DIRS})
-endif()
-
-
 if(BUILTIN_PAD)
     add_pcsx2_lib(${Output} "${onepadFinalSources}" "${onepadFinalLibs}" "${onepadFinalFlags}")
 else()

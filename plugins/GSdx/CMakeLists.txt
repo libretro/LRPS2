@@ -235,7 +235,7 @@ if(MSVC)
 endif()
 
 if(NOT GTKn_FOUND)
-   include_directories(${FREETYPE_INCLUDE_DIR_ft2build} ${FREETYPE_INCLUDE_DIR_freetype2} ${GLIB_INCLUDE_DIRS})
+   include_directories(${GLIB_INCLUDE_DIRS})
 endif()
 
 if(BUILTIN_GS)
