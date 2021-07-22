@@ -1031,7 +1031,7 @@ static void __fastcall RegWrite_VoiceAddr(u16 value)
 	switch (address)
 	{
 		case 0: // SSA (Waveform Start Addr) (hiword, 4 bits only)
-			thisvoice.StartA = ((value & 0x0F) << 16) | (thisvoice.StartA & 0xFFF8);
+			thisvoice.StartA = ((u32)(value & 0x0F) << 16) | (thisvoice.StartA & 0xFFF8);
 			break;
 
 		case 1: // SSA (loword)
@@ -1039,7 +1039,7 @@ static void __fastcall RegWrite_VoiceAddr(u16 value)
 			break;
 
 		case 2:
-			thisvoice.LoopStartA = ((value & 0x0F) << 16) | (thisvoice.LoopStartA & 0xFFF8);
+			thisvoice.LoopStartA = ((u32)(value & 0x0F) << 16) | (thisvoice.LoopStartA & 0xFFF8);
 			thisvoice.LoopMode = 1;
 			break;
 
@@ -1058,7 +1058,7 @@ static void __fastcall RegWrite_VoiceAddr(u16 value)
 			// without it some sound effects get cut off so we need the two NextA cases enabled.
 
 		case 4:
-			thisvoice.NextA = ((value & 0x0F) << 16) | (thisvoice.NextA & 0xFFF8) | 1;
+			thisvoice.NextA = ((u32)(value & 0x0F) << 16) | (thisvoice.NextA & 0xFFF8) | 1;
 			thisvoice.SCurrent = 28;
 			break;
 
@@ -1143,6 +1143,11 @@ static void __fastcall RegWrite_Core(u16 value)
 
 				if (!thiscore.IRQEnable)
 					Spdif.Info &= ~(4 << thiscore.Index);
+#if 0
+				else
+					if ((thiscore.IRQA & 0xFFF00000) != 0)
+						log_cb(RETRO_LOG_WARN, "SPU2: Core %d IRQA Outside of SPU2 memory, Addr %x\n", thiscore.Index, thiscore.IRQA);
+#endif
 			}
 		}
 		break;
@@ -1284,7 +1289,7 @@ static void __fastcall RegWrite_Core(u16 value)
 		//    change the end address anyway.
 		//
 		case REG_A_ESA:
-			SetHiWord(thiscore.ExtEffectsStartA, value);
+			SetHiWord(thiscore.ExtEffectsStartA, value & 0xF);
 			if (!thiscore.FxEnable)
 			{
 				thiscore.EffectsStartA = thiscore.ExtEffectsStartA;
@@ -1304,7 +1309,7 @@ static void __fastcall RegWrite_Core(u16 value)
 			break;
 
 		case REG_A_EEA:
-			thiscore.ExtEffectsEndA = ((u32)value << 16) | 0xFFFF;
+			thiscore.ExtEffectsEndA = ((u32)(value & 0xF) << 16) | 0xFFFF;
 			if (!thiscore.FxEnable)
 			{
 				thiscore.EffectsEndA = thiscore.ExtEffectsEndA;
