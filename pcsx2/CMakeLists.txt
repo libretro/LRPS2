@@ -670,7 +670,7 @@ if(MSVC)
    add_definitions(-D_M_X86 -D__i386__ -DTIXML_USE_STL -D_SCL_SECURE_NO_WARNINGS)
    add_definitions(-D_ARCH_64=1 -D_M_X86_64 -D__M_X86_64) #64-bit
 #   add_definitions(-D_ARCH_32=1 -D_M_X86_32) #32-bit
-   set(pcsx2FinalLibs ${pcsx2FinalLibs} baseclasses)
+   set(pcsx2FinalLibs ${pcsx2FinalLibs})
    set(pcsx2FinalLibs ${pcsx2FinalLibs} comctl32 ws2_32 shlwapi winmm rpcrt4)
 endif()
 

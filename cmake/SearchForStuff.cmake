@@ -119,8 +119,6 @@ if(MSVC)
 #   add_definitions(-D__CLEANUP_SEH)
    add_subdirectory(${CMAKE_SOURCE_DIR}/3rdparty/pthreads4w)
    include_directories(${CMAKE_SOURCE_DIR}/3rdparty/pthreads4w/include)
-   add_subdirectory(${CMAKE_SOURCE_DIR}/3rdparty/baseclasses)
-#   include_directories(${CMAKE_SOURCE_DIR}/3rdparty/baseclasses)
 endif()
 
 #----------------------------------------
