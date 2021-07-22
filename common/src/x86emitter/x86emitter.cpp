@@ -568,11 +568,13 @@ __emitinline u8 *xGetAlignedCallTarget()
 
 __emitinline void xAdvancePtr(uint bytes)
 {
+#ifndef NDEBUG
     if (IsDevBuild) {
         // common debugger courtesy: advance with INT3 as filler.
         for (uint i = 0; i < bytes; i++)
             xWrite8(0xcc);
     } else
+#endif
         x86Ptr += bytes;
 }
 

@@ -400,8 +400,13 @@ static DynGenFunc* _DynGen_EnterRecompiledCode()
 
 	u8* retval = xGetAlignedCallTarget();
 
-	{ // Properly scope the frame prologue/epilogue
+	{
+		// Properly scope the frame prologue/epilogue
+#ifdef NDEBUG
+		xScopedStackFrame frame(false);
+#else
 		xScopedStackFrame frame(IsDevBuild);
+#endif
 
 		xJMP((void*)DispatcherReg);
 
@@ -1309,10 +1314,12 @@ void recompileNextInstruction(int delayslot)
 	pxAssert(s_pCode);
 
 	// acts as a tag for delimiting recompiled instructions when viewing x86 disasm.
+#ifndef NDEBUG
 	if( IsDevBuild )
 		xNOP();
 	if( IsDebugBuild )
 		xMOV(eax, pc);
+#endif
 
 	cpuRegs.code = *(int *)s_pCode;
 

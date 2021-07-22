@@ -60,24 +60,29 @@ void RecompiledCodeReserve::Reset()
 	Commit();
 }
 
+#ifdef __LIBRETRO__
+bool RecompiledCodeReserve::Commit()
+{ 
+   return _parent::Commit();
+}
+#else
 bool RecompiledCodeReserve::Commit()
 {
-#ifdef __LIBRETRO__
-   return _parent::Commit();
-#else
    bool status = _parent::Commit();
-	if (IsDevBuild && m_baseptr)
-	{
-		// Clear the recompiled code block to 0xcc (INT3) -- this helps disasm tools show
-		// the assembly dump more cleanly.  We don't clear the block on Release builds since
-		// it can add a noticeable amount of overhead to large block recompilations.
+   if (IsDevBuild && m_baseptr)
+   {
+	   // Clear the recompiled code block to 0xcc (INT3) -- 
+	   // this helps disasm tools show
+	   // the assembly dump more cleanly.  
+           // We don't clear the block on Release builds since
+	   // it can add a noticeable amount of overhead to large 
+           // block recompilations.
+	   memset(m_baseptr, 0xCC, m_pages_commited * __pagesize);
+   }
 
-		memset(m_baseptr, 0xCC, m_pages_commited * __pagesize);
-	}
-
-	return status;
-#endif
+   return status;
 }
+#endif
 
 // This error message is shared by R5900, R3000, and microVU recompilers.
 void RecompiledCodeReserve::ThrowIfNotOk() const

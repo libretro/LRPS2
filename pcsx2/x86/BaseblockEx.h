@@ -202,6 +202,7 @@ public:
 			for (linkiter_t i = range.first; i != range.second; ++i)
 				*(u32*)i->second = recompiler - (i->second + 4);
 
+#ifndef NDEBUG
 			if( IsDevBuild )
 			{
 				// Clear the first instruction to 0xcc (breakpoint), as a way to assert if some
@@ -212,6 +213,7 @@ public:
 				BASEBLOCKEX effu( blocks[idx] );
 				memset( (void*)effu.fnptr, 0xcc, 1 );
 			}
+#endif
 		}
 		while(idx++ < last);
 
