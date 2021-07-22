@@ -20,7 +20,6 @@
 #include "GameIndex.h"
 
 #include <wx/stdpaths.h>
-#include "fmt/core.h"
 
 AppGameDatabase& AppGameDatabase::Load()
 {
