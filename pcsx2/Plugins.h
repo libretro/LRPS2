@@ -197,8 +197,6 @@ struct LegacyPluginAPI_Common
 	void (CALLBACK* Close)();
 	void (CALLBACK* Shutdown)();
 
-	void (CALLBACK* KeyEvent)( keyEvent* evt );
-
 	FnType_SetDir* SetSettingsDir;
 	FnType_SetDir* SetLogDir;
 
@@ -262,7 +260,6 @@ class DynamicStaticLibrary
 
 	virtual bool Load(const wxString& name) = 0;
 	virtual void* GetSymbol(const wxString &name) = 0;
-	virtual bool HasSymbol(const wxString &name) = 0;
 };
 
 class StaticLibrary : public DynamicStaticLibrary
@@ -276,7 +273,6 @@ class StaticLibrary : public DynamicStaticLibrary
 
 	bool Load(const wxString& name);
 	void* GetSymbol(const wxString &name);
-	bool HasSymbol(const wxString &name);
 };
 
 class SysCorePlugins
@@ -291,7 +287,6 @@ protected:
 
 		bool		IsInitialized;
 		bool		IsOpened;
-		bool		IsStatic;
 
 		wxString	Filename;
 		wxString	Name;
@@ -304,8 +299,7 @@ protected:
 		PluginStatus_t()
 		{
 			IsInitialized	= false;
-			IsOpened		= false;
-			IsStatic        = false;
+			IsOpened	= false;
 			Lib             = NULL;
 		}
 
@@ -314,13 +308,11 @@ protected:
 
 	protected:
 		void BindCommon( PluginsEnum_t pid );
-		void BindRequired( PluginsEnum_t pid );
-		void BindOptional( PluginsEnum_t pid );
 	};
 
 	const PS2E_LibraryAPI*		m_mcdPlugin;
-	wxString					m_SettingsFolder;
-	wxString					m_LogFolder;
+	wxString			m_SettingsFolder;
+	wxString			m_LogFolder;
 	Threading::MutexRecursive	m_mtx_PluginStatus;
 
 	// Lovely hack until the new PS2E API is completed.
@@ -365,7 +357,6 @@ public:
 	virtual void Freeze( PluginsEnum_t pid, SaveStateBase& state );
 	virtual bool DoFreeze( PluginsEnum_t pid, int mode, freezeData* data );
 
-	virtual bool KeyEvent( const keyEvent& evt );
 	virtual void Configure( PluginsEnum_t pid );
 	virtual void SetSettingsFolder( const wxString& folder );
 	virtual void SetLogFolder( const wxString& folder );

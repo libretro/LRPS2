@@ -624,10 +624,6 @@ EXPORT_C_(uint32) GSmakeSnapshot(char* path)
 	}
 }
 
-EXPORT_C GSkeyEvent(GSKeyEventData* e)
-{
-}
-
 EXPORT_C_(int) GSfreeze(int mode, GSFreezeData* data)
 {
 	try

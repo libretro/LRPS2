@@ -66,9 +66,6 @@ GSreadFIFO2(u64 *mem, int qwc);
 
 // Extended functions
 
-// GSkeyEvent gets called when there is a keyEvent from the PAD plugin
-EXPORT_C_(void)
-GSkeyEvent(keyEvent *ev);
 EXPORT_C_(void)
 GSchangeSaveState(s32 state, const char *filename);
 EXPORT_C_(void)

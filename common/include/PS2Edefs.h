@@ -55,10 +55,6 @@
 #define FREEZE_SAVE 1
 #define FREEZE_SIZE 2
 
-// event values:
-#define KEYPRESS 1
-#define KEYRELEASE 2
-
 typedef struct
 {
     int size;
@@ -173,8 +169,6 @@ void CALLBACK GSinitReadFIFO2(u64 *mem, int qwc);
 
 // extended funcs
 
-// GSkeyEvent gets called when there is a keyEvent from the PAD plugin
-void CALLBACK GSkeyEvent(keyEvent *ev);
 void CALLBACK GSchangeSaveState(int, const char *filename);
 void CALLBACK GSmakeSnapshot(char *path);
 void CALLBACK GSmakeSnapshot2(char *pathname, int *snapdone, int savejpg);

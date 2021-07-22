@@ -424,14 +424,6 @@ static const LegacyApi_ReqMethod* const s_MethMessReq[] =
 	s_MethMessReq_DEV9
 };
 
-static const LegacyApi_OptMethod* const s_MethMessOpt[] =
-{
-	s_MethMessOpt_GS,
-	s_MethMessOpt_PAD,
-	s_MethMessOpt_USB,
-	s_MethMessOpt_DEV9
-};
-
 SysCorePlugins *g_plugins = NULL;
 
 // ---------------------------------------------------------------------------------
@@ -581,7 +573,6 @@ void* StaticLibrary::GetSymbol(const wxString &name)
 	RETURN_SYMBOL(p##init) \
 	RETURN_SYMBOL(p##close) \
 	RETURN_SYMBOL(p##shutdown) \
-	RETURN_SYMBOL(p##keyEvent) \
 	RETURN_SYMBOL(p##setSettingsDir) \
 	RETURN_SYMBOL(p##setLogDir) \
 	RETURN_SYMBOL(p##freeze) \
@@ -603,11 +594,6 @@ void* StaticLibrary::GetSymbol(const wxString &name)
 #undef RETURN_SYMBOL
 
 	return NULL;
-}
-
-bool StaticLibrary::HasSymbol(const wxString &name)
-{
-	return false;
 }
 
 // ---------------------------------------------------------------------------------
@@ -637,65 +623,11 @@ SysCorePlugins::PluginStatus_t::PluginStatus_t( PluginsEnum_t _pid, const wxStri
 #endif
 		case PluginId_Count:
 		default:
-			IsStatic	= true;
 			Lib			= new StaticLibrary(_pid);
 			break;
 	}
 
-	if (IsStatic) {
-		BindCommon( pid );
-
-	} else {
-		if( Filename.IsEmpty() )
-			throw Exception::PluginInitError( pid ).SetDiagMsg( L"Empty plugin filename" );
-
-		if( !wxFile::Exists( Filename ) )
-			throw Exception::PluginLoadError( pid ).SetStreamName(srcfile)
-				.SetBothMsgs(L"The configured %s plugin file was not found");
-
-		if( !Lib->Load( Filename ) )
-			throw Exception::PluginLoadError( pid ).SetStreamName(Filename)
-				.SetBothMsgs(L"The configured %s plugin file is not a valid dynamic library");
-
-
-		// Try to enumerate the new v2.0 plugin interface first.
-		// If that fails, fall back on the old style interface.
-
-		//m_libs[i].GetSymbol( L"PS2E_InitAPI" );		// on the TODO list!
-
-
-		// 2.0 API Failed; Enumerate the Old Stuff! -->
-
-		_PS2EgetLibName		GetLibName		= (_PS2EgetLibName)		Lib->GetSymbol( L"PS2EgetLibName" );
-		_PS2EgetLibVersion2	GetLibVersion2	= (_PS2EgetLibVersion2)	Lib->GetSymbol( L"PS2EgetLibVersion2" );
-
-		if( GetLibName == NULL || GetLibVersion2 == NULL )
-			throw Exception::PluginLoadError( pid ).SetStreamName(Filename)
-				.SetDiagMsg(L"%s plugin init failed: Method binding failure on GetLibName or GetLibVersion2.")
-				.SetUserMsg(L"The configured %s plugin is not a PCSX2 plugin, or is for an older unsupported version of PCSX2.");
-
-		Name = fromUTF8( GetLibName() );
-		int version = GetLibVersion2( tbl_PluginInfo[pid].typemask );
-		Version.Printf( L"%d.%d.%d", (version>>8)&0xff, version&0xff, (version>>24)&0xff );
-
-		// Bind Required Functions
-		// (generate critical error if binding fails)
-
-		BindCommon( pid );
-		BindRequired( pid );
-		BindOptional( pid );
-	}
-
-
-	// Run Plugin's Functionality Test.
-	// A lot of plugins don't bother to implement this function and return 0 (success)
-	// regardless, but some do so let's go ahead and check it. I mean, we're supposed to. :)
-
-	int testres = CommonBindings.Test();
-	if( testres != 0 )
-		throw Exception::PluginLoadError( pid ).SetStreamName(Filename)
-			.SetDiagMsg(wxsFormat( L"Plugin Test failure, return code: %d", testres ))
-			.SetUserMsg(L"The plugin reports that your hardware or software/drivers are not supported.");
+	BindCommon( pid );
 }
 
 void SysCorePlugins::PluginStatus_t::BindCommon( PluginsEnum_t pid )
@@ -718,39 +650,6 @@ void SysCorePlugins::PluginStatus_t::BindCommon( PluginsEnum_t pid )
 		}
 
 		target++;
-		current++;
-	}
-}
-
-void SysCorePlugins::PluginStatus_t::BindRequired( PluginsEnum_t pid )
-{
-	const LegacyApi_ReqMethod* current = s_MethMessReq[pid];
-
-	while( current->MethodName != NULL )
-	{
-		*(current->Dest) = (VoidMethod*)Lib->GetSymbol( current->GetMethodName() );
-
-		if( *(current->Dest) == NULL )
-			*(current->Dest) = current->Fallback;
-
-		if( *(current->Dest) == NULL )
-		{
-			throw Exception::PluginLoadError( pid ).SetStreamName(Filename)
-				.SetDiagMsg(wxsFormat( L"\n%s plugin init error; Method binding failed: %s\n", WX_STR(current->GetMethodName()) ))
-				.SetUserMsg(L"Configured %s plugin is not a valid PCSX2 plugin, or is for an older unsupported version of PCSX2.");
-		}
-
-		current++;
-	}
-}
-
-void SysCorePlugins::PluginStatus_t::BindOptional( PluginsEnum_t pid )
-{
-	const LegacyApi_OptMethod* current = s_MethMessOpt[pid];
-
-	while( current->MethodName != NULL )
-	{
-		*(current->Dest) = (VoidMethod*)Lib->GetSymbol( current->GetMethodName() );
 		current++;
 	}
 }
@@ -1309,23 +1208,6 @@ void SysCorePlugins::FreezeIn( PluginsEnum_t pid, pxInputStream& infp )
 	infp.Read( fP.data, fP.size );
 	if (!DoFreeze(pid, FREEZE_LOAD, &fP))
 		throw Exception::ThawPluginFailure( pid );
-}
-
-bool SysCorePlugins::KeyEvent( const keyEvent& evt )
-{
-	ScopedLock lock( m_mtx_PluginStatus );
-
-	// [TODO] : The plan here is to give plugins "first chance" handling of keys.
-	// Handling order will be fixed (GS, SPU2, PAD, etc), and the first plugin to
-	// pick up the key and return "true" (for handled) will cause the loop to break.
-	// The current version of PS2E doesn't support it yet, though.
-
-	ForPlugins([&] (const PluginInfo * pi) {
-		if( pi->id != PluginId_PAD && m_info[pi->id] )
-			m_info[pi->id]->CommonBindings.KeyEvent( const_cast<keyEvent*>(&evt) );
-	});
-
-	return false;
 }
 
 void SysCorePlugins::SendSettingsFolder()
