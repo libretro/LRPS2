@@ -38,8 +38,8 @@ AppGameDatabase& AppGameDatabase::Load()
 
 	const u64 qpc_end = GetCPUTicks();
 
-	log_cb(RETRO_LOG_INFO, "%s\n", fmt::format("[GameDB] {} games on record (loaded in {}ms)", this->numGames(),
-		(u32)(((qpc_end - qpc_Start) * 1000) / GetTickFrequency())).c_str());
+	log_cb(RETRO_LOG_INFO, "%s\n", "[GameDB] {%d} games on record (loaded in {%d}ms)\n", this->numGames(),
+		(u32)(((qpc_end - qpc_Start) * 1000) / GetTickFrequency()));
 
 	return *this;
 }
