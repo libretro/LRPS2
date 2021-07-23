@@ -15,11 +15,6 @@
 
 #include "PrecompiledHeader.h"
 #include "Utilities/SafeArray.inl"
-#include <wx/file.h>
-#include <wx/dir.h>
-#include <wx/stopwatch.h>
-
-#include <chrono>
 
 // IMPORTANT!  If this gets a macro redefinition error it means PluginCallbacks.h is included
 // in a global-scope header, and that's a BAD THING.  Include it only into modules that need

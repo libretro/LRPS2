@@ -17,8 +17,6 @@
 #include "App.h"
 #include "Utilities/IniInterface.h"
 
-#include <wx/stdpaths.h>
-
 #ifdef __WXMSW__
 #include "wx/msw/regconf.h"
 #endif

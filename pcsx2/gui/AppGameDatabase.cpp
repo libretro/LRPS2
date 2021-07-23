@@ -19,8 +19,6 @@
 #include "AppGameDatabase.h"
 #include "GameIndex.h"
 
-#include <wx/stdpaths.h>
-
 AppGameDatabase& AppGameDatabase::Load()
 {
 	std::string game_index(reinterpret_cast<const char*>(&GameIndex_yaml), GameIndex_yaml_len);

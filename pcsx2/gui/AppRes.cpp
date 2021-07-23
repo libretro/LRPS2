@@ -17,7 +17,6 @@
 #include "App.h"
 #include "AppGameDatabase.h"
 
-#include <wx/wfstream.h>
 #include <memory>
 
 pxAppResources::pxAppResources()

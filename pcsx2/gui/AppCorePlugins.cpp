@@ -15,8 +15,6 @@
 
 #include "PrecompiledHeader.h"
 #include "App.h"
-#include <wx/dir.h>
-#include <wx/file.h>
 
 #include "Plugins.h"
 #include "GS.h"

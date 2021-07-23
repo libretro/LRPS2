@@ -15,7 +15,6 @@
 
 #include "PrecompiledHeader.h"
 #include "wx/wx.h"
-#include "Utilities/SafeArray.inl"
 
 #include "MemoryCardFile.h"
 #include "MemoryCardFolder.h"

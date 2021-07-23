@@ -19,9 +19,6 @@
 
 #include "Utilities/IniInterface.h"
 
-#include <wx/cmdline.h>
-#include <wx/intl.h>
-#include <wx/stdpaths.h>
 #include <memory>
 void Pcsx2App::DetectCpuAndUserMode()
 {

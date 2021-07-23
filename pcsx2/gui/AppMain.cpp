@@ -20,9 +20,6 @@
 #include "Plugins.h"
 #include "ps2/BiosTools.h"
 
-#include "Utilities/IniInterface.h"
-#include "Utilities/AppTrait.h"
-
 Pcsx2App& wxGetApp() {
    static Pcsx2App pcsx2;
    return pcsx2;
