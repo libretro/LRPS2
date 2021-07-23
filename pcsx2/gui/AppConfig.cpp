@@ -414,22 +414,6 @@ namespace FilenameDefs
 	}
 };
 
-wxString AppConfig::FullpathTo( PluginsEnum_t pluginidx ) const
-{
-	return Path::Combine( PluginsFolder, BaseFilenames[pluginidx] );
-}
-
-// returns true if the filenames are quite absolutely the equivalent.  Works for all
-// types of filenames, relative and absolute.  Very important that you use this function
-// rather than any other type of more direct string comparison!
-bool AppConfig::FullpathMatchTest( PluginsEnum_t pluginId, const wxString& cmpto ) const
-{
-	// Implementation note: wxFileName automatically normalizes things as needed in it's
-	// equality comparison implementations, so we can do a simple comparison as follows:
-
-	return wxFileName(cmpto).SameAs( FullpathTo(pluginId) );
-}
-
 static wxDirName GetResolvedFolder(FoldersEnum_t id)
 {
 	return g_Conf->Folders.IsDefault(id) ? PathDefs::Get(id) : g_Conf->Folders[id];

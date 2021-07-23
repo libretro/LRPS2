@@ -236,9 +236,6 @@ public:
 
 	wxString FullpathToBios() const;
 	wxString FullpathToMcd( uint slot ) const;
-	wxString FullpathTo( PluginsEnum_t pluginId ) const;
-
-	bool FullpathMatchTest( PluginsEnum_t pluginId, const wxString& cmpto ) const;
 
 	void LoadSave( IniInterface& ini );
 	void LoadSaveRootItems( IniInterface& ini );
