@@ -58,21 +58,8 @@ __fi void EventSource<ListenerType>::_DispatchRaw(ListenerIterator iter, const L
         try {
             (*iter)->DispatchEvent(evtparams);
         } catch (Exception::RuntimeError &ex) {
-#ifndef NDEBUG
-            if (IsDevBuild) {
-                pxFailDev(L"Ignoring runtime error thrown from event listener (event listeners should not throw exceptions!): " + ex.FormatDiagnosticMessage());
-            } else
-#endif
-	    {
-                log_cb(RETRO_LOG_ERROR, "Ignoring runtime error thrown from event listener: %s\n", ex.FormatDiagnosticMessage().c_str());
-            }
+		log_cb(RETRO_LOG_ERROR, "Ignoring runtime error thrown from event listener: %s\n", ex.FormatDiagnosticMessage().c_str());
         } catch (BaseException &ex) {
-#ifndef NDEBUG
-            if (IsDevBuild) {
-                ex.DiagMsg() = L"Non-runtime BaseException thrown from event listener .. " + ex.DiagMsg();
-                throw;
-            }
-#endif
             log_cb(RETRO_LOG_ERROR, "Ignoring non-runtime BaseException thrown from event listener: %s\n", ex.FormatDiagnosticMessage().c_str());
         }
         ++iter;

@@ -402,11 +402,7 @@ static DynGenFunc* _DynGen_EnterRecompiledCode()
 
 	{
 		// Properly scope the frame prologue/epilogue
-#ifdef NDEBUG
 		xScopedStackFrame frame(false);
-#else
-		xScopedStackFrame frame(IsDevBuild);
-#endif
 
 		xJMP((void*)DispatcherReg);
 
@@ -829,12 +825,7 @@ void recClear(u32 addr, u32 size)
 		u32 blockend = pexblock->startpc + pexblock->size * 4;
 		if (pexblock->startpc >= addr && pexblock->startpc < addr + size * 4
 		 || pexblock->startpc < addr && blockend > addr) {
-#ifndef NDEBUG
-			if( IsDevBuild )
-				pxFailDev( "Impossible block clearing failure" );
-			else
-#endif
-				log_cb(RETRO_LOG_DEBUG, "Impossible block clearing failure\n" );
+			log_cb(RETRO_LOG_DEBUG, "Impossible block clearing failure\n" );
 		}
 	}
 
@@ -1314,10 +1305,6 @@ void recompileNextInstruction(int delayslot)
 	pxAssert(s_pCode);
 
 	// acts as a tag for delimiting recompiled instructions when viewing x86 disasm.
-#ifndef NDEBUG
-	if( IsDevBuild )
-		xNOP();
-#endif
 
 	cpuRegs.code = *(int *)s_pCode;
 

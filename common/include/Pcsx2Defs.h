@@ -43,51 +43,6 @@
 #endif
 
 // --------------------------------------------------------------------------------------
-// Dev / Debug conditionals - Consts for using if() statements instead of uglier #ifdef.
-// --------------------------------------------------------------------------------------
-// Note: Using if() optimizes nicely in Devel and Release builds, but will generate extra
-// code overhead in debug builds (since debug neither inlines, nor optimizes out const-
-// level conditionals).  Normally not a concern, but if you stick if( IsDevbuild ) in
-// some tight loops it will likely make debug builds unusably slow.
-//
-#ifdef __cplusplus
-#ifdef PCSX2_DEVBUILD
-static const bool IsDevBuild = true;
-#else
-static const bool IsDevBuild = false;
-#endif
-
-#else
-
-#ifdef PCSX2_DEVBUILD
-static const u8 IsDevBuild = 1;
-#else
-static const u8 IsDevBuild = 0;
-#endif
-
-#endif
-
-#ifdef PCSX2_DEBUG
-#define pxDebugCode(code) code
-#else
-#define pxDebugCode(code)
-#endif
-
-#ifdef PCSX2_DEVBUILD
-#define pxDevelCode(code) code
-#else
-#define pxDevelCode(code)
-#endif
-
-#if defined(PCSX2_DEBUG) || defined(PCSX2_DEVBUILD)
-#define pxReleaseCode(code)
-#define pxNonReleaseCode(code) code
-#else
-#define pxReleaseCode(code) code
-#define pxNonReleaseCode(code)
-#endif
-
-// --------------------------------------------------------------------------------------
 // __aligned / __aligned16 / __pagealigned
 // --------------------------------------------------------------------------------------
 // GCC Warning!  The GCC linker (LD) typically fails to assure alignment of class members.

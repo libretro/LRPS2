@@ -202,18 +202,6 @@ public:
 			for (linkiter_t i = range.first; i != range.second; ++i)
 				*(u32*)i->second = recompiler - (i->second + 4);
 
-#ifndef NDEBUG
-			if( IsDevBuild )
-			{
-				// Clear the first instruction to 0xcc (breakpoint), as a way to assert if some
-				// static jumps get left behind to this block.  Note: Do not clear more than the
-				// first byte, since this code is called during exception handlers and event handlers
-				// both of which expect to be able to return to the recompiled code.
-
-				BASEBLOCKEX effu( blocks[idx] );
-				memset( (void*)effu.fnptr, 0xcc, 1 );
-			}
-#endif
 		}
 		while(idx++ < last);
 

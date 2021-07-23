@@ -411,9 +411,6 @@ static __ri void vtlb_Miss(u32 addr,u32 mode)
 	}
 
 #ifndef NDEBUG
-	if( IsDevBuild )
-		Cpu->ThrowCpuException( R5900Exception::TLBMiss( addr, !!mode ) );
-	else
 	{
 		static int spamStop = 0;
 		if ( spamStop++ < 50 )

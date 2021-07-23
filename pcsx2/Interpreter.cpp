@@ -41,11 +41,6 @@ static void intEventTest();
 
 static void debugI()
 {
-#ifndef NDEBUG
-	if( !IsDevBuild ) return;
-	if( cpuRegs.GPR.n.r0.UD[0] || cpuRegs.GPR.n.r0.UD[1] )
-		log_cb(RETRO_LOG_ERROR, "R0 is not zero!!!!\n");
-#endif
 }
 
 

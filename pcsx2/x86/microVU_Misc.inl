@@ -281,9 +281,6 @@ static inline u32 branchAddr(const mV)
 }
 
 static void __fc mVUwaitMTVU() {
-#ifndef NDEBUG
-	if (IsDevBuild) log_cb(RETRO_LOG_DEBUG, "microVU0: Waiting on VU1 thread to access VU1 regs!\n");
-#endif
 	vu1Thread.WaitVU();
 }
 
@@ -304,13 +301,6 @@ __fi void mVUaddrFix(mV, const xAddressReg& gprReg)
 				{
 					mVUScopedXMMBackup mVUSave(mVU, true);
 					xScopedSavedRegisters save {gprT1q, gprT2q, gprT3q};
-#ifndef NDEBUG
-					if (IsDevBuild && !isCOP2) {         // Lets see which games do this!
-						xMOV(arg1regd, mVU.prog.cur->idx); // Note: Kernel does it via COP2 to initialize VU1!
-						xMOV(arg2regd, xPC);               // So we don't spam console, we'll only check micro-mode...
-						xFastCall((void*)mVUwarningRegAccess, arg1regd, arg2regd);
-					}
-#endif
 					xFastCall((void*)mVUwaitMTVU);
 				}
 			}

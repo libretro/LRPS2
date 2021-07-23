@@ -115,9 +115,6 @@ static void __forceinline IncrementNextA(V_Core& thiscore, uint voiceidx)
 	{
 		if (Cores[i].IRQEnable && (vc.NextA == Cores[i].IRQA))
 		{
-			//if( IsDevBuild )
-			//	ConLog(" * SPU2 Core %d: IRQ Requested (IRQA (%05X) passed; voice %d).\n", i, Cores[i].IRQA, thiscore.Index * 24 + voiceidx);
-
 			SetIrqCall(i);
 		}
 	}
@@ -197,26 +194,12 @@ static __forceinline s32 GetNextDataBuffered(V_Core& thiscore, uint voiceidx)
 			vc.Prev2 = vc.SBuffer[26];
 
 			//ConLog( "* SPU2: Cache Hit! NextA=0x%x, cacheIdx=0x%x\n", vc.NextA, cacheIdx );
-#ifdef DEBUG
-			if (IsDevBuild)
-				g_counter_cache_hits++;
-#endif
 		}
 		else
 		{
 			// Only flag the cache if it's a non-dynamic memory range.
 			if (vc.NextA >= SPU2_DYN_MEMLINE)
 				cacheLine.Validated = true;
-
-#ifdef DEBUG
-			if (IsDevBuild)
-			{
-				if (vc.NextA < SPU2_DYN_MEMLINE)
-					g_counter_cache_ignores++;
-				else
-					g_counter_cache_misses++;
-			}
-#endif
 
 			XA_decode_block(vc.SBuffer, memptr, vc.Prev1, vc.Prev2);
 		}

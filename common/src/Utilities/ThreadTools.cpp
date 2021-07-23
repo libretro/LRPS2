@@ -172,27 +172,13 @@ Threading::pxThread::~pxThread()
 
 bool Threading::pxThread::AffinityAssert_AllowFromSelf(const DiagnosticOrigin &origin) const
 {
-    if (IsSelf())
-        return true;
-
-#ifndef NDEBUG
-    if (IsDevBuild)
-        pxOnAssert(origin, pxsFmt(L"Thread affinity violation: Call allowed from '%s' thread only.", WX_STR(GetName())));
-#endif
-
-    return false;
+    return IsSelf();
 }
 
 bool Threading::pxThread::AffinityAssert_DisallowFromSelf(const DiagnosticOrigin &origin) const
 {
     if (!IsSelf())
         return true;
-
-#ifndef NDEBUG
-    if (IsDevBuild)
-        pxOnAssert(origin, pxsFmt(L"Thread affinity violation: Call is *not* allowed from '%s' thread.", WX_STR(GetName())));
-#endif
-
     return false;
 }
 

@@ -241,15 +241,6 @@ struct Gif_Path
 	// Waits on the MTGS to process gs packets
 	void mtgsReadWait()
 	{
-#ifndef NDEBUG
-		if (IsDevBuild)
-		{
-			log_cb(RETRO_LOG_DEBUG, "Gif Path[%d] - MTGS Wait! [r=0x%x]\n", idx + 1, getReadAmount());
-			Gif_MTGS_Wait(isMTVU());
-			log_cb(RETRO_LOG_DEBUG, "Gif Path[%d] - MTGS Wait! [r=0x%x]\n", idx + 1, getReadAmount());
-			return;
-		}
-#endif
 		Gif_MTGS_Wait(isMTVU());
 	}
 
