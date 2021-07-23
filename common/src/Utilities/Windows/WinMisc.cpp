@@ -28,17 +28,12 @@ void InitCPUTicks()
     QueryPerformanceFrequency(&lfreq);
 }
 
+#if 0
 u64 GetTickFrequency()
 {
     return lfreq.QuadPart;
 }
-
-u64 GetCPUTicks()
-{
-    LARGE_INTEGER count;
-    QueryPerformanceCounter(&count);
-    return count.QuadPart;
-}
+#endif
 
 u64 GetPhysicalMemory()
 {

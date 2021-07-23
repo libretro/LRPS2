@@ -168,9 +168,6 @@ void rcntInit()
 #include <sys/time.h>
 #endif
 
-static s64 m_iTicks=0;
-static u64 m_iStart=0;
-
 struct vSyncTimingInfo
 {
 	Fixed100 Framerate;		// frames per second (8 bit fixed)
@@ -297,8 +294,9 @@ Fixed100 GetVerticalFrequency()
 	}
 }
 
-u32 UpdateVSyncRate()
+void UpdateVSyncRate()
 {
+	static s64 m_iTicks=0;
 	// Notice:  (and I probably repeat this elsewhere, but it's worth repeating)
 	//  The PS2's vsync timer is an *independent* crystal that is fixed to either 59.94 (NTSC)
 	//  or 50.0 (PAL) Hz.  It has *nothing* to do with real TV timings or the real vsync of
@@ -369,73 +367,24 @@ u32 UpdateVSyncRate()
 	Fixed100 fpslimit = framerate *
 		( pxAssert( EmuConfig.GS.LimitScalar > 0 ) ? EmuConfig.GS.LimitScalar : 1.0 );
 
-	//s64 debugme = GetTickFrequency() / 3000;
+	/* TODO/FIXME - MTGS has no frameskip sync logic implemented
+	 * yet for GS_RINGTYPE_MODECHANGE, so this code block is useless and can         * be skipped 
+         */
+#if 0 
 	s64	ticks = (GetTickFrequency()*500) / (fpslimit * 1000).ToIntRounded();
 
 	if( m_iTicks != ticks )
 	{
 		m_iTicks = ticks;
 		gsOnModeChanged( vSyncInfo.Framerate, m_iTicks );
+#ifndef NDEBUG
 		if (ActiveVideoMode)
 			log_cb(RETRO_LOG_INFO, "(UpdateVSyncRate) FPS Limit Changed : %.02f fps\n", fpslimit.ToFloat()*2 );
+#endif
 	}
-
-	m_iStart = GetCPUTicks();
 
 	return (u32)m_iTicks;
-}
-
-void frameLimitReset()
-{
-	m_iStart = GetCPUTicks();
-}
-
-// Framelimiter - Measures the delta time between calls and stalls until a
-// certain amount of time passes if such time hasn't passed yet.
-// See the GS FrameSkip function for details on why this is here and not in the GS.
-static __fi void frameLimit()
-{
-	// 999 means the user would rather just have framelimiting turned off...
-	if( !EmuConfig.GS.FrameLimitEnable ) return;
-
-	u64 uExpectedEnd	= m_iStart + m_iTicks;
-	u64 iEnd			= GetCPUTicks();
-	s64 sDeltaTime		= iEnd - uExpectedEnd;
-
-	// If the framerate drops too low, reset the expected value.  This avoids
-	// excessive amounts of "fast forward" syndrome which would occur if we
-	// tried to catch up too much.
-
-	if( sDeltaTime > m_iTicks*8 )
-	{
-		m_iStart = iEnd - m_iTicks;
-		return;
-	}
-
-	// use the expected frame completion time as our starting point.
-	// improves smoothness by making the framelimiter more adaptive to the
-	// imperfect TIMESLICE() wait, and allows it to speed up a wee bit after
-	// slow frames to "catch up."
-
-	m_iStart = uExpectedEnd;
-
-	// Shortcut for cases where no waiting is needed (they're running slow already,
-	// so don't bog 'em down with extra math...)
-	if( sDeltaTime >= 0 ) return;
-
-	// If we're way ahead then we can afford to sleep the thread a bit.
-	// (note, on Windows sleep(1) thru sleep(2) tend to be the least accurate sleeps,
-	// and longer sleeps tend to be pretty reliable, so that's why the convoluted if/
-	// else below.  The same generally isn't true for Linux, but no harm either way
-	// really.)
-
-	s32 msec = (int)((sDeltaTime*-1000) / (s64)GetTickFrequency());
-	if( msec > 4 ) Threading::Sleep( msec );
-	else if( msec > 2 ) Threading::Sleep( 1 );
-
-	// Sleep is not picture-perfect accurate, but it's actually not necessary to
-	// maintain a "perfect" lock to uExpectedEnd anyway.  if we're a little ahead
-	// starting this frame, it'll just sleep longer the next to make up for it. :)
+#endif
 }
 
 static __fi void VSyncStart(u32 sCycle)
@@ -496,8 +445,6 @@ static __fi void VSyncEnd(u32 sCycle)
 	// Call it every 60 frames
 	if (!(g_FrameCount % 60))
 		sioNextFrame();
-
-	frameLimit(); // limit FPS
 
 	// This doesn't seem to be needed here.  Games only seem to break with regard to the
 	// vsyncstart irq.

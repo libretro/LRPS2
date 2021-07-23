@@ -38,17 +38,12 @@ void InitCPUTicks()
 {
 }
 
+#if 0
 u64 GetTickFrequency()
 {
     return 1000000; // unix measures in microseconds
 }
-
-u64 GetCPUTicks()
-{
-    struct timeval t;
-    gettimeofday(&t, NULL);
-    return ((u64)t.tv_sec * GetTickFrequency()) + t.tv_usec;
-}
+#endif
 
 wxString GetOSVersionString()
 {

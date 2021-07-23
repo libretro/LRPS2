@@ -153,7 +153,8 @@ void SysMtgsThread::PostVsyncStart()
 	// If those are needed back, it's better to increase the VsyncQueueSize via PCSX_vm.ini.
 	// (The Xenosaga engine is known to run into this, due to it throwing bulks of data in one frame followed by 2 empty frames.)
 
-	if ((m_QueuedFrameCount.fetch_add(1) < EmuConfig.GS.VsyncQueueSize) /*|| (!EmuConfig.GS.VsyncEnable && !EmuConfig.GS.FrameLimitEnable)*/) return;
+	if ((m_QueuedFrameCount.fetch_add(1) < EmuConfig.GS.VsyncQueueSize))
+		return;
 
 	m_VsyncSignalListener.store(true, std::memory_order_release);
 	//log_cb(RETRO_LOG_DEBUG, "(EEcore Sleep) Vsync\t\tringpos=0x%06x, writepos=0x%06x\n", m_ReadPos.load(), m_WritePos.load() );

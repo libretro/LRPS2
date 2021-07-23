@@ -23,11 +23,8 @@
 
 AppGameDatabase& AppGameDatabase::Load()
 {
-	const u64 qpc_Start = GetCPUTicks();
-	
 	std::string game_index(reinterpret_cast<const char*>(&GameIndex_yaml), GameIndex_yaml_len);
 	std::istringstream stream(game_index);
-
 
 	if (!this->initDatabase(stream))
 	{
@@ -35,10 +32,8 @@ AppGameDatabase& AppGameDatabase::Load()
 		return *this;
 	}
 
-	const u64 qpc_end = GetCPUTicks();
-
-	log_cb(RETRO_LOG_INFO, "[GameDB] {%d} games on record (loaded in {%d}ms)\n", this->numGames(),
-		(u32)(((qpc_end - qpc_Start) * 1000) / GetTickFrequency()));
+	log_cb(RETRO_LOG_INFO, "[GameDB] %d games on record\n", this->numGames()
+		);
 
 	return *this;
 }

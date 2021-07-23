@@ -73,68 +73,6 @@ void x86capabilities::SIMD_EstablishMXCSRmask()
         MXCSR_Mask.bitmask = result;
 }
 
-// Counts the number of cpu cycles executed over the requested number of PerformanceCounter
-// ticks. Returns that exact count.
-// For best results you should pick a period of time long enough to get a reading that won't
-// be prone to rounding error; but short enough that it'll be highly unlikely to be interrupted
-// by the operating system task switches.
-s64 x86capabilities::_CPUSpeedHz(u64 time) const
-{
-    u64 timeStart, timeStop;
-    s64 startCycle, endCycle;
-
-    if (!hasTimeStampCounter)
-        return 0;
-
-    SingleCoreAffinity affinity_lock;
-
-    // Align the cpu execution to a cpuTick boundary.
-
-    // GCC 4.8 has __rdtsc but apparently it causes a crash. Only known working on MSVC
-    do {
-        timeStart = GetCPUTicks();
-#ifdef _MSC_VER
-        startCycle = __rdtsc();
-#elif defined(_M_X86_64)
-        unsigned long long low, high;
-        __asm__ __volatile__("rdtsc"
-                             : "=a"(low), "=d"(high));
-        startCycle = low | (high << 32);
-#else
-        __asm__ __volatile__("rdtsc"
-                             : "=A"(startCycle));
-#endif
-    } while (GetCPUTicks() == timeStart);
-
-    do {
-        timeStop = GetCPUTicks();
-#ifdef _MSC_VER
-        endCycle = __rdtsc();
-#elif defined(_M_X86_64)
-        unsigned long long low, high;
-        __asm__ __volatile__("rdtsc"
-                             : "=a"(low), "=d"(high));
-        endCycle = low | (high << 32);
-#else
-        __asm__ __volatile__("rdtsc"
-                             : "=A"(endCycle));
-#endif
-    } while ((timeStop - timeStart) < time);
-
-    s64 cycleCount = endCycle - startCycle;
-    s64 timeCount = timeStop - timeStart;
-    s64 overrun = timeCount - time;
-    if (!overrun)
-        return cycleCount;
-
-    // interference could cause us to overshoot the target time, compensate:
-
-    double cyclesPerTick = (double)cycleCount / (double)timeCount;
-    double newCycleCount = (double)cycleCount - (cyclesPerTick * overrun);
-
-    return (s64)newCycleCount;
-}
-
 wxString x86capabilities::GetTypeName() const
 {
     switch (TypeID) {
@@ -313,15 +251,4 @@ void x86capabilities::Identify()
     hasStreamingSIMD4ExtensionsA = (EFlags2 >> 6) & 1; //INSERTQ / EXTRQ / MOVNT
 
     isIdentified = true;
-}
-
-u32 x86capabilities::CalculateMHz() const
-{
-    InitCPUTicks();
-    u64 span = GetTickFrequency();
-
-    if ((span % 1000) < 400) // helps minimize rounding errors
-        return (u32)(_CPUSpeedHz(span / 1000) / 1000);
-    else
-        return (u32)(_CPUSpeedHz(span / 500) / 2000);
 }

@@ -69,6 +69,7 @@ void InitCPUTicks()
 //
 // NOTE: multiply, subtract, ... your ticks before dividing by
 // GetTickFrequency() to maintain good precision.
+#if 0
 u64 GetTickFrequency()
 {
     static u64 freq = 0;
@@ -92,15 +93,7 @@ u64 GetTickFrequency()
 
     return freq;
 }
-
-// return the number of "ticks" since some arbitrary, fixed time in the
-// past. On OSX x86(-64), this is actually the number of nanoseconds passed,
-// because mach_timebase_info.numer == denom == 1. So "ticks" ==
-// nanoseconds.
-u64 GetCPUTicks()
-{
-    return mach_absolute_time();
-}
+#endif
 
 wxString GetOSVersionString()
 {
