@@ -76,14 +76,10 @@ protected:
 //  Public API / Interface
 // --------------------------------------------------------------------------------------
 
-static void _LoadPluginsImmediate()
-{
-	if( CorePlugins.AreLoaded() ) return;
-	CorePlugins.Load(  );
-}
-
 void LoadPluginsImmediate()
 {
 	AffinityAssert_AllowFrom_SysExecutor();
-	_LoadPluginsImmediate();
+	if( CorePlugins.AreLoaded() )
+		return;
+	CorePlugins.Load(  );
 }

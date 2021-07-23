@@ -15,24 +15,12 @@
 
 #include "../PrecompiledHeader.h"
 
+#if 0
 #include <ctype.h>
 #include <time.h>
 #include <unistd.h>
 #include <sys/time.h>
 
-// Returns 0 on failure (not supported by the operating system).
-u64 GetPhysicalMemory()
-{
-    u64 pages = 0;
-
-#ifdef _SC_PHYS_PAGES
-    pages = sysconf(_SC_PHYS_PAGES);
-#endif
-
-    return pages * getpagesize();
-}
-
-#if 0
 void InitCPUTicks()
 {
 }

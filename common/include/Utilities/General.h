@@ -258,4 +258,3 @@ void MemProtectStatic(u8 (&arr)[size], const PageProtectionMode &mode)
 extern void InitCPUTicks();
 extern u64 GetTickFrequency();
 #endif
-extern u64 GetPhysicalMemory();

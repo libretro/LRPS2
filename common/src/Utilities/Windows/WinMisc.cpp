@@ -35,14 +35,6 @@ u64 GetTickFrequency()
 }
 #endif
 
-u64 GetPhysicalMemory()
-{
-    MEMORYSTATUSEX status;
-    status.dwLength = sizeof(status);
-    GlobalMemoryStatusEx(&status);
-    return status.ullTotalPhys;
-}
-
 // --------------------------------------------------------------------------------------
 //  Exception::WinApiError   (implementations)
 // --------------------------------------------------------------------------------------

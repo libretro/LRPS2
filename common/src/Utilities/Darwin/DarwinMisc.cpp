@@ -15,6 +15,7 @@
 
 #include "../PrecompiledHeader.h"
 
+#if 0
 #include <cstring>
 #include <cstdlib>
 
@@ -23,41 +24,6 @@
 
 #include <mach/mach_time.h>
 
-#define NELEM(x) \
-    ((sizeof(x) / sizeof(0 [x])) / ((size_t)(!(sizeof(x) % sizeof(0 [x])))))
-
-// Darwin (OSX) is a bit different from Linux when requesting properties of
-// the OS because of its BSD/Mach heritage. Helpfully, most of this code
-// should translate pretty well to other *BSD systems. (e.g.: the sysctl(3)
-// interface).
-//
-// For an overview of all of Darwin's sysctls, check:
-// https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man3/sysctl.3.html
-
-// Return the total physical memory on the machine, in bytes. Returns 0 on
-// failure (not supported by the operating system).
-u64 GetPhysicalMemory()
-{
-    static u64 mem = 0;
-
-    // fetch the total memory only once, as its an expensive system call and
-    // doesn't change during the course of the program. Thread-safety is
-    // ensured by atomic operations with full-barriers (usually compiled
-    // down to XCHG on x86).
-    if (__atomic_load_n(&mem, __ATOMIC_SEQ_CST) == 0) {
-        u64 getmem = 0;
-        size_t len = sizeof(getmem);
-        int mib[] = {CTL_HW, HW_MEMSIZE};
-        if (sysctl(mib, NELEM(mib), &getmem, &len, NULL, 0) < 0) {
-            perror("sysctl:");
-        }
-        __atomic_store_n(&mem, getmem, __ATOMIC_SEQ_CST);
-    }
-
-    return mem;
-}
-
-#if 0
 void InitCPUTicks()
 {
 }
