@@ -162,7 +162,7 @@ void Pcsx2App::ClearPendingSave()
 
 // NOTE: Plugins are *not* applied by this function.  Changes to plugins need to handled
 // manually.  The PluginSelectorPanel does this, for example.
-void AppApplySettings( const AppConfig* oldconf )
+void AppApplySettings()
 {
 	AffinityAssert_AllowFrom_MainUI();
 #ifdef __LIBRETRO__
