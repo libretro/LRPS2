@@ -104,8 +104,6 @@ public:
 	
 #endif
 
-	virtual void PrintStats() = 0;
-
 	__forceinline bool HasEdge() const {return m_de != NULL;}
 	__forceinline bool IsSolidRect() const {return m_dr != NULL;}
 };
@@ -119,7 +117,6 @@ public:
 	virtual void Sync() = 0;
 	virtual bool IsSynced() const = 0;
 	virtual int GetPixels(bool reset = true) = 0;
-	virtual void PrintStats() = 0;
 };
 
 class alignas(32) GSRasterizer : public IRasterizer
@@ -175,7 +172,6 @@ public:
 	void Sync() {}
 	bool IsSynced() const {return true;}
 	int GetPixels(bool reset);
-	void PrintStats() {m_ds->PrintStats();}
 };
 
 class GSRasterizerList : public IRasterizer
@@ -223,5 +219,4 @@ public:
 	void Sync();
 	bool IsSynced() const;
 	int GetPixels(bool reset);
-	void PrintStats() {}
 };

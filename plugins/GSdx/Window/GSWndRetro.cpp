@@ -66,7 +66,7 @@ void GSWndRetroGL::BindAPI()
 {
 }
 
-bool GSWndRetroGL::Create(const std::string& title, int w, int h)
+bool GSWndRetroGL::Create()
 {
 	FullContextInit();
 	return true;
@@ -94,7 +94,7 @@ void GSWndRetroGL::Flip()
 }
 
 
-bool GSWndRetro::Create(const std::string& title, int w, int h)
+bool GSWndRetro::Create()
 {
 	return true;
 }

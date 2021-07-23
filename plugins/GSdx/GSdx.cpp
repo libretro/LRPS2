@@ -350,19 +350,6 @@ void GSdxApp::Init()
 	m_default_configuration["vsync"]                                      = "0";
 }
 
-void GSdxApp::ReloadConfig()
-{
-	if (m_configuration_map.empty()) return;
-
-	auto file = m_configuration_map.find("inifile");
-	if (file == m_configuration_map.end()) return;
-
-	// A map was built so reload it
-	std::string filename = file->second;
-	m_configuration_map.clear();
-	BuildConfigurationMap(filename.c_str());
-}
-
 void GSdxApp::BuildConfigurationMap(const char* lpFileName)
 {
 	// Check if the map was already built

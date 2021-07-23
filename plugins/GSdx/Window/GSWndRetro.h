@@ -27,7 +27,7 @@ public:
 	GSWndRetroGL();
 	virtual ~GSWndRetroGL() {}
 
-	bool Create(const std::string& title, int w, int h) final;
+	bool Create() final;
 
 	GSVector4i GetClientRect();
 
@@ -44,7 +44,7 @@ public:
 	GSWndRetro() {}
 	virtual ~GSWndRetro() {}
 
-	bool Create(const std::string& title, int w, int h);
+	bool Create();
 
 	void* GetDisplay() {return (void*)-1;}
 	GSVector4i GetClientRect();

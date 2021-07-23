@@ -103,43 +103,6 @@ public:
 			ASSERT(m_active->total >= m_active->actual);
 		}
 	}
-
-	virtual void PrintStats()
-	{
-		uint64 ttpf = 0;
-
-		for(const auto &i : m_map_active)
-		{
-			ActivePtr* p = i.second;
-
-			if(p->frames)
-			{
-				ttpf += p->ticks / p->frames;
-			}
-		}
-
-		printf("GS stats\n");
-
-		for (const auto &i : m_map_active)
-		{
-			KEY key = i.first;
-			ActivePtr* p = i.second;
-
-			if(p->frames && ttpf)
-			{
-				uint64 tpp = p->actual > 0 ? p->ticks / p->actual : 0;
-				uint64 tpf = p->frames > 0 ? p->ticks / p->frames : 0;
-				uint64 ppf = p->frames > 0 ? p->actual / p->frames : 0;
-
-				printf("[%014llx]%c %6.2f%% %5.2f%% f %4llu t %12llu p %12llu w %12lld tpp %4llu tpf %9llu ppf %9llu\n",
-					(uint64)key, m_map.find(key) == m_map.end() ? '*' : ' ',
-					(float)(tpf * 10000 / 34000000) / 100,
-					(float)(tpf * 10000 / ttpf) / 100,
-					p->frames, p->ticks, p->actual, p->total - p->actual,
-					tpp, tpf, ppf);
-			}
-		}
-	}
 };
 
 class GSCodeGenerator : public Xbyak::CodeGenerator

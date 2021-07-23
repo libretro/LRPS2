@@ -38,7 +38,6 @@ public:
 	void Init();
 
 	void BuildConfigurationMap(const char* lpFileName);
-	void ReloadConfig();
 
 	size_t GetIniString(const char* lpAppName, const char* lpKeyName, const char* lpDefault, char* lpReturnedString, size_t nSize, const char* lpFileName);
 	void WriteIniString(const char* lpAppName, const char* lpKeyName, const char* pString, const char* lpFileName);

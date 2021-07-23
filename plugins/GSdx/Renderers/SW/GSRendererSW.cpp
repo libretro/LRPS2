@@ -126,8 +126,6 @@ void GSRendererSW::VSync(int field)
 	GSRenderer::VSync(field);
 
 	m_tc->IncAge();
-
-	// if((m_perfmon.GetFrame() & 255) == 0) m_rl->PrintStats();
 }
 
 void GSRendererSW::ResetDevice()

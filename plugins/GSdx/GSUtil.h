@@ -22,7 +22,6 @@
 #pragma once
 
 #include "GS.h"
-#include "xbyak/xbyak_util.h"
 
 class GSUtil
 {
@@ -51,5 +50,3 @@ public:
 };
 
 const char* psm_str(int psm);
-
-extern Xbyak::util::Cpu g_cpu;

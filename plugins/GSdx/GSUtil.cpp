@@ -21,6 +21,7 @@
 
 #include "stdafx.h"
 #include "GSUtil.h"
+#include "xbyak/xbyak_util.h"
 
 #ifdef _WIN32
 #include "Renderers/DX11/GSDevice11.h"

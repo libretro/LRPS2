@@ -31,7 +31,7 @@ public:
 	GSWnd() {};
 	virtual ~GSWnd() {};
 
-	virtual bool Create(const std::string& title, int w, int h) = 0;
+	virtual bool Create() = 0;
 
 	virtual void* GetDisplay() = 0;
 	virtual GSVector4i GetClientRect() = 0;
@@ -50,7 +50,7 @@ public:
 	GSWndGL() {};
 	virtual ~GSWndGL() {};
 
-	virtual bool Create(const std::string& title, int w, int h) = 0;
+	virtual bool Create() = 0;
 
 	virtual void* GetDisplay() = 0;
 	virtual GSVector4i GetClientRect() = 0;

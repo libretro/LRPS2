@@ -198,8 +198,6 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 					wnds.push_back(std::make_shared<GSWndRetro>());
 					break;
 			}
-			int w = theApp.GetConfigI("ModeWidth");
-			int h = theApp.GetConfigI("ModeHeight");
 #if defined(__unix__)
 			void *win_handle = (void*)((uptr*)(dsp)+1);
 #else
@@ -213,7 +211,7 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 					if (old_api)
 					{
 						// old-style API expects us to create and manage our own window:
-						wnd->Create(title, w, h);
+						wnd->Create();
 						*dsp = wnd->GetDisplay();
 					}
 
