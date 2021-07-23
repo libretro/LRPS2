@@ -57,12 +57,6 @@ static const bool IsDevBuild = true;
 static const bool IsDevBuild = false;
 #endif
 
-#ifdef PCSX2_DEBUG
-static const bool IsDebugBuild = true;
-#else
-static const bool IsDebugBuild = false;
-#endif
-
 #else
 
 #ifdef PCSX2_DEVBUILD
@@ -71,11 +65,6 @@ static const u8 IsDevBuild = 1;
 static const u8 IsDevBuild = 0;
 #endif
 
-#ifdef PCSX2_DEBUG
-static const u8 IsDebugBuild = 1;
-#else
-static const u8 IsDebugBuild = 0;
-#endif
 #endif
 
 #ifdef PCSX2_DEBUG

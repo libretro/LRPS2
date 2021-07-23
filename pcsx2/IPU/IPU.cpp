@@ -101,81 +101,6 @@ void SaveStateBase::ipuFreeze()
 	Freeze(ipu_cmd);
 }
 
-void tIPU_CMD_IDEC::log() const
-{
-	IPU_LOG("IDEC command.");
-
-	if (FB) IPU_LOG(" Skip %d	bits.", FB);
-	IPU_LOG(" Quantizer step code=0x%X.", QSC);
-
-	if (DTD == 0)
-		IPU_LOG(" Does not decode DT.");
-	else
-		IPU_LOG(" Decodes DT.");
-
-	if (SGN == 0)
-		IPU_LOG(" No bias.");
-	else
-		IPU_LOG(" Bias=128.");
-
-	if (DTE == 1) IPU_LOG(" Dither Enabled.");
-	if (OFM == 0)
-		IPU_LOG(" Output format is RGB32.");
-	else
-		IPU_LOG(" Output format is RGB16.");
-
-	IPU_LOG("");
-}
-
-void tIPU_CMD_BDEC::log(int s_bdec) const
-{
-	IPU_LOG("BDEC(macroblock decode) command %x, num: 0x%x", cpuRegs.pc, s_bdec);
-	if (FB) IPU_LOG(" Skip 0x%X bits.", FB);
-
-	if (MBI)
-		IPU_LOG(" Intra MB.");
-	else
-		IPU_LOG(" Non-intra MB.");
-
-	if (DCR)
-		IPU_LOG(" Resets DC prediction value.");
-	else
-		IPU_LOG(" Doesn't reset DC prediction value.");
-
-	if (DT)
-		IPU_LOG(" Use field DCT.");
-	else
-		IPU_LOG(" Use frame DCT.");
-
-	IPU_LOG(" Quantizer step=0x%X", QSC);
-}
-
-void tIPU_CMD_CSC::log_from_YCbCr() const
-{
-	IPU_LOG("CSC(Colorspace conversion from YCbCr) command (%d).", MBC);
-	if (OFM)
-		IPU_LOG("Output format is RGB16. ");
-	else
-		IPU_LOG("Output format is RGB32. ");
-
-	if (DTE) IPU_LOG("Dithering enabled.");
-}
-
-void tIPU_CMD_CSC::log_from_RGB32() const
-{
-	IPU_LOG("PACK (Colorspace conversion from RGB32) command.");
-
-	if (OFM)
-		IPU_LOG("Output format is RGB16. ");
-	else
-		IPU_LOG("Output format is INDX4. ");
-
-	if (DTE) IPU_LOG("Dithering enabled.");
-
-	IPU_LOG("Number of macroblocks to be converted: %d", MBC);
-}
-
-
 __fi u32 ipuRead32(u32 mem)
 {
 	// Note: It's assumed that mem's input value is always in the 0x10002000 page
@@ -203,8 +128,10 @@ __fi u32 ipuRead32(u32 mem)
 			ipuRegs.ctrl.IFC = g_BP.IFC;
 			ipuRegs.ctrl.CBP = coded_block_pattern;
 
+#ifndef NDEBUG
 			if (!ipuRegs.ctrl.BUSY)
 				IPU_LOG("read32: IPU_CTRL=0x%08X", ipuRegs.ctrl._u32);
+#endif
 
 			return ipuRegs.ctrl._u32;
 		}
@@ -248,8 +175,10 @@ __fi u64 ipuRead64(u32 mem)
 					ipuRegs.cmd.DATA = BigEndian(ipuRegs.cmd.DATA);
 			}
 
+#ifndef NDEBUG
 			if (ipuRegs.cmd.DATA & 0xffffff)
 				IPU_LOG("read64: IPU_CMD=BUSY=%x, DATA=%08X", ipuRegs.cmd.BUSY ? 1 : 0, ipuRegs.cmd.DATA);
+#endif
 			return ipuRegs.cmd._u64;
 		}
 
@@ -266,11 +195,15 @@ __fi u64 ipuRead64(u32 mem)
 			break;
 
 		ipucase(IPU_TOP): // IPU_TOP
+#ifndef NDEBUG
 			IPU_LOG("read64: IPU_TOP=%x,  bp = %d", ipuRegs.top, g_BP.BP);
+#endif
 			break;
 
 		default:
+#ifndef NDEBUG
 			IPU_LOG("read64: Unknown=%x", mem);
+#endif
 			break;
 	}
 	return psHu64(IPU_CMD + mem);
@@ -314,7 +247,9 @@ __fi bool ipuWrite32(u32 mem, u32 value)
 			ipuRegs.ctrl.write(value);
 			if (ipuRegs.ctrl.IDP == 3)
 			{
+#ifndef NDEBUG
 				log_cb(RETRO_LOG_WARN, "IPU Invalid Intra DC Precision, switching to 9 bits\n");
+#endif
 				ipuRegs.ctrl.IDP = 1;
 			}
 
@@ -366,8 +301,6 @@ static void ipuBCLR(u32 val)
 
 static __ri void ipuIDEC(tIPU_CMD_IDEC idec)
 {
-	idec.log();
-
 	//from IPU_CTRL
 	ipuRegs.ctrl.PCT = I_TYPE; //Intra DECoding;)
 
@@ -389,13 +322,8 @@ static __ri void ipuIDEC(tIPU_CMD_IDEC idec)
 	decoder.dcr = 1; // resets DC prediction value
 }
 
-static int s_bdec = 0;
-
 static __ri void ipuBDEC(tIPU_CMD_BDEC bdec)
 {
-	bdec.log(s_bdec);
-	if (IsDebugBuild) s_bdec++;
-
 	decoder.coding_type			= I_TYPE;
 	decoder.mpeg1				= ipuRegs.ctrl.MP1;
 	decoder.q_scale_type		= ipuRegs.ctrl.QST;
@@ -529,6 +457,7 @@ static bool ipuSETIQ(u32 val)
 			if (!getBits64((u8*)iq + 8 * ipu_cmd.pos[0], 1)) return false;
 		}
 
+#ifndef NDEBUG
 		IPU_LOG("Read intra quantization matrix from FIFO.");
 		for (uint i = 0; i < 8; i++)
 		{
@@ -536,6 +465,7 @@ static bool ipuSETIQ(u32 val)
 			        iq[i * 8 + 0], iq[i * 8 + 1], iq[i * 8 + 2], iq[i *8 + 3],
 			        iq[i * 8 + 4], iq[i * 8 + 5], iq[i * 8 + 6], iq[i *8 + 7]);
 		}
+#endif
 	}
 
 	return true;
@@ -548,6 +478,7 @@ static bool ipuSETVQ(u32 val)
 		if (!getBits64(((u8*)vqclut) + 8 * ipu_cmd.pos[0], 1)) return false;
 	}
 
+#ifndef NDEBUG
 	IPU_LOG("SETVQ command.   Read VQCLUT table from FIFO.\n"
 	    "%02d:%02d:%02d %02d:%02d:%02d %02d:%02d:%02d %02d:%02d:%02d\n"
 	    "%02d:%02d:%02d %02d:%02d:%02d %02d:%02d:%02d %02d:%02d:%02d\n"
@@ -569,6 +500,7 @@ static bool ipuSETVQ(u32 val)
 	    vqclut[13].r, vqclut[13].g, vqclut[13].b,
 	    vqclut[14].r, vqclut[14].g, vqclut[14].b,
 	    vqclut[15].r, vqclut[15].g, vqclut[15].b);
+#endif
 
 	return true;
 }
@@ -576,8 +508,6 @@ static bool ipuSETVQ(u32 val)
 // IPU Transfers are split into 8Qwords so we need to send ALL the data
 static __ri bool ipuCSC(tIPU_CMD_CSC csc)
 {
-	csc.log_from_YCbCr();
-
 	for (;ipu_cmd.index < (int)csc.MBC; ipu_cmd.index++)
 	{
 		for(;ipu_cmd.pos[0] < 48; ipu_cmd.pos[0]++)
@@ -608,8 +538,6 @@ static __ri bool ipuCSC(tIPU_CMD_CSC csc)
 
 static __ri bool ipuPACK(tIPU_CMD_CSC csc)
 {
-	csc.log_from_RGB32();
-
 	for (;ipu_cmd.index < (int)csc.MBC; ipu_cmd.index++)
 	{
 		for(;ipu_cmd.pos[0] < (int)sizeof(macroblock_rgb32) / 8; ipu_cmd.pos[0]++)

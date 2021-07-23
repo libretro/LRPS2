@@ -74,8 +74,7 @@ static void SysPageFaultSignalFilter(int signal, siginfo_t *siginfo, void *)
     // Instigate a trap if we're in a debugger, and if not then do a SIGKILL.
 
     pxTrap();
-    if (!IsDebugBuild)
-        raise(SIGKILL);
+    raise(SIGKILL);
 }
 
 void _platform_InstallSignalHandler()

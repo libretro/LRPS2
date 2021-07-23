@@ -1317,8 +1317,6 @@ void recompileNextInstruction(int delayslot)
 #ifndef NDEBUG
 	if( IsDevBuild )
 		xNOP();
-	if( IsDebugBuild )
-		xMOV(eax, pc);
 #endif
 
 	cpuRegs.code = *(int *)s_pCode;

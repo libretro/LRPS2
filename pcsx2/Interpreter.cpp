@@ -150,11 +150,6 @@ static void execI()
 
 	// interprete instruction
 	cpuRegs.code = memRead32( pc );
-	// Honestly I think this code is useless nowadays.
-#ifdef EXTRA_DEBUG
-	if( IsDebugBuild )
-		debugI();
-#endif
 
 	const OPCODE& opcode = GetCurrentInstruction();
 #if 0

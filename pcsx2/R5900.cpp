@@ -207,7 +207,7 @@ void cpuTlbMiss(u32 addr, u32 bd, u32 excode)
 {
 #ifndef NDEBUG
 	// Avoid too much spamming on the interpreter
-	if (Cpu != &intCpu || IsDebugBuild) {
+	if (Cpu != &intCpu) {
 		log_cb(RETRO_LOG_ERROR, "cpuTlbMiss pc:%x, cycl:%x, addr: %x, status=%x, code=%x\n",
 				cpuRegs.pc, cpuRegs.cycle, addr, cpuRegs.CP0.n.Status.val, excode);
 	}

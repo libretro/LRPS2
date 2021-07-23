@@ -23,16 +23,6 @@ template <typename ListenerType>
 typename EventSource<ListenerType>::ListenerIterator EventSource<ListenerType>::Add(ListenerType &listener)
 {
     ScopedLock locker(m_listeners_lock);
-
-    // Check for duplicates before adding the event.
-    if (IsDebugBuild) {
-        ListenerIterator iter = m_listeners.begin();
-        while (iter != m_listeners.end()) {
-            if ((*iter) == &listener)
-                return iter;
-            ++iter;
-        }
-    }
     return _AddFast_without_lock(listener);
 }
 

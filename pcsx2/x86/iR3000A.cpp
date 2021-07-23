@@ -1026,11 +1026,6 @@ void psxRecompileNextInstruction(int delayslot)
 	// pblock isn't used elsewhere in this function.
 	//BASEBLOCK* pblock = PSX_GETBLOCK(psxpc);
 
-	if( IsDebugBuild ) {
-		xNOP();
-		xMOV(eax, psxpc);
-	}
-
 	psxRegs.code = iopMemRead32( psxpc );
 	s_psxBlockCycles++;
 	psxpc += 4;
@@ -1082,12 +1077,6 @@ static void __fastcall iopRecRecompile( const u32 startpc )
 		}
 	}
 
-	if( IsDebugBuild && (psxdump & 4) )
-	{
-		extern void iDumpPsxRegisters(u32 startpc, u32 temp);
-		iDumpPsxRegisters(startpc, 0);
-	}
-
 	pxAssert( startpc );
 
 	// if recPtr reached the mem limit reset whole mem
@@ -1124,11 +1113,6 @@ static void __fastcall iopRecRecompile( const u32 startpc )
 		xFastCall((void*)psxBiosCall);
 		xTEST(al, al);
 		xJNZ(iopDispatcherReg);
-	}
-
-	if( IsDebugBuild )
-	{
-		xFastCall((void*)PreBlockCheck, psxpc);
 	}
 
 	// go until the next branch
@@ -1230,26 +1214,10 @@ StartRecomp:
 		}
 	}
 
-	// dump code
-	if( IsDebugBuild )
-	{
-		for(i = 0; i < ArraySize(s_psxrecblocks); ++i) {
-			if( startpc == s_psxrecblocks[i] ) {
-				iIopDumpBlock(startpc, recPtr);
-			}
-		}
-
-		if( (psxdump & 1) )
-			iIopDumpBlock(startpc, recPtr);
-	}
-
 	g_pCurInstInfo = s_pInstCache;
 	while (!psxbranch && psxpc < s_nEndBlock) {
 		psxRecompileNextInstruction(0);
 	}
-
-	if( IsDebugBuild && (psxdump & 1) )
-		iIopDumpBlock(startpc, recPtr);
 
 	pxAssert( (psxpc-startpc)>>2 <= 0xffff );
 	s_pCurBlockEx->size = (psxpc-startpc)>>2;

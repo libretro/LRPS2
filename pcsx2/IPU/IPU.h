@@ -168,7 +168,6 @@ union tIPU_CMD_IDEC
 	void set_flags(u32 flags) { _u32 |= flags; }
 	void clear_flags(u32 flags) { _u32 &= ~flags; }
 	void reset() { _u32 = 0; }
-	void log() const;
 };
 
 union tIPU_CMD_BDEC
@@ -192,7 +191,6 @@ union tIPU_CMD_BDEC
 	void set_flags(u32 flags) { _u32 |= flags; }
 	void clear_flags(u32 flags) { _u32 &= ~flags; }
 	void reset() { _u32 = 0; }
-	void log(int s_bdec) const;
 };
 
 union tIPU_CMD_CSC
@@ -213,8 +211,6 @@ union tIPU_CMD_CSC
 	void set_flags(u32 flags) { _u32 |= flags; }
 	void clear_flags(u32 flags) { _u32 &= ~flags; }
 	void reset() { _u32 = 0; }
-	void log_from_YCbCr() const;
-	void log_from_RGB32() const;
 };
 
 enum SCE_IPU
