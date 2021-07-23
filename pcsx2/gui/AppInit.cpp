@@ -102,11 +102,7 @@ void Pcsx2App::AllocateCoreStuffs()
 		}
 	}
 
-#ifdef __LIBRETRO__
 	LoadPluginsImmediate();
-#else
-	LoadPluginsPassive();
-#endif
 }
 
 bool Pcsx2App::OnInit()

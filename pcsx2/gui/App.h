@@ -511,7 +511,6 @@ wxDECLARE_APP(Pcsx2App);
 //  External App-related Globals and Shortcuts
 // --------------------------------------------------------------------------------------
 
-extern void LoadPluginsPassive();
 extern void LoadPluginsImmediate();
 extern void UnloadPlugins();
 extern void ShutdownPlugins();
@@ -523,11 +522,7 @@ extern void SysStatus( const wxString& text );
 
 extern __aligned16 SysMtgsThread mtgsThread;
 extern __aligned16 AppCoreThread CoreThread;
-#ifdef __LIBRETRO__
 extern __aligned16 SysCorePlugins CorePlugins;
-#else
-extern __aligned16 AppCorePlugins CorePlugins;
-#endif
 
 extern void UI_DisableStateActions();
 extern void UI_EnableStateActions();
