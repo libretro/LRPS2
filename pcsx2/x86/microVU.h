@@ -17,7 +17,6 @@
 //#define mVUlogProg // Dumps MicroPrograms to \logs\*.html
 //#define mVUprofileProg // Shows opcode statistics in console
 
-class AsciiFile;
 using namespace x86Emitter;
 
 #include <deque>
@@ -198,7 +197,6 @@ struct microVU {
 	microProgManager				prog;		// Micro Program Data
 	microProfiler					profiler;   // Opcode Profiler
 	std::unique_ptr<microRegAlloc>	regAlloc;	// Reg Alloc Class
-	std::unique_ptr<AsciiFile>		logFile;	// Log File Pointer
 
 	RecompiledCodeReserve* cache_reserve;
 	u8*		cache;		  // Dynarec Cache Start (where we will start writing the recompiled code to)
@@ -272,7 +270,6 @@ void sortVector(T& v) {
 // Include all the *.inl files (microVU compiles as 1 Translation Unit)
 #include "microVU_Clamp.inl"
 #include "microVU_Misc.inl"
-#include "microVU_Log.inl"
 #include "microVU_Analyze.inl"
 #include "microVU_Alloc.inl"
 #include "microVU_Upper.inl"

@@ -547,7 +547,6 @@ set(pcsx2x86Headers
 	x86/microVU_Flags.inl
 	x86/microVU.h
 	x86/microVU_IR.h
-	x86/microVU_Log.inl
 	x86/microVU_Lower.inl
 	x86/microVU_Macro.inl
 	x86/microVU_Misc.h
