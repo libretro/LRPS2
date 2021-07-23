@@ -301,7 +301,7 @@ protected:
 			Lib             = NULL;
 		}
 
-		PluginStatus_t( PluginsEnum_t _pid, const wxString& srcfile );
+		PluginStatus_t( PluginsEnum_t _pid );
 		virtual ~PluginStatus_t() { delete Lib; }
 
 	protected:
@@ -323,8 +323,8 @@ public:
 	SysCorePlugins();
 	virtual ~SysCorePlugins();
 
-	virtual void Load( PluginsEnum_t pid, const wxString& srcfile );
-	virtual void Load( const wxString (&folders)[PluginId_Count] );
+	virtual void Load( PluginsEnum_t pid );
+	virtual void Load(  );
 	virtual void Unload();
 	virtual void Unload( PluginsEnum_t pid );
 

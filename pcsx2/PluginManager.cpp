@@ -359,8 +359,7 @@ SysCorePlugins::SysCorePlugins() :
 {
 }
 
-SysCorePlugins::PluginStatus_t::PluginStatus_t( PluginsEnum_t _pid, const wxString& srcfile )
-	: Filename( srcfile )
+SysCorePlugins::PluginStatus_t::PluginStatus_t( PluginsEnum_t _pid)
 {
 	pid = _pid;
 
@@ -424,23 +423,23 @@ SysCorePlugins::~SysCorePlugins()
 	// All library unloading done automatically by wx.
 }
 
-void SysCorePlugins::Load( PluginsEnum_t pid, const wxString& srcfile )
+void SysCorePlugins::Load( PluginsEnum_t pid )
 {
 	ScopedLock lock( m_mtx_PluginStatus );
 	pxAssert( (uint)pid < PluginId_Count );
 
-	m_info[pid] = std::make_unique<PluginStatus_t>(pid, srcfile);
+	m_info[pid] = std::make_unique<PluginStatus_t>(pid);
 
-	log_cb(RETRO_LOG_INFO, "Bound %4s: %s [%s %s]\n", WX_STR(tbl_PluginInfo[pid].GetShortname()), 
-		WX_STR(wxFileName(srcfile).GetFullName()), WX_STR(m_info[pid]->Name), WX_STR(m_info[pid]->Version));
+	log_cb(RETRO_LOG_INFO, "Bound %4s: [%s %s]\n", WX_STR(tbl_PluginInfo[pid].GetShortname()), 
+		WX_STR(m_info[pid]->Name), WX_STR(m_info[pid]->Version));
 }
 
-void SysCorePlugins::Load( const wxString (&folders)[PluginId_Count] )
+void SysCorePlugins::Load( )
 {
 	if( !NeedsLoad() ) return;
 
 	ForPlugins([&] (const PluginInfo * pi) {
-		Load( pi->id, folders[pi->id] );
+		Load( pi->id );
 		pxYield( 2 );
 	});
 

@@ -74,16 +74,6 @@ protected:
 	}
 };
 
-static void ConvertPluginFilenames( wxString (&passins)[PluginId_Count] )
-{
-	ForPlugins([&] (const PluginInfo * pi) {
-		passins[pi->id] = wxGetApp().Overrides.Filenames[pi->id].GetFullPath();
-
-		if( passins[pi->id].IsEmpty() || !wxFileExists( passins[pi->id] ) )
-			passins[pi->id] = g_Conf->FullpathTo( pi->id );
-	});
-}
-
 // --------------------------------------------------------------------------------------
 //  Public API / Interface
 // --------------------------------------------------------------------------------------
@@ -91,10 +81,7 @@ static void ConvertPluginFilenames( wxString (&passins)[PluginId_Count] )
 static void _LoadPluginsImmediate()
 {
 	if( CorePlugins.AreLoaded() ) return;
-
-	wxString passins[PluginId_Count];
-	ConvertPluginFilenames( passins );
-	CorePlugins.Load( passins );
+	CorePlugins.Load(  );
 }
 
 void LoadPluginsImmediate()
