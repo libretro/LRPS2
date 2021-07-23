@@ -74,14 +74,4 @@ public:
 
 		m_count = pos + keep;
 	}
-
-	__forceinline void GetAt(int i, Vertex& v)
-	{
-		v = *m_v[i];
-	}
-
-	int GetCount()
-	{
-		return m_count;
-	}
 };
