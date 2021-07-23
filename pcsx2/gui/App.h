@@ -21,8 +21,6 @@
 #include <wx/apptrait.h>
 #include <memory>
 
-#include "pxEventThread.h"
-
 #include "AppCommon.h"
 #include "AppCoreThread.h"
 

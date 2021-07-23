@@ -22,9 +22,6 @@
 // TODO!!  Make the system defined in this header system a bit more generic, and then move
 // it to the Utilities library.
 
-class pxEvtQueue;
-class SysExecEvent;
-
 // --------------------------------------------------------------------------------------
 //  SysExecEvent
 // --------------------------------------------------------------------------------------
@@ -148,6 +145,7 @@ protected:
 	}
 };
 
+#ifndef __LIBRETRO__
 typedef std::list<SysExecEvent*> pxEvtList;
 
 // --------------------------------------------------------------------------------------
@@ -210,7 +208,6 @@ public:
 	bool Rpc_TryInvoke( FnType_Void* method, const wxChar* traceName=NULL );
 	void SetActiveThread();
 };
-#ifndef __LIBRETRO__
 // --------------------------------------------------------------------------------------
 //  ExecutorThread
 // --------------------------------------------------------------------------------------

@@ -124,6 +124,9 @@ void SysExecEvent::PostResult() const
 	if( m_sync ) m_sync->PostResult();
 }
 
+#ifndef __LIBRETRO__
+#include "pxEventThread.h"
+
 // --------------------------------------------------------------------------------------
 //  pxEvtQueue Implementations
 // --------------------------------------------------------------------------------------
@@ -339,7 +342,6 @@ void pxEvtQueue::SetActiveThread()
 {
 	m_OwnerThreadId = wxThread::GetCurrentId();
 }
-#ifndef __LIBRETRO__
 // --------------------------------------------------------------------------------------
 //  ExecutorThread Implementations
 // --------------------------------------------------------------------------------------

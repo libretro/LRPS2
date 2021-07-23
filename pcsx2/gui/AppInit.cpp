@@ -167,15 +167,6 @@ int Pcsx2App::OnExit()
 	CleanupOnExit();
 	return wxApp::OnExit();
 }
-// --------------------------------------------------------------------------------------
-//  SysEventHandler
-// --------------------------------------------------------------------------------------
-class SysEvtHandler : public pxEvtQueue
-{
-public:
-	wxString GetEvtHandlerName() const { return L"SysExecutor"; }
-};
-
 
 Pcsx2App::Pcsx2App() 
 {

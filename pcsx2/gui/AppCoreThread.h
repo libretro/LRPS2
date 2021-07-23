@@ -16,11 +16,11 @@
 #pragma once
 
 #include "System/SysThreads.h"
-#include "pxEventThread.h"
 
 #include "AppCommon.h"
 #include "AppCorePlugins.h"
 #include "SaveState.h"
+#include "pxEventThread.h"
 
 #define AffinityAssert_AllowFrom_CoreThread() \
 	pxAssertMsg( GetCoreThread().IsSelf(), "Thread affinity violation: Call allowed from SysCoreThread only." )
