@@ -19,7 +19,6 @@
 #include <time.h>
 #include <unistd.h>
 #include <sys/time.h>
-#include <wx/utils.h>
 
 // Returns 0 on failure (not supported by the operating system).
 u64 GetPhysicalMemory()
@@ -33,19 +32,13 @@ u64 GetPhysicalMemory()
     return pages * getpagesize();
 }
 
-
+#if 0
 void InitCPUTicks()
 {
 }
 
-#if 0
 u64 GetTickFrequency()
 {
     return 1000000; // unix measures in microseconds
 }
 #endif
-
-wxString GetOSVersionString()
-{
-    return wxGetOsDescription();
-}

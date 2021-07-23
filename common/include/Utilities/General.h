@@ -254,11 +254,8 @@ void MemProtectStatic(u8 (&arr)[size], const PageProtectionMode &mode)
 #define SafeSysMunmap(ptr, size) \
     ((void)(HostSys::Munmap((uptr)(ptr), size), (ptr) = NULL))
 
-extern void InitCPUTicks();
 #if 0
+extern void InitCPUTicks();
 extern u64 GetTickFrequency();
 #endif
-extern u64 GetCPUTicks();
 extern u64 GetPhysicalMemory();
-
-extern wxString GetOSVersionString();

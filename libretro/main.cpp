@@ -288,7 +288,9 @@ void retro_init(void)
 
 	// instantiate the pcsx2 app and so some things on it
 	pcsx2 = &wxGetApp();
+#if 0
 	InitCPUTicks();
+#endif
 	pxDoOutOfMemory = SysOutOfMemory_EmergencyResponse;
 	g_Conf = std::make_unique<AppConfig>();
 

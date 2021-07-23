@@ -57,6 +57,7 @@ u64 GetPhysicalMemory()
     return mem;
 }
 
+#if 0
 void InitCPUTicks()
 {
 }
@@ -69,7 +70,6 @@ void InitCPUTicks()
 //
 // NOTE: multiply, subtract, ... your ticks before dividing by
 // GetTickFrequency() to maintain good precision.
-#if 0
 u64 GetTickFrequency()
 {
     static u64 freq = 0;
@@ -94,45 +94,3 @@ u64 GetTickFrequency()
     return freq;
 }
 #endif
-
-wxString GetOSVersionString()
-{
-    wxString version;
-    static int initialized = 0;
-
-    // fetch the OS description only once (thread-safely)
-    if (__atomic_load_n(&initialized, __ATOMIC_SEQ_CST) == 0) {
-        char type[32] = {0};
-        char release[32] = {0};
-        char arch[32] = {0};
-
-#define SYSCTL_GET(var, base, name)                   \
-    do {                                              \
-        int mib[] = {base, name};                     \
-        size_t len = sizeof(var);                     \
-        sysctl(mib, NELEM(mib), NULL, &len, NULL, 0); \
-        sysctl(mib, NELEM(mib), var, &len, NULL, 0);  \
-    } while (0)
-
-        SYSCTL_GET(release, CTL_KERN, KERN_OSRELEASE);
-        SYSCTL_GET(type, CTL_KERN, KERN_OSTYPE);
-        SYSCTL_GET(arch, CTL_HW, HW_MACHINE);
-
-#undef SYSCTL_KERN
-
-        // I know strcat is not good, but stpcpy is not universally
-        // available yet.
-        char buf[128] = {0};
-        strcat(buf, type);
-        strcat(buf, " ");
-        strcat(buf, release);
-        strcat(buf, " ");
-        strcat(buf, arch);
-
-        version = buf;
-
-        __atomic_store_n(&initialized, 1, __ATOMIC_SEQ_CST);
-    }
-
-    return version;
-}
