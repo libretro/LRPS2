@@ -29,41 +29,6 @@ void AsciiFile::Printf( const char* fmt, ... )
 	Write( ascii, strlen(ascii) );
 }
 
-bool CopyDirectory( const wxString& from, const wxString& to ) {
-	wxDir src( from );
-	if ( !src.IsOpened() ) {
-		return false;
-	}
-
-	wxMkdir( to );
-	wxDir dst( to );
-	if ( !dst.IsOpened() ) {
-		return false;
-	}
-
-	wxString filename;
-
-	// copy directories
-	if ( src.GetFirst( &filename, wxEmptyString, wxDIR_DIRS | wxDIR_HIDDEN ) ) {
-		do {
-			if ( !CopyDirectory( wxFileName( from, filename ).GetFullPath(), wxFileName( to, filename ).GetFullPath() ) ) {
-				return false;
-			}
-		} while ( src.GetNext( &filename ) );
-	}
-
-	// copy files
-	if ( src.GetFirst( &filename, wxEmptyString, wxDIR_FILES | wxDIR_HIDDEN ) ) {
-		do {
-			if ( !wxCopyFile( wxFileName( from, filename ).GetFullPath(), wxFileName( to, filename ).GetFullPath() ) ) {
-				return false;
-			}
-		} while ( src.GetNext( &filename ) );
-	}
-
-	return true;
-}
-
 bool RemoveDirectory( const wxString& dirname ) {
 		{
 			wxDir dir( dirname );
