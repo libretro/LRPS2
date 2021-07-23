@@ -36,12 +36,6 @@ namespace PathDefs
 {
 	namespace Base
 	{
-		const wxDirName& Snapshots()
-		{
-			static const wxDirName retval( L"snaps" );
-			return retval;
-		}
-
 		const wxDirName& Savestates()
 		{
 			static const wxDirName retval( L"sstates" );
@@ -66,12 +60,6 @@ namespace PathDefs
 			return retval;
 		}
 
-		const wxDirName& Logs()
-		{
-			static const wxDirName retval( L"logs" );
-			return retval;
-		}
-
 		const wxDirName& Bios()
 		{
 			static const wxDirName retval(L"bios");
@@ -90,18 +78,6 @@ namespace PathDefs
 			return retval;
 		}
 
-		const wxDirName& Langs()
-		{
-			static const wxDirName retval( L"Langs" );
-			return retval;
-		}
-
-		const wxDirName& Dumps()
-		{
-			static const wxDirName retval( L"dumps" );
-			return retval;
-		}
-		
 		const wxDirName& Docs()
 		{
 			static const wxDirName retval( L"docs" );
@@ -153,24 +129,6 @@ namespace PathDefs
 		return GetDocuments( DocsFolderMode );
 	}
 
-	wxDirName GetProgramDataDir()
-	{
-#ifndef GAMEINDEX_DIR_COMPILATION
-		return AppRoot();
-#else
-		// Each linux distributions have his rules for path so we give them the possibility to
-		// change it with compilation flags. -- Gregory
-#define xGAMEINDEX_str(s) GAMEINDEX_DIR_str(s)
-#define GAMEINDEX_DIR_str(s) #s
-		return wxDirName( xGAMEINDEX_str(GAMEINDEX_DIR_COMPILATION) );
-#endif
-	}
-
-	wxDirName GetSnapshots()
-	{
-		return GetDocuments() + Base::Snapshots();
-	}
-
 	wxDirName GetBios()
 	{
 		return GetDocuments() + Base::Bios();;
@@ -219,16 +177,6 @@ namespace PathDefs
 		return GetDocuments() + Base::Settings();
 	}
 
-	wxDirName GetLogs()
-	{
-		return GetDocuments() + Base::Logs();
-	}
-
-	wxDirName GetLangs()
-	{
-		return AppRoot() + Base::Langs();
-	}
-
 	wxDirName Get( FoldersEnum_t folderidx )
 	{
 		switch( folderidx )
@@ -236,11 +184,8 @@ namespace PathDefs
 			case FolderId_Plugins:		return GetPlugins();
 			case FolderId_Settings:		return GetSettings();
 			case FolderId_Bios:			return GetBios();
-			case FolderId_Snapshots:	return GetSnapshots();
 			case FolderId_Savestates:	return GetSavestates();
 			case FolderId_MemoryCards:	return GetMemoryCards();
-			case FolderId_Logs:			return GetLogs();
-			case FolderId_Langs:		return GetLangs();
 			case FolderId_Cheats:		return GetCheats();
 			case FolderId_CheatsWS:		return GetCheatsWS();
 
@@ -259,11 +204,8 @@ wxDirName& AppConfig::FolderOptions::operator[]( FoldersEnum_t folderidx )
 		case FolderId_Plugins:		return PluginsFolder;
 		case FolderId_Settings:		return SettingsFolder;
 		case FolderId_Bios:			return Bios;
-		case FolderId_Snapshots:	return Snapshots;
 		case FolderId_Savestates:	return Savestates;
 		case FolderId_MemoryCards:	return MemoryCards;
-		case FolderId_Logs:			return Logs;
-		case FolderId_Langs:		return Langs;
 		case FolderId_Cheats:		return Cheats;
 		case FolderId_CheatsWS:		return CheatsWS;
 
@@ -286,11 +228,8 @@ bool AppConfig::FolderOptions::IsDefault( FoldersEnum_t folderidx ) const
 		case FolderId_Plugins:		return UseDefaultPluginsFolder;
 		case FolderId_Settings:		return UseDefaultSettingsFolder;
 		case FolderId_Bios:			return UseDefaultBios;
-		case FolderId_Snapshots:	return UseDefaultSnapshots;
 		case FolderId_Savestates:	return UseDefaultSavestates;
 		case FolderId_MemoryCards:	return UseDefaultMemoryCards;
-		case FolderId_Logs:			return UseDefaultLogs;
-		case FolderId_Langs:		return UseDefaultLangs;
 		case FolderId_Cheats:		return UseDefaultCheats;
 		case FolderId_CheatsWS:		return UseDefaultCheatsWS;
 
@@ -320,11 +259,6 @@ void AppConfig::FolderOptions::Set( FoldersEnum_t folderidx, const wxString& src
 			UseDefaultBios = useDefault;
 		break;
 
-		case FolderId_Snapshots:
-			Snapshots = src;
-			UseDefaultSnapshots = useDefault;
-		break;
-
 		case FolderId_Savestates:
 			Savestates = src;
 			UseDefaultSavestates = useDefault;
@@ -333,16 +267,6 @@ void AppConfig::FolderOptions::Set( FoldersEnum_t folderidx, const wxString& src
 		case FolderId_MemoryCards:
 			MemoryCards = src;
 			UseDefaultMemoryCards = useDefault;
-		break;
-
-		case FolderId_Logs:
-			Logs = src;
-			UseDefaultLogs = useDefault;
-		break;
-
-		case FolderId_Langs:
-			Langs = src;
-			UseDefaultLangs = useDefault;
 		break;
 
 		case FolderId_Documents:
@@ -418,10 +342,6 @@ static wxDirName GetResolvedFolder(FoldersEnum_t id)
 	return g_Conf->Folders.IsDefault(id) ? PathDefs::Get(id) : g_Conf->Folders[id];
 }
 
-wxDirName GetLogFolder()
-{
-	return GetResolvedFolder(FolderId_Logs);
-}
 
 wxDirName GetCheatsFolder()
 {
@@ -603,11 +523,8 @@ void AppConfig::LoadSave( IniInterface& ini )
 void AppConfig::FolderOptions::ApplyDefaults()
 {
 	if( UseDefaultBios )		Bios		  = PathDefs::GetBios();
-	if( UseDefaultSnapshots )	Snapshots	  = PathDefs::GetSnapshots();
 	if( UseDefaultSavestates )	Savestates	  = PathDefs::GetSavestates();
 	if( UseDefaultMemoryCards )	MemoryCards	  = PathDefs::GetMemoryCards();
-	if( UseDefaultLogs )		Logs		  = PathDefs::GetLogs();
-	if( UseDefaultLangs )		Langs		  = PathDefs::GetLangs();
 	if( UseDefaultPluginsFolder)PluginsFolder = PathDefs::GetPlugins();
 	if( UseDefaultCheats )      Cheats		  = PathDefs::GetCheats();
 	if( UseDefaultCheatsWS )    CheatsWS	  = PathDefs::GetCheatsWS();
@@ -616,11 +533,8 @@ void AppConfig::FolderOptions::ApplyDefaults()
 // ------------------------------------------------------------------------
 AppConfig::FolderOptions::FolderOptions()
 	: Bios			( PathDefs::GetBios() )
-	, Snapshots		( PathDefs::GetSnapshots() )
 	, Savestates	( PathDefs::GetSavestates() )
 	, MemoryCards	( PathDefs::GetMemoryCards() )
-	, Langs			( PathDefs::GetLangs() )
-	, Logs			( PathDefs::GetLogs() )
 	, Cheats		( PathDefs::GetCheats() )
 	, CheatsWS      ( PathDefs::GetCheatsWS() )
 	, RunDisc	( PathDefs::GetDocuments().GetFilename() )
@@ -638,11 +552,8 @@ void AppConfig::FolderOptions::LoadSave( IniInterface& ini )
 	}
 
 	IniBitBool( UseDefaultBios );
-	IniBitBool( UseDefaultSnapshots );
 	IniBitBool( UseDefaultSavestates );
 	IniBitBool( UseDefaultMemoryCards );
-	IniBitBool( UseDefaultLogs );
-	IniBitBool( UseDefaultLangs );
 	IniBitBool( UseDefaultPluginsFolder );
 	IniBitBool( UseDefaultCheats );
 	IniBitBool( UseDefaultCheatsWS );
@@ -652,11 +563,8 @@ void AppConfig::FolderOptions::LoadSave( IniInterface& ini )
 	bool rel = ( ini.IsLoading() );
 	
 	IniEntryDirFile( Bios,  rel);
-	IniEntryDirFile( Snapshots,  rel );
 	IniEntryDirFile( Savestates,  rel );
 	IniEntryDirFile( MemoryCards,  rel );
-	IniEntryDirFile( Logs,  rel );
-	IniEntryDirFile( Langs,  rel );
 	IniEntryDirFile( Cheats, rel );
 	IniEntryDirFile( CheatsWS, rel );
 	ini.Entry( L"PluginsFolder", PluginsFolder, InstallFolder + PathDefs::Base::Plugins(), rel );

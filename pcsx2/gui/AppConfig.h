@@ -44,7 +44,6 @@ namespace PathDefs
 	// used otherwise, in favor of the user-configurable specifications in the ini files.
 
 	extern wxDirName GetUserLocalDataDir();
-	extern wxDirName GetProgramDataDir();
 	extern wxDirName GetDocuments();
 	extern wxDirName GetDocuments( DocsModeType mode );
 }
@@ -64,7 +63,6 @@ extern wxString  GetVmSettingsFilename();
 extern wxString  GetUiSettingsFilename();
 extern wxString  GetUiKeysFilename();
 
-extern wxDirName GetLogFolder();
 extern wxDirName GetCheatsFolder();
 extern wxDirName GetCheatsWsFolder();
 
@@ -105,22 +103,16 @@ public:
 		BITFIELD32()
 			bool
 				UseDefaultBios:1,
-				UseDefaultSnapshots:1,
 				UseDefaultSavestates:1,
 				UseDefaultMemoryCards:1,
-				UseDefaultLogs:1,
-				UseDefaultLangs:1,
 				UseDefaultCheats:1,
 				UseDefaultCheatsWS:1;
 		BITFIELD_END
 
 		wxDirName
 			Bios,
-			Snapshots,
 			Savestates,
 			MemoryCards,
-			Langs,
-			Logs,
 			Cheats,
 			CheatsWS;
 

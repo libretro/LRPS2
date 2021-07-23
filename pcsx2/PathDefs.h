@@ -26,11 +26,8 @@ enum FoldersEnum_t
 	FolderId_Settings,
 	
 	FolderId_Bios,
-	FolderId_Snapshots,
 	FolderId_Savestates,
 	FolderId_MemoryCards,
-	FolderId_Logs,
-	FolderId_Langs,
 
 	FolderId_Documents,
 
@@ -53,14 +50,11 @@ namespace PathDefs
 {
 	// complete pathnames are returned by these functions (may or may not be absolute)
 
-	extern wxDirName GetSnapshots();
 	extern wxDirName GetBios();
 	extern wxDirName GetPlugins();
 	extern wxDirName GetSavestates();
 	extern wxDirName GetMemoryCards();
 	extern wxDirName GetSettings();
-	extern wxDirName GetLogs();
-	extern wxDirName GetLangs();
 	extern wxDirName GetCheats();
 	extern wxDirName GetCheatsWS();
 	extern wxDirName GetDocs();
@@ -71,14 +65,11 @@ namespace PathDefs
 	// path.  These are typically for internal AppConfig use only, barring a few special cases.
 	namespace Base
 	{
-		extern const wxDirName& Snapshots();
 		extern const wxDirName& Savestates();
 		extern const wxDirName& MemoryCards();
 		extern const wxDirName& Settings();
 		extern const wxDirName& Plugins();
-		extern const wxDirName& Logs();
 		extern const wxDirName& Dumps();
-		extern const wxDirName& Langs();
 		extern const wxDirName& Cheats();
 		extern const wxDirName& CheatsWS();
 		extern const wxDirName& Docs();
