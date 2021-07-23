@@ -34,20 +34,6 @@ wxDirName				SettingsFolder;
 wxDirName				InstallFolder;
 wxDirName				PluginsFolder;
 
-// The UserLocalData folder can be redefined depending on whether or not PCSX2 is in
-// "portable install" mode or not.  when PCSX2 has been configured for portable install, the
-// UserLocalData folder is the current working directory.
-//
-InstallationModeType		InstallationMode;
-
-static wxFileName GetPortableIniPath()
-{
-	wxString programFullPath = wxStandardPaths::Get().GetExecutablePath();
-	wxDirName programDir( wxFileName(programFullPath).GetPath() );
-
-	return programDir + "portable.ini";
-}
-
 bool Pcsx2App::TestUserPermissionsRights( const wxDirName& testFolder, wxString& createFailedStr, wxString& accessFailedStr )
 {
 	// We need to individually verify read/write permission for each PCSX2 user documents folder.
@@ -93,54 +79,6 @@ bool Pcsx2App::TestUserPermissionsRights( const wxDirName& testFolder, wxString&
 	return (createFailedStr.IsEmpty() && accessFailedStr.IsEmpty());
 }
 
-// Portable installations are assumed to be run in either administrator rights mode, or run
-// from "insecure media" such as a removable flash drive.  In these cases, the default path for
-// PCSX2 user documents becomes ".", which is the current working directory.
-//
-// Portable installation mode is typically enabled via the presence of an INI file in the
-// same directory that PCSX2 is installed to.
-//
-wxConfigBase* Pcsx2App::TestForPortableInstall()
-{
-	InstallationMode = InstallMode_Registered;
-
-	const wxFileName portableIniFile( GetPortableIniPath() );
-	const wxDirName portableDocsFolder( portableIniFile.GetPath() );
-
-	if (Startup.PortableMode || portableIniFile.FileExists())
-	{
-		wxString FilenameStr = portableIniFile.GetFullPath();
-		if (Startup.PortableMode)
-			log_cb(RETRO_LOG_INFO, "(UserMode) Portable mode requested via commandline switch!\n" );
-		else
-			log_cb(RETRO_LOG_INFO, "(UserMode) Found portable install ini @ %s\n", WX_STR(FilenameStr) );
-
-		// Just because the portable ini file exists doesn't mean we can actually run in portable
-		// mode.  In order to determine our read/write permissions to the PCSX2, we must try to
-		// modify the configured documents folder, and catch any ensuing error.
-
-		std::unique_ptr<wxFileConfig> conf_portable( OpenFileConfig( portableIniFile.GetFullPath() ) );
-		conf_portable->SetRecordDefaults(false);
-
-		while( true )
-		{
-			wxString accessFailedStr, createFailedStr;
-			if (TestUserPermissionsRights( portableDocsFolder, createFailedStr, accessFailedStr )) break;
-			return NULL;
-		}
-	
-		// Success -- all user-based folders have write access.  PCSX2 should be able to run error-free!
-		// Force-set the custom documents mode, and set the 
-
-		InstallationMode = InstallMode_Portable;
-		DocsFolderMode = DocsFolder_Custom;
-		CustomDocumentsFolder = portableDocsFolder;
-		return conf_portable.release();
-	}
-	
-	return NULL;
-}
-
 wxConfigBase* Pcsx2App::OpenInstallSettingsFile()
 {
 	// Implementation Notes:
@@ -177,36 +115,10 @@ wxConfigBase* Pcsx2App::OpenInstallSettingsFile()
 
 void Pcsx2App::EstablishAppUserMode()
 {
-	std::unique_ptr<wxConfigBase> conf_install;
-
-	conf_install = std::unique_ptr<wxConfigBase>(TestForPortableInstall());
-	if (!conf_install)
-		conf_install = std::unique_ptr<wxConfigBase>(OpenInstallSettingsFile());
+	std::unique_ptr<wxConfigBase> conf_install = std::unique_ptr<wxConfigBase>(OpenInstallSettingsFile());
 
 	conf_install->SetRecordDefaults(false);
 
-	//  Run the First Time Wizard!
-	// ----------------------------
-	// Wizard is only run once.  The status of the wizard having been run is stored in
-	// the installation ini file, which can be either the portable install (useful for admins)
-	// or the registry/user local documents position.
-
-	bool runWiz;
-	conf_install->Read( L"RunWizard", &runWiz, true );
-
 	App_LoadInstallSettings( conf_install.get() );
-
-	if( !Startup.ForceWizard && !runWiz )
-	{
-		AppConfig_OnChangedSettingsFolder( false );
-		return;
-	}
-
-	// Save user's new settings
-	App_SaveInstallSettings( conf_install.get() );
-	AppConfig_OnChangedSettingsFolder( true );
-	AppSaveSettings();
-
-	// Wizard completed successfully, so let's not torture the user with this crap again!
-	conf_install->Write( L"RunWizard", false );
+	AppConfig_OnChangedSettingsFolder( false );
 }

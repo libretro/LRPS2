@@ -202,39 +202,17 @@ public:
 class StartupOptions
 {
 public:
-	bool			ForceWizard;
-	bool			ForceConsole;
-	bool			PortableMode;
-
-	// Disables the fast boot option when auto-running games.  This option only applies
-	// if SysAutoRun is also true.
-	bool			NoFastBoot;
-
 	// Specifies the Iso file to boot; used only if SysAutoRun is enabled and CdvdSource
 	// is set to ISO.
 	wxString		IsoFile;
 
 	wxString		ElfFile;
 
-	wxString		GameLaunchArgs;
-
 	// Specifies the CDVD source type to use when AutoRunning
 	CDVD_SourceType CdvdSource;
 
-	// Indicates if PCSX2 should autorun the configured CDVD source and/or ISO file.
-	bool			SysAutoRun;
-	bool			SysAutoRunElf;
-	bool			SysAutoRunIrx;
-
 	StartupOptions()
 	{
-		ForceWizard				= false;
-		ForceConsole			= false;
-		PortableMode			= false;
-		NoFastBoot				= false;
-		SysAutoRun				= false;
-		SysAutoRunElf			= false;
-		SysAutoRunIrx			= false;
 		CdvdSource				= CDVD_SourceType::NoDisc;
 	}
 };
@@ -416,14 +394,12 @@ public:
 	// --------------------------------------------------------------------------
 
 	void DetectCpuAndUserMode();
-	void OpenProgramLog();
 	void CleanupRestartable();
 	void CleanupResources();
 	bool TestUserPermissionsRights( const wxDirName& testFolder, wxString& createFailedStr, wxString& accessFailedStr );
 	void EstablishAppUserMode();
 
 	wxConfigBase* OpenInstallSettingsFile();
-	wxConfigBase* TestForPortableInstall();
 
 	bool HasPendingSaves() const;
 	void StartPendingSave();
@@ -511,8 +487,6 @@ extern void UnloadPlugins();
 extern void ShutdownPlugins();
 
 extern bool SysHasValidState();
-extern void SysUpdateIsoSrcFile( const wxString& newIsoFile );
-extern void SysUpdateDiscSrcDrive( const wxString& newDiscDrive );
 extern void SysStatus( const wxString& text );
 
 extern __aligned16 SysMtgsThread mtgsThread;

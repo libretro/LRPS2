@@ -118,26 +118,9 @@ namespace PathDefs
 	//  relative to the exe folder, and not relative to cwd. So the exe should be default AppRoot. - avih
 	const wxDirName& AppRoot()
 	{
-		//AffinityAssert_AllowFrom_MainUI();
-/*
-		if (InstallationMode == InstallMode_Registered)
-		{
-			static const wxDirName cwdCache( (wxDirName)Path::Normalize(wxGetCwd()) );
-			return cwdCache;
-		}
-		else if (InstallationMode == InstallMode_Portable)
-*/		
-		if (InstallationMode == InstallMode_Registered || InstallationMode == InstallMode_Portable)
-		{
-			static const wxDirName appCache( (wxDirName)
+		static const wxDirName appCache( (wxDirName)
 				wxFileName(wxStandardPaths::Get().GetExecutablePath()).GetPath() );
-			return appCache;
-		}
-		else
-			pxFail( "Unimplemented user local folder mode encountered." );
-		
-		static const wxDirName dotFail(L".");
-		return dotFail;
+		return appCache;
 	}
 
     // Specifies the main configuration folder.
@@ -502,11 +485,6 @@ wxString AppConfig::FullpathToMcd( uint slot ) const
 	return Mcd[slot].Filename.GetPath();
 }
 
-bool IsPortable()
-{
-	return InstallationMode==InstallMode_Portable;
-}
-
 AppConfig::AppConfig()
 {
 	#ifdef __WXMSW__
@@ -517,9 +495,9 @@ AppConfig::AppConfig()
 	EnableFastBoot		= true;
 
 	EnablePresets		= true;
-	PresetIndex			= 1;
+	PresetIndex		= 1;
 
-	CdvdSource			= CDVD_SourceType::Iso;
+	CdvdSource		= CDVD_SourceType::Iso;
 
 	// To be moved to FileMemoryCard pluign (someday)
 	for( uint slot=0; slot<8; ++slot )
@@ -537,16 +515,8 @@ AppConfig::AppConfig()
 // ------------------------------------------------------------------------
 void App_LoadSaveInstallSettings( IniInterface& ini )
 {
-	// Portable installs of PCSX2 should not save any of the following information to
-	// the INI file.  Only the Run First Time Wizard option is saved, and that's done
-	// from EstablishAppUserMode code.  All other options have assumed (fixed) defaults in
-	// portable mode which cannot be changed/saved.
-
 	// Note: Settins are still *loaded* from portable.ini, in case the user wants to do
 	// low-level overrides of the default behavior of portable mode installs.
-
-	if (ini.IsSaving() && (InstallationMode == InstallMode_Portable)) return;
-
 	static const wxChar* DocsFolderModeNames[] =
 	{
 		L"User",
@@ -555,7 +525,7 @@ void App_LoadSaveInstallSettings( IniInterface& ini )
 		NULL
 	};
 
-	ini.EnumEntry( L"DocumentsFolderMode",	DocsFolderMode,	DocsFolderModeNames, (InstallationMode == InstallMode_Registered) ? DocsFolder_User : DocsFolder_Custom);
+	ini.EnumEntry( L"DocumentsFolderMode",	DocsFolderMode,	DocsFolderModeNames, DocsFolder_User);
 
 	ini.Entry( L"CustomDocumentsFolder",	CustomDocumentsFolder,		PathDefs::AppRoot() );
 
@@ -631,8 +601,6 @@ void AppConfig::LoadSaveRootItems( IniInterface& ini )
 	#ifdef __WXMSW__
 	IniEntry( McdCompressNTFS );
 	#endif
-
-	ini.EnumEntry( L"CdvdSource", CdvdSource, CDVD_SourceLabels, CdvdSource );
 }
 
 // ------------------------------------------------------------------------
@@ -698,7 +666,7 @@ void AppConfig::FolderOptions::LoadSave( IniInterface& ini )
 
 	//when saving in portable mode, we save relative paths if possible
 	 //  --> on load, these relative paths will be expanded relative to the exe folder.
-	bool rel = ( ini.IsLoading() || IsPortable() );
+	bool rel = ( ini.IsLoading() );
 	
 	IniEntryDirFile( Bios,  rel);
 	IniEntryDirFile( Snapshots,  rel );
@@ -737,22 +705,12 @@ void AppConfig::FilenameOptions::LoadSave( IniInterface& ini )
 	//when saving in portable mode, we just save the non-full-path filename
  	//  --> on load they'll be initialized with default (relative) paths (works both for plugins and bios)
 	//note: this will break if converting from install to portable, and custom folders are used. We can live with that.
-	bool needRelativeName = ini.IsSaving() && IsPortable();
-
 	for( int i=0; i<PluginId_Count; ++i )
 	{
-		if ( needRelativeName ) {
-			wxFileName plugin_filename = wxFileName( Plugins[i].GetFullName() );
-			ini.Entry( tbl_PluginInfo[i].GetShortname(), plugin_filename, pc );
-		} else
-			ini.Entry( tbl_PluginInfo[i].GetShortname(), Plugins[i], pc );
+		ini.Entry( tbl_PluginInfo[i].GetShortname(), Plugins[i], pc );
 	}
 
-	if( needRelativeName ) { 
-		wxFileName bios_filename = wxFileName( Bios.GetFullName() );
-		ini.Entry( L"BIOS", bios_filename, pc );
-	} else
-		ini.Entry( L"BIOS", Bios, pc );
+	ini.Entry( L"BIOS", Bios, pc );
 }
 
 // ------------------------------------------------------------------------
@@ -968,14 +926,13 @@ void AppConfig_OnChangedSettingsFolder( bool overwrite )
 	if( overwrite )
 	{
 		if( wxFileExists( iniFilename ) && !wxRemoveFile( iniFilename ) )
-			throw Exception::AccessDenied(iniFilename)
-				.SetBothMsgs(L"Failed to overwrite existing settings file; permission was denied.");
+			log_cb(
+					RETRO_LOG_WARN, "Failed to overwrite existing settings file (iniFilename); permission was denied.\n");
 
 		const wxString vmIniFilename( GetVmSettingsFilename() );
 
 		if( wxFileExists( vmIniFilename ) && !wxRemoveFile( vmIniFilename ) )
-			throw Exception::AccessDenied(vmIniFilename)
-				.SetBothMsgs(L"Failed to overwrite existing settings file; permission was denied.");
+			log_cb(RETRO_LOG_WARN, "Failed to overwrite existing settings file (vmIniFilename); permission was denied.\n");
 	}
 
 	// Bind into wxConfigBase to allow wx to use our config internally, and delete whatever
@@ -1165,8 +1122,6 @@ static void SaveVmSettings()
 static void SaveRegSettings()
 {
 	std::unique_ptr<wxConfigBase> conf_install;
-
-	if (InstallationMode == InstallMode_Portable) return;
 
 	// sApp. macro cannot be use because you need the return value of OpenInstallSettingsFile method
 	if( Pcsx2App* __app_ = (Pcsx2App*)wxApp::GetInstance() ) conf_install = std::unique_ptr<wxConfigBase>((*__app_).OpenInstallSettingsFile());

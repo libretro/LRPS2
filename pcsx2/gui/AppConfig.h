@@ -68,26 +68,6 @@ extern wxDirName GetLogFolder();
 extern wxDirName GetCheatsFolder();
 extern wxDirName GetCheatsWsFolder();
 
-enum InstallationModeType
-{
-	// Use the user defined folder selections.  These can be anywhere on a user's hard drive,
-	// though by default the binaries (plugins) are located in Install_Dir (registered
-	// by the installer), and the user files (screenshots, inis) are in the user's documents
-	// folder.  All folders are changable within the GUI.
-	InstallMode_Registered,
-
-	// In this mode, both Install_Dir and UserDocuments folders default the directory containing
-	// PCSX2.exe, or the current working directory (if the PCSX2 directory could not be determined).
-	// Folders cannot be changed from within the gui, however the fixed defaults can be manually
-	// specified in the portable.ini by power users/devs.
-	//
-	// This mode is typically enabled by the presence of a 'portable.ini' in the folder.
-	InstallMode_Portable,
-};
-bool IsPortable();
-
-extern InstallationModeType	InstallationMode;
-
 enum AspectRatioType
 {
 	AspectRatio_Stretch,
