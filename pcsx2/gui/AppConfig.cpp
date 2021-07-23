@@ -388,17 +388,17 @@ namespace FilenameDefs
 {
 	wxFileName GetUiConfig()
 	{
-		return L"PCSX2_ui.ini";
+		return wxFileName(L"PCSX2_ui.ini");
 	}
 
 	wxFileName GetUiKeysConfig()
 	{
-		return L"PCSX2_keys.ini";
+		return wxFileName(L"PCSX2_keys.ini");
 	}
 
 	wxFileName GetVmConfig()
 	{
-		return L"PCSX2_vm.ini";
+		return wxFileName(L"PCSX2_vm.ini");
 	}
 
 	wxFileName GetUsermodeConfig()
