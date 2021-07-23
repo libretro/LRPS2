@@ -211,79 +211,6 @@ static void _DynGen_Dispatchers()
 using namespace R3000A;
 #include "Utilities/AsciiFile.h"
 
-static void iIopDumpBlock( int startpc, u8 * ptr )
-{
-	u32 i, j;
-	EEINST* pcur;
-	u8 used[34];
-	int numused, count;
-
-	log_cb(RETRO_LOG_DEBUG, "dump1 %x:%x, %x\n", startpc, psxpc, psxRegs.cycle );
-	g_Conf->Folders.Logs.Mkdir();
-
-	wxString filename( Path::Combine( g_Conf->Folders.Logs, wxsFormat( L"psxdump%.8X.txt", startpc ) ) );
-	AsciiFile f( filename, L"w" );
-
-	f.Printf("Dump PSX register data: 0x%x\n\n", (uptr)&psxRegs);
-
-	for ( i = startpc; i < s_nEndBlock; i += 4 ) {
-		f.Printf("%s\n", disR3000AF( iopMemRead32( i ), i ) );
-	}
-
-	// write the instruction info
-	f.Printf("\n\nlive0 - %x, lastuse - %x used - %x\n", EEINST_LIVE0, EEINST_LASTUSE, EEINST_USED);
-
-	memzero(used);
-	numused = 0;
-	for(i = 0; i < ArraySize(s_pInstCache->regs); ++i) {
-		if( s_pInstCache->regs[i] & EEINST_USED ) {
-			used[i] = 1;
-			numused++;
-		}
-	}
-
-	f.Printf("       ");
-	for(i = 0; i < ArraySize(s_pInstCache->regs); ++i) {
-		if( used[i] ) f.Printf("%2d ", i);
-	}
-	f.Printf("\n");
-
-	f.Printf("       ");
-	for(i = 0; i < ArraySize(s_pInstCache->regs); ++i) {
-		if( used[i] ) f.Printf("%s ", disRNameGPR[i]);
-	}
-	f.Printf("\n");
-
-	pcur = s_pInstCache+1;
-	for( i = 0; i < (s_nEndBlock-startpc)/4; ++i, ++pcur) {
-		f.Printf("%2d: %2.2x ", i+1, pcur->info);
-
-		count = 1;
-		for(j = 0; j < ArraySize(s_pInstCache->regs); j++) {
-			if( used[j] ) {
-				f.Printf("%2.2x%s", pcur->regs[j], ((count%8)&&count<numused)?"_":" ");
-				++count;
-			}
-		}
-		f.Printf("\n");
-	}
-	f.Close();
-
-#ifdef __linux__
-	// dump the asm
-	{
-		AsciiFile f2( L"mydump1", L"w" );
-		f2.Write( ptr, (uptr)x86Ptr - (uptr)ptr );
-	}
-
-	int status = std::system( wxsFormat( L"objdump -D -b binary -mi386 -M intel --no-show-raw-insn %s >> %s; rm %s",
-				"mydump1", WX_STR(filename), "mydump1").mb_str() );
-
-	if (!WIFEXITED(status))
-		log_cb(RETRO_LOG_ERROR, "IOP dump didn't terminate normally\n");
-#endif
-}
-
 u8 _psxLoadWritesRs(u32 tempcode)
 {
 	switch(tempcode>>26) {
@@ -1037,27 +964,6 @@ void psxRecompileNextInstruction(int delayslot)
 
 static void __fastcall  PreBlockCheck( u32 blockpc )
 {
-#ifdef PCSX2_DEBUG
-	extern void iDumpPsxRegisters(u32 startpc, u32 temp);
-
-	static u32 lastrec = 0;
-	static int curcount = 0;
-	const int skip = 0;
-
-    //*(int*)PSXM(0x27990) = 1; // enables cdvd bios output for scph10000
-
-    if( (psxdump&2) && lastrec != blockpc )
-    {
-		curcount++;
-
-		if( curcount > skip ) {
-			iDumpPsxRegisters(blockpc, 1);
-			curcount = 0;
-		}
-
-		lastrec = blockpc;
-	}
-#endif
 }
 
 static void __fastcall iopRecRecompile( const u32 startpc )

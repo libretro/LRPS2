@@ -261,14 +261,12 @@ extern void __fastcall vu0ExecMicro(u32 addr);
 extern void vu0Exec(VURegs* VU);
 extern void _vu0FinishMicro();
 extern void vu0Finish();
-extern void iDumpVU0Registers();
 
 // VU1
 extern void vu1Finish(bool add_cycles);
 extern void vu1ResetRegs();
 extern void __fastcall vu1ExecMicro(u32 addr);
 extern void vu1Exec(VURegs* VU);
-extern void iDumpVU1Registers();
 
 #ifdef VUM_LOG
 

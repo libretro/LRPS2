@@ -25,7 +25,6 @@
 #include "System/RecTypes.h"
 
 #include "vtlb.h"
-#include "Dump.h"
 
 #include "System/SysThreads.h"
 #include "GS.h"
@@ -102,12 +101,6 @@ static u32 s_saveHasConstReg = 0, s_saveFlushedConstReg = 0;
 static EEINST* s_psaveInstInfo = NULL;
 
 static u32 s_savenBlockCycles = 0;
-
-#ifdef PCSX2_DEBUG
-static u32 dumplog = 0;
-#else
-#define dumplog 0
-#endif
 
 static void iBranchTest(u32 newpc = 0xffffffff);
 static void ClearRecLUT(BASEBLOCK* base, int count);
@@ -1635,10 +1628,6 @@ static void __fastcall recRecompile( const u32 startpc )
 	u32 willbranch3 = 0;
 	u32 usecop2;
 
-#ifdef PCSX2_DEBUG
-    if (dumplog & 4) iDumpRegisters(startpc, 0);
-#endif
-
 	pxAssert( startpc );
 
 	// if recPtr reached the mem limit reset whole mem
@@ -2003,19 +1992,6 @@ StartRecomp:
 		}
 	}
 
-#ifdef PCSX2_DEBUG
-	// dump code
-	for(i = 0; i < ArraySize(s_recblocks); ++i)
-	{
-		if (startpc == s_recblocks[i])
-		{
-			iDumpBlock(startpc, recPtr);
-		}
-	}
-
-	if (dumplog & 1) iDumpBlock(startpc, recPtr);
-#endif
-
 	// Detect and handle self-modified code
 	memory_protect_recompiled_code(startpc, (s_nEndBlock-startpc) >> 2);
 
@@ -2029,10 +2005,6 @@ StartRecomp:
 			recompileNextInstruction(0);		// For the love of recursion, batman!
 		}
 	}
-
-#ifdef PCSX2_DEBUG
-	if (dumplog & 1) iDumpBlock(startpc, recPtr);
-#endif
 
 	pxAssert( (pc-startpc)>>2 <= 0xffff );
 	s_pCurBlockEx->size = (pc-startpc)>>2;
@@ -2116,13 +2088,6 @@ StartRecomp:
 
 	pxAssert(xGetPtr() - recPtr < _64kb);
 	s_pCurBlockEx->x86size = xGetPtr() - recPtr;
-
-#if 0
-	// Example: Dump both x86/EE code
-	if (startpc == 0x456630) {
-		iDumpBlock(s_pCurBlockEx->startpc, s_pCurBlockEx->size*4, s_pCurBlockEx->fnptr, s_pCurBlockEx->x86size);
-	}
-#endif
 
 	recPtr = xGetPtr();
 

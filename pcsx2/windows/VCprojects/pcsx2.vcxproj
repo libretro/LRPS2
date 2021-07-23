@@ -340,7 +340,6 @@
     <ClCompile Include="..\..\Recording\InputRecordingFile.cpp" />
     <ClCompile Include="..\..\Recording\PadData.cpp" />
     <ClCompile Include="..\..\Utilities\FileUtils.cpp" />
-    <ClCompile Include="..\..\Dump.cpp" />
     <ClCompile Include="..\..\x86\iMisc.cpp" />
     <ClCompile Include="..\..\Pcsx2Config.cpp" />
     <ClCompile Include="..\..\PluginManager.cpp" />
@@ -588,7 +587,6 @@
     <ClInclude Include="..\..\CDVD\IsoFileFormats.h" />
     <ClInclude Include="..\..\Common.h" />
     <ClInclude Include="..\..\Config.h" />
-    <ClInclude Include="..\..\Dump.h" />
     <ClInclude Include="..\..\IopCommon.h" />
     <ClInclude Include="..\..\Plugins.h" />
     <ClInclude Include="..\..\SaveState.h" />
