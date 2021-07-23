@@ -113,10 +113,6 @@
 #       define wxUSE_STDPATHS 1
 #endif /* !defined(wxUSE_STDPATHS) */
 
-#ifndef wxUSE_STD_CONTAINERS
-#       define wxUSE_STD_CONTAINERS 0
-#endif /* !defined(wxUSE_STD_CONTAINERS) */
-
 #ifndef wxUSE_STD_STRING_CONV_IN_WXSTRING
 #       define wxUSE_STD_STRING_CONV_IN_WXSTRING 0
 #endif /* !defined(wxUSE_STD_STRING_CONV_IN_WXSTRING) */

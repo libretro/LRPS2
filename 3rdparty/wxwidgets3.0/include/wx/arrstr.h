@@ -27,89 +27,13 @@ inline int wxCMPFUNC_CONV wxStringSortDescending(wxString* s1, wxString* s2)
     return wxStringSortAscending(s2, s1);
 }
 
-#if wxUSE_STD_CONTAINERS
-
-#include "wx/dynarray.h"
-
-typedef int (wxCMPFUNC_CONV *CMPFUNCwxString)(wxString*, wxString*);
-typedef wxString _wxArraywxBaseArrayStringBase;
-_WX_DECLARE_BASEARRAY_2(_wxArraywxBaseArrayStringBase, wxBaseArrayStringBase,
-                        wxArray_SortFunction<wxString>,
-                        class WXDLLIMPEXP_BASE);
-WX_DEFINE_USER_EXPORTED_TYPEARRAY(wxString, wxArrayStringBase,
-                                  wxBaseArrayStringBase, WXDLLIMPEXP_BASE);
-_WX_DEFINE_SORTED_TYPEARRAY_2(wxString, wxSortedArrayStringBase,
-                              wxBaseArrayStringBase, = wxStringSortAscending,
-                              class WXDLLIMPEXP_BASE, CMPFUNCwxString);
-
-class WXDLLIMPEXP_BASE wxArrayString : public wxArrayStringBase
-{
-public:
-    // type of function used by wxArrayString::Sort()
-    typedef int (wxCMPFUNC_CONV *CompareFunction)(const wxString& first,
-                                                  const wxString& second);
-
-    wxArrayString() { }
-    wxArrayString(const wxArrayString& a) : wxArrayStringBase(a) { }
-    wxArrayString(size_t sz, const char** a);
-    wxArrayString(size_t sz, const wchar_t** a);
-    wxArrayString(size_t sz, const wxString* a);
-
-    int Index(const wxString& str, bool bCase = true, bool bFromEnd = false) const;
-
-    void Sort(bool reverseOrder = false);
-    void Sort(CompareFunction function);
-    void Sort(CMPFUNCwxString function) { wxArrayStringBase::Sort(function); }
-
-    size_t Add(const wxString& string, size_t copies = 1)
-    {
-        wxArrayStringBase::Add(string, copies);
-        return size() - copies;
-    }
-};
-
-class WXDLLIMPEXP_BASE wxSortedArrayString : public wxSortedArrayStringBase
-{
-public:
-    wxSortedArrayString() : wxSortedArrayStringBase(wxStringSortAscending)
-        { }
-    wxSortedArrayString(const wxSortedArrayString& array)
-        : wxSortedArrayStringBase(array)
-        { }
-    wxSortedArrayString(const wxArrayString& src)
-        : wxSortedArrayStringBase(wxStringSortAscending)
-    {
-        reserve(src.size());
-
-        for ( size_t n = 0; n < src.size(); n++ )
-            Add(src[n]);
-    }
-
-    int Index(const wxString& str, bool bCase = true, bool bFromEnd = false) const;
-
-private:
-    void Insert()
-    {
-        wxFAIL_MSG( "wxSortedArrayString::Insert() is not to be used" );
-    }
-
-    void Sort()
-    {
-        wxFAIL_MSG( "wxSortedArrayString::Sort() is not to be used" );
-    }
-};
-
-#else // if !wxUSE_STD_CONTAINERS
-
 // this shouldn't be defined for compilers not supporting template methods or
 // without std::distance()
 //
 // FIXME-VC6: currently it's only not defined for VC6 in DLL build as it
 //            doesn't export template methods from DLL correctly so even though
 //            it compiles them fine, we get link errors when using wxArrayString
-#if !defined(__VISUALC6__) || !(defined(WXMAKINGDLL) || defined(WXUSINGDLL))
     #define wxHAS_VECTOR_TEMPLATE_ASSIGN
-#endif
 
 #ifdef wxHAS_VECTOR_TEMPLATE_ASSIGN
     #include "wx/beforestd.h"
@@ -385,8 +309,6 @@ public:
   wxSortedArrayString(const wxArrayString& array) : wxArrayString(true)
     { Copy(array); }
 };
-
-#endif // !wxUSE_STD_CONTAINERS
 
 // this class provides a temporary wxString* from a
 // wxArrayString

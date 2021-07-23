@@ -87,11 +87,7 @@
 #endif
 
 // deriving wxWin containers from STL ones changes them completely:
-#if wxUSE_STD_CONTAINERS
-    #define __WX_BO_STL ",STL containers"
-#else
-    #define __WX_BO_STL ",wx containers"
-#endif
+#define __WX_BO_STL ",wx containers"
 
 // This macro is passed as argument to wxConsoleApp::CheckBuildOptions()
 #define WX_BUILD_OPTIONS_SIGNATURE \

@@ -32,8 +32,6 @@
     #include "wx/crt.h"
 #endif
 
-#if !wxUSE_STD_CONTAINERS
-
 // =============================================================================
 // implementation
 // =============================================================================
@@ -750,17 +748,3 @@ wxNode *wxStringList::Prepend(const wxChar *s)
 }
 
 #endif // wxLIST_COMPATIBILITY
-
-#else // wxUSE_STD_CONTAINERS = 1
-
-    #include "wx/listimpl.cpp"
-    WX_DEFINE_LIST(wxObjectList)
-
-// with wxUSE_STD_CONTAINERS wxStringList contains wxString objects, not pointers
-void _WX_LIST_HELPER_wxStringListBase::DeleteFunction( wxString WXUNUSED(X) )
-{
-}
-
-_WX_LIST_HELPER_wxStringListBase::BaseListType _WX_LIST_HELPER_wxStringListBase::EmptyList;
-
-#endif // !wxUSE_STD_CONTAINERS

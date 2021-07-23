@@ -14,20 +14,6 @@
 
 #include "wx/defs.h"
 
-#if wxUSE_STD_CONTAINERS
-
-#include <vector>
-#include <algorithm>
-
-#define wxVector std::vector
-template<typename T>
-inline void wxVectorSort(wxVector<T>& v)
-{
-    std::sort(v.begin(), v.end());
-}
-
-#else // !wxUSE_STD_CONTAINERS
-
 #include "wx/scopeguard.h"
 #include "wx/meta/movable.h"
 #include "wx/meta/if.h"
@@ -570,10 +556,6 @@ void wxVectorSort(wxVector<T>& v)
     wxQsort(v.begin(), v.size(), sizeof(T),
             wxPrivate::wxVectorComparator<T>::Compare, NULL);
 }
-
-
-
-#endif // wxUSE_STD_CONTAINERS/!wxUSE_STD_CONTAINERS
 
 #if WXWIN_COMPATIBILITY_2_8
     #define WX_DECLARE_VECTORBASE(obj, cls) typedef wxVector<obj> cls

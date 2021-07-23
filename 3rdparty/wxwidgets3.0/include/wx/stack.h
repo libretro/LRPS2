@@ -13,13 +13,6 @@
 
 #include "wx/vector.h"
 
-#if wxUSE_STD_CONTAINERS
-
-#include <stack>
-#define wxStack std::stack
-
-#else // !wxUSE_STD_CONTAINERS
-
 // Notice that unlike std::stack, wxStack currently always uses wxVector and
 // can't be used with any other underlying container type.
 //
@@ -52,9 +45,6 @@ public:
 private:
     container_type m_cont;
 };
-
-#endif // wxUSE_STD_CONTAINERS/!wxUSE_STD_CONTAINERS
-
 
 // Deprecated macro-based class for compatibility only, don't use any more.
 #define WX_DECLARE_STACK(obj, cls) \

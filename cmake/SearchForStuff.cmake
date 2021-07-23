@@ -137,8 +137,6 @@ include_directories(${CMAKE_SOURCE_DIR}/common/include
 #----------------------------------------
 include(ApiValidation)
 
-WX_vs_SDL()
-
 # Blacklist bad GCC
 if(GCC_VERSION VERSION_EQUAL "7.0" OR GCC_VERSION VERSION_EQUAL "7.1")
     GCC7_BUG()

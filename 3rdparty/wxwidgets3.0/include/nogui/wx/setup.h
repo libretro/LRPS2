@@ -47,8 +47,6 @@
     #define wxUSE_STD_DEFAULT  1
 #endif
 
-#define wxUSE_STD_CONTAINERS 0
-
 #define wxUSE_STD_IOSTREAM wxUSE_STD_DEFAULT
 
 #define wxUSE_STD_STRING wxUSE_STD_DEFAULT
@@ -224,15 +222,6 @@
  * case WX_NO_REGEX_ADVANCED should be defined.
  */
 #define WX_NO_REGEX_ADVANCED 1
-/*
- * On GNU systems use re_search instead of regexec, since the latter does a
- * strlen on the search text affecting the performance of some operations.
- */
-/* #undef HAVE_RE_SEARCH */
-/*
- * Use SDL for audio (Unix)
- */
-#define wxUSE_LIBSDL 0
 
 /*
  * Define if you have pthread_cleanup_push/pop()

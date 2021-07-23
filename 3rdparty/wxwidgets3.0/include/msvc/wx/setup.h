@@ -13,7 +13,7 @@
 #endif
 
 // VC++ IDE predefines _DEBUG and _UNICODE for the new projects itself, but
-// the other symbols (WXUSINGDLL, __WXUNIVERSAL__, ...) should be defined
+// the other symbols (__WXUNIVERSAL__, ...) should be defined
 // explicitly!
 
 #include "wx/version.h"
@@ -88,13 +88,8 @@
 
 // Construct the path for the subdirectory under /lib/ that the included setup.h
 // will be used from
-#ifdef WXUSINGDLL
-    #define wxLIB_SUBDIR \
-        wxCONCAT4(wxCOMPILER_PREFIX, wxARCH_SUFFIX, _dll, wxCFG)
-#else // !DLL
-    #define wxLIB_SUBDIR \
-        wxCONCAT4(wxCOMPILER_PREFIX, wxARCH_SUFFIX, _lib, wxCFG)
-#endif // DLL/!DLL
+#define wxLIB_SUBDIR \
+	wxCONCAT4(wxCOMPILER_PREFIX, wxARCH_SUFFIX, _lib, wxCFG)
 
 // The user can predefine a different prefix if not using the default MSW port
 // with MSVC.
@@ -150,38 +145,34 @@
 #pragma comment(lib, wxWX_LIB_NAME("base", ""))
 
 #ifndef wxNO_NET_LIB
-    #ifndef WXUSINGDLL
-        #pragma comment(lib, "wsock32")
-    #endif
+#pragma comment(lib, "wsock32")
     #pragma comment(lib, wxBASE_LIB_NAME("net"))
 #endif
 
-#ifndef WXUSINGDLL
-    // Make sure all required system libraries are added to the linker too when
-    // using static libraries.
-    #pragma comment(lib, "kernel32")
-    #pragma comment(lib, "user32")
-    #pragma comment(lib, "gdi32")
-    #pragma comment(lib, "comdlg32")
-    #pragma comment(lib, "winspool")
-    #pragma comment(lib, "winmm")
-    #pragma comment(lib, "shell32")
-    #pragma comment(lib, "comctl32")
-    #pragma comment(lib, "ole32")
-    #pragma comment(lib, "oleaut32")
-    #pragma comment(lib, "uuid")
-    #pragma comment(lib, "rpcrt4")
-    #pragma comment(lib, "advapi32")
+// Make sure all required system libraries are added to the linker too when
+// using static libraries.
+#pragma comment(lib, "kernel32")
+#pragma comment(lib, "user32")
+#pragma comment(lib, "gdi32")
+#pragma comment(lib, "comdlg32")
+#pragma comment(lib, "winspool")
+#pragma comment(lib, "winmm")
+#pragma comment(lib, "shell32")
+#pragma comment(lib, "comctl32")
+#pragma comment(lib, "ole32")
+#pragma comment(lib, "oleaut32")
+#pragma comment(lib, "uuid")
+#pragma comment(lib, "rpcrt4")
+#pragma comment(lib, "advapi32")
 
-    #ifdef __WXGTK__
-        #pragma comment(lib, "gtk-win32-2.0.lib")
-        #pragma comment(lib, "gdk-win32-2.0.lib")
-        #pragma comment(lib, "pangocairo-1.0.lib")
-        #pragma comment(lib, "gdk_pixbuf-2.0.lib")
-        #pragma comment(lib, "cairo.lib")
-        #pragma comment(lib, "pango-1.0.lib")
-        #pragma comment(lib, "gobject-2.0.lib")
-        #pragma comment(lib, "gthread-2.0.lib")
-        #pragma comment(lib, "glib-2.0.lib")
-    #endif
-#endif // !WXUSINGDLL
+#ifdef __WXGTK__
+#pragma comment(lib, "gtk-win32-2.0.lib")
+#pragma comment(lib, "gdk-win32-2.0.lib")
+#pragma comment(lib, "pangocairo-1.0.lib")
+#pragma comment(lib, "gdk_pixbuf-2.0.lib")
+#pragma comment(lib, "cairo.lib")
+#pragma comment(lib, "pango-1.0.lib")
+#pragma comment(lib, "gobject-2.0.lib")
+#pragma comment(lib, "gthread-2.0.lib")
+#pragma comment(lib, "glib-2.0.lib")
+#endif
