@@ -1030,35 +1030,6 @@ bool SysCorePlugins::AreLoaded() const
 	return true;
 }
 
-bool SysCorePlugins::AreOpen() const
-{
-	ScopedLock lock( m_mtx_PluginStatus );
-
-	return IfPlugins([&] (const PluginInfo * pi) {
-		return !IsOpen(pi->id);
-	});
-}
-
-bool SysCorePlugins::AreAnyLoaded() const
-{
-	ScopedLock lock( m_mtx_PluginStatus );
-	for( int i=0; i<PluginId_Count; ++i )
-	{
-		if( m_info[i] ) return true;
-	}
-
-	return false;
-}
-
-bool SysCorePlugins::AreAnyInitialized() const
-{
-	ScopedLock lock( m_mtx_PluginStatus );
-
-	return IfPlugins([&] (const PluginInfo * pi) {
-		return IsInitialized(pi->id);
-	});
-}
-
 bool SysCorePlugins::IsOpen( PluginsEnum_t pid ) const
 {
 	pxAssert( (uint)pid < PluginId_Count );
@@ -1124,18 +1095,4 @@ bool SysCorePlugins::NeedsClose() const
 	return IfPlugins([&] (const PluginInfo * pi) {
 		return IsOpen(pi->id);
 	});
-}
-
-const wxString SysCorePlugins::GetName( PluginsEnum_t pid ) const
-{
-	ScopedLock lock( m_mtx_PluginStatus );
-	pxAssert( (uint)pid < PluginId_Count );
-	return m_info[pid] ? m_info[pid]->Name : (wxString)L"Unloaded Plugin";
-}
-
-const wxString SysCorePlugins::GetVersion( PluginsEnum_t pid ) const
-{
-	ScopedLock lock( m_mtx_PluginStatus );
-	pxAssert( (uint)pid < PluginId_Count );
-	return m_info[pid] ? m_info[pid]->Version : L"0.0";
 }

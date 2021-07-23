@@ -329,9 +329,6 @@ public:
 	virtual void Unload( PluginsEnum_t pid );
 
 	bool AreLoaded() const;
-	bool AreOpen() const;
-	bool AreAnyLoaded() const;
-	bool AreAnyInitialized() const;
 	
 	Threading::Mutex& GetMutex() { return m_mtx_PluginStatus; }
 
@@ -361,9 +358,6 @@ public:
 	virtual void SendSettingsFolder();
 	virtual void SendLogFolder();
 
-
-	const wxString GetName( PluginsEnum_t pid ) const;
-	const wxString GetVersion( PluginsEnum_t pid ) const;
 
 protected:
 	virtual bool NeedsClose() const;
