@@ -396,7 +396,6 @@ public:
 	void DetectCpuAndUserMode();
 	void CleanupRestartable();
 	void CleanupResources();
-	bool TestUserPermissionsRights( const wxDirName& testFolder, wxString& createFailedStr, wxString& accessFailedStr );
 	void EstablishAppUserMode();
 
 	wxConfigBase* OpenInstallSettingsFile();

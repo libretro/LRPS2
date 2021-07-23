@@ -34,51 +34,6 @@ wxDirName				SettingsFolder;
 wxDirName				InstallFolder;
 wxDirName				PluginsFolder;
 
-bool Pcsx2App::TestUserPermissionsRights( const wxDirName& testFolder, wxString& createFailedStr, wxString& accessFailedStr )
-{
-	// We need to individually verify read/write permission for each PCSX2 user documents folder.
-	// If any of the folders are not writable, then the user should be informed asap via
-	// friendly and courteous dialog box!
-
-	const wxDirName PermissionFolders[] = 
-	{
-		PathDefs::Base::Settings(),
-		PathDefs::Base::MemoryCards(),
-		PathDefs::Base::Savestates(),
-		PathDefs::Base::Snapshots(),
-		PathDefs::Base::Logs(),
-		PathDefs::Base::CheatsWS(),
-		#ifdef PCSX2_DEVBUILD
-		PathDefs::Base::Dumps(),
-		#endif
-	};
-
-	FastFormatUnicode createme, accessme;
-
-	for (uint i=0; i<ArraySize(PermissionFolders); ++i)
-	{
-		wxDirName folder( testFolder + PermissionFolders[i] );
-
-		if (!folder.Mkdir())
-			createme += L"\t" + folder.ToString() + L"\n";
-
-		if (!folder.IsWritable())
-			accessme += L"\t" + folder.ToString() + L"\n";
-	}
-
-	if (!accessme.IsEmpty())
-	{
-		accessFailedStr = (wxString)L"The following folders exist, but are not writable:" + L"\n" + accessme;
-	}
-	
-	if (!createme.IsEmpty())
-	{
-		createFailedStr = (wxString)L"The following folders are missing and cannot be created:" + L"\n" + createme;
-	}
-
-	return (createFailedStr.IsEmpty() && accessFailedStr.IsEmpty());
-}
-
 wxConfigBase* Pcsx2App::OpenInstallSettingsFile()
 {
 	// Implementation Notes:
