@@ -156,7 +156,7 @@ namespace PathDefs
 			// Move all user data file into central configuration directory (XDG_CONFIG_DIR)
 			case DocsFolder_User:	return GetUserLocalDataDir();
 #else
-			case DocsFolder_User:	return (wxDirName)Path::Combine( wxStandardPaths::Get().GetDocumentsDir(), pxGetAppName() );
+			case DocsFolder_User:	return (wxDirName)Path::Combine( wxStandardPaths::Get().GetDocumentsDir(), L"PCSX2" );
 #endif
 			case DocsFolder_Custom: return CustomDocumentsFolder;
 
@@ -388,17 +388,17 @@ namespace FilenameDefs
 {
 	wxFileName GetUiConfig()
 	{
-		return pxGetAppName() + L"_ui.ini";
+		return L"PCSX2_ui.ini";
 	}
 
 	wxFileName GetUiKeysConfig()
 	{
-		return pxGetAppName() + L"_keys.ini";
+		return L"PCSX2_keys.ini";
 	}
 
 	wxFileName GetVmConfig()
 	{
-		return pxGetAppName() + L"_vm.ini";
+		return L"PCSX2_vm.ini";
 	}
 
 	wxFileName GetUsermodeConfig()
@@ -518,8 +518,6 @@ bool IsPortable()
 
 AppConfig::AppConfig()
 {
-	RecentIsoCount		= 20;
-
 	#ifdef __WXMSW__
 	McdCompressNTFS		= true;
 	#endif
@@ -623,11 +621,9 @@ void AppConfig::LoadSaveMemcards( IniInterface& ini )
 
 void AppConfig::LoadSaveRootItems( IniInterface& ini )
 {
-	IniEntry( RecentIsoCount );
 	IniEntry( GzipIsoIndexTemplate );
 
 	wxFileName res(CurrentIso);
-	ini.Entry( L"CurrentIso", res, res, ini.IsLoading() || IsPortable() );
 	CurrentIso = res.GetFullPath();
 
 	IniEntry( CurrentBlockdump );
@@ -685,9 +681,6 @@ AppConfig::FolderOptions::FolderOptions()
 	, Logs			( PathDefs::GetLogs() )
 	, Cheats		( PathDefs::GetCheats() )
 	, CheatsWS      ( PathDefs::GetCheatsWS() )
-
-	, RunIso	( PathDefs::GetDocuments() )			// raw default is always the Documents folder.
-	, RunELF	( PathDefs::GetDocuments() )			// raw default is always the Documents folder.
 	, RunDisc	( PathDefs::GetDocuments().GetFilename() )
 {
 	bitset = 0xffffffff;
@@ -726,8 +719,6 @@ void AppConfig::FolderOptions::LoadSave( IniInterface& ini )
 	IniEntryDirFile( CheatsWS, rel );
 	ini.Entry( L"PluginsFolder", PluginsFolder, InstallFolder + PathDefs::Base::Plugins(), rel );
 
-	IniEntryDirFile( RunIso, rel );
-	IniEntryDirFile( RunELF, rel );
 	IniEntryDirFile( RunDisc, rel );
 
 	if( ini.IsLoading() )

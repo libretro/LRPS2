@@ -85,5 +85,3 @@ public:
     bool ProcessEvent(pxActionEvent &evt);
     bool ProcessEvent(pxActionEvent *evt);
 };
-
-extern wxString pxGetAppName();

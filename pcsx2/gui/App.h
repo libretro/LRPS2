@@ -420,10 +420,8 @@ public:
 	void OpenProgramLog();
 	void CleanupRestartable();
 	void CleanupResources();
-	void WipeUserModeSettings();
 	bool TestUserPermissionsRights( const wxDirName& testFolder, wxString& createFailedStr, wxString& accessFailedStr );
 	void EstablishAppUserMode();
-	void ForceFirstTimeWizardOnNextRun();
 
 	wxConfigBase* OpenInstallSettingsFile();
 	wxConfigBase* TestForPortableInstall();

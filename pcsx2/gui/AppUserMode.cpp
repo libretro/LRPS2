@@ -23,7 +23,7 @@
 #include "wx/msw/regconf.h"
 #endif
 
-DocsModeType			DocsFolderMode = DocsFolder_User;
+DocsModeType				DocsFolderMode = DocsFolder_User;
 bool					UseDefaultSettingsFolder = true;
 bool					UseDefaultPluginsFolder = true;
 
@@ -47,12 +47,6 @@ static wxFileName GetPortableIniPath()
 
 	return programDir + "portable.ini";
 }
-
-static wxString GetMsg_PortableModeRights()
-{
-	return L"Please ensure that these folders are created and that your user account is granted write permissions to them -- or re-run PCSX2 with elevated (administrator) rights, which should grant PCSX2 the ability to create the necessary folders itself.  If you do not have elevated rights on this computer, then you will need to switch to User Documents mode (click button below)."
-	;
-};
 
 bool Pcsx2App::TestUserPermissionsRights( const wxDirName& testFolder, wxString& createFailedStr, wxString& accessFailedStr )
 {
@@ -147,28 +141,6 @@ wxConfigBase* Pcsx2App::TestForPortableInstall()
 	return NULL;
 }
 
-// Reset RunWizard so the FTWizard is run again on next PCSX2 start.
-void Pcsx2App::WipeUserModeSettings()
-{	
-	if (InstallationMode == InstallMode_Portable)
-	{
-		// Remove the portable.ini entry "RunWizard" conforming to this instance of PCSX2.
-		wxFileName portableIniFile( GetPortableIniPath() );
-		std::unique_ptr<wxFileConfig> conf_portable( OpenFileConfig( portableIniFile.GetFullPath() ) );
-		conf_portable->DeleteEntry(L"RunWizard");
-	}
-	else 
-	{
-		// Remove the registry entry "RunWizard" conforming to this instance of PCSX2.
-		std::unique_ptr<wxConfigBase> conf_install( OpenInstallSettingsFile() );
-		conf_install->DeleteEntry(L"RunWizard");
-	}
-}
-
-static void DoFirstTimeWizard()
-{
-}
-
 wxConfigBase* Pcsx2App::OpenInstallSettingsFile()
 {
 	// Implementation Notes:
@@ -203,17 +175,6 @@ wxConfigBase* Pcsx2App::OpenInstallSettingsFile()
 }
 
 
-void Pcsx2App::ForceFirstTimeWizardOnNextRun()
-{
-	std::unique_ptr<wxConfigBase> conf_install;
-
-	conf_install = std::unique_ptr<wxConfigBase>(TestForPortableInstall());
-	if (!conf_install)
-		conf_install = std::unique_ptr<wxConfigBase>(OpenInstallSettingsFile());
-
-	conf_install->Write( L"RunWizard", true );
-}
-
 void Pcsx2App::EstablishAppUserMode()
 {
 	std::unique_ptr<wxConfigBase> conf_install;
@@ -240,8 +201,6 @@ void Pcsx2App::EstablishAppUserMode()
 		AppConfig_OnChangedSettingsFolder( false );
 		return;
 	}
-
-	DoFirstTimeWizard();
 
 	// Save user's new settings
 	App_SaveInstallSettings( conf_install.get() );

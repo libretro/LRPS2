@@ -386,9 +386,3 @@ wxAppWithHelpers::wxAppWithHelpers()
     tls_insurance = 1;
 #endif
 }
-
-wxString pxGetAppName()
-{
-    pxAssert(wxTheApp);
-    return wxTheApp->GetAppName();
-}

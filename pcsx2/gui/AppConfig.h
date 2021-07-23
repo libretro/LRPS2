@@ -144,8 +144,6 @@ public:
 			Cheats,
 			CheatsWS;
 
-		wxDirName RunIso;		// last used location for Iso loading.
-		wxDirName RunELF;		// last used location for ELF loading.
 		wxFileName RunDisc;		// last used location for Disc loading.
 
 		FolderOptions();
@@ -210,8 +208,6 @@ public:
 	};
 
 public:
-	int			RecentIsoCount;		// number of files displayed in the Recent Isos list.
-
 	// uses automatic ntfs compression when creating new memory cards (Win32 only)
 #ifdef __WXMSW__
 	bool		McdCompressNTFS;
