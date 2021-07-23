@@ -46,14 +46,9 @@ void Pcsx2App::DetectCpuAndUserMode()
 
 	// force unload plugins loaded by the wizard.  If we don't do this the recompilers might
 	// fail to allocate the memory they need to function.
-#ifdef __LIBRETRO__
 	CoreThread.Cancel();
 	CorePlugins.Shutdown();
 	CorePlugins.Unload();
-#else
-	ShutdownPlugins();
-	UnloadPlugins();
-#endif
 }
 
 void Pcsx2App::AllocateCoreStuffs()

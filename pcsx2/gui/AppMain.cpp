@@ -254,10 +254,6 @@ SysMainMemory& Pcsx2App::GetVmReserve()
 	if (!m_VmReserve) m_VmReserve = std::unique_ptr<SysMainMemory>(new SysMainMemory());
 	return *m_VmReserve;
 }
-void Pcsx2App::SysExecute()
-{
-	Pcsx2App::SysExecute(CDVD_SourceType::NoDisc);
-}
 void Pcsx2App::SysExecute( CDVD_SourceType cdvdsrc, const wxString& elf_override )
 {
 	ProcessMethod( AppSaveSettings );
