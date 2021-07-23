@@ -906,9 +906,6 @@
     <ClInclude Include="..\..\PrecompiledHeader.h">
       <Filter>Misc</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Utilities\AsciiFile.h">
-      <Filter>Misc\Utilities</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Elfheader.h">
       <Filter>System\ISO</Filter>
     </ClInclude>

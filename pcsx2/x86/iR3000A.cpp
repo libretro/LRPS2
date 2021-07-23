@@ -209,7 +209,6 @@ static void _DynGen_Dispatchers()
 
 ////////////////////////////////////////////////////
 using namespace R3000A;
-#include "Utilities/AsciiFile.h"
 
 u8 _psxLoadWritesRs(u32 tempcode)
 {

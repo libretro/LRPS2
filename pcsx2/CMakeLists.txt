@@ -473,10 +473,6 @@ set(pcsx2SystemHeaders
 set(pcsx2UtilitiesSources
 	Utilities/FileUtils.cpp)
 
-# Utilities headers
-set(pcsx2UtilitiesHeaders
-	Utilities/AsciiFile.h)
-
 # Windows sources
 set(pcsx2WindowsSources
 	CDVD/Windows/DriveUtility.cpp
@@ -579,7 +575,6 @@ set(pcsx2x86Headers
 		${pcsx2SystemSources}
 		${pcsx2SystemHeaders}
 		${pcsx2UtilitiesSources}
-		${pcsx2UtilitiesHeaders}
 		${pcsx2x86Sources}
 		${pcsx2x86Headers})
 

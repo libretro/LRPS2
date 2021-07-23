@@ -14,20 +14,9 @@
  */
 
 #include "PrecompiledHeader.h"
-#include "AsciiFile.h"
 
 #include <wx/dir.h>
 #include <wx/string.h>
-
-void AsciiFile::Printf( const char* fmt, ... )
-{
-	va_list list;
-	va_start( list, fmt );
-	FastFormatAscii ascii;
-	ascii.WriteV(fmt,list);
-	va_end( list );
-	Write( ascii, strlen(ascii) );
-}
 
 bool RemoveDirectory( const wxString& dirname ) {
 		{
