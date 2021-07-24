@@ -17,10 +17,6 @@
 #include "App.h"
 #include "Utilities/IniInterface.h"
 
-#ifdef __WXMSW__
-#include "wx/msw/regconf.h"
-#endif
-
 DocsModeType				DocsFolderMode = DocsFolder_User;
 bool					UseDefaultSettingsFolder = true;
 bool					UseDefaultPluginsFolder = true;

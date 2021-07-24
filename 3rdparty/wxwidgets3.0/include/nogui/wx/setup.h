@@ -74,8 +74,6 @@
 
 #define wxUSE_CONFIG 1
 
-#define wxUSE_CONFIG_NATIVE 1
-
 #define wxUSE_IPV6          0
 
 #define wxUSE_APPLE_IEEE 1
@@ -112,8 +110,6 @@
 #endif
 
 #define wxUSE_MFC           0
-
-#define wxUSE_REGKEY 1 /* 1 */
 
 /* --- end MSW options --- */
 #endif

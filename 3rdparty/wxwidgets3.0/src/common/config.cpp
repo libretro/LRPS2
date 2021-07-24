@@ -19,10 +19,6 @@
     #pragma hdrstop
 #endif  //__BORLANDC__
 
-#ifndef wxUSE_CONFIG_NATIVE
-    #define wxUSE_CONFIG_NATIVE 1
-#endif
-
 #include "wx/config.h"
 
 #ifndef WX_PRECOMP
@@ -34,7 +30,7 @@
     #include "wx/math.h"
 #endif //WX_PRECOMP
 
-#if wxUSE_CONFIG && ((wxUSE_FILE && wxUSE_TEXTFILE) || wxUSE_CONFIG_NATIVE)
+#if wxUSE_CONFIG && ((wxUSE_FILE && wxUSE_TEXTFILE))
 
 #include "wx/apptrait.h"
 #include "wx/file.h"
@@ -62,11 +58,7 @@ bool          wxConfigBase::ms_bAutoCreate = true;
 wxConfigBase *wxAppTraitsBase::CreateConfig()
 {
     return new
-    #if defined(__WINDOWS__) && wxUSE_CONFIG_NATIVE
-        wxRegConfig(wxTheApp->GetAppName(), wxTheApp->GetVendorName());
-    #else // either we're under Unix or wish to use files even under Windows
         wxFileConfig(wxTheApp->GetAppName());
-    #endif
 }
 
 // ----------------------------------------------------------------------------

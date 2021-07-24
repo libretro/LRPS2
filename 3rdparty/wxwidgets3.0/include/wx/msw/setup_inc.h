@@ -36,10 +36,3 @@
 //
 // Recommended setting: 0 unless you really have to use MFC
 #define wxUSE_MFC           0
-
-// Set this to 1 to compile in wxRegKey class.
-//
-// Default is 1
-//
-// Recommended setting: 1, this is used internally by wx in a few places
-#define wxUSE_REGKEY 1

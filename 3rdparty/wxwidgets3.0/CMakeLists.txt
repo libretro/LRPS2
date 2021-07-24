@@ -19,8 +19,6 @@ set(wxWindowsSources
    src/msw/evtloopconsole.cpp
    src/msw/main.cpp
    src/msw/mslu.cpp
-   src/msw/regconf.cpp
-   src/msw/registry.cpp
    src/msw/stdpaths.cpp
    src/msw/thread.cpp
    src/msw/utils.cpp

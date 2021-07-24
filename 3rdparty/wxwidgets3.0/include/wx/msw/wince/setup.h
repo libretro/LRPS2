@@ -303,19 +303,6 @@
 // Recommended setting: 1
 #define wxUSE_CONFIG        1
 
-// If wxUSE_CONFIG is 1, you may choose to use either the native config
-// classes under Windows (using .INI files under Win16 and the registry under
-// Win32) or the portable text file format used by the config classes under
-// Unix.
-//
-// Default is 1 to use native classes. Note that you may still use
-// wxFileConfig even if you set this to 1 - just the config object created by
-// default for the applications needs will be a wxRegConfig or wxIniConfig and
-// not wxFileConfig.
-//
-// Recommended setting: 1
-#define wxUSE_CONFIG_NATIVE   1
-
 // Set to 1 to use ipv6 socket classes (requires wxUSE_SOCKETS)
 //
 // Notice that currently setting this option under Windows will result in
@@ -387,16 +374,5 @@
 #define wxUSE_WIN_METAFILES_ALWAYS  0
 
 /* --- end common options --- */
-
-// ----------------------------------------------------------------------------
-// general Windows-specific stuff
-// ----------------------------------------------------------------------------
-
-// Set this to 1 to compile in wxRegKey class.
-//
-// Default is 1
-//
-// Recommended setting: 1, this is used internally by wx in a few places
-#define wxUSE_REGKEY 1
 
 #endif // _WX_SETUP_H_

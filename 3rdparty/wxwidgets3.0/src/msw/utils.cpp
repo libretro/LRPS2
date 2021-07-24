@@ -30,7 +30,6 @@
     #include "wx/log.h"
 #endif  //WX_PRECOMP
 
-#include "wx/msw/registry.h"
 #include "wx/apptrait.h"
 #include "wx/scopeguard.h"
 #include "wx/filename.h"
