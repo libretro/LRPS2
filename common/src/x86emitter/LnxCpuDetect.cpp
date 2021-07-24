@@ -27,7 +27,3 @@ void x86capabilities::CountLogicalCores()
     // alternatives, apparently.
     LogicalCores = wxThread::GetCPUCount();
 }
-
-// Not implemented yet for linux (see cpudetect_internal.h for details)
-SingleCoreAffinity::SingleCoreAffinity() = default;
-SingleCoreAffinity::~SingleCoreAffinity() = default;
