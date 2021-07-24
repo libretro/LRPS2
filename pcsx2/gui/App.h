@@ -35,155 +35,6 @@ typedef void (Pcsx2App::*FnPtr_Pcsx2App)();
 // the universal Accelerator table.
 static const int pxID_PadHandler_Keydown = 8030;
 
-// ------------------------------------------------------------------------
-// All Menu Options for the Main Window! :D
-// ------------------------------------------------------------------------
-
-enum TopLevelMenuIndices
-{
-	TopLevelMenu_Pcsx2 = 0,
-	TopLevelMenu_Cdvd,
-	TopLevelMenu_Config,
-	TopLevelMenu_Window,
-	TopLevelMenu_Capture,
-	TopLevelMenu_Help
-};
-
-enum MenuIdentifiers
-{
-	// Main Menu Section
-	MenuId_Boot = 1,
-	MenuId_Emulation,
-	MenuId_Config,				// General config, plus non audio/video plugins.
-	MenuId_Video,				// Video options filled in by GS plugin
-	MenuId_Audio,				// audio options filled in by SPU2 plugin
-	MenuId_Misc,				// Misc options and help!
-
-	MenuId_Exit = wxID_EXIT,
-	MenuId_About = wxID_ABOUT,
-
-	MenuId_EndTopLevel = 20,
-
-	// Run SubSection
-	MenuId_Cdvd_Source,
-	MenuId_Src_Iso,
-	MenuId_Src_Disc,
-	MenuId_Src_NoDisc,
-	MenuId_Boot_Iso,			// Opens submenu with Iso browser, and recent isos.
-	MenuId_RecentIsos_reservedStart,
-	MenuId_IsoBrowse = MenuId_RecentIsos_reservedStart + 100,			// Open dialog, runs selected iso.
-	MenuId_IsoClear,
-	MenuId_DriveSelector,
-	MenuId_DriveListRefresh,
-	MenuId_Ask_On_Booting,
-	MenuId_Boot_CDVD,
-	MenuId_Boot_CDVD2,
-	MenuId_Boot_ELF,
-	//MenuId_Boot_Recent,			// Menu populated with recent source bootings
-
-
-	MenuId_Sys_SuspendResume,	// suspends/resumes active emulation, retains plugin states
-	MenuId_Sys_Shutdown,		// Closes virtual machine, shuts down plugins, wipes states.
-	MenuId_Sys_LoadStates,		// Opens load states submenu
-	MenuId_Sys_SaveStates,		// Opens save states submenu
-	MenuId_EnableBackupStates,	// Checkbox to enable/disables savestates backup
-	MenuId_GameSettingsSubMenu,
-	MenuId_EnablePatches,
-	MenuId_EnableCheats,
-	MenuId_EnableIPC,
-	MenuId_EnableWideScreenPatches,
-	MenuId_EnableInputRecording,
-	MenuId_EnableLuaTools,
-	MenuId_EnableHostFs,
-
-	MenuId_State_Load,
-	MenuId_State_LoadFromFile,
-	MenuId_State_Load01,		// first of many load slots
-	MenuId_State_LoadBackup = MenuId_State_Load01+20,
-	MenuId_State_Save,
-	MenuId_State_SaveToFile,
-	MenuId_State_Save01,		// first of many save slots
-
-	MenuId_State_EndSlotSection = MenuId_State_Save01+20,
-
-	// Config Subsection
-	MenuId_Config_SysSettings,
-	MenuId_Config_McdSettings,
-	MenuId_Config_AppSettings,
-	MenuId_Config_BIOS,
-	MenuId_Config_Language,
-
-	// Plugin ID order is important.  Must match the order in tbl_PluginInfo.
-	MenuId_Config_GS,
-	MenuId_Config_PAD,
-	MenuId_Config_SPU2,
-	MenuId_Config_CDVD,
-	MenuId_Config_USB,
-	MenuId_Config_FireWire,
-	MenuId_Config_DEV9,
-	MenuId_Config_Patches,
-
-	MenuId_Config_Multitap0Toggle,
-	MenuId_Config_Multitap1Toggle,
-	MenuId_Config_FastBoot,
-
-	MenuId_Help_GetStarted,
-	MenuId_Help_Compatibility,
-	MenuId_Help_Forums,
-	MenuId_Help_Website,
-	MenuId_Help_Wiki,
-	MenuId_Help_Github,
-
-	// Plugin Sections
-	// ---------------
-	// Each plugin menu begins with its name, which is a grayed out option that's
-	// intended for display purposes only.  Plugin ID sections are spaced out evenly
-	// at intervals to make it easy to use a single for-loop to create them.
-
-	MenuId_PluginBase_Name = 0x100,
-	MenuId_PluginBase_Settings = 0x101,
-
-	MenuId_Video_CoreSettings = 0x200,// includes frame timings and skippings settings
-	MenuId_Video_WindowSettings,
-
-	// Miscellaneous Menu!  (Misc)
-	MenuId_Console,				// Enable console
-	MenuId_ChangeLang,			// Change language (resets first time wizard to show on next start)
-	MenuId_Console_Stdio,		// Enable Stdio
-
-	// Debug Subsection
-	MenuId_Debug_Open,			// opens the debugger window / starts a debug session
-	MenuId_Debug_MemoryDump,
-	MenuId_Debug_Logging,		// dialog for selection additional log options
-	MenuId_Debug_CreateBlockdump,
-	MenuId_Config_ResetAll,
-
-	// Capture Subsection
-	MenuId_Capture_Video,
-	MenuId_Capture_Video_Record,
-	MenuId_Capture_Video_Stop,
-	MenuId_Capture_Screenshot,
-};
-
-namespace Exception
-{
-	// --------------------------------------------------------------------------
-	// Exception used to perform an "errorless" termination of the app during OnInit
-	// procedures.  This happens when a user cancels out of startup prompts/wizards.
-	//
-	class StartupAborted : public CancelEvent
-	{
-		DEFINE_RUNTIME_EXCEPTION( StartupAborted, CancelEvent, L"Startup initialization was aborted by the user." )
-
-	public:
-		StartupAborted( const wxString& reason )
-		{
-			m_message_diag = L"Startup aborted: " + reason;
-		}
-	};
-
-}
-
 // -------------------------------------------------------------------------------------------
 //  pxAppResources
 // -------------------------------------------------------------------------------------------
@@ -250,19 +101,6 @@ public:
 	{
 		DisableSpeedhacks = false;
 		ApplyCustomGamefixes = false;
-	}
-
-	bool HasSettingsOverride() const
-	{
-		return SettingsFolder.IsOk() || VmSettingsFile.IsOk();
-	}
-
-	bool HasPluginsOverride() const
-	{
-		for( int i=0; i<PluginId_Count; ++i )
-			if( Filenames.Plugins[i].IsOk() ) return true;
-
-		return false;
 	}
 };
 
@@ -352,8 +190,6 @@ public:
 
 	// ----------------------------------------------------------------------------
 protected:
-	int								m_PendingSaves;
-
 	Threading::Mutex				m_mtx_Resources;
 	Threading::Mutex				m_mtx_LoadingGameDB;
 
@@ -384,11 +220,6 @@ public:
 	void SysExecute( CDVD_SourceType cdvdsrc, const wxString& elf_override=wxEmptyString );
 	
 	SysMainMemory& GetVmReserve();
-	
-	void enterDebugMode();
-	void leaveDebugMode();
-	void resetDebugger();
-
 	// --------------------------------------------------------------------------
 	//  Startup / Shutdown Helpers
 	// --------------------------------------------------------------------------
@@ -400,10 +231,6 @@ public:
 
 	wxConfigBase* OpenInstallSettingsFile();
 
-	bool HasPendingSaves() const;
-	void StartPendingSave();
-	void ClearPendingSave();
-	
 	// --------------------------------------------------------------------------
 	//  App-wide Resources
 	// --------------------------------------------------------------------------
@@ -420,20 +247,11 @@ public:
 	int  OnExit();
 	void CleanUp();
 
-	void OnInitCmdLine( wxCmdLineParser& parser );
-	bool OnCmdLineParsed( wxCmdLineParser& parser );
-	bool OnCmdLineError( wxCmdLineParser& parser );
-	bool ParseOverrides( wxCmdLineParser& parser );
-
 	void AllocateCoreStuffs();
 	void CleanupOnExit();
 protected:
 	bool AppRpc_TryInvoke( FnPtr_Pcsx2App method );
 	bool AppRpc_TryInvokeAsync( FnPtr_Pcsx2App method );
-
-	void InitDefaultGlobalAccelerators();
-	bool TryOpenConfigCwd();
-
 protected:
 	// ----------------------------------------------------------------------------
 	//      Override wx default exception handling behavior
@@ -485,20 +303,11 @@ extern void LoadPluginsImmediate();
 extern void UnloadPlugins();
 extern void ShutdownPlugins();
 
-extern bool SysHasValidState();
-extern void SysStatus( const wxString& text );
-
 extern __aligned16 SysMtgsThread mtgsThread;
 extern __aligned16 AppCoreThread CoreThread;
 extern __aligned16 SysCorePlugins CorePlugins;
 
-extern void UI_DisableStateActions();
-extern void UI_EnableStateActions();
-
-extern void UI_DisableSysActions();
 extern void UI_EnableSysActions();
-
-extern void UI_DisableSysShutdown();
 
 #define AffinityAssert_AllowFrom_SysExecutor()
 #define AffinityAssert_DisallowFrom_SysExecutor()

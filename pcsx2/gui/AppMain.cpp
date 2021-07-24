@@ -131,32 +131,6 @@ void DoFmvSwitch(bool on)
 	}
 }
 
-bool Pcsx2App::HasPendingSaves() const
-{
-	AffinityAssert_AllowFrom_MainUI();
-	return !!m_PendingSaves;
-}
-
-// A call to this method informs the app that there is a pending save operation that must be
-// finished prior to exiting the app, or else data loss will occur.  Any call to this method
-// should be matched by a call to ClearPendingSave().
-void Pcsx2App::StartPendingSave()
-{
-	if( AppRpc_TryInvokeAsync(&Pcsx2App::StartPendingSave) ) return;
-	++m_PendingSaves;
-}
-
-// If this method is called inappropriately then the entire pending save system will become
-// unreliable and data loss can occur on app exit.  Devel and debug builds will assert if
-// such calls are detected (though the detection is far from fool-proof).
-void Pcsx2App::ClearPendingSave()
-{
-	if( AppRpc_TryInvokeAsync(&Pcsx2App::ClearPendingSave) ) return;
-
-	--m_PendingSaves;
-	pxAssertDev( m_PendingSaves >= 0, "Pending saves count mismatch (pending count is less than 0)" );
-}
-
 // NOTE: Plugins are *not* applied by this function.  Changes to plugins need to handled
 // manually.  The PluginSelectorPanel does this, for example.
 void AppApplySettings()
@@ -268,16 +242,6 @@ void Pcsx2App::SysExecute( CDVD_SourceType cdvdsrc, const wxString& elf_override
 		CoreThread.SetElfOverride( elf_override );
 
 	CoreThread.Resume();
-}
-
-// Returns true if there is a "valid" virtual machine state from the user's perspective.  This
-// means the user has started the emulator and not issued a full reset.
-// Thread Safety: The state of the system can change in parallel to execution of the
-// main thread.  If you need to perform an extended length activity on the execution
-// state (such as saving it), you *must* suspend the Corethread first!
-__fi bool SysHasValidState()
-{
-	return CoreThread.HasActiveMachine();
 }
 
 SysMainMemory& GetVmMemory()
