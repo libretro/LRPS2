@@ -162,7 +162,6 @@ int Pcsx2App::OnExit()
 
 Pcsx2App::Pcsx2App() 
 {
-	m_PendingSaves			= 0;
 }
 
 Pcsx2App::~Pcsx2App()

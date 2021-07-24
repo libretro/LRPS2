@@ -62,39 +62,13 @@ public:
 };
 
 // --------------------------------------------------------------------------------------
-//  EventListener_PageFault / EventListenerHelper_PageFault
+//  EventListener_PageFault
 // --------------------------------------------------------------------------------------
 class EventListener_PageFault : public IEventListener_PageFault
 {
 public:
     EventListener_PageFault();
     virtual ~EventListener_PageFault();
-};
-
-template <typename TypeToDispatchTo>
-class EventListenerHelper_PageFault : public EventListener_PageFault
-{
-public:
-    TypeToDispatchTo *Owner;
-
-public:
-    EventListenerHelper_PageFault(TypeToDispatchTo &dispatchTo)
-    {
-        Owner = &dispatchTo;
-    }
-
-    EventListenerHelper_PageFault(TypeToDispatchTo *dispatchTo)
-    {
-        Owner = dispatchTo;
-    }
-
-    virtual ~EventListenerHelper_PageFault() = default;
-
-protected:
-    virtual void OnPageFaultEvent(const PageFaultInfo &info, bool &handled)
-    {
-        Owner->OnPageFaultEvent(info, handled);
-    }
 };
 
 // --------------------------------------------------------------------------------------
