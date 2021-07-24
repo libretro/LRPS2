@@ -100,7 +100,6 @@ set(pcsx2Sources
 	Sif1.cpp
 	sif2.cpp
 	Sio.cpp
-	SourceLog.cpp
 	SPR.cpp
 	System.cpp
 	Vif0_Dma.cpp

@@ -39,7 +39,7 @@
 #include <string.h>
 #include <errno.h>
 
-#define USB_LOG __Log
+#define USB_LOG
 
 typedef struct {
 	void *empty;

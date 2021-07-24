@@ -125,9 +125,6 @@ PS2EgetLibVersion2(u32 type) {
 // Warning: The below log function is SLOW. Better fix it before attempting to use it.
 int Log = 0;
 
-void __Log(char *fmt, ...) {
-}
-
 EXPORT_C_(s32)
 DEV9init()
 {

@@ -120,9 +120,6 @@ s32  _DEV9open();
 void _DEV9close();
 EXTERN  DEV9callback DEV9irq;
 
-void __Log(char *fmt, ...);
-
-
 #define DEV9_R_REV	0x1f80146e
 
 

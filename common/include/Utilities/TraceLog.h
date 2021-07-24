@@ -124,25 +124,5 @@ public:
     {
     }
 
-    bool Write(const char *fmt, ...) const
-    {
-        va_list list;
-        va_start(list, fmt);
-        WriteV(fmt, list);
-        va_end(list);
-
-        return false;
-    }
-
-    bool WriteV(const char *fmt, va_list list) const
-    {
-        FastFormatAscii ascii;
-        ApplyPrefix(ascii);
-        ascii.WriteV(fmt, list);
-        DoWrite(ascii);
-        return false;
-    }
-
     virtual void ApplyPrefix(FastFormatAscii &ascii) const {}
-    virtual void DoWrite(const char *fmt) const = 0;
 };
