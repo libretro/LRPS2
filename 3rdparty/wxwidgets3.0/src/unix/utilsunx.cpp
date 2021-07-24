@@ -46,7 +46,6 @@
 
 #include "wx/private/selectdispatcher.h"
 #include "wx/private/fdiodispatcher.h"
-#include "wx/unix/execute.h"
 #include "wx/unix/pipe.h"
 #include "wx/unix/private.h"
 
@@ -60,16 +59,6 @@
 #ifdef HAVE_SYS_SELECT_H
 #   include <sys/select.h>
 #endif
-
-#define HAS_PIPE_STREAMS (wxUSE_STREAMS && wxUSE_FILE)
-
-#if HAS_PIPE_STREAMS
-
-#include "wx/private/pipestream.h"
-#include "wx/private/streamtempinput.h"
-#include "wx/unix/private/executeiohandler.h"
-
-#endif // HAS_PIPE_STREAMS
 
 // not only the statfs syscall is called differently depending on platform, but
 // one of its incarnations, statvfs(), takes different arguments under
@@ -210,155 +199,6 @@ void wxMilliSleep(unsigned long milliseconds)
 {
     wxMicroSleep(milliseconds*1000);
 }
-
-// ----------------------------------------------------------------------------
-// process management
-// ----------------------------------------------------------------------------
-
-int wxKill(long pid, wxSignal sig, wxKillError *rc, int flags)
-{
-    int err = kill((pid_t) (flags & wxKILL_CHILDREN) ? -pid : pid, (int)sig);
-    if ( rc )
-    {
-        switch ( err ? errno : 0 )
-        {
-            case 0:
-                *rc = wxKILL_OK;
-                break;
-
-            case EINVAL:
-                *rc = wxKILL_BAD_SIGNAL;
-                break;
-
-            case EPERM:
-                *rc = wxKILL_ACCESS_DENIED;
-                break;
-
-            case ESRCH:
-                *rc = wxKILL_NO_PROCESS;
-                break;
-
-            default:
-                // something else...
-                *rc = wxKILL_ERROR;
-        }
-    }
-
-    return err;
-}
-
-// Shutdown or reboot the PC
-bool wxShutdown(int flags)
-{
-    flags &= ~wxSHUTDOWN_FORCE;
-
-    wxChar level;
-    switch ( flags )
-    {
-        case wxSHUTDOWN_POWEROFF:
-            level = wxT('0');
-            break;
-
-        case wxSHUTDOWN_REBOOT:
-            level = wxT('6');
-            break;
-
-        case wxSHUTDOWN_LOGOFF:
-            // TODO: use dcop to log off?
-            return false;
-
-        default:
-            wxFAIL_MSG( wxT("unknown wxShutdown() flag") );
-            return false;
-    }
-
-    return system(wxString::Format("init %c", level).mb_str()) == 0;
-}
-
-// ----------------------------------------------------------------------------
-// wxStream classes to support IO redirection in wxExecute
-// ----------------------------------------------------------------------------
-
-#if HAS_PIPE_STREAMS
-
-bool wxPipeInputStream::CanRead() const
-{
-    if ( m_lasterror == wxSTREAM_EOF )
-        return false;
-
-    // check if there is any input available
-    struct timeval tv;
-    tv.tv_sec = 0;
-    tv.tv_usec = 0;
-
-    const int fd = m_file->fd();
-
-    fd_set readfds;
-
-    wxFD_ZERO(&readfds);
-    wxFD_SET(fd, &readfds);
-
-    switch ( select(fd + 1, &readfds, NULL, NULL, &tv) )
-    {
-        case -1:
-            wxLogSysError(_("Impossible to get child process input"));
-            // fall through
-
-        case 0:
-            return false;
-
-        default:
-            wxFAIL_MSG(wxT("unexpected select() return value"));
-            // still fall through
-
-        case 1:
-            // input available -- or maybe not, as select() returns 1 when a
-            // read() will complete without delay, but it could still not read
-            // anything
-            return !Eof();
-    }
-}
-
-size_t wxPipeOutputStream::OnSysWrite(const void *buffer, size_t size)
-{
-    // We need to suppress error logging here, because on writing to a pipe
-    // which is full, wxFile::Write reports a system error. However, this is
-    // not an extraordinary situation, and it should not be reported to the
-    // user (but if really needed, the program can recognize it by checking
-    // whether LastRead() == 0.) Other errors will be reported below.
-    size_t ret;
-    {
-        wxLogNull logNo;
-        ret = m_file->Write(buffer, size);
-    }
-
-    switch ( m_file->GetLastError() )
-    {
-       // pipe is full
-#ifdef EAGAIN
-       case EAGAIN:
-#endif
-#if defined(EWOULDBLOCK) && (EWOULDBLOCK != EAGAIN)
-       case EWOULDBLOCK:
-#endif
-           // do not treat it as an error
-           m_file->ClearLastError();
-           // fall through
-
-       // no error
-       case 0:
-           break;
-
-       // some real error
-       default:
-           wxLogSysError(_("Can't write to child process's stdin"));
-           m_lasterror = wxSTREAM_WRITE_ERROR;
-    }
-
-    return ret;
-}
-
-#endif // HAS_PIPE_STREAMS
 
 // ----------------------------------------------------------------------------
 // wxShell
