@@ -188,7 +188,7 @@ void ChecksumIt( u32& result, const u8 (&srcdata)[_size] )
 //   ext - extension of the sub-component to load.  Valid options are rom1, rom2, AND erom.
 //
 template< size_t _size >
-static void LoadExtraRom( const wxChar* ext, u8 (&dest)[_size] )
+static void LoadExtraRom( const char *ext, u8 (&dest)[_size] )
 {
 	wxString Bios1;
 	s64 filesize = 0;
@@ -291,9 +291,9 @@ void LoadBIOS()
 
 		//injectIRX("host.irx");	//not fully tested; still buggy
 
-		LoadExtraRom( L"rom1", eeMem->ROM1 );
-		LoadExtraRom( L"rom2", eeMem->ROM2 );
-		LoadExtraRom( L"erom", eeMem->EROM );
+		LoadExtraRom( "rom1", eeMem->ROM1 );
+		LoadExtraRom( "rom2", eeMem->ROM2 );
+		LoadExtraRom( "erom", eeMem->EROM );
 
 		if (g_Conf->CurrentIRX.Length() > 3)
 			LoadIrx(g_Conf->CurrentIRX, &eeMem->ROM[0x3C0000]);

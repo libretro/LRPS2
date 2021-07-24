@@ -467,53 +467,55 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 		log_cb(RETRO_LOG_WARN, "Patches: No CRC found, using 00000000 instead.\n");
 		gameCRC = L"00000000";
 	}
-
-	// regular cheat patches
-	if (fixup.EnableCheats)
+	else
 	{
-		log_cb(RETRO_LOG_INFO, "Attempt to apply cheats if available...\n");
-		int numcheatsfound = 0;
-		if (numcheatsfound = LoadPatchesFromDir(gameCRC, GetCheatsFolder(), L"Cheats")) {
-			if (!msg_cheats_found_sent)
-			{
-				RetroMessager::Notification("Found and applied cheats");
-				log_cb(RETRO_LOG_INFO, "Found and applied cheats\n");
-				msg_cheats_found_sent = true;
-			}
-		}
-		log_cb(RETRO_LOG_INFO, "(GameDB) Cheats Loaded: %d\n", numcheatsfound);
-	}
-
-
-	// wide screen patches
-	if (fixup.EnableWideScreenPatches)
-	{
-		log_cb(RETRO_LOG_INFO, "Attempt to apply widescreen patches if available...\n");
-		if (int numberLoadedWideScreenPatches = LoadPatchesFromDir(gameCRC, GetCheatsWsFolder(), L"Widescreen hacks"))
+		// regular cheat patches
+		if (fixup.EnableCheats)
 		{
-			log_cb(RETRO_LOG_INFO, "Found widescreen patches in the cheats_ws folder --> skipping cheats_ws.zip\n");
-			if (!msg_cheat_ws_found_sent) 
-			{
-				RetroMessager::Notification("Found and applied Widescreen Patch");
-				log_cb(RETRO_LOG_INFO, "Found and applied Widescreen Patch\n");
-				msg_cheat_ws_found_sent = true;
+			log_cb(RETRO_LOG_INFO, "Attempt to apply cheats if available...\n");
+			int numcheatsfound = 0;
+			if (numcheatsfound = LoadPatchesFromDir(gameCRC, GetCheatsFolder(), L"Cheats")) {
+				if (!msg_cheats_found_sent)
+				{
+					RetroMessager::Notification("Found and applied cheats");
+					log_cb(RETRO_LOG_INFO, "Found and applied cheats\n");
+					msg_cheats_found_sent = true;
+				}
 			}
+			log_cb(RETRO_LOG_INFO, "(GameDB) Cheats Loaded: %d\n", numcheatsfound);
 		}
-		else
-		{
-			// No ws cheat files found at the cheats_ws folder, try the ws cheats zip file.
-			int numberDbfCheatsLoaded = LoadWidescreenPatchesFromDatabase(gameCRC.ToStdString());
-			log_cb(RETRO_LOG_INFO, "(Wide Screen Cheats DB) Patches Loaded: %d\n", numberDbfCheatsLoaded);
 
-			if (numberDbfCheatsLoaded) {
-				if (!msg_cheat_ws_found_sent)
+
+		// wide screen patches
+		if (fixup.EnableWideScreenPatches)
+		{
+			log_cb(RETRO_LOG_INFO, "Attempt to apply widescreen patches if available...\n");
+			if (int numberLoadedWideScreenPatches = LoadPatchesFromDir(gameCRC, GetCheatsWsFolder(), L"Widescreen hacks"))
+			{
+				log_cb(RETRO_LOG_INFO, "Found widescreen patches in the cheats_ws folder --> skipping cheats_ws.zip\n");
+				if (!msg_cheat_ws_found_sent) 
 				{
 					RetroMessager::Notification("Found and applied Widescreen Patch");
 					log_cb(RETRO_LOG_INFO, "Found and applied Widescreen Patch\n");
 					msg_cheat_ws_found_sent = true;
 				}
 			}
+			else
+			{
+				// No ws cheat files found at the cheats_ws folder, try the ws cheats zip file.
+				int numberDbfCheatsLoaded = LoadWidescreenPatchesFromDatabase(gameCRC.ToStdString());
+				log_cb(RETRO_LOG_INFO, "(Wide Screen Cheats DB) Patches Loaded: %d\n", numberDbfCheatsLoaded);
 
+				if (numberDbfCheatsLoaded) {
+					if (!msg_cheat_ws_found_sent)
+					{
+						RetroMessager::Notification("Found and applied Widescreen Patch");
+						log_cb(RETRO_LOG_INFO, "Found and applied Widescreen Patch\n");
+						msg_cheat_ws_found_sent = true;
+					}
+				}
+
+			}
 		}
 	}
 

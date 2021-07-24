@@ -345,11 +345,11 @@ int GetPS2ElfName( wxString& name )
 			}
 			else if( parts.lvalue == L"VMODE" )
 			{
-				log_cb(RETRO_LOG_INFO, "(SYSTEM.CNF) Disc region type = %d\n", parts.rvalue );
+				log_cb(RETRO_LOG_INFO, "(SYSTEM.CNF) Disc region type = %d\n", WX_STR(parts.rvalue) );
 			}
 			else if( parts.lvalue == L"VER" )
 			{
-				log_cb(RETRO_LOG_INFO, "(SYSTEM.CNF) Software version = %d\n", parts.rvalue );
+				log_cb(RETRO_LOG_INFO, "(SYSTEM.CNF) Software version = %d\n", WX_STR(parts.rvalue) );
 			}
 		}
 

@@ -242,8 +242,6 @@ int LoadPatchesFromDir(wxString name, const wxDirName& folderName, const wxStrin
 				"Not found %s file: %s\n", WX_STR(friendlyName), WX_STR(pathName));
 	}
 
-	log_cb(RETRO_LOG_INFO, 
-		"Overall %d %s loaded", loaded, WX_STR(friendlyName));
 	return loaded;
 }
 
@@ -301,7 +299,7 @@ namespace PatchFunc
 
 		// print the actual patch lines only in verbose mode (even in devel)
 #ifndef NDEBUG
-		log_cb(RETRO_LOG_DEBUG, "%s %s",  WX_STR(cmd), WX_STR(param));
+		log_cb(RETRO_LOG_DEBUG, "%s %s\n",  WX_STR(cmd), WX_STR(param));
 #endif
 
 		try
