@@ -37,6 +37,8 @@
     #include "wx/module.h"
 #endif
 
+#include "wx/time.h"
+
 #include <stdio.h>
 #include <unistd.h>
 #include <pthread.h>
