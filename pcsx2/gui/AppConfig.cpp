@@ -435,14 +435,6 @@ void App_LoadSaveInstallSettings( IniInterface& ini )
 	ini.Entry( L"UseDefaultSettingsFolder", UseDefaultSettingsFolder,	true );
 	ini.Entry( L"SettingsFolder",			SettingsFolder,				PathDefs::GetSettings() );
 
-	// "Install_Dir" conforms to the NSIS standard install directory key name.
-	// Attempt to load plugins based on the Install Folder.
-
-	ini.Entry( L"Install_Dir",				InstallFolder,				(wxDirName)(wxFileName(wxStandardPaths::Get().GetExecutablePath()).GetPath()) );
-	SetFullBaseDir( InstallFolder );
-
-	//ini.Entry( L"PluginsFolder",			PluginsFolder,				InstallFolder + PathDefs::Base::Plugins() );
-
 	ini.Flush();
 }
 
@@ -567,7 +559,6 @@ void AppConfig::FolderOptions::LoadSave( IniInterface& ini )
 	IniEntryDirFile( MemoryCards,  rel );
 	IniEntryDirFile( Cheats, rel );
 	IniEntryDirFile( CheatsWS, rel );
-	ini.Entry( L"PluginsFolder", PluginsFolder, InstallFolder + PathDefs::Base::Plugins(), rel );
 
 	IniEntryDirFile( RunDisc, rel );
 
@@ -806,38 +797,21 @@ wxFileConfig* OpenFileConfig( const wxString& filename )
 //   The overwrite option applies to PCSX2 options only.  Plugin option behavior will depend
 //   on the plugins.
 //
-void AppConfig_OnChangedSettingsFolder( bool overwrite )
+void AppConfig_OnChangedSettingsFolder()
 {
 	PathDefs::GetDocuments().Mkdir();
 	GetSettingsFolder().Mkdir();
 
-
 	const wxString iniFilename( GetUiSettingsFilename() );
-
-	if( overwrite )
-	{
-		if( wxFileExists( iniFilename ) && !wxRemoveFile( iniFilename ) )
-			log_cb(
-					RETRO_LOG_WARN, "Failed to overwrite existing settings file (iniFilename); permission was denied.\n");
-
-		const wxString vmIniFilename( GetVmSettingsFilename() );
-
-		if( wxFileExists( vmIniFilename ) && !wxRemoveFile( vmIniFilename ) )
-			log_cb(RETRO_LOG_WARN, "Failed to overwrite existing settings file (vmIniFilename); permission was denied.\n");
-	}
 
 	// Bind into wxConfigBase to allow wx to use our config internally, and delete whatever
 	// comes out (cleans up prev config, if one).
 	delete wxConfigBase::Set( OpenFileConfig( iniFilename ) );
 	GetAppConfig()->SetRecordDefaults(true);
 
-	if( !overwrite )
-		AppLoadSettings();
-
+	AppLoadSettings();
 	AppApplySettings();
-
 	AppSaveSettings();//Make sure both ini files are created if needed.
-
 }
 
 // --------------------------------------------------------------------------------------
@@ -1010,17 +984,6 @@ static void SaveVmSettings()
 	sApp.DispatchVmSettingsEvent( vmsaver );
 }
 
-static void SaveRegSettings()
-{
-	std::unique_ptr<wxConfigBase> conf_install;
-
-	// sApp. macro cannot be use because you need the return value of OpenInstallSettingsFile method
-	if( Pcsx2App* __app_ = (Pcsx2App*)wxApp::GetInstance() ) conf_install = std::unique_ptr<wxConfigBase>((*__app_).OpenInstallSettingsFile());
-	conf_install->SetRecordDefaults(false);
-
-	App_SaveInstallSettings( conf_install.get() );
-}
-
 void AppSaveSettings()
 {
 	// If multiple SaveSettings messages are requested, we want to ignore most of them.
@@ -1035,7 +998,6 @@ void AppSaveSettings()
 
 	SaveUiSettings();
 	SaveVmSettings();
-	SaveRegSettings(); // save register because of PluginsFolder change
 
 	isPosted = false;
 }

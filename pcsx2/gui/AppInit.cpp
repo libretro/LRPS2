@@ -39,7 +39,7 @@ void Pcsx2App::DetectCpuAndUserMode()
 	}
 #endif
 
-	EstablishAppUserMode();
+	AppConfig_OnChangedSettingsFolder();
 
 	// force unload plugins loaded by the wizard.  If we don't do this the recompilers might
 	// fail to allocate the memory they need to function.

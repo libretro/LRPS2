@@ -227,7 +227,6 @@ public:
 	void DetectCpuAndUserMode();
 	void CleanupRestartable();
 	void CleanupResources();
-	void EstablishAppUserMode();
 
 	wxConfigBase* OpenInstallSettingsFile();
 

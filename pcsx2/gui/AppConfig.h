@@ -55,7 +55,6 @@ extern bool				UseDefaultPluginsFolder;
 extern wxDirName		CustomDocumentsFolder;		// allows the specification of a custom home folder for PCSX2 documents files.
 extern wxDirName		SettingsFolder;				// dictates where the settings folder comes from, *if* UseDefaultSettingsFolder is FALSE.
 
-extern wxDirName		InstallFolder;
 extern wxDirName		PluginsFolder;
 
 extern wxDirName GetSettingsFolder();
@@ -259,7 +258,7 @@ extern void App_SaveInstallSettings( wxConfigBase* ini );
 extern void App_LoadInstallSettings( wxConfigBase* ini );
 
 extern wxFileConfig* OpenFileConfig( const wxString& filename );
-extern void AppConfig_OnChangedSettingsFolder( bool overwrite =  false );
+extern void AppConfig_OnChangedSettingsFolder();
 extern wxConfigBase* GetAppConfig();
 
 extern std::unique_ptr<AppConfig> g_Conf;

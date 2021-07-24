@@ -28,6 +28,7 @@
     #include "wx/intl.h"
 #endif
 
+#include "wx/time.h"
 #include <sys/epoll.h>
 #include <errno.h>
 #include <unistd.h>
