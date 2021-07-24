@@ -51,10 +51,7 @@ public:
     virtual bool IsMaximized() const;
     virtual void Iconize(bool iconize = true);
     virtual bool IsIconized() const;
-    virtual void SetIcons(const wxIconBundle& icons );
     virtual void Restore();
-
-    virtual void SetLayoutDirection(wxLayoutDirection dir);
 
     virtual void RequestUserAttention(int flags = wxUSER_ATTENTION_INFO);
 
@@ -150,12 +147,6 @@ protected:
     // Top level windows have different freeze semantics on Windows
     virtual void DoFreeze();
     virtual void DoThaw();
-
-    // helper of SetIcons(): calls gets the icon with the size specified by the
-    // given system metrics (SM_C{X|Y}[SM]ICON) from the bundle and sets it
-    // using WM_SETICON with the specified wParam (ICOM_SMALL or ICON_BIG);
-    // returns true if the icon was set
-    bool DoSelectAndSetIcon(const wxIconBundle& icons, int smX, int smY, int i);
 
     // override wxWindow virtual method to use CW_USEDEFAULT if necessary
     virtual void MSWGetCreateWindowCoords(const wxPoint& pos,

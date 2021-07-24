@@ -36,29 +36,10 @@ typedef char FnChar_t;
 // --------------------------------------------------------------------------------------
 struct DiagnosticOrigin
 {
-    const wxChar *srcfile;
-    const FnChar_t *function;
-    const wxChar *condition;
-    int line;
-
-    DiagnosticOrigin(const wxChar *_file, int _line, const FnChar_t *_func, const wxChar *_cond = NULL)
-        : srcfile(_file)
-        , function(_func)
-        , condition(_cond)
-        , line(_line)
+    DiagnosticOrigin()
     {
     }
-
-    wxString ToString(const wxChar *msg = NULL) const;
 };
-
-// Returns ture if the assertion is to trap into the debugger, or false if execution
-// of the program should continue unimpeded.
-typedef bool pxDoAssertFnType(const DiagnosticOrigin &origin, const wxChar *msg);
-
-extern pxDoAssertFnType pxAssertImpl_LogIt;
-
-extern pxDoAssertFnType *pxDoAssert;
 
 // ----------------------------------------------------------------------------------------
 //  pxAssert / pxAssertDev
@@ -97,8 +78,8 @@ extern pxDoAssertFnType *pxDoAssert;
 // it can lead to the compiler optimizing out code and leading to crashes in dev/release
 // builds. To have code optimized, explicitly use pxAssume(false) or pxAssumeDev(false,msg);
 
-#define pxDiagSpot DiagnosticOrigin(__TFILE__, __LINE__, __pxFUNCTION__)
-#define pxAssertSpot(cond) DiagnosticOrigin(__TFILE__, __LINE__, __pxFUNCTION__, _T(#cond))
+#define pxDiagSpot DiagnosticOrigin()
+#define pxAssertSpot(cond) DiagnosticOrigin()
 
 // pxAssertRel ->
 // Special release-mode assertion.  Limited use since stack traces in release mode builds

@@ -112,12 +112,6 @@ public:
     virtual bool ScrollLines(int lines);
     virtual bool ScrollPages(int pages);
 
-    virtual void SetLayoutDirection(wxLayoutDirection dir);
-    virtual wxLayoutDirection GetLayoutDirection() const;
-    virtual wxCoord AdjustForLayoutDirection(wxCoord x,
-                                             wxCoord width,
-                                             wxCoord widthTotal) const;
-
     // Accept files for dragging
     virtual void DragAcceptFiles(bool accept);
 

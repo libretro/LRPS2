@@ -42,7 +42,6 @@
 #include "wx/filename.h"
 #include "wx/msgout.h"
 #include "wx/scopedptr.h"
-#include "wx/sysopt.h"
 #include "wx/tokenzr.h"
 #include "wx/thread.h"
 

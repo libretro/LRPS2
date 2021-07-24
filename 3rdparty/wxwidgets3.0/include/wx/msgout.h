@@ -146,24 +146,4 @@ private:
 // implementation using the native way of outputting debug messages
 // ----------------------------------------------------------------------------
 
-class WXDLLIMPEXP_BASE wxMessageOutputDebug : public wxMessageOutputStderr
-{
-public:
-    wxMessageOutputDebug() { }
-
-    virtual void Output(const wxString& str);
-};
-
-// ----------------------------------------------------------------------------
-// implementation using wxLog (mainly for backwards compatibility)
-// ----------------------------------------------------------------------------
-
-class WXDLLIMPEXP_BASE wxMessageOutputLog : public wxMessageOutput
-{
-public:
-    wxMessageOutputLog() { }
-
-    virtual void Output(const wxString& str);
-};
-
 #endif // _WX_MSGOUT_H_

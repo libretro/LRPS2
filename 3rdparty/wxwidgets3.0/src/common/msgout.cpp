@@ -155,34 +155,4 @@ void wxMessageOutputStderr::Output(const wxString& str)
     fflush(m_fp);
 }
 
-// ----------------------------------------------------------------------------
-// wxMessageOutputDebug
-// ----------------------------------------------------------------------------
-
-void wxMessageOutputDebug::Output(const wxString& str)
-{
-#if defined(__WINDOWS__) && !defined(__WXMICROWIN__)
-    wxString out(AppendLineFeedIfNeeded(str));
-    out.Replace(wxT("\t"), wxT("        "));
-    out.Replace(wxT("\n"), wxT("\r\n"));
-    ::OutputDebugString(out.t_str());
-#else
-    // TODO: use native debug output function for the other ports too
-    wxMessageOutputStderr::Output(str);
-#endif // platform
-}
-
-// ----------------------------------------------------------------------------
-// wxMessageOutputLog
-// ----------------------------------------------------------------------------
-
-void wxMessageOutputLog::Output(const wxString& str)
-{
-    wxString out(str);
-
-    out.Replace(wxT("\t"), wxT("        "));
-
-    wxLogMessage(wxT("%s"), out.c_str());
-}
-
 #endif // wxUSE_BASE

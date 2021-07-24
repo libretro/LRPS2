@@ -16,14 +16,4 @@
 #include "wx/string.h"
 #include "wx/translation.h"
 
-// Make wxLayoutDirection enum available without need for wxUSE_INTL so wxWindow, wxApp
-// and other classes are not distrubed by wxUSE_INTL
-
-enum wxLayoutDirection
-{
-    wxLayout_Default,
-    wxLayout_LeftToRight,
-    wxLayout_RightToLeft
-};
-
 #endif // _WX_INTL_H_

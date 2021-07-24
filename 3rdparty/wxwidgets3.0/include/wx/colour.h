@@ -12,7 +12,6 @@
 #define _WX_COLOUR_H_BASE_
 
 #include "wx/defs.h"
-#include "wx/gdiobj.h"
 
 class WXDLLIMPEXP_FWD_CORE wxColour;
 

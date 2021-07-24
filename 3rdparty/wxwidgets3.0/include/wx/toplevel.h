@@ -184,18 +184,6 @@ public:
     // return true if the frame is iconized
     virtual bool IsIconized() const = 0;
 
-    // get the frame icon
-    wxIcon GetIcon() const;
-
-    // get the frame icons
-    const wxIconBundle& GetIcons() const { return m_icons; }
-
-    // set the frame icon: implemented in terms of SetIcons()
-    void SetIcon(const wxIcon& icon);
-
-    // set the frame icons
-    virtual void SetIcons(const wxIconBundle& icons) { m_icons = icons; }
-
     // maximize the window to cover entire screen
     virtual bool ShowFullScreen(bool show, long style = wxFULLSCREEN_ALL) = 0;
 
@@ -335,9 +323,6 @@ protected:
     static int WidthDefault(int w) { return w == wxDefaultCoord ? GetDefaultSize().x : w; }
     static int HeightDefault(int h) { return h == wxDefaultCoord ? GetDefaultSize().y : h; }
 
-
-    // the frame icon
-    wxIconBundle m_icons;
 
     // a default window (usually a button) or NULL
     wxWindowRef m_winDefault;

@@ -40,30 +40,6 @@ Fnptr_OutOfMemory pxDoOutOfMemory = NULL;
 // That's ok.  What we don't want is the *same* thread recurse-asserting.
 static DeclareTls(int) s_assert_guard(0);
 
-pxDoAssertFnType *pxDoAssert = pxAssertImpl_LogIt;
-
-// make life easier for people using VC++ IDE by using this format, which allows double-click
-// response times from the Output window...
-wxString DiagnosticOrigin::ToString(const wxChar *msg) const
-{
-    FastFormatUnicode message;
-
-    message.Write(L"%ls(%d) : assertion failed:\n", srcfile, line);
-
-    if (function != NULL)
-        message.Write("    Function:  %s\n", function);
-
-    message.Write(L"    Thread:    %s\n", WX_STR(Threading::pxGetCurrentThreadName()));
-
-    if (condition != NULL)
-        message.Write(L"    Condition: %ls\n", condition);
-
-    if (msg != NULL)
-        message.Write(L"    Message:   %ls\n", msg);
-
-    return message;
-}
-
 
 // Because wxTrap isn't available on Linux builds of wxWidgets (non-Debug, typically)
 void pxTrap()
@@ -83,43 +59,8 @@ void pxTrap()
 #endif // Win/Unix
 }
 
-
-bool pxAssertImpl_LogIt(const DiagnosticOrigin &origin, const wxChar *msg)
-{
-    //wxLogError( L"%s", origin.ToString( msg ).c_str() );
-    wxMessageOutputDebug().Printf(L"%s", origin.ToString(msg).c_str());
-    pxTrap();
-    return false;
-}
-
-
 DEVASSERT_INLINE void pxOnAssert(const DiagnosticOrigin &origin, const wxString &msg)
 {
-    // Recursion guard: Allow at least one recursive call.  This is useful because sometimes
-    // we get meaningless assertions while unwinding stack traces after exceptions have occurred.
-
-    RecursionGuard guard(s_assert_guard);
-    if (guard.Counter > 2) {
-        return pxTrap();
-    }
-
-    // wxWidgets doesn't come with debug builds on some Linux distros, and other distros make
-    // it difficult to use the debug build (compilation failures).  To handle these I've had to
-    // bypass the internal wxWidgets assertion handler entirely, since it may not exist even if
-    // PCSX2 itself is compiled in debug mode (assertions enabled).
-
-    bool trapit;
-
-    if (pxDoAssert == NULL) {
-        // Note: Format uses MSVC's syntax for output window hotlinking.
-        trapit = pxAssertImpl_LogIt(origin, msg.wc_str());
-    } else {
-        trapit = pxDoAssert(origin, msg.wc_str());
-    }
-
-    if (trapit) {
-        pxTrap();
-    }
 }
 
 // --------------------------------------------------------------------------------------

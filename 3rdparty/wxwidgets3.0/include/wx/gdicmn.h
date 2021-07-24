@@ -31,12 +31,9 @@ class WXDLLIMPEXP_FWD_CORE wxBrush;
 class WXDLLIMPEXP_FWD_CORE wxColour;
 class WXDLLIMPEXP_FWD_CORE wxCursor;
 class WXDLLIMPEXP_FWD_CORE wxFont;
-class WXDLLIMPEXP_FWD_CORE wxIcon;
-class WXDLLIMPEXP_FWD_CORE wxPalette;
 class WXDLLIMPEXP_FWD_CORE wxPen;
 class WXDLLIMPEXP_FWD_CORE wxRegion;
 class WXDLLIMPEXP_FWD_BASE wxString;
-class WXDLLIMPEXP_FWD_CORE wxIconBundle;
 class WXDLLIMPEXP_FWD_CORE wxPoint;
 
 // ---------------------------------------------------------------------------
@@ -153,90 +150,6 @@ enum wxStockCursor
     // TODO CS supply openhand and closedhand cursors
     #define wxCURSOR_OPEN_HAND      wxCURSOR_HAND
     #define wxCURSOR_CLOSED_HAND    wxCURSOR_HAND
-#endif
-
-// ---------------------------------------------------------------------------
-// macros
-// ---------------------------------------------------------------------------
-
-#if defined(__WINDOWS__) || defined(__WXPM__)
-    #define wxHAS_IMAGES_IN_RESOURCES
-#endif
-
-/* Useful macro for creating icons portably, for example:
-
-    wxIcon *icon = new wxICON(sample);
-
-  expands into:
-
-    wxIcon *icon = new wxIcon("sample");      // On Windows
-    wxIcon *icon = new wxIcon(sample_xpm);    // On wxGTK/Linux
- */
-
-#ifdef __WINDOWS__
-    // Load from a resource
-    #define wxICON(X) wxIcon(wxT(#X))
-#elif defined(__WXPM__)
-    // Load from a resource
-    #define wxICON(X) wxIcon(wxT(#X))
-#elif defined(__WXDFB__)
-    // Initialize from an included XPM
-    #define wxICON(X) wxIcon( X##_xpm )
-#elif defined(__WXGTK__)
-    // Initialize from an included XPM
-    #define wxICON(X) wxIcon( X##_xpm )
-#elif defined(__WXMAC__)
-    // Initialize from an included XPM
-    #define wxICON(X) wxIcon( X##_xpm )
-#elif defined(__WXMOTIF__)
-    // Initialize from an included XPM
-    #define wxICON(X) wxIcon( X##_xpm )
-#elif defined(__WXX11__)
-    // Initialize from an included XPM
-    #define wxICON(X) wxIcon( X##_xpm )
-#else
-    // This will usually mean something on any platform
-    #define wxICON(X) wxIcon(wxT(#X))
-#endif // platform
-
-/* Another macro: this one is for portable creation of bitmaps. We assume that
-   under Unix bitmaps live in XPMs and under Windows they're in ressources.
- */
-
-#if defined(__WINDOWS__) || defined(__WXPM__)
-    #define wxBITMAP(name) wxBitmap(wxT(#name), wxBITMAP_TYPE_BMP_RESOURCE)
-#elif defined(__WXGTK__)   || \
-      defined(__WXMOTIF__) || \
-      defined(__WXX11__)   || \
-      defined(__WXMAC__)   || \
-      defined(__WXDFB__)   || \
-      defined(__WXCOCOA__)
-    // Initialize from an included XPM
-    #define wxBITMAP(name) wxBitmap(name##_xpm)
-#else // other platforms
-    #define wxBITMAP(name) wxBitmap(name##_xpm, wxBITMAP_TYPE_XPM)
-#endif // platform
-
-// Macro for creating wxBitmap from in-memory PNG data.
-//
-// It reads PNG data from name_png static byte arrays that can be created using
-// e.g. misc/scripts/png2c.py.
-//
-// This macro exists mostly as a helper for wxBITMAP_PNG() below but also
-// because it's slightly more convenient to use than NewFromPNGData() directly.
-#define wxBITMAP_PNG_FROM_DATA(name) \
-    wxBitmap::NewFromPNGData(name##_png, WXSIZEOF(name##_png))
-
-// Similar to wxBITMAP but used for the bitmaps in PNG format.
-//
-// Under Windows they should be embedded into the resource file using RT_RCDATA
-// resource type and under OS X the PNG file with the specified name must be
-// available in the resource subdirectory of the bundle. Elsewhere, this is
-// exactly the same thing as wxBITMAP_PNG_FROM_DATA() described above.
-#if defined(__WINDOWS__) || defined(__WXOSX__)
-    #define wxBITMAP_PNG(name) wxBitmap(wxS(#name), wxBITMAP_TYPE_PNG_RESOURCE)
-#else
-    #define wxBITMAP_PNG(name) wxBITMAP_PNG_FROM_DATA(name)
 #endif
 
 // ===========================================================================
@@ -1060,14 +973,11 @@ protected:
 
 // 'Null' objects
 extern WXDLLIMPEXP_DATA_CORE(wxBitmap)     wxNullBitmap;
-extern WXDLLIMPEXP_DATA_CORE(wxIcon)       wxNullIcon;
 extern WXDLLIMPEXP_DATA_CORE(wxCursor)     wxNullCursor;
 extern WXDLLIMPEXP_DATA_CORE(wxPen)        wxNullPen;
 extern WXDLLIMPEXP_DATA_CORE(wxBrush)      wxNullBrush;
-extern WXDLLIMPEXP_DATA_CORE(wxPalette)    wxNullPalette;
 extern WXDLLIMPEXP_DATA_CORE(wxFont)       wxNullFont;
 extern WXDLLIMPEXP_DATA_CORE(wxColour)     wxNullColour;
-extern WXDLLIMPEXP_DATA_CORE(wxIconBundle) wxNullIconBundle;
 
 extern WXDLLIMPEXP_DATA_CORE(wxColourDatabase*)  wxTheColourDatabase;
 

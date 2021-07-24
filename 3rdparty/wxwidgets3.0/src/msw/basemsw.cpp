@@ -29,7 +29,6 @@
 
 #include "wx/apptrait.h"
 #include "wx/evtloop.h"
-#include "wx/msw/private/timer.h"
 // MBN: this is a workaround for MSVC 5: if it is not #included in
 // some wxBase file, wxRecursionGuard methods won't be exported from
 // wxBase.dll, and MSVC 5 will give linker errors
