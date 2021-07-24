@@ -31,7 +31,6 @@
 
 #include "DEV9.h"
 #include "svnrev.h"
-#include "null/config.inl"
 
 static const unsigned char version = PS2E_DEV9_VERSION;
 static const unsigned char revision = 0;

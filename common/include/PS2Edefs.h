@@ -69,39 +69,17 @@ typedef struct _keyEvent
 
 ///////////////////////////////////////////////////////////////////////
 
-#if defined(GSdefs) || defined(PADdefs) || defined(SIOdefs) ||     \
-    defined(DEV9defs) || defined(USBdefs)
-#define COMMONdefs
-#endif
-
 // PS2EgetLibType returns (may be OR'd)
 #define PS2E_LT_GS 0x01
 #define PS2E_LT_PAD 0x02 // -=[ OBSOLETE ]=-
 #define PS2E_LT_DEV9 0x10
 #define PS2E_LT_USB 0x20
-#define PS2E_LT_SIO 0x80
 
 // PS2EgetLibVersion2 (high 16 bits)
 #define PS2E_GS_VERSION 0x0006
 #define PS2E_PAD_VERSION 0x0002 // -=[ OBSOLETE ]=-
 #define PS2E_DEV9_VERSION 0x0003
 #define PS2E_USB_VERSION 0x0003
-#define PS2E_SIO_VERSION 0x0001
-#ifdef COMMONdefs
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-u32 CALLBACK PS2EgetLibType(void);
-u32 CALLBACK PS2EgetLibVersion2(u32 type);
-const char *CALLBACK PS2EgetLibName(void);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif
 
 // key values:
 /* key values must be OS dependant:
@@ -112,25 +90,11 @@ const char *CALLBACK PS2EgetLibName(void);
 // for 64bit compilers
 typedef char __keyEvent_Size__[(sizeof(keyEvent) == 8) ? 1 : -1];
 
-// plugin types
-#define SIO_TYPE_PAD 0x00000001
-#define SIO_TYPE_MTAP 0x00000004
-#define SIO_TYPE_RM 0x00000040
-#define SIO_TYPE_MC 0x00000100
-
-typedef int(CALLBACK *SIOchangeSlotCB)(int slot);
-
 typedef void (*DEV9callback)(int cycles);
 typedef int (*DEV9handler)(void);
 
 typedef void (*USBcallback)(int cycles);
 typedef int (*USBhandler)(void);
-
-typedef struct _GSdriverInfo
-{
-    char name[8];
-    void *common;
-} GSdriverInfo;
 
 #ifdef __cplusplus
 extern "C" {
@@ -239,7 +203,6 @@ void CALLBACK PADWriteEvent(keyEvent &evt);
 
 // extended funcs
 
-void CALLBACK PADgsDriverInfo(GSdriverInfo *info);
 s32 CALLBACK PADsetSlot(u8 port, u8 slot);
 s32 CALLBACK PADqueryMtap(u8 port);
 void CALLBACK PADconfigure();
@@ -374,7 +337,6 @@ typedef u8(CALLBACK *_PADpoll)(u8 value);
 typedef u32(CALLBACK *_PADquery)(int pad);
 typedef void(CALLBACK *_PADupdate)(int pad);
 typedef keyEvent *(CALLBACK *_PADkeyEvent)();
-typedef void(CALLBACK *_PADgsDriverInfo)(GSdriverInfo *info);
 typedef s32(CALLBACK *_PADsetSlot)(u8 port, u8 slot);
 typedef s32(CALLBACK *_PADqueryMtap)(u8 port);
 typedef void(CALLBACK *_PADWriteEvent)(keyEvent &evt);

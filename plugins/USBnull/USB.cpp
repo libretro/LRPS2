@@ -17,7 +17,7 @@
 #include <string>
 #include "svnrev.h"
 #include "USB.h"
-#include "null/config.inl"
+
 const unsigned char version = PS2E_USB_VERSION;
 const unsigned char revision = 0;
 const unsigned char build = 7; // increase that with each version
