@@ -404,24 +404,19 @@ Pcsx2Config::Pcsx2Config()
 	McdEnableEjection = true;
 	McdFolderAutoManage = true;
 	EnablePatches = true;
-	BackupSavestate = true;
 }
 
 void Pcsx2Config::LoadSave( IniInterface& ini )
 {
 	ScopedIniGroup path( ini, L"EmuCore" );
 
-	IniBitBool( CdvdVerboseReads );
-	IniBitBool( CdvdDumpBlocks );
 	IniBitBool( CdvdShareWrite );
 	IniBitBool( EnablePatches );
 	IniBitBool( EnableCheats );
 	IniBitBool( EnableIPC );
 	IniBitBool( EnableWideScreenPatches );
-	IniBitBool( ConsoleToStdio );
 	IniBitBool( HostFs );
 
-	IniBitBool( BackupSavestate );
 	IniBitBool( McdEnableEjection );
 	IniBitBool( McdFolderAutoManage );
 	IniBitBool( MultitapPort0_Enabled );

@@ -314,8 +314,6 @@ struct Pcsx2Config
 
 	BITFIELD32()
 		bool
-			CdvdVerboseReads	:1,		// enables cdvd read activity verbosely dumped to the console
-			CdvdDumpBlocks		:1,		// enables cdvd block dumping
 			CdvdShareWrite		:1,		// allows the iso to be modified while it's loaded
 			EnablePatches		:1,		// enables patch detection and application
 			EnableCheats		:1,		// enables cheat detection and application
@@ -323,7 +321,6 @@ struct Pcsx2Config
 			EnableWideScreenPatches		:1,
 		// when enabled uses BOOT2 injection, skipping sony bios splashes
 			UseBOOT2Injection	:1,
-			BackupSavestate		:1,
 		// enables simulated ejection of memory cards when loading savestates
 			McdEnableEjection	:1,
 			McdFolderAutoManage	:1,
@@ -331,7 +328,6 @@ struct Pcsx2Config
 			MultitapPort0_Enabled:1,
 			MultitapPort1_Enabled:1,
 
-			ConsoleToStdio		:1,
 			HostFs				:1;
 	BITFIELD_END
 

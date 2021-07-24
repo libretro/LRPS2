@@ -59,11 +59,6 @@ static int diskTypeCached = -1;
 int lastReadSize;
 u32 lastLSN; // needed for block dumping
 
-// Records last read block length for block dumping
-//static int plsn = 0;
-
-static OutputIsoFile blockDumpFile;
-
 // Assertion check for CDVD != NULL (in devel and debug builds), because its handier than
 // relying on DEP exceptions -- and a little more reliable too.
 static void CheckNullCDVD()
@@ -368,78 +363,20 @@ bool DoCDVDopen()
 
 	auto CurrentSourceType = enum_cast(m_CurrentSourceType);
 	int ret = CDVD->open(!m_SourceFilename[CurrentSourceType].IsEmpty() ?
-							 static_cast<const char*>(m_SourceFilename[CurrentSourceType].ToUTF8()) :
-							 (char*)NULL);
+			static_cast<const char*>(m_SourceFilename[CurrentSourceType].ToUTF8()) :
+			(char*)NULL);
 
 	if (ret == -1)
 		return false; // error! (handled by caller)
 	//if( ret == 1 )	throw Exception::CancelEvent(L"User canceled the CDVD plugin's open dialog."); <--- TODO_CDVD is this still needed?
 
 	int cdtype = DoCDVDdetectDiskType();
-
-	if (!EmuConfig.CdvdDumpBlocks || (cdtype == CDVD_TYPE_NODISC))
-	{
-		blockDumpFile.Close();
-		return true;
-	}
-
-	wxString somepick(Path::GetFilenameWithoutExt(m_SourceFilename[CurrentSourceType]));
-	//FWIW Disc serial availability doesn't seem reliable enough, sometimes it's there and sometime it's just null
-	//Shouldn't the serial be available all time? Potentially need to look into Elfreloadinfo() reliability
-	//TODO: Add extra fallback case for CRC.
-	if (somepick.IsEmpty() && !DiscSerial.IsEmpty())
-		somepick = L"Untitled-" + DiscSerial;
-	else if (somepick.IsEmpty())
-		somepick = L"Untitled";
-
-	if (g_Conf->CurrentBlockdump.IsEmpty())
-		g_Conf->CurrentBlockdump = wxGetCwd();
-
-	wxString temp(Path::Combine(g_Conf->CurrentBlockdump, somepick));
-
-#ifdef ENABLE_TIMESTAMPS
-	wxDateTime curtime(wxDateTime::GetTimeNow());
-
-	temp += pxsFmt(L" (%04d-%02d-%02d %02d-%02d-%02d)",
-				   curtime.GetYear(), curtime.GetMonth(), curtime.GetDay(),
-				   curtime.GetHour(), curtime.GetMinute(), curtime.GetSecond());
-#endif
-	temp += L".dump";
-
-	cdvdTD td;
-	CDVD->getTD(0, &td);
-
-	blockDumpFile.Create(temp, 2);
-
-	if (blockDumpFile.IsOpened())
-	{
-		int blockofs = 0;
-		uint blocksize = CD_FRAMESIZE_RAW;
-		uint blocks = td.lsn;
-
-		// hack: Because of limitations of the current cdvd design, we can't query the blocksize
-		// of the underlying media.  So lets make a best guess:
-
-		switch (cdtype)
-		{
-			case CDVD_TYPE_PS2DVD:
-			case CDVD_TYPE_DVDV:
-			case CDVD_TYPE_DETCTDVDS:
-			case CDVD_TYPE_DETCTDVDD:
-				blocksize = 2048;
-				break;
-		}
-		blockDumpFile.WriteHeader(blockofs, blocksize, blocks);
-	}
-
-
 	return true;
 }
 
 void DoCDVDclose()
 {
 	CheckNullCDVD();
-	//blockDumpFile.Close();
 
 	if (CDVD->close != NULL)
 		CDVD->close();
@@ -450,23 +387,7 @@ void DoCDVDclose()
 s32 DoCDVDreadSector(u8* buffer, u32 lsn, int mode)
 {
 	CheckNullCDVD();
-	int ret = CDVD->readSector(buffer, lsn, mode);
-
-	if (ret == 0 && blockDumpFile.IsOpened())
-	{
-		if (blockDumpFile.GetBlockSize() == CD_FRAMESIZE_RAW && mode != CDVD_MODE_2352)
-		{
-			u8 blockDumpBuffer[CD_FRAMESIZE_RAW];
-			if (CDVD->readSector(blockDumpBuffer, lsn, CDVD_MODE_2352) == 0)
-				blockDumpFile.WriteSector(blockDumpBuffer, lsn);
-		}
-		else
-		{
-			blockDumpFile.WriteSector(buffer, lsn);
-		}
-	}
-
-	return ret;
+	return CDVD->readSector(buffer, lsn, mode);
 }
 
 s32 DoCDVDreadTrack(u32 lsn, int mode)
@@ -500,29 +421,7 @@ s32 DoCDVDreadTrack(u32 lsn, int mode)
 s32 DoCDVDgetBuffer(u8* buffer)
 {
 	CheckNullCDVD();
-	const int ret = CDVD->getBuffer(buffer);
-
-	if (ret == 0 && blockDumpFile.IsOpened())
-	{
-		cdvdTD td;
-		CDVD->getTD(0, &td);
-
-		if (lastLSN >= td.lsn)
-			return 0;
-
-		if (blockDumpFile.GetBlockSize() == CD_FRAMESIZE_RAW && lastReadSize != 2352)
-		{
-			u8 blockDumpBuffer[CD_FRAMESIZE_RAW];
-			if (CDVD->readSector(blockDumpBuffer, lastLSN, CDVD_MODE_2352) == 0)
-				blockDumpFile.WriteSector(blockDumpBuffer, lastLSN);
-		}
-		else
-		{
-			blockDumpFile.WriteSector(buffer, lastLSN);
-		}
-	}
-
-	return ret;
+	return CDVD->getBuffer(buffer);
 }
 
 s32 DoCDVDdetectDiskType()

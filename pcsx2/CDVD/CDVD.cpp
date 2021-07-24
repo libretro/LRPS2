@@ -1285,12 +1285,6 @@ static void cdvdWrite04(u8 rt)
 			CDVD_LOG("CdRead > startSector=%d, seekTo=%d, nSectors=%d, RetryCnt=%x, Speed=%x(%x), ReadMode=%x(%x) (1074=%x)",
 					 cdvd.Sector, cdvd.SeekToSector, cdvd.nSectors, cdvd.RetryCnt, cdvd.Speed, cdvd.Param[9], cdvd.ReadMode, cdvd.Param[10], psxHu32(0x1074));
 
-#ifndef NDEBUG
-			if (EmuConfig.CdvdVerboseReads)
-				log_cb(RETRO_LOG_INFO, "CdRead: Reading Sector %07d (%03d Blocks of Size %d) at Speed=%dx\n",
-								cdvd.SeekToSector, cdvd.nSectors, cdvd.BlockSize, cdvd.Speed);
-#endif
-
 			cdvd.ReadTime = cdvdBlockReadTime(MODE_CDROM);
 			CDVDREAD_INT(cdvdStartSeek(cdvd.SeekToSector, MODE_CDROM));
 
@@ -1353,12 +1347,6 @@ static void cdvdWrite04(u8 rt)
 			CDVD_LOG("CdReadCDDA > startSector=%d, nSectors=%d, RetryCnt=%x, Speed=%xx(%x), ReadMode=%x(%x) (1074=%x)",
 					 cdvd.Sector, cdvd.nSectors, cdvd.RetryCnt, cdvd.Speed, cdvd.Param[9], cdvd.ReadMode, cdvd.Param[10], psxHu32(0x1074));
 
-#ifndef NDEBUG
-			if (EmuConfig.CdvdVerboseReads)
-				log_cb(RETRO_LOG_INFO, "CdAudioRead: Reading Sector %07d (%03d Blocks of Size %d) at Speed=%dx\n",
-								cdvd.Sector, cdvd.nSectors, cdvd.BlockSize, cdvd.Speed);
-#endif
-
 			cdvd.ReadTime = cdvdBlockReadTime(MODE_CDROM);
 			CDVDREAD_INT(cdvdStartSeek(cdvd.SeekToSector, MODE_CDROM));
 
@@ -1390,12 +1378,6 @@ static void cdvdWrite04(u8 rt)
 
 			CDVD_LOG("DvdRead > startSector=%d, seekTo=%d nSectors=%d, RetryCnt=%x, Speed=%x(%x), ReadMode=%x(%x) (1074=%x)",
 					 cdvd.Sector, cdvd.SeekToSector, cdvd.nSectors, cdvd.RetryCnt, cdvd.Speed, cdvd.Param[9], cdvd.ReadMode, cdvd.Param[10], psxHu32(0x1074));
-
-#ifndef NDEBUG
-			if (EmuConfig.CdvdVerboseReads)
-				log_cb(RETRO_LOG_INFO, L"DvdRead: Reading Sector %07d (%03d Blocks of Size %d) at Speed=%dx\n",
-								cdvd.SeekToSector, cdvd.nSectors, cdvd.BlockSize, cdvd.Speed);
-#endif
 
 			cdvd.ReadTime = cdvdBlockReadTime(MODE_DVDROM);
 			CDVDREAD_INT(cdvdStartSeek(cdvd.SeekToSector, MODE_DVDROM));
