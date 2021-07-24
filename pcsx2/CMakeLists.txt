@@ -669,8 +669,6 @@ endif()
 
    add_library(${Output} SHARED
      ${CMAKE_SOURCE_DIR}/libretro/main.cpp
-     
-     ${CMAKE_SOURCE_DIR}/libretro/input.cpp
      ${pcsx2FinalSources}
     "../libretro/language_injector.cpp" "../libretro/retro_messager.cpp")
    include_directories(. ${CMAKE_SOURCE_DIR}/libretro)

@@ -2,7 +2,6 @@
 add_library(pcsx2_libretro SHARED
   main.cpp
   options.cpp
-  input.cpp
 )
 
 include_directories(${CMAKE_SOURCE_DIR}/pcsx2)
