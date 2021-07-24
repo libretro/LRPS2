@@ -928,90 +928,6 @@ wxGetCommandOutput(const wxString &cmd, wxMBConv& conv = wxConvISO8859_1)
     return s;
 }
 
-// retrieve either the hostname or FQDN depending on platform (caller must
-// check whether it's one or the other, this is why this function is for
-// private use only)
-static bool wxGetHostNameInternal(wxChar *buf, int sz)
-{
-    wxCHECK_MSG( buf, false, wxT("NULL pointer in wxGetHostNameInternal") );
-
-    *buf = wxT('\0');
-
-    // we're using uname() which is POSIX instead of less standard sysinfo()
-#if defined(HAVE_UNAME)
-    struct utsname uts;
-    bool ok = uname(&uts) != -1;
-    if ( ok )
-    {
-        wxStrlcpy(buf, wxSafeConvertMB2WX(uts.nodename), sz);
-    }
-#elif defined(HAVE_GETHOSTNAME)
-    char cbuf[sz];
-    bool ok = gethostname(cbuf, sz) != -1;
-    if ( ok )
-    {
-        wxStrlcpy(buf, wxSafeConvertMB2WX(cbuf), sz);
-    }
-#else // no uname, no gethostname
-    wxFAIL_MSG(wxT("don't know host name for this machine"));
-
-    bool ok = false;
-#endif // uname/gethostname
-
-    if ( !ok )
-    {
-        wxLogSysError(_("Cannot get the hostname"));
-    }
-
-    return ok;
-}
-
-bool wxGetHostName(wxChar *buf, int sz)
-{
-    bool ok = wxGetHostNameInternal(buf, sz);
-
-    if ( ok )
-    {
-        // BSD systems return the FQDN, we only want the hostname, so extract
-        // it (we consider that dots are domain separators)
-        wxChar *dot = wxStrchr(buf, wxT('.'));
-        if ( dot )
-        {
-            // nuke it
-            *dot = wxT('\0');
-        }
-    }
-
-    return ok;
-}
-
-bool wxGetFullHostName(wxChar *buf, int sz)
-{
-    bool ok = wxGetHostNameInternal(buf, sz);
-
-    if ( ok )
-    {
-        if ( !wxStrchr(buf, wxT('.')) )
-        {
-            struct hostent *host = gethostbyname(wxSafeConvertWX2MB(buf));
-            if ( !host )
-            {
-                wxLogSysError(_("Cannot get the official hostname"));
-
-                ok = false;
-            }
-            else
-            {
-                // the canonical name
-                wxStrlcpy(buf, wxSafeConvertMB2WX(host->h_name), sz);
-            }
-        }
-        //else: it's already a FQDN (BSD behaves this way)
-    }
-
-    return ok;
-}
-
 bool wxGetUserId(wxChar *buf, int sz)
 {
     struct passwd *who;
@@ -1024,27 +940,6 @@ bool wxGetUserId(wxChar *buf, int sz)
     }
 
     return false;
-}
-
-bool wxGetUserName(wxChar *buf, int sz)
-{
-#ifdef HAVE_PW_GECOS
-    struct passwd *who;
-
-    *buf = wxT('\0');
-    if ((who = getpwuid (getuid ())) != NULL)
-    {
-       char *comma = strchr(who->pw_gecos, ',');
-       if (comma)
-           *comma = '\0'; // cut off non-name comment fields
-       wxStrlcpy(buf, wxSafeConvertMB2WX(who->pw_gecos), sz);
-       return true;
-    }
-
-    return false;
-#else // !HAVE_PW_GECOS
-    return wxGetUserId(buf, sz);
-#endif // HAVE_PW_GECOS/!HAVE_PW_GECOS
 }
 
 bool wxIsPlatform64Bit()

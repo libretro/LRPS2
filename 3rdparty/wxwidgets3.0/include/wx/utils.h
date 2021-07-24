@@ -467,23 +467,9 @@ WXDLLIMPEXP_BASE bool wxGetEnvMap(wxEnvVariableHashMap *map);
 // Network and username functions.
 // ----------------------------------------------------------------------------
 
-// NB: "char *" functions are deprecated, use wxString ones!
-
-// Get hostname.
-WXDLLIMPEXP_BASE bool wxGetHostName(wxChar *buf, int maxSize);
-WXDLLIMPEXP_BASE wxString wxGetHostName();
-
-// Get FQDN
-WXDLLIMPEXP_BASE wxString wxGetFullHostName();
-WXDLLIMPEXP_BASE bool wxGetFullHostName(wxChar *buf, int maxSize);
-
 // Get user ID e.g. jacs (this is known as login name under Unix)
 WXDLLIMPEXP_BASE bool wxGetUserId(wxChar *buf, int maxSize);
 WXDLLIMPEXP_BASE wxString wxGetUserId();
-
-// Get user name e.g. Julian Smart
-WXDLLIMPEXP_BASE bool wxGetUserName(wxChar *buf, int maxSize);
-WXDLLIMPEXP_BASE wxString wxGetUserName();
 
 // Get current Home dir and copy to dest (returns pstr->c_str())
 WXDLLIMPEXP_BASE wxString wxGetHomeDir();

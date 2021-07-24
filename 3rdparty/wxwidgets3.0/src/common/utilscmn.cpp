@@ -360,45 +360,6 @@ wxString wxGetUserId()
     return buf;
 }
 
-wxString wxGetUserName()
-{
-    static const int maxUserNameLen = 1024; // FIXME arbitrary number
-
-    wxString buf;
-    bool ok = wxGetUserName(wxStringBuffer(buf, maxUserNameLen), maxUserNameLen);
-
-    if ( !ok )
-        buf.Empty();
-
-    return buf;
-}
-
-wxString wxGetHostName()
-{
-    static const size_t hostnameSize = 257;
-
-    wxString buf;
-    bool ok = wxGetHostName(wxStringBuffer(buf, hostnameSize), hostnameSize);
-
-    if ( !ok )
-        buf.Empty();
-
-    return buf;
-}
-
-wxString wxGetFullHostName()
-{
-    static const size_t hostnameSize = 257;
-
-    wxString buf;
-    bool ok = wxGetFullHostName(wxStringBuffer(buf, hostnameSize), hostnameSize);
-
-    if ( !ok )
-        buf.Empty();
-
-    return buf;
-}
-
 wxString wxGetHomeDir()
 {
     wxString home;
@@ -406,40 +367,6 @@ wxString wxGetHomeDir()
 
     return home;
 }
-
-#if 0
-
-wxString wxGetCurrentDir()
-{
-    wxString dir;
-    size_t len = 1024;
-    bool ok;
-    do
-    {
-        ok = getcwd(dir.GetWriteBuf(len + 1), len) != NULL;
-        dir.UngetWriteBuf();
-
-        if ( !ok )
-        {
-            if ( errno != ERANGE )
-            {
-                wxLogSysError(wxT("Failed to get current directory"));
-
-                return wxEmptyString;
-            }
-            else
-            {
-                // buffer was too small, retry with a larger one
-                len *= 2;
-            }
-        }
-        //else: ok
-    } while ( !ok );
-
-    return dir;
-}
-
-#endif // 0
 
 // ----------------------------------------------------------------------------
 // Environment
