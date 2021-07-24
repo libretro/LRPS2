@@ -6,7 +6,6 @@ set(wxUnixSources
    src/unix/epolldispatcher.cpp
    src/unix/stdpaths.cpp
    src/unix/threadpsx.cpp
-   src/unix/timerunx.cpp
    src/unix/utilsunx.cpp
    src/unix/wakeuppipe.cpp
    src/common/selectdispatcher.cpp
@@ -24,7 +23,6 @@ set(wxWindowsSources
    src/msw/registry.cpp
    src/msw/stdpaths.cpp
    src/msw/thread.cpp
-   src/msw/timer.cpp
    src/msw/utils.cpp
    src/msw/utilsexc.cpp
    )
@@ -65,8 +63,6 @@ add_library(wxwidgets
    src/common/textfile.cpp
    src/common/threadinfo.cpp
    src/common/time.cpp
-   src/common/timercmn.cpp
-   src/common/timerimpl.cpp
    src/common/tokenzr.cpp
    src/common/txtstrm.cpp
    src/common/unichar.cpp

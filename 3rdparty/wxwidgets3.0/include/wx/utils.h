@@ -123,11 +123,6 @@ wxDEPRECATED_INLINE(inline bool wxStringEq(const wchar_t *s1, const wchar_t *s2)
 // Miscellaneous functions
 // ----------------------------------------------------------------------------
 
-// Sound the bell
-WXDLLIMPEXP_CORE void wxBell();
-
-WXDLLIMPEXP_CORE wxVersionInfo wxGetLibraryVersionInfo();
-
 // Get OS description as a user-readable string
 WXDLLIMPEXP_BASE wxString wxGetOsDescription();
 
@@ -145,14 +140,6 @@ WXDLLIMPEXP_BASE bool wxIsPlatform64Bit();
 // Get linux-distro informations
 WXDLLIMPEXP_BASE wxLinuxDistributionInfo wxGetLinuxDistributionInfo();
 #endif
-
-// Return a string with the current date/time
-WXDLLIMPEXP_BASE wxString wxNow();
-
-// Return path where wxWidgets is installed (mostly useful in Unices)
-WXDLLIMPEXP_BASE const wxChar *wxGetInstallPrefix();
-// Return path to wxWin data (/usr/share/wx/%{version}) (Unices)
-WXDLLIMPEXP_BASE wxString wxGetDataDir();
 
 // ----------------------------------------------------------------------------
 // wxPlatform
@@ -239,19 +226,6 @@ private:
 
 /// Function for testing current platform
 inline bool wxPlatformIs(int platform) { return wxPlatform::Is(platform); }
-
-// ----------------------------------------------------------------------------
-// Window ID management
-// ----------------------------------------------------------------------------
-
-// Ensure subsequent IDs don't clash with this one
-WXDLLIMPEXP_BASE void wxRegisterId(int id);
-
-// Return the current ID
-WXDLLIMPEXP_BASE int wxGetCurrentId();
-
-// Generate a unique ID
-WXDLLIMPEXP_BASE int wxNewId();
 
 // ----------------------------------------------------------------------------
 // Various conversions
@@ -435,14 +409,6 @@ WXDLLIMPEXP_BASE int wxKill(long pid,
                        wxKillError *rc = NULL,
                        int flags = wxKILL_NOCHILDREN);
 
-// Execute a command in an interactive shell window (always synchronously)
-// If no command then just the shell
-WXDLLIMPEXP_BASE bool wxShell(const wxString& command = wxEmptyString);
-
-// As wxShell(), but must give a (non interactive) command and its output will
-// be returned in output array
-WXDLLIMPEXP_BASE bool wxShell(const wxString& command, wxArrayString& output);
-
 // Sleep for nSecs seconds
 WXDLLIMPEXP_BASE void wxSleep(int nSecs);
 
@@ -452,16 +418,9 @@ WXDLLIMPEXP_BASE void wxMilliSleep(unsigned long milliseconds);
 // Sleep for a given amount of microseconds
 WXDLLIMPEXP_BASE void wxMicroSleep(unsigned long microseconds);
 
-#if WXWIN_COMPATIBILITY_2_8
-// Sleep for a given amount of milliseconds (old, bad name), use wxMilliSleep
-wxDEPRECATED( WXDLLIMPEXP_BASE void wxUsleep(unsigned long milliseconds) );
-#endif
 
 // Get the process id of the current process
 WXDLLIMPEXP_BASE unsigned long wxGetProcessId();
-
-// Get free memory in bytes, or -1 if cannot determine amount (e.g. on UNIX)
-WXDLLIMPEXP_BASE wxMemorySize wxGetFreeMemory();
 
 // ----------------------------------------------------------------------------
 // Environment variables
@@ -510,10 +469,6 @@ WXDLLIMPEXP_BASE bool wxGetEnvMap(wxEnvVariableHashMap *map);
 
 // NB: "char *" functions are deprecated, use wxString ones!
 
-// Get eMail address
-WXDLLIMPEXP_BASE bool wxGetEmailAddress(wxChar *buf, int maxSize);
-WXDLLIMPEXP_BASE wxString wxGetEmailAddress();
-
 // Get hostname.
 WXDLLIMPEXP_BASE bool wxGetHostName(wxChar *buf, int maxSize);
 WXDLLIMPEXP_BASE wxString wxGetHostName();
@@ -544,13 +499,6 @@ WXDLLIMPEXP_BASE wxString wxGetUserHome(const wxString& user = wxEmptyString);
 #else
     typedef long wxDiskspaceSize_t;
 #endif
-
-// get number of total/free bytes on the disk where path belongs
-WXDLLIMPEXP_BASE bool wxGetDiskSpace(const wxString& path,
-                                     wxDiskspaceSize_t *pTotal = NULL,
-                                     wxDiskspaceSize_t *pFree = NULL);
-
-
 
 typedef int (*wxSortCallback)(const void* pItem1,
                               const void* pItem2,

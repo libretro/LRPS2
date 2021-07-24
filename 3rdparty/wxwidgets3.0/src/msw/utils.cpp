@@ -370,117 +370,6 @@ wxString wxGetUserHome(const wxString& user)
     return home;
 }
 
-bool wxGetDiskSpace(const wxString& WXUNUSED_IN_WINCE(path),
-                    wxDiskspaceSize_t *WXUNUSED_IN_WINCE(pTotal),
-                    wxDiskspaceSize_t *WXUNUSED_IN_WINCE(pFree))
-{
-#ifdef __WXWINCE__
-    // TODO-CE
-    return false;
-#else
-    if ( path.empty() )
-        return false;
-
-// old w32api don't have ULARGE_INTEGER
-#if defined(__WIN32__) && \
-    (!defined(__GNUWIN32__) || wxCHECK_W32API_VERSION( 0, 3 ))
-    // GetDiskFreeSpaceEx() is not available under original Win95, check for
-    // it
-    typedef BOOL (WINAPI *GetDiskFreeSpaceEx_t)(LPCTSTR,
-                                                PULARGE_INTEGER,
-                                                PULARGE_INTEGER,
-                                                PULARGE_INTEGER);
-
-    GetDiskFreeSpaceEx_t
-        pGetDiskFreeSpaceEx = (GetDiskFreeSpaceEx_t)::GetProcAddress
-                              (
-                                ::GetModuleHandle(wxT("kernel32.dll")),
-#if wxUSE_UNICODE
-                                "GetDiskFreeSpaceExW"
-#else
-                                "GetDiskFreeSpaceExA"
-#endif
-                              );
-
-    if ( pGetDiskFreeSpaceEx )
-    {
-        ULARGE_INTEGER bytesFree, bytesTotal;
-
-        // may pass the path as is, GetDiskFreeSpaceEx() is smart enough
-        if ( !pGetDiskFreeSpaceEx(path.t_str(),
-                                  &bytesFree,
-                                  &bytesTotal,
-                                  NULL) )
-            return false;
-
-        // ULARGE_INTEGER is a union of a 64 bit value and a struct containing
-        // two 32 bit fields which may be or may be not named - try to make it
-        // compile in all cases
-#if defined(__BORLANDC__) && !defined(_ANONYMOUS_STRUCT)
-        #define UL(ul) ul.u
-#else // anon union
-        #define UL(ul) ul
-#endif
-        if ( pTotal )
-        {
-#if wxUSE_LONGLONG
-            *pTotal = wxDiskspaceSize_t(UL(bytesTotal).HighPart, UL(bytesTotal).LowPart);
-#else
-            *pTotal = wxDiskspaceSize_t(UL(bytesTotal).LowPart);
-#endif
-        }
-
-        if ( pFree )
-        {
-#if wxUSE_LONGLONG
-            *pFree = wxLongLong(UL(bytesFree).HighPart, UL(bytesFree).LowPart);
-#else
-            *pFree = wxDiskspaceSize_t(UL(bytesFree).LowPart);
-#endif
-        }
-    }
-    else
-#endif // Win32
-    {
-        // there's a problem with drives larger than 2GB, GetDiskFreeSpaceEx()
-        // should be used instead - but if it's not available, fall back on
-        // GetDiskFreeSpace() nevertheless...
-
-        DWORD lSectorsPerCluster,
-              lBytesPerSector,
-              lNumberOfFreeClusters,
-              lTotalNumberOfClusters;
-
-        // FIXME: this is wrong, we should extract the root drive from path
-        //        instead, but this is the job for wxFileName...
-        if ( !::GetDiskFreeSpace(path.t_str(),
-                                 &lSectorsPerCluster,
-                                 &lBytesPerSector,
-                                 &lNumberOfFreeClusters,
-                                 &lTotalNumberOfClusters) )
-            return false;
-
-        wxDiskspaceSize_t lBytesPerCluster = (wxDiskspaceSize_t) lSectorsPerCluster;
-        lBytesPerCluster *= lBytesPerSector;
-
-        if ( pTotal )
-        {
-            *pTotal = lBytesPerCluster;
-            *pTotal *= lTotalNumberOfClusters;
-        }
-
-        if ( pFree )
-        {
-            *pFree = lBytesPerCluster;
-            *pFree *= lNumberOfFreeClusters;
-        }
-    }
-
-    return true;
-#endif
-    // __WXWINCE__
-}
-
 // ----------------------------------------------------------------------------
 // env vars
 // ----------------------------------------------------------------------------
@@ -820,33 +709,6 @@ int wxKillAllChildren(long pid, wxSignal sig, wxKillError *krc)
     return 0;
 }
 
-// Execute a program in an Interactive Shell
-bool wxShell(const wxString& command)
-{
-    wxString cmd;
-
-#ifdef __WXWINCE__
-    cmd = command;
-#else
-    wxChar *shell = wxGetenv(wxT("COMSPEC"));
-    if ( !shell )
-        shell = (wxChar*) wxT("\\COMMAND.COM");
-
-    if ( !command )
-    {
-        // just the shell
-        cmd = shell;
-    }
-    else
-    {
-        // pass the command to execute to the command processor
-        cmd.Printf(wxT("%s /c %s"), shell, command.c_str());
-    }
-#endif
-
-    return wxExecute(cmd, wxEXEC_SYNC) == 0;
-}
-
 // Shutdown or reboot the PC
 bool wxShutdown(int WXUNUSED_IN_WINCE(flags))
 {
@@ -926,22 +788,6 @@ bool wxShutdown(int WXUNUSED_IN_WINCE(flags))
 // ----------------------------------------------------------------------------
 // misc
 // ----------------------------------------------------------------------------
-
-// Get free memory in bytes, or -1 if cannot determine amount (e.g. on UNIX)
-wxMemorySize wxGetFreeMemory()
-{
-#if defined(__WIN64__)
-    MEMORYSTATUSEX memStatex;
-    memStatex.dwLength = sizeof (memStatex);
-    ::GlobalMemoryStatusEx (&memStatex);
-    return (wxMemorySize)memStatex.ullAvailPhys;
-#else /* if defined(__WIN32__) */
-    MEMORYSTATUS memStatus;
-    memStatus.dwLength = sizeof(MEMORYSTATUS);
-    ::GlobalMemoryStatus(&memStatus);
-    return (wxMemorySize)memStatus.dwAvailPhys;
-#endif
-}
 
 unsigned long wxGetProcessId()
 {

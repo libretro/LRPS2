@@ -129,53 +129,6 @@ wxString wxDecToHex(int dec)
 // ----------------------------------------------------------------------------
 // misc functions
 // ----------------------------------------------------------------------------
-
-// Return the current date/time
-wxString wxNow()
-{
-#ifdef __WXWINCE__
-#if wxUSE_DATETIME
-    wxDateTime now = wxDateTime::Now();
-    return now.Format();
-#else
-    return wxEmptyString;
-#endif
-#else
-    time_t now = time(NULL);
-    char *date = ctime(&now);
-    date[24] = '\0';
-    return wxString::FromAscii(date);
-#endif
-}
-
-#if WXWIN_COMPATIBILITY_2_8
-void wxUsleep(unsigned long milliseconds)
-{
-    wxMilliSleep(milliseconds);
-}
-#endif
-
-const wxChar *wxGetInstallPrefix()
-{
-    wxString prefix;
-
-    if ( wxGetEnv(wxT("WXPREFIX"), &prefix) )
-        return prefix.c_str();
-
-#ifdef wxINSTALL_PREFIX
-    return wxT(wxINSTALL_PREFIX);
-#else
-    return wxEmptyString;
-#endif
-}
-
-wxString wxGetDataDir()
-{
-    wxString dir = wxGetInstallPrefix();
-    dir <<  wxFILE_SEP_PATH << wxT("share") << wxFILE_SEP_PATH << wxT("wx");
-    return dir;
-}
-
 bool wxIsPlatformLittleEndian()
 {
     // Are we little or big endian? This method is from Harbison & Steele.
@@ -391,37 +344,8 @@ bool wxPlatform::Is(int platform)
 }
 
 // ----------------------------------------------------------------------------
-// network and user id functions
+// user id functions
 // ----------------------------------------------------------------------------
-
-// Get Full RFC822 style email address
-bool wxGetEmailAddress(wxChar *address, int maxSize)
-{
-    wxString email = wxGetEmailAddress();
-    if ( !email )
-        return false;
-
-    wxStrlcpy(address, email.t_str(), maxSize);
-
-    return true;
-}
-
-wxString wxGetEmailAddress()
-{
-    wxString email;
-
-    wxString host = wxGetFullHostName();
-    if ( !host.empty() )
-    {
-        wxString user = wxGetUserId();
-        if ( !user.empty() )
-        {
-            email << user << wxT('@') << host;
-        }
-    }
-
-    return email;
-}
 
 wxString wxGetUserId()
 {
@@ -697,32 +621,6 @@ long wxExecute(const wxString& command,
                const wxExecuteEnv *env)
 {
     return wxDoExecuteWithCapture(command, output, &error, flags, env);
-}
-
-// ----------------------------------------------------------------------------
-// Id functions
-// ----------------------------------------------------------------------------
-
-// Id generation
-static int wxCurrentId = 100;
-
-int wxNewId()
-{
-    // skip the part of IDs space that contains hard-coded values:
-    if (wxCurrentId == wxID_LOWEST)
-        wxCurrentId = wxID_HIGHEST + 1;
-
-    return wxCurrentId++;
-}
-
-int
-wxGetCurrentId(void) { return wxCurrentId; }
-
-void
-wxRegisterId (int id)
-{
-  if (id >= wxCurrentId)
-    wxCurrentId = id + 1;
 }
 
 // ----------------------------------------------------------------------------
