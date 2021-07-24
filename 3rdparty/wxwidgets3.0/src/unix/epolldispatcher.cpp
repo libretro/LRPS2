@@ -22,7 +22,6 @@
 
 #include "wx/unix/private/epolldispatcher.h"
 #include "wx/unix/private.h"
-#include "wx/stopwatch.h"
 
 #ifndef WX_PRECOMP
     #include "wx/log.h"

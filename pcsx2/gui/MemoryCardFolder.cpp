@@ -15,6 +15,7 @@
 
 #include "PrecompiledHeader.h"
 #include "wx/wx.h"
+#include "wx/time.h"
 
 #include "MemoryCardFile.h"
 #include "MemoryCardFolder.h"
