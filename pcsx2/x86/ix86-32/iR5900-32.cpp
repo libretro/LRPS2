@@ -62,8 +62,6 @@ __aligned16 GPR_reg64 g_cpuConstRegs[32] = {0};
 u32 g_cpuHasConstReg = 0, g_cpuFlushedConstReg = 0;
 bool g_cpuFlushedPC, g_cpuFlushedCode, g_recompilingDelaySlot, g_maySignalException;
 
-eeProfiler EE::Profiler;
-
 ////////////////////////////////////////////////////////////////
 // Static Private Variables - R5900 Dynarec
 
@@ -580,8 +578,6 @@ static int g_patchesNeedRedo = 0;
 ////////////////////////////////////////////////////
 static void recResetRaw()
 {
-	EE::Profiler.Reset();
-
 	recAlloc();
 
 	if( eeRecIsReset.exchange(true) ) return;
@@ -724,13 +720,11 @@ static void recExecute()
 	if(m_Exception)		m_Exception->Rethrow();
 #endif
 
-	EE::Profiler.Print();
 }
 
 ////////////////////////////////////////////////////
 void R5900::Dynarec::OpcodeImpl::recSYSCALL()
 {
-	EE::Profiler.EmitOp(eeOpcode::SYSCALL);
 
 	recCall(R5900::Interpreter::OpcodeImpl::SYSCALL);
 
@@ -747,7 +741,6 @@ void R5900::Dynarec::OpcodeImpl::recSYSCALL()
 ////////////////////////////////////////////////////
 void R5900::Dynarec::OpcodeImpl::recBREAK()
 {
-	EE::Profiler.EmitOp(eeOpcode::BREAK);
 
 	recCall(R5900::Interpreter::OpcodeImpl::BREAK);
 

@@ -266,13 +266,8 @@ typedef u32 (__fastcall *mVUCall)(void*, void*);
 #define mVUlogCLIP() { mVUlog("w.xyz vf%02d, vf%02dw", _Fs_, _Ft_); }
 
 // Program Logging...
-#ifdef mVUlogProg
-#define mVUlog		((isVU1) ? __mVULog<1> : __mVULog<0>)
-#define mVUdumpProg __mVUdumpProgram
-#else
 #define mVUlog(...)		 if (0) {}
 #define mVUdumpProg(...) if (0) {}
-#endif
 
 //------------------------------------------------------------------
 // Optimization / Debug Options

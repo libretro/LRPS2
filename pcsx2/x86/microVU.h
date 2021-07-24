@@ -14,8 +14,6 @@
  */
 
 #pragma once
-//#define mVUlogProg // Dumps MicroPrograms to \logs\*.html
-//#define mVUprofileProg // Shows opcode statistics in console
 
 using namespace x86Emitter;
 
@@ -195,7 +193,6 @@ struct microVU {
 	u32 cacheSize;		// VU Cache Size
 
 	microProgManager				prog;		// Micro Program Data
-	microProfiler					profiler;   // Opcode Profiler
 	std::unique_ptr<microRegAlloc>	regAlloc;	// Reg Alloc Class
 
 	RecompiledCodeReserve* cache_reserve;

@@ -47,7 +47,6 @@ REC_SYS_DEL(JALR, _Rd_);
 ////////////////////////////////////////////////////
 void recJ()
 {
-	EE::Profiler.EmitOp(eeOpcode::J);
 
 	// SET_FPUSTATE;
 	u32 newpc = (_InstrucTarget_ << 2) + ( pc & 0xf0000000 );
@@ -61,7 +60,6 @@ void recJ()
 ////////////////////////////////////////////////////
 void recJAL()
 {
-	EE::Profiler.EmitOp(eeOpcode::JAL);
 
 	u32 newpc = (_InstrucTarget_ << 2) + ( pc & 0xf0000000 );
 	_deleteEEreg(31, 0);
@@ -92,7 +90,6 @@ void recJAL()
 ////////////////////////////////////////////////////
 void recJR()
 {
-	EE::Profiler.EmitOp(eeOpcode::JR);
 
 	SetBranchReg( _Rs_);
 }
@@ -100,7 +97,6 @@ void recJR()
 ////////////////////////////////////////////////////
 void recJALR()
 {
-	EE::Profiler.EmitOp(eeOpcode::JALR);
 
 	int newpc = pc + 4;
 	_allocX86reg(calleeSavedReg2d, X86TYPE_PCWRITEBACK, 0, MODE_WRITE);

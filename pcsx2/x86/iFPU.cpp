@@ -120,7 +120,6 @@ REC_FPUFUNC(MTC1);
 void recCFC1(void)
 {
 	if ( !_Rt_  ) return;
-	EE::Profiler.EmitOp(eeOpcode::CFC1);
 
 	_eeOnWriteReg(_Rt_, 1);
 
@@ -144,7 +143,6 @@ void recCFC1(void)
 void recCTC1()
 {
 	if ( _Fs_ != 31 ) return;
-	EE::Profiler.EmitOp(eeOpcode::CTC1);
 
 	if ( GPR_IS_CONST1(_Rt_) )
 	{
@@ -179,7 +177,6 @@ void recMFC1()
 {
 	int regt, regs;
 	if ( ! _Rt_ ) return;
-	EE::Profiler.EmitOp(eeOpcode::MFC1);
 
 	_eeOnWriteReg(_Rt_, 1);
 
@@ -220,7 +217,6 @@ void recMFC1()
 //------------------------------------------------------------------
 void recMTC1()
 {
-	EE::Profiler.EmitOp(eeOpcode::MTC1);
 	if( GPR_IS_CONST1(_Rt_) )
 	{
 		_deleteFPtoXMMreg(_Fs_, 0);
@@ -368,7 +364,6 @@ void ClampValues(int regd) {
 //------------------------------------------------------------------
 void recABS_S_xmm(int info)
 {
-	EE::Profiler.EmitOp(eeOpcode::ABS_F);
 	if( info & PROCESS_EE_S ) xMOVSS(xRegisterSSE(EEREC_D), xRegisterSSE(EEREC_S));
 	else xMOVSSZX(xRegisterSSE(EEREC_D), ptr[&fpuRegs.fpr[_Fs_]]);
 
@@ -601,7 +596,6 @@ int recCommutativeOp(int info, int regd, int op)
 //------------------------------------------------------------------
 void recADD_S_xmm(int info)
 {
-	EE::Profiler.EmitOp(eeOpcode::ADD_F);
 	//xAND(ptr32[&fpuRegs.fprc[31]], ~(FPUflagO|FPUflagU)); // Clear O and U flags
     ClampValues(recCommutativeOp(info, EEREC_D, 0));
 	//REC_FPUOP(ADD_S);
@@ -611,7 +605,6 @@ FPURECOMPILE_CONSTCODE(ADD_S, XMMINFO_WRITED|XMMINFO_READS|XMMINFO_READT);
 
 void recADDA_S_xmm(int info)
 {
-	EE::Profiler.EmitOp(eeOpcode::ADDA_F);
 	//xAND(ptr32[&fpuRegs.fprc[31]], ~(FPUflagO|FPUflagU)); // Clear O and U flags
     ClampValues(recCommutativeOp(info, EEREC_ACC, 0));
 }
@@ -637,28 +630,24 @@ static void _setupBranchTest()
 
 void recBC1F()
 {
-	EE::Profiler.EmitOp(eeOpcode::BC1F);
 	_setupBranchTest();
 	recDoBranchImm(JNZ32(0));
 }
 
 void recBC1T()
 {
-	EE::Profiler.EmitOp(eeOpcode::BC1T);
 	_setupBranchTest();
 	recDoBranchImm(JZ32(0));
 }
 
 void recBC1FL()
 {
-	EE::Profiler.EmitOp(eeOpcode::BC1FL);
 	_setupBranchTest();
 	recDoBranchImm_Likely(JNZ32(0));
 }
 
 void recBC1TL()
 {
-	EE::Profiler.EmitOp(eeOpcode::BC1TL);
 	_setupBranchTest();
 	recDoBranchImm_Likely(JZ32(0));
 }
@@ -670,7 +659,6 @@ void recBC1TL()
 //------------------------------------------------------------------
 void recC_EQ_xmm(int info)
 {
-	EE::Profiler.EmitOp(eeOpcode::CEQ_F);
 	int tempReg;
 	int t0reg;
 
@@ -734,14 +722,12 @@ FPURECOMPILE_CONSTCODE(C_EQ, XMMINFO_READS|XMMINFO_READT);
 
 void recC_F()
 {
-	EE::Profiler.EmitOp(eeOpcode::CF_F);
 	xAND(ptr32[&fpuRegs.fprc[31]], ~FPUflagC );
 }
 //REC_FPUFUNC(C_F);
 
 void recC_LE_xmm(int info )
 {
-	EE::Profiler.EmitOp(eeOpcode::CLE_F);
 	int tempReg; //tempX86reg
 	int t0reg; //tempXMMreg
 
@@ -815,7 +801,6 @@ FPURECOMPILE_CONSTCODE(C_LE, XMMINFO_READS|XMMINFO_READT);
 
 void recC_LT_xmm(int info)
 {
-	EE::Profiler.EmitOp(eeOpcode::CLT_F);
 	int tempReg;
 	int t0reg;
 
@@ -896,7 +881,6 @@ FPURECOMPILE_CONSTCODE(C_LT, XMMINFO_READS|XMMINFO_READT);
 //------------------------------------------------------------------
 void recCVT_S_xmm(int info)
 {
-	EE::Profiler.EmitOp(eeOpcode::CVTS_F);
 	if( !(info&PROCESS_EE_S) || (EEREC_D != EEREC_S && !(info&PROCESS_EE_MODEWRITES)) ) {
 		xCVTSI2SS(xRegisterSSE(EEREC_D), ptr32[&fpuRegs.fpr[_Fs_]]);
 	}
@@ -916,7 +900,6 @@ void recCVT_W()
 	}
 	// If we have the following EmitOP() on the top then it'll get calculated twice when CHECK_FPU_FULL is true
 	// as we also have an EmitOP() at recCVT_W() on iFPUd.cpp.  hence we have it below the possible return.
-	EE::Profiler.EmitOp(eeOpcode::CVTW);
 
 	int regs = _checkXMMreg(XMMTYPE_FPREG, _Fs_, MODE_READ);
 
@@ -1010,7 +993,6 @@ static __aligned16 SSE_MXCSR roundmode_nearest, roundmode_neg;
 
 void recDIV_S_xmm(int info)
 {
-	EE::Profiler.EmitOp(eeOpcode::DIV_F);
 	bool roundmodeFlag = false;
 	int t0reg = _allocTempXMMreg(XMMT_FPS, -1);
 	//log_cb(RETRO_LOG_DEBUG, "DIV\n");
@@ -1263,7 +1245,6 @@ void recMADDtemp(int info, int regd)
 
 void recMADD_S_xmm(int info)
 {
-	EE::Profiler.EmitOp(eeOpcode::MADD_F);
 	//xAND(ptr32[&fpuRegs.fprc[31]], ~(FPUflagO|FPUflagU)); // Clear O and U flags
 	recMADDtemp(info, EEREC_D);
 }
@@ -1272,7 +1253,6 @@ FPURECOMPILE_CONSTCODE(MADD_S, XMMINFO_WRITED|XMMINFO_READACC|XMMINFO_READS|XMMI
 
 void recMADDA_S_xmm(int info)
 {
-	EE::Profiler.EmitOp(eeOpcode::MADDA_F);
 	//xAND(ptr32[&fpuRegs.fprc[31]], ~(FPUflagO|FPUflagU)); // Clear O and U flags
 	recMADDtemp(info, EEREC_ACC);
 }
@@ -1286,7 +1266,6 @@ FPURECOMPILE_CONSTCODE(MADDA_S, XMMINFO_WRITEACC|XMMINFO_READACC|XMMINFO_READS|X
 //------------------------------------------------------------------
 void recMAX_S_xmm(int info)
 {
-	EE::Profiler.EmitOp(eeOpcode::MAX_F);
 	//xAND(ptr32[&fpuRegs.fprc[31]], ~(FPUflagO|FPUflagU)); // Clear O and U flags
     recCommutativeOp(info, EEREC_D, 2);
 }
@@ -1295,7 +1274,6 @@ FPURECOMPILE_CONSTCODE(MAX_S, XMMINFO_WRITED|XMMINFO_READS|XMMINFO_READT);
 
 void recMIN_S_xmm(int info)
 {
-	EE::Profiler.EmitOp(eeOpcode::MIN_F);
 	//xAND(ptr32[&fpuRegs.fprc[31]], ~(FPUflagO|FPUflagU)); // Clear O and U flags
     recCommutativeOp(info, EEREC_D, 3);
 }
@@ -1309,7 +1287,6 @@ FPURECOMPILE_CONSTCODE(MIN_S, XMMINFO_WRITED|XMMINFO_READS|XMMINFO_READT);
 //------------------------------------------------------------------
 void recMOV_S_xmm(int info)
 {
-	EE::Profiler.EmitOp(eeOpcode::MOV_F);
 	if( info & PROCESS_EE_S ) xMOVSS(xRegisterSSE(EEREC_D), xRegisterSSE(EEREC_S));
 	else xMOVSSZX(xRegisterSSE(EEREC_D), ptr[&fpuRegs.fpr[_Fs_]]);
 }
@@ -1455,7 +1432,6 @@ int t1reg;
 
 void recMSUB_S_xmm(int info)
 {
-	EE::Profiler.EmitOp(eeOpcode::MSUB_F);
 	//xAND(ptr32[&fpuRegs.fprc[31]], ~(FPUflagO|FPUflagU)); // Clear O and U flags
 	recMSUBtemp(info, EEREC_D);
 }
@@ -1464,7 +1440,6 @@ FPURECOMPILE_CONSTCODE(MSUB_S, XMMINFO_WRITED|XMMINFO_READACC|XMMINFO_READS|XMMI
 
 void recMSUBA_S_xmm(int info)
 {
-	EE::Profiler.EmitOp(eeOpcode::MSUBA_F);
 	//xAND(ptr32[&fpuRegs.fprc[31]], ~(FPUflagO|FPUflagU)); // Clear O and U flags
 	recMSUBtemp(info, EEREC_ACC);
 }
@@ -1478,7 +1453,6 @@ FPURECOMPILE_CONSTCODE(MSUBA_S, XMMINFO_WRITEACC|XMMINFO_READACC|XMMINFO_READS|X
 //------------------------------------------------------------------
 void recMUL_S_xmm(int info)
 {
-	EE::Profiler.EmitOp(eeOpcode::MUL_F);
 	//xAND(ptr32[&fpuRegs.fprc[31]], ~(FPUflagO|FPUflagU)); // Clear O and U flags
     ClampValues(recCommutativeOp(info, EEREC_D, 1));
 }
@@ -1487,7 +1461,6 @@ FPURECOMPILE_CONSTCODE(MUL_S, XMMINFO_WRITED|XMMINFO_READS|XMMINFO_READT);
 
 void recMULA_S_xmm(int info)
 {
-	EE::Profiler.EmitOp(eeOpcode::MULA_F);
 	//xAND(ptr32[&fpuRegs.fprc[31]], ~(FPUflagO|FPUflagU)); // Clear O and U flags
 	ClampValues(recCommutativeOp(info, EEREC_ACC, 1));
 }
@@ -1500,7 +1473,6 @@ FPURECOMPILE_CONSTCODE(MULA_S, XMMINFO_WRITEACC|XMMINFO_READS|XMMINFO_READT);
 // NEG XMM
 //------------------------------------------------------------------
 void recNEG_S_xmm(int info) {
-	EE::Profiler.EmitOp(eeOpcode::NEG_F);
 	if( info & PROCESS_EE_S ) xMOVSS(xRegisterSSE(EEREC_D), xRegisterSSE(EEREC_S));
 	else xMOVSSZX(xRegisterSSE(EEREC_D), ptr[&fpuRegs.fpr[_Fs_]]);
 
@@ -1573,7 +1545,6 @@ void recSUBop(int info, int regd)
 
 void recSUB_S_xmm(int info)
 {
-	EE::Profiler.EmitOp(eeOpcode::SUB_F);
 	recSUBop(info, EEREC_D);
 }
 
@@ -1582,7 +1553,6 @@ FPURECOMPILE_CONSTCODE(SUB_S, XMMINFO_WRITED|XMMINFO_READS|XMMINFO_READT);
 
 void recSUBA_S_xmm(int info)
 {
-	EE::Profiler.EmitOp(eeOpcode::SUBA_F);
 	recSUBop(info, EEREC_ACC);
 }
 
@@ -1595,7 +1565,6 @@ FPURECOMPILE_CONSTCODE(SUBA_S, XMMINFO_WRITEACC|XMMINFO_READS|XMMINFO_READT);
 //------------------------------------------------------------------
 void recSQRT_S_xmm(int info)
 {
-	EE::Profiler.EmitOp(eeOpcode::SQRT_F);
 	u8* pjmp;
 	bool roundmodeFlag = false;
 	//log_cb(RETRO_LOG_DEBUG, "FPU: SQRT\n");
@@ -1715,7 +1684,6 @@ void recRSQRThelper2(int regd, int t0reg) // Preforms the RSQRT function when re
 
 void recRSQRT_S_xmm(int info)
 {
-	EE::Profiler.EmitOp(eeOpcode::RSQRT_F);
 	// iFPUd (Full mode) sets roundmode to nearest for rSQRT.
 	// Should this do the same, or should Full mode leave roundmode alone? --air
 

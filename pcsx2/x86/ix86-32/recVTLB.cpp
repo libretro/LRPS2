@@ -156,7 +156,6 @@ namespace vtlb_private
 	static u32* DynGen_PrepRegs()
 	{
 		// Warning dirty ebx (in case someone got the very bad idea to move this code)
-		EE::Profiler.EmitMem();
 
 		xMOV( eax, arg1regd );
 		xSHR( eax, VTLB_PAGE_BITS );
@@ -399,8 +398,6 @@ void vtlb_DynGenRead32(u32 bits, bool sign)
 // recompiler if the TLB is changed.
 void vtlb_DynGenRead64_Const( u32 bits, u32 addr_const )
 {
-	EE::Profiler.EmitConstMem(addr_const);
-
 	auto vmv = vtlbdata.vmap[addr_const>>VTLB_PAGE_BITS];
 	if( !vmv.isHandler(addr_const) )
 	{
@@ -445,8 +442,6 @@ void vtlb_DynGenRead64_Const( u32 bits, u32 addr_const )
 //
 void vtlb_DynGenRead32_Const( u32 bits, bool sign, u32 addr_const )
 {
-	EE::Profiler.EmitConstMem(addr_const);
-
 	auto vmv = vtlbdata.vmap[addr_const>>VTLB_PAGE_BITS];
 	if( !vmv.isHandler(addr_const) )
 	{
@@ -535,8 +530,6 @@ void vtlb_DynGenWrite(u32 sz)
 // recompiler if the TLB is changed.
 void vtlb_DynGenWrite_Const( u32 bits, u32 addr_const )
 {
-	EE::Profiler.EmitConstMem(addr_const);
-
 	auto vmv = vtlbdata.vmap[addr_const>>VTLB_PAGE_BITS];
 	if( !vmv.isHandler(addr_const) )
 	{

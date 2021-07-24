@@ -181,7 +181,6 @@ _mVUt void mVUcleanUp() {
 				VU0.cycle += cycles_passed;
 		}
 	}
-	mVU.profiler.Print();
 	//static int ax = 0; ax++;
 	//if (!(ax % 100000)) {
 	//	for (u32 i = 0; i < (mVU.progSize / 2); i++) {
