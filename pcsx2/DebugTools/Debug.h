@@ -15,7 +15,6 @@
 
 #pragma once
 
-#include "Utilities/TraceLog.h"
 #include "../Memory.h"
 
 
