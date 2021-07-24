@@ -308,25 +308,11 @@ struct wxFormatStringArgumentFinder<wxWCharBuffer>
 // wxArgNormalizer*<T> converters
 // ----------------------------------------------------------------------------
 
-#if wxDEBUG_LEVEL
-    // Check that the format specifier for index-th argument in 'fmt' has
-    // the correct type (one of wxFormatString::Arg_XXX or-combination in
-    // 'expected_mask').
-    #define wxASSERT_ARG_TYPE(fmt, index, expected_mask)                    \
-        wxSTATEMENT_MACRO_BEGIN                                             \
-            if ( !fmt )                                                     \
-                break;                                                      \
-            const int argtype = fmt->GetArgumentType(index);                \
-            wxASSERT_MSG( (argtype & (expected_mask)) == argtype,           \
-                          "format specifier doesn't match argument type" ); \
-        wxSTATEMENT_MACRO_END
-#else
     // Just define it to suppress "unused parameter" warnings for the
     // parameters which we don't use otherwise
     #define wxASSERT_ARG_TYPE(fmt, index, expected_mask)                      \
         wxUnusedVar(fmt);                                                     \
         wxUnusedVar(index)
-#endif // wxDEBUG_LEVEL/!wxDEBUG_LEVEL
 
 
 #if defined(HAVE_TYPE_TRAITS) || defined(HAVE_TR1_TYPE_TRAITS)

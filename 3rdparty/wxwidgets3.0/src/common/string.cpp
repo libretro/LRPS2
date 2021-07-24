@@ -115,35 +115,6 @@ static wxStrCacheInitializer gs_stringCacheInit;
 
 #endif // wxHAS_COMPILER_TLS/!wxHAS_COMPILER_TLS
 
-// gdb seems to be unable to display thread-local variables correctly, at least
-// not my 6.4.98 version under amd64, so provide this debugging helper to do it
-#if wxDEBUG_LEVEL >= 2
-
-struct wxStrCacheDumper
-{
-    static void ShowAll()
-    {
-        puts("*** wxString cache dump:");
-        for ( unsigned n = 0; n < wxString::Cache::SIZE; n++ )
-        {
-            const wxString::Cache::Element&
-                c = wxString::GetCacheBegin()[n];
-
-            printf("\t%u%s\t%p: pos=(%lu, %lu), len=%ld\n",
-                   n,
-                   n == wxString::LastUsedCacheElement() ? " [*]" : "",
-                   c.str,
-                   (unsigned long)c.pos,
-                   (unsigned long)c.impl,
-                   (long)c.len);
-        }
-    }
-};
-
-void wxDumpStrCache() { wxStrCacheDumper::ShowAll(); }
-
-#endif // wxDEBUG_LEVEL >= 2
-
 #ifdef wxPROFILE_STRING_CACHE
 
 wxString::CacheStats wxString::ms_cacheStats;

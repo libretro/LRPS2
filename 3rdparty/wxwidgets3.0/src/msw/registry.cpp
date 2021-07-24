@@ -1006,11 +1006,6 @@ bool wxRegKey::QueryValue(const wxString& szValue,
                                                         ) != 0;
                         strValue = strExpValue;
                     }
-
-                    if ( !ok )
-                    {
-                        wxLogLastError(wxT("ExpandEnvironmentStrings"));
-                    }
                 }
 #endif
                 // __WXWINCE__

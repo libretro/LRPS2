@@ -113,9 +113,6 @@ public:
     {
         wxCHECK_MSG( fd != -1, NULL, "can't monitor invalid fd" );
 
-        wxLogTrace(wxTRACE_EVT_SOURCE,
-                    "Adding event loop source for fd=%d", fd);
-
         // we need a bridge to wxFDIODispatcher
         //
         // TODO: refactor the code so that only wxEventLoopSourceHandler is used
@@ -139,9 +136,6 @@ wxEventLoopSourcesManagerBase* wxAppTraits::GetEventLoopSourcesManager()
 
 wxUnixEventLoopSource::~wxUnixEventLoopSource()
 {
-    wxLogTrace(wxTRACE_EVT_SOURCE,
-               "Removing event loop source for fd=%d", m_fd);
-
     m_dispatcher->UnregisterFD(m_fd);
 
     delete m_fdioHandler;

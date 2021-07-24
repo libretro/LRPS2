@@ -57,10 +57,7 @@ inline bool IsFindDataOk(FIND_DATA fd)
 
 inline void FreeFindData(FIND_DATA fd)
 {
-    if ( !::FindClose(fd) )
-    {
-        wxLogLastError(wxT("FindClose"));
-    }
+    if ( !::FindClose(fd) ) { }
 }
 
 const wxChar *GetNameFromFindData(const FIND_STRUCT *finddata)
@@ -282,19 +279,7 @@ bool wxDirData::Read(wxString *filename)
         else
         {
             if ( !FindNext(m_finddata, m_filespec, PTR_TO_FINDDATA) )
-            {
-#ifdef __WIN32__
-                DWORD err = ::GetLastError();
-
-                if ( err != ERROR_NO_MORE_FILES )
-                {
-                    wxLogLastError(wxT("FindNext"));
-                }
-#endif // __WIN32__
-                //else: not an error, just no more (such) files
-
                 return false;
-            }
         }
 
         name = GetNameFromFindData(PTR_TO_FINDDATA);

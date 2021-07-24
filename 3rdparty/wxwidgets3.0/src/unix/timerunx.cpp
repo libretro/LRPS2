@@ -93,16 +93,10 @@ void wxTimerScheduler::DoAddTimer(wxTimerSchedule *s)
     }
 
     m_timers.insert(node, s);
-
-    wxLogTrace(wxTrace_Timer, wxT("Inserted timer %d expiring at %s"),
-               s->m_timer->GetId(),
-               wxUsecClockAsString(s->m_expiration).c_str());
 }
 
 void wxTimerScheduler::RemoveTimer(wxUnixTimerImpl *timer)
 {
-    wxLogTrace(wxTrace_Timer, wxT("Removing timer %d"), timer->GetId());
-
     for ( wxTimerList::iterator node = m_timers.begin();
           node != m_timers.end();
           ++node )

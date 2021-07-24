@@ -99,13 +99,6 @@ public:
     wxLogNull() { }
 };
 
-// Dummy macros to replace some functions.
-#define wxSysErrorCode() (unsigned long)0
-#define wxSysErrorMsg( X ) (const wxChar*)NULL
-
-// Fake symbolic trace masks... for those that are used frequently
-#define wxTRACE_OleCalls wxEmptyString // OLE interface calls
-
 // debug functions can be completely disabled in optimized builds
 
 // if these log functions are disabled, we prefer to define them as (empty)
@@ -128,54 +121,12 @@ public:
     inline void wxLogNop() { }
 #endif
 
-    #define wxVLogDebug(fmt, valist) wxLogNop()
-
-    #ifdef HAVE_VARIADIC_MACROS
-        #define wxLogDebug(fmt, ...) wxLogNop()
-    #else // !HAVE_VARIADIC_MACROS
-        WX_DEFINE_VARARG_FUNC_NOP(wxLogDebug, 1, (const wxFormatString&))
-    #endif
-
-    #define wxVLogTrace(mask, fmt, valist) wxLogNop()
-
-    #ifdef HAVE_VARIADIC_MACROS
-        #define wxLogTrace(mask, fmt, ...) wxLogNop()
-    #else // !HAVE_VARIADIC_MACROS
-        #if WXWIN_COMPATIBILITY_2_8
-        WX_DEFINE_VARARG_FUNC_NOP(wxLogTrace, 2, (wxTraceMask, const wxFormatString&))
-        #endif
-        WX_DEFINE_VARARG_FUNC_NOP(wxLogTrace, 2, (const wxString&, const wxFormatString&))
-        #ifdef __WATCOMC__
-        // workaround for http://bugzilla.openwatcom.org/show_bug.cgi?id=351
-        WX_DEFINE_VARARG_FUNC_NOP(wxLogTrace, 2, (const char*, const char*))
-        WX_DEFINE_VARARG_FUNC_NOP(wxLogTrace, 2, (const wchar_t*, const wchar_t*))
-        #endif
-    #endif // HAVE_VARIADIC_MACROS/!HAVE_VARIADIC_MACROS
-
-// wxLogFatalError helper: show the (fatal) error to the user in a safe way,
-// i.e. without using wxMessageBox() for example because it could crash
-void WXDLLIMPEXP_BASE
-wxSafeShowMessage(const wxString& title, const wxString& text);
-
 // ----------------------------------------------------------------------------
 // debug only logging functions: use them with API name and error code
 // ----------------------------------------------------------------------------
-
-    #define wxLogApiError(api, err) wxLogNop()
-    #define wxLogLastError(api) wxLogNop()
-
-// wxCocoa has additiional trace masks
-#if defined(__WXCOCOA__)
-#include "wx/cocoa/log.h"
-#endif
-
 #ifdef WX_WATCOM_ONLY_CODE
     #undef WX_WATCOM_ONLY_CODE
 #endif
-
-// macro which disables debug logging in release builds: this is done by
-// default by wxIMPLEMENT_APP() so usually it doesn't need to be used explicitly
-#define wxDISABLE_DEBUG_LOGGING_IN_RELEASE_BUILD()
 
 #endif  // _WX_LOG_H_
 

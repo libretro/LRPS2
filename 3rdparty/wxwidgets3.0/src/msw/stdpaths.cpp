@@ -47,9 +47,6 @@ typedef HRESULT (WINAPI *SHGetSpecialFolderPath_t)(HWND, LPTSTR, int, BOOL);
 // constants
 // ----------------------------------------------------------------------------
 
-// used in our wxLogTrace messages
-#define TRACE_MASK wxT("stdpaths")
-
 #ifndef CSIDL_APPDATA
     #define CSIDL_APPDATA         0x001a
 #endif
@@ -334,10 +331,7 @@ wxString wxStandardPathsWin16::GetConfigDir() const
     // which used the Windows directory for the global files
     wxString dir;
 #ifndef __WXWINCE__
-    if ( !::GetWindowsDirectory(wxStringBuffer(dir, MAX_PATH), MAX_PATH) )
-    {
-        wxLogLastError(wxT("GetWindowsDirectory"));
-    }
+    if ( !::GetWindowsDirectory(wxStringBuffer(dir, MAX_PATH), MAX_PATH) ) { }
 #else
     // TODO: use CSIDL_WINDOWS (eVC4, possibly not eVC3)
     dir = wxT("\\Windows");

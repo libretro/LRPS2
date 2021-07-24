@@ -76,8 +76,6 @@ void pxTrap()
 #else
     SysBreak();
 #endif
-#elif defined(_MSL_USING_MW_C_HEADERS) && _MSL_USING_MW_C_HEADERS
-    Debugger();
 #elif defined(__UNIX__)
     raise(SIGTRAP);
 #else

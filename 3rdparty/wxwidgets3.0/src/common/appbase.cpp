@@ -52,40 +52,12 @@
 
 #include <locale.h>
 
-#if wxDEBUG_LEVEL
-    #include "wx/recguard.h"
-#endif // wxDEBUG_LEVEL
-
 // wxABI_VERSION can be defined when compiling applications but it should be
 // left undefined when compiling the library itself, it is then set to its
 // default value in version.h
 #if wxABI_VERSION != wxMAJOR_VERSION * 10000 + wxMINOR_VERSION * 100 + 99
 #error "wxABI_VERSION should not be defined when compiling the library"
 #endif
-
-// ----------------------------------------------------------------------------
-// private functions prototypes
-// ----------------------------------------------------------------------------
-
-#if wxDEBUG_LEVEL
-    // really just show the assert dialog
-    static bool DoShowAssertDialog(const wxString& msg);
-
-    // prepare for showing the assert dialog, use the given traits or
-    // DoShowAssertDialog() as last fallback to really show it
-    static
-    void ShowAssertDialog(const wxString& file,
-                          int line,
-                          const wxString& func,
-                          const wxString& cond,
-                          const wxString& msg,
-                          wxAppTraits *traits = NULL);
-#endif // wxDEBUG_LEVEL
-
-#ifdef __WXDEBUG__
-    // turn on the trace masks specified in the env variable WXTRACE
-    static void LINKAGEMODE SetTraceMasks();
-#endif // __WXDEBUG__
 
 // ----------------------------------------------------------------------------
 // global vars
@@ -552,11 +524,6 @@ void wxAppConsoleBase::DeletePendingObjects()
 bool wxAppConsoleBase::CheckBuildOptions(const char *optionsSignature,
                                          const char *componentName)
 {
-#if 0 // can't use wxLogTrace, not up and running yet
-    printf("checking build options object '%s' (ptr %p) in '%s'\n",
-             optionsSignature, optionsSignature, componentName);
-#endif
-
     if ( strcmp(optionsSignature, WX_BUILD_OPTIONS_SIGNATURE) != 0 )
     {
         wxString lib = wxString::FromAscii(WX_BUILD_OPTIONS_SIGNATURE);
@@ -582,9 +549,6 @@ void wxAppConsoleBase::OnAssertFailure(const wxChar *file,
                                        const wxChar *cond,
                                        const wxChar *msg)
 {
-#if wxDEBUG_LEVEL
-    ShowAssertDialog(file, line, func, cond, msg, GetTraits());
-#else
     // this function is still present even in debug level 0 build for ABI
     // compatibility reasons but is never called there and so can simply do
     // nothing in it
@@ -593,7 +557,6 @@ void wxAppConsoleBase::OnAssertFailure(const wxChar *file,
     wxUnusedVar(func);
     wxUnusedVar(cond);
     wxUnusedVar(msg);
-#endif // wxDEBUG_LEVEL/!wxDEBUG_LEVEL
 }
 
 void wxAppConsoleBase::OnAssert(const wxChar *file,
@@ -681,14 +644,9 @@ void WXDLLIMPEXP_BASE wxMutexGuiLeave()
 
 bool wxAppTraitsBase::ShowAssertDialog(const wxString& msgOriginal)
 {
-#if wxDEBUG_LEVEL
-    wxString msg;
-    return DoShowAssertDialog(msgOriginal + msg);
-#else // !wxDEBUG_LEVEL
     wxUnusedVar(msgOriginal);
 
     return false;
-#endif // wxDEBUG_LEVEL/!wxDEBUG_LEVEL
 }
 
 // ============================================================================
@@ -717,12 +675,6 @@ void wxWakeUpIdle()
     //else: do nothing, what can we do?
 }
 
-// wxASSERT() helper
-bool wxAssertIsEqual(int x, int y)
-{
-    return x == y;
-}
-
 void wxAbort()
 {
 #ifdef __WXWINCE__
@@ -731,270 +683,3 @@ void wxAbort()
     abort();
 #endif
 }
-
-#if wxDEBUG_LEVEL
-
-// break into the debugger
-#ifndef wxTrap
-
-void wxTrap()
-{
-#if defined(__WINDOWS__) && !defined(__WXMICROWIN__)
-    DebugBreak();
-#elif defined(_MSL_USING_MW_C_HEADERS) && _MSL_USING_MW_C_HEADERS
-    Debugger();
-#elif defined(__UNIX__)
-    raise(SIGTRAP);
-#else
-    // TODO
-#endif // Win/Unix
-}
-
-#endif // wxTrap already defined as a macro
-
-// default assert handler
-static void
-wxDefaultAssertHandler(const wxString& file,
-                       int line,
-                       const wxString& func,
-                       const wxString& cond,
-                       const wxString& msg)
-{
-    // If this option is set, we should abort immediately when assert happens.
-    if ( wxSystemOptions::GetOptionInt("exit-on-assert") )
-        wxAbort();
-
-    // FIXME MT-unsafe
-    static int s_bInAssert = 0;
-
-    wxRecursionGuard guard(s_bInAssert);
-    if ( guard.IsInside() )
-    {
-        // can't use assert here to avoid infinite loops, so just trap
-        wxTrap();
-
-        return;
-    }
-
-    if ( !wxTheApp )
-    {
-        // by default, show the assert dialog box -- we can't customize this
-        // behaviour
-        ShowAssertDialog(file, line, func, cond, msg);
-    }
-    else
-    {
-        // let the app process it as it wants
-        // FIXME-UTF8: use wc_str(), not c_str(), when ANSI build is removed
-        wxTheApp->OnAssertFailure(file.c_str(), line, func.c_str(),
-                                  cond.c_str(), msg.c_str());
-    }
-}
-
-wxAssertHandler_t wxTheAssertHandler = wxDefaultAssertHandler;
-
-void wxSetDefaultAssertHandler()
-{
-    wxTheAssertHandler = wxDefaultAssertHandler;
-}
-
-void wxOnAssert(const wxString& file,
-                int line,
-                const wxString& func,
-                const wxString& cond,
-                const wxString& msg)
-{
-    wxTheAssertHandler(file, line, func, cond, msg);
-}
-
-void wxOnAssert(const wxString& file,
-                int line,
-                const wxString& func,
-                const wxString& cond)
-{
-    wxTheAssertHandler(file, line, func, cond, wxString());
-}
-
-void wxOnAssert(const wxChar *file,
-                int line,
-                const char *func,
-                const wxChar *cond,
-                const wxChar *msg)
-{
-    // this is the backwards-compatible version (unless we don't use Unicode)
-    // so it could be called directly from the user code and this might happen
-    // even when wxTheAssertHandler is NULL
-#if wxUSE_UNICODE
-    if ( wxTheAssertHandler )
-#endif // wxUSE_UNICODE
-        wxTheAssertHandler(file, line, func, cond, msg);
-}
-
-void wxOnAssert(const char *file,
-                int line,
-                const char *func,
-                const char *cond,
-                const wxString& msg)
-{
-    wxTheAssertHandler(file, line, func, cond, msg);
-}
-
-void wxOnAssert(const char *file,
-                int line,
-                const char *func,
-                const char *cond,
-                const wxCStrData& msg)
-{
-    wxTheAssertHandler(file, line, func, cond, msg);
-}
-
-#if wxUSE_UNICODE
-void wxOnAssert(const char *file,
-                int line,
-                const char *func,
-                const char *cond)
-{
-    wxTheAssertHandler(file, line, func, cond, wxString());
-}
-
-void wxOnAssert(const char *file,
-                int line,
-                const char *func,
-                const char *cond,
-                const char *msg)
-{
-    wxTheAssertHandler(file, line, func, cond, msg);
-}
-
-void wxOnAssert(const char *file,
-                int line,
-                const char *func,
-                const char *cond,
-                const wxChar *msg)
-{
-    wxTheAssertHandler(file, line, func, cond, msg);
-}
-#endif // wxUSE_UNICODE
-
-#endif // wxDEBUG_LEVEL
-
-// ============================================================================
-// private functions implementation
-// ============================================================================
-
-#ifdef __WXDEBUG__
-
-static void LINKAGEMODE SetTraceMasks()
-{
-}
-
-#endif // __WXDEBUG__
-
-#if wxDEBUG_LEVEL
-
-bool wxTrapInAssert = false;
-
-static
-bool DoShowAssertDialog(const wxString& msg)
-{
-    // under Windows we can show the dialog even in the console mode
-#if defined(__WINDOWS__) && !defined(__WXMICROWIN__)
-    wxString msgDlg(msg);
-
-    // this message is intentionally not translated -- it is for developers
-    // only -- and the less code we use here, less is the danger of recursively
-    // asserting and dying
-    msgDlg += wxT("\nDo you want to stop the program?\n")
-              wxT("You can also choose [Cancel] to suppress ")
-              wxT("further warnings.");
-
-    switch ( ::MessageBox(NULL, msgDlg.t_str(), wxT("wxWidgets Debug Alert"),
-                          MB_YESNOCANCEL | MB_ICONSTOP ) )
-    {
-        case IDYES:
-            // If we called wxTrap() directly from here, the programmer would
-            // see this function and a few more calls between his own code and
-            // it in the stack trace which would be perfectly useless and often
-            // confusing. So instead just set the flag here and let the macros
-            // defined in wx/debug.h call wxTrap() themselves, this ensures
-            // that the debugger will show the line in the user code containing
-            // the failing assert.
-            wxTrapInAssert = true;
-            break;
-
-        case IDCANCEL:
-            // stop the asserts
-            return true;
-
-        //case IDNO: nothing to do
-    }
-#else // !__WINDOWS__
-    wxUnusedVar(msg);
-#endif // __WINDOWS__/!__WINDOWS__
-
-    // continue with the asserts by default
-    return false;
-}
-
-// show the standard assert dialog
-static
-void ShowAssertDialog(const wxString& file,
-                      int line,
-                      const wxString& func,
-                      const wxString& cond,
-                      const wxString& msgUser,
-                      wxAppTraits *traits)
-{
-    // this variable can be set to true to suppress "assert failure" messages
-    static bool s_bNoAsserts = false;
-
-    wxString msg;
-    msg.reserve(2048);
-
-    // make life easier for people using VC++ IDE by using this format: like
-    // this, clicking on the message will take us immediately to the place of
-    // the failed assert
-    msg.Printf(wxT("%s(%d): assert \"%s\" failed"), file, line, cond);
-
-    // add the function name, if any
-    if ( !func.empty() )
-        msg << wxT(" in ") << func << wxT("()");
-
-    // and the message itself
-    if ( !msgUser.empty() )
-    {
-        msg << wxT(": ") << msgUser;
-    }
-    else // no message given
-    {
-        msg << wxT('.');
-    }
-
-#if wxUSE_THREADS
-    // if we are not in the main thread, output the assert directly and trap
-    // since dialogs cannot be displayed
-    if ( !wxThread::IsMain() )
-    {
-        msg += wxString::Format(" [in thread %lx]", wxThread::GetCurrentId());
-    }
-#endif // wxUSE_THREADS
-
-    // log the assert in any case
-    wxMessageOutputDebug().Output(msg);
-
-    if ( !s_bNoAsserts )
-    {
-        if ( traits )
-        {
-            // delegate showing assert dialog (if possible) to that class
-            s_bNoAsserts = traits->ShowAssertDialog(msg);
-        }
-        else // no traits object
-        {
-            // fall back to the function of last resort
-            s_bNoAsserts = DoShowAssertDialog(msg);
-        }
-    }
-}
-
-#endif // wxDEBUG_LEVEL

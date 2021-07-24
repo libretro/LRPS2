@@ -493,10 +493,7 @@ bool wxPrintfConvSpec<CharType>::Parse(const CharType *format)
         }
 
         if (flagofs == wxMAX_SVNPRINTF_FLAGBUFFER_LEN)
-        {
-            wxLogDebug(wxT("Too many flags specified for a single conversion specifier!"));
             return false;
-        }
     }
     while (!done);
 

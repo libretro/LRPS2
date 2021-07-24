@@ -57,11 +57,7 @@ wxWakeUpPipe::wxWakeUpPipe()
     if ( !m_pipe.MakeNonBlocking(wxPipe::Read) )
     {
         wxLogSysError(_("Failed to switch wake up pipe to non-blocking mode"));
-        return;
     }
-
-    wxLogTrace(TRACE_EVENTS, wxT("Wake up pipe (%d, %d) created"),
-               m_pipe[wxPipe::Read], m_pipe[wxPipe::Write]);
 }
 
 // ----------------------------------------------------------------------------

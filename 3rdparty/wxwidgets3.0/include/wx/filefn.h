@@ -468,8 +468,6 @@ enum wxPosixPermissions
     typedef off_t wxFileOffset;
     #ifdef HAVE_LARGEFILE_SUPPORT
         #define wxFileOffsetFmtSpec wxLongLongFmtSpec
-        wxCOMPILE_TIME_ASSERT( sizeof(off_t) == sizeof(wxLongLong_t),
-                                BadFileSizeType );
         // wxFile is present and supports large files
         #if wxUSE_FILE
             #define wxHAS_LARGE_FILES

@@ -1011,8 +1011,6 @@ wxFileOffset wxInputStream::SeekI(wxFileOffset pos, wxSeekMode mode)
 
     if (m_wback)
     {
-        wxLogDebug( wxT("Seeking in stream which has data written back to it.") );
-
         free(m_wback);
         m_wback = NULL;
         m_wbacksize = 0;
@@ -1393,8 +1391,6 @@ wxFileOffset wxBufferedInputStream::SeekI(wxFileOffset pos, wxSeekMode mode)
 
     if (m_wback)
     {
-        wxLogDebug( wxT("Seeking in stream which has data written back to it.") );
-
         free(m_wback);
         m_wback = NULL;
         m_wbacksize = 0;

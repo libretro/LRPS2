@@ -1584,10 +1584,7 @@ wxString wxGetOSDirectory()
     return wxString(wxT("\\Windows"));
 #elif defined(__WINDOWS__) && !defined(__WXMICROWIN__)
     wxChar buf[MAX_PATH];
-    if ( !GetWindowsDirectory(buf, MAX_PATH) )
-    {
-        wxLogLastError(wxS("GetWindowsDirectory"));
-    }
+    if ( !GetWindowsDirectory(buf, MAX_PATH) ) { }
 
     return wxString(buf);
 #elif defined(__WXMAC__) && wxOSX_USE_CARBON

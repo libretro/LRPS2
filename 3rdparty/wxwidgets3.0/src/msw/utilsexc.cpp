@@ -127,10 +127,7 @@ public:
 
     ~wxExecuteData()
     {
-        if ( !::CloseHandle(hProcess) )
-        {
-            wxLogLastError(wxT("CloseHandle(hProcess)"));
-        }
+        if ( !::CloseHandle(hProcess) ) { }
     }
 
     HWND       hWnd;          // window to send wxWM_PROC_TERMINATED to
@@ -152,10 +149,7 @@ public:
         {
             // stop any threads waiting for the termination of asynchronously
             // running processes
-            if ( !::SetEvent(gs_heventShutdown) )
-            {
-                wxLogDebug(wxT("Failed to set shutdown event in wxExecuteModule"));
-            }
+            if ( !::SetEvent(gs_heventShutdown) ) { }
 
             ::CloseHandle(gs_heventShutdown);
             gs_heventShutdown = NULL;
@@ -171,10 +165,7 @@ public:
                         &gs_asyncThreads[0],
                         TRUE,   // wait for all of them to become signalled
                         3000    // long but finite value
-                       ) == WAIT_TIMEOUT )
-                {
-                    wxLogDebug(wxT("Failed to stop all wxExecute monitor threads"));
-                }
+                       ) == WAIT_TIMEOUT ) { }
 
                 for ( size_t n = 0; n < numThreads; n++ )
                 {
@@ -187,10 +178,7 @@ public:
 
         if ( gs_classForHiddenWindow )
         {
-            if ( !::UnregisterClass(wxMSWEXEC_WNDCLASSNAME, wxGetInstance()) )
-            {
-                wxLogLastError(wxT("UnregisterClass(wxExecClass)"));
-            }
+            if ( !::UnregisterClass(wxMSWEXEC_WNDCLASSNAME, wxGetInstance()) ) { }
 
             gs_classForHiddenWindow = NULL;
         }
@@ -300,10 +288,6 @@ static DWORD __stdcall wxExecuteThread(void *arg)
     {
         // create a manual initially non-signalled event object
         gs_heventShutdown = ::CreateEvent(NULL, TRUE, FALSE, NULL);
-        if ( !gs_heventShutdown )
-        {
-            wxLogDebug(wxT("CreateEvent() in wxExecuteThread failed"));
-        }
     }
 
     HANDLE handles[2] = { data->hProcess, gs_heventShutdown };
@@ -311,10 +295,7 @@ static DWORD __stdcall wxExecuteThread(void *arg)
     {
         case WAIT_OBJECT_0:
             // process terminated, get its exit code
-            if ( !::GetExitCodeProcess(data->hProcess, &data->dwExitCode) )
-            {
-                wxLogLastError(wxT("GetExitCodeProcess"));
-            }
+            if ( !::GetExitCodeProcess(data->hProcess, &data->dwExitCode) ) { }
 
             wxASSERT_MSG( data->dwExitCode != STILL_ACTIVE,
                           wxT("process should have terminated") );
@@ -335,7 +316,7 @@ static DWORD __stdcall wxExecuteThread(void *arg)
             break;
 
         default:
-            wxLogDebug(wxT("Waiting for the process termination failed!"));
+	    break;
     }
 
     return 0;
@@ -373,10 +354,7 @@ LRESULT APIENTRY _EXPORT wxExecuteWindowCbk(HWND hWnd, UINT message,
                 if ( *it == data->hThread )
                 {
                     gs_asyncThreads.erase(it);
-                    if ( !::CloseHandle(data->hThread) )
-                    {
-                        wxLogLastError(wxT("CloseHandle(hThread)"));
-                    }
+                    if ( !::CloseHandle(data->hThread) ) { }
                     break;
                 }
             }
@@ -443,12 +421,6 @@ bool wxPipeInputStream::CanRead() const
 
     if ( !rc )
     {
-        if ( ::GetLastError() != ERROR_BROKEN_PIPE )
-        {
-            // unexpected error
-            wxLogLastError(wxT("PeekNamedPipe"));
-        }
-
         // don't try to continue reading from a pipe if an error occurred or if
         // it had been closed
         ::CloseHandle(m_hInput);
@@ -501,10 +473,7 @@ wxPipeOutputStream::wxPipeOutputStream(HANDLE hOutput)
                 &mode,
                 NULL,       // collection count (we don't set it)
                 NULL        // timeout (we don't set it neither)
-            ) )
-    {
-        wxLogLastError(wxT("SetNamedPipeHandleState(PIPE_NOWAIT)"));
-    }
+            ) ) { }
 }
 
 bool wxPipeOutputStream::Close()
@@ -612,10 +581,7 @@ long wxExecute(const wxString& cmd, int flags, wxProcess *handler,
                     0,                      // desired access: unused here
                     FALSE,                  // not inherited
                     DUPLICATE_SAME_ACCESS   // same access as for src handle
-                ) )
-        {
-            wxLogLastError(wxT("DuplicateHandle"));
-        }
+                ) ) { }
 
         ::CloseHandle(pipeInWrite);
     }
@@ -833,22 +799,13 @@ long wxExecute(const wxString& cmd, int flags, wxProcess *handler,
 
     // resume process we created now - whether the thread creation succeeded or
     // not
-    if ( ::ResumeThread(pi.hThread) == (DWORD)-1 )
-    {
-        // ignore it - what can we do?
-        wxLogLastError(wxT("ResumeThread in wxExecute"));
-    }
+    if ( ::ResumeThread(pi.hThread) == (DWORD)-1 ) { }
 
     // close unneeded handle
-    if ( !::CloseHandle(pi.hThread) )
-    {
-        wxLogLastError(wxT("CloseHandle(hThread)"));
-    }
+    if ( !::CloseHandle(pi.hThread) ) { }
 
     if ( !hThread )
     {
-        wxLogLastError(wxT("CreateThread in wxExecute"));
-
         DestroyWindow(hwnd);
         delete data;
 

@@ -226,10 +226,7 @@ inline wxString wxGetFullModuleName(HMODULE hmod)
                 hmod,
                 wxStringBuffer(fullname, MAX_PATH),
                 MAX_PATH
-            ) )
-    {
-        wxLogLastError(wxT("GetModuleFileName"));
-    }
+            ) ) { }
 
     return fullname;
 }

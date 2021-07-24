@@ -181,11 +181,6 @@ wxClassInfo *wxClassInfo::FindClass(const wxString& className)
 
 void wxClassInfo::Register()
 {
-#if wxDEBUG_LEVEL
-    // reentrance guard - see note above
-    static int entry = 0;
-#endif // wxDEBUG_LEVEL
-
     wxHashTable *classTable;
 
     if ( !sm_classTable )
@@ -231,10 +226,6 @@ void wxClassInfo::Register()
             Register();
         }
     }
-
-#if wxDEBUG_LEVEL
-    entry = 0;
-#endif // wxDEBUG_LEVEL
 }
 
 void wxClassInfo::Unregister()

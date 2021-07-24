@@ -64,14 +64,9 @@ bool wxMSWEventLoopBase::GetNextMessage(WXMSG* msg)
         return false;
     }
 
+    // still break from the loop
     if ( rc == -1 )
-    {
-        // should never happen, but let's test for it nevertheless
-        wxLogLastError(wxT("GetMessage"));
-
-        // still break from the loop
         return false;
-    }
 
     return true;
 }
@@ -99,8 +94,6 @@ int wxMSWEventLoopBase::GetNextMessageTimeout(WXMSG *msg, unsigned long timeout)
         switch ( rc )
         {
             default:
-                wxLogDebug("unexpected MsgWaitForMultipleObjects() return "
-                           "value %lu", rc);
                 // fall through
 
             case WAIT_TIMEOUT:

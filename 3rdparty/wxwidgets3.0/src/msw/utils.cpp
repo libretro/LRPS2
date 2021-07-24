@@ -135,11 +135,7 @@ bool wxGetHostName(wxChar *buf, int maxSize)
 #else // !__WXWINCE__
     DWORD nSize = maxSize;
     if ( !::GetComputerName(buf, &nSize) )
-    {
-        wxLogLastError(wxT("GetComputerName"));
-
         return false;
-    }
 #endif // __WXWINCE__/!__WXWINCE__
 
     return true;
@@ -415,11 +411,7 @@ bool wxGetDiskSpace(const wxString& WXUNUSED_IN_WINCE(path),
                                   &bytesFree,
                                   &bytesTotal,
                                   NULL) )
-        {
-            wxLogLastError(wxT("GetDiskFreeSpaceEx"));
-
             return false;
-        }
 
         // ULARGE_INTEGER is a union of a 64 bit value and a struct containing
         // two 32 bit fields which may be or may be not named - try to make it
@@ -466,11 +458,7 @@ bool wxGetDiskSpace(const wxString& WXUNUSED_IN_WINCE(path),
                                  &lBytesPerSector,
                                  &lNumberOfFreeClusters,
                                  &lTotalNumberOfClusters) )
-        {
-            wxLogLastError(wxT("GetDiskFreeSpace"));
-
             return false;
-        }
 
         wxDiskspaceSize_t lBytesPerCluster = (wxDiskspaceSize_t) lSectorsPerCluster;
         lBytesPerCluster *= lBytesPerSector;
@@ -552,11 +540,7 @@ bool wxDoSetEnv(const wxString& var, const wxChar *value)
         return false;
 #else // other compiler
     if ( !::SetEnvironmentVariable(var.t_str(), value) )
-    {
-        wxLogLastError(wxT("SetEnvironmentVariable"));
-
         return false;
-    }
 #endif // compiler
 
     return true;
@@ -700,13 +684,10 @@ int wxKill(long pid, wxSignal sig, wxKillError *krc, int flags)
                         //     can also use SendMesageTimeout(WM_CLOSE)
                         if ( !::PostMessage(params.hwnd, WM_QUIT, 0, 0) )
                         {
-                            wxLogLastError(wxT("PostMessage(WM_QUIT)"));
                         }
                     }
                     else // it was an error then
                     {
-                        wxLogLastError(wxT("EnumWindows"));
-
                         ok = false;
                     }
                 }
@@ -745,7 +726,6 @@ int wxKill(long pid, wxSignal sig, wxKillError *krc, int flags)
                 // fall through
 
             case WAIT_FAILED:
-                wxLogLastError(wxT("WaitForSingleObject"));
                 // fall through
 
             case WAIT_TIMEOUT:
@@ -1414,11 +1394,7 @@ wxCreateHiddenWindow(LPCTSTR *pclassname, LPCTSTR classname, WNDPROC wndproc)
         wndclass.lpszClassName = classname;
 
         if ( !::RegisterClass(&wndclass) )
-        {
-            wxLogLastError(wxT("RegisterClass() in wxCreateHiddenWindow"));
-
             return NULL;
-        }
 
         *pclassname = classname;
     }
@@ -1435,11 +1411,6 @@ wxCreateHiddenWindow(LPCTSTR *pclassname, LPCTSTR classname, WNDPROC wndproc)
                     wxGetInstance(),
                     (LPVOID) NULL
                   );
-
-    if ( !hwnd )
-    {
-        wxLogLastError(wxT("CreateWindow() in wxCreateHiddenWindow"));
-    }
 
     return hwnd;
 }

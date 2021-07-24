@@ -148,9 +148,6 @@ static bool gs_waitingForThread = false;
 
 wxCriticalSection::wxCriticalSection( wxCriticalSectionType WXUNUSED(critSecType) )
 {
-    wxCOMPILE_TIME_ASSERT( sizeof(CRITICAL_SECTION) <= sizeof(wxCritSectBuffer),
-                           wxCriticalSectionBufferTooSmall );
-
     ::InitializeCriticalSection((CRITICAL_SECTION *)m_buffer);
 }
 
@@ -215,22 +212,13 @@ wxMutexInternal::wxMutexInternal(wxMutexType mutexType)
 
     m_type = mutexType;
     m_owningThread = 0;
-
-    if ( !m_mutex )
-    {
-        wxLogLastError(wxT("CreateMutex()"));
-    }
-
 }
 
 wxMutexInternal::~wxMutexInternal()
 {
     if ( m_mutex )
     {
-        if ( !::CloseHandle(m_mutex) )
-        {
-            wxLogLastError(wxT("CloseHandle(mutex)"));
-        }
+        if ( !::CloseHandle(m_mutex) ) { }
     }
 }
 
@@ -260,7 +248,6 @@ wxMutexError wxMutexInternal::LockTimeout(DWORD milliseconds)
         case WAIT_ABANDONED:
             // the previous caller died without releasing the mutex, so even
             // though we did get it, log a message about this
-            wxLogDebug(wxT("WaitForSingleObject() returned WAIT_ABANDONED"));
             // fall through
 
         case WAIT_OBJECT_0:
@@ -275,7 +262,6 @@ wxMutexError wxMutexInternal::LockTimeout(DWORD milliseconds)
             // fall through
 
         case WAIT_FAILED:
-            wxLogLastError(wxT("WaitForSingleObject(mutex)"));
             return wxMUTEX_MISC_ERROR;
     }
 
@@ -294,11 +280,7 @@ wxMutexError wxMutexInternal::Unlock()
     m_owningThread = 0;
 
     if ( !::ReleaseMutex(m_mutex) )
-    {
-        wxLogLastError(wxT("ReleaseMutex()"));
-
         return wxMUTEX_MISC_ERROR;
-    }
 
     return wxMUTEX_NO_ERROR;
 }
@@ -354,20 +336,13 @@ wxSemaphoreInternal::wxSemaphoreInternal(int initialcount, int maxcount)
                         NULL            // no name
                     );
 #endif
-    if ( !m_semaphore )
-    {
-        wxLogLastError(wxT("CreateSemaphore()"));
-    }
 }
 
 wxSemaphoreInternal::~wxSemaphoreInternal()
 {
     if ( m_semaphore )
     {
-        if ( !::CloseHandle(m_semaphore) )
-        {
-            wxLogLastError(wxT("CloseHandle(semaphore)"));
-        }
+        if ( !::CloseHandle(m_semaphore) ) { }
     }
 }
 
@@ -384,7 +359,7 @@ wxSemaError wxSemaphoreInternal::WaitTimeout(unsigned long milliseconds)
            return wxSEMA_TIMEOUT;
 
         default:
-            wxLogLastError(wxT("WaitForSingleObject(semaphore)"));
+	   break;
     }
 
     return wxSEMA_MISC_ERROR;
@@ -395,15 +370,9 @@ wxSemaError wxSemaphoreInternal::Post()
 #if !defined(_WIN32_WCE) || (_WIN32_WCE >= 300)
     if ( !::ReleaseSemaphore(m_semaphore, 1, NULL /* ptr to previous count */) )
     {
-        if ( GetLastError() == ERROR_TOO_MANY_POSTS )
-        {
-            return wxSEMA_OVERFLOW;
-        }
-        else
-        {
-            wxLogLastError(wxT("ReleaseSemaphore"));
-            return wxSEMA_MISC_ERROR;
-        }
+	    if ( GetLastError() == ERROR_TOO_MANY_POSTS )
+		    return wxSEMA_OVERFLOW;
+	    return wxSEMA_MISC_ERROR;
     }
 
     return wxSEMA_NO_ERROR;
@@ -440,10 +409,7 @@ public:
     {
         if ( m_hThread )
         {
-            if ( !::CloseHandle(m_hThread) )
-            {
-                wxLogLastError(wxT("CloseHandle(thread)"));
-            }
+            if ( !::CloseHandle(m_hThread) ) { }
 
             m_hThread = 0;
         }
@@ -855,8 +821,6 @@ wxThreadInternal::WaitForTerminate(wxCriticalSection& cs,
     {
         if ( !::GetExitCodeThread(m_hThread, &rc) )
         {
-            wxLogLastError(wxT("GetExitCodeThread"));
-
             rc = THREAD_ERROR_EXIT;
 
             break;
@@ -971,11 +935,7 @@ bool wxThread::SetConcurrency(size_t WXUNUSED_IN_WINCE(level))
     HANDLE hProcess = ::GetCurrentProcess();
     DWORD_PTR dwProcMask, dwSysMask;
     if ( ::GetProcessAffinityMask(hProcess, &dwProcMask, &dwSysMask) == 0 )
-    {
-        wxLogLastError(wxT("GetProcessAffinityMask"));
-
         return false;
-    }
 
     // how many CPUs have we got?
     if ( dwSysMask == 1 )
@@ -1010,11 +970,7 @@ bool wxThread::SetConcurrency(size_t WXUNUSED_IN_WINCE(level))
 
     // could we set all bits?
     if ( level != 0 )
-    {
-        wxLogDebug(wxT("bad level %u in wxThread::SetConcurrency()"), level);
-
         return false;
-    }
 
     // set it: we can't link to SetProcessAffinityMask() because it doesn't
     // exist in Win9x, use RT binding instead
@@ -1045,11 +1001,7 @@ bool wxThread::SetConcurrency(size_t WXUNUSED_IN_WINCE(level))
     }
 
     if ( pfnSetProcessAffinityMask(hProcess, dwProcMask) == 0 )
-    {
-        wxLogLastError(wxT("SetProcessAffinityMask"));
-
         return false;
-    }
 
     return true;
 #endif // __WXWINCE__/!__WXWINCE__
@@ -1297,10 +1249,7 @@ bool wxThreadModule::OnInit()
 
 void wxThreadModule::OnExit()
 {
-    if ( !::TlsFree(gs_tlsThisThread) )
-    {
-        wxLogLastError(wxT("TlsFree failed."));
-    }
+    if ( !::TlsFree(gs_tlsThisThread) ) { }
 
     wxDELETE(gs_critsectThreadDelete);
 
@@ -1403,17 +1352,6 @@ void WXDLLIMPEXP_BASE wxWakeUpMainThread()
     // sending any message would do - hopefully WM_NULL is harmless enough
     if ( !::PostThreadMessage(wxThread::GetMainId(), WM_NULL, 0, 0) )
     {
-        // should never happen, but log an error if it does, however do not use
-        // wxLog here as it would result in reentrancy because logging from a
-        // thread calls wxWakeUpIdle() which calls this function itself again
-        const unsigned long ec = wxSysErrorCode();
-        wxMessageOutputDebug().Printf
-        (
-            wxS("Failed to wake up main thread: PostThreadMessage(WM_NULL) ")
-            wxS("failed with error 0x%08lx (%s)."),
-            ec,
-            wxSysErrorMsg(ec)
-        );
     }
 }
 

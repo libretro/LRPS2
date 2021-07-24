@@ -46,36 +46,6 @@
 #define wxDIALOG_UNIT_COMPATIBILITY   0
 
 // ----------------------------------------------------------------------------
-// debugging settings
-// ----------------------------------------------------------------------------
-
-// wxDEBUG_LEVEL will be defined as 1 in wx/debug.h so normally there is no
-// need to define it here. You may do it for two reasons: either completely
-// disable/compile out the asserts in release version (then do it inside #ifdef
-// NDEBUG) or, on the contrary, enable more asserts, including the usually
-// disabled ones, in the debug build (then do it inside #ifndef NDEBUG)
-//
-// #ifdef NDEBUG
-//  #define wxDEBUG_LEVEL 0
-// #else
-//  #define wxDEBUG_LEVEL 2
-// #endif
-
-// Generic comment about debugging settings: they are very useful if you don't
-// use any other memory leak detection tools such as Purify/BoundsChecker, but
-// are probably redundant otherwise. Also, Visual C++ CRT has the same features
-// as wxWidgets memory debugging subsystem built in since version 5.0 and you
-// may prefer to use it instead of built in memory debugging code because it is
-// faster and more fool proof.
-//
-// Using VC++ CRT memory debugging is enabled by default in debug build (_DEBUG
-// is defined) if wxUSE_GLOBAL_MEMORY_OPERATORS is *not* enabled (i.e. is 0)
-// and if __NO_VC_CRTDBG__ is not defined.
-
-// The rest of the options in this section are obsolete and not supported,
-// enable them at your own risk.
-
-// ----------------------------------------------------------------------------
 // Unicode support
 // ----------------------------------------------------------------------------
 

@@ -30,11 +30,6 @@ class WXDLLIMPEXP_FWD_BASE wxCmdLineParser;
 class WXDLLIMPEXP_FWD_BASE wxEventLoopBase;
 class WXDLLIMPEXP_FWD_BASE wxMessageOutput;
 
-// this macro should be used in any main() or equivalent functions defined in wx
-#define wxDISABLE_DEBUG_SUPPORT() \
-    wxDISABLE_ASSERTS_IN_RELEASE_BUILD(); \
-    wxDISABLE_DEBUG_LOGGING_IN_RELEASE_BUILD()
-
 // ----------------------------------------------------------------------------
 // typedefs
 // ----------------------------------------------------------------------------
@@ -525,16 +520,12 @@ public:
     #define wxIMPLEMENT_WXWIN_MAIN_CONSOLE                                    \
         int wmain(int argc, wchar_t **argv)                                   \
         {                                                                     \
-            wxDISABLE_DEBUG_SUPPORT();                                        \
-                                                                              \
             return wxEntry(argc, argv);                                       \
         }
 #else // Use standard main()
     #define wxIMPLEMENT_WXWIN_MAIN_CONSOLE                                    \
         int main(int argc, char **argv)                                       \
         {                                                                     \
-            wxDISABLE_DEBUG_SUPPORT();                                        \
-                                                                              \
             return wxEntry(argc, argv);                                       \
         }
 #endif

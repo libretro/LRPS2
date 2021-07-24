@@ -1009,11 +1009,6 @@ typedef wxUint16 wxWord;
             #error "Unknown sizeof(int) value, what are you compiling for?"
         #endif
     #else /*  !defined(SIZEOF_INT) */
-        /*  assume default 32bit machine -- what else can we do? */
-        wxCOMPILE_TIME_ASSERT( sizeof(int) == 4, IntMustBeExactly4Bytes);
-        wxCOMPILE_TIME_ASSERT( sizeof(size_t) == 4, SizeTMustBeExactly4Bytes);
-        wxCOMPILE_TIME_ASSERT( sizeof(void *) == 4, PtrMustBeExactly4Bytes);
-
         #define SIZEOF_INT 4
         #define SIZEOF_SIZE_T 4
         #define SIZEOF_VOID_P 4
@@ -1025,13 +1020,6 @@ typedef wxUint16 wxWord;
             #define SIZEOF_WCHAR_T 4
         #endif
         #if !defined(SIZEOF_WCHAR_T)
-            /*  also assume that sizeof(wchar_t) == 2 (under Unix the most */
-            /*  common case is 4 but there configure would have defined */
-            /*  SIZEOF_WCHAR_T for us) */
-            /*  the most common case */
-            wxCOMPILE_TIME_ASSERT( sizeof(wchar_t) == 2,
-                                    Wchar_tMustBeExactly2Bytes);
-
             #define SIZEOF_WCHAR_T 2
         #endif /*  !defined(SIZEOF_WCHAR_T) */
     #endif

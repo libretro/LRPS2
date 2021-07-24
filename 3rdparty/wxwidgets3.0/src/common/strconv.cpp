@@ -2193,8 +2193,6 @@ wxMBConv_iconv::wxMBConv_iconv(const char *name)
     // check for charset that represents wchar_t:
     if ( ms_wcCharsetName.empty() )
     {
-        wxLogTrace(TRACE_STRCONV, wxT("Looking for wide char codeset:"));
-
         static const wxChar *const names_static[] =
         {
 #if SIZEOF_WCHAR_T == 4
@@ -2219,15 +2217,10 @@ wxMBConv_iconv::wxMBConv_iconv(const char *name)
                 nameXE += wxT("LE");
 #endif
 
-            wxLogTrace(TRACE_STRCONV, wxT("  trying charset \"%s\""),
-                       nameXE.c_str());
-
             m2w = iconv_open(nameXE.ToAscii(), name);
             if ( m2w == ICONV_T_INVALID )
             {
                 // try charset w/o bytesex info (e.g. "UCS4")
-                wxLogTrace(TRACE_STRCONV, wxT("  trying charset \"%s\""),
-                           nameCS.c_str());
                 m2w = iconv_open(nameCS.ToAscii(), name);
 
                 // and check for bytesex ourselves:
@@ -2252,7 +2245,6 @@ wxMBConv_iconv::wxMBConv_iconv(const char *name)
 
                     if (ICONV_FAILED(res, insz))
                     {
-                        wxLogLastError(wxT("iconv"));
                         wxLogError(_("Conversion to charset '%s' doesn't work."),
                                    nameCS.c_str());
                     }
@@ -2268,13 +2260,6 @@ wxMBConv_iconv::wxMBConv_iconv(const char *name)
                 ms_wcCharsetName = nameXE;
             }
         }
-
-        wxLogTrace(TRACE_STRCONV,
-                   wxT("iconv wchar_t charset is \"%s\"%s"),
-                   ms_wcCharsetName.empty() ? wxString("<none>")
-                                            : ms_wcCharsetName,
-                   ms_wcNeedsSwap ? wxT(" (needs swap)")
-                                  : wxT(""));
     }
     else // we already have ms_wcCharsetName
     {
@@ -2288,12 +2273,6 @@ wxMBConv_iconv::wxMBConv_iconv(const char *name)
     else
     {
         w2m = iconv_open(name, ms_wcCharsetName.ToAscii());
-        if ( w2m == ICONV_T_INVALID )
-        {
-            wxLogTrace(TRACE_STRCONV,
-                       wxT("\"%s\" -> \"%s\" works but not the converse!?"),
-                       ms_wcCharsetName.c_str(), name);
-        }
     }
 }
 
@@ -2405,7 +2384,6 @@ wxMBConv_iconv::ToWChar(wchar_t *dst, size_t dstLen,
     if (ICONV_FAILED(cres, srcLen))
     {
         //VS: it is ok if iconv fails, hence trace only
-        wxLogTrace(TRACE_STRCONV, wxT("iconv failed: %s"), wxSysErrorMsg(wxSysErrorCode()));
         return wxCONV_FAILED;
     }
 
@@ -2473,7 +2451,6 @@ size_t wxMBConv_iconv::FromWChar(char *dst, size_t dstLen,
 
     if (ICONV_FAILED(cres, inbuflen))
     {
-        wxLogTrace(TRACE_STRCONV, wxT("iconv failed: %s"), wxSysErrorMsg(wxSysErrorCode()));
         return wxCONV_FAILED;
     }
 
@@ -2732,7 +2709,6 @@ public:
             switch ( len )
             {
                 default:
-                    wxLogDebug(wxT("Unexpected NUL length %d"), len);
                     self->m_minMBCharWidth = (size_t)-1;
                     break;
 

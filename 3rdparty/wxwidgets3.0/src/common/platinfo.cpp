@@ -278,17 +278,11 @@ wxString wxPlatformInfo::GetPortIdShortName(wxPortId port, bool usingUniversal)
 
 wxString wxPlatformInfo::GetArchName(wxArchitecture arch)
 {
-    wxCOMPILE_TIME_ASSERT( WXSIZEOF(wxArchitectureNames) == wxARCH_MAX,
-                           wxArchitectureNamesMismatch );
-
     return wxArchitectureNames[arch];
 }
 
 wxString wxPlatformInfo::GetEndiannessName(wxEndianness end)
 {
-    wxCOMPILE_TIME_ASSERT( WXSIZEOF(wxEndiannessNames) == wxENDIAN_MAX,
-                           wxEndiannessNamesMismatch );
-
     return wxEndiannessNames[end];
 }
 

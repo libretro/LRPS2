@@ -58,8 +58,6 @@ void wxModule::RegisterModules()
         if ( classInfo->IsKindOf(wxCLASSINFO(wxModule)) &&
              (classInfo != (& (wxModule::ms_classInfo))) )
         {
-            wxLogTrace(TRACE_MODULE, wxT("Registering module %s"),
-                       classInfo->GetClassName());
             wxModule* module = (wxModule *)classInfo->CreateObject();
             wxModule::RegisterModule(module);
         }
@@ -135,9 +133,6 @@ bool wxModule::DoInitializeModule(wxModule *module,
         return false;
     }
 
-    wxLogTrace(TRACE_MODULE, wxT("Module \"%s\" initialized"),
-               module->GetClassInfo()->GetClassName());
-
     module->m_state = State_Initialized;
     initializedModules.Append(module);
 
@@ -185,9 +180,6 @@ void wxModule::DoCleanUpModules(const wxModuleList& modules)
           node;
           node = node->GetPrevious() )
     {
-        wxLogTrace(TRACE_MODULE, wxT("Cleanup module %s"),
-                   node->GetData()->GetClassInfo()->GetClassName());
-
         wxModule * module = node->GetData();
 
         wxASSERT_MSG( module->m_state == State_Initialized,

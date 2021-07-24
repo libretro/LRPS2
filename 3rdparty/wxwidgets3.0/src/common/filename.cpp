@@ -976,12 +976,7 @@ static wxString wxCreateTempImpl(
 #elif defined(__WINDOWS__) && !defined(__WXMICROWIN__)
     if (!::GetTempFileName(dir.t_str(), name.t_str(), 0,
                            wxStringBuffer(path, MAX_PATH + 1)))
-    {
-        wxLogLastError(wxT("GetTempFileName"));
-
         path.clear();
-    }
-
 #else // !Windows
     path = dir;
 
@@ -1284,10 +1279,7 @@ wxString wxFileName::GetTempDir()
 #if defined(__WXWINCE__)
         dir = CheckIfDirExists(wxT("\\temp"));
 #elif defined(__WINDOWS__) && !defined(__WXMICROWIN__)
-        if ( !::GetTempPath(MAX_PATH, wxStringBuffer(dir, MAX_PATH + 1)) )
-        {
-            wxLogLastError(wxT("GetTempPath"));
-        }
+        if ( !::GetTempPath(MAX_PATH, wxStringBuffer(dir, MAX_PATH + 1)) ) { }
 #elif defined(__WXMAC__) && wxOSX_USE_CARBON
         dir = wxMacFindFolderNoSeparator(short(kOnSystemDisk), kTemporaryFolderType, kCreateFolder);
 #endif // systems with native way
@@ -1394,12 +1386,7 @@ bool wxFileName::Rmdir(const wxString& dir, int flags)
 
         int ret = SHFileOperation(&fileop);
         if ( ret != 0 )
-        {
-            // SHFileOperation may return non-Win32 error codes, so the error
-            // message can be incorrect
-            wxLogApiError(wxT("SHFileOperation"), ret);
             return false;
-        }
 
         return true;
     }
@@ -1809,9 +1796,6 @@ wxString wxFileName::GetForbiddenChars(wxPathFormat format)
     // Inits to forbidden characters that are common to (almost) all platforms.
     wxString strForbiddenChars = wxT("*?");
 
-    // If asserts, wxPathFormat has been changed. In case of a new path format
-    // addition, the following code might have to be updated.
-    wxCOMPILE_TIME_ASSERT(wxPATH_MAX == 5, wxPathFormatChanged);
     switch ( GetFormat(format) )
     {
         default :

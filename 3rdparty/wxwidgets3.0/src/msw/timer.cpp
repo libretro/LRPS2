@@ -204,20 +204,14 @@ void wxTimerHiddenWindowModule::OnExit()
 {
     if ( ms_hwnd )
     {
-        if ( !::DestroyWindow(ms_hwnd) )
-        {
-            wxLogLastError(wxT("DestroyWindow(wxTimerHiddenWindow)"));
-        }
+        if ( !::DestroyWindow(ms_hwnd) ) { }
 
         ms_hwnd = NULL;
     }
 
     if ( ms_className )
     {
-        if ( !::UnregisterClass(ms_className, wxGetInstance()) )
-        {
-            wxLogLastError(wxT("UnregisterClass(\"wxTimerHiddenWindow\")"));
-        }
+        if ( !::UnregisterClass(ms_className, wxGetInstance()) ) { }
 
         ms_className = NULL;
     }

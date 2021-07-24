@@ -136,17 +136,6 @@
 /* #undef VA_LIST_IS_ARRAY */
 
 /*
- * Define if the compiler supports variadic macros
- */
-#define HAVE_VARIADIC_MACROS 1
-
-/*
- * Define if you don't want variadic macros to be used even if they are
- * supported by the compiler.
- */
-/* #undef wxNO_VARIADIC_MACROS */
-
-/*
  * Define if your compiler has std::wstring
  */
 #define HAVE_STD_WSTRING 1

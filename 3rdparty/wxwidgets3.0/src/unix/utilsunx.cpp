@@ -239,9 +239,6 @@ int wxKill(long pid, wxSignal sig, wxKillError *rc, int flags)
                 break;
 
             default:
-                // this goes against Unix98 docs so log it
-                wxLogDebug(wxT("unexpected kill(2) return value %d"), err);
-
                 // something else...
                 *rc = wxKILL_ERROR;
         }
@@ -1468,7 +1465,6 @@ bool CheckForChildExit(int pid, int* exitcodeOut)
 
         case -1:
             // Checking child status failed. Invalid PID?
-            wxLogLastError(wxString::Format("waitpid(%d)", pid));
             return false;
 
         default:

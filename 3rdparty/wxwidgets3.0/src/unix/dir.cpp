@@ -106,10 +106,7 @@ wxDirData::~wxDirData()
 {
     if ( m_dir )
     {
-        if ( closedir(m_dir) != 0 )
-        {
-            wxLogLastError(wxT("closedir"));
-        }
+        if ( closedir(m_dir) != 0 ) { }
     }
 }
 

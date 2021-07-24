@@ -63,10 +63,6 @@ public:
                 pMalloc->Free(pidl);
                 pMalloc->Release();
             }
-            else
-            {
-                wxLogLastError(wxT("SHGetMalloc"));
-            }
         }
     }
 
@@ -82,10 +78,7 @@ public:
     wxString GetPath() const
     {
         wxString path;
-        if ( !SHGetPathFromIDList(m_pidl, wxStringBuffer(path, MAX_PATH)) )
-        {
-            wxLogLastError(wxT("SHGetPathFromIDList"));
-        }
+        if ( !SHGetPathFromIDList(m_pidl, wxStringBuffer(path, MAX_PATH)) ) { }
 
         return path;
     }

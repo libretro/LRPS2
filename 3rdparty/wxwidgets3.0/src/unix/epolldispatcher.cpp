@@ -43,30 +43,16 @@
 // debugging messages about it)
 static uint32_t GetEpollMask(int flags, int fd)
 {
-    wxUnusedVar(fd); // unused if wxLogTrace() disabled
-
     uint32_t ep = 0;
 
     if ( flags & wxFDIO_INPUT )
-    {
         ep |= EPOLLIN;
-        wxLogTrace(wxEpollDispatcher_Trace,
-                   wxT("Registered fd %d for input events"), fd);
-    }
 
     if ( flags & wxFDIO_OUTPUT )
-    {
         ep |= EPOLLOUT;
-        wxLogTrace(wxEpollDispatcher_Trace,
-                   wxT("Registered fd %d for output events"), fd);
-    }
 
     if ( flags & wxFDIO_EXCEPTION )
-    {
         ep |= EPOLLERR | EPOLLHUP;
-        wxLogTrace(wxEpollDispatcher_Trace,
-                   wxT("Registered fd %d for exceptional events"), fd);
-    }
 
     return ep;
 }
@@ -84,8 +70,6 @@ wxEpollDispatcher *wxEpollDispatcher::Create()
         wxLogSysError(_("Failed to create epoll descriptor"));
         return NULL;
     }
-    wxLogTrace(wxEpollDispatcher_Trace,
-                   wxT("Epoll fd %d created"), epollDescriptor);
     return new wxEpollDispatcher(epollDescriptor);
 }
 
@@ -118,8 +102,6 @@ bool wxEpollDispatcher::RegisterFD(int fd, wxFDIOHandler* handler, int flags)
 
         return false;
     }
-    wxLogTrace(wxEpollDispatcher_Trace,
-               wxT("Added fd %d (handler %p) to epoll %d"), fd, handler, m_epollDescriptor);
 
     return true;
 }
@@ -139,8 +121,6 @@ bool wxEpollDispatcher::ModifyFD(int fd, wxFDIOHandler* handler, int flags)
         return false;
     }
 
-    wxLogTrace(wxEpollDispatcher_Trace,
-                wxT("Modified fd %d (handler: %p) on epoll %d"), fd, handler, m_epollDescriptor);
     return true;
 }
 
@@ -155,20 +135,12 @@ bool wxEpollDispatcher::UnregisterFD(int fd)
         wxLogSysError(_("Failed to unregister descriptor %d from epoll descriptor %d"),
                       fd, m_epollDescriptor);
     }
-    wxLogTrace(wxEpollDispatcher_Trace,
-                wxT("removed fd %d from %d"), fd, m_epollDescriptor);
     return true;
 }
 
 int
 wxEpollDispatcher::DoPoll(epoll_event *events, int numEvents, int timeout) const
 {
-    // the code below relies on TIMEOUT_INFINITE being -1 so that we can pass
-    // timeout value directly to epoll_wait() which interprets -1 as meaning to
-    // wait forever and would need to be changed if the value of
-    // TIMEOUT_INFINITE ever changes
-    wxCOMPILE_TIME_ASSERT( TIMEOUT_INFINITE == -1, UpdateThisCode );
-
     wxMilliClock_t timeEnd;
     if ( timeout > 0 )
         timeEnd = wxGetLocalTimeMillis();
