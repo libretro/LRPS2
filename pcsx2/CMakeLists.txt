@@ -437,26 +437,6 @@ set(pcsx2ps2Headers
 	ps2/HwInternal.h
 	ps2/Iop/IopHw_Internal.h)
 
-# RDebug sources
-set(pcsx2RDebugSources
-	RDebug/deci2.cpp
-	RDebug/deci2_dbgp.cpp
-	RDebug/deci2_dcmp.cpp
-	RDebug/deci2_drfp.cpp
-	RDebug/deci2_iloadp.cpp
-	RDebug/deci2_netmp.cpp
-	RDebug/deci2_ttyp.cpp)
-
-# RDebug headers
-set(pcsx2RDebugHeaders
-	RDebug/deci2_dbgp.h
-	RDebug/deci2_dcmp.h
-	RDebug/deci2_drfp.h
-	RDebug/deci2.h
-	RDebug/deci2_iloadp.h
-	RDebug/deci2_netmp.h
-	RDebug/deci2_ttyp.h)
-
 # System sources
 set(pcsx2SystemSources
 	System/SysCoreThread.cpp
