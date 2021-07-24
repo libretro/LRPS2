@@ -37,7 +37,6 @@
 #include "wx/confbase.h"        // for wxExpandEnvVars()
 
 #include "wx/msw/private.h"     // includes <windows.h>
-#include "wx/msw/private/hiddenwin.h"
 #include "wx/msw/missing.h"     // for CHARSET_HANGUL
 
 #if defined(__CYGWIN__)
@@ -1089,46 +1088,4 @@ void wxMicroSleep(unsigned long microseconds)
 void wxSleep(int nSecs)
 {
     wxMilliSleep(1000*nSecs);
-}
-
-// ----------------------------------------------------------------------------
-// font encoding <-> Win32 codepage conversion functions
-// ----------------------------------------------------------------------------
-
-extern "C" WXDLLIMPEXP_BASE HWND
-wxCreateHiddenWindow(LPCTSTR *pclassname, LPCTSTR classname, WNDPROC wndproc)
-{
-    wxCHECK_MSG( classname && pclassname && wndproc, NULL,
-                    wxT("NULL parameter in wxCreateHiddenWindow") );
-
-    // register the class fi we need to first
-    if ( *pclassname == NULL )
-    {
-        WNDCLASS wndclass;
-        wxZeroMemory(wndclass);
-
-        wndclass.lpfnWndProc   = wndproc;
-        wndclass.hInstance     = wxGetInstance();
-        wndclass.lpszClassName = classname;
-
-        if ( !::RegisterClass(&wndclass) )
-            return NULL;
-
-        *pclassname = classname;
-    }
-
-    // next create the window
-    HWND hwnd = ::CreateWindow
-                  (
-                    *pclassname,
-                    NULL,
-                    0, 0, 0, 0,
-                    0,
-                    (HWND) NULL,
-                    (HMENU)NULL,
-                    wxGetInstance(),
-                    (LPVOID) NULL
-                  );
-
-    return hwnd;
 }

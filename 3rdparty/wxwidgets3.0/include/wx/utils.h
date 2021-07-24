@@ -309,48 +309,6 @@ enum
 // Map storing environment variables.
 typedef wxStringToStringHashMap wxEnvVariableHashMap;
 
-// Used to pass additional parameters for child process to wxExecute(). Could
-// be extended with other fields later.
-struct wxExecuteEnv
-{
-    wxString cwd;               // If empty, CWD is not changed.
-    wxEnvVariableHashMap env;   // If empty, environment is unchanged.
-};
-
-// Execute another program.
-//
-// If flags contain wxEXEC_SYNC, return -1 on failure and the exit code of the
-// process if everything was ok. Otherwise (i.e. if wxEXEC_ASYNC), return 0 on
-// failure and the PID of the launched process if ok.
-WXDLLIMPEXP_BASE long wxExecute(const wxString& command,
-                                int flags = wxEXEC_ASYNC,
-                                wxProcess *process = NULL,
-                                const wxExecuteEnv *env = NULL);
-WXDLLIMPEXP_BASE long wxExecute(char **argv,
-                                int flags = wxEXEC_ASYNC,
-                                wxProcess *process = NULL,
-                                const wxExecuteEnv *env = NULL);
-#if wxUSE_UNICODE
-WXDLLIMPEXP_BASE long wxExecute(wchar_t **argv,
-                                int flags = wxEXEC_ASYNC,
-                                wxProcess *process = NULL,
-                                const wxExecuteEnv *env = NULL);
-#endif // wxUSE_UNICODE
-
-// execute the command capturing its output into an array line by line, this is
-// always synchronous
-WXDLLIMPEXP_BASE long wxExecute(const wxString& command,
-                                wxArrayString& output,
-                                int flags = 0,
-                                const wxExecuteEnv *env = NULL);
-
-// also capture stderr (also synchronous)
-WXDLLIMPEXP_BASE long wxExecute(const wxString& command,
-                                wxArrayString& output,
-                                wxArrayString& error,
-                                int flags = 0,
-                                const wxExecuteEnv *env = NULL);
-
 enum wxSignal
 {
     wxSIGNONE = 0,  // verify if the process exists under Unix
