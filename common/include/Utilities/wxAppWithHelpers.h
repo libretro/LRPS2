@@ -56,9 +56,7 @@ public:
     {
         if (obj == NULL)
             return;
-#ifndef __LIBRETRO__
         DeleteThread(*obj);
-#endif
     }
 
     void PostCommand(void *clientData, int evtType, int intParam = 0, long longParam = 0, const wxString &stringParam = wxEmptyString);
