@@ -85,25 +85,11 @@ public:
 	// data.
 	virtual bool AllowCancelOnExit() const { return true; }
 
-	virtual void _DoInvokeEvent();
-	virtual void PostResult() const;
-
-	virtual wxString GetEventName() const;
-	virtual wxString GetEventMessage() const;
-	
 	virtual int GetResult()
 	{
 		if( !pxAssertDev( m_sync != NULL, "SysEvent: Expecting return value, but no sync object provided." ) ) return 0;
 		return m_sync->return_value;
 	}
-
-	virtual void SetException( BaseException* ex );
-
-	void SetException( const BaseException& ex );
-
-protected:
-	virtual void InvokeEvent();
-	virtual void CleanupEvent();
 };
 
 // --------------------------------------------------------------------------------------
@@ -136,12 +122,6 @@ public:
 	{
 		m_IsCritical = true;
 		return *this;
-	}
-	
-protected:
-	void InvokeEvent()
-	{
-		if( m_method ) m_method();
 	}
 };
 
@@ -208,64 +188,4 @@ public:
 	bool Rpc_TryInvoke( FnType_Void* method, const wxChar* traceName=NULL );
 	void SetActiveThread();
 };
-// --------------------------------------------------------------------------------------
-//  ExecutorThread
-// --------------------------------------------------------------------------------------
-// Threaded wrapper class for implementing a pxEvtQueue on its own thread, to serve as a
-// proxy between worker threads and response threads (which cannot be allowed to stall or
-// deadlock).  Simply create the desired EvtHandler, start the thread, and enjoy queued
-// event execution in fully blocking fashion.
-//
-// Deadlock Protection Notes:
-//  The ExecutorThread utilizes an underlying pxEventQueue, which only locks the queue for
-//  adding and removing items only.  Events are processed during an unlocked queue state,
-//  which allows other threads to add events with a guarantee that the add operation will
-//  take very little time.
-//
-// Implementation Notes:
-//  We use object encapsulation instead of multiple inheritance in order to avoid the many
-//  unavoidable catastrophes and pitfalls involved in multi-inheritance that would ruin our
-//  will to live.  The alternative requires manually exposing the interface of the underlying
-//  instance of pxEventQueue; and that's ok really when you consider the alternative. --air
-//
-class ExecutorThread : public Threading::pxThread
-{
-	typedef Threading::pxThread _parent;
-
-protected:
-	std::unique_ptr<wxTimer> m_ExecutorTimer;
-	std::unique_ptr<pxEvtQueue> m_EvtHandler;
-
-public:
-	ExecutorThread( pxEvtQueue* evtandler = NULL );
-	virtual ~ExecutorThread() = default;
-
-	virtual void ShutdownQueue();
-	bool IsRunning() const;
-	
-	void PostEvent( SysExecEvent* evt );
-	void PostEvent( const SysExecEvent& evt );
-
-	void PostIdleEvent( SysExecEvent* evt );
-	void PostIdleEvent( const SysExecEvent& evt );
-
-	void ProcessEvent( SysExecEvent* evt );
-	void ProcessEvent( SysExecEvent& evt );
-
-	bool Rpc_TryInvokeAsync( void (*evt)(), const wxChar* traceName=NULL )
-	{
-		return m_EvtHandler ? m_EvtHandler->Rpc_TryInvokeAsync( evt, traceName ) : false;
-	}
-
-	bool Rpc_TryInvoke( void (*evt)(), const wxChar* traceName=NULL )
-	{
-		return m_EvtHandler ? m_EvtHandler->Rpc_TryInvoke( evt, traceName ) : false;
-	}
-
-protected:
-	void OnStart();
-	void ExecuteTaskInThread();
-	void OnCleanupInThread();
-};
-
 #endif

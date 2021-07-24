@@ -295,7 +295,6 @@ set(pcsx2DebugToolsHeaders
 		gui/AppInit.cpp
 		gui/AppMain.cpp
 		gui/AppRes.cpp
-		gui/ExecutorThread.cpp
 		gui/MemoryCardFile.cpp
 		gui/MemoryCardFolder.cpp
 		)

@@ -73,13 +73,6 @@ public:
 		m_IsCritical = true;
 		return *this;
 	}
-
-protected:
-	void InvokeEvent()
-	{
-		if (m_method)
-			(CoreThread.*m_method)();
-	}
 };
 
 static void PostCoreStatus(CoreThreadStatus pevt)
@@ -682,7 +675,6 @@ void BaseSysExecEvent_ScopedCore::_post_and_wait(IScopedCoreThread& core)
 	DoScopedTask();
 
 	ScopedLock lock(m_mtx_resume);
-	PostResult();
 
 	if (m_resume)
 	{
@@ -708,42 +700,6 @@ void BaseSysExecEvent_ScopedCore::_post_and_wait(IScopedCoreThread& core)
 		}
 	}
 }
-
-
-void SysExecEvent_CoreThreadClose::InvokeEvent()
-{
-	ScopedCoreThreadClose closed_core;
-	_post_and_wait(closed_core);
-	closed_core.AllowResume();
-}
-
-
-void SysExecEvent_CoreThreadPause::InvokeEvent()
-{
-#ifdef PCSX2_DEVBUILD
-	bool CorePluginsAreOpen = GetCorePlugins().AreOpen();
-	ScopedCoreThreadPause paused_core;
-	_post_and_wait(paused_core);
-
-	// All plugins should be initialized and opened upon resuming from
-	// a paused state.  If the thread that puased us changed plugin status, it should
-	// have used Close instead.
-	if (CorePluginsAreOpen)
-	{
-		CorePluginsAreOpen = GetCorePlugins().AreOpen();
-		pxAssertDev(CorePluginsAreOpen, "Invalid plugin close/shutdown detected during paused CoreThread; please Stop/Suspend the core instead.");
-	}
-	paused_core.AllowResume();
-
-#else
-
-	ScopedCoreThreadPause paused_core;
-	_post_and_wait(paused_core);
-	paused_core.AllowResume();
-
-#endif
-}
-
 
 // --------------------------------------------------------------------------------------
 //  ScopedCoreThreadClose / ScopedCoreThreadPause

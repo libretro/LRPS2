@@ -72,8 +72,6 @@
 
 #define wxUSE_DATETIME 1
 
-#define wxUSE_TIMER 1
-
 #define wxUSE_CONFIG 1
 
 #define wxUSE_CONFIG_NATIVE 1

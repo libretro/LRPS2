@@ -82,11 +82,6 @@ public:
     // create a new, port specific, instance of the event loop used by wxApp
     virtual wxEventLoopBase *CreateEventLoop() = 0;
 
-#if wxUSE_TIMER
-    // return platform and toolkit dependent wxTimer implementation
-    virtual wxTimerImpl *CreateTimerImpl(wxTimer *timer) = 0;
-#endif
-
 #if wxUSE_THREADS
     virtual void MutexGuiEnter();
     virtual void MutexGuiLeave();

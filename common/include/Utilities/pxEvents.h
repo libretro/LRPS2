@@ -43,9 +43,6 @@ public:
 
     virtual ~SynchronousActionState() = default;
 
-    void SetException(const BaseException &ex);
-    void SetException(BaseException *ex);
-
     Threading::Semaphore &GetSemaphore() { return m_sema; }
     const Threading::Semaphore &GetSemaphore() const { return m_sema; }
 
@@ -87,21 +84,6 @@ public:
 
     void SetSyncState(SynchronousActionState *obj) { m_state = obj; }
     void SetSyncState(SynchronousActionState &obj) { m_state = &obj; }
-
-    virtual void SetException(BaseException *ex);
-    void SetException(const BaseException &ex);
-
-    virtual void _DoInvokeEvent();
-
-protected:
-    // Extending classes should implement this method to perform whatever action it is
-    // the event is supposed to do. :)  Thread affinity is guaranteed to be the Main/UI
-    // thread, and exceptions will be handled automatically.
-    //
-    // Exception note: exceptions are passed back to the thread that posted the event
-    // to the queue, when possible.  If the calling thread is not blocking for a result
-    // from this event, then the exception will be posted to the Main/UI thread instead.
-    virtual void InvokeEvent() {}
 };
 
 
@@ -128,7 +110,4 @@ public:
     }
 
     virtual pxExceptionEvent *Clone() const { return new pxExceptionEvent(*this); }
-
-protected:
-    void InvokeEvent();
 };

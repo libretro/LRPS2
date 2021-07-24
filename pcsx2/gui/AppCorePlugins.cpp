@@ -64,12 +64,6 @@ public:
 	
 	void SetEventType( PluginEventType evt ) { m_evt = evt; }
 	PluginEventType GetEventType() { return m_evt; }
-
-protected:
-	void InvokeEvent()
-	{
-		sApp.DispatchEvent( m_evt );
-	}
 };
 
 // --------------------------------------------------------------------------------------

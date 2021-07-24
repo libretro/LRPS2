@@ -163,8 +163,3 @@ CoreThreadStatusEvent::CoreThreadStatusEvent( CoreThreadStatus evt, SynchronousA
 {
 	m_evt = evt;
 }
-
-void CoreThreadStatusEvent::InvokeEvent()
-{
-	sApp.DispatchEvent( m_evt );
-}

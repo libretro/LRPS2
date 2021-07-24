@@ -21,9 +21,6 @@ public:
     virtual wxEventLoopBase *CreateEventLoop();
     virtual void *BeforeChildWaitLoop();
     virtual void AfterChildWaitLoop(void *data);
-#if wxUSE_TIMER
-    virtual wxTimerImpl *CreateTimerImpl(wxTimer *timer);
-#endif // wxUSE_TIMER
 #if wxUSE_THREADS
     virtual bool DoMessageFromThreadWait();
     virtual WXDWORD WaitForThread(WXHANDLE hThread, int flags);

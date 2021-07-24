@@ -24,14 +24,6 @@ wxDEFINE_EVENT(pxEvt_InvokeAction, pxActionEvent);
 //  SynchronousActionState Implementations
 // --------------------------------------------------------------------------------------
 
-void SynchronousActionState::SetException(const BaseException &ex)
-{
-}
-
-void SynchronousActionState::SetException(BaseException *ex)
-{
-}
-
 void SynchronousActionState::RethrowException() const
 {
 }
@@ -92,24 +84,6 @@ pxActionEvent::pxActionEvent(const pxActionEvent &src)
     m_state = src.m_state;
 }
 
-void pxActionEvent::SetException(const BaseException &ex)
-{
-    SetException(ex.Clone());
-}
-
-void pxActionEvent::SetException(BaseException *ex)
-{
-    const wxString &prefix(pxsFmt(L"(%s) ", GetClassInfo()->GetClassName()));
-    ex->DiagMsg() = prefix + ex->DiagMsg();
-
-    if (!m_state) {
-        ScopedExcept exptr(ex); // auto-delete it after handling.
-        ex->Rethrow();
-    }
-
-    m_state->SetException(ex);
-}
-
 // --------------------------------------------------------------------------------------
 //  pxRpcEvent
 // --------------------------------------------------------------------------------------
@@ -152,13 +126,6 @@ public:
     {
         m_Method = method;
     }
-
-protected:
-    void InvokeEvent()
-    {
-        if (m_Method)
-            m_Method();
-    }
 };
 
 wxIMPLEMENT_DYNAMIC_CLASS(pxRpcEvent, pxActionEvent);
@@ -169,13 +136,6 @@ wxIMPLEMENT_DYNAMIC_CLASS(pxRpcEvent, pxActionEvent);
 pxExceptionEvent::pxExceptionEvent(const BaseException &ex)
 {
     m_except = ex.Clone();
-}
-
-void pxExceptionEvent::InvokeEvent()
-{
-    ScopedExcept deleteMe(m_except);
-    if (deleteMe)
-        deleteMe->Rethrow();
 }
 
 // --------------------------------------------------------------------------------------
@@ -321,26 +281,6 @@ void wxAppWithHelpers::CleanUp()
     _parent::CleanUp();
 }
 
-// Executes the event with exception handling.  If the event throws an exception, the exception
-// will be neatly packaged and transported back to the thread that posted the event.
-// This function is virtual, however overloading it is not recommended.  Derrived classes
-// should overload InvokeEvent() instead.
-void pxActionEvent::_DoInvokeEvent()
-{
-    AffinityAssert_AllowFrom_MainUI();
-
-    try {
-        InvokeEvent();
-    } catch (BaseException &ex) {
-        SetException(ex);
-    } catch (std::runtime_error &ex) {
-        SetException(new Exception::RuntimeError(ex));
-    }
-
-    if (m_state)
-        m_state->PostResult();
-}
-
 void wxAppWithHelpers::PostAction(const pxActionEvent &evt)
 {
     PostEvent(evt);
@@ -353,8 +293,7 @@ void wxAppWithHelpers::ProcessAction(pxActionEvent &evt)
         evt.SetSyncState(sync);
         AddPendingEvent(evt);
         sync.WaitForResult();
-    } else
-        evt._DoInvokeEvent();
+    }
 }
 
 bool wxAppWithHelpers::OnInit()

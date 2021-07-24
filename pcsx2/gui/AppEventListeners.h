@@ -179,7 +179,4 @@ public:
 
 	void SetEventType( CoreThreadStatus evt ) { m_evt = evt; }
 	CoreThreadStatus GetEventType() { return m_evt; }
-
-protected:
-	void InvokeEvent();
 };

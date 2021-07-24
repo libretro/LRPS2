@@ -92,9 +92,6 @@ public:
 	
 	SysExecEvent_CoreThreadClose( SynchronousActionState* sync=NULL, SynchronousActionState* resume_sync=NULL, Threading::Mutex* mtx_resume=NULL )
 		: BaseSysExecEvent_ScopedCore( sync, resume_sync, mtx_resume ) { }
-
-protected:
-	void InvokeEvent();
 };
 
 // --------------------------------------------------------------------------------------
@@ -110,9 +107,6 @@ public:
 	
 	SysExecEvent_CoreThreadPause( SynchronousActionState* sync=NULL, SynchronousActionState* resume_sync=NULL, Threading::Mutex* mtx_resume=NULL )
 		: BaseSysExecEvent_ScopedCore( sync, resume_sync, mtx_resume ) { }
-
-protected:
-	void InvokeEvent();
 };
 
 // --------------------------------------------------------------------------------------

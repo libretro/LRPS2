@@ -149,17 +149,7 @@ wxUnixEventLoopSource::~wxUnixEventLoopSource()
 
 bool wxConsoleEventLoop::Pending() const
 {
-    if ( m_dispatcher->HasPending() )
-        return true;
-
-#if wxUSE_TIMER
-    wxUsecClock_t nextTimer;
-    if ( wxTimerScheduler::Get().GetNext(&nextTimer) &&
-            !wxMilliClockToLong(nextTimer) )
-        return true;
-#endif // wxUSE_TIMER
-
-    return false;
+    return m_dispatcher->HasPending();
 }
 
 bool wxConsoleEventLoop::Dispatch()
@@ -172,24 +162,7 @@ bool wxConsoleEventLoop::Dispatch()
 
 int wxConsoleEventLoop::DispatchTimeout(unsigned long timeout)
 {
-#if wxUSE_TIMER
-    // check if we need to decrease the timeout to account for a timer
-    wxUsecClock_t nextTimer;
-    if ( wxTimerScheduler::Get().GetNext(&nextTimer) )
-    {
-        unsigned long timeUntilNextTimer = wxMilliClockToLong(nextTimer / 1000);
-        if ( timeUntilNextTimer < timeout )
-            timeout = timeUntilNextTimer;
-    }
-#endif // wxUSE_TIMER
-
     bool hadEvent = m_dispatcher->Dispatch(timeout) > 0;
-
-#if wxUSE_TIMER
-    if ( wxTimerScheduler::Get().NotifyExpired() )
-        hadEvent = true;
-#endif // wxUSE_TIMER
-
     return hadEvent ? 1 : -1;
 }
 

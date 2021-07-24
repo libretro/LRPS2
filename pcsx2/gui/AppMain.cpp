@@ -72,12 +72,6 @@ public:
 	{
 		m_Method = method;
 	}
-	
-protected:
-	void InvokeEvent()
-	{
-		if( m_Method ) (wxGetApp().*m_Method)();
-	}
 };
 
 

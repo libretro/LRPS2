@@ -293,13 +293,6 @@
 // Recommended setting: 1
 #define wxUSE_DATETIME      1
 
-// Set wxUSE_TIMER to 1 to compile wxTimer class
-//
-// Default is 1
-//
-// Recommended setting: 1
-#define wxUSE_TIMER         1
-
 // Setting wxUSE_CONFIG to 1 enables the use of wxConfig and related classes
 // which allow the application to store its settings in the persistent
 // storage. Setting this to 1 will also enable on-demand creation of the
