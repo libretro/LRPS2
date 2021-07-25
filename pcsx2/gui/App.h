@@ -201,12 +201,6 @@ protected:
 	std::unique_ptr<pxAppResources> m_Resources;
 
 public:
-#ifndef __LIBRETRO__
-	// Executor Thread for complex VM/System tasks.  This thread is used to execute such tasks
-	// in parallel to the main message pump, to allow the main pump to run without fear of
-	// blocked threads stalling the GUI.
-	ExecutorThread					SysExecutorThread;
-#endif
 	std::unique_ptr<SysCpuProviderPack> m_CpuProviders;
 	std::unique_ptr<SysMainMemory> m_VmReserve;
 
@@ -227,8 +221,6 @@ public:
 	void DetectCpuAndUserMode();
 	void CleanupRestartable();
 	void CleanupResources();
-
-	wxConfigBase* OpenInstallSettingsFile();
 
 	// --------------------------------------------------------------------------
 	//  App-wide Resources
@@ -305,8 +297,6 @@ extern void ShutdownPlugins();
 extern __aligned16 SysMtgsThread mtgsThread;
 extern __aligned16 AppCoreThread CoreThread;
 extern __aligned16 SysCorePlugins CorePlugins;
-
-extern void UI_EnableSysActions();
 
 #define AffinityAssert_AllowFrom_SysExecutor()
 #define AffinityAssert_DisallowFrom_SysExecutor()
