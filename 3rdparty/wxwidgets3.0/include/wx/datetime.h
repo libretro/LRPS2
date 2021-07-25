@@ -540,10 +540,6 @@ public:
         // resets time to 00:00:00, doesn't change the date
     wxDateTime& ResetTime();
 
-        // get the date part of this object only, i.e. the object which has the
-        // same date as this one but time of 00:00:00
-    wxDateTime GetDateOnly() const;
-
         // the following functions don't change the values of the other
         // fields, i.e. SetMinute() won't change either hour or seconds value
 
@@ -698,7 +694,6 @@ public:
     // ------------------------------------------------------------------------
 
         // transform to any given timezone
-    inline wxDateTime ToTimezone(const TimeZone& tz, bool noDST = false) const;
     wxDateTime& MakeTimezone(const TimeZone& tz, bool noDST = false);
 
         // interpret current value as being in another timezone and transform
@@ -707,10 +702,8 @@ public:
     wxDateTime& MakeFromTimezone(const TimeZone& tz, bool noDST = false);
 
         // transform to/from GMT/UTC
-    wxDateTime ToUTC(bool noDST = false) const { return ToTimezone(UTC, noDST); }
     wxDateTime& MakeUTC(bool noDST = false) { return MakeTimezone(UTC, noDST); }
 
-    wxDateTime ToGMT(bool noDST = false) const { return ToUTC(noDST); }
     wxDateTime& MakeGMT(bool noDST = false) { return MakeUTC(noDST); }
 
     wxDateTime FromUTC(bool noDST = false) const
@@ -793,12 +786,6 @@ public:
     // dos date and time format
     // ------------------------------------------------------------------------
 
-        // set from the DOS packed format
-    wxDateTime& SetFromDOS(unsigned long ddt);
-
-        // pack the date in DOS format
-    unsigned long GetAsDOS() const;
-
     // SYSTEMTIME format
     // ------------------------------------------------------------------------
 #ifdef __WINDOWS__
@@ -831,9 +818,6 @@ public:
 
         // returns true if the date is in the given range
     inline bool IsBetween(const wxDateTime& t1, const wxDateTime& t2) const;
-
-        // do these two objects refer to the same date?
-    inline bool IsSameDate(const wxDateTime& dt) const;
 
         // do these two objects have the same time?
     inline bool IsSameTime(const wxDateTime& dt) const;
@@ -936,8 +920,6 @@ public:
     inline wxTimeSpan Subtract(const wxDateTime& dt) const;
     inline wxTimeSpan operator-(const wxDateTime& dt2) const;
 
-    wxDateSpan DiffAsDateSpan(const wxDateTime& dt) const;
-
     // conversion to/from text
     // ------------------------------------------------------------------------
 
@@ -997,16 +979,6 @@ public:
         return ParseFormat(datetime, fmt, &end) && end == datetime.end();
     }
 
-        // parse a string containing the date/time in "free" format, this
-        // function will try to make an educated guess at the string contents
-    bool ParseDateTime(const wxString& datetime,
-                       wxString::const_iterator *end);
-
-        // parse a string containing the date only in "free" format (less
-        // flexible than ParseDateTime)
-    bool ParseDate(const wxString& date,
-                   wxString::const_iterator *end);
-
         // parse a string containing the time only in "free" format
     bool ParseTime(const wxString& time,
                    wxString::const_iterator *end);
@@ -1059,20 +1031,6 @@ public:
                                                         : wxAnyStrPtr();
     }
 
-    wxAnyStrPtr ParseDateTime(const wxString& datetime)
-    {
-        wxString::const_iterator end;
-        return ParseDateTime(datetime, &end) ? wxAnyStrPtr(datetime, end)
-                                             : wxAnyStrPtr();
-    }
-
-    wxAnyStrPtr ParseDate(const wxString& date)
-    {
-        wxString::const_iterator end;
-        return ParseDate(date, &end) ? wxAnyStrPtr(date, end)
-                                     : wxAnyStrPtr();
-    }
-
     wxAnyStrPtr ParseTime(const wxString& time)
     {
         wxString::const_iterator end;
@@ -1110,15 +1068,6 @@ public:
                                const wxString& format = wxDefaultDateTimeFormat,
                                const wxDateTime& dateDef = wxDefaultDateTime);
 
-    void ParseDateTime(const wxCStrData& datetime)
-        { ParseDateTime(wxString(datetime)); }
-    const char* ParseDateTime(const char* datetime);
-    const wchar_t* ParseDateTime(const wchar_t* datetime);
-
-    void ParseDate(const wxCStrData& date)
-        { ParseDate(wxString(date)); }
-    const char* ParseDate(const char* date);
-    const wchar_t* ParseDate(const wchar_t* date);
 
     void ParseTime(const wxCStrData& time)
         { ParseTime(wxString(time)); }
@@ -1838,16 +1787,6 @@ inline bool wxDateTime::IsBetween(const wxDateTime& t1,
     return IsEqualTo(t1) || IsEqualTo(t2) || IsStrictlyBetween(t1, t2);
 }
 
-inline bool wxDateTime::IsSameDate(const wxDateTime& dt) const
-{
-    Tm tm1 = GetTm(),
-       tm2 = dt.GetTm();
-
-    return tm1.year == tm2.year &&
-           tm1.mon == tm2.mon &&
-           tm1.mday == tm2.mday;
-}
-
 inline bool wxDateTime::IsSameTime(const wxDateTime& dt) const
 {
     // notice that we can't do something like this:
@@ -1956,12 +1895,6 @@ inline wxDateTime& wxDateTime::operator+=(const wxDateSpan& diff)
 // ----------------------------------------------------------------------------
 // wxDateTime and timezones
 // ----------------------------------------------------------------------------
-
-inline wxDateTime
-wxDateTime::ToTimezone(const wxDateTime::TimeZone& tz, bool noDST) const
-{
-    MODIFY_AND_RETURN( MakeTimezone(tz, noDST) );
-}
 
 inline wxDateTime
 wxDateTime::FromTimezone(const wxDateTime::TimeZone& tz, bool noDST) const
