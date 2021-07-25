@@ -18,7 +18,6 @@
 #include "System/SysThreads.h"
 
 #include "AppCommon.h"
-#include "AppCorePlugins.h"
 #include "SaveState.h"
 #include "pxEventThread.h"
 

@@ -25,6 +25,16 @@
 
 
 #include "options_tools.h"
+
+DocsModeType				DocsFolderMode = DocsFolder_User;
+bool					UseDefaultSettingsFolder = true;
+bool					UseDefaultPluginsFolder = true;
+
+
+wxDirName				CustomDocumentsFolder;
+wxDirName				SettingsFolder;
+
+wxDirName				PluginsFolder;
 //////////////////////////////////////////////////////////////////////////////////////////
 // PathDefs Namespace -- contains default values for various pcsx2 path names and locations.
 //

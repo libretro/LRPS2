@@ -95,67 +95,6 @@
     <None Include="..\..\x86\microVU_Misc.inl" />
     <None Include="..\..\x86\microVU_Tables.inl" />
     <None Include="..\..\x86\microVU_Upper.inl" />
-    <None Include="..\..\gui\Dialogs\BaseConfigurationDialog.inl" />
-    <CustomBuild Include="..\..\gui\Resources\AppIcon16.png">
-      <Command>cmd.exe /c %(RelativeDir)bin2cpp.cmd %(Filename)%(Extension)</Command>
-      <Outputs>%(RelativeDir)%(Filename).h</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="..\..\gui\Resources\AppIcon32.png">
-      <Command>cmd.exe /c %(RelativeDir)bin2cpp.cmd %(Filename)%(Extension)</Command>
-      <Outputs>%(RelativeDir)%(Filename).h</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="..\..\gui\Resources\AppIcon64.png">
-      <Command>cmd.exe /c %(RelativeDir)bin2cpp.cmd %(Filename)%(Extension)</Command>
-      <Outputs>%(RelativeDir)%(Filename).h</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="..\..\gui\Resources\BackgroundLogo.png">
-      <Command>cmd.exe /c %(RelativeDir)bin2cpp.cmd %(Filename)%(Extension)</Command>
-      <Outputs>%(RelativeDir)%(Filename).h</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="..\..\gui\Resources\ButtonIcon_Camera.png">
-      <Command>cmd.exe /c %(RelativeDir)bin2cpp.cmd %(Filename)%(Extension)</Command>
-      <Outputs>%(RelativeDir)%(Filename).h</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="..\..\gui\Resources\ConfigIcon_Cpu.png">
-      <Command>cmd.exe /c %(RelativeDir)bin2cpp.cmd %(Filename)%(Extension)</Command>
-      <Outputs>%(RelativeDir)%(Filename).h</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="..\..\gui\Resources\ConfigIcon_Gamefixes.png">
-      <Command>cmd.exe /c %(RelativeDir)bin2cpp.cmd %(Filename)%(Extension)</Command>
-      <Outputs>%(RelativeDir)%(Filename).h</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="..\..\gui\Resources\ConfigIcon_MemoryCard.png">
-      <Command>cmd.exe /c %(RelativeDir)bin2cpp.cmd %(Filename)%(Extension)</Command>
-      <Outputs>%(RelativeDir)%(Filename).h</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="..\..\gui\Resources\ConfigIcon_Paths.png">
-      <Command>cmd.exe /c %(RelativeDir)bin2cpp.cmd %(Filename)%(Extension)</Command>
-      <Outputs>%(RelativeDir)%(Filename).h</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="..\..\gui\Resources\ConfigIcon_Plugins.png">
-      <Command>cmd.exe /c %(RelativeDir)bin2cpp.cmd %(Filename)%(Extension)</Command>
-      <Outputs>%(RelativeDir)%(Filename).h</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="..\..\gui\Resources\ConfigIcon_Speedhacks.png">
-      <Command>cmd.exe /c %(RelativeDir)bin2cpp.cmd %(Filename)%(Extension)</Command>
-      <Outputs>%(RelativeDir)%(Filename).h</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="..\..\gui\Resources\ConfigIcon_Video.png">
-      <Command>cmd.exe /c %(RelativeDir)bin2cpp.cmd %(Filename)%(Extension)</Command>
-      <Outputs>%(RelativeDir)%(Filename).h</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="..\..\gui\Resources\Logo.png">
-      <Command>cmd.exe /c %(RelativeDir)bin2cpp.cmd %(Filename)%(Extension)</Command>
-      <Outputs>%(RelativeDir)%(Filename).h</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="..\..\gui\Resources\Breakpoint_Active.png">
-      <Command>cmd.exe /c %(RelativeDir)bin2cpp.cmd %(Filename)%(Extension)</Command>
-      <Outputs>%(RelativeDir)%(Filename).h</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="..\..\gui\Resources\Breakpoint_Inactive.png">
-      <Command>cmd.exe /c %(RelativeDir)bin2cpp.cmd %(Filename)%(Extension)</Command>
-      <Outputs>%(RelativeDir)%(Filename).h</Outputs>
-    </CustomBuild>
     <!-- Generate Recording GUI Image Headers -->
     <CustomBuild Include="..\..\Recording\VirtualPad\img\controllerFull.png">
       <Command>cmd.exe /c %(RelativeDir)bin2cpp.cmd %(Filename)%(Extension)</Command>
@@ -264,18 +203,6 @@
     <ClCompile Include="..\..\GameDatabase.cpp" />
     <ClCompile Include="..\..\Gif_Logger.cpp" />
     <ClCompile Include="..\..\Gif_Unit.cpp" />
-    <ClCompile Include="..\..\gui\AppGameDatabase.cpp" />
-    <ClCompile Include="..\..\gui\AppUserMode.cpp" />
-    <ClCompile Include="..\..\gui\Debugger\BreakpointWindow.cpp" />
-    <ClCompile Include="..\..\gui\Debugger\CtrlDisassemblyView.cpp" />
-    <ClCompile Include="..\..\gui\Debugger\CtrlMemView.cpp" />
-    <ClCompile Include="..\..\gui\Debugger\CtrlRegisterList.cpp" />
-    <ClCompile Include="..\..\gui\Debugger\DebugEvents.cpp" />
-    <ClCompile Include="..\..\gui\Debugger\DebuggerLists.cpp" />
-    <ClCompile Include="..\..\gui\Debugger\DisassemblyDialog.cpp" />
-    <ClCompile Include="..\..\gui\Dialogs\McdConfigDialog.cpp" />
-    <ClCompile Include="..\..\gui\DriveList.cpp" />
-    <ClCompile Include="..\..\gui\Panels\MemoryCardListView.cpp" />
     <ClCompile Include="..\..\IopGte.cpp" />
     <ClCompile Include="..\..\IPC.cpp" />
     <ClCompile Include="..\..\FW.cpp" />
@@ -468,7 +395,6 @@
     <ClCompile Include="..\..\CDVD\IsoFS\IsoFile.cpp" />
     <ClCompile Include="..\..\CDVD\IsoFS\IsoFS.cpp" />
     <ClCompile Include="..\..\CDVD\IsoFS\IsoFSCDVD.cpp" />
-    <ClCompile Include="..\..\gui\AppAssert.cpp" />
     <ClCompile Include="..\..\gui\AppConfig.cpp" />
     <ClCompile Include="..\..\gui\AppCorePlugins.cpp" />
     <ClCompile Include="..\..\gui\AppCoreThread.cpp" />
@@ -476,43 +402,13 @@
     <ClCompile Include="..\..\gui\AppInit.cpp" />
     <ClCompile Include="..\..\gui\AppMain.cpp" />
     <ClCompile Include="..\..\gui\AppRes.cpp" />
-    <ClCompile Include="..\..\gui\ExecutorThread.cpp" />
-    <ClCompile Include="..\..\gui\GlobalCommands.cpp" />
-    <ClCompile Include="..\..\gui\i18n.cpp" />
     <ClCompile Include="..\..\gui\MemoryCardFile.cpp" />
     <ClCompile Include="..\..\gui\MemoryCardFolder.cpp" />
-    <ClCompile Include="..\..\gui\MessageBoxes.cpp" />
-    <ClCompile Include="..\..\gui\Dialogs\AboutBoxDialog.cpp" />
-    <ClCompile Include="..\..\gui\Dialogs\AssertionDialog.cpp" />
-    <ClCompile Include="..\..\gui\Dialogs\BaseConfigurationDialog.cpp" />
-    <ClCompile Include="..\..\gui\Dialogs\ConfirmationDialogs.cpp" />
-    <ClCompile Include="..\..\gui\Dialogs\ConvertMemoryCardDialog.cpp" />
-    <ClCompile Include="..\..\gui\Dialogs\CreateMemoryCardDialog.cpp" />
-    <ClCompile Include="..\..\gui\Dialogs\FirstTimeWizard.cpp" />
-    <ClCompile Include="..\..\gui\Dialogs\ImportSettingsDialog.cpp" />
-    <ClCompile Include="..\..\gui\Dialogs\LogOptionsDialog.cpp" />
-    <ClCompile Include="..\..\gui\Dialogs\PickUserModeDialog.cpp" />
-    <ClCompile Include="..\..\gui\Dialogs\SysConfigDialog.cpp" />
-    <ClCompile Include="..\..\gui\Panels\BaseApplicableConfigPanel.cpp" />
-    <ClCompile Include="..\..\gui\Panels\BiosSelectorPanel.cpp" />
-    <ClCompile Include="..\..\gui\Panels\CpuPanel.cpp" />
-    <ClCompile Include="..\..\gui\Panels\DirPickerPanel.cpp" />
-    <ClCompile Include="..\..\gui\Panels\GameFixesPanel.cpp" />
-    <ClCompile Include="..\..\gui\Panels\GSWindowPanel.cpp" />
-    <ClCompile Include="..\..\gui\Panels\LogOptionsPanels.cpp" />
-    <ClCompile Include="..\..\gui\Panels\MemoryCardListPanel.cpp" />
-    <ClCompile Include="..\..\gui\Panels\MiscPanelStuff.cpp" />
-    <ClCompile Include="..\..\gui\Panels\PathsPanel.cpp" />
-    <ClCompile Include="..\..\gui\Panels\PluginSelectorPanel.cpp" />
-    <ClCompile Include="..\..\gui\Panels\SpeedhacksPanel.cpp" />
-    <ClCompile Include="..\..\gui\Panels\VideoPanel.cpp" />
     <ClCompile Include="..\WinCompressNTFS.cpp" />
     <ClCompile Include="..\WinConsolePipe.cpp" />
     <ClCompile Include="..\..\Linux\LnxKeyCodes.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\gui\Saveslots.cpp" />
-    <ClCompile Include="..\..\gui\SysState.cpp" />
     <ClCompile Include="..\..\ZipTools\thread_gzip.cpp" />
     <ClCompile Include="..\..\ZipTools\thread_lzma.cpp" />
     <ClCompile Include="..\Optimus.cpp" />
@@ -539,16 +435,6 @@
     <ClInclude Include="..\..\GameDatabase.h" />
     <ClInclude Include="..\..\Gif_Unit.h" />
     <ClInclude Include="..\..\gui\AppGameDatabase.h" />
-    <ClInclude Include="..\..\gui\DriveList.h" />
-    <ClInclude Include="..\..\gui\Saveslots.h" />
-    <ClInclude Include="..\..\gui\Debugger\BreakpointWindow.h" />
-    <ClInclude Include="..\..\gui\Debugger\CtrlDisassemblyView.h" />
-    <ClInclude Include="..\..\gui\Debugger\CtrlMemView.h" />
-    <ClInclude Include="..\..\gui\Debugger\CtrlRegisterList.h" />
-    <ClInclude Include="..\..\gui\Debugger\DebugEvents.h" />
-    <ClInclude Include="..\..\gui\Debugger\DebuggerLists.h" />
-    <ClInclude Include="..\..\gui\Debugger\DisassemblyDialog.h" />
-    <ClInclude Include="..\..\gui\Panels\MemoryCardPanels.h" />
     <ClInclude Include="..\..\IopGte.h" />
     <ClInclude Include="..\..\IPC.h" />
     <ClInclude Include="..\..\FW.h" />
@@ -688,16 +574,10 @@
     <ClInclude Include="..\..\CDVD\IsoFS\IsoFS.h" />
     <ClInclude Include="..\..\CDVD\IsoFS\IsoFSCDVD.h" />
     <ClInclude Include="..\..\CDVD\IsoFS\SectorSource.h" />
-    <ClInclude Include="..\..\gui\Dialogs\ConfigurationDialog.h" />
-    <ClInclude Include="..\..\gui\Dialogs\LogOptionsDialog.h" />
-    <ClInclude Include="..\..\gui\Dialogs\ModalPopups.h" />
     <ClInclude Include="..\resource.h" />
-    <ClInclude Include="..\..\gui\Panels\ConfigurationPanels.h" />
-    <ClInclude Include="..\..\gui\Panels\LogOptionsPanels.h" />
     <ClInclude Include="..\..\gui\App.h" />
     <ClInclude Include="..\..\gui\AppCommon.h" />
     <ClInclude Include="..\..\gui\AppConfig.h" />
-    <ClInclude Include="..\..\gui\AppCorePlugins.h" />
     <ClInclude Include="..\..\gui\AppCoreThread.h" />
     <ClInclude Include="..\..\gui\AppEventListeners.h" />
     <ClInclude Include="..\..\gui\AppForwardDefs.h" />

@@ -291,7 +291,6 @@ set(pcsx2DebugToolsHeaders
 		gui/AppCoreThread.cpp
 		gui/AppEventSources.cpp
 		gui/AppGameDatabase.cpp
-		gui/AppUserMode.cpp
 		gui/AppInit.cpp
 		gui/AppMain.cpp
 		gui/AppRes.cpp
@@ -302,7 +301,6 @@ set(pcsx2DebugToolsHeaders
 	set(pcsx2GuiHeaders
 		gui/AppCommon.h
 		gui/AppConfig.h
-		gui/AppCorePlugins.h
 		gui/AppCoreThread.h
 		gui/AppEventListeners.h
 		gui/AppForwardDefs.h
