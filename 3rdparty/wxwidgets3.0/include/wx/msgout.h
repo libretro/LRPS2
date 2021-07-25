@@ -130,18 +130,6 @@ enum wxMessageOutputFlags
     wxMSGOUT_PREFER_MSGBOX = 1  // always use message box if available
 };
 
-class WXDLLIMPEXP_BASE wxMessageOutputBest : public wxMessageOutputStderr
-{
-public:
-    wxMessageOutputBest(wxMessageOutputFlags flags = wxMSGOUT_PREFER_STDERR)
-        : m_flags(flags) { }
-
-    virtual void Output(const wxString& str);
-
-private:
-    wxMessageOutputFlags m_flags;
-};
-
 // ----------------------------------------------------------------------------
 // implementation using the native way of outputting debug messages
 // ----------------------------------------------------------------------------

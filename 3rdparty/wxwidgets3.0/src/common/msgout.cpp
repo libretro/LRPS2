@@ -98,38 +98,6 @@ void wxMessageOutput::DoPrintfUtf8(const char *format, ...)
 #endif // wxUSE_UNICODE_UTF8
 
 // ----------------------------------------------------------------------------
-// wxMessageOutputBest
-// ----------------------------------------------------------------------------
-
-void wxMessageOutputBest::Output(const wxString& str)
-{
-#ifdef __WINDOWS__
-    // decide whether to use console output or not
-    wxAppTraits * const traits = wxTheApp ? wxTheApp->GetTraits() : NULL;
-    const bool hasStderr = traits ? traits->CanUseStderr() : false;
-
-    if ( !(m_flags & wxMSGOUT_PREFER_MSGBOX) )
-    {
-        if ( hasStderr && traits->WriteToStderr(AppendLineFeedIfNeeded(str)) )
-            return;
-    }
-
-    wxString title;
-    if ( wxTheApp )
-        title = wxTheApp->GetAppDisplayName();
-    else // Use some title to avoid default "Error"
-        title = _("Message");
-
-    ::MessageBox(NULL, str.t_str(), title.t_str(), MB_ICONINFORMATION | MB_OK);
-#else // !__WINDOWS__
-    wxUnusedVar(m_flags);
-
-    // TODO: use the native message box for the other ports too
-    wxMessageOutputStderr::Output(str);
-#endif // __WINDOWS__/!__WINDOWS__
-}
-
-// ----------------------------------------------------------------------------
 // wxMessageOutputStderr
 // ----------------------------------------------------------------------------
 

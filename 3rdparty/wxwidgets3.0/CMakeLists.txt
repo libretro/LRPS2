@@ -66,7 +66,6 @@ add_library(wxwidgets
    src/common/wfstream.cpp
    src/common/wxcrt.cpp
    
-   src/common/datstrm.cpp
    src/common/encconv.cpp
    src/common/extended.c
    src/common/hash.cpp

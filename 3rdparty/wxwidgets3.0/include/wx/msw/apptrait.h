@@ -19,16 +19,9 @@ class WXDLLIMPEXP_BASE wxConsoleAppTraits : public wxConsoleAppTraitsBase
 {
 public:
     virtual wxEventLoopBase *CreateEventLoop();
-    virtual void *BeforeChildWaitLoop();
-    virtual void AfterChildWaitLoop(void *data);
 #if wxUSE_THREADS
-    virtual bool DoMessageFromThreadWait();
     virtual WXDWORD WaitForThread(WXHANDLE hThread, int flags);
 #endif // wxUSE_THREADS
-#ifndef __WXWINCE__
-    virtual bool CanUseStderr() { return true; }
-    virtual bool WriteToStderr(const wxString& text);
-#endif // !__WXWINCE__
 };
 
 #endif // _WX_MSW_APPTRAIT_H_

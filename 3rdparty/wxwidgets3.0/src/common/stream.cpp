@@ -33,7 +33,6 @@
 #endif
 
 #include <ctype.h>
-#include "wx/datstrm.h"
 #include "wx/textfile.h"
 #include "wx/scopeguard.h"
 

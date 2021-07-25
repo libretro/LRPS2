@@ -147,9 +147,7 @@ public:
         // usually better to set it explicitly to something nicer
     wxString GetAppDisplayName() const;
 
-    void SetAppDisplayName(const wxString& name) { m_appDisplayName = name; }
-
-        // set/get the app class name
+    // set/get the app class name
     wxString GetClassName() const { return m_className; }
     void SetClassName(const wxString& name) { m_className = name; }
 
