@@ -144,7 +144,6 @@ size_t wxDir::Traverse(wxDirTraverser& sink,
                         bool ok;
                         do
                         {
-                            wxLogNull noLog;
                             ok = subdir.Open(fulldirname);
                             if ( !ok )
                             {

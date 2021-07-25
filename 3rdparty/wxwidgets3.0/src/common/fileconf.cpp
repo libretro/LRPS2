@@ -335,10 +335,6 @@ void wxFileConfig::Init()
             Parse(fileGlobal, false /* global */);
             SetRootPath();
         }
-        else
-        {
-            wxLogWarning(_("can't open global configuration file '%s'."), m_fnGlobalFile.GetFullPath().c_str());
-        }
     }
 
     // parse the local file
@@ -352,16 +348,8 @@ void wxFileConfig::Init()
         }
         else
         {
-            const wxString path = m_fnLocalFile.GetFullPath();
-            wxLogWarning(_("can't open user configuration file '%s'."),
-                         path.c_str());
-
             if ( m_fnLocalFile.FileExists() )
-            {
-                wxLogWarning(_("Changes won't be saved to avoid overwriting the existing file \"%s\""),
-                             path.c_str());
                 m_fnLocalFile.Clear();
-            }
         }
     }
 
@@ -438,20 +426,13 @@ wxFileConfig::wxFileConfig(wxInputStream &inStream, const wxMBConv& conv)
         const wxStreamError err = inStream.GetLastError();
 
         if ( err != wxSTREAM_NO_ERROR && err != wxSTREAM_EOF )
-        {
-            wxLogError(_("Error reading config options."));
             break;
-        }
     }
     while ( !inStream.Eof() );
 
 #if wxUSE_UNICODE
     size_t len;
     cbuf = conv.cMB2WC((char *)buf.GetData(), buf.GetDataLen() + 1, &len);
-    if ( !len && buf.GetDataLen() )
-    {
-        wxLogError(_("Failed to read config options."));
-    }
 #else // !wxUSE_UNICODE
     // no need for conversion
     cbuf = wxCharBuffer::CreateNonOwned((char *)buf.GetData(), buf.GetDataLen());
@@ -559,11 +540,8 @@ void wxFileConfig::Parse(const wxTextBuffer& buffer, bool bLocal)
         }
       }
 
-      if ( *pEnd != wxT(']') ) {
-        wxLogError(_("file '%s': unexpected character %c at line %zu."),
-                   buffer.GetName(), *pEnd, n + 1);
+      if ( *pEnd != wxT(']') )
         continue; // skip this line
-      }
 
       // group name here is always considered as abs path
       wxString strGroup;
@@ -596,8 +574,6 @@ void wxFileConfig::Parse(const wxTextBuffer& buffer, bool bLocal)
             break;
 
           default:
-            wxLogWarning(_("file '%s', line %zu: '%s' ignored after group header."),
-                         buffer.GetName(), n + 1, pEnd);
             bCont = false;
         }
       }
@@ -625,8 +601,6 @@ void wxFileConfig::Parse(const wxTextBuffer& buffer, bool bLocal)
         pEnd++;
 
       if ( *pEnd++ != wxT('=') ) {
-        wxLogError(_("file '%s', line %zu: '=' expected."),
-                   buffer.GetName(), n + 1);
       }
       else {
         wxFileConfigEntry *pEntry = m_pCurrentGroup->FindEntry(strKey);
@@ -635,24 +609,12 @@ void wxFileConfig::Parse(const wxTextBuffer& buffer, bool bLocal)
           // new entry
           pEntry = m_pCurrentGroup->AddEntry(strKey, n);
         }
-        else {
-          if ( bLocal && pEntry->IsImmutable() ) {
-            // immutable keys can't be changed by user
-            wxLogWarning(_("file '%s', line %zu: value for immutable key '%s' ignored."),
-                         buffer.GetName(), n + 1, strKey.c_str());
-            continue;
-          }
-          // the condition below catches the cases (a) and (b) but not (c):
-          //  (a) global key found second time in global file
-          //  (b) key found second (or more) time in local file
-          //  (c) key from global file now found in local one
-          // which is exactly what we want.
-          else if ( !bLocal || pEntry->IsLocal() ) {
-            wxLogWarning(_("file '%s', line %zu: key '%s' was first found at line %d."),
-                         buffer.GetName(), n + 1, strKey.c_str(), pEntry->Line());
-
-          }
-        }
+        else
+	{
+		// immutable keys can't be changed by user
+		if ( bLocal && pEntry->IsImmutable() )
+			continue;
+	}
 
         if ( bLocal )
           pEntry->SetLine(m_linesTail);
@@ -924,11 +886,7 @@ bool wxFileConfig::DoWriteString(const wxString& key, const wxString& szValue)
     {
         // writing an entry check that the name is reasonable
         if ( strName[0u] == wxCONFIG_IMMUTABLE_PREFIX )
-        {
-            wxLogError( _("Config entry name cannot start with '%c'."),
-                        wxCONFIG_IMMUTABLE_PREFIX);
             return false;
-        }
 
         wxFileConfigEntry   *pEntry = m_pCurrentGroup->FindEntry(strName);
 
@@ -961,10 +919,7 @@ bool wxFileConfig::Flush(bool /* bCurrentOnly */)
   wxTempFile file(m_fnLocalFile.GetFullPath());
 
   if ( !file.IsOpened() )
-  {
-    wxLogError(_("can't open user configuration file."));
     return false;
-  }
 
   // write all strings to file
   wxString filetext;
@@ -975,17 +930,10 @@ bool wxFileConfig::Flush(bool /* bCurrentOnly */)
   }
 
   if ( !file.Write(filetext, *m_conv) )
-  {
-    wxLogError(_("can't write user configuration file."));
     return false;
-  }
 
   if ( !file.Commit() )
-  {
-      wxLogError(_("Failed to update user configuration file."));
-
       return false;
-  }
 
   ResetDirty();
 
@@ -1008,11 +956,7 @@ bool wxFileConfig::Save(wxOutputStream& os, const wxMBConv& conv)
 
         wxCharBuffer buf(line.mb_str(conv));
         if ( !os.Write(buf, strlen(buf)) )
-        {
-            wxLogError(_("Error saving user configuration data."));
-
             return false;
-        }
     }
 
     ResetDirty();
@@ -1120,11 +1064,7 @@ bool wxFileConfig::DeleteAll()
   {
       if ( m_fnLocalFile.FileExists() &&
            !wxRemoveFile(m_fnLocalFile.GetFullPath()) )
-      {
-          wxLogSysError(_("can't delete user configuration file '%s'"),
-                        m_fnLocalFile.GetFullPath().c_str());
           return false;
-      }
   }
 
   Init();
@@ -1689,11 +1629,6 @@ wxFileConfigEntry::wxFileConfigEntry(wxFileConfigGroup *pParent,
 
 void wxFileConfigEntry::SetLine(wxFileConfigLineList *pLine)
 {
-  if ( m_pLine != NULL ) {
-    wxLogWarning(_("entry '%s' appears more than once in group '%s'"),
-                 Name().c_str(), m_pParent->GetFullName().c_str());
-  }
-
   m_pLine = pLine;
   Group()->SetLastEntry(this);
 }
@@ -1703,11 +1638,7 @@ void wxFileConfigEntry::SetLine(wxFileConfigLineList *pLine)
 void wxFileConfigEntry::SetValue(const wxString& strValue, bool bUser)
 {
     if ( bUser && IsImmutable() )
-    {
-        wxLogWarning( _("attempt to change immutable key '%s' ignored."),
-                      Name().c_str());
         return;
-    }
 
     // do nothing if it's the same value: but don't test for it if m_bHasValue
     // hadn't been set yet or we'd never write empty values to the file
@@ -1800,10 +1731,7 @@ static wxString FilterInValue(const wxString& str)
         if ( *i == wxT('\\') )
         {
             if ( ++i == end )
-            {
-                wxLogWarning(_("trailing backslash ignored in '%s'"), str.c_str());
                 break;
-            }
 
             switch ( (*i).GetValue() )
             {
@@ -1833,11 +1761,6 @@ static wxString FilterInValue(const wxString& str)
             if ( *i != wxT('"') || !bQuoted )
             {
                 strResult += *i;
-            }
-            else if ( i != end - 1 )
-            {
-                wxLogWarning(_("unexpected \" at position %d in '%s'."),
-                             i - str.begin(), str.c_str());
             }
             //else: it's the last quote of a quoted string, ok
         }

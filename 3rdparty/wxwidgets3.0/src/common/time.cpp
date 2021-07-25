@@ -262,8 +262,6 @@ long wxGetLocalTime()
     //
     if (( t0 != (time_t)-1 ) && ( t1 != (time_t)-1 ))
         return (long)difftime(t1, t0) + (60 * 60 * 24 * 4);
-
-    wxLogSysError(_("Failed to get the local system time"));
     return -1;
 }
 
@@ -330,11 +328,7 @@ wxLongLong wxGetUTCTimeMillis()
         val *= tp.tv_sec;
         return (val + (tp.tv_usec / MICROSECONDS_PER_MILLISECOND));
     }
-    else
-    {
-        wxLogError(_("wxGetTimeOfDay failed."));
-        return 0;
-    }
+    return 0;
 #elif defined(HAVE_FTIME)
     struct timeb tp;
 

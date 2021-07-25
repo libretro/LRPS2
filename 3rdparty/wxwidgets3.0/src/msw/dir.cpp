@@ -252,20 +252,7 @@ bool wxDirData::Read(wxString *filename)
     }
 
     if ( !IsFindDataOk(m_finddata) )
-    {
-#ifdef __WIN32__
-        DWORD err = ::GetLastError();
-
-        if ( err != ERROR_FILE_NOT_FOUND && err != ERROR_NO_MORE_FILES )
-        {
-            wxLogSysError(err, _("Cannot enumerate files in directory '%s'"),
-                          m_dirname.c_str());
-        }
-#endif // __WIN32__
-        //else: not an error, just no (such) files
-
         return false;
-    }
 
     const wxChar *name;
     FIND_ATTR attr;

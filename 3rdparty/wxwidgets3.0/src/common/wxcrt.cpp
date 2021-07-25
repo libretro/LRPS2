@@ -1192,12 +1192,7 @@ static bool wxIsLocaleUtf8()
 
 void wxUpdateLocaleIsUtf8()
 {
-#if wxUSE_UTF8_LOCALE_ONLY
-    if ( !wxIsLocaleUtf8() )
-    {
-        wxLogFatalError(wxT("This program requires UTF-8 locale to run."));
-    }
-#else // !wxUSE_UTF8_LOCALE_ONLY
+#if !wxUSE_UTF8_LOCALE_ONLY
     wxLocaleIsUtf8 = wxIsLocaleUtf8();
 #endif
 }

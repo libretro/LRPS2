@@ -12,8 +12,6 @@
 
 #include "wx/defs.h"
 
-class WXDLLIMPEXP_FWD_BASE wxLog;
-
 // ----------------------------------------------------------------------------
 // wxThreadSpecificInfo: contains all thread-specific information used by wx
 // ----------------------------------------------------------------------------
@@ -27,19 +25,6 @@ public:
     // Return this thread's instance.
     static wxThreadSpecificInfo& Get();
 
-    // the thread-specific logger or NULL if the thread is using the global one
-    // (this is not used for the main thread which always uses the global
-    // logger)
-    wxLog *logger;
-
-    // true if logging is currently disabled for this thread (this is also not
-    // used for the main thread which uses wxLog::ms_doLog)
-    //
-    // NB: we use a counter-intuitive "disabled" flag instead of "enabled" one
-    //     because the default, for 0-initialized struct, should be to enable
-    //     logging
-    bool loggingDisabled;
-
 #if wxUSE_THREADS
     // Cleans up storage for the current thread. Should be called when a thread
     // is being destroyed. If it's not called, the only bad thing that happens
@@ -48,7 +33,7 @@ public:
 #endif
 
 private:
-    wxThreadSpecificInfo() : logger(NULL), loggingDisabled(false) {}
+    wxThreadSpecificInfo() {}
 };
 
 #define wxThreadInfo wxThreadSpecificInfo::Get()

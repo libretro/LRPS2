@@ -236,7 +236,6 @@ wxStandardPaths::GetLocalizedResourcesDir(const wxString& lang,
 wxString wxStandardPaths::GetDocumentsDir() const
 {
     {
-        wxLogNull logNull;
         wxString homeDir = wxFileName::GetHomeDir();
         wxString configPath;
         if (wxGetenv(wxT("XDG_CONFIG_HOME")))

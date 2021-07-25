@@ -43,11 +43,7 @@ public:
     bool Create()
     {
         if ( pipe(m_fds) == -1 )
-        {
-            wxLogSysError(wxGetTranslation("Pipe creation failed"));
-
             return false;
-        }
 
         return true;
     }

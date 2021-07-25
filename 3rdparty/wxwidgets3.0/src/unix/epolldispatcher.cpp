@@ -66,10 +66,7 @@ wxEpollDispatcher *wxEpollDispatcher::Create()
 {
     int epollDescriptor = epoll_create(1024);
     if ( epollDescriptor == -1 )
-    {
-        wxLogSysError(_("Failed to create epoll descriptor"));
         return NULL;
-    }
     return new wxEpollDispatcher(epollDescriptor);
 }
 
@@ -82,10 +79,7 @@ wxEpollDispatcher::wxEpollDispatcher(int epollDescriptor)
 
 wxEpollDispatcher::~wxEpollDispatcher()
 {
-    if ( close(m_epollDescriptor) != 0 )
-    {
-        wxLogSysError(_("Error closing epoll descriptor"));
-    }
+    if ( close(m_epollDescriptor) != 0 ) { }
 }
 
 bool wxEpollDispatcher::RegisterFD(int fd, wxFDIOHandler* handler, int flags)
@@ -96,12 +90,7 @@ bool wxEpollDispatcher::RegisterFD(int fd, wxFDIOHandler* handler, int flags)
 
     const int ret = epoll_ctl(m_epollDescriptor, EPOLL_CTL_ADD, fd, &ev);
     if ( ret != 0 )
-    {
-        wxLogSysError(_("Failed to add descriptor %d to epoll descriptor %d"),
-                      fd, m_epollDescriptor);
-
         return false;
-    }
 
     return true;
 }
@@ -114,12 +103,7 @@ bool wxEpollDispatcher::ModifyFD(int fd, wxFDIOHandler* handler, int flags)
 
     const int ret = epoll_ctl(m_epollDescriptor, EPOLL_CTL_MOD, fd, &ev);
     if ( ret != 0 )
-    {
-        wxLogSysError(_("Failed to modify descriptor %d in epoll descriptor %d"),
-                      fd, m_epollDescriptor);
-
         return false;
-    }
 
     return true;
 }
@@ -130,11 +114,7 @@ bool wxEpollDispatcher::UnregisterFD(int fd)
     ev.events = 0;
     ev.data.ptr = NULL;
 
-    if ( epoll_ctl(m_epollDescriptor, EPOLL_CTL_DEL, fd, &ev) != 0 )
-    {
-        wxLogSysError(_("Failed to unregister descriptor %d from epoll descriptor %d"),
-                      fd, m_epollDescriptor);
-    }
+    if ( epoll_ctl(m_epollDescriptor, EPOLL_CTL_DEL, fd, &ev) != 0 ) { }
     return true;
 }
 
@@ -181,11 +161,7 @@ int wxEpollDispatcher::Dispatch(int timeout)
     const int rc = DoPoll(events, WXSIZEOF(events), timeout);
 
     if ( rc == -1 )
-    {
-        wxLogSysError(_("Waiting for IO on epoll descriptor %d failed"),
-                      m_epollDescriptor);
         return -1;
-    }
 
     int numEvents = 0;
     for ( epoll_event *p = events; p < events + rc; p++ )

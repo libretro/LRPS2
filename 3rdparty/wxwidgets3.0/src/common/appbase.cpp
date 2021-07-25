@@ -518,29 +518,6 @@ void wxAppConsoleBase::DeletePendingObjects()
 // debugging support
 // ----------------------------------------------------------------------------
 
-/* static */
-bool wxAppConsoleBase::CheckBuildOptions(const char *optionsSignature,
-                                         const char *componentName)
-{
-    if ( strcmp(optionsSignature, WX_BUILD_OPTIONS_SIGNATURE) != 0 )
-    {
-        wxString lib = wxString::FromAscii(WX_BUILD_OPTIONS_SIGNATURE);
-        wxString prog = wxString::FromAscii(optionsSignature);
-        wxString progName = wxString::FromAscii(componentName);
-        wxString msg;
-
-        msg.Printf(wxT("Mismatch between the program and library build versions detected.\nThe library used %s,\nand %s used %s."),
-                   lib.c_str(), progName.c_str(), prog.c_str());
-
-        wxLogFatalError(msg.c_str());
-
-        // normally wxLogFatalError doesn't return
-        return false;
-    }
-
-    return true;
-}
-
 void wxAppConsoleBase::OnAssertFailure(const wxChar *file,
                                        int line,
                                        const wxChar *func,

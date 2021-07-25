@@ -147,7 +147,6 @@ const wxChar* wxGetHomeDir(wxString *pstr)
     const wxChar *szHome = wxGetenv(wxT("HOME"));
     if ( szHome == NULL ) {
       // we're homeless...
-      wxLogWarning(_("can't find user's HOME, using current directory."));
       strDir = wxT(".");
     }
     else
@@ -349,17 +348,11 @@ wxLoadUserResource(const void **outData,
 
     HGLOBAL hData = ::LoadResource(instance, hResource);
     if ( !hData )
-    {
-        wxLogSysError(_("Failed to load resource \"%s\"."), resourceName);
         return false;
-    }
 
     *outData = ::LockResource(hData);
     if ( !*outData )
-    {
-        wxLogSysError(_("Failed to lock resource \"%s\"."), resourceName);
         return false;
-    }
 
     *outLen = ::SizeofResource(instance, hResource);
 

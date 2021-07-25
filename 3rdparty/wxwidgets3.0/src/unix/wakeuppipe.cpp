@@ -48,15 +48,11 @@ wxWakeUpPipe::wxWakeUpPipe()
     m_pipeIsEmpty = true;
 
     if ( !m_pipe.Create() )
-    {
-        wxLogError(_("Failed to create wake up pipe used by event loop."));
         return;
-    }
 
 
     if ( !m_pipe.MakeNonBlocking(wxPipe::Read) )
     {
-        wxLogSysError(_("Failed to switch wake up pipe to non-blocking mode"));
     }
 }
 
@@ -112,8 +108,6 @@ void wxWakeUpPipe::OnReadWaiting()
             // We were interrupted, try again.
             continue;
         }
-
-        wxLogSysError(_("Failed to read from wake-up pipe"));
 
         return;
     }

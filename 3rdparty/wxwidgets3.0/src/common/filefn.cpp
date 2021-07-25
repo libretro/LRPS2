@@ -1056,12 +1056,7 @@ wxCopyFile (const wxString& file1, const wxString& file2, bool overwrite)
     //
     // NB: 3rd parameter is bFailIfExists i.e. the inverse of overwrite
     if ( !::CopyFile(file1.t_str(), file2.t_str(), !overwrite) )
-    {
-        wxLogSysError(_("Failed to copy the file '%s' to '%s'"),
-                      file1.c_str(), file2.c_str());
-
         return false;
-    }
 #elif defined(__OS2__)
     if ( ::DosCopy(file1.c_str(), file2.c_str(), overwrite ? DCPY_EXISTING : 0) != 0 )
         return false;
@@ -1073,8 +1068,6 @@ wxCopyFile (const wxString& file1, const wxString& file2, bool overwrite)
     {
         // the file probably doesn't exist or we haven't the rights to read
         // from it anyhow
-        wxLogSysError(_("Impossible to get permissions for file '%s'"),
-                      file1.c_str());
         return false;
     }
 
@@ -1086,17 +1079,10 @@ wxCopyFile (const wxString& file1, const wxString& file2, bool overwrite)
     // remove file2, if it exists. This is needed for creating
     // file2 with the correct permissions in the next step
     if ( wxFileExists(file2)  && (!overwrite || !wxRemoveFile(file2)))
-    {
-        wxLogSysError(_("Impossible to overwrite the file '%s'"),
-                      file2.c_str());
         return false;
-    }
 
     if ( !wxDoCopyFile(fileIn, fbuf, file2, overwrite) )
-    {
-        wxLogError(_("Error copying the file '%s' to '%s'."), file1, file2);
         return false;
-    }
 
 #if defined(__WXMAC__) || defined(__WXCOCOA__)
     // copy the resource fork of the file too if it's present
@@ -1104,10 +1090,6 @@ wxCopyFile (const wxString& file1, const wxString& file2, bool overwrite)
     wxFile fileRsrcIn;
 
     {
-        // suppress error messages from this block as resource forks don't have
-        // to exist
-        wxLogNull noLog;
-
         // it's not enough to check for file existence: it always does on HFS
         // but is empty for files without resources
         if ( fileRsrcIn.Open(file1 + wxT("/..namedfork/rsrc")) &&
@@ -1144,11 +1126,7 @@ wxCopyFile (const wxString& file1, const wxString& file2, bool overwrite)
     // no chmod in VA.  Should be some permission API for HPFS386 partitions
     // however
     if ( chmod(file2.fn_str(), fbuf.st_mode) != 0 )
-    {
-        wxLogSysError(_("Impossible to set permissions for the file '%s'"),
-                      file2.c_str());
         return false;
-    }
 #endif // OS/2 || Mac
 
 #else // !Win32 && ! wxUSE_FILE
@@ -1168,15 +1146,7 @@ bool
 wxRenameFile(const wxString& file1, const wxString& file2, bool overwrite)
 {
     if ( !overwrite && wxFileExists(file2) )
-    {
-        wxLogSysError
-        (
-            _("Failed to rename the file '%s' to '%s' because the destination file already exists."),
-            file1.c_str(), file2.c_str()
-        );
-
         return false;
-    }
 
 #if !defined(__WXWINCE__)
     // Normal system call
@@ -1190,7 +1160,6 @@ wxRenameFile(const wxString& file1, const wxString& file2, bool overwrite)
     return true;
   }
   // Give up
-  wxLogSysError(_("File '%s' couldn't be renamed '%s'"), file1, file2);
   return false;
 }
 
@@ -1207,10 +1176,6 @@ bool wxRemoveFile(const wxString& file)
 #else
     int res = unlink(file.fn_str());
 #endif
-    if ( res )
-    {
-        wxLogSysError(_("File '%s' couldn't be removed"), file);
-    }
     return res == 0;
 }
 
@@ -1253,7 +1218,6 @@ bool wxMkdir(const wxString& dir, int perm)
   #endif
 #endif // !MSW/MSW
     {
-        wxLogSysError(_("Directory '%s' couldn't be created"), dir);
         return false;
     }
 
@@ -1273,7 +1237,6 @@ bool wxRmdir(const wxString& dir, int WXUNUSED(flags))
     if ( wxRmDir(dir.fn_str()) != 0 )
   #endif
     {
-        wxLogSysError(_("Directory '%s' couldn't be deleted"), dir);
         return false;
     }
 
@@ -1338,7 +1301,6 @@ wxString wxFindFirstFile(const wxString& spec, int flags)
 
     if ( !gs_dir->IsOpened() )
     {
-        wxLogSysError(_("Cannot enumerate files '%s'"), spec);
         return wxEmptyString;
     }
 
@@ -1455,8 +1417,6 @@ wxChar *wxDoGetCwd(wxChar *buf, int sz)
 
     if ( !ok )
     {
-        wxLogSysError(_("Failed to get the working directory"));
-
         // VZ: the old code used to return "." on error which didn't make any
         //     sense at all to me - empty string is a better error indicator
         //     (NULL might be even better but I'm afraid this could lead to
@@ -1569,10 +1529,6 @@ bool wxSetWorkingDirectory(const wxString& d)
 #endif
 
 #endif
-    if ( !success )
-    {
-       wxLogSysError(_("Could not set current working directory"));
-    }
     return success;
 }
 

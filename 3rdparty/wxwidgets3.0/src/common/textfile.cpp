@@ -106,11 +106,7 @@ bool wxTextFile::OnRead(const wxMBConv& conv)
 
     // first determine if the file is seekable or not and so whether we can
     // determine its length in advance
-    wxFileOffset fileLength;
-    {
-        wxLogNull logNull;
-        fileLength = m_file.Length();
-    }
+    wxFileOffset fileLength = m_file.Length();
 
     // some non-seekable files under /proc under Linux pretend that they're
     // seekable but always return 0; others do return an error
@@ -196,10 +192,7 @@ bool wxTextFile::OnRead(const wxMBConv& conv)
     // there's no risk of this happening in ANSI build
 #if wxUSE_UNICODE
     if ( bufSize > 4 && str.empty() )
-    {
-        wxLogError(_("Failed to convert file \"%s\" to Unicode."), GetName());
         return false;
-    }
 #endif // wxUSE_UNICODE
 
     // we don't need this memory any more
@@ -266,10 +259,8 @@ bool wxTextFile::OnWrite(wxTextFileType typeNew, const wxMBConv& conv)
 
     wxTempFile fileTmp(fn.GetFullPath());
 
-    if ( !fileTmp.IsOpened() ) {
-        wxLogError(_("can't write buffer '%s' to disk."), m_strBufferName.c_str());
+    if ( !fileTmp.IsOpened() )
         return false;
-    }
 
     size_t nCount = GetLineCount();
     for ( size_t n = 0; n < nCount; n++ ) {

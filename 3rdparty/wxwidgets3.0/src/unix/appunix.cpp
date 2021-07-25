@@ -178,10 +178,7 @@ bool wxAppConsole::SetSignalHandler(int signal, SignalHandler handler)
     sa.sa_flags = SA_RESTART;
     int res = sigaction(signal, &sa, 0);
     if ( res != 0 )
-    {
-        wxLogSysError(_("Failed to install signal handler"));
         return false;
-    }
 
     if ( install )
         m_signalHandlerHash[signal] = handler;

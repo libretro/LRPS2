@@ -35,12 +35,7 @@ static YAML::Node LoadYAMLFromFile(const wxString& fileName)
 	YAML::Node index;
 
 	wxFFile indexFile;
-	bool result;
-	{
-		// Suppress "file does not exist" errors
-		wxLogNull noLog;
-		result = indexFile.Open(fileName, L"r");
-	}
+	bool result = indexFile.Open(fileName, L"r");
 
 	if (result)
 	{

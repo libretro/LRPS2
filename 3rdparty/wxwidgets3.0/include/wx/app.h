@@ -339,12 +339,6 @@ public:
                           const wxChar *cond,
                           const wxChar *msg);
 
-    // check that the wxBuildOptions object (constructed in the application
-    // itself, usually the one from wxIMPLEMENT_APP() macro) matches the build
-    // options of the library and abort if it doesn't
-    static bool CheckBuildOptions(const char *optionsSignature,
-                                  const char *componentName);
-
     // implementation only from now on
     // -------------------------------
 
@@ -552,8 +546,6 @@ public:
     appname& wxGetApp() { return *static_cast<appname*>(wxApp::GetInstance()); }    \
     wxAppConsole *wxCreateApp()                                             \
     {                                                                       \
-        wxAppConsole::CheckBuildOptions(WX_BUILD_OPTIONS_SIGNATURE,         \
-                                        "your program");                    \
         return new appname;                                                 \
     }                                                                       \
     wxAppInitializer                                                        \

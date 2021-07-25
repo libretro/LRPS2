@@ -208,10 +208,7 @@ bool wxFile::Create(const wxString& fileName, bool bOverwrite, int accessMode)
                      (bOverwrite ? O_TRUNC : O_EXCL),
                      accessMode );
     if ( CheckForError(fildes) )
-    {
-        wxLogSysError(_("can't create file '%s'"), fileName);
         return false;
-    }
 
     Attach(fildes);
     return true;
@@ -260,10 +257,7 @@ bool wxFile::Open(const wxString& fileName, OpenMode mode, int accessMode)
     int fildes = wxOpen( fileName, flags, accessMode);
 
     if ( CheckForError(fildes) )
-    {
-        wxLogSysError(_("can't open file '%s'"), fileName);
         return false;
-    }
 
     Attach(fildes);
     return true;
@@ -275,7 +269,6 @@ bool wxFile::Close()
     if ( IsOpened() ) {
         if ( CheckForError(wxClose(m_fd)) )
         {
-            wxLogSysError(_("can't close file descriptor %d"), m_fd);
             m_fd = fd_invalid;
             return false;
         }
@@ -330,10 +323,7 @@ ssize_t wxFile::Read(void *pBuf, size_t nCount)
     ssize_t iRc = wxRead(m_fd, pBuf, nCount);
 
     if ( CheckForError(iRc) )
-    {
-        wxLogSysError(_("can't read from file descriptor %d"), m_fd);
         return wxInvalidOffset;
-    }
 
     return iRc;
 }
@@ -346,10 +336,7 @@ size_t wxFile::Write(const void *pBuf, size_t nCount)
     ssize_t iRc = wxWrite(m_fd, pBuf, nCount);
 
     if ( CheckForError(iRc) )
-    {
-        wxLogSysError(_("can't write to file descriptor %d"), m_fd);
         iRc = 0;
-    }
 
     return iRc;
 }
@@ -389,10 +376,7 @@ bool wxFile::Flush()
     if ( IsOpened() && GetKind() == wxFILE_KIND_DISK )
     {
         if ( CheckForError(wxFsync(m_fd)) )
-        {
-            wxLogSysError(_("can't flush file descriptor %d"), m_fd);
             return false;
-        }
     }
 #endif // HAVE_FSYNC
 
@@ -430,11 +414,6 @@ wxFileOffset wxFile::Seek(wxFileOffset ofs, wxSeekMode mode)
     }
 
     wxFileOffset iRc = wxSeek(m_fd, ofs, origin);
-    if ( CheckForError(iRc) )
-    {
-        wxLogSysError(_("can't seek on file descriptor %d"), m_fd);
-    }
-
     return iRc;
 }
 
@@ -444,11 +423,6 @@ wxFileOffset wxFile::Tell() const
     wxASSERT( IsOpened() );
 
     wxFileOffset iRc = wxTell(m_fd);
-    if ( CheckForError(iRc) )
-    {
-        wxLogSysError(_("can't get seek position on file descriptor %d"), m_fd);
-    }
-
     return iRc;
 }
 
@@ -486,12 +460,6 @@ wxFileOffset wxFile::Length() const
         iRc = iLen;
     }
 
-    if ( iRc == wxInvalidOffset )
-    {
-        // last error was already set by Tell()
-        wxLogSysError(_("can't find length of file on file descriptor %d"), m_fd);
-    }
-
     return iRc;
 }
 
@@ -516,11 +484,6 @@ bool wxFile::Eof() const
 
     if ( iRc == 0 )
         return false;
-
-    if ( iRc == wxInvalidOffset )
-    {
-        wxLogSysError(_("can't determine if the end of file is reached on descriptor %d"), m_fd);
-    }
 
     return true;
 }
@@ -583,9 +546,6 @@ bool wxTempFile::Open(const wxString& strName)
 
     if ( chmod( (const char*) m_strTemp.fn_str(), mode) == -1 )
     {
-#ifndef __OS2__
-        wxLogSysError(_("Failed to set temporary file permissions"));
-#endif
     }
 #endif // Unix
 
@@ -606,15 +566,11 @@ bool wxTempFile::Commit()
 {
     m_file.Close();
 
-    if ( wxFile::Exists(m_strName) && wxRemove(m_strName) != 0 ) {
-        wxLogSysError(_("can't remove file '%s'"), m_strName.c_str());
+    if ( wxFile::Exists(m_strName) && wxRemove(m_strName) != 0 )
         return false;
-    }
 
-    if ( !wxRenameFile(m_strTemp, m_strName)  ) {
-        wxLogSysError(_("can't commit changes to file '%s'"), m_strName.c_str());
+    if ( !wxRenameFile(m_strTemp, m_strName)  )
         return false;
-    }
 
     return true;
 }
@@ -622,10 +578,7 @@ bool wxTempFile::Commit()
 void wxTempFile::Discard()
 {
     m_file.Close();
-    if ( wxRemove(m_strTemp) != 0 )
-    {
-        wxLogSysError(_("can't remove temporary file '%s'"), m_strTemp.c_str());
-    }
+    if ( wxRemove(m_strTemp) != 0 ) { }
 }
 
 #endif // wxUSE_FILE

@@ -241,8 +241,7 @@ int wxSelectDispatcher::Dispatch(int timeout)
     switch ( DoSelect(sets, timeout) )
     {
         case -1:
-            wxLogSysError(_("Failed to monitor I/O channels"));
-            return -1;
+		break;
 
         case 0:
             // timeout expired without anything happening
@@ -251,6 +250,8 @@ int wxSelectDispatcher::Dispatch(int timeout)
         default:
             return ProcessSets(sets);
     }
+
+    return -1;
 }
 
 #endif // wxUSE_SELECT_DISPATCHER

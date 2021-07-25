@@ -341,13 +341,7 @@ wxGetCommandOutput(const wxString &cmd, wxMBConv& conv = wxConvISO8859_1)
     // doesn't exist.
     FILE *f = popen((cmd + " 2>/dev/null").ToAscii(), "r");
     if ( !f )
-    {
-        // Notice that this doesn't happen simply if the command doesn't exist,
-        // but only in case of some really catastrophic failure inside popen()
-        // so we should really notify the user about this as this is not normal.
-        wxLogSysError(wxT("Executing \"%s\" failed"), cmd);
         return wxString();
-    }
 
     wxString s;
     char buf[256];
@@ -614,11 +608,7 @@ bool CheckForChildExit(int pid, int* exitcodeOut)
             else if ( WIFSIGNALED(status) )
                 exitcode = -WTERMSIG(status);
             else
-            {
-                wxLogError("Child process (PID %d) exited for unknown reason, "
-                           "status = %d", pid, status);
                 exitcode = -1;
-            }
 
             if ( exitcodeOut )
                 *exitcodeOut = exitcode;

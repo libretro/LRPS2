@@ -517,11 +517,7 @@ THREAD_RETVAL wxThreadInternal::DoThreadStart(wxThread *thread)
     {
         // store the thread object in the TLS
         if ( !::TlsSetValue(gs_tlsThisThread, thread) )
-        {
-            wxLogSysError(_("Cannot start thread: error writing TLS."));
-
             return THREAD_ERROR_EXIT;
-        }
 
         rc = wxPtrToUInt(thread->CallEntry());
     }
@@ -601,7 +597,6 @@ void wxThreadInternal::SetPriority(unsigned int priority)
 
     if ( !::SetThreadPriority(m_hThread, win_priority) )
     {
-        wxLogSysError(_("Can't set thread priority"));
     }
 }
 
@@ -644,11 +639,7 @@ bool wxThreadInternal::Create(wxThread *thread, unsigned int stackSize)
 #endif // _beginthreadex/CreateThread
 
     if ( m_hThread == NULL )
-    {
-        wxLogSysError(_("Can't create thread"));
-
         return false;
-    }
 
     if ( m_priority != wxPRIORITY_DEFAULT )
     {
@@ -663,11 +654,7 @@ wxThreadError wxThreadInternal::Kill()
     m_thread->OnKill();
 
     if ( !::TerminateThread(m_hThread, THREAD_ERROR_EXIT) )
-    {
-        wxLogSysError(_("Couldn't terminate thread"));
-
         return wxTHREAD_MISC_ERROR;
-    }
 
     Free();
 
@@ -774,7 +761,6 @@ wxThreadInternal::WaitForTerminate(wxCriticalSection& cs,
         {
             case 0xFFFFFFFF:
                 // error
-                wxLogSysError(_("Cannot wait for thread termination"));
                 Kill();
                 return wxTHREAD_KILLED;
 
@@ -830,12 +816,7 @@ bool wxThreadInternal::Suspend()
 {
     DWORD nSuspendCount = ::SuspendThread(m_hThread);
     if ( nSuspendCount == (DWORD)-1 )
-    {
-        wxLogSysError(_("Cannot suspend thread %lx"),
-                      static_cast<unsigned long>(wxPtrToUInt(m_hThread)));
-
         return false;
-    }
 
     m_state = STATE_PAUSED;
 
@@ -846,12 +827,7 @@ bool wxThreadInternal::Resume()
 {
     DWORD nSuspendCount = ::ResumeThread(m_hThread);
     if ( nSuspendCount == (DWORD)-1 )
-    {
-        wxLogSysError(_("Cannot resume thread %lx"),
-                      static_cast<unsigned long>(wxPtrToUInt(m_hThread)));
-
         return false;
-    }
 
     // don't change the state from STATE_EXITED because it's special and means
     // we are going to terminate without running any user code - if we did it,
@@ -872,12 +848,7 @@ wxThread *wxThread::This()
     wxThread *thread = (wxThread *)::TlsGetValue(gs_tlsThisThread);
 
     // be careful, 0 may be a valid return value as well
-    if ( !thread && (::GetLastError() != NO_ERROR) )
-    {
-        wxLogSysError(_("Couldn't get the current thread pointer"));
-
-        // return NULL...
-    }
+    if ( !thread && (::GetLastError() != NO_ERROR) ) { }
 
     return thread;
 }
@@ -1200,8 +1171,6 @@ bool wxThreadModule::OnInit()
         // in normal circumstances it will only happen if all other
         // TLS_MINIMUM_AVAILABLE (>= 64) indices are already taken - in other
         // words, this should never happen
-        wxLogSysError(_("Thread module initialization failed: impossible to allocate index in thread local storage"));
-
         return false;
     }
 
@@ -1211,8 +1180,6 @@ bool wxThreadModule::OnInit()
     {
         ::TlsFree(gs_tlsThisThread);
         gs_tlsThisThread = 0xFFFFFFFF;
-
-        wxLogSysError(_("Thread module initialization failed: cannot store value in thread local storage"));
 
         return false;
     }

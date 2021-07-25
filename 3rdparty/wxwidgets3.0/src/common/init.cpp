@@ -191,11 +191,7 @@ static void ConvertArgsToUnicode(int argc, char **argv)
 #else
         wxWCharBuffer buf(wxConvLocal.cMB2WX(argv[i]));
 #endif
-        if ( !buf )
-        {
-            wxLogWarning(_("Command line argument %d couldn't be converted to Unicode and will be ignored."),
-                         i);
-        }
+        if ( !buf ) { }
         else // converted ok
         {
             gs_initData.argvOrig[wargc] = gs_initData.argv[wargc] = wxStrdup(buf);
@@ -263,10 +259,7 @@ static bool DoCommonPostInit()
     wxModule::RegisterModules();
 
     if ( !wxModule::InitializeModules() )
-    {
-        wxLogError(_("Initialization failed in post init, aborting."));
         return false;
-    }
 
     return true;
 }

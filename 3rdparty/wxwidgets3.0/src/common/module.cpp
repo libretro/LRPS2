@@ -68,11 +68,7 @@ bool wxModule::DoInitializeModule(wxModule *module,
                                   wxModuleList &initializedModules)
 {
     if ( module->m_state == State_Initializing )
-    {
-        wxLogError(_("Circular dependency involving module \"%s\" detected."),
-                   module->GetClassInfo()->GetClassName());
         return false;
-    }
 
     module->m_state = State_Initializing;
 
@@ -118,20 +114,11 @@ bool wxModule::DoInitializeModule(wxModule *module,
         }
 
         if ( !node )
-        {
-            wxLogError(_("Dependency \"%s\" of module \"%s\" doesn't exist."),
-                       cinfo->GetClassName(),
-                       module->GetClassInfo()->GetClassName());
             return false;
-        }
     }
 
     if ( !module->Init() )
-    {
-        wxLogError(_("Module \"%s\" initialization failed"),
-                   module->GetClassInfo()->GetClassName());
         return false;
-    }
 
     module->m_state = State_Initialized;
     initializedModules.Append(module);

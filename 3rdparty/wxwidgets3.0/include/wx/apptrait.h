@@ -17,7 +17,6 @@
 class WXDLLIMPEXP_FWD_BASE wxArrayString;
 class WXDLLIMPEXP_FWD_BASE wxConfigBase;
 class WXDLLIMPEXP_FWD_BASE wxEventLoopBase;
-class WXDLLIMPEXP_FWD_BASE wxLog;
 class WXDLLIMPEXP_FWD_BASE wxMessageOutput;
 class WXDLLIMPEXP_FWD_BASE wxObject;
 class WXDLLIMPEXP_FWD_CORE wxRendererNative;

@@ -52,10 +52,6 @@ public:
         wxFSWatchInfo(winfo), m_lastState(winfo)
     {
         m_fd = wxOpen(m_path, O_RDONLY, 0);
-        if (m_fd == -1)
-        {
-            wxLogSysError(_("Unable to open path '%s'"), m_path);
-        }
     }
 
     virtual ~wxFSWatchEntryKq()
@@ -69,10 +65,6 @@ public:
             return false;
 
         int ret = close(m_fd);
-        if (ret == -1)
-        {
-            wxLogSysError(_("Unable to close path '%s'"), m_path);
-        }
         m_fd = -1;
 
         return ret != -1;

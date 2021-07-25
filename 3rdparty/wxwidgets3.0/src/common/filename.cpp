@@ -187,29 +187,13 @@ public:
                      NULL                           // no template file
                     );
 
-        if ( m_hFile == INVALID_HANDLE_VALUE )
-        {
-            if ( mode == ReadAttr )
-            {
-                wxLogSysError(_("Failed to open '%s' for reading"),
-                              filename.c_str());
-            }
-            else
-            {
-                wxLogSysError(_("Failed to open '%s' for writing"),
-                              filename.c_str());
-            }
-        }
     }
 
     ~wxFileHandle()
     {
         if ( m_hFile != INVALID_HANDLE_VALUE )
         {
-            if ( !::CloseHandle(m_hFile) )
-            {
-                wxLogSysError(_("Failed to close file handle"));
-            }
+            if ( !::CloseHandle(m_hFile) ) { }
         }
     }
 
@@ -1078,7 +1062,6 @@ static wxString wxCreateTempImpl(
 
     if ( path.empty() )
     {
-        wxLogSysError(_("Failed to create a temporary file name"));
     }
     else
     {
@@ -1112,9 +1095,6 @@ static wxString wxCreateTempImpl(
             //        file name?  That is the standard recourse if open(O_EXCL)
             //        fails, though of course it should be protected against
             //        possible infinite looping too.
-
-            wxLogError(_("Failed to open temporary file."));
-
             path.clear();
         }
     }
@@ -2491,11 +2471,7 @@ bool wxFileName::SetTimes(const wxDateTime *dtAccess,
     if ( IsDir() )
     {
         if ( wxGetOsVersion() == wxOS_WINDOWS_9X )
-        {
-            wxLogError(_("Setting directory access times is not supported "
-                         "under this OS version"));
             return false;
-        }
 
         path = GetPath();
         flags = FILE_FLAG_BACKUP_SEMANTICS;
@@ -2541,9 +2517,6 @@ bool wxFileName::SetTimes(const wxDateTime *dtAccess,
     wxUnusedVar(dtCreate);
 #endif // platforms
 
-    wxLogSysError(_("Failed to modify file times for '%s'"),
-                  GetFullPath().c_str());
-
     return false;
 }
 
@@ -2555,8 +2528,6 @@ bool wxFileName::Touch() const
     {
         return true;
     }
-
-    wxLogSysError(_("Failed to touch the file '%s'"), GetFullPath().c_str());
 
     return false;
 #else // other platform
@@ -2636,9 +2607,6 @@ bool wxFileName::GetTimes(wxDateTime *dtAccess,
     wxUnusedVar(dtMod);
     wxUnusedVar(dtCreate);
 #endif // platforms
-
-    wxLogSysError(_("Failed to retrieve file times for '%s'"),
-                  GetFullPath().c_str());
 
     return false;
 }

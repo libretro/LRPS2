@@ -2245,8 +2245,6 @@ wxMBConv_iconv::wxMBConv_iconv(const char *name)
 
                     if (ICONV_FAILED(res, insz))
                     {
-                        wxLogError(_("Conversion to charset '%s' doesn't work."),
-                                   nameCS.c_str());
                     }
                     else // ok, can convert to this encoding, remember it
                     {

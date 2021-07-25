@@ -758,11 +758,7 @@ void *wxThreadInternal::PthreadStart(wxThread *thread)
     // wxThread::This() will work
     int rc = pthread_setspecific(gs_keySelf, thread);
     if ( rc != 0 )
-    {
-        wxLogSysError(rc, _("Cannot start thread: error writing TLS."));
-
         return (void *)-1;
-    }
 
     // have to declare this before pthread_cleanup_push() which defines a
     // block!
@@ -933,10 +929,7 @@ wxThreadError wxThreadInternal::Create(wxThread *thread,
 
 #ifdef HAVE_THREAD_PRIORITY_FUNCTIONS
     int policy;
-    if ( pthread_attr_getschedpolicy(&attr, &policy) != 0 )
-    {
-        wxLogError(_("Cannot retrieve thread scheduling policy."));
-    }
+    if ( pthread_attr_getschedpolicy(&attr, &policy) != 0 ) {}
 
 #ifdef __VMS__
    /* the pthread.h contains too many spaces. This is a work-around */
@@ -954,19 +947,9 @@ wxThreadError wxThreadInternal::Create(wxThread *thread,
 
     if ( min_prio == -1 || max_prio == -1 )
     {
-        wxLogError(_("Cannot get priority range for scheduling policy %d."),
-                   policy);
     }
     else if ( max_prio == min_prio )
     {
-        if ( prio != wxPRIORITY_DEFAULT )
-        {
-            // notify the programmer that this doesn't work here
-            wxLogWarning(_("Thread priority setting is ignored."));
-        }
-        //else: we have default priority, so don't complain
-
-        // anyhow, don't do anything because priority is just ignored
     }
     else
     {
@@ -1078,11 +1061,6 @@ void wxThreadInternal::Wait()
             //       might deadlock
             if ( pthread_join(GetId(), &m_exitcode) != 0 )
             {
-                // this is a serious problem, so use wxLogError and not
-                // wxLogDebug: it is possible to bring the system to its knees
-                // by creating too many threads and not joining them quite
-                // easily
-                wxLogError(_("Failed to join a thread, potential memory leak detected - please restart the program"));
             }
 
             m_shouldBeJoined = false;
@@ -1154,8 +1132,6 @@ int wxThread::GetCPUCount()
 #elif defined(__LINUX__) && wxUSE_FFILE
     // read from proc (can't use wxTextFile here because it's a special file:
     // it has 0 size but still can be read from)
-    wxLogNull nolog;
-
     wxFFile file(wxT("/proc/cpuinfo"));
     if ( file.IsOpened() )
     {
@@ -1193,11 +1169,7 @@ bool wxThread::SetConcurrency(size_t level)
 #endif // HAVE_THR_SETCONCURRENCY/!HAVE_THR_SETCONCURRENCY
 
     if ( rc != 0 )
-    {
-        wxLogSysError(rc, _("Failed to set thread concurrency level to %lu"),
-                      static_cast<unsigned long>(level));
         return false;
-    }
 
     return true;
 }
@@ -1278,7 +1250,6 @@ void wxThread::SetPriority(unsigned int prio)
             // map wx priorites 0..100 to Unix priorities 20..-20
             if ( setpriority(PRIO_PROCESS, 0, -(2*(int)prio)/5 + 20) == -1 )
             {
-                wxLogError(_("Failed to set thread priority %d."), prio);
             }
 #else // __LINUX__
             {
@@ -1288,7 +1259,6 @@ void wxThread::SetPriority(unsigned int prio)
                 if ( pthread_setschedparam(m_internal->GetId(),
                                            SCHED_OTHER, &sparam) != 0 )
                 {
-                    wxLogError(_("Failed to set thread priority %d."), prio);
                 }
             }
 #endif // __LINUX__
@@ -1459,8 +1429,6 @@ wxThreadError wxThread::Kill()
             if ( pthread_cancel(m_internal->GetId()) != 0 )
 #endif // HAVE_PTHREAD_CANCEL
             {
-                wxLogError(_("Failed to terminate a thread."));
-
                 return wxTHREAD_MISC_ERROR;
             }
 
@@ -1639,11 +1607,7 @@ bool wxThreadModule::OnInit()
 {
     int rc = pthread_key_create(&gs_keySelf, NULL /* dtor function */);
     if ( rc != 0 )
-    {
-        wxLogSysError(rc, _("Thread module initialization failed: failed to create thread key"));
-
         return false;
-    }
 
     wxThread::ms_idMainThread = wxThread::GetCurrentId();
 

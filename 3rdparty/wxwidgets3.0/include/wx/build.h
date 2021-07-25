@@ -89,31 +89,4 @@
 // deriving wxWin containers from STL ones changes them completely:
 #define __WX_BO_STL ",wx containers"
 
-// This macro is passed as argument to wxConsoleApp::CheckBuildOptions()
-#define WX_BUILD_OPTIONS_SIGNATURE \
-    __WX_BO_VERSION(wxMAJOR_VERSION, wxMINOR_VERSION, wxRELEASE_NUMBER) \
-    " (" __WX_BO_UNICODE \
-     __WX_BO_COMPILER \
-     __WX_BO_STL \
-     __WX_BO_WXWIN_COMPAT_2_6 __WX_BO_WXWIN_COMPAT_2_8 \
-     ")"
-
-
-// ----------------------------------------------------------------------------
-// WX_CHECK_BUILD_OPTIONS
-// ----------------------------------------------------------------------------
-
-// Use this macro to check build options. Adding it to a file in DLL will
-// ensure that the DLL checks build options in same way wxIMPLEMENT_APP() does.
-#define WX_CHECK_BUILD_OPTIONS(libName)                                 \
-    static struct wxBuildOptionsChecker                                 \
-    {                                                                   \
-        wxBuildOptionsChecker()                                         \
-        {                                                               \
-            wxAppConsole::CheckBuildOptions(WX_BUILD_OPTIONS_SIGNATURE, \
-                                            libName);                   \
-        }                                                               \
-    } gs_buildOptionsCheck;
-
-
 #endif // _WX_BUILD_H_

@@ -210,16 +210,6 @@ bool wxConfigBase::DoReadBool(const wxString& key, bool* val) const
     if ( !DoReadLong(key, &l) )
         return false;
 
-    if ( l != 0 && l != 1 )
-    {
-        // Don't assert here as this could happen in the result of user editing
-        // the file directly and this not indicate a bug in the program but
-        // still complain that something is wrong.
-        wxLogWarning(_("Invalid value %ld for a boolean key \"%s\" in "
-                       "config file."),
-                     l, key);
-    }
-
     *val = l != 0;
 
     return true;
@@ -461,10 +451,6 @@ wxString wxExpandEnvVars(const wxString& str)
               //
               // under Unix, OTOH, this warning could be useful for the user to
               // understand why isn't the variable expanded as intended
-              #ifndef __WINDOWS__
-                wxLogWarning(_("Environment variables expansion failed: missing '%c' at position %u in '%s'."),
-                             (char)bracket, (unsigned int) (m + 1), str.c_str());
-              #endif // __WINDOWS__
             }
             else {
               // skip closing bracket unless the variables wasn't expanded
@@ -510,10 +496,7 @@ void wxSplitPath(wxArrayString& aParts, const wxString& path)
       }
       else if ( strCurrent == wxT("..") ) {
         // go up one level
-        if ( aParts.size() == 0 )
-        {
-          wxLogWarning(_("'%s' has extra '..', ignored."), path);
-        }
+        if ( aParts.size() == 0 ) { }
         else
         {
           aParts.erase(aParts.end() - 1);
