@@ -22,7 +22,6 @@ set(wxWindowsSources
    src/msw/stdpaths.cpp
    src/msw/thread.cpp
    src/msw/utils.cpp
-   src/msw/utilsexc.cpp
    )
 endif()
 add_library(wxwidgets

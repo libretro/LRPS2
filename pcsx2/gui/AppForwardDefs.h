@@ -38,5 +38,3 @@ class IniInterface;
 
 class wxConfigBase;
 class wxFileConfig;
-
-class wxListEvent;

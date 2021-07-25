@@ -45,7 +45,6 @@ class WXDLLIMPEXP_FWD_BASE wxArrayInt;
 // Forward declaration
 // ----------------------------------------------------------------------------
 
-class WXDLLIMPEXP_FWD_BASE wxProcess;
 class WXDLLIMPEXP_FWD_CORE wxFrame;
 class WXDLLIMPEXP_FWD_CORE wxWindow;
 class wxWindowList;
@@ -309,48 +308,6 @@ enum
 // Map storing environment variables.
 typedef wxStringToStringHashMap wxEnvVariableHashMap;
 
-// Used to pass additional parameters for child process to wxExecute(). Could
-// be extended with other fields later.
-struct wxExecuteEnv
-{
-    wxString cwd;               // If empty, CWD is not changed.
-    wxEnvVariableHashMap env;   // If empty, environment is unchanged.
-};
-
-// Execute another program.
-//
-// If flags contain wxEXEC_SYNC, return -1 on failure and the exit code of the
-// process if everything was ok. Otherwise (i.e. if wxEXEC_ASYNC), return 0 on
-// failure and the PID of the launched process if ok.
-WXDLLIMPEXP_BASE long wxExecute(const wxString& command,
-                                int flags = wxEXEC_ASYNC,
-                                wxProcess *process = NULL,
-                                const wxExecuteEnv *env = NULL);
-WXDLLIMPEXP_BASE long wxExecute(char **argv,
-                                int flags = wxEXEC_ASYNC,
-                                wxProcess *process = NULL,
-                                const wxExecuteEnv *env = NULL);
-#if wxUSE_UNICODE
-WXDLLIMPEXP_BASE long wxExecute(wchar_t **argv,
-                                int flags = wxEXEC_ASYNC,
-                                wxProcess *process = NULL,
-                                const wxExecuteEnv *env = NULL);
-#endif // wxUSE_UNICODE
-
-// execute the command capturing its output into an array line by line, this is
-// always synchronous
-WXDLLIMPEXP_BASE long wxExecute(const wxString& command,
-                                wxArrayString& output,
-                                int flags = 0,
-                                const wxExecuteEnv *env = NULL);
-
-// also capture stderr (also synchronous)
-WXDLLIMPEXP_BASE long wxExecute(const wxString& command,
-                                wxArrayString& output,
-                                wxArrayString& error,
-                                int flags = 0,
-                                const wxExecuteEnv *env = NULL);
-
 enum wxSignal
 {
     wxSIGNONE = 0,  // verify if the process exists under Unix
@@ -374,41 +331,6 @@ enum wxSignal
     // further signals are different in meaning between different Unix systems
 };
 
-enum wxKillError
-{
-    wxKILL_OK,              // no error
-    wxKILL_BAD_SIGNAL,      // no such signal
-    wxKILL_ACCESS_DENIED,   // permission denied
-    wxKILL_NO_PROCESS,      // no such process
-    wxKILL_ERROR            // another, unspecified error
-};
-
-enum wxKillFlags
-{
-    wxKILL_NOCHILDREN = 0,  // don't kill children
-    wxKILL_CHILDREN = 1     // kill children
-};
-
-enum wxShutdownFlags
-{
-    wxSHUTDOWN_FORCE    = 1,// can be combined with other flags (MSW-only)
-    wxSHUTDOWN_POWEROFF = 2,// power off the computer
-    wxSHUTDOWN_REBOOT   = 4,// shutdown and reboot
-    wxSHUTDOWN_LOGOFF   = 8 // close session (currently MSW-only)
-};
-
-// Shutdown or reboot the PC
-WXDLLIMPEXP_BASE bool wxShutdown(int flags = wxSHUTDOWN_POWEROFF);
-
-// send the given signal to the process (only NONE and KILL are supported under
-// Windows, all others mean TERM), return 0 if ok and -1 on error
-//
-// return detailed error in rc if not NULL
-WXDLLIMPEXP_BASE int wxKill(long pid,
-                       wxSignal sig = wxSIGTERM,
-                       wxKillError *rc = NULL,
-                       int flags = wxKILL_NOCHILDREN);
-
 // Sleep for nSecs seconds
 WXDLLIMPEXP_BASE void wxSleep(int nSecs);
 
@@ -417,10 +339,6 @@ WXDLLIMPEXP_BASE void wxMilliSleep(unsigned long milliseconds);
 
 // Sleep for a given amount of microseconds
 WXDLLIMPEXP_BASE void wxMicroSleep(unsigned long microseconds);
-
-
-// Get the process id of the current process
-WXDLLIMPEXP_BASE unsigned long wxGetProcessId();
 
 // ----------------------------------------------------------------------------
 // Environment variables
