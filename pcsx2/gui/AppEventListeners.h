@@ -177,6 +177,5 @@ public:
 	explicit CoreThreadStatusEvent( CoreThreadStatus evt, SynchronousActionState* sema=NULL );
 	explicit CoreThreadStatusEvent( CoreThreadStatus evt, SynchronousActionState& sema );
 
-	void SetEventType( CoreThreadStatus evt ) { m_evt = evt; }
 	CoreThreadStatus GetEventType() { return m_evt; }
 };

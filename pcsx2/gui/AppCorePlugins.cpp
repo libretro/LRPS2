@@ -62,7 +62,6 @@ public:
 		m_evt = src.m_evt;
 	}
 	
-	void SetEventType( PluginEventType evt ) { m_evt = evt; }
 	PluginEventType GetEventType() { return m_evt; }
 };
 

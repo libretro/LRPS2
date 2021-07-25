@@ -48,14 +48,7 @@ namespace PathDefs
 	extern wxDirName GetDocuments( DocsModeType mode );
 }
 
-extern DocsModeType		DocsFolderMode;				// 
-extern bool				UseDefaultSettingsFolder;	// when TRUE, pcsx2 derives the settings folder from the DocsFolderMode
-extern bool				UseDefaultPluginsFolder;
-
-extern wxDirName		CustomDocumentsFolder;		// allows the specification of a custom home folder for PCSX2 documents files.
 extern wxDirName		SettingsFolder;				// dictates where the settings folder comes from, *if* UseDefaultSettingsFolder is FALSE.
-
-extern wxDirName		PluginsFolder;
 
 extern wxDirName GetSettingsFolder();
 extern wxString  GetVmSettingsFilename();
@@ -236,17 +229,6 @@ public:
 	
 	bool IsOkApplyPreset(int n, bool ignoreMTVU);
 	void ResetPresetSettingsToDefault();
-
-
-	//The next 2 flags are used with ApplyConfigToGui which the presets system use:
-	
-	//Indicates that the scope is only for preset-related items.
-	static const int APPLY_FLAG_FROM_PRESET			= 0x01;
-
-	//Indicates that the change should manually propagate to sub items because it's called directly and not as an event.
-	//Currently used by some panels which contain sub-panels which are affected by presets.
-	static const int APPLY_FLAG_MANUALLY_PROPAGATE	= 0x02;
-
 };
 
 extern void AppLoadSettings();

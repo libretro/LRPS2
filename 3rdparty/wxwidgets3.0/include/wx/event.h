@@ -501,7 +501,6 @@ class WXDLLIMPEXP_BASE wxEvent : public wxObject
 public:
     wxEvent(int winid = 0, wxEventType commandType = wxEVT_NULL );
 
-    void SetEventType(wxEventType typ) { m_eventType = typ; }
     wxEventType GetEventType() const { return m_eventType; }
 
     wxObject *GetEventObject() const { return m_eventObject; }
