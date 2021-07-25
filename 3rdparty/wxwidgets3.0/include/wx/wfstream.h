@@ -89,31 +89,6 @@ protected:
     wxDECLARE_NO_COPY_CLASS(wxFileOutputStream);
 };
 
-class WXDLLIMPEXP_BASE wxTempFileOutputStream : public wxOutputStream
-{
-public:
-    wxTempFileOutputStream(const wxString& fileName);
-    virtual ~wxTempFileOutputStream();
-
-    bool Close() { return Commit(); }
-    WXDLLIMPEXP_INLINE_BASE virtual bool Commit() { return m_file->Commit(); }
-    WXDLLIMPEXP_INLINE_BASE virtual void Discard() { m_file->Discard(); }
-
-    wxFileOffset GetLength() const { return m_file->Length(); }
-    bool IsSeekable() const { return true; }
-
-protected:
-    size_t OnSysWrite(const void *buffer, size_t size);
-    wxFileOffset OnSysSeek(wxFileOffset pos, wxSeekMode mode)
-        { return m_file->Seek(pos, mode); }
-    wxFileOffset OnSysTell() const { return m_file->Tell(); }
-
-private:
-    wxTempFile *m_file;
-
-    wxDECLARE_NO_COPY_CLASS(wxTempFileOutputStream);
-};
-
 class WXDLLIMPEXP_BASE wxFileStream : public wxFileInputStream,
                                       public wxFileOutputStream
 {
@@ -218,42 +193,6 @@ protected:
     bool m_file_destroy;
 
     wxDECLARE_NO_COPY_CLASS(wxFFileOutputStream);
-};
-
-class WXDLLIMPEXP_BASE wxFFileStream : public wxFFileInputStream,
-                                       public wxFFileOutputStream
-{
-public:
-    wxFFileStream(const wxString& fileName, const wxString& mode = "w+b");
-
-    // override some virtual functions to resolve ambiguities, just as in
-    // wxFileStream
-
-    virtual bool IsOk() const;
-
-    virtual bool IsSeekable() const
-    {
-        return wxFFileInputStream::IsSeekable();
-    }
-
-    virtual wxFileOffset GetLength() const
-    {
-        return wxFFileInputStream::GetLength();
-    }
-
-protected:
-    virtual wxFileOffset OnSysSeek(wxFileOffset pos, wxSeekMode mode)
-    {
-        return wxFFileInputStream::OnSysSeek(pos, mode);
-    }
-
-    virtual wxFileOffset OnSysTell() const
-    {
-        return wxFFileInputStream::OnSysTell();
-    }
-
-private:
-    wxDECLARE_NO_COPY_CLASS(wxFFileStream);
 };
 
 #endif //wxUSE_FFILE

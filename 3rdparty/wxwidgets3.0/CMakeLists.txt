@@ -27,7 +27,6 @@ endif()
 add_library(wxwidgets
    src/common/appbase.cpp
    src/common/arrstr.cpp
-   src/common/cmdline.cpp
    src/common/config.cpp
    src/common/convauto.cpp
    src/common/datetime.cpp
@@ -71,7 +70,6 @@ add_library(wxwidgets
    src/common/encconv.cpp
    src/common/extended.c
    src/common/hash.cpp
-   src/common/process.cpp
    ${wxUnixSources}
    ${wxWindowsSources}
 )

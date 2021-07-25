@@ -39,8 +39,6 @@
 #include "wx/scopedptr.h"
 #include "wx/thread.h"
 
-#include "wx/cmdline.h"
-
 #include "wx/wfstream.h"
 
 #include "wx/private/selectdispatcher.h"

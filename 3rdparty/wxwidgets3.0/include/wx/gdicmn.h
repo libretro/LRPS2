@@ -32,7 +32,6 @@ class WXDLLIMPEXP_FWD_CORE wxColour;
 class WXDLLIMPEXP_FWD_CORE wxCursor;
 class WXDLLIMPEXP_FWD_CORE wxFont;
 class WXDLLIMPEXP_FWD_CORE wxPen;
-class WXDLLIMPEXP_FWD_CORE wxRegion;
 class WXDLLIMPEXP_FWD_BASE wxString;
 class WXDLLIMPEXP_FWD_CORE wxPoint;
 

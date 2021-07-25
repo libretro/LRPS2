@@ -29,7 +29,6 @@
     #include "wx/utils.h"
 #endif //WX_PRECOMP
 
-#include "wx/cmdline.h"
 #include "wx/scopeguard.h"
 
 #include "wx/msw/private.h"

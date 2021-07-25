@@ -36,7 +36,6 @@
 #endif //WX_PRECOMP
 
 #include "wx/apptrait.h"
-#include "wx/cmdline.h"
 #include "wx/confbase.h"
 #include "wx/evtloop.h"
 #include "wx/filename.h"

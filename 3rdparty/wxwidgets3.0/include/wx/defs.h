@@ -1877,7 +1877,6 @@ enum wxBorder
 #define wxWS_EX_PROCESS_UI_UPDATES      0x00000020
 
 /*  Draw the window in a metal theme on Mac */
-#define wxFRAME_EX_METAL                0x00000040
 #define wxDIALOG_EX_METAL               0x00000040
 
 /*  Use this style to add a context-sensitive help to the window (currently for */
@@ -1885,18 +1884,15 @@ enum wxBorder
 #define wxWS_EX_CONTEXTHELP             0x00000080
 
 /* synonyms for wxWS_EX_CONTEXTHELP for compatibility */
-#define wxFRAME_EX_CONTEXTHELP          wxWS_EX_CONTEXTHELP
 #define wxDIALOG_EX_CONTEXTHELP         wxWS_EX_CONTEXTHELP
 
 /*  Create a window which is attachable to another top level window */
-#define wxFRAME_DRAWER          0x0020
 
 /*
  * MDI parent frame style flags
  * Can overlap with some of the above.
  */
 
-#define wxFRAME_NO_WINDOW_MENU  0x0100
 
 /*
  * wxMenuBar style flags

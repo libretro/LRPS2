@@ -45,9 +45,6 @@ class WXDLLIMPEXP_FWD_BASE wxArrayInt;
 // Forward declaration
 // ----------------------------------------------------------------------------
 
-class WXDLLIMPEXP_FWD_CORE wxFrame;
-class WXDLLIMPEXP_FWD_CORE wxWindow;
-class wxWindowList;
 class WXDLLIMPEXP_FWD_CORE wxEventLoop;
 
 // ----------------------------------------------------------------------------
