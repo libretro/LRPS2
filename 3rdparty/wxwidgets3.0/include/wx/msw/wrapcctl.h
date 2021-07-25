@@ -18,14 +18,4 @@
 // define things which might be missing from our commctrl.h
 #include "wx/msw/missing.h"
 
-// Set Unicode format for a common control
-inline void wxSetCCUnicodeFormat(HWND WXUNUSED_IN_WINCE(hwnd))
-{
-#ifndef __WXWINCE__
-    ::SendMessage(hwnd, CCM_SETUNICODEFORMAT, wxUSE_UNICODE, 0);
-#else // !__WXWINCE__
-    // here it should be already in Unicode anyhow
-#endif // __WXWINCE__/!__WXWINCE__
-}
-
 #endif // _WX_MSW_WRAPCCTL_H_
