@@ -42,12 +42,6 @@
     #endif
 #endif // __WXWINCE__
 
-#ifdef __BORLANDC__
-    // BC++ has to be special: its run-time expects the DLL entry point to be
-    // named DllEntryPoint instead of the (more) standard DllMain
-    #define DllMain DllEntryPoint
-#endif // __BORLANDC__
-
 #if defined(__WXMICROWIN__)
     #define HINSTANCE HANDLE
 #endif

@@ -44,38 +44,18 @@
 #endif
 
 #include <PluginCompatibility.h>
-//#include "PS2Edefs.h"
-
-#if !defined(_MSC_VER) || !defined(UNICODE)
-static void __forceinline PluginNullConfigure(std::string desc, s32 &log);
-#else
-static void __forceinline PluginNullConfigure(std::wstring desc, s32 &log);
-#endif
 
 enum FileMode {
     READ_FILE = 0,
     WRITE_FILE
 };
 
-static void __forceinline PluginNullConfigure(std::string desc, int &log)
-{
-}
 #if defined(__unix__)
 #define ENTRY_POINT /* We don't need no stinkin' entry point! */
 #elif defined(__WXMAC__) || defined(__APPLE__)
 #define ENTRY_POINT /* We don't need no stinkin' entry point! */ // TODO OSX WTF is this anyway?
 #else
 #define usleep(x) Sleep(x / 1000)
-#define ENTRY_POINT                                     \
-    HINSTANCE hInst;                                    \
-                                                        \
-    BOOL APIENTRY DllMain(HANDLE hModule, /* DLL INIT*/ \
-                          DWORD dwReason,               \
-                          LPVOID lpReserved)            \
-    {                                                   \
-        hInst = (HINSTANCE)hModule;                     \
-        return TRUE; /* very quick :)*/                 \
-    }
 #endif
 
 #endif // PS2EEXT_H_INCLUDED
