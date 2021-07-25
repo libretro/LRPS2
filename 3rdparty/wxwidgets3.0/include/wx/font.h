@@ -534,35 +534,6 @@ WXDLLIMPEXP_CORE bool wxFromString(const wxString& str, wxFontBase* font);
     #include "wx/os2/font.h"
 #endif
 
-class WXDLLIMPEXP_CORE wxFontList: public wxGDIObjListBase
-{
-public:
-    wxFont *FindOrCreateFont(int pointSize,
-                             wxFontFamily family,
-                             wxFontStyle style,
-                             wxFontWeight weight,
-                             bool underline = false,
-                             const wxString& face = wxEmptyString,
-                             wxFontEncoding encoding = wxFONTENCODING_DEFAULT);
-
-#if FUTURE_WXWIN_COMPATIBILITY_3_0
-     wxFont *FindOrCreateFont(int pointSize, int family, int style, int weight,
-                              bool underline = false,
-                              const wxString& face = wxEmptyString,
-                              wxFontEncoding encoding = wxFONTENCODING_DEFAULT)
-        { return FindOrCreateFont(pointSize, (wxFontFamily)family, (wxFontStyle)style,
-                                  (wxFontWeight)weight, underline, face, encoding); }
-#endif
-
-#if WXWIN_COMPATIBILITY_2_6
-    wxDEPRECATED( void AddFont(wxFont*) );
-    wxDEPRECATED( void RemoveFont(wxFont*) );
-#endif
-};
-
-extern WXDLLIMPEXP_DATA_CORE(wxFontList*)    wxTheFontList;
-
-
 // provide comparison operators to allow code such as
 //
 //      if ( font.GetStyle() == wxFONTSTYLE_SLANT )
