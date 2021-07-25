@@ -23,8 +23,55 @@
 #include <wx/stdpaths.h>
 #include <memory>
 
-
 #include "options_tools.h"
+
+// --------------------------------------------------------------------------------------
+//  pxDudConfig
+// --------------------------------------------------------------------------------------
+// Used to handle config actions prior to the creation of the ini file (for example, the
+// first time wizard).  Attempts to save ini settings are simply ignored through this
+// class, which allows us to give the user a way to set everything up in the wizard, apply
+// settings as usual, and only *save* something once the whole wizard is complete.
+//
+class pxDudConfig : public wxConfigBase
+{
+protected:
+	wxString	m_empty;
+
+public:
+	virtual ~pxDudConfig() = default;
+
+	virtual void SetPath(const wxString& ) {}
+	virtual const wxString& GetPath() const { return m_empty; }
+
+	virtual bool GetFirstGroup(wxString& , long& ) const { return false; }
+	virtual bool GetNextGroup (wxString& , long& ) const { return false; }
+	virtual bool GetFirstEntry(wxString& , long& ) const { return false; }
+	virtual bool GetNextEntry (wxString& , long& ) const { return false; }
+	virtual size_t GetNumberOfEntries(bool ) const  { return 0; }
+	virtual size_t GetNumberOfGroups(bool ) const  { return 0; }
+
+	virtual bool HasGroup(const wxString& ) const { return false; }
+	virtual bool HasEntry(const wxString& ) const { return false; }
+
+	virtual bool Flush(bool ) { return false; }
+
+	virtual bool RenameEntry(const wxString&, const wxString& ) { return false; }
+
+	virtual bool RenameGroup(const wxString&, const wxString& ) { return false; }
+
+	virtual bool DeleteEntry(const wxString&, bool bDeleteGroupIfEmpty = true) { return false; }
+	virtual bool DeleteGroup(const wxString& ) { return false; }
+	virtual bool DeleteAll() { return false; }
+
+protected:
+	virtual bool DoReadString(const wxString& , wxString *) const  { return false; }
+	virtual bool DoReadLong(const wxString& , long *) const  { return false; }
+
+	virtual bool DoWriteString(const wxString& , const wxString& )  { return false; }
+	virtual bool DoWriteLong(const wxString& , long )  { return false; }
+};
+
 
 DocsModeType				DocsFolderMode = DocsFolder_User;
 bool					UseDefaultSettingsFolder = true;
@@ -35,6 +82,47 @@ wxDirName				CustomDocumentsFolder;
 wxDirName				SettingsFolder;
 
 wxDirName				PluginsFolder;
+
+static pxDudConfig _dud_config;
+
+// Returns the current application configuration file.  
+// This is preferred over using
+// wxConfigBase::GetAppConfig(), since it defaults to 
+// *not* creating a config file
+// automatically (which is typically highly undesired 
+// behavior in our system)
+static wxConfigBase* GetAppConfig(void)
+{
+	return wxConfigBase::Get( false );
+}
+
+// --------------------------------------------------------------------------------------
+//  AppIniSaver / AppIniLoader
+// --------------------------------------------------------------------------------------
+class AppIniSaver : public IniSaver
+{
+public:
+	AppIniSaver();
+	virtual ~AppIniSaver() = default;
+};
+
+class AppIniLoader : public IniLoader
+{
+public:
+	AppIniLoader();
+	virtual ~AppIniLoader() = default;
+};
+
+AppIniSaver::AppIniSaver()
+	: IniSaver( (GetAppConfig() != NULL) ? *GetAppConfig() : _dud_config )
+{
+}
+
+AppIniLoader::AppIniLoader()
+	: IniLoader( (GetAppConfig() != NULL) ? *GetAppConfig() : _dud_config )
+{
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 // PathDefs Namespace -- contains default values for various pcsx2 path names and locations.
 //
@@ -42,6 +130,38 @@ wxDirName				PluginsFolder;
 // Most of the time you should use the path folder assignments in Conf() instead, since those
 // are user-configurable.
 //
+
+// Specifies the main configuration folder.
+static wxDirName GetUserLocalDataDir()
+{
+	return wxDirName(wxStandardPaths::Get().GetUserLocalDataDir());
+}
+
+// Fetches the path location for user-consumable documents -- stuff users are likely to want to
+// share with other programs: screenshots, memory cards, and savestates.
+static wxDirName GetDocuments( DocsModeType mode )
+{
+	switch( mode )
+	{
+#ifdef XDG_STD
+		// Move all user data file into central configuration directory (XDG_CONFIG_DIR)
+		case DocsFolder_User:	return GetUserLocalDataDir();
+#else
+		case DocsFolder_User:	return (wxDirName)Path::Combine( wxStandardPaths::Get().GetDocumentsDir(), L"PCSX2" );
+#endif
+		case DocsFolder_Custom: return CustomDocumentsFolder;
+
+					jNO_DEFAULT
+	}
+
+	return wxDirName();
+}
+
+static wxDirName GetDocuments()
+{
+	return GetDocuments( DocsFolderMode );
+}
+
 namespace PathDefs
 {
 	namespace Base
@@ -108,36 +228,7 @@ namespace PathDefs
 		return appCache;
 	}
 
-    // Specifies the main configuration folder.
-    wxDirName GetUserLocalDataDir()
-    {
-        return wxDirName(wxStandardPaths::Get().GetUserLocalDataDir());
-    }
 
-	// Fetches the path location for user-consumable documents -- stuff users are likely to want to
-	// share with other programs: screenshots, memory cards, and savestates.
-	wxDirName GetDocuments( DocsModeType mode )
-	{
-		switch( mode )
-		{
-#ifdef XDG_STD
-			// Move all user data file into central configuration directory (XDG_CONFIG_DIR)
-			case DocsFolder_User:	return GetUserLocalDataDir();
-#else
-			case DocsFolder_User:	return (wxDirName)Path::Combine( wxStandardPaths::Get().GetDocumentsDir(), L"PCSX2" );
-#endif
-			case DocsFolder_Custom: return CustomDocumentsFolder;
-
-			jNO_DEFAULT
-		}
-
-		return wxDirName();
-	}
-
-	wxDirName GetDocuments()
-	{
-		return GetDocuments( DocsFolderMode );
-	}
 
 	wxDirName GetBios()
 	{
@@ -371,19 +462,19 @@ wxDirName GetSettingsFolder()
 	return UseDefaultSettingsFolder ? PathDefs::GetSettings() : SettingsFolder;
 }
 
-wxString GetVmSettingsFilename()
+static wxString GetVmSettingsFilename()
 {
 	wxFileName fname( wxGetApp().Overrides.VmSettingsFile.IsOk() ? wxGetApp().Overrides.VmSettingsFile : FilenameDefs::GetVmConfig() );
 	return GetSettingsFolder().Combine( fname ).GetFullPath();
 }
 
-wxString GetUiSettingsFilename()
+static wxString GetUiSettingsFilename()
 {
 	wxFileName fname( FilenameDefs::GetUiConfig() );
 	return GetSettingsFolder().Combine( fname ).GetFullPath();
 }
 
-wxString GetUiKeysFilename()
+static wxString GetUiKeysFilename()
 {
 	wxFileName fname( FilenameDefs::GetUiKeysConfig() );
 	return GetSettingsFolder().Combine( fname ).GetFullPath();
@@ -423,41 +514,6 @@ AppConfig::AppConfig()
 	}
 
 	GzipIsoIndexTemplate = L"$(f).pindex.tmp";
-}
-
-// ------------------------------------------------------------------------
-void App_LoadSaveInstallSettings( IniInterface& ini )
-{
-	// Note: Settins are still *loaded* from portable.ini, in case the user wants to do
-	// low-level overrides of the default behavior of portable mode installs.
-	static const wxChar* DocsFolderModeNames[] =
-	{
-		L"User",
-		L"Custom",
-		// WARNING: array must be NULL terminated to compute it size
-		NULL
-	};
-
-	ini.EnumEntry( L"DocumentsFolderMode",	DocsFolderMode,	DocsFolderModeNames, DocsFolder_User);
-
-	ini.Entry( L"CustomDocumentsFolder",	CustomDocumentsFolder,		PathDefs::AppRoot() );
-
-	ini.Entry( L"UseDefaultSettingsFolder", UseDefaultSettingsFolder,	true );
-	ini.Entry( L"SettingsFolder",			SettingsFolder,				PathDefs::GetSettings() );
-
-	ini.Flush();
-}
-
-void App_LoadInstallSettings( wxConfigBase* ini )
-{
-	IniLoader loader( ini );
-	App_LoadSaveInstallSettings( loader );
-}
-
-void App_SaveInstallSettings( wxConfigBase* ini )
-{
-	IniSaver saver( ini );
-	App_LoadSaveInstallSettings( saver );
 }
 
 // ------------------------------------------------------------------------
@@ -539,7 +595,7 @@ AppConfig::FolderOptions::FolderOptions()
 	, MemoryCards	( PathDefs::GetMemoryCards() )
 	, Cheats		( PathDefs::GetCheats() )
 	, CheatsWS      ( PathDefs::GetCheatsWS() )
-	, RunDisc	( PathDefs::GetDocuments().GetFilename() )
+	, RunDisc	( GetDocuments().GetFilename() )
 {
 	bitset = 0xffffffff;
 }
@@ -794,110 +850,53 @@ void AppConfig::ResetPresetSettingsToDefault() {
 
 
 
-wxFileConfig* OpenFileConfig( const wxString& filename )
+static wxFileConfig* OpenFileConfig( const wxString& filename )
 {
 	return new wxFileConfig( wxEmptyString, wxEmptyString, filename, wxEmptyString, wxCONFIG_USE_RELATIVE_PATH );
 }
 
-// Parameters:
-//   overwrite - this option forces the current settings to overwrite any existing settings
-//      that might be saved to the configured ini/settings folder.
-//
-// Notes:
-//   The overwrite option applies to PCSX2 options only.  Plugin option behavior will depend
-//   on the plugins.
-//
-void AppConfig_OnChangedSettingsFolder()
+static void SaveUiSettings()
 {
-	PathDefs::GetDocuments().Mkdir();
-	GetSettingsFolder().Mkdir();
+	if( !wxFile::Exists( g_Conf->CurrentIso ) )
+		g_Conf->CurrentIso.clear();
 
-	const wxString iniFilename( GetUiSettingsFilename() );
-
-	// Bind into wxConfigBase to allow wx to use our config internally, and delete whatever
-	// comes out (cleans up prev config, if one).
-	delete wxConfigBase::Set( OpenFileConfig( iniFilename ) );
-	GetAppConfig()->SetRecordDefaults(true);
-
-	AppLoadSettings();
-	AppApplySettings();
-	AppSaveSettings();//Make sure both ini files are created if needed.
+#if defined(_WIN32)
+	if (!g_Conf->Folders.RunDisc.DirExists())
+		g_Conf->Folders.RunDisc.Clear();
+#else
+	if (!g_Conf->Folders.RunDisc.Exists())
+		g_Conf->Folders.RunDisc.Clear();
+#endif
+	AppIniSaver saver;
+	g_Conf->LoadSave( saver );
+	sApp.DispatchUiSettingsEvent( saver );
 }
 
-// --------------------------------------------------------------------------------------
-//  pxDudConfig
-// --------------------------------------------------------------------------------------
-// Used to handle config actions prior to the creation of the ini file (for example, the
-// first time wizard).  Attempts to save ini settings are simply ignored through this
-// class, which allows us to give the user a way to set everything up in the wizard, apply
-// settings as usual, and only *save* something once the whole wizard is complete.
-//
-class pxDudConfig : public wxConfigBase
+static void SaveVmSettings()
 {
-protected:
-	wxString	m_empty;
+	std::unique_ptr<wxFileConfig> vmini( OpenFileConfig( GetVmSettingsFilename() ) );
+	IniSaver vmsaver( vmini.get() );
+	g_Conf->EmuOptions.LoadSave( vmsaver );
 
-public:
-	virtual ~pxDudConfig() = default;
-
-	virtual void SetPath(const wxString& ) {}
-	virtual const wxString& GetPath() const { return m_empty; }
-
-	virtual bool GetFirstGroup(wxString& , long& ) const { return false; }
-	virtual bool GetNextGroup (wxString& , long& ) const { return false; }
-	virtual bool GetFirstEntry(wxString& , long& ) const { return false; }
-	virtual bool GetNextEntry (wxString& , long& ) const { return false; }
-	virtual size_t GetNumberOfEntries(bool ) const  { return 0; }
-	virtual size_t GetNumberOfGroups(bool ) const  { return 0; }
-
-	virtual bool HasGroup(const wxString& ) const { return false; }
-	virtual bool HasEntry(const wxString& ) const { return false; }
-
-	virtual bool Flush(bool ) { return false; }
-
-	virtual bool RenameEntry(const wxString&, const wxString& ) { return false; }
-
-	virtual bool RenameGroup(const wxString&, const wxString& ) { return false; }
-
-	virtual bool DeleteEntry(const wxString&, bool bDeleteGroupIfEmpty = true) { return false; }
-	virtual bool DeleteGroup(const wxString& ) { return false; }
-	virtual bool DeleteAll() { return false; }
-
-protected:
-	virtual bool DoReadString(const wxString& , wxString *) const  { return false; }
-	virtual bool DoReadLong(const wxString& , long *) const  { return false; }
-
-	virtual bool DoWriteString(const wxString& , const wxString& )  { return false; }
-	virtual bool DoWriteLong(const wxString& , long )  { return false; }
-};
-
-static pxDudConfig _dud_config;
-
-// --------------------------------------------------------------------------------------
-//  AppIniSaver / AppIniLoader
-// --------------------------------------------------------------------------------------
-class AppIniSaver : public IniSaver
-{
-public:
-	AppIniSaver();
-	virtual ~AppIniSaver() = default;
-};
-
-class AppIniLoader : public IniLoader
-{
-public:
-	AppIniLoader();
-	virtual ~AppIniLoader() = default;
-};
-
-AppIniSaver::AppIniSaver()
-	: IniSaver( (GetAppConfig() != NULL) ? *GetAppConfig() : _dud_config )
-{
+	sApp.DispatchVmSettingsEvent( vmsaver );
 }
 
-AppIniLoader::AppIniLoader()
-	: IniLoader( (GetAppConfig() != NULL) ? *GetAppConfig() : _dud_config )
+void AppSaveSettings(void)
 {
+	// If multiple SaveSettings messages are requested, we want to ignore most of them.
+	// Saving settings once when the GUI is idle should be fine. :)
+
+	static std::atomic<bool> isPosted(false);
+
+	if( !wxThread::IsMain() )
+		return;
+
+	//log_cb(RETRO_LOG_INFO, "Saving ini files...\n");
+
+	SaveUiSettings();
+	SaveVmSettings();
+
+	isPosted = false;
 }
 
 static void LoadUiSettings()
@@ -907,20 +906,14 @@ static void LoadUiSettings()
 	g_Conf->LoadSave( loader );
 
 	if( !wxFile::Exists( g_Conf->CurrentIso ) )
-	{
 		g_Conf->CurrentIso.clear();
-	}
 
 #if defined(_WIN32)
 	if( !g_Conf->Folders.RunDisc.DirExists() )
-	{
 		g_Conf->Folders.RunDisc.Clear();
-	}
 #else
 	if (!g_Conf->Folders.RunDisc.Exists())
-	{
 		g_Conf->Folders.RunDisc.Clear();
-	}
 #endif
 
 	sApp.DispatchUiSettingsEvent( loader );
@@ -941,82 +934,44 @@ static void LoadVmSettings()
 	
 
 	if (g_Conf->EnablePresets) 
-	{
 		g_Conf->IsOkApplyPreset(g_Conf->PresetIndex, false);
-	}
 	else
-	{
 		g_Conf->ResetPresetSettingsToDefault();
-	}
 
 	sApp.DispatchVmSettingsEvent( vmloader );
 }
 
-
-
-void AppLoadSettings()
+static void AppLoadSettings()
 {
-	if( wxGetApp().Rpc_TryInvoke(AppLoadSettings) ) return;
+	if(wxGetApp().Rpc_TryInvoke(AppLoadSettings))
+		return;
 
 	LoadUiSettings();
 	LoadVmSettings();
 }
 
-static void SaveUiSettings()
-{	
-	if( !wxFile::Exists( g_Conf->CurrentIso ) )
-	{
-		g_Conf->CurrentIso.clear();
-	}
-
-#if defined(_WIN32)
-	if (!g_Conf->Folders.RunDisc.DirExists())
-	{
-		g_Conf->Folders.RunDisc.Clear();
-	}
-#else
-	if (!g_Conf->Folders.RunDisc.Exists())
-	{
-		g_Conf->Folders.RunDisc.Clear();
-	}
-#endif
-	AppIniSaver saver;
-	g_Conf->LoadSave( saver );
-	sApp.DispatchUiSettingsEvent( saver );
-}
-
-static void SaveVmSettings()
+// Parameters:
+//   overwrite - this option forces the current settings to overwrite any existing settings
+//      that might be saved to the configured ini/settings folder.
+//
+// Notes:
+//   The overwrite option applies to PCSX2 options only.  Plugin option behavior will depend
+//   on the plugins.
+//
+void AppConfig_OnChangedSettingsFolder()
 {
-	std::unique_ptr<wxFileConfig> vmini( OpenFileConfig( GetVmSettingsFilename() ) );
-	IniSaver vmsaver( vmini.get() );
-	g_Conf->EmuOptions.LoadSave( vmsaver );
+	GetDocuments().Mkdir();
+	GetSettingsFolder().Mkdir();
 
-	sApp.DispatchVmSettingsEvent( vmsaver );
+	const wxString iniFilename( GetUiSettingsFilename() );
+
+	// Bind into wxConfigBase to allow wx to use our config internally, and delete whatever
+	// comes out (cleans up prev config, if one).
+	delete wxConfigBase::Set( OpenFileConfig( iniFilename ) );
+	GetAppConfig()->SetRecordDefaults(true);
+
+	AppLoadSettings();
+	AppApplySettings();
+	AppSaveSettings();//Make sure both ini files are created if needed.
 }
 
-void AppSaveSettings()
-{
-	// If multiple SaveSettings messages are requested, we want to ignore most of them.
-	// Saving settings once when the GUI is idle should be fine. :)
-
-	static std::atomic<bool> isPosted(false);
-
-	if( !wxThread::IsMain() )
-		return;
-
-	//log_cb(RETRO_LOG_INFO, "Saving ini files...\n");
-
-	SaveUiSettings();
-	SaveVmSettings();
-
-	isPosted = false;
-}
-
-
-// Returns the current application configuration file.  This is preferred over using
-// wxConfigBase::GetAppConfig(), since it defaults to *not* creating a config file
-// automatically (which is typically highly undesired behavior in our system)
-wxConfigBase* GetAppConfig()
-{
-	return wxConfigBase::Get( false );
-}

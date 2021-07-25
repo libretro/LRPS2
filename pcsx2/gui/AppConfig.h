@@ -36,24 +36,9 @@ enum DocsModeType
 	DocsFolder_Custom,
 };
 
-namespace PathDefs
-{
-	// complete pathnames are returned by these functions.
-	// These are used for initial default values when first configuring PCSX2, or when the
-	// user checks "Use Default paths" option provided on most path selectors.  These are not
-	// used otherwise, in favor of the user-configurable specifications in the ini files.
-
-	extern wxDirName GetUserLocalDataDir();
-	extern wxDirName GetDocuments();
-	extern wxDirName GetDocuments( DocsModeType mode );
-}
-
 extern wxDirName		SettingsFolder;				// dictates where the settings folder comes from, *if* UseDefaultSettingsFolder is FALSE.
 
 extern wxDirName GetSettingsFolder();
-extern wxString  GetVmSettingsFilename();
-extern wxString  GetUiSettingsFilename();
-extern wxString  GetUiKeysFilename();
 
 extern wxDirName GetCheatsFolder();
 extern wxDirName GetCheatsWsFolder();
@@ -231,16 +216,9 @@ public:
 	void ResetPresetSettingsToDefault();
 };
 
-extern void AppLoadSettings();
-extern void AppSaveSettings();
+void AppSaveSettings();
 extern void AppApplySettings();
 
-extern void App_LoadSaveInstallSettings( IniInterface& ini );
-extern void App_SaveInstallSettings( wxConfigBase* ini );
-extern void App_LoadInstallSettings( wxConfigBase* ini );
-
-extern wxFileConfig* OpenFileConfig( const wxString& filename );
 extern void AppConfig_OnChangedSettingsFolder();
-extern wxConfigBase* GetAppConfig();
 
 extern std::unique_ptr<AppConfig> g_Conf;
