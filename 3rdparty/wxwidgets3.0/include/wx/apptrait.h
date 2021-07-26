@@ -17,7 +17,6 @@
 class WXDLLIMPEXP_FWD_BASE wxArrayString;
 class WXDLLIMPEXP_FWD_BASE wxConfigBase;
 class WXDLLIMPEXP_FWD_BASE wxEventLoopBase;
-class WXDLLIMPEXP_FWD_BASE wxMessageOutput;
 class WXDLLIMPEXP_FWD_BASE wxObject;
 class WXDLLIMPEXP_FWD_CORE wxRendererNative;
 class WXDLLIMPEXP_FWD_BASE wxStandardPaths;
@@ -48,9 +47,6 @@ public:
     virtual wxConfigBase *CreateConfig();
 #endif // wxUSE_CONFIG
 
-    // create the global object used for printing out messages
-    virtual wxMessageOutput *CreateMessageOutput() = 0;
-
     // wxStandardPaths object is normally the same for wxBase and wxGUI
     // except in the case of wxMac and wxCocoa
     virtual wxStandardPaths& GetStandardPaths();
@@ -58,15 +54,6 @@ public:
 
     // functions abstracting differences between GUI and console modes
     // ------------------------------------------------------------------------
-
-    // show the assert dialog with the specified message in GUI or just print
-    // the string to stderr in console mode
-    //
-    // base class version has an implementation (in spite of being pure
-    // virtual) in base/appbase.cpp which can be called as last resort.
-    //
-    // return true to suppress subsequent asserts, false to continue as before
-    virtual bool ShowAssertDialog(const wxString& msg) = 0;
 
     // create a new, port specific, instance of the event loop used by wxApp
     virtual wxEventLoopBase *CreateEventLoop() = 0;
@@ -139,10 +126,6 @@ public:
 #if !wxUSE_CONSOLE_EVENTLOOP
     virtual wxEventLoopBase *CreateEventLoop() { return NULL; }
 #endif // !wxUSE_CONSOLE_EVENTLOOP
-
-    virtual wxMessageOutput *CreateMessageOutput();
-
-    virtual bool ShowAssertDialog(const wxString& msg);
 
     // the GetToolkitVersion for console application is always the same
     virtual wxPortId GetToolkitVersion(int *verMaj = NULL, int *verMin = NULL) const

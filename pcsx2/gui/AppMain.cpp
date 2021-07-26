@@ -78,19 +78,8 @@ public:
 wxIMPLEMENT_DYNAMIC_CLASS( Pcsx2AppMethodEvent, pxActionEvent );
 
 // --------------------------------------------------------------------------------------
-//  Pcsx2AppTraits (implementations)  [includes pxMessageOutputMessageBox]
+//  Pcsx2AppTraits (implementations) 
 // --------------------------------------------------------------------------------------
-// This is here to override pxMessageOutputMessageBox behavior, which itself is ONLY used
-// by wxWidgets' command line processor.  The default edition is totally inadequate for
-// displaying a readable --help command line list, so I replace it here with a custom one
-// that formats things nicer.
-//
-
-wxMessageOutput* Pcsx2AppTraits::CreateMessageOutput()
-{
-	return _parent::CreateMessageOutput();
-}
-
 wxAppTraits* Pcsx2App::CreateTraits()
 {
 	return new Pcsx2AppTraits;

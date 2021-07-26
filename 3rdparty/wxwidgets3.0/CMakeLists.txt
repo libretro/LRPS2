@@ -44,7 +44,6 @@ add_library(wxwidgets
    src/common/list.cpp
    src/common/longlong.cpp
    src/common/module.cpp
-   src/common/msgout.cpp
    src/common/mstream.cpp
    src/common/object.cpp
    src/common/platinfo.cpp

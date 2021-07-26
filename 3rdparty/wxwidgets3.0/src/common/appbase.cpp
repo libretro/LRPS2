@@ -39,7 +39,6 @@
 #include "wx/confbase.h"
 #include "wx/evtloop.h"
 #include "wx/filename.h"
-#include "wx/msgout.h"
 #include "wx/scopedptr.h"
 #include "wx/tokenzr.h"
 #include "wx/thread.h"
@@ -489,20 +488,6 @@ void wxAppConsoleBase::SetCLocale()
 // ============================================================================
 
 // ----------------------------------------------------------------------------
-// wxConsoleAppTraitsBase
-// ----------------------------------------------------------------------------
-
-wxMessageOutput *wxConsoleAppTraitsBase::CreateMessageOutput()
-{
-    return new wxMessageOutputStderr;
-}
-
-bool wxConsoleAppTraitsBase::ShowAssertDialog(const wxString& msg)
-{
-    return wxAppTraitsBase::ShowAssertDialog(msg);
-}
-
-// ----------------------------------------------------------------------------
 // wxAppTraits
 // ----------------------------------------------------------------------------
 
@@ -534,13 +519,6 @@ void WXDLLIMPEXP_BASE wxMutexGuiLeave()
         traits->MutexGuiLeave();
 }
 #endif // wxUSE_THREADS
-
-bool wxAppTraitsBase::ShowAssertDialog(const wxString& msgOriginal)
-{
-    wxUnusedVar(msgOriginal);
-
-    return false;
-}
 
 // ============================================================================
 // global functions implementation

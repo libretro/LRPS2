@@ -13,6 +13,5 @@
 
 #include "wx/defs.h"
 #include "wx/string.h"
-#include "wx/msgout.h"
 
 #endif // _WX_MEMORY_H_

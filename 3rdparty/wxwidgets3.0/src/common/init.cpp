@@ -368,10 +368,6 @@ static void DoCommonPostCleanup()
 #if wxUSE_UNICODE
     FreeConvertedArgs();
 #endif // wxUSE_UNICODE
-
-    // use Set(NULL) and not Get() to avoid creating a message output object on
-    // demand when we just want to delete it
-    delete wxMessageOutput::Set(NULL);
 }
 
 void wxEntryCleanup()

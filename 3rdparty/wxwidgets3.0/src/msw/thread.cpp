@@ -29,7 +29,6 @@
     #include "wx/app.h"
     #include "wx/log.h"
     #include "wx/module.h"
-    #include "wx/msgout.h"
 #endif
 
 #include "wx/apptrait.h"
