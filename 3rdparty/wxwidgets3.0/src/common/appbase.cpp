@@ -64,8 +64,6 @@ wxAppConsole *wxAppConsoleBase::ms_appInstance = NULL;
 
 wxAppInitializerFunction wxAppConsoleBase::ms_appInitFn = NULL;
 
-wxSocketManager *wxAppTraitsBase::ms_manager = NULL;
-
 WXDLLIMPEXP_DATA_BASE(wxList) wxPendingDelete;
 
 // ----------------------------------------------------------------------------
@@ -540,17 +538,5 @@ void wxExit()
 void wxWakeUpIdle()
 {
     if ( wxTheApp )
-    {
         wxTheApp->WakeUpIdle();
-    }
-    //else: do nothing, what can we do?
-}
-
-void wxAbort()
-{
-#ifdef __WXWINCE__
-    ExitThread(3);
-#else
-    abort();
-#endif
 }

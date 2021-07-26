@@ -24,9 +24,6 @@ class WXDLLIMPEXP_FWD_BASE wxString;
 class WXDLLIMPEXP_FWD_BASE wxTimer;
 class WXDLLIMPEXP_FWD_BASE wxTimerImpl;
 
-class wxSocketManager;
-
-
 // ----------------------------------------------------------------------------
 // wxAppTraits: this class defines various configurable aspects of wxApp
 // ----------------------------------------------------------------------------
@@ -88,8 +85,6 @@ public:
 
         return wxEmptyString;
     }
-private:
-    static wxSocketManager *ms_manager;
 };
 
 // ----------------------------------------------------------------------------
