@@ -87,7 +87,6 @@ wxPlatformInfo::wxPlatformInfo(wxPortId pid, int tkMajor, int tkMinor,
     m_tkVersionMajor = tkMajor;
     m_tkVersionMinor = tkMinor;
     m_port = pid;
-    m_usingUniversal = usingUniversal;
 
     m_os = id;
     m_osVersionMajor = osMajor;
@@ -108,7 +107,6 @@ bool wxPlatformInfo::operator==(const wxPlatformInfo &t) const
            m_ldi == t.m_ldi &&
            m_desktopEnv == t.m_desktopEnv &&
            m_port == t.m_port &&
-           m_usingUniversal == t.m_usingUniversal &&
            m_arch == t.m_arch &&
            m_endian == t.m_endian;
 }
@@ -122,14 +120,12 @@ void wxPlatformInfo::InitForCurrentPlatform()
         wxFAIL_MSG( wxT("failed to initialize wxPlatformInfo") );
 
         m_port = wxPORT_UNKNOWN;
-        m_usingUniversal = false;
         m_tkVersionMajor =
                 m_tkVersionMinor = 0;
     }
     else
     {
         m_port = traits->GetToolkitVersion(&m_tkVersionMajor, &m_tkVersionMinor);
-        m_usingUniversal = traits->IsUsingUniversalWidgets();
         m_desktopEnv = traits->GetDesktopEnvironment();
     }
 

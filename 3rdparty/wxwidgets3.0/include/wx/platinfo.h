@@ -197,9 +197,6 @@ public:
                               minor);
     }
 
-    bool IsUsingUniversalWidgets() const
-        { return m_usingUniversal; }
-
     wxOperatingSystemId GetOperatingSystemId() const
         { return m_os; }
     wxLinuxDistributionInfo GetLinuxDistributionInfo() const
@@ -298,10 +295,6 @@ protected:
 
     // name of the wxWidgets port
     wxPortId m_port;
-
-    // is using wxUniversal widgets?
-    bool m_usingUniversal;
-
 
     // others
     // -----------------

@@ -143,22 +143,6 @@ wxString wxAppConsoleBase::GetAppName() const
     return name;
 }
 
-wxString wxAppConsoleBase::GetAppDisplayName() const
-{
-    // use the explicitly provided display name, if any
-    if ( !m_appDisplayName.empty() )
-        return m_appDisplayName;
-
-    // if the application name was explicitly set, use it as is as capitalizing
-    // it won't always produce good results
-    if ( !m_appName.empty() )
-        return m_appName;
-
-    // if neither is set, use the capitalized version of the program file as
-    // it's the most reasonable default
-    return GetAppName().Capitalize();
-}
-
 wxEventLoopBase *wxAppConsoleBase::CreateMainLoop()
 {
     return GetTraits()->CreateEventLoop();
@@ -307,24 +291,9 @@ bool wxAppConsoleBase::ProcessIdle()
     return event.MoreRequested();
 }
 
-bool wxAppConsoleBase::UsesEventLoop() const
-{
-    // in console applications we don't know whether we're going to have an
-    // event loop so assume we won't -- unless we already have one running
-    return wxEventLoopBase::GetActive() != NULL;
-}
-
 // ----------------------------------------------------------------------------
 // events
 // ----------------------------------------------------------------------------
-
-/* static */
-bool wxAppConsoleBase::IsMainLoopRunning()
-{
-    const wxAppConsole * const app = GetInstance();
-
-    return app && app->m_mainLoop != NULL;
-}
 
 int wxAppConsoleBase::FilterEvent(wxEvent& WXUNUSED(event))
 {
@@ -394,16 +363,6 @@ bool wxAppConsoleBase::HasPendingEvents() const
     return has;
 }
 
-void wxAppConsoleBase::SuspendProcessingOfPendingEvents()
-{
-    m_bDoPendingEventProcessing = false;
-}
-
-void wxAppConsoleBase::ResumeProcessingOfPendingEvents()
-{
-    m_bDoPendingEventProcessing = true;
-}
-
 void wxAppConsoleBase::ProcessPendingEvents()
 {
     if ( m_bDoPendingEventProcessing )
@@ -463,25 +422,6 @@ void wxAppConsoleBase::DeletePendingEvents()
 // ----------------------------------------------------------------------------
 // delayed objects destruction
 // ----------------------------------------------------------------------------
-
-bool wxAppConsoleBase::IsScheduledForDestruction(wxObject *object) const
-{
-    return wxPendingDelete.Member(object);
-}
-
-void wxAppConsoleBase::ScheduleForDestruction(wxObject *object)
-{
-    if ( !UsesEventLoop() )
-    {
-        // we won't be able to delete it later so do it right now
-        delete object;
-        return;
-    }
-    //else: we either already have or will soon start an event loop
-
-    if ( !wxPendingDelete.Member(object) )
-        wxPendingDelete.Append(object);
-}
 
 void wxAppConsoleBase::DeletePendingObjects()
 {
@@ -557,21 +497,9 @@ wxMessageOutput *wxConsoleAppTraitsBase::CreateMessageOutput()
     return new wxMessageOutputStderr;
 }
 
-wxRendererNative *wxConsoleAppTraitsBase::CreateRenderer()
-{
-    // console applications don't use renderers
-    return NULL;
-}
-
 bool wxConsoleAppTraitsBase::ShowAssertDialog(const wxString& msg)
 {
     return wxAppTraitsBase::ShowAssertDialog(msg);
-}
-
-bool wxConsoleAppTraitsBase::HasStderr()
-{
-    // console applications always have stderr, even under Mac/Windows
-    return true;
 }
 
 // ----------------------------------------------------------------------------

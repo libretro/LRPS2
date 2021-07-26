@@ -51,13 +51,6 @@ public:
     // create the global object used for printing out messages
     virtual wxMessageOutput *CreateMessageOutput() = 0;
 
-    // get the renderer to use for drawing the generic controls (return value
-    // may be NULL in which case the default renderer for the current platform
-    // is used); this is used in GUI only and always returns NULL in console
-    //
-    // NB: returned pointer will be deleted by the caller
-    virtual wxRendererNative *CreateRenderer() = 0;
-
     // wxStandardPaths object is normally the same for wxBase and wxGUI
     // except in the case of wxMac and wxCocoa
     virtual wxStandardPaths& GetStandardPaths();
@@ -75,9 +68,6 @@ public:
     // return true to suppress subsequent asserts, false to continue as before
     virtual bool ShowAssertDialog(const wxString& msg) = 0;
 
-    // return true if fprintf(stderr) goes somewhere, false otherwise
-    virtual bool HasStderr() = 0;
-
     // create a new, port specific, instance of the event loop used by wxApp
     virtual wxEventLoopBase *CreateEventLoop() = 0;
 
@@ -94,9 +84,6 @@ public:
     // returns wxPORT_BASE for console applications and one of the remaining
     // wxPORT_* values for GUI applications.
     virtual wxPortId GetToolkitVersion(int *majVer = NULL, int *minVer = NULL) const = 0;
-
-    // return true if the port is using wxUniversal for the GUI, false if not
-    virtual bool IsUsingUniversalWidgets() const = 0;
 
     // return the name of the Desktop Environment such as
     // "KDE" or "GNOME". May return an empty string.
@@ -154,10 +141,8 @@ public:
 #endif // !wxUSE_CONSOLE_EVENTLOOP
 
     virtual wxMessageOutput *CreateMessageOutput();
-    virtual wxRendererNative *CreateRenderer();
 
     virtual bool ShowAssertDialog(const wxString& msg);
-    virtual bool HasStderr();
 
     // the GetToolkitVersion for console application is always the same
     virtual wxPortId GetToolkitVersion(int *verMaj = NULL, int *verMin = NULL) const
@@ -170,7 +155,6 @@ public:
         return wxPORT_BASE;
     }
 
-    virtual bool IsUsingUniversalWidgets() const { return false; }
     virtual wxString GetDesktopEnvironment() const { return wxEmptyString; }
 };
 

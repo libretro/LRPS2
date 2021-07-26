@@ -136,16 +136,6 @@ public:
 
         // set/get the application name
     wxString GetAppName() const;
-    void SetAppName(const wxString& name) { m_appName = name; }
-
-        // set/get the application display name: the display name is the name
-        // shown to the user in titles, reports, etc while the app name is
-        // used for paths, config, and other places the user doesn't see
-        //
-        // by default the display name is the same as app name or a capitalized
-        // version of the program if app name was not set neither but it's
-        // usually better to set it explicitly to something nicer
-    wxString GetAppDisplayName() const;
 
     // set/get the app class name
     wxString GetClassName() const { return m_className; }
@@ -153,20 +143,6 @@ public:
 
         // set/get the vendor name
     const wxString& GetVendorName() const { return m_vendorName; }
-    void SetVendorName(const wxString& name) { m_vendorName = name; }
-
-        // set/get the vendor display name:  the display name is shown
-        // in titles/reports/dialogs to the user, while the vendor name
-        // is used in some areas such as wxConfig, wxStandardPaths, etc
-    const wxString& GetVendorDisplayName() const
-    {
-        return m_vendorDisplayName.empty() ? GetVendorName()
-                                           : m_vendorDisplayName;
-    }
-    void SetVendorDisplayName(const wxString& name)
-    {
-        m_vendorDisplayName = name;
-    }
 
 
     // miscellaneous customization functions
@@ -223,10 +199,6 @@ public:
     // to indicate that default processing should take place.
     virtual int FilterEvent(wxEvent& event);
 
-    // return true if we're running event loop, i.e. if the events can
-    // (already) be dispatched
-    static bool IsMainLoopRunning();
-
     // pending events
     // --------------
 
@@ -245,13 +217,6 @@ public:
     // check if there are pending events on global pending event list
     bool HasPendingEvents() const;
 
-    // temporary suspends processing of the pending events
-    void SuspendProcessingOfPendingEvents();
-
-    // resume processing of the pending events previously stopped because of a
-    // call to SuspendProcessingOfPendingEvents()
-    void ResumeProcessingOfPendingEvents();
-
     // called by ~wxEvtHandler to (eventually) remove the handler from the list of
     // the handlers with pending events
     void RemovePendingEventHandler(wxEvtHandler* toRemove);
@@ -265,26 +230,6 @@ public:
 
     // deletes the current pending events
     void DeletePendingEvents();
-
-
-    // delayed destruction
-    // -------------------
-
-    // If an object may have pending events for it, it shouldn't be deleted
-    // immediately as this would result in a crash when trying to handle these
-    // events: instead, it should be scheduled for destruction and really
-    // destroyed only after processing all pending events.
-    //
-    // Notice that this is only possible if we have a running event loop,
-    // otherwise the object is just deleted directly by ScheduleForDestruction()
-    // and IsScheduledForDestruction() always returns false.
-
-    // schedule the object for destruction in the near future
-    void ScheduleForDestruction(wxObject *object);
-
-    // return true if the object is scheduled for destruction
-    bool IsScheduledForDestruction(wxObject *object) const;
-
 
     // wxEventLoop-related methods
     // ---------------------------
@@ -306,13 +251,6 @@ public:
     // derived class you should call the base class version to ensure that idle
     // events are still sent out
     virtual bool ProcessIdle();
-
-    // this virtual function is overridden in GUI wxApp to always return true
-    // as GUI applications always have an event loop -- but console ones may
-    // have it or not, so it simply returns true if already have an event loop
-    // running but false otherwise
-    virtual bool UsesEventLoop() const;
-
 
     // debugging support
     // -----------------
