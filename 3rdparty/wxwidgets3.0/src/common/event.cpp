@@ -573,30 +573,6 @@ void wxEvtHandler::ProcessPendingEvents()
     wxList::compatibility_iterator node = m_pendingEvents->GetFirst();
     wxEvent* pEvent = static_cast<wxEvent *>(node->GetData());
 
-    // find the first event which can be processed now:
-    wxEventLoopBase* evtLoop = wxEventLoopBase::GetActive();
-    if (evtLoop && evtLoop->IsYielding())
-    {
-        while (node && pEvent && !evtLoop->IsEventAllowedInsideYield(pEvent->GetEventCategory()))
-        {
-            node = node->GetNext();
-            pEvent = node ? static_cast<wxEvent *>(node->GetData()) : NULL;
-        }
-
-        if (!node)
-        {
-            // all our events are NOT processable now... signal this:
-            wxTheApp->DelayPendingEventHandler(this);
-
-            // see the comment at the beginning of evtloop.h header for the
-            // logic behind YieldFor() and behind DelayPendingEventHandler()
-
-            wxLEAVE_CRIT_SECT( m_pendingEventsLock );
-
-            return;
-        }
-    }
-
     wxEventPtr event(pEvent);
 
     // it's important we remove event from list before processing it, else a

@@ -36,7 +36,6 @@ wxEventLoopBase::wxEventLoopBase()
     m_isInsideRun = false;
     m_shouldExit = false;
 
-    m_isInsideYield = false;
     m_eventsToProcessInsideYield = wxEVT_CATEGORY_ALL;
 }
 
@@ -103,17 +102,7 @@ bool wxEventLoopBase::ProcessIdle()
 
 bool wxEventLoopBase::Yield(bool onlyIfNeeded)
 {
-    if ( m_isInsideYield )
-    {
-        if ( !onlyIfNeeded )
-        {
-            wxFAIL_MSG( wxT("wxYield called recursively" ) );
-        }
-
-        return false;
-    }
-
-    return YieldFor(wxEVT_CATEGORY_ALL);
+    return true;
 }
 
 #if wxUSE_EVENTLOOP_SOURCE

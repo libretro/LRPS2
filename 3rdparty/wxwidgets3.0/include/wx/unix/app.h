@@ -34,31 +34,11 @@ public:
     // CheckSignal() and not when the signal really occurs
     typedef void (*SignalHandler)(int);
 
-    // Set signal handler for the given signal, SIG_DFL or SIG_IGN can be used
-    // instead of a function pointer
-    //
-    // Return true if handler was installed, false on error
-    bool SetSignalHandler(int signal, SignalHandler handler);
-
     // Check if any Unix signals arrived since the last call and execute
     // handlers for them
     void CheckSignal();
 
-    // Register the signal wake up pipe with the given dispatcher.
-    //
-    // This is used by wxExecute(wxEXEC_NOEVENTS) implementation only.
-    //
-    // The pointer to the handler used for processing events on this descriptor
-    // is returned so that it can be deleted when we no longer needed it.
-    wxFDIOHandler* RegisterSignalWakeUpPipe(wxFDIODispatcher& dispatcher);
-
 private:
-    // signal handler set up by SetSignalHandler() for all signals we handle,
-    // it just adds the signal to m_signalsCaught -- the real processing is
-    // done later, when CheckSignal() is called
-    static void HandleSignal(int signal);
-
-
     // signals for which HandleSignal() had been called (reset from
     // CheckSignal())
     sigset_t m_signalsCaught;

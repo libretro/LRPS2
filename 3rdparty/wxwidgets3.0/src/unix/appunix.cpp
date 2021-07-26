@@ -96,25 +96,6 @@ bool wxAppConsole::Initialize(int& argc_, wxChar** argv_)
     return true;
 }
 
-// The actual signal handler. It does as little as possible (because very few
-// things are safe to do from inside a signal handler) and just ensures that
-// CheckSignal() will be called later from SignalsWakeUpPipe::OnReadWaiting().
-void wxAppConsole::HandleSignal(int signal)
-{
-    wxAppConsole * const app = wxTheApp;
-    if ( !app )
-        return;
-
-    // Register the signal that is caught.
-    sigaddset(&(app->m_signalsCaught), signal);
-
-    // Wake up the application for handling the signal.
-    //
-    // Notice that we must have a valid wake up pipe here as we only install
-    // our signal handlers after allocating it.
-    app->m_signalWakeUpPipe->WakeUpNoLock();
-}
-
 void wxAppConsole::CheckSignal()
 {
     for ( SignalHandlerHash::iterator it = m_signalHandlerHash.begin();
@@ -130,27 +111,6 @@ void wxAppConsole::CheckSignal()
     }
 }
 
-wxFDIOHandler* wxAppConsole::RegisterSignalWakeUpPipe(wxFDIODispatcher& dispatcher)
-{
-    wxCHECK_MSG( m_signalWakeUpPipe, NULL, "Should be allocated" );
-
-    // we need a bridge to wxFDIODispatcher
-    //
-    // TODO: refactor the code so that only wxEventLoopSourceHandler is used
-    wxScopedPtr<wxFDIOHandler>
-        fdioHandler(new wxFDIOEventLoopSourceHandler(m_signalWakeUpPipe));
-
-    if ( !dispatcher.RegisterFD
-                     (
-                      m_signalWakeUpPipe->GetReadFd(),
-                      fdioHandler.get(),
-                      wxFDIO_INPUT
-                     ) )
-        return NULL;
-
-    return fdioHandler.release();
-}
-
 // the type of the signal handlers we use is "void(*)(int)" while the real
 // signal handlers are extern "C" and so have incompatible type and at least
 // Sun CC warns about it, so use explicit casts to suppress these warnings as
@@ -159,32 +119,3 @@ extern "C"
 {
     typedef void (*SignalHandler_t)(int);
 }
-
-bool wxAppConsole::SetSignalHandler(int signal, SignalHandler handler)
-{
-    const bool install = (SignalHandler_t)handler != SIG_DFL &&
-                         (SignalHandler_t)handler != SIG_IGN;
-
-    if ( !m_signalWakeUpPipe )
-    {
-        // Create the pipe that the signal handler will use to cause the event
-        // loop to call wxAppConsole::CheckSignal().
-        m_signalWakeUpPipe = new SignalsWakeUpPipe();
-    }
-
-    struct sigaction sa;
-    memset(&sa, 0, sizeof(sa));
-    sa.sa_handler = (SignalHandler_t)&wxAppConsole::HandleSignal;
-    sa.sa_flags = SA_RESTART;
-    int res = sigaction(signal, &sa, 0);
-    if ( res != 0 )
-        return false;
-
-    if ( install )
-        m_signalHandlerHash[signal] = handler;
-    else
-        m_signalHandlerHash.erase(signal);
-
-    return true;
-}
-
