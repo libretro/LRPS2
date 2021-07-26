@@ -109,9 +109,6 @@ void Pcsx2App::CleanupRestartable()
 	AffinityAssert_AllowFrom_MainUI();
 
 	CoreThread.Cancel();
-#ifndef __LIBRETRO__
-	SysExecutorThread.ShutdownQueue();
-#endif
 }
 
 // This cleanup handler can be called from OnExit (it doesn't need a running message pump),

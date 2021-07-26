@@ -71,7 +71,6 @@ public:
 
 void LoadPluginsImmediate()
 {
-	AffinityAssert_AllowFrom_SysExecutor();
 	if( CorePlugins.AreLoaded() )
 		return;
 	CorePlugins.Load(  );

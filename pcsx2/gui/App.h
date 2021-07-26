@@ -270,6 +270,3 @@ extern void ShutdownPlugins();
 extern __aligned16 SysMtgsThread mtgsThread;
 extern __aligned16 AppCoreThread CoreThread;
 extern __aligned16 SysCorePlugins CorePlugins;
-
-#define AffinityAssert_AllowFrom_SysExecutor()
-#define AffinityAssert_DisallowFrom_SysExecutor()

@@ -121,41 +121,19 @@ static void _Cancel()
 
 void AppCoreThread::Cancel(bool isBlocking)
 {
-#ifndef __LIBRETRO__
-	if (GetSysExecutorThread().IsRunning() && !GetSysExecutorThread().Rpc_TryInvoke(_Cancel, L"AppCoreThread::Cancel"))
-#endif
-		_parent::Cancel(wxTimeSpan(0, 0, 4, 0));
+	_parent::Cancel(wxTimeSpan(0, 0, 4, 0));
 }
 
 void AppCoreThread::Reset()
 {
-#ifndef __LIBRETRO__
-	if (!GetSysExecutorThread().IsSelf())
-	{
-		GetSysExecutorThread().PostEvent(SysExecEvent_InvokeCoreThreadMethod(&AppCoreThread::Reset));
-		return;
-	}
-#endif
 	_parent::Reset();
 }
 
 void AppCoreThread::ResetQuick()
 {
-#ifndef __LIBRETRO__
-	if (!GetSysExecutorThread().IsSelf())
-	{
-		GetSysExecutorThread().PostEvent(SysExecEvent_InvokeCoreThreadMethod(&AppCoreThread::ResetQuick));
-		return;
-	}
-#endif
 	_parent::ResetQuick();
 }
-#ifndef __LIBRETRO__
-ExecutorThread& GetSysExecutorThread()
-{
-	return wxGetApp().SysExecutorThread;
-}
-#endif
+
 static void _Suspend()
 {
 	GetCoreThread().Suspend(true);
@@ -165,40 +143,17 @@ void AppCoreThread::Suspend(bool isBlocking)
 {
 	if (IsClosed())
 		return;
-#ifndef __LIBRETRO__
-	if (IsSelf())
-	{
-		// this should never fail...
-		bool result = GetSysExecutorThread().Rpc_TryInvokeAsync(_Suspend, L"AppCoreThread::Suspend");
-		pxAssert(result);
-	}
-	else if (!GetSysExecutorThread().Rpc_TryInvoke(_Suspend, L"AppCoreThread::Suspend"))
-#endif
-		_parent::Suspend(true);
+	_parent::Suspend(true);
 }
 
 void AppCoreThread::Resume()
 {
-#ifndef __LIBRETRO__
-	if (!GetSysExecutorThread().IsSelf())
-	{
-		GetSysExecutorThread().PostEvent(SysExecEvent_InvokeCoreThreadMethod(&AppCoreThread::Resume));
-		return;
-	}
-#endif
 	GetCorePlugins().Init();
 	_parent::Resume();
 }
 
 void AppCoreThread::ChangeCdvdSource()
 {
-#ifndef __LIBRETRO__
-	if (!GetSysExecutorThread().IsSelf())
-	{
-		GetSysExecutorThread().PostEvent(new SysExecEvent_InvokeCoreThreadMethod(&AppCoreThread::ChangeCdvdSource));
-		return;
-	}
-#endif
 	CDVD_SourceType cdvdsrc(g_Conf->CdvdSource);
 	if (cdvdsrc == CDVDsys_GetSourceType())
 		return;
@@ -660,7 +615,8 @@ void AppCoreThread::DoCpuExecute()
 			// [TODO] Issue error dialog to the user here...
 			log_cb(RETRO_LOG_ERROR, "Too many execution errors.  VM execution has been suspended!\n");
 
-			// Hack: this keeps the EE thread from running more code while the SysExecutor
+			// Hack: this keeps the EE thread from 
+			// running more code while the SysExecutor
 			// thread catches up and signals it for suspension.
 			m_ExecMode = ExecMode_Closing;
 		}
@@ -736,40 +692,9 @@ void BaseScopedCoreThread::DoResume()
 {
 	if (m_alreadyStopped)
 		return;
-#ifndef __LIBRETRO__
-	if (!GetSysExecutorThread().IsSelf())
-	{
-#if 0
-		log_cb(RETRO_LOG_DEBUG, "(ScopedCoreThreadPause) Threaded Scope Created!\n");
-#endif
-		m_sync_resume.PostResult(m_allowResume ? ScopedCore_NonblockingResume : ScopedCore_SkipResume);
-		m_mtx_resume.Wait();
-	}
-	else
-#endif
-		CoreThread.Resume();
+	CoreThread.Resume();
 }
 
-#ifndef __LIBRETRO__
-// Returns TRUE if the event is posted to the SysExecutor.
-// Returns FALSE if the thread *is* the SysExecutor (no message is posted, calling code should
-//  handle the code directly).
-bool BaseScopedCoreThread::PostToSysExec(BaseSysExecEvent_ScopedCore* msg)
-{
-	std::unique_ptr<BaseSysExecEvent_ScopedCore> smsg(msg);
-	if (!smsg || GetSysExecutorThread().IsSelf())
-		return false;
-
-	msg->SetSyncState(m_sync);
-	msg->SetResumeStates(m_sync_resume, m_mtx_resume);
-
-	GetSysExecutorThread().PostEvent(smsg.release());
-	m_sync.WaitForResult();
-	m_sync.RethrowException();
-
-	return true;
-}
-#endif
 ScopedCoreThreadClose::ScopedCoreThreadClose()
 {
 	if (ScopedCore_IsFullyClosed)
