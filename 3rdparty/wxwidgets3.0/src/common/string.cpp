@@ -23,7 +23,6 @@
 #ifndef WX_PRECOMP
     #include "wx/string.h"
     #include "wx/wxcrtvararg.h"
-    #include "wx/intl.h"
 #endif
 
 #include <ctype.h>

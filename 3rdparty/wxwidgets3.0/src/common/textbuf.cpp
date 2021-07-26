@@ -19,7 +19,6 @@
 
 #ifndef WX_PRECOMP
     #include  "wx/string.h"
-    #include  "wx/intl.h"
 #endif
 
 #include "wx/textbuf.h"

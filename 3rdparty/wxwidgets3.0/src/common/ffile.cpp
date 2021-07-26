@@ -26,7 +26,6 @@
 #if wxUSE_FFILE
 
 #ifndef WX_PRECOMP
-    #include "wx/intl.h"
     #include "wx/crt.h"
 #endif
 

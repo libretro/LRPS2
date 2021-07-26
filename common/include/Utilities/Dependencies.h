@@ -162,7 +162,6 @@ public:
 #define WXINTL_NO_GETTEXT_MACRO
 
 #include <wx/string.h>
-#include <wx/intl.h>
 #include <wx/crt.h>
 
 #if defined(_WIN32)

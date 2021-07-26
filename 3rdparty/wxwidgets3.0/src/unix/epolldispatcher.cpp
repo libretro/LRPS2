@@ -23,10 +23,6 @@
 #include "wx/unix/private/epolldispatcher.h"
 #include "wx/unix/private.h"
 
-#ifndef WX_PRECOMP
-    #include "wx/intl.h"
-#endif
-
 #include "wx/time.h"
 #include <sys/epoll.h>
 #include <errno.h>

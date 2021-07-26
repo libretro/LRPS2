@@ -31,7 +31,6 @@
 #ifndef WX_PRECOMP
     #include "wx/app.h"
     #include "wx/dynarray.h"
-    #include "wx/intl.h"
     #include "wx/utils.h"
     #include "wx/module.h"
 #endif

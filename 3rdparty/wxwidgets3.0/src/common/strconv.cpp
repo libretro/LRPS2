@@ -19,7 +19,6 @@
 #endif  //__BORLANDC__
 
 #ifndef WX_PRECOMP
-    #include "wx/intl.h"
     #include "wx/utils.h"
     #include "wx/hashmap.h"
 #endif

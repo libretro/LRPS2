@@ -23,10 +23,6 @@
     #pragma hdrstop
 #endif
 
-#ifndef WX_PRECOMP
-    #include "wx/intl.h"
-#endif // PCH
-
 #include "wx/dir.h"
 #include "wx/filefn.h"          // for wxMatchWild
 #include "wx/filename.h"

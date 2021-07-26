@@ -22,7 +22,6 @@
 #include "wx/config.h"
 
 #ifndef WX_PRECOMP
-    #include "wx/intl.h"
     #include "wx/app.h"
     #include "wx/utils.h"
     #include "wx/arrstr.h"

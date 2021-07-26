@@ -221,12 +221,6 @@ public:
         // TODO Hebrew, Chinese, Maya, ... (just kidding) (or then may be not?)
     };
 
-        // the country parameter is used so far for calculating the start and
-        // the end of DST period and for deciding whether the date is a work
-        // day or not
-        //
-        // TODO move this to intl.h
-
 // Required for WinCE
 #ifdef USA
 #undef USA

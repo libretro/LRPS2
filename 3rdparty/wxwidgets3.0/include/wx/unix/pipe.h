@@ -14,8 +14,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#include "wx/intl.h"
-
 // ----------------------------------------------------------------------------
 // wxPipe: this class encapsulates pipe() system call
 // ----------------------------------------------------------------------------

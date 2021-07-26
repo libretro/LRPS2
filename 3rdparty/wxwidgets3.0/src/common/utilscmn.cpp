@@ -35,7 +35,6 @@
     #include "wx/app.h"
     #include "wx/string.h"
     #include "wx/utils.h"
-    #include "wx/intl.h"
 #endif // WX_PRECOMP
 
 #include "wx/apptrait.h"

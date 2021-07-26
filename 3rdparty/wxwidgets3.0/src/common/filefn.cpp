@@ -26,7 +26,6 @@
 #include "wx/filefn.h"
 
 #ifndef WX_PRECOMP
-    #include "wx/intl.h"
     #include "wx/utils.h"
     #include "wx/crt.h"
 #endif
@@ -1710,7 +1709,7 @@ int WXDLLIMPEXP_BASE wxParseCommonDialogsFilter(const wxString& filterStr,
     {
         if ( descriptions[j].empty() && !filters[j].empty() )
         {
-            descriptions[j].Printf(_("Files (%s)"), filters[j].c_str());
+            descriptions[j].Printf("Files (%s)", filters[j].c_str());
         }
     }
 

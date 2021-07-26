@@ -21,7 +21,6 @@
 
 #ifndef WX_PRECOMP
     #include "wx/dynarray.h"
-    #include "wx/intl.h"
 #endif //WX_PRECOMP
 
 #include <stdlib.h>

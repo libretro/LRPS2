@@ -26,7 +26,6 @@
 #ifndef WX_PRECOMP
     #include "wx/utils.h"
     #include "wx/app.h"
-    #include "wx/intl.h"
 #endif  //WX_PRECOMP
 
 #include "wx/apptrait.h"
@@ -454,13 +453,13 @@ wxString wxGetOsDescription()
     {
 #ifdef VER_PLATFORM_WIN32_CE
         case VER_PLATFORM_WIN32_CE:
-            str.Printf(_("Windows CE (%d.%d)"),
+            str.Printf("Windows CE (%d.%d)",
                        info.dwMajorVersion,
                        info.dwMinorVersion);
             break;
 #endif
         case VER_PLATFORM_WIN32s:
-            str = _("Win32s on Windows 3.1");
+            str = "Win32s on Windows 3.1";
             break;
 
         case VER_PLATFORM_WIN32_WINDOWS:
@@ -470,29 +469,29 @@ wxString wxGetOsDescription()
                     if ( info.szCSDVersion[1] == 'B' ||
                          info.szCSDVersion[1] == 'C' )
                     {
-                        str = _("Windows 95 OSR2");
+                        str = "Windows 95 OSR2";
                     }
                     else
                     {
-                        str = _("Windows 95");
+                        str = "Windows 95";
                     }
                     break;
                 case 10:
                     if ( info.szCSDVersion[1] == 'B' ||
                          info.szCSDVersion[1] == 'C' )
                     {
-                        str = _("Windows 98 SE");
+                        str = "Windows 98 SE";
                     }
                     else
                     {
-                        str = _("Windows 98");
+                        str = "Windows 98";
                     }
                     break;
                 case 90:
-                    str = _("Windows ME");
+                    str = "Windows ME";
                     break;
                 default:
-                    str.Printf(_("Windows 9x (%d.%d)"),
+                    str.Printf("Windows 9x (%d.%d)",
                                info.dwMajorVersion,
                                info.dwMinorVersion);
                     break;
@@ -510,7 +509,7 @@ wxString wxGetOsDescription()
                     switch ( info.dwMinorVersion )
                     {
                         case 0:
-                            str = _("Windows 2000");
+                            str = "Windows 2000";
                             break;
 
                         case 2:
@@ -519,13 +518,13 @@ wxString wxGetOsDescription()
                             // type to resolve this ambiguity
                             if ( wxIsWindowsServer() == 1 )
                             {
-                                str = _("Windows Server 2003");
+                                str = "Windows Server 2003";
                                 break;
                             }
                             //else: must be XP, fall through
 
                         case 1:
-                            str = _("Windows XP");
+                            str = "Windows XP";
                             break;
                     }
                     break;
@@ -535,46 +534,46 @@ wxString wxGetOsDescription()
                     {
                         case 0:
                             str = wxIsWindowsServer() == 1
-                                    ? _("Windows Server 2008")
-                                    : _("Windows Vista");
+                                    ? "Windows Server 2008"
+                                    : "Windows Vista";
                             break;
 
                         case 1:
                             str = wxIsWindowsServer() == 1
-                                    ? _("Windows Server 2008 R2")
-                                    : _("Windows 7");
+                                    ? "Windows Server 2008 R2"
+                                    : "Windows 7";
                             break;
 
                         case 2:
                             str = wxIsWindowsServer() == 1
-                                    ? _("Windows Server 2012")
-                                    : _("Windows 8");
+                                    ? "Windows Server 2012"
+                                    : "Windows 8";
                             break;
 
                         case 3:
                             str = wxIsWindowsServer() == 1
-                                    ? _("Windows Server 2012 R2")
-                                    : _("Windows 8.1");
+                                    ? "Windows Server 2012 R2"
+                                    : "Windows 8.1";
                             break;
                     }
                     break;
 
                 case 10:
                     str = wxIsWindowsServer() == 1
-                            ? _("Windows Server 2016")
-                            : _("Windows 10");
+                            ? "Windows Server 2016"
+                            : "Windows 10";
                     break;
             }
 
             if ( str.empty() )
             {
-                str.Printf(_("Windows NT %lu.%lu"),
+                str.Printf("Windows NT %lu.%lu",
                            info.dwMajorVersion,
                            info.dwMinorVersion);
             }
 
             str << wxT(" (")
-                << wxString::Format(_("build %lu"), info.dwBuildNumber);
+                << wxString::Format("build %lu", info.dwBuildNumber);
             if ( !wxIsEmpty(info.szCSDVersion) )
             {
                 str << wxT(", ") << info.szCSDVersion;
@@ -582,7 +581,7 @@ wxString wxGetOsDescription()
             str << wxT(')');
 
             if ( wxIsPlatform64Bit() )
-                str << _(", 64-bit edition");
+                str << ", 64-bit edition";
             break;
     }
 

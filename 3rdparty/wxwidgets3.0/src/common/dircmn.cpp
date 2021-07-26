@@ -25,7 +25,6 @@
 
 #ifndef WX_PRECOMP
     #include "wx/string.h"
-    #include "wx/intl.h"
     #include "wx/filefn.h"
     #include "wx/arrstr.h"
 #endif //WX_PRECOMP

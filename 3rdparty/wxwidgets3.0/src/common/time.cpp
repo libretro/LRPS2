@@ -45,7 +45,6 @@
     #ifdef __WINDOWS__
         #include "wx/msw/wrapwin.h"
     #endif
-    #include "wx/intl.h"
 #endif
 
 #ifndef WX_GMTOFF_IN_TM
