@@ -37,7 +37,6 @@
         #include "wx/msw/wrapwin.h"
     #endif
     #include "wx/string.h"
-    #include "wx/log.h"
     #include "wx/intl.h"
     #include "wx/module.h"
     #include "wx/crt.h"
@@ -1668,83 +1667,6 @@ wxDateTime::ParseFormat(const wchar_t* date,
     wxString::const_iterator end;
     wxString dateStr(date);
     if ( !ParseFormat(dateStr, format, dateDef, &end) )
-        return NULL;
-
-    return date + (end - dateStr.begin());
-}
-
-bool
-wxDateTime::ParseTime(const wxString& time, wxString::const_iterator *end)
-{
-    wxCHECK_MSG( end, false, "end iterator pointer must be specified" );
-
-    // first try some extra things
-    static const struct
-    {
-        const char *name;
-        wxDateTime_t hour;
-    } stdTimes[] =
-    {
-        { wxTRANSLATE("noon"),      12 },
-        { wxTRANSLATE("midnight"),  00 },
-        // anything else?
-    };
-
-    for ( size_t n = 0; n < WXSIZEOF(stdTimes); n++ )
-    {
-        const wxString timeString = wxGetTranslation(stdTimes[n].name);
-        if ( timeString.CmpNoCase(wxString(time, timeString.length())) == 0 )
-        {
-            // casts required by DigitalMars
-            Set(stdTimes[n].hour, wxDateTime_t(0), wxDateTime_t(0));
-
-            if ( end )
-                *end = time.begin() + timeString.length();
-
-            return true;
-        }
-    }
-
-    // try all time formats we may think about in the order from longest to
-    // shortest
-    static const char *const timeFormats[] =
-    {
-        "%I:%M:%S %p",  // 12hour with AM/PM
-        "%H:%M:%S",     // could be the same or 24 hour one so try it too
-        "%I:%M %p",     // 12hour with AM/PM but without seconds
-        "%H:%M",        // and a possibly 24 hour version without seconds
-        "%I %p",        // just hour with AM/AM
-        "%H",           // just hour in 24 hour version
-        "%X",           // possibly something from above or maybe something
-                        // completely different -- try it last
-
-        // TODO: parse timezones
-    };
-
-    for ( size_t nFmt = 0; nFmt < WXSIZEOF(timeFormats); nFmt++ )
-    {
-        if ( ParseFormat(time, timeFormats[nFmt], end) )
-            return true;
-    }
-
-    return false;
-}
-
-const char* wxDateTime::ParseTime(const char* date)
-{
-    wxString::const_iterator end;
-    wxString dateStr(date);
-    if ( !ParseTime(dateStr, &end) )
-        return NULL;
-
-    return date + dateStr.IterOffsetInMBStr(end);
-}
-
-const wchar_t* wxDateTime::ParseTime(const wchar_t* date)
-{
-    wxString::const_iterator end;
-    wxString dateStr(date);
-    if ( !ParseTime(dateStr, &end) )
         return NULL;
 
     return date + (end - dateStr.begin());

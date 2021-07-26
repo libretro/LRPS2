@@ -69,7 +69,7 @@ DEVASSERT_INLINE void pxOnAssert(const DiagnosticOrigin &origin, const wxString 
 
 BaseException &BaseException::SetBothMsgs(const wxChar *msg_diag)
 {
-    m_message_user = msg_diag ? wxString(wxGetTranslation(msg_diag)) : wxString("");
+    m_message_user = wxString(msg_diag);
     return SetDiagMsg(msg_diag);
 }
 

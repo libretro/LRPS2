@@ -29,7 +29,6 @@
     #include "wx/string.h"
     #include "wx/intl.h"
     #include "wx/file.h"
-    #include "wx/log.h"
 #endif
 
 #include "wx/textfile.h"

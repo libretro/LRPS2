@@ -28,10 +28,6 @@
 
 #include "wx/stream.h"
 
-#ifndef WX_PRECOMP
-    #include "wx/log.h"
-#endif
-
 #include <ctype.h>
 #include "wx/textfile.h"
 #include "wx/scopeguard.h"

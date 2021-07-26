@@ -104,7 +104,6 @@
 #ifndef WX_PRECOMP
     #include  "wx/string.h"
     #include  "wx/intl.h"
-    #include  "wx/log.h"
     #include "wx/crt.h"
 #endif // !WX_PRECOMP
 

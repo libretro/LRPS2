@@ -34,7 +34,6 @@
 #endif //WX_PRECOMP
 
 #include "wx/filename.h"
-#include "wx/log.h"
 #include "wx/textfile.h"
 
 #if defined( __LINUX__ ) || defined( __VMS )

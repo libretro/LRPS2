@@ -24,7 +24,6 @@
     #include "wx/string.h"
     #include "wx/wxcrtvararg.h"
     #include "wx/intl.h"
-    #include "wx/log.h"
 #endif
 
 #include <ctype.h>

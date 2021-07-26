@@ -66,7 +66,6 @@
         #include "wx/msw/wrapwin.h"
     #endif
     #include "wx/string.h"
-    #include "wx/log.h"
     #include "wx/intl.h"
     #include "wx/module.h"
     #include "wx/crt.h"

@@ -81,7 +81,6 @@
     #endif
     #include "wx/dynarray.h"
     #include "wx/intl.h"
-    #include "wx/log.h"
     #include "wx/utils.h"
     #include "wx/crt.h"
 #endif

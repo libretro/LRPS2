@@ -979,11 +979,6 @@ public:
         return ParseFormat(datetime, fmt, &end) && end == datetime.end();
     }
 
-        // parse a string containing the time only in "free" format
-    bool ParseTime(const wxString& time,
-                   wxString::const_iterator *end);
-
-
         // this function accepts strftime()-like format string (default
         // argument corresponds to the preferred date and time representation
         // for the current locale) and returns the string containing the
@@ -1031,13 +1026,6 @@ public:
                                                         : wxAnyStrPtr();
     }
 
-    wxAnyStrPtr ParseTime(const wxString& time)
-    {
-        wxString::const_iterator end;
-        return ParseTime(time, &end) ? wxAnyStrPtr(time, end)
-                                     : wxAnyStrPtr();
-    }
-
     // In addition to wxAnyStrPtr versions above we also must provide the
     // overloads for C strings as we must return a pointer into the original
     // string and not inside a temporary wxString which would have been created
@@ -1067,12 +1055,6 @@ public:
     const wchar_t* ParseFormat(const wchar_t* date,
                                const wxString& format = wxDefaultDateTimeFormat,
                                const wxDateTime& dateDef = wxDefaultDateTime);
-
-
-    void ParseTime(const wxCStrData& time)
-        { ParseTime(wxString(time)); }
-    const char* ParseTime(const char* time);
-    const wchar_t* ParseTime(const wchar_t* time);
 
 
     // implementation

@@ -163,7 +163,6 @@ public:
 
 #include <wx/string.h>
 #include <wx/intl.h>
-#include <wx/log.h>
 #include <wx/crt.h>
 
 #if defined(_WIN32)

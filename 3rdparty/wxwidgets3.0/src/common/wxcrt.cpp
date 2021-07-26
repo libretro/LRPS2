@@ -50,7 +50,6 @@
     #include "wx/string.h"
     #include "wx/hash.h"
     #include "wx/utils.h"     // for wxMin and wxMax
-    #include "wx/log.h"
 #endif
 
 #ifdef HAVE_LANGINFO_H

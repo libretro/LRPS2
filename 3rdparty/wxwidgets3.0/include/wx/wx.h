@@ -20,7 +20,6 @@
 #include "wx/hashmap.h"
 #include "wx/arrstr.h"
 #include "wx/intl.h"
-#include "wx/log.h"
 #include "wx/event.h"
 #include "wx/app.h"
 #include "wx/utils.h"

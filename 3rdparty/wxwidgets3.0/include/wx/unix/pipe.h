@@ -14,7 +14,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#include "wx/log.h"
 #include "wx/intl.h"
 
 // ----------------------------------------------------------------------------

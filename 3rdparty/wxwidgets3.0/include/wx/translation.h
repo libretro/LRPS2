@@ -31,23 +31,6 @@
 //     we returned const wxString&; this way, the compiler should be able to
 //     optimize wxGetTranslation() away
 
-template<typename TString>
-inline TString wxGetTranslation(TString str)
-    { return str; }
-
-template<typename TString, typename TDomain>
-inline TString wxGetTranslation(TString str, TDomain WXUNUSED(domain))
-    { return str; }
-
-template<typename TString, typename TDomain>
-inline TString wxGetTranslation(TString str1, TString str2, size_t n)
-    { return n == 1 ? str1 : str2; }
-
-template<typename TString, typename TDomain>
-inline TString wxGetTranslation(TString str1, TString str2, size_t n,
-                                TDomain WXUNUSED(domain))
-    { return n == 1 ? str1 : str2; }
-
 // define this one just in case it occurs somewhere (instead of preferred
 // wxTRANSLATE) too
 #if !defined(WXINTL_NO_GETTEXT_MACRO)

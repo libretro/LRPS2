@@ -30,7 +30,6 @@
     #include "wx/list.h"
     #include "wx/app.h"
     #include "wx/intl.h"
-    #include "wx/log.h"
     #include "wx/utils.h"
     #include "wx/wxcrtvararg.h"
 #endif //WX_PRECOMP

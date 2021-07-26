@@ -20,11 +20,7 @@
     #include "wx/msw/microwin.h"
 #endif
 
-#include "wx/log.h"
-
 class WXDLLIMPEXP_FWD_CORE wxFont;
-class WXDLLIMPEXP_FWD_CORE wxWindow;
-class WXDLLIMPEXP_FWD_CORE wxWindowBase;
 
 // ---------------------------------------------------------------------------
 // private constants

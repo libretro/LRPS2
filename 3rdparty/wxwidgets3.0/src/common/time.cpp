@@ -46,7 +46,6 @@
         #include "wx/msw/wrapwin.h"
     #endif
     #include "wx/intl.h"
-    #include "wx/log.h"
 #endif
 
 #ifndef WX_GMTOFF_IN_TM

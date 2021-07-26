@@ -26,7 +26,6 @@
     #include  "wx/dynarray.h"
     #include  "wx/string.h"
     #include  "wx/intl.h"
-    #include  "wx/log.h"
     #include  "wx/app.h"
     #include  "wx/utils.h"    // for wxGetHomeDir
     #if wxUSE_STREAMS

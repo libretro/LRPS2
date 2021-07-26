@@ -15,7 +15,6 @@
 
 #ifndef WX_PRECOMP
     #include "wx/app.h"
-    #include "wx/log.h"
 #endif
 
 #include "wx/evtloop.h"
