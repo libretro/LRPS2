@@ -102,16 +102,6 @@
 
 #define wxUSE_UNICODE_UTF8 0
 #define wxUSE_UTF8_LOCALE_ONLY 0
-#else
-/* --- start MSW options --- */
-
-#ifndef wxUSE_UNICODE_MSLU
-    #define wxUSE_UNICODE_MSLU 0
-#endif
-
-#define wxUSE_MFC           0
-
-/* --- end MSW options --- */
 #endif
 #ifndef _WIN32
 /*

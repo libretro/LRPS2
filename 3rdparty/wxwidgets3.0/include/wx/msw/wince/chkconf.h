@@ -37,9 +37,6 @@
     #define wxUSE_STDPATHS 0
 #endif // WCE_PLATFORM_STANDARDSDK
 
-#undef wxUSE_UNICODE_MSLU
-#define wxUSE_UNICODE_MSLU 0
-
 #undef wxUSE_WXHTML_HELP
 #define wxUSE_WXHTML_HELP 0
 

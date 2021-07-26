@@ -390,28 +390,6 @@ enum wxPosixPermissions
 
     // finally the default char-type versions
     #if wxUSE_UNICODE
-        #if wxUSE_UNICODE_MSLU
-            // implement the missing file functions in Win9x ourselves
-            WXDLLIMPEXP_BASE int wxMSLU__wopen(const wxChar *name,
-                                               int flags, int mode);
-            WXDLLIMPEXP_BASE int wxMSLU__waccess(const wxChar *name,
-                                                 int mode);
-            WXDLLIMPEXP_BASE int wxMSLU__wchmod(const wxChar *name,
-                                                 int mode);
-            WXDLLIMPEXP_BASE int wxMSLU__wmkdir(const wxChar *name);
-            WXDLLIMPEXP_BASE int wxMSLU__wrmdir(const wxChar *name);
-
-            WXDLLIMPEXP_BASE int
-            wxMSLU__wstat(const wxChar *name, wxStructStat *buffer);
-
-            #define   wxCRT_Open       wxMSLU__wopen
-
-            #define   wxCRT_Access     wxMSLU__waccess
-            #define   wxCRT_Chmod      wxMSLU__wchmod
-            #define   wxCRT_MkDir      wxMSLU__wmkdir
-            #define   wxCRT_RmDir      wxMSLU__wrmdir
-            #define   wxCRT_Stat       wxMSLU__wstat
-        #else // !wxUSE_UNICODE_MSLU
             #define wxCRT_Open      wxCRT_OpenW
             #define wxCRT_Access    wxCRT_AccessW
             #define wxCRT_Chmod     wxCRT_ChmodW
@@ -421,7 +399,6 @@ enum wxPosixPermissions
 
             wxDECL_FOR_STRICT_MINGW32(int, _wmkdir, (const wchar_t*))
             wxDECL_FOR_STRICT_MINGW32(int, _wrmdir, (const wchar_t*))
-        #endif // wxUSE_UNICODE_MSLU/!wxUSE_UNICODE_MSLU
     #else // !wxUSE_UNICODE
         #define wxCRT_Open      wxCRT_OpenA
         #define wxCRT_Access    wxCRT_AccessA

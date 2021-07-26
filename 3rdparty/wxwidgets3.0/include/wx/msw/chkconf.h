@@ -13,23 +13,6 @@
 #ifndef _WX_MSW_CHKCONF_H_
 #define _WX_MSW_CHKCONF_H_
 
-#ifndef wxUSE_UNICODE_MSLU
-#        define wxUSE_UNICODE_MSLU 0
-#endif  /* wxUSE_UNICODE_MSLU */
-
-/*
- * We don't want to give an error if wxUSE_UNICODE_MSLU is enabled but
- * wxUSE_UNICODE is not as this would make it impossible to simply set the
- * former in wx/setup.h as then the library wouldn't compile in non-Unicode
- * configurations, so instead simply unset it silently when it doesn't make
- * sense.
- */
-#if wxUSE_UNICODE_MSLU && !wxUSE_UNICODE
-#   undef wxUSE_UNICODE_MSLU
-#   define wxUSE_UNICODE_MSLU 0
-#endif
-
-
 /*
  * Unfortunately we can't use compiler TLS support if the library can be used
  * inside a dynamically loaded DLL under Windows XP, as this can result in hard
@@ -75,27 +58,5 @@
 #endif
 
 #endif /* __GNUWIN32__ */
-
-/* wxUSE_MFC is not defined when using configure as it doesn't make sense for
-   gcc or mingw32 anyhow */
-#ifndef wxUSE_MFC
-    #define wxUSE_MFC 0
-#endif /* !defined(wxUSE_MFC) */
-
-/*
-   Compiler-specific checks.
- */
-
-/*
-   un/redefine the options which we can't compile (after checking that they're
-   defined
- */
-#ifdef __WINE__
-#   if wxUSE_UNICODE_MSLU
-#       undef wxUSE_UNICODE_MSLU
-#       define wxUSE_UNICODE_MSLU 0
-#   endif /* wxUSE_UNICODE_MSLU */
-#endif /* __WINE__ */
-
 
 #endif /* _WX_MSW_CHKCONF_H_ */

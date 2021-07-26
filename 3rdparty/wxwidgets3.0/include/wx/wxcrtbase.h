@@ -444,16 +444,6 @@ WXDLLIMPEXP_BASE wchar_t *wxCRT_StrtokW(wchar_t *psz, const wchar_t *delim, wcha
 #else /* Unicode filenames */
     /* special case: these functions are missing under Win9x with Unicows so we
        have to implement them ourselves */
-    #if wxUSE_UNICODE_MSLU
-            WXDLLIMPEXP_BASE FILE* wxMSLU__wfopen(const wchar_t *name, const wchar_t *mode);
-            WXDLLIMPEXP_BASE FILE* wxMSLU__wfreopen(const wchar_t *name, const wchar_t *mode, FILE *stream);
-            WXDLLIMPEXP_BASE int wxMSLU__wrename(const wchar_t *oldname, const wchar_t *newname);
-            WXDLLIMPEXP_BASE int wxMSLU__wremove(const wchar_t *name);
-            #define wxCRT_Fopen     wxMSLU__wfopen
-            #define wxCRT_Freopen   wxMSLU__wfreopen
-            #define wxCRT_Remove    wxMSLU__wremove
-            #define wxCRT_Rename    wxMSLU__wrename
-    #else
         wxDECL_FOR_STRICT_MINGW32(FILE*, _wfopen, (const wchar_t*, const wchar_t*))
         wxDECL_FOR_STRICT_MINGW32(FILE*, _wfreopen, (const wchar_t*, const wchar_t*, FILE*))
         wxDECL_FOR_STRICT_MINGW32(int, _wrename, (const wchar_t*, const wchar_t*))
@@ -470,7 +460,6 @@ WXDLLIMPEXP_BASE wchar_t *wxCRT_StrtokW(wchar_t *psz, const wchar_t *delim, wcha
         #endif
         #define wxCRT_Fopen    _wfopen
         #define wxCRT_Freopen  _wfreopen
-    #endif
 
 #endif /* wxMBFILES/!wxMBFILES */
 
