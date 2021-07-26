@@ -54,9 +54,6 @@ namespace Threading
 {
 class pxThread;
 class RwMutex;
-
-extern pxThread *pxGetCurrentThread();
-extern wxString pxGetCurrentThreadName();
 }
 
 namespace Exception
@@ -133,44 +130,6 @@ extern void DisableHiresScheduler();
 
 // sleeps the current thread for the given number of milliseconds.
 extern void Sleep(int ms);
-
-// --------------------------------------------------------------------------------------
-//  NonblockingMutex
-// --------------------------------------------------------------------------------------
-// This is a very simple non-blocking mutex, which behaves similarly to pthread_mutex's
-// trylock(), but without any of the extra overhead needed to set up a structure capable
-// of blocking waits.  It basically optimizes to a single InterlockedExchange.
-//
-// Simple use: if TryAcquire() returns false, the Bool is already interlocked by another thread.
-// If TryAcquire() returns true, you've locked the object and are *responsible* for unlocking
-// it later.
-//
-class NonblockingMutex
-{
-protected:
-    std::atomic_flag val;
-
-public:
-    NonblockingMutex() { val.clear(); }
-    virtual ~NonblockingMutex() = default;
-
-    bool TryAcquire() noexcept
-    {
-        return !val.test_and_set();
-    }
-
-    // Can be done with a TryAcquire/Release but it is likely better to do it outside of the object
-    bool IsLocked()
-    {
-        pxAssertMsg(0, "IsLocked isn't supported for NonblockingMutex");
-        return false;
-    }
-
-    void Release()
-    {
-        val.clear();
-    }
-};
 
 class Semaphore
 {
@@ -296,35 +255,6 @@ public:
     {
     }
     virtual ~ScopedTryLock() = default;
-    bool Failed() const { return !m_IsLocked; }
-};
-
-// --------------------------------------------------------------------------------------
-//  ScopedNonblockingLock
-// --------------------------------------------------------------------------------------
-// A ScopedTryLock branded for use with Nonblocking mutexes.  See ScopedTryLock for details.
-//
-class ScopedNonblockingLock
-{
-    DeclareNoncopyableObject(ScopedNonblockingLock);
-
-protected:
-    NonblockingMutex &m_lock;
-    bool m_IsLocked;
-
-public:
-    ScopedNonblockingLock(NonblockingMutex &locker)
-        : m_lock(locker)
-        , m_IsLocked(m_lock.TryAcquire())
-    {
-    }
-
-    virtual ~ScopedNonblockingLock()
-    {
-        if (m_IsLocked)
-            m_lock.Release();
-    }
-
     bool Failed() const { return !m_IsLocked; }
 };
 

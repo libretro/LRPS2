@@ -80,28 +80,6 @@ static void unmake_curthread_key()
     curthread_key = 0;
 }
 
-// Returns a handle to the current persistent thread.  If the current thread does not belong
-// to the pxThread table, NULL is returned.  Since the main/ui thread is not created
-// through pxThread it will also return NULL.  Callers can use wxThread::IsMain() to
-// test if the NULL thread is the main thread.
-pxThread *Threading::pxGetCurrentThread()
-{
-    return !curthread_key ? NULL : (pxThread *)pthread_getspecific(curthread_key);
-}
-
-// returns the name of the current thread, or "Unknown" if the thread is neither a pxThread
-// nor the Main/UI thread.
-wxString Threading::pxGetCurrentThreadName()
-{
-    if (pxThread *thr = pxGetCurrentThread()) {
-        return thr->GetName();
-    } else if (wxThread::IsMain()) {
-        return L"Main/UI";
-    }
-
-    return L"Unknown";
-}
-
 void Threading::pxThread::_pt_callback_cleanup(void *handle)
 {
     ((pxThread *)handle)->_ThreadCleanup();
@@ -317,12 +295,6 @@ bool Threading::pxThread::IsSelf() const
 bool Threading::pxThread::IsRunning() const
 {
     return m_running;
-}
-
-void Threading::pxThread::AddListener(EventListener_Thread &evt)
-{
-    evt.SetThread(this);
-    m_evtsrc_OnDelete.Add(evt);
 }
 
 // Throws an exception if the thread encountered one.  Uses the BaseException's Rethrow() method,

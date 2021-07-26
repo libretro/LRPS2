@@ -129,14 +129,6 @@ public:
     virtual bool Block(const wxTimeSpan &timeout);
     virtual void RethrowException() const;
 
-    void AddListener(EventListener_Thread &evt);
-    void AddListener(EventListener_Thread *evt)
-    {
-        if (evt == NULL)
-            return;
-        AddListener(*evt);
-    }
-
     void WaitOnSelf(Semaphore &mutex) const;
     void WaitOnSelf(Mutex &mutex) const;
     bool WaitOnSelf(Semaphore &mutex, const wxTimeSpan &timeout) const;
