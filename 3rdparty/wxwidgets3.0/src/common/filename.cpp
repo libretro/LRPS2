@@ -101,6 +101,7 @@
     #include "wx/msw/private.h"
     #include "wx/msw/wrapshl.h"         // for CLSID_ShellLink
     #include "wx/msw/missing.h"
+    #include "wx/msw/ole/oleutils.h"
 #endif
 
 #if defined(__WXMAC__)

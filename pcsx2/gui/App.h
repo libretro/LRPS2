@@ -27,6 +27,7 @@
 #include "System.h"
 #include "System/SysThreads.h"
 
+typedef void FnType_OnThreadComplete(const wxCommandEvent& evt);
 typedef void (Pcsx2App::*FnPtr_Pcsx2App)();
 
 // This is used when the GS plugin is handling its own window.  Messages from the PAD

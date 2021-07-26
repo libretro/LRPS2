@@ -74,7 +74,9 @@
 #   ifdef __VISUALC5__
     /* For VC++ 5.0 for release mode, the warning 'C4702: unreachable code */
     /* is buggy, and occurs for code that does actually get executed */
+#   ifndef __WXDEBUG__
 #       pragma warning(disable:4702)    /* unreachable code */
+#   endif
 
     /* The VC++ 5.0 warning 'C4003: not enough actual parameters for macro'
      * is incompatible with the wxWidgets headers since it is given when

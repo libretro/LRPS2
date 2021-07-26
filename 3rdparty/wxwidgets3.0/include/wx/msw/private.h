@@ -15,6 +15,11 @@
 
 #include "wx/msw/wrapwin.h"
 
+#ifdef __WXMICROWIN__
+    // Extra prototypes and symbols not defined by MicroWindows
+    #include "wx/msw/microwin.h"
+#endif
+
 #include "wx/log.h"
 
 class WXDLLIMPEXP_FWD_CORE wxFont;
