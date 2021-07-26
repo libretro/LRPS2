@@ -449,12 +449,6 @@ void wxEvtHandler::Unlink()
     m_previousHandler = NULL;
 }
 
-bool wxEvtHandler::IsUnlinked() const
-{
-    return m_previousHandler == NULL &&
-           m_nextHandler == NULL;
-}
-
 wxEventFilter* wxEvtHandler::ms_filterList = NULL;
 
 /* static */ void wxEvtHandler::AddFilter(wxEventFilter* filter)
@@ -824,27 +818,6 @@ bool wxEvtHandler::TryHereOnly(wxEvent& event)
 #endif // wxHAS_CALL_AFTER
 
     // We don't have a handler for this event.
-    return false;
-}
-
-bool wxEvtHandler::SafelyProcessEvent(wxEvent& event)
-{
-   return ProcessEvent(event);
-}
-
-bool wxEvtHandler::SearchEventTable(wxEventTable& table, wxEvent& event)
-{
-    const wxEventType eventType = event.GetEventType();
-    for ( int i = 0; table.entries[i].m_fn != 0; i++ )
-    {
-        const wxEventTableEntry& entry = table.entries[i];
-        if ( eventType == entry.m_eventType )
-        {
-            if ( ProcessEventIfMatchesId(entry, this, event) )
-                return true;
-        }
-    }
-
     return false;
 }
 

@@ -1242,11 +1242,9 @@ public:
     virtual void SetNextHandler(wxEvtHandler *handler) { m_nextHandler = handler; }
     virtual void SetPreviousHandler(wxEvtHandler *handler) { m_previousHandler = handler; }
 
-    void SetEvtHandlerEnabled(bool enabled) { m_enabled = enabled; }
     bool GetEvtHandlerEnabled() const { return m_enabled; }
 
     void Unlink();
-    bool IsUnlinked() const;
 
 
     // Global event filters
@@ -1270,13 +1268,6 @@ public:
     // thread, use QueueEvent() for scheduling the events for
     // processing from other threads.
     virtual bool ProcessEvent(wxEvent& event);
-
-    // Process an event by calling ProcessEvent and handling any exceptions
-    // thrown by event handlers. It's mostly useful when processing wx events
-    // when called from C code (e.g. in GTK+ callback) when the exception
-    // wouldn't correctly propagate to wxEventLoop.
-    bool SafelyProcessEvent(wxEvent& event);
-        // NOTE: uses ProcessEvent()
 
     // This method tries to process the event in this event handler, including
     // any preprocessing done by TryBefore() and all the handlers chained to
@@ -1458,7 +1449,6 @@ public:
                                         wxEvtHandler *handler,
                                         wxEvent& event);
 
-    virtual bool SearchEventTable(wxEventTable& table, wxEvent& event);
     bool SearchDynamicEventTable( wxEvent& event );
 
     // Avoid problems at exit by cleaning up static hash table gracefully
