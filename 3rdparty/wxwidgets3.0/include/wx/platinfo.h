@@ -163,22 +163,9 @@ public:
     // ---------------------------------
 
     static wxOperatingSystemId GetOperatingSystemId(const wxString &name);
-    static wxPortId GetPortId(const wxString &portname);
 
     static wxArchitecture GetArch(const wxString &arch);
     static wxEndianness GetEndianness(const wxString &end);
-
-    // enum -> string conversions
-    // ---------------------------------
-
-    static wxString GetOperatingSystemFamilyName(wxOperatingSystemId os);
-    static wxString GetOperatingSystemIdName(wxOperatingSystemId os);
-    static wxString GetPortIdName(wxPortId port, bool usingUniversal);
-    static wxString GetPortIdShortName(wxPortId port, bool usingUniversal);
-
-    static wxString GetArchName(wxArchitecture arch);
-    static wxString GetEndiannessName(wxEndianness end);
-
 
     // getters
     // -----------------
@@ -217,8 +204,6 @@ public:
         { return m_os; }
     wxLinuxDistributionInfo GetLinuxDistributionInfo() const
         { return m_ldi; }
-    wxPortId GetPortId() const
-        { return m_port; }
     wxArchitecture GetArchitecture() const
         { return m_arch; }
     wxEndianness GetEndianness() const
@@ -228,28 +213,8 @@ public:
     // string getters
     // -----------------
 
-    wxString GetOperatingSystemFamilyName() const
-        { return GetOperatingSystemFamilyName(m_os); }
-    wxString GetOperatingSystemIdName() const
-        { return GetOperatingSystemIdName(m_os); }
-    wxString GetPortIdName() const
-        { return GetPortIdName(m_port, m_usingUniversal); }
-    wxString GetPortIdShortName() const
-        { return GetPortIdShortName(m_port, m_usingUniversal); }
-    wxString GetArchName() const
-        { return GetArchName(m_arch); }
-    wxString GetEndiannessName() const
-        { return GetEndiannessName(m_endian); }
-    wxString GetOperatingSystemDescription() const
-        { return m_osDesc; }
     wxString GetDesktopEnvironment() const
         { return m_desktopEnv; }
-
-    static wxString GetOperatingSystemDirectory();
-        // doesn't make sense to store inside wxPlatformInfo the OS directory,
-        // thus this function is static; note that this function simply calls
-        // wxGetOSDirectory() and is here just to make it easier for the user to
-        // find it that feature (global functions can be difficult to find in the docs)
 
     // setters
     // -----------------

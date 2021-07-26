@@ -68,55 +68,6 @@ static const wxChar* const wxOperatingSystemIdNames[] =
     wxT("OS/2"),
 };
 
-static const wxChar* const wxPortIdNames[] =
-{
-    wxT("wxBase"),
-    wxT("wxMSW"),
-    wxT("wxMotif"),
-    wxT("wxGTK"),
-    wxT("wxDFB"),
-    wxT("wxX11"),
-    wxT("wxOS2"),
-    wxT("wxMac"),
-    wxT("wxCocoa"),
-    wxT("wxWinCE"),
-};
-
-static const wxChar* const wxArchitectureNames[] =
-{
-    wxT("32 bit"),
-    wxT("64 bit")
-};
-
-static const wxChar* const wxEndiannessNames[] =
-{
-    wxT("Big endian"),
-    wxT("Little endian"),
-    wxT("PDP endian")
-};
-
-// ----------------------------------------------------------------------------
-// local functions
-// ----------------------------------------------------------------------------
-
-// returns the logarithm in base 2 of 'value'; this maps the enum values to the
-// corresponding indexes of the string arrays above
-static unsigned wxGetIndexFromEnumValue(int value)
-{
-    wxCHECK_MSG( value, (unsigned)-1, wxT("invalid enum value") );
-
-    int n = 0;
-    while ( !(value & 1) )
-    {
-        value >>= 1;
-        n++;
-    }
-
-    wxASSERT_MSG( value == 1, wxT("more than one bit set in enum value") );
-
-    return n;
-}
-
 // ----------------------------------------------------------------------------
 // wxPlatformInfo
 // ----------------------------------------------------------------------------
@@ -206,87 +157,6 @@ const wxPlatformInfo& wxPlatformInfo::Get()
     return gs_platInfo;
 }
 
-/* static */
-wxString wxPlatformInfo::GetOperatingSystemDirectory()
-{
-    return wxGetOSDirectory();
-}
-
-
-
-// ----------------------------------------------------------------------------
-// wxPlatformInfo - enum -> string conversions
-// ----------------------------------------------------------------------------
-
-wxString wxPlatformInfo::GetOperatingSystemFamilyName(wxOperatingSystemId os)
-{
-    const wxChar* string = wxT("Unknown");
-    if ( os & wxOS_MAC )
-        string = wxT("Macintosh");
-    else if ( os & wxOS_WINDOWS )
-        string = wxT("Windows");
-    else if ( os & wxOS_UNIX )
-        string = wxT("Unix");
-    else if ( os == wxOS_DOS )
-        string = wxT("DOS");
-    else if ( os == wxOS_OS2 )
-        string = wxT("OS/2");
-
-    return string;
-}
-
-wxString wxPlatformInfo::GetOperatingSystemIdName(wxOperatingSystemId os)
-{
-    const unsigned idx = wxGetIndexFromEnumValue(os);
-
-    wxCHECK_MSG( idx < WXSIZEOF(wxOperatingSystemIdNames), wxEmptyString,
-                 wxT("invalid OS id") );
-
-    return wxOperatingSystemIdNames[idx];
-}
-
-wxString wxPlatformInfo::GetPortIdName(wxPortId port, bool usingUniversal)
-{
-    const unsigned idx = wxGetIndexFromEnumValue(port);
-
-    wxCHECK_MSG( idx < WXSIZEOF(wxPortIdNames), wxEmptyString,
-                 wxT("invalid port id") );
-
-    wxString ret = wxPortIdNames[idx];
-
-    if ( usingUniversal )
-        ret += wxT("/wxUniversal");
-
-    return ret;
-}
-
-wxString wxPlatformInfo::GetPortIdShortName(wxPortId port, bool usingUniversal)
-{
-    const unsigned idx = wxGetIndexFromEnumValue(port);
-
-    wxCHECK_MSG( idx < WXSIZEOF(wxPortIdNames), wxEmptyString,
-                 wxT("invalid port id") );
-
-    wxString ret = wxPortIdNames[idx];
-    ret = ret.Mid(2).Lower();       // remove 'wx' prefix
-
-    if ( usingUniversal )
-        ret += wxT("univ");
-
-    return ret;
-}
-
-wxString wxPlatformInfo::GetArchName(wxArchitecture arch)
-{
-    return wxArchitectureNames[arch];
-}
-
-wxString wxPlatformInfo::GetEndiannessName(wxEndianness end)
-{
-    return wxEndiannessNames[end];
-}
-
-
 // ----------------------------------------------------------------------------
 // wxPlatformInfo - string -> enum conversions
 // ----------------------------------------------------------------------------
@@ -300,22 +170,6 @@ wxOperatingSystemId wxPlatformInfo::GetOperatingSystemId(const wxString &str)
     }
 
     return wxOS_UNKNOWN;
-}
-
-wxPortId wxPlatformInfo::GetPortId(const wxString &str)
-{
-    // recognize both short and long port names
-    for ( size_t i = 0; i < WXSIZEOF(wxPortIdNames); i++ )
-    {
-        wxPortId current = (wxPortId)(1 << i);
-
-        if ( wxString(wxPortIdNames[i]).CmpNoCase(str) == 0 ||
-             GetPortIdShortName(current, true).CmpNoCase(str) == 0 ||
-             GetPortIdShortName(current, false).CmpNoCase(str) == 0 )
-            return current;
-    }
-
-    return wxPORT_UNKNOWN;
 }
 
 wxArchitecture wxPlatformInfo::GetArch(const wxString &arch)

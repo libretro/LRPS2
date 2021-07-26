@@ -42,7 +42,6 @@
 #include "wx/apptrait.h"
 
 #include "wx/txtstrm.h"
-#include "wx/uri.h"
 #include "wx/config.h"
 #include "wx/versioninfo.h"
 
