@@ -18,13 +18,10 @@
 #include <wx/wx.h>
 
 #include "Threading.h"
-#include "wxGuiTools.h"
 #include "pxEvents.h"
 #include "AppTrait.h"
 
 using namespace Threading;
-
-class pxSynchronousCommandEvent;
 
 // --------------------------------------------------------------------------------------
 //  wxAppWithHelpers

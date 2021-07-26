@@ -59,8 +59,6 @@ set(UtilitiesHeaders
 	../../include/Utilities/StringHelpers.h
 	../../include/Utilities/Threading.h
 	../../include/Utilities/wxAppWithHelpers.h
-	../../include/Utilities/wxBaseTools.h
-	../../include/Utilities/wxGuiTools.h
 	PrecompiledHeader.h
 	ThreadingInternal.h
 )

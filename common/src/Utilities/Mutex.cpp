@@ -17,8 +17,6 @@
 #include "PrecompiledHeader.h"
 
 #include "Threading.h"
-#include "wxBaseTools.h"
-#include "wxGuiTools.h"
 #include "ThreadingInternal.h"
 
 namespace Threading

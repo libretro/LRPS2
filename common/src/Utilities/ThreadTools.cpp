@@ -21,7 +21,6 @@
 #endif
 
 #include "PersistentThread.h"
-#include "wxBaseTools.h"
 #include "ThreadingInternal.h"
 #include "EventSource.inl"
 

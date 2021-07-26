@@ -14,7 +14,6 @@
  */
 
 #include "PrecompiledHeader.h"
-#include "wxBaseTools.h"
 #include "pxStreams.h"
 
 #include <wx/stream.h>
