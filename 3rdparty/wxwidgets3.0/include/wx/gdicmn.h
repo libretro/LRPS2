@@ -28,7 +28,6 @@
 
 class WXDLLIMPEXP_FWD_CORE wxBitmap;
 class WXDLLIMPEXP_FWD_CORE wxBrush;
-class WXDLLIMPEXP_FWD_CORE wxColour;
 class WXDLLIMPEXP_FWD_CORE wxCursor;
 class WXDLLIMPEXP_FWD_CORE wxFont;
 class WXDLLIMPEXP_FWD_CORE wxPen;
@@ -684,7 +683,6 @@ extern WXDLLIMPEXP_DATA_CORE(wxCursor)     wxNullCursor;
 extern WXDLLIMPEXP_DATA_CORE(wxPen)        wxNullPen;
 extern WXDLLIMPEXP_DATA_CORE(wxBrush)      wxNullBrush;
 extern WXDLLIMPEXP_DATA_CORE(wxFont)       wxNullFont;
-extern WXDLLIMPEXP_DATA_CORE(wxColour)     wxNullColour;
 
 extern WXDLLIMPEXP_DATA_CORE(const char) wxPanelNameStr[];
 
