@@ -26,7 +26,6 @@ set(UtilitiesFinalFlags ${CommonFlags})
 		PathUtils.cpp
 		PrecompiledHeader.cpp
 		pxStreams.cpp
-		RwMutex.cpp
 		StringHelpers.cpp
 		ThreadTools.cpp
       		wxAppWithHelpers.cpp
@@ -54,7 +53,6 @@ set(UtilitiesHeaders
 	../../include/Utilities/pxForwardDefs.h
 	../../include/Utilities/pxStreams.h
 	../../include/Utilities/RedtapeWindows.h
-	../../include/Utilities/RwMutex.h
 	../../include/Utilities/SafeArray.h
 	../../include/Utilities/ScopedAlloc.h
 	../../include/Utilities/ScopedPtrMT.h

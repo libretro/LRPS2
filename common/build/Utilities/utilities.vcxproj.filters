@@ -80,9 +80,6 @@
     <ClCompile Include="..\..\src\Utilities\ThreadTools.cpp">
       <Filter>Source Files\Threading</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\Utilities\RwMutex.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\Utilities\FastFormatString.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -178,9 +175,6 @@
       <Filter>Header Files\Threading</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\Utilities\pxEvents.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\Utilities\RwMutex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\Utilities\ScopedAlloc.h">
