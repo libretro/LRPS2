@@ -14,7 +14,6 @@
 #include "wx/defs.h"
 #include "wx/cpp.h"
 #include "wx/object.h"
-#include "wx/clntdata.h"
 
 #include "wx/dynarray.h"
 #include "wx/thread.h"
@@ -1428,14 +1427,6 @@ public:
 
     wxList* GetDynamicEventTable() const { return m_dynamicEvents ; }
 
-    // User data can be associated with each wxEvtHandler
-    void SetClientObject( wxClientData *data ) { DoSetClientObject(data); }
-    wxClientData *GetClientObject() const { return DoGetClientObject(); }
-
-    void SetClientData( void *data ) { DoSetClientData(data); }
-    void *GetClientData() const { return DoGetClientData(); }
-
-
     // implementation from now on
     // --------------------------
 
@@ -1528,28 +1519,6 @@ protected:
 
     // Is event handler enabled?
     bool                m_enabled;
-
-
-    // The user data: either an object which will be deleted by the container
-    // when it's deleted or some raw pointer which we do nothing with - only
-    // one type of data can be used with the given window (i.e. you cannot set
-    // the void data and then associate the container with wxClientData or vice
-    // versa)
-    union
-    {
-        wxClientData *m_clientObject;
-        void         *m_clientData;
-    };
-
-    // what kind of data do we have?
-    wxClientDataType m_clientDataType;
-
-    // client data accessors
-    virtual void DoSetClientObject( wxClientData *data );
-    virtual wxClientData *DoGetClientObject() const;
-
-    virtual void DoSetClientData( void *data );
-    virtual void *DoGetClientData() const;
 
     // Search tracker objects for event connection with this sink
     wxEventConnectionRef *FindRefInTrackerList(wxEvtHandler *handler);
