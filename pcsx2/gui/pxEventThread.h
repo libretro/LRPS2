@@ -84,12 +84,6 @@ public:
 	// should not allow cancellation since they could result in program crashes or corrupted
 	// data.
 	virtual bool AllowCancelOnExit() const { return true; }
-
-	virtual int GetResult()
-	{
-		if( !pxAssertDev( m_sync != NULL, "SysEvent: Expecting return value, but no sync object provided." ) ) return 0;
-		return m_sync->return_value;
-	}
 };
 
 // --------------------------------------------------------------------------------------
@@ -124,68 +118,3 @@ public:
 		return *this;
 	}
 };
-
-#ifndef __LIBRETRO__
-typedef std::list<SysExecEvent*> pxEvtList;
-
-// --------------------------------------------------------------------------------------
-//  pxEvtQueue
-// --------------------------------------------------------------------------------------
-// Thread-safe platform-independent message queue, intended to act as a proxy between
-// control threads (such as the Main/UI thread) and worker threads.
-//
-// Proxy message queues provide a safe environment for queuing tasks that must be executed
-// in sequential order (in blocking fashion) on one or more worker threads.  The queue is
-// deadlock-free, which means the Main/UI thread can queue events into this EventQueue without
-// fear of causing unresponsiveness within the user interface.
-//
-// Rationales:
-//  * Using the main event handler of wxWidgets is dangerous because it must call itself
-//    recursively when waiting on threaded events such as semaphore and mutexes.  Thus,
-//    tasks such as suspending the VM would invoke the event queue while waiting,
-//    running events that expect the suspend to be complete while the suspend was still
-//    pending.
-//
-//  * wxWidgets Event Queue (wxEvtHandler) isn't thread-safe and isn't even intended for
-//    use for anything other than wxWindow events (it uses static vars and checks/modifies
-//    wxApp globals while processing), so it's useless to us.  Have to roll our own. -_-
-//
-class pxEvtQueue
-{
-protected:
-	pxEvtList					m_pendingEvents;
-	pxEvtList					m_idleEvents;
-
-	Threading::MutexRecursive	m_mtx_pending;
-	Threading::Semaphore		m_wakeup;
-	wxThreadIdType				m_OwnerThreadId;
-	std::atomic<bool>			m_Quitting;
-
-public:
-	pxEvtQueue();
-	virtual ~pxEvtQueue() = default;
-
-	virtual wxString GetEventHandlerName() const { return L"pxEvtQueue"; }
-
-	virtual void ShutdownQueue();
-	bool IsShuttingDown() const { return !!m_Quitting; }
-
-	void ProcessEvents( pxEvtList& list, bool isIdle=false );
-	void ProcessPendingEvents();
-	void ProcessIdleEvents();
-	void Idle();
-
-	void AddPendingEvent( SysExecEvent& evt );
-	void PostEvent( SysExecEvent* evt );
-	void PostEvent( const SysExecEvent& evt );
-	void PostIdleEvent( SysExecEvent* evt );
-	void PostIdleEvent( const SysExecEvent& evt );
-
-	void ProcessEvent( SysExecEvent* evt );
-	void ProcessEvent( SysExecEvent& evt );
-
-	bool Rpc_TryInvokeAsync( FnType_Void* method, const wxChar* traceName=NULL );
-	bool Rpc_TryInvoke( FnType_Void* method, const wxChar* traceName=NULL );
-	void SetActiveThread();
-};
-#endif
