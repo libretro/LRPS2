@@ -199,7 +199,7 @@ public:
 	//  Startup / Shutdown Helpers
 	// --------------------------------------------------------------------------
 
-	void DetectCpuAndUserMode();
+	bool DetectCpuAndUserMode();
 	void CleanupRestartable();
 	void CleanupResources();
 

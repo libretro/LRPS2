@@ -53,6 +53,7 @@ static struct retro_perf_callback perf_cb;
 #define RETRO_PERFORMANCE_STOP(name)
 #endif
 
+static bool init_failed = false;
 int option_upscale_mult = 1;
 retro_environment_t environ_cb;
 retro_video_refresh_t video_cb;
@@ -296,90 +297,94 @@ void retro_init(void)
 
 	// some other stuffs about pcsx2
 
-	pcsx2->DetectCpuAndUserMode();
-	pcsx2->AllocateCoreStuffs();
-
-	// checks and creates the shared memory cards based on user option if
-	// already set (e.g. global config + new content)
-
-	if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "shared8") == 0)
+	if (pcsx2->DetectCpuAndUserMode())
 	{
-		
-		slot1_file.SetName(FILENAME_SHARED_MEMCARD_8);
-		slot1_file.SetExt("ps2");
-		MemCardRetro::CreateSharedMemCardIfNotExisting(slot1_file, 8);
+		pcsx2->AllocateCoreStuffs();
+
+		// checks and creates the shared memory cards based on user option if
+		// already set (e.g. global config + new content)
+
+		if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "shared8") == 0)
+		{
+
+			slot1_file.SetName(FILENAME_SHARED_MEMCARD_8);
+			slot1_file.SetExt("ps2");
+			MemCardRetro::CreateSharedMemCardIfNotExisting(slot1_file, 8);
+
+		}
+		else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "shared32") == 0)
+		{
+			slot1_file.SetName(FILENAME_SHARED_MEMCARD_32);
+			slot1_file.SetExt("ps2");
+			MemCardRetro::CreateSharedMemCardIfNotExisting(slot1_file, 32);
+		}
+
+
+		if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "shared8") == 0)
+		{
+			slot2_file.SetName(FILENAME_SHARED_MEMCARD_8);
+			slot2_file.SetExt("ps2");
+			MemCardRetro::CreateSharedMemCardIfNotExisting(slot2_file, 8);
+
+		}
+		else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "shared32") == 0)
+		{
+			slot2_file.SetName(FILENAME_SHARED_MEMCARD_32);
+			slot2_file.SetExt("ps2");
+			MemCardRetro::CreateSharedMemCardIfNotExisting(slot2_file, 32);
+		}
+
+
+		// apply options to pcsx2
+
+		g_Conf->EnablePresets = true;
+		g_Conf->BaseFilenames.Plugins[PluginId_GS] = "Built-in";
+		g_Conf->BaseFilenames.Plugins[PluginId_PAD] = "Built-in";
+		g_Conf->BaseFilenames.Plugins[PluginId_USB] = "Built-in";
+		g_Conf->BaseFilenames.Plugins[PluginId_DEV9] = "Built-in";
+		g_Conf->EmuOptions.EnableIPC = false;
+		g_Conf->EmuOptions.Speedhacks.fastCDVD  = option_value(BOOL_PCSX2_OPT_FASTCDVD, KeyOptionBool::return_type);
+
+		g_Conf->EmuOptions.EnableWideScreenPatches = option_value(BOOL_PCSX2_OPT_ENABLE_WIDESCREEN_PATCHES, KeyOptionBool::return_type);
+		g_Conf->EmuOptions.GS.FrameSkipEnable = option_value(BOOL_PCSX2_OPT_FRAMESKIP, KeyOptionBool::return_type);
+		g_Conf->EmuOptions.GS.FramesToDraw = option_value(INT_PCSX2_OPT_FRAMES_TO_DRAW, KeyOptionInt::return_type);
+		g_Conf->EmuOptions.GS.FramesToSkip = option_value(INT_PCSX2_OPT_FRAMES_TO_SKIP, KeyOptionInt::return_type);
+		g_Conf->EmuOptions.GS.VsyncQueueSize = option_value(INT_PCSX2_OPT_VSYNC_MTGS_QUEUE, KeyOptionInt::return_type);
+		g_Conf->EmuOptions.EnableCheats = option_value(BOOL_PCSX2_OPT_ENABLE_CHEATS, KeyOptionBool::return_type);
+
+
+		int clampMode = option_value(INT_PCSX2_OPT_CLAMPING_MODE, KeyOptionInt::return_type);
+		g_Conf->EmuOptions.Cpu.Recompiler.fpuOverflow = (clampMode >= 1);
+		g_Conf->EmuOptions.Cpu.Recompiler.fpuExtraOverflow = (clampMode >= 2);
+		g_Conf->EmuOptions.Cpu.Recompiler.fpuFullMode = (clampMode >= 3);
+
+		g_Conf->EmuOptions.Cpu.Recompiler.vuOverflow = (clampMode >= 1);
+		g_Conf->EmuOptions.Cpu.Recompiler.vuExtraOverflow = (clampMode >= 2);
+		g_Conf->EmuOptions.Cpu.Recompiler.vuSignOverflow = (clampMode >= 3);
+
+		SSE_RoundMode roundMode = (SSE_RoundMode)option_value(INT_PCSX2_OPT_ROUND_MODE, KeyOptionInt::return_type);;
+		g_Conf->EmuOptions.Cpu.sseMXCSR.SetRoundMode(roundMode);
+		g_Conf->EmuOptions.Cpu.sseVUMXCSR.SetRoundMode(roundMode);
+
+
+		static retro_disk_control_ext_callback disk_control = {
+			DiskControl::set_eject_state,
+			DiskControl::get_eject_state,
+			DiskControl::get_image_index,
+			DiskControl::set_image_index,
+			DiskControl::get_num_images,
+			DiskControl::replace_image_index,
+			DiskControl::add_image_index,
+			DiskControl::set_initial_image,
+			DiskControl::get_image_path,
+			DiskControl::get_image_label,
+		};
+
+		environ_cb(RETRO_ENVIRONMENT_SET_DISK_CONTROL_EXT_INTERFACE, &disk_control);
 
 	}
-	else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "shared32") == 0)
-	{
-		slot1_file.SetName(FILENAME_SHARED_MEMCARD_32);
-		slot1_file.SetExt("ps2");
-		MemCardRetro::CreateSharedMemCardIfNotExisting(slot1_file, 32);
-	}
-
-
-	if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "shared8") == 0)
-	{
-		slot2_file.SetName(FILENAME_SHARED_MEMCARD_8);
-		slot2_file.SetExt("ps2");
-		MemCardRetro::CreateSharedMemCardIfNotExisting(slot2_file, 8);
-
-	}
-	else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "shared32") == 0)
-	{
-		slot2_file.SetName(FILENAME_SHARED_MEMCARD_32);
-		slot2_file.SetExt("ps2");
-		MemCardRetro::CreateSharedMemCardIfNotExisting(slot2_file, 32);
-	}
-
-
-	// apply options to pcsx2
-	
-	g_Conf->EnablePresets = true;
-	g_Conf->BaseFilenames.Plugins[PluginId_GS] = "Built-in";
-	g_Conf->BaseFilenames.Plugins[PluginId_PAD] = "Built-in";
-	g_Conf->BaseFilenames.Plugins[PluginId_USB] = "Built-in";
-	g_Conf->BaseFilenames.Plugins[PluginId_DEV9] = "Built-in";
-	g_Conf->EmuOptions.EnableIPC = false;
-	g_Conf->EmuOptions.Speedhacks.fastCDVD  = option_value(BOOL_PCSX2_OPT_FASTCDVD, KeyOptionBool::return_type);
-
-	g_Conf->EmuOptions.EnableWideScreenPatches = option_value(BOOL_PCSX2_OPT_ENABLE_WIDESCREEN_PATCHES, KeyOptionBool::return_type);
-	g_Conf->EmuOptions.GS.FrameSkipEnable = option_value(BOOL_PCSX2_OPT_FRAMESKIP, KeyOptionBool::return_type);
-	g_Conf->EmuOptions.GS.FramesToDraw = option_value(INT_PCSX2_OPT_FRAMES_TO_DRAW, KeyOptionInt::return_type);
-	g_Conf->EmuOptions.GS.FramesToSkip = option_value(INT_PCSX2_OPT_FRAMES_TO_SKIP, KeyOptionInt::return_type);
-	g_Conf->EmuOptions.GS.VsyncQueueSize = option_value(INT_PCSX2_OPT_VSYNC_MTGS_QUEUE, KeyOptionInt::return_type);
-	g_Conf->EmuOptions.EnableCheats = option_value(BOOL_PCSX2_OPT_ENABLE_CHEATS, KeyOptionBool::return_type);
-	
-
-	int clampMode = option_value(INT_PCSX2_OPT_CLAMPING_MODE, KeyOptionInt::return_type);
-	g_Conf->EmuOptions.Cpu.Recompiler.fpuOverflow = (clampMode >= 1);
-	g_Conf->EmuOptions.Cpu.Recompiler.fpuExtraOverflow = (clampMode >= 2);
-	g_Conf->EmuOptions.Cpu.Recompiler.fpuFullMode = (clampMode >= 3);
-
-	g_Conf->EmuOptions.Cpu.Recompiler.vuOverflow = (clampMode >= 1);
-	g_Conf->EmuOptions.Cpu.Recompiler.vuExtraOverflow = (clampMode >= 2);
-	g_Conf->EmuOptions.Cpu.Recompiler.vuSignOverflow = (clampMode >= 3);
-
-	SSE_RoundMode roundMode = (SSE_RoundMode)option_value(INT_PCSX2_OPT_ROUND_MODE, KeyOptionInt::return_type);;
-	g_Conf->EmuOptions.Cpu.sseMXCSR.SetRoundMode(roundMode);
-	g_Conf->EmuOptions.Cpu.sseVUMXCSR.SetRoundMode(roundMode);
-
-
-	static retro_disk_control_ext_callback disk_control = {
-		DiskControl::set_eject_state,
-		DiskControl::get_eject_state,
-		DiskControl::get_image_index,
-		DiskControl::set_image_index,
-		DiskControl::get_num_images,
-		DiskControl::replace_image_index,
-		DiskControl::add_image_index,
-		DiskControl::set_initial_image,
-		DiskControl::get_image_path,
-		DiskControl::get_image_label,
-	};
-
-	environ_cb(RETRO_ENVIRONMENT_SET_DISK_CONTROL_EXT_INTERFACE, &disk_control);
-
+	else
+		init_failed = true;
 }
 
 void retro_deinit(void)
@@ -577,8 +582,11 @@ read_m3u_file(const wxFileName& m3u_file)
 
 bool retro_load_game(const struct retro_game_info* game)
 {
-//	msg_cheat_ws_found_sent = false;
-//	msg_cheats_found_sent = false;
+	if (init_failed)
+	{
+		init_failed = false;
+		return false;
+	}
 
 	ResetContentStuffs();
 
@@ -590,7 +598,7 @@ bool retro_load_game(const struct retro_game_info* game)
 	}
 	else
 		log_cb(RETRO_LOG_INFO, "Loading selected BIOS:  %s\n", selected_bios);
-	
+
 
 	const char* system = nullptr;
 	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
@@ -606,12 +614,12 @@ bool retro_load_game(const struct retro_game_info* game)
 
 	if (game)
 	{
-		
+
 		LanguageInjector::Inject(
-			(std::string)option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type),
-			option_value(STRING_PCSX2_OPT_SYSTEM_LANGUAGE, KeyOptionString::return_type)
-		);
-		
+				(std::string)option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type),
+				option_value(STRING_PCSX2_OPT_SYSTEM_LANGUAGE, KeyOptionString::return_type)
+				);
+
 
 
 		wxVector<wxString> game_paths;
@@ -650,11 +658,11 @@ bool retro_load_game(const struct retro_game_info* game)
 		}
 		else
 		{	
-			
+
 			g_Conf->EmuOptions.UseBOOT2Injection = option_value(BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::return_type);
 			g_Conf->CdvdSource = CDVD_SourceType::Iso;
 			g_Conf->CurrentIso = game_paths[0];
-			
+
 			// set up memcard on slot 1
 			if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "empty") == 0)
 			{
@@ -677,7 +685,7 @@ bool retro_load_game(const struct retro_game_info* game)
 
 			}
 			else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "shared8") == 0 
-				|| strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "shared32") == 0)
+					|| strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "shared32") == 0)
 			{
 				// Shared Memcards
 				g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_File;
@@ -708,7 +716,7 @@ bool retro_load_game(const struct retro_game_info* game)
 
 			// set up memcard on slot 2
 
-							
+
 			if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "empty") == 0)
 			{
 				// slot empty
@@ -716,7 +724,7 @@ bool retro_load_game(const struct retro_game_info* game)
 				g_Conf->Mcd[1].Enabled = false;
 			}
 			else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "shared8") == 0 
-				|| strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "shared32") == 0)
+					|| strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "shared32") == 0)
 			{
 				// Shared Memcards
 				g_Conf->Mcd[1].Type = MemoryCardType::MemoryCard_File;
@@ -742,7 +750,7 @@ bool retro_load_game(const struct retro_game_info* game)
 
 			}
 
-	
+
 			if (!option_value(BOOL_PCSX2_OPT_BOOT_TO_BIOS, KeyOptionBool::return_type))
 			{
 				pcsx2->SysExecute(g_Conf->CdvdSource);
@@ -760,7 +768,7 @@ bool retro_load_game(const struct retro_game_info* game)
 
 			}
 		}
-		
+
 	}
 	else
 	{
@@ -779,9 +787,9 @@ bool retro_load_game(const struct retro_game_info* game)
 
 	Input::Init();
 	Input::RumbleEnabled(
-		option_value(BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE, KeyOptionBool::return_type),
-		option_value(INT_PCSX2_OPT_GAMEPAD_RUMBLE_FORCE, KeyOptionInt::return_type)
-		);
+			option_value(BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE, KeyOptionBool::return_type),
+			option_value(INT_PCSX2_OPT_GAMEPAD_RUMBLE_FORCE, KeyOptionInt::return_type)
+			);
 
 	retro_hw_context_type context_type = RETRO_HW_CONTEXT_OPENGL;
 	const char* option_renderer = option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type);
