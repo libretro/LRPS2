@@ -57,10 +57,6 @@ class RwMutex;
 
 extern pxThread *pxGetCurrentThread();
 extern wxString pxGetCurrentThreadName();
-
-// Yields the current thread and provides cancellation points if the thread is managed by
-// pxThread.  Unmanaged threads use standard Sleep.
-extern void pxYield(int ms);
 }
 
 namespace Exception

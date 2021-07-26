@@ -111,29 +111,6 @@ public:
     virtual bool ProcessIdle();
 
 
-    // Yield-related hooks
-    // -------------------
-
-    // process all currently pending events right now
-    //
-    // it is an error to call Yield() recursively unless the value of
-    // onlyIfNeeded is true
-    //
-    // WARNING: this function is dangerous as it can lead to unexpected
-    //          reentrancies (i.e. when called from an event handler it
-    //          may result in calling the same event handler again), use
-    //          with _extreme_ care or, better, don't use at all!
-    bool Yield(bool onlyIfNeeded = false);
-
-    // returns true if events of the given event category should be immediately
-    // processed inside a wxApp::Yield() call or rather should be queued for
-    // later processing by the main event loop
-    virtual bool IsEventAllowedInsideYield(wxEventCategory cat) const
-        { return (m_eventsToProcessInsideYield & cat) != 0; }
-
-    // no SafeYield hooks since it uses wxWindow which is not available when wxUSE_GUI=0
-
-
     // active loop
     // -----------
 
@@ -158,15 +135,11 @@ protected:
     // been really called IsActive() but it's too late to change this now).
     bool IsInsideRun() const { return m_isInsideRun; }
 
-
     // the pointer to currently active loop
     static wxEventLoopBase *ms_activeLoop;
 
     // should we exit the loop?
     bool m_shouldExit;
-
-    // YieldFor() helpers:
-    long m_eventsToProcessInsideYield;
 
 private:
     // this flag is set on entry into Run() and reset before leaving it

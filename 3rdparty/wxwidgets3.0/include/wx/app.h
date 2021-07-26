@@ -297,8 +297,6 @@ public:
     virtual int MainLoop();
     virtual void ExitMainLoop();
 
-    bool Yield(bool onlyIfNeeded = false);
-
     virtual void WakeUpIdle();
 
     // this method is called by the active event loop when there are no events

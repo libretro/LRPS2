@@ -35,8 +35,6 @@ wxEventLoopBase::wxEventLoopBase()
 {
     m_isInsideRun = false;
     m_shouldExit = false;
-
-    m_eventsToProcessInsideYield = wxEVT_CATEGORY_ALL;
 }
 
 bool wxEventLoopBase::IsMain() const
@@ -98,11 +96,6 @@ void wxEventLoopBase::WakeUpIdle()
 bool wxEventLoopBase::ProcessIdle()
 {
     return wxTheApp && wxTheApp->ProcessIdle();
-}
-
-bool wxEventLoopBase::Yield(bool onlyIfNeeded)
-{
-    return true;
 }
 
 #if wxUSE_EVENTLOOP_SOURCE

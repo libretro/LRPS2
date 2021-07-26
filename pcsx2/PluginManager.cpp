@@ -440,7 +440,6 @@ void SysCorePlugins::Load( )
 
 	ForPlugins([&] (const PluginInfo * pi) {
 		Load( pi->id );
-		pxYield( 2 );
 	});
 
 	m_info[PluginId_PAD]->CommonBindings.Init = _hack_PADinit;

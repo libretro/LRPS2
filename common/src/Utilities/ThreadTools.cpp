@@ -29,10 +29,6 @@ using namespace Threading;
 
 template class EventSource<EventListener_Thread>;
 
-// 100ms interval for waitgui (issued from blocking semaphore waits on the main thread,
-// to avoid gui deadlock).
-const wxTimeSpan Threading::def_yieldgui_interval(0, 0, 0, 100);
-
 class StaticMutex : public Mutex
 {
 protected:
@@ -104,35 +100,6 @@ wxString Threading::pxGetCurrentThreadName()
     }
 
     return L"Unknown";
-}
-
-void Threading::pxYield(int ms)
-{
-    if (pxThread *thr = pxGetCurrentThread())
-        thr->Yield(ms);
-    else
-        Sleep(ms);
-}
-
-// (intended for internal use only)
-// Returns true if the Wait is recursive, or false if the Wait is safe and should be
-// handled via normal yielding methods.
-bool Threading::_WaitGui_RecursionGuard(const wxChar *name)
-{
-    AffinityAssert_AllowFrom_MainUI();
-
-    // In order to avoid deadlock we need to make sure we cut some time to handle messages.
-    // But this can result in recursive yield calls, which would crash the app.  Protect
-    // against them here and, if recursion is detected, perform a standard blocking wait.
-
-    static int __Guard = 0;
-    RecursionGuard guard(__Guard);
-
-    //if( pxAssertDev( !guard.IsReentrant(), "Recursion during UI-bound threading wait object." ) ) return false;
-
-    if (!guard.IsReentrant())
-        return false;
-    return true;
 }
 
 void Threading::pxThread::_pt_callback_cleanup(void *handle)
@@ -372,29 +339,10 @@ void Threading::pxThread::RethrowException() const
         ptr->Rethrow();
 }
 
-void Threading::YieldToMain()
-{
-    wxTheApp->Yield(true);
-}
-
 void Threading::pxThread::_selfRunningTest(const wxChar *name) const
 {
-    if (HasPendingException()) {
+    if (HasPendingException())
         RethrowException();
-    }
-
-    if (!m_running) {
-        throw Exception::CancelEvent(pxsFmt(
-            L"Blocking thread %s was terminated while another thread was waiting on a %s.",
-            WX_STR(GetName()), name));
-    }
-
-    // Thread is still alive and kicking (for now) -- yield to other messages and hope
-    // that impending chaos does not ensue.  [it shouldn't since we block pxThread
-    // objects from being deleted until outside the scope of a mutex/semaphore wait).
-
-    if ((wxTheApp != NULL) && wxThread::IsMain() && !_WaitGui_RecursionGuard(L"WaitForSelf"))
-        Threading::YieldToMain();
 }
 
 // This helper function is a deadlock-safe method of waiting on a semaphore in a pxThread.  If the
