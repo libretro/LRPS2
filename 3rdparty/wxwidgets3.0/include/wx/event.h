@@ -1358,73 +1358,6 @@ public:
     }
 #endif // wxHAS_CALL_AFTER
 
-
-    // Connecting and disconnecting
-    // ----------------------------
-
-    // These functions are used for old, untyped, event handlers and don't
-    // check that the type of the function passed to them actually matches the
-    // type of the event. They also only allow connecting events to methods of
-    // wxEvtHandler-derived classes.
-    //
-    // The template Connect() methods below are safer and allow connecting
-    // events to arbitrary functions or functors -- but require compiler
-    // support for templates.
-
-    // Dynamic association of a member function handler with the event handler,
-    // winid and event type
-    void Connect(int winid,
-                 int lastId,
-                 wxEventType eventType,
-                 wxObjectEventFunction func,
-                 wxObject *userData = NULL,
-                 wxEvtHandler *eventSink = NULL)
-    {
-        DoBind(winid, lastId, eventType,
-                  wxNewEventFunctor(eventType, func, eventSink),
-                  userData);
-    }
-
-    // Convenience function: take just one id
-    void Connect(int winid,
-                 wxEventType eventType,
-                 wxObjectEventFunction func,
-                 wxObject *userData = NULL,
-                 wxEvtHandler *eventSink = NULL)
-        { Connect(winid, wxID_ANY, eventType, func, userData, eventSink); }
-
-    // Even more convenient: without id (same as using id of wxID_ANY)
-    void Connect(wxEventType eventType,
-                 wxObjectEventFunction func,
-                 wxObject *userData = NULL,
-                 wxEvtHandler *eventSink = NULL)
-        { Connect(wxID_ANY, wxID_ANY, eventType, func, userData, eventSink); }
-
-    bool Disconnect(int winid,
-                    int lastId,
-                    wxEventType eventType,
-                    wxObjectEventFunction func = NULL,
-                    wxObject *userData = NULL,
-                    wxEvtHandler *eventSink = NULL)
-    {
-        return DoUnbind(winid, lastId, eventType,
-                            wxMakeEventFunctor(eventType, func, eventSink),
-                            userData );
-    }
-
-    bool Disconnect(int winid = wxID_ANY,
-                    wxEventType eventType = wxEVT_NULL,
-                    wxObjectEventFunction func = NULL,
-                    wxObject *userData = NULL,
-                    wxEvtHandler *eventSink = NULL)
-        { return Disconnect(winid, wxID_ANY, eventType, func, userData, eventSink); }
-
-    bool Disconnect(wxEventType eventType,
-                    wxObjectEventFunction func,
-                    wxObject *userData = NULL,
-                    wxEvtHandler *eventSink = NULL)
-        { return Disconnect(wxID_ANY, eventType, func, userData, eventSink); }
-
     wxList* GetDynamicEventTable() const { return m_dynamicEvents ; }
 
     // implementation from now on
@@ -1448,18 +1381,6 @@ public:
 
 
 private:
-    void DoBind(int winid,
-                   int lastId,
-                   wxEventType eventType,
-                   wxEventFunctor *func,
-                   wxObject* userData = NULL);
-
-    bool DoUnbind(int winid,
-                      int lastId,
-                      wxEventType eventType,
-                      const wxEventFunctor& func,
-                      wxObject *userData = NULL);
-
     static const wxEventTableEntry sm_eventTableEntries[];
 
 protected:
@@ -2059,15 +1980,6 @@ typedef void (wxEvtHandler::*wxThreadEventFunction)(wxThreadEvent&);
 //     void OnSomeEvent(wxSomeEvent&) { ... }
 // };
 //
-// This is *not* meant to be used by library users, it is only defined here
-// (and not in a private header) because the base class must be visible from
-// other public headers, please do NOT use this in your code, it will be
-// removed from future wx versions without warning.
-    #define wxBIND_OR_CONNECT_HACK_BASE_CLASS public wxEvtHandler,
-    #define wxBIND_OR_CONNECT_HACK_ONLY_BASE_CLASS : public wxEvtHandler
-    #define wxBIND_OR_CONNECT_HACK(win, evt, handler, func, obj) \
-        win->Connect(evt, handler(func), NULL, obj)
-
 // ----------------------------------------------------------------------------
 // Compatibility macro aliases
 // ----------------------------------------------------------------------------
