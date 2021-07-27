@@ -773,10 +773,6 @@ public:
     wxDateTime_t GetWeekOfMonth(WeekFlags flags = Monday_First,
                                 const TimeZone& tz = Local) const;
 
-        // is this date a work day? This depends on a country, of course,
-        // because the holidays are different in different countries
-    bool IsWorkDay(Country country = Country_Default) const;
-
     // dos date and time format
     // ------------------------------------------------------------------------
 
@@ -1460,76 +1456,6 @@ private:
 // ----------------------------------------------------------------------------
 
 WX_DECLARE_USER_EXPORTED_OBJARRAY(wxDateTime, wxDateTimeArray, WXDLLIMPEXP_BASE);
-
-// ----------------------------------------------------------------------------
-// wxDateTimeHolidayAuthority: an object of this class will decide whether a
-// given date is a holiday and is used by all functions working with "work
-// days".
-//
-// NB: the base class is an ABC, derived classes must implement the pure
-//     virtual methods to work with the holidays they correspond to.
-// ----------------------------------------------------------------------------
-
-class WXDLLIMPEXP_FWD_BASE wxDateTimeHolidayAuthority;
-WX_DEFINE_USER_EXPORTED_ARRAY_PTR(wxDateTimeHolidayAuthority *,
-                              wxHolidayAuthoritiesArray,
-                              class WXDLLIMPEXP_BASE);
-
-class wxDateTimeHolidaysModule;
-class WXDLLIMPEXP_BASE wxDateTimeHolidayAuthority
-{
-friend class wxDateTimeHolidaysModule;
-public:
-    // returns true if the given date is a holiday
-    static bool IsHoliday(const wxDateTime& dt);
-
-    // fills the provided array with all holidays in the given range, returns
-    // the number of them
-    static size_t GetHolidaysInRange(const wxDateTime& dtStart,
-                                     const wxDateTime& dtEnd,
-                                     wxDateTimeArray& holidays);
-
-    // clear the list of holiday authorities
-    static void ClearAllAuthorities();
-
-    // add a new holiday authority (the pointer will be deleted by
-    // wxDateTimeHolidayAuthority)
-    static void AddAuthority(wxDateTimeHolidayAuthority *auth);
-
-    // the base class must have a virtual dtor
-    virtual ~wxDateTimeHolidayAuthority();
-
-protected:
-    // this function is called to determine whether a given day is a holiday
-    virtual bool DoIsHoliday(const wxDateTime& dt) const = 0;
-
-    // this function should fill the array with all holidays between the two
-    // given dates - it is implemented in the base class, but in a very
-    // inefficient way (it just iterates over all days and uses IsHoliday() for
-    // each of them), so it must be overridden in the derived class where the
-    // base class version may be explicitly used if needed
-    //
-    // returns the number of holidays in the given range and fills holidays
-    // array
-    virtual size_t DoGetHolidaysInRange(const wxDateTime& dtStart,
-                                        const wxDateTime& dtEnd,
-                                        wxDateTimeArray& holidays) const = 0;
-
-private:
-    // all holiday authorities
-    static wxHolidayAuthoritiesArray ms_authorities;
-};
-
-// the holidays for this class are all Saturdays and Sundays
-class WXDLLIMPEXP_BASE wxDateTimeWorkDays : public wxDateTimeHolidayAuthority
-{
-protected:
-    virtual bool DoIsHoliday(const wxDateTime& dt) const;
-    virtual size_t DoGetHolidaysInRange(const wxDateTime& dtStart,
-                                        const wxDateTime& dtEnd,
-                                        wxDateTimeArray& holidays) const;
-};
-
 // ============================================================================
 // inline functions implementation
 // ============================================================================

@@ -1675,11 +1675,6 @@ wxDateTime::ParseFormat(const wchar_t* date,
 // Workdays and holidays support
 // ----------------------------------------------------------------------------
 
-bool wxDateTime::IsWorkDay(Country WXUNUSED(country)) const
-{
-    return !wxDateTimeHolidayAuthority::IsHoliday(*this);
-}
-
 // ============================================================================
 // wxDateSpan
 // ============================================================================

@@ -29,7 +29,6 @@ public:
     wxRecursionGuard(wxRecursionGuardFlag& flag)
         : m_flag(flag)
     {
-        m_isInside = flag++ != 0;
     }
 
     ~wxRecursionGuard()
@@ -39,13 +38,8 @@ public:
         m_flag--;
     }
 
-    bool IsInside() const { return m_isInside; }
-
 private:
     wxRecursionGuardFlag& m_flag;
-
-    // true if the flag had been already set when we were created
-    bool m_isInside;
 };
 
 #endif // _WX_RECGUARD_H_

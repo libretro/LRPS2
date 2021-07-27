@@ -351,11 +351,6 @@ bool wxEntryStart(int& argc, char **argv)
 // clean up
 // ----------------------------------------------------------------------------
 
-// cleanup done before destroying wxTheApp
-static void DoCommonPreCleanup()
-{
-}
-
 // cleanup done after destroying wxTheApp
 static void DoCommonPostCleanup()
 {
@@ -370,9 +365,6 @@ static void DoCommonPostCleanup()
 
 void wxEntryCleanup()
 {
-    DoCommonPreCleanup();
-
-
     // delete the application object
     if ( wxTheApp )
     {
