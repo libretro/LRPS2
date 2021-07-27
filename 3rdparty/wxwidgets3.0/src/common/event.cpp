@@ -263,21 +263,6 @@ wxEventFilter* wxEvtHandler::ms_filterList = NULL;
     wxFAIL_MSG( "Filter not found" );
 }
 
-#if wxUSE_THREADS
-
-bool wxEvtHandler::ProcessThreadEvent(const wxEvent& event)
-{
-    // check that we are really in a child thread
-    wxASSERT_MSG( !wxThread::IsMain(),
-                  wxT("use ProcessEvent() in main thread") );
-
-    AddPendingEvent(event);
-
-    return true;
-}
-
-#endif // wxUSE_THREADS
-
 void wxEvtHandler::QueueEvent(wxEvent *event)
 {
     wxCHECK_RET( event, "NULL event can't be posted" );
@@ -365,37 +350,6 @@ void wxEvtHandler::ProcessPendingEvents()
     // of this object any more
 }
 
-/* static */
-bool wxEvtHandler::ProcessEventIfMatchesId(const wxEventTableEntryBase& entry,
-                                           wxEvtHandler *handler,
-                                           wxEvent& event)
-{
-    int tableId1 = entry.m_id,
-        tableId2 = entry.m_lastId;
-
-    // match only if the event type is the same and the id is either -1 in
-    // the event table (meaning "any") or the event id matches the id
-    // specified in the event table either exactly or by falling into
-    // range between first and last
-    if ((tableId1 == wxID_ANY) ||
-        (tableId2 == wxID_ANY && tableId1 == event.GetId()) ||
-        (tableId2 != wxID_ANY &&
-         (event.GetId() >= tableId1 && event.GetId() <= tableId2)))
-    {
-        event.Skip(false);
-        event.m_callbackUserData = entry.m_callbackUserData;
-
-        {
-            (*entry.m_fn)(handler, event);
-        }
-
-        if (!event.GetSkipped())
-            return true;
-    }
-
-    return false;
-}
-
 bool wxEvtHandler::DoTryApp(wxEvent& event)
 {
     if ( wxTheApp && (this != wxTheApp) )
@@ -411,17 +365,6 @@ bool wxEvtHandler::DoTryApp(wxEvent& event)
     }
 
     return false;
-}
-
-bool wxEvtHandler::TryBefore(wxEvent& event)
-{
-#if WXWIN_COMPATIBILITY_2_8
-    // call the old virtual function to keep the code overriding it working
-    return TryValidator(event);
-#else
-    wxUnusedVar(event);
-    return false;
-#endif
 }
 
 bool wxEvtHandler::TryAfter(wxEvent& event)
@@ -480,11 +423,11 @@ bool wxEvtHandler::ProcessEvent(wxEvent& event)
     // Short circuit the event processing logic if we're requested to process
     // this event in this handler only, see DoTryChain() for more details.
     if ( event.ShouldProcessOnlyIn(this) )
-        return TryBeforeAndHere(event);
+        return false;
 
 
     // Try to process the event in this handler itself.
-    if ( ProcessEventLocally(event) )
+    if ( DoTryChain(event) )
     {
         // It is possible that DoTryChain() called from ProcessEventLocally()
         // returned true but the event was not really processed: this happens
@@ -503,15 +446,6 @@ bool wxEvtHandler::ProcessEvent(wxEvent& event)
 
     // No handler found anywhere, bail out.
     return false;
-}
-
-bool wxEvtHandler::ProcessEventLocally(wxEvent& event)
-{
-    // Try the hooks which should be called before our own handlers and this
-    // handler itself first. Notice that we should not call ProcessEvent() on
-    // this one as we're already called from it, which explains why we do it
-    // here and not in DoTryChain()
-    return TryBeforeAndHere(event) || DoTryChain(event);
 }
 
 bool wxEvtHandler::DoTryChain(wxEvent& event)
@@ -564,12 +498,6 @@ bool wxEvtHandler::DoTryChain(wxEvent& event)
         }
     }
 
-    return false;
-}
-
-bool wxEvtHandler::TryHereOnly(wxEvent& event)
-{
-    // We don't have a handler for this event.
     return false;
 }
 

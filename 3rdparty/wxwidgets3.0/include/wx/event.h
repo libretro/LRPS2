@@ -1024,20 +1024,6 @@ public:
     // processing from other threads.
     virtual bool ProcessEvent(wxEvent& event);
 
-    // This method tries to process the event in this event handler, including
-    // any preprocessing done by TryBefore() and all the handlers chained to
-    // it, but excluding the post-processing done in TryAfter().
-    //
-    // It is meant to be called from ProcessEvent() only and is not virtual,
-    // additional event handlers can be hooked into the normal event processing
-    // logic using TryBefore() and TryAfter() hooks.
-    //
-    // You can also call it yourself to forward an event to another handler but
-    // without propagating it upwards if it's unhandled (this is usually
-    // unwanted when forwarding as the original handler would already do it if
-    // needed normally).
-    bool ProcessEventLocally(wxEvent& event);
-
     // Schedule the given event to be processed later. It takes ownership of
     // the event pointer, i.e. it will be deleted later. This is safe to call
     // from multiple threads although you still need to ensure that wxString
@@ -1063,24 +1049,8 @@ public:
 
     void DeletePendingEvents();
 
-#if wxUSE_THREADS
-    bool ProcessThreadEvent(const wxEvent& event);
-        // NOTE: uses AddPendingEvent(); call only from secondary threads
-#endif
-
     // implementation from now on
     // --------------------------
-
-    // check if the given event table entry matches this event by id (the check
-    // for the event type should be done by caller) and call the handler if it
-    // does
-    //
-    // return true if the event was processed, false otherwise (no match or the
-    // handler decided to skip the event)
-    static bool ProcessEventIfMatchesId(const wxEventTableEntryBase& tableEntry,
-                                        wxEvtHandler *handler,
-                                        wxEvent& event);
-
     void OnSinkDestroyed( wxEvtHandler *sink );
 
 
@@ -1088,28 +1058,6 @@ private:
     static const wxEventTableEntry sm_eventTableEntries[];
 
 protected:
-    // hooks for wxWindow used by ProcessEvent()
-    // -----------------------------------------
-
-    // this one is called before trying our own event table to allow plugging
-    // in the event handlers overriding the default logic, this is used by e.g.
-    // validators.
-    virtual bool TryBefore(wxEvent& event);
-
-    // This one is not a hook but just a helper which looks up the handler in
-    // this object itself.
-    //
-    // It is called from ProcessEventLocally() and normally shouldn't be called
-    // directly as doing it would ignore any chained event handlers
-    bool TryHereOnly(wxEvent& event);
-
-    // Another helper which simply calls pre-processing hook and then tries to
-    // handle the event at this handler level.
-    bool TryBeforeAndHere(wxEvent& event)
-    {
-        return TryBefore(event) || TryHereOnly(event);
-    }
-
     // this one is called after failing to find the event handle in our own
     // table to give a chance to the other windows to process it
     //
