@@ -87,8 +87,6 @@ wxDEFINE_EVENT( wxEVT_ASYNC_METHOD_CALL, wxAsyncMethodCallEvent );
 
 #if wxUSE_BASE
 
-wxIdleMode wxIdleEvent::sm_idleMode = wxIDLE_PROCESS_ALL;
-
 // ============================================================================
 // implementation
 // ============================================================================
@@ -133,11 +131,9 @@ wxEvent::wxEvent(int theId, wxEventType commandType)
     m_skipped = false;
     m_callbackUserData = NULL;
     m_handlerToProcessOnlyIn = NULL;
-    m_isCommandEvent = false;
     m_propagationLevel = wxEVENT_PROPAGATE_NONE;
     m_propagatedFrom = NULL;
     m_wasProcessed = false;
-    m_willBeProcessedAgain = false;
 }
 
 wxEvent::wxEvent(const wxEvent& src)
@@ -151,9 +147,7 @@ wxEvent::wxEvent(const wxEvent& src)
     , m_propagationLevel(src.m_propagationLevel)
     , m_propagatedFrom(NULL)
     , m_skipped(src.m_skipped)
-    , m_isCommandEvent(src.m_isCommandEvent)
     , m_wasProcessed(false)
-    , m_willBeProcessedAgain(false)
 {
 }
 
@@ -170,14 +164,8 @@ wxEvent& wxEvent::operator=(const wxEvent& src)
     m_propagationLevel = src.m_propagationLevel;
     m_propagatedFrom = NULL;
     m_skipped = src.m_skipped;
-    m_isCommandEvent = src.m_isCommandEvent;
 
     // don't change m_wasProcessed
-
-    // While the original again could be passed to another handler, this one
-    // isn't going to be processed anywhere else by default.
-    m_willBeProcessedAgain = false;
-
     return *this;
 }
 
@@ -380,12 +368,6 @@ bool wxEvtHandler::TryAfter(wxEvent& event)
     // the last one in the chain (which, admittedly, shouldn't happen often).
     if ( GetNextHandler() )
         return GetNextHandler()->TryAfter(event);
-
-    // If this event is going to be processed in another handler next, don't
-    // pass it to wxTheApp now, it will be done from TryAfter() of this other
-    // handler.
-    if ( event.WillBeProcessedAgain() )
-        return false;
 
 #if WXWIN_COMPATIBILITY_2_8
     // as above, call the old virtual function for compatibility
