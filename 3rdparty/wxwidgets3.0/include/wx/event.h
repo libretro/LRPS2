@@ -977,58 +977,6 @@ struct WXDLLIMPEXP_BASE wxEventTable
 
 WX_DEFINE_ARRAY_PTR(const wxEventTableEntry*, wxEventTableEntryPointerArray);
 
-class WXDLLIMPEXP_BASE wxEventHashTable
-{
-private:
-    // Internal data structs
-    struct EventTypeTable
-    {
-        wxEventType                   eventType;
-        wxEventTableEntryPointerArray eventEntryTable;
-    };
-    typedef EventTypeTable* EventTypeTablePointer;
-
-public:
-    // Constructor, needs the event table it needs to hash later on.
-    // Note: hashing of the event table is not done in the constructor as it
-    //       can be that the event table is not yet full initialize, the hash
-    //       will gets initialized when handling the first event look-up request.
-    wxEventHashTable(const wxEventTable &table);
-    // Destructor.
-    ~wxEventHashTable();
-
-    // Handle the given event, in other words search the event table hash
-    // and call self->ProcessEvent() if a match was found.
-    bool HandleEvent(wxEvent& event, wxEvtHandler *self);
-
-    // Clear table
-    void Clear();
-
-protected:
-    // Init the hash table with the entries of the static event table.
-    void InitHashTable();
-    // Helper function of InitHashTable() to insert 1 entry into the hash table.
-    void AddEntry(const wxEventTableEntry &entry);
-    // Allocate and init with null pointers the base hash table.
-    void AllocEventTypeTable(size_t size);
-    // Grow the hash table in size and transfer all items currently
-    // in the table to the correct location in the new table.
-    void GrowEventTypeTable();
-
-protected:
-    const wxEventTable    &m_table;
-    bool                   m_rebuildHash;
-
-    size_t                 m_size;
-    EventTypeTablePointer *m_eventTypeTable;
-
-    static wxEventHashTable* sm_first;
-    wxEventHashTable* m_previous;
-    wxEventHashTable* m_next;
-
-    wxDECLARE_NO_COPY_CLASS(wxEventHashTable);
-};
-
 // ----------------------------------------------------------------------------
 // wxEvtHandler: the base class for all objects handling wxWidgets events
 // ----------------------------------------------------------------------------
@@ -1133,8 +1081,6 @@ public:
                                         wxEvtHandler *handler,
                                         wxEvent& event);
 
-    // Avoid problems at exit by cleaning up static hash table gracefully
-    void ClearEventHashTable() { GetEventHashTable().Clear(); }
     void OnSinkDestroyed( wxEvtHandler *sink );
 
 
@@ -1182,9 +1128,6 @@ protected:
 
     static const wxEventTable sm_eventTable;
     virtual const wxEventTable *GetEventTable() const;
-
-    static wxEventHashTable   sm_eventHashTable;
-    virtual wxEventHashTable& GetEventHashTable() const;
 
     wxEvtHandler*       m_nextHandler;
     wxEvtHandler*       m_previousHandler;
@@ -1304,8 +1247,6 @@ typedef void (wxEvtHandler::*wxThreadEventFunction)(wxThreadEvent&);
     protected:                                                          \
         static const wxEventTable        sm_eventTable;                 \
         virtual const wxEventTable*      GetEventTable() const;         \
-        static wxEventHashTable          sm_eventHashTable;             \
-        virtual wxEventHashTable&        GetEventHashTable() const
 
 // N.B.: when building DLL with Borland C++ 5.5 compiler, you must initialize
 //       sm_eventTable before using it in GetEventTable() or the compiler gives
@@ -1316,9 +1257,6 @@ typedef void (wxEvtHandler::*wxThreadEventFunction)(wxThreadEvent&);
         { &baseClass::sm_eventTable, &theClass::sm_eventTableEntries[0] }; \
     const wxEventTable *theClass::GetEventTable() const \
         { return &theClass::sm_eventTable; } \
-    wxEventHashTable theClass::sm_eventHashTable(theClass::sm_eventTable); \
-    wxEventHashTable &theClass::GetEventHashTable() const \
-        { return theClass::sm_eventHashTable; } \
     const wxEventTableEntry theClass::sm_eventTableEntries[] = { \
 
 #define wxBEGIN_EVENT_TABLE_TEMPLATE1(theClass, baseClass, T1) \
@@ -1328,11 +1266,6 @@ typedef void (wxEvtHandler::*wxThreadEventFunction)(wxThreadEvent&);
     template<typename T1> \
     const wxEventTable *theClass<T1>::GetEventTable() const \
         { return &theClass<T1>::sm_eventTable; } \
-    template<typename T1> \
-    wxEventHashTable theClass<T1>::sm_eventHashTable(theClass<T1>::sm_eventTable); \
-    template<typename T1> \
-    wxEventHashTable &theClass<T1>::GetEventHashTable() const \
-        { return theClass<T1>::sm_eventHashTable; } \
     template<typename T1> \
     const wxEventTableEntry theClass<T1>::sm_eventTableEntries[] = { \
 
@@ -1344,11 +1277,6 @@ typedef void (wxEvtHandler::*wxThreadEventFunction)(wxThreadEvent&);
     const wxEventTable *theClass<T1, T2>::GetEventTable() const \
         { return &theClass<T1, T2>::sm_eventTable; } \
     template<typename T1, typename T2> \
-    wxEventHashTable theClass<T1, T2>::sm_eventHashTable(theClass<T1, T2>::sm_eventTable); \
-    template<typename T1, typename T2> \
-    wxEventHashTable &theClass<T1, T2>::GetEventHashTable() const \
-        { return theClass<T1, T2>::sm_eventHashTable; } \
-    template<typename T1, typename T2> \
     const wxEventTableEntry theClass<T1, T2>::sm_eventTableEntries[] = { \
 
 #define wxBEGIN_EVENT_TABLE_TEMPLATE3(theClass, baseClass, T1, T2, T3) \
@@ -1358,11 +1286,6 @@ typedef void (wxEvtHandler::*wxThreadEventFunction)(wxThreadEvent&);
     template<typename T1, typename T2, typename T3> \
     const wxEventTable *theClass<T1, T2, T3>::GetEventTable() const \
         { return &theClass<T1, T2, T3>::sm_eventTable; } \
-    template<typename T1, typename T2, typename T3> \
-    wxEventHashTable theClass<T1, T2, T3>::sm_eventHashTable(theClass<T1, T2, T3>::sm_eventTable); \
-    template<typename T1, typename T2, typename T3> \
-    wxEventHashTable &theClass<T1, T2, T3>::GetEventHashTable() const \
-        { return theClass<T1, T2, T3>::sm_eventHashTable; } \
     template<typename T1, typename T2, typename T3> \
     const wxEventTableEntry theClass<T1, T2, T3>::sm_eventTableEntries[] = { \
 
@@ -1374,11 +1297,6 @@ typedef void (wxEvtHandler::*wxThreadEventFunction)(wxThreadEvent&);
     const wxEventTable *theClass<T1, T2, T3, T4>::GetEventTable() const \
         { return &theClass<T1, T2, T3, T4>::sm_eventTable; } \
     template<typename T1, typename T2, typename T3, typename T4> \
-    wxEventHashTable theClass<T1, T2, T3, T4>::sm_eventHashTable(theClass<T1, T2, T3, T4>::sm_eventTable); \
-    template<typename T1, typename T2, typename T3, typename T4> \
-    wxEventHashTable &theClass<T1, T2, T3, T4>::GetEventHashTable() const \
-        { return theClass<T1, T2, T3, T4>::sm_eventHashTable; } \
-    template<typename T1, typename T2, typename T3, typename T4> \
     const wxEventTableEntry theClass<T1, T2, T3, T4>::sm_eventTableEntries[] = { \
 
 #define wxBEGIN_EVENT_TABLE_TEMPLATE5(theClass, baseClass, T1, T2, T3, T4, T5) \
@@ -1388,11 +1306,6 @@ typedef void (wxEvtHandler::*wxThreadEventFunction)(wxThreadEvent&);
     template<typename T1, typename T2, typename T3, typename T4, typename T5> \
     const wxEventTable *theClass<T1, T2, T3, T4, T5>::GetEventTable() const \
         { return &theClass<T1, T2, T3, T4, T5>::sm_eventTable; } \
-    template<typename T1, typename T2, typename T3, typename T4, typename T5> \
-    wxEventHashTable theClass<T1, T2, T3, T4, T5>::sm_eventHashTable(theClass<T1, T2, T3, T4, T5>::sm_eventTable); \
-    template<typename T1, typename T2, typename T3, typename T4, typename T5> \
-    wxEventHashTable &theClass<T1, T2, T3, T4, T5>::GetEventHashTable() const \
-        { return theClass<T1, T2, T3, T4, T5>::sm_eventHashTable; } \
     template<typename T1, typename T2, typename T3, typename T4, typename T5> \
     const wxEventTableEntry theClass<T1, T2, T3, T4, T5>::sm_eventTableEntries[] = { \
 
@@ -1404,11 +1317,6 @@ typedef void (wxEvtHandler::*wxThreadEventFunction)(wxThreadEvent&);
     const wxEventTable *theClass<T1, T2, T3, T4, T5, T6, T7>::GetEventTable() const \
         { return &theClass<T1, T2, T3, T4, T5, T6, T7>::sm_eventTable; } \
     template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7> \
-    wxEventHashTable theClass<T1, T2, T3, T4, T5, T6, T7>::sm_eventHashTable(theClass<T1, T2, T3, T4, T5, T6, T7>::sm_eventTable); \
-    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7> \
-    wxEventHashTable &theClass<T1, T2, T3, T4, T5, T6, T7>::GetEventHashTable() const \
-        { return theClass<T1, T2, T3, T4, T5, T6, T7>::sm_eventHashTable; } \
-    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7> \
     const wxEventTableEntry theClass<T1, T2, T3, T4, T5, T6, T7>::sm_eventTableEntries[] = { \
 
 #define wxBEGIN_EVENT_TABLE_TEMPLATE8(theClass, baseClass, T1, T2, T3, T4, T5, T6, T7, T8) \
@@ -1418,11 +1326,6 @@ typedef void (wxEvtHandler::*wxThreadEventFunction)(wxThreadEvent&);
     template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8> \
     const wxEventTable *theClass<T1, T2, T3, T4, T5, T6, T7, T8>::GetEventTable() const \
         { return &theClass<T1, T2, T3, T4, T5, T6, T7, T8>::sm_eventTable; } \
-    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8> \
-    wxEventHashTable theClass<T1, T2, T3, T4, T5, T6, T7, T8>::sm_eventHashTable(theClass<T1, T2, T3, T4, T5, T6, T7, T8>::sm_eventTable); \
-    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8> \
-    wxEventHashTable &theClass<T1, T2, T3, T4, T5, T6, T7, T8>::GetEventHashTable() const \
-        { return theClass<T1, T2, T3, T4, T5, T6, T7, T8>::sm_eventHashTable; } \
     template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8> \
     const wxEventTableEntry theClass<T1, T2, T3, T4, T5, T6, T7, T8>::sm_eventTableEntries[] = { \
 

@@ -62,11 +62,6 @@ const wxEventTable *wxEvtHandler::GetEventTable() const
 const wxEventTable wxEvtHandler::sm_eventTable =
     { (const wxEventTable *)NULL, &wxEvtHandler::sm_eventTableEntries[0] };
 
-wxEventHashTable &wxEvtHandler::GetEventHashTable() const
-    { return wxEvtHandler::sm_eventHashTable; }
-
-wxEventHashTable wxEvtHandler::sm_eventHashTable(wxEvtHandler::sm_eventTable);
-
 const wxEventTableEntry wxEvtHandler::sm_eventTableEntries[] =
     { wxDECLARE_EVENT_TABLE_TERMINATOR() };
 
@@ -190,188 +185,7 @@ wxEvent& wxEvent::operator=(const wxEvent& src)
 
 #if wxUSE_BASE
 
-// ----------------------------------------------------------------------------
-// wxEventHashTable
-// ----------------------------------------------------------------------------
-
 static const int EVENT_TYPE_TABLE_INIT_SIZE = 31; // Not too big not too small...
-
-wxEventHashTable* wxEventHashTable::sm_first = NULL;
-
-wxEventHashTable::wxEventHashTable(const wxEventTable &table)
-                : m_table(table),
-                  m_rebuildHash(true)
-{
-    AllocEventTypeTable(EVENT_TYPE_TABLE_INIT_SIZE);
-
-    m_next = sm_first;
-    if (m_next)
-        m_next->m_previous = this;
-    sm_first = this;
-}
-
-wxEventHashTable::~wxEventHashTable()
-{
-    if (m_next)
-        m_next->m_previous = m_previous;
-    if (m_previous)
-        m_previous->m_next = m_next;
-    if (sm_first == this)
-        sm_first = m_next;
-
-    Clear();
-}
-
-void wxEventHashTable::Clear()
-{
-    for ( size_t i = 0; i < m_size; i++ )
-    {
-        EventTypeTablePointer  eTTnode = m_eventTypeTable[i];
-        delete eTTnode;
-    }
-
-    wxDELETEA(m_eventTypeTable);
-
-    m_size = 0;
-}
-
-bool wxEventHashTable::HandleEvent(wxEvent &event, wxEvtHandler *self)
-{
-    if (m_rebuildHash)
-    {
-        InitHashTable();
-        m_rebuildHash = false;
-    }
-
-    if (!m_eventTypeTable)
-        return false;
-
-    // Find all entries for the given event type.
-    wxEventType eventType = event.GetEventType();
-    const EventTypeTablePointer eTTnode = m_eventTypeTable[eventType % m_size];
-    if (eTTnode && eTTnode->eventType == eventType)
-    {
-        // Now start the search for an event handler
-        // that can handle an event with the given ID.
-        const wxEventTableEntryPointerArray&
-            eventEntryTable = eTTnode->eventEntryTable;
-
-        const size_t count = eventEntryTable.GetCount();
-        for (size_t n = 0; n < count; n++)
-        {
-            const wxEventTableEntry& entry = *eventEntryTable[n];
-            if ( wxEvtHandler::ProcessEventIfMatchesId(entry, self, event) )
-                return true;
-        }
-    }
-
-    return false;
-}
-
-void wxEventHashTable::InitHashTable()
-{
-    // Loop over the event tables and all its base tables.
-    const wxEventTable *table = &m_table;
-    while (table)
-    {
-        // Retrieve all valid event handler entries
-        const wxEventTableEntry *entry = table->entries;
-        while (entry->m_fn != 0)
-        {
-            // Add the event entry in the Hash.
-            AddEntry(*entry);
-
-            entry++;
-        }
-
-        table = table->baseTable;
-    }
-
-    // Let's free some memory.
-    size_t i;
-    for(i = 0; i < m_size; i++)
-    {
-        EventTypeTablePointer  eTTnode = m_eventTypeTable[i];
-        if (eTTnode)
-        {
-            eTTnode->eventEntryTable.Shrink();
-        }
-    }
-}
-
-void wxEventHashTable::AddEntry(const wxEventTableEntry &entry)
-{
-    // This might happen 'accidentally' as the app is exiting
-    if (!m_eventTypeTable)
-        return;
-
-    EventTypeTablePointer *peTTnode = &m_eventTypeTable[entry.m_eventType % m_size];
-    EventTypeTablePointer  eTTnode = *peTTnode;
-
-    if (eTTnode)
-    {
-        if (eTTnode->eventType != entry.m_eventType)
-        {
-            // Resize the table!
-            GrowEventTypeTable();
-            // Try again to add it.
-            AddEntry(entry);
-            return;
-        }
-    }
-    else
-    {
-        eTTnode = new EventTypeTable;
-        eTTnode->eventType = entry.m_eventType;
-        *peTTnode = eTTnode;
-    }
-
-    // Fill all hash entries between entry.m_id and entry.m_lastId...
-    eTTnode->eventEntryTable.Add(&entry);
-}
-
-void wxEventHashTable::AllocEventTypeTable(size_t size)
-{
-    m_eventTypeTable = new EventTypeTablePointer[size];
-    memset((void *)m_eventTypeTable, 0, sizeof(EventTypeTablePointer)*size);
-    m_size = size;
-}
-
-void wxEventHashTable::GrowEventTypeTable()
-{
-    size_t oldSize = m_size;
-    EventTypeTablePointer *oldEventTypeTable = m_eventTypeTable;
-
-    // TODO: Search the most optimal grow sequence
-    AllocEventTypeTable(/* GetNextPrime(oldSize) */oldSize*2+1);
-
-    for ( size_t i = 0; i < oldSize; /* */ )
-    {
-        EventTypeTablePointer  eTToldNode = oldEventTypeTable[i];
-        if (eTToldNode)
-        {
-            EventTypeTablePointer *peTTnode = &m_eventTypeTable[eTToldNode->eventType % m_size];
-            EventTypeTablePointer  eTTnode = *peTTnode;
-
-            // Check for collision, we don't want any.
-            if (eTTnode)
-            {
-                GrowEventTypeTable();
-                continue; // Don't increment the counter,
-                          // as we still need to add this element.
-            }
-            else
-            {
-                // Get the old value and put it in the new table.
-                *peTTnode = oldEventTypeTable[i];
-            }
-        }
-
-        i++;
-    }
-
-    delete[] oldEventTypeTable;
-}
 
 // ----------------------------------------------------------------------------
 // wxEvtHandler
@@ -755,14 +569,6 @@ bool wxEvtHandler::DoTryChain(wxEvent& event)
 
 bool wxEvtHandler::TryHereOnly(wxEvent& event)
 {
-    // If the event handler is disabled it doesn't process any events
-    if ( GetEvtHandlerEnabled() )
-    {
-	    // Then static per-class event tables
-	    if ( GetEventHashTable().HandleEvent(event, this) )
-		    return true;
-    }
-
     // We don't have a handler for this event.
     return false;
 }
