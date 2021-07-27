@@ -79,11 +79,6 @@ public:
     // appname.app/Contents/SharedSupport app bundle directory under Mac
     virtual wxString GetDataDir() const = 0;
 
-    // return the location for application data files which are host-specific
-    //
-    // same as GetDataDir() except under Unix where it is /etc/appname
-    virtual wxString GetLocalDataDir() const;
-
     // return the directory for the user-dependent application data files
     //
     // $HOME/.appname under Unix,
@@ -205,7 +200,6 @@ public:
     virtual wxString GetConfigDir() const { return m_prefix; }
     virtual wxString GetUserConfigDir() const { return m_prefix; }
     virtual wxString GetDataDir() const { return m_prefix; }
-    virtual wxString GetLocalDataDir() const { return m_prefix; }
     virtual wxString GetUserDataDir() const { return m_prefix; }
     virtual wxString GetPluginsDir() const { return m_prefix; }
     virtual wxString GetDocumentsDir() const { return m_prefix; }

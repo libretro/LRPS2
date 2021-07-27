@@ -81,11 +81,6 @@ wxString wxStandardPaths::GetDataDir() const
    return AppendAppInfo(GetInstallPrefix() + wxT("/sys$share"));
 }
 
-wxString wxStandardPaths::GetLocalDataDir() const
-{
-   return AppendAppInfo(wxT("/sys$manager"));
-}
-
 wxString wxStandardPaths::GetUserDataDir() const
 {
    return wxFileName::GetHomeDir();
@@ -205,11 +200,6 @@ wxString wxStandardPaths::GetDataDir() const
         return envOverride;
 
    return AppendAppInfo(GetInstallPrefix() + wxT("/share"));
-}
-
-wxString wxStandardPaths::GetLocalDataDir() const
-{
-   return AppendAppInfo(wxT("/etc"));
 }
 
 wxString wxStandardPaths::GetUserDataDir() const

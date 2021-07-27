@@ -41,7 +41,6 @@ public:
     virtual wxString GetConfigDir() const;
     virtual wxString GetUserConfigDir() const;
     virtual wxString GetDataDir() const;
-    virtual wxString GetLocalDataDir() const;
     virtual wxString GetUserDataDir() const;
     virtual wxString GetPluginsDir() const;
     virtual wxString GetLocalizedResourcesDir(const wxString& lang,

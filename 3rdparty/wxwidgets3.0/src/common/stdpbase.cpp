@@ -104,11 +104,6 @@ wxStandardPathsBase::~wxStandardPathsBase()
     // nothing to do here
 }
 
-wxString wxStandardPathsBase::GetLocalDataDir() const
-{
-    return GetDataDir();
-}
-
 wxString wxStandardPathsBase::GetUserLocalDataDir() const
 {
     return GetUserDataDir();
