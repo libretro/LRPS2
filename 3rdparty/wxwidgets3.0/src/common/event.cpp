@@ -382,42 +382,12 @@ wxEvtHandler::wxEvtHandler()
     m_nextHandler = NULL;
     m_previousHandler = NULL;
     m_enabled = true;
-    m_dynamicEvents = NULL;
     m_pendingEvents = NULL;
 }
 
 wxEvtHandler::~wxEvtHandler()
 {
     Unlink();
-
-    if (m_dynamicEvents)
-    {
-        for ( wxList::iterator it = m_dynamicEvents->begin(),
-                               end = m_dynamicEvents->end();
-              it != end;
-              ++it )
-        {
-            wxDynamicEventTableEntry *entry = (wxDynamicEventTableEntry*)*it;
-
-            // Remove ourselves from sink destructor notifications
-            // (this has usually been done, in wxTrackable destructor)
-            wxEvtHandler *eventSink = entry->m_fn->GetEvtHandler();
-            if ( eventSink )
-            {
-                wxEventConnectionRef * const
-                    evtConnRef = FindRefInTrackerList(eventSink);
-                if ( evtConnRef )
-                {
-                    eventSink->RemoveNode(evtConnRef);
-                    delete evtConnRef;
-                }
-            }
-
-            delete entry->m_callbackUserData;
-            delete entry;
-        }
-        delete m_dynamicEvents;
-    }
 
     // Remove us from the list of the pending events if necessary.
     if (wxTheApp)
@@ -786,97 +756,19 @@ bool wxEvtHandler::DoTryChain(wxEvent& event)
 bool wxEvtHandler::TryHereOnly(wxEvent& event)
 {
     // If the event handler is disabled it doesn't process any events
-    if ( !GetEvtHandlerEnabled() )
-        return false;
-
-    // Handle per-instance dynamic event tables first
-    if ( m_dynamicEvents && SearchDynamicEventTable(event) )
-        return true;
-
-    // Then static per-class event tables
-    if ( GetEventHashTable().HandleEvent(event, this) )
-        return true;
-
-#ifdef wxHAS_CALL_AFTER
-    // There is an implicit entry for async method calls processing in every
-    // event handler:
-    if ( event.GetEventType() == wxEVT_ASYNC_METHOD_CALL &&
-            event.GetEventObject() == this )
+    if ( GetEvtHandlerEnabled() )
     {
-        static_cast<wxAsyncMethodCallEvent&>(event).Execute();
-        return true;
+	    // Then static per-class event tables
+	    if ( GetEventHashTable().HandleEvent(event, this) )
+		    return true;
     }
-#endif // wxHAS_CALL_AFTER
 
     // We don't have a handler for this event.
     return false;
 }
 
-bool wxEvtHandler::SearchDynamicEventTable( wxEvent& event )
-{
-    wxCHECK_MSG( m_dynamicEvents, false,
-                 wxT("caller should check that we have dynamic events") );
-
-    wxList::compatibility_iterator node = m_dynamicEvents->GetFirst();
-    while (node)
-    {
-        wxDynamicEventTableEntry *entry = (wxDynamicEventTableEntry*)node->GetData();
-
-        // get next node before (maybe) calling the event handler as it could
-        // call Disconnect() invalidating the current node
-        node = node->GetNext();
-
-        if ( event.GetEventType() == entry->m_eventType )
-        {
-            wxEvtHandler *handler = entry->m_fn->GetEvtHandler();
-            if ( !handler )
-               handler = this;
-            if ( ProcessEventIfMatchesId(*entry, handler, event) )
-                return true;
-        }
-    }
-
-    return false;
-}
-
-
-// A helper to find an wxEventConnectionRef object
-wxEventConnectionRef *
-wxEvtHandler::FindRefInTrackerList(wxEvtHandler *eventSink)
-{
-    for ( wxTrackerNode *node = eventSink->GetFirst(); node; node = node->m_nxt )
-    {
-        // we only want wxEventConnectionRef nodes here
-        wxEventConnectionRef *evtConnRef = node->ToEventConnection();
-        if ( evtConnRef && evtConnRef->m_src == this )
-        {
-            wxASSERT( evtConnRef->m_sink==eventSink );
-            return evtConnRef;
-        }
-    }
-
-    return NULL;
-}
-
 void wxEvtHandler::OnSinkDestroyed( wxEvtHandler *sink )
 {
-    wxASSERT(m_dynamicEvents);
-
-    // remove all connections with this sink
-    wxList::compatibility_iterator node = m_dynamicEvents->GetFirst(), node_nxt;
-    while (node)
-    {
-        wxDynamicEventTableEntry *entry = (wxDynamicEventTableEntry*)node->GetData();
-        node_nxt = node->GetNext();
-
-        if ( entry->m_fn->GetEvtHandler() == sink )
-        {
-            delete entry->m_callbackUserData;
-            m_dynamicEvents->Erase( node );
-            delete entry;
-        }
-        node = node_nxt;
-    }
 }
 
 #endif // wxUSE_BASE
