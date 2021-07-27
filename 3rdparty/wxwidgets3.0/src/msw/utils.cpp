@@ -265,66 +265,6 @@ bool wxGetEnv(const wxString& WXUNUSED_IN_WINCE(var),
 #endif // WinCE/32
 }
 
-bool wxDoSetEnv(const wxString& var, const wxChar *value)
-{
-#ifdef __WXWINCE__
-    // no environment variables under CE
-    wxUnusedVar(var);
-    wxUnusedVar(value);
-    return false;
-#else // !__WXWINCE__
-    // update the CRT environment if possible as people expect getenv() to also
-    // work and it is not affected by Win32 SetEnvironmentVariable() call (OTOH
-    // the CRT does use Win32 call to update the process environment block so
-    // there is no need to call it)
-    //
-    // TODO: add checks for the other compilers (and update wxSetEnv()
-    //       documentation in interface/wx/utils.h accordingly)
-#if defined(__VISUALC__) || defined(__MINGW32__)
-    // notice that Microsoft _putenv() has different semantics from POSIX
-    // function with almost the same name: in particular it makes a copy of the
-    // string instead of using it as part of environment so we can safely call
-    // it here without going through all the troubles with wxSetEnvModule as in
-    // src/unix/utilsunx.cpp
-    wxString envstr = var;
-    envstr += '=';
-    if ( value )
-        envstr += value;
-    if ( _tputenv(envstr.t_str()) != 0 )
-        return false;
-#else // other compiler
-    if ( !::SetEnvironmentVariable(var.t_str(), value) )
-        return false;
-#endif // compiler
-
-    return true;
-#endif // __WXWINCE__/!__WXWINCE__
-}
-
-bool wxSetEnv(const wxString& variable, const wxString& value)
-{
-    return wxDoSetEnv(variable, value.t_str());
-}
-
-bool wxUnsetEnv(const wxString& variable)
-{
-    return wxDoSetEnv(variable, NULL);
-}
-
-// ----------------------------------------------------------------------------
-// misc
-// ----------------------------------------------------------------------------
-
-unsigned long wxGetProcessId()
-{
-    return ::GetCurrentProcessId();
-}
-
-bool wxIsDebuggerRunning()
-{
-    return false;
-}
-
 // ----------------------------------------------------------------------------
 // working with MSW resources
 // ----------------------------------------------------------------------------

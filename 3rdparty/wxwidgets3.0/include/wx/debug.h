@@ -116,17 +116,6 @@ class WXDLLIMPEXP_FWD_BASE wxCStrData;
 // other miscellaneous debugger-related functions
 // ----------------------------------------------------------------------------
 
-/*
-    Return true if we're running under debugger.
-
-    Currently only really works under Win32 and just returns false elsewhere.
- */
-#if defined(__WIN32__)
-    extern bool WXDLLIMPEXP_BASE wxIsDebuggerRunning();
-#else // !Mac
-    inline bool wxIsDebuggerRunning() { return false; }
-#endif // Mac/!Mac
-
 // Use of wxFalse instead of false suppresses compiler warnings about testing
 // constant expression
 extern WXDLLIMPEXP_DATA_BASE(const bool) wxFalse;

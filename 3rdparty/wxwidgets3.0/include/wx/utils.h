@@ -258,76 +258,6 @@ WXDLLIMPEXP_BASE wxString wxDecToHex(int dec);
 // Process management
 // ----------------------------------------------------------------------------
 
-// NB: for backwards compatibility reasons the values of wxEXEC_[A]SYNC *must*
-//     be 0 and 1, don't change!
-
-enum
-{
-    // execute the process asynchronously
-    wxEXEC_ASYNC    = 0,
-
-    // execute it synchronously, i.e. wait until it finishes
-    wxEXEC_SYNC     = 1,
-
-    // under Windows, don't hide the child even if it's IO is redirected (this
-    // is done by default)
-    wxEXEC_SHOW_CONSOLE   = 2,
-
-    // deprecated synonym for wxEXEC_SHOW_CONSOLE, use the new name as it's
-    // more clear
-    wxEXEC_NOHIDE = wxEXEC_SHOW_CONSOLE,
-
-    // under Unix, if the process is the group leader then passing wxKILL_CHILDREN to wxKill
-    // kills all children as well as pid
-    // under Windows (NT family only), sets the CREATE_NEW_PROCESS_GROUP flag,
-    // which allows to target Ctrl-Break signal to the spawned process.
-    // applies to console processes only.
-    wxEXEC_MAKE_GROUP_LEADER = 4,
-
-    // by default synchronous execution disables all program windows to avoid
-    // that the user interacts with the program while the child process is
-    // running, you can use this flag to prevent this from happening
-    wxEXEC_NODISABLE = 8,
-
-    // by default, the event loop is run while waiting for synchronous execution
-    // to complete and this flag can be used to simply block the main process
-    // until the child process finishes
-    wxEXEC_NOEVENTS = 16,
-
-    // under Windows, hide the console of the child process if it has one, even
-    // if its IO is not redirected
-    wxEXEC_HIDE_CONSOLE = 32,
-
-    // convenient synonym for flags given system()-like behaviour
-    wxEXEC_BLOCK = wxEXEC_SYNC | wxEXEC_NOEVENTS
-};
-
-// Map storing environment variables.
-typedef wxStringToStringHashMap wxEnvVariableHashMap;
-
-enum wxSignal
-{
-    wxSIGNONE = 0,  // verify if the process exists under Unix
-    wxSIGHUP,
-    wxSIGINT,
-    wxSIGQUIT,
-    wxSIGILL,
-    wxSIGTRAP,
-    wxSIGABRT,
-    wxSIGIOT = wxSIGABRT,   // another name
-    wxSIGEMT,
-    wxSIGFPE,
-    wxSIGKILL,
-    wxSIGBUS,
-    wxSIGSEGV,
-    wxSIGSYS,
-    wxSIGPIPE,
-    wxSIGALRM,
-    wxSIGTERM
-
-    // further signals are different in meaning between different Unix systems
-};
-
 // Sleep for nSecs seconds
 WXDLLIMPEXP_BASE void wxSleep(int nSecs);
 
@@ -344,39 +274,6 @@ WXDLLIMPEXP_BASE void wxMicroSleep(unsigned long microseconds);
 // returns true if variable exists (value may be NULL if you just want to check
 // for this)
 WXDLLIMPEXP_BASE bool wxGetEnv(const wxString& var, wxString *value);
-
-// set the env var name to the given value, return true on success
-WXDLLIMPEXP_BASE bool wxSetEnv(const wxString& var, const wxString& value);
-
-// remove the env var from environment
-WXDLLIMPEXP_BASE bool wxUnsetEnv(const wxString& var);
-
-#if WXWIN_COMPATIBILITY_2_8
-inline bool wxSetEnv(const wxString& var, const char *value)
-    { return wxSetEnv(var, wxString(value)); }
-inline bool wxSetEnv(const wxString& var, const wchar_t *value)
-    { return wxSetEnv(var, wxString(value)); }
-template<typename T>
-inline bool wxSetEnv(const wxString& var, const wxScopedCharTypeBuffer<T>& value)
-    { return wxSetEnv(var, wxString(value)); }
-inline bool wxSetEnv(const wxString& var, const wxCStrData& value)
-    { return wxSetEnv(var, wxString(value)); }
-
-// this one is for passing NULL directly - don't use it, use wxUnsetEnv instead
-wxDEPRECATED( inline bool wxSetEnv(const wxString& var, int value) );
-inline bool wxSetEnv(const wxString& var, int value)
-{
-    wxASSERT_MSG( value == 0, "using non-NULL integer as string?" );
-
-    wxUnusedVar(value); // fix unused parameter warning in release build
-
-    return wxUnsetEnv(var);
-}
-#endif // WXWIN_COMPATIBILITY_2_8
-
-// Retrieve the complete environment by filling specified map.
-// Returns true on success or false if an error occurred.
-WXDLLIMPEXP_BASE bool wxGetEnvMap(wxEnvVariableHashMap *map);
 
 // ----------------------------------------------------------------------------
 // Network and username functions.
@@ -409,24 +306,6 @@ typedef int (*wxSortCallback)(const void* pItem1,
 WXDLLIMPEXP_BASE void wxQsort(void* pbase, size_t total_elems,
                               size_t size, wxSortCallback cmp,
                               const void* user_data);
-
-
-// ----------------------------------------------------------------------------
-// wxYield(): these functions are obsolete, please use wxApp methods instead!
-// ----------------------------------------------------------------------------
-
-// avoid redeclaring this function here if it had been already declated by
-// wx/app.h, this results in warnings from g++ with -Wredundant-decls
-#ifndef wx_YIELD_DECLARED
-#define wx_YIELD_DECLARED
-
-// Yield to other apps/messages
-WXDLLIMPEXP_CORE bool wxYield();
-
-#endif // wx_YIELD_DECLARED
-
-// Like wxYield, but fails silently if the yield is recursive.
-WXDLLIMPEXP_CORE bool wxYieldIfNeeded();
 
 // ----------------------------------------------------------------------------
 // Windows resources access

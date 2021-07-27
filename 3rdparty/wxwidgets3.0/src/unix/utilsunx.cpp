@@ -456,43 +456,9 @@ wxString wxGetOsDescription()
 
 #endif // !__DARWIN__
 
-unsigned long wxGetProcessId()
-{
-    return (unsigned long)getpid();
-}
-
 // ----------------------------------------------------------------------------
 // env vars
 // ----------------------------------------------------------------------------
-
-#if USE_PUTENV
-
-WX_DECLARE_STRING_HASH_MAP(char *, wxEnvVars);
-
-static wxEnvVars gs_envVars;
-
-class wxSetEnvModule : public wxModule
-{
-public:
-    virtual bool OnInit() { return true; }
-    virtual void OnExit()
-    {
-        for ( wxEnvVars::const_iterator i = gs_envVars.begin();
-              i != gs_envVars.end();
-              ++i )
-        {
-            free(i->second);
-        }
-
-        gs_envVars.clear();
-    }
-
-    DECLARE_DYNAMIC_CLASS(wxSetEnvModule)
-};
-
-IMPLEMENT_DYNAMIC_CLASS(wxSetEnvModule, wxModule)
-
-#endif // USE_PUTENV
 
 bool wxGetEnv(const wxString& var, wxString *value)
 {
@@ -507,61 +473,6 @@ bool wxGetEnv(const wxString& var, wxString *value)
     }
 
     return true;
-}
-
-static bool wxDoSetEnv(const wxString& variable, const char *value)
-{
-#if defined(HAVE_SETENV)
-    if ( !value )
-    {
-#ifdef HAVE_UNSETENV
-        // don't test unsetenv() return value: it's void on some systems (at
-        // least Darwin)
-        unsetenv(variable.mb_str());
-        return true;
-#else
-        value = ""; // we can't pass NULL to setenv()
-#endif
-    }
-
-    return setenv(variable.mb_str(), value, 1 /* overwrite */) == 0;
-#elif defined(HAVE_PUTENV)
-    wxString s = variable;
-    if ( value )
-        s << wxT('=') << value;
-
-    // transform to ANSI
-    const wxWX2MBbuf p = s.mb_str();
-
-    char *buf = (char *)malloc(strlen(p) + 1);
-    strcpy(buf, p);
-
-    // store the string to free() it later
-    wxEnvVars::iterator i = gs_envVars.find(variable);
-    if ( i != gs_envVars.end() )
-    {
-        free(i->second);
-        i->second = buf;
-    }
-    else // this variable hadn't been set before
-    {
-        gs_envVars[variable] = buf;
-    }
-
-    return putenv(buf) == 0;
-#else // no way to set an env var
-    return false;
-#endif
-}
-
-bool wxSetEnv(const wxString& variable, const wxString& value)
-{
-    return wxDoSetEnv(variable, value.mb_str());
-}
-
-bool wxUnsetEnv(const wxString& variable)
-{
-    return wxDoSetEnv(variable, NULL);
 }
 
 namespace
