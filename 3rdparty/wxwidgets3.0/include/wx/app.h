@@ -390,16 +390,6 @@ protected:
 // Force an exit from main loop
 WXDLLIMPEXP_BASE void wxExit();
 
-// avoid redeclaring this function here if it had been already declared by
-// wx/utils.h, this results in warnings from g++ with -Wredundant-decls
-#ifndef wx_YIELD_DECLARED
-#define wx_YIELD_DECLARED
-
-// Yield to other apps/messages
-WXDLLIMPEXP_CORE bool wxYield();
-
-#endif // wx_YIELD_DECLARED
-
 // Yield to other apps/messages
 WXDLLIMPEXP_BASE void wxWakeUpIdle();
 
