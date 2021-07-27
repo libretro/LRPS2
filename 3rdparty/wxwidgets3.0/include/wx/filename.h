@@ -253,11 +253,6 @@ public:
     bool IsFileExecutable() const { return wxIsExecutable(GetFullPath()); }
     static bool IsFileExecutable(const wxString &path) { return wxFileExists(path) && wxIsExecutable(path); }
 
-        // set the file permissions to a combination of wxPosixPermissions enum
-        // values
-    bool SetPermissions(int permissions);
-
-
     // time functions
 #if wxUSE_DATETIME
         // set the file last access/mod and creation times
@@ -408,11 +403,6 @@ public:
                             wxPathFormat format = wxPATH_NATIVE);
 #endif
 
-        // replaces, if present in the path, the home directory for the given user
-        // (see wxGetHomeDir) with a tilde
-    bool ReplaceHomeDir(wxPathFormat format = wxPATH_NATIVE);
-
-
     // Comparison
 
         // compares with the rules of the given platforms format
@@ -440,10 +430,6 @@ public:
         // is this filename relative?
     bool IsRelative(wxPathFormat format = wxPATH_NATIVE) const
         { return !IsAbsolute(format); }
-
-    // Returns the characters that aren't allowed in filenames
-    // on the specified platform.
-    static wxString GetForbiddenChars(wxPathFormat format = wxPATH_NATIVE);
 
     // Information about path format
 

@@ -1609,23 +1609,6 @@ bool wxFileName::ReplaceEnvVariable(const wxString& envname,
 }
 #endif
 
-bool wxFileName::ReplaceHomeDir(wxPathFormat format)
-{
-    wxString homedir = wxGetHomeDir();
-    if (homedir.empty())
-        return false;
-
-    wxString stringForm = GetPath(wxPATH_GET_VOLUME, format);
-        // do not touch the file name and the extension
-
-    stringForm.Replace(homedir, "~");
-
-    // Now assign ourselves the modified path:
-    Assign(stringForm, GetFullName(), format);
-
-    return true;
-}
-
 // ----------------------------------------------------------------------------
 // absolute/relative paths
 // ----------------------------------------------------------------------------
@@ -1765,38 +1748,6 @@ bool wxFileName::IsCaseSensitive( wxPathFormat format )
 {
     // only Unix filenames are truly case-sensitive
     return GetFormat(format) == wxPATH_UNIX;
-}
-
-/* static */
-wxString wxFileName::GetForbiddenChars(wxPathFormat format)
-{
-    // Inits to forbidden characters that are common to (almost) all platforms.
-    wxString strForbiddenChars = wxT("*?");
-
-    switch ( GetFormat(format) )
-    {
-        default :
-            wxFAIL_MSG( wxT("Unknown path format") );
-            // !! Fall through !!
-
-        case wxPATH_UNIX:
-            break;
-
-        case wxPATH_MAC:
-            // On a Mac even names with * and ? are allowed (Tested with OS
-            // 9.2.1 and OS X 10.2.5)
-            strForbiddenChars.clear();
-            break;
-
-        case wxPATH_DOS:
-            strForbiddenChars += wxT("\\/:\"<>|");
-            break;
-
-        case wxPATH_VMS:
-            break;
-    }
-
-    return strForbiddenChars;
 }
 
 /* static */
@@ -2410,37 +2361,6 @@ wxString wxFileName::StripExtension(const wxString& fullpath)
     wxFileName fn(fullpath);
     fn.SetExt("");
     return fn.GetFullPath();
-}
-
-// ----------------------------------------------------------------------------
-// file permissions functions
-// ----------------------------------------------------------------------------
-
-bool wxFileName::SetPermissions(int permissions)
-{
-    // Don't do anything for a symlink but first make sure it is one.
-    if ( m_dontFollowLinks &&
-            Exists(GetFullPath(), wxFILE_EXISTS_SYMLINK|wxFILE_EXISTS_NO_FOLLOW) )
-    {
-        // Looks like changing permissions for a symlinc is only supported
-        // on BSD where lchmod is present and correctly implemented.
-        // http://lists.gnu.org/archive/html/bug-coreutils/2009-09/msg00268.html
-        return false;
-    }
-
-#ifdef __WINDOWS__
-    int accMode = 0;
-
-    if ( permissions & (wxS_IRUSR|wxS_IRGRP|wxS_IROTH) )
-        accMode = _S_IREAD;
-
-    if ( permissions & (wxS_IWUSR|wxS_IWGRP|wxS_IWOTH) )
-        accMode |= _S_IWRITE;
-
-    permissions = accMode;
-#endif // __WINDOWS__
-
-    return wxChmod(GetFullPath(), permissions) == 0;
 }
 
 // ----------------------------------------------------------------------------

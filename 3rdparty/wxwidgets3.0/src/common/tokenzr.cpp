@@ -200,28 +200,6 @@ bool wxStringTokenizer::DoHasMoreTokens() const
     return false;
 }
 
-// count the number of (remaining) tokens in the string
-size_t wxStringTokenizer::CountTokens() const
-{
-    wxCHECK_MSG( IsOk(), 0, wxT("you should call SetString() first") );
-
-    // VZ: this function is IMHO not very useful, so it's probably not very
-    //     important if its implementation here is not as efficient as it
-    //     could be -- but OTOH like this we're sure to get the correct answer
-    //     in all modes
-    wxStringTokenizer tkz(wxString(m_pos, m_stringEnd), m_delims, m_mode);
-
-    size_t count = 0;
-    while ( tkz.HasMoreTokens() )
-    {
-        count++;
-
-        (void)tkz.GetNextToken();
-    }
-
-    return count;
-}
-
 // ----------------------------------------------------------------------------
 // token extraction
 // ----------------------------------------------------------------------------
