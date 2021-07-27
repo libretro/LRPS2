@@ -104,43 +104,6 @@ const wxStringCharType WXDLLIMPEXP_BASE *wxEmptyString = &g_strEmpty.dummy;
 
 
 #if !wxUSE_STL_BASED_WXSTRING
-
-// ----------------------------------------------------------------------------
-// private classes
-// ----------------------------------------------------------------------------
-
-// this small class is used to gather statistics for performance tuning
-
-// uncomment this to enable gathering of some statistics about wxString
-// efficiency
-//#define WXSTRING_STATISTICS
-
-#ifdef  WXSTRING_STATISTICS
-  class Averager
-  {
-  public:
-    Averager(const wxStringCharType *sz) { m_sz = sz; m_nTotal = m_nCount = 0; }
-   ~Averager()
-    {
-        wxPrintf("wxString %s: total = %lu, average = %f\n",
-                 m_sz, m_nTotal, ((float)m_nTotal)/m_nCount);
-    }
-
-    void Add(size_t n) { m_nTotal += n; m_nCount++; }
-
-  private:
-    unsigned long m_nCount, m_nTotal;
-    const wxStringCharType *m_sz;
-  } g_averageLength("allocation size"),
-    g_averageSummandLength("summand length"),
-    g_averageConcatHit("hit probability in concat"),
-    g_averageInitialLength("initial string length");
-
-  #define STATISTICS_ADD(av, val) g_average##av.Add(val)
-#else
-  #define STATISTICS_ADD(av, val)
-#endif // WXSTRING_STATISTICS
-
 // ===========================================================================
 // wxStringData class deallocation
 // ===========================================================================
@@ -169,8 +132,6 @@ void wxStringImpl::InitWith(const wxStringCharType *psz,
 
     nLength = wxStrlen(psz + nPos);
   }
-
-  STATISTICS_ADD(InitialLength, nLength);
 
   if ( nLength > 0 ) {
     // trailing '\0' is written in AllocBuffer()
@@ -215,8 +176,6 @@ bool wxStringImpl::AllocBuffer(size_t nLen)
   // make sure that we don't overflow
   wxCHECK( nLen < (INT_MAX / sizeof(wxStringCharType)) -
                   (sizeof(wxStringData) + EXTRA_ALLOC + 1), false );
-
-  STATISTICS_ADD(Length, nLen);
 
   // allocate memory:
   // 1) one extra character for '\0' termination
@@ -276,8 +235,6 @@ bool wxStringImpl::AllocBeforeWrite(size_t nLen)
     if ( nLen > pData->nAllocLength ) {
       // realloc the buffer instead of calling malloc() again, this is more
       // efficient
-      STATISTICS_ADD(Length, nLen);
-
       nLen += EXTRA_ALLOC;
 
       pData = (wxStringData*)
@@ -341,8 +298,6 @@ bool wxStringImpl::Alloc(size_t nLen)
   wxStringData *pData = GetStringData();
   if ( pData->nAllocLength <= nLen ) {
     if ( pData->IsEmpty() ) {
-      STATISTICS_ADD(Length, nLen);
-
       nLen += EXTRA_ALLOC;
 
       pData = (wxStringData *)
@@ -700,8 +655,6 @@ bool wxStringImpl::ConcatSelf(size_t nSrcLen,
                               const wxStringCharType *pszSrcData,
                               size_t nMaxLen)
 {
-  STATISTICS_ADD(SummandLength, nSrcLen);
-
   nSrcLen = nSrcLen < nMaxLen ? nSrcLen : nMaxLen;
 
   // concatenating an empty string is a NOP
@@ -723,8 +676,6 @@ bool wxStringImpl::ConcatSelf(size_t nSrcLen,
 
     // alloc new buffer if current is too small
     if ( pData->IsShared() ) {
-      STATISTICS_ADD(ConcatHit, 0);
-
       // we have to allocate another buffer
       wxStringData* pOldData = GetStringData();
       if ( !AllocBuffer(nNewLen) ) {
@@ -735,19 +686,12 @@ bool wxStringImpl::ConcatSelf(size_t nSrcLen,
       pOldData->Unlock();
     }
     else if ( nNewLen > pData->nAllocLength ) {
-      STATISTICS_ADD(ConcatHit, 0);
-
       reserve(nNewLen);
       // we have to grow the buffer
       if ( capacity() < nNewLen ) {
           // allocation failure handled by caller
           return false;
       }
-    }
-    else {
-      STATISTICS_ADD(ConcatHit, 1);
-
-      // the buffer is already big enough
     }
 
     // should be enough space

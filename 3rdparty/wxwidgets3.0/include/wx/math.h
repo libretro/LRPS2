@@ -142,29 +142,7 @@
     wxGCC_WARNING_RESTORE(float-equal)
 
 #endif /* __INTELC__/!__INTELC__ */
-
-inline bool wxIsNullDouble(double x) { return wxIsSameDouble(x, 0.); }
-
-inline int wxRound(double x)
-{
-    wxASSERT_MSG( x > INT_MIN - 0.5 && x < INT_MAX + 0.5,
-                  wxT("argument out of supported range") );
-
-    #if defined(HAVE_ROUND)
-        return int(round(x));
-    #else
-        return (int)(x < 0 ? x - 0.5 : x + 0.5);
-    #endif
-}
-
 #endif /* __cplusplus */
-
-
-#if defined(__WINDOWS__) && !defined(__WXWINCE__)
-    #define wxMulDivInt32( a , b , c ) ::MulDiv( a , b , c )
-#else
-    #define wxMulDivInt32( a , b , c ) (wxRound((a)*(((wxDouble)b)/((wxDouble)c))))
-#endif
 
 #if wxUSE_APPLE_IEEE
 #ifdef __cplusplus

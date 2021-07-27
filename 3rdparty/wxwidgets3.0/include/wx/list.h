@@ -296,11 +296,6 @@ protected:
     // a function to compare two list elements. The list is sorted in place.
     void Sort(const wxSortCompareFunction compfunc);
 
-    // functions for iterating over the list
-    void *FirstThat(wxListIterateFunction func);
-    void ForEach(wxListIterateFunction func);
-    void *LastThat(wxListIterateFunction func);
-
     // for STL interface, "last" points to one after the last node
     // of the controlled sequence (NULL for the end of the list)
     void Reverse();

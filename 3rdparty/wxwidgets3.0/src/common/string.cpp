@@ -113,43 +113,6 @@ static wxStrCacheInitializer gs_stringCacheInit;
 
 #endif // wxHAS_COMPILER_TLS/!wxHAS_COMPILER_TLS
 
-#ifdef wxPROFILE_STRING_CACHE
-
-wxString::CacheStats wxString::ms_cacheStats;
-
-struct wxStrCacheStatsDumper
-{
-    ~wxStrCacheStatsDumper()
-    {
-        const wxString::CacheStats& stats = wxString::ms_cacheStats;
-
-        if ( stats.postot )
-        {
-            puts("*** wxString cache statistics:");
-            printf("\tTotal non-trivial calls to PosToImpl(): %u\n",
-                   stats.postot);
-            printf("\tHits %u (of which %u not used) or %.2f%%\n",
-                   stats.poshits,
-                   stats.mishits,
-                   100.*float(stats.poshits - stats.mishits)/stats.postot);
-            printf("\tAverage position requested: %.2f\n",
-                   float(stats.sumpos) / stats.postot);
-            printf("\tAverage offset after cached hint: %.2f\n",
-                   float(stats.sumofs) / stats.postot);
-        }
-
-        if ( stats.lentot )
-        {
-            printf("\tNumber of calls to length(): %u, hits=%.2f%%\n",
-                   stats.lentot, 100.*float(stats.lenhits)/stats.lentot);
-        }
-    }
-};
-
-static wxStrCacheStatsDumper s_showCacheStats;
-
-#endif // wxPROFILE_STRING_CACHE
-
 #endif // wxUSE_STRING_POS_CACHE
 
 // ----------------------------------------------------------------------------
@@ -256,91 +219,6 @@ void wxString::PosLenToImpl(size_t pos, size_t len,
 // ----------------------------------------------------------------------------
 // wxCStrData converted strings caching
 // ----------------------------------------------------------------------------
-
-// FIXME-UTF8: temporarily disabled because it doesn't work with global
-//             string objects; re-enable after fixing this bug and benchmarking
-//             performance to see if using a hash is a good idea at all
-#if 0
-
-// For backward compatibility reasons, it must be possible to assign the value
-// returned by wxString::c_str() to a char* or wchar_t* variable and work with
-// it. Returning wxCharBuffer from (const char*)c_str() wouldn't do the trick,
-// because the memory would be freed immediately, but it has to be valid as long
-// as the string is not modified, so that code like this still works:
-//
-// const wxChar *s = str.c_str();
-// while ( s ) { ... }
-
-// FIXME-UTF8: not thread safe!
-// FIXME-UTF8: we currently clear the cached conversion only when the string is
-//             destroyed, but we should do it when the string is modified, to
-//             keep memory usage down
-// FIXME-UTF8: we do the conversion every time As[W]Char() is called, but if we
-//             invalidated the cache on every change, we could keep the previous
-//             conversion
-// FIXME-UTF8: add tracing of usage of these two methods - new code is supposed
-//             to use mb_str() or wc_str() instead of (const [w]char*)c_str()
-
-template<typename T>
-static inline void DeleteStringFromConversionCache(T& hash, const wxString *s)
-{
-    typename T::iterator i = hash.find(wxConstCast(s, wxString));
-    if ( i != hash.end() )
-    {
-        free(i->second);
-        hash.erase(i);
-    }
-}
-
-#if wxUSE_UNICODE
-// NB: non-STL implementation doesn't compile with "const wxString*" key type,
-//     so we have to use wxString* here and const-cast when used
-WX_DECLARE_HASH_MAP(wxString*, char*, wxPointerHash, wxPointerEqual,
-                    wxStringCharConversionCache);
-static wxStringCharConversionCache gs_stringsCharCache;
-
-const char* wxCStrData::AsChar() const
-{
-    // remove previously cache value, if any (see FIXMEs above):
-    DeleteStringFromConversionCache(gs_stringsCharCache, m_str);
-
-    // convert the string and keep it:
-    const char *s = gs_stringsCharCache[wxConstCast(m_str, wxString)] =
-        m_str->mb_str().release();
-
-    return s + m_offset;
-}
-#endif // wxUSE_UNICODE
-
-#if !wxUSE_UNICODE_WCHAR
-WX_DECLARE_HASH_MAP(wxString*, wchar_t*, wxPointerHash, wxPointerEqual,
-                    wxStringWCharConversionCache);
-static wxStringWCharConversionCache gs_stringsWCharCache;
-
-const wchar_t* wxCStrData::AsWChar() const
-{
-    // remove previously cache value, if any (see FIXMEs above):
-    DeleteStringFromConversionCache(gs_stringsWCharCache, m_str);
-
-    // convert the string and keep it:
-    const wchar_t *s = gs_stringsWCharCache[wxConstCast(m_str, wxString)] =
-        m_str->wc_str().release();
-
-    return s + m_offset;
-}
-#endif // !wxUSE_UNICODE_WCHAR
-
-wxString::~wxString()
-{
-#if wxUSE_UNICODE
-    // FIXME-UTF8: do this only if locale is not UTF8 if wxUSE_UNICODE_UTF8
-    DeleteStringFromConversionCache(gs_stringsCharCache, this);
-#endif
-#if !wxUSE_UNICODE_WCHAR
-    DeleteStringFromConversionCache(gs_stringsWCharCache, this);
-#endif
-}
-#endif
 
 // ===========================================================================
 // wxString class core

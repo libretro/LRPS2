@@ -435,36 +435,6 @@ void wxListBase::Clear()
     m_count = 0;
 }
 
-void wxListBase::ForEach(wxListIterateFunction F)
-{
-    for ( wxNodeBase *current = GetFirst(); current; current = current->GetNext() )
-    {
-        (*F)(current->GetData());
-    }
-}
-
-void *wxListBase::FirstThat(wxListIterateFunction F)
-{
-    for ( wxNodeBase *current = GetFirst(); current; current = current->GetNext() )
-    {
-        if ( (*F)(current->GetData()) )
-            return current->GetData();
-    }
-
-    return NULL;
-}
-
-void *wxListBase::LastThat(wxListIterateFunction F)
-{
-    for ( wxNodeBase *current = GetLast(); current; current = current->GetPrevious() )
-    {
-        if ( (*F)(current->GetData()) )
-            return current->GetData();
-    }
-
-    return NULL;
-}
-
 // (stefan.hammes@urz.uni-heidelberg.de)
 //
 // function for sorting lists. the concept is borrowed from 'qsort'.

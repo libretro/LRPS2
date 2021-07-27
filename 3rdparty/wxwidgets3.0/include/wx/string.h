@@ -593,33 +593,6 @@ private:
   // callable from a debugger, to show the cache contents
   friend struct wxStrCacheDumper;
 
-  // uncomment this to have access to some profiling statistics on program
-  // termination
-  //#define wxPROFILE_STRING_CACHE
-
-#ifdef wxPROFILE_STRING_CACHE
-  static struct PosToImplCacheStats
-  {
-      unsigned postot,  // total non-trivial calls to PosToImpl
-               poshits, // cache hits from PosToImpl()
-               mishits, // cached position beyond the needed one
-               sumpos,  // sum of all positions, used to compute the
-                        // average position after dividing by postot
-               sumofs,  // sum of all offsets after using the cache, used to
-                        // compute the average after dividing by hits
-               lentot,  // number of total calls to length()
-               lenhits; // number of cache hits in length()
-  } ms_cacheStats;
-
-  friend struct wxStrCacheStatsDumper;
-
-  #define wxCACHE_PROFILE_FIELD_INC(field) ms_cacheStats.field++
-  #define wxCACHE_PROFILE_FIELD_ADD(field, val) ms_cacheStats.field += (val)
-#else // !wxPROFILE_STRING_CACHE
-  #define wxCACHE_PROFILE_FIELD_INC(field)
-  #define wxCACHE_PROFILE_FIELD_ADD(field, val)
-#endif // wxPROFILE_STRING_CACHE/!wxPROFILE_STRING_CACHE
-
   // note: it could seem that the functions below shouldn't be inline because
   // they are big, contain loops and so the compiler shouldn't be able to
   // inline them anyhow, however moving them into string.cpp does decrease the
@@ -688,24 +661,11 @@ private:
 
   size_t DoPosToImpl(size_t pos) const
   {
-      wxCACHE_PROFILE_FIELD_INC(postot);
-
       // NB: although the case of pos == 1 (and offset from cached position
       //     equal to 1) are common, nothing is gained by writing special code
       //     for handling them, the compiler (at least g++ 4.1 used) seems to
       //     optimize the code well enough on its own
-
-      wxCACHE_PROFILE_FIELD_ADD(sumpos, pos);
-
       Cache::Element * const cache = GetCacheElement();
-
-      // cached position can't be 0 so if it is, it means that this entry was
-      // used for length caching only so far, i.e. it doesn't count as a hit
-      // from our point of view
-      if ( cache->pos )
-      {
-          wxCACHE_PROFILE_FIELD_INC(poshits);
-      }
 
       if ( pos == cache->pos )
           return cache->impl;
@@ -714,14 +674,7 @@ private:
       // instead of complicating code even further by seeking backwards in this
       // case
       if ( cache->pos > pos )
-      {
-          wxCACHE_PROFILE_FIELD_INC(mishits);
-
           cache->ResetPos();
-      }
-
-      wxCACHE_PROFILE_FIELD_ADD(sumofs, pos - cache->pos);
-
 
       wxStringImpl::const_iterator i(m_impl.begin() + cache->impl);
       for ( size_t n = cache->pos; n < pos; n++ )
@@ -1411,8 +1364,6 @@ public:
   size_t length() const
   {
 #if wxUSE_STRING_POS_CACHE
-      wxCACHE_PROFILE_FIELD_INC(lentot);
-
       Cache::Element * const cache = GetCacheElement();
 
       if ( cache->len == npos )
@@ -1424,8 +1375,6 @@ public:
       }
       else
       {
-          wxCACHE_PROFILE_FIELD_INC(lenhits);
-
           wxSTRING_CACHE_ASSERT( (int)cache->len == end() - begin() );
       }
 

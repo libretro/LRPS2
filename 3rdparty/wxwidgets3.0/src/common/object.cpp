@@ -240,27 +240,6 @@ void wxClassInfo::Unregister()
     }
 }
 
-wxObject *wxCreateDynamicObject(const wxString& name)
-{
-    if ( wxClassInfo::sm_classTable )
-    {
-        wxClassInfo *info = (wxClassInfo *)wxClassInfo::sm_classTable->Get(name);
-        return info ? info->CreateObject() : NULL;
-    }
-    else // no sm_classTable yet
-    {
-        for ( wxClassInfo *info = wxClassInfo::sm_first;
-              info;
-              info = info->m_next )
-        {
-            if (info->m_className && wxStrcmp(info->m_className, name) == 0)
-                return info->CreateObject();
-        }
-
-        return NULL;
-    }
-}
-
 // iterator interface
 wxClassInfo::const_iterator::value_type
 wxClassInfo::const_iterator::operator*() const

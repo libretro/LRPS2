@@ -63,24 +63,6 @@ public:
 protected:
     static wxModuleList m_modules;
 
-    // the function to call from constructor of a deriving class add module
-    // dependency which will be initialized before the module and unloaded
-    // after that
-    void AddDependency(wxClassInfo *dep)
-    {
-        wxCHECK_RET( dep, wxT("NULL module dependency") );
-
-        m_dependencies.Add(dep);
-    }
-
-    // same as the version above except it will look up wxClassInfo by name on
-    // its own
-    void AddDependency(const char *className)
-    {
-        m_namedDependencies.Add(className);
-    }
-
-
 private:
     // initialize module and Append it to initializedModules list recursively
     // calling itself to satisfy module dependencies if needed
@@ -92,17 +74,9 @@ private:
     // could be initialized) and also empty m_modules itself
     static void DoCleanUpModules(const wxModuleList& modules);
 
-    // resolve all named dependencies and add them to the normal m_dependencies
-    bool ResolveNamedDependencies();
-
-
     // module dependencies: contains wxClassInfo pointers for all modules which
     // must be initialized before this one
     wxArrayClassInfo m_dependencies;
-
-    // and the named dependencies: those will be resolved during run-time and
-    // added to m_dependencies
-    wxArrayString m_namedDependencies;
 
     // used internally while initializing/cleaning up modules
     enum

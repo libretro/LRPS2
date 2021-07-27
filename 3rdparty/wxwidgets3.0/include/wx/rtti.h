@@ -39,7 +39,6 @@ typedef wxObject *(*wxObjectConstructorFn)(void);
 class WXDLLIMPEXP_BASE wxClassInfo
 {
     friend class WXDLLIMPEXP_FWD_BASE wxObject;
-    friend WXDLLIMPEXP_BASE wxObject *wxCreateDynamicObject(const wxString& name);
 public:
     wxClassInfo( const wxChar *className,
                  const wxClassInfo *baseInfo1,
@@ -116,8 +115,6 @@ protected:
 
     wxDECLARE_NO_COPY_CLASS(wxClassInfo);
 };
-
-WXDLLIMPEXP_BASE wxObject *wxCreateDynamicObject(const wxString& name);
 
 // ----------------------------------------------------------------------------
 // Dynamic class macros
