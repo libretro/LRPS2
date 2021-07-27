@@ -646,25 +646,4 @@
     Optionally supported C++ features.
  */
 
-/*
-    RTTI: if it is disabled in build/msw/makefile.* then this symbol will
-    already be defined but it's also possible to do it from configure (with
-    g++) or by editing project files with MSVC so test for it here too.
- */
-#ifndef wxNO_RTTI
-    /*
-        Only 4.3 defines __GXX_RTTI by default so its absence is not an
-        indication of disabled RTTI with the previous versions.
-     */
-#   if wxCHECK_GCC_VERSION(4, 3)
-#       ifndef __GXX_RTTI
-#           define wxNO_RTTI
-#       endif
-#   elif defined(_MSC_VER)
-#       ifndef _CPPRTTI
-#           define wxNO_RTTI
-#       endif
-#   endif
-#endif /* wxNO_RTTI */
-
 #endif /* _WX_PLATFORM_H_ */

@@ -24,69 +24,6 @@
 
 #include "wx/defs.h"
 
-#ifndef wxNO_RTTI
-
-//
-// Let's trust that Visual C++ versions 9.0 and later implement C++
-// RTTI well enough, so we can use it and work around harmless memory
-// leaks reported by the static run-time libraries.
-//
-#if wxCHECK_VISUALC_VERSION(9)
-    #define wxTRUST_CPP_RTTI    1
-#else
-    #define wxTRUST_CPP_RTTI    0
-#endif
-
-#include <typeinfo>
-#include <string.h>
-
-#define _WX_DECLARE_TYPEINFO_CUSTOM(CLS, IDENTFUNC)
-#define WX_DECLARE_TYPEINFO_INLINE(CLS)
-#define WX_DECLARE_TYPEINFO(CLS)
-#define WX_DEFINE_TYPEINFO(CLS)
-#define WX_DECLARE_ABSTRACT_TYPEINFO(CLS)
-
-#if wxTRUST_CPP_RTTI
-
-#define wxTypeId    typeid
-
-#else /*  !wxTRUST_CPP_RTTI */
-
-//
-// For improved type-safety, let's make the check using class name
-// comparison. Most modern compilers already do this, but we cannot
-// rely on all supported compilers to work this well. However, in
-// cases where we'd know that typeid() would be flawless (as such),
-// wxTypeId could of course simply be defined as typeid.
-//
-
-class wxTypeIdentifier
-{
-public:
-    wxTypeIdentifier(const char* className)
-    {
-        m_className = className;
-    }
-
-    bool operator==(const wxTypeIdentifier& other)
-    {
-        return strcmp(m_className, other.m_className) == 0;
-    }
-
-    bool operator!=(const wxTypeIdentifier& other)
-    {
-        return strcmp(m_className, other.m_className) != 0;
-    }
-private:
-    const char* m_className;
-};
-
-#define wxTypeId(OBJ) wxTypeIdentifier(typeid(OBJ).name())
-
-#endif /*  wxTRUST_CPP_RTTI/!wxTRUST_CPP_RTTI */
-
-#else // if !wxNO_RTTI
-
 #define wxTRUST_CPP_RTTI    0
 
 //
@@ -141,7 +78,5 @@ _WX_DECLARE_TYPEINFO_CUSTOM(CLS, sm_wxClassInfo)
 #define WX_DECLARE_ABSTRACT_TYPEINFO(CLS) \
 public: \
     virtual wxTypeIdentifier GetWxTypeId() const = 0;
-
-#endif // wxNO_RTTI/!wxNO_RTTI
 
 #endif // _WX_TYPEINFO_H_
