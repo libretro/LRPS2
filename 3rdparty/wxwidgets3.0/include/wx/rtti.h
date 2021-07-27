@@ -60,7 +60,6 @@ public:
 
     wxObject *CreateObject() const
         { return m_objectConstructor ? (*m_objectConstructor)() : 0; }
-    bool IsDynamic() const { return (NULL != m_objectConstructor); }
 
     const wxChar       *GetClassName() const { return m_className; }
     const wxChar       *GetBaseClassName1() const
@@ -75,7 +74,6 @@ public:
         { return m_objectConstructor; }
     static const wxClassInfo  *GetFirst() { return sm_first; }
     const wxClassInfo         *GetNext() const { return m_next; }
-    static wxClassInfo        *FindClass(const wxString& className);
 
         // Climb upwards through inheritance hierarchy.
         // Dual inheritance is catered for.

@@ -250,9 +250,6 @@ public:
     bool IsFileReadable() const { return wxIsReadable(GetFullPath()); }
     static bool IsFileReadable(const wxString &path) { return wxFileExists(path) && wxIsReadable(path); }
 
-    bool IsFileExecutable() const { return wxIsExecutable(GetFullPath()); }
-    static bool IsFileExecutable(const wxString &path) { return wxFileExists(path) && wxIsExecutable(path); }
-
     // time functions
 #if wxUSE_DATETIME
         // set the file last access/mod and creation times
@@ -269,14 +266,6 @@ public:
     bool GetTimes(wxDateTime *dtAccess,
                   wxDateTime *dtMod,
                   wxDateTime *dtCreate) const;
-
-        // convenience wrapper: get just the last mod time of the file
-    wxDateTime GetModificationTime() const
-    {
-        wxDateTime dtMod;
-        (void)GetTimes(NULL, &dtMod, NULL);
-        return dtMod;
-    }
 #endif // wxUSE_DATETIME
 
 #if defined( __WXOSX_MAC__ ) && wxOSX_USE_CARBON

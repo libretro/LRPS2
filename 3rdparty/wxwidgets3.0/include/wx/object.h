@@ -384,26 +384,12 @@ public:
     // destroy a reference
     void UnRef();
 
-    // Make sure this object has only one reference
-    void UnShare() { AllocExclusive(); }
-
     // check if this object references the same data as the other one
     bool IsSameAs(const wxObject& o) const { return m_refData == o.m_refData; }
 
 protected:
-    // ensure that our data is not shared with anybody else: if we have no
-    // data, it is created using CreateRefData() below, if we have shared data
-    // it is copied using CloneRefData(), otherwise nothing is done
-    void AllocExclusive();
-
     // both methods must be implemented if AllocExclusive() is used, not pure
     // virtual only because of the backwards compatibility reasons
-
-    // create a new m_refData
-    virtual wxObjectRefData *CreateRefData() const;
-
-    // create a new m_refData initialized with the given one
-    virtual wxObjectRefData *CloneRefData(const wxObjectRefData *data) const;
 
     wxObjectRefData *m_refData;
 };

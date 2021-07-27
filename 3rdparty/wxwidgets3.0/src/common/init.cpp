@@ -67,7 +67,6 @@ public:
     wxDummyConsoleApp() { }
 
     virtual int OnRun() { wxFAIL_MSG( wxT("unreachable code") ); return 0; }
-    virtual bool DoYield(bool, long) { return true; }
 
     wxDECLARE_NO_COPY_CLASS(wxDummyConsoleApp);
 };
@@ -114,15 +113,6 @@ public:
 private:
     wxAppConsole *m_app;
 };
-
-// ----------------------------------------------------------------------------
-// private functions
-// ----------------------------------------------------------------------------
-
-// suppress warnings about unused variables
-static inline void Use(void *) { }
-
-#define WX_SUPPRESS_UNUSED_WARN(x) Use(&x)
 
 // ----------------------------------------------------------------------------
 // initialization data
@@ -419,8 +409,6 @@ int wxEntryReal(int& argc, wxChar **argv)
         public:
             ~CallOnExit() { wxTheApp->OnExit(); }
         } callOnExit;
-
-        WX_SUPPRESS_UNUSED_WARN(callOnExit);
 #endif
         // app execution
         return wxTheApp->OnRun();

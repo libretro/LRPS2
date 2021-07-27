@@ -567,41 +567,6 @@ wxDEPRECATED_BUT_USED_INTERNALLY(
     WXDLLIMPEXP_BASE void wxUnix2DosFilename(char *s) );
 wxDEPRECATED_BUT_USED_INTERNALLY(
     WXDLLIMPEXP_BASE void wxUnix2DosFilename(wchar_t *s) );
-
-// Strip the extension, in situ
-// Deprecated in favour of wxFileName::StripExtension() but notice that their
-// behaviour is slightly different, see the manual
-wxDEPRECATED( WXDLLIMPEXP_BASE void wxStripExtension(char *buffer) );
-wxDEPRECATED( WXDLLIMPEXP_BASE void wxStripExtension(wchar_t *buffer) );
-wxDEPRECATED( WXDLLIMPEXP_BASE void wxStripExtension(wxString& buffer) );
-
-// Get a temporary filename
-wxDEPRECATED_BUT_USED_INTERNALLY( WXDLLIMPEXP_BASE wxChar* wxGetTempFileName(const wxString& prefix, wxChar *buf = NULL) );
-wxDEPRECATED_BUT_USED_INTERNALLY( WXDLLIMPEXP_BASE bool wxGetTempFileName(const wxString& prefix, wxString& buf) );
-
-// Expand file name (~/ and ${OPENWINHOME}/ stuff)
-wxDEPRECATED_BUT_USED_INTERNALLY( WXDLLIMPEXP_BASE char* wxExpandPath(char *dest, const wxString& path) );
-wxDEPRECATED_BUT_USED_INTERNALLY( WXDLLIMPEXP_BASE wchar_t* wxExpandPath(wchar_t *dest, const wxString& path) );
-    // DEPRECATED: use wxFileName::Normalize(wxPATH_NORM_ENV_VARS)
-
-// Contract w.r.t environment (</usr/openwin/lib, OPENWHOME> -> ${OPENWINHOME}/lib)
-// and make (if under the home tree) relative to home
-// [caller must copy-- volatile]
-wxDEPRECATED(
-WXDLLIMPEXP_BASE wxChar* wxContractPath(const wxString& filename,
-                                   const wxString& envname = wxEmptyString,
-                                   const wxString& user = wxEmptyString) );
-    // DEPRECATED: use wxFileName::ReplaceEnvVariable and wxFileName::ReplaceHomeDir
-
-// Destructive removal of /./ and /../ stuff
-wxDEPRECATED_BUT_USED_INTERNALLY( WXDLLIMPEXP_BASE char* wxRealPath(char *path) );
-wxDEPRECATED_BUT_USED_INTERNALLY( WXDLLIMPEXP_BASE wchar_t* wxRealPath(wchar_t *path) );
-wxDEPRECATED_BUT_USED_INTERNALLY( WXDLLIMPEXP_BASE wxString wxRealPath(const wxString& path) );
-    // DEPRECATED: use wxFileName::Normalize instead
-
-// Allocate a copy of the full absolute path
-wxDEPRECATED( WXDLLIMPEXP_BASE wxChar* wxCopyAbsolutePath(const wxString& path) );
-    // DEPRECATED: use wxFileName::MakeAbsolute instead
 #endif
 
 // Get first file name matching given wild card.
@@ -610,9 +575,6 @@ wxDEPRECATED( WXDLLIMPEXP_BASE wxChar* wxCopyAbsolutePath(const wxString& path) 
 #define wxDIR   2
 WXDLLIMPEXP_BASE wxString wxFindFirstFile(const wxString& spec, int flags = wxFILE);
 WXDLLIMPEXP_BASE wxString wxFindNextFile();
-
-// Does the pattern contain wildcards?
-WXDLLIMPEXP_BASE bool wxIsWild(const wxString& pattern);
 
 // Does the pattern match the text (usually a filename)?
 // If dot_special is true, doesn't match * against . (eliminating
@@ -633,15 +595,6 @@ WXDLLIMPEXP_BASE bool wxRemoveFile(const wxString& file);
 WXDLLIMPEXP_BASE bool wxRenameFile(const wxString& file1, const wxString& file2, bool overwrite = true);
 
 // Get current working directory.
-#if WXWIN_COMPATIBILITY_2_6
-// If buf is NULL, allocates space using new, else
-// copies into buf.
-// IMPORTANT NOTE getcwd is know not to work under some releases
-// of Win32s 1.3, according to MS release notes!
-wxDEPRECATED( WXDLLIMPEXP_BASE wxChar* wxGetWorkingDirectory(wxChar *buf = NULL, int sz = 1000) );
-// new and preferred version of wxGetWorkingDirectory
-// NB: can't have the same name because of overloading ambiguity
-#endif // WXWIN_COMPATIBILITY_2_6
 WXDLLIMPEXP_BASE wxString wxGetCwd();
 
 // Set working directory
@@ -657,19 +610,9 @@ WXDLLIMPEXP_BASE bool wxRmdir(const wxString& dir, int flags = 0);
 WXDLLIMPEXP_BASE wxFileKind wxGetFileKind(int fd);
 WXDLLIMPEXP_BASE wxFileKind wxGetFileKind(FILE *fp);
 
-#if WXWIN_COMPATIBILITY_2_6
-// compatibility defines, don't use in new code
-wxDEPRECATED( inline bool wxPathExists(const wxChar *pszPathName) );
-inline bool wxPathExists(const wxChar *pszPathName)
-{
-    return wxDirExists(pszPathName);
-}
-#endif //WXWIN_COMPATIBILITY_2_6
-
 // permissions; these functions work both on files and directories:
 WXDLLIMPEXP_BASE bool wxIsWritable(const wxString &path);
 WXDLLIMPEXP_BASE bool wxIsReadable(const wxString &path);
-WXDLLIMPEXP_BASE bool wxIsExecutable(const wxString &path);
 
 // ----------------------------------------------------------------------------
 // separators in file names
@@ -740,27 +683,6 @@ wxDEPRECATED( WXDLLIMPEXP_BASE void wxSplitPath(const wxString& fileName,
                                                 wxString *pstrExt) );
 #endif
 
-// find a file in a list of directories, returns false if not found
-WXDLLIMPEXP_BASE bool wxFindFileInPath(wxString *pStr, const wxString& szPath, const wxString& szFile);
-
-// Get the OS directory if appropriate (such as the Windows directory).
-// On non-Windows platform, probably just return the empty string.
-WXDLLIMPEXP_BASE wxString wxGetOSDirectory();
-
-#if wxUSE_DATETIME
-
-// Get file modification time
-WXDLLIMPEXP_BASE time_t wxFileModificationTime(const wxString& filename);
-
-#endif // wxUSE_DATETIME
-
-// Parses the wildCard, returning the number of filters.
-// Returns 0 if none or if there's a problem,
-// The arrays will contain an equal number of items found before the error.
-// wildCard is in the form:
-// "All files (*)|*|Image Files (*.jpeg *.png)|*.jpg;*.png"
-WXDLLIMPEXP_BASE int wxParseCommonDialogsFilter(const wxString& wildCard, wxArrayString& descriptions, wxArrayString& filters);
-
 // ----------------------------------------------------------------------------
 // classes
 // ----------------------------------------------------------------------------
@@ -821,9 +743,6 @@ public:
     // Find the first full path for which the file exists; ensure it's an
     // absolute path that gets returned.
     wxString FindAbsoluteValidPath(const wxString& filename) const;
-
-    // Given full path and filename, add path to list
-    bool EnsureFileAccessible(const wxString& path);
 
 #if WXWIN_COMPATIBILITY_2_6
     // Returns true if the path is in the list

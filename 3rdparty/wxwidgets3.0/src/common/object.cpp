@@ -149,24 +149,6 @@ wxClassInfo::~wxClassInfo()
     Unregister();
 }
 
-wxClassInfo *wxClassInfo::FindClass(const wxString& className)
-{
-    if ( sm_classTable )
-    {
-        return (wxClassInfo *)wxClassInfo::sm_classTable->Get(className);
-    }
-    else
-    {
-        for ( wxClassInfo *info = sm_first; info ; info = info->m_next )
-        {
-            if ( className == info->GetClassName() )
-                return info;
-        }
-
-        return NULL;
-    }
-}
-
 // Reentrance can occur on some platforms (Solaris for one), as the use of hash
 // and string objects can cause other modules to load and register classes
 // before the original call returns. This is handled by keeping the hash table
@@ -313,42 +295,4 @@ void wxObject::UnRef()
         m_refData->DecRef();
         m_refData = NULL;
     }
-}
-
-void wxObject::AllocExclusive()
-{
-    if ( !m_refData )
-    {
-        m_refData = CreateRefData();
-    }
-    else if ( m_refData->GetRefCount() > 1 )
-    {
-        // note that ref is not going to be destroyed in this case
-        const wxObjectRefData* ref = m_refData;
-        UnRef();
-
-        // ... so we can still access it
-        m_refData = CloneRefData(ref);
-    }
-    //else: ref count is 1, we are exclusive owners of m_refData anyhow
-
-    wxASSERT_MSG( m_refData && m_refData->GetRefCount() == 1,
-                  wxT("wxObject::AllocExclusive() failed.") );
-}
-
-wxObjectRefData *wxObject::CreateRefData() const
-{
-    // if you use AllocExclusive() you must override this method
-    wxFAIL_MSG( wxT("CreateRefData() must be overridden if called!") );
-
-    return NULL;
-}
-
-wxObjectRefData *
-wxObject::CloneRefData(const wxObjectRefData * WXUNUSED(data)) const
-{
-    // if you use AllocExclusive() you must override this method
-    wxFAIL_MSG( wxT("CloneRefData() must be overridden if called!") );
-
-    return NULL;
 }
