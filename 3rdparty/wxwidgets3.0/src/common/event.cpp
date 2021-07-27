@@ -379,34 +379,10 @@ bool wxEvtHandler::TryAfter(wxEvent& event)
 
 bool wxEvtHandler::ProcessEvent(wxEvent& event)
 {
-    // The very first thing we do is to allow any registered filters to hook
-    // into event processing in order to globally pre-process all events.
-    //
-    // Note that we should only do it if we're the first event handler called
-    // to avoid calling FilterEvent() multiple times as the event goes through
-    // the event handler chain and possibly upwards the window hierarchy.
-    if ( !event.WasProcessed() )
-    {
-        for ( wxEventFilter* f = ms_filterList; f; f = f->m_next )
-        {
-            int rc = f->FilterEvent(event);
-            if ( rc != wxEventFilter::Event_Skip )
-            {
-                wxASSERT_MSG( rc == wxEventFilter::Event_Ignore ||
-                                rc == wxEventFilter::Event_Processed,
-                              "unexpected FilterEvent() return value" );
-
-                return rc != wxEventFilter::Event_Ignore;
-            }
-            //else: proceed normally
-        }
-    }
-
     // Short circuit the event processing logic if we're requested to process
     // this event in this handler only, see DoTryChain() for more details.
     if ( event.ShouldProcessOnlyIn(this) )
         return false;
-
 
     // Try to process the event in this handler itself.
     if ( DoTryChain(event) )

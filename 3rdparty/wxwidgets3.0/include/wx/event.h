@@ -119,22 +119,6 @@ public:
     // Invoke the actual event handler:
     virtual void operator()(wxEvtHandler *, wxEvent&) = 0;
 
-    // this function tests whether this functor is matched, for the purpose of
-    // finding it in an event table in Unbind(), by the given functor:
-    virtual bool IsMatching(const wxEventFunctor& functor) const = 0;
-
-    // If the functor holds an wxEvtHandler, then get access to it and track
-    // its lifetime with wxEventConnectionRef:
-    virtual wxEvtHandler *GetEvtHandler() const
-        { return NULL; }
-
-    // This is only used to maintain backward compatibility in
-    // wxAppConsoleBase::CallEventHandler and ensures that an overwritten
-    // wxAppConsoleBase::HandleEvent is still called for functors which hold an
-    // wxEventFunction:
-    virtual wxEventFunction GetEvtMethod() const
-        { return NULL; }
-
 private:
     WX_DECLARE_ABSTRACT_TYPEINFO(wxEventFunctor)
 };
@@ -148,32 +132,6 @@ public:
         { }
 
     virtual void operator()(wxEvtHandler *handler, wxEvent& event);
-
-    virtual bool IsMatching(const wxEventFunctor& functor) const
-    {
-        if ( wxTypeId(functor) == wxTypeId(*this) )
-        {
-            const wxObjectEventFunctor &other =
-                static_cast< const wxObjectEventFunctor & >( functor );
-
-            // FIXME-VC6: amazing but true: replacing "m_method == 0" here
-            // with "!m_method" makes VC6 crash with an ICE in DLL build (only!)
-            // Also notice that using "NULL" instead of "0" results in warnings
-            // about "using NULL in arithmetics" from arm-linux-androideabi-g++
-            // 4.4.3 used for wxAndroid build.
-
-            return ( m_method == other.m_method || other.m_method == 0 ) &&
-                   ( m_handler == other.m_handler || other.m_handler == NULL );
-        }
-        else
-            return false;
-    }
-
-    virtual wxEvtHandler *GetEvtHandler() const
-        { return m_handler; }
-
-    virtual wxEventFunction GetEvtMethod() const
-        { return m_method; }
 
 private:
     wxEvtHandler *m_handler;
@@ -868,8 +826,6 @@ public:
     wxEvtHandler *GetPreviousHandler() const { return m_previousHandler; }
     virtual void SetNextHandler(wxEvtHandler *handler) { m_nextHandler = handler; }
     virtual void SetPreviousHandler(wxEvtHandler *handler) { m_previousHandler = handler; }
-
-    bool GetEvtHandlerEnabled() const { return m_enabled; }
 
     void Unlink();
 

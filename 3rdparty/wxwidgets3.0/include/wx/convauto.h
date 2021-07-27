@@ -83,14 +83,6 @@ public:
     // return the BOM type of this buffer
     static wxBOM DetectBOM(const char *src, size_t srcLen);
 
-    // return the characters composing the given BOM.
-    static const char* GetBOMChars(wxBOM bomType, size_t* count);
-
-    wxBOM GetBOM() const
-    {
-        return m_bomType;
-    }
-
 private:
     // common part of all ctors
     void Init()

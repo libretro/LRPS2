@@ -180,13 +180,6 @@ public:
     virtual void SetCLocale();
 
 
-    // event processing functions
-    // --------------------------
-
-    // Implement the inherited wxEventFilter method but just return -1 from it
-    // to indicate that default processing should take place.
-    virtual int FilterEvent(wxEvent& event);
-
     // pending events
     // --------------
 

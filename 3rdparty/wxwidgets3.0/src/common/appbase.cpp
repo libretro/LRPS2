@@ -290,12 +290,6 @@ bool wxAppConsoleBase::ProcessIdle()
 // events
 // ----------------------------------------------------------------------------
 
-int wxAppConsoleBase::FilterEvent(wxEvent& WXUNUSED(event))
-{
-    // process the events normally by default
-    return Event_Skip;
-}
-
 void wxAppConsoleBase::DelayPendingEventHandler(wxEvtHandler* toDelay)
 {
     wxENTER_CRIT_SECT(m_handlersWithPendingEventsLocker);

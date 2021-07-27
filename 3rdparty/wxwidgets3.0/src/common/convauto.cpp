@@ -55,28 +55,6 @@ void wxConvAuto::SetFallbackEncoding(wxFontEncoding enc)
 }
 
 /* static */
-const char* wxConvAuto::GetBOMChars(wxBOM bom, size_t* count)
-{
-    wxCHECK_MSG( count , NULL, wxS("count pointer must be provided") );
-
-    switch ( bom )
-    {
-        case wxBOM_UTF32BE: *count = WXSIZEOF(BOM_UTF32BE); return BOM_UTF32BE;
-        case wxBOM_UTF32LE: *count = WXSIZEOF(BOM_UTF32LE); return BOM_UTF32LE;
-        case wxBOM_UTF16BE: *count = WXSIZEOF(BOM_UTF16BE); return BOM_UTF16BE;
-        case wxBOM_UTF16LE: *count = WXSIZEOF(BOM_UTF16LE); return BOM_UTF16LE;
-        case wxBOM_UTF8   : *count = WXSIZEOF(BOM_UTF8   ); return BOM_UTF8;
-        case wxBOM_Unknown:
-        case wxBOM_None:
-            wxFAIL_MSG( wxS("Invalid BOM type") );
-            return NULL;
-    }
-
-    wxFAIL_MSG( wxS("Unknown BOM type") );
-    return NULL;
-}
-
-/* static */
 wxBOM wxConvAuto::DetectBOM(const char *src, size_t srcLen)
 {
     // examine the buffer for BOM presence
