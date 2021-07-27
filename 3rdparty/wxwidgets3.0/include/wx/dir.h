@@ -131,9 +131,6 @@ public:
     // return true if this directory has any files in it
     bool HasFiles(const wxString& spec = wxEmptyString) const;
 
-    // return true if this directory has any subdirectories
-    bool HasSubDirs(const wxString& spec = wxEmptyString) const;
-
     // enumerate all files in this directory and its subdirectories
     //
     // return the number of files found
