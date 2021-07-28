@@ -364,13 +364,11 @@ void UpdateVSyncRate()
 		cpuRcntSet();
 	}
 
-	Fixed100 fpslimit = framerate *
-		( pxAssert( EmuConfig.GS.LimitScalar > 0 ) ? EmuConfig.GS.LimitScalar : 1.0 );
-
 	/* TODO/FIXME - MTGS has no frameskip sync logic implemented
 	 * yet for GS_RINGTYPE_MODECHANGE, so this code block is useless and can         * be skipped 
          */
 #if 0 
+	Fixed100 fpslimit = framerate * 1.0;
 	s64	ticks = (GetTickFrequency()*500) / (fpslimit * 1000).ToIntRounded();
 
 	if( m_iTicks != ticks )

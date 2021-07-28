@@ -776,10 +776,8 @@ bool retro_load_game(const struct retro_game_info* game)
 		pcsx2->SysExecute(g_Conf->CdvdSource);
 	}
 
-	g_Conf->EmuOptions.GS.VsyncEnable = VsyncMode::Off;
 	g_Conf->EmuOptions.GS.FramesToDraw = 1;
 	//	g_Conf->CurrentGameArgs = "";
-	g_Conf->EmuOptions.GS.FrameLimitEnable = false;
 
 	Input::Init();
 	Input::RumbleEnabled(

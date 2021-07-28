@@ -56,23 +56,6 @@ void gsReset()
 }
 void gsUpdateFrequency(Pcsx2Config& config)
 {
-#ifndef __LIBRETRO__
-	switch (g_LimiterMode)
-	{
-	case LimiterModeType::Limit_Nominal:
-		config.GS.LimitScalar = g_Conf->Framerate.NominalScalar;
-		break;
-	case LimiterModeType::Limit_Slomo:
-		config.GS.LimitScalar = g_Conf->Framerate.SlomoScalar;
-		break;
-	case LimiterModeType::Limit_Turbo:
-		config.GS.LimitScalar = g_Conf->Framerate.TurboScalar;
-		break;
-	default:
-		pxAssert("Unknown framelimiter mode!");
-	}
-	UpdateVSyncRate();
-#endif
 }
 
 static __fi void gsCSRwrite( const tGS_CSR& csr )

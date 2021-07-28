@@ -180,14 +180,10 @@ struct Pcsx2Config
 	{
 		int		VsyncQueueSize;
 
-		bool		FrameLimitEnable;
 		bool		FrameSkipEnable;
-		VsyncMode	VsyncEnable;
-
 		int		FramesToDraw;	// number of consecutive frames (fields) to render
 		int		FramesToSkip;	// number of consecutive frames (fields) to skip
 
-		Fixed100	LimitScalar;
 		Fixed100	FramerateNTSC;
 		Fixed100	FrameratePAL;
 
@@ -202,10 +198,7 @@ struct Pcsx2Config
 				OpEqu( VsyncQueueSize )			&&
 				
 				OpEqu( FrameSkipEnable )		&&
-				OpEqu( FrameLimitEnable )		&&
-				OpEqu( VsyncEnable )			&&
 
-				OpEqu( LimitScalar )			&&
 				OpEqu( FramerateNTSC )			&&
 				OpEqu( FrameratePAL )			&&
 

@@ -190,20 +190,13 @@ void Pcsx2Config::CpuOptions::LoadSave( IniInterface& ini )
 // Default GSOptions
 Pcsx2Config::GSOptions::GSOptions()
 {
-#if __LIBRETRO__
-	FrameLimitEnable		= false;
-#else
-	FrameLimitEnable		= true;
-#endif
 	FrameSkipEnable			= false;
-	VsyncEnable				= VsyncMode::Off;
 
 	VsyncQueueSize			= 2;
 
 	FramesToDraw			= 2;
 	FramesToSkip			= 2;
 
-	LimitScalar				= 1.0;
 	FramerateNTSC			= 59.94;
 	FrameratePAL			= 50.0;
 }
@@ -214,13 +207,7 @@ void Pcsx2Config::GSOptions::LoadSave( IniInterface& ini )
 
 	IniEntry( VsyncQueueSize );
 
-	IniEntry( FrameLimitEnable );
 	IniEntry( FrameSkipEnable );
-	ini.EnumEntry( L"VsyncEnable", VsyncEnable, NULL, VsyncEnable );
-
-	IniEntry( LimitScalar );
-	IniEntry( FramerateNTSC );
-	IniEntry( FrameratePAL );
 
 	IniEntry( FramesToDraw );
 	IniEntry( FramesToSkip );
@@ -228,22 +215,7 @@ void Pcsx2Config::GSOptions::LoadSave( IniInterface& ini )
 
 int Pcsx2Config::GSOptions::GetVsync() const
 {
-#ifdef __LIBRETRO__
 	return 0;
-#else
-	if (g_LimiterMode == Limit_Turbo || !FrameLimitEnable)
-		return 0;
-
-	// D3D only support a boolean state. OpenGL waits a number of vsync
-	// interrupt (negative value for late vsync).
-	switch (VsyncEnable) {
-		case VsyncMode::Adaptive: return -1;
-		case VsyncMode::Off: return 0;
-		case VsyncMode::On: return 1;
-
-		default: return 0;
-	}
-#endif
 }
 
 const wxChar *const tbl_GamefixNames[] =

@@ -778,8 +778,6 @@ bool AppConfig::IsOkApplyPreset(int n, bool ignoreMTVU)
 
 	EmuOptions.EnablePatches		= true;
 	EmuOptions.GS					= default_Pcsx2Config.GS;
-	EmuOptions.GS.FrameLimitEnable	= original_GS.FrameLimitEnable;	//Frame limiter is not modified by presets
-	
 	EmuOptions.GS.VsyncQueueSize	= original_GS.VsyncQueueSize;
 	EmuOptions.Cpu					= default_Pcsx2Config.Cpu;
 	EmuOptions.Gamefixes			= default_Pcsx2Config.Gamefixes;
@@ -927,7 +925,6 @@ static void LoadVmSettings()
 	std::unique_ptr<wxFileConfig> vmini( OpenFileConfig( GetVmSettingsFilename() ) );
 	IniLoader vmloader( vmini.get() );
 	g_Conf->EmuOptions.LoadSave( vmloader );
-	g_Conf->EmuOptions.GS.LimitScalar = g_Conf->Framerate.NominalScalar;
 
 	g_Conf->EnablePresets = true;
 	g_Conf->PresetIndex = option_value(INT_PCSX2_OPT_SPEEDHACKS_PRESET, KeyOptionInt::return_type);
