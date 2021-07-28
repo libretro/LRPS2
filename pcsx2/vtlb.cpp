@@ -119,30 +119,7 @@ DataType __fastcall vtlb_memRead(u32 addr)
 	auto vmv = vtlbdata.vmap[addr>>VTLB_PAGE_BITS];
 
 	if (!vmv.isHandler(addr))
-	{
-		if (!CHECK_EEREC) 
-		{
-			if(CHECK_CACHE && CheckCache(addr)) 
-			{
-				switch( DataSize )
-				{
-					case 8: 
-						return readCache8(addr);
-						break;
-					case 16: 
-						return readCache16(addr);
-						break;
-					case 32: 
-						return readCache32(addr);
-						break;
-
-					jNO_DEFAULT;
-				}
-			}
-		}
-
 		return *reinterpret_cast<DataType*>(vmv.assumePtr(addr));
-	}
 
 	//has to: translate, find function, call function
 	u32 paddr=vmv.assumeHandlerGetPAddr(addr);
@@ -170,14 +147,6 @@ void __fastcall vtlb_memRead64(u32 mem, mem64_t *out)
 
 	if (!vmv.isHandler(mem))
 	{
-		if (!CHECK_EEREC) {
-			if(CHECK_CACHE && CheckCache(mem)) 
-			{
-				*out = readCache64(mem);
-				return;
-			}
-		}
-
 		*out = *(mem64_t*)vmv.assumePtr(mem);
 	}
 	else
@@ -194,16 +163,6 @@ void __fastcall vtlb_memRead128(u32 mem, mem128_t *out)
 
 	if (!vmv.isHandler(mem))
 	{
-		if (!CHECK_EEREC) 
-		{
-			if(CHECK_CACHE && CheckCache(mem)) 
-			{
-				out->lo = readCache64(mem);
-				out->hi = readCache64(mem+8);
-				return;
-			}
-		}
-
 		CopyQWC(out,(void*)vmv.assumePtr(mem));
 	}
 	else
@@ -224,25 +183,6 @@ void __fastcall vtlb_memWrite(u32 addr, DataType data)
 
 	if (!vmv.isHandler(addr))
 	{		
-		if (!CHECK_EEREC) 
-		{
-			if(CHECK_CACHE && CheckCache(addr)) 
-			{
-				switch( DataSize )
-				{
-				case 8: 
-					writeCache8(addr, data);
-					return;
-				case 16:
-					writeCache16(addr, data);
-					return;
-				case 32:
-					writeCache32(addr, data);
-					return;
-				}
-			}
-		}
-
 		*reinterpret_cast<DataType*>(vmv.assumePtr(addr))=data;
 	}
 	else
@@ -260,15 +200,6 @@ void __fastcall vtlb_memWrite64(u32 mem, const mem64_t* value)
 
 	if (!vmv.isHandler(mem))
 	{		
-		if (!CHECK_EEREC) 
-		{
-			if(CHECK_CACHE && CheckCache(mem)) 
-			{
-				writeCache64(mem, *value);
-				return;
-			}
-		}
-
 		*(mem64_t*)vmv.assumePtr(mem) = *value;
 	}
 	else
@@ -287,15 +218,6 @@ void __fastcall vtlb_memWrite128(u32 mem, const mem128_t *value)
 
 	if (!vmv.isHandler(mem))
 	{
-		if (!CHECK_EEREC) 
-		{
-			if(CHECK_CACHE && CheckCache(mem)) 
-			{
-				writeCache128(mem, value);
-				return;
-			}
-		}
-
 		CopyQWC((void*)vmv.assumePtr(mem), value);
 	}
 	else

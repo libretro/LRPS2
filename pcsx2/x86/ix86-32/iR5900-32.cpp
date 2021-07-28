@@ -1460,27 +1460,6 @@ void recompileNextInstruction(int delayslot)
 		s_nEndBlock = pc;
 }
 
-// (Called from recompiled code)]
-// This function is called from the recompiler prior to starting execution of *every* recompiled block.
-// Calling of this function can be enabled or disabled through the use of EmuConfig.Recompiler.PreBlockChecks
-static void __fastcall PreBlockCheck( u32 blockpc )
-{
-	/*static int lastrec = 0;
-	static int curcount = 0;
-	const int skip = 0;
-
-    if( blockpc != 0x81fc0 ) {//&& lastrec != g_lastpc ) {
-		curcount++;
-
-		if( curcount > skip ) {
-			iDumpRegisters(blockpc, 1);
-			curcount = 0;
-		}
-
-		lastrec = blockpc;
-	}*/
-}
-
 #ifdef PCSX2_DEBUG
 // Array of cpuRegs.pc block addresses to dump.  USeful for selectively dumping potential
 // problem blocks, and seeing what the MIPS code equates to.
@@ -1714,15 +1693,6 @@ static void __fastcall recRecompile( const u32 startpc )
 
 	_initX86regs();
 	_initXMMregs();
-
-	if( EmuConfig.Cpu.Recompiler.PreBlockCheckEE )
-	{
-		// per-block dump checks, for debugging purposes.
-		// [TODO] : These must be enabled from the GUI or INI to be used, otherwise the
-		// code that calls PreBlockCheck will not be generated.
-
-		xFastCall((void*)PreBlockCheck, pc);
-	}
 
 	if (EmuConfig.Gamefixes.GoemonTlbHack) {
 		if (pc == 0x33ad48 || pc == 0x35060c) {

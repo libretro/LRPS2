@@ -961,10 +961,6 @@ void psxRecompileNextInstruction(int delayslot)
 	_clearNeededX86regs();
 }
 
-static void __fastcall  PreBlockCheck( u32 blockpc )
-{
-}
-
 static void __fastcall iopRecRecompile( const u32 startpc )
 {
 	u32 i;

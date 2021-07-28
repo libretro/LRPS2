@@ -82,13 +82,9 @@ Pcsx2Config::RecompilerOptions::RecompilerOptions()
 {
 	bitset		= 0;
 
-	//StackFrameChecks	= false;
-	//PreBlockCheckEE	= false;
-
 	// All recs are enabled by default.
 
 	EnableEE	= true;
-	EnableEECache = false;
 	EnableIOP	= true;
 	EnableVU0	= true;
 	EnableVU1	= true;
@@ -146,7 +142,6 @@ void Pcsx2Config::RecompilerOptions::LoadSave( IniInterface& ini )
 
 	IniBitBool( EnableEE );
 	IniBitBool( EnableIOP );
-	IniBitBool( EnableEECache );
 	IniBitBool( EnableVU0 );
 	IniBitBool( EnableVU1 );
 
@@ -161,10 +156,6 @@ void Pcsx2Config::RecompilerOptions::LoadSave( IniInterface& ini )
 	IniBitBool( fpuOverflow );
 	IniBitBool( fpuExtraOverflow );
 	IniBitBool( fpuFullMode );
-
-	IniBitBool( StackFrameChecks );
-	IniBitBool( PreBlockCheckEE );
-	IniBitBool( PreBlockCheckIOP );
 }
 
 Pcsx2Config::CpuOptions::CpuOptions()
