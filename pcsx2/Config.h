@@ -178,10 +178,6 @@ struct Pcsx2Config
 	// ------------------------------------------------------------------------
 	struct GSOptions
 	{
-		// forces the MTGS to execute tags/tasks in fully blocking/synchronous
-		// style.  Useful for debugging potential bugs in the MTGS pipeline.
-		bool	SynchronousMTGS;
-
 		int		VsyncQueueSize;
 
 		bool		FrameLimitEnable;
@@ -203,7 +199,6 @@ struct Pcsx2Config
 		bool operator ==( const GSOptions& right ) const
 		{
 			return
-				OpEqu( SynchronousMTGS )		&&
 				OpEqu( VsyncQueueSize )			&&
 				
 				OpEqu( FrameSkipEnable )		&&

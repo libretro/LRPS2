@@ -780,7 +780,6 @@ bool retro_load_game(const struct retro_game_info* game)
 	g_Conf->EmuOptions.GS.FramesToDraw = 1;
 	//	g_Conf->CurrentGameArgs = "";
 	g_Conf->EmuOptions.GS.FrameLimitEnable = false;
-	//	g_Conf->EmuOptions.GS.SynchronousMTGS = true;
 
 	Input::Init();
 	Input::RumbleEnabled(

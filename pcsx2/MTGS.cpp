@@ -457,11 +457,6 @@ void SysMtgsThread::ExecuteTaskInThread()
 
 			uint newringpos = (m_ReadPos.load(std::memory_order_relaxed) + ringposinc) & RingBufferMask;
 
-			if( EmuConfig.GS.SynchronousMTGS )
-			{
-				pxAssert( m_WritePos == newringpos );
-			}
-
 			m_ReadPos.store(newringpos, std::memory_order_release);
 
 			if(m_SignalRingEnable.load(std::memory_order_acquire))
@@ -629,11 +624,7 @@ void SysMtgsThread::SendDataPacket()
 
 	m_WritePos.store(m_packet_writepos, std::memory_order_release);
 
-	if(EmuConfig.GS.SynchronousMTGS)
-	{
-		WaitGS();
-	}
-	else if(!m_RingBufferIsBusy.load(std::memory_order_relaxed))
+	if(!m_RingBufferIsBusy.load(std::memory_order_relaxed))
 	{
 		m_CopyDataTally += m_packet_size;
 		if( m_CopyDataTally > 0x2000 ) SetEvent();
@@ -763,10 +754,7 @@ __fi void SysMtgsThread::_FinishSimplePacket()
 	pxAssert( future_writepos != m_ReadPos.load(std::memory_order_acquire) );
 	m_WritePos.store(future_writepos, std::memory_order_release);
 
-	if( EmuConfig.GS.SynchronousMTGS )
-		WaitGS();
-	else
-		++m_CopyDataTally;
+	++m_CopyDataTally;
 }
 
 void SysMtgsThread::SendSimplePacket( MTGS_RingCommand type, int data0, int data1, int data2 )
@@ -788,11 +776,9 @@ void SysMtgsThread::SendSimpleGSPacket(MTGS_RingCommand type, u32 offset, u32 si
 {
 	SendSimplePacket(type, (int)offset, (int)size, (int)path);
 
-	if(!EmuConfig.GS.SynchronousMTGS) {
-		if(!m_RingBufferIsBusy.load(std::memory_order_relaxed)) {
-			m_CopyDataTally += size / 16;
-			if (m_CopyDataTally > 0x2000) SetEvent();
-		}
+	if(!m_RingBufferIsBusy.load(std::memory_order_relaxed)) {
+		m_CopyDataTally += size / 16;
+		if (m_CopyDataTally > 0x2000) SetEvent();
 	}
 }
 

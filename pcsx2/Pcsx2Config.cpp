@@ -198,7 +198,6 @@ Pcsx2Config::GSOptions::GSOptions()
 	FrameSkipEnable			= false;
 	VsyncEnable				= VsyncMode::Off;
 
-	SynchronousMTGS			= false;
 	VsyncQueueSize			= 2;
 
 	FramesToDraw			= 2;
@@ -213,7 +212,6 @@ void Pcsx2Config::GSOptions::LoadSave( IniInterface& ini )
 {
 	ScopedIniGroup path( ini, L"GS" );
 
-	IniEntry( SynchronousMTGS );
 	IniEntry( VsyncQueueSize );
 
 	IniEntry( FrameLimitEnable );
