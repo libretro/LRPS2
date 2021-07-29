@@ -113,28 +113,6 @@ static DWORD gs_tlsThisThread = 0xFFFFFFFF;
 // calling wxMutexGuiEnter()
 wxThreadIdType wxThread::ms_idMainThread = 0;
 
-// if it's false, some secondary thread is holding the GUI lock
-static bool gs_bGuiOwnedByMainThread = true;
-
-// critical section which controls access to all GUI functions: any secondary
-// thread (i.e. except the main one) must enter this crit section before doing
-// any GUI calls
-static wxCriticalSection *gs_critsectGui = NULL;
-
-// critical section which protects gs_nWaitingForGui variable
-static wxCriticalSection *gs_critsectWaitingForGui = NULL;
-
-// critical section which serializes WinThreadStart() and WaitForTerminate()
-// (this is a potential bottleneck, we use a single crit sect for all threads
-// in the system, but normally time spent inside it should be quite short)
-static wxCriticalSection *gs_critsectThreadDelete = NULL;
-
-// number of threads waiting for GUI in wxMutexGuiEnter()
-static size_t gs_nWaitingForGui = 0;
-
-// are we waiting for a thread termination?
-static bool gs_waitingForThread = false;
-
 // ============================================================================
 // Windows implementation of thread and related classes
 // ============================================================================
@@ -723,13 +701,6 @@ wxThreadInternal::WaitForTerminate(wxCriticalSection& cs,
     if ( threadToDelete )
         threadToDelete->OnDelete();
 
-    // now wait for thread to finish
-    if ( wxThread::IsMain() )
-    {
-        // set flag for wxIsWaitingForThread()
-        gs_waitingForThread = true;
-    }
-
     wxAppTraits& traits = wxApp::GetValidTraits();
 
     // we can't just wait for the thread to terminate because it might be
@@ -740,16 +711,6 @@ wxThreadInternal::WaitForTerminate(wxCriticalSection& cs,
     DWORD result wxDUMMY_INITIALIZE(0);
     do
     {
-        if ( wxThread::IsMain() )
-        {
-            // give the thread we're waiting for chance to do the GUI call
-            // it might be in
-            if ( (gs_nWaitingForGui > 0) && wxGuiOwnedByMainThread() )
-            {
-                wxMutexGuiLeave();
-            }
-        }
-
         // Wait for the thread while still processing events in the GUI apps or
         // just simply wait for it in the console ones.
         result = traits.WaitForThread(m_hThread, waitMode);
@@ -772,12 +733,6 @@ wxThreadInternal::WaitForTerminate(wxCriticalSection& cs,
                 wxFAIL_MSG(wxT("unexpected result of MsgWaitForMultipleObject"));
         }
     } while ( result != WAIT_OBJECT_0 );
-
-    if ( wxThread::IsMain() )
-    {
-        gs_waitingForThread = false;
-    }
-
 
     // although the thread might be already in the EXITED state it might not
     // have terminated yet and so we are not sure that it has actually
@@ -1181,13 +1136,6 @@ bool wxThreadModule::OnInit()
         return false;
     }
 
-    gs_critsectWaitingForGui = new wxCriticalSection();
-
-    gs_critsectGui = new wxCriticalSection();
-    gs_critsectGui->Enter();
-
-    gs_critsectThreadDelete = new wxCriticalSection;
-
     wxThread::ms_idMainThread = wxThread::GetCurrentId();
 
     return true;
@@ -1196,16 +1144,6 @@ bool wxThreadModule::OnInit()
 void wxThreadModule::OnExit()
 {
     if ( !::TlsFree(gs_tlsThisThread) ) { }
-
-    wxDELETE(gs_critsectThreadDelete);
-
-    if ( gs_critsectGui )
-    {
-        gs_critsectGui->Leave();
-        wxDELETE(gs_critsectGui);
-    }
-
-    wxDELETE(gs_critsectWaitingForGui);
 }
 
 // ----------------------------------------------------------------------------
@@ -1215,95 +1153,14 @@ void wxThreadModule::OnExit()
 
 void wxMutexGuiEnterImpl()
 {
-    // this would dead lock everything...
-    wxASSERT_MSG( !wxThread::IsMain(),
-                  wxT("main thread doesn't want to block in wxMutexGuiEnter()!") );
-
-    // the order in which we enter the critical sections here is crucial!!
-
-    // set the flag telling to the main thread that we want to do some GUI
-    {
-        wxCriticalSectionLocker enter(*gs_critsectWaitingForGui);
-
-        gs_nWaitingForGui++;
-    }
-
-    wxWakeUpMainThread();
-
-    // now we may block here because the main thread will soon let us in
-    // (during the next iteration of OnIdle())
-    gs_critsectGui->Enter();
 }
 
 void wxMutexGuiLeaveImpl()
 {
-    wxCriticalSectionLocker enter(*gs_critsectWaitingForGui);
-
-    if ( wxThread::IsMain() )
-    {
-        gs_bGuiOwnedByMainThread = false;
-    }
-    else
-    {
-        // decrement the number of threads waiting for GUI access now
-        wxASSERT_MSG( gs_nWaitingForGui > 0,
-                      wxT("calling wxMutexGuiLeave() without entering it first?") );
-
-        gs_nWaitingForGui--;
-
-        wxWakeUpMainThread();
-    }
-
-    gs_critsectGui->Leave();
 }
 
 void WXDLLIMPEXP_BASE wxMutexGuiLeaveOrEnter()
 {
-    wxASSERT_MSG( wxThread::IsMain(),
-                  wxT("only main thread may call wxMutexGuiLeaveOrEnter()!") );
-
-    wxCriticalSectionLocker enter(*gs_critsectWaitingForGui);
-
-    if ( gs_nWaitingForGui == 0 )
-    {
-        // no threads are waiting for GUI - so we may acquire the lock without
-        // any danger (but only if we don't already have it)
-        if ( !wxGuiOwnedByMainThread() )
-        {
-            gs_critsectGui->Enter();
-
-            gs_bGuiOwnedByMainThread = true;
-        }
-        //else: already have it, nothing to do
-    }
-    else
-    {
-        // some threads are waiting, release the GUI lock if we have it
-        if ( wxGuiOwnedByMainThread() )
-        {
-            wxMutexGuiLeave();
-        }
-        //else: some other worker thread is doing GUI
-    }
-}
-
-bool WXDLLIMPEXP_BASE wxGuiOwnedByMainThread()
-{
-    return gs_bGuiOwnedByMainThread;
-}
-
-// wake up the main thread if it's in ::GetMessage()
-void WXDLLIMPEXP_BASE wxWakeUpMainThread()
-{
-    // sending any message would do - hopefully WM_NULL is harmless enough
-    if ( !::PostThreadMessage(wxThread::GetMainId(), WM_NULL, 0, 0) )
-    {
-    }
-}
-
-bool WXDLLIMPEXP_BASE wxIsWaitingForThread()
-{
-    return gs_waitingForThread;
 }
 
 // ----------------------------------------------------------------------------
