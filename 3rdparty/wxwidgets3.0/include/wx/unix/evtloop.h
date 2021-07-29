@@ -35,7 +35,6 @@ public:
     // implement base class pure virtuals
     virtual bool Pending() const;
     virtual bool Dispatch();
-    virtual int DispatchTimeout(unsigned long timeout);
     virtual void WakeUp();
     virtual bool IsOk() const { return m_dispatcher != NULL; }
     virtual bool YieldFor(long WXUNUSED(eventsToProcess)) { return true; }

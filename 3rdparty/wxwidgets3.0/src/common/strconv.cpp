@@ -51,8 +51,6 @@
 #endif //def __DARWIN__
 
 
-#define TRACE_STRCONV wxT("strconv")
-
 // WC_UTF16 is defined only if sizeof(wchar_t) == 2, otherwise it's supposed to
 // be 4 bytes
 #if SIZEOF_WCHAR_T == 2

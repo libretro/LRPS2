@@ -152,16 +152,10 @@ bool wxConsoleEventLoop::Pending() const
 
 bool wxConsoleEventLoop::Dispatch()
 {
-    DispatchTimeout(static_cast<unsigned long>(
-        wxFDIODispatcher::TIMEOUT_INFINITE));
+    m_dispatcher->Dispatch(static_cast<unsigned long>(
+        wxFDIODispatcher::TIMEOUT_INFINITE)) > 0;
 
     return true;
-}
-
-int wxConsoleEventLoop::DispatchTimeout(unsigned long timeout)
-{
-    bool hadEvent = m_dispatcher->Dispatch(timeout) > 0;
-    return hadEvent ? 1 : -1;
 }
 
 void wxConsoleEventLoop::WakeUp()

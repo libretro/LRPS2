@@ -86,14 +86,6 @@
 #include "wx/datetime.h"
 
 // ----------------------------------------------------------------------------
-// macros
-// ----------------------------------------------------------------------------
-
-// debugging helper: just a convenient replacement of wxCHECK()
-#define wxDATETIME_CHECK(expr, msg) \
-    wxCHECK2_MSG(expr, *this = wxInvalidDateTime; return *this, msg)
-
-// ----------------------------------------------------------------------------
 // private classes
 // ----------------------------------------------------------------------------
 
@@ -1112,19 +1104,9 @@ wxDateTime& wxDateTime::Set(wxDateTime_t hour,
                             wxDateTime_t second,
                             wxDateTime_t millisec)
 {
-    // we allow seconds to be 61 to account for the leap seconds, even if we
-    // don't use them really
-    wxDATETIME_CHECK( hour < 24 &&
-                      second < 62 &&
-                      minute < 60 &&
-                      millisec < 1000,
-                      wxT("Invalid time in wxDateTime::Set()") );
-
     // get the current date from system
     struct tm tmstruct;
     struct tm *tm = GetTmNow(&tmstruct);
-
-    wxDATETIME_CHECK( tm, wxT("wxLocaltime_r() failed") );
 
     // make a copy so it isn't clobbered by the call to mktime() below
     struct tm tm1(*tm);
@@ -1154,16 +1136,7 @@ wxDateTime& wxDateTime::Set(wxDateTime_t day,
                             wxDateTime_t second,
                             wxDateTime_t millisec)
 {
-    wxDATETIME_CHECK( hour < 24 &&
-                      second < 62 &&
-                      minute < 60 &&
-                      millisec < 1000,
-                      wxT("Invalid time in wxDateTime::Set()") );
-
     ReplaceDefaultYearMonthWithCurrent(&year, &month);
-
-    wxDATETIME_CHECK( (0 < day) && (day <= GetNumberOfDays(month, year)),
-                      wxT("Invalid date in wxDateTime::Set()") );
 
     // the range of time_t type (inclusive)
     static const int yearMinInRange = 1970;
@@ -1563,8 +1536,6 @@ wxDateTime& wxDateTime::SetToLastMonthDay(Month month,
 
 wxDateTime& wxDateTime::SetToWeekDayInSameWeek(WeekDay weekday, WeekFlags flags)
 {
-    wxDATETIME_CHECK( weekday != Inv_WeekDay, wxT("invalid weekday") );
-
     int wdayDst = weekday,
         wdayThis = GetWeekDay();
     if ( wdayDst == wdayThis )
@@ -1603,8 +1574,6 @@ wxDateTime& wxDateTime::SetToWeekDayInSameWeek(WeekDay weekday, WeekFlags flags)
 
 wxDateTime& wxDateTime::SetToNextWeekDay(WeekDay weekday)
 {
-    wxDATETIME_CHECK( weekday != Inv_WeekDay, wxT("invalid weekday") );
-
     int diff;
     WeekDay wdayThis = GetWeekDay();
     if ( weekday == wdayThis )
@@ -1627,8 +1596,6 @@ wxDateTime& wxDateTime::SetToNextWeekDay(WeekDay weekday)
 
 wxDateTime& wxDateTime::SetToPrevWeekDay(WeekDay weekday)
 {
-    wxDATETIME_CHECK( weekday != Inv_WeekDay, wxT("invalid weekday") );
-
     int diff;
     WeekDay wdayThis = GetWeekDay();
     if ( weekday == wdayThis )
@@ -1816,10 +1783,7 @@ wxDateTime::wxDateTime_t wxDateTime::GetWeekOfMonth(wxDateTime::WeekFlags flags,
 
 wxDateTime& wxDateTime::SetToYearDay(wxDateTime::wxDateTime_t yday)
 {
-    int year = GetYear();
-    wxDATETIME_CHECK( (0 < yday) && (yday <= GetNumberOfDays(year)),
-                      wxT("invalid year day") );
-
+    int year    = GetYear();
     bool isLeap = IsLeapYear(year);
     for ( Month mon = Jan; mon < Inv_Month; wxNextMonth(mon) )
     {

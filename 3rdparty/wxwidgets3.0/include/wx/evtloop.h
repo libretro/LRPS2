@@ -86,11 +86,6 @@ public:
     // dispatch a single event, return false if we should exit from the loop
     virtual bool Dispatch() = 0;
 
-    // same as Dispatch() but doesn't wait for longer than the specified (in
-    // ms) timeout, return true if an event was processed, false if we should
-    // exit the loop or -1 if timeout expired
-    virtual int DispatchTimeout(unsigned long timeout) = 0;
-
     // implement this to wake up the loop: usually done by posting a dummy event
     // to it (can be called from non main thread)
     virtual void WakeUp() = 0;
