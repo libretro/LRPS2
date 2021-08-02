@@ -41,6 +41,7 @@
 #define INT_PCSX2_OPT_MIPMAPPING		 "pcsx2_mipmapping"
 #define INT_PCSX2_OPT_CLAMPING_MODE		 "pcsx2_clamping_mode"
 #define INT_PCSX2_OPT_ROUND_MODE		 "pcsx2_round_mode"
+#define INT_PCSX2_OPT_DITHERING		 "pcsx2_dithering"
 
 #define INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_HUNDREDS		"pcsx2_userhack_texture_offset_x_hundreds"
 #define INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_TENS			"pcsx2_userhack_texture_offset_x_tens"

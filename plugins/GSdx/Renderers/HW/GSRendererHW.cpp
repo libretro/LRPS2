@@ -54,6 +54,8 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 	m_interlace = option_value(INT_PCSX2_OPT_DEINTERLACING_MODE, KeyOptionInt::return_type);
 	theApp.SetConfig("interlace", m_interlace);
 
+	m_dithering = option_value(INT_PCSX2_OPT_DITHERING, KeyOptionInt::return_type);
+
 	m_userhacks_enabled_gs_mem_clear = true;
 	m_userHacks_enabled_unscale_ptln = true;
 
@@ -89,6 +91,8 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 	m_userhacks_tcoffset	= m_userhacks_tcoffset_x < 0.0f || m_userhacks_tcoffset_y < 0.0f;
 
 
+	
+
 	if (!m_upscale_multiplier) { //Custom Resolution
 		m_custom_width = m_width = theApp.GetConfigI("resx");
 		m_custom_height = m_height = theApp.GetConfigI("resy");
@@ -119,6 +123,8 @@ void GSRendererHW::UpdateRendererOptions()
 	m_upscale_multiplier				= option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 	option_upscale_mult = m_upscale_multiplier;
 	theApp.SetConfig("upscale_multiplier", m_upscale_multiplier);
+
+	m_dithering = option_value(INT_PCSX2_OPT_DITHERING, KeyOptionInt::return_type);
 	
 	m_userhacks_align_sprite_X			= option_value(BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE, KeyOptionBool::return_type);
 	m_userHacks_merge_sprite			= option_value(BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE, KeyOptionBool::return_type);

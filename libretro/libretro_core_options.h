@@ -166,6 +166,17 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	"0" },
 
+	{ INT_PCSX2_OPT_DITHERING,
+	 "Video: Dithering",
+	 "Disabling dithering can remove some noise and pixelate effects",
+	{
+		{"0", "Off"},
+		{"1", "Scaled"},
+		{"2", "Unscaled (default)"},
+		{NULL, NULL},
+	},
+	"2" },
+
 	{INT_PCSX2_OPT_TEXTURE_FILTERING,
 	"Video: Texture Filtering",
 	"Controls the texture filtering of the emulation "
