@@ -44,7 +44,7 @@ bool ChdFileReader::Open(const wxString &fileName)
         wxDir dir(dir_path);
         if (dir.IsOpened()) {
           wxString parent_fileName;
-          bool cont = dir.GetFirst(&parent_fileName, wxString("*.", wxfilename.GetExt()), wxDIR_FILES | wxDIR_HIDDEN);
+		  bool cont = dir.GetFirst(&parent_fileName, wxString("*.") + wxfilename.GetExt(), wxDIR_FILES | wxDIR_HIDDEN);
           while ( cont ) {
             parent_fileName = wxFileName(dir_path, parent_fileName).GetFullPath();
             if (chd_read_header(static_cast<const char*>(parent_fileName), parent_header) == CHDERR_NONE &&
