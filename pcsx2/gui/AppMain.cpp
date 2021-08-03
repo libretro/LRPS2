@@ -28,9 +28,6 @@ Pcsx2App& wxGetApp() {
 
 std::unique_ptr<AppConfig> g_Conf;
 
-AspectRatioType iniAR;
-bool switchAR;
-
 // --------------------------------------------------------------------------------------
 //  Pcsx2AppMethodEvent
 // --------------------------------------------------------------------------------------
@@ -93,19 +90,6 @@ extern bool renderswitch;
 
 void DoFmvSwitch(bool on)
 {
-	if (g_Conf->GSWindow.FMVAspectRatioSwitch != FMV_AspectRatio_Switch_Off)
-   {
-		if (on)
-      {
-			switchAR = true;
-			iniAR = g_Conf->GSWindow.AspectRatio;
-		}
-      else
-      {
-			switchAR = false;
-		}
-	}
-
 	if (EmuConfig.Gamefixes.FMVinSoftwareHack)
    {
 		CoreThread.Pause();

@@ -557,7 +557,6 @@ void AppConfig::LoadSave( IniInterface& ini )
 	// Process various sub-components:
 	Folders			.LoadSave( ini );
 	BaseFilenames	.LoadSave( ini );
-	GSWindow		.LoadSave( ini );
 
 	ini.Flush();
 }
@@ -642,48 +641,6 @@ void AppConfig::FilenameOptions::LoadSave( IniInterface& ini )
 	}
 
 	ini.Entry( L"BIOS", Bios, pc );
-}
-
-// ------------------------------------------------------------------------
-AppConfig::GSWindowOptions::GSWindowOptions()
-{
-	AspectRatio				= AspectRatio_4_3;
-	FMVAspectRatioSwitch	= FMV_AspectRatio_Switch_Off;
-}
-
-void AppConfig::GSWindowOptions::SanityCheck()
-{
-	// Ensure Conformation of various options...
-	if( (uint)AspectRatio >= (uint)AspectRatio_MaxCount )
-		AspectRatio = AspectRatio_4_3;
-}
-
-void AppConfig::GSWindowOptions::LoadSave( IniInterface& ini )
-{
-	ScopedIniGroup path( ini, L"GSWindow" );
-
-	static const wxChar* AspectRatioNames[] =
-	{
-		L"Stretch",
-		L"4:3",
-		L"16:9",
-		// WARNING: array must be NULL terminated to compute it size
-		NULL
-	};
-
-	ini.EnumEntry( L"AspectRatio", AspectRatio, AspectRatioNames, AspectRatio );
-
-	static const wxChar* FMVAspectRatioSwitchNames[] =
-	{
-		L"Off",
-		L"4:3",
-		L"16:9",
-		// WARNING: array must be NULL terminated to compute it size
-		NULL
-	};
-	ini.EnumEntry(L"FMVAspectRatioSwitch", FMVAspectRatioSwitch, FMVAspectRatioSwitchNames, FMVAspectRatioSwitch);
-
-	if( ini.IsLoading() ) SanityCheck();
 }
 
 // ----------------------------------------------------------------------------

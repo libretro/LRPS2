@@ -43,22 +43,6 @@ extern wxDirName GetSettingsFolder();
 extern wxDirName GetCheatsFolder();
 extern wxDirName GetCheatsWsFolder();
 
-enum AspectRatioType
-{
-	AspectRatio_Stretch,
-	AspectRatio_4_3,
-	AspectRatio_16_9,
-	AspectRatio_MaxCount
-};
-
-enum FMVAspectRatioSwitchType
-{
-	FMV_AspectRatio_Switch_Off,
-	FMV_AspectRatio_Switch_4_3,
-	FMV_AspectRatio_Switch_16_9,
-	FMV_AspectRatio_Switch_MaxCount
-};
-
 enum MemoryCardType
 {
 	MemoryCard_None,
@@ -127,20 +111,6 @@ public:
 		MemoryCardType Type;	// the memory card implementation that should be used
 	};
 
-	// ------------------------------------------------------------------------
-	// The GS window receives much love from the land of Options and Settings.
-	//
-	struct GSWindowOptions
-	{
-		AspectRatioType AspectRatio;
-		FMVAspectRatioSwitchType FMVAspectRatioSwitch;
-
-		GSWindowOptions();
-
-		void LoadSave( IniInterface& conf );
-		void SanityCheck();
-	};
-
 public:
 	// uses automatic ntfs compression when creating new memory cards (Win32 only)
 #ifdef __WXMSW__
@@ -176,7 +146,6 @@ public:
 	wxString				GzipIsoIndexTemplate; // for quick-access index with gzipped ISO
 	FolderOptions			Folders;
 	FilenameOptions			BaseFilenames;
-	GSWindowOptions			GSWindow;
 	
 	// PCSX2-core emulation options, which are passed to the emu core prior to initiating
 	// an emulation session.  Note these are the options saved into the GUI ini file and
