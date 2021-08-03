@@ -398,19 +398,9 @@ namespace FilenameDefs
 		return wxFileName(L"PCSX2_ui.ini");
 	}
 
-	wxFileName GetUiKeysConfig()
-	{
-		return wxFileName(L"PCSX2_keys.ini");
-	}
-
 	wxFileName GetVmConfig()
 	{
 		return wxFileName(L"PCSX2_vm.ini");
-	}
-
-	wxFileName GetUsermodeConfig()
-	{
-		return wxFileName( L"usermode.ini" );
 	}
 
 	const wxFileName& Memcard( uint port, uint slot )
@@ -471,12 +461,6 @@ static wxString GetVmSettingsFilename()
 static wxString GetUiSettingsFilename()
 {
 	wxFileName fname( FilenameDefs::GetUiConfig() );
-	return GetSettingsFolder().Combine( fname ).GetFullPath();
-}
-
-static wxString GetUiKeysFilename()
-{
-	wxFileName fname( FilenameDefs::GetUiKeysConfig() );
 	return GetSettingsFolder().Combine( fname ).GetFullPath();
 }
 
@@ -941,4 +925,3 @@ void AppConfig_OnChangedSettingsFolder()
 	AppApplySettings();
 	AppSaveSettings();//Make sure both ini files are created if needed.
 }
-
