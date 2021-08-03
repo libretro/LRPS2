@@ -141,21 +141,6 @@ public:
 		void SanityCheck();
 	};
 
-	struct FramerateOptions
-	{
-		bool		SkipOnLimit;
-		bool		SkipOnTurbo;
-
-		Fixed100	NominalScalar;
-		Fixed100	TurboScalar;
-		Fixed100	SlomoScalar;
-
-		FramerateOptions();
-		
-		void LoadSave( IniInterface& conf );
-		void SanityCheck();
-	};
-
 public:
 	// uses automatic ntfs compression when creating new memory cards (Win32 only)
 #ifdef __WXMSW__
@@ -192,7 +177,6 @@ public:
 	FolderOptions			Folders;
 	FilenameOptions			BaseFilenames;
 	GSWindowOptions			GSWindow;
-	FramerateOptions		Framerate;
 	
 	// PCSX2-core emulation options, which are passed to the emu core prior to initiating
 	// an emulation session.  Note these are the options saved into the GUI ini file and

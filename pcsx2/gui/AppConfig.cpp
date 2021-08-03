@@ -574,7 +574,6 @@ void AppConfig::LoadSave( IniInterface& ini )
 	Folders			.LoadSave( ini );
 	BaseFilenames	.LoadSave( ini );
 	GSWindow		.LoadSave( ini );
-	Framerate		.LoadSave( ini );
 
 	ini.Flush();
 }
@@ -704,29 +703,6 @@ void AppConfig::GSWindowOptions::LoadSave( IniInterface& ini )
 }
 
 // ----------------------------------------------------------------------------
-AppConfig::FramerateOptions::FramerateOptions()
-{
-	NominalScalar			= 1.0;
-	TurboScalar				= 2.0;
-	SlomoScalar				= 0.50;
-
-	SkipOnLimit				= false;
-	SkipOnTurbo				= false;
-}
-
-void AppConfig::FramerateOptions::SanityCheck()
-{
-	// Ensure Conformation of various options...
-
-	NominalScalar	.ConfineTo( 0.05, 10.0 );
-	TurboScalar		.ConfineTo( 0.05, 10.0 );
-	SlomoScalar		.ConfineTo( 0.05, 10.0 );
-}
-
-void AppConfig::FramerateOptions::LoadSave( IniInterface& ini )
-{
-}
-
 int AppConfig::GetMaxPresetIndex()
 {
 	return 5;
@@ -748,7 +724,6 @@ bool AppConfig::IsOkApplyPreset(int n, bool ignoreMTVU)
 
 	//Have some original and default values at hand to be used later.
 	Pcsx2Config::GSOptions        original_GS = EmuOptions.GS;
-	AppConfig::FramerateOptions	  original_Framerate = Framerate;
 	Pcsx2Config::SpeedhackOptions original_SpeedHacks = EmuOptions.Speedhacks;
 	AppConfig				default_AppConfig;
 	Pcsx2Config				default_Pcsx2Config;
@@ -769,11 +744,6 @@ bool AppConfig::IsOkApplyPreset(int n, bool ignoreMTVU)
 
 
 	//Force some settings as a (current) base for all presets.
-
-	Framerate			= default_AppConfig.Framerate;
-	Framerate.SlomoScalar = original_Framerate.SlomoScalar;
-	Framerate.TurboScalar = original_Framerate.TurboScalar;
-
 	EnableGameFixes		= false;
 
 	EmuOptions.EnablePatches		= true;
