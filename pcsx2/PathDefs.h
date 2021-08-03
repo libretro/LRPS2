@@ -57,7 +57,6 @@ namespace PathDefs
 	extern wxDirName GetSettings();
 	extern wxDirName GetCheats();
 	extern wxDirName GetCheatsWS();
-	extern wxDirName GetDocs();
 
 	extern wxDirName Get( FoldersEnum_t folderidx );
 
@@ -69,10 +68,8 @@ namespace PathDefs
 		extern const wxDirName& MemoryCards();
 		extern const wxDirName& Settings();
 		extern const wxDirName& Plugins();
-		extern const wxDirName& Dumps();
 		extern const wxDirName& Cheats();
 		extern const wxDirName& CheatsWS();
-		extern const wxDirName& Docs();
 	}
 }
 

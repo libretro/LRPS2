@@ -207,12 +207,6 @@ namespace PathDefs
 			static const wxDirName retval(L"cheats_ws");
 			return retval;
 		}
-
-		const wxDirName& Docs()
-		{
-			static const wxDirName retval( L"docs" );
-			return retval;
-		}
 	};
 
 	// Specifies the root folder for the application install.
@@ -245,11 +239,6 @@ namespace PathDefs
 		return GetDocuments() + Base::CheatsWS();
 	}
 	
-	wxDirName GetDocs()
-	{
-		return AppRoot() + Base::Docs();
-	}
-
 	wxDirName GetSavestates()
 	{
 		return GetDocuments() + Base::Savestates();
