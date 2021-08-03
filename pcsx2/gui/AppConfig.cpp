@@ -469,7 +469,6 @@ AppConfig::AppConfig()
 	#endif
 	EnableSpeedHacks	= true;
 	EnableGameFixes		= false;
-	EnableFastBoot		= true;
 
 	EnablePresets		= true;
 	PresetIndex		= 1;
@@ -521,13 +520,8 @@ void AppConfig::LoadSaveRootItems( IniInterface& ini )
 	wxFileName res(CurrentIso);
 	CurrentIso = res.GetFullPath();
 
-	IniEntry( CurrentBlockdump );
-	IniEntry( CurrentELF );
-	IniEntry( CurrentIRX );
-
 	IniEntry( EnableSpeedHacks );
 	IniEntry( EnableGameFixes );
-	IniEntry( EnableFastBoot );
 
 	IniEntry( EnablePresets );
 	IniEntry( PresetIndex );
