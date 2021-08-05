@@ -18,7 +18,6 @@
 #include "System.h"
 
 #include "Utilities/PersistentThread.h"
-#include "x86emitter/tools.h"
 #include "IPC.h"
 
 
@@ -153,7 +152,7 @@ protected:
 	//     FALSE if it's returning from a paused state.
 	virtual void OnResumeInThread( bool isSuspended )=0;
 };
-#ifdef __LIBRETRO__
+
 // --------------------------------------------------------------------------------------
 //  SysFakeThread
 // --------------------------------------------------------------------------------------
@@ -291,7 +290,7 @@ protected:
 	//     FALSE if it's returning from a paused state.
 	virtual void OnResumeInThread( bool isSuspended )=0;
 };
-#endif
+
 // --------------------------------------------------------------------------------------
 //  SysCoreThread class
 // --------------------------------------------------------------------------------------
@@ -371,27 +370,6 @@ protected:
 struct SysStateUnlockedParams
 {
 	SysStateUnlockedParams() {}
-};
-
-// --------------------------------------------------------------------------------------
-//  IEventListener_SaveStateThread
-// --------------------------------------------------------------------------------------
-class IEventListener_SysState : public IEventDispatcher<SysStateUnlockedParams>
-{
-public:
-	typedef SysStateUnlockedParams EvtParams;
-
-public:
-	IEventListener_SysState() {}
-	virtual ~IEventListener_SysState() = default;
-
-	virtual void DispatchEvent( const SysStateUnlockedParams& status )
-	{
-		SysStateAction_OnUnlocked();
-	}
-
-protected:
-	virtual void SysStateAction_OnUnlocked();
 };
 
 // GetCoreThread() is a required external implementation. This function is *NOT*

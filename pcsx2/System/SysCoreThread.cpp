@@ -32,15 +32,7 @@
 #include "../DebugTools/MIPSAnalyst.h"
 #include "../DebugTools/SymbolMap.h"
 
-#include "Utilities/PageFaultSource.h"
-#include "Utilities/Threading.h"
 #include "IopBios.h"
-
-#ifdef __WXMSW__
-#include <wx/msw/wrapwin.h>
-#endif
-
-#include "x86emitter/x86_intrin.h"
 
 // --------------------------------------------------------------------------------------
 //  SysCoreThread *External Thread* Implementations
@@ -140,9 +132,6 @@ void SysCoreThread::Reset()
 	ResetQuick();
 	GetVmMemory().DecommitAll();
 	SysClearExecutionCache();
-#ifndef __LIBRETRO__
-	sApp.PostAppMethod(&Pcsx2App::leaveDebugMode);
-#endif
 	g_FrameCount = 0;
 }
 
@@ -247,9 +236,6 @@ void SysCoreThread::GameStartingInThread()
 	symbolMap.UpdateActiveSymbols();
 
 	ApplyLoadedPatches(PPT_ONCE_ON_LOAD);
-#ifdef USE_SAVESLOT_UI_UPDATES
-	UI_UpdateSysControls();
-#endif
 #ifndef __LIBRETRO__
 	if (EmuConfig.EnableIPC && m_IpcState == OFF)
 	{
@@ -273,9 +259,6 @@ bool SysCoreThread::StateCheckInThread()
 void SysCoreThread::DoCpuExecute()
 {
 	m_hasActiveMachine = true;
-#ifndef __LIBRETRO__
-	UI_EnableSysActions();
-#endif
 	Cpu->Execute();
 }
 

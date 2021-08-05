@@ -231,9 +231,6 @@ SaveStateBase& SaveStateBase::FreezeInternals()
 	// technically this is HLE BIOS territory, but we don't have enough such stuff
 	// to merit an HLE Bios sub-section... yet.
 	deci2Freeze();
-#ifndef __LIBRETRO__
-	InputRecordingFreeze();
-#endif
 	if( IsLoading() )
 		PostLoadPrep();
 		
