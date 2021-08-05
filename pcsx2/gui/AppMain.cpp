@@ -113,10 +113,6 @@ void AppApplySettings()
 	g_Conf->Folders.Cheats.Mkdir();
 	g_Conf->Folders.CheatsWS.Mkdir();
 
-	g_Conf->EmuOptions.BiosFilename = g_Conf->FullpathToBios();
-
-	CorePlugins.SetSettingsFolder( GetSettingsFolder().ToString() );
-
 	// Update the compression attribute on the Memcards folder.
 	// Memcards generally compress very well via NTFS compression.
 
@@ -124,13 +120,6 @@ void AppApplySettings()
 	NTFS_CompressFile( g_Conf->Folders.MemoryCards.ToString(), g_Conf->McdCompressNTFS );
 	#endif
 	sApp.DispatchEvent( AppStatus_SettingsApplied );
-
-#ifdef __LIBRETRO__
-//	CoreThread.Resume();
-#else
-	paused_core.AllowResume();
-#endif
-
 }
 
 // Invokes the specified Pcsx2App method, or posts the method to the main thread if the calling
