@@ -457,9 +457,7 @@ static wxString GetUiSettingsFilename()
 wxString AppConfig::FullpathToBios() const				{ return Path::Combine( Folders.Bios, BaseFilenames.Bios ); }
 wxString AppConfig::FullpathToMcd( uint slot ) const
 {
-	if (Mcd[slot].Type == MemoryCardType::MemoryCard_File)
-		return Mcd[slot].Filename.GetFullPath();
-	return Mcd[slot].Filename.GetPath();
+	return Mcd[slot].Filename.GetFullPath();
 }
 
 AppConfig::AppConfig()
