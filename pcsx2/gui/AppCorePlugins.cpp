@@ -29,42 +29,6 @@ SysCorePlugins& GetCorePlugins()
 	return CorePlugins;
 }
 
-
-// --------------------------------------------------------------------------------------
-//  CorePluginsEvent
-// --------------------------------------------------------------------------------------
-class CorePluginsEvent : public pxActionEvent
-{
-	typedef pxActionEvent _parent;
-
-protected:
-	PluginEventType		m_evt;
-
-public:
-	virtual ~CorePluginsEvent() = default;
-	CorePluginsEvent* Clone() const { return new CorePluginsEvent( *this ); }
-
-	explicit CorePluginsEvent( PluginEventType evt, SynchronousActionState* sema=NULL )
-		: pxActionEvent( sema )
-	{
-		m_evt = evt;
-	}
-
-	explicit CorePluginsEvent( PluginEventType evt, SynchronousActionState& sema )
-		: pxActionEvent( sema )
-	{
-		m_evt = evt;
-	}
-
-	CorePluginsEvent( const CorePluginsEvent& src )
-		: pxActionEvent( src )
-	{
-		m_evt = src.m_evt;
-	}
-	
-	PluginEventType GetEventType() { return m_evt; }
-};
-
 // --------------------------------------------------------------------------------------
 //  Public API / Interface
 // --------------------------------------------------------------------------------------
