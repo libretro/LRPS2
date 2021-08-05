@@ -51,15 +51,6 @@ __forceinline void Threading::SpinWait()
     __asm__("pause");
 }
 
-__forceinline void Threading::EnableHiresScheduler()
-{
-    // Don't know if linux has a customizable scheduler resolution like Windows (doubtful)
-}
-
-__forceinline void Threading::DisableHiresScheduler()
-{
-}
-
 void Threading::pxThread::_platform_specific_OnStartInThread()
 {
     // Obtain linux-specific thread IDs or Handles here, which can be used to query

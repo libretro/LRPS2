@@ -36,22 +36,6 @@ __fi void Threading::SpinWait()
     _mm_pause();
 }
 
-__fi void Threading::EnableHiresScheduler()
-{
-    // This improves accuracy of Sleep() by some amount, and only adds a negligible amount of
-    // overhead on modern CPUs.  Typically desktops are already set pretty low, but laptops in
-    // particular may have a scheduler Period of 15 or 20ms to extend battery life.
-
-    // (note: this same trick is used by most multimedia software and games)
-
-    timeBeginPeriod(1);
-}
-
-__fi void Threading::DisableHiresScheduler()
-{
-    timeEndPeriod(1);
-}
-
 void Threading::pxThread::_platform_specific_OnStartInThread()
 {
     // OpenThread Note: Vista and Win7 need only THREAD_QUERY_LIMITED_INFORMATION (XP and 2k need more),

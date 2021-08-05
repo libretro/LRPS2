@@ -44,17 +44,6 @@ __forceinline void Threading::SpinWait()
     __asm__("pause");
 }
 
-__forceinline void Threading::EnableHiresScheduler()
-{
-    // Darwin has customizable schedulers, see xnu/osfmk/man. Not
-    // implemented yet though (and not sure if useful for pcsx2).
-}
-
-__forceinline void Threading::DisableHiresScheduler()
-{
-    // see EnableHiresScheduler()
-}
-
 void Threading::pxThread::_platform_specific_OnStartInThread()
 {
     m_native_id = (uptr)mach_thread_self();
