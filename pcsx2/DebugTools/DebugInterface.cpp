@@ -175,7 +175,7 @@ void DebugInterface::pauseCpu()
 {
 	SysCoreThread& core = GetCoreThread();
 	if (!core.IsPaused())
-		core.Pause(true);
+		core.Pause();
 }
 
 void DebugInterface::resumeCpu()

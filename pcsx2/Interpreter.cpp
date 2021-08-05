@@ -58,7 +58,6 @@ void intBreakpoint(bool memcheck)
 	}
 
 	CBreakPoints::SetBreakpointTriggered(true);
-	GetCoreThread().PauseSelfDebug();
 	throw Exception::ExitCpuExecute();
 }
 

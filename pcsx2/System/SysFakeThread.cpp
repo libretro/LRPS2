@@ -120,7 +120,7 @@ void SysFakeThread::Suspend( bool isBlocking )
 //   The previous suspension state; true if the thread was running or false if it was
 //   closed, not running, or paused.
 //
-void SysFakeThread::Pause(bool debug)
+void SysFakeThread::Pause()
 {
 	if( IsSelf() || !IsRunning() ) return;
 
@@ -139,44 +139,11 @@ void SysFakeThread::Pause(bool debug)
 
 		pxAssertDev( m_ExecMode == ExecMode_Pausing, "ExecMode should be nothing other than Pausing..." );
 
-		if (debug)
-			OnPauseDebug();
-		else
-			OnPause();
+		OnPause();
 		m_sem_event.Post();
 	}
 
 	m_RunningLock.Wait();
-}
-
-void SysFakeThread::PauseSelf()
-{
-	if( !IsSelf() || !IsRunning() ) return;
-
-	{
-		ScopedLock locker( m_ExecModeMutex );
-		
-		if( m_ExecMode == ExecMode_Opened )
-			m_ExecMode = ExecMode_Pausing;
-		
-		OnPause();
-		m_sem_event.Post();
-	}
-}
-
-void SysFakeThread::PauseSelfDebug()
-{
-	if (!IsSelf() || !IsRunning()) return;
-
-	{
-		ScopedLock locker(m_ExecModeMutex);
-
-		if (m_ExecMode == ExecMode_Opened)
-			m_ExecMode = ExecMode_Pausing;
-
-		OnPauseDebug();
-		m_sem_event.Post();
-	}
 }
 
 // Resumes the core execution state, or does nothing is the core is already running.  If

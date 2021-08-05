@@ -113,9 +113,7 @@ public:
 
 	virtual void Suspend( bool isBlocking = true );
 	virtual void Resume();
-	virtual void Pause(bool debug = false);
-	virtual void PauseSelf();
-	virtual void PauseSelfDebug();
+	virtual void Pause();
 
 protected:
 	virtual void OnStart();
@@ -125,7 +123,6 @@ protected:
 	// Resume() has a lot of checks and balances to prevent re-entrance and race conditions.
 	virtual void OnResumeReady() {}
 	virtual void OnPause() {}
-	virtual void OnPauseDebug() {}
 
 	virtual bool StateCheckInThread();
 	virtual void OnCleanupInThread();
@@ -250,9 +247,7 @@ public:
 
 	virtual void Suspend( bool isBlocking = true );
 	virtual void Resume();
-	virtual void Pause(bool debug = false);
-	virtual void PauseSelf();
-	virtual void PauseSelfDebug();
+	virtual void Pause();
 	virtual void Cancel(bool isBlocking = true) { m_running = false; }
 	virtual void RethrowException() const {}
 
@@ -266,7 +261,6 @@ protected:
 	// Resume() has a lot of checks and balances to prevent re-entrance and race conditions.
 	virtual void OnResumeReady() {}
 	virtual void OnPause() {}
-	virtual void OnPauseDebug() {}
 
 	virtual bool StateCheckInThread();
 	virtual void OnCleanupInThread();

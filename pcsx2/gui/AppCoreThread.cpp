@@ -160,11 +160,6 @@ void AppCoreThread::OnPause()
 	_parent::OnPause();
 }
 
-void AppCoreThread::OnPauseDebug()
-{
-	_parent::OnPause();
-}
-
 // Load Game Settings found in database
 // (game fixes, round modes, clamp modes, etc...)
 // Returns number of gamefixes set

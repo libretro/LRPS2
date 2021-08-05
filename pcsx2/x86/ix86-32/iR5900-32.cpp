@@ -1158,7 +1158,6 @@ void dynarecCheckBreakpoint()
 		return;
 
 	CBreakPoints::SetBreakpointTriggered(true);
-	GetCoreThread().PauseSelfDebug();
 	recExitExecution();
 }
 
@@ -1169,7 +1168,6 @@ void dynarecMemcheck()
 		return;
 
 	CBreakPoints::SetBreakpointTriggered(true);
-	GetCoreThread().PauseSelfDebug();
 	recExitExecution();
 }
 
