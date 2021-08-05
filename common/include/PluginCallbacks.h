@@ -753,29 +753,6 @@ typedef struct _PS2E_LibraryAPI
     // instance pointer can be safely deleted here.
     void(PS2E_CALLBACK *DeleteComponentInstance)(PS2E_THISPTR instance);
 
-    // SetSettingsFolder
-    // Callback is passed an ASCII-Z string representing the folder where the emulator's
-    // settings files are stored (may either be under the user's documents folder, or a
-    // location relative to the CWD of the emu application).
-    //
-    // Typically this callback is only issued once per plugin session, aand prior to the
-    // opening of any PS2 components.  It is the responsibility of the emu to save the
-    // emulation state, shutdown plugins, and restart everything anew from the new settings
-    // in such an event as a dynamic change of the settings folder.
-    //
-    void(PS2E_CALLBACK *SetSettingsFolder)(const char *folder);
-
-    // SetLogFolder
-    // This callback may be issued at any time.  It is the responsibility of the plugin
-    // to do the necessary actions to close existing disk logging facilities and re-open
-    // new facilities.
-    //
-    // Thread Safety:
-    //   This function is always called from the GUI thread.  All emulation threads are
-    //   suspended during the call, so no locking is required.
-    //
-    void(PS2E_CALLBACK *SetLogFolder)(const char *folder);
-
     // Reserved area at the end of the structure, for future API expansion.  This area
     // should always be zeroed out, so that future versions of emulators that may have
     // defined functions here will recognize the functions as not supported by the plugin.

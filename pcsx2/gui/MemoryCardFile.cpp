@@ -242,15 +242,7 @@ bool FileMcd_IsMultitapSlot(uint slot)
 {
 	return (slot > 1);
 }
-/*
-wxFileName FileMcd_GetSimpleName(uint slot)
-{
-	if( FileMcd_IsMultitapSlot(slot) )
-		return g_Conf->Folders.MemoryCards + wxsFormat( L"Mcd-Multitap%u-Slot%02u.ps2", FileMcd_GetMtapPort(slot)+1, FileMcd_GetMtapSlot(slot)+1 );
-	else
-		return g_Conf->Folders.MemoryCards + wxsFormat( L"Mcd%03u.ps2", slot+1 );
-}
-*/
+
 wxString FileMcd_GetDefaultName(uint slot)
 {
 	if (FileMcd_IsMultitapSlot(slot))
@@ -599,31 +591,6 @@ uint FileMcd_ConvertToSlot(uint port, uint slot)
 
 static void PS2E_CALLBACK FileMcd_EmuOpen(PS2E_THISPTR thisptr, const PS2E_SessionInfo* session)
 {
-
-	// detect inserted memory card types
-	for (uint slot = 0; slot < 8; ++slot)
-	{
-		if (g_Conf->Mcd[slot].Enabled)
-		{
-#ifndef __LIBRETRO__
-			MemoryCardType type = MemoryCardType::MemoryCard_File; // default to file if we can't find anything at the path so it gets auto-generated
-
-			const wxString path = g_Conf->FullpathToMcd(slot);
-			if (wxFileExists(path))
-			{
-				type = MemoryCardType::MemoryCard_File;
-			}
-			else if (wxDirExists(path))
-			{
-				type = MemoryCardType::MemoryCard_Folder;
-			}
-
-			g_Conf->Mcd[slot].Type = type;
-#endif
-		}
-	}
-
-
 	thisptr->impl.Open();
 	thisptr->implFolder.SetFiltering(g_Conf->EmuOptions.McdFolderAutoManage);
 	thisptr->implFolder.Open();
@@ -831,71 +798,18 @@ static void PS2E_CALLBACK FileMcd_DeleteComponentInstance(PS2E_THISPTR instance)
 	delete instance;
 }
 
-static void PS2E_CALLBACK FileMcd_SetSettingsFolder(const char* folder)
-{
-}
-
-static void PS2E_CALLBACK FileMcd_SetLogFolder(const char* folder)
-{
-}
-
 static const PS2E_LibraryAPI FileMcd_Library =
 	{
 		FileMcd_GetName,
 		FileMcd_GetVersion,
 		FileMcd_Test,
 		FileMcd_NewComponentInstance,
-		FileMcd_DeleteComponentInstance,
-		FileMcd_SetSettingsFolder,
-		FileMcd_SetLogFolder};
+		FileMcd_DeleteComponentInstance
+		};
 
 // If made into an external plugin, this function should be renamed to PS2E_InitAPI, so that
 // PCSX2 can find the export in the expected location.
 extern "C" const PS2E_LibraryAPI* FileMcd_InitAPI(const PS2E_EmulatorInfo* emuinfo)
 {
 	return &FileMcd_Library;
-}
-
-//Tests if a string is a valid name for a new file within a specified directory.
-//returns true if:
-//     - the file name has a minimum length of minNumCharacters chars (default is 5 chars: at least 1 char + '.' + 3-chars extension)
-// and - the file name is within the basepath directory (doesn't contain .. , / , \ , etc)
-// and - file name doesn't already exist
-// and - can be created on current system (it is actually created and deleted for this test).
-bool isValidNewFilename(wxString filenameStringToTest, wxDirName atBasePath, wxString& out_errorMessage, uint minNumCharacters)
-{
-	if (filenameStringToTest.Length() < 1 || filenameStringToTest.Length() < minNumCharacters)
-	{
-		out_errorMessage = "File name empty or too short";
-		return false;
-	}
-
-	if ((atBasePath + wxFileName(filenameStringToTest)).GetFullPath() != (atBasePath + wxFileName(filenameStringToTest).GetFullName()).GetFullPath())
-	{
-		out_errorMessage = "File name outside of required directory";
-		return false;
-	}
-
-	if (wxFileExists((atBasePath + wxFileName(filenameStringToTest)).GetFullPath()))
-	{
-		out_errorMessage = "File name already exists";
-		return false;
-	}
-	if (wxDirExists((atBasePath + wxFileName(filenameStringToTest)).GetFullPath()))
-	{
-		out_errorMessage = "File name already exists";
-		return false;
-	}
-
-	wxFile fp;
-	if (!fp.Create((atBasePath + wxFileName(filenameStringToTest)).GetFullPath()))
-	{
-		out_errorMessage = "The Operating-System prevents this file from being created";
-		return false;
-	}
-	fp.Close();
-	wxRemoveFile((atBasePath + wxFileName(filenameStringToTest)).GetFullPath());
-
-	out_errorMessage = L"[OK - New file name is valid]"; //shouldn't be displayed on success, hence not translatable.
-	return true;
 }
