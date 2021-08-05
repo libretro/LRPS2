@@ -114,7 +114,6 @@ void AppApplySettings()
 	// Ensure existence of necessary documents folders.  Plugins and other parts
 	// of PCSX2 rely on them.
 
-	g_Conf->Folders.Savestates.Mkdir();
 	g_Conf->Folders.Cheats.Mkdir();
 	g_Conf->Folders.CheatsWS.Mkdir();
 
