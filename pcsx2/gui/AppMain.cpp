@@ -103,11 +103,7 @@ void DoFmvSwitch(bool on)
 void AppApplySettings()
 {
 	AffinityAssert_AllowFrom_MainUI();
-#ifdef __LIBRETRO__
 	CoreThread.Pause();
-#else
-	ScopedCoreThreadPause paused_core;
-#endif
 
 	g_Conf->Folders.ApplyDefaults();
 

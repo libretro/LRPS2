@@ -129,11 +129,7 @@ void AppCoreThread::ChangeCdvdSource()
 		return;
 
 	// Fast change of the CDVD source only -- a Pause will suffice.
-
-	ScopedCoreThreadPause paused_core;
 	CDVDsys_ChangeSource(cdvdsrc);
-	paused_core.AllowResume();
-
 	// TODO: Add a listener for CDVDsource changes?  Or should we bother?
 }
 
@@ -467,9 +463,7 @@ void AppCoreThread::ApplySettings(const Pcsx2Config& src)
 
 	if (m_ExecMode >= ExecMode_Opened)
 	{
-		ScopedCoreThreadPause paused_core;
 		_parent::ApplySettings(fixup);
-		paused_core.AllowResume();
 	}
 	else
 	{
@@ -542,9 +536,7 @@ bool AppCoreThread::StateCheckInThread()
 
 void AppCoreThread::UploadStateCopy(const VmStateBuffer& copy)
 {
-	ScopedCoreThreadPause paused_core;
 	_parent::UploadStateCopy(copy);
-	paused_core.AllowResume();
 }
 
 static uint m_except_threshold = 0;
@@ -585,145 +577,4 @@ void AppCoreThread::DoCpuExecute()
 			m_ExecMode = ExecMode_Closing;
 		}
 	}
-}
-
-// --------------------------------------------------------------------------------------
-//  BaseSysExecEvent_ScopedCore / SysExecEvent_CoreThreadClose / SysExecEvent_CoreThreadPause
-// --------------------------------------------------------------------------------------
-void BaseSysExecEvent_ScopedCore::_post_and_wait(IScopedCoreThread& core)
-{
-	DoScopedTask();
-
-	ScopedLock lock(m_mtx_resume);
-
-	if (m_resume)
-	{
-		// If the sender of the message requests a non-blocking resume, then we need
-		// to deallocate the m_sync object, since the sender will likely leave scope and
-		// invalidate it.
-		switch (m_resume->WaitForResult())
-		{
-			case ScopedCore_BlockingResume:
-				if (m_sync)
-					m_sync->ClearResult();
-				core.AllowResume();
-				break;
-
-			case ScopedCore_NonblockingResume:
-				m_sync = NULL;
-				core.AllowResume();
-				break;
-
-			case ScopedCore_SkipResume:
-				m_sync = NULL;
-				break;
-		}
-	}
-}
-
-// --------------------------------------------------------------------------------------
-//  ScopedCoreThreadClose / ScopedCoreThreadPause
-// --------------------------------------------------------------------------------------
-
-static DeclareTls(bool) ScopedCore_IsPaused = false;
-static DeclareTls(bool) ScopedCore_IsFullyClosed = false;
-
-BaseScopedCoreThread::BaseScopedCoreThread()
-{
-	//AffinityAssert_AllowFrom_MainUI();
-
-	m_allowResume = false;
-	m_alreadyStopped = false;
-	m_alreadyScoped = false;
-}
-
-BaseScopedCoreThread::~BaseScopedCoreThread() = default;
-
-// Allows the object to resume execution upon object destruction.  Typically called as the last thing
-// in the object's scope.  Any code prior to this call that causes exceptions will not resume the emulator,
-// which is *typically* the intended behavior when errors occur.
-void BaseScopedCoreThread::AllowResume()
-{
-	m_allowResume = true;
-}
-
-void BaseScopedCoreThread::DisallowResume()
-{
-	m_allowResume = false;
-}
-
-void BaseScopedCoreThread::DoResume()
-{
-	if (m_alreadyStopped)
-		return;
-	CoreThread.Resume();
-}
-
-ScopedCoreThreadClose::ScopedCoreThreadClose()
-{
-	if (ScopedCore_IsFullyClosed)
-	{
-		// tracks if we're already in scope or not.
-		m_alreadyScoped = true;
-		return;
-	}
-#ifndef __LIBRETRO__
-	if (!PostToSysExec(new SysExecEvent_CoreThreadClose()))
-	{
-#endif
-		m_alreadyStopped = CoreThread.IsClosed();
-		if (!m_alreadyStopped)
-			CoreThread.Suspend();
-#ifndef __LIBRETRO__
-	}
-#endif
-	ScopedCore_IsFullyClosed = true;
-}
-
-ScopedCoreThreadClose::~ScopedCoreThreadClose()
-{
-	if (m_alreadyScoped)
-		return;
-	try
-	{
-		_parent::DoResume();
-		ScopedCore_IsFullyClosed = false;
-	}
-	DESTRUCTOR_CATCHALL
-}
-
-ScopedCoreThreadPause::ScopedCoreThreadPause(BaseSysExecEvent_ScopedCore* abuse_me)
-{
-	if (ScopedCore_IsFullyClosed || ScopedCore_IsPaused)
-	{
-		// tracks if we're already in scope or not.
-		m_alreadyScoped = true;
-		return;
-	}
-
-	if (!abuse_me)
-		abuse_me = new SysExecEvent_CoreThreadPause();
-#ifndef __LIBRETRO__
-	if (!PostToSysExec(abuse_me))
-	{
-#endif
-		m_alreadyStopped = CoreThread.IsPaused();
-		if (!m_alreadyStopped)
-			CoreThread.Pause();
-#ifndef __LIBRETRO__
-	}
-#endif
-	ScopedCore_IsPaused = true;
-}
-
-ScopedCoreThreadPause::~ScopedCoreThreadPause()
-{
-	if (m_alreadyScoped)
-		return;
-	try
-	{
-		_parent::DoResume();
-		ScopedCore_IsPaused = false;
-	}
-	DESTRUCTOR_CATCHALL
 }
