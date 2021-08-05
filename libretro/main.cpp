@@ -212,7 +212,6 @@ void retro_init(void)
 		{
 			def.values[i++] = {"legacy", "Legacy"};
 		}
-		//def.values[i++] = { "per-game", "Per-Game Saves" };
 		def.values[i++] = { "shared8", "Shared Memory Card (8 MB)" };
 		def.values[i++] = { "shared32", "Shared Memory Card (32 MB)" };
 		for (size_t j = 0; j < custom_memcard_list_slot1.size(); j += 2)
@@ -666,20 +665,6 @@ bool retro_load_game(const struct retro_game_info* game)
 				// slot empty
 				g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_None;
 				g_Conf->Mcd[0].Enabled = false;
-			}
-			else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "per-game") == 0)
-			{
-				// per game folder save
-				std::string content_name = game->path;
-
-				save_game_folder = wxFileName(save_dir_root.GetPath(), "");
-				save_game_folder.AppendDir("Slot 1");
-				save_game_folder.AppendDir(MemCardRetro::GetContentFileRawName(content_name));
-
-				g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_Folder;
-				g_Conf->Mcd[0].Enabled = true;
-				g_Conf->Mcd[0].Filename = save_game_folder;
-
 			}
 			else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "shared8") == 0 
 					|| strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "shared32") == 0)

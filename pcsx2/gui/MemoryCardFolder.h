@@ -593,38 +593,3 @@ protected:
 
 	void DeleteFromIndex(const wxString& filePath, const wxString& entry) const;
 };
-
-// --------------------------------------------------------------------------------------
-//  FolderMemoryCardAggregator
-// --------------------------------------------------------------------------------------
-// Forwards the API's requests for specific memory card slots to the correct FolderMemoryCard.
-class FolderMemoryCardAggregator
-{
-protected:
-	static const int TotalCardSlots = 8;
-	FolderMemoryCard m_cards[TotalCardSlots];
-
-	// stores the specifics of the current filtering settings, so they can be
-	// re-applied automatically when memory cards are reloaded
-	bool m_enableFiltering = true;
-	wxString m_lastKnownFilter = L"";
-
-public:
-	FolderMemoryCardAggregator();
-	virtual ~FolderMemoryCardAggregator() = default;
-
-	void Open();
-	void Close();
-
-	void SetFiltering(const bool enableFiltering);
-
-	s32 IsPresent(uint slot);
-	void GetSizeInfo(uint slot, PS2E_McdSizeInfo& outways);
-	bool IsPSX(uint slot);
-	s32 Read(uint slot, u8* dest, u32 adr, int size);
-	s32 Save(uint slot, const u8* src, u32 adr, int size);
-	s32 EraseBlock(uint slot, u32 adr);
-	u64 GetCRC(uint slot);
-	void NextFrame(uint slot);
-	bool ReIndex(uint slot, const bool enableFiltering, const wxString& filter);
-};

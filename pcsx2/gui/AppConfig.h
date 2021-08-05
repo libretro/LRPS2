@@ -47,7 +47,6 @@ enum MemoryCardType
 {
 	MemoryCard_None,
 	MemoryCard_File,
-	MemoryCard_Folder,
 	MemoryCard_MaxCount
 };
 

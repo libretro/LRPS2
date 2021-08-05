@@ -575,7 +575,6 @@ struct Component_FileMcd
 {
 	PS2E_ComponentAPI_Mcd api; // callbacks the plugin provides back to the emulator
 	FileMemoryCard impl;       // class-based implementations we refer to when API is invoked
-	FolderMemoryCardAggregator implFolder;
 
 	Component_FileMcd();
 };
@@ -592,28 +591,16 @@ uint FileMcd_ConvertToSlot(uint port, uint slot)
 static void PS2E_CALLBACK FileMcd_EmuOpen(PS2E_THISPTR thisptr, const PS2E_SessionInfo* session)
 {
 	thisptr->impl.Open();
-	thisptr->implFolder.SetFiltering(g_Conf->EmuOptions.McdFolderAutoManage);
-	thisptr->implFolder.Open();
 }
 
 static void PS2E_CALLBACK FileMcd_EmuClose(PS2E_THISPTR thisptr)
 {
-	thisptr->implFolder.Close();
-	thisptr->impl.Close();
 }
 
 static s32 PS2E_CALLBACK FileMcd_IsPresent(PS2E_THISPTR thisptr, uint port, uint slot)
 {
 	const uint combinedSlot = FileMcd_ConvertToSlot(port, slot);
-	switch (g_Conf->Mcd[combinedSlot].Type)
-	{
-		case MemoryCardType::MemoryCard_File:
-			return thisptr->impl.IsPresent(combinedSlot);
-		case MemoryCardType::MemoryCard_Folder:
-			return thisptr->implFolder.IsPresent(combinedSlot);
-		default:
-			return false;
-	}
+	return thisptr->impl.IsPresent(combinedSlot);
 }
 
 static void PS2E_CALLBACK FileMcd_GetSizeInfo(PS2E_THISPTR thisptr, uint port, uint slot, PS2E_McdSizeInfo* outways)
@@ -623,9 +610,6 @@ static void PS2E_CALLBACK FileMcd_GetSizeInfo(PS2E_THISPTR thisptr, uint port, u
 	{
 		case MemoryCardType::MemoryCard_File:
 			thisptr->impl.GetSizeInfo(combinedSlot, *outways);
-			break;
-		case MemoryCardType::MemoryCard_Folder:
-			thisptr->implFolder.GetSizeInfo(combinedSlot, *outways);
 			break;
 		default:
 			return;
@@ -639,11 +623,11 @@ static bool PS2E_CALLBACK FileMcd_IsPSX(PS2E_THISPTR thisptr, uint port, uint sl
 	{
 		case MemoryCardType::MemoryCard_File:
 			return thisptr->impl.IsPSX(combinedSlot);
-		case MemoryCardType::MemoryCard_Folder:
-			return thisptr->implFolder.IsPSX(combinedSlot);
 		default:
-			return false;
+                        break;
 	}
+
+	return false;
 }
 
 static s32 PS2E_CALLBACK FileMcd_Read(PS2E_THISPTR thisptr, uint port, uint slot, u8* dest, u32 adr, int size)
@@ -653,11 +637,11 @@ static s32 PS2E_CALLBACK FileMcd_Read(PS2E_THISPTR thisptr, uint port, uint slot
 	{
 		case MemoryCardType::MemoryCard_File:
 			return thisptr->impl.Read(combinedSlot, dest, adr, size);
-		case MemoryCardType::MemoryCard_Folder:
-			return thisptr->implFolder.Read(combinedSlot, dest, adr, size);
 		default:
-			return 0;
+			break;
 	}
+
+	return 0;
 }
 
 static s32 PS2E_CALLBACK FileMcd_Save(PS2E_THISPTR thisptr, uint port, uint slot, const u8* src, u32 adr, int size)
@@ -667,11 +651,11 @@ static s32 PS2E_CALLBACK FileMcd_Save(PS2E_THISPTR thisptr, uint port, uint slot
 	{
 		case MemoryCardType::MemoryCard_File:
 			return thisptr->impl.Save(combinedSlot, src, adr, size);
-		case MemoryCardType::MemoryCard_Folder:
-			return thisptr->implFolder.Save(combinedSlot, src, adr, size);
 		default:
-			return 0;
+			break;
 	}
+
+	return 0;
 }
 
 static s32 PS2E_CALLBACK FileMcd_EraseBlock(PS2E_THISPTR thisptr, uint port, uint slot, u32 adr)
@@ -681,11 +665,11 @@ static s32 PS2E_CALLBACK FileMcd_EraseBlock(PS2E_THISPTR thisptr, uint port, uin
 	{
 		case MemoryCardType::MemoryCard_File:
 			return thisptr->impl.EraseBlock(combinedSlot, adr);
-		case MemoryCardType::MemoryCard_Folder:
-			return thisptr->implFolder.EraseBlock(combinedSlot, adr);
 		default:
-			return 0;
+			break;
 	}
+
+	return 0;
 }
 
 static u64 PS2E_CALLBACK FileMcd_GetCRC(PS2E_THISPTR thisptr, uint port, uint slot)
@@ -695,43 +679,22 @@ static u64 PS2E_CALLBACK FileMcd_GetCRC(PS2E_THISPTR thisptr, uint port, uint sl
 	{
 		case MemoryCardType::MemoryCard_File:
 			return thisptr->impl.GetCRC(combinedSlot);
-		case MemoryCardType::MemoryCard_Folder:
-			return thisptr->implFolder.GetCRC(combinedSlot);
 		default:
-			return 0;
+                        break;
 	}
+
+	return 0;
 }
 
 static void PS2E_CALLBACK FileMcd_NextFrame(PS2E_THISPTR thisptr, uint port, uint slot)
 {
 	const uint combinedSlot = FileMcd_ConvertToSlot(port, slot);
-	switch (g_Conf->Mcd[combinedSlot].Type)
-	{
-		//case MemoryCardType::MemoryCard_File:
-		//	thisptr->impl.NextFrame( combinedSlot );
-		//	break;
-		case MemoryCardType::MemoryCard_Folder:
-			thisptr->implFolder.NextFrame(combinedSlot);
-			break;
-		default:
-			return;
-	}
 }
 
 static bool PS2E_CALLBACK FileMcd_ReIndex(PS2E_THISPTR thisptr, uint port, uint slot, const wxString& filter)
 {
 	const uint combinedSlot = FileMcd_ConvertToSlot(port, slot);
-	switch (g_Conf->Mcd[combinedSlot].Type)
-	{
-		//case MemoryCardType::MemoryCard_File:
-		//	return thisptr->impl.ReIndex( combinedSlot, filter );
-		//	break;
-		case MemoryCardType::MemoryCard_Folder:
-			return thisptr->implFolder.ReIndex(combinedSlot, g_Conf->EmuOptions.McdFolderAutoManage, filter);
-			break;
-		default:
-			return false;
-	}
+	return false;
 }
 
 Component_FileMcd::Component_FileMcd()
