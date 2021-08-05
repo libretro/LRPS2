@@ -121,22 +121,9 @@ public:
     {
         m_Method = src.m_Method;
     }
-
-    void SetMethod(void (*method)())
-    {
-        m_Method = method;
-    }
 };
 
 wxIMPLEMENT_DYNAMIC_CLASS(pxRpcEvent, pxActionEvent);
-
-// --------------------------------------------------------------------------------------
-//  pxExceptionEvent implementations
-// --------------------------------------------------------------------------------------
-pxExceptionEvent::pxExceptionEvent(const BaseException &ex)
-{
-    m_except = ex.Clone();
-}
 
 // --------------------------------------------------------------------------------------
 //  wxAppWithHelpers Implementation

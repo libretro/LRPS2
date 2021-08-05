@@ -85,29 +85,3 @@ public:
     void SetSyncState(SynchronousActionState *obj) { m_state = obj; }
     void SetSyncState(SynchronousActionState &obj) { m_state = &obj; }
 };
-
-
-// --------------------------------------------------------------------------------------
-//  pxExceptionEvent
-// --------------------------------------------------------------------------------------
-class pxExceptionEvent : public pxActionEvent
-{
-    typedef pxActionEvent _parent;
-
-protected:
-    BaseException *m_except;
-
-public:
-    pxExceptionEvent(BaseException *ex = NULL)
-    {
-        m_except = ex;
-    }
-
-    pxExceptionEvent(const BaseException &ex);
-
-    virtual ~pxExceptionEvent()
-    {
-    }
-
-    virtual pxExceptionEvent *Clone() const { return new pxExceptionEvent(*this); }
-};

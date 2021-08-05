@@ -64,11 +64,6 @@ public:
 	{
 		m_Method = src.m_Method;
 	}
-		
-	void SetMethod( FnPtr_Pcsx2App method )
-	{
-		m_Method = method;
-	}
 };
 
 
@@ -160,13 +155,6 @@ bool Pcsx2App::AppRpc_TryInvokeAsync( FnPtr_Pcsx2App method )
 	if( wxThread::IsMain() ) return false;
 	PostEvent( Pcsx2AppMethodEvent( method ) );
 	return true;
-}
-
-// Posts a method to the main thread; non-blocking.  Post occurs even when called from the
-// main thread.
-void Pcsx2App::PostAppMethod( FnPtr_Pcsx2App method )
-{
-	PostEvent( Pcsx2AppMethodEvent( method ) );
 }
 
 SysMainMemory& Pcsx2App::GetVmReserve()
