@@ -45,36 +45,6 @@ __aligned16 AppCoreThread CoreThread;
 
 typedef void (AppCoreThread::*FnPtr_CoreThreadMethod)();
 
-// --------------------------------------------------------------------------------------
-//  SysExecEvent_InvokeCoreThreadMethod
-// --------------------------------------------------------------------------------------
-class SysExecEvent_InvokeCoreThreadMethod : public SysExecEvent
-{
-protected:
-	FnPtr_CoreThreadMethod m_method;
-	bool m_IsCritical;
-
-public:
-	wxString GetEventName() const { return L"CoreThreadMethod"; }
-	virtual ~SysExecEvent_InvokeCoreThreadMethod() = default;
-	SysExecEvent_InvokeCoreThreadMethod* Clone() const { return new SysExecEvent_InvokeCoreThreadMethod(*this); }
-
-	bool AllowCancelOnExit() const { return false; }
-	bool IsCriticalEvent() const { return m_IsCritical; }
-
-	SysExecEvent_InvokeCoreThreadMethod(FnPtr_CoreThreadMethod method, bool critical = false)
-	{
-		m_method = method;
-		m_IsCritical = critical;
-	}
-
-	SysExecEvent_InvokeCoreThreadMethod& Critical()
-	{
-		m_IsCritical = true;
-		return *this;
-	}
-};
-
 static void PostCoreStatus(CoreThreadStatus pevt)
 {
 	sApp.PostAction(CoreThreadStatusEvent(pevt));
