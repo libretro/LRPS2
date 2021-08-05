@@ -306,7 +306,6 @@ set(pcsx2DebugToolsHeaders
 		gui/AppGameDatabase.h
 		gui/App.h
 		gui/MemoryCardFile.h
-		gui/pxEventThread.h
 		)
 
 set(db_res_src "${CMAKE_SOURCE_DIR}/resources")

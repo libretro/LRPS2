@@ -19,7 +19,6 @@
 
 #include "AppCommon.h"
 #include "SaveState.h"
-#include "pxEventThread.h"
 
 #define AffinityAssert_AllowFrom_CoreThread() \
 	pxAssertMsg( GetCoreThread().IsSelf(), "Thread affinity violation: Call allowed from SysCoreThread only." )
