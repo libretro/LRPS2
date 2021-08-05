@@ -295,7 +295,6 @@ set(pcsx2DebugToolsHeaders
 		gui/AppMain.cpp
 		gui/AppRes.cpp
 		gui/MemoryCardFile.cpp
-		gui/MemoryCardFolder.cpp
 		)
 	# gui headers
 	set(pcsx2GuiHeaders
@@ -307,7 +306,6 @@ set(pcsx2DebugToolsHeaders
 		gui/AppGameDatabase.h
 		gui/App.h
 		gui/MemoryCardFile.h
-		gui/MemoryCardFolder.h
 		gui/pxEventThread.h
 		)
 

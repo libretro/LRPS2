@@ -24,7 +24,6 @@ struct Component_FileMcd;
 #define PS2E_THISPTR Component_FileMcd*
 
 #include "MemoryCardFile.h"
-#include "MemoryCardFolder.h"
 
 #include "System.h"
 #include "AppConfig.h"
