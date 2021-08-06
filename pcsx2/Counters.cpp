@@ -456,12 +456,6 @@ static __fi void VSyncEnd(u32 sCycle)
 	//cpuRegs.eCycle[30] = 2;
 }
 
-//#define VSYNC_DEBUG		// Uncomment this to enable some vSync Timer debugging features.
-#ifdef VSYNC_DEBUG
-static u32 hsc=0;
-static int vblankinc = 0;
-#endif
-
 __fi void rcntUpdate_hScanline()
 {
 	if( !cpuTestCycle( hsyncCounter.sCycle, hsyncCounter.CycleT ) ) return;
@@ -491,9 +485,6 @@ __fi void rcntUpdate_hScanline()
 		hsyncCounter.CycleT = vSyncInfo.hBlank;		// endpoint (delta from start value)
 		hsyncCounter.Mode = MODE_HBLANK;
 
-#		ifdef VSYNC_DEBUG
-		hsc++;
-#		endif
 	}
 }
 
@@ -528,17 +519,6 @@ __fi void rcntUpdate_vSync()
 
 		// Accumulate hsync rounding errors:
 		hsyncCounter.sCycle += vSyncInfo.hSyncError;
-
-#		ifdef VSYNC_DEBUG
-		vblankinc++;
-		if( vblankinc > 1 )
-		{
-			if( hsc != vSyncInfo.hScanlinesPerFrame )
-				log_cb(RETRO_LOG_INFO, " ** vSync > Abnormal Scanline Count: %d\n", hsc );
-			hsc = 0;
-			vblankinc = 0;
-		}
-#		endif
 	}
 }
 
