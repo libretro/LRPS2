@@ -128,7 +128,6 @@ protected:
 	static const int m_MERGE_BLEND  = m_blendMap.size() - 1;
 
 	std::shared_ptr<GSWnd> m_wnd;
-	int m_vsync;
 	bool m_rbswapped;
 	GSTexture* m_backbuffer;
 	GSTexture* m_merge;
@@ -163,8 +162,6 @@ public:
 	virtual void Present(const GSVector4i& r, int shader);
 	virtual void Present(GSTexture* sTex, GSTexture* dTex, const GSVector4& dRect, int shader = 0);
 	virtual void Flip() { m_wnd->Flip(); }
-
-	virtual void SetVSync(int vsync) {m_vsync = vsync;}
 
 	virtual void BeginScene() {}
 	virtual void DrawPrimitive() {};

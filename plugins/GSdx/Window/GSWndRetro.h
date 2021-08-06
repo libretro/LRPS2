@@ -22,7 +22,6 @@
 
 class GSWndRetroGL : public GSWndGL
 {
-	void BindAPI();
 public:
 	GSWndRetroGL();
 	virtual ~GSWndRetroGL() {}

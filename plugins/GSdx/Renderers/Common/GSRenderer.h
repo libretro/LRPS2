@@ -38,7 +38,6 @@ protected:
 	int m_dithering;
 	int m_interlace;
 	int m_aspectratio;
-	int m_vsync;
 	bool m_aa1;
 	bool m_fxaa;
 	bool m_texture_shuffle;
@@ -66,7 +65,6 @@ public:
 	virtual GSVector2i GetCustomResolution() {return GSVector2i(0,0);}
 	GSVector2i GetInternalResolution();
 	void SetAspectRatio(int aspect) {m_aspectratio = aspect;}
-	void SetVSync(int vsync);
 
 	virtual std::wstring* BeginCapture();
 	virtual void EndCapture();

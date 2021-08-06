@@ -25,7 +25,6 @@
 
 GSDevice::GSDevice()
 	: m_wnd()
-	, m_vsync(false)
 	, m_rbswapped(false)
 	, m_backbuffer(NULL)
 	, m_merge(NULL)

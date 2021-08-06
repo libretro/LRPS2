@@ -54,15 +54,7 @@ void GSWndGL::FullContextInit()
 	PopulateGlFunction();
 }
 
-void GSWndGL::SetVSync(int vsync)
-{
-}
-
 GSWndRetroGL::GSWndRetroGL()
-{
-}
-
-void GSWndRetroGL::BindAPI()
 {
 }
 

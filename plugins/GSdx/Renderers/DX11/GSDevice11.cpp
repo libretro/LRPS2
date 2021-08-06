@@ -358,11 +358,6 @@ bool GSDevice11::Reset(int w, int h)
 	return true;
 }
 
-void GSDevice11::SetVSync(int vsync)
-{
-	m_vsync = vsync ? 1 : 0;
-}
-
 void GSDevice11::Flip()
 {
 //	if(!m_current)

@@ -518,7 +518,6 @@ public:
 	bool Create(const std::shared_ptr<GSWnd> &wnd);
 	bool Reset(int w, int h);
 	void Flip();
-	void SetVSync(int vsync);
 
 	void DrawPrimitive() final;
 	void DrawPrimitive(int offset, int count);

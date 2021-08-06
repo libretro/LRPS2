@@ -44,7 +44,6 @@
 static GSRenderer* s_gs = NULL;
 static void (*s_irq)() = NULL;
 static uint8* s_basemem = NULL;
-static int s_vsync = 0;
 
 EXPORT_C_(uint32) PS2EgetLibType()
 {
@@ -286,7 +285,6 @@ static int _GSopen(const char* title, GSRendererType renderer, int threads = -1)
 
 	s_gs->SetRegsMem(s_basemem);
 	s_gs->SetIrqCallback(s_irq);
-	s_gs->SetVSync(s_vsync);
 
 	if(!s_gs->CreateDevice(dev))
 	{
@@ -397,9 +395,6 @@ EXPORT_C_(int) GSopen(const char* title, int mt)
 	GSRendererType renderer = GSRendererType::Default;
 
 	// Legacy GUI expects to acquire vsync from the configuration files.
-
-	s_vsync = theApp.GetConfigI("vsync");
-
 	if(mt == 2)
 	{
 		// pcsx2 sent a switch renderer request
@@ -678,18 +673,8 @@ EXPORT_C GSsetFrameSkip(int frameskip)
 
 EXPORT_C GSsetVsync(int vsync)
 {
-	s_vsync = vsync;
-
-	if(s_gs)
-	{
-		s_gs->SetVSync(s_vsync);
-	}
 }
 
 EXPORT_C GSsetExclusive(int enabled)
 {
-	if(s_gs)
-	{
-		s_gs->SetVSync(s_vsync);
-	}
 }

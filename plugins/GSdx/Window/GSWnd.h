@@ -36,7 +36,6 @@ public:
 	virtual GSVector4i GetClientRect() = 0;
 
 	virtual void Flip() {};
-	virtual void SetVSync(int vsync) {};
 
 };
 
@@ -56,5 +55,4 @@ public:
 	virtual void* GetProcAddress(const char* name, bool opt = false) = 0;
 
 	virtual void Flip() = 0;
-	virtual void SetVSync(int vsync) final;
 };
