@@ -303,12 +303,6 @@ PADopen()
 }
 
 EXPORT_C_(void)
-PADsetSettingsDir(const char *dir) { }
-
-EXPORT_C_(void)
-PADsetLogDir(const char *dir) { }
-
-EXPORT_C_(void)
 PADclose()
 {
     _PADclose();

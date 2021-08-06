@@ -116,8 +116,6 @@ s32 CALLBACK GSopen(const char *Title, int multithread);
 s32 CALLBACK GSopen2(u32 flags);
 void CALLBACK GSclose();
 void CALLBACK GSshutdown();
-void CALLBACK GSsetSettingsDir(const char *dir);
-void CALLBACK GSsetLogDir(const char *dir);
 
 void CALLBACK GSvsync(int field);
 void CALLBACK GSgifTransfer(const u32 *pMem, u32 addr);
@@ -166,8 +164,6 @@ s32 CALLBACK PADinit(u32 flags);
 s32 CALLBACK PADopen();
 void CALLBACK PADclose();
 void CALLBACK PADshutdown();
-void CALLBACK PADsetSettingsDir(const char *dir);
-void CALLBACK PADsetLogDir(const char *dir);
 s32 CALLBACK PADfreeze(int mode, freezeData *data);
 
 
@@ -214,8 +210,6 @@ s32 CALLBACK DEV9init();
 s32 CALLBACK DEV9open();
 void CALLBACK DEV9close();
 void CALLBACK DEV9shutdown();
-void CALLBACK DEV9setSettingsDir(const char *dir);
-void CALLBACK DEV9setLogDir(const char *dir);
 void CALLBACK DEV9keyEvent(keyEvent *ev);
 
 u8 CALLBACK DEV9read8(u32 addr);
@@ -252,8 +246,6 @@ s32 CALLBACK USBinit();
 s32 CALLBACK USBopen();
 void CALLBACK USBclose();
 void CALLBACK USBshutdown();
-void CALLBACK USBsetSettingsDir(const char *dir);
-void CALLBACK USBsetLogDir(const char *dir);
 void CALLBACK USBkeyEvent(keyEvent *ev);
 
 u8 CALLBACK USBread8(u32 addr);

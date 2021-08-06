@@ -197,9 +197,7 @@ struct LegacyPluginAPI_Common
 	void (CALLBACK* Shutdown)();
 
 	s32  (CALLBACK* Freeze)(int mode, freezeData *data);
-	s32  (CALLBACK* Test)();
 	void (CALLBACK* Configure)();
-	void (CALLBACK* About)();
 
 	LegacyPluginAPI_Common()
 	{
@@ -273,7 +271,6 @@ protected:
 		void BindCommon( PluginsEnum_t pid );
 	};
 
-	const PS2E_LibraryAPI*		m_mcdPlugin;
 	Threading::MutexRecursive	m_mtx_PluginStatus;
 
 public:		// hack until we unsuck plugins...

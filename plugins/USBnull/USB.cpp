@@ -37,10 +37,6 @@ void USBLogInit()
 {
 }
 
-EXPORT_C_(void)
-USBsetLogDir(const char *dir)
-{
-}
 #ifndef BUILTIN_USB_PLUGIN
 EXPORT_C_(u32)
 PS2EgetLibType()
@@ -251,11 +247,6 @@ EXPORT_C_(void)
 USBsetRAM(void *mem)
 {
     ram = (s8 *)mem;
-}
-
-EXPORT_C_(void)
-USBsetSettingsDir(const char *dir)
-{
 }
 
 // extended funcs

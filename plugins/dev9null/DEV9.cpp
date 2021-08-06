@@ -50,10 +50,6 @@ void DEV9LogInit()
 {
 }
 
-EXPORT_C_(void)
-DEV9setLogDir(const char *dir)
-{
-}
 #ifndef BUILTIN_DEV9_PLUGIN
 EXPORT_C_(u32)
 PS2EgetLibType()
@@ -296,11 +292,6 @@ DEV9irqHandler(void)
 {
     // Pass it to pcsx2.
     return (DEV9handler)_DEV9irqHandler;
-}
-
-EXPORT_C_(void)
-DEV9setSettingsDir(const char *dir)
-{
 }
 
 EXPORT_C_(void)

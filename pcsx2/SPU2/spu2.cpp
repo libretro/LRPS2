@@ -60,14 +60,6 @@ void SPU2WriteMemAddr(int core, u32 value)
 	Cores[core].MADR = value;
 }
 
-void SPU2setSettingsDir(const char* dir)
-{
-}
-
-void SPU2setLogDir(const char* dir)
-{
-}
-
 void SPU2readDMA4Mem(u16* pMem, u32 size) // size now in 16bit units
 {
 	if (cyclePtr != nullptr)

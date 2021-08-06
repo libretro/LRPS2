@@ -120,17 +120,9 @@ PS2EgetLibVersion2(u32 type) {
 #endif
 
 
-// Warning: The below log function is SLOW. Better fix it before attempting to use it.
-int Log = 0;
-
 EXPORT_C_(s32)
 DEV9init()
 {
-
-#ifdef DEV9_LOG_ENABLE
-	LogInit();
-	DEV9_LOG("DEV9init\n");
-#endif
 	memset(&dev9, 0, sizeof(dev9));
 	DEV9_LOG("DEV9init2\n");
 
@@ -671,17 +663,6 @@ DEV9async(u32 cycles)
 }
 
 // extended funcs
-
-EXPORT_C_(void)
-DEV9setSettingsDir(const char* dir)
-{
-}
-
-EXPORT_C_(void)
-DEV9setLogDir(const char* dir)
-{
-}
-
 EXPORT_C_(s32)
 DEV9freeze(int mode, freezeData *data)
 {
