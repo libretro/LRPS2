@@ -182,8 +182,6 @@ struct Pcsx2Config
 		GSOptions();
 		void LoadSave( IniInterface& conf );
 
-		int GetVsync() const;
-
 		bool operator ==( const GSOptions& right ) const
 		{
 			return

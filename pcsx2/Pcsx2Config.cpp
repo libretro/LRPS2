@@ -213,11 +213,6 @@ void Pcsx2Config::GSOptions::LoadSave( IniInterface& ini )
 	IniEntry( FramesToSkip );
 }
 
-int Pcsx2Config::GSOptions::GetVsync() const
-{
-	return 0;
-}
-
 const wxChar *const tbl_GamefixNames[] =
 {
 	L"VuAddSub",
