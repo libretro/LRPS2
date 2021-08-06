@@ -17,6 +17,7 @@
 #include "Common.h"
 #include "gui/App.h"
 #include "IopBios.h"
+#include "IopDma.h"
 #include "R5900.h"
 
 #include "Counters.h"
@@ -34,12 +35,23 @@
 
 #include "IopBios.h"
 
+DEV9handler dev9Handler;
+USBhandler usbHandler;
+
 static void modules_close(void)
 {
 	DoCDVDclose();
 	FWclose();
 	SPU2close();
 	PADclose();
+	/* DEV9 */
+	DEV9close();
+	dev9Handler = NULL;
+
+	/* USB */
+	USBclose();
+	usbHandler = NULL;
+
 	FileMcd_EmuClose();
 }
 
@@ -50,6 +62,20 @@ static void modules_open(bool isSuspended)
 	FWopen();
 	SPU2open((void*)pDsp);
 	PADopen( (void*)pDsp );
+
+	/* DEV9 */
+	dev9Handler = NULL;
+	DEV9open( (void*)pDsp );
+	DEV9irqCallback( dev9Irq );
+	dev9Handler = DEV9irqHandler();
+
+	/* USB */
+	usbHandler = NULL;
+
+	USBopen((void*)pDsp);
+	USBirqCallback( usbIrq );
+	usbHandler = USBirqHandler();
+
 	FileMcd_EmuOpen();
 }
 
@@ -57,12 +83,16 @@ static void modules_init(void)
 {
 	SPU2init();
 	PADinit(0);
+	USBinit();
+	DEV9init();
 }
 
 static void modules_shutdown(void)
 {
 	SPU2shutdown();
 	PADshutdown();
+	USBshutdown();
+	DEV9shutdown();
 }
 
 // --------------------------------------------------------------------------------------

@@ -23,8 +23,6 @@ class IniInterface;
 enum PluginsEnum_t
 {
 	PluginId_GS = 0,
-	PluginId_USB,
-	PluginId_DEV9,
 	PluginId_Count,
 
 	PluginId_AllocCount // Extra value for correct array allocation

@@ -33,9 +33,6 @@
 const PluginInfo tbl_PluginInfo[] =
 {
 	{ "GS",		PluginId_GS,	PS2E_LT_GS,		PS2E_GS_VERSION		},
-	{ "USB",	PluginId_USB,	PS2E_LT_USB,	PS2E_USB_VERSION	},
-	{ "DEV9",	PluginId_DEV9,	PS2E_LT_DEV9,	PS2E_DEV9_VERSION	},
-
 	{ NULL },
 };
 
@@ -68,42 +65,6 @@ static void CALLBACK fallback_configure() {}
 static void CALLBACK fallback_about() {}
 static s32  CALLBACK fallback_test() { return 0; }
 
-// DEV9
-#ifndef BUILTIN_DEV9_PLUGIN
-_DEV9open          DEV9open;
-_DEV9read8         DEV9read8;
-_DEV9read16        DEV9read16;
-_DEV9read32        DEV9read32;
-_DEV9write8        DEV9write8;
-_DEV9write16       DEV9write16;
-_DEV9write32       DEV9write32;
-
-_DEV9readDMA8Mem   DEV9readDMA8Mem;
-_DEV9writeDMA8Mem  DEV9writeDMA8Mem;
-
-_DEV9irqCallback   DEV9irqCallback;
-_DEV9irqHandler    DEV9irqHandler;
-_DEV9async         DEV9async;
-#endif
-
-// USB
-#ifndef BUILTIN_USB_PLUGIN
-_USBopen           USBopen;
-_USBread8          USBread8;
-_USBread16         USBread16;
-_USBread32         USBread32;
-_USBwrite8         USBwrite8;
-_USBwrite16        USBwrite16;
-_USBwrite32        USBwrite32;
-_USBasync          USBasync;
-
-_USBirqCallback    USBirqCallback;
-_USBirqHandler     USBirqHandler;
-_USBsetRAM         USBsetRAM;
-#endif
-
-DEV9handler dev9Handler;
-USBhandler usbHandler;
 uptr pDsp[2];
 
 // ----------------------------------------------------------------------------
@@ -275,13 +236,6 @@ void* StaticLibrary::GetSymbol(const wxString &name)
 	RETURN_SYMBOL(p##about)
 
 	RETURN_COMMON_SYMBOL(GS);
-#ifdef BUILTIN_DEV9_PLUGIN
-	RETURN_COMMON_SYMBOL(DEV9);
-#endif
-#ifdef BUILTIN_USB_PLUGIN
-	RETURN_COMMON_SYMBOL(USB);
-#endif
-
 
 #undef RETURN_COMMON_SYMBOL
 #undef RETURN_SYMBOL
@@ -306,12 +260,6 @@ SysCorePlugins::PluginStatus_t::PluginStatus_t( PluginsEnum_t _pid)
 
 	switch (_pid) {
 		case PluginId_GS:
-#ifdef BUILTIN_DEV9_PLUGIN
-		case PluginId_DEV9:
-#endif
-#ifdef BUILTIN_USB_PLUGIN
-		case PluginId_USB:
-#endif
 		case PluginId_Count:
 		default:
 			Lib			= new StaticLibrary(_pid);
@@ -421,29 +369,6 @@ bool SysCorePlugins::OpenPlugin_GS()
 	return true;
 }
 
-bool SysCorePlugins::OpenPlugin_DEV9()
-{
-	dev9Handler = NULL;
-
-	if( DEV9open( (void*)pDsp ) ) return false;
-	DEV9irqCallback( dev9Irq );
-	dev9Handler = DEV9irqHandler();
-	return true;
-}
-
-bool SysCorePlugins::OpenPlugin_USB()
-{
-	usbHandler = NULL;
-
-	if( USBopen((void*)pDsp) ) return false;
-	USBirqCallback( usbIrq );
-	usbHandler = USBirqHandler();
-	// iopMem is not initialized yet. Moved elsewhere
-	//if( USBsetRAM != NULL )
-	//	USBsetRAM(iopMem->Main);
-	return true;
-}
-
 void SysCorePlugins::Open( PluginsEnum_t pid )
 {
 	pxAssert( (uint)pid < PluginId_Count );
@@ -457,9 +382,6 @@ void SysCorePlugins::Open( PluginsEnum_t pid )
 	switch( pid )
 	{
 		case PluginId_GS:	result = OpenPlugin_GS();	break;
-		case PluginId_USB:	result = OpenPlugin_USB();	break;
-		case PluginId_DEV9:	result = OpenPlugin_DEV9();	break;
-
 		jNO_DEFAULT;
 	}
 	if( !result )
@@ -511,16 +433,6 @@ void SysCorePlugins::ClosePlugin_GS()
 	}
 }
 
-void SysCorePlugins::ClosePlugin_DEV9()
-{
-	_generalclose( PluginId_DEV9 );
-}
-
-void SysCorePlugins::ClosePlugin_USB()
-{
-	_generalclose( PluginId_USB );
-}
-
 void SysCorePlugins::Close( PluginsEnum_t pid )
 {
 	pxAssert( (uint)pid < PluginId_Count );
@@ -533,9 +445,6 @@ void SysCorePlugins::Close( PluginsEnum_t pid )
 	switch( pid )
 	{
 		case PluginId_GS:	ClosePlugin_GS();	break;
-		case PluginId_USB:	ClosePlugin_USB();	break;
-		case PluginId_DEV9:	ClosePlugin_DEV9();	break;
-		
 		jNO_DEFAULT;
 	}
 
