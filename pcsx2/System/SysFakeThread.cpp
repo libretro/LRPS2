@@ -12,7 +12,6 @@
  *  You should have received a copy of the GNU General Public License along with PCSX2.
  *  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifdef __LIBRETRO__
 #include "PrecompiledHeader.h"
 
 #include "System.h"
@@ -302,4 +301,3 @@ bool SysFakeThread::StateCheckInThread()
 	
 	return true;
 }
-#endif

@@ -34,6 +34,31 @@
 
 #include "IopBios.h"
 
+static void modules_close(void)
+{
+	DoCDVDclose();
+	FWclose();
+	SPU2close();
+}
+
+static void modules_open(bool isSuspended)
+{
+	if (isSuspended || !g_GameStarted)
+		DoCDVDopen();
+	FWopen();
+	SPU2open((void*)pDsp);
+}
+
+static void modules_init(void)
+{
+	SPU2init();
+}
+
+static void modules_shutdown(void)
+{
+	SPU2shutdown();
+}
+
 // --------------------------------------------------------------------------------------
 //  SysCoreThread *External Thread* Implementations
 //    (Called from outside the context of this thread)
@@ -82,7 +107,7 @@ void SysCoreThread::Start()
 	if (!GetCorePlugins().AreLoaded())
 		return;
 	GetCorePlugins().Init();
-	SPU2init();
+	modules_init();
 	_parent::Start();
 }
 
@@ -282,18 +307,13 @@ void SysCoreThread::ExecuteTaskInThread()
 void SysCoreThread::OnSuspendInThread()
 {
 	GetCorePlugins().Close();
-	DoCDVDclose();
-	FWclose();
-	SPU2close();
+	modules_close();
 }
 
 void SysCoreThread::OnResumeInThread(bool isSuspended)
 {
 	GetCorePlugins().Open();
-	if (isSuspended || !g_GameStarted)
-		DoCDVDopen();
-	FWopen();
-	SPU2open((void*)pDsp);
+	modules_open(isSuspended);
 }
 
 
@@ -308,12 +328,10 @@ void SysCoreThread::OnCleanupInThread()
 	R3000A::ioman::reset();
 	// FIXME: temporary workaround for deadlock on exit, which actually should be a crash
 	vu1Thread.WaitVU();
-	SPU2close();
-	DoCDVDclose();
-	FWclose();
 	GetCorePlugins().Close();
+	modules_close();
 	GetCorePlugins().Shutdown();
-	SPU2shutdown();
+	modules_shutdown();
 
 	_mm_setcsr(m_mxcsr_saved.bitmask);
 	_parent::OnCleanupInThread();
