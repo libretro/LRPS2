@@ -399,16 +399,13 @@ void SysCorePlugins::Open()
 	log_cb(RETRO_LOG_INFO, "Plugins opened successfully.\n");
 }
 
-void SysCorePlugins::_generalclose( PluginsEnum_t pid )
-{
-	ScopedLock lock( m_mtx_PluginStatus );
-	if( m_info[pid] ) m_info[pid]->CommonBindings.Close();
-}
-
 void SysCorePlugins::ClosePlugin_GS()
 {
 	if( GetMTGS().IsSelf() )
-		_generalclose( PluginId_GS );
+	{
+		ScopedLock lock( m_mtx_PluginStatus );
+		if( m_info[PluginId_GS] ) m_info[PluginId_GS]->CommonBindings.Close();
+	}
 	else
 	{
 		GetMTGS().Suspend();
@@ -683,12 +680,6 @@ void SysCorePlugins::FreezeIn( PluginsEnum_t pid, pxInputStream& infp )
 	infp.Read( fP.data, fP.size );
 	if (!DoFreeze(pid, FREEZE_LOAD, &fP))
 		throw Exception::ThawPluginFailure( pid );
-}
-
-void SysCorePlugins::Configure( PluginsEnum_t pid )
-{
-	ScopedLock lock( m_mtx_PluginStatus );
-	if( m_info[pid] ) m_info[pid]->CommonBindings.Configure();
 }
 
 bool SysCorePlugins::AreLoaded() const

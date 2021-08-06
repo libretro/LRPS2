@@ -197,7 +197,6 @@ struct LegacyPluginAPI_Common
 	void (CALLBACK* Shutdown)();
 
 	s32  (CALLBACK* Freeze)(int mode, freezeData *data);
-	void (CALLBACK* Configure)();
 
 	LegacyPluginAPI_Common()
 	{
@@ -309,8 +308,6 @@ public:
 	virtual void Freeze( PluginsEnum_t pid, SaveStateBase& state );
 	virtual bool DoFreeze( PluginsEnum_t pid, int mode, freezeData* data );
 
-	virtual void Configure( PluginsEnum_t pid );
-
 protected:
 	virtual bool NeedsClose() const;
 	virtual bool NeedsOpen() const;
@@ -322,9 +319,6 @@ protected:
 	virtual bool NeedsUnload() const;
 
 	virtual bool OpenPlugin_GS();
-
-	void _generalclose( PluginsEnum_t pid );
-
 	virtual void ClosePlugin_GS();
 
 	friend class SysMtgsThread;

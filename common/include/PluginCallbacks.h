@@ -606,25 +606,6 @@ typedef struct _PS2E_ComponentAPI
     //   No locking is necessary.
     void(PS2E_CALLBACK *Thaw)(PS2E_THISPTR thisptr, const PS2E_FreezeData *src);
 
-    // Configure
-    // The plugin should open a modal dialog box with plugin-specific settings and prop-
-    // erties.  This function can be NULL, in which case the user's Configure option for
-    // this plugin is grayed out.
-    //
-    // All emulation is suspended and the plugin's state is saved to memory prior to this
-    // function being called.  Configure is only called outside the context of EmuOpen()
-    // (after a call to EmuClose()).
-    //
-    // Plugin authors should ensure to re-read and re-apply all settings on EmuOpen(),
-    // which will ensure that any user changes will be applied immediately.  For changes
-    // that can be applied without emulation suspension, see/use the GUI extensions for
-    // menu and toolbar shortcuts.
-    //
-    // Thread Safety:
-    //   Always called from the GUI thread, with emulation in a halted state (no locks
-    //   needed).
-    void(PS2E_CALLBACK *Configure)(PS2E_THISPTR thisptr);
-
     // GetLastError
     // This is an optional method with allows the emulator to retrieve extended formatted
     // error information about a recent failed plugin call.  If implemented by the plugin,
