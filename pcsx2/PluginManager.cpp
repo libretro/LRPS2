@@ -27,52 +27,6 @@
 
 #include "svnrev.h"
 
-SysPluginBindings SysPlugins;
-
-bool SysPluginBindings::McdIsPresent( uint port, uint slot )
-{
-	return !!Mcd->McdIsPresent( (PS2E_THISPTR) Mcd, port, slot );
-}
-
-void SysPluginBindings::McdGetSizeInfo( uint port, uint slot, PS2E_McdSizeInfo& outways )
-{
-	if( Mcd->McdGetSizeInfo )
-		Mcd->McdGetSizeInfo( (PS2E_THISPTR) Mcd, port, slot, &outways );
-}
-
-bool SysPluginBindings::McdIsPSX( uint port, uint slot )
-{
-	return Mcd->McdIsPSX( (PS2E_THISPTR) Mcd, port, slot );
-}
-
-void SysPluginBindings::McdRead( uint port, uint slot, u8 *dest, u32 adr, int size )
-{
-	Mcd->McdRead( (PS2E_THISPTR) Mcd, port, slot, dest, adr, size );
-}
-
-void SysPluginBindings::McdSave( uint port, uint slot, const u8 *src, u32 adr, int size )
-{
-	Mcd->McdSave( (PS2E_THISPTR) Mcd, port, slot, src, adr, size );
-}
-
-void SysPluginBindings::McdEraseBlock( uint port, uint slot, u32 adr )
-{
-	Mcd->McdEraseBlock( (PS2E_THISPTR) Mcd, port, slot, adr );
-}
-
-u64 SysPluginBindings::McdGetCRC( uint port, uint slot )
-{
-	return Mcd->McdGetCRC( (PS2E_THISPTR) Mcd, port, slot );
-}
-
-void SysPluginBindings::McdNextFrame( uint port, uint slot ) {
-	Mcd->McdNextFrame( (PS2E_THISPTR) Mcd, port, slot );
-}
-
-bool SysPluginBindings::McdReIndex( uint port, uint slot, const wxString& filter ) {
-	return Mcd->McdReIndex( (PS2E_THISPTR) Mcd, port, slot, filter );
-}
-
 // ----------------------------------------------------------------------------
 // Yay, order of this array shouldn't be important. :)
 //

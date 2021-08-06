@@ -21,6 +21,7 @@
 #include "PS2Edefs.h"
 #include "PluginCallbacks.h"
 
+#include "gui/MemoryCardFile.h"
 #include "Utilities/Threading.h"
 
 #ifdef _MSC_VER
@@ -211,39 +212,6 @@ struct LegacyPluginAPI_Common
 
 class SaveStateBase;
 class SysMtgsThread;
-
-// --------------------------------------------------------------------------------------
-//  PluginBindings
-// --------------------------------------------------------------------------------------
-// This structure is intended to be the "future" of PCSX2's plugin interface, and will hopefully
-// make the current SysCorePlugins largely obsolete (with the exception of the general Load/Unload
-// management facilities)
-//
-class SysPluginBindings
-{
-protected:
-	PS2E_ComponentAPI_Mcd* Mcd;
-
-public:
-	SysPluginBindings()
-	{
-		Mcd = NULL;
-	}
-
-	bool McdIsPresent( uint port, uint slot );
-	void McdGetSizeInfo( uint port, uint slot, PS2E_McdSizeInfo& outways );
-	bool McdIsPSX( uint port, uint slot );
-	void McdRead( uint port, uint slot, u8 *dest, u32 adr, int size );
-	void McdSave( uint port, uint slot, const u8 *src, u32 adr, int size );
-	void McdEraseBlock( uint port, uint slot, u32 adr );
-	u64  McdGetCRC( uint port, uint slot );
-	void McdNextFrame( uint port, uint slot );
-	bool McdReIndex( uint port, uint slot, const wxString& filter );
-
-	friend class SysCorePlugins;
-};
-
-extern SysPluginBindings SysPlugins;
 
 // --------------------------------------------------------------------------------------
 //  SysCorePlugins Class
