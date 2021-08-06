@@ -353,11 +353,13 @@ void UpdateVSyncRate()
 		vSyncInfo.VideoMode = gsVideoMode;
 		vSyncInfoCalc( &vSyncInfo, framerate, scanlines );
 		if(ActiveVideoMode)
-			log_cb(RETRO_LOG_INFO, "(UpdateVSyncRate) Mode Changed to %s.\n", ReportVideoMode());
+		{
+			if (isCustom)
+				log_cb(RETRO_LOG_INFO, "(UpdateVSyncRate) Mode Changed to %s with user configured refreshrate: %.02f Hz.\n", ReportVideoMode(), 2 * framerate.ToFloat());
+			else
+				log_cb(RETRO_LOG_INFO, "(UpdateVSyncRate) Mode Changed to %s.\n", ReportVideoMode());
+		}
 		
-		if( isCustom && ActiveVideoMode)
-			log_cb(RETRO_LOG_INFO, "... with user configured refresh rate: %.02f Hz\n", 2 * framerate.ToFloat() );
-
 		hsyncCounter.CycleT = vSyncInfo.hRender;	// Amount of cycles before the counter will be updated
 		vsyncCounter.CycleT = vSyncInfo.Render;		// Amount of cycles before the counter will be updated
 
