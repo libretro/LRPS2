@@ -22,6 +22,7 @@
 #include "GS.h"
 #include "Gif.h"
 
+#include "gui/MemoryCardFile.h"
 #include "Utilities/pxStreams.h"
 
 #include "svnrev.h"
@@ -355,7 +356,7 @@ void* StaticLibrary::GetSymbol(const wxString &name)
 //  PluginStatus_t Implementations
 // ---------------------------------------------------------------------------------
 SysCorePlugins::SysCorePlugins() :
-	m_mcdPlugin(NULL), m_SettingsFolder(), m_LogFolder(), m_mtx_PluginStatus(), m_mcdOpen(false)
+	m_SettingsFolder(), m_LogFolder(), m_mtx_PluginStatus(), m_mcdOpen(false)
 {
 }
 
@@ -477,13 +478,6 @@ void SysCorePlugins::Load( )
 		{ 0,0,0,0,0,0,0,0 },
 	};
 
-	m_mcdPlugin = FileMcd_InitAPI( &myself );
-	if( m_mcdPlugin == NULL )
-	{
-		// fixme: use plugin's GetLastError (not implemented yet!)
-		throw Exception::PluginLoadError( PluginId_Mcd ).SetDiagMsg(L"Internal Memorycard Plugin failed to load.");
-	}
-
 	SendLogFolder();
 	SendSettingsFolder();
 }
@@ -559,9 +553,7 @@ bool SysCorePlugins::OpenPlugin_Mcd()
 {
 	ScopedLock lock( m_mtx_PluginStatus );
 
-	// [TODO] Fix up and implement PS2E_SessionInfo here!!  (the currently NULL parameter)
-	if( SysPlugins.Mcd )
-		SysPlugins.Mcd->Base.EmuOpen( (PS2E_THISPTR) SysPlugins.Mcd, NULL );
+	FileMcd_EmuOpen();
 
 	return true;
 }
@@ -662,7 +654,7 @@ void SysCorePlugins::ClosePlugin_USB()
 void SysCorePlugins::ClosePlugin_Mcd()
 {
 	ScopedLock lock( m_mtx_PluginStatus );
-	if( SysPlugins.Mcd ) SysPlugins.Mcd->Base.EmuClose( (PS2E_THISPTR) SysPlugins.Mcd );
+	FileMcd_EmuClose();
 }
 
 void SysCorePlugins::Close( PluginsEnum_t pid )
@@ -757,17 +749,6 @@ bool SysCorePlugins::Init()
 		Init( pi->id );
 	});
 
-	if( SysPlugins.Mcd == NULL )
-	{
-		SysPlugins.Mcd = (PS2E_ComponentAPI_Mcd*)m_mcdPlugin->NewComponentInstance( PS2E_TYPE_Mcd );
-		if( SysPlugins.Mcd == NULL )
-		{
-			// fixme: use plugin's GetLastError (not implemented yet!)
-			throw Exception::PluginInitError( PluginId_Mcd )
-				.SetBothMsgs(L"Internal Memorycard Plugin failed to initialize.");
-		}
-	}
-
 	log_cb(RETRO_LOG_INFO, "Plugins initialized successfully.\n" );
 
 	return true;
@@ -801,12 +782,6 @@ bool SysCorePlugins::Shutdown()
 	}
 
 	// More memorycard hacks!!
-
-	if( (SysPlugins.Mcd != NULL) && (m_mcdPlugin != NULL) )
-	{
-		m_mcdPlugin->DeleteComponentInstance( (PS2E_THISPTR)SysPlugins.Mcd );
-		SysPlugins.Mcd = NULL;
-	}
 
 	log_cb(RETRO_LOG_INFO, "Plugins shutdown successfully.\n");
 	
