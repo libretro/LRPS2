@@ -441,10 +441,15 @@ static __fi void VSyncEnd(u32 sCycle)
 	psxVBlankEnd(); // psxCounters vBlank End
 	if (gates) rcntEndGate(true, sCycle); // Counters End Gate Code
 
+	// LIBRETRO NOTE: We don't implement FolderMemoryCard, so
+	// we assume we don't need to do this since NextFrame is
+	// a stub in MemoryCardFile
+#if 0
 	// FolderMemoryCard needs information on how much time has passed since the last write
 	// Call it every 60 frames
 	if (!(g_FrameCount % 60))
 		sioNextFrame();
+#endif
 
 	// This doesn't seem to be needed here.  Games only seem to break with regard to the
 	// vsyncstart irq.
