@@ -37,9 +37,6 @@ const PluginInfo tbl_PluginInfo[] =
 	{ "DEV9",	PluginId_DEV9,	PS2E_LT_DEV9,	PS2E_DEV9_VERSION	},
 
 	{ NULL },
-
-	// See PluginEnums_t for details on the MemoryCard plugin hack.
-	{ "Mcd",	PluginId_Mcd,	0,	0	},
 };
 
 typedef void CALLBACK VoidMethod();
@@ -447,15 +444,6 @@ bool SysCorePlugins::OpenPlugin_USB()
 	return true;
 }
 
-bool SysCorePlugins::OpenPlugin_Mcd()
-{
-	ScopedLock lock( m_mtx_PluginStatus );
-
-	FileMcd_EmuOpen();
-
-	return true;
-}
-
 void SysCorePlugins::Open( PluginsEnum_t pid )
 {
 	pxAssert( (uint)pid < PluginId_Count );
@@ -504,9 +492,6 @@ void SysCorePlugins::Open()
 	});
 	GetMTGS().WaitForOpen();
 
-	log_cb(RETRO_LOG_DEBUG, "Opening Memorycards\n");
-	OpenPlugin_Mcd();
-
 	log_cb(RETRO_LOG_INFO, "Plugins opened successfully.\n");
 }
 
@@ -536,12 +521,6 @@ void SysCorePlugins::ClosePlugin_USB()
 	_generalclose( PluginId_USB );
 }
 
-void SysCorePlugins::ClosePlugin_Mcd()
-{
-	ScopedLock lock( m_mtx_PluginStatus );
-	FileMcd_EmuClose();
-}
-
 void SysCorePlugins::Close( PluginsEnum_t pid )
 {
 	pxAssert( (uint)pid < PluginId_Count );
@@ -556,7 +535,6 @@ void SysCorePlugins::Close( PluginsEnum_t pid )
 		case PluginId_GS:	ClosePlugin_GS();	break;
 		case PluginId_USB:	ClosePlugin_USB();	break;
 		case PluginId_DEV9:	ClosePlugin_DEV9();	break;
-		case PluginId_Mcd:	ClosePlugin_Mcd();	break;
 		
 		jNO_DEFAULT;
 	}
@@ -573,9 +551,6 @@ void SysCorePlugins::Close()
 	// ensures the GS gets closed last.
 
 	log_cb(RETRO_LOG_INFO, "Closing plugins...\n" );
-
-	log_cb(RETRO_LOG_DEBUG, "Closing Memorycards\n");
-	ClosePlugin_Mcd();
 
 	for( int i=PluginId_Count-1; i>=0; --i )
 		Close( tbl_PluginInfo[i].id );

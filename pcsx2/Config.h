@@ -27,11 +27,6 @@ enum PluginsEnum_t
 	PluginId_DEV9,
 	PluginId_Count,
 
-	// Memorycard plugin support is preliminary, and is only hacked/hardcoded in at this
-	// time.  So it's placed afer PluginId_Count so that it doesn't show up in the conf
-	// screens or other plugin tables.
-
-	PluginId_Mcd,
 	PluginId_AllocCount // Extra value for correct array allocation
 };
 

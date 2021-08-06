@@ -40,6 +40,7 @@ static void modules_close(void)
 	FWclose();
 	SPU2close();
 	PADclose();
+	FileMcd_EmuClose();
 }
 
 static void modules_open(bool isSuspended)
@@ -49,6 +50,7 @@ static void modules_open(bool isSuspended)
 	FWopen();
 	SPU2open((void*)pDsp);
 	PADopen( (void*)pDsp );
+	FileMcd_EmuOpen();
 }
 
 static void modules_init(void)

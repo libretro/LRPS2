@@ -327,14 +327,12 @@ protected:
 	virtual bool OpenPlugin_GS();
 	virtual bool OpenPlugin_DEV9();
 	virtual bool OpenPlugin_USB();
-	virtual bool OpenPlugin_Mcd();
 
 	void _generalclose( PluginsEnum_t pid );
 
 	virtual void ClosePlugin_GS();
 	virtual void ClosePlugin_DEV9();
 	virtual void ClosePlugin_USB();
-	virtual void ClosePlugin_Mcd();
 
 	friend class SysMtgsThread;
 };
@@ -371,10 +369,6 @@ static bool IfPlugins(const Func& f)
 // them to extend the class and override virtual methods).
 
 extern SysCorePlugins& GetCorePlugins();
-
-// Hack to expose internal MemoryCard plugin:
-
-extern "C" const PS2E_LibraryAPI* FileMcd_InitAPI( const PS2E_EmulatorInfo* emuinfo );
 
 // Per ChickenLiver, this is being used to pass the GS plugins window handle to the Pad plugins.
 // So a rename to pDisplay is in the works, but it will not, in fact, be removed.
