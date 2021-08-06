@@ -33,7 +33,6 @@
 const PluginInfo tbl_PluginInfo[] =
 {
 	{ "GS",		PluginId_GS,	PS2E_LT_GS,		PS2E_GS_VERSION		},
-	{ "PAD",	PluginId_PAD,	PS2E_LT_PAD,	PS2E_PAD_VERSION	},
 	{ "USB",	PluginId_USB,	PS2E_LT_USB,	PS2E_USB_VERSION	},
 	{ "DEV9",	PluginId_DEV9,	PS2E_LT_DEV9,	PS2E_DEV9_VERSION	},
 
@@ -109,11 +108,6 @@ _USBsetRAM         USBsetRAM;
 DEV9handler dev9Handler;
 USBhandler usbHandler;
 uptr pDsp[2];
-
-static s32 CALLBACK _hack_PADinit()
-{
-	return PADinit( 3 );
-}
 
 // ----------------------------------------------------------------------------
 // Important: Contents of this array must match the order of the contents of the
@@ -284,7 +278,6 @@ void* StaticLibrary::GetSymbol(const wxString &name)
 	RETURN_SYMBOL(p##about)
 
 	RETURN_COMMON_SYMBOL(GS);
-	RETURN_COMMON_SYMBOL(PAD);
 #ifdef BUILTIN_DEV9_PLUGIN
 	RETURN_COMMON_SYMBOL(DEV9);
 #endif
@@ -316,7 +309,6 @@ SysCorePlugins::PluginStatus_t::PluginStatus_t( PluginsEnum_t _pid)
 
 	switch (_pid) {
 		case PluginId_GS:
-		case PluginId_PAD:
 #ifdef BUILTIN_DEV9_PLUGIN
 		case PluginId_DEV9:
 #endif
@@ -390,8 +382,6 @@ void SysCorePlugins::Load( )
 		Load( pi->id );
 	});
 
-	m_info[PluginId_PAD]->CommonBindings.Init = _hack_PADinit;
-
 	log_cb(RETRO_LOG_INFO, "Plugins loaded successfully.\n" );
 }
 
@@ -432,11 +422,6 @@ bool SysCorePlugins::OpenPlugin_GS()
 {
 	GetMTGS().Resume();
 	return true;
-}
-
-bool SysCorePlugins::OpenPlugin_PAD()
-{
-	return !PADopen( (void*)pDsp );
 }
 
 bool SysCorePlugins::OpenPlugin_DEV9()
@@ -484,7 +469,6 @@ void SysCorePlugins::Open( PluginsEnum_t pid )
 	switch( pid )
 	{
 		case PluginId_GS:	result = OpenPlugin_GS();	break;
-		case PluginId_PAD:	result = OpenPlugin_PAD();	break;
 		case PluginId_USB:	result = OpenPlugin_USB();	break;
 		case PluginId_DEV9:	result = OpenPlugin_DEV9();	break;
 
@@ -534,19 +518,12 @@ void SysCorePlugins::_generalclose( PluginsEnum_t pid )
 
 void SysCorePlugins::ClosePlugin_GS()
 {
-	// old-skool: force-close PAD before GS, because the PAD depends on the GS window.
-
 	if( GetMTGS().IsSelf() )
 		_generalclose( PluginId_GS );
 	else
 	{
 		GetMTGS().Suspend();
 	}
-}
-
-void SysCorePlugins::ClosePlugin_PAD()
-{
-	_generalclose( PluginId_PAD );
 }
 
 void SysCorePlugins::ClosePlugin_DEV9()
@@ -577,7 +554,6 @@ void SysCorePlugins::Close( PluginsEnum_t pid )
 	switch( pid )
 	{
 		case PluginId_GS:	ClosePlugin_GS();	break;
-		case PluginId_PAD:	ClosePlugin_PAD();	break;
 		case PluginId_USB:	ClosePlugin_USB();	break;
 		case PluginId_DEV9:	ClosePlugin_DEV9();	break;
 		case PluginId_Mcd:	ClosePlugin_Mcd();	break;

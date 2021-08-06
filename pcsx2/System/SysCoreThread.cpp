@@ -39,6 +39,7 @@ static void modules_close(void)
 	DoCDVDclose();
 	FWclose();
 	SPU2close();
+	PADclose();
 }
 
 static void modules_open(bool isSuspended)
@@ -47,16 +48,19 @@ static void modules_open(bool isSuspended)
 		DoCDVDopen();
 	FWopen();
 	SPU2open((void*)pDsp);
+	PADopen( (void*)pDsp );
 }
 
 static void modules_init(void)
 {
 	SPU2init();
+	PADinit(0);
 }
 
 static void modules_shutdown(void)
 {
 	SPU2shutdown();
+	PADshutdown();
 }
 
 // --------------------------------------------------------------------------------------

@@ -325,7 +325,6 @@ protected:
 	virtual bool NeedsUnload() const;
 
 	virtual bool OpenPlugin_GS();
-	virtual bool OpenPlugin_PAD();
 	virtual bool OpenPlugin_DEV9();
 	virtual bool OpenPlugin_USB();
 	virtual bool OpenPlugin_Mcd();
@@ -333,7 +332,6 @@ protected:
 	void _generalclose( PluginsEnum_t pid );
 
 	virtual void ClosePlugin_GS();
-	virtual void ClosePlugin_PAD();
 	virtual void ClosePlugin_DEV9();
 	virtual void ClosePlugin_USB();
 	virtual void ClosePlugin_Mcd();
