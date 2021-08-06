@@ -365,8 +365,3 @@ static bool IfPlugins(const Func& f)
 // them to extend the class and override virtual methods).
 
 extern SysCorePlugins& GetCorePlugins();
-
-// Per ChickenLiver, this is being used to pass the GS plugins window handle to the Pad plugins.
-// So a rename to pDisplay is in the works, but it will not, in fact, be removed.
-extern uptr pDsp[2];
-

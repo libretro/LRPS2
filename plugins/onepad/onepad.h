@@ -94,7 +94,7 @@ enum gamePadValues {
 #define EXPORT_C_(type) extern "C" type CALLBACK
 extern keyEvent event;
 
-s32 _PADopen(void *pDsp);
+s32 _PADopen();
 void _PADclose();
 void PADsetMode(int pad, int mode);
 

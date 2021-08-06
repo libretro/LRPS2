@@ -97,11 +97,8 @@ DEV9shutdown()
 }
 
 EXPORT_C_(s32)
-DEV9open(void *pDsp)
+DEV9open()
 {
-#ifndef __LIBRETRO__
-    g_plugin_log.WriteLn("Opening Dev9null.");
-#endif
     // Get anything ready we need to. Opening and creating hard
     // drive files, for example.
     return 0;

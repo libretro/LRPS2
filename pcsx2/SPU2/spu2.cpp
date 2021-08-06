@@ -239,7 +239,7 @@ s32 SPU2init()
 	return 0;
 }
 
-s32 SPU2open(void* pDsp)
+s32 SPU2open()
 {
 	ScopedLock lock(mtx_SPU2Status);
 	if (IsOpened)

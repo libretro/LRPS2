@@ -141,21 +141,8 @@ void CALLBACK USBshutdown() {
 
 }
 
-s32 CALLBACK USBopen(void *pDsp) {
+s32 CALLBACK USBopen() {
 	USB_LOG("USBopen\n");
-
-	HWND hWnd=(HWND)pDsp;
-
-	if (!IsWindow (hWnd) && !IsBadReadPtr ((u32*)hWnd, 4))
-		hWnd = *(HWND*)hWnd;
-	if (!IsWindow (hWnd))
-		hWnd = NULL;
-	else
-	{
-		while (GetWindowLong (hWnd, GWL_STYLE) & WS_CHILD)
-			hWnd = GetParent (hWnd);
-	}
-	gsWindowHandle = hWnd;
 
 	return 0;
 }

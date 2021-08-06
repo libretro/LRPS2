@@ -33,7 +33,6 @@ public:
 
 	virtual bool Create() = 0;
 
-	virtual void* GetDisplay() = 0;
 	virtual GSVector4i GetClientRect() = 0;
 
 	virtual void Flip() {};
@@ -52,7 +51,6 @@ public:
 
 	virtual bool Create() = 0;
 
-	virtual void* GetDisplay() = 0;
 	virtual GSVector4i GetClientRect() = 0;
 
 	virtual void* GetProcAddress(const char* name, bool opt = false) = 0;

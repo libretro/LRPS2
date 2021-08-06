@@ -81,7 +81,7 @@ USBshutdown()
 }
 
 EXPORT_C_(s32)
-USBopen(void *pDsp)
+USBopen()
 {
     // Take care of anything else we need on opening, other then initialization.
     return 0;

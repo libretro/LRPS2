@@ -81,8 +81,6 @@ u8 eeprom[] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
-u32 *iopPC;
-
 const unsigned char version  = PS2E_DEV9_VERSION;
 const unsigned char revision = 0;
 const unsigned char build    = 4;    // increase that with each version
@@ -216,13 +214,11 @@ DEV9shutdown() {
 }
 
 EXPORT_C_(s32)
-DEV9open(void *pDsp)
+DEV9open()
 {
 	DEV9_LOG("DEV9open\n");
 	DEV9_LOG("open r+: %s\n", config.Hdd);
 	config.HddSize = 8*1024;
-	
-	iopPC = (u32*)pDsp;
 	
 #ifdef ENABLE_ATA
 	ata_init();

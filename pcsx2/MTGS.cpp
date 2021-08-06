@@ -199,7 +199,7 @@ void SysMtgsThread::OpenGS()
 	GSsetBaseMem( RingBuffer.Regs );
 	GSirqCallback( dummyIrqCallback );
 
-	GSopen2( (void*)pDsp, 1 | (renderswitch ? 4 : 0) );
+	GSopen2(1 | (renderswitch ? 4 : 0) );
 
 	GSsetVsync(EmuConfig.GS.GetVsync());
 

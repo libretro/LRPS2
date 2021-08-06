@@ -112,8 +112,8 @@ void CALLBACK GSosdLog(const char *utf8, u32 color);
 void CALLBACK GSosdMonitor(const char *key, const char *value, u32 color);
 
 s32 CALLBACK GSinit();
-s32 CALLBACK GSopen(void *pDsp, const char *Title, int multithread);
-s32 CALLBACK GSopen2(void *pDsp, u32 flags);
+s32 CALLBACK GSopen(const char *Title, int multithread);
+s32 CALLBACK GSopen2(u32 flags);
 void CALLBACK GSclose();
 void CALLBACK GSshutdown();
 void CALLBACK GSsetSettingsDir(const char *dir);
@@ -170,7 +170,7 @@ s32 CALLBACK GStest();
 // basic funcs
 
 s32 CALLBACK PADinit(u32 flags);
-s32 CALLBACK PADopen(void *pDsp);
+s32 CALLBACK PADopen();
 void CALLBACK PADclose();
 void CALLBACK PADshutdown();
 void CALLBACK PADsetSettingsDir(const char *dir);
@@ -220,7 +220,7 @@ s32 CALLBACK PADtest();
 // NOTE: The read/write functions CANNOT use XMM/MMX regs
 // If you want to use them, need to save and restore current ones
 s32 CALLBACK DEV9init();
-s32 CALLBACK DEV9open(void *pDsp);
+s32 CALLBACK DEV9open();
 void CALLBACK DEV9close();
 void CALLBACK DEV9shutdown();
 void CALLBACK DEV9setSettingsDir(const char *dir);
@@ -260,7 +260,7 @@ s32 CALLBACK DEV9test();
 // basic funcs
 
 s32 CALLBACK USBinit();
-s32 CALLBACK USBopen(void *pDsp);
+s32 CALLBACK USBopen();
 void CALLBACK USBclose();
 void CALLBACK USBshutdown();
 void CALLBACK USBsetSettingsDir(const char *dir);
@@ -302,8 +302,8 @@ typedef char *(CALLBACK *_PS2EgetLibName)(void);
 // If you want to use them, need to save and restore current ones
 typedef void(CALLBACK *_GSosdLog)(const char *utf8, u32 color);
 typedef void(CALLBACK *_GSosdMonitor)(const char *key, const char *value, u32 color);
-typedef s32(CALLBACK *_GSopen)(void *pDsp, const char *Title, int multithread);
-typedef s32(CALLBACK *_GSopen2)(void *pDsp, u32 flags);
+typedef s32(CALLBACK *_GSopen)(const char *Title, int multithread);
+typedef s32(CALLBACK *_GSopen2)(u32 flags);
 typedef void(CALLBACK *_GSvsync)(int field);
 typedef void(CALLBACK *_GSgifTransfer)(const u32 *pMem, u32 size);
 typedef void(CALLBACK *_GSgifTransfer1)(u32 *pMem, u32 addr);
@@ -331,7 +331,7 @@ typedef void(CALLBACK *_GSmakeSnapshot2)(const char *path, int *, int);
 
 // PAD
 typedef s32(CALLBACK *_PADinit)(u32 flags);
-typedef s32(CALLBACK *_PADopen)(void *pDsp);
+typedef s32(CALLBACK *_PADopen)();
 typedef u8(CALLBACK *_PADstartPoll)(int pad);
 typedef u8(CALLBACK *_PADpoll)(u8 value);
 typedef u32(CALLBACK *_PADquery)(int pad);
@@ -344,7 +344,7 @@ typedef void(CALLBACK *_PADWriteEvent)(keyEvent &evt);
 // DEV9
 // NOTE: The read/write functions CANNOT use XMM/MMX regs
 // If you want to use them, need to save and restore current ones
-typedef s32(CALLBACK *_DEV9open)(void *pDsp);
+typedef s32(CALLBACK *_DEV9open)();
 typedef u8(CALLBACK *_DEV9read8)(u32 mem);
 typedef u16(CALLBACK *_DEV9read16)(u32 mem);
 typedef u32(CALLBACK *_DEV9read32)(u32 mem);
@@ -360,7 +360,7 @@ typedef void(CALLBACK *_DEV9async)(u32 cycles);
 // USB
 // NOTE: The read/write functions CANNOT use XMM/MMX regs
 // If you want to use them, need to save and restore current ones
-typedef s32(CALLBACK *_USBopen)(void *pDsp);
+typedef s32(CALLBACK *_USBopen)();
 typedef u8(CALLBACK *_USBread8)(u32 mem);
 typedef u16(CALLBACK *_USBread16)(u32 mem);
 typedef u32(CALLBACK *_USBread32)(u32 mem);

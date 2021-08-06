@@ -34,8 +34,6 @@ public:
 	void* GetProcAddress(const char* name, bool opt = false) final;
 
 	void Flip() final;
-
-	void* GetDisplay() final { return (void*)-1; } // GSopen1 API
 };
 
 class GSWndRetro : public GSWnd
@@ -46,7 +44,6 @@ public:
 
 	bool Create();
 
-	void* GetDisplay() {return (void*)-1;}
 	GSVector4i GetClientRect();
 
 	void Flip() final;

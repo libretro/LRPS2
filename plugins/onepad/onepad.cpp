@@ -183,7 +183,7 @@ PADtest()
 	return 0;
 }
 
-s32 _PADopen(void* pDsp)
+s32 _PADopen()
 {
 	return 0;
 }
@@ -308,9 +308,9 @@ PADshutdown()
 }
 
 EXPORT_C_(s32)
-PADopen(void *pDsp)
+PADopen()
 {
-    return _PADopen(pDsp);
+    return _PADopen();
 }
 
 EXPORT_C_(void)

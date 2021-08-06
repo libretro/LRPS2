@@ -150,10 +150,9 @@ EXPORT_C GSclose()
 	s_gs->m_dev = NULL;
 }
 
-static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int threads = -1)
+static int _GSopen(const char* title, GSRendererType renderer, int threads = -1)
 {
 	GSDevice* dev = NULL;
-	bool old_api = *dsp == NULL;
 	// Fresh start up or config file changed
 	if(renderer == GSRendererType::Undefined)
 	{
@@ -198,22 +197,13 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 					wnds.push_back(std::make_shared<GSWndRetro>());
 					break;
 			}
-#if defined(__unix__)
-			void *win_handle = (void*)((uptr*)(dsp)+1);
-#else
-			void *win_handle = *dsp;
-#endif
 
 			for(auto& wnd : wnds)
 			{
 				try
 				{
-					if (old_api)
-					{
-						// old-style API expects us to create and manage our own window:
-						wnd->Create();
-						*dsp = wnd->GetDisplay();
-					}
+					// old-style API expects us to create and manage our own window:
+					wnd->Create();
 
 					window = wnd; // Previous code will throw if window isn't supported
 
@@ -222,13 +212,6 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 				catch (GSDXRecoverableError)
 				{
 				}
-			}
-
-			if(!window)
-			{
-				GSclose();
-
-				return -1;
 			}
 		}
 
@@ -305,9 +288,6 @@ static int _GSopen(void** dsp, const char* title, GSRendererType renderer, int t
 	s_gs->SetIrqCallback(s_irq);
 	s_gs->SetVSync(s_vsync);
 
-	if(!old_api)
-		s_gs->SetMultithreaded(true);
-
 	if(!s_gs->CreateDevice(dev))
 	{
 		// This probably means the user has DX11 configured with a video card that is only DX9
@@ -337,7 +317,7 @@ EXPORT_C_(void) GSosdMonitor(const char *key, const char *value, uint32 color)
 {
 }
 
-EXPORT_C_(int) GSopen2(void** dsp, uint32 flags)
+EXPORT_C_(int) GSopen2(uint32 flags)
 {
 	static bool stored_toggle_state = false;
 	const bool toggle_state = !!(flags & 4);
@@ -404,7 +384,7 @@ EXPORT_C_(int) GSopen2(void** dsp, uint32 flags)
 	}
 	stored_toggle_state = toggle_state;
 
-	int retval = _GSopen(dsp, "", current_renderer);
+	int retval = _GSopen("", current_renderer);
 
 	if (s_gs != NULL)
 		s_gs->SetAspectRatio(0);	 // PCSX2 manages the aspect ratios
@@ -412,7 +392,7 @@ EXPORT_C_(int) GSopen2(void** dsp, uint32 flags)
 	return retval;
 }
 
-EXPORT_C_(int) GSopen(void** dsp, const char* title, int mt)
+EXPORT_C_(int) GSopen(const char* title, int mt)
 {
 	GSRendererType renderer = GSRendererType::Default;
 
@@ -432,9 +412,7 @@ EXPORT_C_(int) GSopen(void** dsp, const char* title, int mt)
 		renderer = static_cast<GSRendererType>(theApp.GetConfigI("Renderer"));
 	}
 
-	*dsp = NULL;
-
-	int retval = _GSopen(dsp, title, renderer);
+	int retval = _GSopen(title, renderer);
 
 	if(retval == 0 && s_gs)
 	{

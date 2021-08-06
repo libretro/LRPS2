@@ -60,19 +60,19 @@ static void modules_open(bool isSuspended)
 	if (isSuspended || !g_GameStarted)
 		DoCDVDopen();
 	FWopen();
-	SPU2open((void*)pDsp);
-	PADopen( (void*)pDsp );
+	SPU2open();
+	PADopen();
 
 	/* DEV9 */
 	dev9Handler = NULL;
-	DEV9open( (void*)pDsp );
+	DEV9open();
 	DEV9irqCallback( dev9Irq );
 	dev9Handler = DEV9irqHandler();
 
 	/* USB */
 	usbHandler = NULL;
 
-	USBopen((void*)pDsp);
+	USBopen();
 	USBirqCallback( usbIrq );
 	usbHandler = USBirqHandler();
 

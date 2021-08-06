@@ -65,8 +65,6 @@ static void CALLBACK fallback_configure() {}
 static void CALLBACK fallback_about() {}
 static s32  CALLBACK fallback_test() { return 0; }
 
-uptr pDsp[2];
-
 // ----------------------------------------------------------------------------
 // Important: Contents of this array must match the order of the contents of the
 // LegacyPluginAPI_Common structure defined in Plugins.h.
