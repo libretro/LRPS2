@@ -9,6 +9,3 @@ HINSTANCE hInst;
 
 void CALLBACK USBconfigure() {
 }
-
-void CALLBACK USBabout() {
-}

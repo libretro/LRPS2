@@ -1276,7 +1276,6 @@ typedef s32  (CALLBACK* _USBtest)();
 typedef void (CALLBACK* _USBabout)();
 
 //FW
-typedef s32  (CALLBACK* _FWinit)(char *configpath);
 typedef s32  (CALLBACK* _FWopen)(void *pDisplay);
 typedef void (CALLBACK* _FWclose)();
 typedef void (CALLBACK* _FWshutdown)();
@@ -1287,8 +1286,6 @@ typedef void (CALLBACK* _FWirqCallback)(void (*callback)());
 typedef void (CALLBACK* _FWkeyEvent)(keyEvent* ev);
 typedef s32  (CALLBACK* _FWfreeze)(int mode, freezeData *data);
 typedef void (CALLBACK* _FWconfigure)();
-typedef s32  (CALLBACK* _FWtest)();
-typedef void (CALLBACK* _FWabout)();
 
 // General
 extern _PS2EgetLibType PS2EgetLibType;

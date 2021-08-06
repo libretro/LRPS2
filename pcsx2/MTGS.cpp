@@ -201,8 +201,6 @@ void SysMtgsThread::OpenGS()
 
 	GSopen2(1 | (renderswitch ? 4 : 0) );
 
-	GSsetVsync(EmuConfig.GS.GetVsync());
-
 	m_Opened = true;
 	m_sem_OpenDone.Post();
 

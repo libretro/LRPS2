@@ -96,9 +96,5 @@ EXPORT_C_(s32)
 SPU2freeze(u8 mode, freezeData *data);
 EXPORT_C_(void)
 SPU2configure();
-EXPORT_C_(void)
-SPU2about();
-EXPORT_C_(s32)
-SPU2test();
 
 #endif

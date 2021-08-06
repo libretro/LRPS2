@@ -76,10 +76,6 @@ CDVDconfigure();
 EXPORT_C_(s32)
 CDVDfreeze(u8 mode, freezeData *data);
 EXPORT_C_(void)
-CDVDabout();
-EXPORT_C_(s32)
-CDVDtest();
-EXPORT_C_(void)
 CDVDnewDiskCB(void (*callback)());
 
 typedef struct _cdvdSubQ

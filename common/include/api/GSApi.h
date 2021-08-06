@@ -69,10 +69,6 @@ GSreadFIFO2(u64 *mem, int qwc);
 EXPORT_C_(void)
 GSchangeSaveState(s32 state, const char *filename);
 EXPORT_C_(void)
-GSmakeSnapshot(char *path);
-EXPORT_C_(void)
-GSmakeSnapshot2(char *pathname, int *snapdone, int savejpg);
-EXPORT_C_(void)
 GSirqCallback(void (*callback)());
 EXPORT_C_(void)
 CALLBACK GSprintf(s32 timeout, char *fmt, ...);
@@ -105,9 +101,5 @@ EXPORT_C_(s32)
 GSfreeze(u8 mode, freezeData *data);
 EXPORT_C_(void)
 GSconfigure();
-EXPORT_C_(void)
-GSabout();
-EXPORT_C_(s32)
-GStest();
 
 #endif // __GSAPI_H__

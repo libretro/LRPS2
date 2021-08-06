@@ -456,17 +456,7 @@ void AppCoreThread::ApplySettings(const Pcsx2Config& src)
 	if (fixup == EmuConfig)
 		return;
 
-	if (m_ExecMode >= ExecMode_Opened)
-	{
-		_parent::ApplySettings(fixup);
-	}
-	else
-	{
-		_parent::ApplySettings(fixup);
-	}
-
-	if (m_ExecMode >= ExecMode_Paused)
-		GSsetVsync(EmuConfig.GS.GetVsync());
+	_parent::ApplySettings(fixup);
 }
 
 // --------------------------------------------------------------------------------------

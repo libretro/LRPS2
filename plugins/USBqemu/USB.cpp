@@ -299,10 +299,6 @@ void CALLBACK USBasync(u32 _cycles)
 	//}
 }
 
-s32  CALLBACK USBtest() {
-	return 0;
-}
-
 void cpu_physical_memory_rw(u32 addr, u8 *buf,
                             int len, int is_write)
 {

@@ -83,10 +83,6 @@ CALLBACK SIOkeyEvent();
 // should expect 4 calls.  Increases savestate compatibility.
 EXPORT_C_(s32)
 SIOfreeze(u8 mode, freezeData *data, int type);
-EXPORT_C_(void)
-SIOabout();
-EXPORT_C_(s32)
-SIOtest();
 
 enum {
     SIO_TYPE_PAD = 0x00000001,

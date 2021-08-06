@@ -172,17 +172,6 @@ void retro_set_controller_port_device(unsigned port, unsigned device)
 	environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
 }
 
-EXPORT_C_(void)
-PADabout()
-{
-}
-
-EXPORT_C_(s32)
-PADtest()
-{
-	return 0;
-}
-
 s32 _PADopen()
 {
 	return 0;

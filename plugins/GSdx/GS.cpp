@@ -570,29 +570,6 @@ EXPORT_C_(void) GSchangeSaveState(int, const char *filename)
 {
 }
 
-EXPORT_C_(void) GSmakeSnapshot2(char *pathname, int *snapdone, int savejpg)
-{
-}
-
-EXPORT_C_(uint32) GSmakeSnapshot(char* path)
-{
-	try
-	{
-		std::string s{path};
-
-		if(!s.empty() && s[s.length() - 1] != DIRECTORY_SEPARATOR)
-		{
-			s = s + DIRECTORY_SEPARATOR;
-		}
-
-		return s_gs->MakeSnapshot(s + "gsdx");
-	}
-	catch (GSDXRecoverableError)
-	{
-		return false;
-	}
-}
-
 EXPORT_C_(int) GSfreeze(int mode, GSFreezeData* data)
 {
 	try
@@ -625,18 +602,6 @@ EXPORT_C GSconfigure()
    theApp.Init();
 }
 
-EXPORT_C_(int) GStest()
-{
-	if(!GSUtil::CheckSSE())
-		return -1;
-
-	return 0;
-}
-
-EXPORT_C GSabout()
-{
-}
-
 EXPORT_C GSirqCallback(void (*irq)())
 {
 	s_irq = irq;
@@ -645,11 +610,6 @@ EXPORT_C GSirqCallback(void (*irq)())
 	{
 		s_gs->SetIrqCallback(s_irq);
 	}
-}
-
-EXPORT_C_(std::wstring*) GSsetupRecording(int start)
-{
-   return nullptr;
 }
 
 EXPORT_C GSsetGameCRC(uint32 crc, int options)
@@ -662,17 +622,9 @@ EXPORT_C GSgetLastTag(uint32* tag)
 	s_gs->GetLastTag(tag);
 }
 
-EXPORT_C GSgetTitleInfo2(char* dest, size_t length)
-{
-}
-
 EXPORT_C GSsetFrameSkip(int frameskip)
 {
 	s_gs->SetFrameSkip(frameskip);
-}
-
-EXPORT_C GSsetVsync(int vsync)
-{
 }
 
 EXPORT_C GSsetExclusive(int enabled)

@@ -111,36 +111,10 @@ BOOL CALLBACK ConfigureDlgProc(HWND hW, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return FALSE;
 }
 
-BOOL CALLBACK AboutDlgProc(HWND hW, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-	switch(uMsg) {
-		case WM_INITDIALOG:
-			return TRUE;
-
-		case WM_COMMAND:
-			switch(LOWORD(wParam)) {
-				case IDOK:
-					EndDialog(hW, FALSE);
-					return TRUE;
-			}
-	}
-	return FALSE;
-}
-
 EXPORT_C_(void)
 DEV9configure() {
-    DialogBox(hInst,
-              MAKEINTRESOURCE(IDD_CONFIG),
-              GetActiveWindow(),
-             (DLGPROC)ConfigureDlgProc);
 }
 
-EXPORT_C_(void)
-DEV9about() {
-    DialogBox(hInst,
-              MAKEINTRESOURCE(IDD_ABOUT),
-              GetActiveWindow(),
-              (DLGPROC)AboutDlgProc);
-}
 #ifndef BUILTIN_DEV9_PLUGIN
 BOOL APIENTRY DllMain(HANDLE hModule,                  // DLL INIT
                       DWORD  dwReason,
@@ -149,12 +123,6 @@ BOOL APIENTRY DllMain(HANDLE hModule,                  // DLL INIT
 	return TRUE;                                          // very quick :)
 }
 #endif
-/*
-UINT DEV9ThreadProc() {
-	DEV9thread();
-
-	return 0;
-}*/
 NetAdapter* GetNetAdapter()
 {
 	NetAdapter* na = static_cast<NetAdapter*>(new TAPAdapter());

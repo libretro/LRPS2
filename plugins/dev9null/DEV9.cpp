@@ -42,11 +42,6 @@ void (*DEV9irq)(int);
 __aligned16 s8 dev9regs[0x10000];
 
 EXPORT_C_(void)
-DEV9about()
-{
-}
-
-EXPORT_C_(void)
 DEV9configure()
 {
 }
@@ -314,12 +309,6 @@ DEV9async(u32 cycles)
 }
 
 // extended funcs
-
-EXPORT_C_(s32)
-DEV9test()
-{
-    return 0;
-}
 
 EXPORT_C_(void)
 DEV9keyEvent(keyEvent *ev)

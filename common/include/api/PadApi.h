@@ -88,9 +88,5 @@ PADsetSlot(u8 port, u8 slot);
 
 EXPORT_C_(void)
 PADconfigure();
-EXPORT_C_(void)
-PADabout();
-EXPORT_C_(s32)
-PADtest();
 
 #endif // __PADAPI_H__

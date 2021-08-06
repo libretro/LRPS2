@@ -62,8 +62,6 @@ static s32  CALLBACK fallback_freeze(int mode, freezeData *data)
 }
 
 static void CALLBACK fallback_configure() {}
-static void CALLBACK fallback_about() {}
-static s32  CALLBACK fallback_test() { return 0; }
 
 // ----------------------------------------------------------------------------
 // Important: Contents of this array must match the order of the contents of the
@@ -76,9 +74,7 @@ static const LegacyApi_CommonMethod s_MethMessCommon[] =
 	{	"shutdown",			NULL	},
 
 	{	"freeze",			(vMeth*)fallback_freeze	},
-	{	"test",				(vMeth*)fallback_test },
 	{	"configure",		fallback_configure	},
-	{	"about",			fallback_about	},
 
 	{ NULL }
 
@@ -229,9 +225,7 @@ void* StaticLibrary::GetSymbol(const wxString &name)
 	RETURN_SYMBOL(p##close) \
 	RETURN_SYMBOL(p##shutdown) \
 	RETURN_SYMBOL(p##freeze) \
-	RETURN_SYMBOL(p##test) \
 	RETURN_SYMBOL(p##configure) \
-	RETURN_SYMBOL(p##about)
 
 	RETURN_COMMON_SYMBOL(GS);
 

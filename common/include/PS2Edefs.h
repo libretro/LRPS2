@@ -134,17 +134,12 @@ void CALLBACK GSinitReadFIFO2(u64 *mem, int qwc);
 // extended funcs
 
 void CALLBACK GSchangeSaveState(int, const char *filename);
-void CALLBACK GSmakeSnapshot(char *path);
-void CALLBACK GSmakeSnapshot2(char *pathname, int *snapdone, int savejpg);
 void CALLBACK GSirqCallback(void (*callback)());
 void CALLBACK GSsetBaseMem(void *);
 void CALLBACK GSsetGameCRC(int crc, int gameoptions);
 
 // controls frame skipping in the GS, if this routine isn't present, frame skipping won't be done
 void CALLBACK GSsetFrameSkip(int frameskip);
-
-void CALLBACK GSsetVsync(int enabled);
-void CALLBACK GSsetExclusive(int isExclusive);
 
 // if start is 1, starts recording spu2 data, else stops
 // returns a non zero value if successful
@@ -158,8 +153,6 @@ void CALLBACK GSgetTitleInfo2(char *dest, size_t length);
 void CALLBACK GSwriteCSR(u32 value);
 s32 CALLBACK GSfreeze(int mode, freezeData *data);
 void CALLBACK GSconfigure();
-void CALLBACK GSabout();
-s32 CALLBACK GStest();
 
 #endif
 
@@ -206,8 +199,6 @@ void CALLBACK PADWriteEvent(keyEvent &evt);
 s32 CALLBACK PADsetSlot(u8 port, u8 slot);
 s32 CALLBACK PADqueryMtap(u8 port);
 void CALLBACK PADconfigure();
-void CALLBACK PADabout();
-s32 CALLBACK PADtest();
 
 /* DEV9 plugin API */
 
@@ -246,8 +237,6 @@ void CALLBACK DEV9async(u32 cycles);
 
 s32 CALLBACK DEV9freeze(int mode, freezeData *data);
 void CALLBACK DEV9configure();
-void CALLBACK DEV9about();
-s32 CALLBACK DEV9test();
 
 #endif
 
@@ -285,8 +274,6 @@ void CALLBACK USBsetRAM(void *mem);
 
 s32 CALLBACK USBfreeze(int mode, freezeData *data);
 void CALLBACK USBconfigure();
-void CALLBACK USBabout();
-s32 CALLBACK USBtest();
 
 #endif
 
@@ -326,8 +313,6 @@ typedef void(CALLBACK *_GSsetExclusive)(int isExclusive);
 typedef std::wstring*(CALLBACK *_GSsetupRecording)(int);
 typedef void(CALLBACK *_GSreset)();
 typedef void(CALLBACK *_GSwriteCSR)(u32 value);
-typedef void(CALLBACK *_GSmakeSnapshot)(const char *path);
-typedef void(CALLBACK *_GSmakeSnapshot2)(const char *path, int *, int);
 
 // PAD
 typedef s32(CALLBACK *_PADinit)(u32 flags);
@@ -395,8 +380,6 @@ extern _GSinitReadFIFO2 GSinitReadFIFO2;
 
 extern _GSchangeSaveState GSchangeSaveState;
 extern _GSgetTitleInfo2 GSgetTitleInfo2;
-extern _GSmakeSnapshot GSmakeSnapshot;
-extern _GSmakeSnapshot2 GSmakeSnapshot2;
 extern _GSirqCallback GSirqCallback;
 extern _GSsetBaseMem GSsetBaseMem;
 extern _GSsetGameCRC GSsetGameCRC;

@@ -265,11 +265,6 @@ USBkeyEvent(keyEvent *ev)
 {
 }
 
-EXPORT_C_(void)
-USBabout()
-{
-}
-
 EXPORT_C_(s32)
 USBfreeze(int mode, freezeData *data)
 {
@@ -292,11 +287,4 @@ USBfreeze(int mode, freezeData *data)
 EXPORT_C_(void) USBasync(u32 cycles)
 {
 	// Optional function: Called in IopCounter.cpp.
-}
-
-EXPORT_C_(s32)
-USBtest()
-{
-    // 0 if the plugin works, non-0 if it doesn't.
-    return 0;
 }

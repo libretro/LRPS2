@@ -76,9 +76,5 @@ EXPORT_C_(s32)
 USBfreeze(u8 mode, freezeData *data);
 EXPORT_C_(void)
 USBconfigure();
-EXPORT_C_(void)
-USBabout();
-EXPORT_C_(s32)
-USBtest();
 
 #endif // __USBAPI_H__

@@ -35,10 +35,6 @@
 
 // Basic functions.
 
-// NOTE: The read/write functions CANNOT use XMM/MMX regs
-// If you want to use them, need to save and restore current ones
-EXPORT_C_(s32)
-FWinit();
 // pDisplay normally is passed a handle to the GS plugins window.
 EXPORT_C_(s32)
 FWopen(void *pDisplay);
@@ -61,10 +57,6 @@ EXPORT_C_(s32)
 FWfreeze(u8 mode, freezeData *data);
 EXPORT_C_(void)
 FWconfigure();
-EXPORT_C_(void)
-FWabout();
-EXPORT_C_(s32)
-FWtest();
 #endif
 
 #endif // __USBAPI_H__

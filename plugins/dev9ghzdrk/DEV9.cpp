@@ -672,11 +672,6 @@ DEV9async(u32 cycles)
 
 // extended funcs
 
-EXPORT_C_(s32)
- DEV9test() {
-	return 0;
-}
-
 EXPORT_C_(void)
 DEV9setSettingsDir(const char* dir)
 {
@@ -684,11 +679,6 @@ DEV9setSettingsDir(const char* dir)
 
 EXPORT_C_(void)
 DEV9setLogDir(const char* dir)
-{
-}
-
-EXPORT_C_(void)
-DEV9about()
 {
 }
 
