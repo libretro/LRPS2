@@ -196,9 +196,6 @@ struct LegacyPluginAPI_Common
 	void (CALLBACK* Close)();
 	void (CALLBACK* Shutdown)();
 
-	FnType_SetDir* SetSettingsDir;
-	FnType_SetDir* SetLogDir;
-
 	s32  (CALLBACK* Freeze)(int mode, freezeData *data);
 	s32  (CALLBACK* Test)();
 	void (CALLBACK* Configure)();
@@ -277,12 +274,7 @@ protected:
 	};
 
 	const PS2E_LibraryAPI*		m_mcdPlugin;
-	wxString			m_SettingsFolder;
-	wxString			m_LogFolder;
 	Threading::MutexRecursive	m_mtx_PluginStatus;
-
-	// Lovely hack until the new PS2E API is completed.
-	std::atomic<bool>			m_mcdOpen;
 
 public:		// hack until we unsuck plugins...
 	std::unique_ptr<PluginStatus_t>	m_info[PluginId_AllocCount];
@@ -321,11 +313,6 @@ public:
 	virtual bool DoFreeze( PluginsEnum_t pid, int mode, freezeData* data );
 
 	virtual void Configure( PluginsEnum_t pid );
-	virtual void SetSettingsFolder( const wxString& folder );
-	virtual void SetLogFolder( const wxString& folder );
-	virtual void SendSettingsFolder();
-	virtual void SendLogFolder();
-
 
 protected:
 	virtual bool NeedsClose() const;

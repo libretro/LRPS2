@@ -68,8 +68,6 @@ static s32  CALLBACK fallback_freeze(int mode, freezeData *data)
 	return 0;
 }
 
-static void CALLBACK fallback_setSettingsDir(const char* dir) {}
-static void CALLBACK fallback_setLogDir(const char* dir) {}
 static void CALLBACK fallback_configure() {}
 static void CALLBACK fallback_about() {}
 static s32  CALLBACK fallback_test() { return 0; }
@@ -126,9 +124,6 @@ static const LegacyApi_CommonMethod s_MethMessCommon[] =
 	{	"init",				NULL	},
 	{	"close",			NULL	},
 	{	"shutdown",			NULL	},
-
-	{	"setSettingsDir",	(vMeth*)fallback_setSettingsDir },
-	{	"setLogDir",	    (vMeth*)fallback_setLogDir },
 
 	{	"freeze",			(vMeth*)fallback_freeze	},
 	{	"test",				(vMeth*)fallback_test },
@@ -283,8 +278,6 @@ void* StaticLibrary::GetSymbol(const wxString &name)
 	RETURN_SYMBOL(p##init) \
 	RETURN_SYMBOL(p##close) \
 	RETURN_SYMBOL(p##shutdown) \
-	RETURN_SYMBOL(p##setSettingsDir) \
-	RETURN_SYMBOL(p##setLogDir) \
 	RETURN_SYMBOL(p##freeze) \
 	RETURN_SYMBOL(p##test) \
 	RETURN_SYMBOL(p##configure) \
@@ -310,7 +303,7 @@ void* StaticLibrary::GetSymbol(const wxString &name)
 //  PluginStatus_t Implementations
 // ---------------------------------------------------------------------------------
 SysCorePlugins::SysCorePlugins() :
-	m_SettingsFolder(), m_LogFolder(), m_mtx_PluginStatus(), m_mcdOpen(false)
+	m_mtx_PluginStatus()
 {
 }
 
@@ -400,40 +393,6 @@ void SysCorePlugins::Load( )
 	m_info[PluginId_PAD]->CommonBindings.Init = _hack_PADinit;
 
 	log_cb(RETRO_LOG_INFO, "Plugins loaded successfully.\n" );
-
-	// HACK!  Manually bind the Internal MemoryCard plugin for now, until
-	// we get things more completed in the new plugin api.
-
-	static const PS2E_EmulatorInfo myself =
-	{
-		"PCSX2",
-
-		{ 0, PCSX2_VersionHi, PCSX2_VersionLo, SVN_REV },
-
-		(int)x86caps.PhysicalCores,
-		(int)x86caps.LogicalCores,
-		sizeof(wchar_t),
-
-		{ 0,0,0,0,0,0 },
-
-		pcsx2_GetInt,
-		pcsx2_GetBoolean,
-		pcsx2_GetString,
-		pcsx2_GetStringAlloc,
-		pcsx2_OSD_WriteLn,
-
-		NULL, // AddMenuItem
-		NULL, // Menu_Create
-		NULL, // Menu_Delete
-		NULL, // Menu_AddItem
-
-		{ 0 }, // MenuItem
-
-		{ 0,0,0,0,0,0,0,0 },
-	};
-
-	SendLogFolder();
-	SendSettingsFolder();
 }
 
 void SysCorePlugins::Unload(PluginsEnum_t pid)
@@ -546,8 +505,6 @@ void SysCorePlugins::Open()
 
 	log_cb(RETRO_LOG_INFO, "Opening plugins...\n");
 
-	SendSettingsFolder();
-
 	ForPlugins([&] (const PluginInfo * pi) {
 		Open( pi->id );
 		// If GS doesn't support GSopen2, need to wait until call to GSopen
@@ -563,11 +520,8 @@ void SysCorePlugins::Open()
 	});
 	GetMTGS().WaitForOpen();
 
-	if( !m_mcdOpen.exchange(true) )
-	{
-		log_cb(RETRO_LOG_DEBUG, "Opening Memorycards\n");
-		OpenPlugin_Mcd();
-	}
+	log_cb(RETRO_LOG_DEBUG, "Opening Memorycards\n");
+	OpenPlugin_Mcd();
 
 	log_cb(RETRO_LOG_INFO, "Plugins opened successfully.\n");
 }
@@ -644,11 +598,8 @@ void SysCorePlugins::Close()
 
 	log_cb(RETRO_LOG_INFO, "Closing plugins...\n" );
 
-	if( m_mcdOpen.exchange(false) )
-	{
-		log_cb(RETRO_LOG_DEBUG, "Closing Memorycards\n");
-		ClosePlugin_Mcd();
-	}
+	log_cb(RETRO_LOG_DEBUG, "Closing Memorycards\n");
+	ClosePlugin_Mcd();
 
 	for( int i=PluginId_Count-1; i>=0; --i )
 		Close( tbl_PluginInfo[i].id );
@@ -890,54 +841,6 @@ void SysCorePlugins::FreezeIn( PluginsEnum_t pid, pxInputStream& infp )
 	infp.Read( fP.data, fP.size );
 	if (!DoFreeze(pid, FREEZE_LOAD, &fP))
 		throw Exception::ThawPluginFailure( pid );
-}
-
-void SysCorePlugins::SendSettingsFolder()
-{
-	ScopedLock lock( m_mtx_PluginStatus );
-	if( m_SettingsFolder.IsEmpty() ) return;
-
-	ForPlugins([&] (const PluginInfo * pi) {
-		if( m_info[pi->id] ) m_info[pi->id]->CommonBindings.SetSettingsDir( m_SettingsFolder.utf8_str() );
-	});
-}
-
-void SysCorePlugins::SetSettingsFolder( const wxString& folder )
-{
-	ScopedLock lock( m_mtx_PluginStatus );
-
-	wxString fixedfolder( folder );
-	if( !fixedfolder.IsEmpty() && (fixedfolder[fixedfolder.length()-1] != wxFileName::GetPathSeparator() ) )
-	{
-		fixedfolder += wxFileName::GetPathSeparator();
-	}
-	
-	if( m_SettingsFolder == fixedfolder ) return;
-	m_SettingsFolder = fixedfolder;
-}
-
-void SysCorePlugins::SendLogFolder()
-{
-	ScopedLock lock( m_mtx_PluginStatus );
-	if( m_LogFolder.IsEmpty() ) return;
-
-	ForPlugins([&] (const PluginInfo * pi) {
-		if( m_info[pi->id] ) m_info[pi->id]->CommonBindings.SetLogDir( m_LogFolder.utf8_str() );
-	});
-}
-
-void SysCorePlugins::SetLogFolder( const wxString& folder )
-{
-	ScopedLock lock( m_mtx_PluginStatus );
-
-	wxString fixedfolder( folder );
-	if( !fixedfolder.IsEmpty() && (fixedfolder[fixedfolder.length()-1] != wxFileName::GetPathSeparator() ) )
-	{
-		fixedfolder += wxFileName::GetPathSeparator();
-	}
-
-	if( m_LogFolder == fixedfolder ) return;
-	m_LogFolder = fixedfolder;
 }
 
 void SysCorePlugins::Configure( PluginsEnum_t pid )
