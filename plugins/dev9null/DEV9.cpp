@@ -36,8 +36,6 @@ static const unsigned char version = PS2E_DEV9_VERSION;
 static const unsigned char revision = 0;
 static const unsigned char build = 5; // increase that with each version
 
-static char libraryName[256];
-
 // Our IRQ call.
 void (*DEV9irq)(int);
 

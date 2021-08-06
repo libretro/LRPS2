@@ -36,11 +36,6 @@ Fnptr_OutOfMemory pxDoOutOfMemory = NULL;
 #define DEVASSERT_INLINE __fi
 #endif
 
-// Using a threadlocal assertion guard.  Separate threads can assert at the same time.
-// That's ok.  What we don't want is the *same* thread recurse-asserting.
-static DeclareTls(int) s_assert_guard(0);
-
-
 // Because wxTrap isn't available on Linux builds of wxWidgets (non-Debug, typically)
 void pxTrap()
 {
