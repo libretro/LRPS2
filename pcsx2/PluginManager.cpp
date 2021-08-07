@@ -307,8 +307,8 @@ void SysCorePlugins::Load( PluginsEnum_t pid )
 
 	m_info[pid] = std::make_unique<PluginStatus_t>(pid);
 
-	log_cb(RETRO_LOG_INFO, "Bound %4s: [%s %s]\n", WX_STR(tbl_PluginInfo[pid].GetShortname()), 
-		WX_STR(m_info[pid]->Name), WX_STR(m_info[pid]->Version));
+	log_cb(RETRO_LOG_INFO, "Bound %4s: [%s]\n", WX_STR(tbl_PluginInfo[pid].GetShortname()), 
+		WX_STR(m_info[pid]->Name));
 }
 
 void SysCorePlugins::Load( )

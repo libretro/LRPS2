@@ -248,7 +248,6 @@ protected:
 
 		wxString	Filename;
 		wxString	Name;
-		wxString	Version;
 
 		LegacyPluginAPI_Common	CommonBindings;
 		DynamicStaticLibrary*	Lib;
