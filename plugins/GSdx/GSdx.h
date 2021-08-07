@@ -26,9 +26,9 @@
 
 class GSdxApp
 {
-	std::string m_ini;
-	std::string m_section;
-	std::map< std::string, std::string > m_default_configuration;
+	//std::string m_ini;
+	//::string m_section;
+	std::map< std::string, std::string > m_current_configuration;
 	std::map< std::string, std::string > m_configuration_map;
 	GSRendererType m_current_renderer_type;
 
@@ -36,12 +36,6 @@ public:
 	GSdxApp();
 
 	void Init();
-
-	void BuildConfigurationMap(const char* lpFileName);
-
-	size_t GetIniString(const char* lpAppName, const char* lpKeyName, const char* lpDefault, char* lpReturnedString, size_t nSize, const char* lpFileName);
-	void WriteIniString(const char* lpAppName, const char* lpKeyName, const char* pString, const char* lpFileName);
-	int GetIniInt(const char* lpAppName, const char* lpKeyName, int nDefault, const char* lpFileName);
 
 	bool LoadResource(int id, std::vector<char>& buff, const char* type = nullptr);
 
@@ -57,25 +51,6 @@ public:
 	void SetCurrentRendererType(GSRendererType type);
 	GSRendererType GetCurrentRendererType() const;
 
-	void SetConfigDir(const char* dir);
-
-	std::vector<GSSetting> m_gs_renderers;
-	std::vector<GSSetting> m_gs_interlace;
-	std::vector<GSSetting> m_gs_aspectratio;
-	std::vector<GSSetting> m_gs_upscale_multiplier;
-	std::vector<GSSetting> m_gs_max_anisotropy;
-	std::vector<GSSetting> m_gs_dithering;
-	std::vector<GSSetting> m_gs_bifilter;
-	std::vector<GSSetting> m_gs_trifilter;
-	std::vector<GSSetting> m_gs_hack;
-	std::vector<GSSetting> m_gs_generic_list;
-	std::vector<GSSetting> m_gs_offset_hack;
-	std::vector<GSSetting> m_gs_hw_mipmapping;
-	std::vector<GSSetting> m_gs_crc_level;
-	std::vector<GSSetting> m_gs_acc_date_level;
-	std::vector<GSSetting> m_gs_acc_blend_level;
-	std::vector<GSSetting> m_gs_acc_blend_level_d3d11;
-	std::vector<GSSetting> m_gs_tv_shaders;
 };
 
 struct GSDXError {};
