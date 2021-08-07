@@ -5,7 +5,5 @@
 #include "../USB.h"
 #include "resource.h"
 
-HINSTANCE hInst;
-
 void CALLBACK USBconfigure() {
 }

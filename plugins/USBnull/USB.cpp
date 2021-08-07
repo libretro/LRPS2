@@ -18,12 +18,6 @@
 #include "svnrev.h"
 #include "USB.h"
 
-const unsigned char version = PS2E_USB_VERSION;
-const unsigned char revision = 0;
-const unsigned char build = 7; // increase that with each version
-
-static char libraryName[256];
-
 USBcallback USBirq;
 
 s8 *usbregs, *ram;
@@ -33,30 +27,6 @@ USBconfigure()
 {
 }
 
-void USBLogInit()
-{
-}
-
-#ifndef BUILTIN_USB_PLUGIN
-EXPORT_C_(u32)
-PS2EgetLibType()
-{
-    return PS2E_LT_USB;
-}
-
-EXPORT_C_(const char *)
-PS2EgetLibName()
-{
-    snprintf(libraryName, 255, "USBnull Driver %lld%s", SVN_REV, SVN_MODS ? "m" : "");
-    return libraryName;
-}
-
-EXPORT_C_(u32)
-PS2EgetLibVersion2(u32 type)
-{
-    return (version << 16) | (revision << 8) | build;
-}
-#endif
 EXPORT_C_(s32)
 USBinit()
 {

@@ -1267,13 +1267,6 @@ typedef void (CALLBACK* _FWirqCallback)(void (*callback)());
 typedef void (CALLBACK* _FWkeyEvent)(keyEvent* ev);
 typedef s32  (CALLBACK* _FWfreeze)(int mode, freezeData *data);
 typedef void (CALLBACK* _FWconfigure)();
-
-// General
-extern _PS2EgetLibType PS2EgetLibType;
-extern _PS2EgetLibVersion2 PS2EgetLibVersion2;
-extern _PS2EgetLibName PS2EgetLibName;
-extern _PS2EpassConfig PS2EpassConfig;
-
 #endif
 
 #ifndef __cplusplus

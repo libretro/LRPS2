@@ -39,8 +39,6 @@ struct PluginInfo
 {
 	const char* shortname;
 	PluginsEnum_t id;
-	int typemask;
-	int version;			// minimum version required / supported
 
 	wxString GetShortname() const
 	{

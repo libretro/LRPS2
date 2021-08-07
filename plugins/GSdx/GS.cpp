@@ -36,45 +36,9 @@
 #include "Window/GSWndRetro.h"
 #include "options_tools.h"
 
-#define PS2E_LT_GS 0x01
-#define PS2E_GS_VERSION 0x0006
-#define PS2E_X86 0x01   // 32 bit
-#define PS2E_X86_64 0x02   // 64 bit
-
 static GSRenderer* s_gs = NULL;
 static void (*s_irq)() = NULL;
 static uint8* s_basemem = NULL;
-
-EXPORT_C_(uint32) PS2EgetLibType()
-{
-	return PS2E_LT_GS;
-}
-
-EXPORT_C_(const char*) PS2EgetLibName()
-{
-	return GSUtil::GetLibName();
-}
-
-EXPORT_C_(uint32) PS2EgetLibVersion2(uint32 type)
-{
-	const uint32 revision = 1;
-	const uint32 build = 2;
-
-	return (build << 0) | (revision << 8) | (PS2E_GS_VERSION << 16) | (PLUGIN_VERSION << 24);
-}
-
-EXPORT_C_(uint32) PS2EgetCpuPlatform()
-{
-#ifdef _M_AMD64
-
-	return PS2E_X86_64;
-
-#else
-
-	return PS2E_X86;
-
-#endif
-}
 
 EXPORT_C GSsetBaseMem(uint8* mem)
 {

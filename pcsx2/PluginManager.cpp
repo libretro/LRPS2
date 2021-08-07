@@ -32,7 +32,7 @@
 //
 const PluginInfo tbl_PluginInfo[] =
 {
-	{ "GS",		PluginId_GS,	PS2E_LT_GS,		PS2E_GS_VERSION		},
+	{ "GS",		PluginId_GS	},
 	{ NULL },
 };
 

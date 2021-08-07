@@ -22,13 +22,6 @@
 #	include "svnrev.h"
 #endif
 
-const unsigned char version  = PS2E_USB_VERSION;
-const unsigned char revision = 0;
-const unsigned char build    = 1;    // increase that with each version
-
-// PCSX2 expects ASNI, not unicode, so this MUST always be char...
-static char libraryName[256];
-
 OHCIState *qemu_ohci;
 
 Config conf;
@@ -46,70 +39,6 @@ s64 remaining=0;
 int64_t get_ticks_per_sec()
 {
 	return PSXCLK;
-}
-
-static void InitLibraryName()
-{
-#ifdef USBQEMU_PUBLIC_RELEASE
-
-	// Public Release!
-	// Output a simplified string that's just our name:
-
-	strcpy( libraryName, "USBqemu" );
-
-#else
-	#ifdef SVN_REV_UNKNOWN
-
-	// Unknown revision.
-	// Output a name that includes devbuild status but not
-	// subversion revision tags:
-
-	strcpy( libraryName, "USBqemu"
-	#ifdef DEBUG_FAST
-		"-Debug"
-	#elif defined( PCSX2_DEBUG )
-		"-Debug/Strict"		// strict debugging is slow!
-	#elif defined( PCSX2_DEVBUILD )
-		"-Dev"
-	#else
-		""
-	#endif
-	);
-
-	#else
-
-	// Use TortoiseSVN's SubWCRev utility's output
-	// to label the specific revision:
-
-	sprintf_s( libraryName, "USBqemu %lld%s"
-	#ifdef DEBUG_FAST
-		"-Debug"
-	#elif defined( PCSX2_DEBUG )
-		"-Debug/Strict"		// strict debugging is slow!
-	#elif defined( PCSX2_DEVBUILD )
-		"-Dev"
-	#else
-		""
-	#endif
-		,SVN_REV,SVN_MODS ? "m" : ""
-	);
-	#endif
-#endif
-
-}
-
-u32 CALLBACK PS2EgetLibType() {
-	return PS2E_LT_USB;
-}
-
-const char* CALLBACK PS2EgetLibName()
-{
-	InitLibraryName();
-	return libraryName;
-}
-
-u32 CALLBACK PS2EgetLibVersion2(u32 type) {
-	return (version<<16) | (revision<<8) | build;
 }
 
 void USBirq(int cycles)

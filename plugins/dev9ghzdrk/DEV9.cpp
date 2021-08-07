@@ -43,8 +43,6 @@
 
 #ifdef _WIN32
 #pragma warning(disable:4244)
-
-HINSTANCE hInst=NULL;
 #endif
 
 //#define HDD_48BIT
@@ -81,19 +79,6 @@ u8 eeprom[] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
-const unsigned char version  = PS2E_DEV9_VERSION;
-const unsigned char revision = 0;
-const unsigned char build    = 4;    // increase that with each version
-
-
-#ifndef BUILTIN_DEV9_PLUGIN
-static const char *libraryName     = "GiGaHeRz's DEV9 Driver"
-#endif
-#ifdef _DEBUG
-	"(debug)"
-#endif
-;
-
 #ifdef _WIN32
 HANDLE hEeprom;
 HANDLE mapping;
@@ -101,24 +86,6 @@ HANDLE mapping;
 int hEeprom;
 int mapping;
 #endif
-
-#ifndef BUILTIN_DEV9_PLUGIN
-EXPORT_C_(u32)
-PS2EgetLibType() {
-	return PS2E_LT_DEV9;
-}
-
-EXPORT_C_(const char*)
-PS2EgetLibName() {
-	return libraryName;
-}
-
-EXPORT_C_(u32)
-PS2EgetLibVersion2(u32 type) {
-	return (version<<16) | (revision<<8) | build;
-}
-#endif
-
 
 EXPORT_C_(s32)
 DEV9init()

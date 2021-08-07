@@ -104,7 +104,6 @@ public:
 struct PadPluginFreezeData
 {
     char format[8];
-    u32 version;
     // active slot for port
     u8 slot[2];
     PadFreezeData padData[2][4];

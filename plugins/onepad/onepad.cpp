@@ -39,7 +39,6 @@
 #include <unistd.h>
 #endif
 
-const u32 version = PS2E_PAD_VERSION;
 const u32 revision = 2;
 const u32 build = 0; // increase that with each version
 #define PAD_SAVE_STATE_VERSION ((revision << 8) | (build << 0))
@@ -347,7 +346,7 @@ PADfreeze(int mode, freezeData *data)
 
 	    Pad::stop_vibrate_all();
 
-	    if (data->size != sizeof(PadPluginFreezeData) || pdata->version != PAD_SAVE_STATE_VERSION ||
+	    if (data->size != sizeof(PadPluginFreezeData) ||
 			    strncmp(pdata->format, "OnePad", sizeof(pdata->format)))
 		    return 0;
 
@@ -390,7 +389,6 @@ PADfreeze(int mode, freezeData *data)
 
 	    memset(pdata, 0, data->size);
 	    strncpy(pdata->format, "OnePad", sizeof(pdata->format));
-	    pdata->version = PAD_SAVE_STATE_VERSION;
 	    pdata->query = query;
 
 	    for (int port = 0; port < 2; port++)

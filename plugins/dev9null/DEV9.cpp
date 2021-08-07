@@ -32,10 +32,6 @@
 #include "DEV9.h"
 #include "svnrev.h"
 
-static const unsigned char version = PS2E_DEV9_VERSION;
-static const unsigned char revision = 0;
-static const unsigned char build = 5; // increase that with each version
-
 // Our IRQ call.
 void (*DEV9irq)(int);
 
@@ -50,26 +46,6 @@ void DEV9LogInit()
 {
 }
 
-#ifndef BUILTIN_DEV9_PLUGIN
-EXPORT_C_(u32)
-PS2EgetLibType()
-{
-    return PS2E_LT_DEV9;
-}
-
-EXPORT_C_(const char *)
-PS2EgetLibName()
-{
-    snprintf(libraryName, 255, "DEV9null Driver %lld%s", SVN_REV, SVN_MODS ? "m" : "");
-    return libraryName;
-}
-
-EXPORT_C_(u32)
-PS2EgetLibVersion2(u32 type)
-{
-    return (version << 16) | (revision << 8) | build;
-}
-#endif
 EXPORT_C_(s32)
 DEV9init()
 {
@@ -81,10 +57,6 @@ DEV9init()
 EXPORT_C_(void)
 DEV9shutdown()
 {
-#ifndef __LIBRETRO__
-    g_plugin_log.WriteLn("Shutting down Dev9null.");
-    g_plugin_log.Close();
-#endif
 }
 
 EXPORT_C_(s32)
@@ -98,9 +70,6 @@ DEV9open()
 EXPORT_C_(void)
 DEV9close()
 {
-#ifndef __LIBRETRO__
-    g_plugin_log.WriteLn("Closing Dev9null.");
-#endif
     // Close files opened.
 }
 
@@ -115,9 +84,8 @@ DEV9read8(u32 addr)
             break;       // We need to have at least one case to avoid warnings.
         default:
             //value = dev9Ru8(addr);
-#ifndef __LIBRETRO__
-            g_plugin_log.WriteLn("*Unknown 8 bit read at address %lx", addr);
-#endif
+
+	    /* Unknown 8bit read at address %lx, addr */
             break;
     }
     return value;
@@ -150,9 +118,7 @@ DEV9read16(u32 addr)
             break;
         default:
             //value = dev9Ru16(addr);
-#ifndef __LIBRETRO__
-            g_plugin_log.WriteLn("*Unknown 16 bit read at address %lx", addr);
-#endif
+	    /* Unknown 16bit read at address %lx, addr */
             break;
     }
 
@@ -169,9 +135,7 @@ DEV9read32(u32 addr)
             break;
         default:
             //value = dev9Ru32(addr);
-#ifndef __LIBRETRO__
-            g_plugin_log.WriteLn("*Unknown 32 bit read at address %lx", addr);
-#endif
+	    /* Unknown 32bit read at address %lx, addr */
             break;
     }
 
@@ -185,9 +149,7 @@ DEV9write8(u32 addr, u8 value)
         case 0x10000038: /*dev9Ru8(addr) = value;*/
             break;
         default:
-#ifndef __LIBRETRO__
-            g_plugin_log.WriteLn("*Unknown 8 bit write; address %lx = %x", addr, value);
-#endif
+	    /* Unknown 8bit write at address %lx = %x, addr, value */
             //dev9Ru8(addr) = value;
             break;
     }
@@ -202,9 +164,7 @@ DEV9write16(u32 addr, u16 value)
         case 0x10000038: /*dev9Ru16(addr) = value;*/
             break;
         default:
-#ifndef __LIBRETRO__
-            g_plugin_log.WriteLn("*Unknown 16 bit write; address %lx = %x", addr, value);
-#endif
+	    /* Unknown 16bit write at address %lx = %x, addr, value */
             //dev9Ru16(addr) = value;
             break;
     }
@@ -217,9 +177,7 @@ DEV9write32(u32 addr, u32 value)
         case 0x10000038: /*dev9Ru32(addr) = value;*/
             break;
         default:
-#ifndef __LIBRETRO__
-            g_plugin_log.WriteLn("*Unknown 32 bit write; address %lx = %x", addr, value);
-#endif
+	    /* Unknown 32bit write at address %lx = %x, addr, value */
             //dev9Ru32(addr) = value;
             break;
     }
@@ -230,9 +188,7 @@ DEV9dmaRead(s32 channel, u32 *data, u32 bytesLeft, u32 *bytesProcessed)
 {
     // You'll want to put your own DMA8 reading code here.
     // Time to interact with your fake (or real) hardware.
-#ifndef __LIBRETRO__
-    g_plugin_log.WriteLn("Reading DMA8 Mem.");
-#endif
+    /* Reading DMA8 Mem */
     *bytesProcessed = bytesLeft;
     return 0;
 }
@@ -241,9 +197,7 @@ EXPORT_C_(s32)
 DEV9dmaWrite(s32 channel, u32 *data, u32 bytesLeft, u32 *bytesProcessed)
 {
     // See above.
-#ifndef __LIBRETRO__
-    g_plugin_log.WriteLn("Writing DMA8 Mem.");
-#endif
+    /* Writing DMA8 Mem */
     *bytesProcessed = bytesLeft;
     return 0;
 }
@@ -259,18 +213,14 @@ DEV9readDMA8Mem(u32 *pMem, int size)
 {
     // You'll want to put your own DMA8 reading code here.
     // Time to interact with your fake (or real) hardware.
-#ifndef __LIBRETRO__
-    g_plugin_log.WriteLn("Reading DMA8 Mem.");
-#endif
+    /* Reading DMA8 Mem */
 }
 
 EXPORT_C_(void)
 DEV9writeDMA8Mem(u32 *pMem, int size)
 {
     // See above.
-#ifndef __LIBRETRO__
-    g_plugin_log.WriteLn("Writing DMA8 Mem.");
-#endif
+    /* Writing DMA8 Mem */
 }
 
 EXPORT_C_(void)

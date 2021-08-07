@@ -25,7 +25,6 @@
 #include "..\net.h"
 #include "tap.h"
 
-extern HINSTANCE hInst;
 //HANDLE handleDEV9Thread = NULL;
 //DWORD dwThreadId, dwThrdParam;
 
@@ -115,14 +114,6 @@ EXPORT_C_(void)
 DEV9configure() {
 }
 
-#ifndef BUILTIN_DEV9_PLUGIN
-BOOL APIENTRY DllMain(HANDLE hModule,                  // DLL INIT
-                      DWORD  dwReason,
-                      LPVOID lpReserved) {
-	hInst = (HINSTANCE)hModule;
-	return TRUE;                                          // very quick :)
-}
-#endif
 NetAdapter* GetNetAdapter()
 {
 	NetAdapter* na = static_cast<NetAdapter*>(new TAPAdapter());

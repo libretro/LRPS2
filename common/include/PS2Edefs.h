@@ -69,18 +69,6 @@ typedef struct _keyEvent
 
 ///////////////////////////////////////////////////////////////////////
 
-// PS2EgetLibType returns (may be OR'd)
-#define PS2E_LT_GS 0x01
-#define PS2E_LT_PAD 0x02 // -=[ OBSOLETE ]=-
-#define PS2E_LT_DEV9 0x10
-#define PS2E_LT_USB 0x20
-
-// PS2EgetLibVersion2 (high 16 bits)
-#define PS2E_GS_VERSION 0x0006
-#define PS2E_PAD_VERSION 0x0002 // -=[ OBSOLETE ]=-
-#define PS2E_DEV9_VERSION 0x0003
-#define PS2E_USB_VERSION 0x0003
-
 // key values:
 /* key values must be OS dependant:
 	win32: the VK_XXX will be used (WinUser)
@@ -271,11 +259,6 @@ void CALLBACK USBconfigure();
 
 // might be useful for emulators
 #ifdef PLUGINtypedefs
-
-typedef u32(CALLBACK *_PS2EgetLibType)(void);
-typedef u32(CALLBACK *_PS2EgetLibVersion2)(u32 type);
-typedef char *(CALLBACK *_PS2EgetLibName)(void);
-
 // GS
 // NOTE: GSreadFIFOX/GSwriteCSR functions CANNOT use XMM/MMX regs
 // If you want to use them, need to save and restore current ones
