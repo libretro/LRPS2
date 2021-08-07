@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
     <gresource prefix="/GSdx/res/">
+        <file>logo-ogl.bmp</file>
+    </gresource>
+    <gresource prefix="/GSdx/res/">
         <file>glsl/common_header.glsl</file>
     </gresource>
     <gresource prefix="/GSdx/res/">

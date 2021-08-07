@@ -179,6 +179,7 @@ if(Windows)
         Renderers/DX11/GSTextureCache11.cpp
         Renderers/DX11/GSTextureFX11.cpp
         Renderers/SW/GSVertexSW.cpp
+        GSdx.rc
         )
 
     LIST(APPEND GSdxHeaders
@@ -215,6 +216,7 @@ if(MSVC)
 else()
 
 set(RESOURCE_FILES
+    res/logo-ogl.bmp
     res/fxaa.fx
     res/glsl/common_header.glsl
     res/glsl/convert.glsl
