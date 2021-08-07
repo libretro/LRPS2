@@ -604,7 +604,7 @@ set(pcsx2FinalLibs
 if(BUILTIN_GS)
     set(pcsx2FinalLibs GSdx ${pcsx2FinalLibs})
     if(MSVC)
-       set(pcsx2FinalSources ${pcsx2FinalSources} ${CMAKE_SOURCE_DIR}/plugins/GSdx/GSdx.rc)
+       set(pcsx2FinalSources ${pcsx2FinalSources})
     endif()
 endif()
 if(BUILTIN_PAD)
