@@ -24,11 +24,6 @@
 
 #ifdef _WIN32
 #include "Renderers/DX11/GSDevice11.h"
-#include <VersionHelpers.h>
-#include "svnrev.h"
-#else
-#define SVN_REV 0
-#define SVN_MODS 0
 #endif
 
 static class GSUtilMaps
