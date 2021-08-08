@@ -137,31 +137,6 @@ static wxDirName GetUserLocalDataDir()
 	return wxDirName(wxStandardPaths::Get().GetUserLocalDataDir());
 }
 
-// Fetches the path location for user-consumable documents -- stuff users are likely to want to
-// share with other programs: screenshots, memory cards, and savestates.
-static wxDirName GetDocuments( DocsModeType mode )
-{
-	switch( mode )
-	{
-#ifdef XDG_STD
-		// Move all user data file into central configuration directory (XDG_CONFIG_DIR)
-		case DocsFolder_User:	return GetUserLocalDataDir();
-#else
-		case DocsFolder_User:	return (wxDirName)Path::Combine( wxStandardPaths::Get().GetDocumentsDir(), L"PCSX2" );
-#endif
-		case DocsFolder_Custom: return CustomDocumentsFolder;
-
-					jNO_DEFAULT
-	}
-
-	return wxDirName();
-}
-
-static wxDirName GetDocuments()
-{
-	return GetDocuments( DocsFolderMode );
-}
-
 namespace PathDefs
 {
 	namespace Base
@@ -222,31 +197,39 @@ namespace PathDefs
 		return appCache;
 	}
 
+	const wxDirName& LibretroPcsx2Root()
+	{
+		wxFileName dir(wxStandardPaths::Get().GetDataDir(), "");
+		dir.AppendDir("system");
+		dir.AppendDir("pcsx2");
+		static const wxDirName dir_system_pcsx2(dir.GetPath());
+		return dir_system_pcsx2;
+	}
 
 
 	wxDirName GetBios()
 	{
-		return GetDocuments() + Base::Bios();;
+		return LibretroPcsx2Root() + Base::Bios();
 	}
 
 	wxDirName GetCheats()
 	{
-		return GetDocuments() + Base::Cheats();
+		return LibretroPcsx2Root() + Base::Cheats();
 	}
 
 	wxDirName GetCheatsWS()
 	{
-		return GetDocuments() + Base::CheatsWS();
+		return LibretroPcsx2Root() + Base::CheatsWS();
 	}
 	
 	wxDirName GetSavestates()
 	{
-		return GetDocuments() + Base::Savestates();
+		return LibretroPcsx2Root() + Base::Savestates();
 	}
 
 	wxDirName GetMemoryCards()
 	{
-		return GetDocuments() + Base::MemoryCards();
+		return LibretroPcsx2Root() + Base::MemoryCards();
 	}
 
 	wxDirName GetPlugins()
@@ -264,7 +247,7 @@ namespace PathDefs
 
 	wxDirName GetSettings()
 	{
-		return GetDocuments() + Base::Settings();
+		return LibretroPcsx2Root() + Base::Settings();
 	}
 
 	wxDirName Get( FoldersEnum_t folderidx )
@@ -557,8 +540,7 @@ AppConfig::FolderOptions::FolderOptions()
 	, Savestates	( PathDefs::GetSavestates() )
 	, MemoryCards	( PathDefs::GetMemoryCards() )
 	, Cheats		( PathDefs::GetCheats() )
-	, CheatsWS      ( PathDefs::GetCheatsWS() )
-	, RunDisc	( GetDocuments().GetFilename() )
+	, CheatsWS      ( PathDefs::GetCheatsWS() ) 
 {
 	bitset = 0xffffffff;
 }
@@ -849,7 +831,6 @@ static void AppLoadSettings()
 //
 void AppConfig_OnChangedSettingsFolder()
 {
-	GetDocuments().Mkdir();
 	GetSettingsFolder().Mkdir();
 
 	const wxString iniFilename( GetUiSettingsFilename() );
