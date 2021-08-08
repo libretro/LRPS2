@@ -26,10 +26,7 @@
 
 class GSdxApp
 {
-	//std::string m_ini;
-	//::string m_section;
 	std::map< std::string, std::string > m_current_configuration;
-	std::map< std::string, std::string > m_configuration_map;
 	GSRendererType m_current_renderer_type;
 
 public:

@@ -28,8 +28,6 @@ class GSUtil
 public:
 	static void Init();
 
-	static const char* GetLibName();
-
 	static GS_PRIM_CLASS GetPrimClass(uint32 prim);
 	static int GetVertexCount(uint32 prim);
 	static int GetClassVertexCount(uint32 primclass);
@@ -40,7 +38,6 @@ public:
 	static bool HasSharedBits(uint32 sbp, uint32 spsm, uint32 dbp, uint32 dpsm);
 	static bool HasCompatibleBits(uint32 spsm, uint32 dpsm);
 
-	static bool CheckSSE();
 	static CRCHackLevel GetRecommendedCRCHackLevel(GSRendererType type);
 
 #ifdef _WIN32

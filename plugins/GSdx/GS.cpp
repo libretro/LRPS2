@@ -52,11 +52,6 @@ EXPORT_C GSsetBaseMem(uint8* mem)
 
 EXPORT_C_(int) GSinit()
 {
-	if(!GSUtil::CheckSSE())
-	{
-		return -1;
-	}
-
 	// Vector instructions must be avoided when initialising GSdx since PCSX2
 	// can crash if the CPU does not support the instruction set.
 	// Initialise it here instead - it's not ideal since we have to strip the
@@ -551,9 +546,6 @@ EXPORT_C_(int) GSfreeze(int mode, GSFreezeData* data)
 
 EXPORT_C GSconfigure()
 {
-   if(!GSUtil::CheckSSE())
-      return;
-
    theApp.Init();
 }
 
