@@ -26,19 +26,7 @@ bool Pcsx2App::DetectCpuAndUserMode()
 	
 #ifdef _M_X86
 	x86caps.Identify();
-	x86caps.CountCores();
 	x86caps.SIMD_EstablishMXCSRmask();
-
-	if(!x86caps.hasStreamingSIMD2Extensions )
-	{
-		// This code will probably never run 
-                // if the binary was correctly compiled for SSE2
-		// SSE2 is required for any decent speed 
-                // and is supported by more than decade old x86 CPUs
-		log_cb(RETRO_LOG_ERROR,
-				"Critical Failure: SSE2 Extensions not available. PCSX2 requires a CPU that supports the SSE2 instruction set.\n");
-		return false;
-	}
 #endif
 
 	AppConfig_OnChangedSettingsFolder();

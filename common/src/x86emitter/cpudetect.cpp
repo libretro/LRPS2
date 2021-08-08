@@ -14,7 +14,8 @@
  */
 
 #include "PrecompiledHeader.h"
-#include "cpudetect_internal.h"
+#include "Utilities/RedtapeWindows.h"
+#include "x86emitter/tools.h"
 #include "internal.h"
 #include "x86_intrin.h"
 
@@ -57,8 +58,6 @@ x86capabilities::x86capabilities()
     , EFlags2(0)
     , SEFlag(0)
     , AllCapabilities(0)
-    , PhysicalCores(0)
-    , LogicalCores(0)
 {
     memzero(VendorName);
     memzero(FamilyName);
@@ -109,30 +108,6 @@ wxString x86capabilities::GetTypeName() const
         default:
             return L"Unknown";
     }
-}
-
-void x86capabilities::CountCores()
-{
-    Identify();
-
-    s32 regs[4];
-    u32 cmds;
-
-    cpuid(regs, 0x80000000);
-    cmds = regs[0];
-
-    // detect multicore for AMD cpu
-
-    if ((cmds >= 0x80000008) && (VendorID == x86Vendor_AMD)) {
-        // AMD note: they don't support hyperthreading, but they like to flag this true
-        // anyway.  Let's force-unflag it until we come up with a better solution.
-        // (note: seems to affect some Phenom II's only? -- Athlon X2's and PhenomI's do
-        // not seem to do this) --air
-        hasMultiThreading = 0;
-    }
-
-    // This will assign values into LogicalCores and PhysicalCores
-    CountLogicalCores();
 }
 
 static const char *tbl_x86vendors[] =
@@ -242,7 +217,6 @@ void x86capabilities::Identify()
     hasStreamingSIMDExtensions = (Flags >> 25) & 1;  //sse
     hasStreamingSIMD2Extensions = (Flags >> 26) & 1; //sse2
     hasSelfSnoop = (Flags >> 27) & 1;
-    hasMultiThreading = (Flags >> 28) & 1;
     hasThermalMonitor = (Flags >> 29) & 1;
     hasIntel64BitArchitecture = (Flags >> 30) & 1;
 

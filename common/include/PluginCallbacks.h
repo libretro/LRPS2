@@ -399,16 +399,6 @@ typedef struct _PS2E_EmulatorInfo
     // Version information.  All fields besides the emulator's name are optional.
     PS2E_VersionInfo EmuVersion;
 
-    // Number of Physical Cores, as detected by the emulator.
-    // This should always match the real # of cores supported by hardware.
-    int PhysicalCores;
-
-    // Number of Logical Cores, as detected and/or managed by the emulator.
-    // This is not necessarily a reflection of real hardware capabilities.  The emu reserves
-    // the right to report this value as it deems appropriate, in management of threading
-    // resources.
-    int LogicalCores;
-
     // Specifies the size of the wchar_t of the emulator, in bytes.  Plugin authors should be
     // sure to check this against your own sizeof(wchar_t) before using any API that has
     // a wchar_t parameter (such as the ConsoleWriterWide interface).  wchar_t is a loosely

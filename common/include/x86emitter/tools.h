@@ -79,9 +79,6 @@ public:
             u32 hasStreamingSIMD2Extensions : 1;
             u32 hasSelfSnoop : 1;
 
-            // is TRUE for both multi-core and Hyperthreaded CPUs.
-            u32 hasMultiThreading : 1;
-
             u32 hasThermalMonitor : 1;
             u32 hasIntel64BitArchitecture : 1;
             u32 hasStreamingSIMD3Extensions : 1;
@@ -102,21 +99,13 @@ public:
         u64 AllCapabilities;
     };
 
-    // Core Counts!
-    u32 PhysicalCores;
-    u32 LogicalCores;
-
 public:
     x86capabilities();
 
     void Identify();
-    void CountCores();
     wxString GetTypeName() const;
 
     void SIMD_EstablishMXCSRmask();
-
-protected:
-    void CountLogicalCores();
 };
 
 enum SSE_RoundMode {

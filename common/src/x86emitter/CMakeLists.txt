@@ -54,14 +54,7 @@ set(x86emitterHeaders
 	../../include/x86emitter/x86emitter.h
 	../../include/x86emitter/x86types.h
 	PrecompiledHeader.h
-	cpudetect_internal.h
 	)
-
-if(Windows)
-	LIST(APPEND x86emitterSources WinCpuDetect.cpp)
-else()
-	LIST(APPEND x86emitterSources LnxCpuDetect.cpp)
-endif()
 
 set(x86emitterFinalSources
 	${x86emitterSources}
