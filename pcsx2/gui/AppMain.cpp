@@ -108,6 +108,8 @@ void AppApplySettings()
 	g_Conf->Folders.Cheats.Mkdir();
 	g_Conf->Folders.CheatsWS.Mkdir();
 
+	g_Conf->EmuOptions.BiosFilename = g_Conf->FullpathToBios();
+
 	// Update the compression attribute on the Memcards folder.
 	// Memcards generally compress very well via NTFS compression.
 
