@@ -62,7 +62,6 @@ set(GSdxSources
     stdafx.cpp
     Renderers/Common/GSDevice.cpp
     Renderers/Common/GSDirtyRect.cpp
-    Renderers/Common/GSFunctionMap.cpp
     Renderers/Common/GSRenderer.cpp
     Renderers/Common/GSTexture.cpp
     Renderers/Common/GSVertexTrace.cpp

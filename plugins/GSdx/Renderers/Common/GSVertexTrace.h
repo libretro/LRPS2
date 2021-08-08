@@ -25,7 +25,6 @@
 #include "GSVertex.h"
 #include "Renderers/SW/GSVertexSW.h"
 #include "Renderers/HW/GSVertexHW.h"
-#include "GSFunctionMap.h"
 
 class GSState;
 

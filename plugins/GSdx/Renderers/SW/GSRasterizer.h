@@ -23,7 +23,6 @@
 
 #include "GS.h"
 #include "Renderers/SW/GSVertexSW.h"
-#include "Renderers/Common/GSFunctionMap.h"
 #include "GSAlignedClass.h"
 #include "GSPerfMon.h"
 #include "GSThread_CXX11.h"
