@@ -436,7 +436,7 @@ void GSDevice11::AfterDraw()
 	while (_BitScanForward(&i, m_state.ps_sr_bitfield))
 	{
 #ifdef _DEBUG
-		log_cb(RETRO_LOG_WARNING, "Cleaning up copied texture on slot %i\n", i);
+		log_cb(RETRO_LOG_WARN, "Cleaning up copied texture on slot %i\n", i);
 #endif
 		Recycle(m_state.ps_sr_texture[i]);
 		PSSetShaderResource(i, NULL);
