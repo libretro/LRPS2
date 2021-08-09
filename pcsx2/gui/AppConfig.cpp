@@ -199,8 +199,7 @@ namespace PathDefs
 
 	const wxDirName& LibretroPcsx2Root()
 	{
-		wxFileName dir(wxStandardPaths::Get().GetDataDir(), "");
-		dir.AppendDir("system");
+		wxFileName dir(retroarch_system_path, "");
 		dir.AppendDir("pcsx2");
 		static const wxDirName dir_system_pcsx2(dir.GetPath());
 		return dir_system_pcsx2;
@@ -219,6 +218,7 @@ namespace PathDefs
 
 	wxDirName GetCheatsWS()
 	{
+
 		return LibretroPcsx2Root() + Base::CheatsWS();
 	}
 	

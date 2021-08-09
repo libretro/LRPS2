@@ -61,6 +61,8 @@ struct retro_hw_render_callback hw_render;
 unsigned libretro_msg_interface_version = 0;
 retro_log_printf_t log_cb;
 
+std::string retroarch_system_path;
+
 // renderswitch - tells GSdx to go into dx9 sw if "renderswitch" is set.
 bool renderswitch = false;
 uint renderswitch_delay = 0;
@@ -116,6 +118,8 @@ void retro_init(void)
 	const char* save_dir = nullptr;
 	environ_cb(RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY, &save_dir);
 
+
+	retroarch_system_path = system;
 
 	// checks and create save folders
 
