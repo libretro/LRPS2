@@ -215,7 +215,6 @@ if(MSVC)
 else()
 
 set(RESOURCE_FILES
-    res/fxaa.fx
     res/glsl/common_header.glsl
     res/glsl/convert.glsl
     res/glsl/interlace.glsl

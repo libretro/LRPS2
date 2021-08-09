@@ -3,15 +3,7 @@
 // Used by GSdx.rc
 //
 // Shader:
-#define IDR_CONVERT_FX                  10000
-#define IDR_TFX_FX                      10001
-#define IDR_MERGE_FX                    10002
-#define IDR_INTERLACE_FX                10003
-#define IDR_FXAA_FX                     10004
-#define IDD_SHADER                      10006
 #define IDR_TFX_CL                      10008
-#define IDD_HACKS                       10009
-#define IDD_OSD                         10010
 #define IDR_CONVERT_GLSL                10011
 #define IDR_INTERLACE_GLSL              10012
 #define IDR_MERGE_GLSL                  10013

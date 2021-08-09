@@ -23,6 +23,8 @@
 #include "GSdx.h"
 #include "GSDevice.h"
 
+#include "fxaa_shader.h"
+
 GSDevice::GSDevice()
 	: m_wnd()
 	, m_rbswapped(false)

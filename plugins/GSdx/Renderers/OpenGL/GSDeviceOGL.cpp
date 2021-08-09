@@ -26,6 +26,7 @@
 #include "GSUtil.h"
 #include <fstream>
 #include "options_tools.h"
+#include "../Common/fxaa_shader.h"
 
 //#define ONLY_LINES
 
@@ -1154,8 +1155,7 @@ void GSDeviceOGL::DoFXAA(GSTexture* sTex, GSTexture* dTex)
 		std::string fxaa_macro = "#define FXAA_GLSL_130 1\n";
 		fxaa_macro += "#extension GL_ARB_gpu_shader5 : enable\n";
 
-		std::vector<char> shader;
-		theApp.LoadResource(IDR_FXAA_FX, shader);
+		std::vector<char> shader(fxaa_shader_raw, fxaa_shader_raw + sizeof(fxaa_shader_raw)/sizeof(*fxaa_shader_raw));
 
 		GLuint ps = m_shader->Compile("fxaa.fx", "ps_main", GL_FRAGMENT_SHADER, shader.data(), fxaa_macro);
 		m_fxaa.ps = m_shader->LinkPipeline("FXAA pipe", m_convert.vs, 0, ps);

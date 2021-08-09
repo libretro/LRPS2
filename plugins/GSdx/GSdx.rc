@@ -46,16 +46,6 @@ BEGIN
     "\0"
 END
 
-3 TEXTINCLUDE 
-BEGIN
-    "#include ""res/tfx.fx""\r\n"
-    "#include ""res/convert.fx""\r\n"
-    "#include ""res/interlace.fx""\r\n"
-    "#include ""res/merge.fx""\r\n"
-    "#include ""res/fxaa.fx""\r\n"
-    "\0"
-END
-
 #endif    // APSTUDIO_INVOKED
 
 
@@ -63,16 +53,6 @@ END
 //
 // RCDATA
 //
-
-IDR_TFX_FX              RCDATA                  "res\\tfx.fx"
-
-IDR_CONVERT_FX          RCDATA                  "res\\convert.fx"
-
-IDR_INTERLACE_FX        RCDATA                  "res\\interlace.fx"
-
-IDR_MERGE_FX            RCDATA                  "res\\merge.fx"
-
-IDR_FXAA_FX             RCDATA                  "res\\fxaa.fx"
 
 IDR_CONVERT_GLSL        RCDATA                  "res\\glsl\\convert.glsl";
 
@@ -88,18 +68,3 @@ IDR_TFX_FS_GLSL         RCDATA                  "res\\glsl\\tfx_fs.glsl";
 
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
-
-#ifndef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// Generated from the TEXTINCLUDE 3 resource.
-//
-#include "res/tfx.fx"
-#include "res/convert.fx"
-#include "res/interlace.fx"
-#include "res/merge.fx"
-#include "res/fxaa.fx"
-
-/////////////////////////////////////////////////////////////////////////////
-#endif    // not APSTUDIO_INVOKED
-
