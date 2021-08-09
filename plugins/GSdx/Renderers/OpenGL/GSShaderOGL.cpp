@@ -143,12 +143,6 @@ static const char common_glsl_shader_raw[] =
 "#endif\n"
 ;
 
-#ifdef _WIN32
-#include "resource.h"
-#else
-#include "GSdxResources.h"
-#endif
-
 GSShaderOGL::GSShaderOGL() : 
 	  m_pipeline(0)
 	, m_common_header(common_glsl_shader_raw, common_glsl_shader_raw + sizeof(common_glsl_shader_raw)/sizeof(*common_glsl_shader_raw))

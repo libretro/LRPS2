@@ -30,12 +30,6 @@
 
 //#define ONLY_LINES
 
-#ifdef _WIN32
-#include "resource.h"
-#else
-#include "GSdxResources.h"
-#endif
-
 /* Merge shader */
 static const char merge_glsl_shader_raw[] =
 "//#version 420 // Keep it for editor detection\n"

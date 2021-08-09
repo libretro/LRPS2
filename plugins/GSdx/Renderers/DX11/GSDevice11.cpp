@@ -23,7 +23,6 @@
 #include "GSdx.h"
 #include "GSDevice11.h"
 #include "GSUtil.h"
-#include "resource.h"
 #include <fstream>
 #include <VersionHelpers.h>
 #include "options_tools.h"
