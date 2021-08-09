@@ -18,6 +18,8 @@ extern void GSUpdateOptions();
 extern void ResetContentStuffs();
 extern int option_upscale_mult;
 
+extern std::string retroarch_system_path;
+
 enum class KeyOptionBool
 {
 	return_type,
