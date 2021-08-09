@@ -170,7 +170,6 @@ if(Windows)
         Renderers/DX11/GSTextureCache11.cpp
         Renderers/DX11/GSTextureFX11.cpp
         Renderers/SW/GSVertexSW.cpp
-        GSdx.rc
         )
 
     LIST(APPEND GSdxHeaders
@@ -178,7 +177,6 @@ if(Windows)
         Renderers/DX11/GSRendererDX11.h
         Renderers/DX11/GSTexture11.h
         Renderers/DX11/GSTextureCache11.h
-        resource.h
         targetver.h
         )
 endif()
