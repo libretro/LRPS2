@@ -3,13 +3,7 @@
 // Used by GSdx.rc
 //
 // Shader:
-#define IDR_TFX_CL                      10008
-#define IDR_CONVERT_GLSL                10011
-#define IDR_INTERLACE_GLSL              10012
-#define IDR_MERGE_GLSL                  10013
 #define IDR_COMMON_GLSL                 10015
-#define IDR_TFX_VGS_GLSL                10016
-#define IDR_TFX_FS_GLSL                 10017
 
 // Next default values for new objects
 // 
