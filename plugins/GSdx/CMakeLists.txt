@@ -212,17 +212,6 @@ set(GSdxFinalLibs
 
 if(MSVC)
    set(GSdxFinalLibs ${GSdxFinalLibs} d3dcompiler d3d11 dxgi dxguid winmm strmiids opengl32 comsuppw comctl32)
-else()
-
-set(RESOURCE_FILES
-    res/glsl/common_header.glsl
-    res/glsl/convert.glsl
-    res/glsl/interlace.glsl
-    res/glsl/merge.glsl
-    res/glsl/tfx_fs.glsl
-    res/glsl/tfx_vgs.glsl)
-
-   add_custom_glib_res("GSdxResources" "gsdx-res.xml" "GSdx_res" ${RESOURCE_FILES})
 endif()
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
