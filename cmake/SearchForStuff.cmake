@@ -50,16 +50,6 @@ if(Linux)
     endif()
 endif()
 
-if(UNIX)
-      pkg_check_modules(PC_GLIB QUIET glib-2.0)
-      find_library(GLIB_LIBRARIES NAMES glib-2.0 HINTS ${PC_GLIB_LIBRARY_DIRS})
-      get_filename_component(_GLIB_LIBRARY_DIR ${GLIB_LIBRARIES} PATH)
-      find_path(GLIBCONFIG_INCLUDE_DIR NAMES glibconfig.h HINTS ${PC_LIBRARY_DIRS} ${_GLIB_LIBRARY_DIR} PATH_SUFFIXES glib-2.0/include)
-      find_path(GLIB_INCLUDE_DIR NAMES glib.h HINTS ${PC_GLIB_INCLUDE_DIRS} PATH_SUFFIXES glib-2.0)
-      set(GLIB_INCLUDE_DIRS ${GLIB_INCLUDE_DIR} ${GLIBCONFIG_INCLUDE_DIR})
-      find_library(GLIB_GIO_LIBRARIES NAMES gio-2.0 HINTS ${_GLIB_LIBRARY_DIR})
-endif()
-
 #----------------------------------------
 #		    Use system include
 #----------------------------------------
