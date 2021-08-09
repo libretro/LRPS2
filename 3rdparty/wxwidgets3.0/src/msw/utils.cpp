@@ -102,8 +102,6 @@ static const wxChar WX_SECTION[] = wxT("wxWindows");
 static const wxChar eUSERNAME[]  = wxT("UserName");
 #endif
 
-WXDLLIMPEXP_DATA_BASE(const wxChar *) wxUserResourceStr = wxT("TEXT");
-
 // ============================================================================
 // implementation
 // ============================================================================
@@ -263,63 +261,6 @@ bool wxGetEnv(const wxString& WXUNUSED_IN_WINCE(var),
 
     return true;
 #endif // WinCE/32
-}
-
-// ----------------------------------------------------------------------------
-// working with MSW resources
-// ----------------------------------------------------------------------------
-
-bool
-wxLoadUserResource(const void **outData,
-                   size_t *outLen,
-                   const wxString& resourceName,
-                   const wxChar* resourceType,
-                   WXHINSTANCE instance)
-{
-    wxCHECK_MSG( outData && outLen, false, "output pointers can't be NULL" );
-
-    HRSRC hResource = ::FindResource(instance,
-                                     resourceName.t_str(),
-                                     resourceType);
-    if ( !hResource )
-        return false;
-
-    HGLOBAL hData = ::LoadResource(instance, hResource);
-    if ( !hData )
-        return false;
-
-    *outData = ::LockResource(hData);
-    if ( !*outData )
-        return false;
-
-    *outLen = ::SizeofResource(instance, hResource);
-
-    // Notice that we do not need to call neither UnlockResource() (which is
-    // obsolete in Win32) nor GlobalFree() (resources are freed on process
-    // termination only)
-
-    return true;
-}
-
-char *
-wxLoadUserResource(const wxString& resourceName,
-                   const wxChar* resourceType,
-                   int* pLen,
-                   WXHINSTANCE instance)
-{
-    const void *data;
-    size_t len;
-    if ( !wxLoadUserResource(&data, &len, resourceName, resourceType, instance) )
-        return NULL;
-
-    char *s = new char[len + 1];
-    memcpy(s, data, len);
-    s[len] = '\0'; // NUL-terminate in case the resource itself wasn't
-
-    if (pLen)
-      *pLen = len;
-
-    return s;
 }
 
 // ----------------------------------------------------------------------------

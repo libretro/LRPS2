@@ -307,43 +307,5 @@ WXDLLIMPEXP_BASE void wxQsort(void* pbase, size_t total_elems,
                               size_t size, wxSortCallback cmp,
                               const void* user_data);
 
-// ----------------------------------------------------------------------------
-// Windows resources access
-// ----------------------------------------------------------------------------
-
-// Windows only: get user-defined resource from the .res file.
-#ifdef __WINDOWS__
-    // default resource type for wxLoadUserResource()
-    extern WXDLLIMPEXP_DATA_BASE(const wxChar*) wxUserResourceStr;
-
-    // Return the pointer to the resource data. This pointer is read-only, use
-    // the overload below if you need to modify the data.
-    //
-    // Notice that the resource type can be either a real string or an integer
-    // produced by MAKEINTRESOURCE(). In particular, any standard resource type,
-    // i.e any RT_XXX constant, could be passed here.
-    //
-    // Returns true on success, false on failure. Doesn't log an error message
-    // if the resource is not found (because this could be expected) but does
-    // log one if any other error occurs.
-    WXDLLIMPEXP_BASE bool
-    wxLoadUserResource(const void **outData,
-                       size_t *outLen,
-                       const wxString& resourceName,
-                       const wxChar* resourceType = wxUserResourceStr,
-                       WXHINSTANCE module = 0);
-
-    // This function allocates a new buffer and makes a copy of the resource
-    // data, remember to delete[] the buffer. And avoid using it entirely if
-    // the overload above can be used.
-    //
-    // Returns NULL on failure.
-    WXDLLIMPEXP_BASE char*
-    wxLoadUserResource(const wxString& resourceName,
-                       const wxChar* resourceType = wxUserResourceStr,
-                       int* pLen = NULL,
-                       WXHINSTANCE module = 0);
-#endif // __WINDOWS__
-
 #endif
     // _WX_UTILSH__
