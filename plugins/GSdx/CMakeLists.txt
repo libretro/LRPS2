@@ -98,10 +98,6 @@ set(GSdxSources
     Renderers/OpenGL/GSTextureCacheOGL.cpp
     Renderers/OpenGL/GSTextureOGL.cpp
     )
-if(NOT MSVC)
-   set(GSdxSources ${GSdxSources}
-       GSdxResources.cpp)
-endif()
 
 set(GSdxHeaders
     config.h
@@ -165,10 +161,6 @@ set(GSdxHeaders
     xbyak/xbyak_mnemonic.h
     xbyak/xbyak_util.h
     )
-if(NOT MSVC)
-   set(GSdxHeaders ${GSdxHeaders}
-      GSdxResources.h)
-endif()
 
 if(Windows)
     LIST(APPEND GSdxSources
