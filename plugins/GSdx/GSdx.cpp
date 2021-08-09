@@ -24,62 +24,6 @@
 #include "GS.h"
 #include <fstream>
 
-#ifdef _WIN32
-EXTERN_C IMAGE_DOS_HEADER __ImageBase;
-static void* s_hModule = &__ImageBase;
-
-bool GSdxApp::LoadResource(int id, std::vector<char>& buff, const char* type)
-{
-	buff.clear();
-	HRSRC hRsrc = FindResource((HMODULE)s_hModule, MAKEINTRESOURCE(id), type != NULL ? type : RT_RCDATA);
-	if(!hRsrc) return false;
-	HGLOBAL hGlobal = ::LoadResource((HMODULE)s_hModule, hRsrc);
-	if(!hGlobal) return false;
-	DWORD size = SizeofResource((HMODULE)s_hModule, hRsrc);
-	if(!size) return false;
-	// On Linux resources are always NULL terminated
-	// Add + 1 on size to do the same for compatibility sake (required by GSDeviceOGL)
-	buff.resize(size + 1);
-	memcpy(buff.data(), LockResource(hGlobal), size);
-	return true;
-}
-
-#else
-
-#include "GSdxResources.h"
-
-bool GSdxApp::LoadResource(int id, std::vector<char>& buff, const char* type)
-{
-	std::string path;
-	switch (id) {
-		case IDR_COMMON_GLSL:
-			path = "/GSdx/res/glsl/common_header.glsl";
-			break;
-		default:
-			printf("LoadResource not implemented for id %d\n", id);
-			return false;
-	}
-
-	GBytes *bytes = g_resource_lookup_data(GSdx_res_get_resource(), path.c_str(), G_RESOURCE_LOOKUP_FLAGS_NONE, nullptr);
-
-	size_t size = 0;
-	const void* data = g_bytes_get_data(bytes, &size);
-
-	if (data == nullptr || size == 0) {
-		printf("Failed to get data for resource: %d\n", id);
-		return false;
-	}
-
-	buff.clear();
-	buff.resize(size + 1);
-	memcpy(buff.data(), data, size + 1);
-
-	g_bytes_unref(bytes);
-
-	return true;
-}
-#endif
-
 GSdxApp theApp;
 
 GSdxApp::GSdxApp()

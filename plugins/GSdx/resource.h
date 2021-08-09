@@ -2,8 +2,6 @@
 // Microsoft Visual C++ generated include file.
 // Used by GSdx.rc
 //
-// Shader:
-#define IDR_COMMON_GLSL                 10015
 
 // Next default values for new objects
 // 

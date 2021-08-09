@@ -37,10 +37,3 @@ struct GSSetting
 	{
 	}
 };
-
-#ifndef _WIN32
-enum {
-	// Shader
-	IDR_COMMON_GLSL
-};
-#endif

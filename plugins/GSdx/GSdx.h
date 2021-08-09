@@ -34,8 +34,6 @@ public:
 
 	void Init();
 
-	bool LoadResource(int id, std::vector<char>& buff, const char* type = nullptr);
-
 	void SetConfig(const char* entry, const char* value);
 	void SetConfig(const char* entry, int value);
 	// Avoid issue with overloading
