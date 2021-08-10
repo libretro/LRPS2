@@ -21,7 +21,6 @@ set(UtilitiesFinalFlags ${CommonFlags})
 		../../include/Utilities/SafeArray.inl
 		Exceptions.cpp
 		FastFormatString.cpp
-		IniInterface.cpp
 		Mutex.cpp
 		PathUtils.cpp
 		PrecompiledHeader.cpp

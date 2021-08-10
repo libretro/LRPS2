@@ -70,7 +70,7 @@ public:
 		wxFileName RunDisc;		// last used location for Disc loading.
 
 		//FolderOptions();
-		void LoadSave( IniInterface& conf );
+		void LoadSave();
 
 
 		void Set( FoldersEnum_t folderidx, const wxString& src, bool useDefault );
@@ -146,8 +146,8 @@ public:
 	wxString FullpathToBios() const;
 	wxString FullpathToMcd( uint slot ) const;
 
-	void LoadSave( IniInterface& ini );
-	void LoadSaveRootItems( IniInterface& ini );
+	void LoadSave();
+	void LoadSaveRootItems();
 
 	static int  GetMaxPresetIndex();
 	

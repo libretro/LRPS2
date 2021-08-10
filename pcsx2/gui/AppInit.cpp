@@ -17,8 +17,6 @@
 #include "App.h"
 #include "MTVU.h" // for thread cancellation on shutdown
 
-#include "Utilities/IniInterface.h"
-
 #include <memory>
 bool Pcsx2App::DetectCpuAndUserMode()
 {

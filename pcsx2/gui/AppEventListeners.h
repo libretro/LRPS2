@@ -63,14 +63,7 @@ struct AppEventInfo
 
 struct AppSettingsEventInfo : AppEventInfo
 {
-	IniInterface&	m_ini;
-
-	AppSettingsEventInfo( IniInterface&	ini, AppEventType evt_type );
-
-	IniInterface& GetIni() const
-	{
-		return const_cast<IniInterface&>(m_ini);
-	}
+	AppSettingsEventInfo(AppEventType evt_type );
 };
 
 // --------------------------------------------------------------------------------------
@@ -144,13 +137,6 @@ public:
 	virtual ~IEventListener_AppStatus() = default;
 
 	virtual void DispatchEvent( const AppEventInfo& evtinfo );
-
-protected:
-	virtual void AppStatusEvent_OnUiSettingsLoadSave( const AppSettingsEventInfo& evtinfo ) {}
-	virtual void AppStatusEvent_OnVmSettingsLoadSave( const AppSettingsEventInfo& evtinfo ) {}
-
-	virtual void AppStatusEvent_OnSettingsApplied() {}
-	virtual void AppStatusEvent_OnExit() {}
 };
 
 class EventListener_AppStatus : public IEventListener_AppStatus

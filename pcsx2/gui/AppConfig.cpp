@@ -18,61 +18,12 @@
 #include "Plugins.h"
 
 #include "MemoryCardFile.h"
-#include "Utilities/IniInterface.h"
 
 #include <wx/stdpaths.h>
 #include <memory>
 
 #include "options_tools.h"
 #include "EmuOptionsUI.h"
-
-// --------------------------------------------------------------------------------------
-//  pxDudConfig
-// --------------------------------------------------------------------------------------
-// Used to handle config actions prior to the creation of the ini file (for example, the
-// first time wizard).  Attempts to save ini settings are simply ignored through this
-// class, which allows us to give the user a way to set everything up in the wizard, apply
-// settings as usual, and only *save* something once the whole wizard is complete.
-//
-class pxDudConfig : public wxConfigBase
-{
-protected:
-	wxString	m_empty;
-
-public:
-	virtual ~pxDudConfig() = default;
-
-	virtual void SetPath(const wxString& ) {}
-	virtual const wxString& GetPath() const { return m_empty; }
-
-	virtual bool GetFirstGroup(wxString& , long& ) const { return false; }
-	virtual bool GetNextGroup (wxString& , long& ) const { return false; }
-	virtual bool GetFirstEntry(wxString& , long& ) const { return false; }
-	virtual bool GetNextEntry (wxString& , long& ) const { return false; }
-	virtual size_t GetNumberOfEntries(bool ) const  { return 0; }
-	virtual size_t GetNumberOfGroups(bool ) const  { return 0; }
-
-	virtual bool HasGroup(const wxString& ) const { return false; }
-	virtual bool HasEntry(const wxString& ) const { return false; }
-
-	virtual bool Flush(bool ) { return false; }
-
-	virtual bool RenameEntry(const wxString&, const wxString& ) { return false; }
-
-	virtual bool RenameGroup(const wxString&, const wxString& ) { return false; }
-
-	virtual bool DeleteEntry(const wxString&, bool bDeleteGroupIfEmpty = true) { return false; }
-	virtual bool DeleteGroup(const wxString& ) { return false; }
-	virtual bool DeleteAll() { return false; }
-
-protected:
-	virtual bool DoReadString(const wxString& , wxString *) const  { return false; }
-	virtual bool DoReadLong(const wxString& , long *) const  { return false; }
-
-	virtual bool DoWriteString(const wxString& , const wxString& )  { return false; }
-	virtual bool DoWriteLong(const wxString& , long )  { return false; }
-};
-
 
 DocsModeType				DocsFolderMode = DocsFolder_User;
 bool					UseDefaultSettingsFolder = true;
@@ -84,46 +35,6 @@ wxDirName				SettingsFolder;
 
 wxDirName				PluginsFolder;
 
-static pxDudConfig _dud_config;
-
-// Returns the current application configuration file.  
-// This is preferred over using
-// wxConfigBase::GetAppConfig(), since it defaults to 
-// *not* creating a config file
-// automatically (which is typically highly undesired 
-// behavior in our system)
-static wxConfigBase* GetAppConfig(void)
-{
-	return wxConfigBase::Get( false );
-}
-
-// --------------------------------------------------------------------------------------
-//  AppIniSaver / AppIniLoader
-// --------------------------------------------------------------------------------------
-class AppIniSaver : public IniSaver
-{
-public:
-	AppIniSaver();
-	virtual ~AppIniSaver() = default;
-};
-
-class AppIniLoader : public IniLoader
-{
-public:
-	AppIniLoader();
-	virtual ~AppIniLoader() = default;
-};
-
-AppIniSaver::AppIniSaver()
-	: IniSaver( (GetAppConfig() != NULL) ? *GetAppConfig() : _dud_config )
-{
-}
-
-AppIniLoader::AppIniLoader()
-	: IniLoader( (GetAppConfig() != NULL) ? *GetAppConfig() : _dud_config )
-{
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////
 // PathDefs Namespace -- contains default values for various pcsx2 path names and locations.
 //
@@ -131,12 +42,6 @@ AppIniLoader::AppIniLoader()
 // Most of the time you should use the path folder assignments in Conf() instead, since those
 // are user-configurable.
 //
-
-// Specifies the main configuration folder.
-static wxDirName GetUserLocalDataDir()
-{
-	return wxDirName(wxStandardPaths::Get().GetUserLocalDataDir());
-}
 
 namespace PathDefs
 {
@@ -407,7 +312,7 @@ AppConfig::AppConfig()
 }
 
 
-void AppConfig::LoadSaveRootItems( IniInterface& ini )
+void AppConfig::LoadSaveRootItems()
 {
 	GzipIsoIndexTemplate = wxString(PCSX2_ui::GzipIsoIndexTemplate);
 
@@ -426,20 +331,18 @@ void AppConfig::LoadSaveRootItems( IniInterface& ini )
 }
 
 // ------------------------------------------------------------------------
-void AppConfig::LoadSave( IniInterface& ini )
+void AppConfig::LoadSave()
 {
-	LoadSaveRootItems( ini );
+	LoadSaveRootItems();
 
 	// Process various sub-components:
-	Folders			.LoadSave( ini );
-
-	ini.Flush();
+	Folders			.LoadSave();
 }
 
 
 
 // NEW MEM OPTIONS
-void AppConfig::FolderOptions::LoadSave( IniInterface& ini )
+void AppConfig::FolderOptions::LoadSave()
 {
 
 	Bios = PathDefs::GetBios();
@@ -597,18 +500,14 @@ static void SaveUiSettings()
 	if (!g_Conf->Folders.RunDisc.Exists())
 		g_Conf->Folders.RunDisc.Clear();
 #endif
-	AppIniSaver saver;
-	g_Conf->LoadSave( saver );
-	sApp.DispatchUiSettingsEvent( saver );
+	g_Conf->LoadSave();
+	sApp.DispatchUiSettingsEvent();
 }
 
 static void SaveVmSettings()
 {
-	std::unique_ptr<wxFileConfig> vmini( OpenFileConfig( GetVmSettingsFilename() ) );
-	IniSaver vmsaver( vmini.get() );
-	g_Conf->EmuOptions.LoadSave( vmsaver );
-
-	sApp.DispatchVmSettingsEvent( vmsaver );
+	g_Conf->EmuOptions.LoadSave();
+	sApp.DispatchVmSettingsEvent();
 }
 
 void AppSaveSettings(void)
@@ -631,9 +530,8 @@ void AppSaveSettings(void)
 
 static void LoadUiSettings()
 {
-	AppIniLoader loader;
 	g_Conf = std::make_unique<AppConfig>();
-	g_Conf->LoadSave( loader );
+	g_Conf->LoadSave();
 
 	if( !wxFile::Exists( g_Conf->CurrentIso ) )
 		g_Conf->CurrentIso.clear();
@@ -646,17 +544,14 @@ static void LoadUiSettings()
 		g_Conf->Folders.RunDisc.Clear();
 #endif
 
-	sApp.DispatchUiSettingsEvent( loader );
+	sApp.DispatchUiSettingsEvent();
 }
 
 static void LoadVmSettings()
 {
 	// Load virtual machine options and apply some defaults overtop saved items, which
 	// are regulated by the PCSX2 UI.
-
-	std::unique_ptr<wxFileConfig> vmini( OpenFileConfig( GetVmSettingsFilename() ) );
-	IniLoader vmloader( vmini.get() );
-	g_Conf->EmuOptions.LoadSave( vmloader );
+	g_Conf->EmuOptions.LoadSave();
 
 	g_Conf->EnablePresets = true;
 	g_Conf->PresetIndex = option_value(INT_PCSX2_OPT_SPEEDHACKS_PRESET, KeyOptionInt::return_type);
@@ -667,7 +562,7 @@ static void LoadVmSettings()
 	else
 		g_Conf->ResetPresetSettingsToDefault();
 
-	sApp.DispatchVmSettingsEvent( vmloader );
+	sApp.DispatchVmSettingsEvent();
 }
 
 static void AppLoadSettings()
@@ -689,15 +584,6 @@ static void AppLoadSettings()
 //
 void AppConfig_OnChangedSettingsFolder()
 {
-	GetSettingsFolder().Mkdir();
-
-	const wxString iniFilename( GetUiSettingsFilename() );
-
-	// Bind into wxConfigBase to allow wx to use our config internally, and delete whatever
-	// comes out (cleans up prev config, if one).
-	delete wxConfigBase::Set( OpenFileConfig( iniFilename ) );
-	GetAppConfig()->SetRecordDefaults(true);
-
 	AppLoadSettings();
 	AppApplySettings();
 	AppSaveSettings();//Make sure both ini files are created if needed.
