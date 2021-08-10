@@ -42,3 +42,4 @@ extern const BiosDebugInformation* CurrentBiosInformation;
 
 extern void LoadBIOS();
 extern bool IsBIOS(const wxString& filename, wxString& description);
+extern bool IsBIOSlite(const wxString& filename, wxString& description);

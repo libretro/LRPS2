@@ -263,7 +263,7 @@ void retro_init(void)
 	for (wxString bios_file : bios_list)
 	{
 			wxString description;
-			if (IsBIOS(bios_file, description)) {
+			if (IsBIOSlite(bios_file, description)) {
 				std::string log_bios = (std::string)description;				
 				bios_files.push_back((std::string)bios_file);
 				bios_files.push_back((std::string)description);
@@ -291,10 +291,15 @@ void retro_init(void)
 	libretro_set_core_options(environ_cb);
 	option_upscale_mult = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 
+	std::string sel_bios_path = option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type);
+	//EmuConfig.BiosFilename .Assign(wxString(sel_bios_path));
+
 	// instantiate the pcsx2 app and so some things on it
 	pcsx2 = &wxGetApp();
 	pxDoOutOfMemory = SysOutOfMemory_EmergencyResponse;
 	g_Conf = std::make_unique<AppConfig>();
+	g_Conf->EmuOptions.BiosFilename.Assign(sel_bios_path);
+	
 
 	// some other stuffs about pcsx2
 
