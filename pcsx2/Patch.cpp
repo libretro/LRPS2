@@ -20,8 +20,7 @@
 #include "IopCommon.h"
 #include "Patch.h"
 #include "GameDatabase.h"
-#include "WidescreenPatchDatabase.h"
-#include "NointerlacingPatchDatabase.h"
+#include "MemoryPatchDatabase.h"
 
 #include <memory>
 #include <vector>
@@ -30,6 +29,9 @@
 #include <wx/txtstrm.h>
 #include <wx/wfstream.h>
 #include <PathDefs.h>
+
+#include "cheats_ws.h"
+#include "cheats_nointerlacing.h"
 
 #include "retro_messager.h"
 
@@ -206,34 +208,40 @@ static int _LoadPatchFiles(const wxDirName& folderName, wxString& fileSpec, cons
 
 int LoadWidescreenPatchesFromDatabase(std::string gameCRC)
 {
+	static MemoryPatchDatabase *widescreen_database;
 	std::transform(gameCRC.begin(), gameCRC.end(), gameCRC.begin(), ::toupper);
 
 	int before = Patch.size();
 
-	WidescreenPatchDatabase* widescreen_database = WidescreenPatchDatabase::GetSingleton();
+	if (!widescreen_database)
+	{
+		widescreen_database = new MemoryPatchDatabase(cheats_ws_zip, cheats_ws_zip_len);
+		widescreen_database->InitEntries();
+	}
 	std::vector<std::string> patch_lines = widescreen_database->GetPatchLines(gameCRC);
 
 	for (std::string line : patch_lines)
-	{
 		inifile_processString(line);
-	}
 
 	return Patch.size() - before;
 }
 
 int LoadNointerlacingPatchesFromDatabase(std::string gameCRC)
 {
+	static MemoryPatchDatabase* nointerlacing_database;
 	std::transform(gameCRC.begin(), gameCRC.end(), gameCRC.begin(), ::toupper);
 
 	int before = Patch.size();
 
-	NointerlacingPatchDatabase* nointerlacing_database = NointerlacingPatchDatabase::GetSingleton();
+	if (!nointerlacing_database)
+	{
+		nointerlacing_database = new MemoryPatchDatabase(cheats_nointerlacing_zip, cheats_nointerlacing_zip_len);
+		nointerlacing_database->InitEntries();
+	}
 	std::vector<std::string> patch_lines = nointerlacing_database->GetPatchLines(gameCRC);
 
 	for (std::string line : patch_lines)
-	{
 		inifile_processString(line);
-	}
 
 	return Patch.size() - before;
 }
@@ -361,17 +369,4 @@ void ApplyLoadedPatches(patch_place_type place)
 		if (i.placetopatch == place)
 			_ApplyPatch(&i);
 	}
-}
-
-uint32_t uint32_from_bytes_little_endian(uint8_t* byte_array)
-{
-	return	(byte_array[0]) |
-			(byte_array[1] << 8) |
-			(byte_array[2] << 16)  |
-			(byte_array[3] << 24);
-}
-
-uint16_t uint16_from_bytes_little_endian(uint8_t* byte_array)
-{
-	return	(byte_array[0]) | (byte_array[1] << 8);
 }

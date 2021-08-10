@@ -4,13 +4,12 @@
 #include <string>
 #include <vector>
 
-class NointerlacingPatchDatabase
+class MemoryPatchDatabase
 {
 public:
-	NointerlacingPatchDatabase();
-	NointerlacingPatchDatabase(NointerlacingPatchDatabase& other) = delete;
-	void operator= (const NointerlacingPatchDatabase&) = delete;
-	static NointerlacingPatchDatabase* GetSingleton();
+	MemoryPatchDatabase(uint8_t *s, size_t len);
+	MemoryPatchDatabase(MemoryPatchDatabase& other) = delete;
+	void operator= (const MemoryPatchDatabase&) = delete;
 
 	struct Patch
 	{
@@ -20,17 +19,12 @@ public:
 	};
 
 	std::vector<std::string> GetPatchLines(std::string key);
-private:
 	void InitEntries();
 	void InitEntries(uint8_t* compressed_archive_as_byte_array, uint32_t archive_length);
+private:
 	int DecompressEntry(std::string key, uint8_t* dest_buffer);
 
 	std::unordered_map<std::string, Patch> entries;
 	uint8_t* compressed_archive_as_byte_array;
 	uint32_t archive_length;
 };
-
-static NointerlacingPatchDatabase* nointerlacing_patch_db_ = nullptr;
-
-uint32_t uint32_from_bytes_little_endian(uint8_t* byte_array);
-uint16_t uint16_from_bytes_little_endian(uint8_t* byte_array);

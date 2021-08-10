@@ -119,8 +119,7 @@ set(pcsx2Sources
 	VUflags.cpp
 	VUmicroMem.cpp
 	VUops.cpp
-	NointerlacingPatchDatabase.cpp
-	WidescreenPatchDatabase.cpp)
+	MemoryPatchDatabase.cpp)
 
 # Main pcsx2 header
 set(pcsx2Headers
@@ -177,8 +176,7 @@ set(pcsx2Headers
 	VUflags.h
 	VUmicro.h
 	VUops.h
-	NointerlacingPatchDatabase.h
-	WidescreenPatchDatabase.h)
+	MemoryPatchDatabase.h)
 
 # CDVD sources
 set(pcsx2CDVDSources

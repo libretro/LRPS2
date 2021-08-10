@@ -1,32 +1,43 @@
-#include "NointerlacingPatchDatabase.h"
-#include "cheats_nointerlacing.h"
-#include "PatchDatabaseCommon.h"
+#include "MemoryPatchDatabase.h"
 #include <zlib.h>
 #include <sstream>
 #include <algorithm>
 
 #define LOCAL_FILE_HEADER_SIGNATURE		0x04034b50
-#define COMPRESSED_SIZE_INDEX_OFFSET	18
-#define UNCOMPRESSED_SIZE_INDEX_OFFSET  22
-#define FILE_NAME_LENGTH_NO_EXTENSION	8
+#define COMPRESSED_SIZE_INDEX_OFFSET		18
+#define UNCOMPRESSED_SIZE_INDEX_OFFSET  	22
+#define FILE_NAME_LENGTH_NO_EXTENSION		8
 #define FILE_NAME_INDEX_OFFSET			30
 #define LOCAL_FILE_HEADER_LENGTH		44
-#define MISSING_ENTRY					182
-#define NOINTERLACING_PATCH_MAX_SIZE  		32768
+#define MISSING_ENTRY				182
+#define MEMORY_PATCH_MAX_SIZE  			32768
 
-NointerlacingPatchDatabase::NointerlacingPatchDatabase()
+static uint32_t uint32_from_bytes_little_endian(uint8_t* byte_array)
 {
-	this->compressed_archive_as_byte_array = cheats_nointerlacing_zip;
-	this->archive_length = cheats_nointerlacing_zip_len;
+	return	(byte_array[0]) |
+			(byte_array[1] << 8) |
+			(byte_array[2] << 16)  |
+			(byte_array[3] << 24);
 }
 
-std::vector<std::string> NointerlacingPatchDatabase::GetPatchLines(std::string key)
+static uint16_t uint16_from_bytes_little_endian(uint8_t* byte_array)
+{
+	return	(byte_array[0]) | (byte_array[1] << 8);
+}
+
+MemoryPatchDatabase::MemoryPatchDatabase(uint8_t *s, size_t len)
+{
+	this->compressed_archive_as_byte_array = s;
+	this->archive_length                   = len;
+}
+
+std::vector<std::string> MemoryPatchDatabase::GetPatchLines(std::string key)
 {
 	std::vector<std::string> patch_lines;
 
 	if (entries.count(key) == 1 && entries[key].compressed_data)
 	{
-		uint8_t uncompressed_data[NOINTERLACING_PATCH_MAX_SIZE];
+		uint8_t uncompressed_data[MEMORY_PATCH_MAX_SIZE];
 		int result;
 
 		result = DecompressEntry(key, uncompressed_data);
@@ -44,7 +55,7 @@ std::vector<std::string> NointerlacingPatchDatabase::GetPatchLines(std::string k
 	return patch_lines;
 }
 
-int NointerlacingPatchDatabase::DecompressEntry(std::string key, uint8_t* dest_buffer)
+int MemoryPatchDatabase::DecompressEntry(std::string key, uint8_t* dest_buffer)
 {
 	int result = Z_ERRNO;
 
@@ -72,17 +83,17 @@ int NointerlacingPatchDatabase::DecompressEntry(std::string key, uint8_t* dest_b
 	return result;
 }
 
-void NointerlacingPatchDatabase::InitEntries()
+void MemoryPatchDatabase::InitEntries()
 {
 	InitEntries(this->compressed_archive_as_byte_array, this->archive_length);
 }
 
 /*
-The nointerlacing patch database is initialized based on the .ZIP format
+The widescreen patch database is initialized based on the .ZIP format
 specification: https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT.
 
 This works by streaming across the local headers. Because this is only used for
-the embedded cheats_nointerlacing.zip archive and is not user-facing, we can safely make
+the embedded cheats_ws.zip archive and is not user-facing, we can safely make
 the following simplifying assumptions:
 
 (1) The general purpose bit flags are all set to 0
@@ -97,7 +108,7 @@ the following simplifying assumptions:
 If any of the above assumptions are violated, this code may NOT work, so don't
 use this as a general-purpose .ZIP reader.
 */
-void NointerlacingPatchDatabase::InitEntries(uint8_t* compressed_archive_as_byte_array, uint32_t archive_length)
+void MemoryPatchDatabase::InitEntries(uint8_t* compressed_archive_as_byte_array, uint32_t archive_length)
 {
 	uint32_t header_signature;
 	uint32_t compressed_size;
@@ -130,14 +141,4 @@ void NointerlacingPatchDatabase::InitEntries(uint8_t* compressed_archive_as_byte
 	
 	// processes the archive, starting from the next entry
 	InitEntries(&compressed_archive_as_byte_array[total_compressed_entry_size], archive_length - total_compressed_entry_size);
-}
-
-NointerlacingPatchDatabase* NointerlacingPatchDatabase::GetSingleton() 
-{
-	if (!nointerlacing_patch_db_)
-	{
-		nointerlacing_patch_db_ = new NointerlacingPatchDatabase();
-		nointerlacing_patch_db_->InitEntries();
-	}
-	return nointerlacing_patch_db_;
 }
