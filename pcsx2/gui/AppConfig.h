@@ -60,15 +60,6 @@ public:
 	// ------------------------------------------------------------------------
 	struct FolderOptions
 	{
-		BITFIELD32()
-			bool
-				UseDefaultBios:1,
-				UseDefaultSavestates:1,
-				UseDefaultMemoryCards:1,
-				UseDefaultCheats:1,
-				UseDefaultCheatsWS:1;
-		BITFIELD_END
-
 		wxDirName
 			Bios,
 			Savestates,
@@ -78,9 +69,9 @@ public:
 
 		wxFileName RunDisc;		// last used location for Disc loading.
 
-		FolderOptions();
+		//FolderOptions();
 		void LoadSave( IniInterface& conf );
-		void ApplyDefaults();
+
 
 		void Set( FoldersEnum_t folderidx, const wxString& src, bool useDefault );
 
@@ -94,8 +85,6 @@ public:
 	{
 		wxFileName Bios;
 		wxFileName Plugins[PluginId_Count];
-
-		void LoadSave( IniInterface& conf );
 
 		const wxFileName& operator[]( PluginsEnum_t pluginidx ) const;
 	};
@@ -159,7 +148,6 @@ public:
 
 	void LoadSave( IniInterface& ini );
 	void LoadSaveRootItems( IniInterface& ini );
-	void LoadSaveMemcards( IniInterface& ini );
 
 	static int  GetMaxPresetIndex();
 	
