@@ -47,27 +47,11 @@ public:
     wxStandardPathsDefault() { }
 };
 
-static wxStandardPathsDefault gs_stdPaths;
-
 } // anonymous namespace
 
 // ============================================================================
 // implementation
 // ============================================================================
-
-/* static */
-wxStandardPaths& wxStandardPathsBase::Get()
-{
-    wxAppTraits * const traits = wxTheApp ? wxTheApp->GetTraits() : NULL;
-    wxCHECK_MSG( traits, gs_stdPaths, wxT("create wxApp before calling this") );
-
-    return traits->GetStandardPaths();
-}
-
-wxStandardPaths& wxAppTraitsBase::GetStandardPaths()
-{
-    return gs_stdPaths;
-}
 
 wxStandardPathsBase::wxStandardPathsBase()
 {

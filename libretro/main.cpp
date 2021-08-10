@@ -916,15 +916,3 @@ wxString GetExecutablePath()
 	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
 	return Path::Combine(system, "pcsx2/PCSX2");
 }
-
-#ifdef wxUSE_STDPATHS
-class Pcsx2StandardPaths : public wxStandardPaths
-{
-};
-
-wxStandardPaths& Pcsx2AppTraits::GetStandardPaths()
-{
-	static Pcsx2StandardPaths stdPaths;
-	return stdPaths;
-}
-#endif

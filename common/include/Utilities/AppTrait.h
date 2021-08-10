@@ -34,7 +34,4 @@ public:
 #ifdef __LIBRETRO__
     wxEventLoopBase* CreateEventLoop();
 #endif
-#ifdef wxUSE_STDPATHS
-    wxStandardPaths &GetStandardPaths();
-#endif
 };

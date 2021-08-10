@@ -49,10 +49,6 @@ public:
         AppInfo_VendorName = 2   // the vendor name
     };
 
-
-    // return the global standard paths object
-    static wxStandardPaths& Get();
-
     // return the temporary directory for the current user
     virtual wxString GetTempDir() const;
 
