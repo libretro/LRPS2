@@ -17,7 +17,6 @@
 
 #include <wx/fileconf.h>
 
-#include "Utilities/IniInterface.h"
 #include "Config.h"
 #include "GS.h"
 #include "EmuOptionsVM.h"
@@ -68,10 +67,8 @@ Pcsx2Config::SpeedhackOptions& Pcsx2Config::SpeedhackOptions::DisableAll()
 }
 
 // NEW MEM OPTIONS
-void Pcsx2Config::SpeedhackOptions::LoadSave( IniInterface& ini )
+void Pcsx2Config::SpeedhackOptions::LoadSave()
 {
-	//ScopedIniGroup path(ini, L"Speedhacks");
-
 	EECycleRate = PCSX2_vm::EECycleRate;
 	EECycleSkip = PCSX2_vm::EECycleSkip;
 	IntcStat = PCSX2_vm::IntcStat;
@@ -139,10 +136,8 @@ void Pcsx2Config::RecompilerOptions::ApplySanityCheck()
 	}
 }
 
-void Pcsx2Config::RecompilerOptions::LoadSave( IniInterface& ini )
+void Pcsx2Config::RecompilerOptions::LoadSave()
 {
-	//ScopedIniGroup path( ini, L"Recompiler" );
-
 	EnableEE = PCSX2_vm::EnableEE;
 	EnableIOP = PCSX2_vm::EnableIOP;
 	EnableVU0 = PCSX2_vm::EnableVU0;
@@ -178,9 +173,8 @@ void Pcsx2Config::CpuOptions::ApplySanityCheck()
 
 // NEW MEM OPTIONS - not sure about types, here....
 
-void Pcsx2Config::CpuOptions::LoadSave( IniInterface& ini )
+void Pcsx2Config::CpuOptions::LoadSave()
 {
-	//ScopedIniGroup path( ini, L"CPU" );
 /*
 	IniBitBoolEx( sseMXCSR.DenormalsAreZero,	"FPU.DenormalsAreZero" );
 	IniBitBoolEx( sseMXCSR.FlushToZero,			"FPU.FlushToZero" );
@@ -200,7 +194,7 @@ void Pcsx2Config::CpuOptions::LoadSave( IniInterface& ini )
 	sseVUMXCSR.RoundingControl = PCSX2_vm::VU_Roundmode;
 
 
-	Recompiler.LoadSave( ini );
+	Recompiler.LoadSave();
 }
 
 // Default GSOptions
@@ -219,10 +213,8 @@ Pcsx2Config::GSOptions::GSOptions()
 
 
 // NEW MEM OPTIONS
-void Pcsx2Config::GSOptions::LoadSave( IniInterface& ini )
+void Pcsx2Config::GSOptions::LoadSave()
 {
-	//ScopedIniGroup path( ini, L"GS" );
-
 	VsyncQueueSize = PCSX2_vm::VsyncQueueSize;
 	FrameSkipEnable = PCSX2_vm::FrameSkipEnable;
 	FramesToDraw = PCSX2_vm::FramesToDraw;
@@ -346,10 +338,8 @@ bool Pcsx2Config::GamefixOptions::Get( GamefixId id ) const
 }
 
 // NEW MEM OPTIONS
-void Pcsx2Config::GamefixOptions::LoadSave( IniInterface& ini )
+void Pcsx2Config::GamefixOptions::LoadSave()
 {
-	//ScopedIniGroup path( ini, L"Gamefixes" );
-
 	VuAddSubHack = PCSX2_vm::VuAddSubHack;
 	FpuCompareHack = PCSX2_vm::FpuCompareHack;
 	FpuMulHack = PCSX2_vm::FpuMulHack;
@@ -379,10 +369,8 @@ Pcsx2Config::Pcsx2Config()
 	EnablePatches = true;
 }
 
-void Pcsx2Config::LoadSave( IniInterface& ini )
+void Pcsx2Config::LoadSave()
 {
-	//ScopedIniGroup path( ini, L"EmuCore" );
-
 	CdvdShareWrite = PCSX2_vm::CdvdShareWrite;
 	EnablePatches = PCSX2_vm::EnablePatches;
 	EnableCheats = PCSX2_vm::EnableCheats;
@@ -398,12 +386,10 @@ void Pcsx2Config::LoadSave( IniInterface& ini )
 
 	// Process various sub-components:
 
-	Speedhacks		.LoadSave( ini );
-	Cpu				.LoadSave( ini );
-	GS				.LoadSave( ini );
-	Gamefixes		.LoadSave( ini );
-
-	ini.Flush();
+	Speedhacks		.LoadSave();
+	Cpu				.LoadSave();
+	GS				.LoadSave();
+	Gamefixes		.LoadSave();
 }
 
 bool Pcsx2Config::MultitapEnabled( uint port ) const
@@ -414,18 +400,10 @@ bool Pcsx2Config::MultitapEnabled( uint port ) const
 
 void Pcsx2Config::Load( const wxString& srcfile )
 {
-	//m_IsLoaded = true;
-
-	wxFileConfig cfg( srcfile );
-	IniLoader loader( cfg );
-	LoadSave( loader );
+	LoadSave();
 }
 
 void Pcsx2Config::Save( const wxString& dstfile )
 {
-	//if( !m_IsLoaded ) return;
-
-	wxFileConfig cfg( dstfile );
-	IniSaver saver( cfg );
-	LoadSave( saver );
+	LoadSave();
 }

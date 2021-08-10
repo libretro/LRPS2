@@ -18,7 +18,6 @@
 #include "Plugins.h"
 
 #include "MemoryCardFile.h"
-#include "Utilities/IniInterface.h"
 
 #include <wx/stdpaths.h>
 #include <memory>
@@ -95,33 +94,6 @@ static pxDudConfig _dud_config;
 static wxConfigBase* GetAppConfig(void)
 {
 	return wxConfigBase::Get( false );
-}
-
-// --------------------------------------------------------------------------------------
-//  AppIniSaver / AppIniLoader
-// --------------------------------------------------------------------------------------
-class AppIniSaver : public IniSaver
-{
-public:
-	AppIniSaver();
-	virtual ~AppIniSaver() = default;
-};
-
-class AppIniLoader : public IniLoader
-{
-public:
-	AppIniLoader();
-	virtual ~AppIniLoader() = default;
-};
-
-AppIniSaver::AppIniSaver()
-	: IniSaver( (GetAppConfig() != NULL) ? *GetAppConfig() : _dud_config )
-{
-}
-
-AppIniLoader::AppIniLoader()
-	: IniLoader( (GetAppConfig() != NULL) ? *GetAppConfig() : _dud_config )
-{
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -407,7 +379,7 @@ AppConfig::AppConfig()
 }
 
 
-void AppConfig::LoadSaveRootItems( IniInterface& ini )
+void AppConfig::LoadSaveRootItems()
 {
 	GzipIsoIndexTemplate = wxString(PCSX2_ui::GzipIsoIndexTemplate);
 
@@ -426,20 +398,18 @@ void AppConfig::LoadSaveRootItems( IniInterface& ini )
 }
 
 // ------------------------------------------------------------------------
-void AppConfig::LoadSave( IniInterface& ini )
+void AppConfig::LoadSave()
 {
-	LoadSaveRootItems( ini );
+	LoadSaveRootItems();
 
 	// Process various sub-components:
-	Folders			.LoadSave( ini );
-
-	ini.Flush();
+	Folders			.LoadSave();
 }
 
 
 
 // NEW MEM OPTIONS
-void AppConfig::FolderOptions::LoadSave( IniInterface& ini )
+void AppConfig::FolderOptions::LoadSave()
 {
 
 	Bios = PathDefs::GetBios();
@@ -597,18 +567,14 @@ static void SaveUiSettings()
 	if (!g_Conf->Folders.RunDisc.Exists())
 		g_Conf->Folders.RunDisc.Clear();
 #endif
-	AppIniSaver saver;
-	g_Conf->LoadSave( saver );
-	sApp.DispatchUiSettingsEvent( saver );
+	g_Conf->LoadSave();
+	sApp.DispatchUiSettingsEvent();
 }
 
 static void SaveVmSettings()
 {
-	std::unique_ptr<wxFileConfig> vmini( OpenFileConfig( GetVmSettingsFilename() ) );
-	IniSaver vmsaver( vmini.get() );
-	g_Conf->EmuOptions.LoadSave( vmsaver );
-
-	sApp.DispatchVmSettingsEvent( vmsaver );
+	g_Conf->EmuOptions.LoadSave();
+	sApp.DispatchVmSettingsEvent();
 }
 
 void AppSaveSettings(void)
@@ -631,9 +597,8 @@ void AppSaveSettings(void)
 
 static void LoadUiSettings()
 {
-	AppIniLoader loader;
 	g_Conf = std::make_unique<AppConfig>();
-	g_Conf->LoadSave( loader );
+	g_Conf->LoadSave();
 
 	if( !wxFile::Exists( g_Conf->CurrentIso ) )
 		g_Conf->CurrentIso.clear();
@@ -646,17 +611,14 @@ static void LoadUiSettings()
 		g_Conf->Folders.RunDisc.Clear();
 #endif
 
-	sApp.DispatchUiSettingsEvent( loader );
+	sApp.DispatchUiSettingsEvent();
 }
 
 static void LoadVmSettings()
 {
 	// Load virtual machine options and apply some defaults overtop saved items, which
 	// are regulated by the PCSX2 UI.
-
-	std::unique_ptr<wxFileConfig> vmini( OpenFileConfig( GetVmSettingsFilename() ) );
-	IniLoader vmloader( vmini.get() );
-	g_Conf->EmuOptions.LoadSave( vmloader );
+	g_Conf->EmuOptions.LoadSave();
 
 	g_Conf->EnablePresets = true;
 	g_Conf->PresetIndex = option_value(INT_PCSX2_OPT_SPEEDHACKS_PRESET, KeyOptionInt::return_type);
@@ -667,7 +629,7 @@ static void LoadVmSettings()
 	else
 		g_Conf->ResetPresetSettingsToDefault();
 
-	sApp.DispatchVmSettingsEvent( vmloader );
+	sApp.DispatchVmSettingsEvent();
 }
 
 static void AppLoadSettings()

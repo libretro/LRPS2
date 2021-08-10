@@ -165,8 +165,8 @@ public:
 	void DispatchEvent( PluginEventType evt );
 	void DispatchEvent( AppEventType evt );
 	void DispatchEvent( CoreThreadStatus evt );
-	void DispatchUiSettingsEvent( IniInterface& ini );
-	void DispatchVmSettingsEvent( IniInterface& ini );
+	void DispatchUiSettingsEvent();
+	void DispatchVmSettingsEvent();
 
 	// ----------------------------------------------------------------------------
 protected:

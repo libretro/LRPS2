@@ -15,6 +15,7 @@
 
 
 #include "PrecompiledHeader.h"
+#include "Utilities/FixedPointTypes.inl"
 
 #include <time.h>
 #include <cmath>

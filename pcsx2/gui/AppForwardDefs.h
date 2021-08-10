@@ -31,8 +31,6 @@ class Pcsx2AppMethodEvent;
 class pxAppResources;
 class AppGameDatabase;
 
-class IniInterface;
-
 // wxWidgets forward declarations
 
 class wxConfigBase;
