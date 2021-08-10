@@ -1616,15 +1616,7 @@ void GSState::FlushPrim()
 
 			m_context->SaveReg();
 
-			try {
-				Draw();
-			} catch (GSDXRecoverableError&) {
-				// could be an unsupported draw call
-			} catch (const std::bad_alloc& e) {
-				// Texture Out Of Memory
-				PurgePool();
-				fprintf(stderr, "GSDX OUT OF MEMORY\n");
-			}
+			Draw();
 
 			m_context->RestoreReg();
 

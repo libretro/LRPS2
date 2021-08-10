@@ -31,9 +31,6 @@ class GSRenderer : public GSState
 
 	bool Merge(int field);
 
-	bool m_shift_key;
-	bool m_control_key;
-
 protected:
 	int m_dithering;
 	int m_interlace;
@@ -59,15 +56,11 @@ public:
 	virtual bool CreateDevice(GSDevice* dev);
 	virtual void ResetDevice();
 	virtual void VSync(int field);
-	virtual bool MakeSnapshot(const std::string& path);
 	virtual bool CanUpscale() {return false;}
 	virtual int GetUpscaleMultiplier() {return 1;}
 	virtual GSVector2i GetCustomResolution() {return GSVector2i(0,0);}
 	GSVector2i GetInternalResolution();
 	void SetAspectRatio(int aspect) {m_aspectratio = aspect;}
-
-	virtual std::wstring* BeginCapture();
-	virtual void EndCapture();
 
 	void PurgePool();
 };

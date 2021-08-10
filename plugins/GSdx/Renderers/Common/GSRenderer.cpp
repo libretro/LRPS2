@@ -32,8 +32,6 @@ const unsigned int s_mipmap_nb = 3;
 
 GSRenderer::GSRenderer()
 	: m_shader(0)
-	, m_shift_key(false)
-	, m_control_key(false)
 	, m_texture_shuffle(false)
 	, m_real_size(0,0)
 	, m_wnd()
@@ -316,20 +314,6 @@ void GSRenderer::VSync(int field)
 
 	// present
 	m_dev->Present(m_wnd->GetClientRect().fit(m_aspectratio), m_shader);
-}
-
-bool GSRenderer::MakeSnapshot(const std::string& path)
-{
-	return true;
-}
-
-std::wstring* GSRenderer::BeginCapture()
-{
-	return nullptr;
-}
-
-void GSRenderer::EndCapture()
-{
 }
 
 void GSRenderer::PurgePool()

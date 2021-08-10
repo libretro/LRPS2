@@ -289,16 +289,8 @@ public:
 	void* MapVB(size_t count) {
 		void *ptr;
 		while (true) {
-			try {
-				ptr = m_vb->map(count);
-				break;
-			} catch (GSDXErrorGlVertexArrayTooSmall) {
-				GL_INS("GL vertex buffer is too small");
-
-				m_vb.reset(new GSBufferOGL<sizeof(GSVertexPT1)>(GL_ARRAY_BUFFER, count));
-
-				set_internal_format();
-			}
+			ptr = m_vb->map(count);
+			break;
 		}
 
 		return ptr;
@@ -306,29 +298,15 @@ public:
 	void UnmapVB() { m_vb->unmap(); }
 	void UploadVB(const void* vertices, size_t count) {
 		while (true) {
-			try {
-				m_vb->upload(vertices, count);
-				break;
-			} catch (GSDXErrorGlVertexArrayTooSmall) {
-				GL_INS("GL vertex buffer is too small");
-
-				m_vb.reset(new GSBufferOGL<sizeof(GSVertexPT1)>(GL_ARRAY_BUFFER, count));
-
-				set_internal_format();
-			}
+			m_vb->upload(vertices, count);
+			break;
 		}
 	}
 
 	void UploadIB(const void* index, size_t count) {
 		while (true) {
-			try {
-				m_ib->upload(index, count);
-				break;
-			} catch (GSDXErrorGlVertexArrayTooSmall) {
-				GL_INS("GL index buffer is too small");
-
-				m_ib.reset(new GSBufferOGL<sizeof(uint32)>(GL_ELEMENT_ARRAY_BUFFER, count));
-			}
+			m_ib->upload(index, count);
+			break;
 		}
 	}
 

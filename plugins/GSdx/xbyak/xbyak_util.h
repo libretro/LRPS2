@@ -570,15 +570,7 @@ public:
 	~StackFrame()
 	{
 		if (!makeEpilog_) return;
-		try {
-			close();
-		} catch (std::exception& e) {
-			printf("ERR:StackFrame %s\n", e.what());
-			exit(1);
-		} catch (...) {
-			printf("ERR:StackFrame otherwise\n");
-			exit(1);
-		}
+		close();
 	}
 private:
 	const int *getOrderTbl() const

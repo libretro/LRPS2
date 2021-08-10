@@ -117,57 +117,49 @@ static int _GSopen(const char* title, GSRendererType renderer, int threads = -1)
 		threads = theApp.GetConfigI("extrathreads");
 	}
 
-	try
+	if (theApp.GetCurrentRendererType() != renderer)
 	{
-		if (theApp.GetCurrentRendererType() != renderer)
-		{
-			// Emulator has made a render change request, which requires a completely
-			// new s_gs -- if the emu doesn't save/restore the GS state across this
-			// GSopen call then they'll get corrupted graphics, but that's not my problem.
+		// Emulator has made a render change request, which requires a completely
+		// new s_gs -- if the emu doesn't save/restore the GS state across this
+		// GSopen call then they'll get corrupted graphics, but that's not my problem.
 
-			delete s_gs;
+		delete s_gs;
 
-			s_gs = NULL;
+		s_gs = NULL;
 
-			theApp.SetCurrentRendererType(renderer);
-		}
+		theApp.SetCurrentRendererType(renderer);
+	}
 
-		std::shared_ptr<GSWnd> window;
-		{
-			// Select the window first to detect the GL requirement
-			std::vector<std::shared_ptr<GSWnd>> wnds;
-			switch (renderer)
-			{
-				case GSRendererType::OGL_HW:
-				case GSRendererType::OGL_SW:
-					wnds.push_back(std::make_shared<GSWndRetroGL>());
-					break;
-				default:
-					wnds.push_back(std::make_shared<GSWndRetro>());
-					break;
-			}
-
-			for(auto& wnd : wnds)
-			{
-				try
-				{
-					// old-style API expects us to create and manage our own window:
-					wnd->Create();
-
-					window = wnd; // Previous code will throw if window isn't supported
-
-					break;
-				}
-				catch (GSDXRecoverableError)
-				{
-				}
-			}
-		}
-
-		std::string renderer_name;
-
+	std::shared_ptr<GSWnd> window;
+	{
+		// Select the window first to detect the GL requirement
+		std::vector<std::shared_ptr<GSWnd>> wnds;
 		switch (renderer)
 		{
+			case GSRendererType::OGL_HW:
+			case GSRendererType::OGL_SW:
+				wnds.push_back(std::make_shared<GSWndRetroGL>());
+				break;
+			default:
+				wnds.push_back(std::make_shared<GSWndRetro>());
+				break;
+		}
+
+		for(auto& wnd : wnds)
+		{
+			// old-style API expects us to create and manage our own window:
+			wnd->Create();
+
+			window = wnd; // Previous code will throw if window isn't supported
+
+			break;
+		}
+	}
+
+	std::string renderer_name;
+
+	switch (renderer)
+	{
 		default:
 #ifdef _WIN32
 		case GSRendererType::DX1011_HW:
@@ -187,19 +179,17 @@ static int _GSopen(const char* title, GSRendererType renderer, int threads = -1)
 			dev = new GSDeviceNull();
 			renderer_name = "Null";
 			break;
-		}
+	}
 
-		log_cb(RETRO_LOG_INFO, "Launching with Renderer:%s\n", renderer_name.c_str());
+	log_cb(RETRO_LOG_INFO, "Launching with Renderer:%s\n", renderer_name.c_str());
 
-		if (dev == NULL)
+	if (dev == NULL)
+		return -1;
+
+	if (s_gs == NULL)
+	{
+		switch (renderer)
 		{
-			return -1;
-		}
-
-		if (s_gs == NULL)
-		{
-			switch (renderer)
-			{
 			default:
 #ifdef _WIN32
 			case GSRendererType::DX1011_HW:
@@ -215,23 +205,12 @@ static int _GSopen(const char* title, GSRendererType renderer, int threads = -1)
 			case GSRendererType::Null:
 				s_gs = new GSRendererNull();
 				break;
-			}
-			if (s_gs == NULL)
-				return -1;
 		}
-
-		s_gs->m_wnd = window;
+		if (s_gs == NULL)
+			return -1;
 	}
-	catch (std::exception& ex)
-	{
-		// Allowing std exceptions to escape the scope of the plugin callstack could
-		// be problematic, because of differing typeids between DLL and EXE compilations.
-		// ('new' could throw std::alloc)
 
-		printf("GSdx error: Exception caught in GSopen: %s", ex.what());
-
-		return -1;
-	}
+	s_gs->m_wnd = window;
 
 	s_gs->SetRegsMem(s_basemem);
 	s_gs->SetIrqCallback(s_irq);
@@ -249,7 +228,6 @@ static int _GSopen(const char* title, GSRendererType renderer, int threads = -1)
 
 	return 0;
 }
-
 
 void GSUpdateOptions()
 {
@@ -374,141 +352,59 @@ GSVector2i GSgetInternalResolution()
 
 EXPORT_C GSreset()
 {
-	try
-	{
-		s_gs->Reset();
-	}
-	catch (GSDXRecoverableError)
-	{
-	}
+	s_gs->Reset();
 }
 
 EXPORT_C GSgifSoftReset(uint32 mask)
 {
-	try
-	{
-		s_gs->SoftReset(mask);
-	}
-	catch (GSDXRecoverableError)
-	{
-	}
+	s_gs->SoftReset(mask);
 }
 
 EXPORT_C GSwriteCSR(uint32 csr)
 {
-	try
-	{
-		s_gs->WriteCSR(csr);
-	}
-	catch (GSDXRecoverableError)
-	{
-	}
+	s_gs->WriteCSR(csr);
 }
 
 EXPORT_C GSinitReadFIFO(uint8* mem)
 {
 	GL_PERF("Init Read FIFO1");
-	try
-	{
-		s_gs->InitReadFIFO(mem, 1);
-	}
-	catch (GSDXRecoverableError)
-	{
-	}
-	catch (const std::bad_alloc&)
-	{
-		fprintf(stderr, "GSdx: Memory allocation error\n");
-	}
+	s_gs->InitReadFIFO(mem, 1);
 }
 
 EXPORT_C GSreadFIFO(uint8* mem)
 {
-	try
-	{
-		s_gs->ReadFIFO(mem, 1);
-	}
-	catch (GSDXRecoverableError)
-	{
-	}
-	catch (const std::bad_alloc&)
-	{
-		fprintf(stderr, "GSdx: Memory allocation error\n");
-	}
+	s_gs->ReadFIFO(mem, 1);
 }
 
 EXPORT_C GSinitReadFIFO2(uint8* mem, uint32 size)
 {
 	GL_PERF("Init Read FIFO2");
-	try
-	{
-		s_gs->InitReadFIFO(mem, size);
-	}
-	catch (GSDXRecoverableError)
-	{
-	}
-	catch (const std::bad_alloc&)
-	{
-		fprintf(stderr, "GSdx: Memory allocation error\n");
-	}
+	s_gs->InitReadFIFO(mem, size);
 }
 
 EXPORT_C GSreadFIFO2(uint8* mem, uint32 size)
 {
-	try
-	{
-		s_gs->ReadFIFO(mem, size);
-	}
-	catch (GSDXRecoverableError)
-	{
-	}
-	catch (const std::bad_alloc&)
-	{
-		fprintf(stderr, "GSdx: Memory allocation error\n");
-	}
+	s_gs->ReadFIFO(mem, size);
 }
 
 EXPORT_C GSgifTransfer(const uint8* mem, uint32 size)
 {
-	try
-	{
-		s_gs->Transfer<3>(mem, size);
-	}
-	catch (GSDXRecoverableError)
-	{
-	}
+	s_gs->Transfer<3>(mem, size);
 }
 
 EXPORT_C GSgifTransfer1(uint8* mem, uint32 addr)
 {
-	try
-	{
-		s_gs->Transfer<0>(const_cast<uint8*>(mem) + addr, (0x4000 - addr) / 16);
-	}
-	catch (GSDXRecoverableError)
-	{
-	}
+	s_gs->Transfer<0>(const_cast<uint8*>(mem) + addr, (0x4000 - addr) / 16);
 }
 
 EXPORT_C GSgifTransfer2(uint8* mem, uint32 size)
 {
-	try
-	{
-		s_gs->Transfer<1>(const_cast<uint8*>(mem), size);
-	}
-	catch (GSDXRecoverableError)
-	{
-	}
+	s_gs->Transfer<1>(const_cast<uint8*>(mem), size);
 }
 
 EXPORT_C GSgifTransfer3(uint8* mem, uint32 size)
 {
-	try
-	{
-		s_gs->Transfer<2>(const_cast<uint8*>(mem), size);
-	}
-	catch (GSDXRecoverableError)
-	{
-	}
+	s_gs->Transfer<2>(const_cast<uint8*>(mem), size);
 }
 
 EXPORT_C GSvsync(int field)
@@ -522,23 +418,14 @@ EXPORT_C_(void) GSchangeSaveState(int, const char *filename)
 
 EXPORT_C_(int) GSfreeze(int mode, GSFreezeData* data)
 {
-	try
+	switch (mode)
 	{
-		if(mode == FREEZE_SAVE)
-		{
+		case FREEZE_SAVE:
 			return s_gs->Freeze(data, false);
-		}
-		else if(mode == FREEZE_SIZE)
-		{
+		case FREEZE_SIZE:
 			return s_gs->Freeze(data, true);
-		}
-		else if(mode == FREEZE_LOAD)
-		{
+		case FREEZE_LOAD:
 			return s_gs->Defrost(data);
-		}
-	}
-	catch (GSDXRecoverableError)
-	{
 	}
 
 	return 0;
@@ -546,7 +433,7 @@ EXPORT_C_(int) GSfreeze(int mode, GSFreezeData* data)
 
 EXPORT_C GSconfigure()
 {
-   theApp.Init();
+	theApp.Init();
 }
 
 EXPORT_C GSirqCallback(void (*irq)())
@@ -554,9 +441,7 @@ EXPORT_C GSirqCallback(void (*irq)())
 	s_irq = irq;
 
 	if(s_gs)
-	{
 		s_gs->SetIrqCallback(s_irq);
-	}
 }
 
 EXPORT_C GSsetGameCRC(uint32 crc, int options)
