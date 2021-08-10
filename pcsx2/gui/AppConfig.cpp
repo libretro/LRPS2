@@ -295,71 +295,7 @@ const wxDirName& AppConfig::FolderOptions::operator[]( FoldersEnum_t folderidx )
 	return const_cast<FolderOptions*>( this )->operator[]( folderidx );
 }
 
-bool AppConfig::FolderOptions::IsDefault( FoldersEnum_t folderidx ) const
-{
-	switch( folderidx )
-	{
-		case FolderId_Plugins:		return UseDefaultPluginsFolder;
-		case FolderId_Settings:		return UseDefaultSettingsFolder;
-		case FolderId_Bios:			return UseDefaultBios;
-		case FolderId_Savestates:	return UseDefaultSavestates;
-		case FolderId_MemoryCards:	return UseDefaultMemoryCards;
-		case FolderId_Cheats:		return UseDefaultCheats;
-		case FolderId_CheatsWS:		return UseDefaultCheatsWS;
 
-		case FolderId_Documents:	return false;
-
-		jNO_DEFAULT
-	}
-	return false;
-}
-
-void AppConfig::FolderOptions::Set( FoldersEnum_t folderidx, const wxString& src, bool useDefault )
-{
-	switch( folderidx )
-	{
-		case FolderId_Plugins:
-			PluginsFolder = src;
-			UseDefaultPluginsFolder = useDefault;
-		break;
-
-		case FolderId_Settings:
-			SettingsFolder = src;
-			UseDefaultSettingsFolder = useDefault;
-		break;
-
-		case FolderId_Bios:
-			Bios = src;
-			UseDefaultBios = useDefault;
-		break;
-
-		case FolderId_Savestates:
-			Savestates = src;
-			UseDefaultSavestates = useDefault;
-		break;
-
-		case FolderId_MemoryCards:
-			MemoryCards = src;
-			UseDefaultMemoryCards = useDefault;
-		break;
-
-		case FolderId_Documents:
-			CustomDocumentsFolder = src;
-		break;
-
-		case FolderId_Cheats:
-			Cheats = src;
-			UseDefaultCheats = useDefault;
-		break;
-
-		case FolderId_CheatsWS:
-			CheatsWS = src;
-			UseDefaultCheatsWS = useDefault;
-		break;
-
-		jNO_DEFAULT
-	}
-}
 
 // --------------------------------------------------------------------------------------
 //  Default Filenames
@@ -403,7 +339,7 @@ namespace FilenameDefs
 
 static wxDirName GetResolvedFolder(FoldersEnum_t id)
 {
-	return g_Conf->Folders.IsDefault(id) ? PathDefs::Get(id) : g_Conf->Folders[id];
+	return  PathDefs::Get(id);
 }
 
 
@@ -470,31 +406,6 @@ AppConfig::AppConfig()
 	GzipIsoIndexTemplate = L"$(f).pindex.tmp";
 }
 
-// ------------------------------------------------------------------------
-void AppConfig::LoadSaveMemcards( IniInterface& ini )
-{
-	//ScopedIniGroup path( ini, L"MemoryCards" );
-/*
-	for( uint slot=0; slot<2; ++slot )
-	{
-		ini.Entry( pxsFmt( L"Slot%u_Enable", slot+1 ),
-			Mcd[slot].Enabled, Mcd[slot].Enabled );
-		ini.Entry( pxsFmt( L"Slot%u_Filename", slot+1 ),
-			Mcd[slot].Filename, Mcd[slot].Filename );
-	}
-
-	for( uint slot=2; slot<8; ++slot )
-	{
-		int mtport = FileMcd_GetMtapPort(slot)+1;
-		int mtslot = FileMcd_GetMtapSlot(slot)+1;
-
-		ini.Entry( pxsFmt( L"Multitap%u_Slot%u_Enable", mtport, mtslot ),
-			Mcd[slot].Enabled, Mcd[slot].Enabled );
-		ini.Entry( pxsFmt( L"Multitap%u_Slot%u_Filename", mtport, mtslot ),
-			Mcd[slot].Filename, Mcd[slot].Filename );
-	}
-*/
-}
 
 void AppConfig::LoadSaveRootItems( IniInterface& ini )
 {
@@ -518,73 +429,31 @@ void AppConfig::LoadSaveRootItems( IniInterface& ini )
 void AppConfig::LoadSave( IniInterface& ini )
 {
 	LoadSaveRootItems( ini );
-	LoadSaveMemcards( ini );
 
 	// Process various sub-components:
 	Folders			.LoadSave( ini );
-	BaseFilenames	.LoadSave( ini );
 
 	ini.Flush();
 }
 
-void AppConfig::FolderOptions::ApplyDefaults()
-{
-	if( UseDefaultBios )		Bios		  = PathDefs::GetBios();
-	if( UseDefaultSavestates )	Savestates	  = PathDefs::GetSavestates();
-	if( UseDefaultMemoryCards )	MemoryCards	  = PathDefs::GetMemoryCards();
-	if( UseDefaultPluginsFolder)PluginsFolder = PathDefs::GetPlugins();
-	if( UseDefaultCheats )      Cheats		  = PathDefs::GetCheats();
-	if( UseDefaultCheatsWS )    CheatsWS	  = PathDefs::GetCheatsWS();
-}
-
-// ------------------------------------------------------------------------
-AppConfig::FolderOptions::FolderOptions()
-	: Bios			( PathDefs::GetBios() )
-	, Savestates	( PathDefs::GetSavestates() )
-	, MemoryCards	( PathDefs::GetMemoryCards() )
-	, Cheats		( PathDefs::GetCheats() )
-	, CheatsWS      ( PathDefs::GetCheatsWS() ) 
-{
-	bitset = 0xffffffff;
-}
 
 
 // NEW MEM OPTIONS
 void AppConfig::FolderOptions::LoadSave( IniInterface& ini )
 {
-	//ScopedIniGroup path( ini, L"Folders" );
 
-	//if( ini.IsSaving() )
-	//{
-		ApplyDefaults();
-	//}
+	Bios = PathDefs::GetBios();
+	Savestates = PathDefs::GetSavestates();
+	MemoryCards = PathDefs::GetMemoryCards();
+	PluginsFolder = PathDefs::GetPlugins();
+	Cheats = PathDefs::GetCheats();
+	CheatsWS = PathDefs::GetCheatsWS();
 
-	UseDefaultBios = PCSX2_ui::UseDefaultBios;
-	UseDefaultSavestates = PCSX2_ui::UseDefaultSavestates;
-	UseDefaultMemoryCards = PCSX2_ui::UseDefaultMemoryCards;
-	UseDefaultPluginsFolder = PCSX2_ui::UseDefaultPluginsFolder;
-	UseDefaultCheats = PCSX2_ui::UseDefaultCheats;
-	UseDefaultCheatsWS = PCSX2_ui::UseDefaultCheatsWS;
 
-	//when saving in portable mode, we save relative paths if possible
-	 //  --> on load, these relative paths will be expanded relative to the exe folder.
-	//bool rel = ( ini.IsLoading() );
-	
-	//IniEntryDirFile( Bios,  rel);
-	//IniEntryDirFile( Savestates,  rel );
-	//IniEntryDirFile( MemoryCards,  rel );
-	//IniEntryDirFile( Cheats, rel );
-	//IniEntryDirFile( CheatsWS, rel );
+	//ApplyDefaults();
 
-	//IniEntryDirFile( RunDisc, rel );
-
-	//if( ini.IsLoading() )
-	//{
-		ApplyDefaults();
-
-		for( int i=0; i<FolderId_COUNT; ++i )
-			operator[]( (FoldersEnum_t)i ).Normalize();
-	//}
+	for( int i=0; i<FolderId_COUNT; ++i )
+		operator[]( (FoldersEnum_t)i ).Normalize();
 }
 
 // ------------------------------------------------------------------------
@@ -594,25 +463,6 @@ const wxFileName& AppConfig::FilenameOptions::operator[]( PluginsEnum_t pluginid
 	return Plugins[pluginidx];
 }
 
-// NEW MEM OPTIONS
-void AppConfig::FilenameOptions::LoadSave( IniInterface& ini )
-{
-	/*
-	ScopedIniGroup path( ini, L"Filenames" );
-
-	static const wxFileName pc( L"Please Configure" );
-
-	//when saving in portable mode, we just save the non-full-path filename
- 	//  --> on load they'll be initialized with default (relative) paths (works both for plugins and bios)
-	//note: this will break if converting from install to portable, and custom folders are used. We can live with that.
-	for( int i=0; i<PluginId_Count; ++i )
-	{
-		ini.Entry( tbl_PluginInfo[i].GetShortname(), Plugins[i], pc );
-	}
-
-	ini.Entry( L"BIOS", Bios, pc );
-	*/
-}
 
 // ----------------------------------------------------------------------------
 int AppConfig::GetMaxPresetIndex()
