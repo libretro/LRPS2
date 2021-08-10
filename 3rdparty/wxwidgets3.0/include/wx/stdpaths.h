@@ -53,12 +53,6 @@ public:
     // return the global standard paths object
     static wxStandardPaths& Get();
 
-    // return the path (directory+filename) of the running executable or
-    // wxEmptyString if it couldn't be determined.
-    // The path is returned as an absolute path whenever possible.
-    // Default implementation only try to use wxApp->argv[0].
-    virtual wxString GetExecutablePath() const;
-
     // return the directory with system config files:
     // /etc under Unix, c:\Documents and Settings\All Users\Application Data
     // under Windows, /Library/Preferences for Mac
@@ -72,54 +66,12 @@ public:
     // GetUserDataDir() is more appropriate
     virtual wxString GetUserConfigDir() const = 0;
 
-    // return the location of the applications global, i.e. not user-specific,
-    // data files
-    //
-    // prefix/share/appname under Unix, c:\Program Files\appname under Windows,
-    // appname.app/Contents/SharedSupport app bundle directory under Mac
-    virtual wxString GetDataDir() const = 0;
-
     // return the directory for the user-dependent application data files
     //
     // $HOME/.appname under Unix,
     // c:\Documents and Settings\username\Application Data\appname under Windows
     // and ~/Library/Application Support/appname under Mac
     virtual wxString GetUserDataDir() const = 0;
-
-    // return the directory for user data files which shouldn't be shared with
-    // the other machines
-    //
-    // same as GetUserDataDir() for all platforms except Windows where it is
-    // the "Local Settings\Application Data\appname" directory
-    virtual wxString GetUserLocalDataDir() const;
-
-    // return the directory where the loadable modules (plugins) live
-    //
-    // prefix/lib/appname under Unix, program directory under Windows and
-    // Contents/Plugins app bundle subdirectory under Mac
-    virtual wxString GetPluginsDir() const = 0;
-
-    // get resources directory: resources are auxiliary files used by the
-    // application and include things like image and sound files
-    //
-    // same as GetDataDir() for all platforms except Mac where it returns
-    // Contents/Resources subdirectory of the app bundle
-    virtual wxString GetResourcesDir() const { return GetDataDir(); }
-
-    // get localized resources directory containing the resource files of the
-    // specified category for the given language
-    //
-    // in general this is just GetResourcesDir()/lang under Windows and Unix
-    // and GetResourcesDir()/lang.lproj under Mac but is something quite
-    // different under Unix for message catalog category (namely the standard
-    // prefix/share/locale/lang/LC_MESSAGES)
-    virtual wxString
-    GetLocalizedResourcesDir(const wxString& lang,
-                             ResourceCat WXUNUSED(category)
-                                = ResourceCat_None) const
-    {
-        return GetResourcesDir() + wxFILE_SEP_PATH + lang;
-    }
 
     // return the "Documents" directory for the current user
     //
@@ -193,15 +145,9 @@ protected:
 class WXDLLIMPEXP_BASE wxStandardPaths : public wxStandardPathsBase
 {
 public:
-    void SetInstallPrefix(const wxString& prefix) { m_prefix = prefix; }
-    wxString GetInstallPrefix() const { return m_prefix; }
-
-    virtual wxString GetExecutablePath() const { return m_prefix; }
     virtual wxString GetConfigDir() const { return m_prefix; }
     virtual wxString GetUserConfigDir() const { return m_prefix; }
-    virtual wxString GetDataDir() const { return m_prefix; }
     virtual wxString GetUserDataDir() const { return m_prefix; }
-    virtual wxString GetPluginsDir() const { return m_prefix; }
     virtual wxString GetDocumentsDir() const { return m_prefix; }
 
 protected:

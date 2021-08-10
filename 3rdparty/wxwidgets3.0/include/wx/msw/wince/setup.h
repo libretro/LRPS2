@@ -293,16 +293,6 @@
 // Recommended setting: 1
 #define wxUSE_DATETIME      1
 
-// Setting wxUSE_CONFIG to 1 enables the use of wxConfig and related classes
-// which allow the application to store its settings in the persistent
-// storage. Setting this to 1 will also enable on-demand creation of the
-// global config object in wxApp.
-//
-// See also wxUSE_CONFIG_NATIVE below.
-//
-// Recommended setting: 1
-#define wxUSE_CONFIG        1
-
 // Set to 1 to use ipv6 socket classes (requires wxUSE_SOCKETS)
 //
 // Notice that currently setting this option under Windows will result in

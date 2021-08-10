@@ -14,6 +14,7 @@
 #include <libretro_core_options.h>
 #include <string>
 #include <thread>
+#include <wx/textfile.h>
 #include <wx/stdpaths.h>
 #include <wx/dir.h>
 #include <wx/evtloop.h>
@@ -904,28 +905,16 @@ wxEventLoopBase* Pcsx2AppTraits::CreateEventLoop()
 	return new wxEventLoop();
 }
 
+wxString GetExecutablePath()
+{
+	const char* system = nullptr;
+	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
+	return Path::Combine(system, "pcsx2/PCSX2");
+}
+
 #ifdef wxUSE_STDPATHS
 class Pcsx2StandardPaths : public wxStandardPaths
 {
-public:
-	virtual wxString GetExecutablePath() const
-	{
-		const char* system = nullptr;
-		environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
-		return Path::Combine(system, "pcsx2/PCSX2");
-	}
-	wxString GetResourcesDir() const
-	{
-		const char* system = nullptr;
-		environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
-		return Path::Combine(system, "pcsx2/Langs");
-	}
-	wxString GetUserLocalDataDir() const
-	{
-		const char* savedir = nullptr;
-		environ_cb(RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY, &savedir);
-		return Path::Combine(savedir, "pcsx2");
-	}
 };
 
 wxStandardPaths& Pcsx2AppTraits::GetStandardPaths()

@@ -628,22 +628,4 @@
 #    endif
 #endif
 
-/*
- * Define symbols that are not yet in
- * configure or possibly some setup.h files.
- * They will need to be added.
- */
-
-#ifndef wxUSE_FILECONFIG
-#    if wxUSE_CONFIG && wxUSE_TEXTFILE
-#        define wxUSE_FILECONFIG 1
-#    else
-#        define wxUSE_FILECONFIG 0
-#    endif
-#endif
-
-/*
-    Optionally supported C++ features.
- */
-
 #endif /* _WX_PLATFORM_H_ */

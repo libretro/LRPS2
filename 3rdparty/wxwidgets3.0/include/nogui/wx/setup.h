@@ -72,8 +72,6 @@
 
 #define wxUSE_DATETIME 1
 
-#define wxUSE_CONFIG 1
-
 #define wxUSE_IPV6          0
 
 #define wxUSE_APPLE_IEEE 1
