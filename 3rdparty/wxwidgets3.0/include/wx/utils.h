@@ -298,14 +298,5 @@ WXDLLIMPEXP_BASE wxString wxGetUserHome(const wxString& user = wxEmptyString);
     typedef long wxDiskspaceSize_t;
 #endif
 
-typedef int (*wxSortCallback)(const void* pItem1,
-                              const void* pItem2,
-                              const void* user_data);
-
-
-WXDLLIMPEXP_BASE void wxQsort(void* pbase, size_t total_elems,
-                              size_t size, wxSortCallback cmp,
-                              const void* user_data);
-
 #endif
     // _WX_UTILSH__
