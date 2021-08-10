@@ -27,13 +27,10 @@
 
 DocsModeType				DocsFolderMode = DocsFolder_User;
 bool					UseDefaultSettingsFolder = true;
-bool					UseDefaultPluginsFolder = true;
 
 
 wxDirName				CustomDocumentsFolder;
 wxDirName				SettingsFolder;
-
-wxDirName				PluginsFolder;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // PathDefs Namespace -- contains default values for various pcsx2 path names and locations.
@@ -65,12 +62,6 @@ namespace PathDefs
 			return retval;
 		}
 
-		const wxDirName& Plugins()
-		{
-			static const wxDirName retval( L"plugins" );
-			return retval;
-		}
-
 		const wxDirName& Bios()
 		{
 			static const wxDirName retval(L"bios");
@@ -89,19 +80,6 @@ namespace PathDefs
 			return retval;
 		}
 	};
-
-	// Specifies the root folder for the application install.
-	// (currently it's the CWD, but in the future I intend to move all binaries to a "bin"
-	// sub folder, in which case the approot will become "..") [- Air?]
-
-	//The installer installs the folders which are relative to AppRoot (that's plugins/langs)
-	//  relative to the exe folder, and not relative to cwd. So the exe should be default AppRoot. - avih
-	const wxDirName& AppRoot()
-	{
-		static const wxDirName appCache( (wxDirName)
-				wxFileName(wxStandardPaths::Get().GetExecutablePath()).GetPath() );
-		return appCache;
-	}
 
 	const wxDirName& LibretroPcsx2Root()
 	{
@@ -138,19 +116,6 @@ namespace PathDefs
 		return LibretroPcsx2Root() + Base::MemoryCards();
 	}
 
-	wxDirName GetPlugins()
-	{
-		// Each linux distributions have his rules for path so we give them the possibility to
-		// change it with compilation flags. -- Gregory
-#ifndef PLUGIN_DIR_COMPILATION
-		return AppRoot() + Base::Plugins();
-#else
-#define xPLUGIN_DIR_str(s) PLUGIN_DIR_str(s)
-#define PLUGIN_DIR_str(s) #s
-		return wxDirName( xPLUGIN_DIR_str(PLUGIN_DIR_COMPILATION) );
-#endif
-	}
-
 	wxDirName GetSettings()
 	{
 		return LibretroPcsx2Root() + Base::Settings();
@@ -160,7 +125,6 @@ namespace PathDefs
 	{
 		switch( folderidx )
 		{
-			case FolderId_Plugins:		return GetPlugins();
 			case FolderId_Settings:		return GetSettings();
 			case FolderId_Bios:			return GetBios();
 			case FolderId_Savestates:	return GetSavestates();
@@ -180,7 +144,6 @@ wxDirName& AppConfig::FolderOptions::operator[]( FoldersEnum_t folderidx )
 {
 	switch( folderidx )
 	{
-		case FolderId_Plugins:		return PluginsFolder;
 		case FolderId_Settings:		return SettingsFolder;
 		case FolderId_Bios:			return Bios;
 		case FolderId_Savestates:	return Savestates;
@@ -192,7 +155,7 @@ wxDirName& AppConfig::FolderOptions::operator[]( FoldersEnum_t folderidx )
 
 		jNO_DEFAULT
 	}
-	return PluginsFolder;		// unreachable, but suppresses warnings.
+	return CustomDocumentsFolder;		// unreachable, but suppresses warnings.
 }
 
 const wxDirName& AppConfig::FolderOptions::operator[]( FoldersEnum_t folderidx ) const
@@ -348,7 +311,6 @@ void AppConfig::FolderOptions::LoadSave()
 	Bios = PathDefs::GetBios();
 	Savestates = PathDefs::GetSavestates();
 	MemoryCards = PathDefs::GetMemoryCards();
-	PluginsFolder = PathDefs::GetPlugins();
 	Cheats = PathDefs::GetCheats();
 	CheatsWS = PathDefs::GetCheatsWS();
 
@@ -479,13 +441,6 @@ void AppConfig::ResetPresetSettingsToDefault() {
 	EmuOptions.Speedhacks.vuFlagHack = true;
 	PresetIndex = 1;
 	log_cb(RETRO_LOG_INFO, "Reset of speedhack preset to n:1 - Safe (default)\n");
-}
-
-
-
-static wxFileConfig* OpenFileConfig( const wxString& filename )
-{
-	return new wxFileConfig( wxEmptyString, wxEmptyString, filename, wxEmptyString, wxCONFIG_USE_RELATIVE_PATH );
 }
 
 static void SaveUiSettings()

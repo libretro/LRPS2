@@ -36,7 +36,6 @@ add_library(wxwidgets
    src/common/evtloopcmn.cpp
    src/common/ffile.cpp
    src/common/file.cpp
-   src/common/fileconf.cpp
    src/common/filefn.cpp
    src/common/filename.cpp
    src/common/hashmap.cpp

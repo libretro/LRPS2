@@ -282,11 +282,6 @@ wxStandardPaths::wxStandardPaths()
     IgnoreAppBuildSubDirs();
 }
 
-wxString wxStandardPaths::GetExecutablePath() const
-{
-    return wxGetFullModuleName();
-}
-
 wxString wxStandardPaths::GetConfigDir() const
 {
     return AppendAppInfo(DoGetDirectory(CSIDL_COMMON_APPDATA));
@@ -297,28 +292,9 @@ wxString wxStandardPaths::GetUserConfigDir() const
     return DoGetDirectory(CSIDL_APPDATA);
 }
 
-wxString wxStandardPaths::GetDataDir() const
-{
-    // under Windows each program is usually installed in its own directory and
-    // so its datafiles are in the same directory as its main executable
-    return GetAppDir();
-}
-
 wxString wxStandardPaths::GetUserDataDir() const
 {
     return AppendAppInfo(GetUserConfigDir());
-}
-
-wxString wxStandardPaths::GetUserLocalDataDir() const
-{
-    return AppendAppInfo(DoGetDirectory(CSIDL_LOCAL_APPDATA));
-}
-
-wxString wxStandardPaths::GetPluginsDir() const
-{
-    // there is no standard location for plugins, suppose they're in the same
-    // directory as the .exe
-    return GetAppDir();
 }
 
 // ============================================================================

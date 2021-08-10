@@ -13,15 +13,4 @@
 
 #include "wx/confbase.h"
 
-#if wxUSE_CONFIG
-
-// ----------------------------------------------------------------------------
-// define the native wxConfigBase implementation
-// ----------------------------------------------------------------------------
-
-#include "wx/fileconf.h"
-#define wxConfig wxFileConfig
-
-#endif // wxUSE_CONFIG
-
 #endif // _WX_CONFIG_H_BASE_

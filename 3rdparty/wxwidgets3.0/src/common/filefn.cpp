@@ -1093,16 +1093,6 @@ bool wxEndsWithPathSeparator(const wxString& filename)
     return !filename.empty() && wxIsPathSeparator(filename.Last());
 }
 
-#if WXWIN_COMPATIBILITY_2_8
-void WXDLLIMPEXP_BASE wxSplitPath(const wxString& fileName,
-                             wxString *pstrPath,
-                             wxString *pstrName,
-                             wxString *pstrExt)
-{
-    wxFileName::SplitPath(fileName, pstrPath, pstrName, pstrExt);
-}
-#endif  // #if WXWIN_COMPATIBILITY_2_8
-
 #if defined(__WINDOWS__) && !(defined(__UNIX__) || defined(__OS2__))
 static bool wxCheckWin32Permission(const wxString& path, DWORD access)
 {

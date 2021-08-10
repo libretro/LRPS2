@@ -17,7 +17,6 @@
 
 #include "Utilities/wxAppWithHelpers.h"
 
-#include <wx/fileconf.h>
 #include <wx/apptrait.h>
 #include <memory>
 

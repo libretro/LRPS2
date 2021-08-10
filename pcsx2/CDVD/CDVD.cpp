@@ -14,6 +14,7 @@
  */
 
 #include "PrecompiledHeader.h"
+#include "Utilities/FixedPointTypes.inl"
 #include "IopCommon.h"
 #include "AppConfig.h"
 

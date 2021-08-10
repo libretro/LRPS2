@@ -19,13 +19,9 @@ class WXDLLIMPEXP_BASE wxStandardPaths : public wxStandardPathsBase
 {
 public:
     // implement base class pure virtuals
-    virtual wxString GetExecutablePath() const;
     virtual wxString GetConfigDir() const;
     virtual wxString GetUserConfigDir() const;
-    virtual wxString GetDataDir() const;
     virtual wxString GetUserDataDir() const;
-    virtual wxString GetUserLocalDataDir() const;
-    virtual wxString GetPluginsDir() const;
     virtual wxString GetDocumentsDir() const;
 
 

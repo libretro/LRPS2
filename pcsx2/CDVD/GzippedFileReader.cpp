@@ -151,38 +151,14 @@ static wxString ApplyTemplate(const wxString& name, const wxDirName& base,
 	return tem;
 }
 
-/*
-static void TestTemplate(const wxDirName &base, const wxString &fname, bool canEndWithKey)
-{
-	const char *ins[] = {
-		"$(f).pindex.tmp",                    // same folder as the original file
-		"	$(f).pindex.tmp ",                // same folder as the original file (trimmed silently)
-		"cache/$(f).pindex",                  // relative to base
-		"../$(f).pindex",                     // relative to base
-		"%appdata%/pcsx2/cache/$(f).pindex",  // c:/Users/<user>/AppData/Roaming/pcsx2/cache/ ...
-		"c:\\pcsx2-cache/$(f).pindex",        // absolute
-		"~/.cache/$(f).pindex",	              // TODO: check if this works on *nix. It should...
-		                                      //       (on windows ~ isn't recognized as special)
-		"cache/$(f)/$(f).index",              // invalid: appears twice
-		"hello",                              // invalid: doesn't contain $(f)
-		"hello$(f)",                          // invalid, can't end with $(f)
-		NULL
-	};
-
-	for (int i = 0; ins[i]; i++) {
-		wxString tem(wxString::From8BitData(ins[i]));
-		log_cb(RETRO_LOG_INFO, L"test: '%s' -> '%s'\n",
-		                WX_STR(tem),
-		                WX_STR(ApplyTemplate(L"test", base, tem, fname, canEndWithKey)));
-	}
-}
-*/
+/* forward declaration */
+wxString GetExecutablePath();
 
 static wxString iso2indexname(const wxString& isoname)
 {
 	//testTemplate(isoname);
 	wxDirName appRoot = // TODO: have only one of this in PCSX2. Right now have few...
-		(wxDirName)(wxFileName(wxStandardPaths::Get().GetExecutablePath()).GetPath());
+		(wxDirName)(wxFileName(GetExecutablePath()).GetPath());
 	//TestTemplate(appRoot, isoname, false);
 	return ApplyTemplate(L"gzip index", appRoot, g_Conf->GzipIsoIndexTemplate, isoname, false);
 }
