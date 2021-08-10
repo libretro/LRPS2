@@ -155,7 +155,6 @@ set(GSdxHeaders
     Renderers/OpenGL/GSTextureOGL.h
     Renderers/OpenGL/GSUniformBufferOGL.h
     Renderers/OpenGL/GSVertexArrayOGL.h
-    Window/GSSetting.h
     Window/GSWnd.h
     xbyak/xbyak.h
     xbyak/xbyak_mnemonic.h

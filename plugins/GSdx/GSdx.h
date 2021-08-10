@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include "Window/GSSetting.h"
 #include "GS.h"
 
 class GSdxApp
