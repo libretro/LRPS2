@@ -1,0 +1,100 @@
+This gonna be a long post......
+I wondering many weeks ago about this collection to improve it; because has ARRANGE sountracts from neogeo-cd and sounds great but some blurry screen and menus shaking are the main problem; some games not need interleacing codes, only menus, but learning about frames, progressive scan modes etc i want to improve this game collection, add progressive modes, null interleacing instruction, lower input lag etc.
+
+This are my  mods to improve a little this games:
+
+This is for PS2 NEO-GEO ONLINE COLLECTION JAPAN VERSIONS (can work other regions see notes)
+
+Fast boot Bypass Intro logos and video
+
+This game collection has a .elf file for logos and almost "generic" video intro and another .elf for games, with this hack we bypass this intro and boot directly to games main menu, also i include pnach files for this games in MOD-PACK archive for Progressive Scan 240p (native mode) this codes also disable interleacing routine for menu-games.
+
+For this we need to modify our ISO dump
+
+1 > Hxd or favorite hex editor
+2 > Open your ISO dump
+3 > HxD > search > find > hex-values > search for: 42 4F 4F 54 32 20 3D 20 63 64 72 6F 6D 30 3A 5C  > search direction: All > search all
+
+4 > copy this number values or CTRl + C:
+
+*FOR: The Last Blade 1 and 2 ???? ?????1·2
+Code:
+42 4F 4F 54 32 20 3D 20 63 64 72 6F 6D 30 3A 5C 53 45 4C 45 43 54 2E 45 4C 46 3B 31 0D 0A 56 45 52 20 3D 20 31 2E 30 34 0D 0A 56 4D 4F 44 45 20 3D 20 4E 54 53 43 0D 0A 48 44 44 55 4E 49 54 50 4F 57 45 52 20 3D 20 4E 49 43 0D 0A 00 00 00 00
+
+*FOR: Art of Fighting Anthology ??????·?·??
+Code:
+42 4F 4F 54 32 20 3D 20 63 64 72 6F 6D 30 3A 5C 53 45 4C 45 43 54 2E 45 4C 46 3B 31 0D 0A 56 45 52 20 3D 20 31 2E 30 32 0D 0A 56 4D 4F 44 45 20 3D 20 4E 54 53 43 0D 0A 48 44 44 55 4E 49 54 50 4F 57 45 52 20 3D 20 4E 49 43 0D 0A 00 00 00 00
+
+*FOR: Fatal Fury Battle Archives 1 ?????????????1
+Code:
+42 4F 4F 54 32 20 3D 20 63 64 72 6F 6D 30 3A 5C 53 45 4C 45 43 54 2E 45 4C 46 3B 31 0D 0A 56 45 52 20 3D 20 31 2E 30 30 0D 0A 56 4D 4F 44 45 20 3D 20 4E 54 53 43 0D 0A 48 44 44 55 4E 49 54 50 4F 57 45 52 20 3D 20 4E 49 43 0D 0A 00 00 00 00
+
+*For: Fatal Fury Battle Archives 2 ?????????????2
+Code:
+42 4F 4F 54 32 20 3D 20 63 64 72 6F 6D 30 3A 5C 53 45 4C 45 43 54 2E 45 4C 46 3B 31 0D 0A 56 45 52 20 3D 20 31 2E 30 31 0D 0A 56 4D 4F 44 45 20 3D 20 4E 54 53 43 0D 0A 48 44 44 55 4E 49 54 50 4F 57 45 52 20 3D 20 4E 49 43 0D 0A 00 00 00 00
+
+*FOR: World Heroes Anthology  ????????? ?????
+Code:
+42 4F 4F 54 32 20 3D 20 63 64 72 6F 6D 30 3A 5C 53 45 4C 45 43 54 2E 45 4C 46 3B 31 0D 0A 56 45 52 20 3D 20 31 2E 30 32 0D 0A 56 4D 4F 44 45 20 3D 20 4E 54 53 43 0D 0A 48 44 44 55 4E 49 54 50 4F 57 45 52 20 3D 20 4E 49 43 0D 0A 00 00 00 00
+
+*FOR: Samurai Shodown Anthology ????????????? *Boot to Samurai 6, you can exit in game and return to main Menu
+Code:
+42 4F 4F 54 32 20 3D 20 63 64 72 6F 6D 30 3A 5C 53 36 5C 4E 4F 31 2E 45 4C 46 3B 31 0A 56 45 52 20 3D 20 31 2E 30 32 0A 56 4D 4F 44 45 20 3D 20 4E 54 53 43 0A 48 44 44 55 4E 49 54 50 4F 57 45 52 20 3D 20 4E 49 43 0A 00 00 00 00 00 00 00 00
+
+-if you want to try Samurai 6 in English *Can't come back to Main Menu
+Code:
+42 4F 4F 54 32 20 3D 20 63 64 72 6F 6D 30 3A 5C 53 36 5C 4E 4F 31 5F 45 2E 33 39 3B 31 0A 56 45 52 20 3D 20 31 2E 30 32 0A 56 4D 4F 44 45 20 3D 20 4E 54 53 43 0A 48 44 44 55 4E 49 54 50 4F 57 45 52 20 3D 20 4E 49 43 0A 00 00 00 00 00 00 00
+
+*FOR: The King of Fighters: NESTS Collection THE KING OF FIGHTERS -????- you can return to menu pressing at same time ( L2 + R2 + L1 + R1 + SELECT + START )
+
+-*This code Boot to KoF '99 neo-geo, but you can change other neo-geo version, edit after in Hxd:
+N1999.ELF for:
+N2000.ELF = kOF 2000
+N2001.ELF = KOF 2001
+Code:
+42 4F 4F 54 32 20 3D 20 63 64 72 6F 6D 30 3A 5C 4E 31 39 39 39 2E 45 4C 46 3B 31 0A 56 45 52 20 3D 20 31 2E 30 32 0A 56 4D 4F 44 45 20 3D 20 4E 54 53 43 0A 48 44 44 55 4E 49 54 50 4F 57 45 52 20 3D 20 4E 49 43 0A 00 00 00 00 00
+
+5 > paste write in Hxd with CTRL + B or second click "paste write option" > save; (if program warn about increase file zise or etc you are doign wrong the program not need to ask about it, do it again.)
+
+Here we are changing the default boot .elf in SYSTEM.CNF to another .elf; Others games can't be done because have only 1 .elf, or the .elf self contain all executable data from other .elfs, also we loose intro art image but you know... time is gold; for oher regions can work too but about PAL editions maybe cause conflic or maybe not because this versions use selectors 50hz - 60hz but i dont know, if you wanna test is the same logic only change SYSTEM.CNF instruction route SLESXXX for SELECT.ELF executable; this can be implemented too in other games with many executables files if you want experiment, but result can be mixed.
+
+This only change games default boot, but menu still shake, interleacing etc, i include a MOD-PACK pnach archive has codes for this games enable progressive mode in native mode (320x224 / 640x224) according to PCSX2 print status console this are original frames resolution before pass to display (stretch to 448, field mode display, postprocess etc), you migth think you loss resolution but not, mayority this games are Field mode. (Read Every Other Line) games , when you force progressive mode this tell game show full frame each interval, if game only show half screen is (aka field mode game); games like kof98um are full frame games because show full frame in progressive mode interval.
+
+- This was aimed to PCSX2 but was tested in PS3 console (i dont have PS2) it work as intended, progressive codes enabled in games looks nice withow interleacing but are small in TV, half upper screen (because they are field mode games), testing anothers codes cut off part upper screen, for this i think is better try GSM homebrew, i leave in pnach codes notes about codes edited if some want to check or try with PS2 hardware with PVM, RGB setups.
+ 
+FOR NO ISO DUMP MODDING
+next pnach codes for No interleacing menus and progressive mode in PCSX2; games with official progressive mode i add autoboot progressive prompt option and some changes, tips for PCSX2 and game notes:
+
+General PCSX2 recomended options:
+
+-If you have PS3 controller check new driver 2020 here
+-Last PCSX2 dev build Here (build with allow sprite conversion to be done on the cpu on d3d hw renderer when applicable)
+-Hardware Mode: Looks sharp lees or no blurry screen *Exept for Garou Mark of wolves (missing graphics)
+-PCSX2 > Config > Video (GS) > Plugin settings : Interleacing = none (or F5 till "none")
+                                                                       *Texture filtering = Nearest (minimize blurry screen)
+                                                                         Shader Configuration > Texture Filtering (un-check *or leave it)
+-PCSX2 > Config > Audio (SPU2) > Synchronizing mode: Async Mix (for input lag-performance)
+                                                   Module: Port Audio > Configure > Wasapi exclusive (for stereo - home theater amps)*bypass windows audio postprocesing, this disable all windows sound in play.
+-F7 for enable Scanlines (keep pressing for other options)
+--PCSX2 > Config > Video (GS) > Plugin settings : internal resolution 2x > 3x (or GPU performance capable)
+
+#01 Garou: Mark of the Wolves ??-MARK OF THE WOLVES- Game CRC = C002C3F2
+Codes: add (progressive scan enabler option no need button combo, press O in ??=Yes  -  ???=no  )
+
+#02 The Last Blade 1 and 2 ???? ?????1·2 Game CRC 142F45D8 post code > HERE
+#03 The King of Fighters: Orochi Collection THE KING OF FIGHTERS -????- Game CRC = 619E610B
+#04 Art of Fighting Anthology ??????·?·?? Game CRC = B31516CC
+#05 Fatal Fury Battle Archives 1 ?????????????1 Game CRC = 7AD64EA7
+#06 Fatal Fury Battle Archives 2 ?????????????2 Game CRC = 5192FAD0
+#07 The King of Fighters: NESTS Collection THE KING OF FIGHTERS -????- Game CRC = 333700CC
+#08 Fu'un Super Combo ????????? Game CRC = 5A2B4173
+#09 World Heroes Anthology ????????? ????? Game CRC = 7CF8C2E1
+
+#10 The King of Fighters '98: Ultimate Match Game CRC = FD714FCB
+Codes: add (progressive scan enabler no need button combo, press O in ??=Yes - ???=no + Default Focus to normal + Default option Arrange OST)
+
+#11 Sunsoft Collection ??????????? Game CRC = CFBF7A5C
+in PCSX2: Hardware mode enable (Config > Video > plugins > Enable HW Hacks > round sprite = half) *Fix incorrect sprite scaling
+
+#12 Samurai Shodown Anthology ????????????? Game CRC = 25BFA0C4
+in PCSX2: Hardware mode enable (Config > Video > plugins > Enable HW Hacks > round sprite = half) *Fix incorrect sprite scaling
