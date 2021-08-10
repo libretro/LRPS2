@@ -14,8 +14,7 @@
  */
 
 #include "PrecompiledHeader.h"
-
-#include <wx/fileconf.h>
+#include "Utilities/FixedPointTypes.inl"
 
 #include "Config.h"
 #include "GS.h"
