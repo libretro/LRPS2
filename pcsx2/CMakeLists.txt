@@ -153,7 +153,6 @@ set(pcsx2Headers
 	Memory.h
 	MemoryTypes.h
 	Patch.h
-	PatchDatabaseCommon.h
 	PathDefs.h
 	Plugins.h
 	PrecompiledHeader.h
