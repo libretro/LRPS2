@@ -24,6 +24,7 @@
 #include <memory>
 
 #include "options_tools.h"
+#include "EmuOptionsUI.h"
 
 // --------------------------------------------------------------------------------------
 //  pxDudConfig
@@ -472,8 +473,8 @@ AppConfig::AppConfig()
 // ------------------------------------------------------------------------
 void AppConfig::LoadSaveMemcards( IniInterface& ini )
 {
-	ScopedIniGroup path( ini, L"MemoryCards" );
-
+	//ScopedIniGroup path( ini, L"MemoryCards" );
+/*
 	for( uint slot=0; slot<2; ++slot )
 	{
 		ini.Entry( pxsFmt( L"Slot%u_Enable", slot+1 ),
@@ -492,23 +493,24 @@ void AppConfig::LoadSaveMemcards( IniInterface& ini )
 		ini.Entry( pxsFmt( L"Multitap%u_Slot%u_Filename", mtport, mtslot ),
 			Mcd[slot].Filename, Mcd[slot].Filename );
 	}
+*/
 }
 
 void AppConfig::LoadSaveRootItems( IniInterface& ini )
 {
-	IniEntry( GzipIsoIndexTemplate );
+	GzipIsoIndexTemplate = wxString(PCSX2_ui::GzipIsoIndexTemplate);
 
 	wxFileName res(CurrentIso);
 	CurrentIso = res.GetFullPath();
 
-	IniEntry( EnableSpeedHacks );
-	IniEntry( EnableGameFixes );
+	EnableSpeedHacks = PCSX2_ui::EnableSpeedHacks;
+	EnableGameFixes = PCSX2_ui::EnableGameFixes;
 
-	IniEntry( EnablePresets );
-	IniEntry( PresetIndex );
+	EnablePresets = PCSX2_ui::EnablePresets;
+	PresetIndex = PCSX2_ui::PresetIndex;
 	
 	#ifdef __WXMSW__
-	IniEntry( McdCompressNTFS );
+	McdCompressNTFS = PCSX2_ui::McdCompressNTFS;
 	#endif
 }
 
@@ -524,6 +526,7 @@ void AppConfig::LoadSave( IniInterface& ini )
 
 	ini.Flush();
 }
+
 void AppConfig::FolderOptions::ApplyDefaults()
 {
 	if( UseDefaultBios )		Bios		  = PathDefs::GetBios();
@@ -545,41 +548,43 @@ AppConfig::FolderOptions::FolderOptions()
 	bitset = 0xffffffff;
 }
 
+
+// NEW MEM OPTIONS
 void AppConfig::FolderOptions::LoadSave( IniInterface& ini )
 {
-	ScopedIniGroup path( ini, L"Folders" );
+	//ScopedIniGroup path( ini, L"Folders" );
 
-	if( ini.IsSaving() )
-	{
+	//if( ini.IsSaving() )
+	//{
 		ApplyDefaults();
-	}
+	//}
 
-	IniBitBool( UseDefaultBios );
-	IniBitBool( UseDefaultSavestates );
-	IniBitBool( UseDefaultMemoryCards );
-	IniBitBool( UseDefaultPluginsFolder );
-	IniBitBool( UseDefaultCheats );
-	IniBitBool( UseDefaultCheatsWS );
+	UseDefaultBios = PCSX2_ui::UseDefaultBios;
+	UseDefaultSavestates = PCSX2_ui::UseDefaultSavestates;
+	UseDefaultMemoryCards = PCSX2_ui::UseDefaultMemoryCards;
+	UseDefaultPluginsFolder = PCSX2_ui::UseDefaultPluginsFolder;
+	UseDefaultCheats = PCSX2_ui::UseDefaultCheats;
+	UseDefaultCheatsWS = PCSX2_ui::UseDefaultCheatsWS;
 
 	//when saving in portable mode, we save relative paths if possible
 	 //  --> on load, these relative paths will be expanded relative to the exe folder.
-	bool rel = ( ini.IsLoading() );
+	//bool rel = ( ini.IsLoading() );
 	
-	IniEntryDirFile( Bios,  rel);
-	IniEntryDirFile( Savestates,  rel );
-	IniEntryDirFile( MemoryCards,  rel );
-	IniEntryDirFile( Cheats, rel );
-	IniEntryDirFile( CheatsWS, rel );
+	//IniEntryDirFile( Bios,  rel);
+	//IniEntryDirFile( Savestates,  rel );
+	//IniEntryDirFile( MemoryCards,  rel );
+	//IniEntryDirFile( Cheats, rel );
+	//IniEntryDirFile( CheatsWS, rel );
 
-	IniEntryDirFile( RunDisc, rel );
+	//IniEntryDirFile( RunDisc, rel );
 
-	if( ini.IsLoading() )
-	{
+	//if( ini.IsLoading() )
+	//{
 		ApplyDefaults();
 
 		for( int i=0; i<FolderId_COUNT; ++i )
 			operator[]( (FoldersEnum_t)i ).Normalize();
-	}
+	//}
 }
 
 // ------------------------------------------------------------------------
@@ -589,8 +594,10 @@ const wxFileName& AppConfig::FilenameOptions::operator[]( PluginsEnum_t pluginid
 	return Plugins[pluginidx];
 }
 
+// NEW MEM OPTIONS
 void AppConfig::FilenameOptions::LoadSave( IniInterface& ini )
 {
+	/*
 	ScopedIniGroup path( ini, L"Filenames" );
 
 	static const wxFileName pc( L"Please Configure" );
@@ -604,6 +611,7 @@ void AppConfig::FilenameOptions::LoadSave( IniInterface& ini )
 	}
 
 	ini.Entry( L"BIOS", Bios, pc );
+	*/
 }
 
 // ----------------------------------------------------------------------------

@@ -20,6 +20,8 @@
 #include "Utilities/IniInterface.h"
 #include "Config.h"
 #include "GS.h"
+#include "EmuOptionsVM.h"
+
 const wxChar* const tbl_SpeedhackNames[] =
 {
 	L"mvuFlag",
@@ -65,17 +67,18 @@ Pcsx2Config::SpeedhackOptions& Pcsx2Config::SpeedhackOptions::DisableAll()
 	return *this;
 }
 
+// NEW MEM OPTIONS
 void Pcsx2Config::SpeedhackOptions::LoadSave( IniInterface& ini )
 {
-	ScopedIniGroup path(ini, L"Speedhacks");
+	//ScopedIniGroup path(ini, L"Speedhacks");
 
-	IniBitfield(EECycleRate);
-	IniBitfield(EECycleSkip);
-	IniBitBool(IntcStat);
-	IniBitBool(WaitLoop);
-	IniBitBool(vuFlagHack);
-	IniBitBool(vuThread);
-	IniBitBool(vu1Instant);
+	EECycleRate = PCSX2_vm::EECycleRate;
+	EECycleSkip = PCSX2_vm::EECycleSkip;
+	IntcStat = PCSX2_vm::IntcStat;
+	WaitLoop = PCSX2_vm::WaitLoop;
+	vuFlagHack = PCSX2_vm::vuFlagHack;
+	vuThread = PCSX2_vm::vuThread;
+	vu1Instant = PCSX2_vm::vu1Instant;
 }
 
 Pcsx2Config::RecompilerOptions::RecompilerOptions()
@@ -138,24 +141,24 @@ void Pcsx2Config::RecompilerOptions::ApplySanityCheck()
 
 void Pcsx2Config::RecompilerOptions::LoadSave( IniInterface& ini )
 {
-	ScopedIniGroup path( ini, L"Recompiler" );
+	//ScopedIniGroup path( ini, L"Recompiler" );
 
-	IniBitBool( EnableEE );
-	IniBitBool( EnableIOP );
-	IniBitBool( EnableVU0 );
-	IniBitBool( EnableVU1 );
+	EnableEE = PCSX2_vm::EnableEE;
+	EnableIOP = PCSX2_vm::EnableIOP;
+	EnableVU0 = PCSX2_vm::EnableVU0;
+	EnableVU1 = PCSX2_vm::EnableVU1;
 
-	IniBitBool( UseMicroVU0 );
-	IniBitBool( UseMicroVU1 );
+	UseMicroVU0 = PCSX2_vm::UseMicroVU0;
+	UseMicroVU1 = PCSX2_vm::UseMicroVU1;
 
-	IniBitBool( vuOverflow );
-	IniBitBool( vuExtraOverflow );
-	IniBitBool( vuSignOverflow );
-	IniBitBool( vuUnderflow );
+	vuOverflow = PCSX2_vm::vuOverflow;
+	vuExtraOverflow = PCSX2_vm::vuExtraOverflow;
+	vuSignOverflow = PCSX2_vm::vuSignOverflow;
+	vuUnderflow = PCSX2_vm::vuUnderflow;
 
-	IniBitBool( fpuOverflow );
-	IniBitBool( fpuExtraOverflow );
-	IniBitBool( fpuFullMode );
+	fpuOverflow = PCSX2_vm::fpuOverflow;
+	fpuExtraOverflow = PCSX2_vm::fpuExtraOverflow;
+	fpuFullMode = PCSX2_vm::fpuFullMode;
 }
 
 Pcsx2Config::CpuOptions::CpuOptions()
@@ -172,10 +175,13 @@ void Pcsx2Config::CpuOptions::ApplySanityCheck()
 	Recompiler.ApplySanityCheck();
 }
 
+
+// NEW MEM OPTIONS - not sure about types, here....
+
 void Pcsx2Config::CpuOptions::LoadSave( IniInterface& ini )
 {
-	ScopedIniGroup path( ini, L"CPU" );
-
+	//ScopedIniGroup path( ini, L"CPU" );
+/*
 	IniBitBoolEx( sseMXCSR.DenormalsAreZero,	"FPU.DenormalsAreZero" );
 	IniBitBoolEx( sseMXCSR.FlushToZero,			"FPU.FlushToZero" );
 	IniBitfieldEx( sseMXCSR.RoundingControl,	"FPU.Roundmode" );
@@ -183,6 +189,16 @@ void Pcsx2Config::CpuOptions::LoadSave( IniInterface& ini )
 	IniBitBoolEx( sseVUMXCSR.DenormalsAreZero,	"VU.DenormalsAreZero" );
 	IniBitBoolEx( sseVUMXCSR.FlushToZero,		"VU.FlushToZero" );
 	IniBitfieldEx( sseVUMXCSR.RoundingControl,	"VU.Roundmode" );
+	*/
+
+	sseMXCSR.DenormalsAreZero = PCSX2_vm::FPU_DenormalsAreZero;
+	sseMXCSR.FlushToZero = PCSX2_vm::FPU_FlushToZero;
+	sseMXCSR.RoundingControl = PCSX2_vm::FPU_Roundmode;
+
+	sseVUMXCSR.DenormalsAreZero = PCSX2_vm::VU_DenormalsAreZero;
+	sseVUMXCSR.FlushToZero = PCSX2_vm::VU_FlushToZero;
+	sseVUMXCSR.RoundingControl = PCSX2_vm::VU_Roundmode;
+
 
 	Recompiler.LoadSave( ini );
 }
@@ -201,16 +217,16 @@ Pcsx2Config::GSOptions::GSOptions()
 	FrameratePAL			= 50.0;
 }
 
+
+// NEW MEM OPTIONS
 void Pcsx2Config::GSOptions::LoadSave( IniInterface& ini )
 {
-	ScopedIniGroup path( ini, L"GS" );
+	//ScopedIniGroup path( ini, L"GS" );
 
-	IniEntry( VsyncQueueSize );
-
-	IniEntry( FrameSkipEnable );
-
-	IniEntry( FramesToDraw );
-	IniEntry( FramesToSkip );
+	VsyncQueueSize = PCSX2_vm::VsyncQueueSize;
+	FrameSkipEnable = PCSX2_vm::FrameSkipEnable;
+	FramesToDraw = PCSX2_vm::FramesToDraw;
+	FramesToSkip = PCSX2_vm::FramesToSkip;
 }
 
 const wxChar *const tbl_GamefixNames[] =
@@ -329,28 +345,29 @@ bool Pcsx2Config::GamefixOptions::Get( GamefixId id ) const
 	return false;		// unreachable, but we still need to suppress warnings >_<
 }
 
+// NEW MEM OPTIONS
 void Pcsx2Config::GamefixOptions::LoadSave( IniInterface& ini )
 {
-	ScopedIniGroup path( ini, L"Gamefixes" );
+	//ScopedIniGroup path( ini, L"Gamefixes" );
 
-	IniBitBool( VuAddSubHack );
-	IniBitBool( FpuCompareHack );
-	IniBitBool( FpuMulHack );
-	IniBitBool( FpuNegDivHack );
-	IniBitBool( XgKickHack );
-	IniBitBool( IPUWaitHack );
-	IniBitBool( EETimingHack );
-	IniBitBool( SkipMPEGHack );
-	IniBitBool( OPHFlagHack );
-	IniBitBool( DMABusyHack );
-	IniBitBool( VIFFIFOHack );
-	IniBitBool( VIF1StallHack );
-	IniBitBool( GIFFIFOHack );
-	IniBitBool( FMVinSoftwareHack );
-	IniBitBool( GoemonTlbHack );
-	IniBitBool( ScarfaceIbit );
-	IniBitBool( CrashTagTeamRacingIbit );
-	IniBitBool( VU0KickstartHack );
+	VuAddSubHack = PCSX2_vm::VuAddSubHack;
+	FpuCompareHack = PCSX2_vm::FpuCompareHack;
+	FpuMulHack = PCSX2_vm::FpuMulHack;
+	FpuNegDivHack = PCSX2_vm::FpuNegDivHack;
+	XgKickHack = PCSX2_vm::XgKickHack;
+	IPUWaitHack = PCSX2_vm::IPUWaitHack;
+	EETimingHack = PCSX2_vm::EETimingHack;
+	SkipMPEGHack = PCSX2_vm::SkipMPEGHack;
+	OPHFlagHack = PCSX2_vm::OPHFlagHack;
+	DMABusyHack = PCSX2_vm::DMABusyHack;
+	VIFFIFOHack = PCSX2_vm::VIFFIFOHack;
+	VIF1StallHack = PCSX2_vm::VIF1StallHack;
+	GIFFIFOHack = PCSX2_vm::GIFFIFOHack;
+	FMVinSoftwareHack = PCSX2_vm::FMVinSoftwareHack;
+	GoemonTlbHack = PCSX2_vm::GoemonTlbHack;
+	ScarfaceIbit = PCSX2_vm::ScarfaceIbit;
+	CrashTagTeamRacingIbit = PCSX2_vm::CrashTagTeamRacingIbit;
+	VU0KickstartHack = PCSX2_vm::VU0KickstartHack;
 }
 
 Pcsx2Config::Pcsx2Config()
@@ -364,20 +381,20 @@ Pcsx2Config::Pcsx2Config()
 
 void Pcsx2Config::LoadSave( IniInterface& ini )
 {
-	ScopedIniGroup path( ini, L"EmuCore" );
+	//ScopedIniGroup path( ini, L"EmuCore" );
 
-	IniBitBool( CdvdShareWrite );
-	IniBitBool( EnablePatches );
-	IniBitBool( EnableCheats );
-	IniBitBool( EnableIPC );
-	IniBitBool( EnableWideScreenPatches );
-	IniBitBool( EnableNointerlacingPatches );
-	IniBitBool( HostFs );
+	CdvdShareWrite = PCSX2_vm::CdvdShareWrite;
+	EnablePatches = PCSX2_vm::EnablePatches;
+	EnableCheats = PCSX2_vm::EnableCheats;
+	EnableIPC = PCSX2_vm::EnableIPC;
+	EnableWideScreenPatches = PCSX2_vm::EnableWideScreenPatches;
+	EnableNointerlacingPatches = PCSX2_vm::EnableNointerlacingPatches;
+	HostFs = PCSX2_vm::HostFs;
 
-	IniBitBool( McdEnableEjection );
-	IniBitBool( McdFolderAutoManage );
-	IniBitBool( MultitapPort0_Enabled );
-	IniBitBool( MultitapPort1_Enabled );
+	McdEnableEjection = PCSX2_vm::McdEnableEjection;
+	McdFolderAutoManage = PCSX2_vm::McdFolderAutoManage;
+	MultitapPort0_Enabled = PCSX2_vm::MultitapPort0_Enabled;
+	MultitapPort1_Enabled = PCSX2_vm::MultitapPort1_Enabled;
 
 	// Process various sub-components:
 
