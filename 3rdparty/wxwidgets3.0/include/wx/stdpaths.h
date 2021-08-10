@@ -53,37 +53,6 @@ public:
     // return the global standard paths object
     static wxStandardPaths& Get();
 
-    // return the directory with system config files:
-    // /etc under Unix, c:\Documents and Settings\All Users\Application Data
-    // under Windows, /Library/Preferences for Mac
-    virtual wxString GetConfigDir() const = 0;
-
-    // return the directory for the user config files:
-    // $HOME under Unix, c:\Documents and Settings\username under Windows,
-    // ~/Library/Preferences under Mac
-    //
-    // only use this if you have a single file to put there, otherwise
-    // GetUserDataDir() is more appropriate
-    virtual wxString GetUserConfigDir() const = 0;
-
-    // return the directory for the user-dependent application data files
-    //
-    // $HOME/.appname under Unix,
-    // c:\Documents and Settings\username\Application Data\appname under Windows
-    // and ~/Library/Application Support/appname under Mac
-    virtual wxString GetUserDataDir() const = 0;
-
-    // return the "Documents" directory for the current user
-    //
-    // C:\Documents and Settings\username\My Documents under Windows,
-    // $HOME under Unix and ~/Documents under Mac
-    virtual wxString GetDocumentsDir() const;
-
-    // return the directory for the documents files used by this application:
-    // it's a subdirectory of GetDocumentsDir() constructed using the
-    // application name/vendor if it exists or just GetDocumentsDir() otherwise
-    virtual wxString GetAppDocumentsDir() const;
-
     // return the temporary directory for the current user
     virtual wxString GetTempDir() const;
 
@@ -97,42 +66,14 @@ public:
         m_usedAppInfo = info;
     }
 
-    bool UsesAppInfo(int info) const { return (m_usedAppInfo & info) != 0; }
-
-
 protected:
     // Ctor is protected as this is a base class which should never be created
     // directly.
     wxStandardPathsBase();
 
-    // append the path component, with a leading path separator if a
-    // path separator or dot (.) is not already at the end of dir
-    static wxString AppendPathComponent(const wxString& dir, const wxString& component);
-
-    // append application information determined by m_usedAppInfo to dir
-    wxString AppendAppInfo(const wxString& dir) const;
-
-
     // combination of AppInfo_XXX flags used by AppendAppInfo()
     int m_usedAppInfo;
 };
-
-#if wxUSE_STDPATHS
-    #if defined(__WINDOWS__)
-        #include "wx/msw/stdpaths.h"
-        #define wxHAS_NATIVE_STDPATHS
-    // We want CoreFoundation paths on both CarbonLib and Darwin (for all ports)
-    #elif defined(__WXMAC__) || defined(__DARWIN__)
-        #include "wx/osx/core/stdpaths.h"
-        #define wxHAS_NATIVE_STDPATHS
-    #elif defined(__OS2__)
-        #include "wx/os2/stdpaths.h"
-        #define wxHAS_NATIVE_STDPATHS
-    #elif defined(__UNIX__)
-        #include "wx/unix/stdpaths.h"
-        #define wxHAS_NATIVE_STDPATHS
-    #endif
-#endif
 
 // ----------------------------------------------------------------------------
 // Minimal generic implementation
@@ -141,25 +82,14 @@ protected:
 // NB: Note that this minimal implementation is compiled in even if
 //     wxUSE_STDPATHS=0, so that our code can still use wxStandardPaths.
 
-#ifndef wxHAS_NATIVE_STDPATHS
 class WXDLLIMPEXP_BASE wxStandardPaths : public wxStandardPathsBase
 {
-public:
-    virtual wxString GetConfigDir() const { return m_prefix; }
-    virtual wxString GetUserConfigDir() const { return m_prefix; }
-    virtual wxString GetUserDataDir() const { return m_prefix; }
-    virtual wxString GetDocumentsDir() const { return m_prefix; }
-
 protected:
     // Ctor is protected because wxStandardPaths::Get() should always be used
     // to access the global wxStandardPaths object of the correct type instead
     // of creating one of a possibly wrong type yourself.
     wxStandardPaths() { }
-
-private:
-    wxString m_prefix;
 };
-#endif // !wxHAS_NATIVE_STDPATHS
 
 #endif // _WX_STDPATHS_H_
 

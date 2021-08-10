@@ -4,7 +4,6 @@ set(wxUnixSources
    src/unix/dir.cpp
    src/unix/evtloopunix.cpp
    src/unix/epolldispatcher.cpp
-   src/unix/stdpaths.cpp
    src/unix/threadpsx.cpp
    src/unix/utilsunx.cpp
    src/unix/wakeuppipe.cpp
@@ -18,7 +17,6 @@ set(wxWindowsSources
    src/msw/dir.cpp
    src/msw/evtloopconsole.cpp
    src/msw/main.cpp
-   src/msw/stdpaths.cpp
    src/msw/thread.cpp
    src/msw/utils.cpp
    )
