@@ -1,0 +1,193 @@
+umm, ok, more simple ways to understand and find this codes, also for people who wants to understand more about it.
+(by the way i dont have the game but look this type code HEX, asasega maybe use step 2.2, for basic understand i recommend you lectures in the end this post)
+
+Disclaimer: this are my ideas about it, nothing is granted to work perfect or is correct information about PS2 code hacking.
+Prepare for spend many hours in testing, lectures for grasp some logic, check end faq.
+1 post of this thread by Asasega, and other threads in PCSX2 forums help me to understand more, in the end i leave many usefull lectures.
+
+UPDATE GUIDE 27 MAY 2021
+*update / add some steps / correct some mispelling / logic (english is not my native language)
+*Update April 17, Forget write important step in code copy CE adresses to PCSX2 debugger - corrected
+*Update May 27, Add more info about "Interleaved video", correct more steps
+
+What is interleacing (Interlaced video)
+https://en.wikipedia.org/wiki/Interlaced_video
+
+Why games have this?
+in PS2 era, this was required mainly for reduce "video bandwith"
+also CRT consumer Tvs was "interleaced" only signal, so, this was required to be implemented,
+another use was implement programing tricks (perception fluidity, add more effects with reduced penalty "compute wise" etc)
+
+Advantages disable - bypass Interleacing in PS2
+-Modern LCD-LED Tv - Monitors, interleacing is not required
+-Disable\bypass the (Flicker) associated to 480"i" signal
+you got more clearer stable image no more up-down "shake" or like blur-afterimage
+(similar when you enable progressive mode in compatible games)
+
+how to know if PS2 game require ("no interleaced" disable - bypass code)
+if you play and image "shake" up-down each second, also if you note some like blur-afterimage
+Before check enable this option in game:
+1 - run game and disable interleacing option press F5 untill PCSX2 window upper tab in "Interlaced" !!left!! label says "NONE"
+or before run game:
+2 - in PCSX2 > Config > Video (GS) > Pluging settings > Interleacing (F5): "None" games will not use PCSX2 workaround for interleacing
+*More advanced confirmation, after disable PCSX2 interleacing to "none", in game play, go to PCSX2 > Debug > Show Debugger > breakpoint put:
+"Address:12000090" and "OK" game image will stop the press Run and you will see the image advance and misplace up>down>up....
+*if image not stop with 12000090, try 12000070, 12001000
+
+About PCSX2 Interleacing option?
+PCSX2 implement a De-interleacing image tecnique https://en.wikipedia.org/wiki/Deinterlacing doing good job
+but not always apply or show de-interleaced image correctly, sometimes require you select manually the de-interleaced method or image still shake,
+also the "desired" image "maybe" is not good (sometimes sawtooh, lines or some blur are applied to image) so, disabling - bypass interleacing
+is a good solution for aftermentioned problems.
+
+PS2 interleacing is implemented by next 3 (functions / instructions / routines ):
+
+1 > sony official sceGsSetHalfOffset = daddiu v0, v0, $0008 only
+2 > sony official sceGsSetHalfOffset + custom game programer rutine = daddiu v0, v0, $0008 and ????????? custom routine or routines
+3 > custom game programer routine only = ????????? custom routine or routines
+
+so, we need to find adresses that write in this registers, values most of time are 0,1 1,0 0,8 8,0
+to find this follow steps order:
+
+(you need to know how to create pnach codes here in PCSX2 forums have many tutorials)
+(Use lastest PCSX2 1.7 dev builds from here: https://buildbot.orphis.net/pcsx2/ for new functions, fixes etc and unknow problems too)
+
+Step 1 > easy mode:
+Download this tool (ELF Search Tool) https://www.ps2-home.com/forum/viewtopic.php?t=6182 >
+with 7zip compressor app open you game iso dump and extract
+the SLPM / SLUS / SLES executable ps2 file in tool folder > run ELF tool: browse the file > in search box and reemplace box put next values:
+
+Search Box:
+38290500 08004264
+Replace Box:
+38290500 00000000
+
+Select pnach and press search:
+Result:
+>values appear create a .pnach file with values and test, game run with no interleacing at all ok, you are lucky end tutorial.
+>values appear, tested, but some parts in game shake (almost menus, videos or 3d gameplay ) go to > step 2
+>no values appear go to > step 2
+
+Step 2 > medium mode:
+after find 1 step codes (or no find anything) you need to search for custom routine adresses mainly with values 0,1,8 in HEX 4/8 bytes
+(00001 / 0000 / 0008) and null / nop (put 0) in that values adresses:
+
+Run game, enter 3d gameplay, > PCSX2 Tab > window > show debug > breakpoint:
+
+2.1 put 12001000 (read) *game will pause > right panel in PCSX2 debugger near selected addres look for (andi 0x00001) similar values > second click in adresss > asemble opcode null 1 value (put 0 in it) > disable breakpoint and test,
+Result:
+>game run with no interleacing (create pnach file, copy that address and hex value with second click)
+>game crash or no pause in breakpoint go to > step 2.2
+Special case: Devil may Cry 3 code (Signature)
+
+2.2 put 12000090 (write) *game will pause > run cheat engine, hook pcsx2 process > memory scan start to 40100000 stop 41ffffff, in PCSX2 press RUN the game advance 1 frame you see image up and down a little> in cheatengine put 0 and firts scan, thousand adresses will find then in PCSX2 debugger press run again and cheat engine change value to 1 a press next scan, keep doign this till you filter/narrow less adresses that write 0 and 1 each time when you press RUN, (if you not find any inverse the search operation 1,0 or 0,8, 8,0)
+Tip: in cheat engine you will note that filtered adresses when you PRESS RUN values change from 0 to 1 or 0 to 8 it Depends how you start searching.
+
+now with this adresses you need to create write (breakpoints) for each addres (1 on time and test) in PCSX2 debugger not combined (dont forget disable 12000090 or 12000070 breakpoints or another breakpoints)
+!!when copy the adresses from CE to PCSX2 Debugger change 4XXXXXXX (4) number for(0) = 0XXXXXXX (this number is the memory area is different in PCSX2 - CE)
+if game interrup again use that address, if not use next addresses, next in left panel (PCSX2 debugger) each time game interrup pressing RUN you will see in left panel registers v0, v1, a0.. etc some change values 0,1 you need to deduce/analyze with this info
+if adress you add had the same values or the near adresses.
+
+Example:
+Armore core last raven (USA) in game 3d world > filtering with 1,0 find 2 adresses (cheatengine) then you select 1 adress (202B81C8) > add to PCSX2 debugger write breakpoint the RUN > game will pause and mark (beq zero,zero,00177D98) you press RUN and see left panel register V0 are changing each time between 0 and 1, so i conclude need to find near a instruction who has V0 register, the next candidate is above adress with instruction (subu v0,v1,v0) > disable breakpoint then select adress doble click and see this interrup the game (withow breakpoint only execute type) press RUN again i see v0 are changing left panel start trial and error in this instruction with asemble opcode remplacing values v0 with "zero" (subu zero,v1,v0) and check * game still shake, try next register (subu v0,zero,v0) * check game works (fonts looks ugly) so i try next value (subu v0,v1,zero) *it works fonts looks ok; this adress affect custom interleasing routine of game so i create a pnach second click in the adress copy adress and hex in this format (patch=1,EE,*adress here,extended,*hex here) save and test game looks ok.
+This not work always, you need to know, analize or guess each mips instruction (you will do better if learn mips basic) in many cases game crash or you need to change the mips code for ORI, li etc, or breakpoint near addresses, also if main instruction is large (you note by the color each section change) you need to check every candidate who not break the game
+Special case: Armore core last raven.
+
+>Game no pause, go to step 2.3;
+>game crash or no find anything go to > step 3.
+Basically we are finding what adresses are writing 0 and 1 in each frame step in cheat engine then in PCSX2 debugger find what instructions are writing this 0,1 values and cancel / nop / null / zero the value (you understand more when you learn more about cheat engine use);
+
+2.3 put 12000070 (write) *game will pause, repeat step 2.2 instructions;
+>game crash or no pause go to > step 3
+
+Step 3 > Hard mode
+this is more difficult to explain, you need understand about Ps2 Privileged GsRegisters, Good use Cheatengine, Basic Mips values changes like li, OR, ORI, XOR, etc
+find routines/functions like scegsparam or similar, manipulate framebuffers / backbuffers, progressive modes opcodes, also amounts of logic and analytic mind Smile , this step is more difficult to explain (even with images) so, i left this in continue (or if some more skilled can teach us with another tutorial more advanced about manipulate this gs registers for framebuffers, frame sizes, progressive modes etc). basically you need to find framebuffer and progressive values and modify.
+in the end this step is litle more dificult to grasp / understand but i put some lectures for learn more about it.
+Tips for more interested people:
+*use 1.7 dev build from april 2021, this show GS Privileged registers and values, find this addreses values and edit in memory
+*use OPL-GSM source code values as guide (programers put good notes about this GS registers)
+*Read GS manual (lectures)
+Special case: my code for Rumble Roses (Japan) / valkirye profile 2 silmeria (USA). / Tekken 5 USA/PAL
+
+4 Enable Progressive Mode in games (Thanks to http://ps2wide.net/480p.html):
+sceGsResetGraph instruction normally parse - set values for NTSC, PAL, 480p video modes, when 480p is enabled some games disable interleasing instruction / function but it have some problems:
+
+*Some games crash or video no play/black screen(need video skip code for bypass this)
+*Somethimes screen values are wrong (need to find this address a fix - hard to explain)
+*Crash in game (Mostly PAL games)*no easy solution.
+*Vertical resolution says 240 or 224 (most of time it means this games are "field renderer" type games)
+
+4.1 480p progressive mode Use tool Elf Search Tool from 1-Step
+Run app and put:
+
+Search Box:
+002C0500 2000B2FF 00340600 1000B1FF 003C0700
+Replace Box:
+0000053C 2000B2FF 5000063C 1000B1FF 0100073C
+
+Select pnach and press search:
+Result:
+>values appear create a .pnach file with values and test, game run ok, and PCSX2 tab appears SDTV 480p / Progressive, you are lucky end tutorial.
+>game black screen sound ok or crash, add Video Skip code and test again.
+>no values appear, your game uses custom or similar function/instruction for this.
+
+sceMpegIsEnd (Video skip Code)
+Search Box:
+4000838C 0800E003 0000628C 00000000
+Replace Box:
+4000838C 0800E003 01000224 00000000
+
+>game crash (your game is not compactible or need special custom code * hard)
+
+Faq:
+In Easy mode step i find others executable files with .ELF in game iso dump i need to patch this too?
+its recomended patch this too because some games load another executable .ELF file, but if you use the ELF tool it will not work with pnach code
+(it work with ELF tool if you patch each elf selecting the "result" iso again) in this cases is recomended use cheatengine > find memory > select array codes
+and start 40100000 > find adreess 1 or 2 findings > verify the adress in PCSX debugger (daddiu v0,v0,0x0008) create pnach, also in cheatengine need to watch
+adreess memory because PS2 re-write part memory or all memory when you play with this type games (you old adreess change another new values
+it will crash or corrupt the game) so you need to find values again when adresses change, for this cases need learn to make hooks with codes DXXXXXXX or EXXXXXXX, more info end this guide.
+Special case: my code for Samurai Showdown Anthology
+
+what it means add this "120xxxxx" breakpoint to write / read?
+it means this adresses are reserved Gs registers (all games have that adresses perform same functions) are commonly writen - reading each frame displayed in game, by many adresses - instructions etc with many values 0-9 a-f, for filter no interleacing we need to find adresses who write values 0,1, - 1,0 - 0,8 - 8,0 4bytes 8bytes with ram searcher like cheatengine after filtered adresses need to be checked in PCSX2 debugger like explain step 2.3 find instruction who writes the mentioned values.
+
+what is null, nop, zero?
+null=0 nop(not operant)=0 zero=0 many values to put 0
+
+why not a image / video tutorial?
+sorry, but i dont like video tutorials, images will make this post a large ilustration book more o less, i left some lectures below, they have some
+images and videos.
+
+this is too hard for me what another easy solution for no interleacing?
+Use default auto de-Interleacing modes from PCSX2 > Config > video (GS) > interleacing (automatic) or F5 in game for select prefered modes.
+
+This only work for no interleacing?
+No always, when you start know how ps2 works and modding the game code, routines etc, give you ideas for enhace games, example code activators (joker codes) with PAD or framebuffer manipulation (my No Hud Mod for Devil may cry) autofixes, fixes (armore core last R no need for HW hacks) sharp framebuffer display etc.
+Special cases: my code for Granturismo 4 (USA)
+my code No HUD Devil may cry (Signature) / screen fix Alone in the dark 4 Nigthmare (PAL)
+
+This guide tips etc, work in Consoles PS2, PS3?
+this is focused on PCSX2 emulator, some codes works (mostly 480p codes), some interleacing codes works too
+but testing some games (In ps3) show wrong position or flicker, also some codes can't be patched to ISO dump
+but if you want test use PATCH-ENGINE tool, or better use old GSM homebrew or NEW PS2 OPL (has many fixes for video modes) *not compactible
+with PS3 software only ps2 emulator.
+
+Lectures:
+GS **NY USER MANUAL
+https://usermanual.wiki/Pdf/GSUsersManua...76781/view
+
+Good reading about what are you hacking-modding
+https://www.copetti.org/projects/console...station-2/
+
+In PS2 Section guides about how to hex editing,mips,codes, etc
+https://gamehacking.org/library#section15
+
+No every code explanation works but D and E code making works
+https://gamehacking.org/wiki/Code_Types_(Playstation_2)
+
+Deep insigth about PS2 Registers
+https://psi-rockin.github.io/ps2tek/
+
+Another mips assembly explanation with ps2dis tool
+https://theelitegamers.darkbb.com/t47-le...use-ps2dis
