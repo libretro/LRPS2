@@ -335,3 +335,22 @@ bool IsBIOS(const wxString& filename, wxString& description)
 
 	return false;	// fail quietly
 }
+
+
+bool IsBIOSlite(const wxString& filename, wxString& description)
+{
+	pxInputStream inway(filename, new wxFFileInputStream(filename));
+
+	if (!inway.IsOk()) return false;
+	// FPS2BIOS is smaller and of variable size
+	//if (inway.Length() < 512*1024) return false;
+
+	try {
+		u32 version;
+		LoadBiosVersion(inway, version, description);
+		return true;
+	}
+	catch (Exception::BadStream&) {}
+
+	return false;	// fail quietly
+}

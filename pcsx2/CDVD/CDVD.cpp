@@ -94,7 +94,7 @@ static int mg_BIToffset(u8* buffer)
 
 static void cdvdGetMechaVer(u8* ver)
 {
-	wxFileName mecfile(EmuConfig.BiosFilename);
+	wxFileName mecfile(g_Conf->EmuOptions.BiosFilename);
 	mecfile.SetExt(L"mec");
 	const wxString fname(mecfile.GetFullPath());
 
@@ -140,7 +140,7 @@ NVMLayout* getNvmLayout()
 // be created for some reason.
 static void cdvdNVM(u8* buffer, int offset, size_t bytes, bool read)
 {
-	wxFileName nvmfile(EmuConfig.BiosFilename);
+	wxFileName nvmfile(g_Conf->EmuOptions.BiosFilename);
 	nvmfile.SetExt(L"nvm");
 	const wxString fname(nvmfile.GetFullPath());
 
