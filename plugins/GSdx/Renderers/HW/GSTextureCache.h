@@ -253,7 +253,5 @@ public:
 		return (type == DepthStencil) ? "Depth" : "Color";
 	}
 
-	void PrintMemoryUsage();
-
 	void AttachPaletteToSource(Source* s, uint16 pal, bool need_gs_texture);
 };

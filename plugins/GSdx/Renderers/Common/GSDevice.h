@@ -212,8 +212,6 @@ public:
 	void AgePool();
 	void PurgePool();
 
-	virtual void PrintMemoryUsage();
-
 	// Convert the GS blend equations to HW specific blend factors/ops
 	// Index is computed as ((((A * 3 + B) * 3) + C) * 3) + D. A, B, C, D taken from ALPHA register.
 	HWBlend GetBlend(size_t index);
