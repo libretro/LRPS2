@@ -371,6 +371,7 @@ void Pcsx2Config::LoadSave( IniInterface& ini )
 	IniBitBool( EnableCheats );
 	IniBitBool( EnableIPC );
 	IniBitBool( EnableWideScreenPatches );
+	IniBitBool( EnableNointerlacingPatches );
 	IniBitBool( HostFs );
 
 	IniBitBool( McdEnableEjection );

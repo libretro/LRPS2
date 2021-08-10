@@ -38,6 +38,7 @@
 * this is to be investigate deeper, if it's the cause of the very long boot time when cheat ws are enabled
 */
 bool msg_cheat_ws_found_sent = false;
+bool msg_cheat_nointerlacing_found_sent = false;
 bool msg_cheats_found_sent   = false;
 
 __aligned16 SysMtgsThread mtgsThread;
@@ -59,6 +60,7 @@ static void PostCoreStatus(CoreThreadStatus pevt)
 void ResetContentStuffs(void)
 {
 	msg_cheat_ws_found_sent = false;
+	msg_cheat_nointerlacing_found_sent = false;
 	msg_cheats_found_sent = false;
 	ElfCRC = 0;
 
@@ -416,6 +418,22 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 					}
 				}
 
+			}
+		}
+
+		if (fixup.EnableNointerlacingPatches)
+		{
+			// Try applying cheats nointerlacing zip file.
+			int numberDbfCheatsLoaded = LoadNointerlacingPatchesFromDatabase(gameCRC.ToStdString());
+			log_cb(RETRO_LOG_INFO, "(No-interlacing Cheats DB) Patches Loaded: %d\n", numberDbfCheatsLoaded);
+
+			if (numberDbfCheatsLoaded) {
+				if (!msg_cheat_nointerlacing_found_sent)
+				{
+					RetroMessager::Notification("Found and applied No-interlacing Patch");
+					log_cb(RETRO_LOG_INFO, "Found and applied No-interlacing Patch\n");
+					msg_cheat_nointerlacing_found_sent = true;
+				}
 			}
 		}
 	}

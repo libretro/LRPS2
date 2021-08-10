@@ -291,6 +291,7 @@ struct Pcsx2Config
 			EnableCheats		:1,		// enables cheat detection and application
 			EnableIPC		    :1,		// enables inter-process communication 
 			EnableWideScreenPatches		:1,
+			EnableNointerlacingPatches	:1,
 		// when enabled uses BOOT2 injection, skipping sony bios splashes
 			UseBOOT2Injection	:1,
 		// enables simulated ejection of memory cards when loading savestates

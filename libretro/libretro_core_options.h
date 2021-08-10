@@ -109,7 +109,7 @@ struct retro_core_option_definition option_defs[] = {
 
 	{INT_PCSX2_OPT_DEINTERLACING_MODE,
 	"Video: Deinterlacing Mode",
-	"Can remove blur on some games. Note that some modes can slightly decrease performance while the others can blur the whole picture, decreasing the amount of details thus deinterlacing is to be used only when it's necessary.",
+	"Can remove blur on some games. Some modes can slightly decrease performance while others can blur the whole picture, decreasing the amount of details thus deinterlacing is to be used only when it's necessary. NOTE: Setting this to 'No interlacing patch' will try to apply a no-interlacing patch if available in the database. No-interlacing has the best image quality, but might not always be available for your game. NOTE: No-interlacing option requires a content restart.",
 	{
 		{"7", "Automatic (default)"},
 		{"6", "Blend bff - slight blur, 1/2 fps"},
@@ -119,6 +119,7 @@ struct retro_core_option_definition option_defs[] = {
 		{"2", "Weave bff - saw-tooth"},
 		{"1", "Weave tff - saw-tooth"},
 		{"0", "None "},
+		{"-1","No-interlacing patch"},
 		{NULL, NULL},
 	},
 	"7"},

@@ -119,6 +119,7 @@ set(pcsx2Sources
 	VUflags.cpp
 	VUmicroMem.cpp
 	VUops.cpp
+	NointerlacingPatchDatabase.cpp
 	WidescreenPatchDatabase.cpp)
 
 # Main pcsx2 header
@@ -153,6 +154,7 @@ set(pcsx2Headers
 	Memory.h
 	MemoryTypes.h
 	Patch.h
+	PatchDatabaseCommon.h
 	PathDefs.h
 	Plugins.h
 	PrecompiledHeader.h
@@ -175,6 +177,7 @@ set(pcsx2Headers
 	VUflags.h
 	VUmicro.h
 	VUops.h
+	NointerlacingPatchDatabase.h
 	WidescreenPatchDatabase.h)
 
 # CDVD sources
@@ -313,23 +316,30 @@ set(db_res_bin "${CMAKE_BINARY_DIR}/resources")
 
 file(MAKE_DIRECTORY ${db_res_bin})
 file(REMOVE ${db_res_bin}/cheats_ws.h)
+file(REMOVE ${db_res_bin}/cheats_nointerlacing.h)
 file(REMOVE ${db_res_bin}/GameIndex.h)
-file(REMOVE ${db_res_bin}/NoInterlaceIndex.h)
 
 set(db_resources
 		${db_res_bin}/cheats_ws.h
+		${db_res_bin}/cheats_nointerlacing.h
 		${db_res_bin}/GameIndex.h
-		${db_res_bin}/NoInterlaceIndex.h
 		)
 
 find_program(XXD xxd)
 if (XXD)
-	message("-- Found xxd. GameIndex.h and cheats_ws.h will be generated.")
+	message("-- Found xxd. GameIndex.h, cheats_ws.h and cheats_nointerlacing.h will be generated.")
 	
 	add_custom_command(
 		OUTPUT ${db_res_bin}/cheats_ws.h
 		COMMAND ${XXD} -i cheats_ws.zip cheats_ws.h
 		COMMAND cp cheats_ws.h ${db_res_bin}/cheats_ws.h
+		WORKING_DIRECTORY ${db_res_src}
+		VERBATIM
+	)
+	add_custom_command(
+		OUTPUT ${db_res_bin}/cheats_nointerlacing.h
+		COMMAND ${XXD} -i cheats_nointerlacing.zip cheats_nointerlacing.h
+		COMMAND cp cheats_nointerlacing.h ${db_res_bin}/cheats_nointerlacing.h
 		WORKING_DIRECTORY ${db_res_src}
 		VERBATIM
 	)
@@ -340,16 +350,9 @@ if (XXD)
 		WORKING_DIRECTORY  ${db_res_src}
 		VERBATIM
 	)
-	add_custom_command(
-		OUTPUT  ${db_res_bin}/NoInterlaceIndex.h
-		COMMAND ${XXD} -i NoInterlaceIndex.yaml NoInterlaceIndex.h
-		COMMAND cp NoInterlaceIndex.h  ${db_res_bin}/NoInterlaceIndex.h
-		WORKING_DIRECTORY  ${db_res_src}
-		VERBATIM
-	)
 else()
-	message("Could NOT find xxd. Falling back on GameIndex.h, cheats_ws.h and NoInterlaceIndex.h in ${db_res_src}.
-	Warning: if changes were made to GameIndex.yaml, cheats_ws.zip or NoInterlaceIndex.yaml, this build script will
+	message("Could NOT find xxd. Falling back on GameIndex.h, cheats_ws.h, and cheats_nointerlacing.h in ${db_res_src}.
+	Warning: if changes were made to GameIndex.yaml, cheats_ws.zip or cheats_nointerlacing.zip, this build script will
 	need to be run again with xxd installed; otherwise, you may safely ignore this warning.")
 	add_custom_command(
 		OUTPUT ${db_res_bin}/cheats_ws.h
@@ -358,14 +361,14 @@ else()
 		VERBATIM
 	)
 	add_custom_command(
-		OUTPUT  ${db_res_bin}/GameIndex.h
-		COMMAND ${CMAKE_COMMAND} -E copy GameIndex.h  ${db_res_bin}/GameIndex.h
-		WORKING_DIRECTORY  ${db_res_src}
+		OUTPUT ${db_res_bin}/cheats_nointerlacing.h
+		COMMAND ${CMAKE_COMMAND} -E copy cheats_nointerlacing.h ${db_res_bin}/cheats_nointerlacing.h
+		WORKING_DIRECTORY ${db_res_src}
 		VERBATIM
 	)
 	add_custom_command(
-		OUTPUT  ${db_res_bin}/NoInterlaceIndex.h
-		COMMAND ${CMAKE_COMMAND} -E copy NoInterlaceIndex.h  ${db_res_bin}/NoInterlaceIndex.h
+		OUTPUT  ${db_res_bin}/GameIndex.h
+		COMMAND ${CMAKE_COMMAND} -E copy GameIndex.h  ${db_res_bin}/GameIndex.h
 		WORKING_DIRECTORY  ${db_res_src}
 		VERBATIM
 	)

@@ -1,5 +1,5 @@
-#include "WidescreenPatchDatabase.h"
-#include "cheats_ws.h"
+#include "NointerlacingPatchDatabase.h"
+#include "cheats_nointerlacing.h"
 #include "PatchDatabaseCommon.h"
 #include <zlib.h>
 #include <sstream>
@@ -12,21 +12,21 @@
 #define FILE_NAME_INDEX_OFFSET			30
 #define LOCAL_FILE_HEADER_LENGTH		44
 #define MISSING_ENTRY					182
-#define WIDESCREEN_PATCH_MAX_SIZE  		32768
+#define NOINTERLACING_PATCH_MAX_SIZE  		32768
 
-WidescreenPatchDatabase::WidescreenPatchDatabase()
+NointerlacingPatchDatabase::NointerlacingPatchDatabase()
 {
-	this->compressed_archive_as_byte_array = cheats_ws_zip;
-	this->archive_length = cheats_ws_zip_len;
+	this->compressed_archive_as_byte_array = cheats_nointerlacing_zip;
+	this->archive_length = cheats_nointerlacing_zip_len;
 }
 
-std::vector<std::string> WidescreenPatchDatabase::GetPatchLines(std::string key)
+std::vector<std::string> NointerlacingPatchDatabase::GetPatchLines(std::string key)
 {
 	std::vector<std::string> patch_lines;
 
 	if (entries.count(key) == 1 && entries[key].compressed_data)
 	{
-		uint8_t uncompressed_data[WIDESCREEN_PATCH_MAX_SIZE];
+		uint8_t uncompressed_data[NOINTERLACING_PATCH_MAX_SIZE];
 		int result;
 
 		result = DecompressEntry(key, uncompressed_data);
@@ -44,7 +44,7 @@ std::vector<std::string> WidescreenPatchDatabase::GetPatchLines(std::string key)
 	return patch_lines;
 }
 
-int WidescreenPatchDatabase::DecompressEntry(std::string key, uint8_t* dest_buffer)
+int NointerlacingPatchDatabase::DecompressEntry(std::string key, uint8_t* dest_buffer)
 {
 	int result = Z_ERRNO;
 
@@ -72,17 +72,17 @@ int WidescreenPatchDatabase::DecompressEntry(std::string key, uint8_t* dest_buff
 	return result;
 }
 
-void WidescreenPatchDatabase::InitEntries()
+void NointerlacingPatchDatabase::InitEntries()
 {
 	InitEntries(this->compressed_archive_as_byte_array, this->archive_length);
 }
 
 /*
-The widescreen patch database is initialized based on the .ZIP format
+The nointerlacing patch database is initialized based on the .ZIP format
 specification: https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT.
 
 This works by streaming across the local headers. Because this is only used for
-the embedded cheats_ws.zip archive and is not user-facing, we can safely make
+the embedded cheats_nointerlacing.zip archive and is not user-facing, we can safely make
 the following simplifying assumptions:
 
 (1) The general purpose bit flags are all set to 0
@@ -97,7 +97,7 @@ the following simplifying assumptions:
 If any of the above assumptions are violated, this code may NOT work, so don't
 use this as a general-purpose .ZIP reader.
 */
-void WidescreenPatchDatabase::InitEntries(uint8_t* compressed_archive_as_byte_array, uint32_t archive_length)
+void NointerlacingPatchDatabase::InitEntries(uint8_t* compressed_archive_as_byte_array, uint32_t archive_length)
 {
 	uint32_t header_signature;
 	uint32_t compressed_size;
@@ -132,12 +132,12 @@ void WidescreenPatchDatabase::InitEntries(uint8_t* compressed_archive_as_byte_ar
 	InitEntries(&compressed_archive_as_byte_array[total_compressed_entry_size], archive_length - total_compressed_entry_size);
 }
 
-WidescreenPatchDatabase* WidescreenPatchDatabase::GetSingleton() 
+NointerlacingPatchDatabase* NointerlacingPatchDatabase::GetSingleton() 
 {
-	if (!widescreen_patch_db_)
+	if (!nointerlacing_patch_db_)
 	{
-		widescreen_patch_db_ = new WidescreenPatchDatabase();
-		widescreen_patch_db_->InitEntries();
+		nointerlacing_patch_db_ = new NointerlacingPatchDatabase();
+		nointerlacing_patch_db_->InitEntries();
 	}
-	return widescreen_patch_db_;
+	return nointerlacing_patch_db_;
 }

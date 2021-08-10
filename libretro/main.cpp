@@ -342,6 +342,7 @@ void retro_init(void)
 		g_Conf->EmuOptions.EnableIPC = false;
 		g_Conf->EmuOptions.Speedhacks.fastCDVD  = option_value(BOOL_PCSX2_OPT_FASTCDVD, KeyOptionBool::return_type);
 
+		g_Conf->EmuOptions.EnableNointerlacingPatches = (option_value(INT_PCSX2_OPT_DEINTERLACING_MODE, KeyOptionInt::return_type) == -1);
 		g_Conf->EmuOptions.EnableWideScreenPatches = option_value(BOOL_PCSX2_OPT_ENABLE_WIDESCREEN_PATCHES, KeyOptionBool::return_type);
 		g_Conf->EmuOptions.GS.FrameSkipEnable = option_value(BOOL_PCSX2_OPT_FRAMESKIP, KeyOptionBool::return_type);
 		g_Conf->EmuOptions.GS.FramesToDraw = option_value(INT_PCSX2_OPT_FRAMES_TO_DRAW, KeyOptionInt::return_type);

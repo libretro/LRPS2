@@ -21,6 +21,7 @@
 #include "Patch.h"
 #include "GameDatabase.h"
 #include "WidescreenPatchDatabase.h"
+#include "NointerlacingPatchDatabase.h"
 
 #include <memory>
 #include <vector>
@@ -220,6 +221,23 @@ int LoadWidescreenPatchesFromDatabase(std::string gameCRC)
 	return Patch.size() - before;
 }
 
+int LoadNointerlacingPatchesFromDatabase(std::string gameCRC)
+{
+	std::transform(gameCRC.begin(), gameCRC.end(), gameCRC.begin(), ::toupper);
+
+	int before = Patch.size();
+
+	NointerlacingPatchDatabase* nointerlacing_database = NointerlacingPatchDatabase::GetSingleton();
+	std::vector<std::string> patch_lines = nointerlacing_database->GetPatchLines(gameCRC);
+
+	for (std::string line : patch_lines)
+	{
+		inifile_processString(line);
+	}
+
+	return Patch.size() - before;
+}
+
 
 // This routine loads patches from *.pnach files
 // Returns number of patches loaded
@@ -343,4 +361,17 @@ void ApplyLoadedPatches(patch_place_type place)
 		if (i.placetopatch == place)
 			_ApplyPatch(&i);
 	}
+}
+
+uint32_t uint32_from_bytes_little_endian(uint8_t* byte_array)
+{
+	return	(byte_array[0]) |
+			(byte_array[1] << 8) |
+			(byte_array[2] << 16)  |
+			(byte_array[3] << 24);
+}
+
+uint16_t uint16_from_bytes_little_endian(uint8_t* byte_array)
+{
+	return	(byte_array[0]) | (byte_array[1] << 8);
 }
