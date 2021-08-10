@@ -42,8 +42,6 @@ extern void _ApplyPatch(IniPatch* p);
 
 std::vector<IniPatch> Patch;
 
-wxString strgametitle;
-
 struct PatchTextTable
 {
 	int				code;

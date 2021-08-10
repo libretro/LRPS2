@@ -25,7 +25,6 @@
 #include "options_tools.h"
 #include "EmuOptionsUI.h"
 
-DocsModeType				DocsFolderMode = DocsFolder_User;
 bool					UseDefaultSettingsFolder = true;
 
 

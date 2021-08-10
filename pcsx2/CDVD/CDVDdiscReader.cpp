@@ -191,14 +191,8 @@ s32 CALLBACK DISCopen(const char* pTitle)
 	GetValidDrive(drive);
 
 	// open device file
-	try
-	{
-		src = std::unique_ptr<IOCtlSrc>(new IOCtlSrc(drive));
-	}
-	catch (std::runtime_error& ex)
-	{
+	if (!(src = std::unique_ptr<IOCtlSrc>(new IOCtlSrc(drive))))
 		return -1;
-	}
 
 	//setup threading manager
 	if (!cdvdStartThread())

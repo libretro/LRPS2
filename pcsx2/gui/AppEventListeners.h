@@ -132,11 +132,7 @@ class IEventListener_AppStatus : public IEventDispatcher<AppEventInfo>
 {
 public:
 	typedef AppEventInfo EvtParams;
-
-public:
 	virtual ~IEventListener_AppStatus() = default;
-
-	virtual void DispatchEvent( const AppEventInfo& evtinfo );
 };
 
 class EventListener_AppStatus : public IEventListener_AppStatus

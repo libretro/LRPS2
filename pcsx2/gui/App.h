@@ -96,7 +96,7 @@ class Pcsx2App : public wxAppWithHelpers
 	// on them and they are, themselves, fairly self-contained.
 
 protected:
-	EventSource<IEventListener_Plugins>		m_evtsrc_CorePluginStatus;
+	EventSource<IEventListener_Plugins>	m_evtsrc_CorePluginStatus;
 	EventSource<IEventListener_CoreThread>	m_evtsrc_CoreThreadStatus;
 	EventSource<IEventListener_AppStatus>	m_evtsrc_AppStatus;
 

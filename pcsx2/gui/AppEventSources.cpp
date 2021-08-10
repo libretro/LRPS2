@@ -89,11 +89,6 @@ EventListener_AppStatus::~EventListener_AppStatus()
 	wxGetApp().RemoveListener( this );
 }
 
-void IEventListener_AppStatus::DispatchEvent( const AppEventInfo& evtinfo )
-{
-}
-
-
 void Pcsx2App::DispatchEvent( PluginEventType evt )
 {
 	if( !AffinityAssert_AllowFrom_MainUI() ) return;
