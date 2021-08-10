@@ -27,48 +27,16 @@ class WXDLLIMPEXP_FWD_BASE wxStandardPaths;
 class WXDLLIMPEXP_BASE wxStandardPathsBase
 {
 public:
-    // possible resources categories
-    enum ResourceCat
-    {
-        // no special category
-        ResourceCat_None,
-
-        // message catalog resources
-        ResourceCat_Messages,
-
-        // end of enum marker
-        ResourceCat_Max
-    };
-
-    // what should we use to construct paths unique to this application:
-    // (AppInfo_AppName and AppInfo_VendorName can be combined together)
-    enum
-    {
-        AppInfo_None       = 0,  // nothing
-        AppInfo_AppName    = 1,  // the application name
-        AppInfo_VendorName = 2   // the vendor name
-    };
-
     // return the temporary directory for the current user
     virtual wxString GetTempDir() const;
 
-
     // virtual dtor for the base class
     virtual ~wxStandardPathsBase();
-
-    // Information used by AppendAppInfo
-    void UseAppInfo(int info)
-    {
-        m_usedAppInfo = info;
-    }
 
 protected:
     // Ctor is protected as this is a base class which should never be created
     // directly.
     wxStandardPathsBase();
-
-    // combination of AppInfo_XXX flags used by AppendAppInfo()
-    int m_usedAppInfo;
 };
 
 // ----------------------------------------------------------------------------

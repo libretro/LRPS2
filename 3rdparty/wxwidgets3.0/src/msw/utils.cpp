@@ -89,19 +89,6 @@
     #endif
 #endif
 
-// ----------------------------------------------------------------------------
-// constants
-// ----------------------------------------------------------------------------
-
-// In the WIN.INI file
-#if (!defined(USE_NET_API) && !defined(__WXWINCE__)) || defined(__WXMICROWIN__)
-static const wxChar WX_SECTION[] = wxT("wxWindows");
-#endif
-
-#if (!defined(USE_NET_API) && !defined(__WXWINCE__))
-static const wxChar eUSERNAME[]  = wxT("UserName");
-#endif
-
 // ============================================================================
 // implementation
 // ============================================================================

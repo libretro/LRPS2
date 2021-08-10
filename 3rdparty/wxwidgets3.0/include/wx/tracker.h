@@ -12,8 +12,6 @@
 
 #include "wx/defs.h"
 
-class wxEventConnectionRef;
-
 // Add-on base class for a trackable object.
 class WXDLLIMPEXP_BASE wxTrackable
 {

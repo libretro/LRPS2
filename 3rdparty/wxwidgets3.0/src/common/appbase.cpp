@@ -124,20 +124,6 @@ bool wxAppConsoleBase::Initialize(int& WXUNUSED(argc), wxChar **WXUNUSED(argv))
     return true;
 }
 
-wxString wxAppConsoleBase::GetAppName() const
-{
-    wxString name = m_appName;
-    if ( name.empty() )
-    {
-        if ( argv )
-        {
-            // the application name is, by default, the name of its executable file
-            wxFileName::SplitPath(argv[0], NULL, &name, NULL);
-        }
-    }
-    return name;
-}
-
 wxEventLoopBase *wxAppConsoleBase::CreateMainLoop()
 {
     return GetTraits()->CreateEventLoop();
@@ -453,18 +439,6 @@ void wxAppConsoleBase::OnAssert(const wxChar *file,
                                 const wxChar *msg)
 {
     OnAssertFailure(file, line, NULL, cond, msg);
-}
-
-// ----------------------------------------------------------------------------
-// Miscellaneous other methods
-// ----------------------------------------------------------------------------
-
-void wxAppConsoleBase::SetCLocale()
-{
-    // We want to use the user locale by default in GUI applications in order
-    // to show the numbers, dates &c in the familiar format -- and also accept
-    // this format on input (especially important for decimal comma/dot).
-    wxSetlocale(LC_ALL, "");
 }
 
 // ============================================================================

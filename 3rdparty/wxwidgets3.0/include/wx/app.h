@@ -114,24 +114,9 @@ public:
     // Called from wxExit() function, should terminate the application a.s.a.p.
     virtual void Exit();
 
-
-    // application info: name, description, vendor
-    // -------------------------------------------
-
-    // NB: all these should be set by the application itself, there are no
-    //     reasonable default except for the application name which is taken to
-    //     be argv[0]
-
-        // set/get the application name
-    wxString GetAppName() const;
-
     // set/get the app class name
     wxString GetClassName() const { return m_className; }
     void SetClassName(const wxString& name) { m_className = name; }
-
-        // set/get the vendor name
-    const wxString& GetVendorName() const { return m_vendorName; }
-
 
     // miscellaneous customization functions
     // -------------------------------------
@@ -166,19 +151,6 @@ public:
     // non-NULL main event loop into OnEventLoopEnter().
     wxEventLoopBase* GetMainLoop() const
         { return m_mainLoop; }
-
-    // This function sets the C locale to the default locale for the current
-    // environment. It is advised to call this to ensure that the underlying
-    // toolkit uses the locale in which the numbers and monetary amounts are
-    // shown in the format expected by user and so on.
-    //
-    // Notice that this does _not_ change the global C++ locale, you need to do
-    // it explicitly if you want.
-    //
-    // Finally, notice that while this function is virtual, it is not supposed
-    // to be overridden outside of the library itself.
-    virtual void SetCLocale();
-
 
     // pending events
     // --------------
@@ -307,8 +279,7 @@ protected:
     wxEventLoopBase *CreateMainLoop();
 
     // application info (must be set from the user code)
-    wxString m_vendorName,        // vendor name ("acme")
-             m_vendorDisplayName, // vendor display name (e.g. "ACME Inc")
+    wxString 
              m_appName,           // app name ("myapp")
              m_appDisplayName,    // app display name ("My Application")
              m_className;         // class name

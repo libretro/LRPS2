@@ -35,31 +35,12 @@
 // module globals
 // ----------------------------------------------------------------------------
 
-namespace
-{
-
-// Derive a class just to be able to create it: wxStandardPaths ctor is
-// protected to prevent its misuse, but it also means we can't create an object
-// of this class directly.
-class wxStandardPathsDefault : public wxStandardPaths
-{
-public:
-    wxStandardPathsDefault() { }
-};
-
-} // anonymous namespace
-
 // ============================================================================
 // implementation
 // ============================================================================
 
 wxStandardPathsBase::wxStandardPathsBase()
 {
-    // Set the default information that is used when
-    // forming some paths (by AppendAppInfo).
-    // Derived classes can call this in their constructors
-    // to set the platform-specific settings
-    UseAppInfo(AppInfo_AppName);
 }
 
 wxStandardPathsBase::~wxStandardPathsBase()

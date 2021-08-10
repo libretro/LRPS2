@@ -206,8 +206,6 @@ class WXDLLIMPEXP_BASE wxRefCounter
 public:
     wxRefCounter() { m_count = 1; }
 
-    int GetRefCount() const { return m_count; }
-
     void IncRef() { m_count++; }
     void DecRef();
 
@@ -232,84 +230,6 @@ private:
 // ----------------------------------------------------------------------------
 
 typedef wxRefCounter wxObjectRefData;
-
-// ----------------------------------------------------------------------------
-// wxObjectDataPtr: helper class to avoid memleaks because of missing calls
-//                  to wxObjectRefData::DecRef
-// ----------------------------------------------------------------------------
-
-template <class T>
-class wxObjectDataPtr
-{
-public:
-    typedef T element_type;
-
-    wxEXPLICIT wxObjectDataPtr(T *ptr = NULL) : m_ptr(ptr) {}
-
-    // copy ctor
-    wxObjectDataPtr(const wxObjectDataPtr<T> &tocopy)
-        : m_ptr(tocopy.m_ptr)
-    {
-        if (m_ptr)
-            m_ptr->IncRef();
-    }
-
-    ~wxObjectDataPtr()
-    {
-        if (m_ptr)
-            m_ptr->DecRef();
-    }
-
-    T *get() const { return m_ptr; }
-
-    // test for pointer validity: defining conversion to unspecified_bool_type
-    // and not more obvious bool to avoid implicit conversions to integer types
-    typedef T *(wxObjectDataPtr<T>::*unspecified_bool_type)() const;
-    operator unspecified_bool_type() const
-    {
-        return m_ptr ? &wxObjectDataPtr<T>::get : NULL;
-    }
-
-    T& operator*() const
-    {
-        wxASSERT(m_ptr != NULL);
-        return *(m_ptr);
-    }
-
-    T *operator->() const
-    {
-        wxASSERT(m_ptr != NULL);
-        return get();
-    }
-
-    void reset(T *ptr)
-    {
-        if (m_ptr)
-            m_ptr->DecRef();
-        m_ptr = ptr;
-    }
-
-    wxObjectDataPtr& operator=(const wxObjectDataPtr &tocopy)
-    {
-        if (m_ptr)
-            m_ptr->DecRef();
-        m_ptr = tocopy.m_ptr;
-        if (m_ptr)
-            m_ptr->IncRef();
-        return *this;
-    }
-
-    wxObjectDataPtr& operator=(T *ptr)
-    {
-        if (m_ptr)
-            m_ptr->DecRef();
-        m_ptr = ptr;
-        return *this;
-    }
-
-private:
-    T *m_ptr;
-};
 
 // ----------------------------------------------------------------------------
 // wxObject: the root class of wxWidgets object hierarchy
@@ -373,10 +293,6 @@ public:
 #endif
 
     // ref counted data handling methods
-
-    // get/set
-    wxObjectRefData *GetRefData() const { return m_refData; }
-    void SetRefData(wxObjectRefData *data) { m_refData = data; }
 
     // make a 'clone' of the object
     void Ref(const wxObject& clone);
