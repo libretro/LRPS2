@@ -24,21 +24,5 @@
     #define wxUSE_STD_IOSTREAM 0
 #endif
 
-// libtiff doesn't build with eVC but is ok with VC8
-#ifdef __EVC4__
-    #undef wxUSE_LIBTIFF
-    #define wxUSE_LIBTIFF 0
-#endif
-
-// Standard SDK lacks a few things, forcefully disable them
-#ifdef WCE_PLATFORM_STANDARDSDK
-    // no shell functions support
-    #undef wxUSE_STDPATHS
-    #define wxUSE_STDPATHS 0
-#endif // WCE_PLATFORM_STANDARDSDK
-
-#undef wxUSE_WXHTML_HELP
-#define wxUSE_WXHTML_HELP 0
-
 #endif // _WX_MSW_WINCE_CHKCONF_H_
 

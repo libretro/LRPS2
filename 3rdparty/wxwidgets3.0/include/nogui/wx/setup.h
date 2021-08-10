@@ -64,8 +64,6 @@
 #define wxUSE_FILE 1
 #define wxUSE_FFILE 1
 
-#define wxUSE_STDPATHS 1
-
 #define wxUSE_TEXTBUFFER 1
 
 #define wxUSE_TEXTFILE 1
