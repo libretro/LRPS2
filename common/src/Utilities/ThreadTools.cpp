@@ -502,7 +502,6 @@ void Threading::pxThread::_internal_execute()
 {
     m_mtx_InThread.Acquire();
 
-    _DoSetThreadName(GetName());
     make_curthread_key(this);
     if (curthread_key)
         pthread_setspecific(curthread_key, this);
@@ -563,11 +562,6 @@ void Threading::pxThread::internal_callback_helper(void *itsme)
     pthread_cleanup_push(_pt_callback_cleanup, itsme);
     owner._internal_execute();
     pthread_cleanup_pop(true);
-}
-
-void Threading::pxThread::_DoSetThreadName(const wxString &name)
-{
-    _DoSetThreadName(static_cast<const char *>(name.ToUTF8()));
 }
 
 // --------------------------------------------------------------------------------------

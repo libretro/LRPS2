@@ -55,11 +55,4 @@ void Threading::pxThread::_platform_specific_OnCleanupInThread()
     // _platform_specific_OnStartInThread
     mach_port_deallocate(mach_task_self(), (thread_port_t)m_native_id);
 }
-
-// name can be up to 16 bytes
-void Threading::pxThread::_DoSetThreadName(const char *name)
-{
-    pthread_setname_np(name);
-}
-
 #endif

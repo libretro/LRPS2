@@ -62,16 +62,4 @@ void Threading::pxThread::_platform_specific_OnCleanupInThread()
 {
     // Cleanup handles here, which were opened above.
 }
-
-void Threading::pxThread::_DoSetThreadName(const char *name)
-{
-#if defined(__linux__)
-    // Extract of manpage: "The name can be up to 16 bytes long, and should be
-    //						null-terminated if it contains fewer bytes."
-    prctl(PR_SET_NAME, name, 0, 0, 0);
-#elif defined(__unix__)
-    pthread_set_name_np(pthread_self(), name);
-#endif
-}
-
 #endif

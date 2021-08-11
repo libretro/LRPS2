@@ -186,8 +186,6 @@ protected:
     void _platform_specific_OnCleanupInThread();
     bool _basecancel();
     void _selfRunningTest(const wxChar *name) const;
-    void _DoSetThreadName(const wxString &name);
-    void _DoSetThreadName(const char *name);
     void _internal_execute();
     void _try_virtual_invoke(void (pxThread::*method)());
     void _ThreadCleanup();
