@@ -30,8 +30,3 @@ class AppCoreThread;
 class Pcsx2AppMethodEvent;
 class pxAppResources;
 class AppGameDatabase;
-
-// wxWidgets forward declarations
-
-class wxConfigBase;
-class wxFileConfig;
