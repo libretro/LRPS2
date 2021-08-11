@@ -3,19 +3,6 @@
 // Used by USBqemu.rc
 //
 
-#ifndef IDC_STATIC
-#define IDC_STATIC				-1
-#endif
-
-#define IDD_CONFDLG                     101
-#define IDD_CONFIG                      101
-#define IDD_ABOUT                       103
-#define IDC_NAME                        1000
-#define IDC_CHECK1                      1007
-#define IDC_LOGGING                     1007
-#define IDC_COMBO1                      1008
-#define IDC_COMBO2                      1009
-
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

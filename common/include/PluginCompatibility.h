@@ -20,13 +20,3 @@
 #include <string>
 #include <vector>
 #include <cstdio>
-
-#ifdef _WIN32
-inline std::wstring convert_utf8_to_utf16(const std::string &utf8_string)
-{
-    int size = MultiByteToWideChar(CP_UTF8, 0, utf8_string.c_str(), -1, nullptr, 0);
-    std::vector<wchar_t> converted_string(size);
-    MultiByteToWideChar(CP_UTF8, 0, utf8_string.c_str(), -1, converted_string.data(), converted_string.size());
-    return {converted_string.data()};
-}
-#endif

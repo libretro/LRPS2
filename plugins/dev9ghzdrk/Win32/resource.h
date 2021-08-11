@@ -3,21 +3,6 @@
 // Used by DEV9linuz.rc
 //
 
-#ifndef IDC_STATIC
-#define IDC_STATIC				-1
-#endif
-
-#define IDD_CONFDLG                     101
-#define IDD_CONFIG                      101
-#define IDD_ABOUT                       103
-#define IDC_NAME                        1000
-#define IDC_COMBO1                      1007
-#define IDC_ETHDEV                      1007
-#define IDC_BAYTYPE                     1008
-#define IDC_ETHENABLED                  1009
-#define IDC_HDDFILE                     1010
-#define IDC_HDDENABLED                  1011
-
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
