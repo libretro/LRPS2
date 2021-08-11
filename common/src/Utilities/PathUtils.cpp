@@ -159,35 +159,7 @@ wxString Path::ReplaceExtension(const wxString &src, const wxString &ext)
     return jojo.GetFullPath();
 }
 
-wxString Path::ReplaceFilename(const wxString &src, const wxString &newfilename)
-{
-    wxFileName jojo(src);
-    jojo.SetFullName(newfilename);
-    return jojo.GetFullPath();
-}
-
 wxString Path::GetFilename(const wxString &src)
 {
     return wxFileName(src).GetFullName();
-}
-
-wxString Path::GetFilenameWithoutExt(const wxString &src)
-{
-    return wxFileName(src).GetName();
-}
-
-wxString Path::GetDirectory(const wxString &src)
-{
-    return wxFileName(src).GetPath();
-}
-
-
-// returns the base/root directory of the given path.
-// Example /this/that/something.txt -> dest == "/"
-wxString Path::GetRootDirectory(const wxString &src)
-{
-    size_t pos = src.find_first_of(wxFileName::GetPathSeparators());
-    if (pos == wxString::npos)
-        return wxString();
-    return wxString(src.begin(), src.begin() + pos);
 }

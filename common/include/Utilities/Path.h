@@ -222,9 +222,5 @@ extern wxString Combine(const wxString &srcPath, const wxString &srcFile);
 extern wxString Combine(const wxDirName &srcPath, const wxFileName &srcFile);
 extern wxString Combine(const wxString &srcPath, const wxDirName &srcFile);
 extern wxString ReplaceExtension(const wxString &src, const wxString &ext);
-extern wxString ReplaceFilename(const wxString &src, const wxString &newfilename);
 extern wxString GetFilename(const wxString &src);
-extern wxString GetDirectory(const wxString &src);
-extern wxString GetFilenameWithoutExt(const wxString &src);
-extern wxString GetRootDirectory(const wxString &src);
 }

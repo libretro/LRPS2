@@ -97,9 +97,6 @@ void Threading::Semaphore::Post(int multiple)
 
 void Threading::Semaphore::WaitWithoutYield()
 {
-#ifndef __LIBRETRO__
-    pxAssertMsg(!wxThread::IsMain(), "Unyielding semaphore wait issued from the main/gui thread.  Please use Wait() instead.");
-#endif
     MACH_CHECK(semaphore_wait(m_sema));
     __atomic_sub_fetch(&m_counter, 1, __ATOMIC_SEQ_CST);
 }
