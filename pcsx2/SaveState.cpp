@@ -237,23 +237,12 @@ SaveStateBase& SaveStateBase::FreezeInternals()
 	return *this;
 }
 
-SaveStateBase& SaveStateBase::FreezePlugins()
-{
-	for (uint i=0; i<PluginId_Count; ++i)
-	{
-		FreezeTag( FastFormatAscii().Write("Plugin:%s", tbl_PluginInfo[i].shortname) );
-		GetCorePlugins().Freeze( (PluginsEnum_t)i, *this );
-	}
-	return *this;
-}
-
 SaveStateBase& SaveStateBase::FreezeAll()
 {
 	FreezeMainMemory();
 	FreezeBios();
 	FreezeInternals();
-	FreezePlugins();
-
+	//TODO: ADD BACK FREEZE PLUGINS HERE
 	
 	return *this;
 }
