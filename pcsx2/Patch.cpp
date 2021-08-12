@@ -26,9 +26,6 @@
 #include <vector>
 #include <wx/textfile.h>
 #include <wx/dir.h>
-#include <wx/txtstrm.h>
-#include <wx/wfstream.h>
-#include <PathDefs.h>
 
 #include "cheats_ws.h"
 #include "cheats_nointerlacing.h"
@@ -263,7 +260,8 @@ int LoadPatchesFromDir(wxString name, const wxDirName& folderName, const wxStrin
 	{
 		wxString pathName = Path::Combine(folderName, name.MakeUpper() + L".pnach");
 		log_cb(RETRO_LOG_INFO, 
-				"Not found %s file: %s\n", WX_STR(friendlyName), WX_STR(pathName));
+		"Not found %s file: %s\n",
+		WX_STR(friendlyName), WX_STR(pathName));
 	}
 
 	return loaded;
@@ -304,7 +302,8 @@ namespace PatchFunc
 		{
 			SplitString(m_pieces, param, L",");
 			if (m_pieces.Count() < 5)
-				throw wxsFormat(L"Expected 5 data parameters; only found %d", m_pieces.Count());
+				log_cb(RETRO_LOG_ERROR,
+				"Expected 5 data parameters; only found %d\n", m_pieces.Count());
 		}
 
 		const wxString& PlaceToPatch() const { return m_pieces[0]; }
@@ -326,7 +325,6 @@ namespace PatchFunc
 		log_cb(RETRO_LOG_DEBUG, "%s %s\n",  WX_STR(cmd), WX_STR(param));
 #endif
 
-		try
 		{
 			PatchPieces pieces(param);
 
@@ -335,7 +333,10 @@ namespace PatchFunc
 			iPatch.placetopatch = StrToU32(pieces.PlaceToPatch(), 10);
 
 			if (iPatch.placetopatch >= _PPT_END_MARKER)
-				throw wxsFormat(L"Invalid 'place' value '%s' (0 - once on startup, 1: continuously)", WX_STR(pieces.PlaceToPatch()));
+			{
+				log_cb(RETRO_LOG_ERROR, "Invalid 'place' value '%s' (0 - once on startup, 1: continuously)\n", WX_STR(pieces.PlaceToPatch()));
+				goto error;
+			}
 
 			iPatch.cpu = (patch_cpu_type)PatchTableExecute(pieces.CpuType(), cpuCore);
 			iPatch.addr = StrToU32(pieces.MemAddr(), 16);
@@ -343,18 +344,24 @@ namespace PatchFunc
 			iPatch.data = StrToU64(pieces.WriteValue(), 16);
 
 			if (iPatch.cpu == 0)
-				throw wxsFormat(L"Unrecognized CPU Target: '%s'", WX_STR(pieces.CpuType()));
+			{
+				log_cb(RETRO_LOG_ERROR, "Unrecognized CPU Target: '%s'\n", WX_STR(pieces.CpuType()));
+				goto error;
+			}
 
 			if (iPatch.type == 0)
-				throw wxsFormat(L"Unrecognized Operand Size: '%s'", WX_STR(pieces.OperandSize()));
+			{
+				log_cb(RETRO_LOG_ERROR, "Unrecognized Operand Size: '%s'\n", WX_STR(pieces.OperandSize()));
+				goto error;
+			}
 
 			iPatch.enabled = 1; // omg success!!
 			Patch.push_back(iPatch);
 		}
-		catch (wxString& exmsg)
-		{
-			log_cb(RETRO_LOG_ERROR, "(Patch) Error Parsing: %s=%s\n", WX_STR(cmd), WX_STR(param));
-		}
+
+		return;
+error:
+		log_cb(RETRO_LOG_ERROR, "(Patch) Error Parsing: %s=%s\n", WX_STR(cmd), WX_STR(param));
 	}
 	void patch(const wxString& cmd, const wxString& param) { patchHelper(cmd, param); }
 } // namespace PatchFunc
