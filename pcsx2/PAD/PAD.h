@@ -88,14 +88,19 @@ enum gamePadValues {
     PAD_R_LEFT    // Right joystick (Left) ←
 };
 
-#include "GamePad.h"
 #include "KeyStatus.h"
 
-#define EXPORT_C_(type) extern "C" type CALLBACK
 extern keyEvent event;
 
-s32 _PADopen();
-void _PADclose();
+s32 PADopen();
+void PADclose();
 void PADsetMode(int pad, int mode);
+u8 PADstartPoll(int pad);
+s32 PADinit(u32 flags);
+u8 PADpoll(u8 value);
+s32 PADsetSlot(u8 port, u8 slot);
+void PADshutdown();
+
+void GamePad_DoRumble(unsigned type, unsigned pad);
 
 #endif

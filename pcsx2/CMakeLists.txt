@@ -236,6 +236,16 @@ set(pcsx2SPU2Headers
    SPU2/spdif.h
 )
 
+# PAD sources
+set(pcsx2PADSources
+    PAD/PAD.cpp
+    PAD/state_management.cpp)
+
+# PAD headers
+set(pcsx2PADHeaders
+     PAD/KeyStatus.h
+     PAD/PAD.h
+     PAD/state_management.h)
 
 # DebugTools sources
 set(pcsx2DebugToolsSources
@@ -522,6 +532,8 @@ set(pcsx2x86Headers
 		${pcsx2Headers}
 		${pcsx2CDVDSources}
 		${pcsx2CDVDHeaders}
+		${pcsx2PADSources}
+		${pcsx2PADHeaders}
 		${pcsx2SPU2Sources}
 		${pcsx2SPU2Headers}
 		${pcsx2DebugToolsSources}
@@ -579,8 +591,6 @@ set(pcsx2FinalLibs
     Utilities
     x86emitter
     ${wxWidgets_LIBRARIES}
-    ${GLIB_LIBRARIES}
-    ${GLIB_GIO_LIBRARIES}
     ${ZLIB_LIBRARIES}
     ${AIO_LIBRARIES}
     ${GCOV_LIBRARIES}
@@ -591,7 +601,6 @@ set(pcsx2FinalLibs GS ${pcsx2FinalLibs})
 if(MSVC)
   set(pcsx2FinalSources ${pcsx2FinalSources})
 endif()
-set(pcsx2FinalLibs ${pcsx2FinalLibs} PAD)
 set(pcsx2FinalLibs ${pcsx2FinalLibs} USB)
 if(ENABLE_DEV9GHZDRK)
     set(pcsx2FinalLibs ${pcsx2FinalLibs} DEV9)

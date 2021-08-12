@@ -136,48 +136,6 @@ void CALLBACK GSwriteCSR(u32 value);
 s32 CALLBACK GSfreeze(int mode, freezeData *data);
 void CALLBACK GSconfigure();
 
-/* PAD plugin API -=[ OBSOLETE ]=- */
-
-// if this file is included with this define
-// the next api will not be skipped by the compiler
-// basic funcs
-
-s32 CALLBACK PADinit(u32 flags);
-s32 CALLBACK PADopen();
-void CALLBACK PADclose();
-void CALLBACK PADshutdown();
-s32 CALLBACK PADfreeze(int mode, freezeData *data);
-
-
-// PADkeyEvent is called every vsync (return NULL if no event)
-keyEvent *CALLBACK PADkeyEvent();
-u8 CALLBACK PADstartPoll(int pad);
-u8 CALLBACK PADpoll(u8 value);
-// returns: 1 if supported pad1
-//			2 if supported pad2
-//			3 if both are supported
-u32 CALLBACK PADquery();
-
-// call to give a hint to the PAD plugin to query for the keyboard state. A
-// good plugin will query the OS for keyboard state ONLY in this function.
-// This function is necessary when multithreading because otherwise
-// the PAD plugin can get into deadlocks with the thread that really owns
-// the window (and input). Note that PADupdate can be called from a different
-// thread than the other functions, so mutex or other multithreading primitives
-// have to be added to maintain data integrity.
-void CALLBACK PADupdate(int pad);
-
-// Send a key event from wx-gui to pad
-// Note: On linux GSOpen2, wx-gui and pad share the same event buffer. Wx-gui reads and deletes event
-// before the pad saw them. So the gui needs to send them back to the pad.
-void CALLBACK PADWriteEvent(keyEvent &evt);
-
-// extended funcs
-
-s32 CALLBACK PADsetSlot(u8 port, u8 slot);
-s32 CALLBACK PADqueryMtap(u8 port);
-void CALLBACK PADconfigure();
-
 /* DEV9 plugin API */
 
 // basic funcs

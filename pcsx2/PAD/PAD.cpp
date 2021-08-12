@@ -30,7 +30,7 @@
 #include "../../libretro/input.h"
 
 #include "PS2Edefs.h"
-#include "onepad.h"
+#include "PAD.h"
 #include "state_management.h"
 
 #ifdef _WIN32
@@ -171,41 +171,29 @@ void retro_set_controller_port_device(unsigned port, unsigned device)
 	environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
 }
 
-s32 _PADopen()
-{
-	return 0;
-}
-
-void _PADclose()
+void PADupdate(int pad)
 {
 }
 
-EXPORT_C_(void)
-PADupdate(int pad)
+void GamePad_DoRumble(unsigned type, unsigned pad)
 {
+	if (!rumble_enabled)
+		return;
+
+	if (pad >= GAMEPAD_NUMBER)
+		return;
+
+	if (type == 0)
+		rumble.set_rumble_state(pad, RETRO_RUMBLE_WEAK, rumble_level);
+	else if (type == 1)
+		rumble.set_rumble_state(pad, RETRO_RUMBLE_STRONG, rumble_level);
+	else if (type == 2)
+		rumble.set_rumble_state(pad, RETRO_RUMBLE_WEAK, 0x0);
+	else
+		rumble.set_rumble_state(pad, RETRO_RUMBLE_STRONG, 0x0);
 }
 
-void GamePad::DoRumble(unsigned type, unsigned pad)
-{
-	if (rumble_enabled)
-	{
-
-		if (pad >= GAMEPAD_NUMBER)
-			return;
-
-		if (type == 0)
-			rumble.set_rumble_state(pad, RETRO_RUMBLE_WEAK, rumble_level);
-		else if (type == 1)
-			rumble.set_rumble_state(pad, RETRO_RUMBLE_STRONG, rumble_level);
-		else if (type == 2)
-			rumble.set_rumble_state(pad, RETRO_RUMBLE_WEAK, 0x0);
-		else
-			rumble.set_rumble_state(pad, RETRO_RUMBLE_STRONG, 0x0);
-	}
-}
-
-EXPORT_C_(void)
-PADconfigure()
+void PADconfigure()
 {
 }
 
@@ -277,8 +265,7 @@ u8 KeyStatus::get(u32 pad, u32 index)
 	return 0x80 + (val >> 8);
 }
 
-EXPORT_C_(s32)
-PADinit(u32 flags)
+s32 PADinit(u32 flags)
 {
     Pad::reset_all();
 
@@ -290,31 +277,25 @@ PADinit(u32 flags)
     return 0;
 }
 
-EXPORT_C_(void)
-PADshutdown()
+void PADshutdown()
 {
 }
 
-EXPORT_C_(s32)
-PADopen()
+s32 PADopen()
 {
-    return _PADopen();
+    return 0;
 }
 
-EXPORT_C_(void)
-PADclose()
+void PADclose()
 {
-    _PADclose();
 }
 
-EXPORT_C_(u32)
-PADquery()
+u32 PADquery()
 {
     return 3; // both
 }
 
-EXPORT_C_(s32)
-PADsetSlot(u8 port, u8 slot)
+s32 PADsetSlot(u8 port, u8 slot)
 {
     port--;
     slot--;
@@ -326,14 +307,12 @@ PADsetSlot(u8 port, u8 slot)
     return 1;
 }
 
-EXPORT_C_(s32)
-PADqueryMtap(u8 port)
+s32 PADqueryMtap(u8 port)
 {
    return 0;
 }
 
-EXPORT_C_(s32)
-PADfreeze(int mode, freezeData *data)
+s32 PADfreeze(int mode, freezeData *data)
 {
     if (!data)
         return -1;
@@ -406,25 +385,22 @@ PADfreeze(int mode, freezeData *data)
     return 0;
 }
 
-EXPORT_C_(u8)
-PADstartPoll(int pad)
+u8 PADstartPoll(int pad)
 {
     return pad_start_poll(pad);
 }
 
-EXPORT_C_(u8)
-PADpoll(u8 value)
+u8 PADpoll(u8 value)
 {
     return pad_poll(value);
 }
 
 // PADkeyEvent is called every vsync (return NULL if no event)
-EXPORT_C_(keyEvent *)
-PADkeyEvent()
+keyEvent *PADkeyEvent()
 {
     return NULL;
 }
-EXPORT_C_(void)
-PADWriteEvent(keyEvent &evt)
+
+void PADWriteEvent(keyEvent &evt)
 {
 }

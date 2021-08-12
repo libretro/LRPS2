@@ -18,10 +18,6 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/GS" AND GSdx)
 	add_subdirectory(GS)
 endif()
 
-if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/PAD" AND onepad)
-   add_subdirectory(PAD)
-endif()
-
 if(EXISTS "${CMAKE_SOURCE_DIR}/plugins/USB" AND USBnull)
 	add_subdirectory(USB)
 endif()

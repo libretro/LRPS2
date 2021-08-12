@@ -4,7 +4,6 @@
 set(msg_dep_common_libs "check these libraries -> wxWidgets (>=3.0), aio")
 set(msg_dep_pcsx2       "check these libraries -> wxWidgets (>=3.0), gtk2, zlib (>=1.2.4), pcsx2 common libs")
 set(msg_dep_gsdx        "check these libraries -> opengl, png (>=1.2), zlib (>=1.2.4), X11, liblzma")
-set(msg_dep_onepad      "check these libraries -> sdl2, X11, gtk2")
 set(msg_dep_spu2x       "")
 set(msg_dep_dev         "check these libraries -> gtk2, pcap, libxml2")
 
@@ -40,7 +39,6 @@ endif()
 #---------------------------------------
 #			Pcsx2 core
 # requires: -wx
-#           -gtk2 (linux)
 #           -zlib
 #           -common_libs
 #           -aio
@@ -98,25 +96,6 @@ endif()
 #           -zlib
 #---------------------------------------
 set(GSdx TRUE)
-#---------------------------------------
-
-#---------------------------------------
-
-#---------------------------------------
-#			onepad
-#---------------------------------------
-#---------------------------------------
-set(onepad TRUE)
-
-# old version of the plugin that still supports SDL1
-# Was never ported to macOS
-	if(wxWidgets_FOUND AND GTKn_FOUND AND X11_FOUND AND NOT APPLE)
-	set(onepad_legacy TRUE)
-elseif(NOT EXISTS "${CMAKE_SOURCE_DIR}/plugins/onepad_legacy" OR APPLE)
-	set(onepad_legacy FALSE)
-else()
-	set(onepad_legacy FALSE)
-endif()
 #---------------------------------------
 
 #---------------------------------------

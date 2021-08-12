@@ -19,6 +19,7 @@
 #include "Common.h"
 #include "Sio.h"
 #include "sio_internal.h"
+#include "PAD/PAD.h"
 
 _sio sio;
 _mcd mcds[2][4];
