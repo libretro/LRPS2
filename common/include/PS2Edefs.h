@@ -90,10 +90,6 @@ extern "C" {
 
 /* GS plugin API */
 
-// if this file is included with this define
-// the next api will not be skipped by the compiler
-#if defined(GSdefs) || defined(BUILTIN_GS_PLUGIN)
-
 // basic funcs
 
 void CALLBACK GSosdLog(const char *utf8, u32 color);
@@ -140,8 +136,6 @@ void CALLBACK GSwriteCSR(u32 value);
 s32 CALLBACK GSfreeze(int mode, freezeData *data);
 void CALLBACK GSconfigure();
 
-#endif
-
 /* PAD plugin API -=[ OBSOLETE ]=- */
 
 // if this file is included with this define
@@ -186,10 +180,6 @@ void CALLBACK PADconfigure();
 
 /* DEV9 plugin API */
 
-// if this file is included with this define
-// the next api will not be skipped by the compiler
-#if defined(DEV9defs) || defined(BUILTIN_DEV9_PLUGIN)
-
 // basic funcs
 
 // NOTE: The read/write functions CANNOT use XMM/MMX regs
@@ -220,13 +210,7 @@ void CALLBACK DEV9async(u32 cycles);
 s32 CALLBACK DEV9freeze(int mode, freezeData *data);
 void CALLBACK DEV9configure();
 
-#endif
-
 /* USB plugin API */
-
-// if this file is included with this define
-// the next api will not be skipped by the compiler
-#if defined(USBdefs) || defined(BUILTIN_USB_PLUGIN)
 
 // basic funcs
 
@@ -254,41 +238,6 @@ void CALLBACK USBsetRAM(void *mem);
 
 s32 CALLBACK USBfreeze(int mode, freezeData *data);
 void CALLBACK USBconfigure();
-
-#endif
-
-// might be useful for emulators
-#ifdef PLUGINtypedefs
-// GS
-// NOTE: GSreadFIFOX/GSwriteCSR functions CANNOT use XMM/MMX regs
-// If you want to use them, need to save and restore current ones
-typedef void(CALLBACK *_GSosdLog)(const char *utf8, u32 color);
-typedef void(CALLBACK *_GSosdMonitor)(const char *key, const char *value, u32 color);
-typedef s32(CALLBACK *_GSopen)(const char *Title, int multithread);
-typedef s32(CALLBACK *_GSopen2)(u32 flags);
-typedef void(CALLBACK *_GSvsync)(int field);
-typedef void(CALLBACK *_GSgifTransfer)(const u32 *pMem, u32 size);
-typedef void(CALLBACK *_GSgifTransfer1)(u32 *pMem, u32 addr);
-typedef void(CALLBACK *_GSgifTransfer2)(u32 *pMem, u32 size);
-typedef void(CALLBACK *_GSgifTransfer3)(u32 *pMem, u32 size);
-typedef void(CALLBACK *_GSgifSoftReset)(u32 mask);
-typedef void(CALLBACK *_GSreadFIFO)(u64 *pMem);
-typedef void(CALLBACK *_GSreadFIFO2)(u8 *pMem, int qwc);
-typedef void(CALLBACK *_GSinitReadFIFO)(u64 *pMem);
-typedef void(CALLBACK *_GSinitReadFIFO2)(u64 *pMem, int qwc);
-
-typedef void(CALLBACK *_GSchangeSaveState)(int, const char *filename);
-typedef void(CALLBACK *_GSgetTitleInfo2)(char *dest, size_t length);
-typedef void(CALLBACK *_GSirqCallback)(void (*callback)());
-typedef void(CALLBACK *_GSsetBaseMem)(void *);
-typedef void(CALLBACK *_GSsetGameCRC)(int, int);
-typedef void(CALLBACK *_GSsetFrameSkip)(int frameskip);
-typedef void(CALLBACK *_GSsetVsync)(int enabled);
-typedef void(CALLBACK *_GSsetExclusive)(int isExclusive);
-typedef std::wstring*(CALLBACK *_GSsetupRecording)(int);
-typedef void(CALLBACK *_GSreset)();
-typedef void(CALLBACK *_GSwriteCSR)(u32 value);
-#endif
 
 #ifdef __cplusplus
 } // End extern "C"
