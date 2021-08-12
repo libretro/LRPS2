@@ -21,17 +21,6 @@ set(CommonFlags
 #    -DWX_PRECOMP
 	)
 
-# Largely turning off because LegacyPluginAPI_Common in Plugins.h spams really badly in gcc 8 due to the memzero initialization.
-# Should probably be fixed properly, but for now this should work.
-if(GCC_VERSION VERSION_EQUAL "8.0" OR GCC_VERSION VERSION_GREATER "8.0")
-    set(CommonFlags
-	    ${CommonFlags}
-	    -Wno-class-memaccess
-    )
-endif()
-
-
-
 if ("${PGO}" STREQUAL "generate")
     set(pcsx2FinalFlags -fprofile-generate)
 elseif("${PGO}" STREQUAL "use")

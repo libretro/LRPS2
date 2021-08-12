@@ -35,172 +35,11 @@
 #	pragma warning(disable:4673)
 #endif
 
-struct PluginInfo
-{
-	const char* shortname;
-	PluginsEnum_t id;
-
-	wxString GetShortname() const
-	{
-		return fromUTF8( shortname );
-	}
-};
-
-// --------------------------------------------------------------------------------------
-//  Plugin-related Exceptions
-// --------------------------------------------------------------------------------------
-namespace Exception
-{
-	// Exception thrown when a corrupted or truncated savestate is encountered.
-	class SaveStateLoadError : public BadStream
-	{
-		DEFINE_STREAM_EXCEPTION( SaveStateLoadError, BadStream )
-
-		virtual wxString FormatDiagnosticMessage() const;
-		virtual wxString FormatDisplayMessage() const;
-	};
-
-	class PluginError : public RuntimeError
-	{
-		DEFINE_RUNTIME_EXCEPTION( PluginError, RuntimeError, L"Generic plugin error!" )
-
-	public:
-		PluginsEnum_t PluginId;
-
-	public:
-		explicit PluginError( PluginsEnum_t pid )
-		{
-			PluginId = pid;
-		}
-
-		virtual wxString FormatDiagnosticMessage() const;
-		virtual wxString FormatDisplayMessage() const;
-	};
-
-	// Plugin load errors occur when initially trying to load plugins during the
-	// creation of a SysCorePlugins object.  The error may either be due to non-existence,
-	// corruption, or incompatible versioning.
-	class PluginLoadError : public PluginError
-	{
-		DEFINE_EXCEPTION_COPYTORS( PluginLoadError, PluginError )
-		DEFINE_EXCEPTION_MESSAGES( PluginLoadError )
-
-	public:
-		wxString	StreamName;
-
-	protected:
-		PluginLoadError() {}
-
-	public:
-		PluginLoadError( PluginsEnum_t pid );
-
-		virtual PluginLoadError& SetStreamName( const wxString& name )	{ StreamName = name;			return *this; } \
-		virtual PluginLoadError& SetStreamName( const char* name )		{ StreamName = fromUTF8(name);	return *this; }
-
-		virtual wxString FormatDiagnosticMessage() const;
-		virtual wxString FormatDisplayMessage() const;
-	};
-
-	// Thrown when a plugin fails it's init() callback.  The meaning of this error is entirely
-	// dependent on the plugin and, in most cases probably never happens (most plugins do little
-	// more than a couple basic memory reservations during init)
-	class PluginInitError : public PluginError
-	{
-		DEFINE_EXCEPTION_COPYTORS( PluginInitError, PluginError )
-		DEFINE_EXCEPTION_MESSAGES( PluginInitError )
-
-	protected:
-		PluginInitError() {}
-
-	public:
-		PluginInitError( PluginsEnum_t pid );
-	};
-
-	// Plugin failed to open.  Typically this is a non-critical error that means the plugin has
-	// not been configured properly by the user, but may also be indicative of a system
-	class PluginOpenError : public PluginError
-	{
-		DEFINE_EXCEPTION_COPYTORS( PluginOpenError, PluginError )
-		DEFINE_EXCEPTION_MESSAGES( PluginOpenError )
-
-	protected:
-		PluginOpenError() {}
-
-	public:
-		explicit PluginOpenError( PluginsEnum_t pid );
-	};
-	
-	// This exception is thrown when a plugin returns an error while trying to save itself.
-	// Typically this should be a very rare occurance since a plugin typically shoudn't
-	// be doing memory allocations or file access during state saving.
-	//
-	class FreezePluginFailure : public PluginError
-	{
-		DEFINE_EXCEPTION_COPYTORS( FreezePluginFailure, PluginError )
-		DEFINE_EXCEPTION_MESSAGES( FreezePluginFailure )
-
-	protected:
-		FreezePluginFailure() {}
-
-	public:
-		explicit FreezePluginFailure( PluginsEnum_t pid )
-		{
-			PluginId = pid;
-		}
-
-		virtual wxString FormatDiagnosticMessage() const;
-		virtual wxString FormatDisplayMessage() const;
-	};
-
-	class ThawPluginFailure : public SaveStateLoadError
-	{
-		DEFINE_EXCEPTION_COPYTORS( ThawPluginFailure, SaveStateLoadError )
-		DEFINE_EXCEPTION_MESSAGES( ThawPluginFailure )
-
-	public:
-		PluginsEnum_t PluginId;
-
-	protected:
-		ThawPluginFailure() {}
-
-	public:
-		explicit ThawPluginFailure( PluginsEnum_t pid )
-		{
-			PluginId = pid;
-		}
-
-		virtual wxString FormatDiagnosticMessage() const;
-		virtual wxString FormatDisplayMessage() const;
-	};
-};
-
 #ifdef _MSC_VER
 #	pragma warning(pop)
 #endif
 
 typedef void CALLBACK FnType_SetDir( const char* dir );
-
-// --------------------------------------------------------------------------------------
-//  LegacyPluginAPI_Common
-// --------------------------------------------------------------------------------------
-// Important: Contents of this structure must match the order of the contents of the
-// s_MethMessCommon[] array defined in Plugins.cpp.
-//
-// Note: Open is excluded from this list because the GS has a custom signatures >_<
-//
-struct LegacyPluginAPI_Common
-{
-	s32  (CALLBACK* Init)();
-	void (CALLBACK* Close)();
-	void (CALLBACK* Shutdown)();
-
-	s32  (CALLBACK* Freeze)(int mode, freezeData *data);
-
-	LegacyPluginAPI_Common()
-	{
-		memzero( *this );
-	}
-};
 
 class SaveStateBase;
 class SysMtgsThread;
@@ -209,26 +48,6 @@ class SysMtgsThread;
 //  SysCorePlugins Class
 // --------------------------------------------------------------------------------------
 //
-class DynamicStaticLibrary
-{
-	public:
-
-	DynamicStaticLibrary() {};
-	virtual ~DynamicStaticLibrary() {};
-
-	virtual void* GetSymbol(const wxString &name) = 0;
-};
-
-class StaticLibrary : public DynamicStaticLibrary
-{
-	PluginsEnum_t pid;
-
-	public:
-
-	StaticLibrary(PluginsEnum_t _pid);
-	virtual ~StaticLibrary() {};
-	void* GetSymbol(const wxString &name);
-};
 
 class SysCorePlugins
 {
@@ -238,62 +57,38 @@ protected:
 	class PluginStatus_t
 	{
 	public:
-		PluginsEnum_t pid;
-
 		bool		IsInitialized;
 		bool		IsOpened;
-
-		wxString	Filename;
-		wxString	Name;
-
-		LegacyPluginAPI_Common	CommonBindings;
-		DynamicStaticLibrary*	Lib;
-
 	public:
 		PluginStatus_t()
 		{
 			IsInitialized	= false;
 			IsOpened	= false;
-			Lib             = NULL;
 		}
 
-		PluginStatus_t( PluginsEnum_t _pid );
-		virtual ~PluginStatus_t() { delete Lib; }
-
-	protected:
-		void BindCommon( PluginsEnum_t pid );
+		virtual ~PluginStatus_t() { }
 	};
 
-	Threading::MutexRecursive	m_mtx_PluginStatus;
-
 public:		// hack until we unsuck plugins...
-	std::unique_ptr<PluginStatus_t>	m_info[PluginId_AllocCount];
+	std::unique_ptr<PluginStatus_t>	m_info;
 
 public:
 	SysCorePlugins();
 	virtual ~SysCorePlugins();
 
-	virtual void Load( PluginsEnum_t pid );
 	virtual void Load(  );
 	virtual void Unload();
-	virtual void Unload( PluginsEnum_t pid );
 
 	bool AreLoaded() const;
 	
-	Threading::Mutex& GetMutex() { return m_mtx_PluginStatus; }
-
 	virtual bool Init();
-	virtual void Init( PluginsEnum_t pid );
-	virtual void Shutdown( PluginsEnum_t pid );
 	virtual bool Shutdown();
 	virtual void Open();
-	virtual void Open( PluginsEnum_t pid );
-	virtual void Close( PluginsEnum_t pid );
 	virtual void Close();
 
-	virtual bool IsOpen( PluginsEnum_t pid ) const;
-	virtual bool IsInitialized( PluginsEnum_t pid ) const;
-	virtual bool IsLoaded( PluginsEnum_t pid ) const;
+	virtual bool IsOpen( ) const;
+	virtual bool IsInitialized( ) const;
+	virtual bool IsLoaded( ) const;
 protected:
 	virtual bool NeedsClose() const;
 	virtual bool NeedsOpen() const;
@@ -304,37 +99,8 @@ protected:
 	virtual bool NeedsLoad() const;
 	virtual bool NeedsUnload() const;
 
-	virtual bool OpenPlugin_GS();
-	virtual void ClosePlugin_GS();
-
 	friend class SysMtgsThread;
 };
-
-extern const PluginInfo tbl_PluginInfo[];
-
-template<typename Func>
-static void ForPlugins(const Func& f)
-{
-	const PluginInfo* pi = tbl_PluginInfo;
-
-	do
-	{
-		f(pi);
-	}  while(++pi, pi->shortname != nullptr);
-}
-
-template<typename Func>
-static bool IfPlugins(const Func& f)
-{
-	const PluginInfo* pi = tbl_PluginInfo;
-
-	do
-	{
-		if (f(pi)) return true;
-	}  while(++pi, pi->shortname != nullptr);
-
-	return false;
-}
 
 // GetPluginManager() is a required external implementation. This function is *NOT*
 // provided by the PCSX2 core library.  It provides an interface for the linking User

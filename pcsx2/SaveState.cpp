@@ -91,7 +91,7 @@ void SaveStateBase::PrepBlock( int size )
 	else
 	{
 		if( m_memory->GetSizeInBytes() < end )
-			throw Exception::SaveStateLoadError();
+			log_cb(RETRO_LOG_ERROR, "SaveStateLoadError\n");
 	}
 }
 
@@ -105,11 +105,7 @@ void SaveStateBase::FreezeTag( const char* src )
 	Freeze( m_tagspace );
 
 	if( strcmp( m_tagspace, src ) != 0 )
-	{
-		wxString msg( L"Savestate data corruption detected while reading tag: " + fromUTF8(src) );
-		pxFail( msg );
-		throw Exception::SaveStateLoadError().SetDiagMsg(msg);
-	}
+		log_cb(RETRO_LOG_ERROR, "Savestate data corruption detected while reading tag: %s\n", src);
 }
 
 SaveStateBase& SaveStateBase::FreezeBios()

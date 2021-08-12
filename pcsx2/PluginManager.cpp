@@ -27,151 +27,6 @@
 
 #include "svnrev.h"
 
-// ----------------------------------------------------------------------------
-// Yay, order of this array shouldn't be important. :)
-//
-const PluginInfo tbl_PluginInfo[] =
-{
-	{ "GS",		PluginId_GS	},
-	{ NULL },
-};
-
-typedef void CALLBACK VoidMethod();
-typedef void CALLBACK vMeth();		// shorthand for VoidMethod
-
-// ----------------------------------------------------------------------------
-struct LegacyApi_CommonMethod
-{
-	const char*		MethodName;
-
-	// fallback is used if the method is null.  If the method is null and fallback is null
-	// also, the plugin is considered incomplete or invalid, and an error is generated.
-	VoidMethod*	Fallback;
-
-	// returns the method name as a wxString, converted from UTF8.
-	wxString GetMethodName( PluginsEnum_t pid ) const
-	{
-		return tbl_PluginInfo[pid].GetShortname() + fromUTF8( MethodName );
-	}
-};
-
-static s32  CALLBACK fallback_freeze(int mode, freezeData *data)
-{
-	if( mode == FREEZE_SIZE ) data->size = 0;
-	return 0;
-}
-
-static void CALLBACK fallback_configure() {}
-
-// ----------------------------------------------------------------------------
-// Important: Contents of this array must match the order of the contents of the
-// LegacyPluginAPI_Common structure defined in Plugins.h.
-//
-static const LegacyApi_CommonMethod s_MethMessCommon[] =
-{
-	{	"init",				NULL	},
-	{	"close",			NULL	},
-	{	"shutdown",			NULL	},
-
-	{	"freeze",			(vMeth*)fallback_freeze	},
-	{	"configure",		fallback_configure	},
-
-	{ NULL }
-
-};
-
-// ---------------------------------------------------------------------------------
-//       Plugin-related Exception Implementations
-// ---------------------------------------------------------------------------------
-
-wxString Exception::SaveStateLoadError::FormatDiagnosticMessage() const
-{
-	FastFormatUnicode retval;
-	retval.Write("Savestate is corrupt or incomplete!\n");
-	log_cb(RETRO_LOG_ERROR, "Error: Savestate is corrupt or incomplete!\n");
-	_formatDiagMsg(retval);
-	return retval;
-}
-
-wxString Exception::SaveStateLoadError::FormatDisplayMessage() const
-{
-	FastFormatUnicode retval;
-	retval.Write("The savestate cannot be loaded, as it appears to be corrupt or incomplete.");
-	retval.Write("\n");
-	log_cb(RETRO_LOG_ERROR, "Error: The savestate cannot be loaded, as it appears to be corrupt or incomplete.\n");
-	_formatUserMsg(retval);
-	return retval;
-}
-
-Exception::PluginOpenError::PluginOpenError( PluginsEnum_t pid )
-{
-	PluginId = pid;
-	m_message_diag = L"%s plugin failed to open!";
-	m_message_user = "%s plugin failed to open.  Your computer may have insufficient resources, or incompatible hardware/drivers.";
-}
-
-Exception::PluginInitError::PluginInitError( PluginsEnum_t pid )
-{
-	PluginId = pid;
-	m_message_diag = L"%s plugin initialization failed!";
-	m_message_user = "%s plugin failed to initialize.  Your system may have insufficient memory or resources needed.";
-}
-
-Exception::PluginLoadError::PluginLoadError( PluginsEnum_t pid )
-{
-	PluginId = pid;
-}
-
-wxString Exception::PluginLoadError::FormatDiagnosticMessage() const
-{
-	return pxsFmt( m_message_diag, WX_STR(tbl_PluginInfo[PluginId].GetShortname()) ) +
-		L"\n\n" + StreamName;
-}
-
-wxString Exception::PluginLoadError::FormatDisplayMessage() const
-{
-	return pxsFmt( m_message_user, WX_STR(tbl_PluginInfo[PluginId].GetShortname()) ) +
-		L"\n\n" + StreamName;
-}
-
-wxString Exception::PluginError::FormatDiagnosticMessage() const
-{
-	return pxsFmt( m_message_diag, WX_STR(tbl_PluginInfo[PluginId].GetShortname()) );
-}
-
-wxString Exception::PluginError::FormatDisplayMessage() const
-{
-	return pxsFmt( m_message_user, WX_STR(tbl_PluginInfo[PluginId].GetShortname()) );
-}
-
-wxString Exception::FreezePluginFailure::FormatDiagnosticMessage() const
-{
-	return pxsFmt(
-		L"%s plugin returned an error while saving the state.\n\n",
-		tbl_PluginInfo[PluginId].shortname
-	);
-}
-
-wxString Exception::FreezePluginFailure::FormatDisplayMessage() const
-{
-	// [TODO]
-	return m_message_user;
-}
-
-wxString Exception::ThawPluginFailure::FormatDiagnosticMessage() const
-{
-	return pxsFmt(
-		L"%s plugin returned an error while loading the state.\n\n",
-		tbl_PluginInfo[PluginId].shortname
-	);
-}
-
-wxString Exception::ThawPluginFailure::FormatDisplayMessage() const
-{
-	// [TODO]
-	return m_message_user;
-}
-
 // --------------------------------------------------------------------------------------
 //  PCSX2 Callbacks passed to Plugins
 // --------------------------------------------------------------------------------------
@@ -205,79 +60,10 @@ static void PS2E_CALLBACK pcsx2_OSD_WriteLn( int icon, const char* msg )
 }
 
 // ---------------------------------------------------------------------------------
-// DynamicStaticLibrary
-// ---------------------------------------------------------------------------------
-StaticLibrary::StaticLibrary(PluginsEnum_t _pid) : pid(_pid)
-{
-}
-
-void* StaticLibrary::GetSymbol(const wxString &name)
-{
-#define RETURN_SYMBOL(s) if (name == #s) return (void*)&s;
-
-#define RETURN_COMMON_SYMBOL(p) \
-	RETURN_SYMBOL(p##init) \
-	RETURN_SYMBOL(p##close) \
-	RETURN_SYMBOL(p##shutdown) \
-	RETURN_SYMBOL(p##freeze) \
-	RETURN_SYMBOL(p##configure) \
-
-	RETURN_COMMON_SYMBOL(GS);
-
-#undef RETURN_COMMON_SYMBOL
-#undef RETURN_SYMBOL
-
-	return NULL;
-}
-
-// ---------------------------------------------------------------------------------
 //  PluginStatus_t Implementations
 // ---------------------------------------------------------------------------------
-SysCorePlugins::SysCorePlugins() :
-	m_mtx_PluginStatus()
+SysCorePlugins::SysCorePlugins()
 {
-}
-
-SysCorePlugins::PluginStatus_t::PluginStatus_t( PluginsEnum_t _pid)
-{
-	pid = _pid;
-
-	IsInitialized	= false;
-	IsOpened		= false;
-
-	switch (_pid) {
-		case PluginId_GS:
-		case PluginId_Count:
-		default:
-			Lib			= new StaticLibrary(_pid);
-			break;
-	}
-
-	BindCommon( pid );
-}
-
-void SysCorePlugins::PluginStatus_t::BindCommon( PluginsEnum_t pid )
-{
-	const LegacyApi_CommonMethod* current = s_MethMessCommon;
-	VoidMethod** target = (VoidMethod**)&CommonBindings;
-
-	while( current->MethodName != NULL )
-	{
-		*target = (VoidMethod*)Lib->GetSymbol( current->GetMethodName( pid ) );
-
-		if( *target == NULL )
-			*target = current->Fallback;
-
-		if( *target == NULL )
-		{
-			throw Exception::PluginLoadError( pid ).SetStreamName(Filename)
-				.SetDiagMsg(wxsFormat( L"\nMethod binding failure on: %s\n", WX_STR(current->GetMethodName( pid )) ))
-				.SetUserMsg(L"Configured plugin is not a PCSX2 plugin, or is for an older unsupported version of PCSX2.");
-		}
-
-		target++;
-		current++;
-	}
 }
 
 // =====================================================================================
@@ -295,48 +81,25 @@ SysCorePlugins::~SysCorePlugins()
 	// All library unloading done automatically by wx.
 }
 
-void SysCorePlugins::Load( PluginsEnum_t pid )
-{
-	ScopedLock lock( m_mtx_PluginStatus );
-	pxAssert( (uint)pid < PluginId_Count );
-
-	m_info[pid] = std::make_unique<PluginStatus_t>(pid);
-
-	log_cb(RETRO_LOG_INFO, "Bound %4s: [%s]\n", WX_STR(tbl_PluginInfo[pid].GetShortname()), 
-		WX_STR(m_info[pid]->Name));
-}
-
 void SysCorePlugins::Load( )
 {
 	if( !NeedsLoad() ) return;
 
-	ForPlugins([&] (const PluginInfo * pi) {
-		Load( pi->id );
-	});
+	m_info = std::make_unique<PluginStatus_t>();
 
+	log_cb(RETRO_LOG_INFO, "Bound GS\n");
 	log_cb(RETRO_LOG_INFO, "Plugins loaded successfully.\n" );
-}
-
-void SysCorePlugins::Unload(PluginsEnum_t pid)
-{
-	ScopedLock lock( m_mtx_PluginStatus );
-	pxAssert( (uint)pid < PluginId_Count );
-	m_info[pid] = nullptr;
 }
 
 void SysCorePlugins::Unload()
 {
 	if( NeedsShutdown() )
 		log_cb(RETRO_LOG_WARN, "(SysCorePlugins) Warning: Unloading plugins prior to shutdown!\n");
-
-	//Shutdown();
-
 	if( !NeedsUnload() ) return;
 
 	log_cb(RETRO_LOG_DEBUG, "Unloading plugins...\n" );
 
-	for( int i=PluginId_Count-1; i>=0; --i )
-		Unload( tbl_PluginInfo[i].id );
+	m_info = nullptr;
 
 	log_cb(RETRO_LOG_DEBUG, "Plugins unloaded successfully.\n" );
 }
@@ -344,34 +107,6 @@ void SysCorePlugins::Unload()
 // Exceptions:
 //   FileNotFound - Thrown if one of the configured plugins doesn't exist.
 //   NotPcsxPlugin - Thrown if one of the configured plugins is an invalid or unsupported DLL
-
-bool SysCorePlugins::OpenPlugin_GS()
-{
-	GetMTGS().Resume();
-	return true;
-}
-
-void SysCorePlugins::Open( PluginsEnum_t pid )
-{
-	pxAssert( (uint)pid < PluginId_Count );
-	if( IsOpen(pid) ) return;
-
-	log_cb(RETRO_LOG_INFO, "Opening %s\n", tbl_PluginInfo[pid].shortname );
-
-	// Each Open needs to be called explicitly. >_<
-
-	bool result = true;
-	switch( pid )
-	{
-		case PluginId_GS:	result = OpenPlugin_GS();	break;
-		jNO_DEFAULT;
-	}
-	if( !result )
-		throw Exception::PluginOpenError( pid );
-
-	ScopedLock lock( m_mtx_PluginStatus );
-	if( m_info[pid] ) m_info[pid]->IsOpened = true;
-}
 
 void SysCorePlugins::Open()
 {
@@ -381,44 +116,17 @@ void SysCorePlugins::Open()
 
 	log_cb(RETRO_LOG_INFO, "Opening plugins...\n");
 
-	ForPlugins([&] (const PluginInfo * pi) {
-		Open( pi->id );
-	});
+	if( IsOpen() ) return;
+
+	log_cb(RETRO_LOG_INFO, "Opening GS\n");
+
+	// Each Open needs to be called explicitly. >_<
+	GetMTGS().Resume();
+
+	if( m_info ) m_info->IsOpened = true;
 	GetMTGS().WaitForOpen();
 
 	log_cb(RETRO_LOG_INFO, "Plugins opened successfully.\n");
-}
-
-void SysCorePlugins::ClosePlugin_GS()
-{
-	if( GetMTGS().IsSelf() )
-	{
-		ScopedLock lock( m_mtx_PluginStatus );
-		if( m_info[PluginId_GS] ) m_info[PluginId_GS]->CommonBindings.Close();
-	}
-	else
-	{
-		GetMTGS().Suspend();
-	}
-}
-
-void SysCorePlugins::Close( PluginsEnum_t pid )
-{
-	pxAssert( (uint)pid < PluginId_Count );
-
-	if( !IsOpen(pid) ) return;
-	
-	if( !GetMTGS().IsSelf() )		// stop the spam!
-		log_cb(RETRO_LOG_INFO, "Closing %s\n", tbl_PluginInfo[pid].shortname );
-
-	switch( pid )
-	{
-		case PluginId_GS:	ClosePlugin_GS();	break;
-		jNO_DEFAULT;
-	}
-
-	ScopedLock lock( m_mtx_PluginStatus );
-	if( m_info[pid] ) m_info[pid]->IsOpened = false;
 }
 
 void SysCorePlugins::Close()
@@ -430,36 +138,21 @@ void SysCorePlugins::Close()
 
 	log_cb(RETRO_LOG_INFO, "Closing plugins...\n" );
 
-	for( int i=PluginId_Count-1; i>=0; --i )
-		Close( tbl_PluginInfo[i].id );
+	if( !IsOpen() ) return;
+	
+	if( GetMTGS().IsSelf() )
+	{
+		GSclose();
+	}
+	else
+	{
+		log_cb(RETRO_LOG_INFO, "Closing GS\n");
+		GetMTGS().Suspend();
+	}
+
+	if( m_info ) m_info->IsOpened = false;
 	
 	log_cb(RETRO_LOG_INFO, "Plugins closed successfully.\n");
-}
-
-void SysCorePlugins::Init( PluginsEnum_t pid )
-{
-	ScopedLock lock( m_mtx_PluginStatus );
-
-	if( !m_info[pid] || m_info[pid]->IsInitialized ) return;
-
-	log_cb(RETRO_LOG_INFO, "Init %s\n", tbl_PluginInfo[pid].shortname );
-	if( 0 != m_info[pid]->CommonBindings.Init() )
-		throw Exception::PluginInitError( pid );
-
-	m_info[pid]->IsInitialized = true;
-}
-
-void SysCorePlugins::Shutdown( PluginsEnum_t pid )
-{
-	ScopedLock lock( m_mtx_PluginStatus );
-
-	if( !m_info[pid] || !m_info[pid]->IsInitialized )
-		return;
-#ifndef NDEBUG
-	log_cb(RETRO_LOG_DEBUG, "Shutdown %s\n", tbl_PluginInfo[pid].shortname );
-#endif
-	m_info[pid]->IsInitialized = false;
-	m_info[pid]->CommonBindings.Shutdown();
 }
 
 // Initializes all plugins.  Plugin initialization should be done once for every new emulation
@@ -479,9 +172,16 @@ bool SysCorePlugins::Init()
 
 	log_cb(RETRO_LOG_INFO, "Initializing plugins...\n");
 
-	ForPlugins([&] (const PluginInfo * pi) {
-		Init( pi->id );
-	});
+	if( !m_info || m_info->IsInitialized ) return false;
+
+	log_cb(RETRO_LOG_INFO, "Init GS\n");
+	if( 0 != GSinit() )
+	{
+		log_cb(RETRO_LOG_ERROR, "Could not initialize GS.\n");
+		return false;
+	}
+
+	m_info->IsInitialized = true;
 
 	log_cb(RETRO_LOG_INFO, "Plugins initialized successfully.\n" );
 
@@ -501,21 +201,17 @@ bool SysCorePlugins::Shutdown()
 {
 	if( !NeedsShutdown() ) return false;
 
-	pxAssertDev( !NeedsClose(), "Cannot shut down plugins prior to Close()" );
-	
 	GetMTGS().Cancel();	// cancel it for speedier shutdown!
 	
 	log_cb(RETRO_LOG_INFO, "Shutting down plugins...\n");
 
-	// Shutdown plugins in reverse order (probably doesn't matter...
-	//  ... but what the heck, right?)
-
-	for( int i=PluginId_Count-1; i>=0; --i )
-	{
-		Shutdown( tbl_PluginInfo[i].id );
-	}
-
-	// More memorycard hacks!!
+	if( !m_info || !m_info->IsInitialized )
+		return false;
+#ifndef NDEBUG
+	log_cb(RETRO_LOG_DEBUG, "Shutdown GS\n");
+#endif
+	GSshutdown();
+	m_info->IsInitialized = false;
 
 	log_cb(RETRO_LOG_INFO, "Plugins shutdown successfully.\n");
 	
@@ -524,78 +220,52 @@ bool SysCorePlugins::Shutdown()
 
 bool SysCorePlugins::AreLoaded() const
 {
-	ScopedLock lock( m_mtx_PluginStatus );
-	for( int i=0; i<PluginId_Count; ++i )
-	{
-		if( !m_info[i] ) return false;
-	}
-
+	if( !m_info )
+		return false;
 	return true;
 }
 
-bool SysCorePlugins::IsOpen( PluginsEnum_t pid ) const
+bool SysCorePlugins::IsOpen() const
 {
-	pxAssert( (uint)pid < PluginId_Count );
-	ScopedLock lock( m_mtx_PluginStatus );
-	return m_info[pid] && m_info[pid]->IsInitialized && m_info[pid]->IsOpened;
+	return m_info && m_info->IsInitialized && m_info->IsOpened;
 }
 
-bool SysCorePlugins::IsInitialized( PluginsEnum_t pid ) const
+bool SysCorePlugins::IsInitialized() const
 {
-	pxAssert( (uint)pid < PluginId_Count );
-	ScopedLock lock( m_mtx_PluginStatus );
-	return m_info[pid] && m_info[pid]->IsInitialized;
+	return m_info && m_info->IsInitialized;
 }
 
-bool SysCorePlugins::IsLoaded( PluginsEnum_t pid ) const
+bool SysCorePlugins::IsLoaded() const
 {
-	pxAssert( (uint)pid < PluginId_Count );
-	return !!m_info[pid];
+	return !!m_info;
 }
 
 bool SysCorePlugins::NeedsLoad() const
 {
-	return IfPlugins([&] (const PluginInfo * pi) {
-		return !IsLoaded(pi->id);
-	});
+	return !IsLoaded();
 }		
 
 bool SysCorePlugins::NeedsUnload() const
 {
-
-	return IfPlugins([&] (const PluginInfo * pi) {
-		return IsLoaded(pi->id);
-	});
+	return IsLoaded();
 }		
 
 bool SysCorePlugins::NeedsInit() const
 {
-	ScopedLock lock( m_mtx_PluginStatus );
-
-	return IfPlugins([&] (const PluginInfo * pi) {
-		return !IsInitialized(pi->id);
-	});
+	return !IsInitialized();
 }
 
 bool SysCorePlugins::NeedsShutdown() const
 {
-	ScopedLock lock( m_mtx_PluginStatus );
-
-	return IfPlugins([&] (const PluginInfo * pi) {
-		return IsInitialized(pi->id);
-	});
+	return IsInitialized();
 }
 
 bool SysCorePlugins::NeedsOpen() const
 {
-	return IfPlugins([&] (const PluginInfo * pi) {
-		return !IsOpen(pi->id);
-	});
+	return !IsOpen();
 }
 
 bool SysCorePlugins::NeedsClose() const
 {
-	return IfPlugins([&] (const PluginInfo * pi) {
-		return IsOpen(pi->id);
-	});
+	return IsOpen();
 }
