@@ -344,7 +344,9 @@ void dmaSPR0()   // fromSPR
 
 	if(spr0ch.chcr.MOD == CHAIN_MODE && spr0ch.qwc > 0)
 	{
-		//log_cb(RETRO_LOG_DEBUG, "SPR0 QWC on Chain %s", spr0ch.chcr.desc().c_str());
+#ifdef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "SPR0 QWC on Chain %s", spr0ch.chcr.desc().c_str());
+#endif
 		if (spr0ch.chcr.tag().ID == TAG_END) // But not TAG_REFE?
 		{									 // correct not REFE, Destination Chain doesnt have REFE!
 			spr0finished = true;
@@ -511,7 +513,9 @@ void dmaSPR1()   // toSPR
 
 	if(spr1ch.chcr.MOD == CHAIN_MODE && spr1ch.qwc > 0)
 	{
-		//log_cb(RETRO_LOG_DEBUG, "SPR1 QWC on Chain %s", spr1ch.chcr.desc().c_str());
+#ifndef NDEBUG
+		log_cb(RETRO_LOG_DEBUG, "SPR1 QWC on Chain %s", spr1ch.chcr.desc().c_str());
+#endif
 		if ((spr1ch.chcr.tag().ID == TAG_END) || (spr1ch.chcr.tag().ID == TAG_REFE) || (spr1ch.chcr.tag().IRQ && spr1ch.chcr.TIE))
 		{
 			spr1finished = true;

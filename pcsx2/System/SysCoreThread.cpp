@@ -28,7 +28,6 @@
 #include "MTVU.h"
 #include "IPC.h"
 #include "FW.h"
-#include "GS/GS.h"
 #include "PAD/PAD.h"
 #include "SPU2/spu2.h"
 

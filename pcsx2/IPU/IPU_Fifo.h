@@ -28,6 +28,7 @@ struct IPU_Fifo_Input
 	int write(u32* pMem, int size);
 	int read(void *value);
 	void clear();
+	wxString desc() const;
 };
 
 struct IPU_Fifo_Output
@@ -39,6 +40,7 @@ struct IPU_Fifo_Output
 	int write(const u32 * value, uint size);
 	void read(void *value, uint size);
 	void clear();
+	wxString desc() const;
 };
 
 struct IPU_Fifo

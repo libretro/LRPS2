@@ -29,10 +29,17 @@
 #include <commctrl.h>
 #undef Yield
 
+#define EXPORT_C_(type) extern "C" type CALLBACK
+
 #elif defined(__unix__)
 
 #include <cstring>
 #include <wx/defs.h>
+#define EXPORT_C_(type) extern "C" __attribute__((stdcall, externally_visible, visibility("default"))) type
+
+#else
+
+#define EXPORT_C_(type) extern "C" __attribute__((stdcall, externally_visible, visibility("default"))) type
 
 #endif
 

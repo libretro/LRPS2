@@ -29,8 +29,8 @@
 #include <errno.h>
 #include <string>
 
-#include "PrecompiledHeader.h"
 #include "DEV9.h"
+#include "svnrev.h"
 
 // Our IRQ call.
 void (*DEV9irq)(int);
