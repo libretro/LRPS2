@@ -423,11 +423,7 @@ static __forceinline s32 GetVoiceValues(V_Core& thiscore, uint voiceidx)
 		case 4:
 			return CatmullRomInterpolate(vc.PV4, vc.PV3, vc.PV2, vc.PV1, mu);
 
-		default:
-#ifdef _MSC_VER
-			__assume(0);
-#endif
-			break;
+			jNO_DEFAULT;
 	}
 
 	return 0; // technically unreachable!
@@ -532,11 +528,7 @@ static __forceinline StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 					Value = GetVoiceValues<4>(thiscore, voiceidx);
 					break;
 
-				default:
-#ifdef _MSC_VER
-					__assume(0);
-#endif
-					break;
+					jNO_DEFAULT;
 			}
 		}
 

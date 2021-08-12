@@ -90,11 +90,7 @@ u32 IsoFile::seek(s64 offset, wxSeekMode ref_position)
 			// truncate negative values to zero, and positive values to 4gb
 			return seek(std::min(std::max<s64>(0, (s64)fileEntry.size + offset), (s64)ULONG_MAX));
 
-			default:
-#ifdef _MSC_VER
-			   __assume(0);
-#endif
-			   break;
+			jNO_DEFAULT;
 	}
 
 	return 0; // unreachable

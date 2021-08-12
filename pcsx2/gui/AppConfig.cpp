@@ -132,11 +132,7 @@ namespace PathDefs
 
 			case FolderId_Documents:	return CustomDocumentsFolder;
 
-			default:
-#ifdef _MSC_VER
-			   __assume(0);
-#endif
-			   break;
+			jNO_DEFAULT
 		}
 		return wxDirName();
 	}
@@ -155,11 +151,7 @@ wxDirName& AppConfig::FolderOptions::operator[]( FoldersEnum_t folderidx )
 
 		case FolderId_Documents:	return CustomDocumentsFolder;
 
-		default:
-#ifdef _MSC_VER
-		   __assume(0);
-#endif
-		   break;
+		jNO_DEFAULT
 	}
 	return CustomDocumentsFolder;		// unreachable, but suppresses warnings.
 }

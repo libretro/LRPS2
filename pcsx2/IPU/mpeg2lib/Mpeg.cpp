@@ -810,11 +810,7 @@ __fi bool mpeg2sliceIDEC()
 					}
 					break;
 
-				default:
-#ifdef _MSC_VER
-					__assume(0);
-#endif
-					break;
+				jNO_DEFAULT;
 				}
 
 				// Send The MacroBlock via DmaIpuFrom
@@ -903,11 +899,7 @@ __fi bool mpeg2sliceIDEC()
 				}
 				break;
 
-			default:
-#ifdef _MSC_VER
-				__assume(0);
-#endif
-				break;
+			jNO_DEFAULT;
 			}
 
 			ipu_cmd.pos[1] = 0;
@@ -946,11 +938,7 @@ finish_idec:
 		ipuRegs.top = BigEndian(ipuRegs.top);
 		break;
 
-	default:
-#ifdef _MSC_VER
-		__assume(0);
-#endif
-		break;
+	jNO_DEFAULT;
 	}
 
 	return true;
@@ -1057,11 +1045,7 @@ __fi bool mpeg2_slice()
 				}
 				break;
 
-			default:
-#ifdef _MSC_VER
-				__assume(0);
-#endif
-				break;
+			jNO_DEFAULT;
 			}
 
 			// Copy macroblock8 to macroblock16 - without sign extension.
@@ -1166,11 +1150,7 @@ __fi bool mpeg2_slice()
 					}
 					break;
 
-				default:
-#ifdef _MSC_VER
-					__assume(0);
-#endif
-					break;
+				jNO_DEFAULT;
 				}
 			}
 		}

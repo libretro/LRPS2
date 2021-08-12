@@ -108,11 +108,7 @@ struct Gif_Tag
 			cycles = len << 2; // Image Mode takes 4 ee-cycles
 			tag.FLG = GIF_FLG_IMAGE;
 			break;
-			default:
-#ifdef _MSC_VER
-			   __assume(0);
-#endif
-			   break;
+			jNO_DEFAULT;
 		}
 	}
 

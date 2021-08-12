@@ -104,11 +104,7 @@ uptr _x86GetAddr(int type, int reg)
 			ret = (uptr)&g_recWriteback;
 			break;
 
-		default:
-#ifdef _MSC_VER
-			__assume(0);
-#endif
-			break;
+		jNO_DEFAULT;
 	}
 
 	return ret;

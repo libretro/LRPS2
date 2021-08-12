@@ -380,11 +380,7 @@ static __fi bool ipuVDEC(u32 val)
 					ipuRegs.cmd.DATA = get_dmv();
 					break;
 
-				default:
-#ifdef _MSC_VER
-					__assume(0);
-#endif
-					break;
+				jNO_DEFAULT
 			}
 
 			// HACK ATTACK!  This code OR's the MPEG decoder's bitstream position into the upper
@@ -415,11 +411,7 @@ static __fi bool ipuVDEC(u32 val)
 
 			return true;
 
-		default:
-#ifdef _MSC_VER
-			__assume(0);
-#endif
-			break;
+		jNO_DEFAULT
 	}
 
 	return false;
@@ -845,11 +837,7 @@ __fi void IPUCMD_WRITE(u32 val)
 		case SCE_IPU_PACK:
 			break;
 
-		default:
-#ifdef _MSC_VER
-			__assume(0);
-#endif
-			break;
+		jNO_DEFAULT;
 			}
 
 	ipuRegs.ctrl.BUSY = 1;
@@ -920,11 +908,7 @@ __noinline void IPUWorker()
 			if (!ipuPACK(ipu_cmd.current)) return;
 			break;
 
-		default:
-#ifdef _MSC_VER
-			__assume(0);
-#endif
-			break;
+		jNO_DEFAULT
 			}
 
 	// success

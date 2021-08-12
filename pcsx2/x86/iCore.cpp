@@ -76,11 +76,7 @@ __fi void* _XMMGetAddr(int type, int reg, VURegs *VU)
 		case XMMTYPE_FPACC:
 			return &fpuRegs.ACC.f;
 
-		default:
-#ifdef _MSC_VER
-			__assume(0);
-#endif
-			break;
+		jNO_DEFAULT
 	}
 
 	return NULL;

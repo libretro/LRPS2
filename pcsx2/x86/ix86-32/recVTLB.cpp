@@ -197,11 +197,7 @@ namespace vtlb_private
 				iMOV128_SSE( ptr[arg2reg], ptr[arg1reg] );
 			break;
 
-			default:
-#ifdef _MSC_VER
-			   __assume(0);
-#endif
-			   break;
+			jNO_DEFAULT
 		}
 	}
 
@@ -278,11 +274,7 @@ static void DynGen_IndirectDispatch( int mode, int bits, bool sign = false )
 		case 32:	szidx=2;	break;
 		case 64:	szidx=3;	break;
 		case 128:	szidx=4;	break;
-			default:
-#ifdef _MSC_VER
-			   __assume(0);
-#endif
-			   break;
+		jNO_DEFAULT;
 	}
 	xJS( GetIndirectDispatcherPtr( mode, szidx, sign ) );
 }
@@ -420,11 +412,7 @@ void vtlb_DynGenRead64_Const( u32 bits, u32 addr_const )
 				iMOV128_SSE( ptr[arg2reg], ptr[(void*)ppf] );
 			break;
 
-			default:
-#ifdef _MSC_VER
-			   __assume(0);
-#endif
-			   break;
+			jNO_DEFAULT
 		}
 	}
 	else

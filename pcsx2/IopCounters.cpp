@@ -653,11 +653,7 @@ __fi void psxRcntWmode16(int index, u32 value)
 			case 0x200:
 				psxCounters[2].rate = 8;
 				break;
-			default:
-#ifdef _MSC_VER
-				__assume(0);
-#endif
-				break;
+				jNO_DEFAULT;
 		}
 
 		if ((counter.mode & 0x7) == 0x7 || (counter.mode & 0x7) == 0x1)

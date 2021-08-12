@@ -1671,11 +1671,7 @@ void rpsxpropREGIMM(EEINST* prev, EEINST* pinst)
 			rpsxpropSetRead(_Rs_);
 			break;
 
-		default:
-#ifdef _MSC_VER
-			__assume(0);
-#endif
-			break;
+		jNO_DEFAULT
 	}
 }
 
@@ -1698,11 +1694,7 @@ void rpsxpropCP0(EEINST* prev, EEINST* pinst)
 		case 16: // rfe
 			break;
 
-		default:
-#ifdef _MSC_VER
-			__assume(0);
-#endif
-			break;
+		jNO_DEFAULT
 	}
 }
 

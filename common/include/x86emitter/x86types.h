@@ -218,11 +218,7 @@ public:
             case 2: return 2;
             case 4: return 4;
             case 8: return 4; // Only mov's take 64-bit immediates
-	    default:
-#ifdef _MSC_VER
-		    __assume(0);
-#endif
-		    break;
+                jNO_DEFAULT
         }
         return 0;
     }
@@ -240,11 +236,7 @@ public:
                 xWrite32(imm);
                 break;
 
-	    default:
-#ifdef _MSC_VER
-		    __assume(0);
-#endif
-		    break;
+                jNO_DEFAULT
         }
     }
 };
