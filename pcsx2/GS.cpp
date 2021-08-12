@@ -22,7 +22,6 @@
 #include "GS/GS.h"
 #include "Gif_Unit.h"
 #include "Counters.h"
-#include "Utilities/Assertions.h"
 
 using namespace Threading;
 using namespace R5900;
