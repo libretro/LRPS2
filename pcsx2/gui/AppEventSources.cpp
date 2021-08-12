@@ -47,7 +47,11 @@ void IEventListener_CoreThread::DispatchEvent( const CoreThreadStatus& status )
 		case CoreThread_Reset:		CoreThread_OnReset();			break;
 		case CoreThread_Stopped:	CoreThread_OnStopped();			break;
 		
-		jNO_DEFAULT;
+		default:
+#ifdef _MSC_VER
+						__assume(0);
+#endif
+						break;
 	}
 }
 

@@ -340,7 +340,11 @@ void CDVDsys_ChangeSource(CDVD_SourceType type)
 			CDVD = &CDVDapi_NoDisc;
 			break;
 
-			jNO_DEFAULT;
+			default:
+#ifdef _MSC_VER
+			   __assume(0);
+#endif
+			   break;
 	}
 }
 

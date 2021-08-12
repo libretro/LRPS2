@@ -41,7 +41,11 @@ void Pcsx2Config::SpeedhackOptions::Set(SpeedhackId id, bool enabled)
 	case Speedhack_InstantVU1:
 		vu1Instant = enabled;
 		break;
-		jNO_DEFAULT;
+	default:
+#ifdef _MSC_VER
+		__assume(0);
+#endif
+		break;
 	}
 }
 
@@ -304,7 +308,11 @@ void Pcsx2Config::GamefixOptions::Set( GamefixId id, bool enabled )
 		case Fix_ScarfaceIbit:  ScarfaceIbit        = enabled;  break;
 		case Fix_CrashTagTeamIbit: CrashTagTeamRacingIbit = enabled; break;
 		case Fix_VU0Kickstart:	VU0KickstartHack	= enabled; break;
-		jNO_DEFAULT;
+		default:
+#ifdef _MSC_VER
+					__assume(0);
+#endif
+					break;
 	}
 }
 
@@ -331,7 +339,11 @@ bool Pcsx2Config::GamefixOptions::Get( GamefixId id ) const
 		case Fix_ScarfaceIbit:  return ScarfaceIbit;
 		case Fix_CrashTagTeamIbit: return CrashTagTeamRacingIbit;
 		case Fix_VU0Kickstart:	return VU0KickstartHack;
-		jNO_DEFAULT;
+		default:
+#ifdef _MSC_VER
+					__assume(0);
+#endif
+					break;
 	}
 	return false;		// unreachable, but we still need to suppress warnings >_<
 }

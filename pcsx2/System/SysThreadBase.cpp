@@ -304,7 +304,11 @@ bool SysThreadBase::StateCheckInThread()
 			OnResumeInThread( true );
 		break;
 
-		jNO_DEFAULT;
+		default:
+#ifdef _MSC_VER
+		__assume(0);
+#endif
+		break;
 	}
 	
 	return true;

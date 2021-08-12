@@ -448,7 +448,11 @@ void SysMtgsThread::ExecuteTaskInThread()
 						continue;
 #else
 						// Optimized performance in non-Dev builds.
-						jNO_DEFAULT;
+						default:
+#ifdef _MSC_VER
+						__assume(0);
+#endif
+						break;
 #endif
 					}
 				}

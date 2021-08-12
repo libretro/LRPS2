@@ -204,7 +204,11 @@ uint FileMcd_GetMtapPort(uint slot)
 		case 7:
 			return 1;
 
-			jNO_DEFAULT
+		default:
+#ifdef _MSC_VER
+			__assume(0);
+#endif
+			break;
 	}
 
 	return 0; // technically unreachable.
@@ -230,7 +234,11 @@ uint FileMcd_GetMtapSlot(uint slot)
 		case 7:
 			return slot - 4;
 
-			jNO_DEFAULT
+		default:
+#ifdef _MSC_VER
+			__assume(0);
+#endif
+			break;
 	}
 
 	return 0; // technically unreachable.

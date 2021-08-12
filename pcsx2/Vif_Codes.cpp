@@ -515,7 +515,11 @@ template<int idx> static __fi int _vifCode_STColRow(const u32* data, u32* pmem2)
 		case 1: 
 			pmem2[0] = data[0];
 				break;
-		jNO_DEFAULT
+		default:
+#ifdef _MSC_VER
+				__assume(0);
+#endif
+				break;
 	}
 
 	vifX.tag.addr += ret;
