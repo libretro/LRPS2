@@ -55,9 +55,25 @@
 #define _M_AMD64
 #endif
 
-#include "Pcsx2Types.h"
+// put these into vc9/common7/ide/usertype.dat to have them highlighted
+
+typedef unsigned char uint8;
+typedef signed char int8;
+typedef unsigned short uint16;
+typedef signed short int16;
+typedef unsigned int uint32;
+typedef signed int int32;
+typedef unsigned long long uint64;
+typedef signed long long int64;
+#ifdef _M_AMD64
+typedef uint64 uptr;
+#else
+typedef uint32 uptr;
+#endif
+
 
 // xbyak compatibilities
+typedef int64 sint64;
 #define MIE_INTEGER_TYPE_DEFINED
 #define XBYAK_ENABLE_OMITTED_OPERAND
 
