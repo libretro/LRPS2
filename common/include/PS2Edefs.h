@@ -78,9 +78,6 @@ typedef struct _keyEvent
 // for 64bit compilers
 typedef char __keyEvent_Size__[(sizeof(keyEvent) == 8) ? 1 : -1];
 
-typedef void (*DEV9callback)(int cycles);
-typedef int (*DEV9handler)(void);
-
 typedef void (*USBcallback)(int cycles);
 typedef int (*USBhandler)(void);
 
@@ -136,37 +133,6 @@ void CALLBACK GSwriteCSR(u32 value);
 s32 CALLBACK GSfreeze(int mode, freezeData *data);
 void CALLBACK GSconfigure();
 
-/* DEV9 plugin API */
-
-// basic funcs
-
-// NOTE: The read/write functions CANNOT use XMM/MMX regs
-// If you want to use them, need to save and restore current ones
-s32 CALLBACK DEV9init();
-s32 CALLBACK DEV9open();
-void CALLBACK DEV9close();
-void CALLBACK DEV9shutdown();
-void CALLBACK DEV9keyEvent(keyEvent *ev);
-
-u8 CALLBACK DEV9read8(u32 addr);
-u16 CALLBACK DEV9read16(u32 addr);
-u32 CALLBACK DEV9read32(u32 addr);
-void CALLBACK DEV9write8(u32 addr, u8 value);
-void CALLBACK DEV9write16(u32 addr, u16 value);
-void CALLBACK DEV9write32(u32 addr, u32 value);
-void CALLBACK DEV9readDMA8Mem(u32 *pMem, int size);
-void CALLBACK DEV9writeDMA8Mem(u32 *pMem, int size);
-
-// cycles = IOP cycles before calling callback,
-// if callback returns 1 the irq is triggered, else not
-void CALLBACK DEV9irqCallback(DEV9callback callback);
-DEV9handler CALLBACK DEV9irqHandler(void);
-void CALLBACK DEV9async(u32 cycles);
-
-// extended funcs
-
-s32 CALLBACK DEV9freeze(int mode, freezeData *data);
-void CALLBACK DEV9configure();
 
 /* USB plugin API */
 

@@ -15,6 +15,7 @@
 
 #include "PrecompiledHeader.h"
 #include "IopCommon.h"
+#include "DEV9/DEV9.h"
 #include "SPU2/spu2.h"
 
 #include "Sif.h"

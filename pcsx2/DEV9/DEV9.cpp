@@ -37,8 +37,7 @@ void (*DEV9irq)(int);
 
 __aligned16 s8 dev9regs[0x10000];
 
-EXPORT_C_(void)
-DEV9configure()
+void DEV9configure()
 {
 }
 
@@ -46,35 +45,30 @@ void DEV9LogInit()
 {
 }
 
-EXPORT_C_(s32)
-DEV9init()
+s32 DEV9init()
 {
     // Initialize anything that needs to be initialized.
     memset(dev9regs, 0, sizeof(dev9regs));
     return 0;
 }
 
-EXPORT_C_(void)
-DEV9shutdown()
+void DEV9shutdown()
 {
 }
 
-EXPORT_C_(s32)
-DEV9open()
+s32 DEV9open()
 {
     // Get anything ready we need to. Opening and creating hard
     // drive files, for example.
     return 0;
 }
 
-EXPORT_C_(void)
-DEV9close()
+void DEV9close()
 {
     // Close files opened.
 }
 
-EXPORT_C_(u8)
-DEV9read8(u32 addr)
+u8 DEV9read8(u32 addr)
 {
     u8 value = 0;
 
@@ -91,8 +85,7 @@ DEV9read8(u32 addr)
     return value;
 }
 
-EXPORT_C_(u16)
-DEV9read16(u32 addr)
+u16 DEV9read16(u32 addr)
 {
     u16 value = 0;
 
@@ -125,8 +118,7 @@ DEV9read16(u32 addr)
     return value;
 }
 
-EXPORT_C_(u32)
-DEV9read32(u32 addr)
+u32 DEV9read32(u32 addr)
 {
     u32 value = 0;
 
@@ -142,8 +134,7 @@ DEV9read32(u32 addr)
     return value;
 }
 
-EXPORT_C_(void)
-DEV9write8(u32 addr, u8 value)
+void DEV9write8(u32 addr, u8 value)
 {
     switch (addr) {
         case 0x10000038: /*dev9Ru8(addr) = value;*/
@@ -155,8 +146,7 @@ DEV9write8(u32 addr, u8 value)
     }
 }
 
-EXPORT_C_(void)
-DEV9write16(u32 addr, u16 value)
+void DEV9write16(u32 addr, u16 value)
 {
     switch (addr) {
         // Remember that list on DEV9read16? You'll want to write to a
@@ -170,8 +160,7 @@ DEV9write16(u32 addr, u16 value)
     }
 }
 
-EXPORT_C_(void)
-DEV9write32(u32 addr, u32 value)
+void DEV9write32(u32 addr, u32 value)
 {
     switch (addr) {
         case 0x10000038: /*dev9Ru32(addr) = value;*/
@@ -183,8 +172,7 @@ DEV9write32(u32 addr, u32 value)
     }
 }
 
-EXPORT_C_(s32)
-DEV9dmaRead(s32 channel, u32 *data, u32 bytesLeft, u32 *bytesProcessed)
+s32 DEV9dmaRead(s32 channel, u32 *data, u32 bytesLeft, u32 *bytesProcessed)
 {
     // You'll want to put your own DMA8 reading code here.
     // Time to interact with your fake (or real) hardware.
@@ -193,8 +181,7 @@ DEV9dmaRead(s32 channel, u32 *data, u32 bytesLeft, u32 *bytesProcessed)
     return 0;
 }
 
-EXPORT_C_(s32)
-DEV9dmaWrite(s32 channel, u32 *data, u32 bytesLeft, u32 *bytesProcessed)
+s32 DEV9dmaWrite(s32 channel, u32 *data, u32 bytesLeft, u32 *bytesProcessed)
 {
     // See above.
     /* Writing DMA8 Mem */
@@ -202,29 +189,25 @@ DEV9dmaWrite(s32 channel, u32 *data, u32 bytesLeft, u32 *bytesProcessed)
     return 0;
 }
 
-EXPORT_C_(void)
-DEV9dmaInterrupt(s32 channel)
+void DEV9dmaInterrupt(s32 channel)
 {
     // See above.
 }
 
-EXPORT_C_(void)
-DEV9readDMA8Mem(u32 *pMem, int size)
+void DEV9readDMA8Mem(u32 *pMem, int size)
 {
     // You'll want to put your own DMA8 reading code here.
     // Time to interact with your fake (or real) hardware.
     /* Reading DMA8 Mem */
 }
 
-EXPORT_C_(void)
-DEV9writeDMA8Mem(u32 *pMem, int size)
+void DEV9writeDMA8Mem(u32 *pMem, int size)
 {
     // See above.
     /* Writing DMA8 Mem */
 }
 
-EXPORT_C_(void)
-DEV9irqCallback(DEV9callback callback)
+void DEV9irqCallback(DEV9callback callback)
 {
     // Setting our callback. You will call it with DEV9irq(cycles),
     // Where cycles is the number of cycles till the irq is triggered.
@@ -237,27 +220,23 @@ int _DEV9irqHandler(void)
     return 0;
 }
 
-EXPORT_C_(DEV9handler)
-DEV9irqHandler(void)
+DEV9handler DEV9irqHandler(void)
 {
     // Pass it to pcsx2.
     return (DEV9handler)_DEV9irqHandler;
 }
 
-EXPORT_C_(void)
-DEV9async(u32 cycles)
+void DEV9async(u32 cycles)
 {
 }
 
 // extended funcs
 
-EXPORT_C_(void)
-DEV9keyEvent(keyEvent *ev)
+void DEV9keyEvent(keyEvent *ev)
 {
 }
 
-EXPORT_C_(s32)
-DEV9freeze(int mode, freezeData *data)
+s32 DEV9freeze(int mode, freezeData *data)
 {
     // This should store or retrieve any information, for if emulation
     // gets suspended, or for savestates.

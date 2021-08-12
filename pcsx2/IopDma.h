@@ -17,7 +17,7 @@
 
 #include "PS2Edefs.h"
 
-// defined in PS2Edefs.h
+#include "DEV9/DEV9.h"
 
 extern void psxDma2(u32 madr, u32 bcr, u32 chcr);
 extern void psxDma3(u32 madr, u32 bcr, u32 chcr);

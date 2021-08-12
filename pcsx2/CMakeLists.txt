@@ -242,7 +242,17 @@ set(pcsx2PADSources
     PAD/state_management.cpp)
 
 # PAD headers
-set(pcsx2PADHeaders
+set(pcsx2DEV9Headers
+     DEV9/DEV9.h
+     )
+
+# DEV9 sources
+set(pcsx2DEV9Sources
+    DEV9/DEV9.cpp
+    )
+
+# DEV9 headers
+set(pcsx2DEV9Headers
      PAD/KeyStatus.h
      PAD/PAD.h
      PAD/state_management.h)
@@ -534,6 +544,8 @@ set(pcsx2x86Headers
 		${pcsx2CDVDHeaders}
 		${pcsx2PADSources}
 		${pcsx2PADHeaders}
+		${pcsx2DEV9Sources}
+		${pcsx2DEV9Headers}
 		${pcsx2SPU2Sources}
 		${pcsx2SPU2Headers}
 		${pcsx2DebugToolsSources}
@@ -602,11 +614,6 @@ if(MSVC)
   set(pcsx2FinalSources ${pcsx2FinalSources})
 endif()
 set(pcsx2FinalLibs ${pcsx2FinalLibs} USB)
-if(ENABLE_DEV9GHZDRK)
-    set(pcsx2FinalLibs ${pcsx2FinalLibs} DEV9)
-else()
-    set(pcsx2FinalLibs ${pcsx2FinalLibs} DEV9)
-endif()
 
 # additional include directories
 include_directories(

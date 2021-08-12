@@ -19,6 +19,7 @@
 #include "Sio.h"
 #include "FW.h"
 #include "CDVD/CdRom.h"
+#include "DEV9/DEV9.h"
 #include "SPU2/spu2.h"
 
 #include "ps2/pgif.h"
