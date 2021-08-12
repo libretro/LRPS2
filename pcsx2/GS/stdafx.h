@@ -269,7 +269,9 @@
 #undef max
 #undef abs
 
-#if !defined(_MSC_VER)
+
+	// http://svn.reactos.org/svn/reactos/trunk/reactos/include/crt/mingw32/intrin_x86.h?view=markup
+
 	__forceinline int _BitScanForward(unsigned long* const Index, const unsigned long Mask)
 	{
 #if defined(__GCC_ASM_FLAG_OUTPUTS__) && 0
@@ -306,10 +308,10 @@
 
 #endif
 
-extern void* _aligned_malloc(size_t size, size_t alignment);
-extern void _aligned_free(void* p);
-
 extern std::string format(const char* fmt, ...);
+
+extern void* _aligned_malloc(size_t size, size_t alignment);
+extern void _aligned_free(void *pmem);
 
 extern void* vmalloc(size_t size, bool code);
 extern void vmfree(void* ptr, size_t size);
