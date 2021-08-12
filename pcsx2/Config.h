@@ -18,14 +18,6 @@
 #include "PrecompiledHeader.h"
 #include "x86emitter/tools.h"
 
-enum PluginsEnum_t
-{
-	PluginId_GS = 0,
-	PluginId_Count,
-
-	PluginId_AllocCount // Extra value for correct array allocation
-};
-
 enum GamefixId
 {
 	GamefixId_FIRST = 0,

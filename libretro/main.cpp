@@ -344,7 +344,6 @@ void retro_init(void)
 		// apply options to pcsx2
 
 		g_Conf->EnablePresets = true;
-		g_Conf->BaseFilenames.Plugins[PluginId_GS] = "Built-in";
 		g_Conf->EmuOptions.EnableIPC = false;
 		g_Conf->EmuOptions.Speedhacks.fastCDVD  = option_value(BOOL_PCSX2_OPT_FASTCDVD, KeyOptionBool::return_type);
 

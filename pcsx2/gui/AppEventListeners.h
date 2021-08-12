@@ -39,18 +39,6 @@ enum AppEventType
 	AppStatus_Exiting
 };
 
-enum PluginEventType
-{
-	CorePlugins_Loaded,
-	CorePlugins_Init,
-	CorePlugins_Opening,		// dispatched prior to plugins being opened
-	CorePlugins_Opened,			// dispatched after plugins are opened
-	CorePlugins_Closing,		// dispatched prior to plugins being closed
-	CorePlugins_Closed,			// dispatched after plugins are closed
-	CorePlugins_Shutdown,
-	CorePlugins_Unloaded,
-};
-
 struct AppEventInfo
 {
 	AppEventType	evt_type;

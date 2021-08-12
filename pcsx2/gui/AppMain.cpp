@@ -92,17 +92,12 @@ void DoFmvSwitch(bool on)
 	}
 }
 
-// NOTE: Plugins are *not* applied by this function.  Changes to plugins need to handled
-// manually.  The PluginSelectorPanel does this, for example.
 void AppApplySettings()
 {
 	AffinityAssert_AllowFrom_MainUI();
 	CoreThread.Pause();
 
-	//g_Conf->Folders.ApplyDefaults();
-
-	// Ensure existence of necessary documents folders.  Plugins and other parts
-	// of PCSX2 rely on them.
+	// Ensure existence of necessary documents folders.
 
 	g_Conf->Folders.Cheats.Mkdir();
 	g_Conf->Folders.CheatsWS.Mkdir();

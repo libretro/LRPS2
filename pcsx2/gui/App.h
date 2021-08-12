@@ -140,7 +140,6 @@ public:
 		m_evtsrc_AppStatus.Remove( listener );
 	}
 	
-	void DispatchEvent( PluginEventType evt );
 	void DispatchEvent( AppEventType evt );
 	void DispatchEvent( CoreThreadStatus evt );
 	void DispatchUiSettingsEvent();
@@ -236,10 +235,6 @@ wxDECLARE_APP(Pcsx2App);
 // --------------------------------------------------------------------------------------
 //  External App-related Globals and Shortcuts
 // --------------------------------------------------------------------------------------
-
-extern void LoadPluginsImmediate();
-extern void UnloadPlugins();
-extern void ShutdownPlugins();
 
 extern __aligned16 SysMtgsThread mtgsThread;
 extern __aligned16 AppCoreThread CoreThread;

@@ -319,14 +319,6 @@ void AppConfig::FolderOptions::LoadSave()
 		operator[]( (FoldersEnum_t)i ).Normalize();
 }
 
-// ------------------------------------------------------------------------
-const wxFileName& AppConfig::FilenameOptions::operator[]( PluginsEnum_t pluginidx ) const
-{
-	IndexBoundsAssumeDev( L"Filename[Plugin]", pluginidx, PluginId_Count );
-	return Plugins[pluginidx];
-}
-
-
 // ----------------------------------------------------------------------------
 int AppConfig::GetMaxPresetIndex()
 {
@@ -532,8 +524,7 @@ static void AppLoadSettings()
 //      that might be saved to the configured ini/settings folder.
 //
 // Notes:
-//   The overwrite option applies to PCSX2 options only.  Plugin option behavior will depend
-//   on the plugins.
+//   The overwrite option applies to PCSX2 options only.
 //
 void AppConfig_OnChangedSettingsFolder()
 {

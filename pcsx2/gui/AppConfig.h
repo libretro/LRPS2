@@ -65,9 +65,6 @@ public:
 	struct FilenameOptions
 	{
 		wxFileName Bios;
-		wxFileName Plugins[PluginId_Count];
-
-		const wxFileName& operator[]( PluginsEnum_t pluginidx ) const;
 	};
 
 	// ------------------------------------------------------------------------
