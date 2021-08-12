@@ -139,7 +139,6 @@ union tDMA_CHCR {
 	void reset() { _u32 = 0; }
 	u16 upper() const { return (_u32 >> 16); }
 	u16 lower() const { return (u16)_u32; }
-	wxString desc() const { return wxsFormat(L"Chcr: 0x%x", _u32); }
 	tDMA_TAG tag() { return (tDMA_TAG)_u32; }
 };
 
@@ -155,7 +154,6 @@ union tDMA_SADR {
 	tDMA_SADR(u32 val) { _u32 = val; }
 
 	void reset() { _u32 = 0; }
-	wxString desc() const { return wxsFormat(L"Sadr: 0x%x", _u32); }
 	tDMA_TAG tag() const { return (tDMA_TAG)_u32; }
 };
 
@@ -168,7 +166,6 @@ union tDMA_QWC {
 	tDMA_QWC(u32 val) { _u32 = val; }
 
 	void reset() { _u32 = 0; }
-	wxString desc() const { return wxsFormat(L"QWC: 0x%04x", QWC); }
 	tDMA_TAG tag() const { return (tDMA_TAG)_u32; }
 };
 
@@ -337,7 +334,6 @@ union tDMAC_CTRL {
 	void set_flags(u32 flags) { _u32 |= flags; }
 	void clear_flags(u32 flags) { _u32 &= ~flags; }
 	void reset() { _u32 = 0; }
-	wxString desc() const { return wxsFormat(L"Ctrl: 0x%x", _u32); }
 };
 
 union tDMAC_STAT {
@@ -362,7 +358,6 @@ union tDMAC_STAT {
 	void set_flags(u32 flags) { _u32 |= flags; }
 	void clear_flags(u32 flags) { _u32 &= ~flags; }
 	void reset() { _u32 = 0; }
-	wxString desc() const { return wxsFormat(L"Stat: 0x%x", _u32); }
 
 	bool TestForInterrupt() const
 	{
@@ -386,7 +381,6 @@ union tDMAC_PCR {
 	void set_flags(u32 flags) { _u32 |= flags; }
 	void clear_flags(u32 flags) { _u32 &= ~flags; }
 	void reset() { _u32 = 0; }
-	wxString desc() const { return wxsFormat(L"Pcr: 0x%x", _u32); }
 };
 
 union tDMAC_SQWC {
@@ -404,7 +398,6 @@ union tDMAC_SQWC {
 	void set_flags(u32 flags) { _u32 |= flags; }
 	void clear_flags(u32 flags) { _u32 &= ~flags; }
 	void reset() { _u32 = 0; }
-	wxString desc() const { return wxsFormat(L"Sqwc: 0x%x", _u32); }
 };
 
 union tDMAC_RBSR {
@@ -417,7 +410,6 @@ union tDMAC_RBSR {
 	tDMAC_RBSR(u32 val) { _u32 = val; }
 
 	void reset() { _u32 = 0; }
-	wxString desc() const { return wxsFormat(L"Rbsr: 0x%x", _u32); }
 };
 
 union tDMAC_RBOR {
@@ -430,7 +422,6 @@ union tDMAC_RBOR {
 	tDMAC_RBOR(u32 val) { _u32 = val; }
 
 	void reset() { _u32 = 0; }
-	wxString desc() const { return wxsFormat(L"Rbor: 0x%x", _u32); }
 };
 
 // --------------------------------------------------------------------------------------
@@ -509,7 +500,6 @@ union tINTC_STAT {
 	void set_flags(u32 flags) { _u32 |= flags; }
 	void clear_flags(u32 flags) { _u32 &= ~flags; }
 	void reset() { _u32 = 0; }
-	wxString desc() const { return wxsFormat(L"Stat: 0x%x", _u32); }
 };
 
 union tINTC_MASK {
@@ -525,7 +515,6 @@ union tINTC_MASK {
 	void set_flags(u32 flags) { _u32 |= flags; }
 	void clear_flags(u32 flags) { _u32 &= ~flags; }
 	void reset() { _u32 = 0; }
-	wxString desc() const { return wxsFormat(L"Mask: 0x%x", _u32); }
 };
 
 struct INTCregisters

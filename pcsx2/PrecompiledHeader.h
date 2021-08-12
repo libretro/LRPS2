@@ -97,4 +97,9 @@ typedef FnType_Void* Fnptr_Void;
 
 #endif
 
+// freeze modes:
+#define FREEZE_LOAD 0
+#define FREEZE_SAVE 1
+#define FREEZE_SIZE 2
+
 #endif

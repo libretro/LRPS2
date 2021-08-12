@@ -25,6 +25,8 @@
 #include "IPU/IPU.h"
 #include "IPU/IPU_Fifo.h"
 
+#include "GS/GS.h"
+
 //////////////////////////////////////////////////////////////////////////
 /////////////////////////// Quick & dirty FIFO :D ////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -58,7 +60,7 @@ void __fastcall ReadFIFO_VIF1(mem128_t* out)
 			GetMTGS().WaitGS();
 			GetMTGS().SendPointerPacket(GS_RINGTYPE_INIT_READ_FIFO1, 0, out);
 			GetMTGS().WaitGS(false); // wait without reg sync
-			GSreadFIFO((u64*)out);
+			GSreadFIFO((uint8*)out);
 			vif1.GSLastDownloadSize--;
 			GUNIT_LOG("ReadFIFO_VIF1");
 			if (vif1.GSLastDownloadSize <= 16)

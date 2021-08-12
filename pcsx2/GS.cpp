@@ -19,6 +19,7 @@
 #include <list>
 
 #include "GS.h"
+#include "GS/GS.h"
 #include "Gif_Unit.h"
 #include "Counters.h"
 

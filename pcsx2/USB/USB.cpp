@@ -15,7 +15,7 @@
 
 #include <stdlib.h>
 #include <string>
-#include "svnrev.h"
+#include "PrecompiledHeader.h"
 #include "USB.h"
 
 USBcallback USBirq;

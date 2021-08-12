@@ -65,11 +65,6 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/pcsx2" AND pcsx2_core)
     add_subdirectory(pcsx2)
 endif()
 
-# make plugins
-if(EXISTS "${CMAKE_SOURCE_DIR}/plugins")
-    add_subdirectory(plugins)
-endif()
-
 #-------------------------------------------------------------------------------
 
 # Install some files to ease package creation

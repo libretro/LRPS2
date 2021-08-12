@@ -30,6 +30,7 @@
 #include "../../libretro/input.h"
 
 #include "PS2Edefs.h"
+#include "PrecompiledHeader.h"
 #include "PAD.h"
 #include "state_management.h"
 

@@ -15,10 +15,6 @@
 
 #pragma once
 
-#define FREEZE_LOAD 0
-#define FREEZE_SAVE 1
-#define FREEZE_SIZE 2
-
 #include "PS2Edefs.h"
 #include "System.h"
 
