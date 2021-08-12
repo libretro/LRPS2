@@ -111,27 +111,6 @@ public:
         return Reassign(src);
     }
 
-#if 0
-	operator T*() const
-	{
-		return m_ptr;
-	}
-
-	// Dereference operator, returns a handle to the managed pointer.
-	// Generates a debug assertion if the object is nullptr!
-	T& operator*() const
-	{
-		pxAssert(m_ptr != nullptr);
-		return *m_ptr;
-	}
-
-	T* operator->() const
-	{
-		pxAssert(m_ptr != nullptr);
-		return m_ptr;
-	}
-#endif
-
 protected:
     void _Delete_unlocked() noexcept
     {

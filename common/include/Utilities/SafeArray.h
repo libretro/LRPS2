@@ -15,13 +15,6 @@
 
 #pragma once
 
-// pxUSE_SECURE_MALLOC - enables bounds checking on scoped malloc allocations.
-
-#ifndef pxUSE_SECURE_MALLOC
-#define pxUSE_SECURE_MALLOC 0
-#endif
-
-
 // Microsoft Windows only macro, useful for freeing out COM objects:
 #define safe_release(ptr) \
     ((void)((((ptr) != NULL) && ((ptr)->Release(), !!0)), (ptr) = NULL))
@@ -101,88 +94,6 @@ public:
     const T &operator[](int idx) const { return *_getPtr((uint)idx); }
 
     virtual SafeArray<T> *Clone() const;
-};
-
-//////////////////////////////////////////////////////////////////////////////////////////
-// SafeList - Simple growable container without all the mess or hassle of std containers.
-//
-// This container is intended for reasonably simple class types only.  Things which this
-// container does not handle with desired robustness:
-//
-//  * Classes with non-trivial constructors (such that construction creates much overhead)
-//  * Classes with copy constructors (copying is done using performance memcpy)
-//  * Classes with destructors (they're not called, sorry!)
-//
-template <typename T>
-class SafeList
-{
-    DeclareNoncopyableObject(SafeList);
-
-public:
-    static const int DefaultChunkSize = 0x80 * sizeof(T);
-
-public:
-    wxString Name; // user-assigned block name
-    int ChunkSize; // assigned DefaultChunkSize on init, reconfigurable at any time.
-
-protected:
-    T *m_ptr;
-    int m_allocsize; // size of the allocation of memory
-    uint m_length;   // length of the array (active items, not buffer allocation)
-
-protected:
-    virtual T *_virtual_realloc(int newsize);
-    void _MakeRoomFor_threshold(int newsize);
-
-    T *_getPtr(uint i) const;
-
-public:
-    virtual ~SafeList();
-    explicit SafeList(const wxChar *name = L"Unnamed");
-    explicit SafeList(int initialSize, const wxChar *name = L"Unnamed");
-    virtual SafeList<T> *Clone() const;
-
-    void Remove(int index);
-    void MakeRoomFor(int blockSize);
-
-    T &New();
-    int Add(const T &src);
-    T &AddNew(const T &src);
-
-    // Returns the size of the list, as according to the array type.  This includes
-    // mapped items only.  The actual size of the allocation may differ.
-    int GetLength() const { return m_length; }
-
-    // Returns the size of the list, in bytes.  This includes mapped items only.
-    // The actual size of the allocation may differ.
-    int GetSizeInBytes() const { return m_length * sizeof(T); }
-
-    void MatchLengthToAllocatedSize()
-    {
-        m_length = m_allocsize;
-    }
-
-    void GrowBy(int items)
-    {
-        MakeRoomFor(m_length + ChunkSize + items + 1);
-    }
-
-    // Sets the item length to zero.  Does not free memory allocations.
-    void Clear()
-    {
-        m_length = 0;
-    }
-
-    // Gets an element of this memory allocation much as if it were an array.
-    // DevBuilds : Generates assertion if the index is invalid.
-    T &operator[](int idx) { return *_getPtr((uint)idx); }
-    const T &operator[](int idx) const { return *_getPtr((uint)idx); }
-
-    T *GetPtr() { return m_ptr; }
-    const T *GetPtr() const { return m_ptr; }
-
-    T &GetLast() { return m_ptr[m_length - 1]; }
-    const T &GetLast() const { return m_ptr[m_length - 1]; }
 };
 
 // --------------------------------------------------------------------------------------
