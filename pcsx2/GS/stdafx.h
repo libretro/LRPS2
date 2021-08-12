@@ -56,6 +56,7 @@
 #endif
 
 #include "Pcsx2Types.h"
+#include "Utilities/ScopedAlloc.h"
 
 // xbyak compatibilities
 #define MIE_INTEGER_TYPE_DEFINED
@@ -279,10 +280,6 @@
 	extern void* _aligned_malloc(size_t size, size_t alignment);
 
 	#endif
-
-	static inline void _aligned_free(void* p) {
-		free(p);
-	}
 
 	// http://svn.reactos.org/svn/reactos/trunk/reactos/include/crt/mingw32/intrin_x86.h?view=markup
 
