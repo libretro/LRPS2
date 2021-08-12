@@ -120,7 +120,6 @@ void AppCoreThread::Suspend(bool isBlocking)
 
 void AppCoreThread::Resume()
 {
-	GetCorePlugins().Init();
 	_parent::Resume();
 }
 

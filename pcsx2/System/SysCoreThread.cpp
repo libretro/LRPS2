@@ -40,6 +40,15 @@ USBhandler usbHandler;
 
 static void modules_close(void)
 {
+	if( GetMTGS().IsSelf() )
+	{
+		GSclose();
+	}
+	else
+	{
+		log_cb(RETRO_LOG_INFO, "Closing GS\n");
+		GetMTGS().Suspend();
+	}
 	DoCDVDclose();
 	FWclose();
 	SPU2close();
@@ -57,6 +66,8 @@ static void modules_close(void)
 
 static void modules_open(bool isSuspended)
 {
+	GetMTGS().Resume();
+	GetMTGS().WaitForOpen();
 	if (isSuspended || !g_GameStarted)
 		DoCDVDopen();
 	FWopen();
@@ -89,6 +100,8 @@ static void modules_init(void)
 
 static void modules_shutdown(void)
 {
+	GetMTGS().Cancel();	// cancel it for speedier shutdown!
+	GSshutdown();
 	SPU2shutdown();
 	PADshutdown();
 	USBshutdown();
@@ -140,9 +153,8 @@ void SysCoreThread::OnStart()
 
 void SysCoreThread::Start()
 {
-	if (!GetCorePlugins().AreLoaded())
+	if(GSinit() != 0)
 		return;
-	GetCorePlugins().Init();
 	modules_init();
 	_parent::Start();
 }
@@ -342,13 +354,11 @@ void SysCoreThread::ExecuteTaskInThread()
 
 void SysCoreThread::OnSuspendInThread()
 {
-	GetCorePlugins().Close();
 	modules_close();
 }
 
 void SysCoreThread::OnResumeInThread(bool isSuspended)
 {
-	GetCorePlugins().Open();
 	modules_open(isSuspended);
 }
 
@@ -364,9 +374,7 @@ void SysCoreThread::OnCleanupInThread()
 	R3000A::ioman::reset();
 	// FIXME: temporary workaround for deadlock on exit, which actually should be a crash
 	vu1Thread.WaitVU();
-	GetCorePlugins().Close();
 	modules_close();
-	GetCorePlugins().Shutdown();
 	modules_shutdown();
 
 	_mm_setcsr(m_mxcsr_saved.bitmask);

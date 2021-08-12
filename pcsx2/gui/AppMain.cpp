@@ -17,7 +17,6 @@
 #include "App.h"
 #include "GS.h"
 
-#include "Plugins.h"
 #include "ps2/BiosTools.h"
 
 Pcsx2App& wxGetApp() {
@@ -167,11 +166,6 @@ SysMainMemory& Pcsx2App::GetVmReserve()
 void Pcsx2App::SysExecute( CDVD_SourceType cdvdsrc, const wxString& elf_override )
 {
 	ProcessMethod( AppSaveSettings );
-
-	// if something unloaded plugins since this messages was queued then it's best to ignore
-	// it, because apparently too much stuff is going on and the emulation states are wonky.
-	if( !CorePlugins.AreLoaded() ) return;
-
 	log_cb(RETRO_LOG_DEBUG, "(SysExecute) received.\n");
 
 	CoreThread.ResetQuick();

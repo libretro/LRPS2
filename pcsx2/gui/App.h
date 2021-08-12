@@ -96,16 +96,10 @@ class Pcsx2App : public wxAppWithHelpers
 	// on them and they are, themselves, fairly self-contained.
 
 protected:
-	EventSource<IEventListener_Plugins>	m_evtsrc_CorePluginStatus;
 	EventSource<IEventListener_CoreThread>	m_evtsrc_CoreThreadStatus;
 	EventSource<IEventListener_AppStatus>	m_evtsrc_AppStatus;
 
 public:
-	void AddListener( IEventListener_Plugins& listener )
-	{
-		m_evtsrc_CorePluginStatus.Add( listener );	
-	}
-
 	void AddListener( IEventListener_CoreThread& listener )
 	{
 		m_evtsrc_CoreThreadStatus.Add( listener );
@@ -114,11 +108,6 @@ public:
 	void AddListener( IEventListener_AppStatus& listener )
 	{
 		m_evtsrc_AppStatus.Add( listener );
-	}
-
-	void RemoveListener( IEventListener_Plugins& listener )
-	{
-		m_evtsrc_CorePluginStatus.Remove( listener );	
 	}
 
 	void RemoveListener( IEventListener_CoreThread& listener )
@@ -131,11 +120,6 @@ public:
 		m_evtsrc_AppStatus.Remove( listener );
 	}
 
-	void AddListener( IEventListener_Plugins* listener )
-	{
-		m_evtsrc_CorePluginStatus.Add( listener );	
-	}
-
 	void AddListener( IEventListener_CoreThread* listener )
 	{
 		m_evtsrc_CoreThreadStatus.Add( listener );
@@ -144,11 +128,6 @@ public:
 	void AddListener( IEventListener_AppStatus* listener )
 	{
 		m_evtsrc_AppStatus.Add( listener );
-	}
-
-	void RemoveListener( IEventListener_Plugins* listener )
-	{
-		m_evtsrc_CorePluginStatus.Remove( listener );	
 	}
 
 	void RemoveListener( IEventListener_CoreThread* listener )
@@ -264,4 +243,3 @@ extern void ShutdownPlugins();
 
 extern __aligned16 SysMtgsThread mtgsThread;
 extern __aligned16 AppCoreThread CoreThread;
-extern __aligned16 SysCorePlugins CorePlugins;

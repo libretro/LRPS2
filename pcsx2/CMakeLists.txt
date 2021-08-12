@@ -74,7 +74,6 @@ set(pcsx2Sources
 	Patch.cpp
 	Patch_Memory.cpp
 	Pcsx2Config.cpp
-	PluginManager.cpp
 	PrecompiledHeader.cpp
 	R3000A.cpp
 	R3000AInterpreter.cpp
@@ -276,7 +275,6 @@ set(pcsx2DebugToolsHeaders
 	# gui sources
 	set(pcsx2GuiSources
 		gui/AppConfig.cpp
-		gui/AppCorePlugins.cpp
 		gui/AppCoreThread.cpp
 		gui/AppEventSources.cpp
 		gui/AppGameDatabase.cpp

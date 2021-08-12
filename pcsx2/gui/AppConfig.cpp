@@ -15,7 +15,6 @@
 
 #include "PrecompiledHeader.h"
 #include "App.h"
-#include "Plugins.h"
 
 #include "MemoryCardFile.h"
 
