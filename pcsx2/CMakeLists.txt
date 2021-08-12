@@ -257,6 +257,16 @@ set(pcsx2DEV9Headers
      PAD/PAD.h
      PAD/state_management.h)
 
+# USB sources
+set(pcsx2USBSources
+    USB/USB.cpp
+    )
+
+# DEV9 headers
+set(pcsx2USBHeaders
+     USB/USB.h
+     )
+
 # DebugTools sources
 set(pcsx2DebugToolsSources
 	DebugTools/DebugInterface.cpp
@@ -546,6 +556,8 @@ set(pcsx2x86Headers
 		${pcsx2PADHeaders}
 		${pcsx2DEV9Sources}
 		${pcsx2DEV9Headers}
+		${pcsx2USBSources}
+		${pcsx2USBHeaders}
 		${pcsx2SPU2Sources}
 		${pcsx2SPU2Headers}
 		${pcsx2DebugToolsSources}
@@ -613,7 +625,6 @@ set(pcsx2FinalLibs GS ${pcsx2FinalLibs})
 if(MSVC)
   set(pcsx2FinalSources ${pcsx2FinalSources})
 endif()
-set(pcsx2FinalLibs ${pcsx2FinalLibs} USB)
 
 # additional include directories
 include_directories(

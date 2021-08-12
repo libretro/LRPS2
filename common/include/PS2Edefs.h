@@ -75,12 +75,6 @@ typedef struct _keyEvent
 	linux: the XK_XXX will be used (XFree86)
 */
 
-// for 64bit compilers
-typedef char __keyEvent_Size__[(sizeof(keyEvent) == 8) ? 1 : -1];
-
-typedef void (*USBcallback)(int cycles);
-typedef int (*USBhandler)(void);
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -132,36 +126,6 @@ void CALLBACK GSgetTitleInfo2(char *dest, size_t length);
 void CALLBACK GSwriteCSR(u32 value);
 s32 CALLBACK GSfreeze(int mode, freezeData *data);
 void CALLBACK GSconfigure();
-
-
-/* USB plugin API */
-
-// basic funcs
-
-s32 CALLBACK USBinit();
-s32 CALLBACK USBopen();
-void CALLBACK USBclose();
-void CALLBACK USBshutdown();
-void CALLBACK USBkeyEvent(keyEvent *ev);
-
-u8 CALLBACK USBread8(u32 addr);
-u16 CALLBACK USBread16(u32 addr);
-u32 CALLBACK USBread32(u32 addr);
-void CALLBACK USBwrite8(u32 addr, u8 value);
-void CALLBACK USBwrite16(u32 addr, u16 value);
-void CALLBACK USBwrite32(u32 addr, u32 value);
-void CALLBACK USBasync(u32 cycles);
-
-// cycles = IOP cycles before calling callback,
-// if callback returns 1 the irq is triggered, else not
-void CALLBACK USBirqCallback(USBcallback callback);
-USBhandler CALLBACK USBirqHandler(void);
-void CALLBACK USBsetRAM(void *mem);
-
-// extended funcs
-
-s32 CALLBACK USBfreeze(int mode, freezeData *data);
-void CALLBACK USBconfigure();
 
 #ifdef __cplusplus
 } // End extern "C"

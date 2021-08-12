@@ -22,13 +22,11 @@ USBcallback USBirq;
 
 s8 *usbregs, *ram;
 
-EXPORT_C_(void)
-USBconfigure()
+void USBconfigure()
 {
 }
 
-EXPORT_C_(s32)
-USBinit()
+s32 USBinit()
 {
     // Initialize memory structures here.
     usbregs = (s8 *)calloc(0x10000, 1);
@@ -39,29 +37,25 @@ USBinit()
     return 0;
 }
 
-EXPORT_C_(void)
-USBshutdown()
+void USBshutdown()
 {
     free(usbregs);
     usbregs = NULL;
 }
 
-EXPORT_C_(s32)
-USBopen()
+s32 USBopen()
 {
     // Take care of anything else we need on opening, other then initialization.
     return 0;
 }
 
-EXPORT_C_(void)
-USBclose()
+void USBclose()
 {
 }
 
 // Note: actually uncommenting the read/write functions I provided here
 // caused uLauncher.elf to hang on startup, so careful when experimenting.
-EXPORT_C_(u8)
-USBread8(u32 addr)
+u8 USBread8(u32 addr)
 {
     u8 value = 0;
 
@@ -83,8 +77,7 @@ USBread8(u32 addr)
     return value;
 }
 
-EXPORT_C_(u16)
-USBread16(u32 addr)
+u16 USBread16(u32 addr)
 {
     u16 value = 0;
 
@@ -106,8 +99,7 @@ USBread16(u32 addr)
     return value;
 }
 
-EXPORT_C_(u32)
-USBread32(u32 addr)
+u32 USBread32(u32 addr)
 {
     u32 value = 0;
 
@@ -129,8 +121,7 @@ USBread32(u32 addr)
     return value;
 }
 
-EXPORT_C_(void)
-USBwrite8(u32 addr, u8 value)
+void USBwrite8(u32 addr, u8 value)
 {
     switch (addr) {
         // Handle any appropriate addresses here.
@@ -149,8 +140,7 @@ USBwrite8(u32 addr, u8 value)
     }
 }
 
-EXPORT_C_(void)
-USBwrite16(u32 addr, u16 value)
+void USBwrite16(u32 addr, u16 value)
 {
     switch (addr) {
         // Handle any appropriate addresses here.
@@ -169,8 +159,7 @@ USBwrite16(u32 addr, u16 value)
     }
 }
 
-EXPORT_C_(void)
-USBwrite32(u32 addr, u32 value)
+void USBwrite32(u32 addr, u32 value)
 {
     switch (addr) {
         // Handle any appropriate addresses here.
@@ -189,8 +178,7 @@ USBwrite32(u32 addr, u32 value)
     }
 }
 
-EXPORT_C_(void)
-USBirqCallback(USBcallback callback)
+void USBirqCallback(USBcallback callback)
 {
     // Register USBirq, so we can trigger an interrupt with it later.
     // It will be called as USBirq(cycles); where cycles is the number
@@ -198,36 +186,31 @@ USBirqCallback(USBcallback callback)
     USBirq = callback;
 }
 
-EXPORT_C_(int)
-_USBirqHandler(void)
+int _USBirqHandler(void)
 {
     // This is our USB irq handler, so if an interrupt gets triggered,
     // deal with it here.
     return 0;
 }
 
-EXPORT_C_(USBhandler)
-USBirqHandler(void)
+USBhandler USBirqHandler(void)
 {
     // Pass our handler to pcsx2.
     return (USBhandler)_USBirqHandler;
 }
 
-EXPORT_C_(void)
-USBsetRAM(void *mem)
+void USBsetRAM(void *mem)
 {
     ram = (s8 *)mem;
 }
 
 // extended funcs
 
-EXPORT_C_(void)
-USBkeyEvent(keyEvent *ev)
+void USBkeyEvent(keyEvent *ev)
 {
 }
 
-EXPORT_C_(s32)
-USBfreeze(int mode, freezeData *data)
+s32 USBfreeze(int mode, freezeData *data)
 {
     // This should store or retrieve any information, for if emulation
     // gets suspended, or for savestates.
@@ -245,7 +228,7 @@ USBfreeze(int mode, freezeData *data)
     return 0;
 }
 
-EXPORT_C_(void) USBasync(u32 cycles)
+void USBasync(u32 cycles)
 {
 	// Optional function: Called in IopCounter.cpp.
 }

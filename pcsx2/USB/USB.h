@@ -22,10 +22,10 @@
 #include "PS2Edefs.h"
 #include "PS2Eext.h"
 
-extern USBcallback USBirq;
+typedef void (*USBcallback)(int cycles);
+typedef int (*USBhandler)(void);
 
-// Previous USB plugins have needed this in ohci.
-static const s64 PSXCLK = 36864000; /* 36.864 Mhz */
+extern USBcallback USBirq;
 
 extern s8 *usbregs, *ram;
 
@@ -35,5 +35,24 @@ extern s8 *usbregs, *ram;
 #define usbRu8(mem) (*(u8 *)&usbregs[(mem)&0xffff])
 #define usbRu16(mem) (*(u16 *)&usbregs[(mem)&0xffff])
 #define usbRu32(mem) (*(u32 *)&usbregs[(mem)&0xffff])
+
+void USBconfigure();
+s32 USBinit();
+void USBshutdown();
+s32 USBopen();
+void USBclose();
+u8 USBread8(u32 addr);
+u16 USBread16(u32 addr);
+u32 USBread32(u32 addr);
+void USBwrite8(u32 addr, u8 value);
+void USBwrite16(u32 addr, u16 value);
+void USBwrite32(u32 addr, u32 value);
+void USBirqCallback(USBcallback callback);
+int _USBirqHandler(void);
+USBhandler USBirqHandler(void);
+void USBsetRAM(void *mem);
+void USBkeyEvent(keyEvent *ev);
+s32 USBfreeze(int mode, freezeData *data);
+void USBasync(u32 cycles);
 
 #endif
