@@ -211,11 +211,6 @@ StaticLibrary::StaticLibrary(PluginsEnum_t _pid) : pid(_pid)
 {
 }
 
-bool StaticLibrary::Load(const wxString& name)
-{
-	return true;
-}
-
 void* StaticLibrary::GetSymbol(const wxString &name)
 {
 #define RETURN_SYMBOL(s) if (name == #s) return (void*)&s;
@@ -349,11 +344,6 @@ void SysCorePlugins::Unload()
 // Exceptions:
 //   FileNotFound - Thrown if one of the configured plugins doesn't exist.
 //   NotPcsxPlugin - Thrown if one of the configured plugins is an invalid or unsupported DLL
-
-extern bool renderswitch;
-extern void spu2DMA4Irq();
-extern void spu2DMA7Irq();
-extern void spu2Irq();
 
 bool SysCorePlugins::OpenPlugin_GS()
 {
@@ -530,156 +520,6 @@ bool SysCorePlugins::Shutdown()
 	log_cb(RETRO_LOG_INFO, "Plugins shutdown successfully.\n");
 	
 	return true;
-}
-
-// For internal use only, unless you're the MTGS.  Then it's for you too!
-// Returns false if the plugin returned an error.
-bool SysCorePlugins::DoFreeze( PluginsEnum_t pid, int mode, freezeData* data )
-{
-	if( (pid == PluginId_GS) && !GetMTGS().IsSelf() )
-	{
-		// GS needs some thread safety love...
-
-		MTGS_FreezeData woot = { data, 0 };
-		GetMTGS().Freeze( mode, woot );
-		return woot.retval != -1;
-	}
-	else
-	{
-		ScopedLock lock( m_mtx_PluginStatus );
-		return !m_info[pid] || m_info[pid]->CommonBindings.Freeze( mode, data ) != -1;
-	}
-}
-
-// Thread Safety:
-//   This function should only be called by the Main GUI thread and the GS thread (for GS states only),
-//   as it has special handlers to ensure that GS freeze commands are executed appropriately on the
-//   GS thread.
-//
-void SysCorePlugins::Freeze( PluginsEnum_t pid, SaveStateBase& state )
-{
-	// No locking leeded -- DoFreeze locks as needed, and this avoids MTGS deadlock.
-	//ScopedLock lock( m_mtx_PluginStatus );
-
-	freezeData fP = { 0, NULL };
-	if( !DoFreeze( pid, FREEZE_SIZE, &fP ) )
-		fP.size = 0;
-
-	int fsize = fP.size;
-	state.Freeze( fsize );
-
-	log_cb(RETRO_LOG_INFO,
-			"%s %s\n", state.IsSaving() ? "Saving" : "Loading",
-			tbl_PluginInfo[pid].shortname );
-
-	if( state.IsLoading() && (fsize == 0) )
-	{
-		// no state data to read, but the plugin expects some state data.
-		// Issue a warning to console...
-		if( fP.size != 0 )
-			log_cb(RETRO_LOG_WARN, "Warning: No data for this plugin was found. Plugin status may be unpredictable.\n" );
-		return;
-
-		// Note: Size mismatch check could also be done here on loading, but
-		// some plugins may have built-in version support for non-native formats or
-		// older versions of a different size... or could give different sizes depending
-		// on the status of the plugin when loading, so let's ignore it.
-	}
-
-	fP.size = fsize;
-	if( fP.size == 0 ) return;
-
-	state.PrepBlock( fP.size );
-	fP.data = (s8*)state.GetBlockPtr();
-
-	if( state.IsSaving() )
-	{
-		if( !DoFreeze(pid, FREEZE_SAVE, &fP) )
-			throw Exception::FreezePluginFailure( pid );
-	}
-	else
-	{
-		if( !DoFreeze(pid, FREEZE_LOAD, &fP) )
-			throw Exception::ThawPluginFailure( pid );
-	}
-
-	state.CommitBlock( fP.size );
-}
-
-size_t SysCorePlugins::GetFreezeSize( PluginsEnum_t pid )
-{
-	freezeData fP = { 0, NULL };
-	if (!DoFreeze( pid, FREEZE_SIZE, &fP)) return 0;
-	return fP.size;
-}
-
-void SysCorePlugins::FreezeOut( PluginsEnum_t pid, void* dest )
-{
-	// No locking needed -- DoFreeze locks as needed, and this avoids MTGS deadlock.
-	//ScopedLock lock( m_mtx_PluginStatus );
-
-	freezeData fP = { 0, (s8*)dest };
-	if (!DoFreeze( pid, FREEZE_SIZE, &fP)) return;
-	if (!fP.size) return;
-
-	log_cb(RETRO_LOG_INFO, "Saving %s\n", tbl_PluginInfo[pid].shortname );
-
-	if (!DoFreeze(pid, FREEZE_SAVE, &fP))
-		throw Exception::FreezePluginFailure( pid );
-}
-
-void SysCorePlugins::FreezeOut( PluginsEnum_t pid, pxOutputStream& outfp )
-{
-	// No locking needed -- DoFreeze locks as needed, and this avoids MTGS deadlock.
-	//ScopedLock lock( m_mtx_PluginStatus );
-
-	freezeData fP = { 0, NULL };
-	if (!DoFreeze( pid, FREEZE_SIZE, &fP)) return;
-	if (!fP.size) return;
-
-	log_cb(RETRO_LOG_INFO, "Saving %s\n", tbl_PluginInfo[pid].shortname );
-
-	ScopedAlloc<s8> data( fP.size );
-	fP.data = data.GetPtr();
-
-	if (!DoFreeze(pid, FREEZE_SAVE, &fP))
-		throw Exception::FreezePluginFailure( pid );
-
-	outfp.Write( fP.data, fP.size );
-}
-
-void SysCorePlugins::FreezeIn( PluginsEnum_t pid, pxInputStream& infp )
-{
-	// No locking needed -- DoFreeze locks as needed, and this avoids MTGS deadlock.
-	//ScopedLock lock( m_mtx_PluginStatus );
-
-	freezeData fP = { 0, NULL };
-	if (!DoFreeze( pid, FREEZE_SIZE, &fP ))
-		fP.size = 0;
-
-	log_cb(RETRO_LOG_INFO, "Loading %s\n", tbl_PluginInfo[pid].shortname );
-
-	if (!infp.IsOk() || !infp.Length())
-	{
-		// no state data to read, but the plugin expects some state data?
-		// Issue a warning to console...
-		if( fP.size != 0 )
-			log_cb(RETRO_LOG_WARN, "Warning: No data for this plugin was found. Plugin status may be unpredictable.\n" );
-
-		return;
-
-		// Note: Size mismatch check could also be done here on loading, but
-		// some plugins may have built-in version support for non-native formats or
-		// older versions of a different size... or could give different sizes depending
-		// on the status of the plugin when loading, so let's ignore it.
-	}
-
-	ScopedAlloc<s8> data( fP.size );
-	fP.data = data.GetPtr();
-
-	infp.Read( fP.data, fP.size );
-	if (!DoFreeze(pid, FREEZE_LOAD, &fP))
-		throw Exception::ThawPluginFailure( pid );
 }
 
 bool SysCorePlugins::AreLoaded() const
