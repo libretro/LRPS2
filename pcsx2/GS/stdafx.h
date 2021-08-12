@@ -56,6 +56,7 @@
 #endif
 
 #include "Pcsx2Types.h"
+#include "Utilities/ScopedAlloc.h"
 
 // xbyak compatibilities
 #define MIE_INTEGER_TYPE_DEFINED
@@ -269,6 +270,16 @@
 #undef max
 #undef abs
 
+#if !defined(_MSC_VER)
+	#if defined(__USE_ISOC11) && !defined(ASAN_WORKAROUND) // not supported yet on gcc 4.9
+
+	#define _aligned_malloc(size, a) aligned_alloc(a, size)
+
+	#else
+
+	extern void* _aligned_malloc(size_t size, size_t alignment);
+
+	#endif
 
 	// http://svn.reactos.org/svn/reactos/trunk/reactos/include/crt/mingw32/intrin_x86.h?view=markup
 
@@ -309,9 +320,6 @@
 #endif
 
 extern std::string format(const char* fmt, ...);
-
-extern void* _aligned_malloc(size_t size, size_t alignment);
-extern void _aligned_free(void *pmem);
 
 extern void* vmalloc(size_t size, bool code);
 extern void vmfree(void* ptr, size_t size);
