@@ -18,7 +18,6 @@ set(CommonFlags
     -Wno-parentheses
     -Wno-missing-braces
     -Werror=date-time
-#    -DWX_PRECOMP
 	)
 
 if ("${PGO}" STREQUAL "generate")
@@ -29,7 +28,7 @@ else()
     set(pcsx2FinalFlags "")
 endif()
 
-set(pcsx2FinalFlags ${pcsx2FinalFlags} "-DSPU2X_PORTAUDIO" ${CommonFlags})
+set(pcsx2FinalFlags ${pcsx2FinalFlags} ${CommonFlags})
 
 if(XDG_STD)
     set(pcsx2FinalFlags ${pcsx2FinalFlags} -DXDG_STD)
@@ -588,32 +587,24 @@ set(pcsx2FinalLibs
     ${Platform_Libs}
 )
 
-if(BUILTIN_GS)
-    set(pcsx2FinalLibs GSdx ${pcsx2FinalLibs})
-    if(MSVC)
-       set(pcsx2FinalSources ${pcsx2FinalSources})
-    endif()
+set(pcsx2FinalLibs GS ${pcsx2FinalLibs})
+if(MSVC)
+  set(pcsx2FinalSources ${pcsx2FinalSources})
 endif()
-if(BUILTIN_PAD)
-    set(pcsx2FinalLibs ${pcsx2FinalLibs} onepad)
-endif()
-if(BUILTIN_USB)
-    set(pcsx2FinalLibs ${pcsx2FinalLibs} USBnull-0.7.0)
-endif()
-if(BUILTIN_DEV9)
-  if(ENABLE_DEV9GHZDRK)
-    set(pcsx2FinalLibs ${pcsx2FinalLibs} dev9ghzdrk-0.4)
-  else()
-    set(pcsx2FinalLibs ${pcsx2FinalLibs} dev9null-0.5.0)
-  endif()
+set(pcsx2FinalLibs ${pcsx2FinalLibs} PAD)
+set(pcsx2FinalLibs ${pcsx2FinalLibs} USB)
+if(ENABLE_DEV9GHZDRK)
+    set(pcsx2FinalLibs ${pcsx2FinalLibs} DEV9)
+else()
+    set(pcsx2FinalLibs ${pcsx2FinalLibs} DEV9)
 endif()
 
-# additonal include directories
+# additional include directories
 include_directories(
     gui
     x86
     ${db_res_bin}
-	${CMAKE_BINARY_DIR}/pcsx2/gui
+    ${CMAKE_BINARY_DIR}/pcsx2/gui
 )
 
 if(MSVC)

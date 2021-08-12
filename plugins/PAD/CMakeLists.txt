@@ -6,7 +6,7 @@ if(NOT TOP_CMAKE_WAS_SOURCED)
 endif()
 
 # plugin name
-set(Output onepad)
+set(Output PAD)
 if(NOT MSVC)
 set(onepadFinalFlags
     -fvisibility=hidden
@@ -36,13 +36,9 @@ set(onepadFinalSources
 )
 
 include_directories(
-    ${CMAKE_BINARY_DIR}/plugins/onepad/
+    ${CMAKE_BINARY_DIR}/plugins/PAD/
 )
 
-if(BUILTIN_PAD)
-    add_pcsx2_lib(${Output} "${onepadFinalSources}" "${onepadFinalLibs}" "${onepadFinalFlags}")
-else()
-    add_pcsx2_plugin(${Output} "${onepadFinalSources}" "${onepadFinalLibs}" "${onepadFinalFlags}")
-endif()
+add_pcsx2_lib(${Output} "${onepadFinalSources}" "${onepadFinalLibs}" "${onepadFinalFlags}")
 
 target_compile_features(${Output} PRIVATE cxx_std_17)

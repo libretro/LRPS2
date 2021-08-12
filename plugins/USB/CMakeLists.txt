@@ -7,7 +7,7 @@ endif()
 
 
 # plugin name
-set(Output USBnull-0.7.0)
+set(Output USB)
 if(NOT MSVC)
 set(USBnullFinalFlags
 -fvisibility=hidden
@@ -33,7 +33,6 @@ set(USBnullLinuxHeaders
 
 # USBnull Windows sources
 set(USBnullWindowsSources
-	Windows/USBnull.def
 )
 
 # USBnull Windows headers
@@ -51,10 +50,6 @@ set(USBnullFinalLibs
 	${wxWidgets_LIBRARIES}
 )
 
-if(BUILTIN_USB)
-    add_pcsx2_lib(${Output} "${USBnullFinalSources}" "${USBnullFinalLibs}" "${USBnullFinalFlags}")
-else()
-    add_pcsx2_plugin(${Output} "${USBnullFinalSources}" "${USBnullFinalLibs}" "${USBnullFinalFlags}")
-endif()
+add_pcsx2_lib(${Output} "${USBnullFinalSources}" "${USBnullFinalLibs}" "${USBnullFinalFlags}")
 
 target_compile_features(${Output} PRIVATE cxx_std_17)

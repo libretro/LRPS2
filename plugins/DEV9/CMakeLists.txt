@@ -7,7 +7,7 @@ endif()
 
 
 # plugin name
-set(Output dev9null-0.5.0)
+set(Output DEV9)
 if(NOT MSVC)
 set(dev9nullFinalFlags
     -fvisibility=hidden
@@ -33,7 +33,7 @@ set(dev9nullLinuxHeaders
 
 # dev9null Windows sources
 set(dev9nullWindowsSources
-	Windows/dev9null.def)
+)
 
 # dev9null Windows headers
 set(dev9nullWindowsHeaders
@@ -50,10 +50,6 @@ set(dev9nullFinalLibs
 	${wxWidgets_LIBRARIES}
 )
 
-if(BUILTIN_DEV9)
-    add_pcsx2_lib(${Output} "${dev9nullFinalSources}" "${dev9nullFinalLibs}" "${dev9nullFinalFlags}")
-else()
-    add_pcsx2_plugin(${Output} "${dev9nullFinalSources}" "${dev9nullFinalLibs}" "${dev9nullFinalFlags}")
-endif()
+add_pcsx2_lib(${Output} "${dev9nullFinalSources}" "${dev9nullFinalLibs}" "${dev9nullFinalFlags}")
 
 target_compile_features(${Output} PRIVATE cxx_std_17)

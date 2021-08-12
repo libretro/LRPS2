@@ -7,7 +7,7 @@ endif()
 
 
 # plugin name (no version number to ease future version bump and bisect)
-set(Output GSdx)
+set(Output GS)
 if (NOT MSVC)
 set(CommonFlags
     -fno-operator-names # because Xbyak uses and()/xor()/or()/not() function
@@ -207,10 +207,6 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 if(MSVC)
    include_directories(${CMAKE_SOURCE_DIR}/3rdparty ${CMAKE_SOURCE_DIR}/3rdparty/libpng ${CMAKE_SOURCE_DIR}/3rdparty/xz/xz/src/liblzma/api)
    add_definitions(/wd4456 /wd4458 /wd4996 /wd4995 /wd4324 /wd4100 /wd4101 /wd4201 /wd4556 /wd4127 /wd4512)
-endif()
-
-if(NOT GTKn_FOUND)
-   include_directories(${GLIB_INCLUDE_DIRS})
 endif()
 
 if(BUILTIN_GS)
