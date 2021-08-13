@@ -220,7 +220,6 @@ s32 SPU2open()
 	IsOpened = true;
 	lClocks  = psxRegs.cycle;
 
-	SPU2setClockPtr(&psxRegs.cycle);
 	return 0;
 }
 
@@ -242,10 +241,6 @@ void SPU2shutdown()
 	safe_free(spu2regs);
 	safe_free(_spu2mem);
 	safe_free(pcm_cache_data);
-}
-
-void SPU2setClockPtr(u32* ptr)
-{
 }
 
 void SPU2async(u32 cycles)
