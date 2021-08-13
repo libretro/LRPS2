@@ -21,8 +21,6 @@
 
 #pragma once
 
-#define PLUGIN_VERSION 0
-
 #define VM_SIZE 4194304u
 #define HALF_VM_SIZE (VM_SIZE / 2u)
 #define PAGE_SIZE 8192u
@@ -32,10 +30,6 @@
 #define MAX_PAGES (VM_SIZE / PAGE_SIZE)
 #define MAX_BLOCKS (VM_SIZE / BLOCK_SIZE)
 #define MAX_COLUMNS (VM_SIZE / COLUMN_SIZE)
-
-//if defined, will send much info in reply to the API title info queri from PCSX2
-//default should be undefined
-//#define GSTITLEINFO_API_FORCE_VERBOSE
 
 #include "GSVector.h"
 

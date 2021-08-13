@@ -15,9 +15,6 @@
 
 #pragma once
 
-#define PLUGINtypedefs
-#define PLUGINfuncs
-
 #include "PS2Edefs.h"
 
 #include "gui/MemoryCardFile.h"
