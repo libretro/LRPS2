@@ -32,9 +32,6 @@ int SampleRate = 48000;
 static bool IsOpened = false;
 static bool IsInitialized = false;
 
-static u32 pClocks = 0;
-
-u32* cyclePtr = nullptr;
 u32 lClocks = 0;
 
 // --------------------------------------------------------------------------------------
@@ -52,16 +49,14 @@ void SPU2WriteMemAddr(int core, u32 value)
 
 void SPU2readDMA4Mem(u16* pMem, u32 size) // size now in 16bit units
 {
-	if (cyclePtr != nullptr)
-		TimeUpdate(*cyclePtr);
+	TimeUpdate(psxRegs.cycle);
 
 	Cores[0].DoDMAread(pMem, size);
 }
 
 void SPU2writeDMA4Mem(u16* pMem, u32 size) // size now in 16bit units
 {
-	if (cyclePtr != nullptr)
-		TimeUpdate(*cyclePtr);
+	TimeUpdate(psxRegs.cycle);
 
 	Cores[0].DoDMAwrite(pMem, size);
 }
@@ -80,16 +75,14 @@ void SPU2interruptDMA7()
 
 void SPU2readDMA7Mem(u16* pMem, u32 size)
 {
-	if (cyclePtr != nullptr)
-		TimeUpdate(*cyclePtr);
+	TimeUpdate(psxRegs.cycle);
 
 	Cores[1].DoDMAread(pMem, size);
 }
 
 void SPU2writeDMA7Mem(u16* pMem, u32 size)
 {
-	if (cyclePtr != nullptr)
-		TimeUpdate(*cyclePtr);
+	TimeUpdate(psxRegs.cycle);
 
 	Cores[1].DoDMAwrite(pMem, size);
 }
@@ -225,7 +218,7 @@ s32 SPU2open()
 		return 0;
 
 	IsOpened = true;
-	lClocks  = (cyclePtr != nullptr) ? *cyclePtr : 0;
+	lClocks  = psxRegs.cycle;
 
 	SPU2setClockPtr(&psxRegs.cycle);
 	return 0;
@@ -253,20 +246,11 @@ void SPU2shutdown()
 
 void SPU2setClockPtr(u32* ptr)
 {
-	cyclePtr = ptr;
 }
 
 void SPU2async(u32 cycles)
 {
-	if (cyclePtr != nullptr)
-	{
-		TimeUpdate(*cyclePtr);
-	}
-	else
-	{
-		pClocks += cycles;
-		TimeUpdate(pClocks);
-	}
+	TimeUpdate(psxRegs.cycle);
 }
 
 u16 SPU2read(u32 rmem)
@@ -285,8 +269,7 @@ u16 SPU2read(u32 rmem)
 	}
 	else
 	{
-		if (cyclePtr != nullptr)
-			TimeUpdate(*cyclePtr);
+		TimeUpdate(psxRegs.cycle);
 
 		if (rmem >> 16 == 0x1f80)
 		{
@@ -311,8 +294,7 @@ void SPU2write(u32 rmem, u16 value)
 	// If the SPU2 isn't in in sync with the IOP, samples can end up playing at rather
 	// incorrect pitches and loop lengths.
 
-	if (cyclePtr != nullptr)
-		TimeUpdate(*cyclePtr);
+	TimeUpdate(psxRegs.cycle);
 
 	if (rmem >> 16 == 0x1f80)
 		Cores[0].WriteRegPS1(rmem, value);
