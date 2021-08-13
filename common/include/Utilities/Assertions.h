@@ -27,10 +27,6 @@
 #define wxNullChar ((wxChar *)NULL)
 #endif
 
-// FnChar_t - function name char type; typedef'd in case it ever changes between compilers
-//   (ie, a compiler decides to wchar_t it instead of char/UTF8).
-typedef char FnChar_t;
-
 // --------------------------------------------------------------------------------------
 //  DiagnosticOrigin
 // --------------------------------------------------------------------------------------
@@ -88,7 +84,6 @@ struct DiagnosticOrigin
 
 #define pxAssertRel(cond, msg) ((likely(cond)) || (pxOnAssert(pxAssertSpot(cond), msg), false))
 #define pxAssumeRel(cond, msg) ((void)((!likely(cond)) && (pxOnAssert(pxAssertSpot(cond), msg), false)))
-#define pxFailRel(msg) pxAssertRel(false, msg)
 
 // Release Builds just use __assume as an optimization, and return the conditional
 // as a result (which is optimized to nil if unused).
@@ -99,35 +94,8 @@ struct DiagnosticOrigin
 #define pxAssumeMsg(cond, msg) (__assume(cond))
 #define pxAssumeDev(cond, msg) (__assume(cond))
 
-#define pxFail(msg) \
-    do {            \
-    } while (0)
-#define pxFailDev(msg) \
-    do {               \
-    } while (0)
-
 #define pxAssert(cond) pxAssertMsg(cond, wxNullChar)
 #define pxAssume(cond) pxAssumeMsg(cond, wxNullChar)
-
-#define pxAssertRelease(cond, msg)
-
-// Performs an unsigned index bounds check, and generates a debug assertion if the check fails.
-// For stricter checking in Devel builds as well as debug builds (but possibly slower), use
-// IndexBoundsCheckDev.
-
-#define IndexBoundsCheck(objname, idx, sze) pxAssertMsg((uint)(idx) < (uint)(sze), \
-                                                        pxsFmt(L"Array index out of bounds accessing object '%s' (index=%d, size=%d)", objname, (idx), (sze)))
-
-#define IndexBoundsCheckDev(objname, idx, sze) pxAssertDev((uint)(idx) < (uint)(sze), \
-                                                           pxsFmt(L"Array index out of bounds accessing object '%s' (index=%d, size=%d)", objname, (idx), (sze)))
-
-#define IndexBoundsAssume(objname, idx, sze) pxAssumeMsg((uint)(idx) < (uint)(sze), \
-                                                         pxsFmt(L"Array index out of bounds accessing object '%s' (index=%d, size=%d)", objname, (idx), (sze)))
-
-#define IndexBoundsAssumeDev(objname, idx, sze) pxAssumeDev((uint)(idx) < (uint)(sze), \
-                                                            pxsFmt(L"Array index out of bounds accessing object '%s' (index=%d, size=%d)", objname, (idx), (sze)))
-
-extern void pxOnAssert(const DiagnosticOrigin &origin, const wxString &msg);
 
 // --------------------------------------------------------------------------------------
 // jNO_DEFAULT -- disables the default case in a switch, which improves switch optimization

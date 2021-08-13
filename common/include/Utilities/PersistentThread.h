@@ -31,20 +31,11 @@ class EventListener_Thread : public IEventDispatcher<int>
 {
 public:
     typedef int EvtParams;
-
-protected:
-    pxThread *m_thread;
-
-public:
     EventListener_Thread()
     {
-        m_thread = NULL;
     }
 
     virtual ~EventListener_Thread() = default;
-
-    void SetThread(pxThread &thr) { m_thread = &thr; }
-    void SetThread(pxThread *thr) { m_thread = thr; }
 
     void DispatchEvent(const int &params)
     {

@@ -819,7 +819,7 @@ void xIndirectVoid::Reduce()
 
 uint xIndirectVoid::GetOperandSize() const
 {
-    pxFailDev("Invalid operation on xIndirectVoid");
+    //pxFailDev("Invalid operation on xIndirectVoid");
     return 0;
 }
 

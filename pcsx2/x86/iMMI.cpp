@@ -197,7 +197,7 @@ void recPMFHL()
 			break;
 		default:
 			log_cb(RETRO_LOG_ERROR, "PMFHL??  *pcsx2 head esplode!*\n");
-			pxFail("PMFHL??  *pcsx2 head esplode!*");
+			//pxFail("PMFHL??  *pcsx2 head esplode!*");
 	}
 
 	_clearNeededXMMregs();

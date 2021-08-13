@@ -152,7 +152,7 @@ int _getFreeX86reg(int mode)
 		return tempi;
 	}
 
-	pxFailDev( "x86 register allocation error" );
+	//pxFailDev( "x86 register allocation error" );
 	throw Exception::FailedToAllocateRegister();
 }
 

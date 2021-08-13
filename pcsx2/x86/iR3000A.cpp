@@ -755,7 +755,7 @@ static __fi u32 psxRecClearMem(u32 pc)
 	{
 		if (pc >= pexblock->startpc && pc < pexblock->startpc + pexblock->size * 4) {
 			log_cb(RETRO_LOG_DEBUG, "Impossible block clearing failure\n");
-			pxFailDev( "Impossible block clearing failure" );
+			//pxFailDev( "Impossible block clearing failure" );
 		}
 	}
 

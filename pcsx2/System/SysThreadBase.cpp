@@ -249,15 +249,6 @@ bool SysThreadBase::StateCheckInThread()
 {
 	switch( m_ExecMode.load() )
 	{
-
-	#ifdef PCSX2_DEVBUILD		// optimize out handlers for these cases in release builds.
-		case ExecMode_NoThreadYet:
-			// threads should never have this state set while the thread is in any way
-			// active or alive. (for obvious reasons!!)
-			pxFailDev( "Invalid execution state detected." );
-		return false;
-	#endif
-
 		case ExecMode_Opened:
 			// Other cases don't need TestCancel() because its built into the various
 			// threading wait/signal actions.

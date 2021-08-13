@@ -81,7 +81,6 @@ void SafeArray<T>::Dispose()
 template <typename T>
 T *SafeArray<T>::_getPtr(uint i) const
 {
-    IndexBoundsAssumeDev(WX_STR(Name), i, m_size);
     return &m_ptr[i];
 }
 

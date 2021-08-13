@@ -24,18 +24,7 @@ wxDEFINE_EVENT(pxEvt_InvokeAction, pxActionEvent);
 //  SynchronousActionState Implementations
 // --------------------------------------------------------------------------------------
 
-void SynchronousActionState::RethrowException() const
-{
-}
-
 int SynchronousActionState::WaitForResult()
-{
-    m_sema.WaitNoCancel();
-    RethrowException();
-    return return_value;
-}
-
-int SynchronousActionState::WaitForResult_NoExceptions()
 {
     m_sema.WaitNoCancel();
     return return_value;
@@ -271,16 +260,6 @@ void wxAppWithHelpers::CleanUp()
 void wxAppWithHelpers::PostAction(const pxActionEvent &evt)
 {
     PostEvent(evt);
-}
-
-void wxAppWithHelpers::ProcessAction(pxActionEvent &evt)
-{
-    if (!wxThread::IsMain()) {
-        SynchronousActionState sync;
-        evt.SetSyncState(sync);
-        AddPendingEvent(evt);
-        sync.WaitForResult();
-    }
 }
 
 bool wxAppWithHelpers::OnInit()

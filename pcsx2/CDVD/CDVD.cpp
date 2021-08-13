@@ -428,7 +428,7 @@ void cdvdReloadElfInfo(wxString elfoverride)
 	}
 	catch (Exception::FileNotFound& e)
 	{
-		pxFail("Not in my back yard!");
+		//pxFail("Not in my back yard!");
 		Cpu->ThrowException(e);
 	}
 }

@@ -19,7 +19,6 @@
 #define PLUGINfuncs
 
 #include "PS2Edefs.h"
-#include "PluginCallbacks.h"
 
 #include "gui/MemoryCardFile.h"
 #include "Utilities/Threading.h"

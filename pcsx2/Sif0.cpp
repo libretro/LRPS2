@@ -364,10 +364,8 @@ __fi void dmaSIF0()
 	}
 #endif
 
-#if 0
-	if(sif0ch.chcr.MOD == CHAIN_MODE && sif0ch.qwc > 0) 
-		log_cb(RETRO_LOG_DEBUG, "SIF0 QWC on Chain CHCR %s", sif0ch.chcr.desc().c_str());
-#endif
+	//if(sif0ch.chcr.MOD == CHAIN_MODE && sif0ch.qwc > 0) 
+		//log_cb(RETRO_LOG_DEBUG, "SIF0 QWC on Chain CHCR %s", sif0ch.chcr.desc().c_str());
 	psHu32(SBUS_F240) |= 0x2000;
 	sif0.ee.busy = true;
 

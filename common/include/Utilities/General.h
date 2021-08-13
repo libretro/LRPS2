@@ -79,16 +79,6 @@ class IDeletableObject
 {
 public:
     virtual ~IDeletableObject() = default;
-
-    virtual void DeleteSelf() = 0;
-    virtual bool IsBeingDeleted() = 0;
-
-protected:
-    // This function is GUI implementation dependent!  It's implemented by PCSX2's AppHost,
-    // but if the SysCore is being linked to another front end, you'll need to implement this
-    // yourself.  Most GUIs have built in message pumps.  If a platform lacks one then you'll
-    // need to implement one yourself (yay?).
-    virtual void DoDeletion() = 0;
 };
 
 // --------------------------------------------------------------------------------------
@@ -99,9 +89,6 @@ protected:
 // in C++, though it does typically work).  It also gives objects a second recourse for
 // doing fully virtualized cleanup, something C++ also makes impossible because of how it
 // implements it's destructor hierarchy.
-//
-// To utilize virtual destruction, override DoDeletion() and be sure to invoke the base class
-// implementation of DoDeletion().
 //
 // Assertions:
 //   This class generates an assertion of the destructor is called from anything other than
@@ -116,27 +103,9 @@ protected:
 //
 class BaseDeletableObject : public virtual IDeletableObject
 {
-protected:
-    std::atomic<bool> m_IsBeingDeleted;
-
 public:
     BaseDeletableObject();
     virtual ~BaseDeletableObject();
-
-    void DeleteSelf();
-    bool IsBeingDeleted() { return !!m_IsBeingDeleted; }
-
-    // Returns FALSE if the object is already marked for deletion, or TRUE if the app
-    // should schedule the object for deletion.  Only schedule if TRUE is returned, otherwise
-    // the object could get deleted twice if two threads try to schedule it at the same time.
-    bool MarkForDeletion();
-
-protected:
-    // This function is GUI implementation dependent!  It's implemented by PCSX2's AppHost,
-    // but if the SysCore is being linked to another front end, you'll need to implement this
-    // yourself.  Most GUIs have built in message pumps.  If a platform lacks one then you'll
-    // need to implement one yourself (yay?).
-    virtual void DoDeletion();
 };
 
 // --------------------------------------------------------------------------------------
@@ -253,8 +222,3 @@ void MemProtectStatic(u8 (&arr)[size], const PageProtectionMode &mode)
 // Safe version of Munmap -- NULLs the pointer variable immediately after free'ing it.
 #define SafeSysMunmap(ptr, size) \
     ((void)(HostSys::Munmap((uptr)(ptr), size), (ptr) = NULL))
-
-#if 0
-extern void InitCPUTicks();
-extern u64 GetTickFrequency();
-#endif

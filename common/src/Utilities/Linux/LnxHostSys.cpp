@@ -66,10 +66,6 @@ static void SysPageFaultSignalFilter(int signal, siginfo_t *siginfo, void *)
     if (Source_PageFault->WasHandled())
         return;
 
-    if (!wxThread::IsMain()) {
-        pxFailRel(pxsFmt("Unhandled page fault @ 0x%08x", siginfo->si_addr));
-    }
-
     // Bad mojo!  Completely invalid address.
     // Instigate a trap if we're in a debugger, and if not then do a SIGKILL.
 
@@ -92,26 +88,11 @@ void _platform_InstallSignalHandler()
 #endif
 }
 
-static __ri void PageSizeAssertionTest(size_t size)
-{
-    pxAssertMsg((__pagesize == getpagesize()), pxsFmt(
-                                                   "Internal system error: Operating system pagesize does not match compiled pagesize.\n\t"
-                                                   L"\tOS Page Size: 0x%x (%d), Compiled Page Size: 0x%x (%u)",
-                                                   getpagesize(), getpagesize(), __pagesize, __pagesize));
-
-    pxAssertDev((size & (__pagesize - 1)) == 0, pxsFmt(
-                                                    L"Memory block size must be a multiple of the target platform's page size.\n"
-                                                    L"\tPage Size: 0x%x (%u), Block Size: 0x%x (%u)",
-                                                    __pagesize, __pagesize, size, size));
-}
-
 // returns FALSE if the mprotect call fails with an ENOMEM.
 // Raises assertions on other types of POSIX errors (since those typically reflect invalid object
 // or memory states).
 static bool _memprotect(void *baseaddr, size_t size, const PageProtectionMode &mode)
 {
-    PageSizeAssertionTest(size);
-
     uint lnxmode = 0;
 
     if (mode.CanWrite())
@@ -146,8 +127,6 @@ static bool _memprotect(void *baseaddr, size_t size, const PageProtectionMode &m
 
 void *HostSys::MmapReservePtr(void *base, size_t size)
 {
-    PageSizeAssertionTest(size);
-
     // On linux a reserve-without-commit is performed by using mmap on a read-only
     // or anonymous source, with PROT_NONE (no-access) permission.  Since the mapping
     // is completely inaccessible, the OS will simply reserve it and will not put it
@@ -176,13 +155,7 @@ bool HostSys::MmapCommitPtr(void *base, size_t size, const PageProtectionMode &m
 
 void HostSys::MmapResetPtr(void *base, size_t size)
 {
-    PageSizeAssertionTest(size);
-
-    void *result = mmap(base, size, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
-
-    pxAssertRel((uptr)result == (uptr)base, pxsFmt(
-                                                "Virtual memory decommit failed: memory at 0x%08X -> 0x%08X could not be remapped.",
-                                                base, (uptr)base + size));
+    mmap(base, size, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
 }
 
 void *HostSys::MmapReserve(uptr base, size_t size)
@@ -202,25 +175,20 @@ void HostSys::MmapReset(uptr base, size_t size)
 
 void *HostSys::Mmap(uptr base, size_t size)
 {
-    PageSizeAssertionTest(size);
-
     // MAP_ANONYMOUS - means we have no associated file handle (or device).
-
     return mmap((void *)base, size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 }
 
 void HostSys::Munmap(uptr base, size_t size)
 {
-    if (!base)
-        return;
-    munmap((void *)base, size);
+    if (base)
+	    munmap((void *)base, size);
 }
 
 void HostSys::MemProtect(void *baseaddr, size_t size, const PageProtectionMode &mode)
 {
-    if (!_memprotect(baseaddr, size, mode)) {
-        throw Exception::OutOfMemory(L"MemProtect")
-            .SetDiagMsg(pxsFmt(L"mprotect failed @ 0x%08X -> 0x%08X  (mode=%s)",
-                               baseaddr, (uptr)baseaddr + size, WX_STR(mode.ToString())));
-    }
+    if (!_memprotect(baseaddr, size, mode))
+	log_cb(RETRO_LOG_ERROR,
+            "mprotect failed @ 0x%08X -> 0x%08X  (mode=%s)\n",
+                               baseaddr, (uptr)baseaddr + size, WX_STR(mode.ToString()));
 }

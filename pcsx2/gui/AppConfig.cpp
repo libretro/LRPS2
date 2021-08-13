@@ -196,9 +196,6 @@ namespace FilenameDefs
 			}
 		};
 
-		IndexBoundsAssumeDev( L"FilenameDefs::Memcard", port, 2 );
-		IndexBoundsAssumeDev( L"FilenameDefs::Memcard", slot, 4 );
-
 		return retval[port][slot];
 	}
 };

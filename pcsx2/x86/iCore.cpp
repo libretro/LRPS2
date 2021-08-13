@@ -147,7 +147,7 @@ int  _getFreeXMMreg()
 		return tempi;
 	}
 
-	pxFailDev("*PCSX2*: XMM Reg Allocation Error in _getFreeXMMreg()!");
+	//pxFailDev("*PCSX2*: XMM Reg Allocation Error in _getFreeXMMreg()!");
 	throw Exception::FailedToAllocateRegister();
 }
 

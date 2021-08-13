@@ -55,7 +55,6 @@ public:
 
     virtual void DispatchEvent(const PageFaultInfo &evtinfo)
     {
-        pxFailRel("Don't call me, damnit.  Use DispatchException instead.");
     }
 
     virtual void OnPageFaultEvent(const PageFaultInfo &evtinfo, bool &handled) {}
@@ -250,13 +249,11 @@ public:
 
     u8 &operator[](uint idx)
     {
-        pxAssert(idx < (m_pages_reserved * __pagesize));
         return *((u8 *)m_baseptr + idx);
     }
 
     const u8 &operator[](uint idx) const
     {
-        pxAssert(idx < (m_pages_reserved * __pagesize));
         return *((u8 *)m_baseptr + idx);
     }
 

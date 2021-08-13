@@ -88,7 +88,7 @@ bool HostSys::MmapCommitPtr(void *base, size_t size, const PageProtectionMode &m
         log_cb(RETRO_LOG_WARN, "(MmapCommit) Received windows error %u {Virtual Memory Minimum Too Low}.\n", ERROR_COMMITMENT_MINIMUM);
         Sleep(1000); // Cut windows some time to rework its memory...
     } else if (errcode != ERROR_NOT_ENOUGH_MEMORY && errcode != ERROR_OUTOFMEMORY) {
-        pxFailDev(L"VirtualAlloc COMMIT failed: " + Exception::WinApiError().GetMsgFromWindows());
+        //pxFailDev(L"VirtualAlloc COMMIT failed: " + Exception::WinApiError().GetMsgFromWindows());
         return false;
     }
 
@@ -142,12 +142,10 @@ void HostSys::MemProtect(void *baseaddr, size_t size, const PageProtectionMode &
 
     DWORD OldProtect; // enjoy my uselessness, yo!
     if (!VirtualProtect(baseaddr, size, ConvertToWinApi(mode), &OldProtect)) {
-        Exception::WinApiError apiError;
+	log_cb(RETRO_LOG_ERROR,
+            "VirtualProtect failed @ 0x%08X -> 0x%08X  (mode=%s)\n",
+                   baseaddr, (uptr)baseaddr + size, mode.ToString().c_str());
 
-        apiError.SetDiagMsg(
-            pxsFmt(L"VirtualProtect failed @ 0x%08X -> 0x%08X  (mode=%s)",
-                   baseaddr, (uptr)baseaddr + size, mode.ToString().c_str()));
-
-        pxFailDev(apiError.FormatDiagnosticMessage());
+        //pxFailDev(apiError.FormatDiagnosticMessage());
     }
 }

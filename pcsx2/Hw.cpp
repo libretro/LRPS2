@@ -178,7 +178,7 @@ __ri bool hwMFIFOWrite(u32 addr, const u128* data, uint qwc)
 	else
 	{
 		SPR_LOG( "Scratchpad/MFIFO: invalid base physical address: 0x%08x", dmacRegs.rbor.ADDR );
-		pxFailDev( wxsFormat( L"Scratchpad/MFIFO: Invalid base physical address: 0x%08x", dmacRegs.rbor.ADDR) );
+		//pxFailDev( wxsFormat( L"Scratchpad/MFIFO: Invalid base physical address: 0x%08x", dmacRegs.rbor.ADDR) );
 		return false;
 	}
 	

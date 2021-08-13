@@ -47,7 +47,7 @@ void __fastcall ReadFIFO_VIF1(mem128_t* out)
 #endif
 
 	ZeroQWC(out); // Clear first in case no data gets written...
-	pxAssertRel(vif1Regs.stat.FQC != 0, "FQC = 0 on VIF FIFO READ!");
+	//pxAssertRel(vif1Regs.stat.FQC != 0, "FQC = 0 on VIF FIFO READ!");
 	if (vif1Regs.stat.FDR) {
 #ifndef NDEBUG
 		if (vif1Regs.stat.FQC > vif1.GSLastDownloadSize) {
@@ -89,11 +89,9 @@ void __fastcall WriteFIFO_VIF0(const mem128_t *value)
 		if(vif0.done && vif0ch.qwc == 0)	vif0Regs.stat.VPS = VPS_WAITING;
 	}
 	else		 
-	{
 		vif0Regs.stat.VPS = VPS_IDLE;
-	}
 
-	pxAssertDev( ret, "vif stall code not implemented" );
+	//pxAssertDev( ret, "vif stall code not implemented" );
 }
 
 void __fastcall WriteFIFO_VIF1(const mem128_t *value)
@@ -128,7 +126,7 @@ void __fastcall WriteFIFO_VIF1(const mem128_t *value)
 		if(gifUnit.checkPaths(1,0,1)) gifUnit.Execute(false, true);
 	}
 
-	pxAssertDev( ret, "vif stall code not implemented" );
+	//pxAssertDev( ret, "vif stall code not implemented" );
 }
 
 void __fastcall WriteFIFO_GIF(const mem128_t *value)

@@ -195,7 +195,7 @@ void VifUnpackSSE_Dynarec::ModUnpack( int upknum, bool PostOp )
 		case 3:
 		case 7:
 		case 11:
-			pxFailRel( wxsFormat( L"Vpu/Vif - Invalid Unpack! [%d]", upknum ) );
+			//pxFailRel( wxsFormat( L"Vpu/Vif - Invalid Unpack! [%d]", upknum ) );
 		break;
 	}
 

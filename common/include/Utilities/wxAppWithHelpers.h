@@ -67,7 +67,6 @@ public:
     sptr ProcessCommand(void *clientData, int evtType, int intParam = 0, long longParam = 0, const wxString &stringParam = wxEmptyString);
     sptr ProcessCommand(int evtType, int intParam = 0, long longParam = 0, const wxString &stringParam = wxEmptyString);
 
-    void ProcessAction(pxActionEvent &evt);
     void PostAction(const pxActionEvent &evt);
 
     bool OnInit();

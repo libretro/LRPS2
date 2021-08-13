@@ -28,9 +28,6 @@ class SynchronousActionState
 protected:
     bool m_posted;
     Threading::Semaphore m_sema;
-#ifndef __LIBRETRO__
-    ScopedExcept m_exception;
-#endif
 
 public:
     sptr return_value;
@@ -43,12 +40,7 @@ public:
 
     virtual ~SynchronousActionState() = default;
 
-    Threading::Semaphore &GetSemaphore() { return m_sema; }
-    const Threading::Semaphore &GetSemaphore() const { return m_sema; }
-
-    void RethrowException() const;
     int WaitForResult();
-    int WaitForResult_NoExceptions();
     void PostResult(int res);
     void ClearResult();
     void PostResult();
@@ -76,11 +68,6 @@ public:
     explicit pxActionEvent(SynchronousActionState *sema = NULL, int msgtype = pxEvt_InvokeAction);
     explicit pxActionEvent(SynchronousActionState &sema, int msgtype = pxEvt_InvokeAction);
     pxActionEvent(const pxActionEvent &src);
-
-    Threading::Semaphore *GetSemaphore() const { return m_state ? &m_state->GetSemaphore() : NULL; }
-
-    const SynchronousActionState *GetSyncState() const { return m_state; }
-    SynchronousActionState *GetSyncState() { return m_state; }
 
     void SetSyncState(SynchronousActionState *obj) { m_state = obj; }
     void SetSyncState(SynchronousActionState &obj) { m_state = &obj; }

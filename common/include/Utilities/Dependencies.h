@@ -23,22 +23,6 @@
 // This should prove useful....
 #define wxsFormat wxString::Format
 
-#ifdef PCSX2_DEBUG
-#define tryDEBUG try
-#define catchDEBUG(clause) catch (clause)
-#else
-#define tryDEBUG if (true)
-#define catchDEBUG(clause) if (false)
-#endif
-
-#if defined(PCSX2_DEVBUILD) || defined(PCSX2_DEBUG)
-#define tryDEVEL try
-#define catchDEVEL catch (clause)
-#else
-#define tryDEBUG if (true)
-#define catchDEBUG(clause) if (false)
-#endif
-
 // --------------------------------------------------------------------------------------
 //  ImplementEnumOperators  (macro)
 // --------------------------------------------------------------------------------------
@@ -158,8 +142,6 @@ public:
         *m_boolme = false;
     }
 };
-
-#define WXINTL_NO_GETTEXT_MACRO
 
 #include <wx/string.h>
 #include <wx/crt.h>

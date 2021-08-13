@@ -86,7 +86,6 @@ public:
     }
 
     virtual wxString FormatDiagnosticMessage() const;
-    virtual wxString FormatDisplayMessage() const;
 
     Threading::pxThread &Thread();
     const Threading::pxThread &Thread() const;

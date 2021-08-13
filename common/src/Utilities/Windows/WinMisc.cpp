@@ -19,22 +19,6 @@
 #include "RedtapeWindows.h"
 #include <VersionHelpers.h>
 
-#include <ShTypes.h>
-
-#if 0
-static __aligned16 LARGE_INTEGER lfreq;
-
-void InitCPUTicks()
-{
-    QueryPerformanceFrequency(&lfreq);
-}
-
-u64 GetTickFrequency()
-{
-    return lfreq.QuadPart;
-}
-#endif
-
 // --------------------------------------------------------------------------------------
 //  Exception::WinApiError   (implementations)
 // --------------------------------------------------------------------------------------
@@ -55,11 +39,6 @@ wxString Exception::WinApiError::GetMsgFromWindows() const
         return wxsFormat(L"Win32 Error #%d: %s", ErrorId, t_Msg);
 
     return wxsFormat(L"Win32 Error #%d (no text msg available)", ErrorId);
-}
-
-wxString Exception::WinApiError::FormatDisplayMessage() const
-{
-    return m_message_user + L"\n\n" + GetMsgFromWindows();
 }
 
 wxString Exception::WinApiError::FormatDiagnosticMessage() const

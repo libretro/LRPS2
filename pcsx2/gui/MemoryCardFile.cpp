@@ -16,12 +16,6 @@
 #include "PrecompiledHeader.h"
 #include "Utilities/SafeArray.inl"
 
-// IMPORTANT!  If this gets a macro redefinition error it means PluginCallbacks.h is included
-// in a global-scope header, and that's a BAD THING.  Include it only into modules that need
-// it, because some need to be able to alter its behavior using defines.  Like this:
-
-struct Component_FileMcd;
-
 #include "MemoryCardFile.h"
 
 #include "System.h"
@@ -218,7 +212,7 @@ uint FileMcd_GetMtapSlot(uint slot)
 	{
 		case 0:
 		case 1:
-			pxFailDev("Invalid parameter in call to GetMtapSlot -- specified slot is one of the base slots, not a Multitap slot.");
+			//pxFailDev("Invalid parameter in call to GetMtapSlot -- specified slot is one of the base slots, not a Multitap slot.");
 			break;
 
 		case 2:

@@ -574,12 +574,6 @@ wxString Exception::BaseThreadError::FormatDiagnosticMessage() const
     return pxsFmt(m_message_diag, (m_thread == NULL) ? WX_STR(null_str) : WX_STR(m_thread->GetName()));
 }
 
-wxString Exception::BaseThreadError::FormatDisplayMessage() const
-{
-    wxString null_str(L"Null Thread Object");
-    return pxsFmt(m_message_user, (m_thread == NULL) ? WX_STR(null_str) : WX_STR(m_thread->GetName()));
-}
-
 pxThread &Exception::BaseThreadError::Thread()
 {
     pxAssertDev(m_thread != NULL, "NULL thread object on ThreadError exception.");

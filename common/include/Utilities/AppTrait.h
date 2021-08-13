@@ -31,7 +31,5 @@ class Pcsx2AppTraits : public wxConsoleAppTraits
 public:
     virtual ~Pcsx2AppTraits() {}
     wxMessageOutput *CreateMessageOutput();
-#ifdef __LIBRETRO__
     wxEventLoopBase* CreateEventLoop();
-#endif
 };

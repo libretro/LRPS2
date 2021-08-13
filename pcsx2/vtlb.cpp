@@ -385,55 +385,55 @@ void __fastcall vtlbUnmappedPWriteLg(u32 addr,const OperandType* data)	{ vtlb_Bu
 
 static mem8_t __fastcall vtlbDefaultPhyRead8(u32 addr)
 {
-	pxFailDev(pxsFmt("(VTLB) Attempted read8 from unmapped physical address @ 0x%08X.", addr));
+	//pxFailDev(pxsFmt("(VTLB) Attempted read8 from unmapped physical address @ 0x%08X.", addr));
 	return 0;
 }
 
 static mem16_t __fastcall vtlbDefaultPhyRead16(u32 addr)
 {
-	pxFailDev(pxsFmt("(VTLB) Attempted read16 from unmapped physical address @ 0x%08X.", addr));
+	//pxFailDev(pxsFmt("(VTLB) Attempted read16 from unmapped physical address @ 0x%08X.", addr));
 	return 0;
 }
 
 static mem32_t __fastcall vtlbDefaultPhyRead32(u32 addr)
 {
-	pxFailDev(pxsFmt("(VTLB) Attempted read32 from unmapped physical address @ 0x%08X.", addr));
+	//pxFailDev(pxsFmt("(VTLB) Attempted read32 from unmapped physical address @ 0x%08X.", addr));
 	return 0;
 }
 
 static void __fastcall vtlbDefaultPhyRead64(u32 addr, mem64_t* dest)
 {
-	pxFailDev(pxsFmt("(VTLB) Attempted read64 from unmapped physical address @ 0x%08X.", addr));
+	//pxFailDev(pxsFmt("(VTLB) Attempted read64 from unmapped physical address @ 0x%08X.", addr));
 }
 
 static void __fastcall vtlbDefaultPhyRead128(u32 addr, mem128_t* dest)
 {
-	pxFailDev(pxsFmt("(VTLB) Attempted read128 from unmapped physical address @ 0x%08X.", addr));
+	//pxFailDev(pxsFmt("(VTLB) Attempted read128 from unmapped physical address @ 0x%08X.", addr));
 }
 
 static void __fastcall vtlbDefaultPhyWrite8(u32 addr, mem8_t data)
 {
-	pxFailDev(pxsFmt("(VTLB) Attempted write8 to unmapped physical address @ 0x%08X.", addr));
+	//pxFailDev(pxsFmt("(VTLB) Attempted write8 to unmapped physical address @ 0x%08X.", addr));
 }
 
 static void __fastcall vtlbDefaultPhyWrite16(u32 addr, mem16_t data)
 {
-	pxFailDev(pxsFmt("(VTLB) Attempted write16 to unmapped physical address @ 0x%08X.", addr));
+	//pxFailDev(pxsFmt("(VTLB) Attempted write16 to unmapped physical address @ 0x%08X.", addr));
 }
 
 static void __fastcall vtlbDefaultPhyWrite32(u32 addr, mem32_t data)
 {
-	pxFailDev(pxsFmt("(VTLB) Attempted write32 to unmapped physical address @ 0x%08X.", addr));
+	//pxFailDev(pxsFmt("(VTLB) Attempted write32 to unmapped physical address @ 0x%08X.", addr));
 }
 
 static void __fastcall vtlbDefaultPhyWrite64(u32 addr,const mem64_t* data)
 {
-	pxFailDev(pxsFmt("(VTLB) Attempted write64 to unmapped physical address @ 0x%08X.", addr));
+	//pxFailDev(pxsFmt("(VTLB) Attempted write64 to unmapped physical address @ 0x%08X.", addr));
 }
 
 static void __fastcall vtlbDefaultPhyWrite128(u32 addr,const mem128_t* data)
 {
-	pxFailDev(pxsFmt("(VTLB) Attempted write128 to unmapped physical address @ 0x%08X.", addr));
+	//pxFailDev(pxsFmt("(VTLB) Attempted write128 to unmapped physical address @ 0x%08X.", addr));
 }
 
 // ===========================================================================================

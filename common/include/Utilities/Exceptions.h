@@ -59,7 +59,6 @@ void pxTrap();
 
 namespace Exception
 {
-int MakeNewType();
 BaseException *FromErrno(const wxString &streamname, int errcode);
 
 // --------------------------------------------------------------------------------------
@@ -101,10 +100,6 @@ public:
     // Returns a message suitable for diagnostic / logging purposes.
     // This message is always in English, and includes a full stack trace.
     virtual wxString FormatDiagnosticMessage() const;
-
-    // Returns a message suitable for end-user display.
-    // This message is usually meant for display in a user popup or such.
-    virtual wxString FormatDisplayMessage() const;
 
     virtual void Rethrow() const = 0;
     virtual BaseException *Clone() const = 0;
@@ -223,7 +218,6 @@ public:
         // overridden message formatters only use the diagnostic version...
     }
 
-    virtual wxString FormatDisplayMessage() const;
     virtual wxString FormatDiagnosticMessage() const;
 };
 
@@ -247,7 +241,6 @@ public:
 public:
     OutOfMemory(const wxString &allocdesc);
 
-    virtual wxString FormatDisplayMessage() const;
     virtual wxString FormatDiagnosticMessage() const;
 };
 
@@ -270,7 +263,6 @@ class VirtualMemoryMapConflict : public OutOfMemory
 
     VirtualMemoryMapConflict(const wxString &allocdesc);
 
-    virtual wxString FormatDisplayMessage() const;
     virtual wxString FormatDiagnosticMessage() const;
 };
 
@@ -317,7 +309,6 @@ public:
     wxString StreamName; // name of the stream (if applicable)
 
     virtual wxString FormatDiagnosticMessage() const;
-    virtual wxString FormatDisplayMessage() const;
 
 protected:
     void _formatDiagMsg(FastFormatUnicode &dest) const;
@@ -331,7 +322,6 @@ class CannotCreateStream : public BadStream
     DEFINE_STREAM_EXCEPTION(CannotCreateStream, BadStream)
 
     virtual wxString FormatDiagnosticMessage() const;
-    virtual wxString FormatDisplayMessage() const;
 };
 
 // Exception thrown when an attempt to open a non-existent file is made.
@@ -343,7 +333,6 @@ public:
     DEFINE_STREAM_EXCEPTION(FileNotFound, CannotCreateStream)
 
     virtual wxString FormatDiagnosticMessage() const;
-    virtual wxString FormatDisplayMessage() const;
 };
 
 class AccessDenied : public CannotCreateStream
@@ -352,7 +341,6 @@ public:
     DEFINE_STREAM_EXCEPTION(AccessDenied, CannotCreateStream)
 
     virtual wxString FormatDiagnosticMessage() const;
-    virtual wxString FormatDisplayMessage() const;
 };
 
 // EndOfStream can be used either as an error, or used just as a shortcut for manual
@@ -364,7 +352,6 @@ public:
     DEFINE_STREAM_EXCEPTION(EndOfStream, BadStream)
 
     virtual wxString FormatDiagnosticMessage() const;
-    virtual wxString FormatDisplayMessage() const;
 };
 
 #ifdef __WXMSW__
@@ -383,7 +370,6 @@ public:
     WinApiError();
 
     wxString GetMsgFromWindows() const;
-    virtual wxString FormatDisplayMessage() const;
     virtual wxString FormatDiagnosticMessage() const;
 };
 #endif

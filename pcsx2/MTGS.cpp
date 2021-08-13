@@ -439,16 +439,8 @@ void SysMtgsThread::ExecuteTaskInThread()
 							GSinitReadFIFO2( (u64*)tag.pointer, tag.data[0]);
 						break;
 
-#ifdef PCSX2_DEVBUILD
-						default:
-							log_cb(RETRO_LOG_ERROR, "GSThreadProc, bad packet (%x) at m_ReadPos: %x, m_WritePos: %x\n", tag.command, local_ReadPos, m_WritePos.load());
-							pxFail( "Bad packet encountered in the MTGS Ringbuffer." );
-							m_ReadPos.store(m_WritePos.load(std::memory_order_acquire), std::memory_order_release);
-						continue;
-#else
 						// Optimized performance in non-Dev builds.
 						jNO_DEFAULT;
-#endif
 					}
 				}
 			}
