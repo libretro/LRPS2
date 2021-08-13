@@ -121,14 +121,11 @@ typedef std::unique_ptr<BaseException> ScopedExcept;
 class Ps2Generic
 {
 protected:
-    wxString m_message; // a "detailed" message of what disastrous thing has occurred!
-
 public:
     virtual ~Ps2Generic() = default;
 
     virtual u32 GetPc() const = 0;
     virtual bool IsDelaySlot() const = 0;
-    virtual wxString &Message() { return m_message; }
 
     virtual void Rethrow() const = 0;
     virtual Ps2Generic *Clone() const = 0;

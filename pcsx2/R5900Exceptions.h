@@ -35,22 +35,14 @@ public:
 	u32 GetPc() const { return cpuState.pc; }
 	bool IsDelaySlot() const { return !!cpuState.IsDelaySlot; }
 
-	wxString& Message() { return m_message; }
-	wxString FormatMessage() const
-	{
-		return wxsFormat(L"(EE pc:%8.8X) ", cpuRegs.pc) + m_message;
-	}
-
 protected:
 	void Init( const wxString& msg )
 	{
-		m_message = msg;;
 		cpuState = cpuRegs;
 	}
 
 	void Init( const char* msg )
 	{
-		m_message = fromUTF8( msg );
 		cpuState = cpuRegs;
 	}
 };

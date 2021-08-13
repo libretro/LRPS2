@@ -805,13 +805,6 @@ wxThread *wxThread::This()
     return thread;
 }
 
-void wxThread::Yield()
-{
-    // 0 argument to Sleep() is special and means to just give away the rest of
-    // our timeslice
-    ::Sleep(0);
-}
-
 int wxThread::GetCPUCount()
 {
     SYSTEM_INFO si;

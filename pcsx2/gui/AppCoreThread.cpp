@@ -558,8 +558,6 @@ void AppCoreThread::DoCpuExecute()
 	}
 	catch (BaseR5900Exception& ex)
 	{
-		log_cb(RETRO_LOG_ERROR, "%s\n", ex.FormatMessage().c_str());
-
 		// [TODO] : Debugger Hook!
 
 		if (++m_except_threshold > 6)

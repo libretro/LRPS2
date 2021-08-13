@@ -486,9 +486,6 @@ public:
         // Return the main thread id
     static wxThreadIdType GetMainId() { return ms_idMainThread; }
 
-        // Release the rest of our time slice letting the other threads run
-    static void Yield();
-
         // Sleep during the specified period of time in milliseconds
         //
         // This is the same as wxMilliSleep().

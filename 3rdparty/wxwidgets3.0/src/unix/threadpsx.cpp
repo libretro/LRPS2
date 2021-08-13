@@ -1111,13 +1111,6 @@ wxThread *wxThread::This()
     return (wxThread *)pthread_getspecific(gs_keySelf);
 }
 
-void wxThread::Yield()
-{
-#ifdef HAVE_SCHED_YIELD
-    sched_yield();
-#endif
-}
-
 int wxThread::GetCPUCount()
 {
 #if defined(_SC_NPROCESSORS_ONLN)

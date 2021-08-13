@@ -24,9 +24,6 @@
 #ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0600
 #endif
-#include <windows.h>
-#include <windowsx.h>
-#include <commctrl.h>
 #undef Yield
 
 #define EXPORT_C_(type) extern "C" type CALLBACK
@@ -43,19 +40,15 @@
 
 #endif
 
-#include <PluginCompatibility.h>
-
-enum FileMode {
-    READ_FILE = 0,
-    WRITE_FILE
-};
-
-#if defined(__unix__)
-#define ENTRY_POINT /* We don't need no stinkin' entry point! */
-#elif defined(__WXMAC__) || defined(__APPLE__)
-#define ENTRY_POINT /* We don't need no stinkin' entry point! */ // TODO OSX WTF is this anyway?
-#else
-#define usleep(x) Sleep(x / 1000)
+#ifdef _WIN32
+#include <windows.h>
+#if _MSC_VER
+#include <windowsx.h>
+#include <commctrl.h>
 #endif
+#endif
+
+#include <vector>
+#include <cstdio>
 
 #endif // PS2EEXT_H_INCLUDED

@@ -19,8 +19,6 @@
 #include "ScopedPtrMT.h"
 #include "EventSource.h"
 
-#undef Yield
-
 namespace Threading
 {
 
@@ -81,9 +79,6 @@ protected:
 class pxThread
 {
     DeclareNoncopyableObject(pxThread);
-
-    friend void pxYield(int ms);
-
 protected:
     wxString m_name; // diagnostic name for our thread.
     pthread_t m_thread;
@@ -148,22 +143,6 @@ protected:
     virtual void ExecuteTaskInThread() = 0;
 
     void TestCancel() const;
-
-    // Yields this thread to other threads and checks for cancellation.  A sleeping thread should
-    // always test for cancellation, however if you really don't want to, you can use Threading::Sleep()
-    // or better yet, disable cancellation of the thread completely with DisableCancellation().
-    //
-    // Parameters:
-    //   ms - 'minimum' yield time in milliseconds (rough -- typically yields are longer by 1-5ms
-    //         depending on operating system/platform).  If ms is 0 or unspecified, then a single
-    //         timeslice is yielded to other contending threads.  If no threads are contending for
-    //         time when ms==0, then no yield is done, but cancellation is still tested.
-    void Yield(int ms = 0)
-    {
-        pxAssert(IsSelf());
-        Threading::Sleep(ms);
-        TestCancel();
-    }
 
     void FrankenMutex(Mutex &mutex);
 

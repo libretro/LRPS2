@@ -49,7 +49,9 @@
 
 #endif
 
-#include <PluginCompatibility.h>
+#include <string>
+#include <vector>
+#include <cstdio>
 
 #ifdef __x86_64__
 #define _M_AMD64
