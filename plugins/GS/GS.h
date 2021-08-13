@@ -1329,3 +1329,33 @@ const GSVector2i default_rt_size(2048, 2048);
 #else
 const GSVector2i default_rt_size(1280, 1024);
 #endif
+
+class GSdxApp
+{
+	std::map< std::string, std::string > m_current_configuration;
+	GSRendererType m_current_renderer_type;
+
+public:
+	GSdxApp();
+
+	void Init();
+
+	void SetConfig(const char* entry, const char* value);
+	void SetConfig(const char* entry, int value);
+	// Avoid issue with overloading
+	template<typename T>
+	T      GetConfigT(const char* entry) { return static_cast<T>(GetConfigI(entry)); }
+	int    GetConfigI(const char* entry);
+	bool   GetConfigB(const char* entry);
+	std::string GetConfigS(const char* entry);
+
+	void SetCurrentRendererType(GSRendererType type);
+	GSRendererType GetCurrentRendererType() const;
+
+};
+
+struct GSDXError {};
+struct GSDXRecoverableError : GSDXError {};
+struct GSDXErrorGlVertexArrayTooSmall : GSDXError {};
+
+extern GSdxApp theApp;

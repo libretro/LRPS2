@@ -22,7 +22,7 @@
 #pragma once
 
 #include "stdafx.h"
-#include "GSdx.h"
+#include "GS.h"
 #include "GSVector.h"
 
 class GSWnd

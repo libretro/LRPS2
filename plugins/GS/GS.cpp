@@ -21,6 +21,7 @@
 
 #include "stdafx.h"
 #include "GSdx.h"
+#include "GS.h"
 #include "GSUtil.h"
 #include "Renderers/SW/GSRendererSW.h"
 #include "Renderers/Null/GSRendererNull.h"
@@ -39,6 +40,8 @@
 static GSRenderer* s_gs = NULL;
 static void (*s_irq)() = NULL;
 static uint8* s_basemem = NULL;
+
+GSdxApp theApp;
 
 EXPORT_C GSsetBaseMem(uint8* mem)
 {
@@ -461,4 +464,349 @@ EXPORT_C GSsetFrameSkip(int frameskip)
 
 EXPORT_C GSsetExclusive(int enabled)
 {
+}
+
+std::string format(const char* fmt, ...)
+{
+	va_list args;
+
+	va_start(args, fmt);
+	int size = vsnprintf(nullptr, 0, fmt, args) + 1;
+	va_end(args);
+
+	assert(size > 0);
+	std::vector<char> buffer(std::max(1, size));
+
+	va_start(args, fmt);
+	vsnprintf(buffer.data(), size, fmt, args);
+	va_end(args);
+
+	return {buffer.data()};
+}
+
+#ifdef _WIN32
+void* vmalloc(size_t size, bool code)
+{
+	return VirtualAlloc(NULL, size, MEM_COMMIT | MEM_RESERVE, code ? PAGE_EXECUTE_READWRITE : PAGE_READWRITE);
+}
+
+void vmfree(void* ptr, size_t size)
+{
+	VirtualFree(ptr, 0, MEM_RELEASE);
+}
+
+static HANDLE s_fh = NULL;
+static uint8* s_Next[8];
+
+void* fifo_alloc(size_t size, size_t repeat)
+{
+	ASSERT(s_fh == NULL);
+
+	if (repeat >= countof(s_Next)) {
+		fprintf(stderr, "Memory mapping overflow (%zu >= %u)\n", repeat, (unsigned int)countof(s_Next));
+		return vmalloc(size * repeat, false); // Fallback to default vmalloc
+	}
+
+	s_fh = CreateFileMapping(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, size, nullptr);
+	DWORD errorID = ::GetLastError();
+	if (s_fh == NULL) {
+		fprintf(stderr, "Failed to reserve memory. WIN API ERROR:%u\n", errorID);
+		return vmalloc(size * repeat, false); // Fallback to default vmalloc
+	}
+
+	int mmap_segment_failed = 0;
+	void* fifo = MapViewOfFile(s_fh, FILE_MAP_ALL_ACCESS, 0, 0, size);
+	for (size_t i = 1; i < repeat; i++) {
+		void* base = (uint8*)fifo + size * i;
+		s_Next[i] = (uint8*)MapViewOfFileEx(s_fh, FILE_MAP_ALL_ACCESS, 0, 0, size, base);
+		errorID = ::GetLastError();
+		if (s_Next[i] != base) {
+			mmap_segment_failed++;
+			if (mmap_segment_failed > 4) {
+				fprintf(stderr, "Memory mapping failed after %d attempts, aborting. WIN API ERROR:%u\n", mmap_segment_failed, errorID);
+				fifo_free(fifo, size, repeat);
+				return vmalloc(size * repeat, false); // Fallback to default vmalloc
+			}
+			do {
+				UnmapViewOfFile(s_Next[i]);
+				s_Next[i] = 0;
+			} while (--i > 0);
+
+			fifo = MapViewOfFile(s_fh, FILE_MAP_ALL_ACCESS, 0, 0, size);
+		}
+	}
+
+	return fifo;
+}
+
+void fifo_free(void* ptr, size_t size, size_t repeat)
+{
+	ASSERT(s_fh != NULL);
+
+	if (s_fh == NULL) {
+		if (ptr != NULL)
+			vmfree(ptr, size);
+		return;
+	}
+
+	UnmapViewOfFile(ptr);
+
+	for (size_t i = 1; i < countof(s_Next); i++) {
+		if (s_Next[i] != 0) {
+			UnmapViewOfFile(s_Next[i]);
+			s_Next[i] = 0;
+		}
+	}
+
+	CloseHandle(s_fh);
+	s_fh = NULL;
+}
+
+#else
+
+#include <sys/mman.h>
+#include <unistd.h>
+
+void* vmalloc(size_t size, bool code)
+{
+	size_t mask = getpagesize() - 1;
+
+	size = (size + mask) & ~mask;
+
+	int prot = PROT_READ | PROT_WRITE;
+	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
+
+	if(code) {
+		prot |= PROT_EXEC;
+#ifdef _M_AMD64
+		flags |= MAP_32BIT;
+#endif
+	}
+
+	return mmap(NULL, size, prot, flags, -1, 0);
+}
+
+void vmfree(void* ptr, size_t size)
+{
+	size_t mask = getpagesize() - 1;
+
+	size = (size + mask) & ~mask;
+
+	munmap(ptr, size);
+}
+
+static int s_shm_fd = -1;
+
+void* fifo_alloc(size_t size, size_t repeat)
+{
+	ASSERT(s_shm_fd == -1);
+
+	const char* file_name = "/GSDX.mem";
+	s_shm_fd = shm_open(file_name, O_RDWR | O_CREAT | O_EXCL, 0600);
+	if (s_shm_fd != -1) {
+		shm_unlink(file_name); // file is deleted but descriptor is still open
+	} else {
+		fprintf(stderr, "Failed to open %s due to %s\n", file_name, strerror(errno));
+		return nullptr;
+	}
+
+	if (ftruncate(s_shm_fd, repeat * size) < 0)
+		fprintf(stderr, "Failed to reserve memory due to %s\n", strerror(errno));
+
+	void* fifo = mmap(nullptr, size * repeat, PROT_READ | PROT_WRITE, MAP_SHARED, s_shm_fd, 0);
+
+	for (size_t i = 1; i < repeat; i++) {
+		void* base = (uint8*)fifo + size * i;
+		uint8* next = (uint8*)mmap(base, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, s_shm_fd, 0);
+		if (next != base)
+			fprintf(stderr, "Fail to mmap contiguous segment\n");
+	}
+
+	return fifo;
+}
+
+void fifo_free(void* ptr, size_t size, size_t repeat)
+{
+	ASSERT(s_shm_fd >= 0);
+
+	if (s_shm_fd < 0)
+		return;
+
+	munmap(ptr, size * repeat);
+
+	close(s_shm_fd);
+	s_shm_fd = -1;
+}
+
+#endif
+
+#if !defined(_MSC_VER)
+
+// declare linux equivalents (alignment must be power of 2 (1,2,4...2^15)
+
+#if !defined(__USE_ISOC11) || defined(ASAN_WORKAROUND)
+
+void* _aligned_malloc(size_t size, size_t alignment)
+{
+	void *ret = 0;
+	posix_memalign(&ret, alignment, size);
+	return ret;
+}
+
+#endif
+
+#endif
+
+
+GSdxApp::GSdxApp()
+{
+	// Empty constructor causes an illegal instruction exception on an SSE4.2 machine on Windows.
+	// Non-empty doesn't, but raises a SIGILL signal when compiled against GCC 6.1.1.
+	// So here's a compromise.
+#ifdef _WIN32
+	Init();
+#endif
+}
+
+void GSdxApp::Init()
+{
+	static bool is_initialised = false;
+	if (is_initialised)
+		return;
+	is_initialised = true;
+
+	m_current_renderer_type = GSRendererType::Undefined;
+
+	// Init configuration map with default values
+	// later in the flow they will be overwritten by custom config
+
+	// Avoid to clutter the ini file with useless options
+#ifdef _WIN32
+	m_current_configuration["dx_break_on_severity"]                       = "0";
+	// D3D Blending option
+	m_current_configuration["accurate_blending_unit_d3d11"]               = "1";
+#endif
+	m_current_configuration["aa1"]                                        = "0";
+	m_current_configuration["accurate_date"]                              = "1";
+	m_current_configuration["accurate_blending_unit"]                     = "1";
+	m_current_configuration["AspectRatio"]                                = "1";
+	m_current_configuration["autoflush_sw"]                               = "1";
+	m_current_configuration["clut_load_before_draw"]                      = "0";
+	m_current_configuration["crc_hack_level"]                             = std::to_string(static_cast<int8>(CRCHackLevel::Automatic));
+	m_current_configuration["CrcHacksExclusions"]                         = "";
+	m_current_configuration["debug_glsl_shader"]                          = "0";
+	m_current_configuration["debug_opengl"]                               = "0";
+	m_current_configuration["disable_hw_gl_draw"]                         = "0";
+	m_current_configuration["dithering_ps2"]                              = "2";
+	m_current_configuration["dump"]                                       = "0";
+	m_current_configuration["extrathreads"]                               = "2";
+	m_current_configuration["extrathreads_height"]                        = "4";
+	m_current_configuration["filter"]                                     = std::to_string(static_cast<int8>(BiFiltering::PS2));
+	m_current_configuration["force_texture_clear"]                        = "0";
+	m_current_configuration["fxaa"]                                       = "0";
+	m_current_configuration["interlace"]                                  = "7";
+	m_current_configuration["large_framebuffer"]                          = "0";
+	m_current_configuration["linear_present"]                             = "1";
+	m_current_configuration["MaxAnisotropy"]                              = "0";
+	m_current_configuration["mipmap"]                                     = "1";
+	m_current_configuration["mipmap_hw"]                                  = std::to_string(static_cast<int>(HWMipmapLevel::Automatic));
+	m_current_configuration["ModeHeight"]                                 = "480";
+	m_current_configuration["ModeWidth"]                                  = "640";
+	m_current_configuration["NTSC_Saturation"]                            = "1";
+	m_current_configuration["override_geometry_shader"]                   = "-1";
+	m_current_configuration["override_GL_ARB_compute_shader"]             = "-1";
+	m_current_configuration["override_GL_ARB_copy_image"]                 = "-1";
+	m_current_configuration["override_GL_ARB_clear_texture"]              = "-1";
+	m_current_configuration["override_GL_ARB_clip_control"]               = "-1";
+	m_current_configuration["override_GL_ARB_direct_state_access"]        = "-1";
+	m_current_configuration["override_GL_ARB_draw_buffers_blend"]         = "-1";
+	m_current_configuration["override_GL_ARB_get_texture_sub_image"]      = "-1";
+	m_current_configuration["override_GL_ARB_gpu_shader5"]                = "-1";
+	m_current_configuration["override_GL_ARB_multi_bind"]                 = "-1";
+	m_current_configuration["override_GL_ARB_shader_image_load_store"]    = "-1";
+	m_current_configuration["override_GL_ARB_shader_storage_buffer_object"] = "-1";
+	m_current_configuration["override_GL_ARB_sparse_texture"]             = "-1";
+	m_current_configuration["override_GL_ARB_sparse_texture2"]            = "-1";
+	m_current_configuration["override_GL_ARB_texture_view"]               = "-1";
+	m_current_configuration["override_GL_ARB_vertex_attrib_binding"]      = "-1";
+	m_current_configuration["override_GL_ARB_texture_barrier"]            = "-1";
+	m_current_configuration["paltex"]                                     = "0";
+	m_current_configuration["png_compression_level"]                      = std::to_string(Z_BEST_SPEED);
+	m_current_configuration["preload_frame_with_gs_data"]                 = "0";
+	m_current_configuration["Renderer"]                                   = std::to_string(static_cast<int>(GSRendererType::Default));
+	m_current_configuration["resx"]                                       = "1024";
+	m_current_configuration["resy"]                                       = "1024";
+	m_current_configuration["save"]                                       = "0";
+	m_current_configuration["savef"]                                      = "0";
+	m_current_configuration["savel"]                                      = "5000";
+	m_current_configuration["saven"]                                      = "0";
+	m_current_configuration["savet"]                                      = "0";
+	m_current_configuration["savez"]                                      = "0";
+	m_current_configuration["shaderfx"]                                   = "0";
+	m_current_configuration["shaderfx_conf"]                              = "shaders/GSdx_FX_Settings.ini";
+	m_current_configuration["shaderfx_glsl"]                              = "shaders/GSdx.fx";
+	m_current_configuration["TVShader"]                                   = "0";
+	m_current_configuration["upscale_multiplier"]                         = "1";
+	m_current_configuration["UserHacks"]                                  = "0";
+	m_current_configuration["UserHacks_align_sprite_X"]                   = "0";
+	m_current_configuration["UserHacks_AutoFlush"]                        = "0";
+	m_current_configuration["UserHacks_DisableDepthSupport"]              = "0";
+	m_current_configuration["UserHacks_Disable_Safe_Features"]            = "0";
+	m_current_configuration["UserHacks_DisablePartialInvalidation"]       = "0";
+	m_current_configuration["UserHacks_CPU_FB_Conversion"]                = "0";
+	m_current_configuration["UserHacks_Half_Bottom_Override"]             = "-1";
+	m_current_configuration["UserHacks_HalfPixelOffset"]                  = "0";
+	m_current_configuration["UserHacks_merge_pp_sprite"]                  = "0";
+	m_current_configuration["UserHacks_round_sprite_offset"]              = "0";
+	m_current_configuration["UserHacks_SkipDraw"]                         = "0";
+	m_current_configuration["UserHacks_SkipDraw_Offset"]                  = "0";
+	m_current_configuration["UserHacks_TCOffsetX"]                        = "0";
+	m_current_configuration["UserHacks_TCOffsetY"]                        = "0";
+	m_current_configuration["UserHacks_TextureInsideRt"]                  = "0";
+	m_current_configuration["UserHacks_TriFilter"]                        = std::to_string(static_cast<int8>(TriFiltering::None));
+	m_current_configuration["UserHacks_WildHack"]                         = "0";
+	m_current_configuration["wrap_gs_mem"]                                = "0";
+	m_current_configuration["vsync"]                                      = "0";
+}
+
+
+std::string GSdxApp::GetConfigS(const char* entry)
+{
+	
+	return m_current_configuration[entry];
+}
+
+void GSdxApp::SetConfig(const char* entry, const char* value)
+{
+	m_current_configuration[entry] = value;
+}
+
+int GSdxApp::GetConfigI(const char* entry)
+{
+	return std::stoi(m_current_configuration[entry]);
+
+}
+
+bool GSdxApp::GetConfigB(const char* entry)
+{
+	return !!GetConfigI(entry);
+}
+
+void GSdxApp::SetConfig(const char* entry, int value)
+{
+	char buff[32] = {0};
+
+	sprintf(buff, "%d", value);
+
+	SetConfig(entry, buff);
+}
+
+void GSdxApp::SetCurrentRendererType(GSRendererType type)
+{
+	m_current_renderer_type = type;
+}
+
+GSRendererType GSdxApp::GetCurrentRendererType() const
+{
+	return m_current_renderer_type;
 }

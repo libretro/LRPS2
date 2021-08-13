@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "../../GSdx.h"
+#include "../../GS.h"
 #include "../../Window/GSWnd.h"
 #include "../../GSState.h"
 

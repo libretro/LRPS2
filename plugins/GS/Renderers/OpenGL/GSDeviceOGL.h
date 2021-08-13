@@ -23,7 +23,7 @@
 
 #include "../Common/GSDevice.h"
 #include "GSTextureOGL.h"
-#include "../../GSdx.h"
+#include "../../GS.h"
 #include "GSVertexArrayOGL.h"
 #include "GSUniformBufferOGL.h"
 #include "GSShaderOGL.h"

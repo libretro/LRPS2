@@ -21,7 +21,7 @@
 
 #include "stdafx.h"
 #include "GSState.h"
-#include "GSdx.h"
+#include "GS.h"
 #include "GSUtil.h"
 #include "options_tools.h"
 

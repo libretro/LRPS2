@@ -58,8 +58,6 @@ set(GSdxSources
     GSTables.cpp
     GSUtil.cpp
     GSVector.cpp
-    GSdx.cpp
-    stdafx.cpp
     Renderers/Common/GSDevice.cpp
     Renderers/Common/GSDirtyRect.cpp
     Renderers/Common/GSRenderer.cpp
@@ -108,7 +106,6 @@ set(GSdxHeaders
     GSCrc.h
     GSDrawingContext.h
     GSDrawingEnvironment.h
-    GSdx.h
     GS.h
     GSLocalMemory.h
     GSPerfMon.h
