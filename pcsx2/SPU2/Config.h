@@ -18,7 +18,6 @@
 #include "Global.h"
 
 extern int Interpolation;
-extern bool EffectsDisabled;
 extern float VolumeAdjustFLdb;
 extern float VolumeAdjustCdb;
 extern float VolumeAdjustFRdb;
@@ -27,6 +26,5 @@ extern float VolumeAdjustBRdb;
 extern float VolumeAdjustSLdb;
 extern float VolumeAdjustSRdb;
 extern float VolumeAdjustLFEdb;
-extern bool postprocess_filter_dealias;
 
 extern int dplLevel;

@@ -29,8 +29,6 @@ MutexRecursive mtx_SPU2Status;
 extern retro_audio_sample_t sample_cb;
 
 int Interpolation = 4;
-bool EffectsDisabled = false;
-bool postprocess_filter_dealias = false;
 unsigned int delayCycles = 4;
 
 int SampleRate = 48000;
@@ -160,8 +158,6 @@ float VolumeAdjustLFE;
 void ReadSettings()
 {
    Interpolation = 4;
-	EffectsDisabled = false;
-	postprocess_filter_dealias = false;
 	VolumeAdjustCdb = 0;
 	VolumeAdjustFLdb = 0;
 	VolumeAdjustFRdb = 0;
