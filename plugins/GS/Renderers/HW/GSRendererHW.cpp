@@ -408,7 +408,7 @@ GSTexture* GSRendererHW::GetOutput(int i, int& y_offset)
 			int pages = delta >> 5u;
 			int y_pages = pages / DISPFB.FBW;
 			y_offset = y_pages * GSLocalMemory::m_psm[DISPFB.PSM].pgs.y;
-			GL_CACHE("Frame y offset %d pixels, unit %d", y_offset, i);
+			//log_cb(RETRO_LOG_DEBUG, "Frame y offset %d pixels, unit %d\n", y_offset, i);
 		}
 	}
 
@@ -559,7 +559,7 @@ void GSRendererHW::ConvertSpriteTextureShuffle(bool& write_ba, bool& read_ba)
 	}
 
 	if (PRIM->FST) {
-		GL_INS("First vertex is  P: %d => %d    T: %d => %d", v[0].XYZ.X, v[1].XYZ.X, v[0].U, v[1].U);
+		//log_cb(RETRO_LOG_DEBUG, "First vertex is  P: %d => %d    T: %d => %d\n", v[0].XYZ.X, v[1].XYZ.X, v[0].U, v[1].U);
 
 		for(size_t i = 0; i < count; i += 2) {
 			if (write_ba)
@@ -588,7 +588,7 @@ void GSRendererHW::ConvertSpriteTextureShuffle(bool& write_ba, bool& read_ba)
 		}
 	} else {
 		const float offset_8pix = 8.0f / tw;
-		GL_INS("First vertex is  P: %d => %d    T: %f => %f (offset %f)", v[0].XYZ.X, v[1].XYZ.X, v[0].ST.S, v[1].ST.S, offset_8pix);
+		//log_cb(RETRO_LOG_DEBUG, "First vertex is  P: %d => %d    T: %f => %f (offset %f)\n", v[0].XYZ.X, v[1].XYZ.X, v[0].ST.S, v[1].ST.S, offset_8pix);
 
 		for(size_t i = 0; i < count; i += 2) {
 			if (write_ba)
@@ -678,8 +678,10 @@ GSVector4 GSRendererHW::RealignTargetTextureCoordinate(const GSTextureCache::Sou
 			}
 		}
 
-		GL_INS("offset detected %f,%f t_pos %d (linear %d, scale %f)",
+#if 0
+		log_cb(RETRO_LOG_DEBUG, "offset detected %f,%f t_pos %d (linear %d, scale %f)\n",
 				half_offset.x, half_offset.y, t_position, linear, scale.x);
+#endif
 
 	} else if (m_vt.m_eq.q) {
 		float tw = (float)(1 << m_context->TEX0.TW);
@@ -690,9 +692,10 @@ GSVector4 GSRendererHW::RealignTargetTextureCoordinate(const GSTextureCache::Sou
 		half_offset.x = 0.5f * q / tw;
 		half_offset.y = 0.5f * q / th;
 
-		GL_INS("ST offset detected %f,%f (linear %d, scale %f)",
+#if 0
+		log_cb(RETRO_LOG_DEBUG, "ST offset detected %f,%f (linear %d, scale %f)\n",
 				half_offset.x, half_offset.y, linear, scale.x);
-
+#endif
 	}
 
 	return half_offset;
@@ -734,7 +737,7 @@ void GSRendererHW::MergeSprite(GSTextureCache::Source* tex)
 			GSVector4 delta_p = m_vt.m_max.p - m_vt.m_min.p;
 			GSVector4 delta_t = m_vt.m_max.t - m_vt.m_min.t;
 			bool is_blit = PrimitiveOverlap() == PRIM_OVERLAP_NO;
-			GL_INS("PP SAMPLER: Dp %f %f Dt %f %f. Is blit %d, is paving %d, count %d", delta_p.x, delta_p.y, delta_t.x, delta_t.y, is_blit, is_paving, m_vertex.tail);
+			log_cb(RETRO_LOG_DEBUG, "PP SAMPLER: Dp %f %f Dt %f %f. Is blit %d, is paving %d, count %d\n", delta_p.x, delta_p.y, delta_t.x, delta_t.y, is_blit, is_paving, m_vertex.tail);
 #endif
 
 			if (is_paving) {
@@ -862,7 +865,7 @@ void GSRendererHW::SwSpriteRender()
 	const int w = trxreg.RRW;
 	const int h = trxreg.RRH;
 
-	GL_INS("SwSpriteRender: Dest 0x%x W:%d F:%s, size(%d %d)", bitbltbuf.DBP, bitbltbuf.DBW, psm_str(bitbltbuf.DPSM), w, h);
+	//log_cb(RETRO_LOG_DEBUG, "SwSpriteRender: Dest 0x%x W:%d F:%s, size(%d %d)\n", bitbltbuf.DBP, bitbltbuf.DBW, psm_str(bitbltbuf.DPSM), w, h);
 
 	if (texture_mapping_enabled)
 		InvalidateLocalMem(bitbltbuf, GSVector4i(sx, sy, sx + w, sy + h));
@@ -1153,10 +1156,10 @@ void GSRendererHW::RoundSpriteOffset()
 void GSRendererHW::Draw()
 {
 	if(m_dev->IsLost() || IsBadFrame()) {
-		GL_INS("Warning skipping a draw call (%d)", s_n);
+		//log_cb(RETRO_LOG_WARN, "Warning skipping a draw call (%d)\n", s_n);
 		return;
 	}
-	GL_PUSH("HW Draw %d", s_n);
+	//log_cb(RETRO_LOG_DEBUG, "HW Draw %d\n", s_n);
 
 	GSDrawingEnvironment& env = m_env;
 	GSDrawingContext* context = m_context;
@@ -1207,16 +1210,16 @@ void GSRendererHW::Draw()
 	if (m_channel_shuffle) {
 		m_channel_shuffle = draw_sprite_tex && (m_context->TEX0.PSM == PSM_PSMT8) && single_page;
 		if (m_channel_shuffle) {
-			GL_CACHE("Channel shuffle effect detected SKIP");
+			//log_cb(RETRO_LOG_DEBUG, "Channel shuffle effect detected SKIP\n");
 			return;
 		}
 	} else if (draw_sprite_tex && m_context->FRAME.Block() == m_context->TEX0.TBP0) {
 		// Special post-processing effect
 		if ((m_context->TEX0.PSM == PSM_PSMT8) && single_page) {
-			GL_INS("Channel shuffle effect detected");
+			//log_cb("Channel shuffle effect detected");
 			m_channel_shuffle = true;
 		} else {
-			GL_DBG("Special post-processing effect not supported");
+			//log_cb(RETRO_LOG_DEBUG, "Special post-processing effect not supported\n");
 			m_channel_shuffle = false;
 		}
 	} else {
@@ -1316,7 +1319,7 @@ void GSRendererHW::Draw()
 				m_vt.m_max.t *= 0.5f;
 			}
 
-			GL_CACHE("Mipmap LOD %d %d (%f %f) new size %dx%d (K %d L %u)", m_lod.x, m_lod.y, m_vt.m_lod.x, m_vt.m_lod.y, 1 << TEX0.TW, 1 << TEX0.TH, m_context->TEX1.K, m_context->TEX1.L);
+			//log_cb(RETRO_LOG_DEBUG, "Mipmap LOD %d %d (%f %f) new size %dx%d (K %d L %u)\n", m_lod.x, m_lod.y, m_vt.m_lod.x, m_vt.m_lod.y, 1 << TEX0.TW, 1 << TEX0.TH, m_context->TEX1.K, m_context->TEX1.L);
 		} else {
 			TEX0 = GetTex0Layer(0);
 		}
@@ -1384,14 +1387,14 @@ void GSRendererHW::Draw()
 				// So we check if it's a TS effect by checking the scissor.
 				((m_context->SCISSOR.SCAX1 - m_context->SCISSOR.SCAX0) < 32);
 
-			GL_INS("WARNING: Possible misdetection of effect, texture shuffle is %s", m_texture_shuffle ? "Enabled" : "Disabled");
+			//log_cb(RETRO_LOG_WARN, "WARNING: Possible misdetection of effect, texture shuffle is %s\n", m_texture_shuffle ? "Enabled" : "Disabled");
 		}
 
 		// Texture shuffle is not yet supported with strange clamp mode
 		ASSERT(!m_texture_shuffle || (context->CLAMP.WMS < 3 && context->CLAMP.WMT < 3));
 
 		if (m_src->m_target && m_context->TEX0.PSM == PSM_PSMT8 && single_page && draw_sprite_tex) {
-			GL_INS("Channel shuffle effect detected (2nd shot)");
+			//log_cb(RETRO_LOG_DEBUG, "Channel shuffle effect detected (2nd shot)\n");
 			m_channel_shuffle = true;
 		} else {
 			m_channel_shuffle = false;
@@ -1409,12 +1412,12 @@ void GSRendererHW::Draw()
 
 	if(m_hacks.m_oi && !(this->*m_hacks.m_oi)(rt_tex, ds_tex, m_src))
 	{
-		GL_INS("Warning skipping a draw call (%d)", s_n);
+		//log_cb(RETRO_LOG_WARN, "Warning skipping a draw call (%d)\n", s_n);
 		return;
 	}
 
 	if (!OI_BlitFMV(rt, m_src, m_r)) {
-		GL_INS("Warning skipping a draw call (%d)", s_n);
+		//log_cb(RETRO_LOG_WARN, "Warning skipping a draw call (%d)\n", s_n);
 		return;
 	}
 
@@ -1490,10 +1493,10 @@ void GSRendererHW::Draw()
 	// Help to detect rendering outside of the framebuffer
 #if _DEBUG
 	if (m_upscale_multiplier * m_r.z > m_width) {
-		GL_INS("ERROR: RT width is too small only %d but require %d", m_width, m_upscale_multiplier * m_r.z);
+		log_cb(RETRO_LOG_ERROR, "ERROR: RT width is too small only %d but require %d\n", m_width, m_upscale_multiplier * m_r.z);
 	}
 	if (m_upscale_multiplier * m_r.w > m_height) {
-		GL_INS("ERROR: RT height is too small only %d but require %d", m_height, m_upscale_multiplier * m_r.w);
+		log_cb(RETRO_LOG_ERROR, "ERROR: RT height is too small only %d but require %d\n", m_height, m_upscale_multiplier * m_r.w);
 	}
 #endif
 
@@ -1618,8 +1621,10 @@ void GSRendererHW::OI_DoubleHalfClear(GSTexture* rt, GSTexture* ds)
 			uint32 color = v[1].RGBAQ.u32[0];
 			bool clear_depth = (m_context->FRAME.FBP > m_context->ZBUF.ZBP);
 
-			GL_INS("OI_DoubleHalfClear:%s: base %x half %x. w_pages %d h_pages %d fbw %d. Color %x",
+#if 0
+			log_cb(RETRO_LOG_DEBUG, "OI_DoubleHalfClear:%s: base %x half %x. w_pages %d h_pages %d fbw %d. Color %x\n",
 					clear_depth ? "depth" : "target", base << 5, half << 5, w_pages, h_pages, m_context->FRAME.FBW, color);
+#endif
 
 			// Commit texture with a factor 2 on the height
 			GSTexture* t = clear_depth ? ds : rt;
@@ -1651,7 +1656,7 @@ void GSRendererHW::OI_GsMemClear()
 		if (r.width() <= 128 || r.height() <= 128)
 			return;
 
-		GL_INS("OI_GsMemClear (%d,%d => %d,%d)", r.x, r.y, r.z, r.w);
+		//log_cb(RETRO_LOG_DEBUG, "OI_GsMemClear (%d,%d => %d,%d)\n", r.x, r.y, r.z, r.w);
 		int format = GSLocalMemory::m_psm[m_context->FRAME.PSM].fmt;
 
 		// FIXME: loop can likely be optimized with AVX/SSE. Pixels aren't
@@ -1703,9 +1708,8 @@ void GSRendererHW::OI_GsMemClear()
 bool GSRendererHW::OI_BlitFMV(GSTextureCache::Target* _rt, GSTextureCache::Source* tex, const GSVector4i& r_draw)
 {
 	if (r_draw.w > 1024 && (m_vt.m_primclass == GS_SPRITE_CLASS) && (m_vertex.next == 2) && PRIM->TME && !PRIM->ABE && tex && !tex->m_target && m_context->TEX0.TBW > 0) {
-		GL_PUSH("OI_BlitFMV");
-
-		GL_INS("OI_BlitFMV");
+		//log_cb(RETRO_LOG_DEBUG, "OI_BlitFMV\n");
+		//log_cb(RETRO_LOG_DEBUG, "OI_BlitFMV\n");
 
 		// The draw is done past the RT at the location of the texture. To avoid various upscaling mess
 		// We will blit the data from the top to the bottom of the texture manually.
@@ -1784,7 +1788,7 @@ bool GSRendererHW::OI_BigMuthaTruckers(GSTexture* rt, GSTexture* ds, GSTextureCa
 	if (PRIM->TME && Frame.TBW == 10 && Texture.TBW == 10 && Frame.TBP0 == 0x00a00 && Texture.PSM == PSM_PSMT8H && (m_r.y == 256 || m_r.y == 224))
 	{
 		// 224 ntsc, 256 pal.
-		GL_INS("OI_BigMuthaTruckers half bottom offset");
+		//log_cb(RETRO_LOG_DEBUG, "OI_BigMuthaTruckers half bottom offset\n");
 
 		size_t count = m_vertex.next;
 		GSVertex* v = &m_vertex.buff[0];
@@ -1902,7 +1906,7 @@ bool GSRendererHW::OI_FFX(GSTexture* rt, GSTexture* ds, GSTextureCache::Source* 
 	if((FBP == 0x00d00 || FBP == 0x00000) && ZBP == 0x02100 && PRIM->TME && TBP == 0x01a00 && m_context->TEX0.PSM == PSM_PSMCT16S)
 	{
 		// random battle transition (z buffer written directly, clear it now)
-		GL_INS("OI_FFX ZB clear");
+		//log_cb(RETRO_LOG_DEBUG, "OI_FFX ZB clear\n");
 		if(ds)
 			ds->Commit(); // Don't bother to save few MB for a single game
 		m_dev->ClearDepth(ds);
@@ -1955,7 +1959,7 @@ bool GSRendererHW::OI_RozenMaidenGebetGarden(GSTexture* rt, GSTexture* ds, GSTex
 
 			if(GSTextureCache::Target* tmp_rt = m_tc->LookupTarget(TEX0, m_width, m_height, GSTextureCache::RenderTarget, true))
 			{
-				GL_INS("OI_RozenMaidenGebetGarden FB clear");
+				//log_cb(RETRO_LOG_DEBUG, "OI_RozenMaidenGebetGarden FB clear\n");
 				tmp_rt->m_texture->Commit(); // Don't bother to save few MB for a single game
 				m_dev->ClearRenderTarget(tmp_rt->m_texture, 0);
 			}
@@ -1974,7 +1978,7 @@ bool GSRendererHW::OI_RozenMaidenGebetGarden(GSTexture* rt, GSTexture* ds, GSTex
 
 			if(GSTextureCache::Target* tmp_ds = m_tc->LookupTarget(TEX0, m_width, m_height, GSTextureCache::DepthStencil, true))
 			{
-				GL_INS("OI_RozenMaidenGebetGarden ZB clear");
+				//log_cb(RETRO_LOG_DEBUG, "OI_RozenMaidenGebetGarden ZB clear\n");
 				tmp_ds->m_texture->Commit(); // Don't bother to save few MB for a single game
 				m_dev->ClearDepth(tmp_ds->m_texture);
 			}
@@ -2008,7 +2012,7 @@ bool GSRendererHW::OI_SonicUnleashed(GSTexture* rt, GSTexture* ds, GSTextureCach
 	if ((Texture.TBP0 == Frame.TBP0) || (Frame.TBW != 16 && Texture.TBW != 16))
 		return true;
 
-	GL_INS("OI_SonicUnleashed replace draw by a copy");
+	//log_cb(RETRO_LOG_DEBUG, "OI_SonicUnleashed replace draw by a copy\n");
 
 	GSTextureCache::Target* src = m_tc->LookupTarget(Texture, m_width, m_height, GSTextureCache::RenderTarget, true);
 
@@ -2031,7 +2035,7 @@ bool GSRendererHW::OI_StarWarsForceUnleashed(GSTexture* rt, GSTexture* ds, GSTex
 	{
 		if((FBP == 0x0 || FBP == 0x01180) && FPSM == PSM_PSMCT32 && (m_vt.m_eq.z && m_vt.m_max.p.z == 0))
 		{
-			GL_INS("OI_StarWarsForceUnleashed FB clear");
+			//log_cb(RETRO_LOG_DEBUG, "OI_StarWarsForceUnleashed FB clear\n");
 			if(ds)
 				ds->Commit(); // Don't bother to save few MB for a single game
 			m_dev->ClearDepth(ds);
@@ -2123,7 +2127,7 @@ bool GSRendererHW::OI_SuperManReturns(GSTexture* rt, GSTexture* ds, GSTextureCac
 	m_dev->ClearRenderTarget(rt, GSVector4(m_vt.m_min.c));
 
 	m_tc->InvalidateVideoMemType(GSTextureCache::DepthStencil, ctx->FRAME.Block());
-	GL_INS("OI_SuperManReturns");
+	//log_cb(RETRO_LOG_DEBUG, "OI_SuperManReturns\n");
 
 	return false;
 }
@@ -2154,7 +2158,7 @@ bool GSRendererHW::OI_ArTonelico2(GSTexture* rt, GSTexture* ds, GSTextureCache::
 	GSVertex* v = &m_vertex.buff[0];
 
 	if (m_vertex.next == 2 && !PRIM->TME && m_context->FRAME.FBW == 10 && v->XYZ.Z == 0 && m_context->TEST.ZTST == ZTST_ALWAYS) {
-		GL_INS("OI_ArTonelico2");
+		//log_cb(RETRO_LOG_DEBUG, "OI_ArTonelico2\n");
 		if(ds)
 			ds->Commit(); // Don't bother to save few MB for a single game
 		m_dev->ClearDepth(ds);
