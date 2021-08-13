@@ -226,7 +226,7 @@ void GSRendererHW::SetScaling()
 	m_tc->RemovePartial();
 	m_width = upscaled_fb_w;
 	m_height = upscaled_fb_h;
-	printf("Frame buffer size set to  %dx%d (%dx%d)\n", fb_width, fb_height , m_width, m_height);
+	//log_cb(RETRO_LOG_INFO, "Frame buffer size set to  %dx%d (%dx%d)\n", fb_width, fb_height , m_width, m_height);
 }
 
 void GSRendererHW::CustomResolutionScaling()
@@ -262,7 +262,7 @@ void GSRendererHW::CustomResolutionScaling()
 	m_tc->RemovePartial();
 	m_width = std::max(m_width, default_rt_size.x);
 	m_height = std::max(framebuffer_height, default_rt_size.y);
-	printf("Frame buffer size set to  %dx%d (%dx%d)\n", scissored_buffer_size.x, scissored_buffer_size.y, m_width, m_height);
+	//log_cb(RETRO_LOG_INFO, "Frame buffer size set to  %dx%d (%dx%d)\n", scissored_buffer_size.x, scissored_buffer_size.y, m_width, m_height);
 }
 
 GSRendererHW::~GSRendererHW()
@@ -1047,11 +1047,6 @@ bool GSRendererHW::CanUseSwSpriteRender(bool allow_64x64_sprite)
 template <bool linear>
 void GSRendererHW::RoundSpriteOffset()
 {
-//#define DEBUG_U
-//#define DEBUG_V
-#if defined(DEBUG_V) || defined(DEBUG_U)
-	bool debug = linear;
-#endif
 	size_t count = m_vertex.next;
 	GSVertex* v = &m_vertex.buff[0];
 
@@ -1067,13 +1062,6 @@ void GSRendererHW::RoundSpriteOffset()
 		float  ax1 = alpha1(Lx, X0, X1);
 		uint16 tx0 = Interpolate_UV(ax0, v[i].U, v[i+1].U);
 		uint16 tx1 = Interpolate_UV(ax1, v[i].U, v[i+1].U);
-#ifdef DEBUG_U
-		if (debug) {
-			fprintf(stderr, "u0:%d and u1:%d\n", v[i].U, v[i+1].U);
-			fprintf(stderr, "a0:%f and a1:%f\n", ax0, ax1);
-			fprintf(stderr, "t0:%d and t1:%d\n", tx0, tx1);
-		}
-#endif
 
 		int	   oy  = m_context->XYOFFSET.OFY;
 		int	   Y0  = v[i].XYZ.Y   - oy;
@@ -1083,23 +1071,6 @@ void GSRendererHW::RoundSpriteOffset()
 		float  ay1 = alpha1(Ly, Y0, Y1);
 		uint16 ty0 = Interpolate_UV(ay0, v[i].V, v[i+1].V);
 		uint16 ty1 = Interpolate_UV(ay1, v[i].V, v[i+1].V);
-#ifdef DEBUG_V
-		if (debug) {
-			fprintf(stderr, "v0:%d and v1:%d\n", v[i].V, v[i+1].V);
-			fprintf(stderr, "a0:%f and a1:%f\n", ay0, ay1);
-			fprintf(stderr, "t0:%d and t1:%d\n", ty0, ty1);
-		}
-#endif
-
-#ifdef DEBUG_U
-		if (debug)
-			fprintf(stderr, "GREP_BEFORE %d => %d\n", v[i].U, v[i+1].U);
-#endif
-#ifdef DEBUG_V
-		if (debug)
-			fprintf(stderr, "GREP_BEFORE %d => %d\n", v[i].V, v[i+1].V);
-#endif
-
 #if 1
 		// Use rounded value of the newly computed texture coordinate. It ensures
 		// that sampling will remains inside texture boundary
@@ -1140,16 +1111,6 @@ void GSRendererHW::RoundSpriteOffset()
 			}
 		}
 #endif
-
-#ifdef DEBUG_U
-		if (debug)
-			fprintf(stderr, "GREP_AFTER %d => %d\n\n", v[i].U, v[i+1].U);
-#endif
-#ifdef DEBUG_V
-		if (debug)
-			fprintf(stderr, "GREP_AFTER %d => %d\n\n", v[i].V, v[i+1].V);
-#endif
-
 	}
 }
 
@@ -1216,7 +1177,7 @@ void GSRendererHW::Draw()
 	} else if (draw_sprite_tex && m_context->FRAME.Block() == m_context->TEX0.TBP0) {
 		// Special post-processing effect
 		if ((m_context->TEX0.PSM == PSM_PSMT8) && single_page) {
-			//log_cb("Channel shuffle effect detected");
+			//log_cb(RETRO_LOG_DEBUG, "Channel shuffle effect detected\n");
 			m_channel_shuffle = true;
 		} else {
 			//log_cb(RETRO_LOG_DEBUG, "Special post-processing effect not supported\n");
@@ -1491,7 +1452,7 @@ void GSRendererHW::Draw()
 	//
 
 	// Help to detect rendering outside of the framebuffer
-#if _DEBUG
+#if 0
 	if (m_upscale_multiplier * m_r.z > m_width) {
 		log_cb(RETRO_LOG_ERROR, "ERROR: RT width is too small only %d but require %d\n", m_width, m_upscale_multiplier * m_r.z);
 	}

@@ -1697,10 +1697,8 @@ static const uint32 g_convert_index       = 15;
 static const uint32 g_vs_cb_index         = 20;
 static const uint32 g_ps_cb_index         = 21;
 
-bool  GSDeviceOGL::m_debug_gl_call = false;
 int   GSDeviceOGL::m_shader_inst = 0;
 int   GSDeviceOGL::m_shader_reg  = 0;
-FILE* GSDeviceOGL::m_debug_gl_file = NULL;
 
 GSDeviceOGL::GSDeviceOGL()
 	: m_force_texture_clear(0)
@@ -1730,26 +1728,11 @@ GSDeviceOGL::GSDeviceOGL()
 	else
 		m_filter = TriFiltering::None;
 
-	// Reset the debug file
-	#ifdef ENABLE_OGL_DEBUG
-	if (theApp.GetCurrentRendererType() == GSRendererType::OGL_SW)
-		m_debug_gl_file = fopen("GSdx_opengl_debug_sw.txt","w");
-	else
-		m_debug_gl_file = fopen("GSdx_opengl_debug_hw.txt","w");
-	#endif
-
-	m_debug_gl_call =  theApp.GetConfigB("debug_opengl");
-
 	m_disable_hw_gl_draw = theApp.GetConfigB("disable_hw_gl_draw");
 }
 
 GSDeviceOGL::~GSDeviceOGL()
 {
-	if (m_debug_gl_file) {
-		fclose(m_debug_gl_file);
-		m_debug_gl_file = NULL;
-	}
-
 	// If the create function wasn't called nothing to do.
 	if (m_shader == NULL)
 		return;
@@ -2085,7 +2068,7 @@ bool GSDeviceOGL::Create(const std::shared_ptr<GSWnd> &wnd)
 		// Available vram
 		glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, vram);
 	} else {
-		fprintf(stdout, "No extenstion supported to get available memory. Use default value !\n");
+		log_cb(RETRO_LOG_ERROR, "No extenstion supported to get available memory. Use default value !\n");
 	}
 
 	// When VRAM is at least 2GB, we set the limit to the default i.e. 3.8 GB
@@ -2094,7 +2077,7 @@ bool GSDeviceOGL::Create(const std::shared_ptr<GSWnd> &wnd)
 	if (vram[0] > 0 && vram[0] < 1800000)
 		GLState::available_vram = (int64)(vram[0]) * 1024ul * 2ul;
 
-	fprintf(stdout, "Available VRAM/RAM:%lldMB for textures\n", GLState::available_vram >> 20u);
+	log_cb(RETRO_LOG_ERROR, "Available VRAM/RAM:%lldMB for textures\n", GLState::available_vram >> 20u);
 	// ****************************************************************
 	// Finish window setup and backbuffer
 	// ****************************************************************
@@ -3186,7 +3169,7 @@ void GSDeviceOGL::DebugOutputToFile(GLenum gl_source, GLenum gl_type, GLuint id,
 #ifdef _DEBUG
 	// Don't spam noisy information on the terminal
 	if (gl_severity != GL_DEBUG_SEVERITY_NOTIFICATION) {
-		fprintf(stderr,"T:%s\tID:%d\tS:%s\t=> %s\n", type.c_str(), GSState::s_n, severity.c_str(), message.c_str());
+		log_cb(RETRO_LOG_DEBUG, "T:%s\tID:%d\tS:%s\t=> %s\n", type.c_str(), GSState::s_n, severity.c_str(), message.c_str());
 	}
 #else
 	// Print nouveau shader compiler info
@@ -3197,23 +3180,13 @@ void GSDeviceOGL::DebugOutputToFile(GLenum gl_source, GLenum gl_type, GLuint id,
 		if (status == 5) {
 			m_shader_inst += inst;
 			m_shader_reg  += gpr;
-			fprintf(stderr,"T:%s\t\tS:%s\t=> %s\n", type.c_str(), severity.c_str(), message.c_str());
+			log_cb(RETRO_LOG_DEBUG, "T:%s\t\tS:%s\t=> %s\n", type.c_str(), severity.c_str(), message.c_str());
 		}
 	}
 #endif
 
-	if (m_debug_gl_file)
-		fprintf(m_debug_gl_file,"T:%s\tID:%d\tS:%s\t=> %s\n", type.c_str(), GSState::s_n, severity.c_str(), message.c_str());
-
-#ifdef _DEBUG
-	if (sev_counter >= 5) {
-		// Close the file to flush the content on disk before exiting.
-		if (m_debug_gl_file) {
-			fclose(m_debug_gl_file);
-			m_debug_gl_file = NULL;
-		}
-		ASSERT(0);
-	}
+#ifdef ENABLE_OGL_DEBUG
+	log_cb(RETRO_LOG_DEBUG, "T:%s\tID:%d\tS:%s\t=> %s\n", type.c_str(), GSState::s_n, severity.c_str(), message.c_str());
 #endif
 }
 

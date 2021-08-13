@@ -80,10 +80,8 @@ class GSBufferOGL {
 
 		glBufferStorage(m_target, STRIDE * m_limit, NULL, create_flags );
 		m_buffer_ptr = (uint8*) glMapBufferRange(m_target, 0, STRIDE * m_limit, map_flags);
-		if (!m_buffer_ptr) {
-			fprintf(stderr, "Failed to map buffer\n");
+		if (!m_buffer_ptr)
 			throw GSDXError();
-		}
 	}
 
 	~GSBufferOGL() {
@@ -111,8 +109,8 @@ class GSBufferOGL {
 		if (m_count > (m_limit - m_start) ) {
 			size_t current_chunk = offset >> m_quarter_shift;
 #ifdef ENABLE_OGL_DEBUG_FENCE
-			fprintf(stderr, "%x: Wrap buffer\n", m_target);
-			fprintf(stderr, "%x: Insert a fence in chunk %zu\n", m_target, current_chunk);
+			log_cb(RETRO_LOG_DEBUG, "%x: Wrap buffer\n", m_target);
+			log_cb(RETRO_LOG_DEBUG, "%x: Insert a fence in chunk %zu\n", m_target, current_chunk);
 #endif
 			ASSERT(current_chunk > 0 && current_chunk < 5);
 			if (m_fence[current_chunk] == 0) {
@@ -128,7 +126,7 @@ class GSBufferOGL {
 #ifdef ENABLE_OGL_DEBUG_FENCE
 				GLenum status = glClientWaitSync(m_fence[0], GL_SYNC_FLUSH_COMMANDS_BIT, GL_TIMEOUT_IGNORED);
 				if (status != GL_ALREADY_SIGNALED) {
-					fprintf(stderr, "%x: Sync Sync! Buffer too small\n", m_target);
+					log_cb(RETRO_LOG_DEBUG, "%x: Sync Sync! Buffer too small\n", m_target);
 				}
 #else
 				glClientWaitSync(m_fence[0], GL_SYNC_FLUSH_COMMANDS_BIT, GL_TIMEOUT_IGNORED);
@@ -143,7 +141,7 @@ class GSBufferOGL {
 		size_t next_chunk = (offset + length) >> m_quarter_shift;
 		for (size_t c = current_chunk + 1; c <= next_chunk; c++) {
 #ifdef ENABLE_OGL_DEBUG_FENCE
-			fprintf(stderr, "%x: Insert a fence in chunk %d\n", m_target, c-1);
+			log_cb(RETRO_LOG_DEBUG, "%x: Insert a fence in chunk %d\n", m_target, c-1);
 #endif
 			ASSERT(c > 0 && c < 5);
 			m_fence[c-1] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
@@ -158,7 +156,7 @@ class GSBufferOGL {
 
 #ifdef ENABLE_OGL_DEBUG_FENCE
 				if (status != GL_ALREADY_SIGNALED) {
-					fprintf(stderr, "%x: Sync Sync! Buffer too small\n", m_target);
+					log_cb(RETRO_LOG_ERROR, "%x: Sync Sync! Buffer too small\n", m_target);
 				}
 #endif
 			}

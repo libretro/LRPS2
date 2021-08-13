@@ -138,8 +138,8 @@ public:
 
 	~GSCodeGeneratorFunctionMap()
 	{
-#ifdef _DEBUG
-		fprintf(stderr, "%s generated %zu bytes of instruction\n", m_name.c_str(), m_total_code_size);
+#if 0
+		log_cb(RETRO_LOG_DEBUG, "%s generated %zu bytes of instruction\n", m_name.c_str(), m_total_code_size);
 #endif
 	}
 
@@ -161,7 +161,7 @@ public:
 			ASSERT(cg->getSize() < MAX_SIZE);
 
 #if 0
-			fprintf(stderr, "%s Location:%p Size:%zu Key:%llx\n", m_name.c_str(), code_ptr, cg->getSize(), (uint64)key);
+			log_cb(RETRO_LOG_DEBUG, "%s Location:%p Size:%zu Key:%llx\n", m_name.c_str(), code_ptr, cg->getSize(), (uint64)key);
 			GSScanlineSelector sel(key);
 			sel.Print();
 #endif

@@ -494,12 +494,12 @@ bool GSDevice11::Create(const std::shared_ptr<GSWnd> &wnd)
 
 	retro_hw_render_interface_d3d11 *d3d11 = nullptr;
 	if (!environ_cb(RETRO_ENVIRONMENT_GET_HW_RENDER_INTERFACE, (void **)&d3d11) || !d3d11) {
-		printf("Failed to get HW rendering interface!\n");
+		log_cb(RETRO_LOG_ERROR, "Failed to get HW rendering interface!\n\n");
 		return false;
 	}
 
 	if (d3d11->interface_version != RETRO_HW_RENDER_INTERFACE_D3D11_VERSION) {
-		printf("HW render interface mismatch, expected %u, got %u!\n", RETRO_HW_RENDER_INTERFACE_D3D11_VERSION, d3d11->interface_version);
+		log_cb(RETRO_LOG_ERROR, "HW render interface mismatch, expected %u, got %u!\n", RETRO_HW_RENDER_INTERFACE_D3D11_VERSION, d3d11->interface_version);
 		return false;
 	}
 
@@ -1692,7 +1692,7 @@ void GSDevice11::CompileShader(std::vector<char> source, const char* fn, ID3DInc
 	);
 
 	if (error)
-		fprintf(stderr, "%s\n", (const char*)error->GetBufferPointer());
+		log_cb(RETRO_LOG_ERROR, "%s\n", (const char*)error->GetBufferPointer());
 
 	if (FAILED(hr))
 		throw GSDXRecoverableError();

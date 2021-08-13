@@ -198,7 +198,7 @@ void GSRendererDX11::EmulateZbuffer()
 	if (m_om_dssel.ztst == ZTST_GEQUAL && m_vt.m_eq.z && v[0].XYZ.Z == max_z)
 	{
 #ifdef _DEBUG
-		fprintf(stdout, "%d: Optimize Z test GEQUAL to ALWAYS (%s)\n", s_n, psm_str(m_context->ZBUF.PSM));
+		log_cb(RETRO_LOG_DEBUG, "%d: Optimize Z test GEQUAL to ALWAYS (%s)\n", s_n, psm_str(m_context->ZBUF.PSM));
 #endif
 		m_om_dssel.ztst = ZTST_ALWAYS;
 	}
@@ -265,7 +265,7 @@ void GSRendererDX11::EmulateTextureShuffleAndFbmask()
 		{
 			if (write_ba)
 			{
-				// fprintf(stderr, "%d: Color shuffle %s => B\n", s_n, read_ba ? "B" : "R");
+				//log_cb(RETRO_LOG_DEBUG, "%d: Color shuffle %s => B\n", s_n, read_ba ? "B" : "R");
 				m_om_bsel.wb = 1;
 			}
 			else
@@ -358,7 +358,7 @@ void GSRendererDX11::EmulateChannelShuffle(GSTexture** rt, const GSTextureCache:
 			if (m_context->FRAME.FBW == 1)
 			{
 				// Used in stages: Secret Garden, Acid Rain, Moonlit Wilderness
-				// fprintf(stderr, "%d: Tekken5 RGB Channel\n", s_n);
+				// log_cb(RETRO_LOG_DEBUG, "%d: Tekken5 RGB Channel\n", s_n);
 				m_ps_sel.channel = ChannelFetch_RGB;
 				m_context->FRAME.FBMSK = 0xFF000000;
 				// 12 pages: 2 calls by channel, 3 channels, 1 blit
@@ -521,9 +521,9 @@ void GSRendererDX11::EmulateBlending()
 		}
 		else
 		{
-         // Breath of Fire Dragon Quarter, Strawberry Shortcake, Super Robot Wars, Cartoon Network Racing.
-         // fprintf(stderr, "%d: PABE mode ENABLED\n", s_n);
-         m_ps_sel.pabe = 1;
+			// Breath of Fire Dragon Quarter, Strawberry Shortcake, Super Robot Wars, Cartoon Network Racing.
+			// fprintf(stderr, "%d: PABE mode ENABLED\n", s_n);
+			m_ps_sel.pabe = 1;
 		}
 	}
 
