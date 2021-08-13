@@ -318,7 +318,6 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 		gameSerial = L" [" + DiscSerial + L"]";
 
 	const wxString newGameKey(ingame ? SysGetDiscID() : SysGetBiosDiscID());
-	const bool verbose(newGameKey != curGameKey && ingame);
 
 	curGameKey = newGameKey;
 
@@ -376,7 +375,7 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 		{
 			log_cb(RETRO_LOG_INFO, "Attempt to apply cheats if available...\n");
 			int numcheatsfound = 0;
-			if (numcheatsfound = LoadPatchesFromDir(gameCRC, GetCheatsFolder(), L"Cheats")) {
+			if ((numcheatsfound = LoadPatchesFromDir(gameCRC, GetCheatsFolder(), L"Cheats")) > 0) {
 				if (!msg_cheats_found_sent)
 				{
 					RetroMessager::Notification("Found and applied cheats");
@@ -392,7 +391,7 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 		if (fixup.EnableWideScreenPatches)
 		{
 			log_cb(RETRO_LOG_INFO, "Attempt to apply widescreen patches if available...\n");
-			if (int numberLoadedWideScreenPatches = LoadPatchesFromDir(gameCRC, GetCheatsWsFolder(), L"Widescreen hacks"))
+			if (LoadPatchesFromDir(gameCRC, GetCheatsWsFolder(), L"Widescreen hacks") > 0)
 			{
 				log_cb(RETRO_LOG_INFO, "Found widescreen patches in the cheats_ws folder --> skipping cheats_ws.zip\n");
 				if (!msg_cheat_ws_found_sent) 

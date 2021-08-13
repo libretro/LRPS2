@@ -596,9 +596,3 @@ bool parseExpression(char* exp, IExpressionFunctions* funcs, u64& dest)
 	if (!initPostfixExpression(exp,funcs,postfix)) return false;
 	return parsePostfixExpression(postfix,funcs,dest);
 }
-
-const char* getExpressionError()
-{
-	if (expressionError[0] == 0) strcpy(expressionError,"Invalid expression");
-	return expressionError;
-}

@@ -54,23 +54,23 @@ void Pcsx2App::AllocateCoreStuffs()
 			// popping up this dialog.
 			Pcsx2Config::RecompilerOptions& recOps = g_Conf->EmuOptions.Cpu.Recompiler;
 			
-			if( BaseException* ex = m_CpuProviders->GetException_EE() )
+			if( m_CpuProviders->GetException_EE() )
 			{
 				recOps.EnableEE		= false;
 			}
 
-			if( BaseException* ex = m_CpuProviders->GetException_IOP() )
+			if( m_CpuProviders->GetException_IOP() )
 			{
 				recOps.EnableIOP	= false;
 			}
 
-			if( BaseException* ex = m_CpuProviders->GetException_MicroVU0() )
+			if( m_CpuProviders->GetException_MicroVU0() )
 			{
 				recOps.UseMicroVU0	= false;
 				recOps.EnableVU0	= false;
 			}
 
-			if( BaseException* ex = m_CpuProviders->GetException_MicroVU1() )
+			if( m_CpuProviders->GetException_MicroVU1() )
 			{
 				recOps.UseMicroVU1	= false;
 				recOps.EnableVU1	= false;

@@ -380,8 +380,6 @@ __forceinline void TimeUpdate(u32 cClocks)
 
 __forceinline void UpdateSpdifMode()
 {
-	int OPM = PlayMode;
-
 	if (Spdif.Out & 0x4) // use 24/32bit PCM data streaming
 	{
 		PlayMode = 8;
@@ -1053,7 +1051,6 @@ static void __fastcall RegWrite_Core(u16 value)
 		case REG_C_ATTR:
 		{
 			bool irqe = thiscore.IRQEnable;
-			int bit0 = thiscore.AttrBit0;
 			bool fxenable = thiscore.FxEnable;
 			u8 oldDmaMode = thiscore.DmaMode;
 
