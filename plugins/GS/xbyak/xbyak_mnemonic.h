@@ -1280,7 +1280,6 @@ void xor_(const Operand& op, uint32 imm) { opRM_I(op, imm, 0x30, 6); }
 void xor_(const Operand& op1, const Operand& op2) { opRM_RM(op1, op2, 0x30); }
 void xorpd(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x57, 0x66, isXMM_XMMorMEM); }
 void xorps(const Xmm& xmm, const Operand& op) { opGen(xmm, op, 0x57, 0x100, isXMM_XMMorMEM); }
-#ifdef XBYAK_ENABLE_OMITTED_OPERAND
 void vblendpd(const Xmm& x, const Operand& op, uint8 imm) { vblendpd(x, x, op, imm); }
 void vblendps(const Xmm& x, const Operand& op, uint8 imm) { vblendps(x, x, op, imm); }
 void vblendvpd(const Xmm& x1, const Operand& op, const Xmm& x4) { vblendvpd(x1, x1, op, x4); }
@@ -1537,7 +1536,6 @@ void vunpckhpd(const Xmm& x, const Operand& op) { vunpckhpd(x, x, op); }
 void vunpckhps(const Xmm& x, const Operand& op) { vunpckhps(x, x, op); }
 void vunpcklpd(const Xmm& x, const Operand& op) { vunpcklpd(x, x, op); }
 void vunpcklps(const Xmm& x, const Operand& op) { vunpcklps(x, x, op); }
-#endif
 #ifdef XBYAK64
 void jecxz(std::string label) { db(0x67); opJmp(label, T_SHORT, 0xe3, 0, 0); }
 void jecxz(const Label& label) { db(0x67); opJmp(label, T_SHORT, 0xe3, 0, 0); }
