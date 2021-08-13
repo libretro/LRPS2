@@ -29,8 +29,6 @@
 extern s16* GetMemPtr(u32 addr);
 extern s16 spu2M_Read(u32 addr);
 extern void spu2M_Write(u32 addr, s16 value);
-extern void spu2M_Write(u32 addr, u16 value);
-
 
 struct V_VolumeLR
 {
@@ -434,7 +432,6 @@ struct V_Core
 
 	void Init(int index);
 	void UpdateEffectsBufferSize();
-	void AnalyzeReverbPreset();
 
 	s32 EffectsBufferIndexer(s32 offset) const;
 
@@ -479,7 +476,7 @@ struct V_Core
 
 	__forceinline void DmaWrite(u16 value)
 	{
-		spu2M_Write(TSA, value);
+		spu2M_Write(TSA, (s16)value);
 		++TSA;
 		TSA &= 0xfffff;
 	}

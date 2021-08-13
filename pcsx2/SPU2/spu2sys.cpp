@@ -53,19 +53,17 @@ void SetIrqCall(int core)
 	has_to_call_irq = true;
 }
 
+#define GETMEMPTR(addr) ((_spu2mem) + (addr))
+
 __forceinline s16* GetMemPtr(u32 addr)
 {
-#ifndef DEBUG_FAST
-	// In case you're wondering, this assert is the reason SPU2
-	// runs so incrediously slow in Debug mode. :P
-	pxAssume(addr < 0x100000);
-#endif
-	return (_spu2mem + addr);
+	return GETMEMPTR(addr);
 }
 
 __forceinline s16 spu2M_Read(u32 addr)
 {
-	return *GetMemPtr(addr & 0xfffff);
+        u32 _addr = addr & 0xfffff;
+	return *GETMEMPTR(_addr);
 }
 
 // writes a signed value to the SPU2 ram
@@ -74,21 +72,13 @@ __forceinline void spu2M_Write(u32 addr, s16 value)
 {
 	// Make sure the cache is invalidated:
 	// (note to self : addr address WORDs, not bytes)
-
 	addr &= 0xfffff;
 	if (addr >= SPU2_DYN_MEMLINE)
 	{
 		const int cacheIdx = addr / pcm_WordsPerBlock;
 		pcm_cache_data[cacheIdx].Validated = false;
-
 	}
-	*GetMemPtr(addr) = value;
-}
-
-// writes an unsigned value to the SPU2 ram
-__forceinline void spu2M_Write(u32 addr, u16 value)
-{
-	spu2M_Write(addr, (s16)value);
+	*GETMEMPTR(addr) = value;
 }
 
 V_VolumeLR V_VolumeLR::Max(0x7FFFFFFF);
@@ -202,41 +192,6 @@ void V_Core::Init(int index)
 	UpdateEffectsBufferSize();
 }
 
-void V_Core::AnalyzeReverbPreset()
-{
-#if 0
-	ConLog("Reverb Parameter Update for Core %d:\n", Index);
-	ConLog("----------------------------------------------------------\n");
-
-	ConLog("    IN_COEF_L, IN_COEF_R        0x%08x, 0x%08x\n", Revb.IN_COEF_L, Revb.IN_COEF_R);
-	ConLog("    APF1_SIZE, APF2_SIZE          0x%08x, 0x%08x\n", Revb.APF1_SIZE, Revb.APF2_SIZE);
-	ConLog("    APF1_VOL, APF2_VOL              0x%08x, 0x%08x\n", Revb.APF1_VOL, Revb.APF2_VOL);
-
-	ConLog("    COMB1_VOL                  0x%08x\n", Revb.COMB1_VOL);
-	ConLog("    COMB2_VOL                  0x%08x\n", Revb.COMB2_VOL);
-	ConLog("    COMB3_VOL                  0x%08x\n", Revb.COMB3_VOL);
-	ConLog("    COMB4_VOL                  0x%08x\n", Revb.COMB4_VOL);
-
-	ConLog("    COMB1_L_SRC, COMB1_R_SRC      0x%08x, 0x%08x\n", Revb.COMB1_L_SRC, Revb.COMB1_R_SRC);
-	ConLog("    COMB2_L_SRC, COMB2_R_SRC      0x%08x, 0x%08x\n", Revb.COMB2_L_SRC, Revb.COMB2_R_SRC);
-	ConLog("    COMB3_L_SRC, COMB3_R_SRC      0x%08x, 0x%08x\n", Revb.COMB3_L_SRC, Revb.COMB3_R_SRC);
-	ConLog("    COMB4_L_SRC, COMB4_R_SRC      0x%08x, 0x%08x\n", Revb.COMB4_L_SRC, Revb.COMB4_R_SRC);
-
-	ConLog("    SAME_L_SRC, SAME_R_SRC      0x%08x, 0x%08x\n", Revb.SAME_L_SRC, Revb.SAME_R_SRC);
-	ConLog("    DIFF_L_SRC, DIFF_R_SRC      0x%08x, 0x%08x\n", Revb.DIFF_L_SRC, Revb.DIFF_R_SRC);
-	ConLog("    SAME_L_DST, SAME_R_DST    0x%08x, 0x%08x\n", Revb.SAME_L_DST, Revb.SAME_R_DST);
-	ConLog("    DIFF_L_DST, DIFF_R_DST    0x%08x, 0x%08x\n", Revb.DIFF_L_DST, Revb.DIFF_R_DST);
-	ConLog("    IIR_VOL, WALL_VOL         0x%08x, 0x%08x\n", Revb.IIR_VOL, Revb.WALL_VOL);
-
-	ConLog("    APF1_L_DST                 0x%08x\n", Revb.APF1_L_DST);
-	ConLog("    APF1_R_DST                 0x%08x\n", Revb.APF1_R_DST);
-	ConLog("    APF2_L_DST                 0x%08x\n", Revb.APF2_L_DST);
-	ConLog("    APF2_R_DST                 0x%08x\n", Revb.APF2_R_DST);
-
-	ConLog("    EffectsBufferSize           0x%x\n", EffectsBufferSize);
-	ConLog("----------------------------------------------------------\n");
-#endif
-}
 s32 V_Core::EffectsBufferIndexer(s32 offset) const
 {
 	// Should offsets be multipled by 4 or not?  Reverse-engineering of IOP code reveals
@@ -249,8 +204,7 @@ s32 V_Core::EffectsBufferIndexer(s32 offset) const
 
 	if ((u32)offset >= (u32)EffectsBufferSize)
 		return EffectsStartA + (offset % EffectsBufferSize) + (offset < 0 ? EffectsBufferSize : 0);
-	else
-		return EffectsStartA + offset;
+	return EffectsStartA + offset;
 }
 
 void V_Core::UpdateEffectsBufferSize()

@@ -19,8 +19,6 @@
 /* Forward declaration */
 extern retro_audio_sample_t sample_cb;
 
-void ADMAOutLogWrite(void* lpData, u32 ulSize);
-
 static const s32 tbl_XA_Factor[16][2] =
 	{
 		{0, 0},
@@ -127,12 +125,6 @@ static void __forceinline IncrementNextA(V_Core& thiscore, uint voiceidx)
 // multiple times.  Cache chunks are decoded when the mixer requests the blocks, and
 // invalided when DMA transfers and memory writes are performed.
 PcmCacheEntry* pcm_cache_data = nullptr;
-
-#ifdef DEBUG
-int g_counter_cache_hits = 0;
-int g_counter_cache_misses = 0;
-int g_counter_cache_ignores = 0;
-#endif
 
 // LOOP/END sets the ENDX bit and sets NAX to LSA, and the voice is muted if LOOP is not set
 // LOOP seems to only have any effect on the block with LOOP/END set, where it prevents muting the voice

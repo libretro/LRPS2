@@ -13,7 +13,6 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "wx/wx.h"
 #include "PrecompiledHeader.h"
 #include "Global.h"
 #include "spu2.h"
@@ -28,9 +27,6 @@ int Interpolation = 4;
 unsigned int delayCycles = 4;
 
 int SampleRate = 48000;
-
-static bool IsOpened = false;
-static bool IsInitialized = false;
 
 u32 lClocks = 0;
 
@@ -122,11 +118,6 @@ s32 SPU2ps1reset()
 		   set_av_info here to set the audio samplerate */
 	}
 
-	/* memset(spu2regs, 0, 0x010000);
-    memset(_spu2mem, 0, 0x200000);
-    memset(_spu2mem + 0x2800, 7, 0x10); // from BIOS reversal. Locks the voices so they don't run free.
-    Cores[0].Init(0);
-    Cores[1].Init(1);*/
 	return 0;
 }
 
@@ -147,9 +138,11 @@ float VolumeAdjustSL;
 float VolumeAdjustSR;
 float VolumeAdjustLFE;
 
-void ReadSettings()
+s32 SPU2init()
 {
-   Interpolation = 4;
+	assert(regtable[0x400] == nullptr);
+
+	Interpolation = 4;
 	VolumeAdjustCdb = 0;
 	VolumeAdjustFLdb = 0;
 	VolumeAdjustFRdb = 0;
@@ -167,18 +160,6 @@ void ReadSettings()
 	VolumeAdjustSL = powf(10, VolumeAdjustSLdb / 10);
 	VolumeAdjustSR = powf(10, VolumeAdjustSRdb / 10);
 	VolumeAdjustLFE = powf(10, VolumeAdjustLFEdb / 10);
-}
-
-s32 SPU2init()
-{
-	assert(regtable[0x400] == nullptr);
-
-	if (IsInitialized)
-		return 0;
-
-	IsInitialized = true;
-
-	ReadSettings();
 
 	srand((unsigned)time(nullptr));
 
@@ -195,9 +176,7 @@ s32 SPU2init()
 	pcm_cache_data = (PcmCacheEntry*)calloc(pcm_BlockCount, sizeof(PcmCacheEntry));
 
 	if ((spu2regs == nullptr) || (_spu2mem == nullptr) || (pcm_cache_data == nullptr))
-	{
 		return -1;
-	}
 
 	// Patch up a copy of regtable that directly maps "nullptrs" to SPU2 memory.
 
@@ -207,9 +186,7 @@ s32 SPU2init()
 	{
 		u16* ptr = regtable[mem >> 1];
 		if (!ptr)
-		{
 			regtable[mem >> 1] = &(spu2Ru16(mem));
-		}
 	}
 
 	SPU2reset();
@@ -221,10 +198,6 @@ s32 SPU2init()
 
 s32 SPU2open()
 {
-	if (IsOpened)
-		return 0;
-
-	IsOpened = true;
 	lClocks  = psxRegs.cycle;
 
 	return 0;
@@ -232,17 +205,10 @@ s32 SPU2open()
 
 void SPU2close()
 {
-	if (!IsOpened)
-		return;
-	IsOpened = false;
 }
 
 void SPU2shutdown()
 {
-	if (!IsInitialized)
-		return;
-	IsInitialized = false;
-
 	SPU2close();
 
 	safe_free(spu2regs);
@@ -257,7 +223,6 @@ void SPU2async(u32 cycles)
 
 u16 SPU2read(u32 rmem)
 {
-	u16 ret = 0xDEAD;
 	u32 core = 0, mem = rmem & 0xFFFF, omem = mem;
 	if (mem & 0x400)
 	{
@@ -266,28 +231,15 @@ u16 SPU2read(u32 rmem)
 	}
 
 	if (omem == 0x1f9001AC)
-	{
-		ret = Cores[core].DmaRead();
-	}
-	else
-	{
-		TimeUpdate(psxRegs.cycle);
+		return Cores[core].DmaRead();
 
-		if (rmem >> 16 == 0x1f80)
-		{
-			ret = Cores[0].ReadRegPS1(rmem);
-		}
-		else if (mem >= 0x800)
-		{
-			ret = spu2Ru16(mem);
-		}
-		else
-		{
-			ret = *(regtable[(mem >> 1)]);
-		}
-	}
+	TimeUpdate(psxRegs.cycle);
 
-	return ret;
+	if (rmem >> 16 == 0x1f80)
+		return Cores[0].ReadRegPS1(rmem);
+	else if (mem >= 0x800)
+		return spu2Ru16(mem);
+	return *(regtable[(mem >> 1)]);
 }
 
 void SPU2write(u32 rmem, u16 value)
@@ -301,9 +253,7 @@ void SPU2write(u32 rmem, u16 value)
 	if (rmem >> 16 == 0x1f80)
 		Cores[0].WriteRegPS1(rmem, value);
 	else
-	{
 		SPU2_FastWrite(rmem, value);
-	}
 }
 
 s32 SPU2freeze(int mode, freezeData* data)
