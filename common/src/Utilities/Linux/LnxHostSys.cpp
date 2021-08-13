@@ -107,6 +107,7 @@ static bool _memprotect(void *baseaddr, size_t size, const PageProtectionMode &m
     if (result == 0)
         return true;
 
+#if 0
     switch (errno) {
         case EINVAL:
             pxFailDev(pxsFmt(L"mprotect returned EINVAL @ 0x%08X -> 0x%08X  (mode=%s)",
@@ -122,6 +123,7 @@ static bool _memprotect(void *baseaddr, size_t size, const PageProtectionMode &m
             // caller handles assertion or exception, or whatever.
             break;
     }
+#endif
     return false;
 }
 
