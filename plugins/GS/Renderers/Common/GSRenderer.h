@@ -21,9 +21,9 @@
 
 #pragma once
 
-#include "GSdx.h"
-#include "Window/GSWnd.h"
-#include "GSState.h"
+#include "../../GSdx.h"
+#include "../../Window/GSWnd.h"
+#include "../../GSState.h"
 
 class GSRenderer : public GSState
 {

@@ -19,10 +19,10 @@
  *
  */
 
-#include "stdafx.h"
-#include "GSdx.h"
+#include "../../stdafx.h"
+#include "../../GSdx.h"
 #include "GSDevice11.h"
-#include "GSUtil.h"
+#include "../../GSUtil.h"
 #include <fstream>
 #include <VersionHelpers.h>
 #include "options_tools.h"

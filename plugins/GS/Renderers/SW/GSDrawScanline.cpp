@@ -19,7 +19,7 @@
  *
  */
 
-#include "stdafx.h"
+#include "../../stdafx.h"
 #include "GSDrawScanline.h"
 #include "GSTextureCacheSW.h"
 

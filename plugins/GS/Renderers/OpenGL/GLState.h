@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include "GSdx.h"
-#include "GSVector.h"
+#include "../../GSdx.h"
+#include "../../GSVector.h"
 
 namespace GLState {
 	extern GLuint fbo; // frame buffer object

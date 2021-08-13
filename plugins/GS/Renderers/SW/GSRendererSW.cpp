@@ -19,7 +19,7 @@
  *
  */
 
-#include "stdafx.h"
+#include "../../stdafx.h"
 #include "GSRendererSW.h"
 
 GSVector4 GSRendererSW::m_pos_scale;

@@ -18,10 +18,10 @@
  *
  */
 
-#include "stdafx.h"
+#include "../../stdafx.h"
 #include "GLLoader.h"
-#include "GSdx.h"
-#include "GS.h"
+#include "../../GSdx.h"
+#include "../../GS.h"
 
 #ifdef __unix__
 PFNGLBLENDFUNCSEPARATEPROC             glBlendFuncSeparate                 = NULL;

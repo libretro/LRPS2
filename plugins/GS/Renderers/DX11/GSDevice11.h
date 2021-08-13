@@ -22,10 +22,11 @@
 #pragma once
 
 #include "GSTexture11.h"
-#include "GSVector.h"
-#include "Renderers/Common/GSDevice.h"
+#include "../../GSVector.h"
+#include "../Common/GSDevice.h"
 
 #include "libretro_d3d.h"
+
 extern retro_environment_t environ_cb;
 
 struct GSVertexShader11

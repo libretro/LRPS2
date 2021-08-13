@@ -19,5 +19,5 @@
  *
  */
 
-#include "stdafx.h"
+#include "../../stdafx.h"
 #include "GSRendererNull.h"

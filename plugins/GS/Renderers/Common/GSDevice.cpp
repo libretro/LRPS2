@@ -19,8 +19,8 @@
  *
  */
 
-#include "stdafx.h"
-#include "GSdx.h"
+#include "../../stdafx.h"
+#include "../../GSdx.h"
 #include "GSDevice.h"
 
 #include "fxaa_shader.h"

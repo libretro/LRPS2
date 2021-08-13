@@ -19,11 +19,8 @@
  *
  */
 
-#include "stdafx.h"
+#include "../../stdafx.h"
 #include "GSRenderer.h"
-#if defined(__unix__)
-#include <X11/keysym.h>
-#endif
 
 const unsigned int s_interlace_nb = 8;
 const unsigned int s_post_shader_nb = 5;

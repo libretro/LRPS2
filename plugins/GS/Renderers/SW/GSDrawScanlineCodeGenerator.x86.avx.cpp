@@ -19,7 +19,7 @@
  *
  */
 
-#include "stdafx.h"
+#include "../../stdafx.h"
 #include "GSDrawScanlineCodeGenerator.h"
 #include "GSVertexSW.h"
 

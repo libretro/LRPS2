@@ -19,7 +19,7 @@
  *
  */
 
-#include "stdafx.h"
+#include "../../stdafx.h"
 #include "GSTexture11.h"
 
 GSTexture11::GSTexture11(ID3D11Texture2D* texture)

@@ -19,7 +19,7 @@
  *
  */
 
-#include "stdafx.h"
+#include "../../stdafx.h"
 #include "GSRendererDX11.h"
 
 GSRendererDX11::GSRendererDX11()

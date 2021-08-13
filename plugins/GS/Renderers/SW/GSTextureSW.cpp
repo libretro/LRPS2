@@ -19,7 +19,7 @@
  *
  */
 
-#include "stdafx.h"
+#include "../../stdafx.h"
 #include "GSTextureSW.h"
 
 GSTextureSW::GSTextureSW(int type, int width, int height)

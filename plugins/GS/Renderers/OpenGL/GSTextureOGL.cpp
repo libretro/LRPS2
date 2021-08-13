@@ -19,7 +19,7 @@
  *
  */
 
-#include "stdafx.h"
+#include "../../stdafx.h"
 #include <limits.h>
 #include "GSTextureOGL.h"
 #include "GLState.h"

@@ -19,9 +19,9 @@
  *
  */
 
-#include "stdafx.h"
+#include "../../stdafx.h"
 #include "GSDevice11.h"
-#include "GSTables.h"
+#include "../../GSTables.h"
 
 /* TFX shader */
 const char tfx_shader_raw[] =
