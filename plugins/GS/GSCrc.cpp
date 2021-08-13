@@ -20,7 +20,7 @@
  */
 
 #include "stdafx.h"
-#include "GSdx.h"
+#include "GS.h"
 #include "GSCrc.h"
 
 CRC::Game CRC::m_games[] =

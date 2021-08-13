@@ -20,7 +20,7 @@
  */
 
 #include "../../stdafx.h"
-#include "../../GSdx.h"
+#include "../../GS.h"
 #include "GSDevice11.h"
 #include "../../GSUtil.h"
 #include <fstream>

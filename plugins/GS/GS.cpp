@@ -20,7 +20,6 @@
  */
 
 #include "stdafx.h"
-#include "GSdx.h"
 #include "GS.h"
 #include "GSUtil.h"
 #include "Renderers/SW/GSRendererSW.h"

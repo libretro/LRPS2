@@ -20,7 +20,7 @@
 
 #include "../../stdafx.h"
 #include "GLLoader.h"
-#include "../../GSdx.h"
+#include "../../GS.h"
 #include "../../GS.h"
 
 #ifdef __unix__

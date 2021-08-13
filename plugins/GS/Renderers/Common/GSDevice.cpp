@@ -20,7 +20,7 @@
  */
 
 #include "../../stdafx.h"
-#include "../../GSdx.h"
+#include "../../GS.h"
 #include "GSDevice.h"
 
 #include "fxaa_shader.h"
