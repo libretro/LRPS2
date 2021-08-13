@@ -18,8 +18,6 @@
 #include "Utilities/Threading.h"
 #include "SaveState.h"
 
-extern Threading::MutexRecursive mtx_SPU2Status;
-
 s32 SPU2init();
 s32 SPU2reset();
 s32 SPU2ps1reset();
@@ -28,12 +26,6 @@ void SPU2close();
 void SPU2shutdown();
 void SPU2write(u32 mem, u16 value);
 u16 SPU2read(u32 mem);
-
-// extended funcs
-// if start is 1, starts recording spu2 data, else stops
-// returns a non zero value if successful
-// for now, pData is not used
-int SPU2setupRecording(int start, std::wstring* filename);
 
 void SPU2setClockPtr(u32* ptr);
 

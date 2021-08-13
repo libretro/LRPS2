@@ -22,10 +22,6 @@
 #include "Utilities/pxStreams.h"
 #include "AppCoreThread.h"
 
-using namespace Threading;
-
-MutexRecursive mtx_SPU2Status;
-
 extern retro_audio_sample_t sample_cb;
 
 int Interpolation = 4;
@@ -41,10 +37,6 @@ static u32 pClocks = 0;
 u32* cyclePtr = nullptr;
 u32 lClocks = 0;
 
-static bool CheckSSE()
-{
-	return true;
-}
 // --------------------------------------------------------------------------------------
 //  DMA 4/7 Callbacks from Core Emulator
 // --------------------------------------------------------------------------------------
@@ -229,7 +221,6 @@ s32 SPU2init()
 
 s32 SPU2open()
 {
-	ScopedLock lock(mtx_SPU2Status);
 	if (IsOpened)
 		return 0;
 
@@ -242,7 +233,6 @@ s32 SPU2open()
 
 void SPU2close()
 {
-	ScopedLock lock(mtx_SPU2Status);
 	if (!IsOpened)
 		return;
 	IsOpened = false;
@@ -332,14 +322,6 @@ void SPU2write(u32 rmem, u16 value)
 	}
 }
 
-// if start is 1, starts recording spu2 data, else stops
-// returns a non zero value if successful
-// for now, pData is not used
-int SPU2setupRecording(int start, std::wstring* filename)
-{
-	return 0;
-}
-
 s32 SPU2freeze(int mode, freezeData* data)
 {
 	pxAssume(data != nullptr);
@@ -381,8 +363,6 @@ s32 SPU2freeze(int mode, freezeData* data)
 
 void SPU2DoFreezeOut(void* dest)
 {
-	ScopedLock lock(mtx_SPU2Status);
-
 	freezeData fP = {0, (s8*)dest};
 	if (SPU2freeze(FREEZE_SIZE, &fP) != 0)
 		return;
@@ -398,8 +378,6 @@ void SPU2DoFreezeOut(void* dest)
 
 void SPU2DoFreezeIn(pxInputStream& infp)
 {
-	ScopedLock lock(mtx_SPU2Status);
-
 	freezeData fP = {0, nullptr};
 	if (SPU2freeze(FREEZE_SIZE, &fP) != 0)
 		fP.size = 0;
