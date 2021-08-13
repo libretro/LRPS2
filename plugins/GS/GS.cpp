@@ -237,14 +237,6 @@ void GSUpdateOptions()
 }
 
 
-EXPORT_C_(void) GSosdLog(const char *utf8, uint32 color)
-{
-}
-
-EXPORT_C_(void) GSosdMonitor(const char *key, const char *value, uint32 color)
-{
-}
-
 EXPORT_C_(int) GSopen2(uint32 flags)
 {
 	static bool stored_toggle_state = false;
@@ -414,10 +406,6 @@ EXPORT_C GSvsync(int field)
    s_gs->VSync(field);
 }
 
-EXPORT_C_(void) GSchangeSaveState(int, const char *filename)
-{
-}
-
 EXPORT_C_(int) GSfreeze(int mode, GSFreezeData* data)
 {
 	switch (mode)
@@ -459,10 +447,6 @@ EXPORT_C GSgetLastTag(uint32* tag)
 EXPORT_C GSsetFrameSkip(int frameskip)
 {
 	s_gs->SetFrameSkip(frameskip);
-}
-
-EXPORT_C GSsetExclusive(int enabled)
-{
 }
 
 std::string format(const char* fmt, ...)

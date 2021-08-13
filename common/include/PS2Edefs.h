@@ -83,9 +83,6 @@ extern "C" {
 
 // basic funcs
 
-void CALLBACK GSosdLog(const char *utf8, u32 color);
-void CALLBACK GSosdMonitor(const char *key, const char *value, u32 color);
-
 s32 CALLBACK GSinit();
 s32 CALLBACK GSopen(const char *Title, int multithread);
 s32 CALLBACK GSopen2(u32 flags);
@@ -106,7 +103,6 @@ void CALLBACK GSinitReadFIFO2(u64 *mem, int qwc);
 
 // extended funcs
 
-void CALLBACK GSchangeSaveState(int, const char *filename);
 void CALLBACK GSirqCallback(void (*callback)());
 void CALLBACK GSsetBaseMem(void *);
 void CALLBACK GSsetGameCRC(int crc, int gameoptions);
@@ -120,9 +116,6 @@ void CALLBACK GSsetFrameSkip(int frameskip);
 void* CALLBACK GSsetupRecording(int start);
 
 void CALLBACK GSreset();
-//deprecated: GSgetTitleInfo was used in PCSX2 but no plugin supported it prior to r4070:
-//void CALLBACK GSgetTitleInfo( char dest[128] );
-void CALLBACK GSgetTitleInfo2(char *dest, size_t length);
 void CALLBACK GSwriteCSR(u32 value);
 s32 CALLBACK GSfreeze(int mode, freezeData *data);
 void CALLBACK GSconfigure();

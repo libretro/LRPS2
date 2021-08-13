@@ -380,6 +380,7 @@ CRC::Game CRC::m_games[] =
 	{0xE21404E2, GetaWay, US, 0},
 	{0x458485EF, GetaWay, EU, 0},
 	{0x5DFBE144, GetaWay, EU, 0},
+	{0xE8249852, GetaWay, JP, 0},
 	{0xE78971DF, GetaWayBlackMonday, US, 0},
 	{0x342D97FA, GetaWayBlackMonday, US, 0}, // Demo
 	{0xE8C0AD1A, GetaWayBlackMonday, JP, 0},
@@ -440,6 +441,7 @@ CRC::Game CRC::m_games[] =
 	{0xC417D919, JakX, US, TextureInsideRt}, // Demo
 	{0xDA366A53, JakX, US, TextureInsideRt}, // Public Beta v.1
 	{0x7B564230, JakX, US, TextureInsideRt}, // Jak and Daxter Complete Trilogy Demo
+	{0xDBA28C59, JakX, US, TextureInsideRt}, // Greatest Hits
 	{0x4653CA3E, HarleyDavidson, US, 0},
 	// Games list for Automatic Mipmapping
 	// Basic mipmapping

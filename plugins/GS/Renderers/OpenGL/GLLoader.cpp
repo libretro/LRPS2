@@ -21,7 +21,6 @@
 #include "../../stdafx.h"
 #include "GLLoader.h"
 #include "../../GS.h"
-#include "../../GS.h"
 
 #ifdef __unix__
 PFNGLBLENDFUNCSEPARATEPROC             glBlendFuncSeparate                 = NULL;
