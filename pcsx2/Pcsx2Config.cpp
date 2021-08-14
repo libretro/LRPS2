@@ -68,6 +68,7 @@ Pcsx2Config::SpeedhackOptions& Pcsx2Config::SpeedhackOptions::DisableAll()
 // NEW MEM OPTIONS
 void Pcsx2Config::SpeedhackOptions::LoadSave()
 {
+	/*
 	EECycleRate = PCSX2_vm::EECycleRate;
 	EECycleSkip = PCSX2_vm::EECycleSkip;
 	IntcStat = PCSX2_vm::IntcStat;
@@ -75,6 +76,7 @@ void Pcsx2Config::SpeedhackOptions::LoadSave()
 	vuFlagHack = PCSX2_vm::vuFlagHack;
 	vuThread = PCSX2_vm::vuThread;
 	vu1Instant = PCSX2_vm::vu1Instant;
+	*/
 }
 
 Pcsx2Config::RecompilerOptions::RecompilerOptions()
@@ -137,6 +139,7 @@ void Pcsx2Config::RecompilerOptions::ApplySanityCheck()
 
 void Pcsx2Config::RecompilerOptions::LoadSave()
 {
+	/*
 	EnableEE = PCSX2_vm::EnableEE;
 	EnableIOP = PCSX2_vm::EnableIOP;
 	EnableVU0 = PCSX2_vm::EnableVU0;
@@ -153,6 +156,7 @@ void Pcsx2Config::RecompilerOptions::LoadSave()
 	fpuOverflow = PCSX2_vm::fpuOverflow;
 	fpuExtraOverflow = PCSX2_vm::fpuExtraOverflow;
 	fpuFullMode = PCSX2_vm::fpuFullMode;
+	*/
 }
 
 Pcsx2Config::CpuOptions::CpuOptions()
@@ -175,14 +179,6 @@ void Pcsx2Config::CpuOptions::ApplySanityCheck()
 void Pcsx2Config::CpuOptions::LoadSave()
 {
 /*
-	IniBitBoolEx( sseMXCSR.DenormalsAreZero,	"FPU.DenormalsAreZero" );
-	IniBitBoolEx( sseMXCSR.FlushToZero,			"FPU.FlushToZero" );
-	IniBitfieldEx( sseMXCSR.RoundingControl,	"FPU.Roundmode" );
-
-	IniBitBoolEx( sseVUMXCSR.DenormalsAreZero,	"VU.DenormalsAreZero" );
-	IniBitBoolEx( sseVUMXCSR.FlushToZero,		"VU.FlushToZero" );
-	IniBitfieldEx( sseVUMXCSR.RoundingControl,	"VU.Roundmode" );
-	*/
 
 	sseMXCSR.DenormalsAreZero = PCSX2_vm::FPU_DenormalsAreZero;
 	sseMXCSR.FlushToZero = PCSX2_vm::FPU_FlushToZero;
@@ -194,6 +190,7 @@ void Pcsx2Config::CpuOptions::LoadSave()
 
 
 	Recompiler.LoadSave();
+	*/
 }
 
 // Default GSOptions
@@ -214,10 +211,12 @@ Pcsx2Config::GSOptions::GSOptions()
 // NEW MEM OPTIONS
 void Pcsx2Config::GSOptions::LoadSave()
 {
+	/*
 	VsyncQueueSize = PCSX2_vm::VsyncQueueSize;
 	FrameSkipEnable = PCSX2_vm::FrameSkipEnable;
 	FramesToDraw = PCSX2_vm::FramesToDraw;
 	FramesToSkip = PCSX2_vm::FramesToSkip;
+	*/
 }
 
 const wxChar *const tbl_GamefixNames[] =
@@ -339,6 +338,7 @@ bool Pcsx2Config::GamefixOptions::Get( GamefixId id ) const
 // NEW MEM OPTIONS
 void Pcsx2Config::GamefixOptions::LoadSave()
 {
+	/*
 	VuAddSubHack = PCSX2_vm::VuAddSubHack;
 	FpuCompareHack = PCSX2_vm::FpuCompareHack;
 	FpuMulHack = PCSX2_vm::FpuMulHack;
@@ -357,6 +357,7 @@ void Pcsx2Config::GamefixOptions::LoadSave()
 	ScarfaceIbit = PCSX2_vm::ScarfaceIbit;
 	CrashTagTeamRacingIbit = PCSX2_vm::CrashTagTeamRacingIbit;
 	VU0KickstartHack = PCSX2_vm::VU0KickstartHack;
+	*/
 }
 
 Pcsx2Config::Pcsx2Config()
@@ -370,6 +371,7 @@ Pcsx2Config::Pcsx2Config()
 
 void Pcsx2Config::LoadSave()
 {
+	/*
 	CdvdShareWrite = PCSX2_vm::CdvdShareWrite;
 	EnablePatches = PCSX2_vm::EnablePatches;
 	EnableCheats = PCSX2_vm::EnableCheats;
@@ -389,6 +391,7 @@ void Pcsx2Config::LoadSave()
 	Cpu				.LoadSave();
 	GS				.LoadSave();
 	Gamefixes		.LoadSave();
+	*/
 }
 
 bool Pcsx2Config::MultitapEnabled( uint port ) const
