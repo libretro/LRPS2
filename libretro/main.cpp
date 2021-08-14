@@ -431,19 +431,18 @@ void retro_get_system_info(retro_system_info* info)
 
 void retro_get_system_av_info(retro_system_av_info* info)
 {
+	info->geometry.base_width = 640;
+	info->geometry.base_height = 448;
 	if ( !std::strcmp(option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type), "Software") || !std::strcmp(option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type), "Null"))
 	{
-		info->geometry.base_width = 640;
-		info->geometry.base_height = 448;
+		info->geometry.max_width = info->geometry.base_width;
+		info->geometry.max_height = info->geometry.base_height;
 	}
 	else
 	{
-		info->geometry.base_width = 640 * option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
-		info->geometry.base_height = 448 * option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
+		info->geometry.max_width  = 640 * option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
+		info->geometry.max_height = 448 * option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 	}
-
-	info->geometry.max_width = info->geometry.base_width;
-	info->geometry.max_height = info->geometry.base_height;
 
 	if (option_value(INT_PCSX2_OPT_ASPECT_RATIO, KeyOptionInt::return_type) == 0)
 		info->geometry.aspect_ratio = 4.0f / 3.0f;
