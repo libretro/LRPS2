@@ -56,6 +56,7 @@ static struct retro_perf_callback perf_cb;
 
 static bool init_failed = false;
 int option_upscale_mult = 1;
+std::string sel_bios_path = "";
 retro_environment_t environ_cb;
 retro_video_refresh_t video_cb;
 struct retro_hw_render_callback hw_render;
@@ -290,17 +291,15 @@ void retro_init(void)
 
 	libretro_set_core_options(environ_cb);
 	option_upscale_mult = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
-
-	std::string sel_bios_path = option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type);
-	//EmuConfig.BiosFilename .Assign(wxString(sel_bios_path));
+	sel_bios_path = option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type);
 
 	// instantiate the pcsx2 app and so some things on it
 	pcsx2 = &wxGetApp();
 	pxDoOutOfMemory = SysOutOfMemory_EmergencyResponse;
+	
 	g_Conf = std::make_unique<AppConfig>();
 	g_Conf->EmuOptions.BiosFilename.Assign(sel_bios_path);
 	
-
 	// some other stuffs about pcsx2
 
 	if (pcsx2->DetectCpuAndUserMode())
@@ -312,7 +311,6 @@ void retro_init(void)
 
 		if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "shared8") == 0)
 		{
-
 			slot1_file.SetName(FILENAME_SHARED_MEMCARD_8);
 			slot1_file.SetExt("ps2");
 			MemCardRetro::CreateSharedMemCardIfNotExisting(slot1_file, 8);
@@ -368,7 +366,6 @@ void retro_init(void)
 		SSE_RoundMode roundMode = (SSE_RoundMode)option_value(INT_PCSX2_OPT_ROUND_MODE, KeyOptionInt::return_type);;
 		g_Conf->EmuOptions.Cpu.sseMXCSR.SetRoundMode(roundMode);
 		g_Conf->EmuOptions.Cpu.sseVUMXCSR.SetRoundMode(roundMode);
-
 
 		static retro_disk_control_ext_callback disk_control = {
 			DiskControl::set_eject_state,
