@@ -237,7 +237,7 @@ static wxString GetUiSettingsFilename()
 }
 
 
-wxString AppConfig::FullpathToBios() const				{ return Path::Combine( Folders.Bios, BaseFilenames.Bios ); }
+wxString AppConfig::FullpathToBios() const { return Path::Combine(Folders.Bios, BaseFilenames.Bios); }
 wxString AppConfig::FullpathToMcd( uint slot ) const
 {
 	return Mcd[slot].Filename.GetFullPath();
@@ -272,19 +272,20 @@ AppConfig::AppConfig()
 
 void AppConfig::LoadSaveRootItems()
 {
-	GzipIsoIndexTemplate = wxString(PCSX2_ui::GzipIsoIndexTemplate);
+
+	//GzipIsoIndexTemplate = wxString(PCSX2_ui::GzipIsoIndexTemplate);
 
 	wxFileName res(CurrentIso);
 	CurrentIso = res.GetFullPath();
 
-	EnableSpeedHacks = PCSX2_ui::EnableSpeedHacks;
-	EnableGameFixes = PCSX2_ui::EnableGameFixes;
+	//EnableSpeedHacks = PCSX2_ui::EnableSpeedHacks;
+	//EnableGameFixes = PCSX2_ui::EnableGameFixes;
 
-	EnablePresets = PCSX2_ui::EnablePresets;
-	PresetIndex = PCSX2_ui::PresetIndex;
+	//EnablePresets = PCSX2_ui::EnablePresets;
+	//PresetIndex = PCSX2_ui::PresetIndex;
 	
 	#ifdef __WXMSW__
-	McdCompressNTFS = PCSX2_ui::McdCompressNTFS;
+	//McdCompressNTFS = PCSX2_ui::McdCompressNTFS;
 	#endif
 }
 
@@ -303,7 +304,7 @@ void AppConfig::LoadSave()
 void AppConfig::FolderOptions::LoadSave()
 {
 
-	Bios = PathDefs::GetBios();
+	//Bios = PathDefs::GetBios();
 	Savestates = PathDefs::GetSavestates();
 	MemoryCards = PathDefs::GetMemoryCards();
 	Cheats = PathDefs::GetCheats();

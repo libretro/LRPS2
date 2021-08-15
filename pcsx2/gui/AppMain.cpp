@@ -18,6 +18,8 @@
 #include "GS.h"
 
 #include "ps2/BiosTools.h"
+#include "options_tools.h"
+
 
 Pcsx2App& wxGetApp() {
    static Pcsx2App pcsx2;
@@ -103,6 +105,8 @@ void AppApplySettings()
 	g_Conf->Folders.CheatsWS.Mkdir();
 
 	//g_Conf->EmuOptions.BiosFilename = g_Conf->FullpathToBios();
+	g_Conf->EmuOptions.BiosFilename.Assign(sel_bios_path);
+
 
 	// Update the compression attribute on the Memcards folder.
 	// Memcards generally compress very well via NTFS compression.

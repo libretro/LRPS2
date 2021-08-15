@@ -1,12 +1,3 @@
-/*
- * Options tools
- * The aim is to provide the access to core options through the call of the same function
- * indipendently from the return types, improving readability and maintaining of the code.
- * The function is exposed with overloads which return boolean, string or int.
- * The KeyOption enum types are used only as a trick to select the needed overloaded function.
- * 
- */
-
 #include <libretro.h>
 #include <stdlib.h>
 #include <cstring>
@@ -18,7 +9,25 @@ extern void GSUpdateOptions();
 extern void ResetContentStuffs();
 extern int option_upscale_mult;
 
+/*
+* These are quick fixes to provide system paths at pcsx2 app startup.
+* Because of the huge refactoring, paths are not saved/loaded from inis files anymore,
+* so happened that at startup of the app some things was broken because
+* bios and other paths was provided later in the code flow
+*/
+extern std::string sel_bios_path;
 extern std::string retroarch_system_path;
+
+
+/*
+ * Options tools
+ * The aim is to provide the access to core options through the call of the same function
+ * indipendently from the return types, improving readability and maintaining of the code.
+ * The function is exposed with overloads which return boolean, string or int.
+ * The KeyOption enum types are used only as a trick to select the needed overloaded function.
+ * 
+ */
+
 
 enum class KeyOptionBool
 {
