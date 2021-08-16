@@ -164,7 +164,7 @@ SysMainMemory& Pcsx2App::GetVmReserve()
 }
 void Pcsx2App::SysExecute( CDVD_SourceType cdvdsrc, const wxString& elf_override )
 {
-	ProcessMethod( AppSaveSettings );
+	//ProcessMethod( AppSaveSettings );
 	log_cb(RETRO_LOG_DEBUG, "(SysExecute) received.\n");
 
 	CoreThread.ResetQuick();

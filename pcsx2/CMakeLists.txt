@@ -649,7 +649,7 @@ endif()
    add_library(${Output} SHARED
      ${CMAKE_SOURCE_DIR}/libretro/main.cpp
      ${pcsx2FinalSources}
-    "../libretro/language_injector.cpp" "../libretro/retro_messager.cpp" "EmuOptionsVM.h" "EmuOptionsUI.h")
+    "../libretro/language_injector.cpp" "../libretro/retro_messager.cpp"  )
    include_directories(. ${CMAKE_SOURCE_DIR}/libretro)
 #   set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
    set_target_properties(pcsx2_libretro PROPERTIES PREFIX "")

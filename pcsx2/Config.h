@@ -120,8 +120,6 @@ struct Pcsx2Config
 		RecompilerOptions();
 		void ApplySanityCheck();
 
-		void LoadSave();
-
 		bool operator ==( const RecompilerOptions& right ) const
 		{
 			return OpEqu( bitset );
@@ -143,7 +141,6 @@ struct Pcsx2Config
 		SSE_MXCSR sseVUMXCSR;
 
 		CpuOptions();
-		void LoadSave();
 		void ApplySanityCheck();
 
 		bool operator ==( const CpuOptions& right ) const
@@ -170,7 +167,6 @@ struct Pcsx2Config
 		Fixed100	FrameratePAL;
 
 		GSOptions();
-		void LoadSave();
 
 		bool operator ==( const GSOptions& right ) const
 		{
@@ -220,7 +216,6 @@ struct Pcsx2Config
 		BITFIELD_END
 
 		GamefixOptions();
-		void LoadSave();
 		GamefixOptions& DisableAll();
 
 		void Set( const wxString& list, bool enabled=true );
@@ -258,7 +253,6 @@ struct Pcsx2Config
 		u8	EECycleSkip;		// EE Cycle skip factor (0, 1, 2, or 3)
 
 		SpeedhackOptions();
-		void LoadSave();
 		SpeedhackOptions& DisableAll();
 
 		void Set(SpeedhackId id, bool enabled = true);
@@ -302,12 +296,6 @@ struct Pcsx2Config
 	wxFileName			BiosFilename;
 
 	Pcsx2Config();
-	void LoadSave();
-
-	void Load( const wxString& srcfile );
-	void Load( const wxInputStream& srcstream );
-	void Save( const wxString& dstfile );
-	void Save( const wxOutputStream& deststream );
 
 	bool MultitapEnabled( uint port ) const;
 

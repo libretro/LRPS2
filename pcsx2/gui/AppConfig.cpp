@@ -22,7 +22,6 @@
 #include <memory>
 
 #include "options_tools.h"
-#include "EmuOptionsUI.h"
 
 bool					UseDefaultSettingsFolder = true;
 
@@ -273,20 +272,8 @@ AppConfig::AppConfig()
 void AppConfig::LoadSaveRootItems()
 {
 
-	//GzipIsoIndexTemplate = wxString(PCSX2_ui::GzipIsoIndexTemplate);
-
 	wxFileName res(CurrentIso);
 	CurrentIso = res.GetFullPath();
-
-	//EnableSpeedHacks = PCSX2_ui::EnableSpeedHacks;
-	//EnableGameFixes = PCSX2_ui::EnableGameFixes;
-
-	//EnablePresets = PCSX2_ui::EnablePresets;
-	//PresetIndex = PCSX2_ui::PresetIndex;
-	
-	#ifdef __WXMSW__
-	//McdCompressNTFS = PCSX2_ui::McdCompressNTFS;
-	#endif
 }
 
 // ------------------------------------------------------------------------
@@ -299,12 +286,9 @@ void AppConfig::LoadSave()
 }
 
 
-
-// NEW MEM OPTIONS
 void AppConfig::FolderOptions::LoadSave()
 {
 
-	//Bios = PathDefs::GetBios();
 	Savestates = PathDefs::GetSavestates();
 	MemoryCards = PathDefs::GetMemoryCards();
 	Cheats = PathDefs::GetCheats();
@@ -431,45 +415,6 @@ void AppConfig::ResetPresetSettingsToDefault() {
 	log_cb(RETRO_LOG_INFO, "Reset of speedhack preset to n:1 - Safe (default)\n");
 }
 
-static void SaveUiSettings()
-{
-	if( !wxFile::Exists( g_Conf->CurrentIso ) )
-		g_Conf->CurrentIso.clear();
-
-#if defined(_WIN32)
-	if (!g_Conf->Folders.RunDisc.DirExists())
-		g_Conf->Folders.RunDisc.Clear();
-#else
-	if (!g_Conf->Folders.RunDisc.Exists())
-		g_Conf->Folders.RunDisc.Clear();
-#endif
-	g_Conf->LoadSave();
-	sApp.DispatchUiSettingsEvent();
-}
-
-static void SaveVmSettings()
-{
-	g_Conf->EmuOptions.LoadSave();
-	sApp.DispatchVmSettingsEvent();
-}
-
-void AppSaveSettings(void)
-{
-	// If multiple SaveSettings messages are requested, we want to ignore most of them.
-	// Saving settings once when the GUI is idle should be fine. :)
-
-	static std::atomic<bool> isPosted(false);
-
-	if( !wxThread::IsMain() )
-		return;
-
-	//log_cb(RETRO_LOG_INFO, "Saving ini files...\n");
-
-	SaveUiSettings();
-	SaveVmSettings();
-
-	isPosted = false;
-}
 
 static void LoadUiSettings()
 {
@@ -494,7 +439,6 @@ static void LoadVmSettings()
 {
 	// Load virtual machine options and apply some defaults overtop saved items, which
 	// are regulated by the PCSX2 UI.
-	g_Conf->EmuOptions.LoadSave();
 
 	g_Conf->EnablePresets = true;
 	g_Conf->PresetIndex = option_value(INT_PCSX2_OPT_SPEEDHACKS_PRESET, KeyOptionInt::return_type);
@@ -528,5 +472,5 @@ void AppConfig_OnChangedSettingsFolder()
 {
 	AppLoadSettings();
 	AppApplySettings();
-	AppSaveSettings();//Make sure both ini files are created if needed.
+
 }
