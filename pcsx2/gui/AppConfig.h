@@ -133,7 +133,7 @@ public:
 	void ResetPresetSettingsToDefault();
 };
 
-void AppSaveSettings();
+
 extern void AppApplySettings();
 
 extern void AppConfig_OnChangedSettingsFolder();
