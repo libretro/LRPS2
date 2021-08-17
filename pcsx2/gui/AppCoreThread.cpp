@@ -51,7 +51,6 @@ static void PostCoreStatus(CoreThreadStatus pevt)
 	sApp.PostAction(CoreThreadStatusEvent(pevt));
 }
 
-#ifdef __LIBRETRO__
 /*
 * Resets stuffs related to content, 
 * needed when closing and reopening a game
@@ -65,8 +64,6 @@ void ResetContentStuffs(void)
 	ElfCRC = 0;
 
 }
-
-#endif // __LIBRETRO__
 
 // --------------------------------------------------------------------------------------
 //  AppCoreThread Implementations
@@ -152,7 +149,6 @@ void Pcsx2App::SysApplySettings()
 void AppCoreThread::OnResumeReady()
 {
 	wxGetApp().SysApplySettings();
-	//wxGetApp().PostMethod(AppSaveSettings);
 	_parent::OnResumeReady();
 }
 

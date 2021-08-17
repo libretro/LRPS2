@@ -124,14 +124,6 @@ wxIMPLEMENT_DYNAMIC_CLASS(pxRpcEvent, pxActionEvent);
 //
 wxIMPLEMENT_DYNAMIC_CLASS(wxAppWithHelpers, wxApp);
 
-
-// Posts a method to the main thread; non-blocking.  Post occurs even when called from the
-// main thread.
-void wxAppWithHelpers::PostMethod(FnType_Void *method)
-{
-    PostEvent(pxRpcEvent(method));
-}
-
 // Invokes the specified void method, or posts the method to the main thread if the calling
 // thread is not Main.  Action is blocking.  For non-blocking method execution, use
 // AppRpc_TryInvokeAsync.
@@ -173,19 +165,6 @@ bool wxAppWithHelpers::Rpc_TryInvokeAsync(FnType_Void *method)
       return false;
    PostEvent(pxRpcEvent(method));
    return true;
-}
-
-void wxAppWithHelpers::ProcessMethod(FnType_Void *method)
-{
-   if (wxThread::IsMain())
-   {
-      method();
-      return;
-   }
-
-   SynchronousActionState sync;
-   PostEvent(pxRpcEvent(method, sync));
-   sync.WaitForResult();
 }
 
 void wxAppWithHelpers::PostEvent(const wxEvent &evt)
