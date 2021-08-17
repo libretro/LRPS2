@@ -223,19 +223,6 @@ wxDirName GetSettingsFolder()
 	return UseDefaultSettingsFolder ? PathDefs::GetSettings() : SettingsFolder;
 }
 
-static wxString GetVmSettingsFilename()
-{
-	wxFileName fname( wxGetApp().Overrides.VmSettingsFile.IsOk() ? wxGetApp().Overrides.VmSettingsFile : FilenameDefs::GetVmConfig() );
-	return GetSettingsFolder().Combine( fname ).GetFullPath();
-}
-
-static wxString GetUiSettingsFilename()
-{
-	wxFileName fname( FilenameDefs::GetUiConfig() );
-	return GetSettingsFolder().Combine( fname ).GetFullPath();
-}
-
-
 wxString AppConfig::FullpathToBios() const { return Path::Combine(Folders.Bios, BaseFilenames.Bios); }
 wxString AppConfig::FullpathToMcd( uint slot ) const
 {
@@ -293,9 +280,6 @@ void AppConfig::FolderOptions::LoadSave()
 	MemoryCards = PathDefs::GetMemoryCards();
 	Cheats = PathDefs::GetCheats();
 	CheatsWS = PathDefs::GetCheatsWS();
-
-
-	//ApplyDefaults();
 
 	for( int i=0; i<FolderId_COUNT; ++i )
 		operator[]( (FoldersEnum_t)i ).Normalize();
