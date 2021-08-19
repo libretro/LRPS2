@@ -1,0 +1,7 @@
+274E5444	- Clock Tower 3				-	(SLUS-20633)
+9DC1CED8	- Dawn of Mana (UNDUB)			-	(SLUS-21574)
+901AAC09	- Haunting Ground			-	(SLUS-21075)
+95BB1901	- MX vs ATV Unleashed			-	(SLUS-21104)
+08FE7DFD	- MX vs ATV Untamed			-	(SLUS-21701)
+FE06A030	- Silent Hill 2 (v2.01)			-	(SLUS-20228)
+2498951B	- Silent Hill 3				-	(SLUS-20622)

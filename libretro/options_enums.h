@@ -4,6 +4,7 @@
 #define BOOL_PCSX2_OPT_FASTCDVD			 "pcsx2_fastcdvd"
 #define BOOL_PCSX2_OPT_FASTBOOT			 "pcsx2_fastboot"
 #define BOOL_PCSX2_OPT_ENABLE_WIDESCREEN_PATCHES "pcsx2_enable_widescreen_patches"
+#define BOOL_PCSX2_OPT_ENABLE_60FPS_PATCHES      "pcsx2_enable_60fps_patches"
 #define BOOL_PCSX2_OPT_FRAMESKIP		 "pcsx2_frameskip"
 #define BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE	 "pcsx2_userhack_align_sprite"
 #define BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE	 "pcsx2_userhack_merge_sprite"

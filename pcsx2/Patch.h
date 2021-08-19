@@ -104,6 +104,7 @@ namespace PatchFunc
 // - do not actually patch the emulation memory (that happens at ApplyLoadedPatches(...) )
 extern int LoadPatchesFromGamesDB(const wxString& crc, const GameDatabaseSchema::GameEntry& game);
 extern int LoadPatchesFromDir(wxString name, const wxDirName& folderName, const wxString& friendlyName);
+extern int Load60fpsPatchesFromDatabase(std::string gameCRC);
 extern int LoadWidescreenPatchesFromDatabase(std::string gameCRC);
 extern int LoadNointerlacingPatchesFromDatabase(std::string gameCRC);
 

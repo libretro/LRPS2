@@ -1,0 +1,31 @@
+Incomplete tutorial
+
+Disclaimer, English is not my first language, I'm not developer/programmer so some terms or assumptions may be wrong and finally there is no universal method, every game is different, needs different approaches.
+
+1. Classic cheat search
+This can be attempted by anyone who can use cheat engine, artmoney or any other RAM searcher. This method can be applied to games which have parts running @30fps and other @60fps. This games have in memory addresses which selects the framerate, this values usually are 1 or 2 (60/1=60, 60/2=30) or 0(off, no limit, 60fps) or 1(on, limit, 30fps). So when you are in a part which runs @30 you search either for 2(or 1), and when you are @60 search for 1(or 0). Keep searching and with luck you will find a good address.
+Example of games for which this approach can be used: Dark Cloud 2, Kingdom Hearts, Metal Gear Solid 3, Smuggler's Run
+I gave this examples so beginners or who is new to this can try exercising on these games for which the values we already have.
+
+2. Gs registers
+Open the debugger, in the memory window press CTRL-G and go to location 12000000. Location 12000000 trough 120000A0 contains some Gs registers. Sometimes the 64bit value contained in 12000080 or 120000A0 cand be found in normal RAM space too(20000000-22000000). So do a search for these 64bit values, and near this addresses sometime there are framelimit addresses too. Look for suspects, meaning addresses  who got values of 1 or 2 and try modifying them to 0 respectively 1.
+Examples: Dragon Quest VIII, Ico, Metal Gear Solid 3
+
+3. Gs registers Mk.IISmile
+Again Gs registers but this time addresses 12000070 and 12000090. Usually these addresses get written every frame or every vsync count(I'm nut sure which exactly, or maybe neither). Set a write breakpoint to 12000090, execution will break. Now do a search(in RAM searcher program) for 4 bytes integer unknown intial value, then press RUN button in debugger, execution resumes then breaks again. Now search for increased values. Keep doing this until you narrow down your search, and investigate these addresses. Sometimes there are frame limiters around them.
+Examples: Wipeout Pulse, Final Fantasy XII
+
+4. Analyzing the ELF (the SLUS, SCES etc file) 
+Open the debugger, and press the functions button, usually here you will see unknown named functions, but sometime the elfs got compiled with debug symbols left in, which means that instead of unnamed functions will have nicely named functions which can be investigated. Sometime is recommended to use PS2Dis(external program) alongside the emulators debugger, because PS2Dis can calculate references and variable(parameter) names.
+Examples: Dark Cloud 2, has a variable for framerate, which PS2dis showed the address.
+Clock Tower 3 has a gavsync funtion which contains a branch deciding the framerate(or disabling vsync altogether I'm not sure)
+
+Now to move on to speed modifiers.
+Finding the framelimiter is the first step, sometime it is enough but other times everything will run double speed. Usually western developed games calculates timing separate from the framerate and japanese devs ties to the framerate. 3D graphics involves a lot of multiplication and divisions using real numbers(2.323,76.23 etc) aka float numbers. So usually we search for coefficients of value of 1.0f which is 3F800000 in hex and reduce this to 0.5f(3F000000), this sometime can be 2.0f(40000000) in 30fps mode and 1.0f(3F800000) in 60fps mode(for games that have both modes). Other values can be 1/30(3D088889), 1/60(3C888889), 30(41F00000),60(42700000) or directly in integer 30(1E) 60(3C)
+But sometimes this values are not in RAM and gets loaded directly into registers, which on the MIPS architecture is done with "lui rn,value" and then loaded into a float register mtc1 rn,fn.
+Example lui v0,0x3F80, mtc1 v0,f01
+lui v0,0x3F80 in hexencoding is 3C023F80, so we can search for this value. Sometime we find hundreds of them sometime just a few.
+In the RAM searcher program search for 3C013F00(lui at,0x3F80), the modify all of them to 3C013F00(lui at,3F00), then switch to interpreter mode in the emu so the jit cache gets cleared, and the new modified instructions gets loaded, change back to recompiler because in interpreter mode eveything is to slow. Check if anything is slower or faster in game. Sometime the emu can crach or freeze because we modified some instruction which triggers this. Try limiting the number of changed instruction in this case, eliminating those bad.
+Continue searching for 3Cxx3F80 (xx goes from 01 to 1b the number of registers, ex.3C1B3F80(lui k1,0x3F80))
+It is the same for 40000000, 41F00000 etc.
+Sometime is li at,0x001E(2401001E which is actually addiu at,zero,0x00001E) or 0003c and offcourse with the registers variations. In this case modify to 2401003C. The general idea is to double or halve values.

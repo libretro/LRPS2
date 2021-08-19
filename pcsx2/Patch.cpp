@@ -28,6 +28,7 @@
 #include <wx/dir.h>
 
 #include "cheats_ws.h"
+#include "cheats_60fps.h"
 #include "cheats_nointerlacing.h"
 
 #include "retro_messager.h"
@@ -197,6 +198,26 @@ static int _LoadPatchFiles(const wxDirName& folderName, wxString& fileSpec, cons
 		}
 		found = dir.GetNext(&buffer);
 	}
+
+	return Patch.size() - before;
+}
+
+int Load60fpsPatchesFromDatabase(std::string gameCRC)
+{
+	static MemoryPatchDatabase *sixtyfps_database;
+	std::transform(gameCRC.begin(), gameCRC.end(), gameCRC.begin(), ::toupper);
+
+	int before = Patch.size();
+
+	if (!sixtyfps_database)
+	{
+		sixtyfps_database = new MemoryPatchDatabase(cheats_60fps_zip, cheats_60fps_zip_len);
+		sixtyfps_database->InitEntries();
+	}
+	std::vector<std::string> patch_lines = sixtyfps_database->GetPatchLines(gameCRC);
+
+	for (std::string line : patch_lines)
+		inifile_processString(line);
 
 	return Patch.size() - before;
 }

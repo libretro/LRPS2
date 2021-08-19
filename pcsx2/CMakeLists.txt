@@ -330,17 +330,19 @@ set(db_res_bin "${CMAKE_BINARY_DIR}/resources")
 file(MAKE_DIRECTORY ${db_res_bin})
 file(REMOVE ${db_res_bin}/cheats_ws.h)
 file(REMOVE ${db_res_bin}/cheats_nointerlacing.h)
+file(REMOVE ${db_res_bin}/cheats_60fps.h)
 file(REMOVE ${db_res_bin}/GameIndex.h)
 
 set(db_resources
 		${db_res_bin}/cheats_ws.h
 		${db_res_bin}/cheats_nointerlacing.h
+		${db_res_bin}/cheats_60fps.h
 		${db_res_bin}/GameIndex.h
 		)
 
 find_program(XXD xxd)
 if (XXD)
-	message("-- Found xxd. GameIndex.h, cheats_ws.h and cheats_nointerlacing.h will be generated.")
+	message("-- Found xxd. GameIndex.h, cheats_ws.h, cheats_60fps.h and cheats_nointerlacing.h will be generated.")
 	
 	add_custom_command(
 		OUTPUT ${db_res_bin}/cheats_ws.h
@@ -357,6 +359,13 @@ if (XXD)
 		VERBATIM
 	)
 	add_custom_command(
+		OUTPUT ${db_res_bin}/cheats_60fps.h
+		COMMAND ${XXD} -i cheats_60fps.zip cheats_60fps.h
+		COMMAND cp cheats_60fps.h ${db_res_bin}/cheats_60fps.h
+		WORKING_DIRECTORY ${db_res_src}
+		VERBATIM
+	)
+	add_custom_command(
 		OUTPUT  ${db_res_bin}/GameIndex.h
 		COMMAND ${XXD} -i GameIndex.yaml GameIndex.h
 		COMMAND cp GameIndex.h  ${db_res_bin}/GameIndex.h
@@ -365,7 +374,7 @@ if (XXD)
 	)
 else()
 	message("Could NOT find xxd. Falling back on GameIndex.h, cheats_ws.h, and cheats_nointerlacing.h in ${db_res_src}.
-	Warning: if changes were made to GameIndex.yaml, cheats_ws.zip or cheats_nointerlacing.zip, this build script will
+	Warning: if changes were made to GameIndex.yaml, cheats_ws.zip, cheats_60fps.zip or cheats_nointerlacing.zip, this build script will
 	need to be run again with xxd installed; otherwise, you may safely ignore this warning.")
 	add_custom_command(
 		OUTPUT ${db_res_bin}/cheats_ws.h
@@ -376,6 +385,12 @@ else()
 	add_custom_command(
 		OUTPUT ${db_res_bin}/cheats_nointerlacing.h
 		COMMAND ${CMAKE_COMMAND} -E copy cheats_nointerlacing.h ${db_res_bin}/cheats_nointerlacing.h
+		WORKING_DIRECTORY ${db_res_src}
+		VERBATIM
+	)
+	add_custom_command(
+		OUTPUT ${db_res_bin}/cheats_60fps.h
+		COMMAND ${CMAKE_COMMAND} -E copy cheats_60fps.h ${db_res_bin}/cheats_60fps.h
 		WORKING_DIRECTORY ${db_res_src}
 		VERBATIM
 	)
