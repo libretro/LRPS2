@@ -6,9 +6,11 @@
 5C991F4E	- Ico					- 	(SCES-50760)
 95BB1901	- MX vs ATV Unleashed			-	(SLUS-21104)
 08FE7DFD	- MX vs ATV Untamed			-	(SLUS-21701)
+F3FD313E	- Rule of Rose				-	(SLUS-21448)
 155466E8	- Serious Sam: Next Encounter		-	(SLUS-20907)
 FE06A030	- Silent Hill 2 (v2.01)			-	(SLUS-20228)
 2498951B	- Silent Hill 3				-	(SLUS-20622)
 AF854FA0	- Space Channel 5 Part 2 (SE Disc 2)	-	(SLUS-20807)
+E21404E2	- The Getaway				-
 B639EB17	- Tomb Raider: Anniversary		-	(SLUS-21555)
 BC8B3F50	- Tomb Raider: Legend			-	(SLUS-21203)
