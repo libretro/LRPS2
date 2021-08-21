@@ -22,7 +22,6 @@
 #include "GS/GS.h"
 
  // FIXME common path ?
-#include "Utilities/Assertions.h"
 #include "Utilities/boost_spsc_queue.hpp"
 
 struct GS_Packet;
