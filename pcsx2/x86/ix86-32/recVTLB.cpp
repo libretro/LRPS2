@@ -371,7 +371,7 @@ static void vtlb_SetWriteback(u32 *writeback)
 //                            Dynarec Load Implementations
 void vtlb_DynGenRead64(u32 bits)
 {
-	pxAssume( bits == 64 || bits == 128 );
+	__assume( bits == 64 || bits == 128 );
 
 	u32* writeback = DynGen_PrepRegs();
 
@@ -387,7 +387,7 @@ void vtlb_DynGenRead64(u32 bits)
 //   Returns read value in eax.
 void vtlb_DynGenRead32(u32 bits, bool sign)
 {
-	pxAssume( bits <= 32 );
+	__assume( bits <= 32 );
 
 	u32* writeback = DynGen_PrepRegs();
 

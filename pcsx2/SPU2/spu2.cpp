@@ -258,7 +258,7 @@ void SPU2write(u32 rmem, u16 value)
 
 s32 SPU2freeze(int mode, freezeData* data)
 {
-	pxAssume(data != nullptr);
+	__assume(data != nullptr);
 	if (!data)
 	{
 		printf("SPU2 savestate null pointer!\n");
@@ -271,7 +271,7 @@ s32 SPU2freeze(int mode, freezeData* data)
 		return 0;
 	}
 
-	pxAssume(mode == FREEZE_LOAD || mode == FREEZE_SAVE);
+	__assume(mode == FREEZE_LOAD || mode == FREEZE_SAVE);
 
 	if (data->data == nullptr)
 	{

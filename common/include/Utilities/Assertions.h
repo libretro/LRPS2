@@ -95,4 +95,3 @@ struct DiagnosticOrigin
 #define pxAssumeDev(cond, msg) (__assume(cond))
 
 #define pxAssert(cond) pxAssertMsg(cond, wxNullChar)
-#define pxAssume(cond) pxAssumeMsg(cond, wxNullChar)

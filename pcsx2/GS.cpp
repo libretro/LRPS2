@@ -175,7 +175,7 @@ __fi void gsWrite16(u32 mem, u16 value)
 
 __fi void gsWrite32(u32 mem, u32 value)
 {
-	pxAssume( (mem & 3) == 0 );
+	__assume( (mem & 3) == 0 );
 	GIF_LOG("GS write 32 at %8.8lx with data %8.8lx", mem, value);
 
 	switch (mem)

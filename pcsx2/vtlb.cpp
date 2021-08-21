@@ -454,7 +454,7 @@ __ri void vtlb_ReassignHandler( vtlbHandler rv,
 							   vtlbMemR8FP* r8,vtlbMemR16FP* r16,vtlbMemR32FP* r32,vtlbMemR64FP* r64,vtlbMemR128FP* r128,
 							   vtlbMemW8FP* w8,vtlbMemW16FP* w16,vtlbMemW32FP* w32,vtlbMemW64FP* w64,vtlbMemW128FP* w128 )
 {
-	pxAssume(rv < VTLB_HANDLER_ITEMS);
+	__assume(rv < VTLB_HANDLER_ITEMS);
 
 	vtlbdata.RWFT[0][0][rv] = (void*)((r8!=0)   ? r8	: vtlbDefaultPhyRead8);
 	vtlbdata.RWFT[1][0][rv] = (void*)((r16!=0)  ? r16	: vtlbDefaultPhyRead16);
@@ -506,7 +506,7 @@ void vtlb_MapHandler(vtlbHandler handler, u32 start, u32 size)
 	verify(0==(size&VTLB_PAGE_MASK) && size>0);
 
 	u32 end = start + (size - VTLB_PAGE_SIZE);
-	pxAssume( (end>>VTLB_PAGE_BITS) < ArraySize(vtlbdata.pmap) );
+	__assume( (end>>VTLB_PAGE_BITS) < ArraySize(vtlbdata.pmap) );
 
 	while (start <= end)
 	{

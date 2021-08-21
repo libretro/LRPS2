@@ -35,7 +35,7 @@ using namespace Internal;
 mem8_t __fastcall iopHwRead8_Page1( u32 addr )
 {
 	// all addresses are assumed to be prefixed with 0x1f801xxx:
-	pxAssume( (addr >> 12) == 0x1f801 );
+	__assume( (addr >> 12) == 0x1f801 );
 
 	u32 masked_addr = addr & 0x0fff;
 
@@ -93,7 +93,7 @@ mem8_t __fastcall iopHwRead8_Page1( u32 addr )
 mem8_t __fastcall iopHwRead8_Page3( u32 addr )
 {
 	// all addresses are assumed to be prefixed with 0x1f803xxx:
-	pxAssume( (addr >> 12) == 0x1f803 );
+	__assume( (addr >> 12) == 0x1f803 );
 
 	mem8_t ret;
 	if( addr == 0x1f803100 )	// PS/EE/IOP conf related
@@ -110,7 +110,7 @@ mem8_t __fastcall iopHwRead8_Page3( u32 addr )
 mem8_t __fastcall iopHwRead8_Page8( u32 addr )
 {
 	// all addresses are assumed to be prefixed with 0x1f808xxx:
-	pxAssume( (addr >> 12) == 0x1f808 );
+	__assume( (addr >> 12) == 0x1f808 );
 
 	mem8_t ret;
 
@@ -127,10 +127,10 @@ template< typename T >
 static __fi T _HwRead_16or32_Page1( u32 addr )
 {
 	// all addresses are assumed to be prefixed with 0x1f801xxx:
-	pxAssume( (addr >> 12) == 0x1f801 );
+	__assume( (addr >> 12) == 0x1f801 );
 
 	// all addresses should be aligned to the data operand size:
-	pxAssume(
+	__assume(
 		( sizeof(T) == 2 && (addr & 1) == 0 ) ||
 		( sizeof(T) == 4 && (addr & 3) == 0 )
 	);
@@ -386,7 +386,7 @@ mem16_t __fastcall iopHwRead16_Page1( u32 addr )
 mem16_t __fastcall iopHwRead16_Page3( u32 addr )
 {
 	// all addresses are assumed to be prefixed with 0x1f803xxx:
-	pxAssume( (addr >> 12) == 0x1f803 );
+	__assume( (addr >> 12) == 0x1f803 );
 
 	mem16_t ret = psxHu16(addr);
 	return ret;
@@ -397,7 +397,7 @@ mem16_t __fastcall iopHwRead16_Page3( u32 addr )
 mem16_t __fastcall iopHwRead16_Page8( u32 addr )
 {
 	// all addresses are assumed to be prefixed with 0x1f808xxx:
-	pxAssume( (addr >> 12) == 0x1f808 );
+	__assume( (addr >> 12) == 0x1f808 );
 
 	mem16_t ret = psxHu16(addr);
 	return ret;
@@ -415,7 +415,7 @@ mem32_t __fastcall iopHwRead32_Page1( u32 addr )
 mem32_t __fastcall iopHwRead32_Page3( u32 addr )
 {
 	// all addresses are assumed to be prefixed with 0x1f803xxx:
-	pxAssume( (addr >> 12) == 0x1f803 );
+	__assume( (addr >> 12) == 0x1f803 );
 	const mem32_t ret = psxHu32(addr);
 	return ret;
 }
@@ -425,7 +425,7 @@ mem32_t __fastcall iopHwRead32_Page3( u32 addr )
 mem32_t __fastcall iopHwRead32_Page8( u32 addr )
 {
 	// all addresses are assumed to be prefixed with 0x1f808xxx:
-	pxAssume( (addr >> 12) == 0x1f808 );
+	__assume( (addr >> 12) == 0x1f808 );
 
 	u32 masked_addr = addr & 0x0fff;
 	mem32_t ret;

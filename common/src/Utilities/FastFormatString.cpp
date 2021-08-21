@@ -113,7 +113,7 @@ static
     // performing an assertion or log of a truncated string is unsafe, so let's not; even
     // though it'd be kinda nice if we did.
 
-    pxAssume(false);
+    __assume(false);
     return 0; // unreachable.
 }
 

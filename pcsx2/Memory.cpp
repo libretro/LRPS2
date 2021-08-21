@@ -739,7 +739,7 @@ void eeMemoryReserve::Reset()
 	// rest of the emu is not really set up to support a "soft" reset of that sort
 	// we opt for the hard/safe version.
 
-	pxAssume( eeMem );
+	__assume( eeMem );
 
 #ifdef ENABLECACHE
 	memset(pCache,0,sizeof(_cacheS)*64);

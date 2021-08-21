@@ -41,7 +41,7 @@ template< uint page > void __fastcall _hwWrite128(u32 mem, u8 value);
 template<uint page>
 void __fastcall _hwWrite32( u32 mem, u32 value )
 {
-	pxAssume( (mem & 0x03) == 0 );
+	__assume( (mem & 0x03) == 0 );
 
 	// Notes:
 	// All unknown registers on the EE are "reserved" as discarded writes and indeterminate
@@ -342,7 +342,7 @@ void __fastcall hwWrite8(u32 mem, u8 value)
 template< uint page >
 void __fastcall _hwWrite16(u32 mem, u16 value)
 {
-	pxAssume( (mem & 0x01) == 0 );
+	__assume( (mem & 0x01) == 0 );
 #if PSX_EXTRALOGS
 	if ((mem & 0x1000ff00) == 0x1000f300)
 		log_cb(RETRO_LOG_DEBUG, "16bit Write to SIF Register %x wibble\n", mem);
@@ -373,7 +373,7 @@ void __fastcall hwWrite16(u32 mem, u16 value)
 template<uint page>
 void __fastcall _hwWrite64( u32 mem, const mem64_t* srcval )
 {
-	pxAssume( (mem & 0x07) == 0 );
+	__assume( (mem & 0x07) == 0 );
 
 	// * Only the IPU has true 64 bit registers.
 	// * FIFOs have 128 bit registers that are probably zero-fill.
@@ -421,7 +421,7 @@ void __fastcall hwWrite64( u32 mem, const mem64_t* srcval )
 template< uint page >
 void __fastcall _hwWrite128(u32 mem, const mem128_t* srcval)
 {
-	pxAssume( (mem & 0x0f) == 0 );
+	__assume( (mem & 0x0f) == 0 );
 
 	// FIFOs are the only "legal" 128 bit registers.  Handle them first.
 	// all other registers fall back on the 64-bit handler (and from there

@@ -175,7 +175,7 @@ static void LoadBiosVersion( pxInputStream& fp, u32& version, wxString& descript
 template< size_t _size >
 void ChecksumIt( u32& result, const u8 (&srcdata)[_size] )
 {
-	pxAssume( (_size & 3) == 0 );
+	__assume( (_size & 3) == 0 );
 	for( size_t i=0; i<_size/4; ++i )
 		result ^= ((u32*)srcdata)[i];
 }

@@ -93,7 +93,7 @@ struct __aligned16 tIPU_BP {
 	__fi void Advance(uint bits)
 	{
 		BP += bits;
-		pxAssume( BP <= 256 );
+		__assume( BP <= 256 );
 
 		if (BP >= 128)
 		{

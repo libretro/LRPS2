@@ -214,7 +214,7 @@ void VifUnpackSSE_Dynarec::CompileRoutine() {
 	UnpkNoOfIterations = 0;
 	MSKPATH3_LOG("Compiling new block, unpack number %x, mode %x, masking %x, vNum %x", upkNum, doMode, doMask, vNum);
 
-	pxAssume(vCL == 0);
+	__assume(vCL == 0);
 
 	// Value passed determines # of col regs we need to load
 	SetMasks(isFill ? blockSize : cycleSize);

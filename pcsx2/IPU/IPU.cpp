@@ -138,7 +138,7 @@ __fi u32 ipuRead32(u32 mem)
 
 		ipucase(IPU_BP): // IPU_BP
 		{
-			pxAssume(g_BP.FP <= 2);
+			__assume(g_BP.FP <= 2);
 			
 			ipuRegs.ipubp = g_BP.BP & 0x7f;
 			ipuRegs.ipubp |= g_BP.IFC << 8;

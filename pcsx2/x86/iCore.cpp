@@ -738,7 +738,7 @@ int _signExtendXMMtoM(uptr to, x86SSERegType from, int candestroy)
 		return 0;
 	}
 
-	pxAssume( false );
+	__assume( false );
 }
 
 // Seem related to the mix between XMM/x86 in order to avoid a couple of move
@@ -802,7 +802,7 @@ void _recFillRegister(EEINST& pinst, int type, int reg, int write)
 				return;
 			}
 		}
-		pxAssume( false );
+		__assume( false );
 	}
 	else {
 		for(i = 0; i < ArraySize(pinst.readType); ++i) {
@@ -812,6 +812,6 @@ void _recFillRegister(EEINST& pinst, int type, int reg, int write)
 				return;
 			}
 		}
-		pxAssume( false );
+		__assume( false );
 	}
 }

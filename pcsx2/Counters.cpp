@@ -75,7 +75,7 @@ void rcntReset(int index) {
 static __fi void _rcntSet( int cntidx )
 {
 	s32 c;
-	pxAssume( cntidx <= 4 );		// rcntSet isn't valid for h/vsync counters.
+	__assume( cntidx <= 4 );		// rcntSet isn't valid for h/vsync counters.
 
 	const Counter& counter = counters[cntidx];
 
@@ -879,7 +879,7 @@ __fi u16 rcntRead32( u32 mem )
 template< uint page >
 __fi bool rcntWrite32( u32 mem, mem32_t& value )
 {
-	pxAssume( mem >= RCNT0_COUNT && mem < 0x10002000 );
+	__assume( mem >= RCNT0_COUNT && mem < 0x10002000 );
 
 	// [TODO] : counters should actually just use the EE's hw register space for storing
 	// count, mode, target, and hold. This will allow for a simplified handler for register

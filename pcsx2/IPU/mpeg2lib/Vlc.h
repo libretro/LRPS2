@@ -41,7 +41,7 @@ static __fi int GETWORD()
 static __fi void DUMPBITS(uint num)
 {
 	g_BP.Advance(num);
-	//pxAssume(g_BP.FP != 0);
+	//__assume(g_BP.FP != 0);
 }
 
 static __fi u32 GETBITS(uint num)

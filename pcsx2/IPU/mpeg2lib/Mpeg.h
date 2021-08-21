@@ -162,7 +162,7 @@ struct decoder_t {
 	void SetOutputTo( T& obj )
 	{
 		uint mb_offset = ((uptr)&obj - (uptr)&mb8);
-		pxAssume( (mb_offset & 15) == 0 );
+		__assume( (mb_offset & 15) == 0 );
 		ipu0_idx	= mb_offset / 16;
 		ipu0_data	= sizeof(obj)/16;
 	}

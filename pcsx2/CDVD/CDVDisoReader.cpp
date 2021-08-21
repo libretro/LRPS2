@@ -335,7 +335,7 @@ s32 CALLBACK ISOreadSector(u8* tempbuffer, u32 lsn, int mode)
 	{
 			//case CDVD_MODE_2352:
 			// Unreachable due to shortcut above.
-			//	pxAssume(false);
+			//	__assume(false);
 			//	break;
 
 		case CDVD_MODE_2340:

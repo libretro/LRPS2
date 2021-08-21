@@ -39,7 +39,7 @@ void InitADSR() // INIT ADSR
 
 bool V_ADSR::Calculate()
 {
-	pxAssume(Phase != 0);
+	__assume(Phase != 0);
 
 	if (Releasing && (Phase < 5))
 		Phase = 5;
