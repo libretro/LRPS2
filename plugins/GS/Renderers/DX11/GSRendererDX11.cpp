@@ -197,9 +197,9 @@ void GSRendererDX11::EmulateZbuffer()
 	// Minor optimization of a corner case (it allow to better emulate some alpha test effects)
 	if (m_om_dssel.ztst == ZTST_GEQUAL && m_vt.m_eq.z && v[0].XYZ.Z == max_z)
 	{
-#ifdef _DEBUG
-		log_cb(RETRO_LOG_DEBUG, "%d: Optimize Z test GEQUAL to ALWAYS (%s)\n", s_n, psm_str(m_context->ZBUF.PSM));
-#endif
+//#ifdef _DEBUG
+		//log_cb(RETRO_LOG_DEBUG, "%d: Optimize Z test GEQUAL to ALWAYS (%s)\n", s_n, psm_str(m_context->ZBUF.PSM));
+//#endif
 		m_om_dssel.ztst = ZTST_ALWAYS;
 	}
 }

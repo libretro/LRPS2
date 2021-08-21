@@ -134,9 +134,9 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	"0"},
 
-	{BOOL_PCSX2_OPT_ENABLE_60FPS_PATCHES,
-	"Video: Enable 60fps Patches",
-	"Enables 60fps patches that allow certain games to run at higher framerates than the original framerate. NOTE: No guarantees about stability or game bugs, use at your own caution. (Content restart required)",
+	{BOOL_PCSX2_OPT_ENABLE_WIDESCREEN_PATCHES,
+	"Video: Enable Widescreen Patches",
+	"Enables widescreen patches that allow certain games to render in true 16:9 ratio without stretching the display. For the widescreen patches to display properly, the 'Aspect Ratio' option should be set to Widescreen (16:9). (Content restart required)",
 	{
 		{"disabled", NULL},
 		{"enabled", NULL},
@@ -144,9 +144,9 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	"disabled"},
 
-	{BOOL_PCSX2_OPT_ENABLE_WIDESCREEN_PATCHES,
-	"Video: Enable Widescreen Patches",
-	"Enables widescreen patches that allow certain games to render in true 16:9 ratio without stretching the display. For the widescreen patches to display properly, the 'Aspect Ratio' option should be set to Widescreen (16:9). (Content restart required)",
+	{BOOL_PCSX2_OPT_ENABLE_60FPS_PATCHES,
+	"Video: Enable 60fps Patches",
+	"Enables 60fps patches that allow certain games to run at higher framerates than the original framerate. NOTE: No guarantees about stability or game bugs, use at your own caution. (Content restart required)",
 	{
 		{"disabled", NULL},
 		{"enabled", NULL},
