@@ -237,7 +237,7 @@ wxString Exception::EndOfStream::FormatDiagnosticMessage() const
 // Throws an exception based on the given error code (usually taken from ANSI C's errno)
 BaseException *Exception::FromErrno(const wxString &streamname, int errcode)
 {
-    pxAssumeDev(errcode != 0, "Invalid NULL error code?  (errno)");
+    //pxAssumeDev(errcode != 0, "Invalid NULL error code?  (errno)");
 
     switch (errcode) {
         case EINVAL:

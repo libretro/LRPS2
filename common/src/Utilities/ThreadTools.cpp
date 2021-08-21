@@ -53,7 +53,7 @@ static StaticMutex total_key_lock(tkl_destructed);
 
 static void make_curthread_key(const pxThread *thr)
 {
-    pxAssumeDev(!tkl_destructed, "total_key_lock is destroyed; program is shutting down; cannot create new thread key.");
+    //pxAssumeDev(!tkl_destructed, "total_key_lock is destroyed; program is shutting down; cannot create new thread key.");
 
     ScopedLock lock(total_key_lock);
     if (total_key_count++ != 0)

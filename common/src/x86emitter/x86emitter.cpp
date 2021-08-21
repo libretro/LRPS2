@@ -677,8 +677,10 @@ xAddressVoid &xAddressVoid::Add(const xAddressReg &src)
         Base = src;
     else if (Index.IsEmpty())
         Index = src;
+#if 0
     else
         pxAssumeDev(false, L"x86Emitter: address modifiers cannot have more than two index registers."); // oops, only 2 regs allowed per ModRm!
+#endif
 
     return *this;
 }
@@ -696,8 +698,11 @@ xAddressVoid &xAddressVoid::Add(const xAddressVoid &src)
         Factor = src.Factor;
     } else if (Index == src.Index) {
         Factor += src.Factor;
-    } else
+    }
+#if 0
+    else
         pxAssumeDev(false, L"x86Emitter: address modifiers cannot have more than two index registers."); // oops, only 2 regs allowed per ModRm!
+#endif
 
     return *this;
 }
@@ -797,11 +802,11 @@ void xIndirectVoid::Reduce()
             break;
 
         case 6: // invalid!
-            pxAssumeDev(false, "x86 asm cannot scale a register by 6.");
+            //pxAssumeDev(false, "x86 asm cannot scale a register by 6.");
             break;
 
         case 7: // so invalid!
-            pxAssumeDev(false, "x86 asm cannot scale a register by 7.");
+            //pxAssumeDev(false, "x86 asm cannot scale a register by 7.");
             break;
 
         case 8:

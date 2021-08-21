@@ -77,21 +77,10 @@ struct DiagnosticOrigin
 #define pxDiagSpot DiagnosticOrigin()
 #define pxAssertSpot(cond) DiagnosticOrigin()
 
-// pxAssertRel ->
-// Special release-mode assertion.  Limited use since stack traces in release mode builds
-// (especially with LTCG) are highly suspect.  But when troubleshooting crashes that only
-// rear ugly heads in optimized builds, this is one of the few tools we have.
-
-#define pxAssertRel(cond, msg) ((likely(cond)) || (pxOnAssert(pxAssertSpot(cond), msg), false))
-#define pxAssumeRel(cond, msg) ((void)((!likely(cond)) && (pxOnAssert(pxAssertSpot(cond), msg), false)))
-
 // Release Builds just use __assume as an optimization, and return the conditional
 // as a result (which is optimized to nil if unused).
 
 #define pxAssertMsg(cond, msg) (likely(cond))
 #define pxAssertDev(cond, msg) (likely(cond))
-
-#define pxAssumeMsg(cond, msg) (__assume(cond))
-#define pxAssumeDev(cond, msg) (__assume(cond))
 
 #define pxAssert(cond) pxAssertMsg(cond, wxNullChar)

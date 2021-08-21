@@ -244,8 +244,8 @@ __ri void __fastcall _nVifUnpackLoop(const u8* data) {
 	const nVifCall*	fnbase  = &nVifUpk[ ((usn*2*16) + upkNum) * (4*1) ];
 	const UNPACKFUNCTYPE ft = VIFfuncTable[idx][doMode ? vifRegs.mode : 0][ ((usn*2*16) + upkNum) ];
 
-	pxAssume (vif.cl == 0);
-	//pxAssume (vifRegs.cycle.wl > 0);
+	__assume(vif.cl == 0);
+	//__assume (vifRegs.cycle.wl > 0);
 
 	do {
 		u8* dest = getVUptr(idx, vif.tag.addr);
