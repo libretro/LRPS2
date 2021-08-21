@@ -440,7 +440,9 @@ void SysMtgsThread::ExecuteTaskInThread()
 						break;
 
 						// Optimized performance in non-Dev builds.
-						jNO_DEFAULT;
+						default:
+						__assume(0);
+						break;
 					}
 				}
 			}

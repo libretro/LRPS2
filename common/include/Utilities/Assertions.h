@@ -96,21 +96,3 @@ struct DiagnosticOrigin
 
 #define pxAssert(cond) pxAssertMsg(cond, wxNullChar)
 #define pxAssume(cond) pxAssumeMsg(cond, wxNullChar)
-
-// --------------------------------------------------------------------------------------
-// jNO_DEFAULT -- disables the default case in a switch, which improves switch optimization
-// under MSVC.
-// --------------------------------------------------------------------------------------
-// How it Works: pxAssumeDev turns into an __assume(0) under msvc compilers, which when specified
-// in the 'default:' case of a switch tells the compiler that the case is unreachable, so
-// that it will not generate any code, LUTs, or conditionals to handle it.
-//
-// * In debug/devel builds the default case will cause an assertion.
-//
-#ifndef jNO_DEFAULT
-#define jNO_DEFAULT                                                                                   \
-    default: {                                                                                        \
-        pxAssumeDev(0, "Incorrect usage of jNO_DEFAULT detected (default case is not unreachable!)"); \
-        break;                                                                                        \
-    }
-#endif

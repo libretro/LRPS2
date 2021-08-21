@@ -489,8 +489,9 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 				Voices[voice].LoopStartA = map_spu1to2(value);
 				//ConLog("voice %x LoopStartA write: %x\n", voice, Voices[voice].LoopStartA);
 				break;
-
-				jNO_DEFAULT;
+			default:
+				__assume(0);
+				break;
 		}
 	}
 
@@ -788,8 +789,9 @@ u16 V_Core::ReadRegPS1(u32 mem)
 				value = map_spu2to1(Voices[voice].LoopStartA);
 				//ConLog("voice %d read LoopStartA result = %x\n", voice, value);
 				break;
-
-				jNO_DEFAULT;
+			default:
+				__assume(0);
+				break;
 		}
 	}
 	else
@@ -963,7 +965,9 @@ static void __fastcall RegWrite_VoiceParams(u16 value)
 			//thisvoice.Volume.Right.RegSet(value);
 			break;
 
-			jNO_DEFAULT;
+		default:
+			__assume(0);
+			break;
 	}
 }
 

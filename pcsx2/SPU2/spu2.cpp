@@ -288,7 +288,9 @@ s32 SPU2freeze(int mode, freezeData* data)
 		case FREEZE_SAVE:
 			return SPU2Savestate::FreezeIt(spud);
 
-			jNO_DEFAULT;
+		default:
+			__assume(0);
+			break;
 	}
 
 	// technically unreachable, but kills a warning:

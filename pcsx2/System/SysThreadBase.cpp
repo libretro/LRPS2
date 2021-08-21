@@ -295,7 +295,9 @@ bool SysThreadBase::StateCheckInThread()
 			OnResumeInThread( true );
 		break;
 
-		jNO_DEFAULT;
+		default:
+		__assume(0);
+		break;
 	}
 	
 	return true;

@@ -157,7 +157,9 @@ bool V_ADSR::Calculate()
 			Value = 0;
 			break;
 
-			jNO_DEFAULT
+		default:
+			__assume(0);
+			break;
 	}
 
 	// returns true if the voice is active, or false if it's stopping.

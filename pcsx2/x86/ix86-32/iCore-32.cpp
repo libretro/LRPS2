@@ -104,7 +104,9 @@ uptr _x86GetAddr(int type, int reg)
 			ret = (uptr)&g_recWriteback;
 			break;
 
-		jNO_DEFAULT;
+		default:
+			__assume(0);
+			break;
 	}
 
 	return ret;

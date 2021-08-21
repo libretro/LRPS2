@@ -135,7 +135,9 @@ DataType __fastcall vtlb_memRead(u32 addr)
 		case 32:
 			return vmv.assumeHandler<32, false>()(paddr);
 
-		jNO_DEFAULT;
+		default:
+			__assume(0);
+			break;
 	}
 
 	return 0;		// technically unreachable, but suppresses warnings.

@@ -183,7 +183,9 @@ void VU_Thread::ExecuteRingBuffer()
 			case MTVU_NULL_PACKET:
 				m_read_pos = 0;
 				break;
-				jNO_DEFAULT;
+			default:
+				__assume(0);
+				break;
 			}
 
 			CommitReadPos();

@@ -813,7 +813,9 @@ void xIndirectVoid::Reduce()
             Scale = 3;
             break;
 
-            jNO_DEFAULT
+	default:
+	    __assume(0);
+	    break;
     }
 }
 
