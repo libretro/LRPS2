@@ -19,6 +19,7 @@
 #include "Gif.h"
 #include "Vif.h"
 #include "GS.h"
+#include "GS/GS.h"
 
  // FIXME common path ?
 #include "Utilities/boost_spsc_queue.hpp"

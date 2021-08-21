@@ -83,42 +83,42 @@ extern "C" {
 
 // basic funcs
 
-s32 CALLBACK GSinit();
-s32 CALLBACK GSopen(const char *Title, int multithread);
-s32 CALLBACK GSopen2(u32 flags);
-void CALLBACK GSclose();
-void CALLBACK GSshutdown();
+s32 GSinit();
+s32 GSopen(const char *Title, int multithread);
+s32 GSopen2(u32 flags);
+void GSclose();
+void GSshutdown();
 
-void CALLBACK GSvsync(int field);
-void CALLBACK GSgifTransfer(const u32 *pMem, u32 addr);
-void CALLBACK GSgifTransfer1(u32 *pMem, u32 addr);
-void CALLBACK GSgifTransfer2(u32 *pMem, u32 size);
-void CALLBACK GSgifTransfer3(u32 *pMem, u32 size);
-void CALLBACK GSgetLastTag(u64 *ptag); // returns the last tag processed (64 bits)
-void CALLBACK GSgifSoftReset(u32 mask);
-void CALLBACK GSreadFIFO(u64 *mem);
-void CALLBACK GSinitReadFIFO(u64 *mem);
-void CALLBACK GSreadFIFO2(u8 *mem, int qwc);
-void CALLBACK GSinitReadFIFO2(u64 *mem, int qwc);
+void GSvsync(int field);
+void GSgifTransfer(const u8 *pMem, u32 addr);
+void GSgifTransfer1(u32 *pMem, u32 addr);
+void GSgifTransfer2(u32 *pMem, u32 size);
+void GSgifTransfer3(u32 *pMem, u32 size);
+void GSgetLastTag(u64 *ptag); // returns the last tag processed (64 bits)
+void GSgifSoftReset(u32 mask);
+void GSreadFIFO(u8 *mem);
+void GSinitReadFIFO(u8 *mem);
+void GSreadFIFO2(u8 *mem, u32 qwc);
+void GSinitReadFIFO2(u8 *mem, u32 qwc);
 
 // extended funcs
 
-void CALLBACK GSirqCallback(void (*callback)());
-void CALLBACK GSsetBaseMem(void *);
-void CALLBACK GSsetGameCRC(int crc, int gameoptions);
+void GSirqCallback(void (*callback)());
+void GSsetBaseMem(u8 *);
+void GSsetGameCRC(u32 crc, int gameoptions);
 
 // controls frame skipping in the GS, if this routine isn't present, frame skipping won't be done
-void CALLBACK GSsetFrameSkip(int frameskip);
+void GSsetFrameSkip(int frameskip);
 
 // if start is 1, starts recording spu2 data, else stops
 // returns a non zero value if successful
 // for now, pData is not used
-void* CALLBACK GSsetupRecording(int start);
+void* GSsetupRecording(int start);
 
-void CALLBACK GSreset();
-void CALLBACK GSwriteCSR(u32 value);
-s32 CALLBACK GSfreeze(int mode, freezeData *data);
-void CALLBACK GSconfigure();
+void GSreset();
+void GSwriteCSR(u32 value);
+s32 GSfreeze(int mode, void *data);
+void GSconfigure();
 
 #ifdef __cplusplus
 } // End extern "C"

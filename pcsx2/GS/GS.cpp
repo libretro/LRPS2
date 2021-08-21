@@ -20,6 +20,7 @@
  */
 
 #include "stdafx.h"
+#include "PS2Edefs.h"
 #include "GS.h"
 #include "GSUtil.h"
 #include "Renderers/SW/GSRendererSW.h"
@@ -42,7 +43,7 @@ static uint8* s_basemem = NULL;
 
 GSdxApp theApp;
 
-EXPORT_C GSsetBaseMem(uint8* mem)
+void GSsetBaseMem(uint8* mem)
 {
 	s_basemem = mem;
 
@@ -52,7 +53,7 @@ EXPORT_C GSsetBaseMem(uint8* mem)
 	}
 }
 
-EXPORT_C_(int) GSinit()
+int GSinit()
 {
 	// Vector instructions must be avoided when initialising GSdx since PCSX2
 	// can crash if the CPU does not support the instruction set.
@@ -82,7 +83,7 @@ EXPORT_C_(int) GSinit()
 	return 0;
 }
 
-EXPORT_C GSshutdown()
+void GSshutdown()
 {
 	delete s_gs;
 	s_gs = nullptr;
@@ -90,7 +91,7 @@ EXPORT_C GSshutdown()
 	theApp.SetCurrentRendererType(GSRendererType::Undefined);
 }
 
-EXPORT_C GSclose()
+void GSclose()
 {
 	if(s_gs == NULL) return;
 
@@ -237,7 +238,7 @@ void GSUpdateOptions()
 }
 
 
-EXPORT_C_(int) GSopen2(uint32 flags)
+int GSopen2(uint32 flags)
 {
 	static bool stored_toggle_state = false;
 	const bool toggle_state = !!(flags & 4);
@@ -312,7 +313,7 @@ EXPORT_C_(int) GSopen2(uint32 flags)
 	return retval;
 }
 
-EXPORT_C_(int) GSopen(const char* title, int mt)
+int GSopen(const char* title, int mt)
 {
 	GSRendererType renderer = GSRendererType::Default;
 
@@ -344,70 +345,71 @@ GSVector2i GSgetInternalResolution()
 	return s_gs->GetInternalResolution();
 }
 
-EXPORT_C GSreset()
+void GSreset()
 {
 	s_gs->Reset();
 }
 
-EXPORT_C GSgifSoftReset(uint32 mask)
+void GSgifSoftReset(uint32 mask)
 {
 	s_gs->SoftReset(mask);
 }
 
-EXPORT_C GSwriteCSR(uint32 csr)
+void GSwriteCSR(uint32 csr)
 {
 	s_gs->WriteCSR(csr);
 }
 
-EXPORT_C GSinitReadFIFO(uint8* mem)
+void GSinitReadFIFO(uint8* mem)
 {
 	GL_PERF("Init Read FIFO1");
 	s_gs->InitReadFIFO(mem, 1);
 }
 
-EXPORT_C GSreadFIFO(uint8* mem)
+void GSreadFIFO(uint8* mem)
 {
 	s_gs->ReadFIFO(mem, 1);
 }
 
-EXPORT_C GSinitReadFIFO2(uint8* mem, uint32 size)
+void GSinitReadFIFO2(uint8* mem, uint32 size)
 {
 	GL_PERF("Init Read FIFO2");
 	s_gs->InitReadFIFO(mem, size);
 }
 
-EXPORT_C GSreadFIFO2(uint8* mem, uint32 size)
+void GSreadFIFO2(uint8* mem, uint32 size)
 {
 	s_gs->ReadFIFO(mem, size);
 }
 
-EXPORT_C GSgifTransfer(const uint8* mem, uint32 size)
+void GSgifTransfer(const uint8* mem, uint32 size)
 {
 	s_gs->Transfer<3>(mem, size);
 }
 
-EXPORT_C GSgifTransfer1(uint8* mem, uint32 addr)
+void GSgifTransfer1(uint8* mem, uint32 addr)
 {
 	s_gs->Transfer<0>(const_cast<uint8*>(mem) + addr, (0x4000 - addr) / 16);
 }
 
-EXPORT_C GSgifTransfer2(uint8* mem, uint32 size)
+void GSgifTransfer2(uint8* mem, uint32 size)
 {
 	s_gs->Transfer<1>(const_cast<uint8*>(mem), size);
 }
 
-EXPORT_C GSgifTransfer3(uint8* mem, uint32 size)
+void GSgifTransfer3(uint8* mem, uint32 size)
 {
 	s_gs->Transfer<2>(const_cast<uint8*>(mem), size);
 }
 
-EXPORT_C GSvsync(int field)
+void GSvsync(int field)
 {
    s_gs->VSync(field);
 }
 
-EXPORT_C_(int) GSfreeze(int mode, GSFreezeData* data)
+int GSfreeze(int mode, void* _data)
 {
+	GSFreezeData *data = (GSFreezeData*)_data;
 	switch (mode)
 	{
 		case FREEZE_SAVE:
@@ -421,12 +423,12 @@ EXPORT_C_(int) GSfreeze(int mode, GSFreezeData* data)
 	return 0;
 }
 
-EXPORT_C GSconfigure()
+void GSconfigure()
 {
 	theApp.Init();
 }
 
-EXPORT_C GSirqCallback(void (*irq)())
+void GSirqCallback(void (*irq)())
 {
 	s_irq = irq;
 
@@ -434,17 +436,17 @@ EXPORT_C GSirqCallback(void (*irq)())
 		s_gs->SetIrqCallback(s_irq);
 }
 
-EXPORT_C GSsetGameCRC(uint32 crc, int options)
+void GSsetGameCRC(uint32 crc, int options)
 {
 	s_gs->SetGameCRC(crc, options);
 }
 
-EXPORT_C GSgetLastTag(uint32* tag)
+void GSgetLastTag(uint32* tag)
 {
 	s_gs->GetLastTag(tag);
 }
 
-EXPORT_C GSsetFrameSkip(int frameskip)
+void GSsetFrameSkip(int frameskip)
 {
 	s_gs->SetFrameSkip(frameskip);
 }
