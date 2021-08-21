@@ -12,7 +12,6 @@
 # control link flags          : -DUSER_CMAKE_LD_FLAGS="ldflags"
 
 ### Packaging options
-# Plugin installation path    : -DPLUGIN_DIR="/usr/lib/pcsx2"
 # GL Shader installation path : -DGLSL_SHADER_DIR="/usr/share/games/pcsx2"
 # Game DB installation path   : -DGAMEINDEX_DIR="/usr/share/games/pcsx2"
 #-------------------------------------------------------------------------------
@@ -43,15 +42,10 @@ option(PACKAGE_MODE "Use this option to ease packaging of PCSX2 (developer/distr
 option(DISABLE_CHEATS_ZIP "Disable including the cheats_ws.zip file")
 option(DISABLE_PCSX2_WRAPPER "Disable including the PCSX2-linux.sh file")
 option(XDG_STD "Use XDG standard path instead of the standard PCSX2 path")
-option(EXTRA_PLUGINS "Build various 'extra' plugins")
 option(PORTAUDIO_API "Build portaudio support on spu2x" ON)
 option(SDL2_API "Use SDL2 on spu2x and onepad (wxWidget mustn't be built with SDL1.2 support" ON)
 
 if(PACKAGE_MODE)
-    if(NOT DEFINED PLUGIN_DIR)
-        set(PLUGIN_DIR "${CMAKE_INSTALL_PREFIX}/lib/games/PCSX2")
-    endif()
-
     if(NOT DEFINED GAMEINDEX_DIR)
         set(GAMEINDEX_DIR "${CMAKE_INSTALL_PREFIX}/share/games/PCSX2")
     endif()
@@ -69,7 +63,7 @@ if(PACKAGE_MODE)
     endif()
 
     # Compile all source codes with those defines
-    add_definitions(-DPLUGIN_DIR_COMPILATION=${PLUGIN_DIR} -DGAMEINDEX_DIR_COMPILATION=${GAMEINDEX_DIR} -DDOC_DIR_COMPILATION=${DOC_DIR})
+    add_definitions(-DGAMEINDEX_DIR_COMPILATION=${GAMEINDEX_DIR} -DDOC_DIR_COMPILATION=${DOC_DIR})
 endif()
 
 if(APPLE)
@@ -94,48 +88,6 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 elseif(NOT MSVC)
     message(FATAL_ERROR "Unknown compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif()
-
-#-------------------------------------------------------------------------------
-# Select the support of plugin
-#-------------------------------------------------------------------------------
-option(BUILTIN_GS           "Disable support of GS plugin (developer option)")
-option(BUILTIN_PAD          "Disable support of PAD plugin (developer option)")
-#option(BUILTIN_SPU2         "Disable support of SPU2 plugin (developer option)")
-option(BUILTIN_USB          "Disable support of USB plugin (developer option)")
-#option(BUILTIN_FW           "Disable support of FW plugin (developer option)")
-option(BUILTIN_DEV9         "Disable support of DEV9 plugin (developer option)")
-#option(BUILTIN_CDVD         "Disable support of CDVD plugin (developer option)")
-
-set(BUILTIN_GS    TRUE)
-set(BUILTIN_PAD   TRUE)
-#set(BUILTIN_SPU2  TRUE)
-set(BUILTIN_USB   TRUE)
-set(BUILTIN_FW    TRUE)
-set(BUILTIN_DEV9  TRUE)
-set(BUILTIN_CDVD  TRUE)
-
-set(PLUGIN_SUPPORT "")
-if(BUILTIN_GS)
-    set(PLUGIN_SUPPORT "${PLUGIN_SUPPORT} -DBUILTIN_GS_PLUGIN")
-endif()
-if(BUILTIN_PAD)
-    set(PLUGIN_SUPPORT "${PLUGIN_SUPPORT} -DBUILTIN_PAD_PLUGIN")
-endif()
-#if(BUILTIN_SPU2)
-#    set(PLUGIN_SUPPORT "${PLUGIN_SUPPORT} -DBUILTIN_SPU2_PLUGIN")
-#endif()
-if(BUILTIN_USB)
-    set(PLUGIN_SUPPORT "${PLUGIN_SUPPORT} -DBUILTIN_USB_PLUGIN")
-endif()
-#if(BUILTIN_FW)
-#    set(PLUGIN_SUPPORT "${PLUGIN_SUPPORT} -DBUILTIN_FW_PLUGIN")
-#endif()
-if(BUILTIN_DEV9)
-    set(PLUGIN_SUPPORT "${PLUGIN_SUPPORT} -DBUILTIN_DEV9_PLUGIN")
-endif()
-#if(BUILTIN_CDVD)
-#    set(PLUGIN_SUPPORT "${PLUGIN_SUPPORT} -DBUILTIN_CDVD_PLUGIN")
-#endif()
 
 #-------------------------------------------------------------------------------
 # if no build type is set, use Devel as default
@@ -258,7 +210,6 @@ if(MSVC)
    add_compile_options(/Zi)
    add_link_options(/DEBUG)
    add_definitions(-D__WIN32__ -DWIN32 -D_WINDOWS -D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE)
-   add_definitions(${PLUGIN_SUPPORT})
    add_definitions(-D_ARCH_64=1 -D_M_X86_64 -D__M_X86_64)
    add_definitions(/wd4063 /wd4100 /wd4267 /wd4244 /wd4244 /wd4312 /wd4334)
 else(MSVC)
@@ -413,7 +364,7 @@ if(USE_CLANG)
 endif()
 
 # Note: -DGTK_DISABLE_DEPRECATED can be used to test a build without gtk deprecated feature. It could be useful to port to a newer API
-set(DEFAULT_GCC_FLAG "${ARCH_FLAG} ${COMMON_FLAG} ${DEFAULT_WARNINGS} ${AGGRESSIVE_WARNING} ${HARDENING_FLAG} ${DEBUG_FLAG} ${ASAN_FLAG} ${OPTIMIZATION_FLAG} ${LTO_FLAGS} ${PGO_FLAGS} ${PLUGIN_SUPPORT}")
+set(DEFAULT_GCC_FLAG "${ARCH_FLAG} ${COMMON_FLAG} ${DEFAULT_WARNINGS} ${AGGRESSIVE_WARNING} ${HARDENING_FLAG} ${DEBUG_FLAG} ${ASAN_FLAG} ${OPTIMIZATION_FLAG} ${LTO_FLAGS} ${PGO_FLAGS}")
 # c++ only flags
 if(NOT MSVC)
 set(DEFAULT_CPP_FLAG "${DEFAULT_GCC_FLAG} -Wno-invalid-offsetof")

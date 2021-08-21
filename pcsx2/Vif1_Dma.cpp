@@ -109,7 +109,7 @@ void vif1TransferToMemory()
 	
 }
 
-bool _VIF1chain()
+static bool VIF1chain(void)
 {
 	u32 *pMem;
 
@@ -379,7 +379,7 @@ __fi void vif1Interrupt()
 	
 	if (vif1.inprogress & 0x1)
     {
-            _VIF1chain();
+            VIF1chain();
             // VIF_NORMAL_FROM_MEM_MODE is a very slow operation.
             // Timesplitters 2 depends on this beeing a bit higher than 128.
             if (vif1ch.chcr.DIR) vif1Regs.stat.FQC = std::min(vif1ch.qwc, (u32)16);
