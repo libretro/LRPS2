@@ -40,10 +40,6 @@ endif()
 
 set(pcsx2FinalFlags ${pcsx2FinalFlags} ${CommonFlags})
 
-if(XDG_STD)
-    set(pcsx2FinalFlags ${pcsx2FinalFlags} -DXDG_STD)
-endif()
-
 set(Output pcsx2_libretro)
 
 # Main pcsx2 source
