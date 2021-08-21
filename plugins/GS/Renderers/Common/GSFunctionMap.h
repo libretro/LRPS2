@@ -24,7 +24,7 @@
 #include "../../GS.h"
 #include "../../GSCodeBuffer.h"
 
-#include "../../xbyak/xbyak_util.h"
+#include <xbyak/xbyak_util.h>
 
 #include "../SW/GSScanlineEnvironment.h"
 

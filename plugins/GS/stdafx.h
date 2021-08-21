@@ -67,7 +67,11 @@ typedef unsigned int uint32;
 typedef signed int int32;
 typedef unsigned long long uint64;
 typedef signed long long int64;
-#include "Pcsx2Types.h"
+#ifdef _M_AMD64
+typedef uint64 uptr;
+#else
+typedef uint32 uptr;
+#endif
 
 // stdc
 

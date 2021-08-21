@@ -24,7 +24,6 @@
 // Linux platforms use the POSIX Signals model: sigaction()
 // [TODO] OS-X (Darwin) platforms should use the Mach exception model (not implemented)
 
-#include "General.h"
 #include "EventSource.h"
 #include <atomic>
 

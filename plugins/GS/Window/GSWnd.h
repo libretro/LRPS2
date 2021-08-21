@@ -21,9 +21,9 @@
 
 #pragma once
 
-#include "../stdafx.h"
-#include "../GS.h"
-#include "../GSVector.h"
+#include "stdafx.h"
+#include "GS.h"
+#include "GSVector.h"
 
 class GSWnd
 {

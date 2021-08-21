@@ -19,10 +19,10 @@
  *
  */
 
-#include "../../stdafx.h"
+#include "stdafx.h"
 #include "GSVertexTrace.h"
-#include "../../GSUtil.h"
-#include "../../GSState.h"
+#include "GSUtil.h"
+#include "GSState.h"
 
 GSVector4 GSVertexTrace::s_minmax;
 

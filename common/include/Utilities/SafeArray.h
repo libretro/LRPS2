@@ -15,8 +15,6 @@
 
 #pragma once
 
-#include "Dependencies.h"
-
 // Microsoft Windows only macro, useful for freeing out COM objects:
 #define safe_release(ptr) \
     ((void)((((ptr) != NULL) && ((ptr)->Release(), !!0)), (ptr) = NULL))

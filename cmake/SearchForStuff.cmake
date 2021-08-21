@@ -26,6 +26,13 @@ if (NOT MSVC)
    include(FindLibc)
 endif()
 
+## Only needed by the extra plugins
+if(EXTRA_PLUGINS)
+    include(FindCg)
+    include(FindGlew)
+    find_package(JPEG)
+endif()
+
 ## Use CheckLib package to find module
 include(CheckLib)
 if(Linux)
