@@ -75,7 +75,6 @@ struct DiagnosticOrigin
 // builds. To have code optimized, explicitly use pxAssume(false) or pxAssumeDev(false,msg);
 
 #define pxDiagSpot DiagnosticOrigin()
-#define pxAssertSpot(cond) DiagnosticOrigin()
 
 // Release Builds just use __assume as an optimization, and return the conditional
 // as a result (which is optimized to nil if unused).

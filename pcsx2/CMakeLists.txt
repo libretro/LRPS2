@@ -18,10 +18,17 @@ set(CommonFlags
     -Wno-parentheses
     -Wno-missing-braces
     -Werror=date-time
-    -Wunused-variable # __dummy variable need to be investigated
+	)
+
+if (NOT MSVC)
+set(CommonFlags
+    ${CommonFlags}
     -fno-operator-names # because Xbyak uses and()/xor()/or()/not() function
     -Wno-unknown-pragmas
-	)
+    -Wno-parentheses
+    -Wunused-variable # __dummy variable need to be investigated
+    )
+endif()
 
 if ("${PGO}" STREQUAL "generate")
     set(pcsx2FinalFlags -fprofile-generate)
