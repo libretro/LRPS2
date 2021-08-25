@@ -34,7 +34,7 @@ protected:
 	struct ActivePtr
 	{
 		uint64 frame, frames;
-		uint64 ticks, actual, total;
+		uint64 actual, total;
 		VALUE f;
 	};
 
@@ -86,7 +86,7 @@ public:
 		return m_active->f;
 	}
 
-	void UpdateStats(uint64 frame, uint64 ticks, int actual, int total)
+	void UpdateStats(uint64 frame, int actual, int total)
 	{
 		if(m_active)
 		{
@@ -96,7 +96,6 @@ public:
 				m_active->frames++;
 			}
 
-			m_active->ticks += ticks;
 			m_active->actual += actual;
 			m_active->total += total;
 

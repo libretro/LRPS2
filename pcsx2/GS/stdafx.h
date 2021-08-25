@@ -299,17 +299,7 @@ typedef signed long long int64;
 #undef abs
 
 #if !defined(_MSC_VER)
-	#if defined(__USE_ISOC11) && !defined(ASAN_WORKAROUND) // not supported yet on gcc 4.9
-
-	#define _aligned_malloc(size, a) aligned_alloc(a, size)
-
-	#else
-
-	extern void* _aligned_malloc(size_t size, size_t alignment);
-
-	#endif
 	// http://svn.reactos.org/svn/reactos/trunk/reactos/include/crt/mingw32/intrin_x86.h?view=markup
-
 	__forceinline int _BitScanForward(unsigned long* const Index, const unsigned long Mask)
 	{
 #if defined(__GCC_ASM_FLAG_OUTPUTS__) && 0
@@ -322,28 +312,6 @@ typedef signed long long int64;
 		return Mask ? 1 : 0;
 #endif
 	}
-
-	#ifdef __GNUC__
-
-	// gcc 4.8 define __rdtsc but unfortunately the compiler crash...
-	// The redefine allow to skip the gcc __rdtsc version -- Gregory
-	#define __rdtsc _lnx_rdtsc
-	//__forceinline unsigned long long __rdtsc()
-	__forceinline unsigned long long _lnx_rdtsc()
-	{
-		#if defined(__amd64__) || defined(__x86_64__)
-		unsigned long long low, high;
-		__asm__ __volatile__("rdtsc" : "=a"(low), "=d"(high));
-		return low | (high << 32);
-		#else
-		unsigned long long retval;
-		__asm__ __volatile__("rdtsc" : "=A"(retval));
-		return retval;
-		#endif
-	}
-
-	#endif
-
 #endif
 
 extern std::string format(const char* fmt, ...);
