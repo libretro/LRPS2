@@ -41,7 +41,6 @@ public:
 	uint32* index;
 	int index_count;
 	uint64 frame;
-	uint64 start;
 	int pixels;
 	int counter;
 
@@ -55,7 +54,6 @@ public:
 		, index(NULL)
 		, index_count(0)
 		, frame(0)
-		, start(0)
 		, pixels(0)
 	{
 		counter = s_counter++;
@@ -85,7 +83,7 @@ public:
 	virtual ~IDrawScanline() {}
 
 	virtual void BeginDraw(const GSRasterizerData* data) = 0;
-	virtual void EndDraw(uint64 frame, uint64 ticks, int actual, int total) = 0;
+	virtual void EndDraw(uint64 frame, int actual, int total) = 0;
 
 #ifdef ENABLE_JIT_RASTERIZER
 

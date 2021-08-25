@@ -58,7 +58,6 @@ public:
 
 	void Start(int timer = Main);
 	void Stop(int timer = Main);
-	int CPU(int timer = Main, bool reset = true);
 };
 
 class GSPerfMonAutoTimer

@@ -45,17 +45,3 @@ void GSPerfMon::Start(int timer)
 void GSPerfMon::Stop(int timer)
 {
 }
-
-int GSPerfMon::CPU(int timer, bool reset)
-{
-	int percent = (int)(100 * m_total[timer] / (__rdtsc() - m_begin[timer]));
-
-	if(reset)
-	{
-		m_begin[timer] = 0;
-		m_start[timer] = 0;
-		m_total[timer] = 0;
-	}
-
-	return percent;
-}

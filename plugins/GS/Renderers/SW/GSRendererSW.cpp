@@ -105,26 +105,7 @@ void GSRendererSW::Reset()
 void GSRendererSW::VSync(int field)
 {
 	Sync(0); // IncAge might delete a cached texture in use
-
-	/*
-	int draw[8], sum = 0;
-
-	for(size_t i = 0; i < countof(draw); i++)
-	{
-		draw[i] = m_perfmon.CPU(GSPerfMon::WorkerDraw0 + i);
-		sum += draw[i];
-	}
-
-	printf("CPU %d Sync %d W %d %d %d %d %d %d %d %d (%d)\n",
-		m_perfmon.CPU(GSPerfMon::Main),
-		m_perfmon.CPU(GSPerfMon::Sync),
-		draw[0], draw[1], draw[2], draw[3], draw[4], draw[5], draw[6], draw[7], sum);
-
-	//
-	*/
-
 	GSRenderer::VSync(field);
-
 	m_tc->IncAge();
 }
 
@@ -483,11 +464,7 @@ void GSRendererSW::Sync(int reason)
 
 	GSPerfMonAutoTimer pmat(&m_perfmon, GSPerfMon::Sync);
 
-	uint64 t = __rdtsc();
-
 	m_rl->Sync();
-
-	t = __rdtsc() - t;
 
 	int pixels = m_rl->GetPixels();
 

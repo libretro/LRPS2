@@ -140,8 +140,6 @@ void GSRasterizer::Draw(GSRasterizerData* data)
 	m_pixels.actual = 0;
 	m_pixels.total = 0;
 
-	data->start = __rdtsc();
-
 	m_ds->BeginDraw(data);
 
 	const GSVertexSW* vertex = data->vertex;
@@ -228,11 +226,9 @@ void GSRasterizer::Draw(GSRasterizerData* data)
 
 	data->pixels = m_pixels.actual;
 
-	uint64 ticks = __rdtsc() - data->start;
-
 	m_pixels.sum += m_pixels.actual;
 
-	m_ds->EndDraw(data->frame, ticks, m_pixels.actual, m_pixels.total);
+	m_ds->EndDraw(data->frame, m_pixels.actual, m_pixels.total);
 }
 
 template<bool scissor_test>
