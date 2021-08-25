@@ -53,7 +53,6 @@ set(GSdxSources
     GSCrc.cpp
     GSDrawingContext.cpp
     GSLocalMemory.cpp
-    GSPerfMon.cpp
     GSState.cpp
     GSTables.cpp
     GSUtil.cpp
@@ -108,7 +107,6 @@ set(GSdxHeaders
     GSDrawingEnvironment.h
     GS.h
     GSLocalMemory.h
-    GSPerfMon.h
     GSState.h
     GSTables.h
     GSThread_CXX11.h

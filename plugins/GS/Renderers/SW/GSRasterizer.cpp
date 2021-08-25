@@ -39,9 +39,8 @@ static int compute_best_thread_height(int threads) {
 		return 4;
 }
 
-GSRasterizer::GSRasterizer(IDrawScanline* ds, int id, int threads, GSPerfMon* perfmon)
-	: m_perfmon(perfmon)
-	, m_ds(ds)
+GSRasterizer::GSRasterizer(IDrawScanline* ds, int id, int threads)
+	: m_ds(ds)
 	, m_id(id)
 	, m_threads(threads)
 {
@@ -60,9 +59,7 @@ GSRasterizer::GSRasterizer(IDrawScanline* ds, int id, int threads, GSPerfMon* pe
 	while(row < rows)
 	{
 		for(int i = 0; i < threads; i++, row++)
-		{
 			m_scanline[row] = i == id ? 1 : 0;
-		}
 	}
 }
 
@@ -133,8 +130,6 @@ int GSRasterizer::GetPixels(bool reset)
 
 void GSRasterizer::Draw(GSRasterizerData* data)
 {
-	GSPerfMonAutoTimer pmat(m_perfmon, GSPerfMon::WorkerDraw0 + m_id);
-
 	if(data->vertex != NULL && data->vertex_count == 0 || data->index != NULL && data->index_count == 0) return;
 
 	m_pixels.actual = 0;
@@ -1133,8 +1128,7 @@ void GSRasterizer::DrawEdge(int pixels, int left, int top, const GSVertexSW& sca
 
 //
 
-GSRasterizerList::GSRasterizerList(int threads, GSPerfMon* perfmon)
-	: m_perfmon(perfmon)
+GSRasterizerList::GSRasterizerList(int threads)
 {
 	m_thread_height = compute_best_thread_height(threads);
 
@@ -1177,11 +1171,7 @@ void GSRasterizerList::Sync()
 	if(!IsSynced())
 	{
 		for(size_t i = 0; i < m_workers.size(); i++)
-		{
 			m_workers[i]->Wait();
-		}
-
-		m_perfmon->Put(GSPerfMon::SyncPoint, 1);
 	}
 }
 
@@ -1190,9 +1180,7 @@ bool GSRasterizerList::IsSynced() const
 	for(size_t i = 0; i < m_workers.size(); i++)
 	{
 		if(!m_workers[i]->IsEmpty())
-		{
 			return false;
-		}
 	}
 
 	return true;

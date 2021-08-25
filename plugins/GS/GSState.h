@@ -28,7 +28,6 @@
 #include "Renderers/Common/GSVertex.h"
 #include "Renderers/Common/GSVertexTrace.h"
 #include "GSUtil.h"
-#include "GSPerfMon.h"
 #include "GSVector.h"
 #include "Renderers/Common/GSDevice.h"
 #include "GSCrc.h"
@@ -216,7 +215,6 @@ public:
 	GSLocalMemory m_mem;
 	GSDrawingEnvironment m_env;
 	GSDrawingContext* m_context;
-	GSPerfMon m_perfmon;
 	uint32 m_crc;
 	CRC::Game m_game;
 	int m_options;

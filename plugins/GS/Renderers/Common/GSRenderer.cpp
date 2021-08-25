@@ -286,31 +286,21 @@ GSVector2i GSRenderer::GetInternalResolution()
 
 void GSRenderer::VSync(int field)
 {
-	GSPerfMonAutoTimer pmat(&m_perfmon);
-
-	m_perfmon.Put(GSPerfMon::Frame);
-
 	Flush();
 
 	if(!m_dev->IsLost(true))
 	{
 		if(!Merge(field ? 1 : 0))
-		{
 			return;
-		}
 	}
 	else
-	{
 		ResetDevice();
-	}
 
 	m_dev->AgePool();
 
-	if(m_frameskip)
-		return;
-
 	// present
-	m_dev->Present(m_wnd->GetClientRect().fit(m_aspectratio), m_shader);
+	if (!m_frameskip)
+	   m_dev->Present(m_wnd->GetClientRect().fit(m_aspectratio), m_shader);
 }
 
 void GSRenderer::PurgePool()

@@ -1721,11 +1721,7 @@ void GSTextureCache::Source::Update(const GSVector4i& rect, int layer)
 	}
 
 	if(blocks > 0)
-	{
-		m_renderer->m_perfmon.Put(GSPerfMon::Unswizzle, bs.x * bs.y * blocks << (m_palette ? 2 : 0));
-
 		Flush(m_write.count, layer);
-	}
 }
 
 void GSTextureCache::Source::UpdateLayer(const GIFRegTEX0& TEX0, const GSVector4i& rect, int layer)
@@ -1941,8 +1937,6 @@ void GSTextureCache::Target::Update()
 
 		t->Update(r.rsize(), m_temp, pitch);
 	}
-
-	// m_renderer->m_perfmon.Put(GSPerfMon::Unswizzle, w * h * 4);
 
 	// Copy the new GS memory content into the destination texture.
 	if(m_type == RenderTarget)

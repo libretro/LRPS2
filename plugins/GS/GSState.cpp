@@ -1532,8 +1532,6 @@ void GSState::FlushWrite()
 	(m_mem.*wi)(m_tr.x, m_tr.y, &m_tr.buff[m_tr.start], len, m_env.BITBLTBUF, m_env.TRXPOS, m_env.TRXREG);
 
 	m_tr.start += len;
-
-	m_perfmon.Put(GSPerfMon::Swizzle, len);
 }
 
 void GSState::FlushPrim()
@@ -1627,16 +1625,13 @@ void GSState::FlushPrim()
 			}
 
 			m_context->RestoreReg();
-
-			m_perfmon.Put(GSPerfMon::Draw, 1);
-			m_perfmon.Put(GSPerfMon::Prim, m_index.tail / GSUtil::GetVertexCount(PRIM->PRIM));
 		}
+#ifdef ENABLE_OGL_DEBUG
 		else
 		{
-#ifdef ENABLE_OGL_DEBUG
 			fprintf(stderr, "%d:Skip draw call due to invalid format %x/%x\n", s_n, m_context->FRAME.PSM, m_context->ZBUF.PSM);
-#endif
 		}
+#endif
 
 		m_index.tail = 0;
 
@@ -1724,9 +1719,6 @@ void GSState::Write(const uint8* mem, int len)
 		(m_mem.*psm.wi)(m_tr.x, m_tr.y, mem, m_tr.total, blit, m_env.TRXPOS, m_env.TRXREG);
 
 		m_tr.start = m_tr.end = m_tr.total;
-
-		m_perfmon.Put(GSPerfMon::Swizzle, len);
-
 	}
 	else
 	{
@@ -2018,8 +2010,6 @@ void GSState::SoftReset(uint32 mask)
 
 void GSState::ReadFIFO(uint8* mem, int size)
 {
-	GSPerfMonAutoTimer pmat(&m_perfmon);
-
 	Flush();
 
 	size *= 16;
@@ -2034,8 +2024,6 @@ template void GSState::Transfer<3>(const uint8* mem, uint32 size);
 
 template<int index> void GSState::Transfer(const uint8* mem, uint32 size)
 {
-	GSPerfMonAutoTimer pmat(&m_perfmon);
-
 	const uint8* start = mem;
 
 	GIFPath& path = m_path[index];
@@ -2476,8 +2464,6 @@ int GSState::Defrost(const GSFreezeData* fd)
 	}
 
 	UpdateScissor();
-
-m_perfmon.SetFrame(5000);
 
 	return 0;
 }

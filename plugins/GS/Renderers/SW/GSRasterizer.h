@@ -24,7 +24,6 @@
 #include "../../GS.h"
 #include "GSVertexSW.h"
 #include "../../GSAlignedClass.h"
-#include "../../GSPerfMon.h"
 #include "../../GSThread_CXX11.h"
 
 class alignas(32) GSRasterizerData : public GSAlignedClass<32>
@@ -119,7 +118,6 @@ public:
 class alignas(32) GSRasterizer : public IRasterizer
 {
 protected:
-	GSPerfMon* m_perfmon;
 	IDrawScanline* m_ds;
 	int m_id;
 	int m_threads;
@@ -154,7 +152,7 @@ protected:
 	__forceinline void DrawEdge(int pixels, int left, int top, const GSVertexSW& scan);
 
 public:
-	GSRasterizer(IDrawScanline* ds, int id, int threads, GSPerfMon* perfmon);
+	GSRasterizer(IDrawScanline* ds, int id, int threads);
 	virtual ~GSRasterizer();
 
 	__forceinline bool IsOneOfMyScanlines(int top) const;
@@ -176,32 +174,31 @@ class GSRasterizerList : public IRasterizer
 protected:
 	using GSWorker = GSJobQueue<std::shared_ptr<GSRasterizerData>, 65536>;
 
-	GSPerfMon* m_perfmon;
 	// Worker threads depend on the rasterizers, so don't change the order.
 	std::vector<std::unique_ptr<GSRasterizer>> m_r;
 	std::vector<std::unique_ptr<GSWorker>> m_workers;
 	uint8* m_scanline;
 	int m_thread_height;
 
-	GSRasterizerList(int threads, GSPerfMon* perfmon);
+	GSRasterizerList(int threads);
 
 public:
 	virtual ~GSRasterizerList();
 
-	template<class DS> static IRasterizer* Create(int threads, GSPerfMon* perfmon)
+	template<class DS> static IRasterizer* Create(int threads)
 	{
 		threads = std::max<int>(threads, 0);
 
 		if(threads == 0)
 		{
-			return new GSRasterizer(new DS(), 0, 1, perfmon);
+			return new GSRasterizer(new DS(), 0, 1);
 		}
 
-		GSRasterizerList* rl = new GSRasterizerList(threads, perfmon);
+		GSRasterizerList* rl = new GSRasterizerList(threads);
 
 		for(int i = 0; i < threads; i++)
 		{
-			rl->m_r.push_back(std::unique_ptr<GSRasterizer>(new GSRasterizer(new DS(), i, threads, perfmon)));
+			rl->m_r.push_back(std::unique_ptr<GSRasterizer>(new GSRasterizer(new DS(), i, threads)));
 			auto &r = *rl->m_r[i];
 			rl->m_workers.push_back(std::unique_ptr<GSWorker>(new GSWorker(
 				[&r](std::shared_ptr<GSRasterizerData> &item) { r.Draw(item.get()); })));

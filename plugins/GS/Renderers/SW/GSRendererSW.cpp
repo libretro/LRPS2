@@ -45,7 +45,7 @@ GSRendererSW::GSRendererSW(int threads)
 
 	memset(m_texture, 0, sizeof(m_texture));
 
-	m_rl = GSRasterizerList::Create<GSDrawScanline>(threads, &m_perfmon);
+	m_rl = GSRasterizerList::Create<GSDrawScanline>(threads);
 
 	m_output = (uint8*)_aligned_malloc(1024 * 1024 * sizeof(uint32), 32);
 
@@ -373,13 +373,10 @@ void GSRendererSW::Draw()
 	scissor.z = std::min<int>(scissor.z, (int)context->FRAME.FBW * 64); // TODO: find a game that overflows and check which one is the right behaviour
 	
 	sd->scissor = scissor;
-	sd->bbox = bbox;
-	sd->frame = m_perfmon.GetFrame();
+	sd->bbox    = bbox;
 
 	if(!GetScanlineGlobalData(sd))
-	{
 		return;
-	}
 
 	//
 
@@ -460,15 +457,7 @@ void GSRendererSW::Queue(std::shared_ptr<GSRasterizerData>& item)
 
 void GSRendererSW::Sync(int reason)
 {
-	//printf("sync %d\n", reason);
-
-	GSPerfMonAutoTimer pmat(&m_perfmon, GSPerfMon::Sync);
-
 	m_rl->Sync();
-
-	int pixels = m_rl->GetPixels();
-
-	m_perfmon.Put(GSPerfMon::Fillrate, pixels);
 }
 
 void GSRendererSW::InvalidateVideoMem(const GIFRegBITBLTBUF& BITBLTBUF, const GSVector4i& r)
