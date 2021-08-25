@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "Utilities/ScopedAlloc.h"
+
 template<int i> class GSAlignedClass
 {
 public:
@@ -34,11 +36,7 @@ public:
 
 	void operator delete (void* p)
 	{
-#ifdef _MSC_VER
 		_aligned_free(p);
-#else
-		free(p);
-#endif
 	}
 
 	void* operator new [] (size_t size)
@@ -48,10 +46,6 @@ public:
 
 	void operator delete [] (void* p)
 	{
-#ifdef _MSC_VER
 		_aligned_free(p);
-#else
-		free(p);
-#endif
 	}
 };
