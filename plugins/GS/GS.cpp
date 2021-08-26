@@ -212,8 +212,6 @@ static int _GSopen(const char* title, GSRendererType renderer, int threads = -1)
 			return -1;
 	}
 
-	s_gs->m_wnd = window;
-
 	s_gs->SetRegsMem(s_basemem);
 	s_gs->SetIrqCallback(s_irq);
 

@@ -22,9 +22,9 @@
 #include "../../stdafx.h"
 #include "GSDeviceNull.h"
 
-bool GSDeviceNull::Create(const std::shared_ptr<GSWnd> &wnd)
+bool GSDeviceNull::Create()
 {
-	if(!GSDevice::Create(wnd))
+	if(!GSDevice::Create())
 		return false;
 
 	Reset(1, 1);

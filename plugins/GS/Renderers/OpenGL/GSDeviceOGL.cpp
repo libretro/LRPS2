@@ -27,6 +27,9 @@
 #include <fstream>
 #include "options_tools.h"
 #include "../Common/fxaa_shader.h"
+#include <libretro.h>
+
+extern retro_video_refresh_t video_cb;
 
 //#define ONLY_LINES
 
@@ -1847,7 +1850,10 @@ GSTexture* GSDeviceOGL::FetchSurface(int type, int w, int h, int format)
 	return t;
 }
 
-bool GSDeviceOGL::Create(const std::shared_ptr<GSWnd> &wnd)
+// forward declaration
+GSVector2i GSgetInternalResolution();
+
+bool GSDeviceOGL::Create()
 {
 	// ****************************************************************
 	// Debug helper
@@ -2081,18 +2087,11 @@ bool GSDeviceOGL::Create(const std::shared_ptr<GSWnd> &wnd)
 	// ****************************************************************
 	// Finish window setup and backbuffer
 	// ****************************************************************
-	if(!GSDevice::Create(wnd))
+	if(!GSDevice::Create())
 		return false;
 
-	GSVector4i rect = wnd->GetClientRect();
+	GSVector4i rect = GSVector4i(0, 0, GSgetInternalResolution().x, GSgetInternalResolution().y);
 	Reset(rect.z, rect.w);
-
-	// Basic to ensure structures are correctly packed
-	static_assert(sizeof(VSSelector) == 4, "Wrong VSSelector size");
-	static_assert(sizeof(PSSelector) == 8, "Wrong PSSelector size");
-	static_assert(sizeof(PSSamplerSelector) == 4, "Wrong PSSamplerSelector size");
-	static_assert(sizeof(OMDepthStencilSelector) == 4, "Wrong OMDepthStencilSelector size");
-	static_assert(sizeof(OMColorMaskSelector) == 4, "Wrong OMColorMaskSelector size");
 
 	return true;
 }
@@ -2143,9 +2142,12 @@ bool GSDeviceOGL::Reset(int w, int h)
 	return true;
 }
 
+// forward declaration
+GSVector2i GSgetInternalResolution();
+
 void GSDeviceOGL::Flip()
 {
-	m_wnd->Flip();
+	video_cb(RETRO_HW_FRAME_BUFFER_VALID, GSgetInternalResolution().x, GSgetInternalResolution().y, 0);
 }
 
 void GSDeviceOGL::BeforeDraw()

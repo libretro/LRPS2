@@ -31,7 +31,6 @@ GSRenderer::GSRenderer()
 	: m_shader(0)
 	, m_texture_shuffle(false)
 	, m_real_size(0,0)
-	, m_wnd()
 	, m_dev(NULL)
 {
 	m_interlace   = theApp.GetConfigI("interlace") % s_interlace_nb;
@@ -57,10 +56,8 @@ bool GSRenderer::CreateDevice(GSDevice* dev)
 	ASSERT(dev);
 	ASSERT(!m_dev);
 
-	if(!dev->Create(m_wnd))
-	{
+	if(!dev->Create())
 		return false;
-	}
 
 	m_dev = dev;
 
@@ -284,6 +281,9 @@ GSVector2i GSRenderer::GetInternalResolution()
 	return m_real_size;
 }
 
+// forward declaration
+GSVector2i GSgetInternalResolution();
+
 void GSRenderer::VSync(int field)
 {
 	Flush();
@@ -300,7 +300,7 @@ void GSRenderer::VSync(int field)
 
 	// present
 	if (!m_frameskip)
-	   m_dev->Present(m_wnd->GetClientRect().fit(m_aspectratio), m_shader);
+	   m_dev->Present(GSVector4i(0, 0, GSgetInternalResolution().x, GSgetInternalResolution().y).fit(m_aspectratio), m_shader);
 }
 
 void GSRenderer::PurgePool()

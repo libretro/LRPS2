@@ -22,7 +22,6 @@
 #pragma once
 
 #include "GSFastList.h"
-#include "../../Window/GSWnd.h"
 #include "GSTexture.h"
 #include "GSVertex.h"
 #include "../../GSAlignedClass.h"
@@ -127,7 +126,6 @@ protected:
 	static const int m_NO_BLEND     = 0;
 	static const int m_MERGE_BLEND  = m_blendMap.size() - 1;
 
-	std::shared_ptr<GSWnd> m_wnd;
 	bool m_rbswapped;
 	GSTexture* m_backbuffer;
 	GSTexture* m_merge;
@@ -156,12 +154,12 @@ public:
 
 	enum {Windowed, Fullscreen, DontCare};
 
-	virtual bool Create(const std::shared_ptr<GSWnd> &wnd);
+	virtual bool Create();
 	virtual bool Reset(int w, int h);
 	virtual bool IsLost(bool update = false) {return false;}
 	virtual void Present(const GSVector4i& r, int shader);
 	virtual void Present(GSTexture* sTex, GSTexture* dTex, const GSVector4& dRect, int shader = 0);
-	virtual void Flip() { m_wnd->Flip(); }
+	virtual void Flip() {  }
 
 	virtual void BeginScene() {}
 	virtual void DrawPrimitive() {};

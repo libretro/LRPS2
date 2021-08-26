@@ -26,8 +26,7 @@
 #include "fxaa_shader.h"
 
 GSDevice::GSDevice()
-	: m_wnd()
-	, m_rbswapped(false)
+	: m_rbswapped(false)
 	, m_backbuffer(NULL)
 	, m_merge(NULL)
 	, m_weavebob(NULL)
@@ -52,10 +51,8 @@ GSDevice::~GSDevice()
 	delete m_target_tmp;
 }
 
-bool GSDevice::Create(const std::shared_ptr<GSWnd>& wnd)
+bool GSDevice::Create()
 {
-	m_wnd = wnd;
-
 	return true;
 }
 
@@ -79,12 +76,15 @@ bool GSDevice::Reset(int w, int h)
 
 	m_current = NULL; // current is special, points to other textures, no need to delete
 
-	return m_wnd != NULL;
+        return true;
 }
+
+// forward declaration
+GSVector2i GSgetInternalResolution();
 
 void GSDevice::Present(const GSVector4i& r, int shader)
 {
-	GSVector4i cr = m_wnd->GetClientRect();
+	GSVector4i cr = GSVector4i(0, 0, GSgetInternalResolution().x, GSgetInternalResolution().y);
 
 	int w = std::max<int>(cr.width(), 1);
 	int h = std::max<int>(cr.height(), 1);

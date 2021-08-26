@@ -36,7 +36,7 @@ private:
 public:
 	GSDeviceNull() {}
 
-	bool Create(const std::shared_ptr<GSWnd> &wnd);
+	bool Create();
 	bool Reset(int w, int h);
 };
 

@@ -475,11 +475,11 @@ bool GSDevice11::SetFeatureLevel(D3D_FEATURE_LEVEL level, bool compat_mode)
 	return true;
 }
 
-bool GSDevice11::Create(const std::shared_ptr<GSWnd> &wnd)
+bool GSDevice11::Create()
 {
 	bool nvidia_vendor = false;
 
-	if(!__super::Create(wnd))
+	if(!__super::Create())
 	{
 		return false;
 	}

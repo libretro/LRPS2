@@ -22,7 +22,6 @@
 #pragma once
 
 #include "../../GS.h"
-#include "../../Window/GSWnd.h"
 #include "../../GSState.h"
 
 class GSRenderer : public GSState
@@ -44,7 +43,6 @@ protected:
 	virtual GSTexture* GetFeedbackOutput() { return nullptr; }
 
 public:
-	std::shared_ptr<GSWnd> m_wnd;
 	GSDevice* m_dev;
 
 public:

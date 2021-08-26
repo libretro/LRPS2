@@ -489,7 +489,7 @@ public:
 	bool SetFeatureLevel(D3D_FEATURE_LEVEL level, bool compat_mode);
 	void GetFeatureLevel(D3D_FEATURE_LEVEL& level) const { level = m_shader.level; }
 
-	bool Create(const std::shared_ptr<GSWnd> &wnd);
+	bool Create();
 	bool Reset(int w, int h);
 	void Flip();
 
