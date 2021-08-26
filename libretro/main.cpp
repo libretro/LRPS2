@@ -67,7 +67,6 @@ std::string retroarch_system_path;
 
 // renderswitch - tells GSdx to go into dx9 sw if "renderswitch" is set.
 bool renderswitch = false;
-uint renderswitch_delay = 0;
 Pcsx2App* pcsx2;
 static wxFileName bios_dir;
 
