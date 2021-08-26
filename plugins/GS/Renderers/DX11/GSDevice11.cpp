@@ -419,9 +419,6 @@ const char interlace_shader_raw[] =
 GSDevice11::GSDevice11()
 {
 	memset(&m_state, 0, sizeof(m_state));
-	memset(&m_vs_cb_cache, 0, sizeof(m_vs_cb_cache));
-	memset(&m_gs_cb_cache, 0, sizeof(m_gs_cb_cache));
-	memset(&m_ps_cb_cache, 0, sizeof(m_ps_cb_cache));
 
 	m_state.topology = D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
 	m_state.bf = -1;
@@ -1530,7 +1527,7 @@ void GSDevice11::OMSetBlendState(ID3D11BlendState* bs, float bf)
 		m_state.bs = bs;
 		m_state.bf = bf;
 
-		float BlendFactor[] = {bf, bf, bf, 0};
+		const float BlendFactor[] = {bf, bf, bf, 0};
 
 		m_ctx->OMSetBlendState(bs, BlendFactor, 0xffffffff);
 	}
@@ -1606,7 +1603,7 @@ D3D_SHADER_MACRO* GSDevice11::ShaderMacro::GetPtr(void)
 	return (D3D_SHADER_MACRO*)mout.data();
 }
 
-void GSDevice11::CreateShader(std::vector<char> source, const char* fn, ID3DInclude *include, const char* entry, D3D_SHADER_MACRO* macro, ID3D11VertexShader** vs, D3D11_INPUT_ELEMENT_DESC* layout, int count, ID3D11InputLayout** il)
+void GSDevice11::CreateShader(const std::vector<char>& source, const char* fn, ID3DInclude* include, const char* entry, D3D_SHADER_MACRO* macro, ID3D11VertexShader** vs, D3D11_INPUT_ELEMENT_DESC* layout, int count, ID3D11InputLayout** il)
 {
 	HRESULT hr;
 
@@ -1629,7 +1626,7 @@ void GSDevice11::CreateShader(std::vector<char> source, const char* fn, ID3DIncl
 	}
 }
 
-void GSDevice11::CreateShader(std::vector<char> source, const char* fn, ID3DInclude *include, const char* entry, D3D_SHADER_MACRO* macro, ID3D11GeometryShader** gs)
+void GSDevice11::CreateShader(const std::vector<char>& source, const char* fn, ID3DInclude* include, const char* entry, D3D_SHADER_MACRO* macro, ID3D11GeometryShader** gs)
 {
 	HRESULT hr;
 
@@ -1645,7 +1642,7 @@ void GSDevice11::CreateShader(std::vector<char> source, const char* fn, ID3DIncl
 	}
 }
 
-void GSDevice11::CreateShader(std::vector<char> source, const char* fn, ID3DInclude *include, const char* entry, D3D_SHADER_MACRO* macro, ID3D11PixelShader** ps)
+void GSDevice11::CreateShader(const std::vector<char>& source, const char* fn, ID3DInclude* include, const char* entry, D3D_SHADER_MACRO* macro, ID3D11PixelShader** ps)
 {
 	HRESULT hr;
 
@@ -1661,7 +1658,7 @@ void GSDevice11::CreateShader(std::vector<char> source, const char* fn, ID3DIncl
 	}
 }
 
-void GSDevice11::CompileShader(std::vector<char> source, const char* fn, ID3DInclude *include, const char* entry, D3D_SHADER_MACRO* macro, ID3DBlob** shader, std::string shader_model)
+void GSDevice11::CompileShader(const std::vector<char>& source, const char* fn, ID3DInclude *include, const char* entry, D3D_SHADER_MACRO* macro, ID3DBlob** shader, std::string shader_model)
 {
 	CComPtr<ID3DBlob> error;
 
