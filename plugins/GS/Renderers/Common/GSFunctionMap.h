@@ -33,8 +33,6 @@ template<class KEY, class VALUE> class GSFunctionMap
 protected:
 	struct ActivePtr
 	{
-		uint64 frame, frames;
-		uint64 actual, total;
 		VALUE f;
 	};
 
@@ -74,33 +72,14 @@ public:
 
 			memset(p, 0, sizeof(*p));
 
-			p->frame = (uint64)-1;
+			p->f = (i != m_map.end()) 
+				? i->second 
+				: GetDefaultFunction(key);
 
-			p->f = i != m_map.end() ? i->second : GetDefaultFunction(key);
-
-			m_map_active[key] = p;
-
-			m_active = p;
+			m_active = m_map_active[key] = p;
 		}
 
 		return m_active->f;
-	}
-
-	void UpdateStats(uint64 frame, int actual, int total)
-	{
-		if(m_active)
-		{
-			if(m_active->frame != frame)
-			{
-				m_active->frame = frame;
-				m_active->frames++;
-			}
-
-			m_active->actual += actual;
-			m_active->total += total;
-
-			ASSERT(m_active->total >= m_active->actual);
-		}
 	}
 };
 
@@ -119,28 +98,14 @@ public:
 template<class CG, class KEY, class VALUE>
 class GSCodeGeneratorFunctionMap : public GSFunctionMap<KEY, VALUE>
 {
-	std::string m_name;
 	void* m_param;
 	std::unordered_map<uint64, VALUE> m_cgmap;
 	GSCodeBuffer m_cb;
-	size_t m_total_code_size;
-
-	enum {MAX_SIZE = 8192};
 
 public:
 	GSCodeGeneratorFunctionMap(const char* name, void* param)
-		: m_name(name)
-		, m_param(param)
-		, m_total_code_size(0)
-	{
-	}
-
-	~GSCodeGeneratorFunctionMap()
-	{
-#if 0
-		log_cb(RETRO_LOG_DEBUG, "%s generated %zu bytes of instruction\n", m_name.c_str(), m_total_code_size);
-#endif
-	}
+		: m_param(param) { }
+	~GSCodeGeneratorFunctionMap() { }
 
 	VALUE GetDefaultFunction(KEY key)
 	{
@@ -149,32 +114,16 @@ public:
 		auto i = m_cgmap.find(key);
 
 		if(i != m_cgmap.end())
-		{
-			ret = i->second;
-		}
-		else
-		{
-			void* code_ptr = m_cb.GetBuffer(MAX_SIZE);
+			return i->second;
 
-			CG* cg = new CG(m_param, key, code_ptr, MAX_SIZE);
-			ASSERT(cg->getSize() < MAX_SIZE);
+		CG* cg = new CG(m_param, key, 
+				m_cb.GetBuffer(8192), 8192);
 
-#if 0
-			log_cb(RETRO_LOG_DEBUG, "%s Location:%p Size:%zu Key:%llx\n", m_name.c_str(), code_ptr, cg->getSize(), (uint64)key);
-			GSScanlineSelector sel(key);
-			sel.Print();
-#endif
+		m_cb.ReleaseBuffer(cg->getSize());
 
-			m_total_code_size += cg->getSize();
+		ret = m_cgmap[key] = (VALUE)cg->getCode();
 
-			m_cb.ReleaseBuffer(cg->getSize());
-
-			ret = (VALUE)cg->getCode();
-
-			m_cgmap[key] = ret;
-
-			delete cg;
-		}
+		delete cg;
 
 		return ret;
 	}

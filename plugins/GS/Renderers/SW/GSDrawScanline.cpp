@@ -111,7 +111,6 @@ void GSDrawScanline::BeginDraw(const GSRasterizerData* data)
 
 void GSDrawScanline::EndDraw(uint64 frame, int actual, int total)
 {
-	m_ds_map.UpdateStats(frame, actual, total);
 }
 
 #ifndef ENABLE_JIT_RASTERIZER
