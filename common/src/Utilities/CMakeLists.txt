@@ -44,7 +44,6 @@ set(UtilitiesHeaders
 	../../include/Utilities/Exceptions.h
 	../../include/Utilities/FixedPointTypes.h
 	../../include/Utilities/General.h
-	../../include/Utilities/MakeUnique.h
 	../../include/Utilities/MemcpyFast.h
 	../../include/Utilities/MemsetFast.inl
 	../../include/Utilities/Path.h
