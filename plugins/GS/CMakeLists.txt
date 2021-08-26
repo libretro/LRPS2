@@ -150,7 +150,6 @@ set(GSdxHeaders
     Renderers/OpenGL/GSTextureOGL.h
     Renderers/OpenGL/GSUniformBufferOGL.h
     Renderers/OpenGL/GSVertexArrayOGL.h
-    Window/GSWnd.h
     xbyak/xbyak.h
     xbyak/xbyak_mnemonic.h
     xbyak/xbyak_util.h
@@ -175,13 +174,6 @@ if(Windows)
         )
 endif()
 
-LIST(APPEND GSdxSources
-   Window/GSWndRetro.cpp
-   )
-
-LIST(APPEND GSdxHeaders
-   Window/GSWndRetro.h
-   )
 include_directories(${CMAKE_SOURCE_DIR}/libretro)
 
 set(GSdxFinalSources

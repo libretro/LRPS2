@@ -33,7 +33,6 @@
 #include "Renderers/DX11/GSDevice11.h"
 #endif
 
-#include "Window/GSWndRetro.h"
 #include "options_tools.h"
 
 static GSRenderer* s_gs = NULL;
@@ -132,30 +131,29 @@ static int _GSopen(const char* title, GSRendererType renderer, int threads = -1)
 		theApp.SetCurrentRendererType(renderer);
 	}
 
-	std::shared_ptr<GSWnd> window;
+	switch (renderer)
 	{
-		// Select the window first to detect the GL requirement
-		std::vector<std::shared_ptr<GSWnd>> wnds;
-		switch (renderer)
-		{
-			case GSRendererType::OGL_HW:
-			case GSRendererType::OGL_SW:
-				wnds.push_back(std::make_shared<GSWndRetroGL>());
-				break;
-			default:
-				wnds.push_back(std::make_shared<GSWndRetro>());
-				break;
-		}
+		case GSRendererType::OGL_HW:
+		case GSRendererType::OGL_SW:
+			// Load mandatory function pointer
+#define GL_EXT_LOAD(ext)     *(void**)&(ext) = (void*)hw_render.get_proc_address(#ext)
+			// Load extra function pointer
+#define GL_EXT_LOAD_OPT(ext) *(void**)&(ext) = (void*)hw_render.get_proc_address(#ext)
 
-		for(auto& wnd : wnds)
-		{
-			// old-style API expects us to create and manage our own window:
-			wnd->Create();
+#include "PFN_WND.h"
 
-			window = wnd; // Previous code will throw if window isn't supported
+			// GL1.X mess
+#ifdef __unix__
+			GL_EXT_LOAD(glBlendFuncSeparate);
+#endif
+			GL_EXT_LOAD_OPT(glTexturePageCommitmentEXT);
 
+			// Check openGL requirement as soon as possible so we can switch to another
+			// renderer/device
+			GLLoader::check_gl_requirements();
 			break;
-		}
+		default:
+			break;
 	}
 
 	std::string renderer_name;
