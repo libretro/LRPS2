@@ -77,7 +77,7 @@ bool GSRenderer::Merge(int field)
 	GSVector2i frame_baseline = { INT_MAX, INT_MAX };
 
         en[0] = IsEnabled(0);
-        en[1] = isEnabled(1);
+        en[1] = IsEnabled(1);
 
 	if(!en[0] && !en[1])
 		return false;
