@@ -27,12 +27,6 @@ public:
 	virtual ~GSWndRetroGL() {}
 
 	bool Create() final;
-
-	GSVector4i GetClientRect();
-
-	void* GetProcAddress(const char* name, bool opt = false) final;
-
-	void Flip() final;
 };
 
 class GSWndRetro : public GSWnd
@@ -42,8 +36,4 @@ public:
 	virtual ~GSWndRetro() {}
 
 	bool Create();
-
-	GSVector4i GetClientRect();
-
-	void Flip() final;
 };

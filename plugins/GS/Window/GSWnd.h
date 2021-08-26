@@ -32,27 +32,13 @@ public:
 	virtual ~GSWnd() {};
 
 	virtual bool Create() = 0;
-
-	virtual GSVector4i GetClientRect() = 0;
-
-	virtual void Flip() {};
-
 };
 
 class GSWndGL : public GSWnd
 {
-protected:
-	void PopulateGlFunction();
-	void FullContextInit();
 public:
 	GSWndGL() {};
 	virtual ~GSWndGL() {};
 
 	virtual bool Create() = 0;
-
-	virtual GSVector4i GetClientRect() = 0;
-
-	virtual void* GetProcAddress(const char* name, bool opt = false) = 0;
-
-	virtual void Flip() = 0;
 };

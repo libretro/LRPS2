@@ -29,12 +29,16 @@ extern struct retro_hw_render_callback hw_render;
 extern retro_video_refresh_t video_cb;
 extern retro_environment_t environ_cb;
 
-void GSWndGL::PopulateGlFunction()
+GSWndRetroGL::GSWndRetroGL()
+{
+}
+
+bool GSWndRetroGL::Create()
 {
 	// Load mandatory function pointer
-#define GL_EXT_LOAD(ext)     *(void**)&(ext) = GetProcAddress(#ext, false)
+#define GL_EXT_LOAD(ext)     *(void**)&(ext) = (void*)hw_render.get_proc_address(#ext)
 	// Load extra function pointer
-#define GL_EXT_LOAD_OPT(ext) *(void**)&(ext) = GetProcAddress(#ext, true)
+#define GL_EXT_LOAD_OPT(ext) *(void**)&(ext) = (void*)hw_render.get_proc_address(#ext)
 
 #include "PFN_WND.h"
 
@@ -47,59 +51,10 @@ void GSWndGL::PopulateGlFunction()
 	// Check openGL requirement as soon as possible so we can switch to another
 	// renderer/device
 	GLLoader::check_gl_requirements();
-}
-
-void GSWndGL::FullContextInit()
-{
-	PopulateGlFunction();
-}
-
-GSWndRetroGL::GSWndRetroGL()
-{
-}
-
-bool GSWndRetroGL::Create()
-{
-	FullContextInit();
 	return true;
 }
-
-void* GSWndRetroGL::GetProcAddress(const char* name, bool opt)
-{
-	void* ptr = (void*)hw_render.get_proc_address(name);
-	if (ptr == nullptr)
-	{
-		if (!opt)
-			throw GSDXRecoverableError();
-	}
-	return ptr;
-}
-GSVector2i GSgetInternalResolution();
-GSVector4i GSWndRetroGL::GetClientRect()
-{	
-	return GSVector4i(0, 0, GSgetInternalResolution().x, GSgetInternalResolution().y);
-}
-
-void GSWndRetroGL::Flip()
-{
-	video_cb(RETRO_HW_FRAME_BUFFER_VALID, GSgetInternalResolution().x, GSgetInternalResolution().y, 0);
-}
-
 
 bool GSWndRetro::Create()
 {
 	return true;
-}
-
-GSVector4i GSWndRetro::GetClientRect()
-{
-	int upscale_mult = option_upscale_mult;
-//	return GSVector4i(0, 0, 640 , 480);
-	return GSVector4i(0, 0, 640 * upscale_mult, 480 * upscale_mult);
-//	return GSVector4i(0, 0, GSgetInternalResolution().x, GSgetInternalResolution().y);
-}
-
-void GSWndRetro::Flip()
-{
-	video_cb(NULL, GSgetInternalResolution().x, GSgetInternalResolution().y, 0);
 }
