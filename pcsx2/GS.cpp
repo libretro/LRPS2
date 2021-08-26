@@ -310,6 +310,11 @@ __fi u64 gsRead64(u32 mem)
 	return *(u64*)PS2GS_BASE(mem);
 }
 
+__fi u128 gsNonMirroredRead(u32 mem)
+{
+	return *(u128*)PS2GS_BASE(mem);
+}
+
 void gsIrq() {
 	hwIntcIrq(INTC_GS);
 }
