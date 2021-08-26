@@ -311,6 +311,8 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 		gameCRC.Printf(L"%8.8x", ElfCRC);
 		log_cb(RETRO_LOG_INFO, "Game CRC: %8.8x\n", ElfCRC);
 	}
+	else
+		gameCRC = L""; // Needs to be reset when rebooting otherwise previously loaded patches may load
 		
 	if (ingame && !DiscSerial.IsEmpty())
 		gameSerial = L" [" + DiscSerial + L"]";
