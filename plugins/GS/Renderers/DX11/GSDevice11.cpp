@@ -423,9 +423,6 @@ GSDevice11::GSDevice11()
 	memset(&m_gs_cb_cache, 0, sizeof(m_gs_cb_cache));
 	memset(&m_ps_cb_cache, 0, sizeof(m_ps_cb_cache));
 
-	FXAA_Compiled = false;
-	ExShader_Compiled = false;
-
 	m_state.topology = D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
 	m_state.bf = -1;
 
@@ -1179,19 +1176,6 @@ void GSDevice11::DoInterlace(GSTexture* sTex, GSTexture* dTex, int shader, bool 
 	StretchRect(sTex, sRect, dTex, dRect, m_interlace.ps[shader], m_interlace.cb, linear);
 }
 
-// This shouldn't be necessary, we have some bug corrupting memory
-// and for some reason isolating this code makes the plugin not crash
-void GSDevice11::InitFXAA()
-{
-	if (!FXAA_Compiled)
-	{
-		std::vector<char> shader(fxaa_shader_raw, fxaa_shader_raw + sizeof(fxaa_shader_raw)/sizeof(*fxaa_shader_raw));
-		ShaderMacro sm(m_shader.model);
-		CreateShader(shader, "fxaa.fx", nullptr, "ps_main", sm.GetPtr(), &m_fxaa.ps);
-		FXAA_Compiled = true;
-	}
-}
-
 void GSDevice11::DoFXAA(GSTexture* sTex, GSTexture* dTex)
 {
 	GSVector2i s = dTex->GetSize();
@@ -1201,7 +1185,12 @@ void GSDevice11::DoFXAA(GSTexture* sTex, GSTexture* dTex)
 
 	FXAAConstantBuffer cb;
 
-	InitFXAA();
+	if (m_fxaa.ps == nullptr)
+	{
+		std::vector<char> shader(fxaa_shader_raw, fxaa_shader_raw + sizeof(fxaa_shader_raw)/sizeof(*fxaa_shader_raw));
+		ShaderMacro sm(m_shader.model);
+		CreateShader(shader, "fxaa.fx", nullptr, "ps_main", sm.GetPtr(), &m_fxaa.ps);
+	}
 
 	cb.rcpFrame = GSVector4(1.0f / s.x, 1.0f / s.y, 0.0f, 0.0f);
 	cb.rcpFrameOpt = GSVector4::zero();
@@ -1209,9 +1198,6 @@ void GSDevice11::DoFXAA(GSTexture* sTex, GSTexture* dTex)
 	m_ctx->UpdateSubresource(m_fxaa.cb, 0, NULL, &cb, 0, 0);
 
 	StretchRect(sTex, sRect, dTex, dRect, m_fxaa.ps, m_fxaa.cb, true);
-
-	//sTex->Save("c:\\temp1\\1.bmp");
-	//dTex->Save("c:\\temp1\\2.bmp");
 }
 
 void GSDevice11::SetupDATE(GSTexture* rt, GSTexture* ds, const GSVertexPT1* vertices, bool datm)
