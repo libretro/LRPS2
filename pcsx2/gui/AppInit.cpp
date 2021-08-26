@@ -1,5 +1,5 @@
 /*  PCSX2 - PS2 Emulator for PCs
- *  Copyright (C) 2002-2010  PCSX2 Dev Team
+ *  Copyright (C) 2002-2021  PCSX2 Dev Team
  *
  *  PCSX2 is free software: you can redistribute it and/or modify it under the terms
  *  of the GNU Lesser General Public License as published by the Free Software Found-
@@ -66,13 +66,11 @@ void Pcsx2App::AllocateCoreStuffs()
 
 			if( m_CpuProviders->GetException_MicroVU0() )
 			{
-				recOps.UseMicroVU0	= false;
 				recOps.EnableVU0	= false;
 			}
 
 			if( m_CpuProviders->GetException_MicroVU1() )
 			{
-				recOps.UseMicroVU1	= false;
 				recOps.EnableVU1	= false;
 			}
 		}
