@@ -51,7 +51,7 @@ public:
 			Cheats,
 			CheatsWS;
 
-		wxFileName RunDisc; // last used location for Disc loading.
+		wxString RunDisc; // last used location for Disc loading.
 
 		void LoadSave();
 

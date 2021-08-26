@@ -408,14 +408,6 @@ static void LoadUiSettings()
 	if( !wxFile::Exists( g_Conf->CurrentIso ) )
 		g_Conf->CurrentIso.clear();
 
-#if defined(_WIN32)
-	if( !g_Conf->Folders.RunDisc.DirExists() )
-		g_Conf->Folders.RunDisc.Clear();
-#else
-	if (!g_Conf->Folders.RunDisc.Exists())
-		g_Conf->Folders.RunDisc.Clear();
-#endif
-
 	sApp.DispatchUiSettingsEvent();
 }
 
