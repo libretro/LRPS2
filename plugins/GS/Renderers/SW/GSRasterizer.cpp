@@ -32,11 +32,9 @@ static int compute_best_thread_height(int threads) {
 	// - ideal value between 3 and 5, or log2(64 / number of threads)
 
 	int th = theApp.GetConfigI("extrathreads_height");
-
 	if (th > 0 && th < 9)
 		return th;
-	else
-		return 4;
+	return 4;
 }
 
 GSRasterizer::GSRasterizer(IDrawScanline* ds, int id, int threads)

@@ -34,9 +34,7 @@ public:
 		m_base = _aligned_malloc(sizeof(Vertex) * countof(m_v), 32);
 
 		for(size_t i = 0; i < countof(m_v); i++)
-		{
 			m_v[i] = &((Vertex*)m_base)[i];
-		}
 	}
 
 	virtual ~GSVertexList()

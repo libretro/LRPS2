@@ -216,7 +216,7 @@ static int _GSopen(const char* title, GSRendererType renderer, int threads = -1)
 	if(!s_gs->CreateDevice(dev))
 	{
 		// This probably means the user has DX11 configured with a video card that is only DX9
-		// compliant.  Cound mean drivr issues of some sort also, but to be sure, that's the most
+		// compliant.  Could mean driver issues of some sort also, but to be sure, that's the most
 		// common cause of device creation errors. :)  --air
 
 		GSclose();

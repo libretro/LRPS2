@@ -21,8 +21,8 @@
 
 #include "../../stdafx.h"
 #include "../../GS.h"
-#include "GSDevice11.h"
 #include "../../GSUtil.h"
+#include "GSDevice11.h"
 #include <fstream>
 #include <VersionHelpers.h>
 #include "options_tools.h"

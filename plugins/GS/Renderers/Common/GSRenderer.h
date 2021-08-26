@@ -26,8 +26,6 @@
 
 class GSRenderer : public GSState
 {
-	int m_shader;
-
 	bool Merge(int field);
 
 protected:

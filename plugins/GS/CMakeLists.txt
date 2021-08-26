@@ -170,7 +170,6 @@ if(Windows)
         Renderers/DX11/GSRendererDX11.h
         Renderers/DX11/GSTexture11.h
         Renderers/DX11/GSTextureCache11.h
-        targetver.h
         )
 endif()
 

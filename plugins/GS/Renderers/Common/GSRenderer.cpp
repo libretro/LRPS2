@@ -22,16 +22,13 @@
 #include "../../stdafx.h"
 #include "GSRenderer.h"
 
-const unsigned int s_interlace_nb = 8;
-const unsigned int s_post_shader_nb = 5;
-const unsigned int s_aspect_ratio_nb = 3;
-const unsigned int s_mipmap_nb = 3;
 
 GSRenderer::GSRenderer()
 	: m_texture_shuffle(false)
 	, m_real_size(0,0)
 	, m_dev(NULL)
 {
+	const unsigned int s_interlace_nb = 8;
 	m_interlace   = theApp.GetConfigI("interlace") % s_interlace_nb;
 	m_aa1         = theApp.GetConfigB("aa1");
 	m_fxaa        = theApp.GetConfigB("fxaa");

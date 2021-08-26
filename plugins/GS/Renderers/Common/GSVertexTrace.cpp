@@ -177,8 +177,8 @@ void GSVertexTrace::FindMinMax(const void* vertex, const uint32* index, int coun
 		break;
 	}
 
-	GSVector4 tmin = s_minmax.xxxx();
-	GSVector4 tmax = s_minmax.yyyy();
+	GSVector4 tmin  = s_minmax.xxxx();
+	GSVector4 tmax  = s_minmax.yyyy();
 	GSVector4i cmin = GSVector4i::xffffffff();
 	GSVector4i cmax = GSVector4i::zero();
 

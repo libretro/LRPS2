@@ -25,6 +25,7 @@
 #include "GSTexture.h"
 #include "GSVertex.h"
 #include "../../GSAlignedClass.h"
+
 enum ShaderConvert
 {
 	ShaderConvert_COPY = 0,
