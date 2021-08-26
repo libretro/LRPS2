@@ -189,6 +189,8 @@ s32 CALLBACK DISCopen(const char* pTitle)
 	std::string drive = g_Conf->Folders.RunDisc.ToStdString();
 #endif
 	GetValidDrive(drive);
+	if (drive.empty())
+		return -1;
 
 	// open device file
 	if (!(src = std::unique_ptr<IOCtlSrc>(new IOCtlSrc(drive))))
