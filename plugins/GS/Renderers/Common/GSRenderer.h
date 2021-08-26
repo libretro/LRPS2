@@ -33,7 +33,6 @@ class GSRenderer : public GSState
 protected:
 	int m_dithering;
 	int m_interlace;
-	int m_aspectratio;
 	bool m_aa1;
 	bool m_fxaa;
 	bool m_texture_shuffle;
@@ -58,7 +57,6 @@ public:
 	virtual int GetUpscaleMultiplier() {return 1;}
 	virtual GSVector2i GetCustomResolution() {return GSVector2i(0,0);}
 	GSVector2i GetInternalResolution();
-	void SetAspectRatio(int aspect) {m_aspectratio = aspect;}
 
 	void PurgePool();
 };

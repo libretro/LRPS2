@@ -28,14 +28,11 @@ const unsigned int s_aspect_ratio_nb = 3;
 const unsigned int s_mipmap_nb = 3;
 
 GSRenderer::GSRenderer()
-	: m_shader(0)
-	, m_texture_shuffle(false)
+	: m_texture_shuffle(false)
 	, m_real_size(0,0)
 	, m_dev(NULL)
 {
 	m_interlace   = theApp.GetConfigI("interlace") % s_interlace_nb;
-	m_aspectratio = theApp.GetConfigI("AspectRatio") % s_aspect_ratio_nb;
-	m_shader      = theApp.GetConfigI("TVShader") % s_post_shader_nb;
 	m_aa1         = theApp.GetConfigB("aa1");
 	m_fxaa        = theApp.GetConfigB("fxaa");
 	m_dithering   = theApp.GetConfigI("dithering_ps2"); // 0 off, 1 auto, 2 auto no scale
@@ -79,10 +76,14 @@ bool GSRenderer::Merge(int field)
 	GSVector2i display_baseline = { INT_MAX, INT_MAX };
 	GSVector2i frame_baseline = { INT_MAX, INT_MAX };
 
+        en[0] = IsEnabled(0);
+        en[1] = isEnabled(1);
+
+	if(!en[0] && !en[1])
+		return false;
+
 	for(int i = 0; i < 2; i++)
 	{
-		en[i] = IsEnabled(i);
-
 		if(en[i])
 		{
 			fr[i] = GetFrameRect(i);
@@ -97,10 +98,6 @@ bool GSRenderer::Merge(int field)
 		}
 	}
 
-	if(!en[0] && !en[1])
-	{
-		return false;
-	}
 
 	GL_PUSH("Renderer Merge %d (0: enabled %d 0x%x, 1: enabled %d 0x%x)", s_n, en[0], m_regs->DISP[0].DISPFB.Block(), en[1], m_regs->DISP[1].DISPFB.Block());
 
@@ -268,9 +265,7 @@ bool GSRenderer::Merge(int field)
 		}
 
 		if(m_fxaa)
-		{
 			m_dev->FXAA();
-		}
 	}
 
 	return true;
@@ -300,7 +295,7 @@ void GSRenderer::VSync(int field)
 
 	// present
 	if (!m_frameskip)
-	   m_dev->Present(GSVector4i(0, 0, GSgetInternalResolution().x, GSgetInternalResolution().y).fit(m_aspectratio), m_shader);
+	   m_dev->Present(GSVector4i(0, 0, GSgetInternalResolution().x, GSgetInternalResolution().y), 0);
 }
 
 void GSRenderer::PurgePool()

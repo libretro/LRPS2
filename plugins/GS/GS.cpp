@@ -300,12 +300,7 @@ EXPORT_C_(int) GSopen2(uint32 flags)
 	}
 	stored_toggle_state = toggle_state;
 
-	int retval = _GSopen("", current_renderer);
-
-	if (s_gs != NULL)
-		s_gs->SetAspectRatio(0);	 // PCSX2 manages the aspect ratios
-
-	return retval;
+	return _GSopen("", current_renderer);
 }
 
 EXPORT_C_(int) GSopen(const char* title, int mt)

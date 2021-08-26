@@ -233,10 +233,6 @@ public:
 		return v.andnot(mask.xyxy());
 	}
 
-	GSVector4i fit(int arx, int ary) const;
-
-	GSVector4i fit(int preset) const;
-
 	#ifdef _WIN32
 
 	__forceinline operator LPCRECT() const
