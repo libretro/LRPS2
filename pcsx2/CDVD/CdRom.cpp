@@ -664,11 +664,9 @@ void cdrWrite0(u8 rt)
 
 void setPsxSpeed()
 {
-	// psxmode: trying to get delays right (fix "dma3 not ready" and mdec glitches)
-	// odd.. tests suggest this should be exactly * 2. could it be that the old psx 1x / 2x speeds aren't handled the same on PS2?
-	// used Chrono Cross intro music and see that it doesn't stutter, then use any other FMV game (with sound) and see that it doesn't stall.
-	// result: cdReadTime = ((PSXCLK / 75) / BIAS) * 2; is exactly right
+	//Console.Warning(L"SPEED: %dX", speed);
 	cdReadTime = ((PSXCLK / 75) / BIAS) * 2;
+	//Console.Warning(L"cdReadTime: %d", unsigned(cdReadTime));
 }
 
 u8 cdrRead1(void)
