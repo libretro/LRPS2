@@ -18,13 +18,32 @@
 
 #include "PrecompiledHeader.h"
 
+void *__fastcall _aligned_malloc(size_t size, size_t align)
+{
+    pxAssert(align < 0x10000);
+#if defined(__USE_ISOC11) && !defined(ASAN_WORKAROUND) // not supported yet on gcc 4.9
+    return aligned_alloc(align, size);
+#else
+    void *result = 0;
+    posix_memalign(&result, align, size);
+    return result;
+#endif
+}
+
 void *__fastcall pcsx2_aligned_realloc(void *handle, size_t new_size, size_t align, size_t old_size)
 {
+    pxAssert(align < 0x10000);
+
     void *newbuf = _aligned_malloc(new_size, align);
-    if (newbuf != NULL && handle != NULL)
-    {
+
+    if (newbuf != NULL && handle != NULL) {
         memcpy(newbuf, handle, std::min(old_size, new_size));
         _aligned_free(handle);
     }
     return newbuf;
+}
+
+__fi void _aligned_free(void *pmem)
+{
+    free(pmem);
 }
