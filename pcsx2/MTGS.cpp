@@ -385,13 +385,9 @@ void SysMtgsThread::ExecuteTaskInThread()
 							if (m_VsyncSignalListener.exchange(false))
 								m_sem_Vsync.Post();
 
-#ifndef __LIBRETRO__
-							busy.Release();
-#endif
-							StateCheckInThread();
-#ifndef __LIBRETRO__
-							busy.Acquire();
-#endif
+							// Do not StateCheckInThread() here
+							// Otherwise we could pause while there's still data in the queue
+							// Which could make the MTVU thread wait forever for it to empty
 						}
 						break;
 
@@ -538,6 +534,8 @@ void SysMtgsThread::OnResumeInThread( bool isSuspended )
 void SysMtgsThread::OnCleanupInThread()
 {
 	CloseGS();
+	// Unblock any threads in WaitGS in case MTGS gets cancelled while still processing work
+	m_ReadPos.store(m_WritePos.load(std::memory_order_acquire), std::memory_order_relaxed);
 	_parent::OnCleanupInThread();
 }
 
