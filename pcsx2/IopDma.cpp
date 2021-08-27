@@ -112,8 +112,11 @@ void spu2DMA4Irq()
 	log_cb(RETRO_LOG_DEBUG, "spu2DMA4Irq()\n");
 #endif
 	SPU2interruptDMA4();
-	HW_DMA4_CHCR &= ~0x01000000;
-	psxDmaInterrupt(4);
+	if (HW_DMA4_CHCR & 0x01000000)
+	{
+		HW_DMA4_CHCR &= ~0x01000000;
+		psxDmaInterrupt(4);
+	}
 }
 
 void psxDma7(u32 madr, u32 bcr, u32 chcr) // SPU2's Core 1
@@ -137,8 +140,11 @@ void spu2DMA7Irq()
 	log_cb(RETRO_LOG_WARN, "spu2DMA7Irq()\n");
 #endif
 	SPU2interruptDMA7();
-	HW_DMA7_CHCR &= ~0x01000000;
-	psxDmaInterrupt2(0);
+	if (HW_DMA7_CHCR & 0x01000000)
+	{
+		HW_DMA7_CHCR &= ~0x01000000;
+		psxDmaInterrupt2(0);
+	}
 }
 
 #ifndef DISABLE_PSX_GPU_DMAS
