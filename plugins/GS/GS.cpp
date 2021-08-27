@@ -35,11 +35,36 @@
 
 #include "options_tools.h"
 
-static GSRenderer* s_gs = NULL;
-static void (*s_irq)() = NULL;
-static uint8* s_basemem = NULL;
+static bool is_d3d                  = false;
+static GSRenderer* s_gs             = NULL;
+static void (*s_irq)()              = NULL;
+static uint8* s_basemem             = NULL;
 
 GSdxApp theApp;
+
+GSVector2i GSgetInternalResolution()
+{
+	return s_gs->GetInternalResolution();
+}
+
+GSVector4i GSClientRect(void)
+{
+#ifdef _WIN32
+	if(is_d3d)
+	{
+		// For whatever reason, we need this awkward hack right now for 
+     		// D3D right now - setting orig_w/orig_h to any value other than
+ 		// 640, 480 seems to cause issues on various games, 
+		// like 007 Nightfire
+		//unsigned orig_w = GSgetInternalResolution().x / option_upscale_mult;
+		//unsigned orig_h = GSgetInternalResolution().y / option_upscale_mult;
+		unsigned orig_w = 640, orig_h = 480;
+		return GSVector4i(0, 0, orig_w * option_upscale_mult, orig_h * option_upscale_mult);
+	}
+#endif
+	GSVector2i internal_res = GSgetInternalResolution();
+        return GSVector4i(0, 0, internal_res.x, internal_res.y);
+}
 
 EXPORT_C GSsetBaseMem(uint8* mem)
 {
@@ -103,6 +128,8 @@ EXPORT_C GSclose()
 static int _GSopen(const char* title, GSRendererType renderer, int threads = -1)
 {
 	GSDevice* dev = NULL;
+
+	is_d3d       = false;
 	// Fresh start up or config file changed
 	if(renderer == GSRendererType::Undefined)
 	{
@@ -186,6 +213,7 @@ static int _GSopen(const char* title, GSRendererType renderer, int threads = -1)
 	if (dev == NULL)
 		return -1;
 
+
 	if (s_gs == NULL)
 	{
 		switch (renderer)
@@ -193,7 +221,9 @@ static int _GSopen(const char* title, GSRendererType renderer, int threads = -1)
 			default:
 #ifdef _WIN32
 			case GSRendererType::DX1011_HW:
-				s_gs = (GSRenderer*)new GSRendererDX11();
+                                
+				s_gs         = (GSRenderer*)new GSRendererDX11();
+                                is_d3d       = true;
 				break;
 #endif
 			case GSRendererType::OGL_HW:
@@ -215,12 +245,7 @@ static int _GSopen(const char* title, GSRendererType renderer, int threads = -1)
 
 	if(!s_gs->CreateDevice(dev))
 	{
-		// This probably means the user has DX11 configured with a video card that is only DX9
-		// compliant.  Could mean driver issues of some sort also, but to be sure, that's the most
-		// common cause of device creation errors. :)  --air
-
 		GSclose();
-
 		return -1;
 	}
 
@@ -328,11 +353,6 @@ EXPORT_C_(int) GSopen(const char* title, int mt)
 	}
 
 	return retval;
-}
-
-GSVector2i GSgetInternalResolution()
-{
-	return s_gs->GetInternalResolution();
 }
 
 EXPORT_C GSreset()

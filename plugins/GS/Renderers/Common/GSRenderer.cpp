@@ -273,9 +273,6 @@ GSVector2i GSRenderer::GetInternalResolution()
 	return m_real_size;
 }
 
-// forward declaration
-GSVector2i GSgetInternalResolution();
-
 void GSRenderer::VSync(int field)
 {
 	Flush();
@@ -287,7 +284,7 @@ void GSRenderer::VSync(int field)
 
 	// present
 	if (!m_frameskip)
-	   m_dev->Present(GSVector4i(0, 0, GSgetInternalResolution().x, GSgetInternalResolution().y), 0);
+	   m_dev->Present(GSClientRect(), 0);
 }
 
 void GSRenderer::PurgePool()

@@ -1352,4 +1352,6 @@ struct GSDXError {};
 struct GSDXRecoverableError : GSDXError {};
 struct GSDXErrorGlVertexArrayTooSmall : GSDXError {};
 
+GSVector4i GSClientRect(void);
+
 extern GSdxApp theApp;

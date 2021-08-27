@@ -84,7 +84,7 @@ GSVector2i GSgetInternalResolution();
 
 void GSDevice::Present(const GSVector4i& r, int shader)
 {
-	GSVector4i cr = GSVector4i(0, 0, GSgetInternalResolution().x, GSgetInternalResolution().y);
+	GSVector4i cr = GSClientRect();
 
 	int w = std::max<int>(cr.width(), 1);
 	int h = std::max<int>(cr.height(), 1);

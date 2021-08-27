@@ -2090,7 +2090,7 @@ bool GSDeviceOGL::Create()
 	if(!GSDevice::Create())
 		return false;
 
-	GSVector4i rect = GSVector4i(0, 0, GSgetInternalResolution().x, GSgetInternalResolution().y);
+	GSVector4i rect = GSClientRect();
 	Reset(rect.z, rect.w);
 
 	return true;
