@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include <thread>
 #include <functional>
 #include <condition_variable>
 #include <mutex>
