@@ -102,27 +102,6 @@ WXDLLIMPEXP_BASE void *calloc( size_t num, size_t size );
 
 
 /* -------------------------------------------------------------------------
-                            UTF-8 locale handling
-   ------------------------------------------------------------------------- */
-
-#ifdef __cplusplus
-    #if wxUSE_UNICODE_UTF8
-        /* flag indicating whether the current locale uses UTF-8 or not; must be
-           updated every time the locale is changed! */
-        #if wxUSE_UTF8_LOCALE_ONLY
-        #define wxLocaleIsUtf8 true
-        #else
-        extern WXDLLIMPEXP_BASE bool wxLocaleIsUtf8;
-        #endif
-        /* function used to update the flag: */
-        extern WXDLLIMPEXP_BASE void wxUpdateLocaleIsUtf8();
-    #else /* !wxUSE_UNICODE_UTF8 */
-        inline void wxUpdateLocaleIsUtf8() {}
-    #endif /* wxUSE_UNICODE_UTF8/!wxUSE_UNICODE_UTF8 */
-#endif /* __cplusplus */
-
-
-/* -------------------------------------------------------------------------
                                  string.h
    ------------------------------------------------------------------------- */
 
@@ -498,13 +477,6 @@ WXDLLIMPEXP_BASE int wxCRT_FputsW(const wchar_t *ch, FILE *stream);
 WXDLLIMPEXP_BASE int wxCRT_FputcW(wchar_t wc, FILE *stream);
 #endif
 
-/*
-   NB: tmpnam() is unsafe and thus is not wrapped!
-       Use other wxWidgets facilities instead:
-        wxFileName::CreateTempFileName, wxTempFile, or wxTempFileOutputStream
-*/
-#define wxTmpnam(x)         wxTmpnam_is_insecure_use_wxTempFile_instead
-
 /* FIXME-CE: provide our own perror() using ::GetLastError() */
 #ifndef __WXWINCE__
 
@@ -535,12 +507,6 @@ WXDLLIMPEXP_BASE int wxCRT_FputcW(wchar_t wc, FILE *stream);
 WXDLLIMPEXP_BASE wchar_t * wxCRT_GetenvW(const wchar_t *name);
 #endif
 
-
-#define wxCRT_SystemA               system
-/* mingw32 doesn't provide _tsystem() or _wsystem(): */
-#if defined(_tsystem)
-    #define  wxCRT_SystemW          _wsystem
-#endif
 
 #define wxCRT_AtofA                 atof
 #define wxCRT_AtoiA                 atoi

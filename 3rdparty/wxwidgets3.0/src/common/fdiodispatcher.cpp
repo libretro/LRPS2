@@ -103,20 +103,6 @@ wxMappedFDIODispatcher::RegisterFD(int fd, wxFDIOHandler *handler, int flags)
     return true;
 }
 
-bool
-wxMappedFDIODispatcher::ModifyFD(int fd, wxFDIOHandler *handler, int flags)
-{
-    wxCHECK_MSG( handler, false, "handler can't be NULL" );
-
-    wxFDIOHandlerMap::iterator i = m_handlers.find(fd);
-    wxCHECK_MSG( i != m_handlers.end(), false,
-                    "modifying unregistered handler?" );
-
-    i->second = wxFDIOHandlerEntry(handler, flags);
-
-    return true;
-}
-
 bool wxMappedFDIODispatcher::UnregisterFD(int fd)
 {
     wxFDIOHandlerMap::iterator i = m_handlers.find(fd);

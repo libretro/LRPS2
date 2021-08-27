@@ -44,9 +44,6 @@ public:
     // true on success or false on error
     virtual bool RegisterFD(int fd, wxFDIOHandler *handler, int flags) = 0;
 
-    // modify descriptor flags or handler, return true on success
-    virtual bool ModifyFD(int fd, wxFDIOHandler *handler, int flags) = 0;
-
     // unregister descriptor previously registered with RegisterFD()
     virtual bool UnregisterFD(int fd) = 0;
 
@@ -101,9 +98,6 @@ public:
     // register handler for the given descriptor with the dispatcher, return
     // true on success or false on error
     virtual bool RegisterFD(int fd, wxFDIOHandler *handler, int flags);
-
-    // modify descriptor flags or handler, return true on success
-    virtual bool ModifyFD(int fd, wxFDIOHandler *handler, int flags);
 
     // unregister descriptor previously registered with RegisterFD()
     virtual bool UnregisterFD(int fd);

@@ -136,45 +136,6 @@ WXDLLIMPEXP_BASE size_t wxWC2MB(char *buf, const wchar_t *pwz, size_t n)
 #endif
 }
 
-char* wxSetlocale(int category, const char *locale)
-{
-#ifdef __WXWINCE__
-    // FIXME-CE: there is no setlocale() in CE CRT, use SetThreadLocale()?
-    wxUnusedVar(category);
-    wxUnusedVar(locale);
-
-    return NULL;
-#else // !__WXWINCE__
-#ifdef __WXMAC__
-    char *rv = NULL ;
-    if ( locale != NULL && locale[0] == 0 )
-    {
-        // the attempt to use newlocale(LC_ALL_MASK, "", NULL);
-        // here in order to deduce the language along the environment vars rules
-        // lead to strange crashes later...
-
-        // we have to emulate the behaviour under OS X
-        wxCFRef<CFLocaleRef> userLocaleRef(CFLocaleCopyCurrent());
-        wxCFStringRef str(wxCFRetain((CFStringRef)CFLocaleGetValue(userLocaleRef, kCFLocaleLanguageCode)));
-        wxString langFull = str.AsString()+"_";
-        str.reset(wxCFRetain((CFStringRef)CFLocaleGetValue(userLocaleRef, kCFLocaleCountryCode)));
-        langFull += str.AsString();
-        rv = setlocale(category, langFull.c_str());
-    }
-    else
-        rv = setlocale(category, locale);
-#else
-    char *rv = setlocale(category, locale);
-#endif
-    if ( locale != NULL /* setting locale, not querying */ &&
-         rv /* call was successful */ )
-    {
-        wxUpdateLocaleIsUtf8();
-    }
-    return rv;
-#endif // __WXWINCE__/!__WXWINCE__
-}
-
 // ============================================================================
 // printf() functions business
 // ============================================================================
@@ -1140,63 +1101,6 @@ void *calloc( size_t num, size_t size )
 }
 
 #endif // __WXWINCE__ <= 211
-
-// ============================================================================
-// wxLocaleIsUtf8
-// ============================================================================
-
-#if wxUSE_UNICODE_UTF8
-
-#if !wxUSE_UTF8_LOCALE_ONLY
-bool wxLocaleIsUtf8 = false; // the safer setting if not known
-#endif
-
-static bool wxIsLocaleUtf8()
-{
-    // NB: we intentionally don't use wxLocale::GetSystemEncodingName(),
-    //     because a) it may be unavailable in some builds and b) has slightly
-    //     different semantics (default locale instead of current)
-
-#if defined(HAVE_LANGINFO_H) && defined(CODESET)
-    // GNU libc provides current character set this way (this conforms to
-    // Unix98)
-    const char *charset = nl_langinfo(CODESET);
-    if ( charset )
-    {
-        // "UTF-8" is used by modern glibc versions, but test other variants
-        // as well, just in case:
-        if ( strcmp(charset, "UTF-8") == 0 ||
-             strcmp(charset, "utf-8") == 0 ||
-             strcmp(charset, "UTF8") == 0 ||
-             strcmp(charset, "utf8") == 0 )
-        {
-            return true;
-        }
-    }
-#endif // HAVE_LANGINFO_H
-
-    // check if we're running under the "C" locale: it is 7bit subset
-    // of UTF-8, so it can be safely used with the UTF-8 build:
-    const char *lc_ctype = setlocale(LC_CTYPE, NULL);
-    if ( lc_ctype &&
-         (strcmp(lc_ctype, "C") == 0 || strcmp(lc_ctype, "POSIX") == 0) )
-    {
-        return true;
-    }
-
-    // we don't know what charset libc is using, so assume the worst
-    // to be safe:
-    return false;
-}
-
-void wxUpdateLocaleIsUtf8()
-{
-#if !wxUSE_UTF8_LOCALE_ONLY
-    wxLocaleIsUtf8 = wxIsLocaleUtf8();
-#endif
-}
-
-#endif // wxUSE_UNICODE_UTF8
 
 // ============================================================================
 // wx wrappers for CRT functions

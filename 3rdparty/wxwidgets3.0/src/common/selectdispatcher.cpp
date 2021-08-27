@@ -141,16 +141,6 @@ bool wxSelectDispatcher::RegisterFD(int fd, wxFDIOHandler *handler, int flags)
     return true;
 }
 
-bool wxSelectDispatcher::ModifyFD(int fd, wxFDIOHandler *handler, int flags)
-{
-    if ( !wxMappedFDIODispatcher::ModifyFD(fd, handler, flags) )
-        return false;
-
-    wxASSERT_MSG( fd <= m_maxFD, wxT("logic error: registered fd > m_maxFD?") );
-
-    return m_sets.SetFD(fd, flags);
-}
-
 bool wxSelectDispatcher::UnregisterFD(int fd)
 {
     m_sets.ClearFD(fd);

@@ -22,9 +22,6 @@
 class wxThreadSpecificInfo
 {
 public:
-    // Return this thread's instance.
-    static wxThreadSpecificInfo& Get();
-
 #if wxUSE_THREADS
     // Cleans up storage for the current thread. Should be called when a thread
     // is being destroyed. If it's not called, the only bad thing that happens
@@ -35,8 +32,6 @@ public:
 private:
     wxThreadSpecificInfo() {}
 };
-
-#define wxThreadInfo wxThreadSpecificInfo::Get()
 
 #endif // _WX_PRIVATE_THREADINFO_H_
 

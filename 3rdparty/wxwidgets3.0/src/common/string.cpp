@@ -100,15 +100,6 @@ struct wxStrCacheInitializer
     }
 };
 
-/*
-wxString::Cache& wxString::GetCache()
-{
-    static wxTLS_TYPE(Cache) s_cache;
-
-    return wxTLS_VALUE(s_cache);
-}
-*/
-
 static wxStrCacheInitializer gs_stringCacheInit;
 
 #endif // wxHAS_COMPILER_TLS/!wxHAS_COMPILER_TLS

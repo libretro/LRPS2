@@ -31,7 +31,6 @@ public:
 
     // implement base class pure virtual methods
     virtual bool RegisterFD(int fd, wxFDIOHandler* handler, int flags = wxFDIO_ALL);
-    virtual bool ModifyFD(int fd, wxFDIOHandler* handler, int flags = wxFDIO_ALL);
     virtual bool UnregisterFD(int fd);
     virtual bool HasPending() const;
     virtual int Dispatch(int timeout = TIMEOUT_INFINITE);

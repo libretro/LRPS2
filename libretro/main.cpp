@@ -533,7 +533,6 @@ read_m3u_file(const wxFileName& m3u_file)
 	log_cb(RETRO_LOG_DEBUG, "Reading M3U file");
 
 	wxVector<wxString> result;
-	wxVector<wxString> nonexistent;
 
 	wxTextFile m3u_data;
 	if (!m3u_data.Open(m3u_file.GetFullPath()))
@@ -568,7 +567,6 @@ read_m3u_file(const wxFileName& m3u_file)
 			else
 			{
 				wxString full_path = discFile.GetFullPath();
-				nonexistent.push_back(full_path);
 				log_cb(RETRO_LOG_WARN, "File specified in the M3U file \"%s\" was not found:\n%s", m3u_file.GetFullPath().c_str(), full_path.c_str());
 			}
 		}

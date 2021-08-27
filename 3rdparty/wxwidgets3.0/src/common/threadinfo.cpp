@@ -60,18 +60,6 @@ inline wxTLS_TYPE_REF(wxThreadSpecificInfo*) GetThisThreadInfo()
 } // anonymous namespace
 
 
-wxThreadSpecificInfo& wxThreadSpecificInfo::Get()
-{
-    if ( !wxTHIS_THREAD_INFO )
-    {
-        wxTHIS_THREAD_INFO = new wxThreadSpecificInfo;
-        wxCriticalSectionLocker lock(GetAllThreadInfosCS());
-        GetAllThreadInfos().push_back(
-                wxSharedPtr<wxThreadSpecificInfo>(wxTHIS_THREAD_INFO));
-    }
-    return *wxTHIS_THREAD_INFO;
-}
-
 void wxThreadSpecificInfo::ThreadCleanUp()
 {
     if ( !wxTHIS_THREAD_INFO )
@@ -90,14 +78,6 @@ void wxThreadSpecificInfo::ThreadCleanUp()
             break;
         }
     }
-}
-
-#else // !wxUSE_THREADS
-
-wxThreadSpecificInfo& wxThreadSpecificInfo::Get()
-{
-    static wxThreadSpecificInfo s_instance;
-    return s_instance;
 }
 
 #endif // wxUSE_THREADS/wxUSE_THREADS

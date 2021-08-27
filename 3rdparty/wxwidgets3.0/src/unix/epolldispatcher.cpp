@@ -90,19 +90,6 @@ bool wxEpollDispatcher::RegisterFD(int fd, wxFDIOHandler* handler, int flags)
     return true;
 }
 
-bool wxEpollDispatcher::ModifyFD(int fd, wxFDIOHandler* handler, int flags)
-{
-    epoll_event ev;
-    ev.events = GetEpollMask(flags, fd);
-    ev.data.ptr = handler;
-
-    const int ret = epoll_ctl(m_epollDescriptor, EPOLL_CTL_MOD, fd, &ev);
-    if ( ret != 0 )
-        return false;
-
-    return true;
-}
-
 bool wxEpollDispatcher::UnregisterFD(int fd)
 {
     epoll_event ev;
