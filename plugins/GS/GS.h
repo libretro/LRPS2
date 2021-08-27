@@ -31,6 +31,7 @@
 #define MAX_BLOCKS (VM_SIZE / BLOCK_SIZE)
 #define MAX_COLUMNS (VM_SIZE / COLUMN_SIZE)
 
+#include <map>
 #include "GSVector.h"
 
 #pragma pack(push, 1)

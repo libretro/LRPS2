@@ -725,7 +725,6 @@ void GSdxApp::Init()
 	m_current_configuration["override_GL_ARB_vertex_attrib_binding"]      = "-1";
 	m_current_configuration["override_GL_ARB_texture_barrier"]            = "-1";
 	m_current_configuration["paltex"]                                     = "0";
-	m_current_configuration["png_compression_level"]                      = std::to_string(Z_BEST_SPEED);
 	m_current_configuration["preload_frame_with_gs_data"]                 = "0";
 	m_current_configuration["Renderer"]                                   = std::to_string(static_cast<int>(GSRendererType::Default));
 	m_current_configuration["resx"]                                       = "1024";

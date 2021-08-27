@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <vector>
+
 class GSCodeBuffer
 {
 	std::vector<void*> m_buffers;

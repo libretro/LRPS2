@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <unordered_map>
+
 #include "GS.h"
 #include "GSTables.h"
 #include "GSVector.h"

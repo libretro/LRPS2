@@ -34,23 +34,13 @@
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 
 #include <windows.h>
-#include <commctrl.h>
-#include <commdlg.h>
-#include <shellapi.h>
 #include <d3dcompiler.h>
 #include <d3d11_1.h>
 #include <dxgi1_3.h>
-#include <comutil.h>
 #include <atlcomcli.h>
-
-#else
-
-#include <fcntl.h>
-
 #endif
 
 #include <string>
-#include <vector>
 #include <cstdio>
 
 #ifdef __x86_64__
@@ -86,32 +76,8 @@ typedef uint32 uptr;
 #include <cstring>
 #include <cassert>
 
-#if __GNUC__ > 5 || ( __GNUC__ == 5 && __GNUC_MINOR__ >= 4 )
-#include <codecvt>
-#include <locale>
-#endif
-
-#include <complex>
-#include <string>
 #include <array>
-#include <vector>
-#include <list>
-#include <map>
-#include <set>
-#include <queue>
-#include <algorithm>
-#include <thread>
-#include <atomic>
-#include <mutex>
-#include <condition_variable>
-#include <functional>
 #include <memory>
-#include <bitset>
-
-#include <zlib.h>
-
-#include <unordered_map>
-#include <unordered_set>
 
 #ifdef _WIN32
 

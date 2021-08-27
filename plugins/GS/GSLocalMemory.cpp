@@ -24,6 +24,8 @@
  *
  */
 
+#include <unordered_set>
+
 #include "stdafx.h"
 #include "GSLocalMemory.h"
 #include "GS.h"

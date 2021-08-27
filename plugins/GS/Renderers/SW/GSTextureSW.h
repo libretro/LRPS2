@@ -20,6 +20,8 @@
  */
 
 #pragma once
+		
+#include <atomic>
 
 #include "../Common/GSTexture.h"
 

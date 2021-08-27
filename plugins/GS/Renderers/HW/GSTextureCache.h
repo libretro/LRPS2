@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <unordered_set>
+
 #include "../Common/GSRenderer.h"
 #include "../Common/GSFastList.h"
 #include "../Common/GSDirtyRect.h"

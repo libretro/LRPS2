@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <mutex>
+
 #include "GS.h"
 #include "Utilities/boost_spsc_queue.hpp"
 

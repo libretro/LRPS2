@@ -18,6 +18,8 @@
  *
  */
 
+#include <unordered_set>
+
 #include "../../stdafx.h"
 #include "GLLoader.h"
 #include "../../GS.h"

@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <unordered_map>
+
 class GSShaderOGL {
 	GLuint m_pipeline;
 	std::unordered_map<uint32, GLuint> m_program;

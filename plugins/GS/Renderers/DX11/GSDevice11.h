@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <unordered_map>
+
 #include "GSTexture11.h"
 #include "../../GSVector.h"
 #include "../Common/GSDevice.h"
