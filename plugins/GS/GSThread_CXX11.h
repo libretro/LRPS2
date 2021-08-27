@@ -22,6 +22,7 @@
 #pragma once
 
 #include <functional>
+#include <condition_variable>
 #include <mutex>
 
 #include "GS.h"
