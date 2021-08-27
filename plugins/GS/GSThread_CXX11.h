@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <function>
+#include <functional>
 #include <mutex>
 
 #include "GS.h"
