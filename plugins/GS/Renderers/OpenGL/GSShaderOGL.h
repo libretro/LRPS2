@@ -22,6 +22,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <vector>
 
 class GSShaderOGL {
 	GLuint m_pipeline;

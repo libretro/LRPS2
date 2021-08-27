@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <vector>
+
 #include "../Common/GSDevice.h"
 #include "GSTextureOGL.h"
 #include "../../GS.h"

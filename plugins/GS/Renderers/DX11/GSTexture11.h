@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <d3d11_1.h>
+
 #include "../Common/GSTexture.h"
 
 class GSTexture11 : public GSTexture

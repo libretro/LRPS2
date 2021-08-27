@@ -25,6 +25,7 @@
 #include "GSDevice11.h"
 #include <fstream>
 #include <VersionHelpers.h>
+#include <d3dcompiler.h>
 #include "options_tools.h"
 #include "../Common/fxaa_shader.h"
 

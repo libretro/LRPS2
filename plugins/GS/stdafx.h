@@ -34,9 +34,6 @@
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 
 #include <windows.h>
-#include <d3dcompiler.h>
-#include <d3d11_1.h>
-#include <dxgi1_3.h>
 #include <atlcomcli.h>
 #endif
 

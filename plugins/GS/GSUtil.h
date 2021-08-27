@@ -23,6 +23,10 @@
 
 #include "GS.h"
 
+#ifdef _WIN32
+#include <d3d11_1.h>
+#endif
+
 class GSUtil
 {
 public:
