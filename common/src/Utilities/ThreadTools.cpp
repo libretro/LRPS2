@@ -88,8 +88,6 @@ void Threading::pxThread::_pt_callback_cleanup(void *handle)
 Threading::pxThread::pxThread(const wxString &name)
     : m_name(name)
     , m_thread()
-    , m_native_id(0)
-    , m_native_handle(0)
     , m_detached(true) // start out with m_thread in detached/invalid state
     , m_running(false)
 {
@@ -494,8 +492,6 @@ void Threading::pxThread::OnStartInThread()
 {
     m_detached = false;
     m_running = true;
-
-    _platform_specific_OnStartInThread();
 }
 
 void Threading::pxThread::_internal_execute()
@@ -516,9 +512,6 @@ void Threading::pxThread::_internal_execute()
 // running thread has been canceled or detached.
 void Threading::pxThread::OnStart()
 {
-    m_native_handle = 0;
-    m_native_id = 0;
-
     FrankenMutex(m_mtx_InThread);
     m_sem_event.Reset();
     m_sem_startup.Reset();
@@ -532,12 +525,6 @@ void Threading::pxThread::OnCleanupInThread()
         pthread_setspecific(curthread_key, NULL);
 
     unmake_curthread_key();
-
-    _platform_specific_OnCleanupInThread();
-
-    m_native_handle = 0;
-    m_native_id = 0;
-
     m_evtsrc_OnDelete.Dispatch(0);
 }
 

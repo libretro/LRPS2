@@ -50,16 +50,4 @@ __forceinline void Threading::SpinWait()
     // performance hint and isn't required).
     __asm__("pause");
 }
-
-void Threading::pxThread::_platform_specific_OnStartInThread()
-{
-    // Obtain linux-specific thread IDs or Handles here, which can be used to query
-    // kernel scheduler performance information.
-    m_native_id = (uptr)pthread_self();
-}
-
-void Threading::pxThread::_platform_specific_OnCleanupInThread()
-{
-    // Cleanup handles here, which were opened above.
-}
 #endif

@@ -82,8 +82,6 @@ class pxThread
 protected:
     wxString m_name; // diagnostic name for our thread.
     pthread_t m_thread;
-    uptr m_native_id;     // typically an id, but implementing platforms can do whatever.
-    uptr m_native_handle; // typically a pointer/handle, but implementing platforms can do whatever.
 
     Semaphore m_sem_event;      // general wait event that's needed by most threads
     Semaphore m_sem_startup;    // startup sync tool
@@ -151,9 +149,6 @@ protected:
 
     // ----------------------------------------------------------------------------
     // Section of methods for internal use only.
-
-    void _platform_specific_OnStartInThread();
-    void _platform_specific_OnCleanupInThread();
     bool _basecancel();
     void _selfRunningTest(const wxChar *name) const;
     void _internal_execute();

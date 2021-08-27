@@ -43,16 +43,4 @@ __forceinline void Threading::SpinWait()
     // performance hint and isn't required).
     __asm__("pause");
 }
-
-void Threading::pxThread::_platform_specific_OnStartInThread()
-{
-    m_native_id = (uptr)mach_thread_self();
-}
-
-void Threading::pxThread::_platform_specific_OnCleanupInThread()
-{
-    // cleanup of handles that were upened in
-    // _platform_specific_OnStartInThread
-    mach_port_deallocate(mach_task_self(), (thread_port_t)m_native_id);
-}
 #endif

@@ -215,9 +215,8 @@ void SysFakeThread::Resume()
 void SysFakeThread::OnStartInThread()
 {
 	m_RunningLock.Acquire();
-//	 m_detached = false;
-	 m_running = true;
-//	 m_native_id = (uptr)pthread_self();
+//	m_detached = false;
+	m_running = true;
 	m_ExecMode = ExecMode_Closing;
 }
 

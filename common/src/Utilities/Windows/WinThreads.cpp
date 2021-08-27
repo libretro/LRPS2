@@ -35,21 +35,4 @@ __fi void Threading::SpinWait()
 {
     _mm_pause();
 }
-
-void Threading::pxThread::_platform_specific_OnStartInThread()
-{
-    // OpenThread Note: Vista and Win7 need only THREAD_QUERY_LIMITED_INFORMATION (XP and 2k need more),
-    // however we own our process threads, so shouldn't matter in any case...
-
-    m_native_id = (uptr)GetCurrentThreadId();
-    m_native_handle = (uptr)OpenThread(THREAD_QUERY_INFORMATION, false, (DWORD)m_native_id);
-
-    pxAssertDev(m_native_handle, wxNullChar);
-}
-
-void Threading::pxThread::_platform_specific_OnCleanupInThread()
-{
-    CloseHandle((HANDLE)m_native_handle);
-}
-
 #endif
