@@ -204,7 +204,8 @@ namespace vtlb_private
 	// ------------------------------------------------------------------------
 	static void DynGen_DirectWrite( u32 bits )
 	{
-		// TODO: x86Emitter can't use dil (and xRegister8(rdi.Id) is not dil)
+		// TODO: x86Emitter can't use dil
+
 		switch(bits)
 		{
 			//8 , 16, 32 : data on EDX
@@ -214,7 +215,7 @@ namespace vtlb_private
 			break;
 
 			case 16:
-				xMOV( ptr[arg1reg], xRegister16(arg2reg.Id) );
+				xMOV( ptr[arg1reg], xRegister16(arg2reg) );
 			break;
 
 			case 32:
@@ -533,7 +534,8 @@ void vtlb_DynGenWrite_Const( u32 bits, u32 addr_const )
 	auto vmv = vtlbdata.vmap[addr_const>>VTLB_PAGE_BITS];
 	if( !vmv.isHandler(addr_const) )
 	{
-		// TODO: x86Emitter can't use dil (and xRegister8(rdi.Id) is not dil)
+		// TODO: x86Emitter can't use dil
+
 		auto ppf = vmv.assumePtr(addr_const);
 		switch(bits)
 		{
@@ -544,7 +546,7 @@ void vtlb_DynGenWrite_Const( u32 bits, u32 addr_const )
 			break;
 
 			case 16:
-				xMOV( ptr[(void*)ppf], xRegister16(arg2reg.Id) );
+				xMOV( ptr[(void*)ppf], xRegister16(arg2reg) );
 			break;
 
 			case 32:
