@@ -560,6 +560,7 @@ void fifo_free(void* ptr, size_t size, size_t repeat)
 
 #include <sys/mman.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 void* vmalloc(size_t size, bool code)
 {
@@ -583,9 +584,7 @@ void* vmalloc(size_t size, bool code)
 void vmfree(void* ptr, size_t size)
 {
 	size_t mask = getpagesize() - 1;
-
 	size = (size + mask) & ~mask;
-
 	munmap(ptr, size);
 }
 
