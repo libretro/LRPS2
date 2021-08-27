@@ -157,7 +157,6 @@ public:
 
 	virtual bool Create();
 	virtual bool Reset(int w, int h);
-	virtual bool IsLost(bool update = false) {return false;}
 	virtual void Present(const GSVector4i& r, int shader);
 	virtual void Present(GSTexture* sTex, GSTexture* dTex, const GSVector4& dRect, int shader = 0);
 	virtual void Flip() {  }

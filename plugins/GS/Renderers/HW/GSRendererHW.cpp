@@ -1111,7 +1111,7 @@ void GSRendererHW::RoundSpriteOffset()
 
 void GSRendererHW::Draw()
 {
-	if(m_dev->IsLost() || IsBadFrame()) {
+	if(IsBadFrame()) {
 		//log_cb(RETRO_LOG_WARN, "Warning skipping a draw call (%d)\n", s_n);
 		return;
 	}

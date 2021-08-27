@@ -280,13 +280,8 @@ void GSRenderer::VSync(int field)
 {
 	Flush();
 
-	if(!m_dev->IsLost(true))
-	{
-		if(!Merge(field ? 1 : 0))
-			return;
-	}
-	else
-		ResetDevice();
+	if(!Merge(field ? 1 : 0))
+		return;
 
 	m_dev->AgePool();
 
