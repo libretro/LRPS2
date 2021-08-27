@@ -24,6 +24,7 @@
  *
  */
 
+#include <algorithm>
 #include <unordered_set>
 
 #include "stdafx.h"

@@ -19,6 +19,8 @@
  *
  */
 
+#include <algorithm>
+
 #include "stdafx.h"
 #include "GS.h"
 #include "GSCrc.h"
