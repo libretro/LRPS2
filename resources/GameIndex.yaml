@@ -947,7 +947,7 @@ SCAJ-25045:
 SCAJ-25047:
   name: "Dororo"
   region: "NTSC-Unk"
-gameFixes:
+  gameFixes:
     - VUKickstartHack # Fixes main character model SPS.
 SCAJ-30001:
   name: "Xenosaga Episode I [PlayStation 2 The Best]"
@@ -5826,7 +5826,7 @@ SLAJ-25046:
 SLAJ-25047:
   name: "Dororo"
   region: "NTSC-Ch-J"
-gameFixes:
+  gameFixes:
     - VUKickstartHack # Fixes main character model SPS.
 SLAJ-25048:
   name: "Sengoku Musou Mushoden"
@@ -11693,6 +11693,16 @@ SLES-52941:
 SLES-52942:
   name: "Midnight Club 3 - DUB Edition"
   region: "PAL-M5"
+  patches:
+    EBE1972D:
+      content: |-
+        comment=Patch by Refraction and Prafull
+        // Patches a CTC2 write to FBRST to not set the T-Bit enable
+        // Fixes slow speed in MTVU due to developers leaving T-Bit enabled and not using it
+        // PCSX2 has to sync more when T-Bit is enabled so the game spends more time waiting
+        // for VU1 to finish, which reduces the advantage of MTVU to basically zero.
+        patch=1,EE,D0525A1C,extended,00000800
+        patch=1,EE,20525A1C,extended,00000000
 SLES-52943:
   name: "ESPN NFL 2K5"
   region: "PAL-E"
@@ -13395,6 +13405,16 @@ SLES-53716:
 SLES-53717:
   name: "Midnight Club 3 - DUB Edition Remix"
   region: "PAL-M5"
+  patches:
+    208183AF:
+      content: |-
+        comment=Patch by Refraction
+        // Patches a CTC2 write to FBRST to not set the T-Bit enable
+        // Fixes slow speed in MTVU due to developers leaving T-Bit enabled and not using it
+        // PCSX2 has to sync more when T-Bit is enabled so the game spends more time waiting
+        // for VU1 to finish, which reduces the advantage of MTVU to basically zero.
+        patch=1,EE,D0529074,extended,00000800
+        patch=1,EE,20529074,extended,00000000
 SLES-53718:
   name: "Sims 2, The"
   region: "PAL-M10"
@@ -17824,7 +17844,7 @@ SLKA-25225:
   name: "Dororo"
   region: "NTSC-K"
   compat: 5
-gameFixes:
+  gameFixes:
     - VUKickstartHack # Fixes main character model SPS.
 SLKA-25227:
   name: "Neo Contra"
@@ -21855,7 +21875,7 @@ SLPM-65525:
 SLPM-65526:
   name: "Dororo"
   region: "NTSC-J"
-gameFixes:
+  gameFixes:
     - VUKickstartHack # Fixes main character model SPS.
 SLPM-65527:
   name: "FIFA Total Football"
@@ -23932,7 +23952,7 @@ SLPM-66206:
 SLPM-66207:
   name: "Dororo [Sega the Best 2800]"
   region: "NTSC-J"
-gameFixes:
+  gameFixes:
     - VUKickstartHack # Fixes main character model SPS.
 SLPM-66208:
   name: "Sakura Taisen V - Episode 0 - Samurai Girl of Wild [Sega the Best]"
@@ -35526,6 +35546,16 @@ SLUS-21029:
   name: "Midnight Club 3 - DUB Edition"
   region: "NTSC-U"
   compat: 5
+  patches:
+    4A0E5B3A:
+      content: |-
+        comment=Patch by Refraction
+        // Patches a CTC2 write to FBRST to not set the T-Bit enable
+        // Fixes slow speed in MTVU due to developers leaving T-Bit enabled and not using it
+        // PCSX2 has to sync more when T-Bit is enabled so the game spends more time waiting
+        // for VU1 to finish, which reduces the advantage of MTVU to basically zero.
+        patch=1,EE,D05257FC,extended,00000800
+        patch=1,EE,205257FC,extended,00000000
 SLUS-21030:
   name: "Outlaw Golf 2"
   region: "NTSC-U"
@@ -36948,6 +36978,16 @@ SLUS-21355:
   name: "Midnight Club 3 - DUB Edition Remix"
   region: "NTSC-U"
   compat: 5
+  patches:
+    60A42FF5:
+      content: |-
+        comment=Patch by Refraction
+        // Patches a CTC2 write to FBRST to not set the T-Bit enable
+        // Fixes slow speed in MTVU due to developers leaving T-Bit enabled and not using it
+        // PCSX2 has to sync more when T-Bit is enabled so the game spends more time waiting
+        // for VU1 to finish, which reduces the advantage of MTVU to basically zero.
+        patch=1,EE,D052907C,extended,00000800
+        patch=1,EE,2052907C,extended,00000000
 SLUS-21356:
   name: "Tom Clancy's Splinter Cell - Double Agent"
   region: "NTSC-U"
