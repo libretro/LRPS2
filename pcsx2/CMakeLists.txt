@@ -627,6 +627,7 @@ set(pcsx2FinalLibs
     x86emitter
     ${wxWidgets_LIBRARIES}
     ${ZLIB_LIBRARIES}
+    ${AIO_LIBRARIES}
     ${GCOV_LIBRARIES}
     ${Platform_Libs}
 )
