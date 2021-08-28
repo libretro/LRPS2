@@ -163,22 +163,7 @@ bool Gif_HandlerAD_MTVU(u8* pMem)
 bool Gif_HandlerAD_Debug(u8* pMem)
 {
 	u32 reg = pMem[8];
-	if (reg == 0x50)
-	{
-		log_cb(RETRO_LOG_ERROR, "GIF Handler Debug - BITBLTBUF\n");
-		return 1;
-	} 	
-	else if (reg == 0x52)
-	{
-		log_cb(RETRO_LOG_ERROR, "GIF Handler Debug - TRXREG\n");
-		return 1;
-	} 	
-	else if (reg == 0x53)
-	{
-		log_cb(RETRO_LOG_ERROR, "GIF Handler Debug - TRXDIR\n");
-		return 1;
-	} 	
-	else if (reg == 0x60)
+	if (reg == 0x60)
 	{
 		log_cb(RETRO_LOG_ERROR, "GIF Handler Debug - SIGNAL\n");
 		return 1;
