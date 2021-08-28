@@ -26,15 +26,7 @@ struct StereoOutFloat;
 
 struct V_Core;
 
-#include <assert.h>
-#include <cstdlib>
-#include <cstdio>
-#include <cstdarg>
-#include <cmath>
-#include <ctime>
-#include <stdexcept>
-
-#include "Pcsx2Defs.h"
+#include "PrecompiledHeader.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Override Win32 min/max macros with the STL's type safe and macro
