@@ -721,7 +721,6 @@ void* mVUcompile(microVU& mVU, u32 startPC, uptr pState)
 				for (size_t i = 0; i < (sizeof(microRegInfo) - 4) / 4; i++, lpS++, cpS++) {
 					xMOV(ptr32[lpS], cpS[0]);
 				}
-				mVUsetupRange(mVU, xPC, false);
 				incPC(2);
 				mVUsetupRange(mVU, xPC, false);
 				mVUendProgram(mVU, &mFC, 0);
@@ -750,6 +749,7 @@ void* mVUcompile(microVU& mVU, u32 startPC, uptr pState)
 			incPC(1);
 		}
 		else {
+			incPC(1);
 			mVUsetupRange(mVU, xPC, false);
 			mVUdebugPrintBlocks(mVU, true);
 			incPC(-4); // Go back to branch opcode
