@@ -7916,6 +7916,8 @@ SLES-50920:
 SLES-50921:
   name: "Way of the Samurai"
   region: "PAL-M3"
+  gameFixes:
+   - EETimingHack # Stops crash after intro movie
 SLES-50922:
   name: "Terminator, The - Dawn of Fate"
   region: "PAL-M5"
@@ -8275,6 +8277,8 @@ SLES-51124:
 SLES-51125:
   name: "Sega Soccer Slam"
   region: "PAL-E"
+  gameFixes:
+   - EETimingHack # Fixes hang
 SLES-51126:
   name: "Whirl Tour"
   region: "PAL-M5"
@@ -32881,6 +32885,8 @@ SLUS-20407:
   name: "Way of the Samurai"
   region: "NTSC-U"
   compat: 5
+  gameFixes:
+   - EETimingHack # Stops crash after intro movie
 SLUS-20408:
   name: "Pitfall - The Lost Expedition"
   region: "NTSC-U"
@@ -33333,6 +33339,8 @@ SLUS-20509:
   name: "Soccer Slam - Sega Sports"
   region: "NTSC-U"
   compat: 5
+  gameFixes:
+   - EETimingHack # Fixes hang
 SLUS-20510:
   name: "Star Wars - Clone Wars"
   region: "NTSC-U"
