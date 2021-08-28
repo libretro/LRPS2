@@ -497,7 +497,7 @@ void dmaVIF1()
 	if (vif1ch.chcr.DIR) vif1Regs.stat.FQC = std::min((u32)0x10, vif1ch.qwc);
 
 	// Check VIF isn't stalled before starting the loop.
-	// Batman Vengence does something stupid and instead of cancelling a stall it tries to restart VIF, THEN check the stall
+	// Batman Vengeance does something stupid and instead of cancelling a stall it tries to restart VIF, THEN check the stall
 	// However if VIF FIFO is reversed, it can continue
 	if (!vif1ch.chcr.DIR || !vif1Regs.stat.test(VIF1_STAT_VSS | VIF1_STAT_VIS | VIF1_STAT_VFS))
 		CPU_INT(DMAC_VIF1, 4);
