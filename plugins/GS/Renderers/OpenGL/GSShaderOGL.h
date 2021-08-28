@@ -23,6 +23,7 @@
 
 #include <unordered_map>
 #include <vector>
+#include "GLLoader.h"
 
 class GSShaderOGL {
 	GLuint m_pipeline;

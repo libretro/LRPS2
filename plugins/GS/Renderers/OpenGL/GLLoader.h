@@ -30,6 +30,34 @@
 #define GL_CONTEXT_FLAG_NO_ERROR_BIT_KHR  0x00000008
 #endif
 
+#ifdef _WIN32
+	// Note use GL/glcorearb.h on the future
+	// Requirements:
+	//	* Update GSWndWGL::GetProcAddress to query 1.0 and 1.1 symbols
+	//	* define all ENABLE_GL_VERSION_1_*
+	#include <GL/gl.h>
+	#include <GL/glext.h>
+	#include "Renderers/OpenGL/GLLoader.h"
+
+	#define DIRECTORY_SEPARATOR '\\'
+
+#else
+
+	// Note use GL/glcorearb.h on the future
+	// Requirements:
+	//	* Drop GLX that still include gl.h...
+	//	  EGL/OGL status on AMD GPU pro driver is unknown
+	//	* define all ENABLE_GL_VERSION_1_*
+	#include <GL/gl.h>
+	#include <GL/glext.h>
+	#include "Renderers/OpenGL/GLLoader.h"
+
+	#include <sys/stat.h> // mkdir
+
+	#define DIRECTORY_SEPARATOR '/'
+
+#endif
+
 // FIX compilation issue with Mesa 10
 #include "glext_extra.h"
 

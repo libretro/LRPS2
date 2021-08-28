@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "GLLoader.h"
 #include "../Common/GSTexture.h"
 
 namespace PboPool {

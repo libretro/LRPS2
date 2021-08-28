@@ -23,6 +23,7 @@
 
 #include "../../GS.h"
 #include "../../GSVector.h"
+#include "GLLoader.h"
 
 namespace GLState {
 	extern GLuint fbo; // frame buffer object

@@ -76,36 +76,6 @@ typedef uint32 uptr;
 #include <array>
 #include <memory>
 
-#ifdef _WIN32
-
-	// Note use GL/glcorearb.h on the future
-	// Requirements:
-	//	* Update GSWndWGL::GetProcAddress to query 1.0 and 1.1 symbols
-	//	* define all ENABLE_GL_VERSION_1_*
-	#include <GL/gl.h>
-	#include <GL/glext.h>
-	#include <GL/wglext.h>
-	#include "Renderers/OpenGL/GLLoader.h"
-
-	#define DIRECTORY_SEPARATOR '\\'
-
-#else
-
-	// Note use GL/glcorearb.h on the future
-	// Requirements:
-	//	* Drop GLX that still include gl.h...
-	//	  EGL/OGL status on AMD GPU pro driver is unknown
-	//	* define all ENABLE_GL_VERSION_1_*
-	#include <GL/gl.h>
-	#include <GL/glext.h>
-	#include "Renderers/OpenGL/GLLoader.h"
-
-	#include <sys/stat.h> // mkdir
-
-	#define DIRECTORY_SEPARATOR '/'
-
-#endif
-
 #ifdef _MSC_VER
 
     #define EXPORT_C_(type) extern "C" type __stdcall
