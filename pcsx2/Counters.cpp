@@ -340,14 +340,12 @@ void UpdateVSyncRate()
 	case GS_VideoMode::DVD_PAL:
 		isCustom = (EmuConfig.GS.FrameratePAL != 50.0);
 		scanlines = SCANLINES_TOTAL_PAL;
-		if (!gsIsInterlaced) scanlines += 3;
 		break;
 
 	case GS_VideoMode::NTSC:
 	case GS_VideoMode::DVD_NTSC:
 		isCustom = (EmuConfig.GS.FramerateNTSC != 59.94);
 		scanlines = SCANLINES_TOTAL_NTSC;
-		if (!gsIsInterlaced) scanlines += 1;
 		break;
 
 	case GS_VideoMode::SDTV_480P:
