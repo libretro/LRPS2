@@ -211,6 +211,7 @@ SaveStateBase& SaveStateBase::FreezeInternals()
 	gifFreeze();
 	gifDmaFreeze();
 	sprFreeze();
+	mtvuFreeze();
 
 	// Fifth Block - iop-related systems
 	// ---------------------------------
