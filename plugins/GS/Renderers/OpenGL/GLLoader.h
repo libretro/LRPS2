@@ -37,7 +37,6 @@
 	//	* define all ENABLE_GL_VERSION_1_*
 	#include <GL/gl.h>
 	#include <GL/glext.h>
-	#include "Renderers/OpenGL/GLLoader.h"
 
 	#define DIRECTORY_SEPARATOR '\\'
 
@@ -50,7 +49,6 @@
 	//	* define all ENABLE_GL_VERSION_1_*
 	#include <GL/gl.h>
 	#include <GL/glext.h>
-	#include "Renderers/OpenGL/GLLoader.h"
 
 	#include <sys/stat.h> // mkdir
 
