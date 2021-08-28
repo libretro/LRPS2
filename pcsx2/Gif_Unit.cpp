@@ -165,17 +165,23 @@ bool Gif_HandlerAD_Debug(u8* pMem)
 	u32 reg = pMem[8];
 	if (reg == 0x60)
 	{
+#ifndef NDEBUG
 		log_cb(RETRO_LOG_ERROR, "GIF Handler Debug - SIGNAL\n");
+#endif
 		return 1;
 	} 	
 	else if (reg == 0x61)
 	{
+#ifndef NDEBUG
 		log_cb(RETRO_LOG_ERROR, "GIF Handler Debug - FINISH\n");
+#endif
 		return 1;
 	} 	
 	else if (reg == 0x62)
 	{
+#ifndef NDEBUG
 		log_cb(RETRO_LOG_ERROR, "GIF Handler Debug - LABEL\n");
+#endif
 		return 1;
 	} 	
 #ifndef NDEBUG
