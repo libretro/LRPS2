@@ -270,20 +270,6 @@ bool wxAppConsoleBase::ProcessIdle()
 // events
 // ----------------------------------------------------------------------------
 
-void wxAppConsoleBase::DelayPendingEventHandler(wxEvtHandler* toDelay)
-{
-    wxENTER_CRIT_SECT(m_handlersWithPendingEventsLocker);
-
-    // move the handler from the list of handlers with processable pending events
-    // to the list of handlers with pending events which needs to be processed later
-    m_handlersWithPendingEvents.Remove(toDelay);
-
-    if (m_handlersWithPendingDelayedEvents.Index(toDelay) == wxNOT_FOUND)
-        m_handlersWithPendingDelayedEvents.Add(toDelay);
-
-    wxLEAVE_CRIT_SECT(m_handlersWithPendingEventsLocker);
-}
-
 void wxAppConsoleBase::RemovePendingEventHandler(wxEvtHandler* toRemove)
 {
     wxENTER_CRIT_SECT(m_handlersWithPendingEventsLocker);
@@ -411,34 +397,6 @@ void wxAppConsoleBase::DeletePendingObjects()
         // objects, so start from beginning of list again.
         node = wxPendingDelete.GetFirst();
     }
-}
-
-// ----------------------------------------------------------------------------
-// debugging support
-// ----------------------------------------------------------------------------
-
-void wxAppConsoleBase::OnAssertFailure(const wxChar *file,
-                                       int line,
-                                       const wxChar *func,
-                                       const wxChar *cond,
-                                       const wxChar *msg)
-{
-    // this function is still present even in debug level 0 build for ABI
-    // compatibility reasons but is never called there and so can simply do
-    // nothing in it
-    wxUnusedVar(file);
-    wxUnusedVar(line);
-    wxUnusedVar(func);
-    wxUnusedVar(cond);
-    wxUnusedVar(msg);
-}
-
-void wxAppConsoleBase::OnAssert(const wxChar *file,
-                                int line,
-                                const wxChar *cond,
-                                const wxChar *msg)
-{
-    OnAssertFailure(file, line, NULL, cond, msg);
 }
 
 // ============================================================================

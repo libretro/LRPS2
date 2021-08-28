@@ -36,15 +36,6 @@ class WXDLLIMPEXP_FWD_BASE wxMessageOutput;
 typedef wxAppConsole* (*wxAppInitializerFunction)();
 
 // ----------------------------------------------------------------------------
-// global variables
-// ----------------------------------------------------------------------------
-
-// use of this list is strongly deprecated, use wxApp ScheduleForDestruction()
-// and IsScheduledForDestruction()  methods instead of this list directly, it
-// is here for compatibility purposes only
-extern WXDLLIMPEXP_DATA_BASE(wxList) wxPendingDelete;
-
-// ----------------------------------------------------------------------------
 // wxAppConsoleBase: wxApp for non-GUI applications
 // ----------------------------------------------------------------------------
 
@@ -103,20 +94,8 @@ public:
     // do not forget to call the base class version!
     virtual void CleanUp();
 
-    // Called when a fatal exception occurs, this function should take care not
-    // to do anything which might provoke a nested exception! It may be
-    // overridden if you wish to react somehow in non-default way (core dump
-    // under Unix, application crash under Windows) to fatal program errors,
-    // however extreme care should be taken if you don't want this function to
-    // crash.
-    virtual void OnFatalException() { }
-
     // Called from wxExit() function, should terminate the application a.s.a.p.
     virtual void Exit();
-
-    // set/get the app class name
-    wxString GetClassName() const { return m_className; }
-    void SetClassName(const wxString& name) { m_className = name; }
 
     // miscellaneous customization functions
     // -------------------------------------
@@ -177,10 +156,6 @@ public:
     // adds an event handler to the list of the handlers with pending events
     void AppendPendingEventHandler(wxEvtHandler* toAppend);
 
-    // moves the event handler from the list of the handlers with pending events
-    //to the list of the handlers with _delayed_ pending events
-    void DelayPendingEventHandler(wxEvtHandler* toDelay);
-
     // deletes the current pending events
     void DeletePendingEvents();
 
@@ -204,29 +179,6 @@ public:
     // derived class you should call the base class version to ensure that idle
     // events are still sent out
     virtual bool ProcessIdle();
-
-    // debugging support
-    // -----------------
-
-    // this function is called when an assert failure occurs, the base class
-    // version does the normal processing (i.e. shows the usual assert failure
-    // dialog box)
-    //
-    // the arguments are the location of the failed assert (func may be empty
-    // if the compiler doesn't support C99 __FUNCTION__), the text of the
-    // assert itself and the user-specified message
-    virtual void OnAssertFailure(const wxChar *file,
-                                 int line,
-                                 const wxChar *func,
-                                 const wxChar *cond,
-                                 const wxChar *msg);
-
-    // old version of the function without func parameter, for compatibility
-    // only, override OnAssertFailure() in the new code
-    virtual void OnAssert(const wxChar *file,
-                          int line,
-                          const wxChar *cond,
-                          const wxChar *msg);
 
     // implementation only from now on
     // -------------------------------
@@ -277,12 +229,6 @@ protected:
     // create main loop from AppTraits or return NULL if
     // there is no main loop implementation
     wxEventLoopBase *CreateMainLoop();
-
-    // application info (must be set from the user code)
-    wxString 
-             m_appName,           // app name ("myapp")
-             m_appDisplayName,    // app display name ("My Application")
-             m_className;         // class name
 
     // the class defining the application behaviour, NULL initially and created
     // by GetTraits() when first needed
