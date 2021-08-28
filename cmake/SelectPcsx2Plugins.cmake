@@ -44,7 +44,7 @@ endif()
 #           -aio
 #---------------------------------------
 # Common dependancy
-if(wxWidgets_FOUND AND ZLIB_FOUND AND common_libs AND NOT (Linux AND NOT AIO_FOUND))
+if(wxWidgets_FOUND AND ZLIB_FOUND AND common_libs)
     set(pcsx2_core TRUE)
 elseif(NOT EXISTS "${CMAKE_SOURCE_DIR}/pcsx2")
     set(pcsx2_core FALSE)
