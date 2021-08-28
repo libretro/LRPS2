@@ -11,14 +11,11 @@ find_library(libm NAMES m)
 
 # OSX doesn't have rt. On Linux timer and aio dependency.
 if(APPLE)
-	find_library(libdl NAMES dl)
-	set(LIBC_LIBRARIES ${librt} ${libdl} ${libm})    
+	set(LIBC_LIBRARIES ${librt} ${libm})    
 elseif(Linux)
-	find_library(libdl NAMES dl)
 	find_library(librt NAMES rt)
-	set(LIBC_LIBRARIES ${librt} ${libdl} ${libm})
+	set(LIBC_LIBRARIES ${librt} ${libm})
 else()
-	# FreeBSD doesn't have libdl
 	find_library(librt NAMES rt)
 	set(LIBC_LIBRARIES ${librt} ${libm})
 endif()
