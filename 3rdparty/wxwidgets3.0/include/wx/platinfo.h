@@ -164,9 +164,6 @@ public:
 
     static wxOperatingSystemId GetOperatingSystemId(const wxString &name);
 
-    static wxArchitecture GetArch(const wxString &arch);
-    static wxEndianness GetEndianness(const wxString &end);
-
     // getters
     // -----------------
 
@@ -199,13 +196,6 @@ public:
 
     wxOperatingSystemId GetOperatingSystemId() const
         { return m_os; }
-    wxLinuxDistributionInfo GetLinuxDistributionInfo() const
-        { return m_ldi; }
-    wxArchitecture GetArchitecture() const
-        { return m_arch; }
-    wxEndianness GetEndianness() const
-        { return m_endian; }
-
 
     // string getters
     // -----------------
@@ -234,8 +224,6 @@ public:
 
     void SetDesktopEnvironment(const wxString& de)
         { m_desktopEnv = de; }
-    void SetLinuxDistributionInfo(const wxLinuxDistributionInfo& di)
-        { m_ldi = di; }
 
 
     // miscellaneous
@@ -283,7 +271,6 @@ protected:
     // -----------------
 
     wxString m_desktopEnv;
-    wxLinuxDistributionInfo m_ldi;
 
 
     // toolkit

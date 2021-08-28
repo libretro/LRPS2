@@ -290,26 +290,18 @@ wxString wxGetUserHome( const wxString &user )
         wxChar *ptr;
 
         if ((ptr = wxGetenv(wxT("HOME"))) != NULL)
-        {
             return ptr;
-        }
 
         if ((ptr = wxGetenv(wxT("USER"))) != NULL ||
              (ptr = wxGetenv(wxT("LOGNAME"))) != NULL)
-        {
             who = getpwnam(wxSafeConvertWX2MB(ptr));
-        }
 
         // make sure the user exists!
         if ( !who )
-        {
             who = getpwuid(getuid());
-        }
     }
     else
-    {
       who = getpwnam (user.mb_str());
-    }
 
     return wxSafeConvertMB2WX(who ? who->pw_dir : 0);
 }
@@ -375,40 +367,6 @@ bool wxIsPlatform64Bit()
                 machine.Contains(wxT("alpha"));
 }
 
-#ifdef __LINUX__
-
-static bool
-wxGetValueFromLSBRelease(wxString arg, const wxString& lhs, wxString* rhs)
-{
-    // lsb_release seems to just read a global file which is always in UTF-8
-    // and hence its output is always in UTF-8 as well, regardless of the
-    // locale currently configured by our environment.
-    return wxGetCommandOutput(wxS("lsb_release ") + arg, wxConvUTF8)
-                .StartsWith(lhs, rhs);
-}
-
-wxLinuxDistributionInfo wxGetLinuxDistributionInfo()
-{
-    wxLinuxDistributionInfo ret;
-
-    if ( !wxGetValueFromLSBRelease(wxS("--id"), wxS("Distributor ID:\t"),
-                                   &ret.Id) )
-    {
-        // Don't bother to continue, lsb_release is probably not available.
-        return ret;
-    }
-
-    wxGetValueFromLSBRelease(wxS("--description"), wxS("Description:\t"),
-                             &ret.Description);
-    wxGetValueFromLSBRelease(wxS("--release"), wxS("Release:\t"),
-                             &ret.Release);
-    wxGetValueFromLSBRelease(wxS("--codename"), wxS("Codename:\t"),
-                             &ret.CodeName);
-
-    return ret;
-}
-#endif // __LINUX__
-
 // these functions are in src/osx/utilsexc_base.cpp for wxMac
 #ifndef __DARWIN__
 
@@ -460,62 +418,7 @@ bool wxGetEnv(const wxString& var, wxString *value)
         return false;
 
     if ( value )
-    {
         *value = p;
-    }
 
     return true;
 }
-
-namespace
-{
-
-// Helper function that checks whether the child with the given PID has exited
-// and fills the provided parameter with its return code if it did.
-bool CheckForChildExit(int pid, int* exitcodeOut)
-{
-    wxASSERT_MSG( pid > 0, "invalid PID" );
-
-    int status, rc;
-
-    // loop while we're getting EINTR
-    for ( ;; )
-    {
-        rc = waitpid(pid, &status, WNOHANG);
-
-        if ( rc != -1 || errno != EINTR )
-            break;
-    }
-
-    switch ( rc )
-    {
-        case 0:
-            // No error but the child is still running.
-            return false;
-
-        case -1:
-            // Checking child status failed. Invalid PID?
-            return false;
-
-        default:
-            // Child did terminate.
-            wxASSERT_MSG( rc == pid, "unexpected waitpid() return value" );
-
-            // notice that the caller expects the exit code to be signed, e.g. -1
-            // instead of 255 so don't assign WEXITSTATUS() to an int
-            signed char exitcode;
-            if ( WIFEXITED(status) )
-                exitcode = WEXITSTATUS(status);
-            else if ( WIFSIGNALED(status) )
-                exitcode = -WTERMSIG(status);
-            else
-                exitcode = -1;
-
-            if ( exitcodeOut )
-                *exitcodeOut = exitcode;
-
-            return true;
-    }
-}
-
-} // anonymous namespace

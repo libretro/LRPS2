@@ -104,7 +104,6 @@ bool wxPlatformInfo::operator==(const wxPlatformInfo &t) const
            m_osVersionMinor == t.m_osVersionMinor &&
            m_os == t.m_os &&
            m_osDesc == t.m_osDesc &&
-           m_ldi == t.m_ldi &&
            m_desktopEnv == t.m_desktopEnv &&
            m_port == t.m_port &&
            m_arch == t.m_arch &&
@@ -133,11 +132,6 @@ void wxPlatformInfo::InitForCurrentPlatform()
     m_osDesc = wxGetOsDescription();
     m_endian = wxIsPlatformLittleEndian() ? wxENDIAN_LITTLE : wxENDIAN_BIG;
     m_arch = wxIsPlatform64Bit() ? wxARCH_64 : wxARCH_32;
-
-#ifdef __LINUX__
-    m_ldi = wxGetLinuxDistributionInfo();
-#endif
-    // else: leave m_ldi empty
 }
 
 /* static */
@@ -167,27 +161,3 @@ wxOperatingSystemId wxPlatformInfo::GetOperatingSystemId(const wxString &str)
 
     return wxOS_UNKNOWN;
 }
-
-wxArchitecture wxPlatformInfo::GetArch(const wxString &arch)
-{
-    if ( arch.Contains(wxT("32")) )
-        return wxARCH_32;
-
-    if ( arch.Contains(wxT("64")) )
-        return wxARCH_64;
-
-    return wxARCH_INVALID;
-}
-
-wxEndianness wxPlatformInfo::GetEndianness(const wxString& end)
-{
-    const wxString endl(end.Lower());
-    if ( endl.StartsWith(wxT("little")) )
-        return wxENDIAN_LITTLE;
-
-    if ( endl.StartsWith(wxT("big")) )
-        return wxENDIAN_BIG;
-
-    return wxENDIAN_INVALID;
-}
-
