@@ -560,7 +560,9 @@ bool GSDevice11::Create()
 
 		for(size_t i = 0; i < countof(m_convert.ps); i++)
 		{
-			CreateShader(shader, "convert.fx", nullptr, format("ps_main%d", i).c_str(), sm_convert_ptr, & m_convert.ps[i]);
+			char str[32];
+			snprintf(str, sizeof(str), "ps_main%d", i);
+			CreateShader(shader, "convert.fx", nullptr, str, sm_convert_ptr, & m_convert.ps[i]);
 		}
 	}
 
@@ -594,7 +596,9 @@ bool GSDevice11::Create()
 		std::vector<char> shader(merge_shader_raw, merge_shader_raw + sizeof(merge_shader_raw)/sizeof(*merge_shader_raw));
 		for(size_t i = 0; i < countof(m_merge.ps); i++)
 		{
-			CreateShader(shader, "merge.fx", nullptr, format("ps_main%d", i).c_str(), sm_model.GetPtr(), &m_merge.ps[i]);
+			char str[32];
+			snprintf(str, sizeof(str), "ps_main%d", i);
+			CreateShader(shader, "merge.fx", nullptr, str, sm_model.GetPtr(), &m_merge.ps[i]);
 		}
 	}
 
@@ -625,7 +629,9 @@ bool GSDevice11::Create()
 		std::vector<char> shader(interlace_shader_raw, interlace_shader_raw + sizeof(interlace_shader_raw)/sizeof(*interlace_shader_raw));
 		for(size_t i = 0; i < countof(m_interlace.ps); i++)
 		{
-			CreateShader(shader, "interlace.fx", nullptr, format("ps_main%d", i).c_str(), sm_model.GetPtr(), &m_interlace.ps[i]);
+			char str[32];
+			snprintf(str, sizeof(str), "ps_main%d", i);
+			CreateShader(shader, "interlace.fx", nullptr, str, sm_model.GetPtr(), &m_interlace.ps[i]);
 		}
 	}
 
