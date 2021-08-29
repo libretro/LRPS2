@@ -84,7 +84,6 @@ extern "C" {
 // basic funcs
 
 s32 CALLBACK GSinit();
-s32 CALLBACK GSopen(const char *Title, int multithread);
 s32 CALLBACK GSopen2(u32 flags);
 void CALLBACK GSclose();
 void CALLBACK GSshutdown();

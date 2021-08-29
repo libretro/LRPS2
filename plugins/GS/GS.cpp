@@ -328,33 +328,6 @@ EXPORT_C_(int) GSopen2(uint32 flags)
 	return _GSopen("", current_renderer);
 }
 
-EXPORT_C_(int) GSopen(const char* title, int mt)
-{
-	GSRendererType renderer = GSRendererType::Default;
-
-	// Legacy GUI expects to acquire vsync from the configuration files.
-	if(mt == 2)
-	{
-		// pcsx2 sent a switch renderer request
-		mt = 1;
-	}
-	else
-	{
-		// normal init
-
-		renderer = static_cast<GSRendererType>(theApp.GetConfigI("Renderer"));
-	}
-
-	int retval = _GSopen(title, renderer);
-
-	if(retval == 0 && s_gs)
-	{
-		s_gs->SetMultithreaded(!!mt);
-	}
-
-	return retval;
-}
-
 EXPORT_C GSreset()
 {
 	s_gs->Reset();
