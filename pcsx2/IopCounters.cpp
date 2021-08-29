@@ -612,13 +612,10 @@ __fi void psxRcntWmode16(int index, u32 value)
 	counter.mode |= 0x0400; //IRQ Enable
 
 	if (value & (1 << 4))
-	{
 		irqmode += 1;
-	}
 	if (value & (1 << 5))
-	{
 		irqmode += 2;
-	}
+#if 0
 	if (value & (1 << 7))
 	{
 		PSXCNT_LOG("16 Counter %d Toggle IRQ on %s", index, (irqmode & 3) == 1 ? "Target" : ((irqmode & 3) == 2 ? "Overflow" : "Target and Overflow"));
@@ -635,6 +632,7 @@ __fi void psxRcntWmode16(int index, u32 value)
 	{
 		PSXCNT_LOG("16 Counter %d Repeat", index);
 	}
+#endif
 	if (index == 2)
 	{
 		switch (value & 0x200)
@@ -709,6 +707,7 @@ __fi void psxRcntWmode32(int index, u32 value)
 	{
 		irqmode += 2;
 	}
+#if 0
 	if (value & (1 << 7))
 	{
 		PSXCNT_LOG("32 Counter %d Toggle IRQ on %s", index, (irqmode & 3) == 1 ? "Target" : ((irqmode & 3) == 2 ? "Overflow" : "Target and Overflow"));
@@ -725,6 +724,7 @@ __fi void psxRcntWmode32(int index, u32 value)
 	{
 		PSXCNT_LOG("32 Counter %d Repeat", index);
 	}
+#endif
 	if (index == 3)
 	{
 		// Counter 3 has the HBlank as an alternate source.
