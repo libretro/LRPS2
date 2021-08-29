@@ -31,8 +31,6 @@
 
 extern retro_video_refresh_t video_cb;
 
-//#define ONLY_LINES
-
 /* Merge shader */
 static const char merge_glsl_shader_raw[] =
 "//#version 420 // Keep it for editor detection\n"
@@ -2007,12 +2005,7 @@ bool GSDeviceOGL::Create()
 	{
 		GL_PUSH("GSDeviceOGL::Rasterization");
 
-#ifdef ONLY_LINES
-		glLineWidth(5.0);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-#else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-#endif
 		glDisable(GL_CULL_FACE);
 		glEnable(GL_SCISSOR_TEST);
 		glDisable(GL_MULTISAMPLE);
@@ -3056,56 +3049,6 @@ void GSDeviceOGL::SetupPipeline(const VSSelector& vsel, const GSSelector& gsel, 
 		m_ps[psel] = ps;
 	} else {
 		ps = i->second;
-	}
-
-	{
-#if defined(_DEBUG) && 0
-		// Toggling Shader is bad for the perf. Let's trace parameter that often toggle to detect
-		// potential uber shader possibilities.
-		static PSSelector old_psel;
-		static GLuint old_ps = 0;
-		std::string msg("");
-#define CHECK_STATE(p) if (psel.p != old_psel.p) msg.append(" ").append(#p);
-
-		if (old_ps != ps) {
-
-			CHECK_STATE(tex_fmt);
-			CHECK_STATE(dfmt);
-			CHECK_STATE(depth_fmt);
-			CHECK_STATE(aem);
-			CHECK_STATE(fba);
-			CHECK_STATE(fog);
-			CHECK_STATE(iip);
-			CHECK_STATE(date);
-			CHECK_STATE(atst);
-			CHECK_STATE(fst);
-			CHECK_STATE(tfx);
-			CHECK_STATE(tcc);
-			CHECK_STATE(wms);
-			CHECK_STATE(wmt);
-			CHECK_STATE(ltf);
-			CHECK_STATE(shuffle);
-			CHECK_STATE(read_ba);
-			CHECK_STATE(write_rg);
-			CHECK_STATE(fbmask);
-			CHECK_STATE(blend_a);
-			CHECK_STATE(blend_b);
-			CHECK_STATE(blend_c);
-			CHECK_STATE(blend_d);
-			CHECK_STATE(clr1);
-			CHECK_STATE(pabe);
-			CHECK_STATE(hdr);
-			CHECK_STATE(colclip);
-			// CHECK_STATE(channel);
-			// CHECK_STATE(tcoffsethack);
-			// CHECK_STATE(urban_chaos_hle);
-			// CHECK_STATE(tales_of_abyss_hle);
-			GL_PERF("New PS :%s", msg.c_str());
-		}
-
-		old_psel.key = psel.key;
-		old_ps = ps;
-#endif
 	}
 
 	if (GLLoader::buggy_sso_dual_src)

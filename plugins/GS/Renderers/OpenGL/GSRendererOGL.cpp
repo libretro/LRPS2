@@ -439,11 +439,11 @@ void GSRendererOGL::EmulateChannelShuffle(GSTexture** rt, const GSTextureCache::
 		m_vertex.head = m_vertex.tail = m_vertex.next = 2;
 		m_index.tail = 2;
 
-	} else {
+	}
 #ifdef ENABLE_OGL_DEBUG
+	else
 		dev->PSSetShaderResource(4, NULL);
 #endif
-	}
 }
 
 void GSRendererOGL::EmulateBlending(bool& DATE_GL42, bool& DATE_GL45)
@@ -730,11 +730,15 @@ void GSRendererOGL::EmulateTextureSampler(const GSTextureCache::Source* tex)
 		// Note 4 bits indexes are converted to 8 bits
 		m_ps_sel.tex_fmt = 3 << 2;
 
-	} else {
+	}
+#if 0
+	else
+	{
 		// Standard texture. Both index and AEM expansion were already done by the CPU.
 		// m_ps_sel.tex_fmt = 0; // removed as an optimization
 		// m_ps_sel.aem     = 0; // removed as an optimization
 	}
+#endif
 
 	if (m_context->TEX0.TFX == TFX_MODULATE && m_vt.m_eq.rgba == 0xFFFF && m_vt.m_min.c.eq(GSVector4i(128))) {
 		// Micro optimization that reduces GPU load (removes 5 instructions on the FS program)

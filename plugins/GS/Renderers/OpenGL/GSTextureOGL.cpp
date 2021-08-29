@@ -120,10 +120,12 @@ namespace PboPool {
 			// Align current transfer on the start of the segment
 			m_offset = m_seg_size * segment_next;
 
+#if 0
 			if (m_size > m_seg_size) {
 				fprintf(stderr, "BUG: PBO Map size %u is bigger than a single segment %u. Crossing more than one fence is not supported yet, texture data may be corrupted.\n", m_size, m_seg_size);
 				// TODO Synchronize all crossed fences
 			}
+#endif
 
 			// protect the left segment
 			m_fence[segment_current] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
@@ -132,9 +134,11 @@ namespace PboPool {
 			if (m_fence[segment_next]) {
 				GLenum status = glClientWaitSync(m_fence[segment_next], GL_SYNC_FLUSH_COMMANDS_BIT, GL_TIMEOUT_IGNORED);
 				// Potentially it doesn't work on AMD driver which might always return GL_CONDITION_SATISFIED
+#if 0
 				if (status != GL_ALREADY_SIGNALED) {
 					GL_PERF("GL_PIXEL_UNPACK_BUFFER: Sync Sync (%x)! Buffer too small ?", status);
 				}
+#endif
 
 				glDeleteSync(m_fence[segment_next]);
 				m_fence[segment_next] = 0;
@@ -302,10 +306,12 @@ GSTextureOGL::GSTextureOGL(int type, int w, int h, int format, GLuint fbo_read, 
 	if (m_sparse) {
 		GSVector2i old_size = m_size;
 		m_size = RoundUpPage(m_size);
+#if 0
 		if (m_size != old_size) {
 			fprintf(stderr, "Sparse texture size (%dx%d) isn't a multiple of gpu page size (%dx%d)\n",
 					old_size.x, old_size.y, m_gpu_page_size.x, m_gpu_page_size.y);
 		}
+#endif
 		glTextureParameteri(m_texture_id, GL_TEXTURE_SPARSE_ARB, true);
 	} else {
 		m_committed_size = m_size;
