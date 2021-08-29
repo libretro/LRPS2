@@ -331,12 +331,13 @@ void SPRFROMinterrupt()
 					spr0ch.madr = dmacRegs.rbor.ADDR + (spr0ch.madr & dmacRegs.rbsr.RMSK);
 					//log_cb(RETRO_LOG_DEBUG, "mfifoGIFtransfer %x madr %x, tadr %x\n", gif->chcr._u32, gif->madr, gif->tadr);
 					hwMFIFOResume(mfifotransferred);
-					mfifotransferred = 0;
 					break;
 				}
 				default:
 					break;
 			}
+
+			mfifotransferred = 0;
 		}
 
 		return;

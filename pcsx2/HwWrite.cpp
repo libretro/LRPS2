@@ -112,9 +112,8 @@ void __fastcall _hwWrite32( u32 mem, u32 value )
 				icase(GIF_MODE)
 				{
 					gifRegs.mode.write(value);
-
 					//Need to kickstart the GIF if the M3R mask comes off
-					if (gifRegs.stat.M3R == 1 && gifRegs.mode.M3R == 0 && gifch.chcr.STR)
+					if (gifRegs.stat.M3R == 1 && gifRegs.mode.M3R == 0 && (gifch.chcr.STR || gif_fifo.fifoSize))
 					{
 						log_cb(RETRO_LOG_DEBUG, "GIF Mode cancelling P3 Disable\n");
 						CPU_INT(DMAC_GIF, 8);
