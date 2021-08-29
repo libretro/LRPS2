@@ -25,7 +25,6 @@
 GSCodeBuffer::GSCodeBuffer(size_t blocksize)
 	: m_blocksize(blocksize)
 	, m_pos(0)
-	, m_reserved(0)
 	, m_ptr(NULL)
 {
 }
@@ -33,41 +32,25 @@ GSCodeBuffer::GSCodeBuffer(size_t blocksize)
 GSCodeBuffer::~GSCodeBuffer()
 {
 	for(auto buffer : m_buffers)
-	{
 		vmfree(buffer, m_blocksize);
-	}
 }
 
 void* GSCodeBuffer::GetBuffer(size_t size)
 {
-	ASSERT(size < m_blocksize);
-	ASSERT(m_reserved == 0);
-
 	size = (size + 15) & ~15;
 
 	if(m_ptr == NULL || m_pos + size > m_blocksize)
 	{
 		m_ptr = (uint8*)vmalloc(m_blocksize, true);
-
 		m_pos = 0;
-
 		m_buffers.push_back(m_ptr);
+		return &m_ptr[0];
 	}
 
-	uint8* ptr = &m_ptr[m_pos];
-
-	m_reserved = size;
-
-	return ptr;
+	return &m_ptr[m_pos];
 }
 
 void GSCodeBuffer::ReleaseBuffer(size_t size)
 {
-	ASSERT(size <= m_reserved);
-
 	m_pos = ((m_pos + size) + 15) & ~15;
-
-	ASSERT(m_pos < m_blocksize);
-
-	m_reserved = 0;
 }
