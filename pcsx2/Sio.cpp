@@ -49,13 +49,6 @@ static const int   FORCED_MCD_EJECTION_MIN_TRIES =2;
 static const int   FORCED_MCD_EJECTION_MAX_TRIES =128;
 static const float FORCED_MCD_EJECTION_MAX_MS_AFTER_MIN_TRIES =2800; 
 
-wxString GetTimeMsStr(){
-	wxDateTime unow=wxDateTime::UNow();
-	wxString res;
-	res.Printf(L"%s.%03d", WX_STR(unow.Format(L"%H:%M:%S")), (int)unow.GetMillisecond() );
-	return res;
-}
-
 //allow timeout also for the mcd manager panel
 void SetForceMcdEjectTimeoutNow( uint port, uint slot )
 {
@@ -604,9 +597,6 @@ SIO_WRITE memcardInit()
 
 	if(mcd->ForceEjection_Timeout)
 	{
-		if(mcd->ForceEjection_Timeout == FORCED_MCD_EJECTION_MAX_TRIES && mcd->IsPresent())
-			log_cb(RETRO_LOG_INFO,  "[%s] Auto-ejecting memcard [port:%d, slot:%d]\n", WX_STR(GetTimeMsStr()), sio.GetPort(), sio.GetSlot());
-
 		mcd->ForceEjection_Timeout--;
 		forceEject = true;
 
@@ -620,16 +610,8 @@ SIO_WRITE memcardInit()
 		{
 			wxTimeSpan delta = wxDateTime::UNow().Subtract(mcd->ForceEjection_Timestamp);
 			if(delta.GetMilliseconds() >= FORCED_MCD_EJECTION_MAX_MS_AFTER_MIN_TRIES)
-			{
-#ifndef NDEBUG
-				log_cb(RETRO_LOG_DEBUG, "[%s] Auto-eject: Timeout reached after mcd was accessed %d times [port:%d, slot:%d]\n", WX_STR(GetTimeMsStr()), numTimesAccessed, sio.GetPort(), sio.GetSlot());
-#endif
 				mcd->ForceEjection_Timeout = 0;	//Done. on next sio access the card will be seen as inserted.
-			}
 		}
-
-		if(mcd->ForceEjection_Timeout == 0 && mcd->IsPresent())
-			log_cb(RETRO_LOG_INFO,  "[%s] Re-inserting auto-ejected memcard [port:%d, slot:%d]\n", WX_STR(GetTimeMsStr()), sio.GetPort(), sio.GetSlot());
 	}
 			
 	if(!forceEject && mcd->IsPresent())
