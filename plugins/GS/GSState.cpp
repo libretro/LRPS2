@@ -32,7 +32,6 @@ int GSState::s_n = 0;
 GSState::GSState()
 	: m_version(6)
 	, m_mt(false)
-	, m_irq(NULL)
 	, m_path3hack(0)
 	, m_init_read_fifo_supported(false)
 	, m_gsc(NULL)
@@ -162,11 +161,6 @@ void GSState::SetRegsMem(uint8* basemem)
 	ASSERT(basemem);
 
 	m_regs = (GSPrivRegSet*)basemem;
-}
-
-void GSState::SetIrqCallback(void (*irq)())
-{
-	m_irq = irq;
 }
 
 void GSState::SetMultithreaded(bool mt)
@@ -1480,14 +1474,12 @@ void GSState::GIFRegHandlerSIGNAL(const GIFReg* RESTRICT r)
 	m_regs->SIGLBLID.SIGID = (m_regs->SIGLBLID.SIGID & ~r->SIGNAL.IDMSK) | (r->SIGNAL.ID & r->SIGNAL.IDMSK);
 
 	if(m_regs->CSR.wSIGNAL) m_regs->CSR.rSIGNAL = 1;
-	if(!m_regs->IMR.SIGMSK && m_irq) m_irq();
 }
 
 void GSState::GIFRegHandlerFINISH(const GIFReg* RESTRICT r)
 {
 	GL_REG("FINISH = 0x%x_%x", r->u32[1], r->u32[0]);
 	if(m_regs->CSR.wFINISH) m_regs->CSR.rFINISH = 1;
-	if(!m_regs->IMR.FINISHMSK && m_irq) m_irq();
 }
 
 void GSState::GIFRegHandlerLABEL(const GIFReg* RESTRICT r)

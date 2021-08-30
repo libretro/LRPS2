@@ -37,7 +37,6 @@
 
 static bool is_d3d                  = false;
 static GSRenderer* s_gs             = NULL;
-static void (*s_irq)()              = NULL;
 static uint8* s_basemem             = NULL;
 
 GSdxApp theApp;
@@ -241,7 +240,6 @@ static int _GSopen(const char* title, GSRendererType renderer, int threads = -1)
 	}
 
 	s_gs->SetRegsMem(s_basemem);
-	s_gs->SetIrqCallback(s_irq);
 
 	if(!s_gs->CreateDevice(dev))
 	{
@@ -405,27 +403,9 @@ EXPORT_C_(int) GSfreeze(int mode, GSFreezeData* data)
 	return 0;
 }
 
-EXPORT_C GSconfigure()
-{
-	theApp.Init();
-}
-
-EXPORT_C GSirqCallback(void (*irq)())
-{
-	s_irq = irq;
-
-	if(s_gs)
-		s_gs->SetIrqCallback(s_irq);
-}
-
 EXPORT_C GSsetGameCRC(uint32 crc, int options)
 {
 	s_gs->SetGameCRC(crc, options);
-}
-
-EXPORT_C GSgetLastTag(uint32* tag)
-{
-	s_gs->GetLastTag(tag);
 }
 
 EXPORT_C GSsetFrameSkip(int frameskip)

@@ -181,12 +181,6 @@ union PacketTagType
 	};
 };
 
-static void dummyIrqCallback()
-{
-	// dummy, because MTGS doesn't need this mess!
-	// (and zerogs does >_<)
-}
-
 void SysMtgsThread::OpenGS()
 {
 #ifdef __LIBRETRO__
@@ -197,7 +191,6 @@ void SysMtgsThread::OpenGS()
 
 	memcpy( RingBuffer.Regs, PS2MEM_GS, sizeof(PS2MEM_GS) );
 	GSsetBaseMem( RingBuffer.Regs );
-	GSirqCallback( dummyIrqCallback );
 
 	GSopen2(1 | (renderswitch ? 4 : 0) );
 
