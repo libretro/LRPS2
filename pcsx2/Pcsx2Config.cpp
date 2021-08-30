@@ -169,7 +169,7 @@ const wxChar *const tbl_GamefixNames[] =
 	L"FMVinSoftware",
 	L"GoemonTlb",
 	L"Ibit",
-	L"VU0Kickstart"
+	L"VUKickstart"
 };
 
 const __fi wxChar* EnumToString( GamefixId id )
@@ -232,7 +232,7 @@ void Pcsx2Config::GamefixOptions::Set( GamefixId id, bool enabled )
 		case Fix_FMVinSoftware:	FMVinSoftwareHack	= enabled;  break;
 		case Fix_GoemonTlbMiss: GoemonTlbHack		= enabled;  break;
 		case Fix_Ibit:  IbitHack        = enabled;  break;
-		case Fix_VU0Kickstart:	VU0KickstartHack	= enabled; break;
+		case Fix_VUKickstart:	VUKickstartHack	= enabled; break;
 		jNO_DEFAULT;
 	}
 }
@@ -258,7 +258,7 @@ bool Pcsx2Config::GamefixOptions::Get( GamefixId id ) const
 		case Fix_FMVinSoftware:	return FMVinSoftwareHack;
 		case Fix_GoemonTlbMiss: return GoemonTlbHack;
 		case Fix_Ibit:  return IbitHack;
-		case Fix_VU0Kickstart:	return VU0KickstartHack;
+		case Fix_VUKickstart:	return VUKickstartHack;
 		jNO_DEFAULT;
 	}
 	return false;		// unreachable, but we still need to suppress warnings >_<

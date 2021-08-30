@@ -38,7 +38,7 @@ enum GamefixId
 	Fix_FMVinSoftware,
 	Fix_GoemonTlbMiss,
 	Fix_Ibit,
-	Fix_VU0Kickstart,
+	Fix_VUKickstart,
 
 	GamefixId_COUNT
 };
@@ -206,7 +206,7 @@ struct Pcsx2Config
             FMVinSoftwareHack : 1,      // Toggle in and out of software rendering when an FMV runs.
             GoemonTlbHack : 1,          // Gomeon tlb miss hack. The game need to access unmapped virtual address. Instead to handle it as exception, tlb are preloaded at startup
             IbitHack : 1,           	// I bit hack. Needed to stop constant VU recompilation
-            VU0KickstartHack : 1;       // Speed up VU0 at start of program to avoid some VU1 sync issues
+            VUKickstartHack : 1;       // Gives new VU programs a slight head start and runs VU's ahead of EE to avoid VU register reading/writing issues
 		BITFIELD_END
 
 		GamefixOptions();
