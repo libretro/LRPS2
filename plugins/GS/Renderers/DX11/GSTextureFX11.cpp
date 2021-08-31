@@ -1258,20 +1258,19 @@ void GSDevice11::SetupPS(PSSelector sel, const PSConstantBuffer* cb, PSSamplerSe
 		}
 		else
 		{
-			D3D11_SAMPLER_DESC sd, af;
-
-			memset(&sd, 0, sizeof(sd));
-
-			af.Filter = m_aniso_filter ? D3D11_FILTER_ANISOTROPIC : D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-			sd.Filter = ssel.ltf ? af.Filter : D3D11_FILTER_MIN_MAG_MIP_POINT;
+			D3D11_SAMPLER_DESC sd;
+			enum D3D11_FILTER af = m_aniso_filter ? D3D11_FILTER_ANISOTROPIC : D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+			sd.Filter = ssel.ltf ? af : D3D11_FILTER_MIN_MAG_MIP_POINT;
 
 			sd.AddressU = ssel.tau ? D3D11_TEXTURE_ADDRESS_WRAP : D3D11_TEXTURE_ADDRESS_CLAMP;
 			sd.AddressV = ssel.tav ? D3D11_TEXTURE_ADDRESS_WRAP : D3D11_TEXTURE_ADDRESS_CLAMP;
 			sd.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+			sd.MipLODBias = 0;
 			sd.MinLOD = -FLT_MAX;
 			sd.MaxLOD = FLT_MAX;
 			sd.MaxAnisotropy = m_aniso_filter;
 			sd.ComparisonFunc = D3D11_COMPARISON_NEVER;
+			sd.BorderColor[0] = sd.BorderColor[1] = sd.BorderColor[2] = sd.BorderColor[3] = 0.0f;
 
 			m_dev->CreateSamplerState(&sd, &ss0);
 

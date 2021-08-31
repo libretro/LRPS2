@@ -1275,18 +1275,15 @@ bool GSDevice11::IAMapVertexBuffer(void** vertex, size_t stride, size_t count)
 	{
 		D3D11_BUFFER_DESC bd;
 
-		memset(&bd, 0, sizeof(bd));
-
 		bd.Usage = D3D11_USAGE_DYNAMIC;
 		bd.ByteWidth = m_vertex.limit * stride;
 		bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		bd.MiscFlags = 0;
+		bd.StructureByteStride = 0;
 
-		HRESULT hr;
-
-		hr = m_dev->CreateBuffer(&bd, NULL, &m_vb);
-
-		if(FAILED(hr)) return false;
+		if (FAILED(m_dev->CreateBuffer(&bd, NULL, &m_vb)))
+			return false;
 	}
 
 	D3D11_MAP type = D3D11_MAP_WRITE_NO_OVERWRITE;
@@ -1351,18 +1348,15 @@ void GSDevice11::IASetIndexBuffer(const void* index, size_t count)
 	{
 		D3D11_BUFFER_DESC bd;
 
-		memset(&bd, 0, sizeof(bd));
-
 		bd.Usage = D3D11_USAGE_DYNAMIC;
 		bd.ByteWidth = m_index.limit * sizeof(uint32);
 		bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		bd.MiscFlags = 0;
+		bd.StructureByteStride = 0;
 
-		HRESULT hr;
-
-		hr = m_dev->CreateBuffer(&bd, NULL, &m_ib);
-
-		if(FAILED(hr)) return;
+		if(FAILED(m_dev->CreateBuffer(&bd, NULL, &m_ib)))
+			return;
 	}
 
 	D3D11_MAP type = D3D11_MAP_WRITE_NO_OVERWRITE;
@@ -1567,7 +1561,6 @@ void GSDevice11::OMSetRenderTargets(GSTexture* rt, GSTexture* ds, const GSVector
 		m_state.viewport = size;
 
 		D3D11_VIEWPORT vp;
-		memset(&vp, 0, sizeof(vp));
 
 		vp.TopLeftX = m_hack_topleft_offset;
 		vp.TopLeftY = m_hack_topleft_offset;
