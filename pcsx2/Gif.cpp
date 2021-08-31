@@ -132,7 +132,7 @@ int GIF_Fifo::read_fifo()
 
 	//GIF_LOG("GIF FIFO Read %d QW from FIFO Current Size %d", sizeRead, fifoSize);
 
-	if (sizeRead < fifoSize) {
+	if (sizeRead < (int)fifoSize) {
 		if (sizeRead > 0)
 		{
 			int copyAmount = fifoSize - sizeRead;
