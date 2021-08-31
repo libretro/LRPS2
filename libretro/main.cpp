@@ -488,7 +488,6 @@ static bool set_hw_render(retro_hw_context_type type)
 		case RETRO_HW_CONTEXT_DIRECT3D:
 			hw_render.version_major = 11;
 			hw_render.version_minor = 0;
-			hw_render.cache_context = true;
 			break;
 
 		case RETRO_HW_CONTEXT_OPENGL_CORE:
@@ -502,7 +501,6 @@ static bool set_hw_render(retro_hw_context_type type)
 
 			hw_render.version_major = 3;
 			hw_render.version_minor = 0;
-			hw_render.cache_context = true;
 			break;
 
 		case RETRO_HW_CONTEXT_OPENGLES3:
@@ -511,13 +509,11 @@ static bool set_hw_render(retro_hw_context_type type)
 
 			hw_render.version_major = 3;
 			hw_render.version_minor = 0;
-			hw_render.cache_context = true;
 			break;
 
 		case RETRO_HW_CONTEXT_NONE:
 			hw_render.version_major = 3;
 			hw_render.version_minor = 0;
-			hw_render.cache_context = true;
 			break;
 
 		default:
