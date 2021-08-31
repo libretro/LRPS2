@@ -66,10 +66,7 @@ bool GSTexture11::Update(const GSVector4i& r, const void* data, int pitch, int l
 bool GSTexture11::Map(GSMap& m, const GSVector4i* r, int layer)
 {
 	if(r != NULL)
-	{
-		// ASSERT(0); // not implemented
 		return false;
-	}
 
 	if(layer >= m_max_layer)
 		return false;
@@ -100,11 +97,6 @@ void GSTexture11::Unmap()
 		UINT subresource = m_layer;
 		m_ctx->Unmap(m_texture, subresource);
 	}
-}
-
-bool GSTexture11::Save(const std::string& fn)
-{
-	return true;
 }
 
 GSTexture11::operator ID3D11Texture2D*()

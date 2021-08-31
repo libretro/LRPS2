@@ -558,11 +558,6 @@ void GSTextureOGL::CommitPages(const GSVector2i& region, bool commit)
 	GLState::available_vram -= m_mem_usage;
 }
 
-bool GSTextureOGL::Save(const std::string& fn)
-{
-	return true;
-}
-
 uint32 GSTextureOGL::GetMemUsage()
 {
 	return m_mem_usage;
