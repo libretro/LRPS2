@@ -43,11 +43,6 @@ public:
 	static bool HasCompatibleBits(uint32 spsm, uint32 dpsm);
 
 	static CRCHackLevel GetRecommendedCRCHackLevel(GSRendererType type);
-
-#ifdef _WIN32
-	static GSRendererType GetBestRenderer();
-	static D3D_FEATURE_LEVEL CheckDirect3D11Level(IDXGIAdapter *adapter = NULL, D3D_DRIVER_TYPE type = D3D_DRIVER_TYPE_HARDWARE);
-#endif
 };
 
 const char* psm_str(int psm);

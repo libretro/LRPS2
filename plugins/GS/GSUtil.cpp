@@ -147,45 +147,6 @@ CRCHackLevel GSUtil::GetRecommendedCRCHackLevel(GSRendererType type)
 	return type == GSRendererType::OGL_HW ? CRCHackLevel::Partial : CRCHackLevel::Full;
 }
 
-#ifdef _WIN32
-// ---------------------------------------------------------------------------------
-//  DX11 Detection (includes DXGI detection and dynamic library method bindings)
-// ---------------------------------------------------------------------------------
-//  Code 'Borrowed' from Microsoft's DXGI sources -- Modified to suit our needs. --air
-//  Stripped down because of unnecessary complexity and false positives
-//  e.g. (d3d11_beta.dll would fail at device creation time) --pseudonym
-
-D3D_FEATURE_LEVEL GSUtil::CheckDirect3D11Level(IDXGIAdapter *adapter, D3D_DRIVER_TYPE type)
-{
-	D3D_FEATURE_LEVEL level;
-	HRESULT hr = D3D11CreateDevice(adapter, type, NULL, 0, NULL, 0, D3D11_SDK_VERSION, NULL, &level, NULL);
-
-	return SUCCEEDED(hr) ? level : (D3D_FEATURE_LEVEL)0;
-}
-
-GSRendererType GSUtil::GetBestRenderer()
-{
-	CComPtr<IDXGIFactory1> dxgi_factory;
-	if (SUCCEEDED(CreateDXGIFactory1(IID_PPV_ARGS(&dxgi_factory))))
-	{
-		CComPtr<IDXGIAdapter1> adapter;
-		if (SUCCEEDED(dxgi_factory->EnumAdapters1(0, &adapter)))
-		{
-			DXGI_ADAPTER_DESC1 desc;
-			if (SUCCEEDED(adapter->GetDesc1(&desc)))
-			{
-				D3D_FEATURE_LEVEL level = GSUtil::CheckDirect3D11Level();
-				// Check for Nvidia VendorID. Latest OpenGL features need at least DX11 level GPU
-				if (desc.VendorId == 0x10DE && level >= D3D_FEATURE_LEVEL_11_0)
-					return GSRendererType::OGL_HW;
-			}
-		}
-	}
-	return GSRendererType::DX1011_HW;
-}
-
-#endif
-
 const char* psm_str(int psm)
 {
 	switch(psm) {

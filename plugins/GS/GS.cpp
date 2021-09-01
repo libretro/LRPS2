@@ -129,15 +129,6 @@ static int _GSopen(const char* title, GSRendererType renderer, int threads = -1)
 	GSDevice* dev = NULL;
 
 	is_d3d       = false;
-	// Fresh start up or config file changed
-	if(renderer == GSRendererType::Undefined)
-	{
-		renderer = static_cast<GSRendererType>(theApp.GetConfigI("Renderer"));
-#ifdef _WIN32
-		if (renderer == GSRendererType::Default)
-			renderer = GSUtil::GetBestRenderer();
-#endif
-	}
 
 	if(threads == -1)
 	{
@@ -298,20 +289,7 @@ EXPORT_C_(int) GSopen2(uint32 flags)
 				break;
 			#endif
 			case GSRendererType::OGL_SW:
-			#ifdef _WIN32
-			{
-				const auto config_renderer = static_cast<GSRendererType>(
-					theApp.GetConfigI("Renderer")
-				);
-
-				if (current_renderer == config_renderer)
-					current_renderer = GSUtil::GetBestRenderer();
-				else
-					current_renderer = config_renderer;
-			}
-			#else
 				current_renderer = GSRendererType::OGL_HW;
-			#endif
 				break;
 			case GSRendererType::OGL_HW:
 				current_renderer = GSRendererType::OGL_SW;
