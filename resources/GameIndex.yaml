@@ -1284,6 +1284,8 @@ SCES-50459:
   name: "Dropship - United Peace Force"
   region: "PAL-M5"
   compat: 2
+  speedHacks:
+    InstantVU1SpeedHack: 0
 SCES-50490:
   name: "Final Fantasy X"
   region: "PAL-E"
@@ -19456,6 +19458,9 @@ SLPM-62482:
 SLPM-62483:
   name: "Simple 2000 Series Vol.48 - The Taxi"
   region: "NTSC-J"
+  roundModes:
+     eeRoundMode: 2
+     vuRoundMode: 2
 SLPM-62484:
   name: "Simple 2000 Series Vol.50 - The Daibijin"
   region: "NTSC-J"
@@ -33089,6 +33094,8 @@ SLUS-20463:
   name: "Dropship - United Peace Force"
   region: "NTSC-U"
   compat: 2
+  speedHacks:
+    InstantVU1SpeedHack: 0
 SLUS-20464:
   name: "Fugitive Hunter - War on Terror"
   region: "NTSC-U"
