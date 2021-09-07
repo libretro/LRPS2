@@ -265,6 +265,7 @@ void normJumpCompile(mV, microFlagCycles& mFC, bool isEvilJump) {
 		//So if it is taken, you need to end the program, else you get infinite loops.
 		mVUendProgram(mVU, &mFC, 2);
 		xMOV(ptr32[&mVU.regs().VI[REG_TPC].UL], arg1regd);
+		xMOV(ptr32[&mVU.regs().nextBlockCycles], 0);
 		xJMP(mVU.exitFunct);
 	}
 	
@@ -317,6 +318,7 @@ void normBranch(mV, microFlagCycles& mFC) {
 		mVUendProgram(mVU, &mFC, 3);
 		iPC = branchAddr(mVU) / 4;
 		xMOV(ptr32[&mVU.regs().VI[REG_TPC].UL], xPC);
+		xMOV(ptr32[&mVU.regs().nextBlockCycles], 0);
 		xJMP(mVU.exitFunct);
 		iPC = tempPC;
 	}
@@ -416,6 +418,7 @@ void condBranch(mV, microFlagCycles& mFC, int JMPcc) {
 		incPC(-4); // Go Back to Branch Opcode to get branchAddr
 		iPC = branchAddr(mVU)/4;
 		xMOV(ptr32[&mVU.regs().VI[REG_TPC].UL], xPC);
+		xMOV(ptr32[&mVU.regs().nextBlockCycles], 0);
 		xJMP(mVU.exitFunct);
 		eJMP.SetTarget();
 		iPC = tempPC;	
@@ -432,11 +435,13 @@ void condBranch(mV, microFlagCycles& mFC, int JMPcc) {
 		xForwardJump32 dJMP(xInvertCond((JccComparisonType)JMPcc));
 			incPC(4); // Set PC to First instruction of Non-Taken Side
 			xMOV(ptr32[&mVU.regs().VI[REG_TPC].UL], xPC);
+			xMOV(ptr32[&mVU.regs().nextBlockCycles], 0);
 			xJMP(mVU.exitFunct);
 		dJMP.SetTarget();
 		incPC(-4); // Go Back to Branch Opcode to get branchAddr
 		iPC = branchAddr(mVU)/4;
 		xMOV(ptr32[&mVU.regs().VI[REG_TPC].UL], xPC);
+		xMOV(ptr32[&mVU.regs().nextBlockCycles], 0);
 		xJMP(mVU.exitFunct);
 		eJMP.SetTarget();
 		iPC = tempPC;
@@ -459,6 +464,7 @@ void condBranch(mV, microFlagCycles& mFC, int JMPcc) {
 		incPC(-4); // Go Back to Branch Opcode to get branchAddr
 		iPC = branchAddr(mVU) / 4;
 		xMOV(ptr32[&mVU.regs().VI[REG_TPC].UL], xPC);
+		xMOV(ptr32[&mVU.regs().nextBlockCycles], 0);
 		xJMP(mVU.exitFunct);
 		iPC = tempPC;
 	}
@@ -475,12 +481,14 @@ void condBranch(mV, microFlagCycles& mFC, int JMPcc) {
 		xForwardJump32 eJMP(((JccComparisonType)JMPcc));
 			incPC(1); // Set PC to First instruction of Non-Taken Side
 			xMOV(ptr32[&mVU.regs().VI[REG_TPC].UL], xPC);
+			xMOV(ptr32[&mVU.regs().nextBlockCycles], 0);
 			xJMP(mVU.exitFunct);
 		eJMP.SetTarget();
 		incPC(-4); // Go Back to Branch Opcode to get branchAddr
 
 		iPC = branchAddr(mVU)/4;
 		xMOV(ptr32[&mVU.regs().VI[REG_TPC].UL], xPC);
+		xMOV(ptr32[&mVU.regs().nextBlockCycles], 0);
 		xJMP(mVU.exitFunct);
 		return;
 	}
@@ -570,6 +578,7 @@ void normJump(mV, microFlagCycles& mFC) {
 		mVUDTendProgram(mVU, &mFC, 2);
 		xMOV(gprT1, ptr32[&mVU.branch]);
 		xMOV(ptr32[&mVU.regs().VI[REG_TPC].UL], gprT1);
+		xMOV(ptr32[&mVU.regs().nextBlockCycles], 0);
 		xJMP(mVU.exitFunct);
 		eJMP.SetTarget();	
 	}
@@ -582,6 +591,7 @@ void normJump(mV, microFlagCycles& mFC) {
 		mVUDTendProgram(mVU, &mFC, 2);
 		xMOV(gprT1, ptr32[&mVU.branch]);
 		xMOV(ptr32[&mVU.regs().VI[REG_TPC].UL], gprT1);
+		xMOV(ptr32[&mVU.regs().nextBlockCycles], 0);
 		xJMP(mVU.exitFunct);
 		eJMP.SetTarget();
 	}
@@ -589,6 +599,7 @@ void normJump(mV, microFlagCycles& mFC) {
 		mVUendProgram(mVU, &mFC, 2);
 		xMOV(gprT1, ptr32[&mVU.branch]);
 		xMOV(ptr32[&mVU.regs().VI[REG_TPC].UL], gprT1);
+		xMOV(ptr32[&mVU.regs().nextBlockCycles], 0);
 		xJMP(mVU.exitFunct);
 	}
 	else {
