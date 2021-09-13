@@ -272,6 +272,14 @@ void retro_init(void)
 			}
 	}
 
+	// check if there are bios file in the bios folders, otherwise terminates with a explicit log message
+
+	if (bios_files.size() == 0) {
+		std::string checked_path = bios_dir.GetFullPath().ToStdString();
+		log_cb(RETRO_LOG_ERROR, "Could not find valid BIOS files! \n");
+		log_cb(RETRO_LOG_ERROR, "Please provide required BIOS file in %s folder \n", checked_path.c_str());
+		return;
+	}
 
 
 	for (retro_core_option_definition& def : option_defs)
