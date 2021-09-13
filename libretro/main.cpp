@@ -264,12 +264,15 @@ void retro_init(void)
 	{
 			wxString description;
 			if (IsBIOSlite(bios_file, description)) {
-				std::string log_bios = (std::string)description;				
-				bios_files.push_back((std::string)bios_file);
+				std::string log_bios = (std::string)description;
+				wxFileName f;
+				f.Assign(bios_file);
+				bios_files.push_back((std::string)f.GetFullName());
 				bios_files.push_back((std::string)description);
 			}
 	}
-	
+
+
 
 	for (retro_core_option_definition& def : option_defs)
 	{
@@ -286,12 +289,23 @@ void retro_init(void)
 		break;
 	}
 
+
 	// loads the options structure to the frontend
 
 	libretro_set_core_options(environ_cb);
-	option_upscale_mult = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
-	sel_bios_path = option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type);
 
+	// start init some core settings
+
+	option_upscale_mult = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
+
+	log_cb(RETRO_LOG_DEBUG, "let's generate teh bios path \n");
+
+	wxFileName f_bios;
+	f_bios.Assign(option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type));
+
+	f_bios = wxFileName(bios_dir.GetFullPath(), option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type));
+	sel_bios_path = f_bios.GetFullPath().ToStdString();
+	
 	// instantiate the pcsx2 app and so some things on it
 	pcsx2 = &wxGetApp();
 	pxDoOutOfMemory = SysOutOfMemory_EmergencyResponse;
@@ -584,7 +598,7 @@ bool retro_load_game(const struct retro_game_info* game)
 
 	ResetContentStuffs();
 
-	const char* selected_bios = option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type);
+	const char* selected_bios = sel_bios_path.c_str();
 	if (selected_bios == NULL)
 	{
 		log_cb(RETRO_LOG_ERROR, "Could not find any valid PS2 Bios File in %s\n", (const char*)bios_dir.GetFullPath());
