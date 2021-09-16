@@ -306,8 +306,6 @@ void retro_init(void)
 
 	option_upscale_mult = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 
-	log_cb(RETRO_LOG_DEBUG, "let's generate teh bios path \n");
-
 	wxFileName f_bios;
 	f_bios.Assign(option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type));
 
