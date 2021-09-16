@@ -628,6 +628,78 @@ bool retro_load_game(const struct retro_game_info* game)
 	DiskControl::eject_state = false;
 
 
+	// set up memcard on slot 1
+
+	if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "empty") == 0)
+	{
+		// slot empty
+		g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_None;
+		g_Conf->Mcd[0].Enabled = false;
+	}
+	else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "shared8") == 0
+		|| strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "shared32") == 0)
+	{
+		// Shared Memcards
+		g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_File;
+		g_Conf->Mcd[0].Enabled = true;
+		g_Conf->Mcd[0].Filename = slot1_file;
+
+	}
+	else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "legacy") == 0)
+	{
+		// legacy
+		g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_File;
+		g_Conf->Mcd[0].Enabled = true;
+		g_Conf->Mcd[0].Filename = legacy_memcard1;
+	}
+	else
+	{
+		// User imported memcards
+		wxFileName user_memcard;
+		user_memcard.Assign(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type));
+
+		g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_File;
+		g_Conf->Mcd[0].Enabled = true;
+		g_Conf->Mcd[0].Filename = user_memcard;
+	}
+
+
+	// set up memcard on slot 2
+
+	if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "empty") == 0)
+	{
+		// slot empty
+		g_Conf->Mcd[1].Type = MemoryCardType::MemoryCard_None;
+		g_Conf->Mcd[1].Enabled = false;
+	}
+	else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "shared8") == 0
+		|| strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "shared32") == 0)
+	{
+		// Shared Memcards
+		g_Conf->Mcd[1].Type = MemoryCardType::MemoryCard_File;
+		g_Conf->Mcd[1].Enabled = true;
+		g_Conf->Mcd[1].Filename = slot2_file;
+	}
+	else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "legacy") == 0)
+	{
+		// legacy
+		g_Conf->Mcd[1].Type = MemoryCardType::MemoryCard_File;
+		g_Conf->Mcd[1].Enabled = true;
+		g_Conf->Mcd[1].Filename = legacy_memcard2;
+	}
+	else
+	{
+		// User imported memcards
+		wxFileName user_memcard;
+		user_memcard.Assign(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type));
+
+		g_Conf->Mcd[1].Type = MemoryCardType::MemoryCard_File;
+		g_Conf->Mcd[1].Enabled = true;
+		g_Conf->Mcd[1].Filename = user_memcard;
+
+	}
+
+
 	if (game)
 	{
 
@@ -679,79 +751,6 @@ bool retro_load_game(const struct retro_game_info* game)
 			g_Conf->CdvdSource = CDVD_SourceType::Iso;
 			g_Conf->CurrentIso = game_paths[0];
 
-			// set up memcard on slot 1
-			if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "empty") == 0)
-			{
-				// slot empty
-				g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_None;
-				g_Conf->Mcd[0].Enabled = false;
-			}
-			else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "shared8") == 0 
-					|| strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "shared32") == 0)
-			{
-				// Shared Memcards
-				g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_File;
-				g_Conf->Mcd[0].Enabled = true;
-				g_Conf->Mcd[0].Filename = slot1_file;
-
-			}
-			else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "legacy") == 0)
-			{
-				// legacy
-				g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_File;
-				g_Conf->Mcd[0].Enabled = true;
-				g_Conf->Mcd[0].Filename = legacy_memcard1;
-			}
-			else
-			{
-				// User imported memcards
-				wxFileName user_memcard;
-				user_memcard.Assign(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type));
-
-				g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_File;
-				g_Conf->Mcd[0].Enabled = true;
-				g_Conf->Mcd[0].Filename = user_memcard;
-			}
-
-
-
-
-			// set up memcard on slot 2
-
-
-			if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "empty") == 0)
-			{
-				// slot empty
-				g_Conf->Mcd[1].Type = MemoryCardType::MemoryCard_None;
-				g_Conf->Mcd[1].Enabled = false;
-			}
-			else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "shared8") == 0 
-					|| strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "shared32") == 0)
-			{
-				// Shared Memcards
-				g_Conf->Mcd[1].Type = MemoryCardType::MemoryCard_File;
-				g_Conf->Mcd[1].Enabled = true;
-				g_Conf->Mcd[1].Filename = slot2_file;
-			}
-			else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "legacy") == 0)
-			{
-				// legacy
-				g_Conf->Mcd[1].Type = MemoryCardType::MemoryCard_File;
-				g_Conf->Mcd[1].Enabled = true;
-				g_Conf->Mcd[1].Filename = legacy_memcard2;
-			}
-			else
-			{
-				// User imported memcards
-				wxFileName user_memcard;
-				user_memcard.Assign(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type));
-
-				g_Conf->Mcd[1].Type = MemoryCardType::MemoryCard_File;
-				g_Conf->Mcd[1].Enabled = true;
-				g_Conf->Mcd[1].Filename = user_memcard;
-
-			}
-
 
 			if (!option_value(BOOL_PCSX2_OPT_BOOT_TO_BIOS, KeyOptionBool::return_type))
 			{
@@ -774,7 +773,7 @@ bool retro_load_game(const struct retro_game_info* game)
 	}
 	else
 	{
-		log_cb(RETRO_LOG_INFO, "Entrerning BIOS Menu.....\n");
+		log_cb(RETRO_LOG_INFO, "Enterning BIOS Menu.....\n");
 		g_Conf->EmuOptions.UseBOOT2Injection = option_value(BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::return_type);
 		g_Conf->CdvdSource = CDVD_SourceType::NoDisc;
 		g_Conf->CurrentIso = "";
