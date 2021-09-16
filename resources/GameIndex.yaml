@@ -35321,7 +35321,7 @@ SLUS-20983:
       content: |-
         author=Prafull and Kozarovv
         // Fixes almost all problems apart from little translucent fog effect in some areas
-	patch=1,EE,001473b0,word,3c04000f
+        patch=1,EE,001473b0,word,3c04000f
 SLUS-20984:
   name: "Resident Evil Outbreak - File #2"
   region: "NTSC-U"
