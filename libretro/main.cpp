@@ -760,7 +760,7 @@ bool retro_load_game(const struct retro_game_info* game)
 				// we enter here in the bios, so we have the correct memcards loaded
 				log_cb(RETRO_LOG_INFO, "Entrerning BIOS Menu.....\n");
 				RetroMessager::Notification("Boot to BIOS enabled", true);
-				g_Conf->EmuOptions.UseBOOT2Injection = option_value(BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::return_type);
+				g_Conf->EmuOptions.UseBOOT2Injection = false;
 				g_Conf->CdvdSource = CDVD_SourceType::NoDisc;
 				g_Conf->CurrentIso = "";
 				pcsx2->SysExecute(g_Conf->CdvdSource);
@@ -772,7 +772,7 @@ bool retro_load_game(const struct retro_game_info* game)
 	else
 	{
 		log_cb(RETRO_LOG_INFO, "Enterning BIOS Menu.....\n");
-		g_Conf->EmuOptions.UseBOOT2Injection = option_value(BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::return_type);
+		g_Conf->EmuOptions.UseBOOT2Injection = false;
 		g_Conf->CdvdSource = CDVD_SourceType::NoDisc;
 		g_Conf->CurrentIso = "";
 		pcsx2->SysExecute(g_Conf->CdvdSource);
