@@ -614,6 +614,22 @@ bool retro_load_game(const struct retro_game_info* game)
 		log_cb(RETRO_LOG_INFO, "Loading selected BIOS:  %s\n", selected_bios);
 
 
+	// we check if nvm file exists, if not it means that it's a new bios.
+	// in this case whe bypass the fastboot option, forcing to enter the bios first run setup
+
+	wxFileName nvmFileCheck;
+	nvmFileCheck.Assign(sel_bios_path);
+	nvmFileCheck.SetExt("nvm");
+	
+	bool fastboot_option = option_value(BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::return_type);
+
+	if (! nvmFileCheck.FileExists()) {
+		fastboot_option = false;
+	}
+
+
+
+
 	const char* system = nullptr;
 	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
 
@@ -702,7 +718,7 @@ bool retro_load_game(const struct retro_game_info* game)
 	{
 
 		LanguageInjector::Inject(
-				(std::string)option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type),
+				sel_bios_path,
 				option_value(STRING_PCSX2_OPT_SYSTEM_LANGUAGE, KeyOptionString::return_type)
 				);
 
@@ -745,7 +761,7 @@ bool retro_load_game(const struct retro_game_info* game)
 		else
 		{	
 
-			g_Conf->EmuOptions.UseBOOT2Injection = option_value(BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::return_type);
+			g_Conf->EmuOptions.UseBOOT2Injection = fastboot_option;
 			g_Conf->CdvdSource = CDVD_SourceType::Iso;
 			g_Conf->CurrentIso = game_paths[0];
 
