@@ -394,8 +394,8 @@ struct retro_core_option_definition option_defs[] = {
 	{
 		{"0", "None"},
 		{"1", "Normal (default)"},
-		{"2", "Extra + Preserve Sign"},
-		{"3", "Full"},
+		{"2", "Extra"},
+		{"3", "Extra + Preserve Sign"},
 		{NULL, NULL},
 	},
 	"1" },
