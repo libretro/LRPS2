@@ -374,18 +374,21 @@ void retro_init(void)
 		g_Conf->EmuOptions.EnableCheats = option_value(BOOL_PCSX2_OPT_ENABLE_CHEATS, KeyOptionBool::return_type);
 
 
-		int clampMode = option_value(INT_PCSX2_OPT_CLAMPING_MODE, KeyOptionInt::return_type);
-		g_Conf->EmuOptions.Cpu.Recompiler.fpuOverflow = (clampMode >= 1);
-		g_Conf->EmuOptions.Cpu.Recompiler.fpuExtraOverflow = (clampMode >= 2);
-		g_Conf->EmuOptions.Cpu.Recompiler.fpuFullMode = (clampMode >= 3);
+		int EE_clampMode = option_value(INT_PCSX2_OPT_EE_CLAMPING_MODE, KeyOptionInt::return_type);
+		g_Conf->EmuOptions.Cpu.Recompiler.fpuOverflow = (EE_clampMode >= 1);
+		g_Conf->EmuOptions.Cpu.Recompiler.fpuExtraOverflow = (EE_clampMode >= 2);
+		g_Conf->EmuOptions.Cpu.Recompiler.fpuFullMode = (EE_clampMode >= 3);
 
-		g_Conf->EmuOptions.Cpu.Recompiler.vuOverflow = (clampMode >= 1);
-		g_Conf->EmuOptions.Cpu.Recompiler.vuExtraOverflow = (clampMode >= 2);
-		g_Conf->EmuOptions.Cpu.Recompiler.vuSignOverflow = (clampMode >= 3);
+		SSE_RoundMode EE_roundMode = (SSE_RoundMode)option_value(INT_PCSX2_OPT_EE_ROUND_MODE, KeyOptionInt::return_type);
+		g_Conf->EmuOptions.Cpu.sseMXCSR.SetRoundMode(EE_roundMode);
 
-		SSE_RoundMode roundMode = (SSE_RoundMode)option_value(INT_PCSX2_OPT_ROUND_MODE, KeyOptionInt::return_type);;
-		g_Conf->EmuOptions.Cpu.sseMXCSR.SetRoundMode(roundMode);
-		g_Conf->EmuOptions.Cpu.sseVUMXCSR.SetRoundMode(roundMode);
+		int VUs_clampMode = option_value(INT_PCSX2_OPT_VU_CLAMPING_MODE, KeyOptionInt::return_type);
+		g_Conf->EmuOptions.Cpu.Recompiler.vuOverflow = (VUs_clampMode >= 1);
+		g_Conf->EmuOptions.Cpu.Recompiler.vuExtraOverflow = (VUs_clampMode >= 2);
+		g_Conf->EmuOptions.Cpu.Recompiler.vuSignOverflow = (VUs_clampMode >= 3);
+
+		SSE_RoundMode VUs_roundMode = (SSE_RoundMode)option_value(INT_PCSX2_OPT_VU_ROUND_MODE, KeyOptionInt::return_type);
+		g_Conf->EmuOptions.Cpu.sseVUMXCSR.SetRoundMode(VUs_roundMode);
 
 		static retro_disk_control_ext_callback disk_control = {
 			DiskControl::set_eject_state,

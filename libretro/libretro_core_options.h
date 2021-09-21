@@ -362,9 +362,9 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	"2" },
 
-	{INT_PCSX2_OPT_CLAMPING_MODE,
-	"Emulation: Clamping Mode",
-	"Clamping mode can fix some bugs on some games. Default value is fine for most games. (Content restart required)",
+	{INT_PCSX2_OPT_EE_CLAMPING_MODE,
+	"Emulation: EE/FPU Clamping Mode",
+	"EE/FPU clamping mode can fix some bugs on some games. Default value is fine for most games. (Content restart required)",
 	{
 		{"0", "None"},
 		{"1", "Normal (default)"},
@@ -375,9 +375,35 @@ struct retro_core_option_definition option_defs[] = {
 	"1" },
 
 
-	{INT_PCSX2_OPT_ROUND_MODE,
-	"Emulation: Round Mode",
-	"Round mode can fix some bugs on some games. Default value is fine for most games. (Content restart required)",
+	{INT_PCSX2_OPT_EE_ROUND_MODE,
+	"Emulation: EE/FPU Round Mode",
+	"EE/FPU round mode can fix some bugs on some games. Default value is fine for most games. (Content restart required)",
+	{
+		{"0", "Nearest"},
+		{"1", "Negative"},
+		{"2", "Positive"},
+		{"3", "Chop/Zero (default)"},
+		{NULL, NULL},
+	},
+	"3" },
+
+
+	{ INT_PCSX2_OPT_VU_CLAMPING_MODE,
+	"Emulation: VUs Clamping Mode",
+	"VUs clamping mode can fix some bugs on some games. Default value is fine for most games. (Content restart required)",
+	{
+		{"0", "None"},
+		{"1", "Normal (default)"},
+		{"2", "Extra + Preserve Sign"},
+		{"3", "Full"},
+		{NULL, NULL},
+	},
+	"1" },
+
+
+	{ INT_PCSX2_OPT_VU_ROUND_MODE,
+	"Emulation: VUs Round Mode",
+	"VUs round mode can fix some bugs on some games. Default value is fine for most games. (Content restart required)",
 	{
 		{"0", "Nearest"},
 		{"1", "Negative"},
