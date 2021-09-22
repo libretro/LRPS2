@@ -40,8 +40,10 @@
 #define INT_PCSX2_OPT_TEXTURE_FILTERING		 "pcsx2_texture_filtering"
 #define INT_PCSX2_OPT_VSYNC_MTGS_QUEUE		 "pcsx2_vsync_mtgs_queue"
 #define INT_PCSX2_OPT_MIPMAPPING		 "pcsx2_mipmapping"
-#define INT_PCSX2_OPT_CLAMPING_MODE		 "pcsx2_clamping_mode"
-#define INT_PCSX2_OPT_ROUND_MODE		 "pcsx2_round_mode"
+#define INT_PCSX2_OPT_EE_CLAMPING_MODE		 "pcsx2_clamping_mode"
+#define INT_PCSX2_OPT_EE_ROUND_MODE		 "pcsx2_round_mode"
+#define INT_PCSX2_OPT_VU_CLAMPING_MODE		 "pcsx2_vu_clamping_mode"
+#define INT_PCSX2_OPT_VU_ROUND_MODE		 "pcsx2_vu_round_mode"
 #define INT_PCSX2_OPT_DITHERING		 "pcsx2_dithering"
 
 #define INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_HUNDREDS		"pcsx2_userhack_texture_offset_x_hundreds"
