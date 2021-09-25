@@ -39,6 +39,8 @@
 #include <unistd.h>
 #endif
 
+#include "options_tools.h" 
+
 const u32 revision = 2;
 const u32 build = 0; // increase that with each version
 #define PAD_SAVE_STATE_VERSION ((revision << 8) | (build << 0))
@@ -228,8 +230,12 @@ u16 KeyStatus::get(u32 pad)
 	return new_mask;
 }
 
+
+// +- 32766
 u8 KeyStatus::get(u32 pad, u32 index)
 {
+	int x = 0;
+	int y = 0;
 	int val = 0;
 	switch (index)
 	{
@@ -245,12 +251,23 @@ u8 KeyStatus::get(u32 pad, u32 index)
 
 		case PAD_L_LEFT:
 		case PAD_L_RIGHT:
-			val = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X);
+			x = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X);
+			y = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y);
+
+			val = ApplyDeadZoneX(x, y);
+			if (val != 0)
+				log_cb(RETRO_LOG_DEBUG, "Pad L LEFT/RIGHT: %i\n", val);
 			break;
 
 		case PAD_L_DOWN:
 		case PAD_L_UP:
-			val = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y);
+			x = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X);
+			y = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y);
+
+			
+			val = ApplyDeadZoneY(x, y);
+			if (val != 0)
+				log_cb(RETRO_LOG_DEBUG, "Pad L UP/DOWN: %i\n", val);
 			break;
 
 		default:
@@ -264,6 +281,67 @@ u8 KeyStatus::get(u32 pad, u32 index)
 
 	return 0x80 + (val >> 8);
 }
+
+
+int ApplyDeadZoneX(int val_x, int val_y) {
+	/*
+	float deadzone = 0.25f;
+	Vector2 stickInput = new Vector2(Input.GetAxis(“Horizontal”), Input.GetAxis(“Vertical”));
+	if (stickInput.magnitude < deadzone)
+		stickInput = Vector2.zero;
+	else
+		stickInput = stickInput.normalized * ((stickInput.magnitude - deadzone) / (1 - deadzone));
+		*/
+	float deadzone_val_percent = 50.0f;
+	float deadzone_axis = 32767.0f * deadzone_val_percent / 100.0f;
+
+	float magnitude = (float)sqrt((val_x * val_x) + (val_y * val_y));
+
+	if ((magnitude < deadzone_axis) || magnitude == 0.0f)
+		return 0;
+	else
+	{
+		float normalized_x = val_x / magnitude;
+		int ret_val = (int)((normalized_x * ((magnitude - deadzone_axis) / (32767.0f - deadzone_axis))) * 32767.0f);
+		if (abs(ret_val) > 32767) {
+			ret_val = 32767 * abs(ret_val) / ret_val;
+		}
+		return ret_val;
+		
+	}
+
+}
+
+int ApplyDeadZoneY(int val_x, int val_y) {
+	/*
+	float deadzone = 0.25f;
+	Vector2 stickInput = new Vector2(Input.GetAxis(“Horizontal”), Input.GetAxis(“Vertical”));
+	if (stickInput.magnitude < deadzone)
+		stickInput = Vector2.zero;
+	else
+		stickInput = stickInput.normalized * ((stickInput.magnitude - deadzone) / (1 - deadzone));
+		*/
+	float deadzone_val_percent = 50.0f;
+	float deadzone_axis = 32767.0f * deadzone_val_percent / 100.0f;
+
+	float magnitude = (float)sqrt((val_x * val_x) + (val_y * val_y));
+
+	if ((magnitude < deadzone_axis) || magnitude == 0.0f)
+		return 0;
+	else
+	{
+		float normalized_y = val_y / magnitude;
+		int ret_val = (int)((normalized_y * ((magnitude - deadzone_axis) / (32767.0f - deadzone_axis))) * 32767.0f);
+		if (abs(ret_val) > 32767) {
+			ret_val = 32767 * abs(ret_val) / ret_val;
+		}
+		return ret_val;
+
+	}
+	
+
+}
+
 
 s32 PADinit(u32 flags)
 {
