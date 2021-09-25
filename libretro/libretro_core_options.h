@@ -321,7 +321,7 @@ struct retro_core_option_definition option_defs[] = {
 	"100"},
 
 	{ INT_PCSX2_OPT_GAMEPAD_L_DEADZONE,
-	"Gamepad: Left Thumbstick Deadzone",
+	"Gamepad: Left Stick Dead Zone",
 	"Set the dead zone of left thumbstick",
 	{
 		{"0", "No Dead Zone (default)"},
@@ -381,7 +381,7 @@ struct retro_core_option_definition option_defs[] = {
 
 
 	{ INT_PCSX2_OPT_GAMEPAD_R_DEADZONE,
-	"Gamepad: Right Thumbstick Deadzone",
+	"Gamepad: Right Stick Dead Zone",
 	"Set the dead zone of right thumbstick",
 	{
 		{"0", "No Dead Zone (default)"},
