@@ -257,21 +257,14 @@ u8 KeyStatus::get(u32 pad, u32 index)
 		case PAD_L_RIGHT:
 			x = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X);
 			y = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y);
-
 			val = ApplyDeadZoneX(x, y, option_pad_left_deadzone);
-			if (val != 0)
-				log_cb(RETRO_LOG_DEBUG, "Pad L LEFT/RIGHT: %i\n", val);
 			break;
 
 		case PAD_L_DOWN:
 		case PAD_L_UP:
 			x = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X);
 			y = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y);
-
-			
 			val = ApplyDeadZoneY(x, y, option_pad_left_deadzone);
-			if (val != 0)
-				log_cb(RETRO_LOG_DEBUG, "Pad L UP/DOWN: %i\n", val);
 			break;
 
 		default:
