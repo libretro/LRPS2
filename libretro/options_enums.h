@@ -45,6 +45,7 @@
 #define INT_PCSX2_OPT_VU_CLAMPING_MODE		 "pcsx2_vu_clamping_mode"
 #define INT_PCSX2_OPT_VU_ROUND_MODE		 "pcsx2_vu_round_mode"
 #define INT_PCSX2_OPT_DITHERING		 "pcsx2_dithering"
+#define INT_PCSX2_OPT_GAMEPAD_L_DEADZONE		 "pcsx2_gamepad_l_deadzone"
 
 #define INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_HUNDREDS		"pcsx2_userhack_texture_offset_x_hundreds"
 #define INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_TENS			"pcsx2_userhack_texture_offset_x_tens"

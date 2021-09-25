@@ -102,7 +102,7 @@ s32 PADsetSlot(u8 port, u8 slot);
 void PADshutdown();
 
 void GamePad_DoRumble(unsigned type, unsigned pad);
-int ApplyDeadZoneX(int val_x, int val_y);
-int ApplyDeadZoneY(int val_x, int val_y);
+int ApplyDeadZoneX(int val_x, int val_y, float deadzone_percent);
+int ApplyDeadZoneY(int val_x, int val_y, float deadzone_percent);
 
 #endif

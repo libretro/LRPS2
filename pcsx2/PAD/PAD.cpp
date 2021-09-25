@@ -254,7 +254,7 @@ u8 KeyStatus::get(u32 pad, u32 index)
 			x = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X);
 			y = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y);
 
-			val = ApplyDeadZoneX(x, y);
+			val = ApplyDeadZoneX(x, y, option_pad_left_deadzone);
 			if (val != 0)
 				log_cb(RETRO_LOG_DEBUG, "Pad L LEFT/RIGHT: %i\n", val);
 			break;
@@ -265,7 +265,7 @@ u8 KeyStatus::get(u32 pad, u32 index)
 			y = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y);
 
 			
-			val = ApplyDeadZoneY(x, y);
+			val = ApplyDeadZoneY(x, y, option_pad_left_deadzone);
 			if (val != 0)
 				log_cb(RETRO_LOG_DEBUG, "Pad L UP/DOWN: %i\n", val);
 			break;
@@ -283,7 +283,7 @@ u8 KeyStatus::get(u32 pad, u32 index)
 }
 
 
-int ApplyDeadZoneX(int val_x, int val_y) {
+int ApplyDeadZoneX(int val_x, int val_y, float deadzone_percent) {
 	/*
 	float deadzone = 0.25f;
 	Vector2 stickInput = new Vector2(Input.GetAxis(“Horizontal”), Input.GetAxis(“Vertical”));
@@ -292,8 +292,8 @@ int ApplyDeadZoneX(int val_x, int val_y) {
 	else
 		stickInput = stickInput.normalized * ((stickInput.magnitude - deadzone) / (1 - deadzone));
 		*/
-	float deadzone_val_percent = 50.0f;
-	float deadzone_axis = 32767.0f * deadzone_val_percent / 100.0f;
+
+	float deadzone_axis = 32767.0f * deadzone_percent / 100.0f;
 
 	float magnitude = (float)sqrt((val_x * val_x) + (val_y * val_y));
 
@@ -312,7 +312,7 @@ int ApplyDeadZoneX(int val_x, int val_y) {
 
 }
 
-int ApplyDeadZoneY(int val_x, int val_y) {
+int ApplyDeadZoneY(int val_x, int val_y, float deadzone_percent) {
 	/*
 	float deadzone = 0.25f;
 	Vector2 stickInput = new Vector2(Input.GetAxis(“Horizontal”), Input.GetAxis(“Vertical”));
@@ -322,7 +322,7 @@ int ApplyDeadZoneY(int val_x, int val_y) {
 		stickInput = stickInput.normalized * ((stickInput.magnitude - deadzone) / (1 - deadzone));
 		*/
 	float deadzone_val_percent = 50.0f;
-	float deadzone_axis = 32767.0f * deadzone_val_percent / 100.0f;
+	float deadzone_axis = 32767.0f * deadzone_percent / 100.0f;
 
 	float magnitude = (float)sqrt((val_x * val_x) + (val_y * val_y));
 
