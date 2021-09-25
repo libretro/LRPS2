@@ -281,14 +281,6 @@ u8 KeyStatus::get(u32 pad, u32 index)
 
 
 int ApplyDeadZoneX(int val_x, int val_y, float deadzone_percent) {
-	/*
-	float deadzone = 0.25f;
-	Vector2 stickInput = new Vector2(Input.GetAxis(“Horizontal”), Input.GetAxis(“Vertical”));
-	if (stickInput.magnitude < deadzone)
-		stickInput = Vector2.zero;
-	else
-		stickInput = stickInput.normalized * ((stickInput.magnitude - deadzone) / (1 - deadzone));
-		*/
 
 	float deadzone_axis = 32767.0f * deadzone_percent / 100.0f;
 
@@ -310,14 +302,7 @@ int ApplyDeadZoneX(int val_x, int val_y, float deadzone_percent) {
 }
 
 int ApplyDeadZoneY(int val_x, int val_y, float deadzone_percent) {
-	/*
-	float deadzone = 0.25f;
-	Vector2 stickInput = new Vector2(Input.GetAxis(“Horizontal”), Input.GetAxis(“Vertical”));
-	if (stickInput.magnitude < deadzone)
-		stickInput = Vector2.zero;
-	else
-		stickInput = stickInput.normalized * ((stickInput.magnitude - deadzone) / (1 - deadzone));
-		*/
+
 	float deadzone_val_percent = 50.0f;
 	float deadzone_axis = 32767.0f * deadzone_percent / 100.0f;
 
@@ -327,6 +312,7 @@ int ApplyDeadZoneY(int val_x, int val_y, float deadzone_percent) {
 		return 0;
 	else
 	{
+		// we keep a smooth ""kick" into motion
 		float normalized_y = val_y / magnitude;
 		int ret_val = (int)((normalized_y * ((magnitude - deadzone_axis) / (32767.0f - deadzone_axis))) * 32767.0f);
 		if (abs(ret_val) > 32767) {
