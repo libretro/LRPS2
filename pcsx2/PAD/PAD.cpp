@@ -39,6 +39,8 @@
 #include <unistd.h>
 #endif
 
+#include "options_tools.h" 
+
 const u32 revision = 2;
 const u32 build = 0; // increase that with each version
 #define PAD_SAVE_STATE_VERSION ((revision << 8) | (build << 0))
@@ -228,29 +230,41 @@ u16 KeyStatus::get(u32 pad)
 	return new_mask;
 }
 
+
+// +- 32766
 u8 KeyStatus::get(u32 pad, u32 index)
 {
+	int x = 0;
+	int y = 0;
 	int val = 0;
 	switch (index)
 	{
 		case PAD_R_LEFT:
 		case PAD_R_RIGHT:
-			val = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_X);
+			x = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_X);
+			y = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y);
+			val = ApplyDeadZoneX(x, y, option_pad_right_deadzone);
 			break;
 
 		case PAD_R_DOWN:
 		case PAD_R_UP:
-			val = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y);
+			x = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_X);
+			y = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y);
+			val = ApplyDeadZoneY(x, y, option_pad_right_deadzone);
 			break;
 
 		case PAD_L_LEFT:
 		case PAD_L_RIGHT:
-			val = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X);
+			x = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X);
+			y = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y);
+			val = ApplyDeadZoneX(x, y, option_pad_left_deadzone);
 			break;
 
 		case PAD_L_DOWN:
 		case PAD_L_UP:
-			val = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y);
+			x = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X);
+			y = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y);
+			val = ApplyDeadZoneY(x, y, option_pad_left_deadzone);
 			break;
 
 		default:
@@ -264,6 +278,53 @@ u8 KeyStatus::get(u32 pad, u32 index)
 
 	return 0x80 + (val >> 8);
 }
+
+
+int ApplyDeadZoneX(int val_x, int val_y, float deadzone_percent) {
+
+	float deadzone_axis = 32767.0f * deadzone_percent / 100.0f;
+
+	float magnitude = (float)sqrt((val_x * val_x) + (val_y * val_y));
+
+	if ((magnitude < deadzone_axis) || magnitude == 0.0f)
+		return 0;
+	else
+	{
+		float normalized_x = val_x / magnitude;
+		int ret_val = (int)((normalized_x * ((magnitude - deadzone_axis) / (32767.0f - deadzone_axis))) * 32767.0f);
+		if (abs(ret_val) > 32767) {
+			ret_val = 32767 * abs(ret_val) / ret_val;
+		}
+		return ret_val;
+		
+	}
+
+}
+
+int ApplyDeadZoneY(int val_x, int val_y, float deadzone_percent) {
+
+	float deadzone_val_percent = 50.0f;
+	float deadzone_axis = 32767.0f * deadzone_percent / 100.0f;
+
+	float magnitude = (float)sqrt((val_x * val_x) + (val_y * val_y));
+
+	if ((magnitude < deadzone_axis) || magnitude == 0.0f)
+		return 0;
+	else
+	{
+		// we keep a smooth ""kick" into motion
+		float normalized_y = val_y / magnitude;
+		int ret_val = (int)((normalized_y * ((magnitude - deadzone_axis) / (32767.0f - deadzone_axis))) * 32767.0f);
+		if (abs(ret_val) > 32767) {
+			ret_val = 32767 * abs(ret_val) / ret_val;
+		}
+		return ret_val;
+
+	}
+	
+
+}
+
 
 s32 PADinit(u32 flags)
 {

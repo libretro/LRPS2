@@ -56,12 +56,16 @@ static struct retro_perf_callback perf_cb;
 
 static bool init_failed = false;
 int option_upscale_mult = 1;
+int option_pad_left_deadzone = 0;
+int option_pad_right_deadzone = 0;
+
 std::string sel_bios_path = "";
 retro_environment_t environ_cb;
 retro_video_refresh_t video_cb;
 struct retro_hw_render_callback hw_render;
 unsigned libretro_msg_interface_version = 0;
 retro_log_printf_t log_cb;
+
 
 std::string retroarch_system_path;
 
@@ -389,6 +393,9 @@ void retro_init(void)
 
 		SSE_RoundMode VUs_roundMode = (SSE_RoundMode)option_value(INT_PCSX2_OPT_VU_ROUND_MODE, KeyOptionInt::return_type);
 		g_Conf->EmuOptions.Cpu.sseVUMXCSR.SetRoundMode(VUs_roundMode);
+
+		option_pad_left_deadzone = option_value(INT_PCSX2_OPT_GAMEPAD_L_DEADZONE, KeyOptionInt::return_type);
+		option_pad_right_deadzone = option_value(INT_PCSX2_OPT_GAMEPAD_R_DEADZONE, KeyOptionInt::return_type);
 
 		static retro_disk_control_ext_callback disk_control = {
 			DiskControl::set_eject_state,
@@ -858,6 +865,8 @@ void retro_run(void)
 			option_value(BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE, KeyOptionBool::return_type),
 			option_value(INT_PCSX2_OPT_GAMEPAD_RUMBLE_FORCE, KeyOptionInt::return_type)
 		);
+		option_pad_left_deadzone = option_value(INT_PCSX2_OPT_GAMEPAD_L_DEADZONE, KeyOptionInt::return_type);
+		option_pad_right_deadzone = option_value(INT_PCSX2_OPT_GAMEPAD_R_DEADZONE, KeyOptionInt::return_type);
 
 	}
 
