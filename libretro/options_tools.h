@@ -9,6 +9,7 @@ extern void GSUpdateOptions();
 extern void ResetContentStuffs();
 extern int option_upscale_mult;
 extern int option_pad_left_deadzone;
+extern int option_pad_right_deadzone;
 /*
 * These are quick fixes to provide system paths at pcsx2 app startup.
 * Because of the huge refactoring, paths are not saved/loaded from inis files anymore,
