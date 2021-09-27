@@ -58,7 +58,7 @@
 typedef struct
 {
     int size;
-    u8 *data;
+    s8 *data;
 } freezeData;
 
 typedef struct _keyEvent
