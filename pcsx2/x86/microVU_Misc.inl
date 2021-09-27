@@ -49,15 +49,6 @@ void mVUloadIreg(const xmm& reg, int xyzw, VURegs* vuRegs)
 // Modifies the Source Reg!
 void mVUsaveReg(const xmm& reg, xAddressVoid ptr, int xyzw, bool modXYZW)
 {
-	/*xMOVAPS(xmmT2, ptr128[ptr]);
-	if (modXYZW && (xyzw == 8 || xyzw == 4 || xyzw == 2 || xyzw == 1)) {
-		mVUunpack_xyzw(reg, reg, 0);
-	}
-	mVUmergeRegs(xmmT2, reg, xyzw);
-
-	xMOVAPS(ptr128[ptr], xmmT2);
-	return;*/
-
 	switch ( xyzw ) {
 		case 5:		if (x86caps.hasStreamingSIMD4Extensions) {
 						xEXTRACTPS(ptr32[ptr+4], reg, 1);
