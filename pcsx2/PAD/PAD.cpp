@@ -281,10 +281,11 @@ u8 KeyStatus::get(u32 pad, u32 index)
 }
 
 
-int ApplyDeadZoneX(int val_x, int val_y, float deadzone_percent) {
+int ApplyDeadZoneX(int val_x, int val_y, float deadzone_percent) 
+{
+	if (deadzone_percent == 0.0f) return val_x;
 
 	float deadzone_axis = 32767.0f * deadzone_percent / 100.0f;
-
 	float magnitude = (float)sqrt((val_x * val_x) + (val_y * val_y));
 
 	if ((magnitude < deadzone_axis) || magnitude == 0.0f)
@@ -302,7 +303,9 @@ int ApplyDeadZoneX(int val_x, int val_y, float deadzone_percent) {
 
 }
 
-int ApplyDeadZoneY(int val_x, int val_y, float deadzone_percent) {
+int ApplyDeadZoneY(int val_x, int val_y, float deadzone_percent) 
+{
+	if (deadzone_percent == 0.0f) return val_y;
 
 	float deadzone_val_percent = 50.0f;
 	float deadzone_axis = 32767.0f * deadzone_percent / 100.0f;

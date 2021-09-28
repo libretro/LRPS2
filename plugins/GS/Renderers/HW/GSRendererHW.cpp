@@ -25,6 +25,7 @@
 
 const float GSRendererHW::SSR_UV_TOLERANCE = 1e-3f;
 
+
 GSRendererHW::GSRendererHW(GSTextureCache* tc)
 	: m_width(default_rt_size.x)
 	, m_height(default_rt_size.y)
@@ -72,10 +73,12 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 	m_userHacks_HPO					= option_value(INT_PCSX2_OPT_USERHACK_HALFPIXEL_OFFSET, KeyOptionInt::return_type);
 	m_userhacks_round_sprite_offset = option_value(INT_PCSX2_OPT_USERHACK_ROUND_SPRITE, KeyOptionInt::return_type);
 	m_userhacks_wildhack			= option_value(BOOL_PCSX2_OPT_USERHACK_WILDARMS_OFFSET, KeyOptionBool::return_type);
+
 	m_userhacks_ts_half_bottom		= option_value(INT_PCSX2_OPT_USERHACK_HALFSCREEN_FIX, KeyOptionInt::return_type);
 	m_userhacks_auto_flush			= option_value(BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH, KeyOptionBool::return_type);
-
 	theApp.SetConfig("UserHacks_AutoFlush", m_userhacks_auto_flush);
+	
+
 
 	int toffset_x = option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_HUNDREDS, KeyOptionInt::return_type);
 	toffset_x += option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_TENS, KeyOptionInt::return_type);
@@ -154,6 +157,9 @@ void GSRendererHW::UpdateRendererOptions()
 	m_userhacks_tcoffset_y = theApp.GetConfigI("UserHacks_TCOffsetY") / -1000.0f;
 	m_userhacks_tcoffset = m_userhacks_tcoffset_x < 0.0f || m_userhacks_tcoffset_y < 0.0f;
 
+	//theApp.SetConfig("UserHacks_CPU_FB_Conversion", option_value(BOOL_PCSX2_OPT_USERHACK_FB_CONVERSION, KeyOptionBool::return_type));
+
+	hack_fb_conversion = option_value(BOOL_PCSX2_OPT_USERHACK_FB_CONVERSION, KeyOptionBool::return_type);
 
 	if (m_upscale_multiplier == 1) { // hacks are only needed for upscaling issues.
 		m_userhacks_round_sprite_offset = 0;
