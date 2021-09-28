@@ -1712,6 +1712,9 @@ void StartVoices(int core, u32 value)
 		if (!((value >> vc) & 1))
 			continue;
 
+		if ((Cycles - Cores[core].Voices[vc].PlayCycle) < 2)
+			continue;
+
 		Cores[core].Voices[vc].Start();
 		Cores[core].KeyOn &= ~(1 << vc);
 	}
