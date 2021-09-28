@@ -667,6 +667,16 @@ struct retro_core_option_definition option_defs[] = {
 	},
 	"disabled" },
 
+	{BOOL_PCSX2_OPT_USERHACK_FB_CONVERSION,
+		"Hack: Frame Buffer Conversion",
+		"The hack can fix glitches in some games, like Harry Potter and Stuntman. This hack has an impact on performances. (Content restart required)",
+		{
+			{"disabled", NULL},
+			{"enabled", NULL},
+			{NULL, NULL},
+		},
+		"disabled" },
+
 	{INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_HUNDREDS,
 	"Hack: Texture Offset X - Hundreds",
 	"Set Texture Offset X (sum of X options Hundreds and Tens). \n Offset for the ST/UV texture coordinates. Fixes some odd texture issues and might fix some post processing alignment too.",

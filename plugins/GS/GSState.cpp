@@ -51,6 +51,9 @@ GSState::GSState()
 	m_mipmap                = theApp.GetConfigI("mipmap");
 	m_NTSC_Saturation       = theApp.GetConfigB("NTSC_Saturation");
 	m_clut_load_before_draw = theApp.GetConfigB("clut_load_before_draw");
+
+	// TODO LIBRETRO : get rid of userhack flag if-else
+	// and fix the regression of autoflush that didn't work (see as done with fb_converion hack)
 	if (theApp.GetConfigB("UserHacks"))
 	{
 		m_userhacks_auto_flush      = theApp.GetConfigB("UserHacks_AutoFlush");

@@ -58,6 +58,7 @@ static bool init_failed = false;
 int option_upscale_mult = 1;
 int option_pad_left_deadzone = 0;
 int option_pad_right_deadzone = 0;
+bool hack_fb_conversion = false;
 
 std::string sel_bios_path = "";
 retro_environment_t environ_cb;
@@ -317,6 +318,9 @@ void retro_init(void)
 	sel_bios_path = f_bios.GetFullPath().ToStdString();
 	
 	// instantiate the pcsx2 app and so some things on it
+
+	hack_fb_conversion = option_value(BOOL_PCSX2_OPT_USERHACK_FB_CONVERSION, KeyOptionBool::return_type);
+
 	pcsx2 = &wxGetApp();
 	pxDoOutOfMemory = SysOutOfMemory_EmergencyResponse;
 	
