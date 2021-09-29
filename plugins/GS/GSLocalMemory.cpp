@@ -87,7 +87,7 @@ GSLocalMemory::psm_t GSLocalMemory::m_psm[64];
 GSLocalMemory::GSLocalMemory()
 	: m_clut(this)
 {
-	m_use_fifo_alloc = theApp.GetConfigB("UserHacks") && theApp.GetConfigB("wrap_gs_mem");
+	m_use_fifo_alloc = theApp.GetConfigB("wrap_gs_mem");
 	switch (theApp.GetCurrentRendererType()) {
 		case GSRendererType::OGL_SW:
 			m_use_fifo_alloc = true;

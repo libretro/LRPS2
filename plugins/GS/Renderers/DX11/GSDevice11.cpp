@@ -512,7 +512,7 @@ bool GSDevice11::Create()
 
 	{	// HACK: check nVIDIA
 		// Note: It can cause issues on several games such as SOTC, Fatal Frame, plus it adds border offset.
-		bool disable_safe_features = theApp.GetConfigB("UserHacks") && theApp.GetConfigB("UserHacks_Disable_Safe_Features");
+		bool disable_safe_features = theApp.GetConfigB("UserHacks_Disable_Safe_Features");
 		m_hack_topleft_offset = (m_upscale_multiplier != 1 && nvidia_vendor && !disable_safe_features) ? -0.01f : 0.0f;
 	}
 

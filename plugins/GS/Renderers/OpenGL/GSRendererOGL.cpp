@@ -27,10 +27,10 @@ GSRendererOGL::GSRendererOGL()
 	: GSRendererHW(new GSTextureCacheOGL(this))
 {
 	m_sw_blending = theApp.GetConfigI("accurate_blending_unit");
-	if (theApp.GetConfigB("UserHacks"))
+//	if (theApp.GetConfigB("UserHacks"))
 		UserHacks_tri_filter = static_cast<TriFiltering>(theApp.GetConfigI("UserHacks_TriFilter"));
-	else
-		UserHacks_tri_filter = TriFiltering::None;
+//	else
+//		UserHacks_tri_filter = TriFiltering::None;
 
 	// Hope nothing requires too many draw calls.
 	m_drawlist.reserve(2048);
