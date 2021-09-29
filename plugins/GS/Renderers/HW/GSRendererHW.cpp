@@ -76,7 +76,8 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 
 	m_userhacks_ts_half_bottom		= option_value(INT_PCSX2_OPT_USERHACK_HALFSCREEN_FIX, KeyOptionInt::return_type);
 	m_userhacks_auto_flush			= option_value(BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH, KeyOptionBool::return_type);
-	theApp.SetConfig("UserHacks_AutoFlush", m_userhacks_auto_flush);
+
+	//theApp.SetConfig("UserHacks_AutoFlush", m_userhacks_auto_flush);
 	
 
 
@@ -141,8 +142,8 @@ void GSRendererHW::UpdateRendererOptions()
 	m_userhacks_ts_half_bottom			= option_value(INT_PCSX2_OPT_USERHACK_HALFSCREEN_FIX, KeyOptionInt::return_type);
 	m_userhacks_auto_flush				= option_value(BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH, KeyOptionBool::return_type);
 
-	theApp.SetConfig("UserHacks_AutoFlush", m_userhacks_auto_flush);
-	theApp.SetConfig("UserHacks", true);
+	//theApp.SetConfig("UserHacks_AutoFlush", m_userhacks_auto_flush);
+	//theApp.SetConfig("UserHacks", true);
 	
 	int toffset_x = option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_HUNDREDS, KeyOptionInt::return_type);
 	toffset_x += option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_TENS, KeyOptionInt::return_type);

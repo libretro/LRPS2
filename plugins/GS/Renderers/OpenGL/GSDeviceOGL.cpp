@@ -1724,10 +1724,10 @@ GSDeviceOGL::GSDeviceOGL()
 	GLState::Clear();
 
 	m_mipmap = theApp.GetConfigI("mipmap");
-	if (theApp.GetConfigB("UserHacks"))
+//	if (theApp.GetConfigB("UserHacks"))
 		m_filter = static_cast<TriFiltering>(theApp.GetConfigI("UserHacks_TriFilter"));
-	else
-		m_filter = TriFiltering::None;
+//	else
+//		m_filter = TriFiltering::None;
 
 	m_disable_hw_gl_draw = theApp.GetConfigB("disable_hw_gl_draw");
 }

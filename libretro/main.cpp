@@ -59,6 +59,7 @@ int option_upscale_mult = 1;
 int option_pad_left_deadzone = 0;
 int option_pad_right_deadzone = 0;
 bool hack_fb_conversion = false;
+bool hack_AutoFlush = false;
 
 std::string sel_bios_path = "";
 retro_environment_t environ_cb;
@@ -310,6 +311,8 @@ void retro_init(void)
 	// start init some core settings
 
 	option_upscale_mult = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
+	hack_fb_conversion = option_value(BOOL_PCSX2_OPT_USERHACK_FB_CONVERSION, KeyOptionBool::return_type);
+	hack_AutoFlush = option_value(BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH, KeyOptionBool::return_type);
 
 	wxFileName f_bios;
 	f_bios.Assign(option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type));
@@ -318,8 +321,6 @@ void retro_init(void)
 	sel_bios_path = f_bios.GetFullPath().ToStdString();
 	
 	// instantiate the pcsx2 app and so some things on it
-
-	hack_fb_conversion = option_value(BOOL_PCSX2_OPT_USERHACK_FB_CONVERSION, KeyOptionBool::return_type);
 
 	pcsx2 = &wxGetApp();
 	pxDoOutOfMemory = SysOutOfMemory_EmergencyResponse;

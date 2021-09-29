@@ -33,28 +33,16 @@ GSTextureCache::GSTextureCache(GSRenderer* r)
 	, m_palette_map(r)
 {
 
-	// TODO LIBRETRO: get rid of UserHacks Flag if-else
-	if (theApp.GetConfigB("UserHacks")) {
-		UserHacks_HalfPixelOffset      = theApp.GetConfigI("UserHacks_HalfPixelOffset") == 1;
-		m_preload_frame                = theApp.GetConfigB("preload_frame_with_gs_data");
-		m_disable_partial_invalidation = theApp.GetConfigB("UserHacks_DisablePartialInvalidation");
-		m_can_convert_depth            = !theApp.GetConfigB("UserHacks_DisableDepthSupport");
-		m_cpu_fb_conversion            = theApp.GetConfigB("UserHacks_CPU_FB_Conversion");
-		m_texture_inside_rt            = theApp.GetConfigB("UserHacks_TextureInsideRt");
-		m_wrap_gs_mem                  = theApp.GetConfigB("wrap_gs_mem");
 
-	} else {
-		UserHacks_HalfPixelOffset      = false;
-		m_preload_frame                = false;
-		m_disable_partial_invalidation = false;
-		m_can_convert_depth            = true;
-		m_cpu_fb_conversion            = false;
-		m_texture_inside_rt            = false;
-		m_wrap_gs_mem                  = false;
-	}
+	UserHacks_HalfPixelOffset      = false;
+	m_preload_frame                = false;
+	m_disable_partial_invalidation = false;
+	m_can_convert_depth            = true;
+	m_cpu_fb_conversion            = hack_fb_conversion;
+	m_texture_inside_rt            = false;
+	m_wrap_gs_mem                  = false;
+	
 
-	m_cpu_fb_conversion = hack_fb_conversion;
-	log_cb(RETRO_LOG_DEBUG, "HACK m_cpu_fb_conversion value = %i\n", m_cpu_fb_conversion);
 
 	m_paltex = theApp.GetConfigB("paltex");
 	m_crc_hack_level = theApp.GetConfigT<CRCHackLevel>("crc_hack_level");

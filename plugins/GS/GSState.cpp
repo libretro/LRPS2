@@ -52,22 +52,15 @@ GSState::GSState()
 	m_NTSC_Saturation       = theApp.GetConfigB("NTSC_Saturation");
 	m_clut_load_before_draw = theApp.GetConfigB("clut_load_before_draw");
 
-	// TODO LIBRETRO : get rid of userhack flag if-else
-	// and fix the regression of autoflush that didn't work (see as done with fb_converion hack)
-	if (theApp.GetConfigB("UserHacks"))
-	{
-		m_userhacks_auto_flush      = theApp.GetConfigB("UserHacks_AutoFlush");
-		m_userhacks_wildhack        = theApp.GetConfigB("UserHacks_WildHack");
-		m_userhacks_skipdraw        = theApp.GetConfigI("UserHacks_SkipDraw");
-		m_userhacks_skipdraw_offset = theApp.GetConfigI("UserHacks_SkipDraw_Offset");
-	}
-	else
-	{
-		m_userhacks_auto_flush      = false;
-		m_userhacks_wildhack        = false;
-		m_userhacks_skipdraw        = 0;
-		m_userhacks_skipdraw_offset = 0;
-	}
+
+	// this hack will be called only once while system init
+	m_userhacks_auto_flush      = hack_AutoFlush;
+
+	// these hack will be calledat every frame draw
+	m_userhacks_wildhack        = false;
+	m_userhacks_skipdraw        = 0;
+	m_userhacks_skipdraw_offset = 0;
+
 
 	s_n = 0;
 	s_save  = theApp.GetConfigB("save");
