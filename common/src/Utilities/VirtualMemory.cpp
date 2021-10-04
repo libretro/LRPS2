@@ -270,15 +270,13 @@ void *VirtualMemoryReserve::Assign(VirtualMemoryManagerPtr allocator, void * bas
 
     if (!m_baseptr)
         return nullptr;
-
+#ifndef NDEBUG
     FastFormatUnicode mbkb;
     uint mbytes = reserved_bytes / _1mb;
     if (mbytes)
         mbkb.Write("[%umb]", mbytes);
     else
         mbkb.Write("[%ukb]", reserved_bytes / 1024);
-
-#ifndef NDEBUG
     log_cb(RETRO_LOG_DEBUG, "%-32s @ %ls -> %ls %ls\n", WX_STR(m_name),
                    pxsPtr(m_baseptr), pxsPtr((uptr)m_baseptr + reserved_bytes), mbkb.c_str());
 #endif
