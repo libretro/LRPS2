@@ -47,6 +47,16 @@ __aligned16 AppCoreThread CoreThread;
 
 typedef void (AppCoreThread::*FnPtr_CoreThreadMethod)();
 
+SysCoreThread& GetCoreThread()
+{
+	return CoreThread;
+}
+
+SysMtgsThread& GetMTGS()
+{
+	return mtgsThread;
+}
+
 static void PostCoreStatus(CoreThreadStatus pevt)
 {
 	sApp.PostAction(CoreThreadStatusEvent(pevt));
