@@ -170,7 +170,7 @@ void retro_init(void)
 	{
 		wxFileName found_file;
 		found_file.Assign(memcard_file);
-		if (!found_file.GetName().IsSameAs(FILENAME_SHARED_MEMCARD_8) && !found_file.GetName().IsSameAs(FILENAME_SHARED_MEMCARD_8))
+		if (!found_file.GetName().IsSameAs(FILENAME_SHARED_MEMCARD_8) && !found_file.GetName().IsSameAs(FILENAME_SHARED_MEMCARD_32))
 		{
 			if (found_file.GetExt().IsSameAs("ps2"))
 			{
@@ -194,7 +194,7 @@ void retro_init(void)
 	{
 		wxFileName found_file;
 		found_file.Assign(memcard_file);
-		if (!found_file.GetName().IsSameAs(FILENAME_SHARED_MEMCARD_8) && !found_file.GetName().IsSameAs(FILENAME_SHARED_MEMCARD_8))
+		if (!found_file.GetName().IsSameAs(FILENAME_SHARED_MEMCARD_8) && !found_file.GetName().IsSameAs(FILENAME_SHARED_MEMCARD_32))
 		{
 			if (found_file.GetExt().IsSameAs("ps2"))
 			{
