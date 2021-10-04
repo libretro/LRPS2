@@ -71,18 +71,6 @@ wxFileOffset pxInputStream::Seek(wxFileOffset ofs, wxSeekMode mode)
     return m_stream_in->SeekI(ofs, mode);
 }
 
-void pxInputStream::SetStream(const wxString &filename, std::unique_ptr<wxInputStream> &stream)
-{
-    m_filename = filename;
-    m_stream_in = std::move(stream);
-}
-
-void pxInputStream::SetStream(const wxString &filename, wxInputStream *stream)
-{
-    m_filename = filename;
-    m_stream_in = std::unique_ptr<wxInputStream>(stream);
-}
-
 void pxInputStream::Read(void *dest, size_t size)
 {
     m_stream_in->Read(dest, size);

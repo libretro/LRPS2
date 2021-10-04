@@ -64,9 +64,6 @@ public:
     virtual ~pxInputStream() = default;
     virtual void Read(void *dest, size_t size);
 
-    void SetStream(const wxString &filename, std::unique_ptr<wxInputStream> &stream);
-    void SetStream(const wxString &filename, wxInputStream *stream);
-
     void Close() { m_stream_in = nullptr; }
 
     virtual wxStreamBase *GetWxStreamBase() const;
