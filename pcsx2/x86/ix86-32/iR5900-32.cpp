@@ -35,7 +35,7 @@
 #include "Patch.h"
 
 #if !PCSX2_SEH
-#	include <csetjmp>
+#include "Utilities/FastJmp.h"
 #endif
 
 
@@ -641,7 +641,7 @@ void recStep()
 
 #if !PCSX2_SEH
 #	define SETJMP_CODE(x)  x
-	static jmp_buf m_SetJmp_StateCheck;
+	static fastjmp_buf m_SetJmp_StateCheck;
 	static std::unique_ptr<BaseR5900Exception> m_cpuException;
 	static ScopedExcept m_Exception;
 #else
@@ -659,7 +659,7 @@ static void recExitExecution()
 	// creates.  However, the longjump is slow so we only want to do one when absolutely
 	// necessary:
 
-	longjmp( m_SetJmp_StateCheck, 1 );
+	fastjmp_jmp(&m_SetJmp_StateCheck, 1 );
 #endif
 }
 
@@ -696,10 +696,10 @@ static void recExecute()
 	// setjmp will save the register context and will return 0
 	// A call to longjmp will restore the context (included the eip/rip)
 	// but will return the longjmp 2nd parameter (here 1)
-	if( !setjmp( m_SetJmp_StateCheck ) )
+	if( !fastjmp_set(&m_SetJmp_StateCheck ) )
 	{
 		eeRecIsReset = false;
-		ScopedBool executing(eeCpuExecuting);
+		eeCpuExecuting = true;
 
 		// Important! Most of the console logging and such has cancel points in it.  This is great
 		// in Windows, where SEH lets us safely kill a thread from anywhere we want.  This is bad
@@ -715,6 +715,8 @@ static void recExecute()
 	{
 		pthread_setcancelstate( PTHREAD_CANCEL_ENABLE, &oldstate );
 	}
+
+	eeCpuExecuting = false;
 
 	if(m_cpuException)	m_cpuException->Rethrow();
 	if(m_Exception)		m_Exception->Rethrow();
