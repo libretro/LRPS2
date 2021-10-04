@@ -63,9 +63,6 @@ public:
     }
 };
 
-// wxWidgets lacks one of its own...
-extern const wxRect wxDefaultRect;
-
 extern void SplitString(wxArrayString &dest, const wxString &src, const wxString &delims, wxStringTokenizerMode mode = wxTOKEN_RET_EMPTY_ALL);
 
 extern wxString ToString(const wxPoint &src, const wxString &separator = L",");
