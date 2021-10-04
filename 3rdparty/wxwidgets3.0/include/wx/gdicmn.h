@@ -26,11 +26,7 @@
 // forward declarations
 // ---------------------------------------------------------------------------
 
-class WXDLLIMPEXP_FWD_CORE wxBitmap;
-class WXDLLIMPEXP_FWD_CORE wxBrush;
-class WXDLLIMPEXP_FWD_CORE wxCursor;
 class WXDLLIMPEXP_FWD_CORE wxFont;
-class WXDLLIMPEXP_FWD_CORE wxPen;
 class WXDLLIMPEXP_FWD_BASE wxString;
 class WXDLLIMPEXP_FWD_CORE wxPoint;
 
@@ -74,17 +70,6 @@ public:
         if ( sz.y != wxDefaultCoord && sz.y < y )
             y = sz.y;
     }
-
-    void IncBy(int dx, int dy) { x += dx; y += dy; }
-    void IncBy(const wxPoint& pt);
-    void IncBy(const wxSize& sz) { IncBy(sz.x, sz.y); }
-    void IncBy(int d) { IncBy(d, d); }
-
-    void DecBy(int dx, int dy) { IncBy(-dx, -dy); }
-    void DecBy(const wxPoint& pt);
-    void DecBy(const wxSize& sz) { DecBy(sz.x, sz.y); }
-    void DecBy(int d) { DecBy(d, d); }
-
 
     wxSize& Scale(float xscale, float yscale)
         { x = (int)(x*xscale); y = (int)(y*yscale); return *this; }
@@ -599,16 +584,6 @@ public:
     // return true if the rectangle 'rect' is (not strictly) inside this rect
     bool Contains(const wxRect& rect) const;
 
-#if WXWIN_COMPATIBILITY_2_6
-    // use Contains() instead
-    wxDEPRECATED( bool Inside(int x, int y) const );
-    wxDEPRECATED( bool Inside(const wxPoint& pt) const );
-    wxDEPRECATED( bool Inside(const wxRect& rect) const );
-#endif // WXWIN_COMPATIBILITY_2_6
-
-    // return true if the rectangles have a non empty intersection
-    bool Intersects(const wxRect& rect) const;
-
     // like Union() but don't ignore empty rectangles
     wxRect& operator+=(const wxRect& rect);
 
@@ -651,43 +626,6 @@ WXDLLIMPEXP_CORE wxRect operator+(const wxRect& r1, const wxRect& r2);
 
 // intersections of two rectangles
 WXDLLIMPEXP_CORE wxRect operator*(const wxRect& r1, const wxRect& r2);
-
-
-
-
-#if WXWIN_COMPATIBILITY_2_6
-inline bool wxRect::Inside(int cx, int cy) const { return Contains(cx, cy); }
-inline bool wxRect::Inside(const wxPoint& pt) const { return Contains(pt); }
-inline bool wxRect::Inside(const wxRect& rect) const { return Contains(rect); }
-#endif // WXWIN_COMPATIBILITY_2_6
-
-
-// define functions which couldn't be defined above because of declarations
-// order
-inline void wxSize::IncBy(const wxPoint& pt) { IncBy(pt.x, pt.y); }
-inline void wxSize::DecBy(const wxPoint& pt) { DecBy(pt.x, pt.y); }
-
-// ---------------------------------------------------------------------------
-// Management of pens, brushes and fonts
-// ---------------------------------------------------------------------------
-
-typedef wxInt8 wxDash;
-
-// ---------------------------------------------------------------------------
-// global variables
-// ---------------------------------------------------------------------------
-
-// 'Null' objects
-extern WXDLLIMPEXP_DATA_CORE(wxBitmap)     wxNullBitmap;
-extern WXDLLIMPEXP_DATA_CORE(wxCursor)     wxNullCursor;
-extern WXDLLIMPEXP_DATA_CORE(wxPen)        wxNullPen;
-extern WXDLLIMPEXP_DATA_CORE(wxBrush)      wxNullBrush;
-extern WXDLLIMPEXP_DATA_CORE(wxFont)       wxNullFont;
-
-extern WXDLLIMPEXP_DATA_CORE(const char) wxPanelNameStr[];
-
-extern WXDLLIMPEXP_DATA_CORE(const wxSize) wxDefaultSize;
-extern WXDLLIMPEXP_DATA_CORE(const wxPoint) wxDefaultPosition;
 
 #endif
     // _WX_GDICMNH__

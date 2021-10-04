@@ -2404,59 +2404,6 @@ enum wxHatchStyle
              wxPenStyle, wxPenCap, wxPenJoin enum values instead!
 */
 
-#if FUTURE_WXWIN_COMPATIBILITY_3_0
-
-/* don't use any elements of this enum in the new code */
-enum wxDeprecatedGUIConstants
-{
-    /*  Text font families */
-    wxDEFAULT    = 70,
-    wxDECORATIVE,
-    wxROMAN,
-    wxSCRIPT,
-    wxSWISS,
-    wxMODERN,
-    wxTELETYPE,  /* @@@@ */
-
-    /*  Proportional or Fixed width fonts (not yet used) */
-    wxVARIABLE   = 80,
-    wxFIXED,
-
-    wxNORMAL     = 90,
-    wxLIGHT,
-    wxBOLD,
-    /*  Also wxNORMAL for normal (non-italic text) */
-    wxITALIC,
-    wxSLANT,
-
-    /*  Pen styles */
-    wxSOLID      =   100,
-    wxDOT,
-    wxLONG_DASH,
-    wxSHORT_DASH,
-    wxDOT_DASH,
-    wxUSER_DASH,
-
-    wxTRANSPARENT,
-
-    /*  Brush & Pen Stippling. Note that a stippled pen cannot be dashed!! */
-    /*  Note also that stippling a Pen IS meaningful, because a Line is */
-    wxSTIPPLE_MASK_OPAQUE, /* mask is used for blitting monochrome using text fore and back ground colors */
-    wxSTIPPLE_MASK,        /* mask is used for masking areas in the stipple bitmap (TO DO) */
-    /*  drawn with a Pen, and without any Brush -- and it can be stippled. */
-    wxSTIPPLE =          110,
-
-    wxBDIAGONAL_HATCH = wxHATCHSTYLE_BDIAGONAL,
-    wxCROSSDIAG_HATCH = wxHATCHSTYLE_CROSSDIAG,
-    wxFDIAGONAL_HATCH = wxHATCHSTYLE_FDIAGONAL,
-    wxCROSS_HATCH = wxHATCHSTYLE_CROSS,
-    wxHORIZONTAL_HATCH = wxHATCHSTYLE_HORIZONTAL,
-    wxVERTICAL_HATCH = wxHATCHSTYLE_VERTICAL,
-    wxFIRST_HATCH = wxHATCHSTYLE_FIRST,
-    wxLAST_HATCH = wxHATCHSTYLE_LAST
-};
-#endif
-
 /*  ToolPanel in wxFrame (VZ: unused?) */
 enum
 {

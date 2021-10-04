@@ -34,9 +34,6 @@ class wxSize;
 
 class pxInputStream;
 
-extern const wxSize wxDefaultSize;
-extern const wxPoint wxDefaultPosition;
-
 namespace Threading
 {
 class Mutex;
