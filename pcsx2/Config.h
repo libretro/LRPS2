@@ -311,12 +311,7 @@ struct Pcsx2Config
 	}
 };
 
-extern const Pcsx2Config EmuConfig;
-
-Pcsx2Config::GSOptions&			SetGSConfig();
-Pcsx2Config::RecompilerOptions& SetRecompilerConfig();
-Pcsx2Config::GamefixOptions&	SetGameFixConfig();
-
+extern Pcsx2Config EmuConfig;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Helper Macros for Reading Emu Configurations.

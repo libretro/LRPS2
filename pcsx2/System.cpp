@@ -112,34 +112,7 @@ void SysOutOfMemory_EmergencyResponse(uptr blocksize)
 
 #include "svnrev.h"
 
-const Pcsx2Config EmuConfig;
-
-// Provides an accessor for quick modification of GS options.  All GS options are allowed to be
-// changed "on the fly" by the *main/gui thread only*.
-Pcsx2Config::GSOptions& SetGSConfig()
-{
-	log_cb(RETRO_LOG_DEBUG, "Direct modification of EmuConfig.GS detected\n" );
-	AffinityAssert_AllowFrom_MainUI();
-	return const_cast<Pcsx2Config::GSOptions&>(EmuConfig.GS);
-}
-
-// Provides an accessor for quick modification of Recompiler options.
-// Used by loadGameSettings() to set clamp modes via database at game startup.
-Pcsx2Config::RecompilerOptions& SetRecompilerConfig()
-{
-	log_cb(RETRO_LOG_DEBUG, "Direct modification of EmuConfig.Gamefixes detected\n" );
-	AffinityAssert_AllowFrom_MainUI();
-	return const_cast<Pcsx2Config::RecompilerOptions&>(EmuConfig.Cpu.Recompiler);
-}
-
-// Provides an accessor for quick modification of Gamefix options.
-// Used by loadGameSettings() to set gamefixes via database at game startup.
-Pcsx2Config::GamefixOptions& SetGameFixConfig()
-{
-	log_cb(RETRO_LOG_DEBUG, "Direct modification of EmuConfig.Gamefixes detected\n" );
-	AffinityAssert_AllowFrom_MainUI();
-	return const_cast<Pcsx2Config::GamefixOptions&>(EmuConfig.Gamefixes);
-}
+Pcsx2Config EmuConfig;
 
 template< typename CpuType >
 class CpuInitializer
