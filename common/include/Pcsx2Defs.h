@@ -79,6 +79,7 @@ static const int __pagesize = PCSX2_PAGESIZE;
 #define __pagealigned __declspec(align(PCSX2_PAGESIZE))
 
 #define __noinline __declspec(noinline)
+#define __noreturn __declspec(noreturn)
 
 // Don't know if there are Visual C++ equivalents of these.
 #define likely(x) (!!(x))
@@ -120,6 +121,9 @@ static const int __pagesize = PCSX2_PAGESIZE;
 #endif
 #ifndef __noinline
 #define __noinline __attribute__((noinline))
+#endif
+#ifndef __noreturn
+#define __noreturn __attribute__((noreturn))
 #endif
 #define likely(x) __builtin_expect(!!(x), 1)
 #define unlikely(x) __builtin_expect(!!(x), 0)

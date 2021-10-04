@@ -21,6 +21,7 @@ set(UtilitiesFinalFlags ${CommonFlags})
 		../../include/Utilities/SafeArray.inl
 		Exceptions.cpp
 		FastFormatString.cpp
+		FastJmp.cpp
 		Mutex.cpp
 		PathUtils.cpp
 		PrecompiledHeader.cpp
@@ -42,6 +43,7 @@ set(UtilitiesHeaders
 	../../include/Utilities/Dependencies.h
 	../../include/Utilities/EventSource.h
 	../../include/Utilities/Exceptions.h
+	../../include/Utilities/FastJmp.h
 	../../include/Utilities/FixedPointTypes.h
 	../../include/Utilities/General.h
 	../../include/Utilities/MemcpyFast.h
@@ -86,10 +88,20 @@ else()
 	)
 endif()
 
+if(MSVC)
+   enable_language(ASM_MASM)
+set(UtilitiesFinalSources
+	${UtilitiesSources}
+	${UtilitiesHeaders}
+        FastJmp.asm
+)
+else()
 set(UtilitiesFinalSources
 	${UtilitiesSources}
 	${UtilitiesHeaders}
 )
+endif()
+
 
 set(UtilitiesFinalLibs
     ${LIBC_LIBRARIES} # Gold (new linux linker) does not get automatically dependency of dependency

@@ -119,30 +119,6 @@ private:                                    \
     classname &operator=(const classname &)
 #endif
 
-
-// --------------------------------------------------------------------------------------
-//  ScopedBool  -  Makes sure a boolean is set back to FALSE when current scope is left
-// --------------------------------------------------------------------------------------
-// Exception-safe way of tracking entry and exit of various functions of execution zones.
-//
-class ScopedBool
-{
-protected:
-    bool *m_boolme;
-
-public:
-    ScopedBool(bool &boolme)
-    {
-        boolme = true;
-        m_boolme = &boolme;
-    }
-
-    ~ScopedBool()
-    {
-        *m_boolme = false;
-    }
-};
-
 #include <wx/string.h>
 #include <wx/crt.h>
 
