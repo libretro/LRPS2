@@ -677,8 +677,8 @@ static void recExecute()
 	// [TODO] fix this comment to explain various code entry/exit points, when I'm not so tired!
 
 #if PCSX2_SEH
-	eeRecIsReset = false;
-	ScopedBool executing(eeCpuExecuting);
+	eeRecIsReset   = false;
+	eeCpuExecuting = true;
 
 	try {
 		EnterRecompiledCode();
