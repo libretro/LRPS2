@@ -84,21 +84,6 @@ void SplitString(wxArrayString &dest, const wxString &src, const wxString &delim
         dest.Add(parts.GetNextToken());
 }
 
-// Attempts to parse and return a value for the given template type, and throws a ParseError
-// exception if the parse fails.  The template type can be anything that is supported/
-// implemented via one of the TryParse() method overloads.
-//
-// This, so far, include types such as wxPoint, wxRect, and wxSize.
-//
-template <typename T>
-T Parse(const wxString &src, const wxString &separators = L",")
-{
-    T retval;
-    if (!TryParse(retval, src, separators))
-        throw Exception::ParseError("Parse failure on call to " + fromUTF8(__WXFUNCTION__) + ": " + src);
-    return retval;
-}
-
 
 // --------------------------------------------------------------------------------------
 //  ToString helpers for wxString!
@@ -125,68 +110,6 @@ wxString ToString(const wxRect &src, const wxString &separator)
 // --------------------------------------------------------------------------------------
 //  Parse helpers for wxString!
 // --------------------------------------------------------------------------------------
-
-bool TryParse(wxPoint &dest, wxStringTokenizer &parts)
-{
-    long result[2];
-
-    if (!parts.HasMoreTokens() || !parts.GetNextToken().ToLong(&result[0]))
-        return false;
-    if (!parts.HasMoreTokens() || !parts.GetNextToken().ToLong(&result[1]))
-        return false;
-    dest.x = result[0];
-    dest.y = result[1];
-
-    return true;
-}
-
-bool TryParse(wxSize &dest, wxStringTokenizer &parts)
-{
-    long result[2];
-
-    if (!parts.HasMoreTokens() || !parts.GetNextToken().ToLong(&result[0]))
-        return false;
-    if (!parts.HasMoreTokens() || !parts.GetNextToken().ToLong(&result[1]))
-        return false;
-    dest.SetWidth(result[0]);
-    dest.SetHeight(result[1]);
-
-    return true;
-}
-
-// Tries to parse the given string into a wxPoint value at 'dest.'  If the parse fails, the
-// method aborts and returns false.
-bool TryParse(wxPoint &dest, const wxString &src, const wxPoint &defval, const wxString &separators)
-{
-    dest = defval;
-    wxStringTokenizer parts(src, separators);
-    return TryParse(dest, parts);
-}
-
-bool TryParse(wxSize &dest, const wxString &src, const wxSize &defval, const wxString &separators)
-{
-    dest = defval;
-    wxStringTokenizer parts(src, separators);
-    return TryParse(dest, parts);
-}
-
-bool TryParse(wxRect &dest, const wxString &src, const wxRect &defval, const wxString &separators)
-{
-    dest = defval;
-
-    wxStringTokenizer parts(src, separators);
-
-    wxPoint point;
-    wxSize size;
-
-    if (!TryParse(point, parts))
-        return false;
-    if (!TryParse(size, parts))
-        return false;
-
-    dest = wxRect(point, size);
-    return true;
-}
 
 // returns TRUE if the parse is valid, or FALSE if it's a comment.
 bool pxParseAssignmentString(const wxString &src, wxString &ldest, wxString &rdest)

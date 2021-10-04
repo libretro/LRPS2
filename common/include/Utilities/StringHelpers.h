@@ -72,11 +72,6 @@ extern wxString ToString(const wxPoint &src, const wxString &separator = L",");
 extern wxString ToString(const wxSize &src, const wxString &separator = L",");
 extern wxString ToString(const wxRect &src, const wxString &separator = L",");
 
-extern bool TryParse(wxPoint &dest, const wxStringTokenizer &parts);
-extern bool TryParse(wxSize &dest, const wxStringTokenizer &parts);
-
-extern bool TryParse(wxRect &dest, const wxString &src, const wxRect &defval = wxDefaultRect, const wxString &separators = L",");
-
 // --------------------------------------------------------------------------------------
 //  ParsedAssignmentString
 // --------------------------------------------------------------------------------------
