@@ -33,7 +33,6 @@ class wxRect;
 class wxSize;
 
 class pxInputStream;
-class pxOutputStream;
 
 extern const wxSize wxDefaultSize;
 extern const wxPoint wxDefaultPosition;

@@ -47,41 +47,6 @@ public:
     wxString GetStreamName() const { return m_filename; }
 };
 
-
-// --------------------------------------------------------------------------------------
-//  pxOutputStream
-// --------------------------------------------------------------------------------------
-class pxOutputStream : public pxStreamBase
-{
-    DeclareNoncopyableObject(pxOutputStream);
-
-protected:
-    std::unique_ptr<wxOutputStream> m_stream_out;
-
-public:
-    pxOutputStream(const wxString &filename, std::unique_ptr<wxOutputStream> &output);
-    pxOutputStream(const wxString &filename, wxOutputStream *output);
-
-    virtual ~pxOutputStream() = default;
-    virtual void Write(const void *data, size_t size);
-
-    void SetStream(const wxString &filename, std::unique_ptr<wxOutputStream> &stream);
-    void SetStream(const wxString &filename, wxOutputStream *stream);
-
-    void Close() { m_stream_out = nullptr; }
-
-    virtual wxStreamBase *GetWxStreamBase() const;
-
-    template <typename T>
-    void Write(const T &data)
-    {
-        Write(&data, sizeof(data));
-    }
-
-    wxFileOffset Tell() const;
-    wxFileOffset Seek(wxFileOffset ofs, wxSeekMode mode = wxFromStart);
-};
-
 // --------------------------------------------------------------------------------------
 //  pxInputStream
 // --------------------------------------------------------------------------------------
