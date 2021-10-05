@@ -88,7 +88,6 @@ bool HostSys::MmapCommitPtr(void *base, size_t size, const PageProtectionMode &m
         log_cb(RETRO_LOG_WARN, "(MmapCommit) Received windows error %u {Virtual Memory Minimum Too Low}.\n", ERROR_COMMITMENT_MINIMUM);
         Sleep(1000); // Cut windows some time to rework its memory...
     } else if (errcode != ERROR_NOT_ENOUGH_MEMORY && errcode != ERROR_OUTOFMEMORY) {
-        //pxFailDev(L"VirtualAlloc COMMIT failed: " + Exception::WinApiError().GetMsgFromWindows());
         return false;
     }
 

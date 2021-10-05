@@ -72,8 +72,7 @@ elseif(Windows)
 	LIST(APPEND UtilitiesSources
 		Windows/WinThreads.cpp
 		Windows/WinHostSys.cpp
-		Windows/WinMisc.cpp
-      Semaphore.cpp
+		Semaphore.cpp
 	)
 # if(x86)
 #   LIST(APPEND UtilitiesSources

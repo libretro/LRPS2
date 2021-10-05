@@ -350,26 +350,6 @@ public:
 
     virtual wxString FormatDiagnosticMessage() const;
 };
-
-#ifdef __WXMSW__
-// --------------------------------------------------------------------------------------
-//  Exception::WinApiError
-// --------------------------------------------------------------------------------------
-class WinApiError : public RuntimeError
-{
-    DEFINE_EXCEPTION_COPYTORS(WinApiError, RuntimeError)
-    DEFINE_EXCEPTION_MESSAGES(WinApiError)
-
-public:
-    int ErrorId;
-
-public:
-    WinApiError();
-
-    wxString GetMsgFromWindows() const;
-    virtual wxString FormatDiagnosticMessage() const;
-};
-#endif
 }
 
 using Exception::BaseException;
