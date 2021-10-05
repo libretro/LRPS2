@@ -29,9 +29,6 @@ class WXDLLIMPEXP_FWD_BASE wxArrayInt;
 // wxLongLong
 #include "wx/longlong.h"
 
-// needed for wxOperatingSystemId, wxLinuxDistributionInfo
-#include "wx/platinfo.h"
-
 #ifdef __WATCOMC__
     #include <direct.h>
 #elif defined(__X__)
@@ -116,36 +113,8 @@ wxDEPRECATED_INLINE(inline bool wxStringEq(const wchar_t *s1, const wchar_t *s2)
 #endif // WXWIN_COMPATIBILITY_2_8
 
 // ----------------------------------------------------------------------------
-// Miscellaneous functions
-// ----------------------------------------------------------------------------
-
-// Get platform endianness
-WXDLLIMPEXP_BASE bool wxIsPlatformLittleEndian();
-
-// Get platform architecture
-WXDLLIMPEXP_BASE bool wxIsPlatform64Bit();
-
-// ----------------------------------------------------------------------------
 // wxPlatform
 // ----------------------------------------------------------------------------
-
-/*
- * Class to make it easier to specify platform-dependent values
- *
- * Examples:
- *  long val = wxPlatform::If(wxMac, 1).ElseIf(wxGTK, 2).ElseIf(stPDA, 5).Else(3);
- *  wxString strVal = wxPlatform::If(wxMac, wxT("Mac")).ElseIf(wxMSW, wxT("MSW")).Else(wxT("Other"));
- *
- * A custom platform symbol:
- *
- *  #define stPDA 100
- *  #ifdef __WXWINCE__
- *      wxPlatform::AddPlatform(stPDA);
- *  #endif
- *
- *  long windowStyle = wxCAPTION | (long) wxPlatform::IfNot(stPDA, wxRESIZE_BORDER);
- *
- */
 
 class WXDLLIMPEXP_BASE wxPlatform
 {
@@ -161,30 +130,6 @@ public:
     wxPlatform(const wxString& defValue) { Init(); m_stringValue = defValue; }
     wxPlatform(double defValue) { Init(); m_doubleValue = defValue; }
 
-    static wxPlatform If(int platform, long value);
-    static wxPlatform IfNot(int platform, long value);
-    wxPlatform& ElseIf(int platform, long value);
-    wxPlatform& ElseIfNot(int platform, long value);
-    wxPlatform& Else(long value);
-
-    static wxPlatform If(int platform, int value) { return If(platform, (long)value); }
-    static wxPlatform IfNot(int platform, int value) { return IfNot(platform, (long)value); }
-    wxPlatform& ElseIf(int platform, int value) { return ElseIf(platform, (long) value); }
-    wxPlatform& ElseIfNot(int platform, int value) { return ElseIfNot(platform, (long) value); }
-    wxPlatform& Else(int value) { return Else((long) value); }
-
-    static wxPlatform If(int platform, double value);
-    static wxPlatform IfNot(int platform, double value);
-    wxPlatform& ElseIf(int platform, double value);
-    wxPlatform& ElseIfNot(int platform, double value);
-    wxPlatform& Else(double value);
-
-    static wxPlatform If(int platform, const wxString& value);
-    static wxPlatform IfNot(int platform, const wxString& value);
-    wxPlatform& ElseIf(int platform, const wxString& value);
-    wxPlatform& ElseIfNot(int platform, const wxString& value);
-    wxPlatform& Else(const wxString& value);
-
     long GetInteger() const { return m_longValue; }
     const wxString& GetString() const { return m_stringValue; }
     double GetDouble() const { return m_doubleValue; }
@@ -193,10 +138,6 @@ public:
     operator long() const { return GetInteger(); }
     operator double() const { return GetDouble(); }
     operator const wxString&() const { return GetString(); }
-
-    static void AddPlatform(int platform);
-    static bool Is(int platform);
-    static void ClearPlatforms();
 
 private:
 
@@ -207,9 +148,6 @@ private:
     wxString            m_stringValue;
     static wxArrayInt*  sm_customPlatforms;
 };
-
-/// Function for testing current platform
-inline bool wxPlatformIs(int platform) { return wxPlatform::Is(platform); }
 
 // ----------------------------------------------------------------------------
 // Various conversions

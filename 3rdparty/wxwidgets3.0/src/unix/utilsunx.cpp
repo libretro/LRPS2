@@ -357,16 +357,6 @@ bool wxGetUserId(wxChar *buf, int sz)
     return false;
 }
 
-bool wxIsPlatform64Bit()
-{
-    const wxString machine = wxGetCommandOutput(wxT("uname -m"));
-
-    // the test for "64" is obviously not 100% reliable but seems to work fine
-    // in practice
-    return machine.Contains(wxT("64")) ||
-                machine.Contains(wxT("alpha"));
-}
-
 // ----------------------------------------------------------------------------
 // env vars
 // ----------------------------------------------------------------------------

@@ -312,15 +312,6 @@ int wxIsWindowsServer()
 
 } // anonymous namespace
 
-bool wxIsPlatform64Bit()
-{
-#if defined(__WIN64__)
-    return true;  // 64-bit programs run only on Win64
-#else
-    return false;
-#endif // Win64/Win32
-}
-
 // ----------------------------------------------------------------------------
 // sleep functions
 // ----------------------------------------------------------------------------

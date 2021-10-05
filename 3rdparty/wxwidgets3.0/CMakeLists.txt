@@ -43,7 +43,6 @@ add_library(wxwidgets
    src/common/module.cpp
    src/common/mstream.cpp
    src/common/object.cpp
-   src/common/platinfo.cpp
    src/common/stdpbase.cpp
    src/common/strconv.cpp
    src/common/stream.cpp
