@@ -282,6 +282,4 @@ enum wxWinVersion
     wxWinVersion_10 = 0x1000
 };
 
-WXDLLIMPEXP_BASE wxWinVersion wxGetWinVersion();
-
 #endif // _WX_PRIVATE_H_

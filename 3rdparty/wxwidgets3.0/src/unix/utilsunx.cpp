@@ -367,45 +367,6 @@ bool wxIsPlatform64Bit()
                 machine.Contains(wxT("alpha"));
 }
 
-// these functions are in src/osx/utilsexc_base.cpp for wxMac
-#ifndef __DARWIN__
-
-wxOperatingSystemId wxGetOsVersion(int *verMaj, int *verMin)
-{
-    // get OS version
-    int major, minor;
-    wxString release = wxGetCommandOutput(wxT("uname -r"));
-    if ( release.empty() ||
-         wxSscanf(release.c_str(), wxT("%d.%d"), &major, &minor) != 2 )
-    {
-        // failed to get version string or unrecognized format
-        major =
-        minor = -1;
-    }
-
-    if ( verMaj )
-        *verMaj = major;
-    if ( verMin )
-        *verMin = minor;
-
-    // try to understand which OS are we running
-    wxString kernel = wxGetCommandOutput(wxT("uname -s"));
-    if ( kernel.empty() )
-        kernel = wxGetCommandOutput(wxT("uname -o"));
-
-    if ( kernel.empty() )
-        return wxOS_UNKNOWN;
-
-    return wxPlatformInfo::GetOperatingSystemId(kernel);
-}
-
-wxString wxGetOsDescription()
-{
-    return wxGetCommandOutput(wxT("uname -s -r -m"));
-}
-
-#endif // !__DARWIN__
-
 // ----------------------------------------------------------------------------
 // env vars
 // ----------------------------------------------------------------------------

@@ -2538,11 +2538,9 @@ public:
         }
 
         int flags = 0;
-        if ( (m_CodePage < 50000 && m_CodePage != CP_SYMBOL) &&
-                IsAtLeastWin2kSP4() )
-        {
+	if ( (m_CodePage < 50000 && m_CodePage != CP_SYMBOL)
+	   )
             flags = MB_ERR_INVALID_CHARS;
-        }
 
         const size_t len = ::MultiByteToWideChar
                              (
@@ -2614,7 +2612,7 @@ public:
         BOOL usedDef wxDUMMY_INITIALIZE(false);
         BOOL *pUsedDef;
         int flags;
-        if ( CanUseNoBestFit() && m_CodePage < 50000 )
+        if ( m_CodePage < 50000 )
         {
             // it's our lucky day
             flags = WC_NO_BEST_FIT_CHARS;
@@ -2726,63 +2724,6 @@ public:
     bool IsOk() const { return m_CodePage != -1; }
 
 private:
-    static bool CanUseNoBestFit()
-    {
-        static int s_isWin98Or2k = -1;
-
-        if ( s_isWin98Or2k == -1 )
-        {
-            int verMaj, verMin;
-            switch ( wxGetOsVersion(&verMaj, &verMin) )
-            {
-                case wxOS_WINDOWS_9X:
-                    s_isWin98Or2k = verMaj >= 4 && verMin >= 10;
-                    break;
-
-                case wxOS_WINDOWS_NT:
-                    s_isWin98Or2k = verMaj >= 5;
-                    break;
-
-                default:
-                    // unknown: be conservative by default
-                    s_isWin98Or2k = 0;
-                    break;
-            }
-
-            wxASSERT_MSG( s_isWin98Or2k != -1, wxT("should be set above") );
-        }
-
-        return s_isWin98Or2k == 1;
-    }
-
-    static bool IsAtLeastWin2kSP4()
-    {
-#ifdef __WXWINCE__
-        return false;
-#else
-        static int s_isAtLeastWin2kSP4 = -1;
-
-        if ( s_isAtLeastWin2kSP4 == -1 )
-        {
-            OSVERSIONINFOEX ver;
-
-            memset(&ver, 0, sizeof(ver));
-            ver.dwOSVersionInfoSize = sizeof(ver);
-            GetVersionEx((OSVERSIONINFO*)&ver);
-
-            s_isAtLeastWin2kSP4 =
-              ((ver.dwMajorVersion > 5) || // Vista+
-               (ver.dwMajorVersion == 5 && ver.dwMinorVersion > 0) || // XP/2003
-               (ver.dwMajorVersion == 5 && ver.dwMinorVersion == 0 &&
-               ver.wServicePackMajor >= 4)) // 2000 SP4+
-              ? 1 : 0;
-        }
-
-        return s_isAtLeastWin2kSP4 == 1;
-#endif
-    }
-
-
     // the code page we're working with
     long m_CodePage;
 

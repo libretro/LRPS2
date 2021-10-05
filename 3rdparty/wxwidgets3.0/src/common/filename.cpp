@@ -2387,9 +2387,6 @@ bool wxFileName::SetTimes(const wxDateTime *dtAccess,
     int flags;
     if ( IsDir() )
     {
-        if ( wxGetOsVersion() == wxOS_WINDOWS_9X )
-            return false;
-
         path = GetPath();
         flags = FILE_FLAG_BACKUP_SEMANTICS;
     }

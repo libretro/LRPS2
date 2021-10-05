@@ -194,9 +194,6 @@ public:
                               minor);
     }
 
-    wxOperatingSystemId GetOperatingSystemId() const
-        { return m_os; }
-
     // string getters
     // -----------------
 
@@ -211,10 +208,6 @@ public:
     void SetToolkitVersion(int major, int minor)
         { m_tkVersionMajor=major; m_tkVersionMinor=minor; }
 
-    void SetOperatingSystemId(wxOperatingSystemId n)
-        { m_os = n; }
-    void SetOperatingSystemDescription(const wxString& desc)
-        { m_osDesc = desc; }
     void SetPortId(wxPortId n)
         { m_port = n; }
     void SetArchitecture(wxArchitecture n)
@@ -232,8 +225,6 @@ public:
     bool IsOk() const
     {
         return m_osVersionMajor != -1 && m_osVersionMinor != -1 &&
-               m_os != wxOS_UNKNOWN &&
-               !m_osDesc.IsEmpty() &&
                m_tkVersionMajor != -1 && m_tkVersionMinor != -1 &&
                m_port != wxPORT_UNKNOWN &&
                m_arch != wxARCH_INVALID &&
@@ -259,13 +250,6 @@ protected:
     // (-1 means not initialized yet).
     int m_osVersionMajor,
         m_osVersionMinor;
-
-    // Operating system ID.
-    wxOperatingSystemId m_os;
-
-    // Operating system description.
-    wxString m_osDesc;
-
 
     // linux-specific
     // -----------------

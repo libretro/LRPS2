@@ -119,13 +119,6 @@ wxDEPRECATED_INLINE(inline bool wxStringEq(const wchar_t *s1, const wchar_t *s2)
 // Miscellaneous functions
 // ----------------------------------------------------------------------------
 
-// Get OS description as a user-readable string
-WXDLLIMPEXP_BASE wxString wxGetOsDescription();
-
-// Get OS version
-WXDLLIMPEXP_BASE wxOperatingSystemId wxGetOsVersion(int *majorVsn = NULL,
-                                                    int *minorVsn = NULL);
-
 // Get platform endianness
 WXDLLIMPEXP_BASE bool wxIsPlatformLittleEndian();
 
