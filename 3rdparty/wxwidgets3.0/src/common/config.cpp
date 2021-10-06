@@ -24,7 +24,6 @@
     #include "wx/utils.h"
     #include "wx/arrstr.h"
     #include "wx/math.h"
-    #include "wx/wxcrt.h"
 #endif //WX_PRECOMP
 
 // ----------------------------------------------------------------------------

@@ -19,6 +19,7 @@
 #include "wx/list.h"
 #include "wx/string.h"
 #include "wx/fontenc.h"
+#include "wx/hashmap.h"
 #include "wx/math.h"
 
 // ---------------------------------------------------------------------------

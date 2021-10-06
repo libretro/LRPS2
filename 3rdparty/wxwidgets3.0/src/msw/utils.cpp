@@ -24,7 +24,6 @@
 #endif
 
 #ifndef WX_PRECOMP
-    #include "wx/wxcrt.h"
     #include "wx/utils.h"
     #include "wx/app.h"
 #endif  //WX_PRECOMP

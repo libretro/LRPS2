@@ -147,6 +147,7 @@ WXDLLIMPEXP_BASE size_t wxWC2MB(char *buf, const wchar_t *pwz, size_t n)
     #undef wxPrintf
     #undef wxSprintf
     #undef wxVfprintf
+    #undef wxVsprintf
     #undef wxVprintf
     #undef wxVsnprintf_
 
@@ -415,6 +416,120 @@ int wxCRT_VsscanfW(const wchar_t *str, const wchar_t *format, va_list argptr)
 // ----------------------------------------------------------------------------
 // wrappers to printf and scanf function families
 // ----------------------------------------------------------------------------
+
+#if !wxUSE_UTF8_LOCALE_ONLY
+int wxDoSprintfWchar(char *str, const wxChar *format, ...)
+{
+    va_list argptr;
+    va_start(argptr, format);
+
+    int rv = wxVsprintf(str, format, argptr);
+
+    va_end(argptr);
+    return rv;
+}
+#endif // !wxUSE_UTF8_LOCALE_ONLY
+
+#if wxUSE_UNICODE_UTF8
+int wxDoSprintfUtf8(char *str, const char *format, ...)
+{
+    va_list argptr;
+    va_start(argptr, format);
+
+    int rv = wxVsprintf(str, format, argptr);
+
+    va_end(argptr);
+    return rv;
+}
+#endif // wxUSE_UNICODE_UTF8
+
+#if wxUSE_UNICODE
+
+#if !wxUSE_UTF8_LOCALE_ONLY
+int wxDoSprintfWchar(wchar_t *str, const wxChar *format, ...)
+{
+    va_list argptr;
+    va_start(argptr, format);
+
+    int rv = wxVsprintf(str, format, argptr);
+
+    va_end(argptr);
+    return rv;
+}
+#endif // !wxUSE_UTF8_LOCALE_ONLY
+
+#if wxUSE_UNICODE_UTF8
+int wxDoSprintfUtf8(wchar_t *str, const char *format, ...)
+{
+    va_list argptr;
+    va_start(argptr, format);
+
+    int rv = wxVsprintf(str, format, argptr);
+
+    va_end(argptr);
+    return rv;
+}
+#endif // wxUSE_UNICODE_UTF8
+
+#endif // wxUSE_UNICODE
+
+#if !wxUSE_UTF8_LOCALE_ONLY
+int wxDoSnprintfWchar(char *str, size_t size, const wxChar *format, ...)
+{
+    va_list argptr;
+    va_start(argptr, format);
+
+    int rv = wxVsnprintf(str, size, format, argptr);
+
+    va_end(argptr);
+    return rv;
+}
+#endif // !wxUSE_UTF8_LOCALE_ONLY
+
+#if wxUSE_UNICODE_UTF8
+int wxDoSnprintfUtf8(char *str, size_t size, const char *format, ...)
+{
+    va_list argptr;
+    va_start(argptr, format);
+
+    int rv = wxVsnprintf(str, size, format, argptr);
+
+    va_end(argptr);
+    return rv;
+}
+#endif // wxUSE_UNICODE_UTF8
+
+#if wxUSE_UNICODE
+
+#if !wxUSE_UTF8_LOCALE_ONLY
+int wxDoSnprintfWchar(wchar_t *str, size_t size, const wxChar *format, ...)
+{
+    va_list argptr;
+    va_start(argptr, format);
+
+    int rv = wxVsnprintf(str, size, format, argptr);
+
+    va_end(argptr);
+    return rv;
+}
+#endif // !wxUSE_UTF8_LOCALE_ONLY
+
+#if wxUSE_UNICODE_UTF8
+int wxDoSnprintfUtf8(wchar_t *str, size_t size, const char *format, ...)
+{
+    va_list argptr;
+    va_start(argptr, format);
+
+    int rv = wxVsnprintf(str, size, format, argptr);
+
+    va_end(argptr);
+    return rv;
+}
+#endif // wxUSE_UNICODE_UTF8
+
+#endif // wxUSE_UNICODE
+
+
 #ifdef HAVE_BROKEN_VSNPRINTF_DECL
     #define vsnprintf wx_fixed_vsnprintf
 #endif
@@ -472,6 +587,53 @@ static size_t PrintfViaString(T *out, size_t outsize,
     s.PrintfV(format, argptr);
 
     return ConvertStringToBuf(s, out, outsize);
+}
+#endif // wxUSE_UNICODE
+
+int wxVsprintf(char *str, const wxString& format, va_list argptr)
+{
+#if wxUSE_UTF8_LOCALE_ONLY
+    return wxCRT_VsprintfA(str, format.wx_str(), argptr);
+#else
+    #if wxUSE_UNICODE_UTF8
+    if ( wxLocaleIsUtf8 )
+        return wxCRT_VsprintfA(str, format.wx_str(), argptr);
+    else
+    #endif
+    #if wxUSE_UNICODE
+    return PrintfViaString(str, wxNO_LEN, format, argptr);
+    #else
+    return wxCRT_VsprintfA(str, format.mb_str(), argptr);
+    #endif
+#endif
+}
+
+#if wxUSE_UNICODE
+int wxVsprintf(wchar_t *str, const wxString& format, va_list argptr)
+{
+#if wxUSE_UNICODE_WCHAR
+#ifdef __DMC__
+/*
+This fails with a bug similar to
+http://www.digitalmars.com/pnews/read.php?server=news.digitalmars.com&group=c++.beta&artnum=680
+in DMC 8.49 and 8.50
+I don't see it being used in the wxWidgets sources at present (oct 2007) CE
+*/
+#pragma message ( "warning ::::: wxVsprintf(wchar_t *str, const wxString& format, va_list argptr) not yet implemented" )
+    wxFAIL_MSG( wxT("TODO") );
+
+    return -1;
+#else
+    return wxCRT_VsprintfW(str, format.wc_str(), argptr);
+#endif //DMC
+#else // wxUSE_UNICODE_UTF8
+    #if !wxUSE_UTF8_LOCALE_ONLY
+    if ( !wxLocaleIsUtf8 )
+        return wxCRT_VsprintfW(str, format.wc_str(), argptr);
+    else
+    #endif
+        return PrintfViaString(str, wxNO_LEN, format, argptr);
+#endif // wxUSE_UNICODE_UTF8
 }
 #endif // wxUSE_UNICODE
 

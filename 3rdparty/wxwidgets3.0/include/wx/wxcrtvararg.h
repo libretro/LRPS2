@@ -273,6 +273,8 @@
     // workaround for http://bugzilla.openwatcom.org/show_bug.cgi?id=351
     #define wxPrintf    wxPrintf_Impl
     #define wxFprintf   wxFprintf_Impl
+    #define wxSprintf   wxSprintf_Impl
+    #define wxSnprintf  wxSnprintf_Impl
 #endif
 
     // FIXME-UTF8: remove this
@@ -339,10 +341,52 @@ wxVfprintf(FILE *f, const wxString& format, va_list ap)
 // wxSprintf() and friends have to be implemented in two forms, one for
 // writing to char* buffer and one for writing to wchar_t*:
 
+#if !wxUSE_UTF8_LOCALE_ONLY
+int WXDLLIMPEXP_BASE wxDoSprintfWchar(char *str, const wxChar *format, ...);
+#endif
+#if wxUSE_UNICODE_UTF8
+int WXDLLIMPEXP_BASE wxDoSprintfUtf8(char *str, const char *format, ...);
+#endif
+WX_DEFINE_VARARG_FUNC(int, wxSprintf, 2, (char*, const wxFormatString&),
+                      wxDoSprintfWchar, wxDoSprintfUtf8)
+
+int WXDLLIMPEXP_BASE
+wxVsprintf(char *str, const wxString& format, va_list argptr);
+
+#if !wxUSE_UTF8_LOCALE_ONLY
+int WXDLLIMPEXP_BASE wxDoSnprintfWchar(char *str, size_t size, const wxChar *format, ...);
+#endif
+#if wxUSE_UNICODE_UTF8
+int WXDLLIMPEXP_BASE wxDoSnprintfUtf8(char *str, size_t size, const char *format, ...);
+#endif
+WX_DEFINE_VARARG_FUNC(int, wxSnprintf, 3, (char*, size_t, const wxFormatString&),
+                      wxDoSnprintfWchar, wxDoSnprintfUtf8)
+
 int WXDLLIMPEXP_BASE
 wxVsnprintf(char *str, size_t size, const wxString& format, va_list argptr);
 
 #if wxUSE_UNICODE
+
+#if !wxUSE_UTF8_LOCALE_ONLY
+int WXDLLIMPEXP_BASE wxDoSprintfWchar(wchar_t *str, const wxChar *format, ...);
+#endif
+#if wxUSE_UNICODE_UTF8
+int WXDLLIMPEXP_BASE wxDoSprintfUtf8(wchar_t *str, const char *format, ...);
+#endif
+WX_DEFINE_VARARG_FUNC(int, wxSprintf, 2, (wchar_t*, const wxFormatString&),
+                      wxDoSprintfWchar, wxDoSprintfUtf8)
+
+int WXDLLIMPEXP_BASE
+wxVsprintf(wchar_t *str, const wxString& format, va_list argptr);
+
+#if !wxUSE_UTF8_LOCALE_ONLY
+int WXDLLIMPEXP_BASE wxDoSnprintfWchar(wchar_t *str, size_t size, const wxChar *format, ...);
+#endif
+#if wxUSE_UNICODE_UTF8
+int WXDLLIMPEXP_BASE wxDoSnprintfUtf8(wchar_t *str, size_t size, const char *format, ...);
+#endif
+WX_DEFINE_VARARG_FUNC(int, wxSnprintf, 3, (wchar_t*, size_t, const wxFormatString&),
+                      wxDoSnprintfWchar, wxDoSnprintfUtf8)
 
 int WXDLLIMPEXP_BASE
 wxVsnprintf(wchar_t *str, size_t size, const wxString& format, va_list argptr);
@@ -356,11 +400,17 @@ wxVsnprintf(wchar_t *str, size_t size, const wxString& format, va_list argptr);
     // that cast the format argument to wxString:
     #undef wxPrintf
     #undef wxFprintf
+    #undef wxSprintf
+    #undef wxSnprintf
 
     #define wxPrintf(fmt, ...) \
             wxPrintf_Impl(wxFormatString(fmt), __VA_ARGS__)
     #define wxFprintf(f, fmt, ...) \
             wxFprintf_Impl(f, wxFormatString(fmt), __VA_ARGS__)
+    #define wxSprintf(s, fmt, ...) \
+            wxSprintf_Impl(s, wxFormatString(fmt), __VA_ARGS__)
+    #define wxSnprintf(s, n, fmt, ...) \
+            wxSnprintf_Impl(s, n, wxFormatString(fmt), __VA_ARGS__)
 #endif // __WATCOMC__
 
 

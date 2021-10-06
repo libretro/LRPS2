@@ -36,6 +36,7 @@ add_library(wxwidgets
    src/common/file.cpp
    src/common/filefn.cpp
    src/common/filename.cpp
+   src/common/hashmap.cpp
    src/common/init.cpp
    src/common/list.cpp
    src/common/longlong.cpp
@@ -60,6 +61,7 @@ add_library(wxwidgets
    src/common/wxcrt.cpp
    
    src/common/encconv.cpp
+   src/common/extended.c
    src/common/hash.cpp
    ${wxUnixSources}
    ${wxWindowsSources}
