@@ -9,7 +9,6 @@
 
 //Ensure that sigset_t is being defined
 #include <signal.h>
-#include "wx/hashmap.h"
 
 class wxFDIODispatcher;
 class wxFDIOHandler;
