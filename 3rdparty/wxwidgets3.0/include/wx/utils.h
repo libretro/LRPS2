@@ -18,7 +18,6 @@
 #include "wx/object.h"
 #include "wx/list.h"
 #include "wx/filefn.h"
-#include "wx/hashmap.h"
 #include "wx/versioninfo.h"
 #include "wx/meta/implicitconversion.h"
 

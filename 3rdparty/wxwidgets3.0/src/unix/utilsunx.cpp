@@ -25,6 +25,7 @@
 #ifndef WX_PRECOMP
     #include "wx/string.h"
     #include "wx/app.h"
+    #include "wx/wxcrt.h"
     #include "wx/wxcrtvararg.h"
     #if USE_PUTENV
         #include "wx/module.h"
