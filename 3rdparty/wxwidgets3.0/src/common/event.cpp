@@ -126,7 +126,6 @@ wxEvent::wxEvent(int theId, wxEventType commandType)
 {
     m_eventType = commandType;
     m_eventObject = NULL;
-    m_timeStamp = 0;
     m_id = theId;
     m_skipped = false;
     m_callbackUserData = NULL;
@@ -140,7 +139,6 @@ wxEvent::wxEvent(const wxEvent& src)
     : wxObject(src)
     , m_eventObject(src.m_eventObject)
     , m_eventType(src.m_eventType)
-    , m_timeStamp(src.m_timeStamp)
     , m_id(src.m_id)
     , m_callbackUserData(src.m_callbackUserData)
     , m_handlerToProcessOnlyIn(NULL)
@@ -157,7 +155,6 @@ wxEvent& wxEvent::operator=(const wxEvent& src)
 
     m_eventObject = src.m_eventObject;
     m_eventType = src.m_eventType;
-    m_timeStamp = src.m_timeStamp;
     m_id = src.m_id;
     m_callbackUserData = src.m_callbackUserData;
     m_handlerToProcessOnlyIn = NULL;

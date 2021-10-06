@@ -407,9 +407,6 @@ public:
     wxObject *GetEventObject() const { return m_eventObject; }
     void SetEventObject(wxObject *obj) { m_eventObject = obj; }
 
-    long GetTimestamp() const { return m_timeStamp; }
-    void SetTimestamp(long ts = 0) { m_timeStamp = ts; }
-
     int GetId() const { return m_id; }
     void SetId(int Id) { m_id = Id; }
 
@@ -465,7 +462,6 @@ public:
 protected:
     wxObject*         m_eventObject;
     wxEventType       m_eventType;
-    long              m_timeStamp;
     int               m_id;
 
 public:

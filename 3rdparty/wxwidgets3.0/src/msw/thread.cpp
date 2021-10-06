@@ -474,8 +474,7 @@ private:
 /* static */
 void wxThreadInternal::DoThreadOnExit(wxThread *thread)
 {
-   if (thread && thread->OnExit)
-	   thread->OnExit();
+	thread->OnExit();
 }
 
 /* static */

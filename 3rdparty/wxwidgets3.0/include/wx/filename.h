@@ -250,35 +250,6 @@ public:
     bool IsFileReadable() const { return wxIsReadable(GetFullPath()); }
     static bool IsFileReadable(const wxString &path) { return wxFileExists(path) && wxIsReadable(path); }
 
-    // time functions
-#if wxUSE_DATETIME
-        // set the file last access/mod and creation times
-        // (any of the pointers may be NULL)
-    bool SetTimes(const wxDateTime *dtAccess,
-                  const wxDateTime *dtMod,
-                  const wxDateTime *dtCreate) const;
-
-        // set the access and modification times to the current moment
-    bool Touch() const;
-
-        // return the last access, last modification and create times
-        // (any of the pointers may be NULL)
-    bool GetTimes(wxDateTime *dtAccess,
-                  wxDateTime *dtMod,
-                  wxDateTime *dtCreate) const;
-#endif // wxUSE_DATETIME
-
-#if defined( __WXOSX_MAC__ ) && wxOSX_USE_CARBON
-    bool MacSetTypeAndCreator( wxUint32 type , wxUint32 creator ) ;
-    bool MacGetTypeAndCreator( wxUint32 *type , wxUint32 *creator ) const;
-    // gets the 'common' type and creator for a certain extension
-    static bool MacFindDefaultTypeAndCreator( const wxString& ext , wxUint32 *type , wxUint32 *creator ) ;
-    // registers application defined extensions and their default type and creator
-    static void MacRegisterDefaultTypeAndCreator( const wxString& ext , wxUint32 type , wxUint32 creator ) ;
-    // looks up the appropriate type and creator from the registration and then sets
-    bool MacSetDefaultTypeAndCreator() ;
-#endif
-
     // various file/dir operations
 
         // retrieve the value of the current working directory
