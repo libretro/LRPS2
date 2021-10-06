@@ -29,6 +29,7 @@
     #include "wx/wxcrtvararg.h"
     #if USE_PUTENV
         #include "wx/module.h"
+        #include "wx/hashmap.h"
     #endif
 #endif
 
