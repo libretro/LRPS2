@@ -782,37 +782,13 @@ void *wxThreadInternal::PthreadStart(wxThread *thread)
 
     if ( !dontRunAtAll )
     {
-        wxTRY
-        {
-            pthread->m_exitcode = thread->CallEntry();
-        }
-#ifndef wxNO_EXCEPTIONS
-#ifdef HAVE_ABI_FORCEDUNWIND
-        // When using common C++ ABI under Linux we must always rethrow this
-        // special exception used to unwind the stack when the thread was
-        // cancelled, otherwise the thread library would simply terminate the
-        // program, see http://udrepper.livejournal.com/21541.html
-        catch ( abi::__forced_unwind& )
-        {
-            wxCriticalSectionLocker lock(thread->m_critsect);
-            pthread->SetState(STATE_EXITED);
-            throw;
-        }
-#endif // HAVE_ABI_FORCEDUNWIND
-        catch ( ... )
-        {
-            wxTheApp->OnUnhandledException();
-        }
-#endif // !wxNO_EXCEPTIONS
+	    pthread->m_exitcode = thread->CallEntry();
+	    wxCriticalSectionLocker lock(thread->m_critsect);
 
-        {
-            wxCriticalSectionLocker lock(thread->m_critsect);
-
-            // change the state of the thread to "exited" so that
-            // wxPthreadCleanup handler won't do anything from now (if it's
-            // called before we do pthread_cleanup_pop below)
-            pthread->SetState(STATE_EXITED);
-        }
+	    // change the state of the thread to "exited" so that
+	    // wxPthreadCleanup handler won't do anything from now (if it's
+	    // called before we do pthread_cleanup_pop below)
+	    pthread->SetState(STATE_EXITED);
     }
 
     // NB: pthread_cleanup_push/pop() are macros and pop contains the matching
@@ -1464,11 +1440,7 @@ void wxThread::Exit(ExitCode status)
     // might deadlock if, for example, it signals a condition in OnExit() (a
     // common case) while the main thread calls any of functions entering
     // m_critsect on us (almost all of them do)
-    wxTRY
-    {
-        OnExit();
-    }
-    wxCATCH_ALL( wxTheApp->OnUnhandledException(); )
+    OnExit();
 
     // delete C++ thread object if this is a detached thread - user is
     // responsible for doing this for joinable ones

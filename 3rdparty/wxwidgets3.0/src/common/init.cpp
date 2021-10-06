@@ -387,33 +387,22 @@ int wxEntryReal(int& argc, wxChar **argv)
     wxInitializer initializer(argc, argv);
 
     if ( !initializer.IsOk() )
-    {
         return -1;
-    }
 
-    wxTRY
+    // app initialization
+    // don't call OnExit() if OnInit() failed
+    if ( !wxTheApp->CallOnInit() )
+	    return -1;
+
+    // ensure that OnExit() is called if OnInit() had succeeded
+    class CallOnExit
     {
-#if 0 // defined(__WXOSX__) && wxOSX_USE_COCOA_OR_IPHONE
-        // everything done in OnRun using native callbacks
-#else
-        // app initialization
-        if ( !wxTheApp->CallOnInit() )
-        {
-            // don't call OnExit() if OnInit() failed
-            return -1;
-        }
+	    public:
+		    ~CallOnExit() { wxTheApp->OnExit(); }
+    } callOnExit;
 
-        // ensure that OnExit() is called if OnInit() had succeeded
-        class CallOnExit
-        {
-        public:
-            ~CallOnExit() { wxTheApp->OnExit(); }
-        } callOnExit;
-#endif
-        // app execution
-        return wxTheApp->OnRun();
-    }
-    wxCATCH_ALL( wxTheApp->OnUnhandledException(); return -1; )
+    // app execution
+    return wxTheApp->OnRun();
 }
 
 #if wxUSE_UNICODE

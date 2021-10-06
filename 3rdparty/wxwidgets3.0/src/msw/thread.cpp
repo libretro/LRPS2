@@ -474,31 +474,20 @@ private:
 /* static */
 void wxThreadInternal::DoThreadOnExit(wxThread *thread)
 {
-    wxTRY
-    {
-        thread->OnExit();
-    }
-    wxCATCH_ALL( wxTheApp->OnUnhandledException(); )
+   if (thread && thread->OnExit)
+	   thread->OnExit();
 }
 
 /* static */
 THREAD_RETVAL wxThreadInternal::DoThreadStart(wxThread *thread)
 {
-    wxON_BLOCK_EXIT1(DoThreadOnExit, thread);
+	wxON_BLOCK_EXIT1(DoThreadOnExit, thread);
 
-    THREAD_RETVAL rc = THREAD_ERROR_EXIT;
+	// store the thread object in the TLS
+	if ( !::TlsSetValue(gs_tlsThisThread, thread) )
+		return THREAD_ERROR_EXIT;
 
-    wxTRY
-    {
-        // store the thread object in the TLS
-        if ( !::TlsSetValue(gs_tlsThisThread, thread) )
-            return THREAD_ERROR_EXIT;
-
-        rc = wxPtrToUInt(thread->CallEntry());
-    }
-    wxCATCH_ALL( wxTheApp->OnUnhandledException(); )
-
-    return rc;
+	return wxPtrToUInt(thread->CallEntry());
 }
 
 /* static */

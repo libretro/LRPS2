@@ -13,20 +13,5 @@
 
 #include "wx/defs.h"
 
-// ----------------------------------------------------------------------------
-// macros working whether wxUSE_EXCEPTIONS is 0 or 1
-// ----------------------------------------------------------------------------
-
-// even if the library itself was compiled with exceptions support, the user
-// code using it might be compiling with a compiler switch disabling them in
-// which cases we shouldn't use try/catch in the headers -- this results in
-// compilation errors in e.g. wx/scopeguard.h with at least g++ 4
-#ifndef wxNO_EXCEPTIONS
-#define wxNO_EXCEPTIONS
-#endif
-
-#define wxTRY
-#define wxCATCH_ALL(code)
-
 #endif // _WX_EXCEPT_H_
 

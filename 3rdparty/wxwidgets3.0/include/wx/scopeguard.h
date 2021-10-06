@@ -37,13 +37,7 @@
 #define wxPrivateOnScopeExit(guard)          \
     {                                        \
         if ( !(guard).WasDismissed() )       \
-        {                                    \
-            wxTRY                            \
-            {                                \
                 (guard).Execute();           \
-            }                                \
-            wxCATCH_ALL(;)                   \
-        }                                    \
     }
 
 #define wxPrivateUse(n) wxUnusedVar(n)
@@ -58,15 +52,9 @@ namespace wxPrivate
     template <class ScopeGuardImpl>
     void OnScopeExit(ScopeGuardImpl& guard)
     {
+	// we're called from ScopeGuardImpl dtor and so we must not throw
         if ( !guard.WasDismissed() )
-        {
-            // we're called from ScopeGuardImpl dtor and so we must not throw
-            wxTRY
-            {
                 guard.Execute();
-            }
-            wxCATCH_ALL(;) // do nothing, just eat the exception
-        }
     }
 
     // just to avoid the warning about unused variables
