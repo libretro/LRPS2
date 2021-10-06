@@ -34,6 +34,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "wx/hashmap.h"
 #include "wx/vector.h"
 
 #ifdef __WINDOWS__
