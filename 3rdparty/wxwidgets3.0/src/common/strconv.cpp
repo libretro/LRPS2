@@ -44,8 +44,6 @@
     #include "wx/thread.h"
 #endif
 
-#include "wx/encconv.h"
-
 #ifdef __DARWIN__
 #include "wx/osx/core/private/strconv_cf.h"
 #endif //def __DARWIN__

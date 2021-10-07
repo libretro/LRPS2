@@ -58,8 +58,6 @@ add_library(wxwidgets
    src/common/utilscmn.cpp
    src/common/wfstream.cpp
    src/common/wxcrt.cpp
-   
-   src/common/encconv.cpp
    src/common/hash.cpp
    ${wxUnixSources}
    ${wxWindowsSources}
