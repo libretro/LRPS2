@@ -144,24 +144,4 @@
 #endif /* __INTELC__/!__INTELC__ */
 #endif /* __cplusplus */
 
-#if wxUSE_APPLE_IEEE
-#ifdef __cplusplus
-    extern "C" {
-#endif
-    /* functions from common/extended.c */
-    WXDLLIMPEXP_BASE wxFloat64 wxConvertFromIeeeExtended(const wxInt8 *bytes);
-    WXDLLIMPEXP_BASE void wxConvertToIeeeExtended(wxFloat64 num, wxInt8 *bytes);
-
-    /* use wxConvertFromIeeeExtended() and wxConvertToIeeeExtended() instead */
-#if WXWIN_COMPATIBILITY_2_8
-    wxDEPRECATED( WXDLLIMPEXP_BASE wxFloat64 ConvertFromIeeeExtended(const wxInt8 *bytes) );
-    wxDEPRECATED( WXDLLIMPEXP_BASE void ConvertToIeeeExtended(wxFloat64 num, wxInt8 *bytes) );
-#endif
-
-#ifdef __cplusplus
-    }
-#endif
-#endif /* wxUSE_APPLE_IEEE */
-
-
 #endif /* _WX_MATH_H_ */

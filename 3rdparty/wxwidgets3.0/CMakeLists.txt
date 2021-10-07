@@ -60,7 +60,6 @@ add_library(wxwidgets
    src/common/wxcrt.cpp
    
    src/common/encconv.cpp
-   src/common/extended.c
    src/common/hash.cpp
    ${wxUnixSources}
    ${wxWindowsSources}
