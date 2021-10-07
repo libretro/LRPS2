@@ -79,53 +79,6 @@
 
 #if wxUSE_BASE
 
-// ============================================================================
-// implementation
-// ============================================================================
-
-// Array used in DecToHex conversion routine.
-static const wxChar hexArray[] = wxT("0123456789ABCDEF");
-
-// Convert 2-digit hex number to decimal
-int wxHexToDec(const wxString& str)
-{
-    char buf[2];
-    buf[0] = str.GetChar(0);
-    buf[1] = str.GetChar(1);
-    return wxHexToDec((const char*) buf);
-}
-
-// Convert decimal integer to 2-character hex string
-void wxDecToHex(int dec, wxChar *buf)
-{
-    int firstDigit = (int)(dec/16.0);
-    int secondDigit = (int)(dec - (firstDigit*16.0));
-    buf[0] = hexArray[firstDigit];
-    buf[1] = hexArray[secondDigit];
-    buf[2] = 0;
-}
-
-// Convert decimal integer to 2 characters
-void wxDecToHex(int dec, char* ch1, char* ch2)
-{
-    int firstDigit = (int)(dec/16.0);
-    int secondDigit = (int)(dec - (firstDigit*16.0));
-    (*ch1) = (char) hexArray[firstDigit];
-    (*ch2) = (char) hexArray[secondDigit];
-}
-
-// Convert decimal integer to 2-character hex string
-wxString wxDecToHex(int dec)
-{
-    wxChar buf[3];
-    wxDecToHex(dec, buf);
-    return wxString(buf);
-}
-
-// ----------------------------------------------------------------------------
-// wxPlatform
-// ----------------------------------------------------------------------------
-
 /*
  * Class to make it easier to specify platform-dependent values
  */

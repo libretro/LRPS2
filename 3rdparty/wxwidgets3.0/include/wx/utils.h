@@ -150,37 +150,6 @@ private:
 };
 
 // ----------------------------------------------------------------------------
-// Various conversions
-// ----------------------------------------------------------------------------
-
-// Convert 2-digit hex number to decimal
-WXDLLIMPEXP_BASE int wxHexToDec(const wxString& buf);
-
-// Convert 2-digit hex number to decimal
-inline int wxHexToDec(const char* buf)
-{
-    int firstDigit, secondDigit;
-
-    if (buf[0] >= 'A')
-        firstDigit = buf[0] - 'A' + 10;
-    else
-        firstDigit = buf[0] - '0';
-
-    if (buf[1] >= 'A')
-        secondDigit = buf[1] - 'A' + 10;
-    else
-        secondDigit = buf[1] - '0';
-
-    return (firstDigit & 0xF) * 16 + (secondDigit & 0xF );
-}
-
-
-// Convert decimal integer to 2-character hex string
-WXDLLIMPEXP_BASE void wxDecToHex(int dec, wxChar *buf);
-WXDLLIMPEXP_BASE void wxDecToHex(int dec, char* ch1, char* ch2);
-WXDLLIMPEXP_BASE wxString wxDecToHex(int dec);
-
-// ----------------------------------------------------------------------------
 // Process management
 // ----------------------------------------------------------------------------
 
@@ -216,13 +185,6 @@ WXDLLIMPEXP_BASE const wxChar* wxGetHomeDir(wxString *pstr);
 // Get the user's (by default use the current user name) home dir,
 // return empty string on error
 WXDLLIMPEXP_BASE wxString wxGetUserHome(const wxString& user = wxEmptyString);
-
-
-#if wxUSE_LONGLONG
-    typedef wxLongLong wxDiskspaceSize_t;
-#else
-    typedef long wxDiskspaceSize_t;
-#endif
 
 #endif
     // _WX_UTILSH__
