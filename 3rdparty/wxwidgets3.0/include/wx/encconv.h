@@ -96,52 +96,6 @@ class WXDLLIMPEXP_BASE wxEncodingConverter : public wxObject
             bool Convert(const wchar_t* input, wchar_t* output) const;
             bool Convert(wchar_t* str) const { return Convert(str, str); }
 
-            // Return equivalent(s) for given font that are used
-            // under given platform. wxPLATFORM_CURRENT means the plaform
-            // this binary was compiled for
-            //
-            // Examples:
-            //     current platform          enc    returned value
-            // -----------------------------------------------------
-            //     unix                   CP1250         {ISO8859_2}
-            //     unix                ISO8859_2                  {}
-            //     windows             ISO8859_2            {CP1250}
-            //
-            // Equivalence is defined in terms of convertibility:
-            // 2 encodings are equivalent if you can convert text between
-            // then without losing information (it may - and will - happen
-            // that you lose special chars like quotation marks or em-dashes
-            // but you shouldn't lose any diacritics and language-specific
-            // characters when converting between equivalent encodings).
-            //
-            // Convert() method is not limited to converting between
-            // equivalent encodings, it can convert between arbitrary
-            // two encodings!
-            //
-            // Remember that this function does _NOT_ check for presence of
-            // fonts in system. It only tells you what are most suitable
-            // encodings. (It usually returns only one encoding)
-            //
-            // Note that argument enc itself may be present in returned array!
-            // (so that you can -- as a side effect -- detect whether the
-            // encoding is native for this platform or not)
-            static wxFontEncodingArray GetPlatformEquivalents(wxFontEncoding enc, int platform = wxPLATFORM_CURRENT);
-
-            // Similar to GetPlatformEquivalent, but this one will return ALL
-            // equivalent encodings, regardless the platform, including itself.
-            static wxFontEncodingArray GetAllEquivalents(wxFontEncoding enc);
-
-            // Return true if [any text in] one multibyte encoding can be
-            // converted to another one losslessly.
-            //
-            // Do not call this with wxFONTENCODING_UNICODE, it doesn't make
-            // sense (always works in one sense and always depends on the text
-            // to convert in the other)
-            static bool CanConvert(wxFontEncoding encIn, wxFontEncoding encOut)
-            {
-                return GetAllEquivalents(encIn).Index(encOut) != wxNOT_FOUND;
-            }
-
     private:
             wchar_t *m_Table;
             bool m_UnicodeInput, m_UnicodeOutput;
