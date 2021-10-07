@@ -14,26 +14,13 @@
 #include "wx/defs.h"
 #include "wx/string.h"
 
-// these functions are only used in STL build now but we define them in any
-// case for compatibility with the existing code outside of the library which
-// could be using them
-inline int wxCMPFUNC_CONV wxStringSortAscending(wxString* s1, wxString* s2)
-{
-    return s1->Cmp(*s2);
-}
-
-inline int wxCMPFUNC_CONV wxStringSortDescending(wxString* s1, wxString* s2)
-{
-    return wxStringSortAscending(s2, s1);
-}
-
 // this shouldn't be defined for compilers not supporting template methods or
 // without std::distance()
 //
 // FIXME-VC6: currently it's only not defined for VC6 in DLL build as it
 //            doesn't export template methods from DLL correctly so even though
 //            it compiles them fine, we get link errors when using wxArrayString
-    #define wxHAS_VECTOR_TEMPLATE_ASSIGN
+#define wxHAS_VECTOR_TEMPLATE_ASSIGN
 
 #ifdef wxHAS_VECTOR_TEMPLATE_ASSIGN
     #include "wx/beforestd.h"
@@ -299,142 +286,6 @@ private:
   wxString *m_pItems; // pointer to data
 
   bool    m_autoSort; // if true, keep the array always sorted
-};
-
-class WXDLLIMPEXP_BASE wxSortedArrayString : public wxArrayString
-{
-public:
-  wxSortedArrayString() : wxArrayString(true)
-    { }
-  wxSortedArrayString(const wxArrayString& array) : wxArrayString(true)
-    { Copy(array); }
-};
-
-// this class provides a temporary wxString* from a
-// wxArrayString
-class WXDLLIMPEXP_BASE wxCArrayString
-{
-public:
-    wxCArrayString( const wxArrayString& array )
-        : m_array( array ), m_strings( NULL )
-    { }
-    ~wxCArrayString() { delete[] m_strings; }
-
-    size_t GetCount() const { return m_array.GetCount(); }
-    wxString* GetStrings()
-    {
-        if( m_strings ) return m_strings;
-        size_t count = m_array.GetCount();
-        m_strings = new wxString[count];
-        for( size_t i = 0; i < count; ++i )
-            m_strings[i] = m_array[i];
-        return m_strings;
-    }
-
-    wxString* Release()
-    {
-        wxString *r = GetStrings();
-        m_strings = NULL;
-        return r;
-    }
-
-private:
-    const wxArrayString& m_array;
-    wxString* m_strings;
-};
-
-
-// ----------------------------------------------------------------------------
-// helper functions for working with arrays
-// ----------------------------------------------------------------------------
-
-// by default, these functions use the escape character to escape the
-// separators occurring inside the string to be joined, this can be disabled by
-// passing '\0' as escape
-
-WXDLLIMPEXP_BASE wxString wxJoin(const wxArrayString& arr,
-                                 const wxChar sep,
-                                 const wxChar escape = wxT('\\'));
-
-WXDLLIMPEXP_BASE wxArrayString wxSplit(const wxString& str,
-                                       const wxChar sep,
-                                       const wxChar escape = wxT('\\'));
-
-
-// ----------------------------------------------------------------------------
-// This helper class allows to pass both C array of wxStrings or wxArrayString
-// using the same interface.
-//
-// Use it when you have two methods taking wxArrayString or (int, wxString[]),
-// that do the same thing. This class lets you iterate over input data in the
-// same way whether it is a raw array of strings or wxArrayString.
-//
-// The object does not take ownership of the data -- internally it keeps
-// pointers to the data, therefore the data must be disposed of by user
-// and only after this object is destroyed. Usually it is not a problem as
-// only temporary objects of this class are used.
-// ----------------------------------------------------------------------------
-
-class wxArrayStringsAdapter
-{
-public:
-    // construct an adapter from a wxArrayString
-    wxArrayStringsAdapter(const wxArrayString& strings)
-        : m_type(wxSTRING_ARRAY), m_size(strings.size())
-    {
-        m_data.array = &strings;
-    }
-
-    // construct an adapter from a wxString[]
-    wxArrayStringsAdapter(unsigned int n, const wxString *strings)
-        : m_type(wxSTRING_POINTER), m_size(n)
-    {
-        m_data.ptr = strings;
-    }
-
-    // construct an adapter from a single wxString
-    wxArrayStringsAdapter(const wxString& s)
-        : m_type(wxSTRING_POINTER), m_size(1)
-    {
-        m_data.ptr = &s;
-    }
-
-    // default copy constructor is ok
-
-    // iteration interface
-    size_t GetCount() const { return m_size; }
-    bool IsEmpty() const { return GetCount() == 0; }
-    const wxString& operator[] (unsigned int i) const
-    {
-        wxASSERT_MSG( i < GetCount(), wxT("index out of bounds") );
-        if(m_type == wxSTRING_POINTER)
-            return m_data.ptr[i];
-        return m_data.array->Item(i);
-    }
-    wxArrayString AsArrayString() const
-    {
-        if(m_type == wxSTRING_ARRAY)
-            return *m_data.array;
-        return wxArrayString(GetCount(), m_data.ptr);
-    }
-
-private:
-    // type of the data being held
-    enum wxStringContainerType
-    {
-        wxSTRING_ARRAY,  // wxArrayString
-        wxSTRING_POINTER // wxString[]
-    };
-
-    wxStringContainerType m_type;
-    size_t m_size;
-    union
-    {
-        const wxString *      ptr;
-        const wxArrayString * array;
-    } m_data;
-
-    wxDECLARE_NO_ASSIGN_CLASS(wxArrayStringsAdapter);
 };
 
 #endif // _WX_ARRSTR_H
