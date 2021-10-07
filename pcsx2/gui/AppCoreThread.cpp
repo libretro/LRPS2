@@ -17,8 +17,6 @@
 #include "App.h"
 #include "AppGameDatabase.h"
 
-#include <wx/stdpaths.h>
-
 #include "Utilities/Threading.h"
 
 #include "ps2/BiosTools.h"

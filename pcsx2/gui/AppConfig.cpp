@@ -18,7 +18,6 @@
 
 #include "MemoryCardFile.h"
 
-#include <wx/stdpaths.h>
 #include <memory>
 
 #include "options_tools.h"

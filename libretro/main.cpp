@@ -15,7 +15,6 @@
 #include <string>
 #include <thread>
 #include <wx/textfile.h>
-#include <wx/stdpaths.h>
 #include <wx/dir.h>
 #include <wx/evtloop.h>
 
