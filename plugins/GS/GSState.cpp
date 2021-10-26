@@ -25,13 +25,10 @@
 #include "GSUtil.h"
 #include "options_tools.h"
 
-//#define Offset_ST  // Fixes Persona3 mini map alignment which is off even in software rendering
-
 int GSState::s_n = 0;
 
 GSState::GSState()
 	: m_version(6)
-	, m_init_read_fifo_supported(false)
 	, m_gsc(NULL)
 	, m_skip(0)
 	, m_skip_offset(0)
@@ -458,14 +455,6 @@ GSVector4i GSState::GetFrameRect(int i)
 	rectangle.right = rectangle.left + w;
 	rectangle.bottom = rectangle.top + h;
 
-#ifdef ENABLE_PCRTC_DEBUG
-	static GSVector4i old_r[2] = { GSVector4i(0), GSVector4i(0) };
-	if (!old_r[i].eq(rectangle))
-		printf("Frame rectangle [%d] update!\nwidth: %d  height: %d  left: %d  top: %d  right: %d  bottom: %d\n",
-			i,w,h, rectangle.left, rectangle.top, rectangle.right, rectangle.bottom);
-	old_r[i] = rectangle;
-#endif
-
 	return rectangle;
 }
 
@@ -566,15 +555,6 @@ void GSState::GIFPackedRegHandlerSTQ(const GIFPackedReg* RESTRICT r)
 	q = GSVector4i::cast(GSVector4::cast(q).replace_nan(GSVector4::m_max));
 
 	GSVector4::store(&m_q, GSVector4::cast(q));
-
-	ASSERT(!std::isnan(m_v.ST.S)); // See GIFRegHandlerRGBAQ
-	ASSERT(!std::isnan(m_v.ST.T)); // See GIFRegHandlerRGBAQ
-
-#ifdef Offset_ST
-	GIFRegTEX0 TEX0 = m_context->TEX0;
-	m_v.ST.S -= 0.02f * m_q / (1 << TEX0.TW);
-	m_v.ST.T -= 0.02f * m_q / (1 << TEX0.TH);
-#endif
 }
 
 void GSState::GIFPackedRegHandlerUV(const GIFPackedReg* RESTRICT r)
@@ -596,12 +576,6 @@ void GSState::GIFPackedRegHandlerUV_Hack(const GIFPackedReg* RESTRICT r)
 template<uint32 prim, uint32 adc, bool auto_flush>
 void GSState::GIFPackedRegHandlerXYZF2(const GIFPackedReg* RESTRICT r)
 {
-	/*
-	m_v.XYZ.X = r->XYZF2.X;
-	m_v.XYZ.Y = r->XYZF2.Y;
-	m_v.XYZ.Z = r->XYZF2.Z;
-	m_v.FOG = r->XYZF2.F;
-	*/
 	GSVector4i xy = GSVector4i::loadl(&r->u64[0]);
 	GSVector4i zf = GSVector4i::loadl(&r->u64[1]);
 	xy = xy.upl16(xy.srl<4>()).upl32(GSVector4i::load((int)m_v.UV));
@@ -615,11 +589,6 @@ void GSState::GIFPackedRegHandlerXYZF2(const GIFPackedReg* RESTRICT r)
 template<uint32 prim, uint32 adc, bool auto_flush>
 void GSState::GIFPackedRegHandlerXYZ2(const GIFPackedReg* RESTRICT r)
 {
-/*
-	m_v.XYZ.X = r->XYZ2.X;
-	m_v.XYZ.Y = r->XYZ2.Y;
-	m_v.XYZ.Z = r->XYZ2.Z;
-*/
 	GSVector4i xy = GSVector4i::loadl(&r->u64[0]);
 	GSVector4i z = GSVector4i::loadl(&r->u64[1]);
 	GSVector4i xyz = xy.upl16(xy.srl<4>()).upl32(z);
@@ -655,12 +624,6 @@ void GSState::GIFPackedRegHandlerSTQRGBAXYZF2(const GIFPackedReg* RESTRICT r, ui
 		GSVector4i st = GSVector4i::loadl(&r[0].u64[0]);
 		GSVector4i q = GSVector4i::loadl(&r[0].u64[1]);
 		GSVector4i rgba = (GSVector4i::load<false>(&r[1]) & GSVector4i::x000000ff()).ps32().pu16();
-		/*
-		GSVector4i rg = GSVector4i::loadl(&r[1].u64[0]);
-		GSVector4i ba = GSVector4i::loadl(&r[1].u64[1]);
-		GSVector4i rbga = rg.upl8(ba);
-		GSVector4i rgba = rbga.upl8(rbga.zzzz());
-		*/
 		q = q.blend8(GSVector4i::cast(GSVector4::m_one), q == GSVector4i::zero()); // see GIFPackedRegHandlerSTQ
 
 		m_v.m[0] = st.upl64(rgba.upl32(q)); // TODO: only store the last one
@@ -692,12 +655,6 @@ void GSState::GIFPackedRegHandlerSTQRGBAXYZ2(const GIFPackedReg* RESTRICT r, uin
 		GSVector4i st = GSVector4i::loadl(&r[0].u64[0]);
 		GSVector4i q = GSVector4i::loadl(&r[0].u64[1]);
 		GSVector4i rgba = (GSVector4i::load<false>(&r[1]) & GSVector4i::x000000ff()).ps32().pu16();
-		/*
-		GSVector4i rg = GSVector4i::loadl(&r[1].u64[0]);
-		GSVector4i ba = GSVector4i::loadl(&r[1].u64[1]);
-		GSVector4i rbga = rg.upl8(ba);
-		GSVector4i rgba = rbga.upl8(rbga.zzzz());
-		*/
 		q = q.blend8(GSVector4i::cast(GSVector4::m_one), q == GSVector4i::zero()); // see GIFPackedRegHandlerSTQ
 
 		m_v.m[0] = st.upl64(rgba.upl32(q)); // TODO: only store the last one
@@ -720,8 +677,6 @@ void GSState::GIFPackedRegHandlerNOP(const GIFPackedReg* RESTRICT r, uint32 size
 {
 }
 
-// GIFRegHandler*
-
 void GSState::GIFRegHandlerNull(const GIFReg* RESTRICT r)
 {
 	// ASSERT(0);
@@ -729,19 +684,13 @@ void GSState::GIFRegHandlerNull(const GIFReg* RESTRICT r)
 
 __forceinline void GSState::ApplyPRIM(uint32 prim)
 {
-	// ASSERT(r->PRIM.PRIM < 7);
-
 	if(GSUtil::GetPrimClass(m_env.PRIM.PRIM) == GSUtil::GetPrimClass(prim & 7)) // NOTE: assume strips/fans are converted to lists
 	{
 		if((m_env.PRIM.u32[0] ^ prim) & 0x7f8) // all fields except PRIM
-		{
 			Flush();
-		}
 	}
 	else
-	{
 		Flush();
-	}
 
 	m_env.PRIM.u32[0] = prim;
 	m_env.PRMODE._PRIM = prim;
@@ -784,15 +733,6 @@ void GSState::GIFRegHandlerRGBAQ(const GIFReg* RESTRICT r)
 void GSState::GIFRegHandlerST(const GIFReg* RESTRICT r)
 {
 	m_v.ST = (GSVector4i)r->ST;
-
-	ASSERT(!std::isnan(m_v.ST.S)); // See GIFRegHandlerRGBAQ
-	ASSERT(!std::isnan(m_v.ST.T)); // See GIFRegHandlerRGBAQ
-
-#ifdef Offset_ST
-	GIFRegTEX0 TEX0 = m_context->TEX0;
-	m_v.ST.S -= 0.02f * m_q / (1 << TEX0.TW);
-	m_v.ST.T -= 0.02f * m_q / (1 << TEX0.TH);
-#endif
 }
 
 void GSState::GIFRegHandlerUV(const GIFReg* RESTRICT r)
@@ -854,9 +794,7 @@ template<int i> void GSState::ApplyTEX0(GIFRegTEX0& TEX0)
 	uint64 mask = 0x1f78001fffffffffull; // TBP0 TBW PSM TW TH TCC TFX CPSM CSA
 
 	if(wt || PRIM->CTXT == i && ((TEX0.u64 ^ m_env.CTXT[i].TEX0.u64) & mask))
-	{
 		Flush();
-	}
 
 	TEX0.CPSM &= 0xa; // 1010b
 
@@ -1004,9 +942,7 @@ template<int i> void GSState::GIFRegHandlerCLAMP(const GIFReg* RESTRICT r)
 {
 	GL_REG("CLAMP_%d = 0x%x_%x", i, r->u32[1], r->u32[0]);
 	if(PRIM->CTXT == i && r->CLAMP != m_env.CTXT[i].CLAMP)
-	{
 		Flush();
-	}
 
 	m_env.CTXT[i].CLAMP = (GSVector4i)r->CLAMP;
 }
@@ -1024,9 +960,7 @@ template<int i> void GSState::GIFRegHandlerTEX1(const GIFReg* RESTRICT r)
 {
 	GL_REG("TEX1_%d = 0x%x_%x", i, r->u32[1], r->u32[0]);
 	if(PRIM->CTXT == i && r->TEX1 != m_env.CTXT[i].TEX1)
-	{
 		Flush();
-	}
 
 	m_env.CTXT[i].TEX1 = (GSVector4i)r->TEX1;
 }
@@ -1057,9 +991,7 @@ template<int i> void GSState::GIFRegHandlerXYOFFSET(const GIFReg* RESTRICT r)
 	GSVector4i o = (GSVector4i)r->XYOFFSET & GSVector4i::x0000ffff();
 
 	if(!o.eq(m_env.CTXT[i].XYOFFSET))
-	{
 		Flush();
-	}
 
 	m_env.CTXT[i].XYOFFSET = o;
 
@@ -1072,9 +1004,7 @@ void GSState::GIFRegHandlerPRMODECONT(const GIFReg* RESTRICT r)
 {
 	GL_REG("PRMODECONT = 0x%x_%x", r->u32[1], r->u32[0]);
 	if(r->PRMODECONT != m_env.PRMODECONT)
-	{
 		Flush();
-	}
 
 	m_env.PRMODECONT.AC = r->PRMODECONT.AC;
 
@@ -1091,9 +1021,7 @@ void GSState::GIFRegHandlerPRMODE(const GIFReg* RESTRICT r)
 {
 	GL_REG("PRMODE = 0x%x_%x", r->u32[1], r->u32[0]);
 	if(!m_env.PRMODECONT.AC)
-	{
 		Flush();
-	}
 
 	uint32 _PRIM = m_env.PRMODE._PRIM;
 	m_env.PRMODE = (GSVector4i)r->PRMODE;
@@ -1108,9 +1036,7 @@ void GSState::GIFRegHandlerTEXCLUT(const GIFReg* RESTRICT r)
 {
 	GL_REG("TEXCLUT = 0x%x_%x", r->u32[1], r->u32[0]);
 	if(r->TEXCLUT != m_env.TEXCLUT)
-	{
 		Flush();
-	}
 
 	m_env.TEXCLUT = (GSVector4i)r->TEXCLUT;
 }
@@ -1118,9 +1044,7 @@ void GSState::GIFRegHandlerTEXCLUT(const GIFReg* RESTRICT r)
 void GSState::GIFRegHandlerSCANMSK(const GIFReg* RESTRICT r)
 {
 	if(r->SCANMSK != m_env.SCANMSK)
-	{
 		Flush();
-	}
 
 	m_env.SCANMSK = (GSVector4i)r->SCANMSK;
 }
@@ -1129,9 +1053,7 @@ template<int i> void GSState::GIFRegHandlerMIPTBP1(const GIFReg* RESTRICT r)
 {
 	GL_REG("MIPTBP1_%d = 0x%x_%x", i, r->u32[1], r->u32[0]);
 	if(PRIM->CTXT == i && r->MIPTBP1 != m_env.CTXT[i].MIPTBP1)
-	{
 		Flush();
-	}
 
 	m_env.CTXT[i].MIPTBP1 = (GSVector4i)r->MIPTBP1;
 }
@@ -1140,9 +1062,7 @@ template<int i> void GSState::GIFRegHandlerMIPTBP2(const GIFReg* RESTRICT r)
 {
 	GL_REG("MIPTBP2_%d = 0x%x_%x", i, r->u32[1], r->u32[0]);
 	if(PRIM->CTXT == i && r->MIPTBP2 != m_env.CTXT[i].MIPTBP2)
-	{
 		Flush();
-	}
 
 	m_env.CTXT[i].MIPTBP2 = (GSVector4i)r->MIPTBP2;
 }
@@ -1151,9 +1071,7 @@ void GSState::GIFRegHandlerTEXA(const GIFReg* RESTRICT r)
 {
 	GL_REG("TEXA = 0x%x_%x", r->u32[1], r->u32[0]);
 	if(r->TEXA != m_env.TEXA)
-	{
 		Flush();
-	}
 
 	m_env.TEXA = (GSVector4i)r->TEXA;
 }
@@ -1162,9 +1080,7 @@ void GSState::GIFRegHandlerFOGCOL(const GIFReg* RESTRICT r)
 {
 	GL_REG("FOGCOL = 0x%x_%x", r->u32[1], r->u32[0]);
 	if(r->FOGCOL != m_env.FOGCOL)
-	{
 		Flush();
-	}
 
 	m_env.FOGCOL = (GSVector4i)r->FOGCOL;
 }
@@ -1177,9 +1093,7 @@ void GSState::GIFRegHandlerTEXFLUSH(const GIFReg* RESTRICT r)
 template<int i> void GSState::GIFRegHandlerSCISSOR(const GIFReg* RESTRICT r)
 {
 	if(PRIM->CTXT == i && r->SCISSOR != m_env.CTXT[i].SCISSOR)
-	{
 		Flush();
-	}
 
 	m_env.CTXT[i].SCISSOR = (GSVector4i)r->SCISSOR;
 
@@ -1191,9 +1105,7 @@ template<int i> void GSState::GIFRegHandlerSCISSOR(const GIFReg* RESTRICT r)
 template<int i> void GSState::GIFRegHandlerALPHA(const GIFReg* RESTRICT r)
 {
 	if(PRIM->CTXT == i && r->ALPHA != m_env.CTXT[i].ALPHA)
-	{
 		Flush();
-	}
 
 	m_env.CTXT[i].ALPHA = (GSVector4i)r->ALPHA;
 
@@ -1224,9 +1136,7 @@ void GSState::GIFRegHandlerDIMX(const GIFReg* RESTRICT r)
 void GSState::GIFRegHandlerDTHE(const GIFReg* RESTRICT r)
 {
 	if(r->DTHE != m_env.DTHE)
-	{
 		Flush();
-	}
 
 	m_env.DTHE = (GSVector4i)r->DTHE;
 }
@@ -1234,35 +1144,23 @@ void GSState::GIFRegHandlerDTHE(const GIFReg* RESTRICT r)
 void GSState::GIFRegHandlerCOLCLAMP(const GIFReg* RESTRICT r)
 {
 	if(r->COLCLAMP != m_env.COLCLAMP)
-	{
 		Flush();
-	}
 
 	m_env.COLCLAMP = (GSVector4i)r->COLCLAMP;
-#ifdef DISABLE_COLCLAMP
-	m_env.COLCLAMP.CLAMP = 1;
-#endif
 }
 
 template<int i> void GSState::GIFRegHandlerTEST(const GIFReg* RESTRICT r)
 {
 	if(PRIM->CTXT == i && r->TEST != m_env.CTXT[i].TEST)
-	{
 		Flush();
-	}
 
 	m_env.CTXT[i].TEST = (GSVector4i)r->TEST;
-#ifdef DISABLE_DATE
-	m_env.CTXT[i].TEST.DATE = 0;
-#endif
 }
 
 void GSState::GIFRegHandlerPABE(const GIFReg* RESTRICT r)
 {
 	if(r->PABE != m_env.PABE)
-	{
 		Flush();
-	}
 
 	m_env.PABE = (GSVector4i)r->PABE;
 }
@@ -1270,9 +1168,7 @@ void GSState::GIFRegHandlerPABE(const GIFReg* RESTRICT r)
 template<int i> void GSState::GIFRegHandlerFBA(const GIFReg* RESTRICT r)
 {
 	if(PRIM->CTXT == i && r->FBA != m_env.CTXT[i].FBA)
-	{
 		Flush();
-	}
 
 	m_env.CTXT[i].FBA = (GSVector4i)r->FBA;
 }
@@ -1315,10 +1211,6 @@ template<int i> void GSState::GIFRegHandlerFRAME(const GIFReg* RESTRICT r)
 		default:
 			break;
 	}
-
-#ifdef DISABLE_BITMASKING
-	m_env.CTXT[i].FRAME.FBMSK = GSVector4i::store(GSVector4i::load((int)m_env.CTXT[i].FRAME.FBMSK).eq8(GSVector4i::xffffffff()));
-#endif
 }
 
 template<int i> void GSState::GIFRegHandlerZBUF(const GIFReg* RESTRICT r)
@@ -1326,15 +1218,10 @@ template<int i> void GSState::GIFRegHandlerZBUF(const GIFReg* RESTRICT r)
 	GL_REG("ZBUF_%d = 0x%x_%x", i, r->u32[1], r->u32[0]);
 	GIFRegZBUF ZBUF = r->ZBUF;
 
-	if(ZBUF.u32[0] == 0)
-	{
-		// during startup all regs are cleared to 0 (by the bios or something), so we mask z until this register becomes valid
-		// edit: breaks Grandia Xtreme and sounds like a bad idea generally. What was the intend?
-		// edit2: should be set only before any serious drawing happens, grandia extreme nulls out this register throughout the whole game, 
-		//        I already forgot what it fixed, that game never masked the zbuffer, but assumed it was set by default
-		//ZBUF.ZMSK = 1;
-	}
-
+	// TODO: I tested this and I believe it is possible to set zbuf to a color format
+	// Powerdrome relies on this behavior to clear the z buffer
+	// the undocumented formats do have behavior (they mess with the swizzling)
+	// we don't emulate this yet (and maybe we wont need to)
 	ZBUF.PSM |= 0x30;
 
 	if(ZBUF.PSM != PSM_PSMZ32
@@ -1346,9 +1233,7 @@ template<int i> void GSState::GIFRegHandlerZBUF(const GIFReg* RESTRICT r)
 	}
 
 	if(PRIM->CTXT == i && ZBUF != m_env.CTXT[i].ZBUF)
-	{
 		Flush();
-	}
 
 	if((m_env.CTXT[i].ZBUF.u32[0] ^ ZBUF.u32[0]) & 0x3f0001ff) // ZBP PSM
 	{
@@ -1364,9 +1249,7 @@ void GSState::GIFRegHandlerBITBLTBUF(const GIFReg* RESTRICT r)
 {
 	GL_REG("BITBLTBUF = 0x%x_%x", r->u32[1], r->u32[0]);
 	if(r->BITBLTBUF != m_env.BITBLTBUF)
-	{
 		FlushWrite();
-	}
 
 	m_env.BITBLTBUF = (GSVector4i)r->BITBLTBUF;
 
@@ -1385,9 +1268,7 @@ void GSState::GIFRegHandlerTRXPOS(const GIFReg* RESTRICT r)
 {
 	GL_REG("TRXPOS = 0x%x_%x", r->u32[1], r->u32[0]);
 	if(r->TRXPOS != m_env.TRXPOS)
-	{
 		FlushWrite();
-	}
 
 	m_env.TRXPOS = (GSVector4i)r->TRXPOS;
 }
@@ -1396,9 +1277,7 @@ void GSState::GIFRegHandlerTRXREG(const GIFReg* RESTRICT r)
 {
 	GL_REG("TRXREG = 0x%x_%x", r->u32[1], r->u32[0]);
 	if(r->TRXREG != m_env.TRXREG)
-	{
 		FlushWrite();
-	}
 
 	m_env.TRXREG = (GSVector4i)r->TRXREG;
 }
@@ -1421,23 +1300,24 @@ void GSState::GIFRegHandlerTRXDIR(const GIFReg* RESTRICT r)
 	case 2: // local -> local
 		Move();
 		break;
-	case 3:
-		ASSERT(0);
+	case 3: // 3 prohibited, behavior unknown
 		break;
 	default:
-		__assume(0);
+                break;
 	}
 }
 
 void GSState::GIFRegHandlerHWREG(const GIFReg* RESTRICT r)
 {
 	GL_REG("HWREG = 0x%x_%x", r->u32[1], r->u32[0]);
-	ASSERT(m_env.TRXDIR.XDIR == 0); // host => local
+
+	// don't bother if not host -> local
+	// real hw ignores
+	if (m_env.TRXDIR.XDIR != 0)
+		return;
 
 	Write((uint8*)r, 8); // haunting ground
 }
-
-//
 
 void GSState::Flush()
 {
@@ -1448,7 +1328,7 @@ void GSState::Flush()
 
 void GSState::FlushWrite()
 {
-	int len = m_tr.end - m_tr.start;
+	const int len = m_tr.end - m_tr.start;
 
 	if(len <= 0) return;
 
@@ -1460,8 +1340,6 @@ void GSState::FlushWrite()
 	r.bottom = r.top + m_env.TRXREG.RRH;
 
 	InvalidateVideoMem(m_env.BITBLTBUF, r);
-
-	//int y = m_tr.y;
 
 	GSLocalMemory::writeImage wi = GSLocalMemory::m_psm[m_env.BITBLTBUF.DPSM].wi;
 
@@ -1520,29 +1398,6 @@ void GSState::FlushPrim()
 
 			ASSERT((int)unused < GSUtil::GetVertexCount(PRIM->PRIM));
 		}
-
-#ifdef ENABLE_OGL_DEBUG
-		// Validate PSM format
-		switch (m_context->TEX0.PSM) {
-			case PSM_PSMCT32:
-			case PSM_PSMCT24:
-			case PSM_PSMCT16:
-			case PSM_PSMCT16S:
-			case PSM_PSMT8:
-			case PSM_PSMT4:
-			case PSM_PSMT8H:
-			case PSM_PSMT4HL:
-			case PSM_PSMT4HH:
-			case PSM_PSMZ32:
-			case PSM_PSMZ24:
-			case PSM_PSMZ16:
-			case PSM_PSMZ16S:
-				break;
-			default:
-				fprintf(stderr, "%d:INVALID PSM 0x%x !!!\n", s_n, m_context->TEX0.PSM);
-				break;
-		}
-#endif
 
 		if(GSLocalMemory::m_psm[m_context->FRAME.PSM].fmt < 3 && GSLocalMemory::m_psm[m_context->ZBUF.PSM].fmt < 3)
 		{
@@ -1620,12 +1475,8 @@ void GSState::Write(const uint8* mem, int len)
 		}
 	}
 
-	// printf("Write len=%d DBP=%05x DBW=%d DPSM=%d DSAX=%d DSAY=%d RRW=%d RRH=%d\n", len, blit.DBP, blit.DBW, blit.DPSM, m_env.TRXPOS.DSAX, m_env.TRXPOS.DSAY, m_env.TRXREG.RRW, m_env.TRXREG.RRH);
-
 	if(!m_tr.Update(w, h, psm.trbpp, len))
-	{
 		return;
-	}
 
 	GL_CACHE("Write! ...  => 0x%x W:%d F:%s (DIR %d%d), dPos(%d %d) size(%d %d)",
 		blit.DBP, blit.DBW, psm_str(blit.DPSM),
@@ -1633,9 +1484,7 @@ void GSState::Write(const uint8* mem, int len)
 		m_env.TRXPOS.DSAX, m_env.TRXPOS.DSAY, w, h);
 
 	if(PRIM->TME && (blit.DBP == m_context->TEX0.TBP0 || blit.DBP == m_context->TEX0.CBP)) // TODO: hmmmm
-	{
 		FlushPrim();
-	}
 
 	if(m_tr.end == 0 && len >= m_tr.total)
 	{
@@ -1665,9 +1514,7 @@ void GSState::Write(const uint8* mem, int len)
 		m_tr.end += len;
 
 		if(m_tr.end >= m_tr.total)
-		{
 			FlushWrite();
-		}
 	}
 
 	m_mem.m_clut.Invalidate();
@@ -1677,25 +1524,17 @@ void GSState::InitReadFIFO(uint8* mem, int len)
 {
 	if(len <= 0) return;
 
-	// Allow to keep compatibility with older PCSX2
-	m_init_read_fifo_supported = true;
+	const int sx = m_env.TRXPOS.SSAX;
+	const int sy = m_env.TRXPOS.SSAY;
+	const int w = m_env.TRXREG.RRW;
+	const int h = m_env.TRXREG.RRH;
+	const uint16 bpp = GSLocalMemory::m_psm[m_env.BITBLTBUF.SPSM].trbpp;
 
-	int sx = m_env.TRXPOS.SSAX;
-	int sy = m_env.TRXPOS.SSAY;
-	int w = m_env.TRXREG.RRW;
-	int h = m_env.TRXREG.RRH;
-
-	// printf("Read len=%d SBP=%05x SBW=%d SPSM=%d SSAX=%d SSAY=%d RRW=%d RRH=%d\n", len, (int)m_env.BITBLTBUF.SBP, (int)m_env.BITBLTBUF.SBW, (int)m_env.BITBLTBUF.SPSM, sx, sy, w, h);
-
-	if(!m_tr.Update(w, h, GSLocalMemory::m_psm[m_env.BITBLTBUF.SPSM].trbpp, len))
-	{
+	if(!m_tr.Update(w, h, bpp, len))
 		return;
-	}
 
 	if(m_tr.x == sx && m_tr.y == sy)
-	{
 		InvalidateLocalMem(m_env.BITBLTBUF, GSVector4i(sx, sy, sx + w, sy + h));
-	}
 }
 
 void GSState::Read(uint8* mem, int len)
@@ -1707,17 +1546,10 @@ void GSState::Read(uint8* mem, int len)
 	int w = m_env.TRXREG.RRW;
 	int h = m_env.TRXREG.RRH;
 	GSVector4i r(sx, sy, sx + w, sy + h);
+	const uint16 bpp = GSLocalMemory::m_psm[m_env.BITBLTBUF.SPSM].trbpp;
 
-	if(!m_tr.Update(w, h, GSLocalMemory::m_psm[m_env.BITBLTBUF.SPSM].trbpp, len))
+	if(!m_tr.Update(w, h, bpp, len))
 		return;
-
-	if(!m_init_read_fifo_supported)
-	{
-		if(m_tr.x == sx && m_tr.y == sy)
-		{
-			InvalidateLocalMem(m_env.BITBLTBUF, r);
-		}
-	}
 
 	m_mem.ReadImageX(m_tr.x, m_tr.y, mem, len, m_env.BITBLTBUF, m_env.TRXPOS, m_env.TRXREG);
 }
@@ -1748,13 +1580,6 @@ void GSState::Move()
 
 	if(m_env.TRXPOS.DIRX) {sx += w - 1; dx += w - 1; xinc = -1;}
 	if(m_env.TRXPOS.DIRY) {sy += h - 1; dy += h - 1; yinc = -1;}
-/*
-	printf("%05x %d %d => %05x %d %d (%d%d), %d %d %d %d %d %d\n",
-		m_env.BITBLTBUF.SBP, m_env.BITBLTBUF.SBW, m_env.BITBLTBUF.SPSM,
-		m_env.BITBLTBUF.DBP, m_env.BITBLTBUF.DBW, m_env.BITBLTBUF.DPSM,
-		m_env.TRXPOS.DIRX, m_env.TRXPOS.DIRY,
-		sx, sy, dx, dy, w, h);
-*/
 
 	const GSLocalMemory::psm_t& spsm = GSLocalMemory::m_psm[m_env.BITBLTBUF.SPSM];
 	const GSLocalMemory::psm_t& dpsm = GSLocalMemory::m_psm[m_env.BITBLTBUF.DPSM];
@@ -2126,30 +1951,23 @@ template<int index> void GSState::Transfer(const uint8* mem, uint32 size)
 					case 0:
 						Write(mem, len * 16);
 						break;
-					case 1:
-						// This can't happen; downloads can not be started or performed as part of
-						// a GIFtag operation.  They're an entirely separate process that can only be
-						// done through the ReverseFIFO transfer (aka ReadFIFO). --air
-						ASSERT(0);
-						//Read(mem, len * 16);
-						break;
 					case 2:
 						Move();
 						break;
-					case 3:
-						ASSERT(0);
+					default: // 1 and 3
+						// 1 is invalid because downloads can only be done
+						// with a reverse fifo operation (vif)
+						// 3 is spec prohibited, it's behavior is not known
+						// lets do nothing for now
 						break;
-					default:
-						__assume(0);
 					}
 
 					mem += len * 16;
 					path.nloop -= len;
 					size -= len;
+
+					break;
 				}
-
-				break;
-
 			default:
 				__assume(0);
 			}
@@ -2588,19 +2406,9 @@ __forceinline void GSState::VertexKick(uint32 skip)
 		case GS_TRIANGLESTRIP:
 			// TODO: any way to do a 16-bit integer cross product?
 			// cross product is zero most of the time because either of the vertices are the same
-			/*
-			cross = GSVector4(v2.xyxyl().i16to32().sub32(v0.upl32(v1).i16to32())); // x20, y20, x21, y21
-			cross = cross * cross.wzwz(); // x20 * y21, y20 * x21
-			test |= GSVector4i::cast(cross == cross.yxwz());
-			*/
 			test = (test | v0 == v1) | (v1 == v2 | v0 == v2); 
 			break;
 		case GS_TRIANGLEFAN:
-			/*
-			cross = GSVector4(v2.xyxyl().i16to32().sub32(v3.upl32(v1).i16to32())); // x23, y23, x21, y21
-			cross = cross * cross.wzwz(); // x23 * y21, y23 * x21
-			test |= GSVector4i::cast(cross == cross.yxwz());
-			*/
 			test = (test | v3 == v1) | (v1 == v2 | v3 == v2); 
 			break;
 		default:
@@ -3136,23 +2944,18 @@ GIFRegTEX0 GSState::GetTex0Layer(uint32 lod)
 			TEX0.TBW = m_context->MIPTBP2.TBW6;
 			break;
 		default:
-			fprintf(stderr, "GetTex0Layer bad parameter. Fix your code!\n");
-			lod = 6;
-			TEX0.TBP0 = m_context->MIPTBP2.TBP6;
-			TEX0.TBW = m_context->MIPTBP2.TBW6;
+			break;
 	}
 
 	// Correct the texture size
-	if (TEX0.TH <= lod) {
+	if (TEX0.TH <= lod)
 		TEX0.TH = 1;
-	} else {
+	else
 		TEX0.TH -= lod;
-	}
-	if (TEX0.TW <= lod) {
+	if (TEX0.TW <= lod)
 		TEX0.TW = 1;
-	} else {
+	else
 		TEX0.TW -= lod;
-	}
 
 	return TEX0;
 }
@@ -3194,11 +2997,7 @@ bool GSState::GSTransferBuffer::Update(int tw, int th, int bpp, int& len)
 	if(len > remaining)
 	{
 		if(!overflow)
-		{
 			overflow = true;
-
-			// printf("GS transfer overflow\n");
-		}
 
 		len = remaining;
 	}

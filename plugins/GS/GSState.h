@@ -127,7 +127,6 @@ class GSState : public GSAlignedClass<32>
 	int m_version;
 	int m_sssize;
 
-	bool m_init_read_fifo_supported;
 	bool m_clut_load_before_draw;
 
 	struct GSTransferBuffer
