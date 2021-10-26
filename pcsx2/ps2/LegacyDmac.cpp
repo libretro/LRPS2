@@ -508,7 +508,7 @@ __fi bool dmacWrite32( u32 mem, mem32_t& value )
 					new_source = "None";
 					break;
 				}
-				log_cb(RETRO_LOG_DEBUG, "32bit Stall Source Changed to %s\n", new_source.c_str());
+				//log_cb(RETRO_LOG_DEBUG, "32bit Stall Source Changed to %s\n", new_source.c_str());
 			}
 			if ((oldvalue & 0xC0) != (value & 0xC0))
 			{
@@ -529,7 +529,7 @@ __fi bool dmacWrite32( u32 mem, mem32_t& value )
 					new_dest = "None";
 					break;
 				}
-				log_cb(RETRO_LOG_DEBUG, "32bit Stall Destination Changed to %s\n", new_dest.c_str());
+				//log_cb(RETRO_LOG_DEBUG, "32bit Stall Destination Changed to %s\n", new_dest.c_str());
 			}
 #endif
 			return false;
