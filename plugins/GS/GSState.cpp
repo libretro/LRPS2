@@ -31,7 +31,6 @@ int GSState::s_n = 0;
 
 GSState::GSState()
 	: m_version(6)
-	, m_path3hack(0)
 	, m_init_read_fifo_supported(false)
 	, m_gsc(NULL)
 	, m_skip(0)

@@ -127,7 +127,6 @@ class GSState : public GSAlignedClass<32>
 	int m_version;
 	int m_sssize;
 
-	bool m_path3hack;
 	bool m_init_read_fifo_supported;
 	bool m_clut_load_before_draw;
 
@@ -262,7 +261,6 @@ public:
 	template<int index> void Transfer(const uint8* mem, uint32 size);
 	int Freeze(GSFreezeData* fd, bool sizeonly);
 	int Defrost(const GSFreezeData* fd);
-	void GetLastTag(uint32* tag) {*tag = m_path3hack; m_path3hack = 0;}
 	virtual void SetGameCRC(uint32 crc, int options);
 	void SetFrameSkip(int skip);
 	void SetRegsMem(uint8* basemem);
