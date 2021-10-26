@@ -31,7 +31,6 @@ int GSState::s_n = 0;
 
 GSState::GSState()
 	: m_version(6)
-	, m_mt(false)
 	, m_path3hack(0)
 	, m_init_read_fifo_supported(false)
 	, m_gsc(NULL)
@@ -157,29 +156,6 @@ void GSState::SetRegsMem(uint8* basemem)
 	ASSERT(basemem);
 
 	m_regs = (GSPrivRegSet*)basemem;
-}
-
-void GSState::SetMultithreaded(bool mt)
-{
-	// Some older versions of PCSX2 didn't properly set the irq callback to NULL
-	// in multithreaded mode (possibly because ZeroGS itself would assert in such
-	// cases), and didn't bind them to a dummy callback either.  PCSX2 handles all
-	// IRQs internally when multithreaded anyway -- so let's ignore them here:
-
-	m_mt = mt;
-
-	if(mt)
-	{
-		m_fpGIFRegHandlers[GIF_A_D_REG_SIGNAL] = &GSState::GIFRegHandlerNull;
-		m_fpGIFRegHandlers[GIF_A_D_REG_FINISH] = &GSState::GIFRegHandlerNull;
-		m_fpGIFRegHandlers[GIF_A_D_REG_LABEL] = &GSState::GIFRegHandlerNull;
-	}
-	else
-	{
-		m_fpGIFRegHandlers[GIF_A_D_REG_SIGNAL] = &GSState::GIFRegHandlerSIGNAL;
-		m_fpGIFRegHandlers[GIF_A_D_REG_FINISH] = &GSState::GIFRegHandlerFINISH;
-		m_fpGIFRegHandlers[GIF_A_D_REG_LABEL] = &GSState::GIFRegHandlerLABEL;
-	}
 }
 
 void GSState::SetFrameSkip(int skip)
@@ -357,7 +333,9 @@ void GSState::ResetHandlers()
 	m_fpGIFRegHandlers[GIF_A_D_REG_TRXDIR] = &GSState::GIFRegHandlerTRXDIR;
 	m_fpGIFRegHandlers[GIF_A_D_REG_HWREG] = &GSState::GIFRegHandlerHWREG;
 
-	SetMultithreaded(m_mt);
+	m_fpGIFRegHandlers[GIF_A_D_REG_SIGNAL] = &GSState::GIFRegHandlerNull;
+	m_fpGIFRegHandlers[GIF_A_D_REG_FINISH] = &GSState::GIFRegHandlerNull;
+	m_fpGIFRegHandlers[GIF_A_D_REG_LABEL] = &GSState::GIFRegHandlerNull;
 }
 
 bool GSState::isinterlaced()
@@ -1464,26 +1442,6 @@ void GSState::GIFRegHandlerHWREG(const GIFReg* RESTRICT r)
 	Write((uint8*)r, 8); // haunting ground
 }
 
-void GSState::GIFRegHandlerSIGNAL(const GIFReg* RESTRICT r)
-{
-	GL_REG("SIGNAL = 0x%x_%x", r->u32[1], r->u32[0]);
-	m_regs->SIGLBLID.SIGID = (m_regs->SIGLBLID.SIGID & ~r->SIGNAL.IDMSK) | (r->SIGNAL.ID & r->SIGNAL.IDMSK);
-
-	if(m_regs->CSR.wSIGNAL) m_regs->CSR.rSIGNAL = 1;
-}
-
-void GSState::GIFRegHandlerFINISH(const GIFReg* RESTRICT r)
-{
-	GL_REG("FINISH = 0x%x_%x", r->u32[1], r->u32[0]);
-	if(m_regs->CSR.wFINISH) m_regs->CSR.rFINISH = 1;
-}
-
-void GSState::GIFRegHandlerLABEL(const GIFReg* RESTRICT r)
-{
-	GL_REG("LABEL = 0x%x_%x", r->u32[1], r->u32[0]);
-	m_regs->SIGLBLID.LBLID = (m_regs->SIGLBLID.LBLID & ~r->LABEL.IDMSK) | (r->LABEL.ID & r->LABEL.IDMSK);
-}
-
 //
 
 void GSState::Flush()
@@ -2215,21 +2173,11 @@ template<int index> void GSState::Transfer(const uint8* mem, uint32 size)
 	{
 		if(size == 0 && path.nloop > 0)
 		{
-			if(m_mt)
-			{
-				// Hackfix for BIOS, which sends an incomplete packet when it does an XGKICK without
-				// having an EOP specified anywhere in VU1 memory.  Needed until PCSX2 is fixed to
-				// handle it more properly (ie, without looping infinitely).
+			// Hackfix for BIOS, which sends an incomplete packet when it does an XGKICK without
+			// having an EOP specified anywhere in VU1 memory.  Needed until PCSX2 is fixed to
+			// handle it more properly (ie, without looping infinitely).
 
-				path.nloop = 0;
-			}
-			else
-			{
-				// Unused in 0.9.7 and above, but might as well keep this for now; allows GSdx
-				// to work with legacy editions of PCSX2.
-
-				Transfer<0>(mem - 0x4000, 0x4000 / 16);
-			}
+			path.nloop = 0;
 		}
 	}
 }

@@ -123,14 +123,10 @@ class GSState : public GSAlignedClass<32>
 	void GIFRegHandlerTRXREG(const GIFReg* RESTRICT r);
 	void GIFRegHandlerTRXDIR(const GIFReg* RESTRICT r);
 	void GIFRegHandlerHWREG(const GIFReg* RESTRICT r);
-	void GIFRegHandlerSIGNAL(const GIFReg* RESTRICT r);
-	void GIFRegHandlerFINISH(const GIFReg* RESTRICT r);
-	void GIFRegHandlerLABEL(const GIFReg* RESTRICT r);
 
 	int m_version;
 	int m_sssize;
 
-	bool m_mt;
 	bool m_path3hack;
 	bool m_init_read_fifo_supported;
 	bool m_clut_load_before_draw;
@@ -270,7 +266,5 @@ public:
 	virtual void SetGameCRC(uint32 crc, int options);
 	void SetFrameSkip(int skip);
 	void SetRegsMem(uint8* basemem);
-	void SetIrqCallback(void (*irq)());
-	void SetMultithreaded(bool mt = true);
 };
 
