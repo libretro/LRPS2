@@ -38,8 +38,7 @@ void dVifReserve(int idx) {
 }
 
 void dVifReset(int idx) {
-	pxAssertDev(nVif[idx].recReserve, "Dynamic VIF recompiler reserve must be created prior to VIF use or reset!");
-
+	//pxAssertDev(nVif[idx].recReserve, "Dynamic VIF recompiler reserve must be created prior to VIF use or reset!");
 	recReset(idx);
 }
 
@@ -80,9 +79,8 @@ __fi void VifUnpackSSE_Dynarec::SetMasks(int cS) const {
 	u32 m3 =  ((m0 & 0xaaaaaaaa)>>1) & ~m0; //all the upper bits, so our example 0x01010000 & 0xFCFDFEFF = 0x00010000 just the cols (shifted right for maskmerge)
 	u32 m2 = (m0 & 0x55555555) & (~m0>>1); // 0x1000100 & 0xFE7EFF7F = 0x00000100 Just the row
 
-	if((m2&&doMask)||doMode) { xMOVAPS(xmmRow, ptr128[&vif.MaskRow]); MSKPATH3_LOG("Moving row");}
+	if((m2&&doMask)||doMode) { xMOVAPS(xmmRow, ptr128[&vif.MaskRow]);}
 	if (m3&&doMask) {
-		MSKPATH3_LOG("Merging Cols");
 		xMOVAPS(xmmCol0, ptr128[&vif.MaskCol]);
 		if ((cS>=2) && (m3&0x0000ff00)) xPSHUF.D(xmmCol1, xmmCol0, _v1);
 		if ((cS>=3) && (m3&0x00ff0000)) xPSHUF.D(xmmCol2, xmmCol0, _v2);
@@ -181,15 +179,15 @@ void VifUnpackSSE_Dynarec::ModUnpack( int upknum, bool PostOp )
 
 		case 4:
 		case 5:
-		case 6: if(PostOp) { UnpkLoopIteration++; UnpkLoopIteration = UnpkLoopIteration & 0x1; } break;
-
-		case 8: if(PostOp) { UnpkLoopIteration++; UnpkLoopIteration = UnpkLoopIteration & 0x1; } break;
-		case 9:	if (!PostOp) { UnpkLoopIteration++; } break;
-		case 10:if (!PostOp) { UnpkLoopIteration++; } break;
-
-		case 12: 	break;
-		case 13: 	break;
-		case 14: 	break;
+		case 6:
+		case 8:
+				if(PostOp) { UnpkLoopIteration++; UnpkLoopIteration = UnpkLoopIteration & 0x1; } break;
+		case 9:
+		case 10:
+				if (!PostOp) { UnpkLoopIteration++; } break;
+		case 12:
+                case 13:
+		case 14:
 		case 15: 	break;
 
 		case 3:
@@ -205,23 +203,21 @@ void VifUnpackSSE_Dynarec::CompileRoutine() {
 	const int  wl		 = vB.wl ? vB.wl : 256; //0 is taken as 256 (KH2)
 	const int  upkNum	 = vB.upkType & 0xf;
 	const u8&  vift		 = nVifT[upkNum];
-	const int  cycleSize = isFill ? vB.cl : wl;
-	const int  blockSize = isFill ? wl : vB.cl;
+	const int  cycleSize     = isFill ? vB.cl : wl;
+	const int  blockSize     = isFill ? wl    : vB.cl;
 	const int  skipSize	 = blockSize - cycleSize;
 
-	uint vNum	= vB.num ? vB.num : 256;
-	doMode		= (upkNum == 0xf) ? 0 : doMode;		// V4_5 has no mode feature.
-	UnpkNoOfIterations = 0;
-	MSKPATH3_LOG("Compiling new block, unpack number %x, mode %x, masking %x, vNum %x", upkNum, doMode, doMask, vNum);
+	uint vNum	         = vB.num ? vB.num : 256;
+	doMode		         = (upkNum == 0xf) ? 0     : doMode;		// V4_5 has no mode feature.
+	UnpkNoOfIterations       = 0;
 
 	pxAssume(vCL == 0);
 
 	// Value passed determines # of col regs we need to load
 	SetMasks(isFill ? blockSize : cycleSize);
 
-	while (vNum) {
-
-
+	while (vNum)
+	{
 		ShiftDisplacementWindow( dstIndirect, arg1reg );
 
 		if(UnpkNoOfIterations == 0)
@@ -264,10 +260,12 @@ void VifUnpackSSE_Dynarec::CompileRoutine() {
 	xRET();
 }
 
-static u16 dVifComputeLength(uint cl, uint wl, u8 num, bool isFill) {
+static u16 dVifComputeLength(uint cl, uint wl, u8 num, bool isFill)
+{
 	uint length   = (num > 0) ? (num * 16) : 4096; // 0 = 256
 
-	if (!isFill) {
+	if (!isFill)
+	{
 		uint skipSize  = (cl - wl) * 16;
 		uint blocks    = (num + (wl-1)) / wl; //Need to round up num's to calculate skip size correctly.
 		length += (blocks-1) * skipSize;
@@ -276,15 +274,17 @@ static u16 dVifComputeLength(uint cl, uint wl, u8 num, bool isFill) {
 	return std::min(length, 0xFFFFu);
 }
 
-_vifT __fi nVifBlock* dVifCompile(nVifBlock& block, bool isFill) {
+_vifT __fi nVifBlock* dVifCompile(nVifBlock& block, bool isFill)
+{
 	nVifStruct& v = nVif[idx];
 
 	// Check size before the compilation
-	if (v.recWritePtr > (v.recReserve->GetPtrEnd() - _256kb)) {
+	if (v.recWritePtr > (v.recReserve->GetPtrEnd() - _256kb))
+	{
 #ifndef NDEBUG
 		log_cb(RETRO_LOG_DEBUG, "nVif Recompiler Cache Reset! [%ls > %ls]\n",
-			pxsPtr(v.recWritePtr), pxsPtr(v.recReserve->GetPtrEnd())
-		);
+				pxsPtr(v.recWritePtr), pxsPtr(v.recReserve->GetPtrEnd())
+		      );
 #endif
 		recReset(idx);
 	}
@@ -320,19 +320,19 @@ _vifT __fi void dVifUnpack(const u8* data, bool isFill) {
 	// in u32 (aka x86 register).
 	//
 	// Warning the order of data in hash_key/key0/key1 depends on the nVifBlock struct
-	u32 hash_key = (u32)(upkType & 0xFF) << 8 | (vifRegs.num & 0xFF);
+	u32 hash_key   = (u32)(upkType & 0xFF) << 8 | (vifRegs.num & 0xFF);
 
-	u32 key1 = ((u32)vifRegs.cycle.wl << 24) | ((u32)vifRegs.cycle.cl << 16) | ((u32)(vif.start_aligned & 0xFF) << 8) | ((u32)vifRegs.mode & 0xFF);
+	u32 key1       = ((u32)vifRegs.cycle.wl << 24) | ((u32)vifRegs.cycle.cl << 16) | ((u32)(vif.start_aligned & 0xFF) << 8) | ((u32)vifRegs.mode & 0xFF);
 	if ((upkType & 0xf) != 9)
 		key1 &= 0xFFFF01FF;
 
 	// Zero out the mask parameter if it's unused -- games leave random junk
 	// values here which cause false recblock cache misses.
-	u32 key0 = doMask ? vifRegs.mask : 0;
+	u32 key0       = doMask ? vifRegs.mask : 0;
 
 	block.hash_key = hash_key;
-	block.key0 = key0;
-	block.key1 = key1;
+	block.key0     = key0;
+	block.key1     = key1;
 
 #ifndef NDEBUG
 	//log_cb(RETRO_LOG_DEBUG, "nVif%d: Recompiled Block!\n", idx);
@@ -344,9 +344,8 @@ _vifT __fi void dVifUnpack(const u8* data, bool isFill) {
 
 	// Seach in cache before trying to compile the block
 	nVifBlock*  b = v.vifBlocks.find(block);
-	if (unlikely(b == nullptr)) {
+	if (unlikely(b == nullptr))
 		b = dVifCompile<idx>(block, isFill);
-	}
 
 	{ // Execute the block
 		const VURegs& VU         = vuRegs[idx];
@@ -355,14 +354,17 @@ _vifT __fi void dVifUnpack(const u8* data, bool isFill) {
 		u8*  startmem = VU.Mem + (vif.tag.addr & (vuMemLimit-0x10));
 		u8*  endmem   = VU.Mem + vuMemLimit;
 
-		if (likely((startmem + b->length) <= endmem)) {
-			// No wrapping, you can run the fast dynarec
+		// No wrapping, you can run the fast dynarec
+		if (likely((startmem + b->length) <= endmem))
 			((nVifrecCall)b->startPtr)((uptr)startmem, (uptr)data);
-		} else {
+#if 0
+		else
+		{
 			VIF_LOG("Running Interpreter Block: nVif%x - VU Mem Ptr Overflow; falling back to interpreter. Start = %x End = %x num = %x, wl = %x, cl = %x",
 					v.idx, vif.tag.addr, vif.tag.addr + (block.num * 16), block.num, block.wl, block.cl);
 			_nVifUnpack(idx, data, vifRegs.mode, isFill);
 		}
+#endif
 	}
 }
 

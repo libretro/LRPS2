@@ -68,7 +68,6 @@ namespace R3000A
 #define VIF_LOG			macTrace(EE.VIF)
 #define SPR_LOG			macTrace(EE.SPR)
 #define GIF_LOG			macTrace(EE.GIF)
-#define MSKPATH3_LOG	macTrace(EE.MSKPATH3)
 #define EECNT_LOG		macTrace(EE.Counters)
 #define VifCodeLog		macTrace(EE.VIFcode)
 #define GifTagLog		macTrace(EE.GIFtag)
