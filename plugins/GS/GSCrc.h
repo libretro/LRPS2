@@ -119,6 +119,7 @@ public:
 		SkyGunner,
 		Sly2,
 		Sly3,
+		SlamTennis,
 		SMTNocturne,
 		SonicUnleashed,
 		SoTC,
