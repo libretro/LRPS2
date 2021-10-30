@@ -85,8 +85,6 @@ void rpsxpropBSC(EEINST* prev, EEINST* pinst);
 
 static void iopClearRecLUT(BASEBLOCK* base, int count);
 
-static u32 psxdump = 0;
-
 #define PSX_GETBLOCK(x) PC_GETBLOCK_(x, psxRecLUT)
 
 #define PSXREC_CLEARM(mem) \
