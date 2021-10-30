@@ -135,9 +135,6 @@ public:
         if ( m_data == GetNullData() )
             return NULL;
 
-        wxASSERT_MSG( m_data->m_owned, wxT("can't release non-owned buffer") );
-        wxASSERT_MSG( m_data->m_ref == 1, wxT("can't release shared buffer") );
-
         CharType * const p = m_data->Get();
 
         wxScopedCharTypeBuffer *self = const_cast<wxScopedCharTypeBuffer*>(this);
@@ -317,9 +314,6 @@ public:
 
     bool extend(size_t len)
     {
-        wxASSERT_MSG( this->m_data->m_owned, "cannot extend non-owned buffer" );
-        wxASSERT_MSG( this->m_data->m_ref == 1, "can't extend shared buffer" );
-
         CharType *str =
             (CharType *)realloc(this->data(), (len + 1) * sizeof(CharType));
         if ( !str )
@@ -344,11 +338,6 @@ public:
 
     void shrink(size_t len)
     {
-        wxASSERT_MSG( this->m_data->m_owned, "cannot shrink non-owned buffer" );
-        wxASSERT_MSG( this->m_data->m_ref == 1, "can't shrink shared buffer" );
-
-        wxASSERT( len <= this->length() );
-
         this->m_data->m_length = len;
         this->data()[len] = 0;
     }
@@ -487,9 +476,6 @@ private:
     {
         if ( m_data == NULL )
             return NULL;
-
-        wxASSERT_MSG( m_ref == 1, "can't release shared buffer" );
-
         void *p = m_data;
         m_data = NULL;
         m_len =
@@ -555,12 +541,7 @@ public:
     bool IsEmpty() const { return GetDataLen() == 0; }
 
     void   SetBufSize(size_t size) { m_bufdata->ResizeIfNeeded(size); }
-    void   SetDataLen(size_t len)
-    {
-        wxASSERT(len <= m_bufdata->m_size);
-        m_bufdata->m_len = len;
-    }
-
+    void   SetDataLen(size_t len)  { m_bufdata->m_len = len; }
     void Clear() { SetDataLen(0); }
 
     // Ensure the buffer is big enough and return a pointer to it
@@ -589,8 +570,6 @@ public:
     // Other ways to append to the buffer
     void  AppendByte(char data)
     {
-        wxCHECK_RET( m_bufdata->m_data, wxT("invalid wxMemoryBuffer") );
-
         m_bufdata->ResizeIfNeeded(m_bufdata->m_len + 1);
         *(((char*)m_bufdata->m_data) + m_bufdata->m_len) = data;
         m_bufdata->m_len += 1;

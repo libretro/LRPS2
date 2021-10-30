@@ -86,10 +86,7 @@ wxDirData::wxDirData(const wxString& dirname)
 
     // throw away the trailing slashes
     size_t n = m_dirname.length();
-    wxCHECK_RET( n, wxT("empty dir name in wxDir") );
-
-    while ( n > 0 && m_dirname[--n] == '/' )
-        ;
+    while ( n > 0 && m_dirname[--n] == '/' );
 
     m_dirname.Truncate(n + 1);
 
@@ -182,7 +179,6 @@ bool wxDirData::Read(wxString *filename)
 
 wxDirData::wxDirData(const wxString& WXUNUSED(dirname))
 {
-    wxFAIL_MSG(wxT("not implemented"));
 }
 
 wxDirData::~wxDirData()
@@ -264,8 +260,6 @@ bool wxDir::GetFirst(wxString *filename,
                      const wxString& filespec,
                      int flags) const
 {
-    wxCHECK_MSG( IsOpened(), false, wxT("must wxDir::Open() first") );
-
     M_DIR->Rewind();
 
     M_DIR->SetFileSpec(filespec);
@@ -276,9 +270,5 @@ bool wxDir::GetFirst(wxString *filename,
 
 bool wxDir::GetNext(wxString *filename) const
 {
-    wxCHECK_MSG( IsOpened(), false, wxT("must wxDir::Open() first") );
-
-    wxCHECK_MSG( filename, false, wxT("bad pointer in wxDir::GetNext()") );
-
     return M_DIR->Read(filename);
 }

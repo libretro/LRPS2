@@ -214,9 +214,6 @@ int wxArrayString::Index(const wxString& str, bool bCase, bool bFromEnd) const
 {
   if ( m_autoSort ) {
     // use binary search in the sorted array
-    wxASSERT_MSG( bCase && !bFromEnd,
-                  wxT("search parameters ignored for auto sorted array") );
-
     size_t i,
            lo = 0,
            hi = m_nCount;
@@ -281,8 +278,6 @@ size_t wxArrayString::Add(const wxString& str, size_t nInsert)
       }
     }
 
-    wxASSERT_MSG( lo == hi, wxT("binary search broken") );
-
     Insert(str, lo, nInsert);
 
     return (size_t)lo;
@@ -307,10 +302,6 @@ size_t wxArrayString::Add(const wxString& str, size_t nInsert)
 // add item at the given position
 void wxArrayString::Insert(const wxString& str, size_t nIndex, size_t nInsert)
 {
-  wxCHECK_RET( nIndex <= m_nCount, wxT("bad index in wxArrayString::Insert") );
-  wxCHECK_RET( m_nCount <= m_nCount + nInsert,
-               wxT("array size overflow in wxArrayString::Insert") );
-
   wxScopedArray<wxString> oldStrings(Grow(nInsert));
 
   for (int j = m_nCount - nIndex - 1; j >= 0; j--)
@@ -368,10 +359,6 @@ void wxArrayString::SetCount(size_t count)
 // removes item from array (by index)
 void wxArrayString::RemoveAt(size_t nIndex, size_t nRemove)
 {
-  wxCHECK_RET( nIndex < m_nCount, wxT("bad index in wxArrayString::Remove") );
-  wxCHECK_RET( nIndex + nRemove <= m_nCount,
-               wxT("removing too many elements in wxArrayString::Remove") );
-
   for ( size_t j =  0; j < m_nCount - nIndex -nRemove; j++)
       m_pItems[nIndex + j] = m_pItems[nIndex + nRemove + j];
 
@@ -382,10 +369,6 @@ void wxArrayString::RemoveAt(size_t nIndex, size_t nRemove)
 void wxArrayString::Remove(const wxString& sz)
 {
   int iIndex = Index(sz);
-
-  wxCHECK_RET( iIndex != wxNOT_FOUND,
-               wxT("removing inexistent element in wxArrayString::Remove") );
-
   RemoveAt(iIndex);
 }
 
@@ -414,8 +397,6 @@ struct wxSortPredicateAdaptor
 
 void wxArrayString::Sort(CompareFunction compareFunction)
 {
-    wxCHECK_RET( !m_autoSort, wxT("can't use this method with sorted arrays") );
-
     std::sort(m_pItems, m_pItems + m_nCount,
                 wxSortPredicateAdaptor(compareFunction));
 }

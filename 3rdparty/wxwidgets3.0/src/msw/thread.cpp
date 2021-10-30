@@ -233,7 +233,6 @@ wxMutexError wxMutexInternal::LockTimeout(DWORD milliseconds)
             return wxMUTEX_TIMEOUT;
 
         default:
-            wxFAIL_MSG(wxT("impossible return value in wxMutex::Lock"));
             // fall through
 
         case WAIT_FAILED:
@@ -553,10 +552,7 @@ void wxThreadInternal::SetPriority(unsigned int priority)
     else if (m_priority <= 100)
         win_priority = THREAD_PRIORITY_HIGHEST;
     else
-    {
-        wxFAIL_MSG(wxT("invalid value of thread priority parameter"));
         win_priority = THREAD_PRIORITY_NORMAL;
-    }
 
     if ( !::SetThreadPriority(m_hThread, win_priority) )
     {
@@ -565,9 +561,6 @@ void wxThreadInternal::SetPriority(unsigned int priority)
 
 bool wxThreadInternal::Create(wxThread *thread, unsigned int stackSize)
 {
-    wxASSERT_MSG( m_state == STATE_NEW && !m_hThread,
-                    wxT("Create()ing thread twice?") );
-
     // for compilers which have it, we should use C RTL function for thread
     // creation instead of Win32 API one because otherwise we will have memory
     // leaks if the thread uses C RTL (and most threads do)
@@ -718,7 +711,7 @@ wxThreadInternal::WaitForTerminate(wxCriticalSection& cs,
                 break;
 
             default:
-                wxFAIL_MSG(wxT("unexpected result of MsgWaitForMultipleObject"));
+		break;
         }
     } while ( result != WAIT_OBJECT_0 );
 
@@ -811,8 +804,6 @@ bool wxThread::SetConcurrency(size_t WXUNUSED_IN_WINCE(level))
 #ifdef __WXWINCE__
     return false;
 #else
-    wxASSERT_MSG( IsMain(), wxT("should only be called from the main thread") );
-
     // ok only for the default one
     if ( level == 0 )
         return 0;
@@ -870,14 +861,8 @@ bool wxThread::SetConcurrency(size_t WXUNUSED_IN_WINCE(level))
     {
         HMODULE hModKernel = ::LoadLibrary(wxT("kernel32"));
         if ( hModKernel )
-        {
             pfnSetProcessAffinityMask = (SETPROCESSAFFINITYMASK)
                 ::GetProcAddress(hModKernel, "SetProcessAffinityMask");
-        }
-
-        // we've discovered a MT version of Win9x!
-        wxASSERT_MSG( pfnSetProcessAffinityMask,
-                      wxT("this system has several CPUs but no SetProcessAffinityMask function?") );
     }
 
     if ( !pfnSetProcessAffinityMask )
@@ -933,9 +918,6 @@ wxThreadError wxThread::Run()
             return wxTHREAD_NO_RESOURCE;
     }
 
-    wxCHECK_MSG( m_internal->GetState() == STATE_NEW, wxTHREAD_RUNNING,
-             wxT("thread may only be started once after Create()") );
-
     // the thread has just been created and is still suspended - let it run
     return Resume();
 }
@@ -963,14 +945,7 @@ wxThreadError wxThread::Resume()
 wxThread::ExitCode wxThread::Wait(wxThreadWait waitMode)
 {
     ExitCode rc = wxUIntToPtr(THREAD_ERROR_EXIT);
-
-    // although under Windows we can wait for any thread, it's an error to
-    // wait for a detached one in wxWin API
-    wxCHECK_MSG( !IsDetached(), rc,
-                 wxT("wxThread::Wait(): can't wait for detached thread") );
-
     (void)m_internal->WaitForTerminate(m_critsect, &rc, waitMode);
-
     return rc;
 }
 
@@ -1022,8 +997,6 @@ void wxThread::Exit(ExitCode status)
 #else // !VC++
     ::ExitThread(wxPtrToUInt(status));
 #endif // VC++/!VC++
-
-    wxFAIL_MSG(wxT("Couldn't return from ExitThread()!"));
 }
 
 // priority setting

@@ -343,8 +343,6 @@ private:
 
     void CopyAllBefore()
     {
-        wxASSERT_MSG( m_fmtOrig && m_fmt.data() == NULL, "logic error" );
-
         // the modified format string is guaranteed to be no longer than
         // 3/2 of the original (worst case: the entire format string consists
         // of "%s" repeated and is expanded to "%ls" on Unix), so we can
@@ -559,10 +557,6 @@ const char* wxFormatString::InputAsChar()
     if ( m_cstr )
         return m_cstr->AsInternal();
 
-    // the last case is that wide string was passed in: in that case, we need
-    // to convert it:
-    wxASSERT( m_wchar );
-
     m_char = wxConvLibc.cWC2MB(m_wchar.data());
 
     return m_char.data();
@@ -604,13 +598,7 @@ const wchar_t* wxFormatString::InputAsWChar()
         return m_wchar.data();
     }
 #endif // wxUSE_UNICODE_WCHAR/UTF8
-
-    // the last case is that narrow string was passed in: in that case, we need
-    // to convert it:
-    wxASSERT( m_char );
-
     m_wchar = wxConvLibc.cMB2WC(m_char.data());
-
     return m_wchar.data();
 }
 
@@ -633,8 +621,6 @@ wxString wxFormatString::InputAsString() const
         return wxString(m_wchar);
     if ( m_char )
         return wxString(m_char);
-
-    wxFAIL_MSG( "invalid wxFormatString - not initialized?" );
     return wxString();
 }
 
@@ -649,9 +635,6 @@ template<typename CharType>
 wxFormatString::ArgumentType DoGetArgumentType(const CharType *format,
                                                unsigned n)
 {
-    wxCHECK_MSG( format, wxFormatString::Arg_Unknown,
-                 "empty format string not allowed here" );
-
     wxPrintfConvSpecParser<CharType> parser(format);
 
     if ( n > parser.nargs )
@@ -665,9 +648,6 @@ wxFormatString::ArgumentType DoGetArgumentType(const CharType *format,
         // of catching harmless errors.
         return wxFormatString::Arg_Unused;
     }
-
-    wxCHECK_MSG( parser.pspec[n-1] != NULL, wxFormatString::Arg_Unknown,
-                 "requested argument not found - invalid format string?" );
 
     switch ( parser.pspec[n-1]->m_type )
     {
@@ -715,7 +695,6 @@ wxFormatString::ArgumentType DoGetArgumentType(const CharType *format,
     }
 
     // silence warning
-    wxFAIL_MSG( "unexpected argument type" );
     return wxFormatString::Arg_Unknown;
 }
 
@@ -731,7 +710,5 @@ wxFormatString::ArgumentType wxFormatString::GetArgumentType(unsigned n) const
         return DoGetArgumentType(m_str->wx_str(), n);
     else if ( m_cstr )
         return DoGetArgumentType(m_cstr->AsInternal(), n);
-
-    wxFAIL_MSG( "unreachable code" );
     return Arg_Unknown;
 }

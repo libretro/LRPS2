@@ -244,10 +244,6 @@ void name::Add(T lItem, size_t nInsert)                                     \
 /* add item at the given position */                                        \
 void name::Insert(T lItem, size_t nIndex, size_t nInsert)                   \
 {                                                                           \
-  wxCHECK_RET( nIndex <= m_nCount, wxT("bad index in wxArray::Insert") );   \
-  wxCHECK_RET( m_nCount <= m_nCount + nInsert,                              \
-               wxT("array size overflow in wxArray::Insert") );             \
-                                                                            \
   if (nInsert == 0)                                                         \
       return;                                                               \
   Grow(nInsert);                                                            \
@@ -300,9 +296,6 @@ int name::Index(T lItem, CMPFUNC fnCompare) const                           \
 /* removes item from array (by index) */                                    \
 void name::RemoveAt(size_t nIndex, size_t nRemove)                          \
 {                                                                           \
-  wxCHECK_RET( nIndex < m_nCount, wxT("bad index in wxArray::RemoveAt") );  \
-  wxCHECK_RET( nIndex + nRemove <= m_nCount,                                \
-               wxT("removing too many elements in wxArray::RemoveAt") );    \
                                                                             \
   memmove(&m_pItems[nIndex], &m_pItems[nIndex + nRemove],                   \
           (m_nCount - nIndex - nRemove)*sizeof(T));                         \
@@ -314,8 +307,6 @@ void name::Remove(T lItem)                                                  \
 {                                                                           \
   int iIndex = Index(lItem);                                                \
                                                                             \
-  wxCHECK_RET( iIndex != wxNOT_FOUND,                                       \
-               wxT("removing inexistent item in wxArray::Remove") );        \
                                                                             \
   RemoveAt((size_t)iIndex);                                                 \
 }                                                                           \

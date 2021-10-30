@@ -61,7 +61,6 @@ bool wxTextFile::OnOpen(const wxString &strBufferName, wxTextBufferOpenMode Open
     switch ( OpenMode )
     {
         default:
-            wxFAIL_MSG( wxT("unknown open mode in wxTextFile::Open") );
             // fall through
 
         case ReadAccess :
@@ -85,9 +84,6 @@ bool wxTextFile::OnClose()
 
 bool wxTextFile::OnRead(const wxMBConv& conv)
 {
-    // file should be opened
-    wxASSERT_MSG( m_file.IsOpened(), wxT("can't read closed file") );
-
     // read the entire file in memory: this is not the most efficient thing to
     // do it but there is no good way to avoid it in Unicode build because if
     // we read the file block by block we can't convert each block to Unicode
@@ -115,9 +111,6 @@ bool wxTextFile::OnRead(const wxMBConv& conv)
         bufSize = fileLength;
         if ( !buf.extend(bufSize) )
             return false;
-
-        // if the file is seekable, also check that we're at its beginning
-        wxASSERT_MSG( m_file.Tell() == 0, wxT("should be at start of file") );
 
         char *dst = buf.data();
         for ( size_t nRemaining = bufSize; nRemaining > 0; )
@@ -147,9 +140,6 @@ bool wxTextFile::OnRead(const wxMBConv& conv)
             dst += nRead;
             nRemaining -= nRead;
         }
-
-        wxASSERT_MSG( dst - buf.data() == (wxFileOffset)bufSize,
-                      wxT("logic error") );
     }
     else // file is not seekable
     {

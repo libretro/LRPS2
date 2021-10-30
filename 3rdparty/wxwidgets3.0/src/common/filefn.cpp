@@ -675,8 +675,6 @@ wxString wxFindFirstFile(const wxString& spec, int flags)
 
 wxString wxFindNextFile()
 {
-    wxCHECK_MSG( gs_dir, "", "You must call wxFindFirstFile before!" );
-
     wxString result;
     if ( !gs_dir->GetNext(&result) || result.empty() )
     {

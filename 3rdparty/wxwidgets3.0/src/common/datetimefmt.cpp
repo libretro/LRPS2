@@ -335,9 +335,6 @@ ParseFormatAt(wxString::const_iterator& p,
 
 wxString wxDateTime::Format(const wxString& formatp, const TimeZone& tz) const
 {
-    wxCHECK_MSG( !formatp.empty(), wxEmptyString,
-                 wxT("NULL format in wxDateTime::Format") );
-
     wxString format = formatp;
 #ifdef __WXOSX__
     if ( format.Contains("%c") )
@@ -384,14 +381,9 @@ wxString wxDateTime::Format(const wxString& formatp, const TimeZone& tz) const
         // use strftime()
         struct tm tmstruct;
         struct tm *tm;
+	// we are working with local time
         if ( tz.GetOffset() == -wxGetTimeZone() )
-        {
-            // we are working with local time
             tm = wxLocaltime_r(&time, &tmstruct);
-
-            // should never happen
-            wxCHECK_MSG( tm, wxEmptyString, wxT("wxLocaltime_r() failed") );
-        }
         else
         {
             time += (int)tz.GetOffset();
@@ -402,16 +394,9 @@ wxString wxDateTime::Format(const wxString& formatp, const TimeZone& tz) const
 #else
             if ( time >= 0 )
 #endif
-            {
                 tm = wxGmtime_r(&time, &tmstruct);
-
-                // should never happen
-                wxCHECK_MSG( tm, wxEmptyString, wxT("wxGmtime_r() failed") );
-            }
             else
-            {
                 tm = (struct tm *)NULL;
-            }
         }
 
         if ( tm )
@@ -567,10 +552,6 @@ wxString wxDateTime::Format(const wxString& formatp, const TimeZone& tz) const
                         // month when we do the replacements below
                         if ( year >= 2000 )
                             year -= 28;
-
-                        wxASSERT_MSG( year >= 1970 && year < 2000,
-                                      wxT("logic error in wxDateTime::Format") );
-
 
                         // use strftime() to format the same date but in supported
                         // year
@@ -764,9 +745,6 @@ wxString wxDateTime::Format(const wxString& formatp, const TimeZone& tz) const
                         break;
                     }
 
-                    // no, it wasn't the width
-                    wxFAIL_MSG(wxT("unknown format specifier"));
-
                     // fall through and just copy it nevertheless
 
                 case wxT('%'):       // a percent sign
@@ -774,8 +752,6 @@ wxString wxDateTime::Format(const wxString& formatp, const TimeZone& tz) const
                     break;
 
                 case 0:             // the end of string
-                    wxFAIL_MSG(wxT("missing format at the end of string"));
-
                     // just put the '%' which was the last char in format
                     res += wxT('%');
                     break;
@@ -1034,9 +1010,6 @@ wxDateTime::ParseFormat(const wxString& date,
                         const wxDateTime& dateDef,
                         wxString::const_iterator *endParse)
 {
-    wxCHECK_MSG( !format.empty(), false, "format can't be empty" );
-    wxCHECK_MSG( endParse, false, "end iterator pointer must be specified" );
-
     wxString str;
     unsigned long num;
 
@@ -1538,8 +1511,6 @@ wxDateTime::ParseFormat(const wxString& date,
                 break;
 
             case 0:             // the end of string
-                wxFAIL_MSG(wxT("unexpected format end"));
-
                 // fall through
 
             default:            // not a known format spec
@@ -1733,9 +1704,6 @@ wxString wxTimeSpan::Format(const wxString& format) const
         return "-" + str;
     }
 
-    wxCHECK_MSG( !format.empty(), wxEmptyString,
-                 wxT("NULL format in wxTimeSpan::Format") );
-
     wxString str;
     str.Alloc(format.length());
 
@@ -1774,7 +1742,6 @@ wxString wxTimeSpan::Format(const wxString& format) const
             switch ( ch )
             {
                 default:
-                    wxFAIL_MSG( wxT("invalid format character") );
                     // fall through
 
                 case wxT('%'):

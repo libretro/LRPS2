@@ -165,30 +165,11 @@ void wxClassInfo::Register()
 {
     wxHashTable *classTable;
 
+    // keep the hash local initially, reentrance is possible
     if ( !sm_classTable )
-    {
-        // keep the hash local initially, reentrance is possible
         classTable = new wxHashTable(wxKEY_STRING);
-    }
     else
-    {
-        // guard againt reentrance once the global has been created
-        wxASSERT_MSG(++entry == 1, wxT("wxClassInfo::Register() reentrance"));
         classTable = sm_classTable;
-    }
-
-    // Using IMPLEMENT_DYNAMIC_CLASS() macro twice (which may happen if you
-    // link any object module twice mistakenly, or link twice against wx shared
-    // library) will break this function because it will enter an infinite loop
-    // and eventually die with "out of memory" - as this is quite hard to
-    // detect if you're unaware of this, try to do some checks here.
-    wxASSERT_MSG( classTable->Get(m_className) == NULL,
-        wxString::Format
-        (
-            wxT("Class \"%s\" already in RTTI table - have you used IMPLEMENT_DYNAMIC_CLASS() multiple times or linked some object file twice)?"),
-            m_className
-        )
-    );
 
     classTable->Put(m_className, (wxObject *)this);
 
@@ -260,8 +241,6 @@ wxClassInfo::const_iterator wxClassInfo::end_classinfo()
 
 void wxRefCounter::DecRef()
 {
-    wxASSERT_MSG( m_count > 0, "invalid ref data count" );
-
     if ( --m_count == 0 )
         delete this;
 }

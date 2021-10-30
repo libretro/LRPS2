@@ -380,8 +380,6 @@ bool wxDir::GetFirst(wxString *filename,
                      const wxString& filespec,
                      int flags) const
 {
-    wxCHECK_MSG( IsOpened(), false, wxT("must wxDir::Open() first") );
-
     M_DIR->Rewind();
 
     M_DIR->SetFileSpec(filespec);
@@ -392,9 +390,5 @@ bool wxDir::GetFirst(wxString *filename,
 
 bool wxDir::GetNext(wxString *filename) const
 {
-    wxCHECK_MSG( IsOpened(), false, wxT("must wxDir::Open() first") );
-
-    wxCHECK_MSG( filename, false, wxT("bad pointer in wxDir::GetNext()") );
-
     return M_DIR->Read(filename);
 }

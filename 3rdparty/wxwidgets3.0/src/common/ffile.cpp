@@ -148,7 +148,6 @@ bool wxFFile::Seek(wxFileOffset ofs, wxSeekMode mode)
     switch ( mode )
     {
         default:
-            wxFAIL_MSG(wxT("unknown seek mode"));
             // still fall through
 
         case wxFromStart:

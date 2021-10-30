@@ -59,8 +59,6 @@ void name::DoEmpty()                                                          \
                                                                               \
 void name::RemoveAt(size_t uiIndex, size_t nRemove)                           \
 {                                                                             \
-  wxCHECK_RET( uiIndex < size(), _WX_ERROR_REMOVE2(name) );                   \
-                                                                              \
   for (size_t i = 0; i < nRemove; i++ )                                       \
     delete (T*)base_array::operator[](uiIndex + i);                           \
                                                                               \

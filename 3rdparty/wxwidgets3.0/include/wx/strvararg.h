@@ -252,8 +252,6 @@ struct wxFormatStringArgument
     // overriding this operator allows us to reuse _WX_VARARG_JOIN macro
     wxFormatStringArgument operator,(const wxFormatStringArgument& a) const
     {
-        wxASSERT_MSG( m_str == NULL || a.m_str == NULL,
-                      "can't have two format strings in vararg function" );
         return wxFormatStringArgument(m_str ? m_str : a.m_str);
     }
 
@@ -307,14 +305,6 @@ struct wxFormatStringArgumentFinder<wxWCharBuffer>
 // ----------------------------------------------------------------------------
 // wxArgNormalizer*<T> converters
 // ----------------------------------------------------------------------------
-
-    // Just define it to suppress "unused parameter" warnings for the
-    // parameters which we don't use otherwise
-    #define wxASSERT_ARG_TYPE(fmt, index, expected_mask)                      \
-        wxUnusedVar(fmt);                                                     \
-        wxUnusedVar(index)
-
-
 #if defined(HAVE_TYPE_TRAITS) || defined(HAVE_TR1_TYPE_TRAITS)
 
 // Note: this type is misnamed, so that the error message is easier to
@@ -439,7 +429,6 @@ struct wxArgNormalizer
                     const wxFormatString *fmt, unsigned index)
         : m_value(value)
     {
-        wxASSERT_ARG_TYPE( fmt, index, wxFormatStringSpecifier<T>::value );
     }
 
     // Returns the value in a form that can be safely passed to real vararg
@@ -498,7 +487,6 @@ struct wxArgNormalizerWithBuffer
                               unsigned index)
         : m_value(buf)
     {
-        wxASSERT_ARG_TYPE( fmt, index, wxFormatString::Arg_String );
     }
 
     const CharType *get() const { return m_value; }
@@ -515,7 +503,6 @@ struct WXDLLIMPEXP_BASE wxArgNormalizerNative<const wxString&>
                           unsigned index)
         : m_value(s)
     {
-        wxASSERT_ARG_TYPE( fmt, index, wxFormatString::Arg_String );
     }
 
     const wxStringCharType *get() const;
@@ -532,7 +519,6 @@ struct WXDLLIMPEXP_BASE wxArgNormalizerNative<const wxCStrData&>
                           unsigned index)
         : m_value(value)
     {
-        wxASSERT_ARG_TYPE( fmt, index, wxFormatString::Arg_String );
     }
 
     const wxStringCharType *get() const;
@@ -592,12 +578,8 @@ struct wxArgNormalizerUtf8<const char*>
                         const wxFormatString *fmt,
                         unsigned index)
     {
-        wxASSERT_ARG_TYPE( fmt, index, wxFormatString::Arg_String );
-
         if ( wxLocaleIsUtf8 )
-        {
             m_value = wxScopedCharBuffer::CreateNonOwned(s);
-        }
         else
         {
             // convert to widechar string first:
@@ -756,9 +738,6 @@ struct wxArgNormalizerNarrowChar
     wxArgNormalizerNarrowChar(T value,
                               const wxFormatString *fmt, unsigned index)
     {
-        wxASSERT_ARG_TYPE( fmt, index,
-                           wxFormatString::Arg_Char | wxFormatString::Arg_Int );
-
         // FIXME-UTF8: which one is better default in absence of fmt string
         //             (i.e. when used like e.g. Foo("foo", "bar", 'c', NULL)?
         if ( !fmt || fmt->GetArgumentType(index) == wxFormatString::Arg_Char )
@@ -813,8 +792,6 @@ WX_ARG_NORMALIZER_FORWARD(const signed char&, signed char);
 
 #undef WX_ARG_NORMALIZER_FORWARD
 #undef _WX_ARG_NORMALIZER_FORWARD_IMPL
-
-// NB: Don't #undef wxASSERT_ARG_TYPE here as it's also used in wx/longlong.h.
 
 // ----------------------------------------------------------------------------
 // WX_VA_ARG_STRING

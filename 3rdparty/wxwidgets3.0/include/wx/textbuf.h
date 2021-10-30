@@ -123,7 +123,7 @@ public:
         { return ++m_nCurLine == m_aLines.size() ? ms_eof
                                                  : m_aLines[m_nCurLine]; }
     wxString& GetPrevLine()  /* const */
-        { wxASSERT(m_nCurLine > 0); return m_aLines[--m_nCurLine]; }
+        { return m_aLines[--m_nCurLine]; }
     wxString& GetLastLine() /* const */
         { m_nCurLine = m_aLines.size() - 1; return m_aLines.Last(); }
 

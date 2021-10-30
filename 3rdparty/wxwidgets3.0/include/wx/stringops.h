@@ -72,7 +72,6 @@ struct WXDLLIMPEXP_BASE wxStringOperationsUtf8
     template<typename Iterator>
     static void IncIter(Iterator& i)
     {
-        wxASSERT( IsValidUtf8LeadByte(*i) );
         i += ms_utf8IterTable[(unsigned char)*i];
     }
 
@@ -145,7 +144,6 @@ struct WXDLLIMPEXP_BASE wxStringOperationsUtf8
     // returns the length of UTF-8 encoding of the character with lead byte 'c'
     static size_t GetUtf8CharLength(char c)
     {
-        wxASSERT( IsValidUtf8LeadByte(c) );
         return ms_utf8IterTable[(unsigned char)c];
     }
 

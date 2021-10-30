@@ -127,18 +127,13 @@ void wxStringImpl::InitWith(const wxStringCharType *psz,
   Init();
 
   // if the length is not given, assume the string to be NUL terminated
-  if ( nLength == npos ) {
-    wxASSERT_MSG( nPos <= wxStrlen(psz), wxT("index out of bounds") );
-
+  if ( nLength == npos )
     nLength = wxStrlen(psz + nPos);
-  }
 
   if ( nLength > 0 ) {
     // trailing '\0' is written in AllocBuffer()
-    if ( !AllocBuffer(nLength) ) {
-      wxFAIL_MSG( wxT("out of memory in wxStringImpl::InitWith") );
+    if ( !AllocBuffer(nLength) )
       return;
-    }
     wxStringMemcpy(m_pchData, psz + nPos, nLength);
   }
 }
@@ -146,14 +141,9 @@ void wxStringImpl::InitWith(const wxStringCharType *psz,
 wxStringImpl::wxStringImpl(const_iterator first, const_iterator last)
 {
   if ( last >= first )
-  {
     InitWith(first.GetPtr(), 0, last - first);
-  }
   else
-  {
-    wxFAIL_MSG( wxT("first must be before last") );
     Init();
-  }
 }
 
 wxStringImpl::wxStringImpl(size_type n, wxStringCharType ch)
@@ -169,14 +159,6 @@ wxStringImpl::wxStringImpl(size_type n, wxStringCharType ch)
 // allocates memory needed to store a C string of length nLen
 bool wxStringImpl::AllocBuffer(size_t nLen)
 {
-  // allocating 0 sized buffer doesn't make sense, all empty strings should
-  // reuse g_strEmpty
-  wxASSERT( nLen >  0 );
-
-  // make sure that we don't overflow
-  wxCHECK( nLen < (INT_MAX / sizeof(wxStringCharType)) -
-                  (sizeof(wxStringData) + EXTRA_ALLOC + 1), false );
-
   // allocate memory:
   // 1) one extra character for '\0' termination
   // 2) sizeof(wxStringData) for housekeeping info
@@ -211,16 +193,12 @@ bool wxStringImpl::CopyBeforeWrite()
     wxStringMemcpy(m_pchData, pData->data(), nLen);
   }
 
-  wxASSERT( !GetStringData()->IsShared() );  // we must be the only owner
-
   return true;
 }
 
 // must be called before replacing contents of this string
 bool wxStringImpl::AllocBeforeWrite(size_t nLen)
 {
-  wxASSERT( nLen != 0 );  // doesn't make any sense
-
   // must not share string and must have enough space
   wxStringData* pData = GetStringData();
   if ( pData->IsShared() || pData->IsEmpty() ) {
@@ -252,8 +230,6 @@ bool wxStringImpl::AllocBeforeWrite(size_t nLen)
     }
   }
 
-  wxASSERT( !GetStringData()->IsShared() );  // we must be the only owner
-
   // it doesn't really matter what the string length is as it's going to be
   // overwritten later but, for extra safety, set it to 0 for now as we may
   // have some junk in m_pchData
@@ -266,10 +242,8 @@ wxStringImpl& wxStringImpl::append(size_t n, wxStringCharType ch)
 {
     size_type len = length();
 
-    if ( !Alloc(len + n) || !CopyBeforeWrite() ) {
-      wxFAIL_MSG( wxT("out of memory in wxStringImpl::append") );
+    if ( !Alloc(len + n) || !CopyBeforeWrite() )
       return *this;
-    }
     GetStringData()->nDataLength = len + n;
     m_pchData[len + n] = '\0';
     for ( size_t i = 0; i < n; ++i )
@@ -370,7 +344,6 @@ wxStringImpl::iterator wxStringImpl::erase(iterator it)
 
 wxStringImpl& wxStringImpl::erase(size_t nStart, size_t nLen)
 {
-    wxASSERT(nStart <= length());
     size_t strLen = length() - nStart;
     // delete nLen or up to the end of the string characters
     nLen = strLen < nLen ? strLen : nLen;
@@ -384,15 +357,11 @@ wxStringImpl& wxStringImpl::erase(size_t nStart, size_t nLen)
 wxStringImpl& wxStringImpl::insert(size_t nPos,
                                    const wxStringCharType *sz, size_t n)
 {
-    wxASSERT( nPos <= length() );
-
     if ( n == npos ) n = wxStrlen(sz);
     if ( n == 0 ) return *this;
 
-    if ( !Alloc(length() + n) || !CopyBeforeWrite() ) {
-        wxFAIL_MSG( wxT("out of memory in wxStringImpl::insert") );
+    if ( !Alloc(length() + n) || !CopyBeforeWrite() )
         return *this;
-    }
 
     memmove(m_pchData + nPos + n, m_pchData + nPos,
             (length() - nPos) * sizeof(wxStringCharType));
@@ -427,9 +396,6 @@ size_t wxStringImpl::find(const wxStringImpl& str, size_t nStart) const
         // the other string is non empty so can't be our substring
         return npos;
     }
-
-    wxASSERT( str.GetStringData()->IsValid() );
-    wxASSERT( nStart <= nLen );
 
     const wxStringCharType * const other = str.c_str();
 
@@ -466,8 +432,6 @@ size_t wxStringImpl::find(const wxStringCharType* sz,
 
 size_t wxStringImpl::find(wxStringCharType ch, size_t nStart) const
 {
-    wxASSERT( nStart <= length() );
-
     const wxStringCharType *p = (const wxStringCharType*)
         wxStringMemchr(c_str() + nStart, ch, length() - nStart);
 
@@ -476,9 +440,6 @@ size_t wxStringImpl::find(wxStringCharType ch, size_t nStart) const
 
 size_t wxStringImpl::rfind(const wxStringImpl& str, size_t nStart) const
 {
-    wxASSERT( str.GetStringData()->IsValid() );
-    wxASSERT( nStart == npos || nStart <= length() );
-
     if ( length() >= str.length() )
     {
         // avoids a corner case later
@@ -515,13 +476,7 @@ size_t wxStringImpl::rfind(const wxStringCharType* sz,
 size_t wxStringImpl::rfind(wxStringCharType ch, size_t nStart) const
 {
     if ( nStart == npos )
-    {
         nStart = length();
-    }
-    else
-    {
-        wxASSERT( nStart <= length() );
-    }
 
     const wxStringCharType *actual;
     for ( actual = c_str() + ( nStart == npos ? length() : nStart + 1 );
@@ -539,9 +494,6 @@ wxStringImpl& wxStringImpl::replace(size_t nStart, size_t nLen,
 {
     // check and adjust parameters
     const size_t lenOld = length();
-
-    wxASSERT_MSG( nStart <= lenOld,
-                  wxT("index out of bounds in wxStringImpl::replace") );
     size_t nEnd = nStart + nLen;
     if ( nLen > lenOld - nStart )
     {
@@ -586,8 +538,6 @@ wxStringImpl wxStringImpl::substr(size_t nStart, size_t nLen) const
 // assigns one string to another
 wxStringImpl& wxStringImpl::operator=(const wxStringImpl& stringSrc)
 {
-  wxASSERT( stringSrc.GetStringData()->IsValid() );
-
   // don't copy string over itself
   if ( m_pchData != stringSrc.m_pchData ) {
     if ( stringSrc.GetStringData()->IsEmpty() ) {
@@ -608,18 +558,14 @@ wxStringImpl& wxStringImpl::operator=(const wxStringImpl& stringSrc)
 wxStringImpl& wxStringImpl::operator=(wxStringCharType ch)
 {
   wxStringCharType c(ch);
-  if ( !AssignCopy(1, &c) ) {
-    wxFAIL_MSG( wxT("out of memory in wxStringImpl::operator=(wxStringCharType)") );
-  }
+  AssignCopy(1, &c);
   return *this;
 }
 
 // assigns C string
 wxStringImpl& wxStringImpl::operator=(const wxStringCharType *psz)
 {
-  if ( !AssignCopy(wxStrlen(psz), psz) ) {
-    wxFAIL_MSG( wxT("out of memory in wxStringImpl::operator=(const wxStringCharType *)") );
-  }
+  AssignCopy(wxStrlen(psz), psz);
   return *this;
 }
 
@@ -694,9 +640,6 @@ bool wxStringImpl::ConcatSelf(size_t nSrcLen,
       }
     }
 
-    // should be enough space
-    wxASSERT( nNewLen <= GetStringData()->nAllocLength );
-
     // fast concatenation - all is done in our buffer
     memcpy(m_pchData + nLen, pszSrcData, nSrcLen*sizeof(wxStringCharType));
 
@@ -710,12 +653,10 @@ bool wxStringImpl::ConcatSelf(size_t nSrcLen,
 // get the pointer to writable buffer of (at least) nLen bytes
 wxStringCharType *wxStringImpl::DoGetWriteBuf(size_t nLen)
 {
-  if ( !AllocBeforeWrite(nLen) ) {
-    // allocation failure handled by caller
+  // allocation failure handled by caller
+  if ( !AllocBeforeWrite(nLen) )
     return NULL;
-  }
 
-  wxASSERT( GetStringData()->nRefs == 1 );
   GetStringData()->Validate(false);
 
   return m_pchData;
@@ -730,8 +671,6 @@ void wxStringImpl::DoUngetWriteBuf()
 void wxStringImpl::DoUngetWriteBuf(size_t nLen)
 {
   wxStringData * const pData = GetStringData();
-
-  wxASSERT_MSG( nLen < pData->nAllocLength, wxT("buffer overrun") );
 
   // the strings we store are always NUL-terminated
   pData->data()[nLen] = wxT('\0');

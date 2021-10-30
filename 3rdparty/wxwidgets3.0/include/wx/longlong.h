@@ -175,9 +175,6 @@ public:
         // convert to long with range checking in debug mode (only!)
     long ToLong() const
     {
-        wxASSERT_MSG( (m_ll >= LONG_MIN) && (m_ll <= LONG_MAX),
-                      wxT("wxLongLong to long conversion loss of precision") );
-
         return wx_truncate_cast(long, m_ll);
     }
 
@@ -403,9 +400,6 @@ public:
         // convert to ulong with range checking in debug mode (only!)
     unsigned long ToULong() const
     {
-        wxASSERT_MSG( m_ll <= ULONG_MAX,
-                      wxT("wxULongLong to long conversion loss of precision") );
-
         return wx_truncate_cast(unsigned long, m_ll);
     }
 
@@ -686,9 +680,6 @@ public:
         // convert to long with range checking in debug mode (only!)
     long ToLong() const
     {
-        wxASSERT_MSG( (m_hi == 0l) || (m_hi == -1l),
-                      wxT("wxLongLong to long conversion loss of precision") );
-
         return (long)m_lo;
     }
 
@@ -810,11 +801,7 @@ private:
     unsigned long m_lo;
 
 #ifdef wxLONGLONG_TEST_MODE
-    void Check()
-    {
-        wxASSERT( (m_ll >> 32) == m_hi && (unsigned long)m_ll == m_lo );
-    }
-
+    void Check() { }
     wxLongLong_t m_ll;
 #endif // wxLONGLONG_TEST_MODE
 };
@@ -855,7 +842,6 @@ public:
     // from signed to unsigned
     wxULongLongWx(wxLongLongWx ll)
     {
-        wxASSERT(ll.GetHi() >= 0);
         m_hi = (unsigned long)ll.GetHi();
         m_lo = ll.GetLo();
     }
@@ -893,8 +879,6 @@ public:
         return *this;
     }
     wxULongLongWx& operator=(const class wxLongLongWx &ll) {
-        // Should we use an assert like it was before in the constructor?
-        // wxASSERT(ll.GetHi() >= 0);
         m_hi = (unsigned long)ll.GetHi();
         m_lo = ll.GetLo();
         return *this;
@@ -911,9 +895,6 @@ public:
         // convert to long with range checking in debug mode (only!)
     unsigned long ToULong() const
     {
-        wxASSERT_MSG( m_hi == 0ul,
-                      wxT("wxULongLong to long conversion loss of precision") );
-
         return (unsigned long)m_lo;
     }
 
@@ -1026,11 +1007,7 @@ private:
     unsigned long m_lo;
 
 #ifdef wxLONGLONG_TEST_MODE
-    void Check()
-    {
-        wxASSERT( (m_ll >> 32) == m_hi && (unsigned long)m_ll == m_lo );
-    }
-
+    void Check() { }
     wxULongLong_t m_ll;
 #endif // wxLONGLONG_TEST_MODE
 };
@@ -1131,7 +1108,6 @@ struct WXDLLIMPEXP_BASE wxArgNormalizer<wxLongLong>
                      const wxFormatString *fmt, unsigned index)
          : m_value(value)
      {
-         wxASSERT_ARG_TYPE( fmt, index, wxFormatString::Arg_LongLongInt );
      }
 
      wxLongLong_t get() const { return m_value.GetValue(); }

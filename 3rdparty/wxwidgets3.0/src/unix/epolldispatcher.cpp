@@ -67,8 +67,6 @@ wxEpollDispatcher *wxEpollDispatcher::Create()
 
 wxEpollDispatcher::wxEpollDispatcher(int epollDescriptor)
 {
-    wxASSERT_MSG( epollDescriptor != -1, wxT("invalid descriptor") );
-
     m_epollDescriptor = epollDescriptor;
 }
 
@@ -150,10 +148,7 @@ int wxEpollDispatcher::Dispatch(int timeout)
     {
         wxFDIOHandler * const handler = (wxFDIOHandler *)(p->data.ptr);
         if ( !handler )
-        {
-            wxFAIL_MSG( wxT("NULL handler in epoll_event?") );
             continue;
-        }
 
         // note that for compatibility with wxSelectDispatcher we call
         // OnReadWaiting() on EPOLLHUP as this is what epoll_wait() returns

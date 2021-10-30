@@ -90,11 +90,7 @@ void wxWakeUpPipe::OnReadWaiting()
         const int size = read(GetReadFd(), buf, WXSIZEOF(buf));
 
         if ( size > 0 )
-        {
-            wxASSERT_MSG( size == 1, "Too many writes to wake-up pipe?" );
-
             break;
-        }
 
         if ( size == 0 || (size == -1 && errno == EAGAIN) )
         {

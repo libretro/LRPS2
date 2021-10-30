@@ -85,9 +85,6 @@ public:
     // get item at position uiIndex
   wxString& Item(size_t nIndex)
     {
-        wxASSERT_MSG( nIndex < m_nCount,
-                      wxT("wxArrayString: index out of bounds") );
-
         return m_pItems[nIndex];
     }
   const wxString& Item(size_t nIndex) const { return const_cast<wxArrayString*>(this)->Item(nIndex); }
@@ -98,8 +95,6 @@ public:
     // get last item
   wxString& Last()
   {
-      wxASSERT_MSG( !IsEmpty(),
-                    wxT("wxArrayString: index out of bounds") );
       return Item(GetCount() - 1);
   }
   const wxString& Last() const { return const_cast<wxArrayString*>(this)->Last(); }

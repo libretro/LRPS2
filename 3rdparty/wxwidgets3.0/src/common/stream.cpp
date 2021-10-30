@@ -92,11 +92,6 @@ wxStreamBuffer::wxStreamBuffer(BufMode mode)
 
 wxStreamBuffer::wxStreamBuffer(const wxStreamBuffer& buffer)
 {
-    // doing this has big chances to lead to a crash when the source buffer is
-    // destroyed (otherwise assume the caller knows what he does)
-    wxASSERT_MSG( !buffer.m_destroybuf,
-                  wxT("it's a bad idea to copy this buffer") );
-
     m_buffer_start = buffer.m_buffer_start;
     m_buffer_end = buffer.m_buffer_end;
     m_buffer_pos = buffer.m_buffer_pos;
@@ -197,8 +192,6 @@ void wxStreamBuffer::Truncate()
     }
 
     char *new_start = (char *)realloc(m_buffer_start, new_size);
-    wxCHECK_RET( new_size, wxT("shrinking buffer shouldn't fail") );
-
     m_buffer_start = new_start;
     m_buffer_end = m_buffer_start + new_size;
     m_buffer_pos = m_buffer_end;
@@ -226,15 +219,11 @@ bool wxStreamBuffer::FillBuffer()
 // write the buffer contents to the stream (only for write buffers)
 bool wxStreamBuffer::FlushBuffer()
 {
-    wxCHECK_MSG( m_flushable, false, wxT("can't flush this buffer") );
-
     // FIXME: what is this check for? (VZ)
     if ( m_buffer_pos == m_buffer_start )
         return false;
 
     wxOutputStream *outStream = GetOutputStream();
-
-    wxCHECK_MSG( outStream, false, wxT("should have a stream in wxStreamBuffer") );
 
     size_t current = m_buffer_pos - m_buffer_start;
     size_t count = outStream->OnSysWrite(m_buffer_start, current);
@@ -314,8 +303,6 @@ void wxStreamBuffer::PutChar(char c)
 {
     wxOutputStream *outStream = GetOutputStream();
 
-    wxCHECK_RET( outStream, wxT("should have a stream in wxStreamBuffer") );
-
     // if we don't have buffer at all, just forward this call to the stream,
     if ( !HasBuffer() )
     {
@@ -341,13 +328,9 @@ char wxStreamBuffer::GetChar()
 {
     wxInputStream *inStream = GetInputStream();
 
-    wxCHECK_MSG( inStream, 0, wxT("should have a stream in wxStreamBuffer") );
-
     char c;
     if ( !HasBuffer() )
-    {
         inStream->OnSysRead(&c, sizeof(c));
-    }
     else
     {
         if ( !GetDataLeft() )
@@ -367,8 +350,6 @@ char wxStreamBuffer::GetChar()
 
 size_t wxStreamBuffer::Read(void *buffer, size_t size)
 {
-    wxASSERT_MSG( buffer, wxT("Warning: Null pointer is about to be used") );
-
     /* Clear buffer first */
     memset(buffer, 0x00, size);
 
@@ -380,9 +361,6 @@ size_t wxStreamBuffer::Read(void *buffer, size_t size)
     if ( !HasBuffer() )
     {
         wxInputStream *inStream = GetInputStream();
-
-        wxCHECK_MSG( inStream, 0, wxT("should have a stream in wxStreamBuffer") );
-
         readBytes = inStream->OnSysRead(buffer, size);
     }
     else // we have a buffer, use it
@@ -426,8 +404,6 @@ size_t wxStreamBuffer::Read(void *buffer, size_t size)
 // this should really be called "Copy()"
 size_t wxStreamBuffer::Read(wxStreamBuffer *dbuf)
 {
-    wxCHECK_MSG( m_mode != write, 0, wxT("can't read from this buffer") );
-
     char buf[BUF_TEMP_SIZE];
     size_t nRead,
            total = 0;
@@ -448,8 +424,6 @@ size_t wxStreamBuffer::Read(wxStreamBuffer *dbuf)
 
 size_t wxStreamBuffer::Write(const void *buffer, size_t size)
 {
-    wxASSERT_MSG( buffer, wxT("Warning: Null pointer is about to be send") );
-
     if (m_stream)
     {
         // lasterror is reset before all new IO calls
@@ -461,9 +435,6 @@ size_t wxStreamBuffer::Write(const void *buffer, size_t size)
     if ( !HasBuffer() && m_fixed )
     {
         wxOutputStream *outStream = GetOutputStream();
-
-        wxCHECK_MSG( outStream, 0, wxT("should have a stream in wxStreamBuffer") );
-
         // no buffer, just forward the call to the stream
         ret = outStream->OnSysWrite(buffer, size);
     }
@@ -520,9 +491,6 @@ size_t wxStreamBuffer::Write(const void *buffer, size_t size)
 
 size_t wxStreamBuffer::Write(wxStreamBuffer *sbuf)
 {
-    wxCHECK_MSG( m_mode != read, 0, wxT("can't write to this buffer") );
-    wxCHECK_MSG( sbuf->m_mode != write, 0, wxT("can't read from that buffer") );
-
     char buf[BUF_TEMP_SIZE];
     size_t nWrite,
            total = 0;
@@ -576,14 +544,11 @@ wxFileOffset wxStreamBuffer::Seek(wxFileOffset pos, wxSeekMode mode)
                 break;
 
             default:
-                wxFAIL_MSG( wxT("invalid seek mode") );
-
                 return wxInvalidOffset;
         }
         if (diff < 0 || diff > last_access)
             return wxInvalidOffset;
         size_t int_diff = wx_truncate_cast(size_t, diff);
-        wxCHECK_MSG( (wxFileOffset)int_diff == diff, wxInvalidOffset, wxT("huge file not supported") );
         SetIntPosition(int_diff);
         return diff;
     }
@@ -610,7 +575,6 @@ wxFileOffset wxStreamBuffer::Seek(wxFileOffset pos, wxSeekMode mode)
             else
             {
                 size_t int_diff = wx_truncate_cast(size_t, diff);
-                wxCHECK_MSG( (wxFileOffset)int_diff == diff, wxInvalidOffset, wxT("huge file not supported") );
                 SetIntPosition(int_diff);
                 return diff;
             }
@@ -672,8 +636,6 @@ size_t wxStreamBase::GetSize() const
         return 0;
 
     const size_t len = wx_truncate_cast(size_t, length);
-    wxASSERT_MSG( len == length + size_t(0), wxT("large files not supported") );
-
     return len;
 }
 
@@ -748,8 +710,6 @@ char *wxInputStream::AllocSpaceWBack(size_t needed_size)
 
 size_t wxInputStream::GetWBack(void *buf, size_t size)
 {
-    wxASSERT_MSG( buf, wxT("Warning: Null pointer is about to be used") );
-
     /* Clear buffer first */
     memset(buf, 0x00, size);
 
@@ -784,13 +744,9 @@ size_t wxInputStream::GetWBack(void *buf, size_t size)
 
 size_t wxInputStream::Ungetch(const void *buf, size_t bufsize)
 {
-    wxASSERT_MSG( buf, wxT("Warning: Null pointer is about to be used in Ungetch()") );
-
+	// can't operate on this stream until the error is cleared
     if ( m_lasterror != wxSTREAM_NO_ERROR && m_lasterror != wxSTREAM_EOF )
-    {
-        // can't operate on this stream until the error is cleared
         return 0;
-    }
 
     char *ptrback = AllocSpaceWBack(bufsize);
     if (!ptrback)
@@ -818,8 +774,6 @@ int wxInputStream::GetC()
 
 wxInputStream& wxInputStream::Read(void *buf, size_t size)
 {
-    wxASSERT_MSG( buf, wxT("Warning: Null pointer is about to be read") );
-
     char *p = (char *)buf;
     m_lastcount = 0;
 
@@ -948,16 +902,12 @@ wxFileOffset wxInputStream::SeekI(wxFileOffset pos, wxSeekMode mode)
             bytes_read = Read(buf, WXSIZEOF(buf)).LastRead();
             if ( m_lasterror != wxSTREAM_NO_ERROR )
                 return wxInvalidOffset;
-
-            wxASSERT(bytes_read == WXSIZEOF(buf));
         }
 
         // read the last 'pos' bytes
         bytes_read = Read(buf, (size_t)pos).LastRead();
         if ( m_lasterror != wxSTREAM_NO_ERROR )
             return wxInvalidOffset;
-
-        wxASSERT(bytes_read == (size_t)pos);
 
         // we should now have sought to the right position...
         return TellI();

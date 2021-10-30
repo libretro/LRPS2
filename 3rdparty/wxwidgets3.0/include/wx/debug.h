@@ -61,56 +61,9 @@ class WXDLLIMPEXP_FWD_BASE wxCStrData;
  */
     #define wxTrap()
 
-    #define wxASSERT(cond)
-    #define wxASSERT_MSG(cond, msg)
     #define wxFAIL
     #define wxFAIL_MSG(msg)
     #define wxFAIL_COND_MSG(cond, msg)
-
-    #define wxASSERT_LEVEL_2_MSG(cond, msg)
-    #define wxASSERT_LEVEL_2(cond)
-
-/*
-    wxCHECK macros always check their conditions, setting debug level to 0 only
-    makes them silent in case of failure, otherwise -- including at default
-    debug level 1 -- they call the assert handler if the condition is false
-
-    They are supposed to be used only in invalid situation: for example, an
-    invalid parameter (e.g. a NULL pointer) is passed to a function. Instead of
-    dereferencing it and causing core dump the function might use
-
-        wxCHECK_RET( p != NULL, "pointer can't be NULL" )
-*/
-
-// the generic macro: takes the condition to check, the statement to be executed
-// in case the condition is false and the message to pass to the assert handler
-#define wxCHECK2_MSG(cond, op, msg)                                       \
-    if ( cond )                                                           \
-    {}                                                                    \
-    else                                                                  \
-    {                                                                     \
-        wxFAIL_COND_MSG(#cond, msg);                                      \
-        op;                                                               \
-    }                                                                     \
-    struct wxDummyCheckStruct /* just to force a semicolon */
-
-// check which returns with the specified return code if the condition fails
-#define wxCHECK_MSG(cond, rc, msg)   wxCHECK2_MSG(cond, return rc, msg)
-
-// check that expression is true, "return" if not (also FAILs in debug mode)
-#define wxCHECK(cond, rc)            wxCHECK_MSG(cond, rc, (const char*)NULL)
-
-// check that expression is true, perform op if not
-#define wxCHECK2(cond, op)           wxCHECK2_MSG(cond, op, (const char*)NULL)
-
-// special form of wxCHECK2: as wxCHECK, but for use in void functions
-//
-// NB: there is only one form (with msg parameter) and it's intentional:
-//     there is no other way to tell the caller what exactly went wrong
-//     from the void function (of course, the function shouldn't be void
-//     to begin with...)
-#define wxCHECK_RET(cond, msg)       wxCHECK2_MSG(cond, return, msg)
-
 
 // ----------------------------------------------------------------------------
 // other miscellaneous debugger-related functions

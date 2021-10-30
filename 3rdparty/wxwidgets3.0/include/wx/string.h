@@ -75,11 +75,7 @@
 
     // change this 0 to 1 to enable additional (very expensive) asserts
     // verifying that string caching logic works as expected
-    #if 0
-        #define wxSTRING_CACHE_ASSERT(cond) wxASSERT(cond)
-    #else
-        #define wxSTRING_CACHE_ASSERT(cond)
-    #endif
+    #define wxSTRING_CACHE_ASSERT(cond)
 #endif // wxUSE_STRING_POS_CACHE
 
 class WXDLLIMPEXP_FWD_BASE wxString;
@@ -228,8 +224,6 @@ public:
     // example):
     wxCStrData operator-(ptrdiff_t n) const
     {
-        wxASSERT_MSG( n <= (ptrdiff_t)m_offset,
-                      wxT("attempt to construct address before the beginning of the string") );
         return wxCStrData(m_str, m_offset - n, m_owned);
     }
 
@@ -428,10 +422,7 @@ private:
       size_t len;
 
       SubstrBufFromType(const T& data_, size_t len_)
-          : data(data_), len(len_)
-      {
-          wxASSERT_MSG( len != npos, "must have real length" );
-      }
+          : data(data_), len(len_) { }
   };
 
 #if wxUSE_UNICODE_UTF8
@@ -1475,14 +1466,12 @@ public:
     // get last character
     wxUniChar Last() const
     {
-      wxASSERT_MSG( !empty(), wxT("wxString: index out of bounds") );
       return *rbegin();
     }
 
     // get writable last character
     wxUniCharRef Last()
     {
-      wxASSERT_MSG( !empty(), wxT("wxString: index out of bounds") );
       return *rbegin();
     }
 
@@ -1648,8 +1637,6 @@ public:
     {
       if ( !utf8 )
           return wxEmptyString;
-
-      wxASSERT( wxStringOperations::IsValidUtf8String(utf8) );
       return FromImpl(wxStringImpl(utf8));
     }
     static wxString FromUTF8Unchecked(const char *utf8, size_t len)
@@ -1658,8 +1645,6 @@ public:
           return wxEmptyString;
       if ( len == npos )
           return FromUTF8Unchecked(utf8);
-
-      wxASSERT( wxStringOperations::IsValidUtf8String(utf8, len) );
       return FromImpl(wxStringImpl(utf8, len));
     }
 
@@ -1693,8 +1678,6 @@ public:
     static wxString FromUTF8Unchecked(const char *utf8, size_t len = npos)
     {
         const wxString s(utf8, wxMBConvUTF8(), len);
-        wxASSERT_MSG( !utf8 || !*utf8 || !s.empty(),
-                      "string must be valid UTF-8" );
         return s;
     }
     const wxScopedCharBuffer utf8_str() const { return mb_str(wxMBConvUTF8()); }
@@ -1719,9 +1702,6 @@ public:
                                                &wlen
                                              )
                             );
-        wxASSERT_MSG( !utf8 || !*utf8 || wlen,
-                      "string must be valid UTF-8" );
-
         return wxString(buf.data(), wlen);
     }
     const wxScopedCharBuffer utf8_str() const
@@ -1925,11 +1905,6 @@ public:
       // string += string
   wxString& operator<<(const wxString& s)
   {
-#if WXWIN_COMPATIBILITY_2_8 && !wxUSE_STL_BASED_WXSTRING && !wxUSE_UNICODE_UTF8
-    wxASSERT_MSG( s.IsValid(),
-                  wxT("did you forget to call UngetWriteBuf()?") );
-#endif
-
     append(s);
     return *this;
   }
@@ -2396,8 +2371,6 @@ public:
       : m_impl(CreateConstIterator(first).impl(),
                CreateConstIterator(last).impl())
   {
-      wxASSERT_MSG( first.m_str == last.m_str,
-                    wxT("pointers must be into the same string") );
   }
 #endif // WXWIN_COMPATIBILITY_STRING_PTR_AS_ITER
 
@@ -3700,12 +3673,10 @@ public:
         : m_str(str), m_buf(NULL), m_len(0), m_lenSet(false)
     {
         m_buf = m_str.DoGetWriteBuf(lenWanted);
-        wxASSERT(m_buf != NULL);
     }
 
     ~wxStringInternalBufferLength()
     {
-        wxASSERT(m_lenSet);
         m_str.DoUngetWriteBuf(m_len);
     }
 
@@ -3775,7 +3746,6 @@ public:
 
     ~wxStringTypeBufferLengthBase()
     {
-        wxASSERT_MSG( this->m_lenSet, "forgot to call SetLength()" );
     }
 
     void SetLength(size_t length) { m_len = length; m_lenSet = true; }
@@ -3891,8 +3861,6 @@ public:
     {
         wxMBConvStrictUTF8 conv;
         size_t wlen = conv.ToWChar(NULL, 0, m_buf);
-        wxCHECK_RET( wlen != wxCONV_FAILED, "invalid UTF-8 data in string buffer?" );
-
         wxStringInternalBuffer wbuf(m_str, wlen);
         conv.ToWChar(wbuf, wlen, m_buf);
     }
@@ -3909,12 +3877,8 @@ public:
         : wxStringTypeBufferLengthBase<char>(str, lenWanted) {}
     ~wxUTF8StringBufferLength()
     {
-        wxCHECK_RET(m_lenSet, "length not set");
-
         wxMBConvStrictUTF8 conv;
         size_t wlen = conv.ToWChar(NULL, 0, m_buf, m_len);
-        wxCHECK_RET( wlen != wxCONV_FAILED, "invalid UTF-8 data in string buffer?" );
-
         wxStringInternalBufferLength wbuf(m_str, wlen);
         conv.ToWChar(wbuf, wlen, m_buf, m_len);
         wbuf.SetLength(wlen);

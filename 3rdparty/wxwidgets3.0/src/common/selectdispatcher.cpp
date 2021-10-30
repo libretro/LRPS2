@@ -85,18 +85,12 @@ bool wxSelectSets::HasFD(int fd) const
 
 bool wxSelectSets::SetFD(int fd, int flags)
 {
-    wxCHECK_MSG( fd >= 0, false, wxT("invalid descriptor") );
-
     for ( int n = 0; n < Max; n++ )
     {
         if ( flags & ms_flags[n] )
-        {
             wxFD_SET(fd, &m_fds[n]);
-        }
         else if ( wxFD_ISSET(fd,  (fd_set*) &m_fds[n]) )
-        {
             wxFD_CLR(fd, &m_fds[n]);
-        }
     }
 
     return true;
@@ -180,10 +174,7 @@ int wxSelectDispatcher::ProcessSets(const wxSelectSets& sets)
 
         wxFDIOHandler * const handler = FindHandler(fd);
         if ( !handler )
-        {
-            wxFAIL_MSG( wxT("NULL handler in wxSelectDispatcher?") );
             continue;
-        }
 
         if ( sets.Handle(fd, *handler) )
             numEvents++;

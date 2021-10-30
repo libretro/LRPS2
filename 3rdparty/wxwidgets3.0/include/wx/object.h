@@ -156,7 +156,6 @@ name##PluginSentinel  m_pluginsentinel
 template <class T>
 inline T *wxCheckCast(const void *ptr, T * = NULL)
 {
-    wxASSERT_MSG( wxDynamicCast(ptr, T), "wxStaticCast() used incorrectly" );
     return const_cast<T *>(static_cast<const T *>(ptr));
 }
 

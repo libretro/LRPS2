@@ -29,7 +29,6 @@ public:
 
     virtual ~wxEventFilter()
     {
-        wxASSERT_MSG( !m_next, "Forgot to call wxEvtHandler::RemoveFilter()?" );
     }
 
 private:

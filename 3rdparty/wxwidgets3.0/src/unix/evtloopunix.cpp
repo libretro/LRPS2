@@ -109,8 +109,6 @@ public:
                                        wxEventLoopSourceHandler *handler,
                                        int flags)
     {
-        wxCHECK_MSG( fd != -1, NULL, "can't monitor invalid fd" );
-
         // we need a bridge to wxFDIODispatcher
         //
         // TODO: refactor the code so that only wxEventLoopSourceHandler is used

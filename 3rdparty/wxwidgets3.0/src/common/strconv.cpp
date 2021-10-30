@@ -1183,10 +1183,7 @@ wxMBConvStrictUTF8::FromWChar(char *dst, size_t dstLen,
             }
         }
         else
-        {
-            wxFAIL_MSG( wxT("trying to encode undefined Unicode character") );
             break;
-        }
 
         if ( out )
         {
@@ -1318,7 +1315,6 @@ size_t wxMBConvUTF8::ToWChar(wchar_t *buf, size_t n,
 #ifdef WC_UTF16
                         // cast is ok because wchar_t == wxUuint16 if WC_UTF16
                         size_t pa = encode_utf16((unsigned char)*opsz + wxUnicodePUA, (wxUint16 *)buf);
-                        wxASSERT(pa != wxCONV_FAILED);
                         if (buf)
                             buf += pa;
                         opsz++;
@@ -2790,11 +2786,7 @@ wxCSConv::wxCSConv(const wxString& charset)
 wxCSConv::wxCSConv(wxFontEncoding encoding)
 {
     if ( encoding == wxFONTENCODING_MAX || encoding == wxFONTENCODING_DEFAULT )
-    {
-        wxFAIL_MSG( wxT("invalid encoding value in wxCSConv ctor") );
-
         encoding = wxFONTENCODING_SYSTEM;
-    }
 
     Init();
 

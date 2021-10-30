@@ -273,11 +273,7 @@ OSVERSIONINFOEX wxGetWindowsVersionInfo()
 #endif
 
     info.dwOSVersionInfoSize = sizeof(info);
-    if ( !::GetVersionEx(reinterpret_cast<OSVERSIONINFO *>(&info)) )
-    {
-        // This really shouldn't ever happen.
-        wxFAIL_MSG( "GetVersionEx() unexpectedly failed" );
-    }
+    if ( !::GetVersionEx(reinterpret_cast<OSVERSIONINFO *>(&info)) ) { }
 
 #ifdef __VISUALC__
     #pragma warning(pop)

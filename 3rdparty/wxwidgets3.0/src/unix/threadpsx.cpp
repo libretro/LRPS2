@@ -234,7 +234,7 @@ wxMutexInternal::wxMutexInternal(wxMutexType mutexType)
             break;
 
         default:
-            wxFAIL_MSG( wxT("unknown mutex type") );
+            // unknown mutex type
             // fall through
 
         case wxMUTEX_DEFAULT:
@@ -315,7 +315,6 @@ wxMutexError wxMutexInternal::HandleLockResult(int err)
         case EDEADLK:
             // only error checking mutexes return this value and so it's an
             // unexpected situation -- hence use assert, not wxLogDebug
-            wxFAIL_MSG( wxT("mutex deadlock prevented") );
             return wxMUTEX_DEAD_LOCK;
 
         case EINVAL:
@@ -532,11 +531,7 @@ wxSemaphoreInternal::wxSemaphoreInternal(int initialcount, int maxcount)
 
     if ( (initialcount < 0 || maxcount < 0) ||
             ((maxcount > 0) && (initialcount > maxcount)) )
-    {
-        wxFAIL_MSG( wxT("wxSemaphore: invalid initial or maximal count") );
-
         m_isOk = false;
-    }
     else
     {
         m_maxcount = (size_t)maxcount;
@@ -819,9 +814,6 @@ void *wxThreadInternal::PthreadStart(wxThread *thread)
     {
         // terminate the thread
         thread->Exit(pthread->m_exitcode);
-
-        wxFAIL_MSG(wxT("wxThread::Exit() can't return."));
-
         return NULL;
     }
 }
@@ -928,26 +920,17 @@ wxThreadError wxThreadInternal::Create(wxThread *thread,
     else
     {
         struct sched_param sp;
-        if ( pthread_attr_getschedparam(&attr, &sp) != 0 )
-        {
-            wxFAIL_MSG(wxT("pthread_attr_getschedparam() failed"));
-        }
+        pthread_attr_getschedparam(&attr, &sp);
 
         sp.sched_priority = min_prio + (prio*(max_prio - min_prio))/100;
 
-        if ( pthread_attr_setschedparam(&attr, &sp) != 0 )
-        {
-            wxFAIL_MSG(wxT("pthread_attr_setschedparam(priority) failed"));
-        }
+        pthread_attr_setschedparam(&attr, &sp);
     }
 #endif // HAVE_THREAD_PRIORITY_FUNCTIONS
 
 #ifdef HAVE_PTHREAD_ATTR_SETSCOPE
     // this will make the threads created by this process really concurrent
-    if ( pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM) != 0 )
-    {
-        wxFAIL_MSG(wxT("pthread_attr_setscope(PTHREAD_SCOPE_SYSTEM) failed"));
-    }
+    pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
 #endif // HAVE_PTHREAD_ATTR_SETSCOPE
 
     // VZ: assume that this one is always available (it's rather fundamental),
@@ -955,10 +938,7 @@ wxThreadError wxThreadInternal::Create(wxThread *thread,
     //     pthread_detach() instead (after thread creation)
     if ( thread->IsDetached() )
     {
-        if ( pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED) != 0 )
-        {
-            wxFAIL_MSG(wxT("pthread_attr_setdetachstate(DETACHED) failed"));
-        }
+        pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
         // never try to join detached threads
         Detach();
@@ -974,10 +954,7 @@ wxThreadError wxThreadInternal::Create(wxThread *thread,
                 (void *)thread
              );
 
-    if ( pthread_attr_destroy(&attr) != 0 )
-    {
-        wxFAIL_MSG(wxT("pthread_attr_destroy() failed"));
-    }
+    pthread_attr_destroy(&attr);
 
     if ( rc != 0 )
     {
@@ -992,9 +969,6 @@ wxThreadError wxThreadInternal::Create(wxThread *thread,
 
 wxThreadError wxThreadInternal::Run()
 {
-    wxCHECK_MSG( GetState() == STATE_NEW, wxTHREAD_RUNNING,
-                 wxT("thread may only be started once after Create()") );
-
     SetState(STATE_RUNNING);
 
     // wake up threads waiting for our start
@@ -1005,8 +979,6 @@ wxThreadError wxThreadInternal::Run()
 
 void wxThreadInternal::Wait()
 {
-    wxCHECK_RET( !m_isDetached, wxT("can't wait for a detached thread") );
-
     // if the thread we're waiting for is waiting for the GUI mutex, we will
     // deadlock so make sure we release it temporarily
     if ( wxThread::IsMain() )
@@ -1050,20 +1022,12 @@ void wxThreadInternal::Wait()
 
 void wxThreadInternal::Pause()
 {
-    // the state is set from the thread which pauses us first, this function
-    // is called later so the state should have been already set
-    wxCHECK_RET( m_state == STATE_PAUSED,
-                 wxT("thread must first be paused with wxThread::Pause().") );
-
     // wait until the semaphore is Post()ed from Resume()
     m_semSuspend.Wait();
 }
 
 void wxThreadInternal::Resume()
 {
-    wxCHECK_RET( m_state == STATE_PAUSED,
-                 wxT("can't resume thread which is not suspended.") );
-
     // the thread might be not actually paused yet - if there were no call to
     // TestDestroy() since the last call to Pause() for example
     if ( IsReallyPaused() )
@@ -1188,9 +1152,6 @@ wxThreadError wxThread::Run()
 
 void wxThread::SetPriority(unsigned int prio)
 {
-    wxCHECK_RET( wxPRIORITY_MIN <= prio && prio <= wxPRIORITY_MAX,
-                 wxT("invalid thread priority") );
-
     wxCriticalSectionLocker lock(m_critsect);
 
     switch ( m_internal->GetState() )
@@ -1234,7 +1195,8 @@ void wxThread::SetPriority(unsigned int prio)
 
         case STATE_EXITED:
         default:
-            wxFAIL_MSG(wxT("impossible to set thread priority in this state"));
+            // impossible to set thread priority in this state 
+            break;
     }
 }
 
@@ -1256,9 +1218,6 @@ wxThreadIdType wxThread::GetId() const
 
 wxThreadError wxThread::Pause()
 {
-    wxCHECK_MSG( This() != this, wxTHREAD_MISC_ERROR,
-                 wxT("a thread can't pause itself") );
-
     wxCriticalSectionLocker lock(m_critsect);
 
     if ( m_internal->GetState() != STATE_RUNNING )
@@ -1273,9 +1232,6 @@ wxThreadError wxThread::Pause()
 
 wxThreadError wxThread::Resume()
 {
-    wxCHECK_MSG( This() != this, wxTHREAD_MISC_ERROR,
-                 wxT("a thread can't resume itself") );
-
     wxCriticalSectionLocker lock(m_critsect);
 
     wxThreadState state = m_internal->GetState();
@@ -1301,12 +1257,6 @@ wxThreadError wxThread::Resume()
 
 wxThread::ExitCode wxThread::Wait(wxThreadWait WXUNUSED(waitMode))
 {
-    wxCHECK_MSG( This() != this, (ExitCode)-1,
-                 wxT("a thread can't wait for itself") );
-
-    wxCHECK_MSG( !m_isDetached, (ExitCode)-1,
-                 wxT("can't wait for detached thread") );
-
     m_internal->Wait();
 
     return m_internal->GetExitCode();
@@ -1314,9 +1264,6 @@ wxThread::ExitCode wxThread::Wait(wxThreadWait WXUNUSED(waitMode))
 
 wxThreadError wxThread::Delete(ExitCode *rc, wxThreadWait WXUNUSED(waitMode))
 {
-    wxCHECK_MSG( This() != this, wxTHREAD_MISC_ERROR,
-                 wxT("a thread can't delete itself") );
-
     bool isDetached = m_isDetached;
 
     m_critsect.Enter();
@@ -1374,9 +1321,6 @@ wxThreadError wxThread::Delete(ExitCode *rc, wxThreadWait WXUNUSED(waitMode))
 
 wxThreadError wxThread::Kill()
 {
-    wxCHECK_MSG( This() != this, wxTHREAD_MISC_ERROR,
-                 wxT("a thread can't kill itself") );
-
     OnKill();
 
     switch ( m_internal->GetState() )
@@ -1425,9 +1369,6 @@ wxThreadError wxThread::Kill()
 
 void wxThread::Exit(ExitCode status)
 {
-    wxASSERT_MSG( This() == this,
-                  wxT("wxThread::Exit() can only be called in the context of the same thread") );
-
     if ( m_isDetached )
     {
         // from the moment we call OnExit(), the main program may terminate at
@@ -1464,16 +1405,11 @@ void wxThread::Exit(ExitCode status)
 
     // terminate the thread (pthread_exit() never returns)
     pthread_exit(status);
-
-    wxFAIL_MSG(wxT("pthread_exit() failed"));
 }
 
 // also test whether we were paused
 bool wxThread::TestDestroy()
 {
-    wxASSERT_MSG( This() == this,
-                  wxT("wxThread::TestDestroy() can only be called in the context of the same thread") );
-
     m_critsect.Enter();
 
     if ( m_internal->GetState() == STATE_PAUSED )
@@ -1591,8 +1527,6 @@ bool wxThreadModule::OnInit()
 
 void wxThreadModule::OnExit()
 {
-    wxASSERT_MSG( wxThread::IsMain(), wxT("only main thread can be here") );
-
     // are there any threads left which are being deleted right now?
     size_t nThreadsBeingDeleted;
 
@@ -1659,9 +1593,6 @@ static void DeleteThread(wxThread *This)
     // calling out into user code with it locked as this may result in
     // deadlocks if the thread dtor deletes another thread (see #11501)
     wxMutexLocker locker( *gs_mutexDeleteThread );
-
-    wxCHECK_RET( gs_nThreadsBeingDeleted > 0,
-                 wxT("no threads scheduled for deletion, yet we delete one?") );
 
     if ( !--gs_nThreadsBeingDeleted )
     {

@@ -27,15 +27,6 @@
 
 #include <stdlib.h>
 
-// ---------------------------------------------------------------------------
-// macros
-// ---------------------------------------------------------------------------
-
-// implementation only
-#define   wxASSERT_VALID_INDEX(i) \
-    wxASSERT_MSG( (size_t)(i) <= length(), wxT("invalid index in wxString") )
-
-
 // ----------------------------------------------------------------------------
 // global data
 // ----------------------------------------------------------------------------
@@ -292,9 +283,6 @@ public:
     // copy ctor
   wxStringImpl(const wxStringImpl& stringSrc)
   {
-    wxASSERT_MSG( stringSrc.GetStringData()->IsValid(),
-                  wxT("did you forget to call UngetWriteBuf()?") );
-
     if ( stringSrc.empty() ) {
       // nothing to do for an empty string
       Init();
@@ -315,8 +303,6 @@ public:
     // take nLen chars starting at nPos
   wxStringImpl(const wxStringImpl& str, size_t nPos, size_t nLen)
   {
-    wxASSERT_MSG( str.GetStringData()->IsValid(),
-                  wxT("did you forget to call UngetWriteBuf()?") );
     Init();
     size_t strLen = str.length() - nPos; nLen = strLen < nLen ? strLen : nLen;
     InitWith(str.c_str(), nPos, nLen);
@@ -380,12 +366,11 @@ public:
     // return the character at position n
   value_type operator[](size_type n) const { return m_pchData[n]; }
   value_type at(size_type n) const
-    { wxASSERT_VALID_INDEX( n ); return m_pchData[n]; }
+    { return m_pchData[n]; }
     // returns the writable character at position n
   reference operator[](size_type n) { CopyBeforeWrite(); return m_pchData[n]; }
   reference at(size_type n)
   {
-    wxASSERT_VALID_INDEX( n );
     CopyBeforeWrite();
     return m_pchData[n];
   } // FIXME-UTF8: not useful for us...?
@@ -394,7 +379,6 @@ public:
     // append elements str[pos], ..., str[pos+n]
   wxStringImpl& append(const wxStringImpl& str, size_t pos, size_t n)
   {
-    wxASSERT(pos <= str.length());
     ConcatSelf(n, str.c_str() + pos, str.length() - pos);
     return *this;
   }
@@ -440,14 +424,11 @@ public:
     // insert another string
   wxStringImpl& insert(size_t nPos, const wxStringImpl& str)
   {
-    wxASSERT( str.GetStringData()->IsValid() );
     return insert(nPos, str.c_str(), str.length());
   }
     // insert n chars of str starting at nStart (in str)
   wxStringImpl& insert(size_t nPos, const wxStringImpl& str, size_t nStart, size_t n)
   {
-    wxASSERT( str.GetStringData()->IsValid() );
-    wxASSERT( nStart < str.length() );
     size_t strLen = str.length() - nStart;
     n = strLen < n ? strLen : n;
     return insert(nPos, str.c_str() + nStart, n);
@@ -557,8 +538,5 @@ public:
 };
 
 #endif // !wxUSE_STL_BASED_WXSTRING
-
-// don't pollute the library user's name space
-#undef wxASSERT_VALID_INDEX
 
 #endif  // _WX_WXSTRINGIMPL_H__

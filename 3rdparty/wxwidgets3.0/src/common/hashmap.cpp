@@ -68,9 +68,6 @@ unsigned long _wxHashTableBase2::GetNextPrime( unsigned long n )
             return *ptr;
     }
 
-    /* someone might try to alloc a 2^32-element hash table */
-    wxFAIL_MSG( wxT("hash table too big?") );
-
     /* quiet warning */
     return 0;
 }

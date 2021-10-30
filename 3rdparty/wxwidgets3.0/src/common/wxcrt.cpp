@@ -219,15 +219,11 @@ int /* not wint_t */ wxCRT_FputcW(wchar_t wc, FILE *stream)
 // TODO: implement the scanf() functions
 static int vwscanf(const wchar_t *format, va_list argptr)
 {
-    wxFAIL_MSG( wxT("TODO") );
-
     return -1;
 }
 
 static int vfwscanf(FILE *stream, const wchar_t *format, va_list argptr)
 {
-    wxFAIL_MSG( wxT("TODO") );
-
     return -1;
 }
 
@@ -258,16 +254,6 @@ static int vwprintf(const wchar_t *format, va_list argptr)
 #ifdef wxNEED_VSWSCANF
 static int vswscanf(const wchar_t *ws, const wchar_t *format, va_list argptr)
 {
-    // The best we can do without proper Unicode support in glibc is to
-    // convert the strings into MB representation and run ANSI version
-    // of the function. This doesn't work with %c and %s because of difference
-    // in size of char and wchar_t, though.
-
-    wxCHECK_MSG( wxStrstr(format, L"%s") == NULL, -1,
-                 wxT("incomplete vswscanf implementation doesn't allow %s") );
-    wxCHECK_MSG( wxStrstr(format, L"%c") == NULL, -1,
-                 wxT("incomplete vswscanf implementation doesn't allow %c") );
-
     return wxCRT_VsscanfA(static_cast<const char*>(wxConvLibc.cWC2MB(ws)),
         wxConvLibc.cWC2MB(format), argptr);
 }
@@ -620,8 +606,6 @@ in DMC 8.49 and 8.50
 I don't see it being used in the wxWidgets sources at present (oct 2007) CE
 */
 #pragma message ( "warning ::::: wxVsprintf(wchar_t *str, const wxString& format, va_list argptr) not yet implemented" )
-    wxFAIL_MSG( wxT("TODO") );
-
     return -1;
 #else
     return wxCRT_VsprintfW(str, format.wc_str(), argptr);
@@ -1159,8 +1143,6 @@ void wxPerror(const wxString& s)
 
 wchar_t *wxFgets(wchar_t *s, int size, FILE *stream)
 {
-    wxCHECK_MSG( s, NULL, "empty buffer passed to wxFgets()" );
-
     wxCharBuffer buf(size - 1);
     // FIXME: this reads too little data if wxConvLibc uses UTF-8 ('size' wide
     //        characters may be encoded by up to 'size'*4 bytes), but what

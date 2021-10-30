@@ -213,8 +213,6 @@ wxEventFilter* wxEvtHandler::ms_filterList = NULL;
 
 /* static */ void wxEvtHandler::AddFilter(wxEventFilter* filter)
 {
-    wxCHECK_RET( filter, "NULL filter" );
-
     filter->m_next = ms_filterList;
     ms_filterList = filter;
 }
@@ -244,14 +242,10 @@ wxEventFilter* wxEvtHandler::ms_filterList = NULL;
 
         prev = f;
     }
-
-    wxFAIL_MSG( "Filter not found" );
 }
 
 void wxEvtHandler::QueueEvent(wxEvent *event)
 {
-    wxCHECK_RET( event, "NULL event can't be posted" );
-
     if (!wxTheApp)
     {
         // anyway delete the given event to avoid memory leaks
@@ -303,11 +297,6 @@ void wxEvtHandler::ProcessPendingEvents()
     // same event handler (see the comment at the end of this function)
 
     wxENTER_CRIT_SECT( m_pendingEventsLock );
-
-    // this method is only called by wxApp if this handler does have
-    // pending events
-    wxCHECK_RET( m_pendingEvents && !m_pendingEvents->IsEmpty(),
-                 "should have pending events if called" );
 
     wxList::compatibility_iterator node = m_pendingEvents->GetFirst();
     wxEvent* pEvent = static_cast<wxEvent *>(node->GetData());

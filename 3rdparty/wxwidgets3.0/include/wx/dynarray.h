@@ -97,7 +97,7 @@ public:                                                             \
                                                                     \
 protected:                                                          \
   T& Item(size_t uiIndex) const                                     \
-    { wxASSERT( uiIndex < m_nCount ); return m_pItems[uiIndex]; }   \
+    { return m_pItems[uiIndex]; }   \
   T& operator[](size_t uiIndex) const { return Item(uiIndex); }     \
                                                                     \
   int Index(T lItem, bool bFromEnd = false) const;                  \
@@ -225,7 +225,6 @@ public:                                                               \
     { base::RemoveAt(uiIndex, nRemove); }                             \
   void Remove(T lItem)                                                \
     { int iIndex = Index(lItem);                                      \
-      wxCHECK_RET( iIndex != wxNOT_FOUND, _WX_ERROR_REMOVE);          \
       base::RemoveAt((size_t)iIndex); }                               \
                                                                       \
   void Sort(CMPFUNC##T fCmp) { base::Sort((CMPFUNC)fCmp); }           \
@@ -404,7 +403,6 @@ public:                                                               \
     { base::erase(begin() + uiIndex, begin() + uiIndex + nRemove); }  \
   void Remove(T lItem)                                                \
     { int iIndex = Index(lItem);                                      \
-      wxCHECK_RET( iIndex != wxNOT_FOUND, _WX_ERROR_REMOVE );         \
       base::erase(begin() + iIndex); }                                \
                                                                       \
 private:                                                              \

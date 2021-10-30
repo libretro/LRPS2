@@ -84,8 +84,6 @@ public:                             \
                                     \
     T & operator[](long int i) const\
     {                               \
-        wxASSERT(m_ptr != NULL);    \
-        wxASSERT(i >= 0);           \
         return m_ptr[i];            \
     }                               \
                                     \

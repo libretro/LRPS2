@@ -48,9 +48,6 @@ const char BOM_UTF8[]    = { '\xEF', '\xBB', '\xBF'         };
 /* static */
 void wxConvAuto::SetFallbackEncoding(wxFontEncoding enc)
 {
-    wxASSERT_MSG( enc != wxFONTENCODING_DEFAULT,
-                  wxT("wxFONTENCODING_DEFAULT doesn't make sense here") );
-
     ms_defaultMBEncoding = enc;
 }
 
@@ -151,7 +148,7 @@ void wxConvAuto::InitFromBOM(wxBOM bomType)
     switch ( bomType )
     {
         case wxBOM_Unknown:
-            wxFAIL_MSG( "shouldn't be called for this BOM type" );
+            // shouldn't be called for this BOM type
             break;
 
         case wxBOM_None:
@@ -183,7 +180,8 @@ void wxConvAuto::InitFromBOM(wxBOM bomType)
             break;
 
         default:
-            wxFAIL_MSG( "unknown BOM type" );
+            // unknown BOM type
+            break;
     }
 
     if ( !m_conv )
@@ -202,7 +200,7 @@ void wxConvAuto::SkipBOM(const char **src, size_t *len) const
     switch ( m_bomType )
     {
         case wxBOM_Unknown:
-            wxFAIL_MSG( "shouldn't be called for this BOM type" );
+            // shouldn't be called for this BOM type
             return;
 
         case wxBOM_None:
@@ -224,7 +222,6 @@ void wxConvAuto::SkipBOM(const char **src, size_t *len) const
             break;
 
         default:
-            wxFAIL_MSG( "unknown BOM type" );
             return;
     }
 

@@ -162,10 +162,6 @@ void wxModule::DoCleanUpModules(const wxModuleList& modules)
           node = node->GetPrevious() )
     {
         wxModule * module = node->GetData();
-
-        wxASSERT_MSG( module->m_state == State_Initialized,
-                        wxT("not initialized module being cleaned up") );
-
         module->Exit();
         module->m_state = State_Registered;
     }

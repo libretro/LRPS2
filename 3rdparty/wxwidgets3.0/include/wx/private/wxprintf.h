@@ -506,8 +506,6 @@ void wxPrintfConvSpec<CharType>::ReplaceAsteriskWith(int width)
 
     // find the first * in our flag buffer
     char *pwidth = strchr(m_szFlags, '*');
-    wxCHECK_RET(pwidth, wxT("field width must be specified"));
-
     // save what follows the * (the +1 is to skip the asterisk itself!)
     strcpy(temp, pwidth+1);
     if (width < 0)
@@ -758,7 +756,6 @@ int wxPrintfConvSpec<CharType>::Process(CharType *buf, size_t lenMax, wxPrintfAr
         case wxPAT_LONGDOUBLE:
         case wxPAT_DOUBLE:
         case wxPAT_POINTER:
-            wxASSERT(lenScratch < wxMAX_SVNPRINTF_SCRATCHBUFFER_LEN);
             // NB: 1) we can compare lenMax (for CharType*, i.e. possibly
             //        wchar_t*) with lenScratch (char*) because this code is
             //        formatting integers and that will have the same length

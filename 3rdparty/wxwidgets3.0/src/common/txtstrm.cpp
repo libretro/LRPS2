@@ -79,7 +79,6 @@ wxChar wxTextInputStream::NextChar()
             case 0:
                 // this is a bug in converter object as it should either fail
                 // or decode non-empty string to something non-empty
-                wxFAIL_MSG("ToWChar() can't return 0 for non-empty input");
                 break;
 
             case wxCONV_FAILED:
@@ -91,7 +90,6 @@ wxChar wxTextInputStream::NextChar()
                 // if we couldn't decode a single character during the last
                 // loop iteration we shouldn't be able to decode 2 or more of
                 // them with an extra single byte, something fishy is going on
-                wxFAIL_MSG("unexpected decoding result");
                 // fall through nevertheless and return at least something
 
             case 1:
@@ -148,7 +146,6 @@ bool wxTextInputStream::EatEOL(const wxChar &c)
 
 wxUint32 wxTextInputStream::Read32(int base)
 {
-    wxASSERT_MSG( !base || (base > 1 && base <= 36), wxT("invalid base") );
     if(!m_input) return 0;
 
     wxString word = ReadWord();
@@ -169,7 +166,6 @@ wxUint8 wxTextInputStream::Read8(int base)
 
 wxInt32 wxTextInputStream::Read32S(int base)
 {
-    wxASSERT_MSG( !base || (base > 1 && base <= 36), wxT("invalid base") );
     if(!m_input) return 0;
 
     wxString word = ReadWord();
@@ -418,7 +414,6 @@ void wxTextOutputStream::WriteString(const wxString& string)
                     continue;
 
                 default:
-                    wxFAIL_MSG( wxT("unknown EOL mode in wxTextOutputStream") );
                     // fall through
 
                 case wxEOL_UNIX:
