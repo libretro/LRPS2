@@ -1018,7 +1018,12 @@ u32 scaleblockcycles_clear()
 	log_cb(RETRO_LOG_DEBUG, "Unscaled overall: %d,  scaled overall: %d,  relative EE clock speed: %d %%\n",
 		unscaled_overall, scaled_overall, static_cast<int>(100 * ratio));
 #endif
-	s_nBlockCycles &= 0x7;
+	s8 cyclerate = EmuOptions.Speedhacks.EECycleRate;
+
+	if (cyclerate > 1)
+		s_nBlockCycles &= (0x1 << (cyclerate + 2)) - 1;
+	else
+		s_nBlockCycles &= 0x7;
 
 	return scaled;
 }
