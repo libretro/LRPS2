@@ -12200,7 +12200,8 @@ SLES-53125:
   name: "Enthusia - Professional Racing"
   region: "PAL-M5"
   clampModes:
-    eeClampMode: 3
+    eeClampMode: 3 # Fixes Freezing at the start of the race
+    vuClampMode: 3 # Fixes Freezing at the start of the race
 SLES-53127:
   name: "Teenage Mutant Ninja Turtles - Mutant Melee"
   region: "PAL-M5"
@@ -24146,7 +24147,8 @@ SLPM-66257:
   name: "Enthusia - Professional Racing"
   region: "NTSC-J"
   clampModes:
-    eeClampMode: 3
+    eeClampMode: 3 # Fixes Freezing at the start of the race
+    vuClampMode: 3 # Fixes Freezing at the start of the race
 SLPM-66258:
   name: "Magic Teacher Negima - Honor Version [Konami The Best]"
   region: "NTSC-J"
@@ -35265,7 +35267,8 @@ SLUS-20967:
   region: "NTSC-U"
   compat: 5
   clampModes:
-    eeClampMode: 3
+    eeClampMode: 3 # Fixes Freezing at the start of the race
+    vuClampMode: 3 # Fixes Freezing at the start of the race
 SLUS-20968:
   name: "Karaoke Revolution Volume 2"
   region: "NTSC-U"
