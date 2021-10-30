@@ -40,6 +40,14 @@ public:
 
     void CleanUp();
 
+    void DeleteObject(BaseDeletableObject &obj);
+    void DeleteObject(BaseDeletableObject *obj)
+    {
+        if (obj == NULL)
+            return;
+        DeleteObject(*obj);
+    }
+
     void DeleteThread(Threading::pxThread &obj);
     void DeleteThread(Threading::pxThread *obj)
     {
