@@ -222,24 +222,7 @@ __fi void mVUsetFlags(mV, microFlagCycles& mFC) {
 // Recompiles Code for Proper Flags on Block Linkings
 __fi void mVUsetupFlags(mV, microFlagCycles& mFC) {
 
-#ifndef NDEBUG
-	if (mVUregs.flagInfo & 1) {
-		if (mVUregs.needExactMatch) log_cb(RETRO_LOG_DEBUG, "mVU ERROR!!!\n");
-	}
-#endif
-
-	const bool pf = false; // Print Flag Info
-#ifndef NDEBUG
-	if (pf)
-		log_cb(RETRO_LOG_DEBUG,
-				"mVU%d - [#%d][sPC=%04x][bPC=%04x][mVUBranch=%d][branch=%d]\n",
-				mVU.index, mVU.prog.cur->idx, mVUstartPC/2*8, xPC, mVUbranch, mVUlow.branch);
-#endif
-
 	if (doSFlagInsts && __Status) {
-#ifndef NDEBUG
-		if (pf) log_cb(RETRO_LOG_DEBUG, "mVU%d - Status Flag\n", mVU.index);
-#endif
 		int bStatus[4];
 		int sortRegs = sortFlag(mFC.xStatus, bStatus, mFC.cycles);
 		// DevCon::Status("sortRegs = %d", params sortRegs);
@@ -278,10 +261,6 @@ __fi void mVUsetupFlags(mV, microFlagCycles& mFC) {
 	}
 	
 	if (doMFlagInsts && __Mac) {
-#ifndef NDEBUG
-		if (pf)
-			log_cb(RETRO_LOG_DEBUG, "mVU%d - Mac Flag\n", mVU.index);
-#endif
 		int bMac[4];
 		sortFlag(mFC.xMac, bMac, mFC.cycles);
 		xMOVAPS(xmmT1, ptr128[mVU.macFlag]);
@@ -290,9 +269,6 @@ __fi void mVUsetupFlags(mV, microFlagCycles& mFC) {
 	}
 
 	if (doCFlagInsts && __Clip) {
-#ifndef NDEBUG
-		if (pf) log_cb(RETRO_LOG_DEBUG, "mVU%d - Clip Flag\n", mVU.index);
-#endif
 		int bClip[4];
 		sortFlag(mFC.xClip, bClip, mFC.cycles);
 		xMOVAPS(xmmT2, ptr128[mVU.clipFlag]);

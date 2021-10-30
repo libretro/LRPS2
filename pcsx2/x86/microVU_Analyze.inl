@@ -410,26 +410,13 @@ static void analyzeBranchVI(mV, int xReg, bool& infoVar) {
 			log_cb(RETRO_LOG_DEBUG, "microVU%d: Branch VI-Delay with %d cycle stall (%d) [%04x]\n", getIndex, mVUstall, i, xPC);
 		}
 #endif
-		if (i == (int)mVUcount) {
-			bool warn = false;
-
-			if (i == 1)
-				warn = true;
-
-			if (mVUpBlock->pState.viBackUp == xReg) {
-#ifndef NDEBUG
-				log_cb(RETRO_LOG_DEBUG, "microVU%d: Loading Branch VI value from previous block\n", getIndex);
-#endif
-
-				if (i == 0)
-					warn = true;
-
+		if (i == (int)mVUcount)
+		{
+			if (mVUpBlock->pState.viBackUp == xReg)
+			{
 				infoVar = true;
 				j = i; i++;
 			}
-#ifndef NDEBUG
-			if (warn) log_cb(RETRO_LOG_DEBUG, "microVU%d: Branch VI-Delay with small block (%d) [%04x]\n", getIndex, i, xPC);
-#endif
 			break; // if (warn), we don't have enough information to always guarantee the correct result.
 		}
 		if ((mVUlow.VI_write.reg == xReg) && mVUlow.VI_write.used) {
@@ -441,9 +428,8 @@ static void analyzeBranchVI(mV, int xReg, bool& infoVar) {
 			}
 			j = i;
 		}
-		else if (i == 0) {
+		else if (i == 0)
 			break;
-		}
 		cyc += mVUstall + 1;
 		incPC2(-2);
 	}
@@ -460,13 +446,13 @@ static void analyzeBranchVI(mV, int xReg, bool& infoVar) {
 		log_cb(RETRO_LOG_DEBUG, "microVU%d: Branch VI-Delay (%d) [%04x][%03d]\n", getIndex, j+1, xPC, mVU.prog.cur->idx);
 #endif
 	}
-	else {
+	else
 		iPC = bPC;
-	}
 }
 
 // Branch in Branch Delay-Slots
-__ri int mVUbranchCheck(mV) {
+__ri int mVUbranchCheck(mV)
+{
 	if (!mVUcount)
 		return 0;
 
@@ -522,9 +508,8 @@ __ri int mVUbranchCheck(mV) {
 
 __fi void mVUanalyzeCondBranch1(mV, int Is) {
 	analyzeVIreg1(mVU, Is, mVUlow.VI_read[0]);
-	if (!mVUbranchCheck(mVU)) { 
+	if (!mVUbranchCheck(mVU))
 		analyzeBranchVI(mVU, Is, mVUlow.memReadIs);
-	}
 }
 
 __fi void mVUanalyzeCondBranch2(mV, int Is, int It) {
@@ -552,7 +537,8 @@ __ri void mVUanalyzeJump(mV, int Is, int It, bool isJALR) {
 		mVUlow.constJump.regValue = mVUconstReg[Is].regValue;
 	}
 	analyzeVIreg1(mVU, Is, mVUlow.VI_read[0]);
-	if (isJALR) {
+	if (isJALR)
+	{
 		analyzeVIreg2(mVU, It, mVUlow.VI_write, 1);
 		setConstReg(It, bSaveAddr);
 	}
