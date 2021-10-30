@@ -39,7 +39,7 @@ class FastFormatUnicode;
 // Note: char does not have a default sign, unlike other types. As we actually want
 // char and not signed char in pcsx2, we define s8 to char
 
-typedef char s8;
+typedef int8_t s8;
 typedef int16_t s16;
 typedef int32_t s32;
 typedef int64_t s64;
@@ -76,15 +76,6 @@ union u128
     u16 _u16[8];
     u8 _u8[16];
 
-    // Explicit conversion from u64. Zero-extends the source through 128 bits.
-    static u128 From64(u64 src)
-    {
-        u128 retval;
-        retval.lo = src;
-        retval.hi = 0;
-        return retval;
-    }
-
     // Explicit conversion from u32. Zero-extends the source through 128 bits.
     static u128 From32(u32 src)
     {
@@ -109,32 +100,16 @@ union u128
         return (lo != right.lo) || (hi != right.hi);
     }
 
-    // In order for the following ToString() and WriteTo methods to be available, you must
+    // In order for the following ToString() methods to be available, you must
     // be linking to both wxWidgets and the pxWidgets extension library.  If you are not
     // using them, then you will need to provide your own implementations of these methods.
     wxString ToString() const;
-
-    void WriteTo(FastFormatAscii &dest) const;
 };
 
 struct s128
 {
     s64 lo;
     s64 hi;
-
-    // explicit conversion from s64, with sign extension.
-    static s128 From64(s64 src)
-    {
-        s128 retval = {src, (src < 0) ? -1 : 0};
-        return retval;
-    }
-
-    // explicit conversion from s32, with sign extension.
-    static s128 From64(s32 src)
-    {
-        s128 retval = {src, (src < 0) ? -1 : 0};
-        return retval;
-    }
 
     operator u32() const { return (s32)lo; }
     operator u16() const { return (s16)lo; }

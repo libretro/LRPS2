@@ -36,12 +36,9 @@ public:
 	// register stuff
 	virtual int getRegisterCategoryCount() = 0;
 	virtual const char* getRegisterCategoryName(int cat) = 0;
-	virtual int getRegisterSize(int cat) = 0;
-	virtual int getRegisterCount(int cat) = 0;
 	virtual RegisterType getRegisterType(int cat) = 0;
 	virtual const char* getRegisterName(int cat, int num) = 0;
 	virtual u128 getRegister(int cat, int num) = 0;
-	virtual wxString getRegisterString(int cat, int num) = 0;
 	virtual u128 getHI() = 0;
 	virtual u128 getLO() = 0;
 	virtual u32 getPC() = 0;
@@ -75,12 +72,9 @@ public:
 	// register stuff
 	virtual int getRegisterCategoryCount();
 	virtual const char* getRegisterCategoryName(int cat);
-	virtual int getRegisterSize(int cat);
-	virtual int getRegisterCount(int cat);
 	virtual RegisterType getRegisterType(int cat);
 	virtual const char* getRegisterName(int cat, int num);
 	virtual u128 getRegister(int cat, int num);
-	virtual wxString getRegisterString(int cat, int num);
 	virtual u128 getHI();
 	virtual u128 getLO();
 	virtual u32 getPC();
@@ -107,12 +101,9 @@ public:
 	// register stuff
 	virtual int getRegisterCategoryCount();
 	virtual const char* getRegisterCategoryName(int cat);
-	virtual int getRegisterSize(int cat);
-	virtual int getRegisterCount(int cat);
 	virtual RegisterType getRegisterType(int cat);
 	virtual const char* getRegisterName(int cat, int num);
 	virtual u128 getRegister(int cat, int num);
-	virtual wxString getRegisterString(int cat, int num);
 	virtual u128 getHI();
 	virtual u128 getLO();
 	virtual u32 getPC();

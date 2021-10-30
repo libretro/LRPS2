@@ -323,41 +323,6 @@ const char* R5900DebugInterface::getRegisterCategoryName(int cat)
 	}
 }
 
-int R5900DebugInterface::getRegisterSize(int cat)
-{
-	switch (cat)
-	{
-	case EECAT_GPR:
-	case EECAT_VU0F:
-		return 128;
-	case EECAT_CP0:
-	case EECAT_FPR:
-	case EECAT_FCR:
-	case EECAT_VU0I:
-		return 32;
-	default:
-		return 0;
-	}
-}
-
-int R5900DebugInterface::getRegisterCount(int cat)
-{
-	switch (cat)
-	{
-	case EECAT_GPR:
-		return 35;	// 32 + pc + hi + lo
-	case EECAT_CP0:
-	case EECAT_FPR:
-	case EECAT_FCR:
-	case EECAT_VU0I:
-		return 32;
-	case EECAT_VU0F:
-		return 33;  // 32 + ACC
-	default:
-		return 0;
-	}
-}
-
 DebugInterface::RegisterType R5900DebugInterface::getRegisterType(int cat)
 {
 	switch (cat)
@@ -463,26 +428,6 @@ u128 R5900DebugInterface::getRegister(int cat, int num)
 
 	return result;
 }
-
-wxString R5900DebugInterface::getRegisterString(int cat, int num)
-{
-	switch (cat)
-	{
-	case EECAT_GPR:
-	case EECAT_CP0:
-	case EECAT_FCR:
-		return getRegister(cat,num).ToString();
-	case EECAT_FPR:
-		{
-			char str[64];
-			sprintf(str,"%f",fpuRegs.fpr[num].f);
-			return wxString(str,wxConvUTF8);
-		}
-	default:
-		return L"";
-	}
-}
-
 
 u128 R5900DebugInterface::getHI()
 {
@@ -692,28 +637,6 @@ const char* R3000DebugInterface::getRegisterCategoryName(int cat)
 	}
 }
 
-int R3000DebugInterface::getRegisterSize(int cat)
-{
-	switch (cat)
-	{
-	case IOPCAT_GPR:
-		return 32;
-	default:
-		return 0;
-	}
-}
-
-int R3000DebugInterface::getRegisterCount(int cat)
-{
-	switch (cat)
-	{
-	case IOPCAT_GPR:
-		return 35;	// 32 + pc + hi + lo
-	default:
-		return 0;
-	}
-}
-
 DebugInterface::RegisterType R3000DebugInterface::getRegisterType(int cat)
 {
 	switch (cat)
@@ -774,17 +697,6 @@ u128 R3000DebugInterface::getRegister(int cat, int num)
 	}
 
 	return u128::From32(value);
-}
-
-wxString R3000DebugInterface::getRegisterString(int cat, int num)
-{
-	switch (cat)
-	{
-	case IOPCAT_GPR:
-		return getRegister(cat,num).ToString();
-	default:
-		return L"Invalid";
-	}
 }
 
 u128 R3000DebugInterface::getHI()
