@@ -43,27 +43,6 @@ class WXDLLIMPEXP_FWD_BASE wxCStrData;
 // Handling assertion failures
 // ----------------------------------------------------------------------------
 
-// ----------------------------------------------------------------------------
-// Debugging macros
-// ----------------------------------------------------------------------------
-
-/*
-    Assertion macros: check if the condition is true and call assert handler
-    (which will by default notify the user about failure) if it isn't.
-
-    wxASSERT and wxFAIL macros as well as wxTrap() function do nothing at all
-    if wxDEBUG_LEVEL is 0 however they do check their conditions at default
-    debug level 1, unlike the previous wxWidgets versions.
-
-    wxASSERT_LEVEL_2 is meant to be used for "expensive" asserts which should
-    normally be disabled because they have a big impact on performance and so
-    this macro only does anything if wxDEBUG_LEVEL >= 2.
- */
-    #define wxTrap()
-
-    #define wxFAIL
-    #define wxFAIL_MSG(msg)
-    #define wxFAIL_COND_MSG(cond, msg)
 
 // ----------------------------------------------------------------------------
 // other miscellaneous debugger-related functions

@@ -41,10 +41,6 @@
 #include "wx/tokenzr.h"
 #include "wx/thread.h"
 
-#if !defined(__WINDOWS__) || defined(__WXMICROWIN__)
-  #include  <signal.h>      // for SIGTRAP used by wxTrap()
-#endif  //Win/Unix
-
 #include <locale.h>
 
 // wxABI_VERSION can be defined when compiling applications but it should be

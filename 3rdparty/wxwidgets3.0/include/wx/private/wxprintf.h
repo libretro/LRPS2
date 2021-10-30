@@ -834,26 +834,6 @@ struct wxPrintfConvSpecParser
                     if ( nargs++ == wxMAX_SVNPRINTF_ARGUMENTS )
                         break;
 
-                    // TODO: we need to support specifiers of the form "%2$*1$s"
-                    // (this is the same as "%*s") as if any positional arguments
-                    // are used all asterisks must be positional as well but this
-                    // requires a lot of changes in this code (basically we'd need
-                    // to rewrite Parse() to return "*" and conversion itself as
-                    // separate entries)
-                    if ( posarg_present )
-                    {
-                        wxFAIL_MSG
-                        (
-                            wxString::Format
-                            (
-                                "Format string \"%s\" uses both positional "
-                                "parameters and '*' but this is not currently "
-                                "supported by this implementation, sorry.",
-                                fmt
-                            )
-                        );
-                    }
-
                     specs[nargs] = *spec;
 
                     // make an entry for '*' and point to it from pspec
@@ -885,24 +865,6 @@ struct wxPrintfConvSpecParser
 
             if ( nargs++ == wxMAX_SVNPRINTF_ARGUMENTS )
                 break;
-        }
-
-
-        // warn if we lost any arguments (the program probably will crash
-        // anyhow because of stack corruption...)
-        if ( nargs == wxMAX_SVNPRINTF_ARGUMENTS )
-        {
-            wxFAIL_MSG
-            (
-                wxString::Format
-                (
-                    "wxVsnprintf() currently supports only %d arguments, "
-                    "but format string \"%s\" defines more of them.\n"
-                    "You need to change wxMAX_SVNPRINTF_ARGUMENTS and "
-                    "recompile if more are really needed.",
-                    fmt, wxMAX_SVNPRINTF_ARGUMENTS
-                )
-            );
         }
     }
 

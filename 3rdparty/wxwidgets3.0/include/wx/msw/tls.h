@@ -72,7 +72,6 @@ public:
                     return true;
                 }
             }
-            wxFAIL_MSG( "previous wxTlsKey value not recorded in m_allValues" );
         }
 
         if ( value )
