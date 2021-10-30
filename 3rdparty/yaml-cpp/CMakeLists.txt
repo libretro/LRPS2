@@ -17,13 +17,8 @@ include(CTest)
 
 find_program(YAML_CPP_CLANG_FORMAT_EXE NAMES clang-format)
 
-option(YAML_CPP_BUILD_CONTRIB "Enable yaml-cpp contrib in library" ON)
-option(YAML_CPP_BUILD_TOOLS "Enable parse tools" ON)
 option(YAML_BUILD_SHARED_LIBS "Build yaml-cpp shared library" ${BUILD_SHARED_LIBS})
 
-cmake_dependent_option(YAML_CPP_BUILD_TESTS
-  "Enable yaml-cpp tests" ON
-  "BUILD_TESTING;CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR" OFF)
 cmake_dependent_option(YAML_CPP_INSTALL
   "Enable generation of yaml-cpp install targets" ON
   "CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR" OFF)
@@ -110,11 +105,10 @@ target_compile_options(yaml-cpp
 target_compile_definitions(yaml-cpp
   PRIVATE
     $<${build-windows-dll}:${PROJECT_NAME}_DLL>
-    $<$<NOT:$<BOOL:${YAML_CPP_BUILD_CONTRIB}>>:YAML_CPP_NO_CONTRIB>)
+    )
 
 target_sources(yaml-cpp
   PRIVATE
-    $<$<BOOL:${YAML_CPP_BUILD_CONTRIB}>:${yaml-cpp-contrib-sources}>
     ${yaml-cpp-sources})
 
 if (NOT DEFINED CMAKE_DEBUG_POSTFIX)
@@ -155,14 +149,6 @@ if (YAML_CPP_INSTALL)
     DESTINATION "${CMAKE_INSTALL_DATADIR}/cmake/yaml-cpp")
   install(FILES "${PROJECT_BINARY_DIR}/yaml-cpp.pc"
     DESTINATION ${CMAKE_INSTALL_DATADIR}/pkgconfig)
-endif()
-
-if(YAML_CPP_BUILD_TESTS)
-	add_subdirectory(test)
-endif()
-
-if(YAML_CPP_BUILD_TOOLS)
-	add_subdirectory(util)
 endif()
 
 if (YAML_CPP_CLANG_FORMAT_EXE)
