@@ -41,7 +41,6 @@ struct xImpl_JmpCall
             // always 5 bytes (16 bit calls are bad mojo, so no bother to do special logic).
 
             sptr dest = (sptr)func - ((sptr)xGetPtr() + 5);
-            pxAssertMsg(dest == (s32)dest, "Indirect jump is too far, must use a register!");
             xWrite8(0xe8);
             xWrite32(dest);
         }

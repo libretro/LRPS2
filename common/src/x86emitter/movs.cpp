@@ -37,8 +37,6 @@ namespace x86Emitter
 
 void _xMovRtoR(const xRegisterInt &to, const xRegisterInt &from)
 {
-    pxAssert(to.GetOperandSize() == from.GetOperandSize());
-
     if (to == from)
         return; // ignore redundant MOVs.
 
@@ -87,22 +85,6 @@ void xImpl_Mov::operator()(const xRegisterInt &to, const xIndirectVoid &src) con
 
 void xImpl_Mov::operator()(const xIndirect64orLess &dest, sptr imm) const
 {
-    switch (dest.GetOperandSize()) {
-        case 1:
-            pxAssertMsg(imm == (s8)imm || imm == (u8)imm, "Immediate won't fit!");
-            break;
-        case 2:
-            pxAssertMsg(imm == (s16)imm || imm == (u16)imm, "Immediate won't fit!");
-            break;
-        case 4:
-            pxAssertMsg(imm == (s32)imm || imm == (u32)imm, "Immediate won't fit!");
-            break;
-        case 8:
-            pxAssertMsg(imm == (s32)imm, "Immediate won't fit in immediate slot, go through a register!");
-            break;
-        default:
-            pxAssertMsg(0, "Bad indirect size!");
-    }
     xOpWrite(dest.GetPrefix16(), dest.Is8BitOp() ? 0xc6 : 0xc7, 0, dest, dest.GetImmSize());
     dest.xWriteImm(imm);
 }
@@ -111,22 +93,6 @@ void xImpl_Mov::operator()(const xIndirect64orLess &dest, sptr imm) const
 //   the flags (namely replacing mov reg,0 with xor).
 void xImpl_Mov::operator()(const xRegisterInt &to, sptr imm, bool preserve_flags) const
 {
-    switch (to.GetOperandSize()) {
-        case 1:
-            pxAssertMsg(imm == (s8)imm || imm == (u8)imm, "Immediate won't fit!");
-            break;
-        case 2:
-            pxAssertMsg(imm == (s16)imm || imm == (u16)imm, "Immediate won't fit!");
-            break;
-        case 4:
-            pxAssertMsg(imm == (s32)imm || imm == (u32)imm, "Immediate won't fit!");
-            break;
-        case 8:
-            pxAssertMsg(imm == (s32)imm || imm == (u32)imm, "Immediate won't fit in immediate slot, use mov64 or lea!");
-            break;
-        default:
-            pxAssertMsg(0, "Bad indirect size!");
-    }
     const xRegisterInt& to_ = to.GetNonWide();
     if (!preserve_flags && (imm == 0)) {
         _g1_EmitOp(G1Type_XOR, to_, to_);
@@ -162,41 +128,34 @@ const xImpl_MovImm64 xMOV64;
 //  CMOVcc
 // --------------------------------------------------------------------------------------
 
-#define ccSane() pxAssertDev(ccType >= 0 && ccType <= 0x0f, "Invalid comparison type specifier.")
 
 // Macro useful for trapping unwanted use of EBP.
-//#define EbpAssert() pxAssert( to != ebp )
 #define EbpAssert()
 
 
 
 void xImpl_CMov::operator()(const xRegister16or32or64 &to, const xRegister16or32or64 &from) const
 {
-    pxAssert(to->GetOperandSize() == from->GetOperandSize());
-    ccSane();
     xOpWrite0F(to->GetPrefix16(), 0x40 | ccType, to, from);
 }
 
 void xImpl_CMov::operator()(const xRegister16or32or64 &to, const xIndirectVoid &sibsrc) const
 {
-    ccSane();
     xOpWrite0F(to->GetPrefix16(), 0x40 | ccType, to, sibsrc);
 }
 
-//void xImpl_CMov::operator()( const xDirectOrIndirect32& to, const xDirectOrIndirect32& from ) const { ccSane(); _DoI_helpermess( *this, to, from ); }
-//void xImpl_CMov::operator()( const xDirectOrIndirect16& to, const xDirectOrIndirect16& from ) const { ccSane(); _DoI_helpermess( *this, to, from ); }
+//void xImpl_CMov::operator()( const xDirectOrIndirect32& to, const xDirectOrIndirect32& from ) const { _DoI_helpermess( *this, to, from ); }
+//void xImpl_CMov::operator()( const xDirectOrIndirect16& to, const xDirectOrIndirect16& from ) const { _DoI_helpermess( *this, to, from ); }
 
 void xImpl_Set::operator()(const xRegister8 &to) const
 {
-    ccSane();
     xOpWrite0F(0x90 | ccType, 0, to);
 }
 void xImpl_Set::operator()(const xIndirect8 &dest) const
 {
-    ccSane();
     xOpWrite0F(0x90 | ccType, 0, dest);
 }
-//void xImpl_Set::operator()( const xDirectOrIndirect8& dest ) const		{ ccSane(); _DoI_helpermess( *this, dest ); }
+//void xImpl_Set::operator()( const xDirectOrIndirect8& dest ) const		{ _DoI_helpermess( *this, dest ); }
 
 void xImpl_MovExtend::operator()(const xRegister16or32or64 &to, const xRegister8 &from) const
 {

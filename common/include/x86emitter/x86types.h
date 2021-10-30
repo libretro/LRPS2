@@ -210,7 +210,6 @@ protected:
     }
 public:
     uint GetOperandSize() const {
-        pxAssertDev(_operandSize != 0, "Attempted to use operand size of uninitialized or void object");
         return _operandSize;
     }
 
@@ -274,7 +273,6 @@ protected:
     {
         // Note: to avoid tons of ifdef, the 32 bits build will instantiate
         // all 16x64 bits registers.
-        pxAssert((Id >= xRegId_Empty) && (Id < 16));
     }
 public:
     int Id;
@@ -371,7 +369,6 @@ public:
     explicit xRegister8(const xRegisterInt& other)
         : _parent(1, other.Id)
     {
-        pxAssertDev(other.canMapIDTo(1), "spl, bpl, sil, dil not yet supported");
     }
 
     bool operator==(const xRegister8 &src) const { return Id == src.Id; }
@@ -391,7 +388,6 @@ public:
     explicit xRegister16(const xRegisterInt& other)
         : _parent(2, other.Id)
     {
-        pxAssertDev(other.canMapIDTo(2), "Mapping h registers to higher registers can produce unexpected values");
     }
 
     bool operator==(const xRegister16 &src) const { return this->Id == src.Id; }
@@ -411,7 +407,6 @@ public:
     explicit xRegister32(const xRegisterInt& other)
         : _parent(4, other.Id)
     {
-        pxAssertDev(other.canMapIDTo(4), "Mapping h registers to higher registers can produce unexpected values");
     }
 
     bool operator==(const xRegister32 &src) const { return this->Id == src.Id; }
@@ -431,7 +426,6 @@ public:
     explicit xRegister64(const xRegisterInt& other)
         : _parent(8, other.Id)
     {
-        pxAssertDev(other.canMapIDTo(8), "Mapping h registers to higher registers can produce unexpected values");
     }
 
     bool operator==(const xRegister64 &src) const { return this->Id == src.Id; }
@@ -675,7 +669,6 @@ const xRegisterSSE &xRegisterSSE::GetInstance(uint id)
             &xmm8, &xmm9, &xmm10, &xmm11,
             &xmm12, &xmm13, &xmm14, &xmm15};
 
-    pxAssert(id < iREGCNT_XMM);
     return *m_tbl_xmmRegs[id];
 }
 
@@ -1112,7 +1105,6 @@ protected:
 public:
     int GetMaxInstructionSize() const
     {
-        pxAssert(m_cc != Jcc_Unknown);
         return (m_cc == Jcc_Unconditional) ? 5 : 6;
     }
 
@@ -1124,7 +1116,6 @@ public:
     //
     xSmartJump(JccComparisonType ccType)
     {
-        pxAssert(ccType != Jcc_Unknown);
         m_baseptr = xGetPtr();
         m_cc = ccType;
         xAdvancePtr(GetMaxInstructionSize());

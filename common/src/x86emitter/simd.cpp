@@ -47,7 +47,6 @@ SSE_RoundMode SSE_MXCSR::GetRoundMode() const
 
 SSE_MXCSR &SSE_MXCSR::SetRoundMode(SSE_RoundMode mode)
 {
-    pxAssert((uint)mode < 4);
     RoundingControl = (u32)mode;
     return *this;
 }
@@ -95,15 +94,7 @@ namespace x86Emitter
 //
 __emitinline void SimdPrefix(u8 prefix, u16 opcode)
 {
-#ifdef __M_X86_64
-    pxAssertMsg(prefix == 0, "REX prefix must be just before the opcode");
-#endif
     const bool is16BitOpcode = ((opcode & 0xff) == 0x38) || ((opcode & 0xff) == 0x3a);
-
-    // If the lower byte is not a valid prefix and the upper byte is non-zero it
-    // means we made a mistake!
-    if (!is16BitOpcode)
-        pxAssert((opcode >> 8) == 0);
 
     if (prefix != 0) {
         if (is16BitOpcode)
@@ -432,8 +423,6 @@ const xImplSimd_PMinMax xPMAX =
 
 __fi void xImplSimd_Shuffle::_selector_assertion_check(u8 selector) const
 {
-    pxAssertMsg((selector & ~3) == 0,
-                "Invalid immediate operand on SSE Shuffle: Upper 6 bits of the SSE Shuffle-PD Selector are reserved and must be zero.");
 }
 
 void xImplSimd_Shuffle::PS(const xRegisterSSE &to, const xRegisterSSE &from, u8 selector) const

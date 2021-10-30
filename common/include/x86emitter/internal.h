@@ -122,8 +122,6 @@ __emitinline void xOpWrite0F(u16 opcode, const T1 &param1, const T2 &param2, u8 
 template <typename T1, typename T2, typename T3>
 __emitinline void xOpWriteC5(u8 prefix, u8 opcode, const T1 &param1, const T2 &param2, const T3 &param3)
 {
-    pxAssert(prefix == 0 || prefix == 0x66 || prefix == 0xF3 || prefix == 0xF2);
-
     const xRegisterInt &reg = param1.IsReg() ? param1 : param2;
 
 #ifdef __M_X86_64
@@ -150,9 +148,6 @@ __emitinline void xOpWriteC5(u8 prefix, u8 opcode, const T1 &param1, const T2 &p
 template <typename T1, typename T2, typename T3>
 __emitinline void xOpWriteC4(u8 prefix, u8 mb_prefix, u8 opcode, const T1 &param1, const T2 &param2, const T3 &param3, int w = -1)
 {
-    pxAssert(prefix == 0 || prefix == 0x66 || prefix == 0xF3 || prefix == 0xF2);
-    pxAssert(mb_prefix == 0x0F || mb_prefix == 0x38 || mb_prefix == 0x3A);
-
     const xRegisterInt &reg = param1.IsReg() ? param1 : param2;
 
 #ifdef __M_X86_64

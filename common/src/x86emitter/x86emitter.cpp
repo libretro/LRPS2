@@ -302,7 +302,6 @@ void EmitSibMagic(uint regfield, const void *address, int extraRIPOffset)
         ModRM(0, regfield, ModRm_UseDisp32);
         displacement = ripRelative;
     } else {
-        pxAssertDev(displacement == (s32)displacement, "SIB target is too far away, needs an indirect register");
         ModRM(0, regfield, ModRm_UseSib);
         SibSB(0, Sib_EIZ, Sib_UseDisp32);
     }
@@ -343,13 +342,8 @@ void EmitSibMagic(uint regfield, const xIndirectVoid &info, int extraRIPOffset)
 {
     // 3 bits also on x86_64 (so max is 8)
     // We might need to mask it on x86_64
-    pxAssertDev(regfield < 8, "Invalid x86 register identifier.");
     int displacement_size = (info.Displacement == 0) ? 0 :
                                                        ((info.IsByteSizeDisp()) ? 1 : 2);
-
-    pxAssert(!info.Base.IsEmpty() || !info.Index.IsEmpty() || displacement_size == 2);
-    // Displacement is only 64 bits for rip-relative addressing
-    pxAssert(info.Displacement == (s32)info.Displacement || (info.Base.IsEmpty() && info.Index.IsEmpty()));
 
     if (!NeedsSibMagic(info)) {
         // Use ModRm-only encoding, with the rm field holding an index/base register, if
@@ -429,7 +423,6 @@ __emitinline static void EmitRex(bool w, bool r, bool x, bool b)
 
 void EmitRex(uint regfield, const void *address)
 {
-    pxAssert(0);
     bool w = false;
     bool r = false;
     bool x = false;
@@ -470,7 +463,6 @@ void EmitRex(const xRegisterBase &reg1, const xRegisterBase &reg2)
 
 void EmitRex(const xRegisterBase &reg1, const void *src)
 {
-    pxAssert(0); //see fixme
     bool w = reg1.IsWide();
     bool r = reg1.IsExtended();
     bool x = false;
@@ -586,43 +578,36 @@ xRegisterInt xRegisterInt::MatchSizeTo(xRegisterInt other) const
 // --------------------------------------------------------------------------------------
 xAddressVoid xAddressReg::operator+(const xAddressReg &right) const
 {
-    pxAssertMsg(right.Id != -1 || Id != -1, "Uninitialized x86 register.");
     return xAddressVoid(*this, right);
 }
 
 xAddressVoid xAddressReg::operator+(sptr right) const
 {
-    pxAssertMsg(Id != -1, "Uninitialized x86 register.");
     return xAddressVoid(*this, right);
 }
 
 xAddressVoid xAddressReg::operator+(const void *right) const
 {
-    pxAssertMsg(Id != -1, "Uninitialized x86 register.");
     return xAddressVoid(*this, (sptr)right);
 }
 
 xAddressVoid xAddressReg::operator-(sptr right) const
 {
-    pxAssertMsg(Id != -1, "Uninitialized x86 register.");
     return xAddressVoid(*this, -right);
 }
 
 xAddressVoid xAddressReg::operator-(const void *right) const
 {
-    pxAssertMsg(Id != -1, "Uninitialized x86 register.");
     return xAddressVoid(*this, -(sptr)right);
 }
 
 xAddressVoid xAddressReg::operator*(int factor) const
 {
-    pxAssertMsg(Id != -1, "Uninitialized x86 register.");
     return xAddressVoid(xEmptyReg, *this, factor);
 }
 
 xAddressVoid xAddressReg::operator<<(u32 shift) const
 {
-    pxAssertMsg(Id != -1, "Uninitialized x86 register.");
     return xAddressVoid(xEmptyReg, *this, 1 << shift);
 }
 
@@ -637,9 +622,6 @@ xAddressVoid::xAddressVoid(const xAddressReg &base, const xAddressReg &index, in
     Index = index;
     Factor = factor;
     Displacement = displacement;
-
-    pxAssertMsg(base.Id != xRegId_Invalid, "Uninitialized x86 register.");
-    pxAssertMsg(index.Id != xRegId_Invalid, "Uninitialized x86 register.");
 }
 
 xAddressVoid::xAddressVoid(const xAddressReg &index, sptr displacement)
@@ -648,8 +630,6 @@ xAddressVoid::xAddressVoid(const xAddressReg &index, sptr displacement)
     Index = index;
     Factor = 0;
     Displacement = displacement;
-
-    pxAssertMsg(index.Id != xRegId_Invalid, "Uninitialized x86 register.");
 }
 
 xAddressVoid::xAddressVoid(sptr displacement)
@@ -679,7 +659,6 @@ xAddressVoid &xAddressVoid::Add(const xAddressReg &src)
         if (src == Index)
             Factor++;
         else {
-            pxAssertDev(Index.IsEmpty(), "x86Emitter: Only one scaled index register is allowed in an address modifier.");
             Index = src;
             Factor = 2;
         }
@@ -762,9 +741,6 @@ void xIndirectVoid::Reduce()
         // note: intentionally leave index assigned to esp also (generates correct
         // encoding later, since ESP cannot be encoded 'alone')
 
-        pxAssert(Scale == 0);     // esp can't have an index modifier!
-        pxAssert(Base.IsEmpty()); // base must be empty or else!
-
         Base = Index;
         return;
     }
@@ -791,7 +767,6 @@ void xIndirectVoid::Reduce()
             break;
 
         case 3: // becomes [reg*2+reg]
-            pxAssertDev(Base.IsEmpty(), "Cannot scale an Index register by 3 when Base is not empty!");
             Base = Index;
             Scale = 1;
             break;
@@ -801,7 +776,6 @@ void xIndirectVoid::Reduce()
             break;
 
         case 5: // becomes [reg*4+reg]
-            pxAssertDev(Base.IsEmpty(), "Cannot scale an Index register by 5 when Base is not empty!");
             Base = Index;
             Scale = 2;
             break;
@@ -818,7 +792,6 @@ void xIndirectVoid::Reduce()
             Scale = 3;
             break;
         case 9: // becomes [reg*8+reg]
-            pxAssertDev(Base.IsEmpty(), "Cannot scale an Index register by 9 when Base is not empty!");
             Base = Index;
             Scale = 3;
             break;
@@ -942,7 +915,6 @@ __emitinline u32* xLEA_Writeback(xAddressReg to)
 // =====================================================================================================
 void xImpl_Test::operator()(const xRegisterInt &to, const xRegisterInt &from) const
 {
-    pxAssert(to.GetOperandSize() == from.GetOperandSize());
     xOpWrite(to.GetPrefix16(), to.Is8BitOp() ? 0x84 : 0x85, from, to);
 }
 
@@ -964,7 +936,6 @@ void xImpl_Test::operator()(const xRegisterInt &to, int imm) const
 
 void xImpl_BitScan::operator()(const xRegister16or32or64 &to, const xRegister16or32or64 &from) const
 {
-    pxAssert(to->GetOperandSize() == from->GetOperandSize());
     xOpWrite0F(from->GetPrefix16(), Opcode, to, from);
 }
 void xImpl_BitScan::operator()(const xRegister16or32or64 &to, const xIndirectVoid &sibsrc) const
@@ -996,13 +967,11 @@ void xImpl_IncDec::operator()(const xIndirect64orLess &to) const
 
 void xImpl_DwordShift::operator()(const xRegister16or32or64 &to, const xRegister16or32or64 &from, const xRegisterCL & /* clreg */) const
 {
-    pxAssert(to->GetOperandSize() == from->GetOperandSize());
     xOpWrite0F(from->GetPrefix16(), OpcodeBase + 1, to, from);
 }
 
 void xImpl_DwordShift::operator()(const xRegister16or32or64 &to, const xRegister16or32or64 &from, u8 shiftcnt) const
 {
-    pxAssert(to->GetOperandSize() == from->GetOperandSize());
     if (shiftcnt != 0)
         xOpWrite0F(from->GetPrefix16(), OpcodeBase, to, from, shiftcnt);
 }
