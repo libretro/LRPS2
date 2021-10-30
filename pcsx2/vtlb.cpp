@@ -749,12 +749,6 @@ void vtlb_Core_Free()
 	safe_aligned_free( vtlbdata.ppmap );
 }
 
-static wxString GetHostVmErrorMsg()
-{
-	return 
-		L"Your system is too low on virtual resources for PCSX2 to run. This can be caused by having a small or disabled swapfile, or by other programs that are hogging resources."
-	;
-}
 // --------------------------------------------------------------------------------------
 //  VtlbMemoryReserve  (implementations)
 // --------------------------------------------------------------------------------------
@@ -770,7 +764,7 @@ void VtlbMemoryReserve::Reserve( VirtualMemoryManagerPtr allocator, sptr offset 
 	{
 		throw Exception::OutOfMemory( m_reserve.GetName() )
 			.SetDiagMsg(L"Vtlb memory could not be reserved.")
-			.SetUserMsg(GetHostVmErrorMsg());
+			.SetUserMsg(L"Your system is too low on virtual resources for PCSX2 to run. This can be caused by having a small or disabled swapfile, or by other programs that are hogging resources.");
 	}
 }
 
@@ -781,7 +775,7 @@ void VtlbMemoryReserve::Commit()
 	{
 		throw Exception::OutOfMemory( m_reserve.GetName() )
 			.SetDiagMsg(L"Vtlb memory could not be committed.")
-			.SetUserMsg(GetHostVmErrorMsg());
+			.SetUserMsg(L"Your system is too low on virtual resources for PCSX2 to run. This can be caused by having a small or disabled swapfile, or by other programs that are hogging resources.");
 	}
 }
 

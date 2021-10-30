@@ -178,10 +178,10 @@ __ri microProgram* mVUcreateProg(microVU& mVU, int startPC) {
 	prog->ranges  = new std::deque<microRange>();
 	prog->startPC = startPC;
 	mVUcacheProg(mVU, *prog); // Cache Micro Program
+#ifndef NDEBUG
 	double cacheSize = (double)((uptr)mVU.prog.x86end - (uptr)mVU.prog.x86start);
 	double cacheUsed =((double)((uptr)mVU.prog.x86ptr - (uptr)mVU.prog.x86start)) / (double)_1mb;
 	double cachePerc =((double)((uptr)mVU.prog.x86ptr - (uptr)mVU.prog.x86start)) / cacheSize * 100;
-#ifndef NDEBUG
 	log_cb(RETRO_LOG_DEBUG, "microVU%d: Cached Prog = [%03d] [PC=%04x] [List=%02d] (Cache=%3.3f%%) [%3.1fmb]\n",
 				   mVU.index, prog->idx, startPC*8, mVU.prog.prog[startPC]->size()+1, cachePerc, cacheUsed);
 #endif

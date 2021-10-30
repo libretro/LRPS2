@@ -190,13 +190,6 @@ public:
 };
 
 
-// returns the translated error message for the Virtual Machine failing to allocate!
-static wxString GetMemoryErrorVM()
-{
-	return L"PCSX2 is unable to allocate memory needed for the PS2 virtual machine. Close out some memory hogging background tasks and try again."
-	;
-}
-
 namespace HostMemoryMap {
 	// For debuggers
 	uptr EEmem, IOPmem, VUmem, EErec, IOPrec, VIF0rec, VIF1rec, mVU0rec, mVU1rec, bumpAllocator;
