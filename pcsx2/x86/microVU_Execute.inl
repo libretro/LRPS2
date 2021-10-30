@@ -79,9 +79,6 @@ void mVUdispatcherAB(mV) {
 	}
 
 	xRET();
-
-	pxAssertDev(xGetPtr() < (mVU.dispCache + mVUdispCacheSize),
-			"microVU: Dispatcher generation exceeded reserved cache area!");
 }
 
 // Generates the code for resuming/exit xgkick
@@ -117,9 +114,6 @@ void mVUdispatcherCD(mV) {
 	}
 
 	xRET();
-
-	pxAssertDev(xGetPtr() < (mVU.dispCache + mVUdispCacheSize),
-		"microVU: Dispatcher generation exceeded reserved cache area!");
 }
 
 //------------------------------------------------------------------
@@ -154,7 +148,9 @@ _mVUt void mVUcleanUp() {
 	mVU.prog.x86ptr = x86Ptr;
 
 	if ((xGetPtr() < mVU.prog.x86start) || (xGetPtr() >= mVU.prog.x86end)) {
+#ifndef NDEBUG
 		log_cb(RETRO_LOG_DEBUG, "microVU%d: Program cache limit reached.\n", mVU.index);
+#endif
 		mVUreset(mVU, false);
 	}
 
