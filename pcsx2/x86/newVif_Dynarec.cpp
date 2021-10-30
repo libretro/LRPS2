@@ -357,14 +357,14 @@ _vifT __fi void dVifUnpack(const u8* data, bool isFill) {
 		// No wrapping, you can run the fast dynarec
 		if (likely((startmem + b->length) <= endmem))
 			((nVifrecCall)b->startPtr)((uptr)startmem, (uptr)data);
-#if 0
 		else
 		{
+#if 0
 			VIF_LOG("Running Interpreter Block: nVif%x - VU Mem Ptr Overflow; falling back to interpreter. Start = %x End = %x num = %x, wl = %x, cl = %x",
 					v.idx, vif.tag.addr, vif.tag.addr + (block.num * 16), block.num, block.wl, block.cl);
+#endif
 			_nVifUnpack(idx, data, vifRegs.mode, isFill);
 		}
-#endif
 	}
 }
 
