@@ -440,21 +440,12 @@ static void psxRecompileIrxImport()
 	const char *funcname = nullptr;
 #endif
 
-	if (!hle && !debug && (!SysTraceActive(IOP.Bios) || !funcname))
+	if (!hle && !debug)
 		return;
 
 	xMOV(ptr32[&psxRegs.code], psxRegs.code);
 	xMOV(ptr32[&psxRegs.pc], psxpc);
 	_psxFlushCall(FLUSH_NODESTROY);
-
-	if (SysTraceActive(IOP.Bios)) {
-#ifdef __M_X86_64
-		xMOV64(arg3reg, (uptr)funcname);
-#else
-		xPUSH((uptr)funcname);
-#endif
-		xFastCall((void *)irxImportLog_rec, import_table, index);
-	}
 
 	if (debug)
 		xFastCall((void *)debug);

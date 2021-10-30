@@ -44,12 +44,6 @@ namespace R3000A
 	extern char* disR3000AF(u32 code, u32 pc);
 }
 
-// Helper macro for cut&paste.  Note that we intentionally use a top-level *inline* bitcheck
-// against Trace.Enabled, to avoid extra overhead in Debug builds when logging is disabled.
-// (specifically this allows debug builds to skip havingto resolve all the parameters being
-//  passed into the function)
-#define SysTraceActive(trace)	(false)
-
 #ifdef __WXMAC__
     // Not available on OSX, apparently always double buffered window.
 #   define                          SetDoubleBuffered(x)
