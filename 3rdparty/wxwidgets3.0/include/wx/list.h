@@ -40,9 +40,6 @@
 class WXDLLIMPEXP_FWD_BASE wxObjectListNode;
 typedef wxObjectListNode wxNode;
 
-// undef it to get rid of old, deprecated functions
-#define wxLIST_COMPATIBILITY
-
 // -----------------------------------------------------------------------------
 // key stuff: a list may be optionally keyed on integer or string key
 // -----------------------------------------------------------------------------
@@ -127,13 +124,6 @@ public:
     void SetKeyString(const wxString& s) { m_key.string = new wxString(s); }
     void SetKeyInteger(long i) { m_key.integer = i; }
 
-#ifdef wxLIST_COMPATIBILITY
-    // compatibility methods, use Get* instead.
-    wxDEPRECATED( wxNode *Next() const );
-    wxDEPRECATED( wxNode *Previous() const );
-    wxDEPRECATED( wxObject *Data() const );
-#endif // wxLIST_COMPATIBILITY
-
 protected:
     // all these are going to be "overloaded" in the derived classes
     wxNodeBase *GetNext() const { return m_next; }
@@ -205,17 +195,6 @@ public:
       // set the keytype (required by the serial code)
     void SetKeyType(wxKeyType keyType)
         { wxASSERT( m_count==0 ); m_keyType = keyType; }
-
-#ifdef wxLIST_COMPATIBILITY
-    // compatibility methods from old wxList
-    wxDEPRECATED( int Number() const );             // use GetCount instead.
-    wxDEPRECATED( wxNode *First() const );          // use GetFirst
-    wxDEPRECATED( wxNode *Last() const );           // use GetLast
-    wxDEPRECATED( wxNode *Nth(size_t n) const );    // use Item
-
-    // kludge for typesafe list migration in core classes.
-    wxDEPRECATED( operator wxList&() const );
-#endif // wxLIST_COMPATIBILITY
 
 protected:
 
@@ -837,131 +816,6 @@ private:
 // ============================================================================
 // now we can define classes 100% compatible with the old ones
 // ============================================================================
-
-// ----------------------------------------------------------------------------
-// commonly used list classes
-// ----------------------------------------------------------------------------
-
-#if defined(wxLIST_COMPATIBILITY)
-
-// inline compatibility functions
-
-// ----------------------------------------------------------------------------
-// wxNodeBase deprecated methods
-// ----------------------------------------------------------------------------
-
-inline wxNode *wxNodeBase::Next() const { return (wxNode *)GetNext(); }
-inline wxNode *wxNodeBase::Previous() const { return (wxNode *)GetPrevious(); }
-inline wxObject *wxNodeBase::Data() const { return (wxObject *)GetData(); }
-
-// ----------------------------------------------------------------------------
-// wxListBase deprecated methods
-// ----------------------------------------------------------------------------
-
-inline int wxListBase::Number() const { return (int)GetCount(); }
-inline wxNode *wxListBase::First() const { return (wxNode *)GetFirst(); }
-inline wxNode *wxListBase::Last() const { return (wxNode *)GetLast(); }
-inline wxNode *wxListBase::Nth(size_t n) const { return (wxNode *)Item(n); }
-inline wxListBase::operator wxList&() const { return *(wxList*)this; }
-
-// define this to make a lot of noise about use of the old wxList classes.
-//#define wxWARN_COMPAT_LIST_USE
-
-// ----------------------------------------------------------------------------
-// wxList compatibility class: in fact, it's a list of wxObjects
-// ----------------------------------------------------------------------------
-
-WX_DECLARE_LIST_2(wxObject, wxObjectList, wxObjectListNode,
-                        class WXDLLIMPEXP_BASE);
-
-class WXDLLIMPEXP_BASE wxList : public wxObjectList
-{
-public:
-#if defined(wxWARN_COMPAT_LIST_USE)
-    wxList() { }
-    wxDEPRECATED( wxList(int key_type) );
-#else
-    wxList(int key_type = wxKEY_NONE);
-#endif
-
-    // this destructor is required for Darwin
-   ~wxList() { }
-
-    wxList& operator=(const wxList& list)
-        { if (&list != this) Assign(list); return *this; }
-
-    // compatibility methods
-    void Sort(wxSortCompareFunction compfunc) { wxListBase::Sort(compfunc); }
-
-#ifndef __VISUALC6__
-    template<typename T>
-    wxVector<T> AsVector() const
-    {
-        wxVector<T> vector(size());
-        size_t i = 0;
-
-        for ( const_iterator it = begin(); it != end(); ++it )
-        {
-            vector[i++] = static_cast<T>(*it);
-        }
-
-        return vector;
-    }
-#endif // !__VISUALC6__
-
-};
-
-// -----------------------------------------------------------------------------
-// wxStringList class for compatibility with the old code
-// -----------------------------------------------------------------------------
-WX_DECLARE_LIST_2(wxChar, wxStringListBase, wxStringListNode, class WXDLLIMPEXP_BASE);
-
-class WXDLLIMPEXP_BASE wxStringList : public wxStringListBase
-{
-public:
-    // ctors and such
-        // default
-#ifdef wxWARN_COMPAT_LIST_USE
-    wxStringList();
-    wxDEPRECATED( wxStringList(const wxChar *first ...) ); // FIXME-UTF8
-#else
-    wxStringList();
-    wxStringList(const wxChar *first ...); // FIXME-UTF8
-#endif
-
-        // copying the string list: the strings are copied, too (extremely
-        // inefficient!)
-    wxStringList(const wxStringList& other) : wxStringListBase() { DeleteContents(true); DoCopy(other); }
-    wxStringList& operator=(const wxStringList& other)
-    {
-        if (&other != this)
-        {
-            Clear();
-            DoCopy(other);
-        }
-        return *this;
-    }
-
-    // operations
-        // makes a copy of the string
-    wxNode *Add(const wxChar *s);
-
-        // Append to beginning of list
-    wxNode *Prepend(const wxChar *s);
-
-    bool Delete(const wxChar *s);
-
-    wxChar **ListToArray(bool new_copies = false) const;
-    bool Member(const wxChar *s) const;
-
-    // alphabetic sort
-    void Sort();
-
-private:
-    void DoCopy(const wxStringList&); // common part of copy ctor and operator=
-};
-
-#endif // wxLIST_COMPATIBILITY
 
 // delete all list elements
 //
