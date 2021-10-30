@@ -143,7 +143,9 @@ template<int idx> __fi int _vifCode_Direct(int pass, const u8* data, bool isDire
 		return 1;
 	}
 	pass2 {
+#ifndef NDEBUG
 		const char* name = isDirectHL ? "DirectHL" : "Direct";
+#endif
 		GIF_TRANSFER_TYPE tranType = isDirectHL ? GIF_TRANS_DIRECTHL : GIF_TRANS_DIRECT;
 		uint size = std::min(vif1.vifpacketsize, vif1.tag.size) * 4; // Get size in bytes
 		uint ret  = gifUnit.TransferGSPacketData(tranType, (u8*)data, size);
@@ -158,7 +160,9 @@ template<int idx> __fi int _vifCode_Direct(int pass, const u8* data, bool isDire
 			log_cb(RETRO_LOG_DEBUG, "Vif %s: No Data Transfer?\n", name); // Can this happen?
 #endif
 		if (size != ret) { // Stall if gif didn't process all the data (path2 queued)
+#ifndef NDEBUG
 			GUNIT_WARN("Vif %s: Stall! [size=%d][ret=%d]", name, size, ret);
+#endif
 			//gifUnit.PrintInfo();
 			vif1.vifstalled.enabled   = VifStallEnable(vif1ch);
 			vif1.vifstalled.value = VIF_TIMING_BREAK;
