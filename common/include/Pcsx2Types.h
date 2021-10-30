@@ -99,11 +99,6 @@ union u128
     {
         return (lo != right.lo) || (hi != right.hi);
     }
-
-    // In order for the following ToString() methods to be available, you must
-    // be linking to both wxWidgets and the pxWidgets extension library.  If you are not
-    // using them, then you will need to provide your own implementations of these methods.
-    wxString ToString() const;
 };
 
 struct s128

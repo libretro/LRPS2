@@ -35,11 +35,6 @@ __fi wxString fromAscii(const char *src)
     return wxString::FromAscii(src);
 }
 
-wxString u128::ToString() const
-{
-    return pxsFmt(L"0x%08X.%08X.%08X.%08X", _u32[0], _u32[1], _u32[2], _u32[3]);
-}
-
 // Splits a string into parts and adds the parts into the given SafeList.
 // This list is not cleared, so concatenating many splits into a single large list is
 // the 'default' behavior, unless you manually clear the SafeList prior to subsequent calls.
