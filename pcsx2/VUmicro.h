@@ -71,9 +71,6 @@ public:
 		DESTRUCTOR_CATCHALL
 	}
 
-	virtual const char* GetShortName() const=0;
-	virtual wxString GetLongName() const=0;
-
 	// returns the number of bytes committed to the working caches for this CPU
 	// provider (typically this refers to recompiled code caches, but could also refer
 	// to other optional growable allocations).
@@ -165,9 +162,6 @@ public:
 	InterpVU0();
 	virtual ~InterpVU0() { Shutdown(); }
 
-	const char* GetShortName() const	{ return "intVU0"; }
-	wxString GetLongName() const		{ return L"VU0 Interpreter"; }
-
 	void Reserve() { }
 	void Shutdown() noexcept { }
 	void Reset() { }
@@ -186,9 +180,6 @@ class InterpVU1 : public BaseVUmicroCPU
 public:
 	InterpVU1();
 	virtual ~InterpVU1() { Shutdown(); }
-
-	const char* GetShortName() const	{ return "intVU1"; }
-	wxString GetLongName() const		{ return L"VU1 Interpreter"; }
 
 	void Reserve() { }
 	void Shutdown() noexcept;
@@ -213,9 +204,6 @@ public:
 	recMicroVU0();
 	virtual ~recMicroVU0() { Shutdown(); }
 
-	const char* GetShortName() const	{ return "mVU0"; }
-	wxString GetLongName() const		{ return L"microVU0 Recompiler"; }
-
 	void Reserve();
 	void Shutdown() noexcept;
 
@@ -234,9 +222,6 @@ class recMicroVU1 : public BaseVUmicroCPU
 public:
 	recMicroVU1();
 	virtual ~recMicroVU1() { Shutdown(); }
-
-	const char* GetShortName() const	{ return "mVU1"; }
-	wxString GetLongName() const		{ return L"microVU1 Recompiler"; }
 
 	void Reserve();
 	void Shutdown() noexcept;

@@ -103,7 +103,6 @@ public:
     x86capabilities();
 
     void Identify();
-    wxString GetTypeName() const;
 
     void SIMD_EstablishMXCSRmask();
 };

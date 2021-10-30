@@ -359,8 +359,6 @@ __fi void  EEsif0Interrupt()
 
 __fi void dmaSIF0()
 {
-	SIF_LOG(wxString(L"dmaSIF0" + sif0ch.cmqt_to_str()).To8BitData());
-
 #ifndef NDEBUG
 	if (sif0.fifo.readPos != sif0.fifo.writePos)
 	{

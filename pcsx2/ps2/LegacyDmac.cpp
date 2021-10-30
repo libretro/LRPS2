@@ -70,16 +70,6 @@ tDMA_TAG DMACh::dma_tag()
 	return chcr.tag();
 }
 
-wxString DMACh::cmq_to_str() const
-{
-	return wxsFormat(L"chcr = %lx, madr = %lx, qwc  = %lx", chcr._u32, madr, qwc);
-}
-
-wxString DMACh::cmqt_to_str() const
-{
-	return wxsFormat(L"chcr = %lx, madr = %lx, qwc  = %lx, tadr = %1x", chcr._u32, madr, qwc, tadr);
-}
-
 __fi void throwBusError(const char *s)
 {
     log_cb(RETRO_LOG_ERROR, "%s BUSERR\n", s);

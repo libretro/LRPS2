@@ -94,22 +94,6 @@ void x86capabilities::SIMD_EstablishMXCSRmask()
         MXCSR_Mask.bitmask = result;
 }
 
-wxString x86capabilities::GetTypeName() const
-{
-    switch (TypeID) {
-        case 0:
-            return L"Standard OEM";
-        case 1:
-            return L"Overdrive";
-        case 2:
-            return L"Dual";
-        case 3:
-            return L"Reserved";
-        default:
-            return L"Unknown";
-    }
-}
-
 static const char *tbl_x86vendors[] =
     {
         "GenuineIntel",

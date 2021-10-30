@@ -337,12 +337,12 @@ __fi void  EEsif1Interrupt()
 // Main difference is this checks for iop, where psxDma10 checks for ee.
 __fi void dmaSIF1()
 {
-	SIF_LOG(wxString(L"dmaSIF1" + sif1ch.cmqt_to_str()).To8BitData());
-
+#ifndef NDEBUG
 	if (sif1.fifo.readPos != sif1.fifo.writePos)
 	{
 		SIF_LOG("warning, sif1.fifoReadPos != sif1.fifoWritePos");
 	}
+#endif
 
 	psHu32(SBUS_F240) |= 0x4000;
 	sif1.ee.busy = true;

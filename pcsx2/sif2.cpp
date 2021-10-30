@@ -382,7 +382,6 @@ __fi void dmaSIF2()
 {
 #ifndef NDEBUG
 	log_cb(RETRO_LOG_DEBUG, "SIF2 EE CHCR %x\n", sif2dma.chcr._u32);
-	SIF_LOG(wxString(L"dmaSIF2" + sif2dma.cmqt_to_str()).To8BitData());
 
 	if (sif2.fifo.readPos != sif2.fifo.writePos)
 	{
