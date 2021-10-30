@@ -77,7 +77,6 @@ set(pcsx2Sources
 	R5900OpcodeImpl.cpp
 	R5900OpcodeTables.cpp
 	SaveState.cpp
-	ShiftJisToUnicode.cpp
 	Sif.cpp
 	Sif0.cpp
 	Sif1.cpp

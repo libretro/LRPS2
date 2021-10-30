@@ -42,7 +42,6 @@ static void flush_stdout(bool closing = false)
                     psxout_repeat = 0;
                 }
                 psxout_last = psxout_buf.substr(0, linelen);
-                //iopConLog(ShiftJIS_ConvertString(psxout_last.data()));
             }
         }
         psxout_buf.erase(0, linelen);

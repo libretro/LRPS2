@@ -448,8 +448,6 @@ namespace ioman {
 
 		if (fd == 1) // stdout
 		{
-			const std::string s = Ra1;
-			//iopConLog(ShiftJIS_ConvertString(s.data(), a2));
 			pc = ra;
 			v0 = a2;
 			return 1;

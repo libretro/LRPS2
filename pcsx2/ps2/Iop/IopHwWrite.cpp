@@ -116,33 +116,6 @@ void __fastcall iopHwWrite8_Page3( u32 addr, mem8_t val )
 	// all addresses are assumed to be prefixed with 0x1f803xxx:
 	pxAssert( (addr >> 12) == 0x1f803 );
 
-#if 0
-	if( SysConsole.iopConsole.IsActive() && (addr == 0x1f80380c) )	// STDOUT
-	{
-		static char pbuf[1024];
-		static int pidx;
-		static bool iggy_newline = false;
-
-		if (val == '\r')
-		{
-			iggy_newline = true;
-			pbuf[pidx++] = '\n';
-		}
-		else if (!iggy_newline || (val != '\n'))
-		{
-			iggy_newline = false;
-			pbuf[pidx++] = val;
-		}
-
-		if ((pidx == ArraySize(pbuf)-1) || (pbuf[pidx-1] == '\n'))
-		{
-			pbuf[pidx] = 0;
-			iopConLog( ShiftJIS_ConvertString(pbuf) );
-			pidx = 0;
-		}
-	}
-#endif
-
 	psxHu8( addr ) = val;
 }
 

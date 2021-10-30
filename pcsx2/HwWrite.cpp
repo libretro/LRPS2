@@ -307,9 +307,6 @@ void __fastcall _hwWrite8(u32 mem, u8 value)
 		if ((sio_count == ArraySize(sio_buffer)-1) || (sio_count != 0 && sio_buffer[sio_count-1] == '\n'))
 		{
 			sio_buffer[sio_count] = 0;
-#if 0
-			eeConLog( ShiftJIS_ConvertString(sio_buffer) );
-#endif
 			sio_count = 0;
 		}
 		return;
