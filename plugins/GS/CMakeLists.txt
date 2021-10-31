@@ -46,7 +46,6 @@ endif()
 
 set(GSdxSources
     GS.cpp
-    GSAlignedClass.cpp
     GSBlock.cpp
     GSClut.cpp
     GSCodeBuffer.cpp
