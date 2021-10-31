@@ -144,10 +144,6 @@ int wxAppConsoleBase::OnRun()
     return MainLoop();
 }
 
-void wxAppConsoleBase::OnLaunched()
-{    
-}
-
 int wxAppConsoleBase::OnExit()
 {
     return 0;
@@ -203,9 +199,6 @@ int wxAppConsoleBase::MainLoop()
 {
     wxEventLoopBaseTiedPtr mainLoop(&m_mainLoop, CreateMainLoop());
 
-    if (wxTheApp)
-        wxTheApp->OnLaunched();
-    
     return m_mainLoop ? m_mainLoop->Run() : -1;
 }
 
