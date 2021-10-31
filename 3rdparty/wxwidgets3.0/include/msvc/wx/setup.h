@@ -12,8 +12,8 @@
     #error "This file should only be included when using Microsoft Visual C++"
 #endif
 
-// VC++ IDE predefines _DEBUG and _UNICODE for the new projects itself, but
-// the other symbols (__WXUNIVERSAL__, ...) should be defined
+// VC++ IDE predefines _DEBUG and _UNICODE for the new projects itself, 
+// the other symbols should be defined
 // explicitly!
 
 #include "wx/version.h"

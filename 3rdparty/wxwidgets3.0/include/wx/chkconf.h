@@ -169,10 +169,6 @@
 #   include "wx/unix/chkconf.h"
 #endif
 
-#ifdef __WXUNIVERSAL__
-#   include "wx/univ/chkconf.h"
-#endif
-
 /*
    Section 3a: check consistency of the non-GUI settings.
  */
