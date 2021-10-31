@@ -1828,12 +1828,6 @@ void wxFileName::RemoveDir(size_t pos)
 // accessors
 // ----------------------------------------------------------------------------
 
-void wxFileName::SetFullName(const wxString& fullname)
-{
-    SplitPath(fullname, NULL /* no volume */, NULL /* no path */,
-                        &m_name, &m_ext, &m_hasExt);
-}
-
 wxString wxFileName::GetFullName() const
 {
     wxString fullname = m_name;

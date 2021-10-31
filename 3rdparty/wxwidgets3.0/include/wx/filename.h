@@ -437,7 +437,6 @@ public:
     bool HasVolume() const                      { return !m_volume.empty(); }
 
     // full name is the file name + extension (but without the path)
-    void SetFullName(const wxString& fullname);
     wxString GetFullName() const;
 
     const wxArrayString& GetDirs() const        { return m_dirs; }
