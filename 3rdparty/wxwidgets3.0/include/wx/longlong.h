@@ -25,13 +25,6 @@
 // wxLongLongNative -- this is extremely useful to find the bugs in
 // wxLongLongWx class!
 
-// #define wxLONGLONG_TEST_MODE
-
-#ifdef wxLONGLONG_TEST_MODE
-    #define wxUSE_LONGLONG_WX 1
-    #define wxUSE_LONGLONG_NATIVE 1
-#endif // wxLONGLONG_TEST_MODE
-
 // ----------------------------------------------------------------------------
 // decide upon which class we will use
 // ----------------------------------------------------------------------------
@@ -313,9 +306,6 @@ public:
         // return the string representation of this number
     wxString ToString() const;
 
-        // conversion to byte array: returns a pointer to static buffer!
-    void *asArray() const;
-
 #if wxUSE_STD_IOSTREAM
         // input/output
     friend WXDLLIMPEXP_BASE
@@ -538,9 +528,6 @@ public:
         // return the string representation of this number
     wxString ToString() const;
 
-        // conversion to byte array: returns a pointer to static buffer!
-    void *asArray() const;
-
 #if wxUSE_STD_IOSTREAM
         // input/output
     friend WXDLLIMPEXP_BASE
@@ -580,12 +567,6 @@ public:
     wxLongLongWx()
     {
         m_lo = m_hi = 0;
-
-#ifdef wxLONGLONG_TEST_MODE
-        m_ll = 0;
-
-        Check();
-#endif // wxLONGLONG_TEST_MODE
     }
         // from long
     wxLongLongWx(long l) { *this = l; }
@@ -594,14 +575,6 @@ public:
     {
         m_hi = hi;
         m_lo = lo;
-
-#ifdef wxLONGLONG_TEST_MODE
-        m_ll = hi;
-        m_ll <<= 32;
-        m_ll |= lo;
-
-        Check();
-#endif // wxLONGLONG_TEST_MODE
     }
 
     // default copy ctor is ok in both cases
@@ -614,13 +587,6 @@ public:
     {
         m_lo = l;
         m_hi = (l < 0 ? -1l : 0l);
-
-#ifdef wxLONGLONG_TEST_MODE
-        m_ll = l;
-
-        Check();
-#endif // wxLONGLONG_TEST_MODE
-
         return *this;
     }
         // from int
@@ -633,13 +599,6 @@ public:
     {
         m_lo = l;
         m_hi = 0;
-
-#ifdef wxLONGLONG_TEST_MODE
-        m_ll = l;
-
-        Check();
-#endif // wxLONGLONG_TEST_MODE
-
         return *this;
     }
 
@@ -666,14 +625,6 @@ public:
     {
         if ( m_hi < 0 )
             m_hi = -m_hi;
-
-#ifdef wxLONGLONG_TEST_MODE
-        if ( m_ll < 0 )
-            m_ll = -m_ll;
-
-        Check();
-#endif // wxLONGLONG_TEST_MODE
-
         return *this;
     }
 
@@ -777,8 +728,6 @@ public:
     // return the string representation of this number
     wxString ToString() const;
 
-    void *asArray() const;
-
 #if wxUSE_STD_IOSTREAM
     friend WXDLLIMPEXP_BASE
     wxSTD ostream& operator<<(wxSTD ostream&, const wxLongLongWx&);
@@ -799,11 +748,6 @@ private:
 
     long m_hi;                // signed bit is in the high part
     unsigned long m_lo;
-
-#ifdef wxLONGLONG_TEST_MODE
-    void Check() { }
-    wxLongLong_t m_ll;
-#endif // wxLONGLONG_TEST_MODE
 };
 
 
@@ -815,12 +759,6 @@ public:
     wxULongLongWx()
     {
         m_lo = m_hi = 0;
-
-#ifdef wxLONGLONG_TEST_MODE
-        m_ll = 0;
-
-        Check();
-#endif // wxLONGLONG_TEST_MODE
     }
         // from ulong
     wxULongLongWx(unsigned long l) { *this = l; }
@@ -829,14 +767,6 @@ public:
     {
         m_hi = hi;
         m_lo = lo;
-
-#ifdef wxLONGLONG_TEST_MODE
-        m_ll = hi;
-        m_ll <<= 32;
-        m_ll |= lo;
-
-        Check();
-#endif // wxLONGLONG_TEST_MODE
     }
 
     // from signed to unsigned
@@ -857,24 +787,12 @@ public:
         m_lo = l;
         m_hi = 0;
 
-#ifdef wxLONGLONG_TEST_MODE
-        m_ll = l;
-
-        Check();
-#endif // wxLONGLONG_TEST_MODE
-
         return *this;
     }
     wxULongLongWx& operator=(long l)
     {
         m_lo = l;
         m_hi = (unsigned long) ((l<0) ? -1l : 0);
-
-#ifdef wxLONGLONG_TEST_MODE
-        m_ll = (wxULongLong_t) (wxLongLong_t) l;
-
-        Check();
-#endif // wxLONGLONG_TEST_MODE
 
         return *this;
     }
@@ -983,8 +901,6 @@ public:
     // return the string representation of this number
     wxString ToString() const;
 
-    void *asArray() const;
-
 #if wxUSE_STD_IOSTREAM
     friend WXDLLIMPEXP_BASE
     wxSTD ostream& operator<<(wxSTD ostream&, const wxULongLongWx&);
@@ -1006,10 +922,6 @@ private:
     unsigned long m_hi;
     unsigned long m_lo;
 
-#ifdef wxLONGLONG_TEST_MODE
-    void Check() { }
-    wxULongLong_t m_ll;
-#endif // wxLONGLONG_TEST_MODE
 };
 
 #endif // wxUSE_LONGLONG_WX
