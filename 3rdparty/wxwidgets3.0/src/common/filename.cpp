@@ -2332,69 +2332,9 @@ wxULongLong wxFileName::GetSize(const wxString &filename)
 #endif
 }
 
-/* static */
-wxString wxFileName::GetHumanReadableSize(const wxULongLong &bs,
-                                          const wxString &nullsize,
-                                          int precision,
-                                          wxSizeConvention conv)
-{
-    // deal with trivial case first
-    if ( bs == 0 || bs == wxInvalidSize )
-        return nullsize;
-
-    // depending on the convention used the multiplier may be either 1000 or
-    // 1024 and the binary infix may be empty (for "KB") or "i" (for "KiB")
-    double multiplier = 1024.;
-    wxString biInfix;
-
-    switch ( conv )
-    {
-        case wxSIZE_CONV_TRADITIONAL:
-            // nothing to do, this corresponds to the default values of both
-            // the multiplier and infix string
-            break;
-
-        case wxSIZE_CONV_IEC:
-            biInfix = "i";
-            break;
-
-        case wxSIZE_CONV_SI:
-            multiplier = 1000;
-            break;
-    }
-
-    const double kiloByteSize = multiplier;
-    const double megaByteSize = multiplier * kiloByteSize;
-    const double gigaByteSize = multiplier * megaByteSize;
-    const double teraByteSize = multiplier * gigaByteSize;
-
-    const double bytesize = bs.ToDouble();
-
-    wxString result;
-    if ( bytesize < kiloByteSize )
-        result.Printf("%s B", bs.ToString());
-    else if ( bytesize < megaByteSize )
-        result.Printf("%.*f K%sB", precision, bytesize/kiloByteSize, biInfix);
-    else if (bytesize < gigaByteSize)
-        result.Printf("%.*f M%sB", precision, bytesize/megaByteSize, biInfix);
-    else if (bytesize < teraByteSize)
-        result.Printf("%.*f G%sB", precision, bytesize/gigaByteSize, biInfix);
-    else
-        result.Printf("%.*f T%sB", precision, bytesize/teraByteSize, biInfix);
-
-    return result;
-}
-
 wxULongLong wxFileName::GetSize() const
 {
     return GetSize(GetFullPath());
-}
-
-wxString wxFileName::GetHumanReadableSize(const wxString& failmsg,
-                                          int precision,
-                                          wxSizeConvention conv) const
-{
-    return GetHumanReadableSize(GetSize(), failmsg, precision, conv);
 }
 
 #endif // wxUSE_LONGLONG

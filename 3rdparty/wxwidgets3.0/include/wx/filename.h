@@ -513,17 +513,6 @@ public:
         // returns the size of the given filename
     wxULongLong GetSize() const;
     static wxULongLong GetSize(const wxString &file);
-
-        // returns the size in a human readable form
-    wxString
-    GetHumanReadableSize(const wxString& nullsize = "Not available",
-                         int precision = 1,
-                         wxSizeConvention conv = wxSIZE_CONV_TRADITIONAL) const;
-    static wxString
-    GetHumanReadableSize(const wxULongLong& sz,
-                         const wxString& nullsize = "Not available",
-                         int precision = 1,
-                         wxSizeConvention conv = wxSIZE_CONV_TRADITIONAL);
 #endif // wxUSE_LONGLONG
 
 
