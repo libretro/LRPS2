@@ -1245,44 +1245,6 @@ bool wxString::IsAscii() const
     return true;
 }
 
-bool wxString::IsWord() const
-{
-    for ( const_iterator i = begin(); i != end(); ++i )
-    {
-        if ( !wxIsalpha(*i) )
-            return false;
-    }
-
-    return true;
-}
-
-bool wxString::IsNumber() const
-{
-    if ( empty() )
-        return true;
-
-    const_iterator i = begin();
-
-    if ( *i == wxT('-') || *i == wxT('+') )
-        ++i;
-
-    for ( ; i != end(); ++i )
-    {
-        if ( !wxIsdigit(*i) )
-            return false;
-    }
-
-    return true;
-}
-
-wxString wxString::Strip(stripType w) const
-{
-    wxString s = *this;
-    if ( w & leading ) s.Trim(false);
-    if ( w & trailing ) s.Trim(true);
-    return s;
-}
-
 // ---------------------------------------------------------------------------
 // case conversion
 // ---------------------------------------------------------------------------
@@ -1301,20 +1263,6 @@ wxString& wxString::MakeLower()
     *it = (wxChar)wxTolower(*it);
 
   return *this;
-}
-
-wxString& wxString::MakeCapitalized()
-{
-    const iterator en = end();
-    iterator it = begin();
-    if ( it != en )
-    {
-        *it = (wxChar)wxToupper(*it);
-        for ( ++it; it != en; ++it )
-            *it = (wxChar)wxTolower(*it);
-    }
-
-    return *this;
 }
 
 // ---------------------------------------------------------------------------
@@ -1360,22 +1308,6 @@ wxString& wxString::Trim(bool bFromRight)
             // fix up data and length
             erase(begin(), psz);
         }
-    }
-
-    return *this;
-}
-
-// adds nCount characters chPad to the string from either side
-wxString& wxString::Pad(size_t nCount, wxUniChar chPad, bool bFromRight)
-{
-    wxString s(chPad, nCount);
-
-    if ( bFromRight )
-        *this += s;
-    else
-    {
-        s += *this;
-        swap(s);
     }
 
     return *this;
@@ -1925,16 +1857,3 @@ match:
 
   return false;
 }
-
-// Count the number of chars
-int wxString::Freq(wxUniChar ch) const
-{
-    int count = 0;
-    for ( const_iterator i = begin(); i != end(); ++i )
-    {
-        if ( *i == ch )
-            count ++;
-    }
-    return count;
-}
-

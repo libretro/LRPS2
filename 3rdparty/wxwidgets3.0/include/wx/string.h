@@ -1443,10 +1443,6 @@ public:
   // contents test
     // Is an ascii value
   bool IsAscii() const;
-    // Is a number
-  bool IsNumber() const;
-    // Is a word
-  bool IsWord() const;
 
   // data access (all indexes are 0 based)
     // read access
@@ -2128,18 +2124,10 @@ public:
   wxString& MakeLower();
       // convert to lower case, return the copy of the string
   wxString Lower() const { return wxString(*this).MakeLower(); }
-      // convert the first character to the upper case and the rest to the
-      // lower one, return the modified string itself
-  wxString& MakeCapitalized();
-      // convert the first character to the upper case and the rest to the
-      // lower one, return the copy of the string
-  wxString Capitalize() const { return wxString(*this).MakeCapitalized(); }
 
   // trimming/padding whitespace (either side) and truncating
       // remove spaces from left or from right (default) side
   wxString& Trim(bool bFromRight = true);
-      // add nCount copies chPad in the beginning or at the end (default)
-  wxString& Pad(size_t nCount, wxUniChar chPad = wxT(' '), bool bFromRight = true);
 
   // searching and replacing
       // searching (return starting index, or -1 if not found)
@@ -2313,14 +2301,10 @@ public:
 
     // use length()
   size_t Length() const { return length(); }
-    // Count the number of characters
-  int Freq(wxUniChar ch) const;
     // use MakeLower
   void LowerCase() { MakeLower(); }
     // use MakeUpper
   void UpperCase() { MakeUpper(); }
-    // use Trim except that it doesn't change this string
-  wxString Strip(stripType w = trailing) const;
 
     // use Find (more general variants not yet supported)
   size_t Index(const wxChar* psz) const { return Find(psz); }
