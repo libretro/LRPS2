@@ -198,69 +198,6 @@ void wxMilliSleep(unsigned long milliseconds)
 // ----------------------------------------------------------------------------
 // wxShell
 // ----------------------------------------------------------------------------
-
-namespace
-{
-
-// helper class for storing arguments as char** array suitable for passing to
-// execvp(), whatever form they were passed to us
-class ArgsArray
-{
-public:
-    ArgsArray(const wxArrayString& args)
-    {
-        Init(args.size());
-
-        for ( int i = 0; i < m_argc; i++ )
-        {
-            m_argv[i] = wxStrdup(args[i]);
-        }
-    }
-
-#if wxUSE_UNICODE
-    ArgsArray(wchar_t **wargv)
-    {
-        int argc = 0;
-        while ( wargv[argc] )
-            argc++;
-
-        Init(argc);
-
-        for ( int i = 0; i < m_argc; i++ )
-        {
-            m_argv[i] = wxSafeConvertWX2MB(wargv[i]).release();
-        }
-    }
-#endif // wxUSE_UNICODE
-
-    ~ArgsArray()
-    {
-        for ( int i = 0; i < m_argc; i++ )
-        {
-            free(m_argv[i]);
-        }
-
-        delete [] m_argv;
-    }
-
-    operator char**() const { return m_argv; }
-
-private:
-    void Init(int argc)
-    {
-        m_argc = argc;
-        m_argv = new char *[m_argc + 1];
-        m_argv[m_argc] = NULL;
-    }
-
-    int m_argc;
-    char **m_argv;
-
-    wxDECLARE_NO_COPY_CLASS(ArgsArray);
-};
-
-} // anonymous namespace
-
 #undef ERROR_RETURN_CODE
 
 // ----------------------------------------------------------------------------
@@ -309,39 +246,6 @@ wxString wxGetUserHome( const wxString &user )
 // ----------------------------------------------------------------------------
 // network and user id routines
 // ----------------------------------------------------------------------------
-
-// Private utility function which returns output of the given command, removing
-// the trailing newline.
-//
-// Note that by default use Latin-1 just to ensure that we never fail, but if
-// the encoding is known (e.g. UTF-8 for lsb_release), it should be explicitly
-// used instead.
-static wxString
-wxGetCommandOutput(const wxString &cmd, wxMBConv& conv = wxConvISO8859_1)
-{
-    // Suppress stderr from the shell to avoid outputting errors if the command
-    // doesn't exist.
-    FILE *f = popen((cmd + " 2>/dev/null").ToAscii(), "r");
-    if ( !f )
-        return wxString();
-
-    wxString s;
-    char buf[256];
-    while ( !feof(f) )
-    {
-        if ( !fgets(buf, sizeof(buf), f) )
-            break;
-
-        s += wxString(buf, conv);
-    }
-
-    pclose(f);
-
-    if ( !s.empty() && s.Last() == wxT('\n') )
-        s.RemoveLast();
-
-    return s;
-}
 
 bool wxGetUserId(wxChar *buf, int sz)
 {
