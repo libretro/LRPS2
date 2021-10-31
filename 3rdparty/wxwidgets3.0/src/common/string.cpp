@@ -1379,13 +1379,6 @@ bool wxString::ToULong(unsigned long *pVal, int base) const
     WX_STRING_TO_X_TYPE_END
 }
 
-bool wxString::ToLongLong(wxLongLong_t *pVal, int base) const
-{
-    WX_STRING_TO_X_TYPE_START
-    wxLongLong_t val = wxStrtoll(start, &end, base);
-    WX_STRING_TO_X_TYPE_END
-}
-
 bool wxString::ToULongLong(wxULongLong_t *pVal, int base) const
 {
     WX_STRING_TO_X_TYPE_START
@@ -1398,45 +1391,6 @@ bool wxString::ToDouble(double *pVal) const
     WX_STRING_TO_X_TYPE_START
     double val = wxStrtod(start, &end);
     WX_STRING_TO_X_TYPE_END
-}
-
-// Provide implementation of these functions even when wxUSE_XLOCALE is
-// disabled, we still need them in wxWidgets internal code.
-
-// For integers we just assume the current locale uses the same number
-// representation as the C one as there is nothing else we can do.
-bool wxString::ToCLong(long *pVal, int base) const
-{
-    return ToLong(pVal, base);
-}
-
-bool wxString::ToCULong(unsigned long *pVal, int base) const
-{
-    return ToULong(pVal, base);
-}
-
-// For floating point numbers we have to handle the problem of the decimal
-// point which is different in different locales.
-bool wxString::ToCDouble(double *pVal) const
-{
-    // See the explanations in FromCDouble() below for the reasons for all this.
-
-    // Create a copy of this string using the decimal point instead of whatever
-    // separator the current locale uses.
-    // We don't know what the current separator is so it might even be a point
-    // already, try to parse the string as a double:
-    if ( ToDouble(pVal) )
-    {
-        // It must have been the point, nothing else to do.
-        return true;
-    }
-
-    // Try to guess the separator, using the most common alternative value.
-    wxString sep(",");
-    wxString cstr(*this);
-    cstr.Replace(".", sep);
-
-    return cstr.ToDouble(pVal);
 }
 
 // ----------------------------------------------------------------------------
@@ -1453,32 +1407,6 @@ wxString wxString::FromDouble(double val, int precision)
         format.Printf("%%.%df", precision);
 
     return wxString::Format(format, val);
-}
-
-/* static */
-wxString wxString::FromCDouble(double val, int precision)
-{
-    // Unfortunately there is no good way to get the number directly in the C
-    // locale. Some platforms provide special functions to do this (e.g.
-    // _sprintf_l() in MSVS or sprintf_l() in BSD systems), but some systems we
-    // still support don't have them and it doesn't seem worth it to have two
-    // different ways to do the same thing. Also, in principle, using the
-    // standard C++ streams should allow us to do it, but some implementations
-    // of them are horribly broken and actually change the global C locale,
-    // thus randomly affecting the results produced in other threads, when
-    // imbue() stream method is called (for the record, the latest libstdc++
-    // version included in OS X does it and so seem to do the versions
-    // currently included in Android NDK and both FreeBSD and OpenBSD), so we
-    // can't do this neither and are reduced to this hack.
-
-    wxString s = FromDouble(val, precision);
-    // As above, this is the most common alternative value. Notice that here it
-    // doesn't matter if we guess wrongly and the current separator is already
-    // ".": we'll just waste a call to Replace() in this case.
-    wxString sep(",");
-
-    s.Replace(sep, ".");
-    return s;
 }
 
 // ---------------------------------------------------------------------------

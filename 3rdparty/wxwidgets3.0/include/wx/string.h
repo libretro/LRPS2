@@ -2184,27 +2184,16 @@ public:
   bool ToULong(unsigned long *val, int base = 10) const;
       // convert to wxLongLong
 #if defined(wxLongLong_t)
-  bool ToLongLong(wxLongLong_t *val, int base = 10) const;
       // convert to wxULongLong
   bool ToULongLong(wxULongLong_t *val, int base = 10) const;
 #endif // wxLongLong_t
       // convert to a double
   bool ToDouble(double *val) const;
 
-  // conversions to numbers using C locale
-      // convert to a signed integer
-  bool ToCLong(long *val, int base = 10) const;
-      // convert to an unsigned integer
-  bool ToCULong(unsigned long *val, int base = 10) const;
-      // convert to a double
-  bool ToCDouble(double *val) const;
-
   // create a string representing the given floating point number with the
   // default (like %g) or fixed (if precision >=0) precision
     // in the current locale
   static wxString FromDouble(double val, int precision = -1);
-    // in C locale
-  static wxString FromCDouble(double val, int precision = -1);
 
 #ifndef wxNEEDS_WXSTRING_PRINTF_MIXIN
   // formatted input/output
