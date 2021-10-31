@@ -272,7 +272,6 @@
 #ifdef __WATCOMC__
     // workaround for http://bugzilla.openwatcom.org/show_bug.cgi?id=351
     #define wxPrintf    wxPrintf_Impl
-    #define wxFprintf   wxFprintf_Impl
     #define wxSprintf   wxSprintf_Impl
     #define wxSnprintf  wxSnprintf_Impl
 #endif
@@ -292,13 +291,6 @@ WX_DEFINE_VARARG_FUNC_SANS_N0(int, wxPrintf, 1, (const wxFormatString&),
 inline int wxPrintf(const wxFormatString& s)
 {
     return wxPrintf("%s", s.InputAsString());
-}
-
-WX_DEFINE_VARARG_FUNC_SANS_N0(int, wxFprintf, 2, (FILE*, const wxFormatString&),
-                              wxCRT_FprintfNative, wxCRT_FprintfA)
-inline int wxFprintf(FILE *f, const wxFormatString& s)
-{
-    return wxFprintf(f, "%s", s.InputAsString());
 }
 
 // va_list versions of printf functions simply forward to the respective
@@ -399,14 +391,11 @@ wxVsnprintf(wchar_t *str, size_t size, const wxString& format, va_list argptr);
     // fortunately, OpenWatcom implements __VA_ARGS__, so we can provide macros
     // that cast the format argument to wxString:
     #undef wxPrintf
-    #undef wxFprintf
     #undef wxSprintf
     #undef wxSnprintf
 
     #define wxPrintf(fmt, ...) \
             wxPrintf_Impl(wxFormatString(fmt), __VA_ARGS__)
-    #define wxFprintf(f, fmt, ...) \
-            wxFprintf_Impl(f, wxFormatString(fmt), __VA_ARGS__)
     #define wxSprintf(s, fmt, ...) \
             wxSprintf_Impl(s, wxFormatString(fmt), __VA_ARGS__)
     #define wxSnprintf(s, n, fmt, ...) \

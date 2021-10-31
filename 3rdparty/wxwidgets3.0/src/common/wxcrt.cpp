@@ -140,22 +140,6 @@ WXDLLIMPEXP_BASE size_t wxWC2MB(char *buf, const wchar_t *pwz, size_t n)
 // printf() functions business
 // ============================================================================
 
-// special test mode: define all functions below even if we don't really need
-// them to be able to test them
-#ifdef wxTEST_PRINTF
-    #undef wxFprintf
-    #undef wxPrintf
-    #undef wxSprintf
-    #undef wxVfprintf
-    #undef wxVsprintf
-    #undef wxVprintf
-    #undef wxVsnprintf_
-
-    #define wxNEED_WPRINTF
-
-    int wxCRT_VfprintfW( FILE *stream, const wchar_t *format, va_list argptr );
-#endif
-
 #if defined(__DMC__)
 /* Digital Mars adds count to _stprintf (C99) so convert */
 int wxCRT_SprintfW (wchar_t * __RESTRICT s, const wchar_t * __RESTRICT format, ... )
