@@ -786,96 +786,9 @@ wxThread *wxThread::This()
     return thread;
 }
 
-int wxThread::GetCPUCount()
-{
-    SYSTEM_INFO si;
-    GetSystemInfo(&si);
-
-    return si.dwNumberOfProcessors;
-}
-
 unsigned long wxThread::GetCurrentId()
 {
     return (unsigned long)::GetCurrentThreadId();
-}
-
-bool wxThread::SetConcurrency(size_t WXUNUSED_IN_WINCE(level))
-{
-#ifdef __WXWINCE__
-    return false;
-#else
-    // ok only for the default one
-    if ( level == 0 )
-        return 0;
-
-    // get system affinity mask first
-    HANDLE hProcess = ::GetCurrentProcess();
-    DWORD_PTR dwProcMask, dwSysMask;
-    if ( ::GetProcessAffinityMask(hProcess, &dwProcMask, &dwSysMask) == 0 )
-        return false;
-
-    // how many CPUs have we got?
-    if ( dwSysMask == 1 )
-    {
-        // don't bother with all this complicated stuff - on a single
-        // processor system it doesn't make much sense anyhow
-        return level == 1;
-    }
-
-    // calculate the process mask: it's a bit vector with one bit per
-    // processor; we want to schedule the process to run on first level
-    // CPUs
-    DWORD bit = 1;
-    while ( bit )
-    {
-        if ( dwSysMask & bit )
-        {
-            // ok, we can set this bit
-            dwProcMask |= bit;
-
-            // another process added
-            if ( --level == 0 )
-            {
-                // and that's enough
-                break;
-            }
-        }
-
-        // next bit
-        bit <<= 1;
-    }
-
-    // could we set all bits?
-    if ( level != 0 )
-        return false;
-
-    // set it: we can't link to SetProcessAffinityMask() because it doesn't
-    // exist in Win9x, use RT binding instead
-
-    typedef BOOL (WINAPI *SETPROCESSAFFINITYMASK)(HANDLE, DWORD_PTR);
-
-    // can use static var because we're always in the main thread here
-    static SETPROCESSAFFINITYMASK pfnSetProcessAffinityMask = NULL;
-
-    if ( !pfnSetProcessAffinityMask )
-    {
-        HMODULE hModKernel = ::LoadLibrary(wxT("kernel32"));
-        if ( hModKernel )
-            pfnSetProcessAffinityMask = (SETPROCESSAFFINITYMASK)
-                ::GetProcAddress(hModKernel, "SetProcessAffinityMask");
-    }
-
-    if ( !pfnSetProcessAffinityMask )
-    {
-        // msg given above - do it only once
-        return false;
-    }
-
-    if ( pfnSetProcessAffinityMask(hProcess, dwProcMask) == 0 )
-        return false;
-
-    return true;
-#endif // __WXWINCE__/!__WXWINCE__
 }
 
 // ctor and dtor
@@ -962,15 +875,12 @@ wxThreadError wxThread::Kill()
     wxThreadError rc = m_internal->Kill();
 
     if ( IsDetached() )
-    {
         delete this;
-    }
-    else // joinable
-    {
-        // update the status of the joinable thread
-        wxCriticalSectionLocker lock(m_critsect);
-        m_internal->SetState(STATE_EXITED);
-    }
+
+    // joinable
+    // update the status of the joinable thread
+    wxCriticalSectionLocker lock(m_critsect);
+    m_internal->SetState(STATE_EXITED);
 
     return rc;
 }
@@ -1045,13 +955,6 @@ bool wxThread::IsPaused() const
     return m_internal->GetState() == STATE_PAUSED;
 }
 
-bool wxThread::TestDestroy()
-{
-    wxCriticalSectionLocker lock(const_cast<wxCriticalSection &>(m_critsect));
-
-    return m_internal->GetState() == STATE_CANCELED;
-}
-
 // ----------------------------------------------------------------------------
 // Automatic initialization for thread module
 // ----------------------------------------------------------------------------
@@ -1110,10 +1013,6 @@ void wxMutexGuiEnterImpl()
 }
 
 void wxMutexGuiLeaveImpl()
-{
-}
-
-void WXDLLIMPEXP_BASE wxMutexGuiLeaveOrEnter()
 {
 }
 

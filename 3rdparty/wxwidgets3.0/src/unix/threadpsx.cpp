@@ -59,7 +59,6 @@
     #include <sys/resource.h>   // for setpriority()
 #endif
 
-// we use wxFFile under Linux in GetCPUCount()
 #ifdef __LINUX__
     #include "wx/ffile.h"
 #endif
@@ -983,15 +982,7 @@ void wxThreadInternal::Wait()
     // deadlock so make sure we release it temporarily
     if ( wxThread::IsMain() )
     {
-#ifdef __WXOSX__
-        // give the thread we're waiting for chance to do the GUI call
-        // it might be in, we don't do this conditionally as the to be waited on
-        // thread might have to acquire the mutex later but before terminating
-        if ( wxGuiOwnedByMainThread() )
-            wxMutexGuiLeave();
-#else
         wxMutexGuiLeave();
-#endif
     }
 
     // to avoid memory leaks we should call pthread_join(), but it must only be
@@ -1051,58 +1042,9 @@ wxThread *wxThread::This()
     return (wxThread *)pthread_getspecific(gs_keySelf);
 }
 
-int wxThread::GetCPUCount()
-{
-#if defined(_SC_NPROCESSORS_ONLN)
-    // this works for Solaris and Linux 2.6
-    int rc = sysconf(_SC_NPROCESSORS_ONLN);
-    if ( rc != -1 )
-    {
-        return rc;
-    }
-#elif defined(__LINUX__) && wxUSE_FFILE
-    // read from proc (can't use wxTextFile here because it's a special file:
-    // it has 0 size but still can be read from)
-    wxFFile file(wxT("/proc/cpuinfo"));
-    if ( file.IsOpened() )
-    {
-        // slurp the whole file
-        wxString s;
-        if ( file.ReadAll(&s) )
-        {
-            // (ab)use Replace() to find the number of "processor: num" strings
-            size_t count = s.Replace(wxT("processor\t:"), wxT(""));
-            if ( count > 0 )
-                return count;
-        }
-    }
-#endif // different ways to get number of CPUs
-
-    // unknown
-    return -1;
-}
-
 wxThreadIdType wxThread::GetCurrentId()
 {
     return (wxThreadIdType)pthread_self();
-}
-
-
-bool wxThread::SetConcurrency(size_t level)
-{
-#ifdef HAVE_PTHREAD_SET_CONCURRENCY
-    int rc = pthread_setconcurrency( level );
-#elif defined(HAVE_THR_SETCONCURRENCY)
-    int rc = thr_setconcurrency(level);
-#else // !HAVE_THR_SETCONCURRENCY
-    // ok only for the default value
-    int rc = level == 0 ? 0 : -1;
-#endif // HAVE_THR_SETCONCURRENCY/!HAVE_THR_SETCONCURRENCY
-
-    if ( rc != 0 )
-        return false;
-
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -1405,31 +1347,6 @@ void wxThread::Exit(ExitCode status)
 
     // terminate the thread (pthread_exit() never returns)
     pthread_exit(status);
-}
-
-// also test whether we were paused
-bool wxThread::TestDestroy()
-{
-    m_critsect.Enter();
-
-    if ( m_internal->GetState() == STATE_PAUSED )
-    {
-        m_internal->SetReallyPaused(true);
-
-        // leave the crit section or the other threads will stop too if they
-        // try to call any of (seemingly harmless) IsXXX() functions while we
-        // sleep
-        m_critsect.Leave();
-
-        m_internal->Pause();
-    }
-    else
-    {
-        // thread wasn't requested to pause, nothing to do
-        m_critsect.Leave();
-    }
-
-    return m_internal->WasCancelled();
 }
 
 wxThread::~wxThread()
