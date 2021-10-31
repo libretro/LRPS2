@@ -261,7 +261,6 @@ public:
     static bool SetCwd( const wxString &cwd );
 
         // get the value of user home (Unix only mainly)
-    void AssignHomeDir();
     static wxString GetHomeDir();
 
         // get the system temporary directory
@@ -269,7 +268,6 @@ public:
 
 #if wxUSE_FILE || wxUSE_FFILE
         // get a temp file name starting with the specified prefix
-    void AssignTempFileName(const wxString& prefix);
     static wxString CreateTempFileName(const wxString& prefix);
 #endif // wxUSE_FILE
 
@@ -277,7 +275,6 @@ public:
         // get a temp file name starting with the specified prefix and open the
         // file passed to us using this name for writing (atomically if
         // possible)
-    void AssignTempFileName(const wxString& prefix, wxFile *fileTemp);
     static wxString CreateTempFileName(const wxString& prefix,
                                        wxFile *fileTemp);
 #endif // wxUSE_FILE
@@ -286,7 +283,6 @@ public:
         // get a temp file name starting with the specified prefix and open the
         // file passed to us using this name for writing (atomically if
         // possible)
-    void AssignTempFileName(const wxString& prefix, wxFFile *fileTemp);
     static wxString CreateTempFileName(const wxString& prefix,
                                        wxFFile *fileTemp);
 #endif // wxUSE_FFILE

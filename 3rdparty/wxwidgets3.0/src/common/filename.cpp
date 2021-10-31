@@ -807,11 +807,6 @@ bool wxFileName::SetCwd( const wxString &cwd )
     return ::wxSetWorkingDirectory( cwd );
 }
 
-void wxFileName::AssignHomeDir()
-{
-    AssignDir(wxFileName::GetHomeDir());
-}
-
 wxString wxFileName::GetHomeDir()
 {
     return ::wxGetHomeDir();
@@ -1112,31 +1107,6 @@ static bool wxCreateTempImpl(
 }
 
 
-static void wxAssignTempImpl(
-        wxFileName *fn,
-        const wxString& prefix,
-        WXFILEARGS(wxFile *fileTemp, wxFFile *ffileTemp))
-{
-    wxString tempname;
-    tempname = wxCreateTempImpl(prefix, WXFILEARGS(fileTemp, ffileTemp));
-
-    if ( tempname.empty() )
-    {
-        // error, failed to get temp file name
-        fn->Clear();
-    }
-    else // ok
-    {
-        fn->Assign(tempname);
-    }
-}
-
-
-void wxFileName::AssignTempFileName(const wxString& prefix)
-{
-    wxAssignTempImpl(this, prefix, WXFILEARGS(NULL, NULL));
-}
-
 /* static */
 wxString wxFileName::CreateTempFileName(const wxString& prefix)
 {
@@ -1160,11 +1130,6 @@ bool wxCreateTempFile(const wxString& prefix,
                       wxString *name)
 {
     return wxCreateTempImpl(prefix, WXFILEARGS(fileTemp, NULL), name);
-}
-
-void wxFileName::AssignTempFileName(const wxString& prefix, wxFile *fileTemp)
-{
-    wxAssignTempImpl(this, prefix, WXFILEARGS(fileTemp, NULL));
 }
 
 /* static */
@@ -1192,11 +1157,6 @@ bool wxCreateTempFile(const wxString& prefix,
 {
     return wxCreateTempImpl(prefix, WXFILEARGS(NULL, fileTemp), name);
 
-}
-
-void wxFileName::AssignTempFileName(const wxString& prefix, wxFFile *fileTemp)
-{
-    wxAssignTempImpl(this, prefix, WXFILEARGS(NULL, fileTemp));
 }
 
 /* static */
