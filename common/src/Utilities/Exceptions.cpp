@@ -15,7 +15,6 @@
 
 #include "PrecompiledHeader.h"
 
-#include <wx/app.h>
 #include "Threading.h"
 
 #if defined(__UNIX__)
@@ -24,17 +23,6 @@
 
 // for lack of a better place...
 Fnptr_OutOfMemory pxDoOutOfMemory = NULL;
-
-// ------------------------------------------------------------------------
-// Force DevAssert to *not* inline for devel builds (allows using breakpoints to trap assertions,
-// and force it to inline for release builds (optimizes it out completely since IsDevBuild is a
-// const false).
-//
-#ifdef PCSX2_DEVBUILD
-#define DEVASSERT_INLINE __noinline
-#else
-#define DEVASSERT_INLINE __fi
-#endif
 
 // Because wxTrap isn't available on Linux builds of wxWidgets (non-Debug, typically)
 void pxTrap()
@@ -237,32 +225,31 @@ wxString Exception::EndOfStream::FormatDiagnosticMessage() const
 // Throws an exception based on the given error code (usually taken from ANSI C's errno)
 BaseException *Exception::FromErrno(const wxString &streamname, int errcode)
 {
-    pxAssumeDev(errcode != 0, "Invalid NULL error code?  (errno)");
+    switch (errcode)
+    {
+	    case EINVAL:
+		    //pxFailDev(L"Invalid argument");
+		    return &(new Exception::BadStream(streamname))->SetDiagMsg(L"Invalid argument? (likely caused by an unforgivable programmer error!)");
 
-    switch (errcode) {
-        case EINVAL:
-            //pxFailDev(L"Invalid argument");
-            return &(new Exception::BadStream(streamname))->SetDiagMsg(L"Invalid argument? (likely caused by an unforgivable programmer error!)");
+	    case EACCES: // Access denied!
+		    return new Exception::AccessDenied(streamname);
 
-        case EACCES: // Access denied!
-            return new Exception::AccessDenied(streamname);
+	    case EMFILE:                                                                                     // Too many open files!
+		    return &(new Exception::CannotCreateStream(streamname))->SetDiagMsg(L"Too many open files"); // File handle allocation failure
 
-        case EMFILE:                                                                                     // Too many open files!
-            return &(new Exception::CannotCreateStream(streamname))->SetDiagMsg(L"Too many open files"); // File handle allocation failure
+	    case EEXIST:
+		    return &(new Exception::CannotCreateStream(streamname))->SetDiagMsg(L"File already exists");
 
-        case EEXIST:
-            return &(new Exception::CannotCreateStream(streamname))->SetDiagMsg(L"File already exists");
+	    case ENOENT: // File not found!
+		    return new Exception::FileNotFound(streamname);
 
-        case ENOENT: // File not found!
-            return new Exception::FileNotFound(streamname);
+	    case EPIPE:
+		    return &(new Exception::BadStream(streamname))->SetDiagMsg(L"Broken pipe");
 
-        case EPIPE:
-            return &(new Exception::BadStream(streamname))->SetDiagMsg(L"Broken pipe");
+	    case EBADF:
+		    return &(new Exception::BadStream(streamname))->SetDiagMsg(L"Bad file number");
 
-        case EBADF:
-            return &(new Exception::BadStream(streamname))->SetDiagMsg(L"Bad file number");
-
-        default:
-            return &(new Exception::BadStream(streamname))->SetDiagMsg(pxsFmt(L"General file/stream error [errno: %d]", errcode));
+	    default:
+		    return &(new Exception::BadStream(streamname))->SetDiagMsg(pxsFmt(L"General file/stream error [errno: %d]", errcode));
     }
 }

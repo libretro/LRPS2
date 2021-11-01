@@ -18,7 +18,7 @@
 
 // Throws an exception based on the value returned from GetLastError.
 // Performs an option return value success/fail check on hresult.
-void StreamException_ThrowLastError( const wxString& streamname, HANDLE result )
+static void StreamException_ThrowLastError( const wxString& streamname, HANDLE result )
 {
 	if( result != INVALID_HANDLE_VALUE ) return;
 
@@ -52,7 +52,7 @@ void StreamException_ThrowLastError( const wxString& streamname, HANDLE result )
 }
 
 // returns TRUE if an error occurred.
-bool StreamException_LogLastError( const wxString& streamname, const wxChar* action, HANDLE result )
+static bool StreamException_LogLastError( const wxString& streamname, const wxChar* action, HANDLE result )
 {
 	try
 	{

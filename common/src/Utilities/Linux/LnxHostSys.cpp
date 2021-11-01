@@ -102,29 +102,7 @@ static bool _memprotect(void *baseaddr, size_t size, const PageProtectionMode &m
     if (mode.CanExecute())
         lnxmode |= PROT_EXEC | PROT_READ;
 
-    const int result = mprotect(baseaddr, size, lnxmode);
-
-    if (result == 0)
-        return true;
-
-#if 0
-    switch (errno) {
-        case EINVAL:
-            pxFailDev(pxsFmt(L"mprotect returned EINVAL @ 0x%08X -> 0x%08X  (mode=%s)",
-                             baseaddr, (uptr)baseaddr + size, WX_STR(mode.ToString())));
-            break;
-
-        case EACCES:
-            pxFailDev(pxsFmt(L"mprotect returned EACCES @ 0x%08X -> 0x%08X  (mode=%s)",
-                             baseaddr, (uptr)baseaddr + size, WX_STR(mode.ToString())));
-            break;
-
-        case ENOMEM:
-            // caller handles assertion or exception, or whatever.
-            break;
-    }
-#endif
-    return false;
+    return (mprotect(baseaddr, size, lnxmode) == 0);
 }
 
 void *HostSys::MmapReservePtr(void *base, size_t size)

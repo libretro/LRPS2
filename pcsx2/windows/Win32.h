@@ -19,12 +19,3 @@
 
 #include "System.h"
 #include "resource.h"
-
-#define COMPILEDATE         __DATE__
-
-
-extern void StreamException_ThrowLastError( const wxString& streamname, HANDLE result=INVALID_HANDLE_VALUE );
-extern void StreamException_ThrowFromErrno( const wxString& streamname, errno_t errcode );
-extern bool StreamException_LogFromErrno( const wxString& streamname, const wxChar* action, errno_t result );
-extern bool StreamException_LogLastError( const wxString& streamname, const wxChar* action, HANDLE result=INVALID_HANDLE_VALUE );
-

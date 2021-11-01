@@ -57,19 +57,15 @@ void _platform_InstallSignalHandler()
 
 static DWORD ConvertToWinApi(const PageProtectionMode &mode)
 {
-    DWORD winmode = PAGE_NOACCESS;
-
+    bool can_write = mode.CanWrite();
     // Windows has some really bizarre memory protection enumeration that uses bitwise
     // numbering (like flags) but is in fact not a flag value.  *Someone* from the early
     // microsoft days wasn't a very good coder, me thinks.  --air
-
-    if (mode.CanExecute()) {
-        winmode = mode.CanWrite() ? PAGE_EXECUTE_READWRITE : PAGE_EXECUTE_READ;
-    } else if (mode.CanRead()) {
-        winmode = mode.CanWrite() ? PAGE_READWRITE : PAGE_READONLY;
-    }
-
-    return winmode;
+    if      (mode.CanExecute())
+        return can_write ? PAGE_EXECUTE_READWRITE : PAGE_EXECUTE_READ;
+    else if (mode.CanRead())
+        return can_write ? PAGE_READWRITE : PAGE_READONLY;
+    return PAGE_NOACCESS;
 }
 
 void *HostSys::MmapReservePtr(void *base, size_t size)
@@ -84,12 +80,13 @@ bool HostSys::MmapCommitPtr(void *base, size_t size, const PageProtectionMode &m
         return true;
 
     const DWORD errcode = GetLastError();
-    if (errcode == ERROR_COMMITMENT_MINIMUM) {
-        log_cb(RETRO_LOG_WARN, "(MmapCommit) Received windows error %u {Virtual Memory Minimum Too Low}.\n", ERROR_COMMITMENT_MINIMUM);
-        Sleep(1000); // Cut windows some time to rework its memory...
-    } else if (errcode != ERROR_NOT_ENOUGH_MEMORY && errcode != ERROR_OUTOFMEMORY) {
-        return false;
+    if (errcode == ERROR_COMMITMENT_MINIMUM)
+    {
+       log_cb(RETRO_LOG_WARN, "(MmapCommit) Received windows error %u {Virtual Memory Minimum Too Low}.\n", ERROR_COMMITMENT_MINIMUM);
+       Sleep(1000); // Cut windows some time to rework its memory...
     }
+    else if (errcode != ERROR_NOT_ENOUGH_MEMORY && errcode != ERROR_OUTOFMEMORY)
+        return false;
 
     if (!pxDoOutOfMemory)
         return false;
@@ -134,17 +131,11 @@ void HostSys::Munmap(uptr base, size_t size)
 
 void HostSys::MemProtect(void *baseaddr, size_t size, const PageProtectionMode &mode)
 {
-    pxAssertDev(((size & (__pagesize - 1)) == 0), pxsFmt(
-                                                      L"Memory block size must be a multiple of the target platform's page size.\n"
-                                                      L"\tPage Size: 0x%04x (%d), Block Size: 0x%04x (%d)",
-                                                      __pagesize, __pagesize, size, size));
-
     DWORD OldProtect; // enjoy my uselessness, yo!
-    if (!VirtualProtect(baseaddr, size, ConvertToWinApi(mode), &OldProtect)) {
-	log_cb(RETRO_LOG_ERROR,
-            "VirtualProtect failed @ 0x%08X -> 0x%08X  (mode=%s)\n",
-                   baseaddr, (uptr)baseaddr + size, mode.ToString().c_str());
-
-        //pxFailDev(apiError.FormatDiagnosticMessage());
+    if (!VirtualProtect(baseaddr, size, ConvertToWinApi(mode), &OldProtect))
+    {
+       log_cb(RETRO_LOG_ERROR,
+             "VirtualProtect failed @ 0x%08X -> 0x%08X  (mode=%s)\n",
+             baseaddr, (uptr)baseaddr + size, mode.ToString().c_str());
     }
 }
