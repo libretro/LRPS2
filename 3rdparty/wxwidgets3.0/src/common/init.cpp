@@ -34,6 +34,11 @@
 #include "wx/scopedptr.h"
 #include "wx/except.h"
 
+#if defined(__WINDOWS__)
+    #include "wx/msw/private.h"
+    #include "wx/msw/msvcrt.h"
+#endif
+
 #if wxUSE_UNICODE && defined(__WXOSX__)
     #include <locale.h>
 #endif
