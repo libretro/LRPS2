@@ -128,9 +128,6 @@ public:
     // get next file in the enumeration started with GetFirst()
     bool GetNext(wxString *filename) const;
 
-    // return true if this directory has any files in it
-    bool HasFiles(const wxString& spec = wxEmptyString) const;
-
     // enumerate all files in this directory and its subdirectories
     //
     // return the number of files found
@@ -151,11 +148,6 @@ public:
     static wxString FindFirst(const wxString& dirname,
                               const wxString& filespec,
                               int flags = wxDIR_DEFAULT);
-
-#if wxUSE_LONGLONG
-    // returns the size of all directories recursively found in given path
-    static wxULongLong GetTotalSize(const wxString &dir, wxArrayString *filesSkipped = NULL);
-#endif // wxUSE_LONGLONG
 
 
     // static utilities for directory management

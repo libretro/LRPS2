@@ -47,18 +47,6 @@ wxDirTraverser::OnOpenError(const wxString& WXUNUSED(dirname))
 }
 
 // ----------------------------------------------------------------------------
-// wxDir::HasFiles()
-// ----------------------------------------------------------------------------
-
-// dumb generic implementation
-
-bool wxDir::HasFiles(const wxString& spec) const
-{
-    wxString s;
-    return GetFirst(&s, spec, wxDIR_FILES | wxDIR_HIDDEN);
-}
-
-// ----------------------------------------------------------------------------
 // wxDir::GetNameWithSep()
 // ----------------------------------------------------------------------------
 
@@ -284,77 +272,6 @@ wxString wxDir::FindFirst(const wxString& dirname,
     return wxEmptyString;
 }
 
-
-// ----------------------------------------------------------------------------
-// wxDir::GetTotalSize()
-// ----------------------------------------------------------------------------
-
-#if wxUSE_LONGLONG
-
-class wxDirTraverserSumSize : public wxDirTraverser
-{
-public:
-    wxDirTraverserSumSize() { }
-
-    virtual wxDirTraverseResult OnFile(const wxString& filename)
-    {
-        // wxFileName::GetSize won't use this class again as
-        // we're passing it a file and not a directory;
-        // thus we are sure to avoid an endless loop
-        wxULongLong sz = wxFileName::GetSize(filename);
-
-        if (sz == wxInvalidSize)
-        {
-            // if the GetSize() failed (this can happen because e.g. a
-            // file is locked by another process), we can proceed but
-            // we need to at least warn the user that the resulting
-            // final size could be not reliable (if e.g. the locked
-            // file is very big).
-            m_skippedFiles.Add(filename);
-            return wxDIR_CONTINUE;
-        }
-
-        m_sz += sz;
-        return wxDIR_CONTINUE;
-    }
-
-    virtual wxDirTraverseResult OnDir(const wxString& WXUNUSED(dirname))
-    {
-        return wxDIR_CONTINUE;
-    }
-
-    wxULongLong GetTotalSize() const
-        { return m_sz; }
-    const wxArrayString& GetSkippedFiles() const
-        { return m_skippedFiles; }
-
-protected:
-    wxULongLong m_sz;
-    wxArrayString m_skippedFiles;
-};
-
-wxULongLong wxDir::GetTotalSize(const wxString &dirname, wxArrayString *filesSkipped)
-{
-    if (!wxDirExists(dirname))
-        return wxInvalidSize;
-
-    // to get the size of this directory and its contents we need
-    // to recursively walk it...
-    wxDir dir(dirname);
-    if ( !dir.IsOpened() )
-        return wxInvalidSize;
-
-    wxDirTraverserSumSize traverser;
-    if (dir.Traverse(traverser) == (size_t)-1 )
-        return wxInvalidSize;
-
-    if (filesSkipped)
-        *filesSkipped = traverser.GetSkippedFiles();
-
-    return traverser.GetTotalSize();
-}
-
-#endif // wxUSE_LONGLONG
 
 // ----------------------------------------------------------------------------
 // wxDir helpers
