@@ -238,34 +238,5 @@ private:
     wxEventLoopBase *m_evtLoopOld;
 };
 
-#if wxUSE_CONSOLE_EVENTLOOP
-
-class wxEventLoopGuarantor
-{
-public:
-    wxEventLoopGuarantor()
-    {
-        m_evtLoopNew = NULL;
-        if (!wxEventLoop::GetActive())
-        {
-            m_evtLoopNew = new wxEventLoop;
-            wxEventLoop::SetActive(m_evtLoopNew);
-        }
-    }
-
-    ~wxEventLoopGuarantor()
-    {
-        if (m_evtLoopNew)
-        {
-            wxEventLoop::SetActive(NULL);
-            delete m_evtLoopNew;
-        }
-    }
-
-private:
-    wxEventLoop *m_evtLoopNew;
-};
-
-#endif // wxUSE_CONSOLE_EVENTLOOP
 
 #endif // _WX_EVTLOOP_H_

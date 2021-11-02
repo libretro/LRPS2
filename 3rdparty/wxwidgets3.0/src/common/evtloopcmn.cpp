@@ -48,9 +48,6 @@ bool wxEventLoopBase::IsMain() const
 void wxEventLoopBase::SetActive(wxEventLoopBase* loop)
 {
     ms_activeLoop = loop;
-
-    if (wxTheApp)
-        wxTheApp->OnEventLoopEnter(loop);
 }
 
 int wxEventLoopBase::Run()
@@ -79,8 +76,6 @@ void wxEventLoopBase::Exit(int rc)
 
 void wxEventLoopBase::OnExit()
 {
-    if (wxTheApp)
-        wxTheApp->OnEventLoopExit(this);
 }
 
 void wxEventLoopBase::WakeUpIdle()

@@ -69,20 +69,9 @@ public:
     // be done here. When OnRun() returns, the programs starts shutting down.
     virtual int OnRun();
 
-    // This is called by wxEventLoopBase::SetActive(): you should put the code
-    // which needs an active event loop here.
-    // Note that this function is called whenever an event loop is activated;
-    // you may want to use wxEventLoopBase::IsMain() to perform initialization
-    // specific for the app's main event loop.
-    virtual void OnEventLoopEnter(wxEventLoopBase* WXUNUSED(loop)) {}
-
     // This is only called if OnInit() returned true so it's a good place to do
     // any cleanup matching the initializations done there.
     virtual int OnExit();
-
-    // This is called by wxEventLoopBase::OnExit() for each event loop which
-    // is exited.
-    virtual void OnEventLoopExit(wxEventLoopBase* WXUNUSED(loop)) {}
 
     // This is the very last function called on wxApp object before it is
     // destroyed. If you override it (instead of overriding OnExit() as usual)
