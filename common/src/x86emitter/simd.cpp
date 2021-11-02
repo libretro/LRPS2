@@ -34,7 +34,7 @@ const wxChar *EnumToString(SSE_RoundMode sse)
         case SSEround_Chop:
             return L"Chop";
         default:
-            return L"Invalid";
+	    break;
     }
 
     return L"Invalid";
