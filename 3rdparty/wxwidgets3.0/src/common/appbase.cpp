@@ -83,16 +83,6 @@ wxAppConsoleBase::wxAppConsoleBase()
 
     ms_appInstance = static_cast<wxAppConsole *>(this);
 
-#ifdef __WXDEBUG__
-    SetTraceMasks();
-#if wxUSE_UNICODE
-    // In unicode mode the SetTraceMasks call can cause an apptraits to be
-    // created, but since we are still in the constructor the wrong kind will
-    // be created for GUI apps.  Destroy it so it can be created again later.
-    wxDELETE(m_traits);
-#endif
-#endif
-
     wxEvtHandler::AddFilter(this);
 }
 

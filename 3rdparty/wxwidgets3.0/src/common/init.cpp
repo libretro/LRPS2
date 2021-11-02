@@ -34,24 +34,6 @@
 #include "wx/scopedptr.h"
 #include "wx/except.h"
 
-#if defined(__WINDOWS__)
-    #include "wx/msw/private.h"
-    #include "wx/msw/msvcrt.h"
-
-    #ifdef wxCrtSetDbgFlag
-        static struct EnableMemLeakChecking
-        {
-            EnableMemLeakChecking()
-            {
-                // check for memory leaks on program exit (another useful flag
-                // is _CRTDBG_DELAY_FREE_MEM_DF which doesn't free deallocated
-                // memory which may be used to simulate low-memory condition)
-                wxCrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF);
-            }
-        } gs_enableLeakChecks;
-    #endif // wxCrtSetDbgFlag
-#endif // __WINDOWS__
-
 #if wxUSE_UNICODE && defined(__WXOSX__)
     #include <locale.h>
 #endif
