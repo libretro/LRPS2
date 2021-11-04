@@ -53,11 +53,6 @@
 
 // #define XBYAK_DISABLE_AVX512
 
-//#define XBYAK_USE_MMAP_ALLOCATOR
-#if !defined(__GNUC__) || defined(__MINGW32__)
-	#undef XBYAK_USE_MMAP_ALLOCATOR
-#endif
-
 #ifdef __GNUC__
 	#define XBYAK_GNUC_PREREQ(major, minor) ((__GNUC__) * 100 + (__GNUC_MINOR__) >= (major) * 100 + (minor))
 #else
@@ -268,39 +263,6 @@ struct Allocator {
 	/* override to return false if you call protect() manually */
 	virtual bool useProtect() const { return true; }
 };
-
-#ifdef XBYAK_USE_MMAP_ALLOCATOR
-class MmapAllocator : Allocator {
-	typedef XBYAK_STD_UNORDERED_MAP<uintptr_t, size_t> SizeList;
-	SizeList sizeList_;
-public:
-	uint8 *alloc(size_t size)
-	{
-		const size_t alignedSizeM1 = inner::ALIGN_PAGE_SIZE - 1;
-		size = (size + alignedSizeM1) & ~alignedSizeM1;
-#ifdef MAP_ANONYMOUS
-		const int mode = MAP_PRIVATE | MAP_ANONYMOUS;
-#elif defined(MAP_ANON)
-		const int mode = MAP_PRIVATE | MAP_ANON;
-#else
-		#error "not supported"
-#endif
-		void *p = mmap(NULL, size, PROT_READ | PROT_WRITE, mode, -1, 0);
-		if (p == MAP_FAILED) throw Error(ERR_CANT_ALLOC);
-		assert(p);
-		sizeList_[(uintptr_t)p] = size;
-		return (uint8*)p;
-	}
-	void free(uint8 *p)
-	{
-		if (p == 0) return;
-		SizeList::iterator i = sizeList_.find((uintptr_t)p);
-		if (i == sizeList_.end()) throw Error(ERR_BAD_PARAMETER);
-		if (munmap((void*)i->first, i->second) < 0) throw Error(ERR_MUNMAP);
-		sizeList_.erase(i);
-	}
-};
-#endif
 
 class Operand {
 	static const uint8 EXT8BIT = 0x80;
@@ -681,11 +643,7 @@ class CodeArray {
 	typedef std::list<AddrInfo> AddrInfoList;
 	AddrInfoList addrInfoList_;
 	const Type type_;
-#ifdef XBYAK_USE_MMAP_ALLOCATOR
-	MmapAllocator defaultAllocator_;
-#else
 	Allocator defaultAllocator_;
-#endif
 	Allocator *alloc_;
 protected:
 	size_t maxSize_;
