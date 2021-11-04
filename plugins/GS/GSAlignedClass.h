@@ -23,9 +23,10 @@
 
 template<int i> class GSAlignedClass
 {
+protected:
+	GSAlignedClass() = default;
+	~GSAlignedClass() = default;
 public:
-	GSAlignedClass() {}
-	virtual ~GSAlignedClass() {}
 
 	void* operator new (size_t size)
 	{
