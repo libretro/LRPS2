@@ -312,12 +312,6 @@ public:
 		}
 		setFamily();
 	}
-	void putFamily()
-	{
-		printf("family=%d, model=%X, stepping=%d, extFamily=%d, extModel=%X\n",
-			family, model, stepping, extFamily, extModel);
-		printf("display:family=%X, model=%X\n", displayFamily, displayModel);
-	}
 	bool has(Type type) const
 	{
 		return (type & type_) != 0;
@@ -440,13 +434,6 @@ public:
 			pack.tbl_[i] = tbl_[pos + i];
 		}
 		return pack;
-	}
-	void put() const
-	{
-		for (size_t i = 0; i < n_; i++) {
-			printf("%s ", tbl_[i]->toString());
-		}
-		printf("\n");
 	}
 };
 

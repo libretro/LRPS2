@@ -43,7 +43,6 @@
 	#endif
 #endif
 
-#include <stdio.h> // for debug print
 #include <assert.h>
 #include <list>
 #include <string>
@@ -201,69 +200,11 @@ class Error : public std::exception {
 public:
 	explicit Error(int err) : err_(err)
 	{
-		if (err_ < 0 || err_ > ERR_INTERNAL) {
-			fprintf(stderr, "bad err=%d in Xbyak::Error\n", err_);
+		if (err_ < 0 || err_ > ERR_INTERNAL)
 			exit(1);
-		}
 	}
 	operator int() const { return err_; }
-	const char *what() const throw()
-	{
-		static const char *errTbl[] = {
-			"none",
-			"bad addressing",
-			"code is too big",
-			"bad scale",
-			"esp can't be index",
-			"bad combination",
-			"bad size of register",
-			"imm is too big",
-			"bad align",
-			"label is redefined",
-			"label is too far",
-			"label is not found",
-			"code is not copyable",
-			"bad parameter",
-			"can't protect",
-			"can't use 64bit disp(use (void*))",
-			"offset is too big",
-			"MEM size is not specified",
-			"bad mem size",
-			"bad st combination",
-			"over local label",
-			"under local label",
-			"can't alloc",
-			"T_SHORT is not supported in AutoGrow",
-			"bad protect mode",
-			"bad pNum",
-			"bad tNum",
-			"bad vsib addressing",
-			"can't convert",
-			"label is not set by L()",
-			"label is already set by L()",
-			"bad label string",
-			"err munmap",
-			"opmask is already set",
-			"rounding is already set",
-			"k0 is invalid",
-			"evex is invalid",
-			"sae(suppress all exceptions) is invalid",
-			"er(embedded rounding) is invalid",
-			"invalid broadcast",
-			"invalid opmask with memory",
-			"invalid zero",
-			"invalid rip in AutoGrow",
-			"internal error",
-		};
-		assert((size_t)err_ < sizeof(errTbl) / sizeof(*errTbl));
-		return errTbl[err_];
-	}
 };
-
-inline const char *ConvertErrorToString(Error err)
-{
-	return err.what();
-}
 
 inline void *AlignedMalloc(size_t size, size_t alignment)
 {
@@ -460,51 +401,6 @@ public:
 	}
 	bool isBit(uint32 bit) const { return (bit_ & bit) != 0; }
 	uint32 getBit() const { return bit_; }
-	const char *toString() const
-	{
-		const int idx = getIdx();
-		if (kind_ == REG) {
-			if (isExt8bit()) {
-				static const char *tbl[4] = { "spl", "bpl", "sil", "dil" };
-				return tbl[idx - 4];
-			}
-			static const char *tbl[4][16] = {
-				{ "al", "cl", "dl", "bl", "ah", "ch", "dh", "bh", "r8b", "r9b", "r10b",  "r11b", "r12b", "r13b", "r14b", "r15b" },
-				{ "ax", "cx", "dx", "bx", "sp", "bp", "si", "di", "r8w", "r9w", "r10w",  "r11w", "r12w", "r13w", "r14w", "r15w" },
-				{ "eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi", "r8d", "r9d", "r10d",  "r11d", "r12d", "r13d", "r14d", "r15d" },
-				{ "rax", "rcx", "rdx", "rbx", "rsp", "rbp", "rsi", "rdi", "r8", "r9", "r10",  "r11", "r12", "r13", "r14", "r15" },
-			};
-			return tbl[bit_ == 8 ? 0 : bit_ == 16 ? 1 : bit_ == 32 ? 2 : 3][idx];
-		} else if (isOPMASK()) {
-			static const char *tbl[8] = { "k0", "k1", "k2", "k3", "k4", "k5", "k6", "k7" };
-			return tbl[idx];
-		} else if (isZMM()) {
-			static const char *tbl[32] = {
-				"zmm0", "zmm1", "zmm2", "zmm3", "zmm4", "zmm5", "zmm6", "zmm7", "zmm8", "zmm9", "zmm10", "zmm11", "zmm12", "zmm13", "zmm14", "zmm15",
-				"zmm16", "zmm17", "zmm18", "zmm19", "zmm20", "zmm21", "zmm22", "zmm23", "zmm24", "zmm25", "zmm26", "zmm27", "zmm28", "zmm29", "zmm30", "zmm31"
-			};
-			return tbl[idx];
-		} else if (isYMM()) {
-			static const char *tbl[32] = {
-				"ymm0", "ymm1", "ymm2", "ymm3", "ymm4", "ymm5", "ymm6", "ymm7", "ymm8", "ymm9", "ymm10", "ymm11", "ymm12", "ymm13", "ymm14", "ymm15",
-				"ymm16", "ymm17", "ymm18", "ymm19", "ymm20", "ymm21", "ymm22", "ymm23", "ymm24", "ymm25", "ymm26", "ymm27", "ymm28", "ymm29", "ymm30", "ymm31"
-			};
-			return tbl[idx];
-		} else if (isXMM()) {
-			static const char *tbl[32] = {
-				"xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7", "xmm8", "xmm9", "xmm10", "xmm11", "xmm12", "xmm13", "xmm14", "xmm15",
-				"xmm16", "xmm17", "xmm18", "xmm19", "xmm20", "xmm21", "xmm22", "xmm23", "xmm24", "xmm25", "xmm26", "xmm27", "xmm28", "xmm29", "xmm30", "xmm31"
-			};
-			return tbl[idx];
-		} else if (isMMX()) {
-			static const char *tbl[8] = { "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7" };
-			return tbl[idx];
-		} else if (isFPU()) {
-			static const char *tbl[8] = { "st0", "st1", "st2", "st3", "st4", "st5", "st6", "st7" };
-			return tbl[idx];
-		}
-		throw Error(ERR_INTERNAL);
-	}
 	bool isEqualIfNotInherited(const Operand& rhs) const { return idx_ == rhs.idx_ && kind_ == rhs.kind_ && bit_ == rhs.bit_ && zero_ == rhs.zero_ && mask_ == rhs.mask_ && rounding_ == rhs.rounding_; }
 	bool operator==(const Operand& rhs) const;
 	bool operator!=(const Operand& rhs) const { return !operator==(rhs); }
@@ -664,13 +560,6 @@ public:
 	};
 	explicit Segment(int idx) : idx_(idx) { assert(0 <= idx_ && idx_ < 6); }
 	int getIdx() const { return idx_; }
-	const char *toString() const
-	{
-		static const char tbl[][3] = {
-			"es", "cs", "ss", "ds", "fs", "gs"
-		};
-		return tbl[idx_];
-	}
 };
 #endif
 
@@ -887,28 +776,6 @@ public:
 	{
 		if (size > maxSize_) throw Error(ERR_OFFSET_IS_TOO_BIG);
 		size_ = size;
-	}
-	void dump() const
-	{
-		const uint8 *p = getCode();
-		size_t bufSize = getSize();
-		size_t remain = bufSize;
-		for (int i = 0; i < 4; i++) {
-			size_t disp = 16;
-			if (remain < 16) {
-				disp = remain;
-			}
-			for (size_t j = 0; j < 16; j++) {
-				if (j < disp) {
-					printf("%02X", p[i * 16 + j]);
-				}
-			}
-			putchar('\n');
-			remain -= disp;
-			if (remain == 0) {
-				break;
-			}
-		}
 	}
 	/*
 		@param offset [in] offset from top
@@ -2361,13 +2228,6 @@ public:
 		if (hasUndefinedLabel()) throw Error(ERR_LABEL_IS_NOT_FOUND);
 		if (isAutoGrow()) calcJmpAddress();
 	}
-#ifdef XBYAK_TEST
-	void dump(bool doClear = true)
-	{
-		CodeArray::dump();
-		if (doClear) size_ = 0;
-	}
-#endif
 
 #ifndef XBYAK_DONT_READ_LIST
 #include "xbyak_mnemonic.h"
