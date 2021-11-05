@@ -311,7 +311,6 @@ public:
 
     // Diagnostics -- returns a string representation of this register.  Return string
     // is a valid non-null string for any Id, valid or invalid.  No assertions are generated.
-    const char *GetName();
     int GetId() const { return Id; }
 };
 
@@ -1010,57 +1009,6 @@ extern const xAddressIndexer<xIndirect64> ptr64;
 extern const xAddressIndexer<xIndirect32> ptr32;
 extern const xAddressIndexer<xIndirect16> ptr16;
 extern const xAddressIndexer<xIndirect8> ptr8;
-
-// --------------------------------------------------------------------------------------
-//  xDirectOrIndirect
-// --------------------------------------------------------------------------------------
-// This utility class can represent either a direct (register) or indirect (memory address)
-// source or destination operand.  When supplied to an emitted instruction, the direct form
-// is favored *if* it is not Empty (xEmptyReg).  Otherwise the indirect form is used.
-//
-#if 0
-	template< typename xRegType, typename xSibType >
-	class xDirectOrIndirect
-	{
-		xRegType	m_RegDirect;
-		xSibType	m_MemIndirect;
-
-	public:
-		xDirectOrIndirect() :
-			m_RegDirect(), m_MemIndirect( 0 ) {}
-
-		xDirectOrIndirect( const xRegType& srcreg ) :
-			m_RegDirect( srcreg ), m_MemIndirect( 0 ) {}
-
-		explicit xDirectOrIndirect( const xSibType& srcmem ) :
-			m_RegDirect(), m_MemIndirect( srcmem ) {}
-
-		const xRegType& GetReg() const { return m_RegDirect; }
-		const xSibType& GetMem() const { return m_MemIndirect; }
-		bool IsDirect() const { return !m_RegDirect.IsEmpty(); }
-		bool IsIndirect() const { return m_RegDirect.IsEmpty(); }
-
-		bool operator==( const xDirectOrIndirect& src ) const
-		{
-			return IsDirect() ?
-				(m_RegDirect == src.m_RegDirect) :
-				(m_MemIndirect == src.m_MemIndirect);
-		}
-
-		bool operator!=( const xDirectOrIndirect& src ) const
-		{
-			return !operator==( src );
-		}
-
-		bool operator==( const xRegType& src ) const	{ return (m_RegDirect == src); }
-		bool operator!=( const xRegType& src ) const	{ return (m_RegDirect != src); }
-	};
-
-	typedef xDirectOrIndirect<xRegister8,xIndirect8>		xDirectOrIndirect8;
-	typedef xDirectOrIndirect<xRegister16,xIndirect16>		xDirectOrIndirect16;
-	typedef xDirectOrIndirect<xRegister32,xIndirect32>		xDirectOrIndirect32;
-	typedef xDirectOrIndirect<xRegisterSSE,xIndirect128>	xDirectOrIndirect128;
-#endif
 
 // --------------------------------------------------------------------------------------
 //  xSmartJump
