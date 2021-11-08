@@ -50,7 +50,7 @@ static void __fastcall psxDmaGeneric(u32 madr, u32 bcr, u32 chcr, u32 spuCore)
 #endif
 
 	psxCounters[6].sCycleT = psxRegs.cycle;
-	psxCounters[6].CycleT = size * 3;
+	psxCounters[6].CycleT = size * 2;
 
 	psxNextCounter -= (psxRegs.cycle - psxNextsCounter);
 	psxNextsCounter = psxRegs.cycle;

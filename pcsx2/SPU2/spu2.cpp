@@ -34,15 +34,6 @@ u32 lClocks = 0;
 //  DMA 4/7 Callbacks from Core Emulator
 // --------------------------------------------------------------------------------------
 
-u32 SPU2ReadMemAddr(int core)
-{
-	return Cores[core].MADR;
-}
-void SPU2WriteMemAddr(int core, u32 value)
-{
-	Cores[core].MADR = value;
-}
-
 void SPU2readDMA4Mem(u16* pMem, u32 size) // size now in 16bit units
 {
 	TimeUpdate(psxRegs.cycle);
@@ -59,64 +50,58 @@ void SPU2writeDMA4Mem(u16* pMem, u32 size) // size now in 16bit units
 
 void SPU2interruptDMA4()
 {
-	Cores[0].Regs.STATX |= 0x80;
-	//Cores[0].Regs.ATTR &= ~0x30;
+	if (Cores[0].DmaMode)
+		Cores[0].Regs.STATX |= 0x80;
+	Cores[0].Regs.STATX &= ~0x400;
+	Cores[0].TSA = Cores[0].ActiveTSA;
 }
 
 void SPU2interruptDMA7()
 {
-	Cores[1].Regs.STATX |= 0x80;
-	//Cores[1].Regs.ATTR &= ~0x30;
+	if (Cores[1].DmaMode)
+		Cores[1].Regs.STATX |= 0x80;
+	Cores[1].Regs.STATX &= ~0x400;
+	Cores[1].TSA = Cores[1].ActiveTSA;
 }
 
 void SPU2readDMA7Mem(u16* pMem, u32 size)
 {
 	TimeUpdate(psxRegs.cycle);
-
 	Cores[1].DoDMAread(pMem, size);
 }
 
 void SPU2writeDMA7Mem(u16* pMem, u32 size)
 {
 	TimeUpdate(psxRegs.cycle);
-
 	Cores[1].DoDMAwrite(pMem, size);
 }
 
-s32 SPU2reset()
+s32 SPU2reset(PS2Modes isRunningPSXMode)
 {
-	if (SampleRate != 48000)
+	int requiredSampleRate = (isRunningPSXMode == PS2Modes::PSX) ? 44100 : 48000;
+
+	if (isRunningPSXMode == PS2Modes::PS2)
 	{
-		SampleRate = 48000;
+		memset(spu2regs, 0, 0x010000);
+		memset(_spu2mem, 0, 0x200000);
+		memset(_spu2mem + 0x2800, 7, 0x10); // from BIOS reversal. Locks the voices so they don't run free.
+		/* TODO/FIXME - this breaks Klonoa 2 right now and might
+		 * break other games too, might need to enable this specifically
+		 * for Mega Man X7 if no other way can be found */
+		memset(_spu2mem + 0xe870, 7, 0x10); // Loop which gets left over by the BIOS, Megaman X7 relies on it being there.
+		Spdif.Info = 0; // Reset IRQ Status if it got set in a previously run game
+
+		Cores[0].Init(0);
+		Cores[1].Init(1);
+	}
+
+	if (SampleRate != requiredSampleRate)
+	{
+		SampleRate = requiredSampleRate;
 		/* TODO/FIXME - we would want to call
 		   set_av_info here to set the audio samplerate */
 	}
 
-	memset(spu2regs, 0, 0x010000);
-	memset(_spu2mem, 0, 0x200000);
-	memset(_spu2mem + 0x2800, 7, 0x10); // from BIOS reversal. Locks the voices so they don't run free.
-
-	/* TODO/FIXME - this breaks Klonoa 2 right now and might
-	 * break other games too, might need to enable this specifically
-	 * for Mega Man X7 if no other way can be found */
-	//memset(_spu2mem + 0xe870, 7, 0x10); // Loop which gets left over by the BIOS, Megaman X7 relies on it being there.
-	Spdif.Info = 0; // Reset IRQ Status if it got set in a previously run game
-
-	Cores[0].Init(0);
-	Cores[1].Init(1);
-	return 0;
-}
-
-s32 SPU2ps1reset()
-{
-	printf("RESET PS1 \n");
-
-	if (SampleRate != 44100)
-	{
-		SampleRate = 44100;
-		/* TODO/FIXME - we would want to call
-		   set_av_info here to set the audio samplerate */
-	}
 
 	return 0;
 }
@@ -189,7 +174,7 @@ s32 SPU2init()
 			regtable[mem >> 1] = &(spu2Ru16(mem));
 	}
 
-	SPU2reset();
+	SPU2reset(PS2Modes::PS2);
 
 	InitADSR();
 
@@ -223,7 +208,9 @@ void SPU2async(u32 cycles)
 
 u16 SPU2read(u32 rmem)
 {
+	u16 ret = 0xDEAD;
 	u32 core = 0, mem = rmem & 0xFFFF, omem = mem;
+
 	if (mem & 0x400)
 	{
 		omem ^= 0x400;
@@ -231,15 +218,28 @@ u16 SPU2read(u32 rmem)
 	}
 
 	if (omem == 0x1f9001AC)
-		return Cores[core].DmaRead();
+	{
+		Cores[core].ActiveTSA = Cores[core].TSA;
+		for (int i = 0; i < 2; i++)
+		{
+			if (Cores[i].IRQEnable && (Cores[i].IRQA == Cores[core].ActiveTSA))
+				SetIrqCall(i);
+		}
+		ret = Cores[core].DmaRead();
+	}
+	else
+	{
+		TimeUpdate(psxRegs.cycle);
 
-	TimeUpdate(psxRegs.cycle);
+		if (rmem >> 16 == 0x1f80)
+			ret = Cores[0].ReadRegPS1(rmem);
+		else if (mem >= 0x800)
+			ret = spu2Ru16(mem);
+		else
+			ret = *(regtable[(mem >> 1)]);
+	}
 
-	if (rmem >> 16 == 0x1f80)
-		return Cores[0].ReadRegPS1(rmem);
-	else if (mem >= 0x800)
-		return spu2Ru16(mem);
-	return *(regtable[(mem >> 1)]);
+	return ret;
 }
 
 void SPU2write(u32 rmem, u16 value)
@@ -260,10 +260,7 @@ s32 SPU2freeze(int mode, freezeData* data)
 {
 	pxAssume(data != nullptr);
 	if (!data)
-	{
-		printf("SPU2 savestate null pointer!\n");
 		return -1;
-	}
 
 	if (mode == FREEZE_SIZE)
 	{
@@ -274,10 +271,7 @@ s32 SPU2freeze(int mode, freezeData* data)
 	pxAssume(mode == FREEZE_LOAD || mode == FREEZE_SAVE);
 
 	if (data->data == nullptr)
-	{
-		printf("SPU2 savestate null pointer!\n");
 		return -1;
-	}
 
 	SPU2Savestate::DataBlock& spud = (SPU2Savestate::DataBlock&)*(data->data);
 
@@ -293,50 +287,4 @@ s32 SPU2freeze(int mode, freezeData* data)
 
 	// technically unreachable, but kills a warning:
 	return 0;
-}
-
-void SPU2DoFreezeOut(void* dest)
-{
-	freezeData fP = {0, (s8*)dest};
-	if (SPU2freeze(FREEZE_SIZE, &fP) != 0)
-		return;
-	if (!fP.size)
-		return;
-
-	log_cb(RETRO_LOG_INFO, "Saving SPU2\n");
-
-	if (SPU2freeze(FREEZE_SAVE, &fP) != 0)
-		throw std::runtime_error(" * SPU2: Error saving state!\n");
-}
-
-
-void SPU2DoFreezeIn(pxInputStream& infp)
-{
-	freezeData fP = {0, nullptr};
-	if (SPU2freeze(FREEZE_SIZE, &fP) != 0)
-		fP.size = 0;
-
-	log_cb(RETRO_LOG_INFO, "Loading SPU2\n");
-
-	if (!infp.IsOk() || !infp.Length())
-	{
-		// no state data to read, but SPU2 expects some state data?
-		// Issue a warning to console...
-		if (fP.size != 0)
-			log_cb(RETRO_LOG_WARN, "Warning: No data for SPU2 found. Status may be unpredictable.\n");
-
-		return;
-
-		// Note: Size mismatch check could also be done here on loading, but
-		// some plugins may have built-in version support for non-native formats or
-		// older versions of a different size... or could give different sizes depending
-		// on the status of the plugin when loading, so let's ignore it.
-	}
-
-	ScopedAlloc<s8> data(fP.size);
-	fP.data = data.GetPtr();
-
-	infp.Read(fP.data, fP.size);
-	if (SPU2freeze(FREEZE_LOAD, &fP) != 0)
-		throw std::runtime_error(" * SPU2: Error loading state!\n");
 }

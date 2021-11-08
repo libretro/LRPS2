@@ -53,8 +53,6 @@ s32 __fastcall SPU2Savestate::FreezeIt(DataBlock& spud)
 	spud.spu2id = SAVE_ID;
 	spud.version = SAVE_VERSION;
 
-	pxAssertMsg(spu2regs && _spu2mem, "Looks like PCSX2 is trying to savestate while components are shut down.  That's a no-no! It shouldn't crash, but the savestate will probably be corrupted.");
-
 	if (spu2regs != nullptr)
 		memcpy(spud.unkregs, spu2regs, sizeof(spud.unkregs));
 	if (_spu2mem != nullptr)
@@ -81,16 +79,6 @@ s32 __fastcall SPU2Savestate::ThawIt(DataBlock& spud)
 {
 	if (spud.spu2id != SAVE_ID || spud.version < SAVE_VERSION)
 	{
-		fprintf(stderr, "\n*** SPU2 Warning:\n");
-		if (spud.spu2id == SAVE_ID)
-			fprintf(stderr, "\tSavestate version is from an older version of PCSX2.\n");
-		else
-			fprintf(stderr, "\tThe savestate you are trying to load is incorrect or corrupted.\n");
-
-		fprintf(stderr,
-				"\tAudio may not recover correctly.  Save your game to memorycard, reset,\n\n"
-				"\tand then continue from there.\n\n");
-
 		// Do *not* reset the cores.
 		// We'll need some "hints" as to how the cores should be initialized, and the
 		// only way to get that is to use the game's existing core settings and hope
@@ -102,7 +90,7 @@ s32 __fastcall SPU2Savestate::ThawIt(DataBlock& spud)
 	}
 	else
 	{
-		pxAssertMsg(spu2regs && _spu2mem, "Looks like PCSX2 is trying to loadstate while components are shut down.  That's a no-no!  It shouldn't crash, but the savestate will probably be corrupted.");
+		SndBuffer::ClearContents();
 
 		// base stuff
 		if (spu2regs)

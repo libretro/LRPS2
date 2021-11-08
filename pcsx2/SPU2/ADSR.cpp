@@ -16,18 +16,17 @@
 #include "PrecompiledHeader.h"
 #include "Global.h"
 
-static const s32 ADSR_MAX_VOL = 0x7fffffff;
+#define ADSR_MAX_VOL 0x7fffffff
 
 static const int InvExpOffsets[] = {0, 4, 6, 8, 9, 10, 11, 12};
 static u32 PsxRates[160];
 
-
-void InitADSR() // INIT ADSR
+void InitADSR(void) // INIT ADSR
 {
 	for (int i = 0; i < (32 + 128); i++)
 	{
 		int shift = (i - 32) >> 2;
-		s64 rate = (i & 3) + 4;
+		s64 rate  = (i & 3) + 4;
 		if (shift < 0)
 			rate >>= -shift;
 		else
@@ -168,10 +167,10 @@ bool V_ADSR::Calculate()
 /////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                     //
 
-#define VOLFLAG_REVERSE_PHASE (1ul << 0)
-#define VOLFLAG_DECREMENT (1ul << 1)
-#define VOLFLAG_EXPONENTIAL (1ul << 2)
-#define VOLFLAG_SLIDE_ENABLE (1ul << 3)
+#define VOLFLAG_REVERSE_PHASE 	(1ul << 0)
+#define VOLFLAG_DECREMENT 	(1ul << 1)
+#define VOLFLAG_EXPONENTIAL 	(1ul << 2)
+#define VOLFLAG_SLIDE_ENABLE 	(1ul << 3)
 
 void V_VolumeSlide::Update()
 {

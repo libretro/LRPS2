@@ -48,7 +48,6 @@ static __forceinline s32 MulShr32(s32 srcval, s32 mulval)
 
 __forceinline s32 clamp_mix(s32 x, u8 bitshift)
 {
-	assert(bitshift <= 15);
 	return GetClamped(x, -(0x8000 << bitshift), 0x7fff << bitshift);
 }
 
@@ -141,6 +140,19 @@ static __forceinline s32 GetNextDataBuffered(V_Core& thiscore, uint voiceidx)
 
 	if ((vc.SCurrent & 3) == 0)
 	{
+		if (vc.PendingLoopStart)
+		{
+			if ((Cycles - vc.PlayCycle) >= 4)
+			{
+				if (vc.LoopCycle < vc.PlayCycle)
+				{
+					vc.LoopStartA = vc.PendingLoopStartA;
+					vc.LoopMode = 1;
+				}
+
+				vc.PendingLoopStart = false;
+			}
+		}
 		IncrementNextA(thiscore, voiceidx);
 
 		if ((vc.NextA & 7) == 0) // vc.SCurrent == 24 equivalent
@@ -171,13 +183,16 @@ static __forceinline s32 GetNextDataBuffered(V_Core& thiscore, uint voiceidx)
 		vc.LoopFlags = *memptr >> 8; // grab loop flags from the upper byte.
 
 		if ((vc.LoopFlags & XAFLAG_LOOP_START) && !vc.LoopMode)
+		{
 			vc.LoopStartA = vc.NextA & 0xFFFF8;
+			vc.LoopCycle = Cycles;
+		}
 
 		const int cacheIdx = vc.NextA / pcm_WordsPerBlock;
 		PcmCacheEntry& cacheLine = pcm_cache_data[cacheIdx];
 		vc.SBuffer = cacheLine.Sampledata;
 
-		if (cacheLine.Validated)
+		if (cacheLine.Validated && vc.Prev1 == cacheLine.Prev1 && vc.Prev2 == cacheLine.Prev2)
 		{
 			// Cached block!  Read from the cache directly.
 			// Make sure to propagate the prev1/prev2 ADPCM:
@@ -191,7 +206,11 @@ static __forceinline s32 GetNextDataBuffered(V_Core& thiscore, uint voiceidx)
 		{
 			// Only flag the cache if it's a non-dynamic memory range.
 			if (vc.NextA >= SPU2_DYN_MEMLINE)
+			{
 				cacheLine.Validated = true;
+				cacheLine.Prev1 = vc.Prev1;
+				cacheLine.Prev2 = vc.Prev2;
+			}
 
 			XA_decode_block(vc.SBuffer, memptr, vc.Prev1, vc.Prev2);
 		}
@@ -237,18 +256,6 @@ static __forceinline void GetNextDataDummy(V_Core& thiscore, uint voiceidx)
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
-
-static s32 __forceinline GetNoiseValues()
-{
-	static u16 lfsr = 0xC0FEu;
-
-	u16 bit = lfsr ^ (lfsr << 3) ^ (lfsr << 4) ^ (lfsr << 5);
-	lfsr = (lfsr << 1) | (bit >> 15);
-
-	return (s16)lfsr;
-}
-/////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                     //
 
 // Data is expected to be 16 bit signed (typical stuff!).
@@ -256,7 +263,6 @@ static s32 __forceinline GetNoiseValues()
 // Data is shifted up by 1 bit to give the output an effective 16 bit range.
 static __forceinline s32 ApplyVolume(s32 data, s32 volume)
 {
-	//return (volume * data) >> 15;
 	return MulShr32(data << 1, volume);
 }
 
@@ -308,6 +314,16 @@ static __forceinline void CalculateADSR(V_Core& thiscore, uint voiceidx)
 	pxAssume(vc.ADSR.Value >= 0); // ADSR should never be negative...
 }
 
+__forceinline static s32 GaussianInterpolate(s32 pv4, s32 pv3, s32 pv2, s32 pv1, s32 i)
+{
+	s32 out =  (interpTable[0x0FF - i] * pv4) >> 15;
+	out += (interpTable[0x1FF - i] * pv3) >> 15;
+	out += (interpTable[0x100 + i] * pv2) >> 15;
+	out += (interpTable[0x000 + i] * pv1) >> 15;
+
+	return out;
+}
+
 /*
    Tension: 65535 is high, 32768 is normal, 0 is low
 */
@@ -330,9 +346,9 @@ __forceinline static s32 HermiteInterpolate(
 
 	s32 val = ((2 * y1 + m0 + m1 - 2 * y2) * mu) >> 12;       // 16.0
 	val = ((val - 3 * y1 - 2 * m0 - m1 + 3 * y2) * mu) >> 12; // 16.0
-	val = ((val + m0) * mu) >> 11;                            // 16.0
+	val = ((val + m0) * mu) >> 12;                            // 16.0
 
-	return (val + (y1 << 1));
+	return (val + (y1));
 }
 
 __forceinline static s32 CatmullRomInterpolate(
@@ -357,7 +373,7 @@ __forceinline static s32 CatmullRomInterpolate(
 	val = ((a2 + val) * mu) >> 12;
 	val = ((a1 + val) * mu) >> 12;
 
-	return (a0 + val);
+	return (a0 + val) >> 1;
 }
 
 __forceinline static s32 CubicInterpolate(
@@ -376,7 +392,7 @@ __forceinline static s32 CubicInterpolate(
 	val = ((val + a1) * mu) >> 12;
 	val = ((val + a2) * mu) >> 11;
 
-	return (val + (y1 << 1));
+	return (val + y1);
 }
 
 // Returns a 16 bit result in Value.
@@ -406,7 +422,7 @@ static __forceinline s32 GetVoiceValues(V_Core& thiscore, uint voiceidx)
 		case 0:
 			return vc.PV1 << 1;
 		case 1:
-			return (vc.PV1 << 1) - (((vc.PV2 - vc.PV1) * vc.SP) >> 11);
+			return (vc.PV1) - (((vc.PV2 - vc.PV1) * mu) >> 12);
 
 		case 2:
 			return CubicInterpolate(vc.PV4, vc.PV3, vc.PV2, vc.PV1, mu);
@@ -414,6 +430,8 @@ static __forceinline s32 GetVoiceValues(V_Core& thiscore, uint voiceidx)
 			return HermiteInterpolate<16384>(vc.PV4, vc.PV3, vc.PV2, vc.PV1, mu);
 		case 4:
 			return CatmullRomInterpolate(vc.PV4, vc.PV3, vc.PV2, vc.PV1, mu);
+		case 5:
+			return GaussianInterpolate(vc.PV4, vc.PV3, vc.PV2, vc.PV1, (mu & 0x0ff0) >> 4);
 
 			jNO_DEFAULT;
 	}
@@ -421,26 +439,48 @@ static __forceinline s32 GetVoiceValues(V_Core& thiscore, uint voiceidx)
 	return 0; // technically unreachable!
 }
 
-// Noise values need to be mixed without going through interpolation, since it
-// can wreak havoc on the noise (causing muffling or popping).  Not that this noise
-// generator is accurate in its own right.. but eh, ah well :)
-static __forceinline s32 GetNoiseValues(V_Core& thiscore, uint voiceidx)
+// This is Dr. Hell's noise algorithm as implemented in pcsxr
+// Supposedly this is 100% accurate
+static __forceinline void UpdateNoise(V_Core& thiscore)
 {
-	// V_Voice &vc(thiscore.Voices[voiceidx]);
+	static const uint8_t noise_add[64] = {
+		1, 0, 0, 1, 0, 1, 1, 0,
+		1, 0, 0, 1, 0, 1, 1, 0,
+		1, 0, 0, 1, 0, 1, 1, 0,
+		1, 0, 0, 1, 0, 1, 1, 0,
+		0, 1, 1, 0, 1, 0, 0, 1,
+		0, 1, 1, 0, 1, 0, 0, 1,
+		0, 1, 1, 0, 1, 0, 0, 1,
+		0, 1, 1, 0, 1, 0, 0, 1};
 
-	s32 retval = GetNoiseValues();
+	static const uint16_t noise_freq_add[5] = {
+		0, 84, 140, 180, 210};
 
-	/*while(vc.SP>=4096)
+
+	u32 level = 0x8000 >> (thiscore.NoiseClk >> 2);
+	level <<= 16;
+
+	thiscore.NoiseCnt += 0x10000;
+
+	thiscore.NoiseCnt += noise_freq_add[thiscore.NoiseClk & 3];
+	if ((thiscore.NoiseCnt & 0xffff) >= noise_freq_add[4])
 	{
-		retval = GetNoiseValues();
-		vc.SP-=4096;
-	}*/
+		thiscore.NoiseCnt += 0x10000;
+		thiscore.NoiseCnt -= noise_freq_add[thiscore.NoiseClk & 3];
+	}
 
-	// GetNoiseValues can't set the phase zero on us unexpectedly
-	// like GetVoiceValues can.  Better assert just in case though..
-	// pxAssume(vc.ADSR.Phase != 0);
+	if (thiscore.NoiseCnt >= level)
+	{
+		while (thiscore.NoiseCnt >= level)
+			thiscore.NoiseCnt -= level;
 
-	return retval;
+		thiscore.NoiseOut = (thiscore.NoiseOut << 1) | noise_add[(thiscore.NoiseOut >> 10) & 63];
+	}
+}
+
+static __forceinline s32 GetNoiseValues(V_Core& thiscore)
+{
+	return (s16)thiscore.NoiseOut;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -496,7 +536,7 @@ static __forceinline StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 	if (vc.ADSR.Phase > 0)
 	{
 		if (vc.Noise)
-			Value = GetNoiseValues(thiscore, voiceidx);
+			Value = GetNoiseValues(thiscore);
 		else
 		{
 			// Optimization : Forceinline'd Templated Dispatch Table.  Any halfwit compiler will
@@ -518,6 +558,9 @@ static __forceinline StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 					break;
 				case 4:
 					Value = GetVoiceValues<4>(thiscore, voiceidx);
+					break;
+				case 5:
+					Value = GetVoiceValues<5>(thiscore, voiceidx);
 					break;
 
 					jNO_DEFAULT;
@@ -575,6 +618,7 @@ static __forceinline void MixCoreVoices(VoiceMixSet& dest, const uint coreidx)
 StereoOut32 V_Core::Mix(const VoiceMixSet& inVoices, const StereoOut32& Input, const StereoOut32& Ext)
 {
 	MasterVol.Update();
+	UpdateNoise(*this);
 
 	// Saturate final result to standard 16 bit range.
 	const VoiceMixSet Voices(clamp_mix(inVoices.Dry), clamp_mix(inVoices.Wet));
@@ -695,18 +739,14 @@ __forceinline
 	}
 	else
 	{
-		Out.Left = MulShr32(Out.Left << SndOutVolumeShift,
+		Out.Left  = MulShr32(Out.Left << SndOutVolumeShift,
 				Cores[1].MasterVol.Left.Value);
 		Out.Right = MulShr32(Out.Right << SndOutVolumeShift,
 				Cores[1].MasterVol.Right.Value);
 
-		// Final Clamp!
-		// Like any good audio system, the PS2 pumps the volume and incurs some distortion in its
-		// output, giving us a nice thumpy sound at times.  So we add 1 above (2x volume pump) and
-		// then clamp it all here.
-
-		Out = clamp_mix(Out, SndOutVolumeShift);
+		Out       = clamp_mix(Out, SndOutVolumeShift);
 	}
+
 	sample_cb(Out.Left >> 12, Out.Right >> 12);
 
 	// Update AutoDMA output positioning

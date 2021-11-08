@@ -31,23 +31,11 @@
 //
 StereoOut32 V_Core::ReadInput_HiFi()
 {
-	InputPosRead &= ~1;
-	//
-	//#ifdef PCM24_S1_INTERLEAVE
-	//	StereoOut32 retval(
-	//		*((s32*)(ADMATempBuffer+(InputPosRead<<1))),
-	//		*((s32*)(ADMATempBuffer+(InputPosRead<<1)+2))
-	//	);
-	//#else
-	//	StereoOut32 retval(
-	//		(s32&)(ADMATempBuffer[InputPosRead]),
-	//		(s32&)(ADMATempBuffer[InputPosRead+0x200])
-	//	);
-	//#endif
+	s16 ReadIndex = (OutPos * 2) & 0x1FF;
 
 	StereoOut32 retval(
-		(s32&)(*GetMemPtr(0x2000 + (Index << 10) + InputPosRead)),
-		(s32&)(*GetMemPtr(0x2200 + (Index << 10) + InputPosRead)));
+		(s32&)(*GetMemPtr(0x2000 + (Index << 10) + ReadIndex)),
+		(s32&)(*GetMemPtr(0x2200 + (Index << 10) + ReadIndex)));
 
 	if (Index == 1)
 	{
@@ -59,37 +47,40 @@ StereoOut32 V_Core::ReadInput_HiFi()
 		retval.Right >>= 4;
 	}
 
-	InputPosRead += 2;
-
-	// Why does CDDA mode check for InputPos == 0x100? In the old code, SPDIF mode did not but CDDA did.
-	//  One of these seems wrong, they should be the same.  Since standard ADMA checks too I'm assuming that as default. -- air
-
-	if ((InputPosRead == 0x100) || (InputPosRead >= 0x200))
+	// Simulate MADR increase, GTA VC tracks the MADR address for calculating a certain point in the buffer
+	if (InputDataTransferred)
 	{
-		AdmaInProgress = 0;
-		if (InputDataLeft >= 0x200)
+		u32 amount = std::min(InputDataTransferred, (u32)0x180);
+
+		InputDataTransferred -= amount;
+		MADR += amount;
+		// Because some games watch the MADR to see when it reaches the end we need to end the DMA here
+		// Tom & Jerry War of the Whiskers is one such game, the music will skip
+		if (!InputDataTransferred && !InputDataLeft)
 		{
-#ifdef PCM24_S1_INTERLEAVE
-			AutoDMAReadBuffer(1);
-#else
-			AutoDMAReadBuffer(0);
-#endif
-			AdmaInProgress = 1;
-
-			TSA = (Index << 10) + InputPosRead;
-
-			if (InputDataLeft < 0x200)
-			{
-				InputDataLeft = 0;
-				// Hack, kinda. We call the interrupt early here, since PCSX2 doesn't like them delayed.
-				//DMAICounter		= 1;
-				if (Index == 0)
-               spu2DMA4Irq();
-				else
-               spu2DMA7Irq();
-			}
+			if (Index == 0)
+				spu2DMA4Irq();
+			else
+				spu2DMA7Irq();
 		}
-		InputPosRead &= 0x1ff;
+	}
+
+	if (ReadIndex == 0x100 || ReadIndex == 0x0 || ReadIndex == 0x80 || ReadIndex == 0x180)
+	{
+		if (ReadIndex == 0x100)
+			InputPosWrite = 0;
+		else if (ReadIndex == 0)
+			InputPosWrite = 0x100;
+
+		if (InputDataLeft >= 0x100)
+		{
+			AutoDMAReadBuffer(0);
+			AdmaInProgress = 1;
+			if (InputDataLeft < 0x100)
+				InputDataLeft = 0;
+		}
+		else if ((AutoDMACtrl & (Index + 1)))
+			AutoDMACtrl |= ~3;
 	}
 	return retval;
 }
@@ -97,50 +88,63 @@ StereoOut32 V_Core::ReadInput_HiFi()
 StereoOut32 V_Core::ReadInput()
 {
 	StereoOut32 retval;
+	s16 ReadIndex = OutPos;
 
-	if ((Index != 1) || ((PlayMode & 2) == 0))
+	for (int i = 0; i < 2; i++)
+		if (Cores[i].IRQEnable && (0x2000 + (Index << 10) + ReadIndex) == (Cores[i].IRQA & 0xfffffdff))
+			SetIrqCall(i);
+
+	// PlayMode & 2 is Bypass Mode, so it doesn't go through the SPU
+	if ((Index == 1) || !(Index == 0 && (PlayMode & 2) != 0))
 	{
-		for (int i = 0; i < 2; i++)
-			if (Cores[i].IRQEnable && 0x2000 + (Index << 10) + InputPosRead == (Cores[i].IRQA & 0xfffffdff))
-				SetIrqCall(i);
-
-		//retval = StereoOut32(
-		//	(s32)ADMATempBuffer[InputPosRead],
-		//	(s32)ADMATempBuffer[InputPosRead+0x200]
-		//);
 		retval = StereoOut32(
-			(s32)(*GetMemPtr(0x2000 + (Index << 10) + InputPosRead)),
-			(s32)(*GetMemPtr(0x2200 + (Index << 10) + InputPosRead)));
+			(s32)(*GetMemPtr(0x2000 + (Index << 10) + ReadIndex)),
+			(s32)(*GetMemPtr(0x2200 + (Index << 10) + ReadIndex)));
+
+		// Not accurate behaviour but shouldn't hurt for now, need to run some tests
+		// to see why Prince of Persia Warrior Within buzzes when going in to the map
+		// since it starts an ADMA of music, then kills ADMA, so it loops on a few ms of data.
+		GetMemPtr(0x2000 + (Index << 10) + ReadIndex)[0] = 0;
+		GetMemPtr(0x2200 + (Index << 10) + ReadIndex)[0] = 0;
 	}
 
-	InputPosRead++;
-
-	if (AutoDMACtrl & (Index + 1) && (InputPosRead == 0x100 || InputPosRead == 0x200))
+	// Simulate MADR increase, GTA VC tracks the MADR address for calculating a certain point in the buffer
+	if (InputDataTransferred)
 	{
-		AdmaInProgress = 0;
-		if (InputDataLeft >= 0x200)
+		u32 amount = std::min(InputDataTransferred, (u32)0x180);
+
+		InputDataTransferred -= amount;
+		MADR += amount;
+		// Because some games watch the MADR to see when it reaches the end we need to end the DMA here
+		// Tom & Jerry War of the Whiskers is one such game, the music will skip
+		if (!InputDataTransferred && !InputDataLeft)
 		{
-			//u8 k=InputDataLeft>=InputDataProgress;
-
-			AutoDMAReadBuffer(0);
-
-			AdmaInProgress = 1;
-			TSA = (Index << 10) + InputPosRead;
-
-			if (InputDataLeft < 0x200)
-			{
-				AutoDMACtrl |= ~3;
-
-				InputDataLeft = 0;
-				// Hack, kinda. We call the interrupt early here, since PCSX2 doesn't like them delayed.
-				//DMAICounter   = 1;
-				if (Index == 0)
-               spu2DMA4Irq();
-				else
-               spu2DMA7Irq();
-			}
+			if (Index == 0)
+				spu2DMA4Irq();
+			else
+				spu2DMA7Irq();
 		}
 	}
-	InputPosRead &= 0x1ff;
+
+	if (PlayMode == 2 && Index == 0) //Bitstream bypass refills twice as quickly (GTA VC)
+		ReadIndex = (ReadIndex * 2) & 0x1FF;
+
+	if (ReadIndex == 0x100 || ReadIndex == 0x0 || ReadIndex == 0x80 || ReadIndex == 0x180)
+	{
+		if (ReadIndex == 0x100)
+			InputPosWrite = 0;
+		else if (ReadIndex == 0)
+			InputPosWrite = 0x100;
+
+		if (InputDataLeft >= 0x100)
+		{
+			AutoDMAReadBuffer(0);
+			AdmaInProgress = 1;
+			if (InputDataLeft < 0x100)
+				InputDataLeft = 0;
+		}
+		else if ((AutoDMACtrl & (Index + 1)))
+			AutoDMACtrl |= ~3;
+	}
 	return retval;
 }

@@ -29,7 +29,6 @@ __forceinline s32 V_Core::RevbGetIndexer(s32 offset)
 		pos += EffectsStartA;
 	}
 
-	assert(pos >= EffectsStartA && pos <= EffectsEndA);
 	return pos;
 }
 
@@ -46,14 +45,109 @@ void V_Core::Reverb_AdvanceBuffer()
 	}
 }
 
+static constexpr u32 NUM_TAPS = 39;
+// 39 tap filter, the 0's could be optimized out
+static constexpr std::array<s32, NUM_TAPS> filter_coefs = {
+	-1,
+	0,
+	2,
+	0,
+	-10,
+	0,
+	35,
+	0,
+	-103,
+	0,
+	266,
+	0,
+	-616,
+	0,
+	1332,
+	0,
+	-2960,
+	0,
+	10246,
+	16384,
+	10246,
+	0,
+	-2960,
+	0,
+	1332,
+	0,
+	-616,
+	0,
+	266,
+	0,
+	-103,
+	0,
+	35,
+	0,
+	-10,
+	0,
+	2,
+	0,
+	-1,
+};
+
+s32 __forceinline V_Core::ReverbDownsample(bool right)
+{
+	s32 out = 0;
+
+	// Skipping the 0 coefs.
+	for (u32 i = 0; i < NUM_TAPS; i += 2)
+	{
+		out += RevbDownBuf[right][((RevbSampleBufPos - NUM_TAPS) + i) & 63] * filter_coefs[i];
+	}
+
+	// We also skipped the middle so add that in.
+	out += RevbDownBuf[right][((RevbSampleBufPos - NUM_TAPS) + 19) & 63] * filter_coefs[19];
+
+	out >>= 15;
+	Clampify(out, (s32)INT16_MIN, (s32)INT16_MAX);
+
+	return out;
+}
+
+
+StereoOut32 __forceinline V_Core::ReverbUpsample(bool phase)
+{
+	s32 ls = 0, rs = 0;
+
+	if (phase)
+	{
+		ls += RevbUpBuf[0][(((RevbSampleBufPos - NUM_TAPS) >> 1) + 9) & 63] * filter_coefs[19];
+		rs += RevbUpBuf[1][(((RevbSampleBufPos - NUM_TAPS) >> 1) + 9) & 63] * filter_coefs[19];
+	}
+	else
+	{
+
+		for (u32 i = 0; i < (NUM_TAPS >> 1) + 1; i++)
+		{
+			ls += RevbUpBuf[0][(((RevbSampleBufPos - NUM_TAPS) >> 1) + i) & 63] * filter_coefs[i * 2];
+		}
+		for (u32 i = 0; i < (NUM_TAPS >> 1) + 1; i++)
+		{
+			rs += RevbUpBuf[1][(((RevbSampleBufPos - NUM_TAPS) >> 1) + i) & 63] * filter_coefs[i * 2];
+		}
+	}
+
+	ls >>= 14;
+	Clampify(ls, (s32)INT16_MIN, (s32)INT16_MAX);
+	rs >>= 14;
+	Clampify(rs, (s32)INT16_MIN, (s32)INT16_MAX);
+
+	return StereoOut32(ls, rs);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 
 StereoOut32 V_Core::DoReverb(const StereoOut32& Input)
 {
 	if (EffectsBufferSize <= 0)
-	{
-		return StereoOut32(0, 0);
-	}
+		return StereoOut32::Empty;
+
+	RevbDownBuf[0][RevbSampleBufPos & 63] = Input.Left;
+	RevbDownBuf[1][RevbSampleBufPos & 63] = Input.Right;
 
 	bool R = Cycles & 1;
 
@@ -91,14 +185,14 @@ StereoOut32 V_Core::DoReverb(const StereoOut32& Input)
 		if (Cores[i].IRQEnable && ((Cores[i].IRQA >= EffectsStartA) && (Cores[i].IRQA <= EffectsEndA)))
 		{
 			if ((Cores[i].IRQA == same_src) || (Cores[i].IRQA == diff_src) ||
-				(Cores[i].IRQA == same_dst) || (Cores[i].IRQA == diff_dst) ||
-				(Cores[i].IRQA == same_prv) || (Cores[i].IRQA == diff_prv) ||
+					(Cores[i].IRQA == same_dst) || (Cores[i].IRQA == diff_dst) ||
+					(Cores[i].IRQA == same_prv) || (Cores[i].IRQA == diff_prv) ||
 
-				(Cores[i].IRQA == comb1_src) || (Cores[i].IRQA == comb2_src) ||
-				(Cores[i].IRQA == comb3_src) || (Cores[i].IRQA == comb4_src) ||
+					(Cores[i].IRQA == comb1_src) || (Cores[i].IRQA == comb2_src) ||
+					(Cores[i].IRQA == comb3_src) || (Cores[i].IRQA == comb4_src) ||
 
-				(Cores[i].IRQA == apf1_dst) || (Cores[i].IRQA == apf1_src) ||
-				(Cores[i].IRQA == apf2_dst) || (Cores[i].IRQA == apf2_src))
+					(Cores[i].IRQA == apf1_dst) || (Cores[i].IRQA == apf1_src) ||
+					(Cores[i].IRQA == apf2_dst) || (Cores[i].IRQA == apf2_src))
 			{
 				//printf("Core %d IRQ Called (Reverb). IRQA = %x\n",i,addr);
 				SetIrqCall(i);
@@ -112,7 +206,7 @@ StereoOut32 V_Core::DoReverb(const StereoOut32& Input)
 	s32 in, same, diff, apf1, apf2, out;
 
 #define MUL(x, y) ((x) * (y) >> 15)
-	in = MUL(R ? Revb.IN_COEF_R : Revb.IN_COEF_L, R ? Input.Right : Input.Left);
+	in = MUL(R ? Revb.IN_COEF_R : Revb.IN_COEF_L, ReverbDownsample(R));
 
 	same = MUL(Revb.IIR_VOL, in + MUL(Revb.WALL_VOL, _spu2mem[same_src]) - _spu2mem[same_prv]) + _spu2mem[same_prv];
 	diff = MUL(Revb.IIR_VOL, in + MUL(Revb.WALL_VOL, _spu2mem[diff_src]) - _spu2mem[diff_prv]) + _spu2mem[diff_prv];
@@ -133,7 +227,9 @@ StereoOut32 V_Core::DoReverb(const StereoOut32& Input)
 		_spu2mem[apf2_dst] = clamp_mix(apf2);
 	}
 
-	(R ? LastEffect.Right : LastEffect.Left) = -clamp_mix(out);
+	RevbUpBuf[R][(RevbSampleBufPos >> 1) & 63] = clamp_mix(out);
 
-	return LastEffect;
+	RevbSampleBufPos++;
+
+	return ReverbUpsample(RevbSampleBufPos & 1);
 }

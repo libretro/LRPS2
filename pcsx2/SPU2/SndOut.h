@@ -555,9 +555,3 @@ struct Stereo51Out32
 		LFE = (s32)(LFE * VolumeAdjustLFE);
 	}
 };
-
-// =====================================================================================================
-
-extern void RecordStart(std::wstring* filename);
-extern void RecordStop();
-extern void RecordWrite(const StereoOut16& sample);
