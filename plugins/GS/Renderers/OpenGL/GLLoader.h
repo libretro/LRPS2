@@ -158,7 +158,6 @@ namespace GLLoader {
 	extern bool vendor_id_amd;
 	extern bool vendor_id_nvidia;
 	extern bool vendor_id_intel;
-	extern bool amd_legacy_buggy_driver;
 	extern bool mesa_driver;
 	extern bool buggy_sso_dual_src;
 
