@@ -21,6 +21,7 @@
 #include <memory>
 #include <ctype.h>
 #include <wx/datetime.h>
+#include <wx/wfstream.h>
 
 #include "CdRom.h"
 #include "CDVD.h"

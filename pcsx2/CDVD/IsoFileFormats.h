@@ -16,7 +16,6 @@
 #pragma once
 
 #include "CDVD.h"
-#include "wx/wfstream.h"
 #include "AsyncFileReader.h"
 #include "CompressedFileReader.h"
 #include <memory>

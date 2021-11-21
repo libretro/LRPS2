@@ -13,6 +13,8 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <wx/wfstream.h>
+
 #include "PrecompiledHeader.h"
 #include "AsyncFileReader.h"
 #include "IopCommon.h"
