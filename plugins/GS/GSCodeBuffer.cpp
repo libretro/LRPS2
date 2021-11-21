@@ -19,6 +19,8 @@
  *
  */
 
+#include <cstddef>
+
 /* Forward declarations */
 extern void* vmalloc(size_t size, bool code);
 extern void vmfree(void* ptr, size_t size);
