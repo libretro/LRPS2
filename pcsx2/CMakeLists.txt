@@ -107,7 +107,6 @@ set(pcsx2Sources
 set(pcsx2Headers
 	AsyncFileReader.h
 	Cache.h
-	cheatscpp.h
 	Common.h
 	Config.h
 	COP0.h
