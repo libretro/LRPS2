@@ -86,21 +86,11 @@ public:
 	virtual void BeginDraw(const GSRasterizerData* data) = 0;
 	virtual void EndDraw(u64 frame, int actual, int total) = 0;
 
-#ifdef ENABLE_JIT_RASTERIZER
-
 	__forceinline void SetupPrim(const GSVertexSW* vertex, const u32* index, const GSVertexSW& dscan) {m_sp(vertex, index, dscan);}
 	__forceinline void DrawScanline(int pixels, int left, int top, const GSVertexSW& scan) {m_ds(pixels, left, top, scan);}
 	__forceinline void DrawEdge(int pixels, int left, int top, const GSVertexSW& scan) {m_de(pixels, left, top, scan);}
 	__forceinline void DrawRect(const GSVector4i& r, const GSVertexSW& v) {(this->*m_dr)(r, v);}
 
-#else
-
-	virtual void SetupPrim(const GSVertexSW* vertex, const u32* index, const GSVertexSW& dscan) = 0;
-	virtual void DrawScanline(int pixels, int left, int top, const GSVertexSW& scan) = 0;
-	virtual void DrawEdge(int pixels, int left, int top, const GSVertexSW& scan) = 0;
-	virtual void DrawRect(const GSVector4i& r, const GSVertexSW& v) = 0;
-	
-#endif
 
 	__forceinline bool HasEdge() const {return m_de != NULL;}
 	__forceinline bool IsSolidRect() const {return m_dr != NULL;}
