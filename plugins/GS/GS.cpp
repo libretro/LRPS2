@@ -426,17 +426,13 @@ void* fifo_alloc(size_t size, size_t repeat)
 {
 	ASSERT(s_fh == NULL);
 
-	if (repeat >= countof(s_Next)) {
-		fprintf(stderr, "Memory mapping overflow (%zu >= %u)\n", repeat, (unsigned int)countof(s_Next));
+	if (repeat >= countof(s_Next))
 		return vmalloc(size * repeat, false); // Fallback to default vmalloc
-	}
 
 	s_fh = CreateFileMapping(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, size, nullptr);
 	DWORD errorID = ::GetLastError();
-	if (s_fh == NULL) {
-		fprintf(stderr, "Failed to reserve memory. WIN API ERROR:%u\n", errorID);
+	if (s_fh == NULL)
 		return vmalloc(size * repeat, false); // Fallback to default vmalloc
-	}
 
 	int mmap_segment_failed = 0;
 	void* fifo = MapViewOfFile(s_fh, FILE_MAP_ALL_ACCESS, 0, 0, size);
@@ -446,8 +442,8 @@ void* fifo_alloc(size_t size, size_t repeat)
 		errorID = ::GetLastError();
 		if (s_Next[i] != base) {
 			mmap_segment_failed++;
-			if (mmap_segment_failed > 4) {
-				fprintf(stderr, "Memory mapping failed after %d attempts, aborting. WIN API ERROR:%u\n", mmap_segment_failed, errorID);
+			if (mmap_segment_failed > 4)
+			{
 				fifo_free(fifo, size, repeat);
 				return vmalloc(size * repeat, false); // Fallback to default vmalloc
 			}
@@ -467,7 +463,8 @@ void fifo_free(void* ptr, size_t size, size_t repeat)
 {
 	ASSERT(s_fh != NULL);
 
-	if (s_fh == NULL) {
+	if (s_fh == NULL)
+	{
 		if (ptr != NULL)
 			vmfree(ptr, size);
 		return;
@@ -526,23 +523,16 @@ void* fifo_alloc(size_t size, size_t repeat)
 
 	const char* file_name = "/GSDX.mem";
 	s_shm_fd = shm_open(file_name, O_RDWR | O_CREAT | O_EXCL, 0600);
-	if (s_shm_fd != -1) {
-		shm_unlink(file_name); // file is deleted but descriptor is still open
-	} else {
-		fprintf(stderr, "Failed to open %s due to %s\n", file_name, strerror(errno));
+	if (s_shm_fd == -1)
 		return nullptr;
-	}
-
-	if (ftruncate(s_shm_fd, repeat * size) < 0)
-		fprintf(stderr, "Failed to reserve memory due to %s\n", strerror(errno));
-
+	shm_unlink(file_name); // file is deleted but descriptor is still open
+	ftruncate(s_shm_fd, repeat * size);
 	void* fifo = mmap(nullptr, size * repeat, PROT_READ | PROT_WRITE, MAP_SHARED, s_shm_fd, 0);
 
-	for (size_t i = 1; i < repeat; i++) {
+	for (size_t i = 1; i < repeat; i++)
+	{
 		void* base = (u8*)fifo + size * i;
 		u8* next = (u8*)mmap(base, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, s_shm_fd, 0);
-		if (next != base)
-			fprintf(stderr, "Fail to mmap contiguous segment\n");
 	}
 
 	return fifo;
