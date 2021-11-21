@@ -846,10 +846,10 @@ void GSDrawScanlineCodeGenerator::SampleTexture()
 		// ymm1, ymm4, ymm6 = free
 		// ymm7 = used
 
-		// c00 = addr00.gather32_32((const uint32/uint8*)tex[, clut]);
-		// c01 = addr01.gather32_32((const uint32/uint8*)tex[, clut]);
-		// c10 = addr10.gather32_32((const uint32/uint8*)tex[, clut]);
-		// c11 = addr11.gather32_32((const uint32/uint8*)tex[, clut]);
+		// c00 = addr00.gather32_32((const u32/u8*)tex[, clut]);
+		// c01 = addr01.gather32_32((const u32/u8*)tex[, clut]);
+		// c10 = addr10.gather32_32((const u32/u8*)tex[, clut]);
+		// c11 = addr11.gather32_32((const u32/u8*)tex[, clut]);
 
 		ReadTexel(4, 0);
 
@@ -949,7 +949,7 @@ void GSDrawScanlineCodeGenerator::SampleTexture()
 
 		vpaddd(ymm5, ymm2, ymm4);
 
-		// c00 = addr00.gather32_32((const uint32/uint8*)tex[, clut]);
+		// c00 = addr00.gather32_32((const u32/u8*)tex[, clut]);
 
 		ReadTexel(1, 0);
 
@@ -1394,10 +1394,10 @@ return;
 		// ymm1, ymm4, ymm6 = free
 		// ymm7 = used
 
-		// c00 = addr00.gather32_32((const uint32/uint8*)tex[, clut]);
-		// c01 = addr01.gather32_32((const uint32/uint8*)tex[, clut]);
-		// c10 = addr10.gather32_32((const uint32/uint8*)tex[, clut]);
-		// c11 = addr11.gather32_32((const uint32/uint8*)tex[, clut]);
+		// c00 = addr00.gather32_32((const u32/u8*)tex[, clut]);
+		// c01 = addr01.gather32_32((const u32/u8*)tex[, clut]);
+		// c10 = addr10.gather32_32((const u32/u8*)tex[, clut]);
+		// c11 = addr11.gather32_32((const u32/u8*)tex[, clut]);
 
 		ReadTexel(4, 0);
 
@@ -1497,7 +1497,7 @@ return;
 
 		vpaddd(ymm5, ymm2, ymm4);
 
-		// c00 = addr00.gather32_32((const uint32/uint8*)tex[, clut]);
+		// c00 = addr00.gather32_32((const u32/u8*)tex[, clut]);
 
 		ReadTexel(1, 0);
 
@@ -1635,10 +1635,10 @@ return;
 			// ymm1, ymm4, ymm6 = free
 			// ymm7 = used
 
-			// c00 = addr00.gather32_32((const uint32/uint8*)tex[, clut]);
-			// c01 = addr01.gather32_32((const uint32/uint8*)tex[, clut]);
-			// c10 = addr10.gather32_32((const uint32/uint8*)tex[, clut]);
-			// c11 = addr11.gather32_32((const uint32/uint8*)tex[, clut]);
+			// c00 = addr00.gather32_32((const u32/u8*)tex[, clut]);
+			// c01 = addr01.gather32_32((const u32/u8*)tex[, clut]);
+			// c10 = addr10.gather32_32((const u32/u8*)tex[, clut]);
+			// c11 = addr11.gather32_32((const u32/u8*)tex[, clut]);
 
 			ReadTexel(4, 1);
 
@@ -1738,7 +1738,7 @@ return;
 
 			vpaddd(ymm5, ymm2, ymm4);
 
-			// c00 = addr00.gather32_32((const uint32/uint8*)tex[, clut]);
+			// c00 = addr00.gather32_32((const u32/u8*)tex[, clut]);
 
 			ReadTexel(1, 1);
 

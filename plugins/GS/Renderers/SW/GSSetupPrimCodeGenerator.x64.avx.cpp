@@ -138,7 +138,7 @@ void GSSetupPrimCodeGenerator::Depth_AVX()
 	{
 		// GSVector4 p = vertex[index[1]].p;
 
-		mov(eax, ptr[a1 + sizeof(uint32) * 1]);
+		mov(eax, ptr[a1 + sizeof(u32) * 1]);
 		shl(eax, 6); // * sizeof(GSVertexSW)
 		add(rax, a0);
 
@@ -155,7 +155,7 @@ void GSSetupPrimCodeGenerator::Depth_AVX()
 
 		if(m_en.z)
 		{
-			// uint32 z is bypassed in t.w
+			// u32 z is bypassed in t.w
 
 			vmovdqa(xmm0, ptr[rax + offsetof(GSVertexSW, t)]);
 			vpshufd(xmm0, xmm0, _MM_SHUFFLE(3, 3, 3, 3));
@@ -198,7 +198,7 @@ void GSSetupPrimCodeGenerator::Texture_AVX()
 		// GSVector4 dt = t.yyyy();
 		// GSVector4 dq = t.zzzz();
 
-		vshufps(xmm1, xmm0, xmm0, (uint8)_MM_SHUFFLE(j, j, j, j));
+		vshufps(xmm1, xmm0, xmm0, (u8)_MM_SHUFFLE(j, j, j, j));
 
 		for(int i = 0; i < (m_sel.notest ? 1 : 4); i++)
 		{
@@ -339,7 +339,7 @@ void GSSetupPrimCodeGenerator::Color_AVX()
 
 		if(!(m_sel.prim == GS_SPRITE_CLASS && (m_en.z || m_en.f))) // if this is a sprite, the last vertex was already loaded in Depth()
 		{
-			mov(eax, ptr[a1 + sizeof(uint32) * last]);
+			mov(eax, ptr[a1 + sizeof(u32) * last]);
 			shl(eax, 6); // * sizeof(GSVertexSW)
 			add(rax, a0);
 		}

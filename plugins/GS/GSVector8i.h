@@ -19,6 +19,8 @@
  *
  */
 
+#include "Pcsx2Types.h"
+
 #if _M_SSE >= 0x501
 
 class alignas(32) GSVector8i
@@ -32,15 +34,15 @@ public:
 		struct {int x0, y0, z0, w0, x1, y1, z1, w1;};
 		struct {int r0, g0, b0, a0, r1, g1, b1, a1;};
 		int v[8];
-		float f32[8];
-		int8 i8[32];
-		int16 i16[16];
-		int32 i32[8];
-		int64 i64[4];
-		uint8 u8[32];
-		uint16 u16[16];
-		uint32 u32[8];
-		uint64 u64[4];
+		float F32[8];
+		s8    I8[32];
+		s16 I16[16];
+		s32 I32[8];
+		s64 I64[4];
+		u8  U8[32];
+		u16 U16[16];
+		u32 U32[8];
+		u64 U64[4];
 		__m256i m;
 		__m128i m0, m1;
 	};
@@ -998,17 +1000,17 @@ public:
 		return cast(v0).insert<1>(v1);
 	}
 
-	__forceinline GSVector8i gather32_32(const uint8* ptr) const
+	__forceinline GSVector8i gather32_32(const u8* ptr) const
 	{
 		return GSVector8i(_mm256_i32gather_epi32((const int*)ptr, m, 1)) & GSVector8i::x000000ff();
 	}
 
-	__forceinline GSVector8i gather32_32(const uint16* ptr) const
+	__forceinline GSVector8i gather32_32(const u16* ptr) const
 	{
 		return GSVector8i(_mm256_i32gather_epi32((const int*)ptr, m, 2)) & GSVector8i::x0000ffff();
 	}
 
-	__forceinline GSVector8i gather32_32(const uint32* ptr) const
+	__forceinline GSVector8i gather32_32(const u32* ptr) const
 	{
 		return GSVector8i(_mm256_i32gather_epi32((const int*)ptr, m, 4));
 	}
@@ -1034,14 +1036,14 @@ public:
 		return cast(v0).insert<1>(v1);
 	}
 
-	__forceinline GSVector8i gather32_32(const uint8* ptr1, const uint32* ptr2) const
+	__forceinline GSVector8i gather32_32(const u8* ptr1, const u32* ptr2) const
 	{
-		return gather32_32<uint8>(ptr1).gather32_32<uint32>(ptr2);
+		return gather32_32<u8>(ptr1).gather32_32<u32>(ptr2);
 	}
 
-	__forceinline GSVector8i gather32_32(const uint32* ptr1, const uint32* ptr2) const
+	__forceinline GSVector8i gather32_32(const u32* ptr1, const u32* ptr2) const
 	{
-		return gather32_32<uint32>(ptr1).gather32_32<uint32>(ptr2);
+		return gather32_32<u32>(ptr1).gather32_32<u32>(ptr2);
 	}
 
 	template<class T> __forceinline void gather32_32(const T* RESTRICT ptr, GSVector8i* RESTRICT dst) const

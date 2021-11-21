@@ -645,16 +645,16 @@ void GSDrawScanlineCodeGenerator::TestZ_SSE(const Xmm& temp1, const Xmm& temp2)
 		{
 #if _M_SSE >= 0x401
 			pcmpeqd(temp1, temp1);
-			psrld(temp1, (uint8)((m_sel.zpsm & 0x3) * 8));
+			psrld(temp1, (u8)((m_sel.zpsm & 0x3) * 8));
 			pminsd(xmm0, temp1);
 #else
 			pcmpeqd(temp1, temp1);
-			psrld(temp1, (uint8)((m_sel.zpsm & 0x3) * 8));
+			psrld(temp1, (u8)((m_sel.zpsm & 0x3) * 8));
 			pcmpgtd(temp1, xmm0);
 			pand(xmm0, temp1);
 			pcmpeqd(temp2, temp2);
 			pxor(temp1, temp2);
-			psrld(temp1, (uint8)((m_sel.zpsm & 0x3) * 8));
+			psrld(temp1, (u8)((m_sel.zpsm & 0x3) * 8));
 			por(xmm0, temp1);
 #endif
 		}
@@ -867,10 +867,10 @@ void GSDrawScanlineCodeGenerator::SampleTexture_SSE()
 		// xmm1, xmm4, xmm6 = free
 		// xmm7 = used
 
-		// c00 = addr00.gather32_32((const uint32/uint8*)tex[, clut]);
-		// c01 = addr01.gather32_32((const uint32/uint8*)tex[, clut]);
-		// c10 = addr10.gather32_32((const uint32/uint8*)tex[, clut]);
-		// c11 = addr11.gather32_32((const uint32/uint8*)tex[, clut]);
+		// c00 = addr00.gather32_32((const u32/u8*)tex[, clut]);
+		// c01 = addr01.gather32_32((const u32/u8*)tex[, clut]);
+		// c10 = addr10.gather32_32((const u32/u8*)tex[, clut]);
+		// c11 = addr11.gather32_32((const ut32/u8*)tex[, clut]);
 
 		ReadTexel_SSE(4, 0);
 
@@ -963,7 +963,7 @@ void GSDrawScanlineCodeGenerator::SampleTexture_SSE()
 		paddd(xmm2, xmm4);
 		movdqa(xmm5, xmm2);
 
-		// c00 = addr00.gather32_32((const uint32/uint8*)tex[, clut]);
+		// c00 = addr00.gather32_32((const u32/u8*)tex[, clut]);
 
 		ReadTexel_SSE(1, 0);
 
@@ -1441,10 +1441,10 @@ void GSDrawScanlineCodeGenerator::SampleTextureLOD_SSE()
 		// xmm1, xmm4, xmm6 = free
 		// xmm7 = used
 
-		// c00 = addr00.gather32_32((const uint32/uint8*)tex[, clut]);
-		// c01 = addr01.gather32_32((const uint32/uint8*)tex[, clut]);
-		// c10 = addr10.gather32_32((const uint32/uint8*)tex[, clut]);
-		// c11 = addr11.gather32_32((const uint32/uint8*)tex[, clut]);
+		// c00 = addr00.gather32_32((const u32/u8*)tex[, clut]);
+		// c01 = addr01.gather32_32((const u32/u8*)tex[, clut]);
+		// c10 = addr10.gather32_32((const u32/u8*)tex[, clut]);
+		// c11 = addr11.gather32_32((const u32/u8*)tex[, clut]);
 
 		ReadTexel_SSE(4, 0);
 
@@ -1537,7 +1537,7 @@ void GSDrawScanlineCodeGenerator::SampleTextureLOD_SSE()
 		paddd(xmm2, xmm4);
 		movdqa(xmm5, xmm2);
 
-		// c00 = addr00.gather32_32((const uint32/uint8*)tex[, clut]);
+		// c00 = addr00.gather32_32((const u32/u8*)tex[, clut]);
 
 		ReadTexel_SSE(1, 0);
 
@@ -1679,10 +1679,10 @@ void GSDrawScanlineCodeGenerator::SampleTextureLOD_SSE()
 			// xmm1, xmm4, xmm6 = free
 			// xmm7 = used
 
-			// c00 = addr00.gather32_32((const uint32/uint8*)tex[, clut]);
-			// c01 = addr01.gather32_32((const uint32/uint8*)tex[, clut]);
-			// c10 = addr10.gather32_32((const uint32/uint8*)tex[, clut]);
-			// c11 = addr11.gather32_32((const uint32/uint8*)tex[, clut]);
+			// c00 = addr00.gather32_32((const u32/u8*)tex[, clut]);
+			// c01 = addr01.gather32_32((const u32/u8*)tex[, clut]);
+			// c10 = addr10.gather32_32((const u32/u8*)tex[, clut]);
+			// c11 = addr11.gather32_32((const u32/u8*)tex[, clut]);
 
 			ReadTexel_SSE(4, 1);
 
@@ -1775,7 +1775,7 @@ void GSDrawScanlineCodeGenerator::SampleTextureLOD_SSE()
 			paddd(xmm2, xmm4);
 			movdqa(xmm5, xmm2);
 
-			// c00 = addr00.gather32_32((const uint32/uint8*)tex[, clut]);
+			// c00 = addr00.gather32_32((const u32/u8*)tex[, clut]);
 
 			ReadTexel_SSE(1, 1);
 
@@ -2436,16 +2436,16 @@ void GSDrawScanlineCodeGenerator::WriteZBuf_SSE()
 	{
 #if _M_SSE >= 0x401
 		pcmpeqd(xmm7, xmm7);
-		psrld(xmm7, (uint8)((m_sel.zpsm & 0x3) * 8));
+		psrld(xmm7, (u8)((m_sel.zpsm & 0x3) * 8));
 		pminsd(xmm1, xmm7);
 #else
 		static GSVector4i all_1s = GSVector4i(0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff);
 		pcmpeqd(xmm7, xmm7);
-		psrld(xmm7, (uint8)((m_sel.zpsm & 0x3) * 8));
+		psrld(xmm7, (u8)((m_sel.zpsm & 0x3) * 8));
 		pcmpgtd(xmm7, xmm1);
 		pand(xmm1, xmm7);
 		pxor(xmm7, ptr[&all_1s]);
-		psrld(xmm7, (uint8)((m_sel.zpsm & 0x3) * 8));
+		psrld(xmm7, (u8)((m_sel.zpsm & 0x3) * 8));
 		por(xmm1, xmm7);
 #endif
 	}
@@ -2852,7 +2852,7 @@ void GSDrawScanlineCodeGenerator::WritePixel_SSE(const Xmm& src, const Reg32& ad
 
 static const int s_offsets[4] = {0, 2, 8, 10};
 
-void GSDrawScanlineCodeGenerator::WritePixel_SSE(const Xmm& src, const Reg32& addr, uint8 i, int psm)
+void GSDrawScanlineCodeGenerator::WritePixel_SSE(const Xmm& src, const Reg32& addr, u8 i, int psm)
 {
 	Address dst = ptr[addr * 2 + (size_t)m_local.gd->vm + s_offsets[i] * 2];
 
@@ -2927,7 +2927,7 @@ void GSDrawScanlineCodeGenerator::ReadTexel_SSE(int pixels, int mip_offset)
 				movdqa(ptr[&m_local.temp.test], xmm7);
 			}
 
-			for(uint8 j = 0; j < 4; j++)
+			for(u8 j = 0; j < 4; j++)
 			{
 				mov(ebx, ptr[&lod_i->u32[j]]);
 				mov(ebx, ptr[ebp + ebx * sizeof(void*) + mip_offset]);
@@ -3080,7 +3080,7 @@ void GSDrawScanlineCodeGenerator::ReadTexel_SSE(int pixels, int mip_offset)
 		{
 			for(int i = 0; i < pixels; i++)
 			{
-				for(uint8 j = 0; j < 4; j++)
+				for(u8 j = 0; j < 4; j++)
 				{
 					ReadTexel_SSE(Xmm(r[i * 2 + 1]), Xmm(r[i * 2 + 0]), j);
 				}
@@ -3115,7 +3115,7 @@ void GSDrawScanlineCodeGenerator::ReadTexel_SSE(int pixels, int mip_offset)
 	}
 }
 
-void GSDrawScanlineCodeGenerator::ReadTexel_SSE(const Xmm& dst, const Xmm& addr, uint8 i)
+void GSDrawScanlineCodeGenerator::ReadTexel_SSE(const Xmm& dst, const Xmm& addr, u8 i)
 {
 	const Address& src = m_sel.tlu ? ptr[edx + eax * 4] : ptr[ebx + eax * 4];
 

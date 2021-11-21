@@ -19,6 +19,8 @@
  *
  */
 
+#include "Pcsx2Types.h"
+
 #include "GSSetupPrimCodeGenerator.h"
 #include "GSVertexSW.h"
 
@@ -121,7 +123,7 @@ void GSSetupPrimCodeGenerator::Depth_SSE()
 		// GSVector4 p = vertex[index[1]].p;
 
 		mov(ecx, ptr[esp + _index]);
-		mov(ecx, ptr[ecx + sizeof(uint32) * 1]);
+		mov(ecx, ptr[ecx + sizeof(u32) * 1]);
 		shl(ecx, 6); // * sizeof(GSVertexSW)
 		add(ecx, ptr[esp + _vertex]);
 
@@ -139,7 +141,7 @@ void GSSetupPrimCodeGenerator::Depth_SSE()
 
 		if(m_en.z)
 		{
-			// uint32 z is bypassed in t.w
+			// u32 z is bypassed in t.w
 
 			movdqa(xmm0, ptr[ecx + offsetof(GSVertexSW, t)]);
 			pshufd(xmm0, xmm0, _MM_SHUFFLE(3, 3, 3, 3));
@@ -184,7 +186,7 @@ void GSSetupPrimCodeGenerator::Texture_SSE()
 		// GSVector4 dq = t.zzzz();
 
 		movaps(xmm1, xmm0);
-		shufps(xmm1, xmm1, (uint8)_MM_SHUFFLE(j, j, j, j));
+		shufps(xmm1, xmm1, (u8)_MM_SHUFFLE(j, j, j, j));
 
 		for(int i = 0; i < (m_sel.notest ? 1 : 4); i++)
 		{
@@ -323,7 +325,7 @@ void GSSetupPrimCodeGenerator::Color_SSE()
 		if(!(m_sel.prim == GS_SPRITE_CLASS && (m_en.z || m_en.f))) // if this is a sprite, the last vertex was already loaded in Depth()
 		{
 			mov(ecx, ptr[esp + _index]);
-			mov(ecx, ptr[ecx + sizeof(uint32) * last]);
+			mov(ecx, ptr[ecx + sizeof(u32) * last]);
 			shl(ecx, 6); // * sizeof(GSVertexSW)
 			add(ecx, ptr[esp + _vertex]);
 		}

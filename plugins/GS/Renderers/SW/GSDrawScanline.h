@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "Pcsx2Types.h"
+
 #include "../../GSState.h"
 #include "GSRasterizer.h"
 #include "GSScanlineEnvironment.h"
@@ -40,14 +42,14 @@ protected:
 	GSScanlineGlobalData m_global;
 	GSScanlineLocalData m_local;
 
-	GSCodeGeneratorFunctionMap<GSSetupPrimCodeGenerator, uint64, SetupPrimPtr> m_sp_map;
-	GSCodeGeneratorFunctionMap<GSDrawScanlineCodeGenerator, uint64, DrawScanlinePtr> m_ds_map;
+	GSCodeGeneratorFunctionMap<GSSetupPrimCodeGenerator, u64, SetupPrimPtr> m_sp_map;
+	GSCodeGeneratorFunctionMap<GSDrawScanlineCodeGenerator, u64, DrawScanlinePtr> m_ds_map;
 
 	template<class T, bool masked>
-	void DrawRectT(const int* RESTRICT row, const int* RESTRICT col, const GSVector4i& r, uint32 c, uint32 m);
+	void DrawRectT(const int* RESTRICT row, const int* RESTRICT col, const GSVector4i& r, u32 c, u32 m);
 
 	template<class T, bool masked>
-	__forceinline void FillRect(const int* RESTRICT row, const int* RESTRICT col, const GSVector4i& r, uint32 c, uint32 m);
+	__forceinline void FillRect(const int* RESTRICT row, const int* RESTRICT col, const GSVector4i& r, u32 c, u32 m);
 
 	#if _M_SSE >= 0x501
 
@@ -68,7 +70,7 @@ public:
 	// IDrawScanline
 
 	void BeginDraw(const GSRasterizerData* data);
-	void EndDraw(uint64 frame, int actual, int total);
+	void EndDraw(u64 frame, int actual, int total);
 
 	void DrawRect(const GSVector4i& r, const GSVertexSW& v);
 };

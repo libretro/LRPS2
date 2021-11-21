@@ -694,8 +694,8 @@ void GSDrawScanlineCodeGenerator::TestZ_AVX(const Xmm& temp1, const Xmm& temp2)
 
 		if(m_sel.zpsm)
 		{
-			vpslld(xmm1, static_cast<uint8>(m_sel.zpsm * 8));
-			vpsrld(xmm1, static_cast<uint8>(m_sel.zpsm * 8));
+			vpslld(xmm1, static_cast<u8>(m_sel.zpsm * 8));
+			vpsrld(xmm1, static_cast<u8>(m_sel.zpsm * 8));
 		}
 
 		if(m_sel.zoverflow || m_sel.zpsm == 0)
@@ -825,7 +825,7 @@ void GSDrawScanlineCodeGenerator::SampleTexture_AVX()
 
 	vpunpcklwd(xmm2, xmm4, xmm0);
 	vpunpckhwd(xmm3, xmm4, xmm0);
-	vpslld(xmm3, static_cast<uint8>(m_sel.tw + 3));
+	vpslld(xmm3, static_cast<u8>(m_sel.tw + 3));
 
 	// xmm0 = 0
 	// xmm2 = x0
@@ -841,7 +841,7 @@ void GSDrawScanlineCodeGenerator::SampleTexture_AVX()
 
 		vpunpcklwd(xmm4, xmm5, xmm0);
 		vpunpckhwd(xmm5, xmm5, xmm0);
-		vpslld(xmm5, static_cast<uint8>(m_sel.tw + 3));
+		vpslld(xmm5, static_cast<u8>(m_sel.tw + 3));
 
 		// xmm2 = x0
 		// xmm3 = y0
@@ -867,10 +867,10 @@ void GSDrawScanlineCodeGenerator::SampleTexture_AVX()
 		// xmm6 = uf
 		// xmm7 = vf
 
-		// c00 = addr00.gather32_32((const uint32/uint8*)tex[, clut]);
-		// c01 = addr01.gather32_32((const uint32/uint8*)tex[, clut]);
-		// c10 = addr10.gather32_32((const uint32/uint8*)tex[, clut]);
-		// c11 = addr11.gather32_32((const uint32/uint8*)tex[, clut]);
+		// c00 = addr00.gather32_32((const u32/u8*)tex[, clut]);
+		// c01 = addr01.gather32_32((const u32/u8*)tex[, clut]);
+		// c10 = addr10.gather32_32((const u32/u8*)tex[, clut]);
+		// c11 = addr11.gather32_32((const u32/u8*)tex[, clut]);
 
 		ReadTexel_AVX(4, 0);
 
@@ -960,7 +960,7 @@ void GSDrawScanlineCodeGenerator::SampleTexture_AVX()
 
 		vpaddd(xmm0, xmm3, xmm2);
 
-		// c00 = addr00.gather32_32((const uint32/uint8*)tex[, clut]);
+		// c00 = addr00.gather32_32((const u32/u8*)tex[, clut]);
 
 		ReadTexel_AVX(1, 0);
 
@@ -1989,7 +1989,7 @@ void GSDrawScanlineCodeGenerator::WritePixel_AVX(const Xmm& src, const Reg64& ad
 
 static const int s_offsets[4] = {0, 2, 8, 10};
 
-void GSDrawScanlineCodeGenerator::WritePixel_AVX(const Xmm& src, const Reg64& addr, uint8 i, int psm)
+void GSDrawScanlineCodeGenerator::WritePixel_AVX(const Xmm& src, const Reg64& addr, u8 i, int psm)
 {
 	Address dst = ptr[_m_local__gd__vm + addr * 2 + s_offsets[i] * 2];
 
@@ -2020,14 +2020,14 @@ void GSDrawScanlineCodeGenerator::ReadTexel_AVX(int pixels, int mip_offset)
 
 	for(int i = 0; i < pixels; i++)
 	{
-		for(uint8 j = 0; j < 4; j++)
+		for(u8 j = 0; j < 4; j++)
 		{
 			ReadTexel_AVX(Xmm(out[i]), Xmm(in[i]), j);
 		}
 	}
 }
 
-void GSDrawScanlineCodeGenerator::ReadTexel_AVX(const Xmm& dst, const Xmm& addr, uint8 i)
+void GSDrawScanlineCodeGenerator::ReadTexel_AVX(const Xmm& dst, const Xmm& addr, u8 i)
 {
 	const Address& src = m_sel.tlu ? ptr[_m_local__gd__clut + rax * 4] : ptr[_m_local__gd__tex + rax * 4];
 

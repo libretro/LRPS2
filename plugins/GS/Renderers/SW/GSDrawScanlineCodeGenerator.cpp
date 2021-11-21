@@ -32,7 +32,7 @@ void GSDrawScanlineCodeGenerator::Generate()
 }
 #endif
 
-GSDrawScanlineCodeGenerator::GSDrawScanlineCodeGenerator(void* param, uint64 key, void* code, size_t maxsize)
+GSDrawScanlineCodeGenerator::GSDrawScanlineCodeGenerator(void* param, u64 key, void* code, size_t maxsize)
 	: GSCodeGenerator(code, maxsize)
 	, m_local(*(GSScanlineLocalData*)param)
 	, m_rip(false)
@@ -45,7 +45,7 @@ GSDrawScanlineCodeGenerator::GSDrawScanlineCodeGenerator(void* param, uint64 key
 	Generate();
 }
 
-void GSDrawScanlineCodeGenerator::modulate16(const Xmm& a, const Operand& f, uint8 shift)
+void GSDrawScanlineCodeGenerator::modulate16(const Xmm& a, const Operand& f, u8 shift)
 {
 	if(m_cpu.has(util::Cpu::tAVX))
 	{
@@ -74,7 +74,7 @@ void GSDrawScanlineCodeGenerator::modulate16(const Xmm& a, const Operand& f, uin
 	}
 }
 
-void GSDrawScanlineCodeGenerator::lerp16(const Xmm& a, const Xmm& b, const Xmm& f, uint8 shift)
+void GSDrawScanlineCodeGenerator::lerp16(const Xmm& a, const Xmm& b, const Xmm& f, u8 shift)
 {
 	if(m_cpu.has(util::Cpu::tAVX))
 	{
@@ -165,7 +165,7 @@ void GSDrawScanlineCodeGenerator::clamp16(const Xmm& a, const Xmm& temp)
 
 void GSDrawScanlineCodeGenerator::alltrue(const Xmm& test)
 {
-	uint32 mask = test.isYMM() ? 0xffffffff : 0xffff;
+	u32 mask = test.isYMM() ? 0xffffffff : 0xffff;
 
 	if(m_cpu.has(util::Cpu::tAVX))
 	{
