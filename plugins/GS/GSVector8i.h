@@ -21,6 +21,8 @@
 
 #include "Pcsx2Types.h"
 
+#include "stdafx.h"
+
 #if _M_SSE >= 0x501
 
 class alignas(32) GSVector8i
