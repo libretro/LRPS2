@@ -21,6 +21,8 @@
 
 #include "Pcsx2Types.h"
 
+#include "stdafx.h"
+
 class alignas(16) GSVector4i
 {
 	static GSVector4i m_xff[17];

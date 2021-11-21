@@ -23,6 +23,7 @@
 #pragma once
 
 #include "Pcsx2Types.h"
+#include "stdafx.h"
 
 template <class T>
 struct Element {
