@@ -23,7 +23,7 @@
 
 using namespace Xbyak;
 
-GSSetupPrimCodeGenerator::GSSetupPrimCodeGenerator(void* param, uint64 key, void* code, size_t maxsize)
+GSSetupPrimCodeGenerator::GSSetupPrimCodeGenerator(void* param, uint64_t key, void* code, size_t maxsize)
 	: GSCodeGenerator(code, maxsize)
 	, m_local(*(GSScanlineLocalData*)param)
 	, m_rip(false)

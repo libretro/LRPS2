@@ -82,7 +82,7 @@ extern "C" unsigned __int64 __xgetbv(int);
 
 namespace Xbyak { namespace util {
 
-/* GCC uses AVX/SSE4 operation to handle the uint64 type.
+/* GCC uses AVX/SSE4 operation to handle the uint64_t type.
  *
  * It is quite annoying because the purpose of the code is to test the support
  * of AVX/SSEn
@@ -100,9 +100,9 @@ namespace Xbyak { namespace util {
 */
 class Cpu {
 #ifdef XBYAK64
-	uint64 type_;
+	uint64_t type_;
 #else
-	uint32 type_;
+	uint32_t type_;
 #endif
 	unsigned int get32bitAsBE(const char *x) const
 	{
@@ -160,7 +160,7 @@ public:
 		__cpuid_count(eaxIn, ecxIn, data[0], data[1], data[2], data[3]);
 #endif
 	}
-	static inline uint64 getXfeature()
+	static inline uint64_t getXfeature()
 	{
 #ifdef _MSC_VER
 		return __xgetbv(0);
@@ -169,13 +169,13 @@ public:
 		// xgetvb is not support on gcc 4.2
 //		__asm__ volatile("xgetbv" : "=a"(eax), "=d"(edx) : "c"(0));
 		__asm__ volatile(".byte 0x0f, 0x01, 0xd0" : "=a"(eax), "=d"(edx) : "c"(0));
-		return ((uint64)edx << 32) | eax;
+		return ((uint64_t)edx << 32) | eax;
 #endif
 	}
 #ifdef XBYAK64
-	typedef uint64 Type;
+	typedef uint64_t Type;
 #else
-	typedef uint32 Type;
+	typedef uint32_t Type;
 #endif
 	static const Type NONE = 0;
 	static const Type tMMX = 1 << 0;
@@ -213,19 +213,19 @@ public:
 	static const Type tRDSEED = 1 << 29; // rdseed
 	static const Type tSMAP = 1 << 30; // stac
 #ifdef XBYAK64
-	static const Type tHLE = uint64(1) << 31; // xacquire, xrelease, xtest
-	static const Type tRTM = uint64(1) << 32; // xbegin, xend, xabort
-	static const Type tF16C = uint64(1) << 33; // vcvtph2ps, vcvtps2ph
-	static const Type tMOVBE = uint64(1) << 34; // mobve
-	static const Type tAVX512F = uint64(1) << 35;
-	static const Type tAVX512DQ = uint64(1) << 36;
-	static const Type tAVX512IFMA = uint64(1) << 37;
-	static const Type tAVX512PF = uint64(1) << 38;
-	static const Type tAVX512ER = uint64(1) << 39;
-	static const Type tAVX512CD = uint64(1) << 40;
-	static const Type tAVX512BW = uint64(1) << 41;
-	static const Type tAVX512VL = uint64(1) << 42;
-	static const Type tAVX512VBMI = uint64(1) << 43;
+	static const Type tHLE = uint64_t(1) << 31; // xacquire, xrelease, xtest
+	static const Type tRTM = uint64_t(1) << 32; // xbegin, xend, xabort
+	static const Type tF16C = uint64_t(1) << 33; // vcvtph2ps, vcvtps2ph
+	static const Type tMOVBE = uint64_t(1) << 34; // mobve
+	static const Type tAVX512F = uint64_t(1) << 35;
+	static const Type tAVX512DQ = uint64_t(1) << 36;
+	static const Type tAVX512IFMA = uint64_t(1) << 37;
+	static const Type tAVX512PF = uint64_t(1) << 38;
+	static const Type tAVX512ER = uint64_t(1) << 39;
+	static const Type tAVX512CD = uint64_t(1) << 40;
+	static const Type tAVX512BW = uint64_t(1) << 41;
+	static const Type tAVX512VL = uint64_t(1) << 42;
+	static const Type tAVX512VBMI = uint64_t(1) << 43;
 #endif
 
 	Cpu()
@@ -273,7 +273,7 @@ public:
 
 		if (type_ & tOSXSAVE) {
 			// check XFEATURE_ENABLED_MASK[2:1] = '11b'
-			uint64 bv = getXfeature();
+			uint64_t bv = getXfeature();
 			if ((bv & 6) == 6) {
 				if (data[2] & (1U << 28)) type_ |= tAVX;
 				if (data[2] & (1U << 12)) type_ |= tFMA;
@@ -320,14 +320,14 @@ public:
 
 class Clock {
 public:
-	static inline uint64 getRdtsc()
+	static inline uint64_t getRdtsc()
 	{
 #ifdef _MSC_VER
 		return __rdtsc();
 #else
 		unsigned int eax, edx;
 		__asm__ volatile("rdtsc" : "=a"(eax), "=d"(edx));
-		return ((uint64)edx << 32) | eax;
+		return ((uint64_t)edx << 32) | eax;
 #endif
 	}
 	Clock()
@@ -345,10 +345,10 @@ public:
 		count_++;
 	}
 	int getCount() const { return count_; }
-	uint64 getClock() const { return clock_; }
+	uint64_t getClock() const { return clock_; }
 	void clear() { count_ = 0; clock_ = 0; }
 private:
-	uint64 clock_;
+	uint64_t clock_;
 	int count_;
 };
 
