@@ -19,7 +19,6 @@
  *
  */
 
-#include "stdafx.h"
 #include "GSBlock.h"
 
 #if _M_SSE >= 0x501

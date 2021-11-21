@@ -21,7 +21,6 @@
 
 #include "Pcsx2Types.h"
 
-#include "../../stdafx.h"
 #include "GSDirtyRect.h"
 
 GSDirtyRect::GSDirtyRect()

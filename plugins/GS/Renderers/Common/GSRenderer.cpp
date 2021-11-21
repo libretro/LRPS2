@@ -19,9 +19,7 @@
  *
  */
 
-#include "../../stdafx.h"
 #include "GSRenderer.h"
-
 
 GSRenderer::GSRenderer()
 	: m_texture_shuffle(false)

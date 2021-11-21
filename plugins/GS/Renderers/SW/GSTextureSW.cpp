@@ -21,7 +21,6 @@
 
 #include "Pcsx2Types.h"
 
-#include "../../stdafx.h"
 #include "GSTextureSW.h"
 
 GSTextureSW::GSTextureSW(int type, int width, int height)

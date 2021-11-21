@@ -19,7 +19,10 @@
  *
  */
 
-#include "stdafx.h"
+/* Forward declarations */
+extern void* vmalloc(size_t size, bool code);
+extern void vmfree(void* ptr, size_t size);
+
 #include "GSCodeBuffer.h"
 
 GSCodeBuffer::GSCodeBuffer(size_t blocksize)

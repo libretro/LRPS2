@@ -21,7 +21,6 @@
 
 #include "Pcsx2Types.h"
 
-#include "../../stdafx.h"
 #include "../../GS.h"
 #include "../../GSUtil.h"
 #include "GSDevice11.h"

@@ -21,12 +21,10 @@
 
 #include "Pcsx2Types.h"
 
-#include "../../stdafx.h"
 #include "../../GSState.h"
 #include "GSDeviceOGL.h"
 #include "GLState.h"
 #include "../../GSUtil.h"
-#include <fstream>
 #include "options_tools.h"
 #include "../Common/fxaa_shader.h"
 #include <libretro.h>

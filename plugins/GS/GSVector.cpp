@@ -19,7 +19,6 @@
  *
  */
 
-#include "stdafx.h"
 #include "GSVector.h"
 
 GSVector4i GSVector4i::m_xff[17];

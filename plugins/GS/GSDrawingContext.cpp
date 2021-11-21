@@ -19,7 +19,6 @@
 *
 */
 
-#include "stdafx.h"
 #include "GSDrawingContext.h"
 #include "GS.h"
 

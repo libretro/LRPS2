@@ -21,7 +21,6 @@
 
 #include "Pcsx2Types.h"
 
-#include "../../stdafx.h"
 #include "GSRendererHW.h"
 #include "options_tools.h"
 

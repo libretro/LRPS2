@@ -22,7 +22,6 @@
 #include <algorithm>
 
 #include "Pcsx2Types.h"
-#include "stdafx.h"
 #include "GS.h"
 #include "GSCrc.h"
 

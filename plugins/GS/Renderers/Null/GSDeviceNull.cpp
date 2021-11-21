@@ -19,7 +19,6 @@
  *
  */
 
-#include "../../stdafx.h"
 #include "GSDeviceNull.h"
 
 bool GSDeviceNull::Create()

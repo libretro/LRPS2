@@ -19,7 +19,6 @@
  *
  */
 
-#include "../../stdafx.h"
 #include "../../GSState.h"
 #include "../../GS.h"
 

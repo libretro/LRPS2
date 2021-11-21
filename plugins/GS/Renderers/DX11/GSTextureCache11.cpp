@@ -19,7 +19,6 @@
  *
  */
 
-#include "../../stdafx.h"
 #include "GSTextureCache11.h"
 
 // GSTextureCache11

@@ -20,7 +20,6 @@
  *
  */
 
-#include "../../stdafx.h"
 #include "GSSetupPrimCodeGenerator.h"
 #include "GSVertexSW.h"
 

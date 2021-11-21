@@ -19,5 +19,4 @@
  *
  */
 
-#include "../../stdafx.h"
 #include "GSRendererNull.h"

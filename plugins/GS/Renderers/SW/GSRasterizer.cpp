@@ -23,7 +23,6 @@
 
 #include "Pcsx2Types.h"
 
-#include "../../stdafx.h"
 #include "GSRasterizer.h"
 
 int GSRasterizerData::s_counter = 0;

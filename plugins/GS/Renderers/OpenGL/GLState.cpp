@@ -19,7 +19,6 @@
  *
  */
 
-#include "../../stdafx.h"
 #include "GLState.h"
 
 namespace GLState {

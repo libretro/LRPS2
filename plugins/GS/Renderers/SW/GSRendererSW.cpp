@@ -21,7 +21,6 @@
 
 #include "Pcsx2Types.h"
 
-#include "../../stdafx.h"
 #include "GSRendererSW.h"
 
 GSVector4 GSRendererSW::m_pos_scale;

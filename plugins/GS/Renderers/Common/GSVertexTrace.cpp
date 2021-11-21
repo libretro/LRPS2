@@ -21,7 +21,6 @@
 
 #include "Pcsx2Types.h"
 
-#include "stdafx.h"
 #include "GSVertexTrace.h"
 #include "GSUtil.h"
 #include "GSState.h"

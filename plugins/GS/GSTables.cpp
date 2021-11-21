@@ -20,7 +20,6 @@
  */
 
 #include "Pcsx2Types.h"
-#include "stdafx.h"
 #include "GSTables.h"
 
 const u8 blockTable32[4][8] =
