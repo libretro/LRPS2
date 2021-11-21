@@ -643,7 +643,6 @@ void GSdxApp::Init()
 	m_current_configuration["override_GL_ARB_clip_control"]               = "-1";
 	m_current_configuration["override_GL_ARB_direct_state_access"]        = "-1";
 	m_current_configuration["override_GL_ARB_draw_buffers_blend"]         = "-1";
-	m_current_configuration["override_GL_ARB_get_texture_sub_image"]      = "-1";
 	m_current_configuration["override_GL_ARB_gpu_shader5"]                = "-1";
 	m_current_configuration["override_GL_ARB_multi_bind"]                 = "-1";
 	m_current_configuration["override_GL_ARB_shader_image_load_store"]    = "-1";
@@ -653,6 +652,9 @@ void GSdxApp::Init()
 	m_current_configuration["override_GL_ARB_texture_view"]               = "-1";
 	m_current_configuration["override_GL_ARB_vertex_attrib_binding"]      = "-1";
 	m_current_configuration["override_GL_ARB_texture_barrier"]            = "-1";
+#ifdef GL_EXT_TEX_SUB_IMAGE
+	m_default_configuration["override_GL_ARB_get_texture_sub_image"]      = "-1";
+#endif
 	m_current_configuration["paltex"]                                     = "0";
 	m_current_configuration["preload_frame_with_gs_data"]                 = "0";
 	m_current_configuration["Renderer"]                                   = std::to_string(static_cast<int>(GSRendererType::Default));
