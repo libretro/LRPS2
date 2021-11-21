@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "Pcsx2Types.h"
+
 #include "GSScanlineEnvironment.h"
 #include "../Common/GSFunctionMap.h"
 #include "../../GSUtil.h"
@@ -33,7 +35,7 @@ class GSSetupPrimCodeGenerator : public GSCodeGenerator
 	GSScanlineLocalData& m_local;
 	bool m_rip;
 
-	struct {uint32 z:1, f:1, t:1, c:1;} m_en;
+	struct {u32 z:1, f:1, t:1, c:1;} m_en;
 
 #if _M_SSE < 0x501
 	void Generate_SSE();
@@ -53,5 +55,5 @@ class GSSetupPrimCodeGenerator : public GSCodeGenerator
 #endif
 
 public:
-	GSSetupPrimCodeGenerator(void* param, uint64 key, void* code, size_t maxsize);
+	GSSetupPrimCodeGenerator(void* param, u64 key, void* code, size_t maxsize);
 };

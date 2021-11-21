@@ -21,21 +21,23 @@
 
 #pragma once
 
+#include "Pcsx2Types.h"
+
 #include "GLState.h"
 
 #ifdef ENABLE_OGL_DEBUG_MEM_BW
-extern uint64 g_uniform_upload_byte;
+extern u64 g_uniform_upload_byte;
 #endif
 
 
 class GSUniformBufferOGL {
 	GLuint m_buffer;		// data object
 	GLuint m_index;		// GLSL slot
-	uint32 m_size;	    // size of the data
-	uint8* m_cache;       // content of the previous upload
+	u32 m_size;	    // size of the data
+	u8* m_cache;       // content of the previous upload
 
 public:
-	GSUniformBufferOGL(const std::string& pretty_name, GLuint index, uint32 size)
+	GSUniformBufferOGL(const std::string& pretty_name, GLuint index, u32 size)
 		: m_index(index), m_size(size)
 	{
 		glGenBuffers(1, &m_buffer);
@@ -43,7 +45,7 @@ public:
 		glObjectLabel(GL_BUFFER, m_buffer, pretty_name.size(), pretty_name.c_str());
 		allocate();
 		attach();
-		m_cache = (uint8*)_aligned_malloc(m_size, 32);
+		m_cache = (u8*)_aligned_malloc(m_size, 32);
 		memset(m_cache, 0, m_size);
 	}
 
@@ -100,12 +102,12 @@ public:
 class GSUniformBufferStorageOGL {
 	GLuint m_buffer;		// data object
 	GLuint m_index;		// GLSL slot
-	uint32 m_size;	    // size of the data
-	uint8* m_buffer_ptr;
-	uint32 m_offset;
+	u32 m_size;	    // size of the data
+	u8* m_buffer_ptr;
+	u32 m_offset;
 
 public:
-	GSUniformBufferStorageOGL(GLuint index, uint32 size) : m_index(index)
+	GSUniformBufferStorageOGL(GLuint index, u32 size) : m_index(index)
 												  , m_size(size), m_offset(0)
 	{
 		glGenBuffers(1, &m_buffer);
@@ -130,7 +132,7 @@ public:
 
 		GLsizei buffer_size = UBO_BUFFER_SIZE;
 		glBufferStorage(GL_UNIFORM_BUFFER, buffer_size, NULL, create_flags);
-		m_buffer_ptr = (uint8*) glMapBufferRange(GL_UNIFORM_BUFFER, 0, buffer_size, map_flags);
+		m_buffer_ptr = (u8*) glMapBufferRange(GL_UNIFORM_BUFFER, 0, buffer_size, map_flags);
 		ASSERT(m_buffer_ptr);
 	}
 

@@ -37,7 +37,7 @@
 
 static bool is_d3d                  = false;
 static GSRenderer* s_gs             = NULL;
-static uint8* s_basemem             = NULL;
+static u8* s_basemem             = NULL;
 
 GSdxApp theApp;
 
@@ -65,7 +65,7 @@ GSVector4i GSClientRect(void)
         return GSVector4i(0, 0, internal_res.x, internal_res.y);
 }
 
-EXPORT_C GSsetBaseMem(uint8* mem)
+EXPORT_C GSsetBaseMem(u8* mem)
 {
 	s_basemem = mem;
 
@@ -247,7 +247,7 @@ void GSUpdateOptions()
 }
 
 
-EXPORT_C_(int) GSopen2(uint32 flags)
+EXPORT_C_(int) GSopen2(u32 flags)
 {
 	static bool stored_toggle_state = false;
 	const bool toggle_state = !!(flags & 4);
@@ -309,56 +309,56 @@ EXPORT_C GSreset()
 	s_gs->Reset();
 }
 
-EXPORT_C GSgifSoftReset(uint32 mask)
+EXPORT_C GSgifSoftReset(u32 mask)
 {
 	s_gs->SoftReset(mask);
 }
 
-EXPORT_C GSwriteCSR(uint32 csr)
+EXPORT_C GSwriteCSR(u32 csr)
 {
 	s_gs->WriteCSR(csr);
 }
 
-EXPORT_C GSinitReadFIFO(uint8* mem)
+EXPORT_C GSinitReadFIFO(u8* mem)
 {
 	GL_PERF("Init Read FIFO1");
 	s_gs->InitReadFIFO(mem, 1);
 }
 
-EXPORT_C GSreadFIFO(uint8* mem)
+EXPORT_C GSreadFIFO(u8* mem)
 {
 	s_gs->ReadFIFO(mem, 1);
 }
 
-EXPORT_C GSinitReadFIFO2(uint8* mem, uint32 size)
+EXPORT_C GSinitReadFIFO2(u8* mem, u32 size)
 {
 	GL_PERF("Init Read FIFO2");
 	s_gs->InitReadFIFO(mem, size);
 }
 
-EXPORT_C GSreadFIFO2(uint8* mem, uint32 size)
+EXPORT_C GSreadFIFO2(u8* mem, u32 size)
 {
 	s_gs->ReadFIFO(mem, size);
 }
 
-EXPORT_C GSgifTransfer(const uint8* mem, uint32 size)
+EXPORT_C GSgifTransfer(const u8* mem, u32 size)
 {
 	s_gs->Transfer<3>(mem, size);
 }
 
-EXPORT_C GSgifTransfer1(uint8* mem, uint32 addr)
+EXPORT_C GSgifTransfer1(u8* mem, u32 addr)
 {
-	s_gs->Transfer<0>(const_cast<uint8*>(mem) + addr, (0x4000 - addr) / 16);
+	s_gs->Transfer<0>(const_cast<u8*>(mem) + addr, (0x4000 - addr) / 16);
 }
 
-EXPORT_C GSgifTransfer2(uint8* mem, uint32 size)
+EXPORT_C GSgifTransfer2(u8* mem, u32 size)
 {
-	s_gs->Transfer<1>(const_cast<uint8*>(mem), size);
+	s_gs->Transfer<1>(const_cast<u8*>(mem), size);
 }
 
-EXPORT_C GSgifTransfer3(uint8* mem, uint32 size)
+EXPORT_C GSgifTransfer3(u8* mem, u32 size)
 {
-	s_gs->Transfer<2>(const_cast<uint8*>(mem), size);
+	s_gs->Transfer<2>(const_cast<u8*>(mem), size);
 }
 
 EXPORT_C GSvsync(int field)
@@ -381,7 +381,7 @@ EXPORT_C_(int) GSfreeze(int mode, GSFreezeData* data)
 	return 0;
 }
 
-EXPORT_C GSsetGameCRC(uint32 crc, int options)
+EXPORT_C GSsetGameCRC(u32 crc, int options)
 {
 	s_gs->SetGameCRC(crc, options);
 }
@@ -421,7 +421,7 @@ void vmfree(void* ptr, size_t size)
 }
 
 static HANDLE s_fh = NULL;
-static uint8* s_Next[8];
+static u8* s_Next[8];
 
 void* fifo_alloc(size_t size, size_t repeat)
 {
@@ -442,8 +442,8 @@ void* fifo_alloc(size_t size, size_t repeat)
 	int mmap_segment_failed = 0;
 	void* fifo = MapViewOfFile(s_fh, FILE_MAP_ALL_ACCESS, 0, 0, size);
 	for (size_t i = 1; i < repeat; i++) {
-		void* base = (uint8*)fifo + size * i;
-		s_Next[i] = (uint8*)MapViewOfFileEx(s_fh, FILE_MAP_ALL_ACCESS, 0, 0, size, base);
+		void* base = (u8*)fifo + size * i;
+		s_Next[i] = (u8*)MapViewOfFileEx(s_fh, FILE_MAP_ALL_ACCESS, 0, 0, size, base);
 		errorID = ::GetLastError();
 		if (s_Next[i] != base) {
 			mmap_segment_failed++;
@@ -540,8 +540,8 @@ void* fifo_alloc(size_t size, size_t repeat)
 	void* fifo = mmap(nullptr, size * repeat, PROT_READ | PROT_WRITE, MAP_SHARED, s_shm_fd, 0);
 
 	for (size_t i = 1; i < repeat; i++) {
-		void* base = (uint8*)fifo + size * i;
-		uint8* next = (uint8*)mmap(base, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, s_shm_fd, 0);
+		void* base = (u8*)fifo + size * i;
+		u8* next = (u8*)mmap(base, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, s_shm_fd, 0);
 		if (next != base)
 			fprintf(stderr, "Fail to mmap contiguous segment\n");
 	}
@@ -616,7 +616,7 @@ void GSdxApp::Init()
 	m_current_configuration["AspectRatio"]                                = "1";
 	m_current_configuration["autoflush_sw"]                               = "1";
 	m_current_configuration["clut_load_before_draw"]                      = "0";
-	m_current_configuration["crc_hack_level"]                             = std::to_string(static_cast<int8>(CRCHackLevel::Automatic));
+	m_current_configuration["crc_hack_level"]                             = std::to_string(static_cast<s8>(CRCHackLevel::Automatic));
 	m_current_configuration["CrcHacksExclusions"]                         = "";
 	m_current_configuration["debug_glsl_shader"]                          = "0";
 	m_current_configuration["debug_opengl"]                               = "0";
@@ -625,7 +625,7 @@ void GSdxApp::Init()
 	m_current_configuration["dump"]                                       = "0";
 	m_current_configuration["extrathreads"]                               = "2";
 	m_current_configuration["extrathreads_height"]                        = "4";
-	m_current_configuration["filter"]                                     = std::to_string(static_cast<int8>(BiFiltering::PS2));
+	m_current_configuration["filter"]                                     = std::to_string(static_cast<s8>(BiFiltering::PS2));
 	m_current_configuration["force_texture_clear"]                        = "0";
 	m_current_configuration["fxaa"]                                       = "0";
 	m_current_configuration["interlace"]                                  = "7";
@@ -686,7 +686,7 @@ void GSdxApp::Init()
 	m_current_configuration["UserHacks_TCOffsetX"]                        = "0";
 	m_current_configuration["UserHacks_TCOffsetY"]                        = "0";
 	m_current_configuration["UserHacks_TextureInsideRt"]                  = "0";
-	m_current_configuration["UserHacks_TriFilter"]                        = std::to_string(static_cast<int8>(TriFiltering::None));
+	m_current_configuration["UserHacks_TriFilter"]                        = std::to_string(static_cast<s8>(TriFiltering::None));
 	m_current_configuration["UserHacks_WildHack"]                         = "0";
 	m_current_configuration["wrap_gs_mem"]                                = "0";
 	m_current_configuration["vsync"]                                      = "0";

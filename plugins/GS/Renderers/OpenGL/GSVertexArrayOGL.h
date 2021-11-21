@@ -21,10 +21,12 @@
 
 #pragma once
 
+#include "Pcsx2Types.h"
+
 #include "../../config.h"
 
 #ifdef ENABLE_OGL_DEBUG_MEM_BW
-extern uint64 g_vertex_upload_byte;
+extern u64 g_vertex_upload_byte;
 #endif
 
 struct GSInputLayoutOGL {
@@ -44,7 +46,7 @@ class GSBufferOGL {
 	size_t m_quarter_shift;
 	const  GLenum m_target;
 	GLuint m_buffer_name;
-	uint8*  m_buffer_ptr;
+	u8*  m_buffer_ptr;
 	GLsync m_fence[5];
 
 	public:
@@ -79,7 +81,7 @@ class GSBufferOGL {
 		const GLbitfield create_flags = common_flags | GL_CLIENT_STORAGE_BIT;
 
 		glBufferStorage(m_target, STRIDE * m_limit, NULL, create_flags );
-		m_buffer_ptr = (uint8*) glMapBufferRange(m_target, 0, STRIDE * m_limit, map_flags);
+		m_buffer_ptr = (u8*) glMapBufferRange(m_target, 0, STRIDE * m_limit, map_flags);
 		if (!m_buffer_ptr)
 			throw GSDXError();
 	}
@@ -214,7 +216,7 @@ class GSBufferOGL {
 
 class GSVertexBufferStateOGL {
 	std::unique_ptr<GSBufferOGL<sizeof(GSVertexPT1)>> m_vb;
-	std::unique_ptr<GSBufferOGL<sizeof(uint32)>> m_ib;
+	std::unique_ptr<GSBufferOGL<sizeof(u32)>> m_ib;
 
 	GLuint m_va;
 	GLenum m_topology;
@@ -230,7 +232,7 @@ public:
 		glBindVertexArray(m_va);
 
 		m_vb.reset(new GSBufferOGL<sizeof(GSVertexPT1)>(GL_ARRAY_BUFFER, 256 * 1024));
-		m_ib.reset(new GSBufferOGL<sizeof(uint32)>(GL_ELEMENT_ARRAY_BUFFER, 2 * 1024 * 1024));
+		m_ib.reset(new GSBufferOGL<sizeof(u32)>(GL_ELEMENT_ARRAY_BUFFER, 2 * 1024 * 1024));
 
 		m_vb->bind();
 		m_ib->bind();

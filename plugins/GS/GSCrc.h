@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "Pcsx2Types.h"
+
 class CRC
 {
 public:
@@ -182,16 +184,16 @@ public:
 
 	struct Game
 	{
-		uint32 crc;
+		u32 crc;
 		Title title;
 		Region region;
-		uint32 flags;
+		u32 flags;
 	};
 
 private:
 	static Game m_games[];
-	static std::map<uint32, Game*> m_map;
+	static std::map<u32, Game*> m_map;
 
 public:
-	static Game Lookup(uint32 crc);
+	static Game Lookup(u32 crc);
 };

@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "Pcsx2Types.h"
 #include "../../GSVector.h"
 
 class GSTexture
@@ -35,7 +36,7 @@ protected:
 	bool m_sparse;
 
 public:
-	struct GSMap {uint8* bits; int pitch;};
+	struct GSMap {u8* bits; int pitch;};
 
 	enum {RenderTarget = 1, DepthStencil, Texture, Offscreen, Backbuffer, SparseRenderTarget, SparseDepthStencil};
 
@@ -49,7 +50,7 @@ public:
 	virtual bool Map(GSMap& m, const GSVector4i* r = NULL, int layer = 0) = 0;
 	virtual void Unmap() = 0;
 	virtual void GenerateMipmap() {}
-	virtual uint32 GetID() { return 0; }
+	virtual u32 GetID() { return 0; }
 
 	GSVector2 GetScale() const {return m_scale;}
 	void SetScale(const GSVector2& scale) {m_scale = scale;}
@@ -78,5 +79,5 @@ public:
 	float OffsetHack_mody;
 
 	// Typical size of a RGBA texture
-	virtual uint32 GetMemUsage() { return m_size.x * m_size.y * 4; }
+	virtual u32 GetMemUsage() { return m_size.x * m_size.y * 4; }
 };

@@ -19,6 +19,8 @@
  *
  */
 
+#include "Pcsx2Types.h"
+
 #include "../../stdafx.h"
 #include "../../GSState.h"
 #include "GSDeviceOGL.h"
@@ -1686,16 +1688,16 @@ static const char tfx_vgs_glsl_shader_raw[] =
 
 // TODO port those value into PerfMon API
 #ifdef ENABLE_OGL_DEBUG_MEM_BW
-uint64 g_real_texture_upload_byte = 0;
-uint64 g_vertex_upload_byte = 0;
-uint64 g_uniform_upload_byte = 0;
+u64 g_real_texture_upload_byte = 0;
+u64 g_vertex_upload_byte = 0;
+u64 g_uniform_upload_byte = 0;
 #endif
 
-static const uint32 g_merge_cb_index      = 10;
-static const uint32 g_interlace_cb_index  = 11;
-static const uint32 g_convert_index       = 15;
-static const uint32 g_vs_cb_index         = 20;
-static const uint32 g_ps_cb_index         = 21;
+static const u32 g_merge_cb_index      = 10;
+static const u32 g_interlace_cb_index  = 11;
+static const u32 g_convert_index       = 15;
+static const u32 g_vs_cb_index         = 20;
+static const u32 g_ps_cb_index         = 21;
 
 int   GSDeviceOGL::m_shader_inst = 0;
 int   GSDeviceOGL::m_shader_reg  = 0;
@@ -1772,7 +1774,7 @@ GSDeviceOGL::~GSDeviceOGL()
 
 	glDeleteSamplers(countof(m_ps_ss), m_ps_ss);
 
-	for (uint32 key = 0; key < countof(m_om_dss); key++) delete m_om_dss[key];
+	for (u32 key = 0; key < countof(m_om_dss); key++) delete m_om_dss[key];
 
 	PboPool::Destroy();
 
@@ -1920,7 +1922,7 @@ bool GSDeviceOGL::Create()
 	{
 		GL_PUSH("GSDeviceOGL::Sampler");
 
-		for (uint32 key = 0; key < countof(m_ps_ss); key++) {
+		for (u32 key = 0; key < countof(m_ps_ss); key++) {
 			m_ps_ss[key] = CreateSampler(PSSamplerSelector(key));
 		}
 	}
@@ -2073,7 +2075,7 @@ bool GSDeviceOGL::Create()
 	// When VRAM is below 2GB, we add a factor 2 because RAM can be used. Potentially
 	// low VRAM gpu can go higher but perf will be bad anyway.
 	if (vram[0] > 0 && vram[0] < 1800000)
-		GLState::available_vram = (int64)(vram[0]) * 1024ul * 2ul;
+		GLState::available_vram = (s64)(vram[0]) * 1024ul * 2ul;
 
 	log_cb(RETRO_LOG_ERROR, "Available VRAM/RAM:%lldMB for textures\n", GLState::available_vram >> 20u);
 	// ****************************************************************
@@ -2106,14 +2108,14 @@ void GSDeviceOGL::CreateTextureFX()
 	m_gs[2] = CompileGS(GSSelector(2));
 	m_gs[4] = CompileGS(GSSelector(4));
 
-	for (uint32 key = 0; key < countof(m_vs); key++)
+	for (u32 key = 0; key < countof(m_vs); key++)
 		m_vs[key] = CompileVS(VSSelector(key));
 
 	// Enable all bits for stencil operations. Technically 1 bit is
 	// enough but buffer is polluted with noise. Clear will be limited
 	// to the mask.
 	glStencilMask(0xFF);
-	for (uint32 key = 0; key < countof(m_om_dss); key++) {
+	for (u32 key = 0; key < countof(m_om_dss); key++) {
 		m_om_dss[key] = CreateDepthStencil(OMDepthStencilSelector(key));
 	}
 
@@ -2202,7 +2204,7 @@ void GSDeviceOGL::ClearRenderTarget(GSTexture* t, const GSVector4& c)
 	// TODO: check size of scissor before toggling it
 	glDisable(GL_SCISSOR_TEST);
 
-	uint32 old_color_mask = GLState::wrgba;
+	u32 old_color_mask = GLState::wrgba;
 	OMSetColorMaskState();
 
 	if (T->IsBackbuffer()) {
@@ -2226,7 +2228,7 @@ void GSDeviceOGL::ClearRenderTarget(GSTexture* t, const GSVector4& c)
 	T->WasCleaned();
 }
 
-void GSDeviceOGL::ClearRenderTarget(GSTexture* t, uint32 c)
+void GSDeviceOGL::ClearRenderTarget(GSTexture* t, u32 c)
 {
 	if (!t) return;
 
@@ -2273,7 +2275,7 @@ void GSDeviceOGL::ClearDepth(GSTexture* t)
 	}
 }
 
-void GSDeviceOGL::ClearStencil(GSTexture* t, uint8 c)
+void GSDeviceOGL::ClearStencil(GSTexture* t, u8 c)
 {
 	if (!t) return;
 
@@ -2627,7 +2629,7 @@ void GSDeviceOGL::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture
 	else
 		OMSetRenderTargets(dTex, NULL);
 
-	OMSetBlendState((uint8)bs);
+	OMSetBlendState((u8)bs);
 	OMSetColorMaskState(cms);
 
 	// ************************************
@@ -2938,7 +2940,7 @@ void GSDeviceOGL::OMSetColorMaskState(OMColorMaskSelector sel)
 	}
 }
 
-void GSDeviceOGL::OMSetBlendState(uint8 blend_index, uint8 blend_factor, bool is_blend_constant, bool accumulation_blend)
+void GSDeviceOGL::OMSetBlendState(u8 blend_index, u8 blend_factor, bool is_blend_constant, bool accumulation_blend)
 {
 	if (blend_index) {
 		if (!GLState::blend) {
@@ -3134,7 +3136,7 @@ void GSDeviceOGL::DebugOutputToFile(GLenum gl_source, GLenum gl_type, GLuint id,
 #endif
 }
 
-uint16 GSDeviceOGL::ConvertBlendEnum(uint16 generic)
+u16 GSDeviceOGL::ConvertBlendEnum(u16 generic)
 {
 	switch (generic)
 	{

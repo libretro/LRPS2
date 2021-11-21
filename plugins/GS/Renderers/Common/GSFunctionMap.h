@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "Pcsx2Types.h"
+
 #include "../../GS.h"
 #include "../../GSCodeBuffer.h"
 
@@ -99,7 +101,7 @@ template<class CG, class KEY, class VALUE>
 class GSCodeGeneratorFunctionMap : public GSFunctionMap<KEY, VALUE>
 {
 	void* m_param;
-	std::unordered_map<uint64, VALUE> m_cgmap;
+	std::unordered_map<u64, VALUE> m_cgmap;
 	GSCodeBuffer m_cb;
 
 public:

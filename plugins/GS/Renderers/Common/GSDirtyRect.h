@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "Pcsx2Types.h"
+
 #include "../../GSLocalMemory.h"
 
 class GSDirtyRect
@@ -30,11 +32,11 @@ class GSDirtyRect
 	int right;
 	int bottom;
 
-	uint32 psm;
+	u32 psm;
 
 public:
 	GSDirtyRect();
-	GSDirtyRect(const GSVector4i& r, uint32 psm);
+	GSDirtyRect(const GSVector4i& r, u32 psm);
 	const GSVector4i GetDirtyRect(const GIFRegTEX0& TEX0) const;
 };
 

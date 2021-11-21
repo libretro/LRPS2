@@ -25,19 +25,19 @@
 #include "GLState.h"
 
 #ifdef ENABLE_OGL_DEBUG_MEM_BW
-extern uint64 g_real_texture_upload_byte;
+extern u64 g_real_texture_upload_byte;
 #endif
 
 // FIXME OGL4: investigate, only 1 unpack buffer always bound
 namespace PboPool {
 
-	const  uint32 m_pbo_size = 64*1024*1024;
-	const  uint32 m_seg_size = 16*1024*1024;
+	const  u32 m_pbo_size = 64*1024*1024;
+	const  u32 m_seg_size = 16*1024*1024;
 
 	GLuint m_buffer;
 	uptr   m_offset;
 	char*  m_map;
-	uint32 m_size;
+	u32 m_size;
 	GLsync m_fence[m_pbo_size/m_seg_size];
 
 	// Option for buffer storage
@@ -66,7 +66,7 @@ namespace PboPool {
 		UnbindPbo();
 	}
 
-	char* Map(uint32 size) {
+	char* Map(u32 size) {
 		char* map;
 		// Note: keep offset aligned for SSE/AVX
 		m_size = (size + 63) & ~0x3F;
@@ -110,8 +110,8 @@ namespace PboPool {
 	}
 
 	void Sync() {
-		uint32 segment_current = m_offset / m_seg_size;
-		uint32 segment_next    = (m_offset + m_size) / m_seg_size;
+		u32 segment_current = m_offset / m_seg_size;
+		u32 segment_next    = (m_offset + m_size) / m_seg_size;
 
 		if (segment_current != segment_next) {
 			if (segment_next >= countof(m_fence)) {
@@ -248,7 +248,7 @@ GSTextureOGL::GSTextureOGL(int type, int w, int h, int format, GLuint fbo_read, 
 			return; // backbuffer isn't a real texture
 		case GSTexture::Offscreen:
 			// Offscreen is only used to read color. So it only requires 4B by pixel
-			m_local_buffer = (uint8*)_aligned_malloc(m_size.x * m_size.y * 4, 32);
+			m_local_buffer = (u8*)_aligned_malloc(m_size.x * m_size.y * 4, 32);
 			break;
 		case GSTexture::Texture:
 			// Only 32 bits input texture will be supported for mipmap
@@ -377,8 +377,8 @@ bool GSTextureOGL::Update(const GSVector4i& r, const void* data, int pitch, int 
 
 	m_clean = false;
 
-	uint32 row_byte = r.width() << m_int_shift;
-	uint32 map_size = r.height() * row_byte;
+	u32 row_byte = r.width() << m_int_shift;
+	u32 map_size = r.height() * row_byte;
 #ifdef ENABLE_OGL_DEBUG_MEM_BW
 	g_real_texture_upload_byte += map_size;
 #endif
@@ -442,7 +442,7 @@ bool GSTextureOGL::Map(GSMap& m, const GSVector4i* _r, int layer)
 	ASSERT(r.width()  != 0);
 	ASSERT(r.height() != 0);
 
-	uint32 row_byte = r.width() << m_int_shift;
+	u32 row_byte = r.width() << m_int_shift;
 	m.pitch = row_byte;
 
 	if (m_type == GSTexture::Offscreen) {
@@ -477,9 +477,9 @@ bool GSTextureOGL::Map(GSMap& m, const GSVector4i* _r, int layer)
 
 		m_clean = false;
 
-		uint32 map_size = r.height() * row_byte;
+		u32 map_size = r.height() * row_byte;
 
-		m.bits = (uint8*)PboPool::Map(map_size);
+		m.bits = (u8*)PboPool::Map(map_size);
 
 #ifdef ENABLE_OGL_DEBUG_MEM_BW
 	g_real_texture_upload_byte += map_size;
@@ -558,7 +558,7 @@ void GSTextureOGL::CommitPages(const GSVector2i& region, bool commit)
 	GLState::available_vram -= m_mem_usage;
 }
 
-uint32 GSTextureOGL::GetMemUsage()
+u32 GSTextureOGL::GetMemUsage()
 {
 	return m_mem_usage;
 }

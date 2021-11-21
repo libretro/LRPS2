@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "Pcsx2Defs.h"
 #include <vector>
 
 class GSCodeBuffer
@@ -28,7 +29,7 @@ class GSCodeBuffer
 	std::vector<void*> m_buffers;
 	size_t m_blocksize;
 	size_t m_pos;
-	uint8* m_ptr;
+	u8* m_ptr;
 
 public:
 	GSCodeBuffer(size_t blocksize = 4096 * 64); // 256k

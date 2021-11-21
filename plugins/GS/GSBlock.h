@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "Pcsx2Types.h"
+
 #include "GS.h"
 #include "GSTables.h"
 #include "GSVector.h"
@@ -55,10 +57,10 @@ class GSBlock
 public:
 	static void InitVectors();
 
-	template<int i, int alignment, uint32 mask> __forceinline static void WriteColumn32(uint8* RESTRICT dst, const uint8* RESTRICT src, int srcpitch)
+	template<int i, int alignment, u32 mask> __forceinline static void WriteColumn32(u8* RESTRICT dst, const u8* RESTRICT src, int srcpitch)
 	{
-		const uint8* RESTRICT s0 = &src[srcpitch * 0];
-		const uint8* RESTRICT s1 = &src[srcpitch * 1];
+		const u8* RESTRICT s0 = &src[srcpitch * 0];
+		const u8* RESTRICT s1 = &src[srcpitch * 1];
 
 		#if _M_SSE >= 0x501
 
@@ -189,12 +191,12 @@ public:
 		#endif
 	}
 
-	template<int i, int alignment> __forceinline static void WriteColumn16(uint8* RESTRICT dst, const uint8* RESTRICT src, int srcpitch)
+	template<int i, int alignment> __forceinline static void WriteColumn16(u8* RESTRICT dst, const u8* RESTRICT src, int srcpitch)
 	{
-		const uint8* RESTRICT s0 = &src[srcpitch * 0];
-		const uint8* RESTRICT s1 = &src[srcpitch * 1];
+		const u8* RESTRICT s0 = &src[srcpitch * 0];
+		const u8* RESTRICT s1 = &src[srcpitch * 1];
 
-		// for(int j = 0; j < 16; j++) {((uint16*)s0)[j] = columnTable16[0][j]; ((uint16*)s1)[j] = columnTable16[1][j];}
+		// for(int j = 0; j < 16; j++) {((u16*)s0)[j] = columnTable16[0][j]; ((u16*)s1)[j] = columnTable16[1][j];}
 
 		#if _M_SSE >= 0x501
 
@@ -262,7 +264,7 @@ public:
 		#endif
 	}
 
-	template<int i, int alignment> __forceinline static void WriteColumn8(uint8* RESTRICT dst, const uint8* RESTRICT src, int srcpitch)
+	template<int i, int alignment> __forceinline static void WriteColumn8(u8* RESTRICT dst, const u8* RESTRICT src, int srcpitch)
 	{
 		// TODO: read unaligned as WriteColumn32 does and try saving a few shuffles
 
@@ -324,7 +326,7 @@ public:
 		#endif
 	}
 
-	template<int i, int alignment> __forceinline static void WriteColumn4(uint8* RESTRICT dst, const uint8* RESTRICT src, int srcpitch)
+	template<int i, int alignment> __forceinline static void WriteColumn4(u8* RESTRICT dst, const u8* RESTRICT src, int srcpitch)
 	{
 		//printf("WriteColumn4\n");
 
@@ -359,7 +361,7 @@ public:
 		((GSVector4i*)dst)[i * 4 + 3] = v3;
 	}
 
-	template<int alignment, uint32 mask> static void WriteColumn32(int y, uint8* RESTRICT dst, const uint8* RESTRICT src, int srcpitch)
+	template<int alignment, u32 mask> static void WriteColumn32(int y, u8* RESTRICT dst, const u8* RESTRICT src, int srcpitch)
 	{
 		switch((y >> 1) & 3)
 		{
@@ -371,7 +373,7 @@ public:
 		}
 	}
 
-	template<int alignment> static void WriteColumn16(int y, uint8* RESTRICT dst, const uint8* RESTRICT src, int srcpitch)
+	template<int alignment> static void WriteColumn16(int y, u8* RESTRICT dst, const u8* RESTRICT src, int srcpitch)
 	{
 		switch((y >> 1) & 3)
 		{
@@ -383,7 +385,7 @@ public:
 		}
 	}
 
-	template<int alignment> static void WriteColumn8(int y, uint8* RESTRICT dst, const uint8* RESTRICT src, int srcpitch)
+	template<int alignment> static void WriteColumn8(int y, u8* RESTRICT dst, const u8* RESTRICT src, int srcpitch)
 	{
 		switch((y >> 2) & 3)
 		{
@@ -395,7 +397,7 @@ public:
 		}
 	}
 
-	template<int alignment> static void WriteColumn4(int y, uint8* RESTRICT dst, const uint8* RESTRICT src, int srcpitch)
+	template<int alignment> static void WriteColumn4(int y, u8* RESTRICT dst, const u8* RESTRICT src, int srcpitch)
 	{
 		switch((y >> 2) & 3)
 		{
@@ -407,7 +409,7 @@ public:
 		}
 	}
 
-	template<int alignment, uint32 mask> static void WriteBlock32(uint8* RESTRICT dst, const uint8* RESTRICT src, int srcpitch)
+	template<int alignment, u32 mask> static void WriteBlock32(u8* RESTRICT dst, const u8* RESTRICT src, int srcpitch)
 	{
 		WriteColumn32<0, alignment, mask>(dst, src, srcpitch);
 		src += srcpitch * 2;
@@ -418,7 +420,7 @@ public:
 		WriteColumn32<3, alignment, mask>(dst, src, srcpitch);
 	}
 
-	template<int alignment> static void WriteBlock16(uint8* RESTRICT dst, const uint8* RESTRICT src, int srcpitch)
+	template<int alignment> static void WriteBlock16(u8* RESTRICT dst, const u8* RESTRICT src, int srcpitch)
 	{
 		WriteColumn16<0, alignment>(dst, src, srcpitch);
 		src += srcpitch * 2;
@@ -429,7 +431,7 @@ public:
 		WriteColumn16<3, alignment>(dst, src, srcpitch);
 	}
 
-	template<int alignment> static void WriteBlock8(uint8* RESTRICT dst, const uint8* RESTRICT src, int srcpitch)
+	template<int alignment> static void WriteBlock8(u8* RESTRICT dst, const u8* RESTRICT src, int srcpitch)
 	{
 		WriteColumn8<0, alignment>(dst, src, srcpitch);
 		src += srcpitch * 4;
@@ -440,7 +442,7 @@ public:
 		WriteColumn8<3, alignment>(dst, src, srcpitch);
 	}
 
-	template<int alignment> static void WriteBlock4(uint8* RESTRICT dst, const uint8* RESTRICT src, int srcpitch)
+	template<int alignment> static void WriteBlock4(u8* RESTRICT dst, const u8* RESTRICT src, int srcpitch)
 	{
 		WriteColumn4<0, alignment>(dst, src, srcpitch);
 		src += srcpitch * 4;
@@ -451,7 +453,7 @@ public:
 		WriteColumn4<3, alignment>(dst, src, srcpitch);
 	}
 
-	template<int i> __forceinline static void ReadColumn32(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch)
+	template<int i> __forceinline static void ReadColumn32(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch)
 	{
 		#if _M_SSE >= 0x501
 
@@ -488,7 +490,7 @@ public:
 		#endif
 	}
 
-	template<int i> __forceinline static void ReadColumn16(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch)
+	template<int i> __forceinline static void ReadColumn16(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch)
 	{
 		#if _M_SSE >= 0x501
 
@@ -535,7 +537,7 @@ public:
 		GSVector4i v2 = s[i * 4 + 2];
 		GSVector4i v3 = s[i * 4 + 3];
 
-		//for(int16 i = 0; i < 8; i++) {v0.i16[i] = i; v1.i16[i] = i + 8; v2.i16[i] = i + 16; v3.i16[i] = i + 24;}
+		//for(s16 i = 0; i < 8; i++) {v0.i16[i] = i; v1.i16[i] = i + 8; v2.i16[i] = i + 16; v3.i16[i] = i + 24;}
 
 		GSVector4i::sw16(v0, v1, v2, v3);
 		GSVector4i::sw32(v0, v1, v2, v3);
@@ -552,9 +554,9 @@ public:
 		#endif
 	}
 
-	template<int i> __forceinline static void ReadColumn8(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch)
+	template<int i> __forceinline static void ReadColumn8(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch)
 	{
-		//for(int j = 0; j < 64; j++) ((uint8*)src)[j] = (uint8)j;
+		//for(int j = 0; j < 64; j++) ((u8*)src)[j] = (u8)j;
 
 		#if 0//_M_SSE >= 0x501
 
@@ -647,7 +649,7 @@ public:
 		#endif
 	}
 
-	template<int i> __forceinline static void ReadColumn4(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch)
+	template<int i> __forceinline static void ReadColumn4(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch)
 	{
 		//printf("ReadColumn4\n");
 
@@ -724,7 +726,7 @@ public:
 		#endif
 	}
 
-	static void ReadColumn32(int y, const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch)
+	static void ReadColumn32(int y, const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch)
 	{
 		switch((y >> 1) & 3)
 		{
@@ -736,7 +738,7 @@ public:
 		}
 	}
 
-	static void ReadColumn16(int y, const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch)
+	static void ReadColumn16(int y, const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch)
 	{
 		switch((y >> 1) & 3)
 		{
@@ -748,7 +750,7 @@ public:
 		}
 	}
 
-	static void ReadColumn8(int y, const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch)
+	static void ReadColumn8(int y, const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch)
 	{
 		switch((y >> 2) & 3)
 		{
@@ -760,7 +762,7 @@ public:
 		}
 	}
 
-	static void ReadColumn4(int y, const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch)
+	static void ReadColumn4(int y, const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch)
 	{
 		switch((y >> 2) & 3)
 		{
@@ -772,7 +774,7 @@ public:
 		}
 	}
 
-	static void ReadBlock32(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch)
+	static void ReadBlock32(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch)
 	{
 		ReadColumn32<0>(src, dst, dstpitch);
 		dst += dstpitch * 2;
@@ -783,7 +785,7 @@ public:
 		ReadColumn32<3>(src, dst, dstpitch);
 	}
 
-	static void ReadBlock16(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch)
+	static void ReadBlock16(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch)
 	{
 		ReadColumn16<0>(src, dst, dstpitch);
 		dst += dstpitch * 2;
@@ -794,7 +796,7 @@ public:
 		ReadColumn16<3>(src, dst, dstpitch);
 	}
 
-	static void ReadBlock8(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch)
+	static void ReadBlock8(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch)
 	{
 		ReadColumn8<0>(src, dst, dstpitch);
 		dst += dstpitch * 4;
@@ -805,7 +807,7 @@ public:
 		ReadColumn8<3>(src, dst, dstpitch);
 	}
 
-	static void ReadBlock4(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch)
+	static void ReadBlock4(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch)
 	{
 		ReadColumn4<0>(src, dst, dstpitch);
 		dst += dstpitch * 4;
@@ -816,7 +818,7 @@ public:
 		ReadColumn4<3>(src, dst, dstpitch);
 	}
 
-	__forceinline static void ReadBlock4P(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch)
+	__forceinline static void ReadBlock4P(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch)
 	{
 		//printf("ReadBlock4P\n");
 
@@ -880,12 +882,12 @@ public:
 		}
 	}
 
-	__forceinline static void ReadBlock8HP(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch)
+	__forceinline static void ReadBlock8HP(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch)
 	{
 		#if _M_SSE >= 0x501
 
-		uint8* RESTRICT d0 = &dst[dstpitch * 0];
-		uint8* RESTRICT d1 = &dst[dstpitch * 4];
+		u8* RESTRICT d0 = &dst[dstpitch * 0];
+		u8* RESTRICT d1 = &dst[dstpitch * 4];
 
 		const GSVector8i* s = (const GSVector8i*)src;
 		
@@ -951,12 +953,12 @@ public:
 		#endif
 	}
 
-	__forceinline static void ReadBlock4HLP(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch)
+	__forceinline static void ReadBlock4HLP(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch)
 	{
 		#if _M_SSE >= 0x501
 
-		uint8* RESTRICT d0 = &dst[dstpitch * 0];
-		uint8* RESTRICT d1 = &dst[dstpitch * 4];
+		u8* RESTRICT d0 = &dst[dstpitch * 0];
+		u8* RESTRICT d1 = &dst[dstpitch * 4];
 
 		const GSVector8i* s = (const GSVector8i*)src;
 		
@@ -1025,12 +1027,12 @@ public:
 		#endif
 	}
 
-	__forceinline static void ReadBlock4HHP(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch)
+	__forceinline static void ReadBlock4HHP(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch)
 	{
 		#if _M_SSE >= 0x501
 
-		uint8* RESTRICT d0 = &dst[dstpitch * 0];
-		uint8* RESTRICT d1 = &dst[dstpitch * 4];
+		u8* RESTRICT d0 = &dst[dstpitch * 0];
+		u8* RESTRICT d1 = &dst[dstpitch * 4];
 
 		const GSVector8i* s = (const GSVector8i*)src;
 		
@@ -1106,7 +1108,7 @@ public:
 		return ((c & m_rxxx) << 3) | ((c & m_xgxx) << 6) | ((c & m_xxbx) << 9) | (AEM ? TA0.blend8(TA1, c.sra16(15)).andnot(c == V::zero()) : TA0.blend(TA1, c.sra16(15)));
 	}
 
-	template<bool AEM> static void ExpandBlock24(const uint32* RESTRICT src, uint8* RESTRICT dst, int dstpitch, const GIFRegTEXA& TEXA)
+	template<bool AEM> static void ExpandBlock24(const u32* RESTRICT src, u8* RESTRICT dst, int dstpitch, const GIFRegTEXA& TEXA)
 	{
 		#if _M_SSE >= 0x501
 
@@ -1153,7 +1155,7 @@ public:
 		#endif
 	}
 
-	template<bool AEM> static void ExpandBlock16(const uint16* RESTRICT src, uint8* RESTRICT dst, int dstpitch, const GIFRegTEXA& TEXA) // do not inline, uses too many xmm regs
+	template<bool AEM> static void ExpandBlock16(const u16* RESTRICT src, u8* RESTRICT dst, int dstpitch, const GIFRegTEXA& TEXA) // do not inline, uses too many xmm regs
 	{
 		#if _M_SSE >= 0x501
 		
@@ -1193,7 +1195,7 @@ public:
 		#endif
 	}
 
-	__forceinline static void ExpandBlock8_32(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch, const uint32* RESTRICT pal)
+	__forceinline static void ExpandBlock8_32(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch, const u32* RESTRICT pal)
 	{
 		for(int j = 0; j < 16; j++, dst += dstpitch)
 		{
@@ -1201,7 +1203,7 @@ public:
 		}
 	}
 
-	__forceinline static void ExpandBlock8_16(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch, const uint32* RESTRICT pal)
+	__forceinline static void ExpandBlock8_16(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch, const u32* RESTRICT pal)
 	{
 		for(int j = 0; j < 16; j++, dst += dstpitch)
 		{
@@ -1209,7 +1211,7 @@ public:
 		}
 	}
 
-	__forceinline static void ExpandBlock4_32(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch, const uint64* RESTRICT pal)
+	__forceinline static void ExpandBlock4_32(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch, const u64* RESTRICT pal)
 	{
 		for(int j = 0; j < 16; j++, dst += dstpitch)
 		{
@@ -1217,7 +1219,7 @@ public:
 		}
 	}
 
-	__forceinline static void ExpandBlock4_16(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch, const uint64* RESTRICT pal)
+	__forceinline static void ExpandBlock4_16(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch, const u64* RESTRICT pal)
 	{
 		for(int j = 0; j < 16; j++, dst += dstpitch)
 		{
@@ -1225,7 +1227,7 @@ public:
 		}
 	}
 
-	__forceinline static void ExpandBlock8H_32(uint32* RESTRICT src, uint8* RESTRICT dst, int dstpitch, const uint32* RESTRICT pal)
+	__forceinline static void ExpandBlock8H_32(u32* RESTRICT src, u8* RESTRICT dst, int dstpitch, const u32* RESTRICT pal)
 	{
 		for(int j = 0; j < 8; j++, dst += dstpitch)
 		{
@@ -1236,7 +1238,7 @@ public:
 		}
 	}
 
-	__forceinline static void ExpandBlock8H_16(uint32* RESTRICT src, uint8* RESTRICT dst, int dstpitch, const uint32* RESTRICT pal)
+	__forceinline static void ExpandBlock8H_16(u32* RESTRICT src, u8* RESTRICT dst, int dstpitch, const u32* RESTRICT pal)
 	{
 		for(int j = 0; j < 8; j++, dst += dstpitch)
 		{
@@ -1253,14 +1255,14 @@ public:
 
 			for(int i = 0; i < 8; i++)
 			{
-				((uint16*)dst)[i] = (uint16)pal[src[j * 8 + i] >> 24];
+				((u16*)dst)[i] = (u16)pal[src[j * 8 + i] >> 24];
 			}
 
 			#endif
 		}
 	}
 
-	__forceinline static void ExpandBlock4HL_32(uint32* RESTRICT src, uint8* RESTRICT dst, int dstpitch, const uint32* RESTRICT pal)
+	__forceinline static void ExpandBlock4HL_32(u32* RESTRICT src, u8* RESTRICT dst, int dstpitch, const u32* RESTRICT pal)
 	{
 		for(int j = 0; j < 8; j++, dst += dstpitch)
 		{
@@ -1271,7 +1273,7 @@ public:
 		}
 	}
 
-	__forceinline static void ExpandBlock4HL_16(uint32* RESTRICT src, uint8* RESTRICT dst, int dstpitch, const uint32* RESTRICT pal)
+	__forceinline static void ExpandBlock4HL_16(u32* RESTRICT src, u8* RESTRICT dst, int dstpitch, const u32* RESTRICT pal)
 	{
 		for(int j = 0; j < 8; j++, dst += dstpitch)
 		{
@@ -1288,14 +1290,14 @@ public:
 
 			for(int i = 0; i < 8; i++)
 			{
-				((uint16*)dst)[i] = (uint16)pal[(src[j * 8 + i] >> 24) & 0xf];
+				((u16*)dst)[i] = (u16)pal[(src[j * 8 + i] >> 24) & 0xf];
 			}
 
 			#endif
 		}
 	}
 
-	__forceinline static void ExpandBlock4HH_32(uint32* RESTRICT src, uint8* RESTRICT dst, int dstpitch, const uint32* RESTRICT pal)
+	__forceinline static void ExpandBlock4HH_32(u32* RESTRICT src, u8* RESTRICT dst, int dstpitch, const u32* RESTRICT pal)
 	{
 		for(int j = 0; j < 8; j++, dst += dstpitch)
 		{
@@ -1306,7 +1308,7 @@ public:
 		}
 	}
 
-	__forceinline static void ExpandBlock4HH_16(uint32* RESTRICT src, uint8* RESTRICT dst, int dstpitch, const uint32* RESTRICT pal)
+	__forceinline static void ExpandBlock4HH_16(u32* RESTRICT src, u8* RESTRICT dst, int dstpitch, const u32* RESTRICT pal)
 	{
 		for(int j = 0; j < 8; j++, dst += dstpitch)
 		{
@@ -1323,21 +1325,21 @@ public:
 
 			for(int i = 0; i < 8; i++)
 			{
-				((uint16*)dst)[i] = (uint16)pal[src[j * 8 + i] >> 28];
+				((u16*)dst)[i] = (u16)pal[src[j * 8 + i] >> 28];
 			}
 
 			#endif
 		}
 	}
 
-	__forceinline static void UnpackAndWriteBlock24(const uint8* RESTRICT src, int srcpitch, uint8* RESTRICT dst)
+	__forceinline static void UnpackAndWriteBlock24(const u8* RESTRICT src, int srcpitch, u8* RESTRICT dst)
 	{
 		#if _M_SSE >= 0x501
 
-		const uint8* RESTRICT s0 = &src[srcpitch * 0];
-		const uint8* RESTRICT s1 = &src[srcpitch * 1];
-		const uint8* RESTRICT s2 = &src[srcpitch * 2];
-		const uint8* RESTRICT s3 = &src[srcpitch * 3];
+		const u8* RESTRICT s0 = &src[srcpitch * 0];
+		const u8* RESTRICT s1 = &src[srcpitch * 1];
+		const u8* RESTRICT s2 = &src[srcpitch * 2];
+		const u8* RESTRICT s3 = &src[srcpitch * 3];
 
 		GSVector8i v0, v1, v2, v3, v4, v5, v6;
 		GSVector8i mask = GSVector8i::x00ffffff();
@@ -1417,7 +1419,7 @@ public:
 		#endif
 	}
 
-	__forceinline static void UnpackAndWriteBlock8H(const uint8* RESTRICT src, int srcpitch, uint8* RESTRICT dst)
+	__forceinline static void UnpackAndWriteBlock8H(const u8* RESTRICT src, int srcpitch, u8* RESTRICT dst)
 	{
 		GSVector4i v4, v5, v6, v7;
 
@@ -1517,13 +1519,13 @@ public:
 		#endif
 	}
 
-	__forceinline static void UnpackAndWriteBlock4HL(const uint8* RESTRICT src, int srcpitch, uint8* RESTRICT dst)
+	__forceinline static void UnpackAndWriteBlock4HL(const u8* RESTRICT src, int srcpitch, u8* RESTRICT dst)
 	{
 		//printf("4HL\n");
 
 		if(0)
 		{
-			uint8* s = (uint8*)src;
+			u8* s = (u8*)src;
 			for(int j = 0; j < 8; j++, s += srcpitch)
 				for(int i = 0; i < 4; i++) s[i] = (columnTable32[j][i*2] & 0x0f) | (columnTable32[j][i*2+1] << 4);
 		}
@@ -1535,7 +1537,7 @@ public:
 		GSVector8i v0, v1, v2, v3;
 		GSVector8i mask(0x0f000000);
 
-		v6 = GSVector4i(*(uint32*)&src[srcpitch * 0], *(uint32*)&src[srcpitch * 2], *(uint32*)&src[srcpitch * 1], *(uint32*)&src[srcpitch * 3]);
+		v6 = GSVector4i(*(u32*)&src[srcpitch * 0], *(u32*)&src[srcpitch * 2], *(u32*)&src[srcpitch * 1], *(u32*)&src[srcpitch * 3]);
 
 		v4 = v6.upl8(v6 >> 4);
 		v5 = v6.uph8(v6 >> 4);
@@ -1555,7 +1557,7 @@ public:
 
 		src += srcpitch * 4;
 
-		v6 = GSVector4i(*(uint32*)&src[srcpitch * 0], *(uint32*)&src[srcpitch * 2], *(uint32*)&src[srcpitch * 1], *(uint32*)&src[srcpitch * 3]);
+		v6 = GSVector4i(*(u32*)&src[srcpitch * 0], *(u32*)&src[srcpitch * 2], *(u32*)&src[srcpitch * 1], *(u32*)&src[srcpitch * 3]);
 
 		v4 = v6.upl8(v6 >> 4);
 		v5 = v6.uph8(v6 >> 4);
@@ -1584,7 +1586,7 @@ public:
 
 		for(int i = 0; i < 2; i++, src += srcpitch * 4)
 		{
-			GSVector4i v(*(uint32*)&src[srcpitch * 0], *(uint32*)&src[srcpitch * 1], *(uint32*)&src[srcpitch * 2], *(uint32*)&src[srcpitch * 3]);
+			GSVector4i v(*(u32*)&src[srcpitch * 0], *(u32*)&src[srcpitch * 1], *(u32*)&src[srcpitch * 2], *(u32*)&src[srcpitch * 3]);
 
 			v4 = v.upl8(v >> 4);
 			v5 = v.uph8(v >> 4);
@@ -1617,7 +1619,7 @@ public:
 
 		for(int i = 0; i < 2; i++, src += srcpitch * 4)
 		{
-			GSVector4i v(*(uint32*)&src[srcpitch * 0], *(uint32*)&src[srcpitch * 2], *(uint32*)&src[srcpitch * 1], *(uint32*)&src[srcpitch * 3]);
+			GSVector4i v(*(u32*)&src[srcpitch * 0], *(u32*)&src[srcpitch * 2], *(u32*)&src[srcpitch * 1], *(u32*)&src[srcpitch * 3]);
 
 			v4 = v.upl8(v >> 4);
 			v5 = v.uph8(v >> 4);
@@ -1654,7 +1656,7 @@ public:
 		#endif
 	}
 
-	__forceinline static void UnpackAndWriteBlock4HH(const uint8* RESTRICT src, int srcpitch, uint8* RESTRICT dst)
+	__forceinline static void UnpackAndWriteBlock4HH(const u8* RESTRICT src, int srcpitch, u8* RESTRICT dst)
 	{
 		GSVector4i v4, v5, v6, v7;
 
@@ -1663,7 +1665,7 @@ public:
 		GSVector8i v0, v1, v2, v3;
 		GSVector8i mask = GSVector8i::xf0000000();
 
-		v6 = GSVector4i(*(uint32*)&src[srcpitch * 0], *(uint32*)&src[srcpitch * 2], *(uint32*)&src[srcpitch * 1], *(uint32*)&src[srcpitch * 3]);
+		v6 = GSVector4i(*(u32*)&src[srcpitch * 0], *(u32*)&src[srcpitch * 2], *(u32*)&src[srcpitch * 1], *(u32*)&src[srcpitch * 3]);
 
 		v4 = (v6 << 4).upl8(v6);
 		v5 = (v6 << 4).uph8(v6);
@@ -1683,7 +1685,7 @@ public:
 
 		src += srcpitch * 4;
 
-		v6 = GSVector4i(*(uint32*)&src[srcpitch * 0], *(uint32*)&src[srcpitch * 2], *(uint32*)&src[srcpitch * 1], *(uint32*)&src[srcpitch * 3]);
+		v6 = GSVector4i(*(u32*)&src[srcpitch * 0], *(u32*)&src[srcpitch * 2], *(u32*)&src[srcpitch * 1], *(u32*)&src[srcpitch * 3]);
 
 		v4 = (v6 << 4).upl8(v6);
 		v5 = (v6 << 4).uph8(v6);
@@ -1712,7 +1714,7 @@ public:
 
 		for(int i = 0; i < 2; i++, src += srcpitch * 4)
 		{
-			GSVector4i v(*(uint32*)&src[srcpitch * 0], *(uint32*)&src[srcpitch * 1], *(uint32*)&src[srcpitch * 2], *(uint32*)&src[srcpitch * 3]);
+			GSVector4i v(*(u32*)&src[srcpitch * 0], *(u32*)&src[srcpitch * 1], *(u32*)&src[srcpitch * 2], *(u32*)&src[srcpitch * 3]);
 
 			v4 = (v << 4).upl8(v);
 			v5 = (v << 4).uph8(v);
@@ -1745,7 +1747,7 @@ public:
 
 		for(int i = 0; i < 2; i++, src += srcpitch * 4)
 		{
-			GSVector4i v(*(uint32*)&src[srcpitch * 0], *(uint32*)&src[srcpitch * 2], *(uint32*)&src[srcpitch * 1], *(uint32*)&src[srcpitch * 3]);
+			GSVector4i v(*(u32*)&src[srcpitch * 0], *(u32*)&src[srcpitch * 2], *(u32*)&src[srcpitch * 1], *(u32*)&src[srcpitch * 3]);
 
 			v4 = (v << 4).upl8(v);
 			v5 = (v << 4).uph8(v);
@@ -1782,7 +1784,7 @@ public:
 		#endif
 	}
 
-	template<bool AEM> __forceinline static void ReadAndExpandBlock24(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch, const GIFRegTEXA& TEXA)
+	template<bool AEM> __forceinline static void ReadAndExpandBlock24(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch, const GIFRegTEXA& TEXA)
 	{
 		#if _M_SSE >= 0x501
 
@@ -1858,7 +1860,7 @@ public:
 		#endif
 	}
 
-	template<bool AEM> __forceinline static void ReadAndExpandBlock16(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch, const GIFRegTEXA& TEXA)
+	template<bool AEM> __forceinline static void ReadAndExpandBlock16(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch, const GIFRegTEXA& TEXA)
 	{
 		#if _M_SSE >= 0x501
 
@@ -1919,16 +1921,16 @@ public:
 
 		#else
 		
-		alignas(32) uint16 block[16 * 8];
+		alignas(32) u16 block[16 * 8];
 	
-		ReadBlock16(src, (uint8*)block, sizeof(block) / 8);
+		ReadBlock16(src, (u8*)block, sizeof(block) / 8);
 
 		ExpandBlock16<AEM>(block, dst, dstpitch, TEXA);
 
 		#endif
 	}
 
-	__forceinline static void ReadAndExpandBlock8_32(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch, const uint32* RESTRICT pal)
+	__forceinline static void ReadAndExpandBlock8_32(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch, const u32* RESTRICT pal)
 	{
 		//printf("ReadAndExpandBlock8_32\n");
 
@@ -1978,9 +1980,9 @@ public:
 
 		#else
 
-		alignas(32) uint8 block[16 * 16];
+		alignas(32) u8 block[16 * 16];
 
-		ReadBlock8(src, (uint8*)block, sizeof(block) / 16);
+		ReadBlock8(src, (u8*)block, sizeof(block) / 16);
 
 		ExpandBlock8_32(block, dst, dstpitch, pal);
 
@@ -1989,7 +1991,7 @@ public:
 
 	// TODO: ReadAndExpandBlock8_16
 
-	__forceinline static void ReadAndExpandBlock4_32(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch, const uint64* RESTRICT pal)
+	__forceinline static void ReadAndExpandBlock4_32(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch, const u64* RESTRICT pal)
 	{
 		//printf("ReadAndExpandBlock4_32\n");
 
@@ -2055,9 +2057,9 @@ public:
 
 		#else
 
-		alignas(32) uint8 block[(32 / 2) * 16];
+		alignas(32) u8 block[(32 / 2) * 16];
 
-		ReadBlock4(src, (uint8*)block, sizeof(block) / 16);
+		ReadBlock4(src, (u8*)block, sizeof(block) / 16);
 
 		ExpandBlock4_32(block, dst, dstpitch, pal);
 
@@ -2066,7 +2068,7 @@ public:
 
 	// TODO: ReadAndExpandBlock4_16
 
-	__forceinline static void ReadAndExpandBlock8H_32(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch, const uint32* RESTRICT pal)
+	__forceinline static void ReadAndExpandBlock8H_32(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch, const u32* RESTRICT pal)
 	{
 		//printf("ReadAndExpandBlock8H_32\n");
 
@@ -2098,9 +2100,9 @@ public:
 
 		#else
 
-		alignas(32) uint32 block[8 * 8];
+		alignas(32) u32 block[8 * 8];
 
-		ReadBlock32(src, (uint8*)block, sizeof(block) / 8);
+		ReadBlock32(src, (u8*)block, sizeof(block) / 8);
 
 		ExpandBlock8H_32(block, dst, dstpitch, pal);
 
@@ -2109,7 +2111,7 @@ public:
 
 	// TODO: ReadAndExpandBlock8H_16
 
-	__forceinline static void ReadAndExpandBlock4HL_32(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch, const uint32* RESTRICT pal)
+	__forceinline static void ReadAndExpandBlock4HL_32(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch, const u32* RESTRICT pal)
 	{
 		//printf("ReadAndExpandBlock4HL_32\n");
 
@@ -2141,9 +2143,9 @@ public:
 
 		#else
 
-		alignas(32) uint32 block[8 * 8];
+		alignas(32) u32 block[8 * 8];
 
-		ReadBlock32(src, (uint8*)block, sizeof(block) / 8);
+		ReadBlock32(src, (u8*)block, sizeof(block) / 8);
 
 		ExpandBlock4HL_32(block, dst, dstpitch, pal);
 
@@ -2152,7 +2154,7 @@ public:
 
 	// TODO: ReadAndExpandBlock4HL_16
 
-	__forceinline static void ReadAndExpandBlock4HH_32(const uint8* RESTRICT src, uint8* RESTRICT dst, int dstpitch, const uint32* RESTRICT pal)
+	__forceinline static void ReadAndExpandBlock4HH_32(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch, const u32* RESTRICT pal)
 	{
 		//printf("ReadAndExpandBlock4HH_32\n");
 
@@ -2184,9 +2186,9 @@ public:
 
 		#else
 
-		alignas(32) uint32 block[8 * 8];
+		alignas(32) u32 block[8 * 8];
 
-		ReadBlock32(src, (uint8*)block, sizeof(block) / 8);
+		ReadBlock32(src, (u8*)block, sizeof(block) / 8);
 
 		ExpandBlock4HH_32(block, dst, dstpitch, pal);
 

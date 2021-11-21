@@ -21,9 +21,11 @@
 
 #pragma once
 #ifdef __clang__
-// Ignore format for this file, as it spams a lot of warnings about uint64 and %llu.
+// Ignore format for this file, as it spams a lot of warnings about u64 and %llu.
 #pragma clang diagnostic ignored "-Wformat"
 #endif
+
+#include "Pcsx2Types.h"
 
 #include "GS.h"
 #include "GSLocalMemory.h"
@@ -111,10 +113,10 @@ public:
 	{
 		ASSERT(XYOFFSET.OFX <= 0xf800 && XYOFFSET.OFY <= 0xf800);
 
-		scissor.ex.u16[0] = (uint16)((SCISSOR.SCAX0 << 4) + XYOFFSET.OFX - 0x8000);
-		scissor.ex.u16[1] = (uint16)((SCISSOR.SCAY0 << 4) + XYOFFSET.OFY - 0x8000);
-		scissor.ex.u16[2] = (uint16)((SCISSOR.SCAX1 << 4) + XYOFFSET.OFX - 0x8000);
-		scissor.ex.u16[3] = (uint16)((SCISSOR.SCAY1 << 4) + XYOFFSET.OFY - 0x8000);
+		scissor.ex.U16[0] = (u16)((SCISSOR.SCAX0 << 4) + XYOFFSET.OFX - 0x8000);
+		scissor.ex.U16[1] = (u16)((SCISSOR.SCAY0 << 4) + XYOFFSET.OFY - 0x8000);
+		scissor.ex.U16[2] = (u16)((SCISSOR.SCAX1 << 4) + XYOFFSET.OFX - 0x8000);
+		scissor.ex.U16[3] = (u16)((SCISSOR.SCAY1 << 4) + XYOFFSET.OFY - 0x8000);
 
 		scissor.ofex = GSVector4(
 			(int)((SCISSOR.SCAX0 << 4) + XYOFFSET.OFX),

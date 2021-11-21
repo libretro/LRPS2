@@ -23,6 +23,8 @@
 
 #include <unordered_map>
 
+#include "Pcsx2Types.h"
+
 #include "GSTexture11.h"
 #include "../../GSVector.h"
 #include "../Common/GSDevice.h"
@@ -84,19 +86,19 @@ public:
 		{
 			struct
 			{
-				uint32 tme:1;
-				uint32 fst:1;
+				u32 tme:1;
+				u32 fst:1;
 
-				uint32 _free:30;
+				u32 _free:30;
 			};
 
-			uint32 key;
+			u32 key;
 		};
 
-		operator uint32() const {return key;}
+		operator u32() const {return key;}
 
 		VSSelector() : key(0) {}
-		VSSelector(uint32 k) : key(k) {}
+		VSSelector(u32 k) : key(k) {}
 	};
 
 	struct alignas(32) PSConstantBuffer
@@ -184,22 +186,22 @@ public:
 		{
 			struct
 			{
-				uint32 iip:1;
-				uint32 prim:2;
-				uint32 point:1;
-				uint32 line:1;
-				uint32 cpu_sprite:1;
+				u32 iip:1;
+				u32 prim:2;
+				u32 point:1;
+				u32 line:1;
+				u32 cpu_sprite:1;
 
-				uint32 _free:26;
+				u32 _free:26;
 			};
 
-			uint32 key;
+			u32 key;
 		};
 
-		operator uint32() {return key;}
+		operator u32() {return key;}
 
 		GSSelector() : key(0) {}
-		GSSelector(uint32 k) : key(k) {}
+		GSSelector(u32 k) : key(k) {}
 	};
 
 	struct PSSelector
@@ -210,62 +212,62 @@ public:
 			{
 				// *** Word 1
 				// Format
-				uint32 fmt:4;
-				uint32 dfmt:2;
-				uint32 depth_fmt:2;
+				u32 fmt:4;
+				u32 dfmt:2;
+				u32 depth_fmt:2;
 				// Alpha extension/Correction
-				uint32 aem:1;
-				uint32 fba:1;
+				u32 aem:1;
+				u32 fba:1;
 				// Fog
-				uint32 fog:1;
+				u32 fog:1;
 				// Pixel test
-				uint32 atst:3;
+				u32 atst:3;
 				// Color sampling
-				uint32 fst:1;
-				uint32 tfx:3;
-				uint32 tcc:1;
-				uint32 wms:2;
-				uint32 wmt:2;
-				uint32 ltf:1;
+				u32 fst:1;
+				u32 tfx:3;
+				u32 tcc:1;
+				u32 wms:2;
+				u32 wmt:2;
+				u32 ltf:1;
 				// Shuffle and fbmask effect
-				uint32 shuffle:1;
-				uint32 read_ba:1;
-				uint32 fbmask:1;
+				u32 shuffle:1;
+				u32 read_ba:1;
+				u32 fbmask:1;
 
 				// Blend and Colclip
-				uint32 hdr:1;
-				uint32 blend_a:2;
-				uint32 blend_b:2; // bit30/31
-				uint32 blend_c:2; // bit0
-				uint32 blend_d:2;
-				uint32 clr1:1;
+				u32 hdr:1;
+				u32 blend_a:2;
+				u32 blend_b:2; // bit30/31
+				u32 blend_c:2; // bit0
+				u32 blend_d:2;
+				u32 clr1:1;
 
-				uint32 colclip:1;
-            uint32 pabe:1;
+				u32 colclip:1;
+            u32 pabe:1;
 
 				// Others ways to fetch the texture
-				uint32 channel:3;
+				u32 channel:3;
 
 				// Dithering
-				uint32 dither:2;
+				u32 dither:2;
 
 				// Depth clamp
-				uint32 zclamp:1;
+				u32 zclamp:1;
 
 				// Hack
-				uint32 tcoffsethack:1;
-				uint32 urban_chaos_hle:1;
-				uint32 tales_of_abyss_hle:1;
-				uint32 point_sampler:1;
-				uint32 invalid_tex0:1; // Lupin the 3rd
+				u32 tcoffsethack:1;
+				u32 urban_chaos_hle:1;
+				u32 tales_of_abyss_hle:1;
+				u32 point_sampler:1;
+				u32 invalid_tex0:1; // Lupin the 3rd
 
-				uint32 _free:14;
+				u32 _free:14;
 			};
 
-			uint64 key;
+			u64 key;
 		};
 
-		operator uint64() {return key;}
+		operator u64() {return key;}
 
 		PSSelector() : key(0) {}
 	};
@@ -276,15 +278,15 @@ public:
 		{
 			struct
 			{
-				uint32 tau:1;
-				uint32 tav:1;
-				uint32 ltf:1;
+				u32 tau:1;
+				u32 tav:1;
+				u32 ltf:1;
 			};
 
-			uint32 key;
+			u32 key;
 		};
 
-		operator uint32() {return key & 0x7;}
+		operator u32() {return key & 0x7;}
 
 		PSSamplerSelector() : key(0) {}
 	};
@@ -295,17 +297,17 @@ public:
 		{
 			struct
 			{
-				uint32 ztst:2;
-				uint32 zwe:1;
-				uint32 date:1;
-				uint32 fba:1;
-				uint32 date_one:1;
+				u32 ztst:2;
+				u32 zwe:1;
+				u32 date:1;
+				u32 fba:1;
+				u32 date_one:1;
 			};
 
-			uint32 key;
+			u32 key;
 		};
 
-		operator uint32() {return key & 0x3f;}
+		operator u32() {return key & 0x3f;}
 
 		OMDepthStencilSelector() : key(0) {}
 	};
@@ -316,29 +318,29 @@ public:
 		{
 			struct
 			{
-				uint32 abe:1;
-				uint32 a:2;
-				uint32 b:2;
-				uint32 c:2;
-				uint32 d:2;
-				uint32 wr:1;
-				uint32 wg:1;
-				uint32 wb:1;
-				uint32 wa:1;
-				uint32 accu_blend:1;
+				u32 abe:1;
+				u32 a:2;
+				u32 b:2;
+				u32 c:2;
+				u32 d:2;
+				u32 wr:1;
+				u32 wg:1;
+				u32 wb:1;
+				u32 wa:1;
+				u32 accu_blend:1;
 			};
 
 			struct
 			{
-				uint32 _pad:1;
-				uint32 abcd:8;
-				uint32 wrgba:4;
+				u32 _pad:1;
+				u32 abcd:8;
+				u32 wrgba:4;
 			};
 
-			uint32 key;
+			u32 key;
 		};
 
-		operator uint32() {return key & 0x3fff;}
+		operator u32() {return key & 0x3fff;}
 
 		OMBlendSelector() : key(0) {}
 	};
@@ -384,7 +386,7 @@ private:
 	void BeforeDraw();
 	void AfterDraw();
 	
-	uint16 ConvertBlendEnum(uint16 generic) final;
+	u16 ConvertBlendEnum(u16 generic) final;
 
 	CComPtr<IDXGIFactory2> m_factory;
 	CComPtr<ID3D11Device> m_dev;
@@ -413,7 +415,7 @@ private:
 		GSVector2i viewport;
 		GSVector4i scissor;
 		ID3D11DepthStencilState* dss;
-		uint8 sref;
+		u8 sref;
 		ID3D11BlendState* bs;
 		float bf;
 		ID3D11RenderTargetView* rt_view;
@@ -464,16 +466,16 @@ private:
 
 	// Shaders...
 
-	std::unordered_map<uint32, GSVertexShader11> m_vs;
+	std::unordered_map<u32, GSVertexShader11> m_vs;
 	CComPtr<ID3D11Buffer> m_vs_cb;
-	std::unordered_map<uint32, CComPtr<ID3D11GeometryShader>> m_gs;
+	std::unordered_map<u32, CComPtr<ID3D11GeometryShader>> m_gs;
 	CComPtr<ID3D11Buffer> m_gs_cb;
-	std::unordered_map<uint64, CComPtr<ID3D11PixelShader>> m_ps;
+	std::unordered_map<u64, CComPtr<ID3D11PixelShader>> m_ps;
 	CComPtr<ID3D11Buffer> m_ps_cb;
-	std::unordered_map<uint32, CComPtr<ID3D11SamplerState>> m_ps_ss;
+	std::unordered_map<u32, CComPtr<ID3D11SamplerState>> m_ps_ss;
 	CComPtr<ID3D11SamplerState> m_palette_ss;
-	std::unordered_map<uint32, CComPtr<ID3D11DepthStencilState>> m_om_dss;
-	std::unordered_map<uint32, CComPtr<ID3D11BlendState>> m_om_bs;
+	std::unordered_map<u32, CComPtr<ID3D11DepthStencilState>> m_om_dss;
+	std::unordered_map<u32, CComPtr<ID3D11BlendState>> m_om_bs;
 
 	VSConstantBuffer m_vs_cb_cache;
 	GSConstantBuffer m_gs_cb_cache;
@@ -496,9 +498,9 @@ public:
 	void DrawIndexedPrimitive(int offset, int count) final;
 
 	void ClearRenderTarget(GSTexture* t, const GSVector4& c) final;
-	void ClearRenderTarget(GSTexture* t, uint32 c) final;
+	void ClearRenderTarget(GSTexture* t, u32 c) final;
 	void ClearDepth(GSTexture* t) final;
-	void ClearStencil(GSTexture* t, uint8 c) final;
+	void ClearStencil(GSTexture* t, u8 c) final;
 
 	GSTexture* CopyOffscreen(GSTexture* src, const GSVector4& sRect, int w, int h, int format = 0, int ps_shader = 0) final;
 
@@ -532,7 +534,7 @@ public:
 	void PSUpdateShaderState();
 	void PSSetSamplerState(ID3D11SamplerState* ss0, ID3D11SamplerState* ss1);
 
-	void OMSetDepthStencilState(ID3D11DepthStencilState* dss, uint8 sref);
+	void OMSetDepthStencilState(ID3D11DepthStencilState* dss, u8 sref);
 	void OMSetBlendState(ID3D11BlendState* bs, float bf);
 	void OMSetRenderTargets(GSTexture* rt, GSTexture* ds, const GSVector4i* scissor = NULL) final;
 
@@ -540,7 +542,7 @@ public:
 	void SetupVS(VSSelector sel, const VSConstantBuffer* cb);
 	void SetupGS(GSSelector sel, const GSConstantBuffer* cb);
 	void SetupPS(PSSelector sel, const PSConstantBuffer* cb, PSSamplerSelector ssel);
-	void SetupOM(OMDepthStencilSelector dssel, OMBlendSelector bsel, uint8 afix);
+	void SetupOM(OMDepthStencilSelector dssel, OMBlendSelector bsel, u8 afix);
 
 	ID3D11Device* operator->() {return m_dev;}
 	operator ID3D11Device*() {return m_dev;}

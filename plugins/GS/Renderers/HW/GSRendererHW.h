@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "Pcsx2Types.h"
+
 #include "GSTextureCache.h"
 #include "../Common/GSFunctionMap.h"
 #include "../../GSState.h"
@@ -89,11 +91,11 @@ private:
 			}
 		};
 
-		template<class T> class FunctionMap : public GSFunctionMap<uint32, T>
+		template<class T> class FunctionMap : public GSFunctionMap<u32, T>
 		{
 			std::list<HackEntry<T> >& m_tbl;
 
-			T GetDefaultFunction(uint32 key)
+			T GetDefaultFunction(u32 key)
 			{
 				CRC::Title title = (CRC::Title)(key & 0xffffff);
 				CRC::Region region = (CRC::Region)(key >> 24);
@@ -134,7 +136,7 @@ private:
 
 	#pragma endregion
 
-	uint16 Interpolate_UV(float alpha, int t0, int t1);
+	u16 Interpolate_UV(float alpha, int t0, int t1);
 	float alpha0(int L, int X0, int X1);
 	float alpha1(int L, int X0, int X1);
 	void SwSpriteRender();
@@ -169,7 +171,7 @@ public:
 	GSRendererHW(GSTextureCache* tc);
 	virtual ~GSRendererHW();
 
-	void SetGameCRC(uint32 crc, int options);
+	void SetGameCRC(u32 crc, int options);
 	void UpdateRendererOptions();
 	bool CanUpscale();
 	int GetUpscaleMultiplier();

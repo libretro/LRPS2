@@ -19,11 +19,12 @@
  *
  */
 
+#include "Pcsx2Types.h"
+
 #include "../../stdafx.h"
 #include "../../GS.h"
 #include "../../GSUtil.h"
 #include "GSDevice11.h"
-#include <fstream>
 #include <VersionHelpers.h>
 #include <d3dcompiler.h>
 #include "options_tools.h"
@@ -745,8 +746,8 @@ void GSDevice11::Flip()
 	video_cb(RETRO_HW_FRAME_BUFFER_VALID, m_backbuffer->GetWidth(), m_backbuffer->GetHeight(), 0);
 
 	/* restore State */
-	uint32 stride = m_state.vb_stride;
-	uint32 offset = 0;
+	u32 stride = m_state.vb_stride;
+	u32 offset = 0;
 	m_ctx->IASetVertexBuffers(0, 1, &m_state.vb, &stride, &offset);
 	m_ctx->IASetIndexBuffer(m_state.ib, DXGI_FORMAT_R32_UINT, 0);
 	m_ctx->IASetInputLayout(m_state.layout);
@@ -850,7 +851,7 @@ void GSDevice11::ClearRenderTarget(GSTexture* t, const GSVector4& c)
 	m_ctx->ClearRenderTargetView(*(GSTexture11*)t, c.v);
 }
 
-void GSDevice11::ClearRenderTarget(GSTexture* t, uint32 c)
+void GSDevice11::ClearRenderTarget(GSTexture* t, u32 c)
 {
 	if (!t) return;
 	GSVector4 color = GSVector4::rgba32(c) * (1.0f / 255);
@@ -864,7 +865,7 @@ void GSDevice11::ClearDepth(GSTexture* t)
 	m_ctx->ClearDepthStencilView(*(GSTexture11*)t, D3D11_CLEAR_DEPTH, 0.0f, 0);
 }
 
-void GSDevice11::ClearStencil(GSTexture* t, uint8 c)
+void GSDevice11::ClearStencil(GSTexture* t, u8 c)
 {
 	if (!t) return;
 	m_ctx->ClearDepthStencilView(*(GSTexture11*)t, D3D11_CLEAR_STENCIL, 0, c);
@@ -1029,7 +1030,7 @@ void GSDevice11::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture*
 	D3D11_BLEND_DESC bd = {};
 	CComPtr<ID3D11BlendState> bs;
 
-	uint8 write_mask = 0;
+	u8 write_mask = 0;
 
 	if (red)   write_mask |= D3D11_COLOR_WRITE_ENABLE_RED;
 	if (green) write_mask |= D3D11_COLOR_WRITE_ENABLE_GREEN;
@@ -1280,7 +1281,7 @@ bool GSDevice11::IAMapVertexBuffer(void** vertex, size_t stride, size_t count)
 		return false;
 	}
 
-	*vertex = (uint8*)m.pData + m_vertex.start * stride;
+	*vertex = (u8*)m.pData + m_vertex.start * stride;
 
 	m_vertex.count = count;
 	m_vertex.stride = stride;
@@ -1302,8 +1303,8 @@ void GSDevice11::IASetVertexBuffer(ID3D11Buffer* vb, size_t stride)
 		m_state.vb = vb;
 		m_state.vb_stride = stride;
 
-		uint32 stride2 = stride;
-		uint32 offset = 0;
+		u32 stride2 = stride;
+		u32 offset = 0;
 
 		m_ctx->IASetVertexBuffers(0, 1, &vb, &stride2, &offset);
 	}
@@ -1327,7 +1328,7 @@ void GSDevice11::IASetIndexBuffer(const void* index, size_t count)
 		D3D11_BUFFER_DESC bd;
 
 		bd.Usage = D3D11_USAGE_DYNAMIC;
-		bd.ByteWidth = m_index.limit * sizeof(uint32);
+		bd.ByteWidth = m_index.limit * sizeof(u32);
 		bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		bd.MiscFlags = 0;
@@ -1350,7 +1351,7 @@ void GSDevice11::IASetIndexBuffer(const void* index, size_t count)
 
 	if(SUCCEEDED(m_ctx->Map(m_ib, 0, type, 0, &m)))
 	{
-		memcpy((uint8*)m.pData + m_index.start * sizeof(uint32), index, count * sizeof(uint32));
+		memcpy((u8*)m.pData + m_index.start * sizeof(u32), index, count * sizeof(u32));
 
 		m_ctx->Unmap(m_ib, 0);
 	}
@@ -1488,7 +1489,7 @@ void GSDevice11::PSUpdateShaderState()
 	m_ctx->PSSetSamplers(0, countof(m_state.ps_ss), m_state.ps_ss);
 }
 
-void GSDevice11::OMSetDepthStencilState(ID3D11DepthStencilState* dss, uint8 sref)
+void GSDevice11::OMSetDepthStencilState(ID3D11DepthStencilState* dss, u8 sref)
 {
 	if(m_state.dss != dss || m_state.sref != sref)
 	{
@@ -1659,7 +1660,7 @@ void GSDevice11::CompileShader(const std::vector<char>& source, const char* fn, 
 		throw GSDXRecoverableError();
 }
 
-uint16 GSDevice11::ConvertBlendEnum(uint16 generic)
+u16 GSDevice11::ConvertBlendEnum(u16 generic)
 {
 	switch (generic)
 	{

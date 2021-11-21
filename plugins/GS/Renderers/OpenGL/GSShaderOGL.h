@@ -23,11 +23,14 @@
 
 #include <unordered_map>
 #include <vector>
+
+#include "Pcsx2Types.h"
+
 #include "GLLoader.h"
 
 class GSShaderOGL {
 	GLuint m_pipeline;
-	std::unordered_map<uint32, GLuint> m_program;
+	std::unordered_map<u32, GLuint> m_program;
 
 	std::vector<GLuint> m_shad_to_delete;
 	std::vector<GLuint> m_prog_to_delete;

@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "Pcsx2Types.h"
+
 #include "GSFastList.h"
 #include "GSTexture.h"
 #include "GSVertex.h"
@@ -103,7 +105,7 @@ enum HWBlendFlags
 };
 
 // Determines the HW blend function for DX11/OGL
-struct HWBlend { uint16 flags, op, src, dst; };
+struct HWBlend { u16 flags, op, src, dst; };
 
 class GSDevice : public GSAlignedClass<32>
 {
@@ -112,7 +114,7 @@ private:
 	static std::array<HWBlend, 3*3*3*3 + 1> m_blendMap;
 
 protected:
-	enum : uint16
+	enum : u16
 	{
 		// HW blend factors
 		SRC_COLOR,   INV_SRC_COLOR,    DST_COLOR,  INV_DST_COLOR,
@@ -145,7 +147,7 @@ protected:
 	virtual void DoMerge(GSTexture* sTex[3], GSVector4* sRect, GSTexture* dTex, GSVector4* dRect, const GSRegPMODE& PMODE, const GSRegEXTBUF& EXTBUF, const GSVector4& c) = 0;
 	virtual void DoInterlace(GSTexture* sTex, GSTexture* dTex, int shader, bool linear, float yoffset) = 0;
 	virtual void DoFXAA(GSTexture* sTex, GSTexture* dTex) {}
-	virtual uint16 ConvertBlendEnum(uint16 generic) = 0; // Convert blend factors/ops from the generic enum to DX11/OGl specific.
+	virtual u16 ConvertBlendEnum(u16 generic) = 0; // Convert blend factors/ops from the generic enum to DX11/OGl specific.
 
 public:
 	GSDevice();
@@ -171,9 +173,9 @@ public:
 	virtual bool HasColorSparse() { return false; }
 
 	virtual void ClearRenderTarget(GSTexture* t, const GSVector4& c) {}
-	virtual void ClearRenderTarget(GSTexture* t, uint32 c) {}
+	virtual void ClearRenderTarget(GSTexture* t, u32 c) {}
 	virtual void ClearDepth(GSTexture* t) {}
-	virtual void ClearStencil(GSTexture* t, uint8 c) {}
+	virtual void ClearStencil(GSTexture* t, u8 c) {}
 
 	GSTexture* CreateSparseRenderTarget(int w, int h, int format = 0);
 	GSTexture* CreateSparseDepthStencil(int w, int h, int format = 0);
@@ -213,5 +215,5 @@ public:
 	// Convert the GS blend equations to HW specific blend factors/ops
 	// Index is computed as ((((A * 3 + B) * 3) + C) * 3) + D. A, B, C, D taken from ALPHA register.
 	HWBlend GetBlend(size_t index);
-	uint16 GetBlendFlags(size_t index);
+	u16 GetBlendFlags(size_t index);
 };

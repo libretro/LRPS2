@@ -19,6 +19,8 @@
  *
  */
 
+#include "Pcsx2Types.h"
+
 #include "../../stdafx.h"
 #include "GSDirtyRect.h"
 
@@ -28,7 +30,7 @@ GSDirtyRect::GSDirtyRect()
 	left = top = right = bottom = 0;
 }
 
-GSDirtyRect::GSDirtyRect(const GSVector4i& r, uint32 psm)
+GSDirtyRect::GSDirtyRect(const GSVector4i& r, u32 psm)
 	: psm(psm)
 {
 	left = r.left;

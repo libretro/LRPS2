@@ -130,7 +130,11 @@ enum {
 	VERSION = 0x5110 /* 0xABCD = A.BC(D) */
 };
 
-typedef int64 sint64;
+typedef int64_t sint64;
+typedef uint64_t uint64;
+typedef uint32_t uint32;
+typedef uint16_t uint16;
+typedef unsigned char uint8;
 
 #ifndef MIE_ALIGN
 	#ifdef _MSC_VER

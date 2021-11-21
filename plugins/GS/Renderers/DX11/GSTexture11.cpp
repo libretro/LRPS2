@@ -19,6 +19,8 @@
  *
  */
 
+#include "Pcsx2Types.h"
+
 #include "../../stdafx.h"
 #include "GSTexture11.h"
 
@@ -78,7 +80,7 @@ bool GSTexture11::Map(GSMap& m, const GSVector4i* r, int layer)
 
 		if(SUCCEEDED(m_ctx->Map(m_texture, subresource, D3D11_MAP_READ_WRITE, 0, &map)))
 		{
-			m.bits = (uint8*)map.pData;
+			m.bits  = (u8*)map.pData;
 			m.pitch = (int)map.RowPitch;
 
 			m_layer = layer;
