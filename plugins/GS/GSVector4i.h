@@ -1222,7 +1222,7 @@ public:
 
 		#else
 
-		return i64[i];
+		return I64[i];
 
 		#endif
 	}

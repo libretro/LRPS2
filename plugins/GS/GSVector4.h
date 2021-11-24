@@ -635,7 +635,7 @@ GSVector.h:2973:15: error:  shadows template parm 'int i'
 
 		#else
 
-		return i32[index];
+		return I32[index];
 
 		#endif
 	}
@@ -648,7 +648,7 @@ GSVector.h:2973:15: error:  shadows template parm 'int i'
 
 		#else
 
-		return i32[i];
+		return I32[i];
 
 		#endif
 	}
