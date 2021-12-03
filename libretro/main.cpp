@@ -53,6 +53,7 @@ static struct retro_perf_callback perf_cb;
 #define RETRO_PERFORMANCE_STOP(name)
 #endif
 
+static bool libretro_supports_option_categories = false;
 static bool init_failed = false;
 int option_upscale_mult = 1;
 int option_pad_left_deadzone = 0;
@@ -213,7 +214,7 @@ void retro_init(void)
 	//
 	// Per game folders saves has been disabled because hangs while writing on disk
 	// and seems not working well on some games
-	for (retro_core_option_definition& def : option_defs)
+	for (retro_core_option_v2_definition& def : option_defs_us)
 	{								
 		if (!def.key || strcmp(def.key, "pcsx2_memcard_slot_1")) continue; 
 		size_t i = 0;
@@ -236,7 +237,7 @@ void retro_init(void)
 		break;
 	}
 
-	for (retro_core_option_definition& def : option_defs)
+	for (retro_core_option_v2_definition& def : option_defs_us)
 	{
 		if (!def.key || strcmp(def.key, "pcsx2_memcard_slot_2")) continue; 
 		size_t i = 0;
@@ -287,7 +288,7 @@ void retro_init(void)
 	}
 
 
-	for (retro_core_option_definition& def : option_defs)
+	for (retro_core_option_v2_definition& def : option_defs_us)
 	{
 		if (!def.key || strcmp(def.key, "pcsx2_bios")) continue;
 		size_t i = 0, numfiles = bios_files.size();
@@ -305,7 +306,9 @@ void retro_init(void)
 
 	// loads the options structure to the frontend
 
-	libretro_set_core_options(environ_cb);
+	libretro_supports_option_categories = false;
+	libretro_set_core_options(environ_cb,
+		&libretro_supports_option_categories);
 
 	// start init some core settings
 
@@ -423,6 +426,8 @@ void retro_init(void)
 
 void retro_deinit(void)
 {
+	libretro_supports_option_categories = false;
+
 	/* FIXME: This is a workaround that resolves crashes on close content.
 	When closing the frontend, we end up with a zombie process because the
 	main thread tries to call vu1Thread.Cancel() within pcsx2's destructor
