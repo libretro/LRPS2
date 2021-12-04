@@ -37,7 +37,7 @@ GSTextureCache::GSTextureCache(GSRenderer* r)
 
 	UserHacks_HalfPixelOffset      = false;
 	m_preload_frame                = false;
-	m_disable_partial_invalidation = false;
+	m_disable_partial_invalidation = hack_fast_invalidation;
 	m_can_convert_depth            = true;
 	m_cpu_fb_conversion            = hack_fb_conversion;
 	m_texture_inside_rt            = false;

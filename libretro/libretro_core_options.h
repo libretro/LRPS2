@@ -909,6 +909,21 @@ struct retro_core_option_v2_definition option_defs_us[] = {
       "disabled"
    },
    {
+      BOOL_PCSX2_OPT_USERHACK_FAST_INVALIDATION,
+      "Hack: Fast Texture Invalidation",
+      "Fast Texture Invalidation",
+      "By default, the texture cache handles partial invalidations. Unfortunately it is very costly to compure CPU wise. \
+      \nThis hack replaces the partial invalidation with a complete deletion of the texture to reduce the CPU load. (Content restart required)",
+      NULL,
+      "hacks_options",
+      {
+         {"disabled", NULL},
+         {"enabled", NULL},
+         {NULL, NULL},
+      },
+      "disabled"
+   },
+   {
       BOOL_PCSX2_OPT_USERHACK_FB_CONVERSION,
       "Hack: Frame Buffer Conversion",
       "Frame Buffer Conversion",

@@ -16,6 +16,7 @@
 #define BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH	 "pcsx2_userhack_auto_flush"
 #define BOOL_PCSX2_OPT_CONSERVATIVE_BUFFER	 "pcsx2_conservative_buffer"
 #define BOOL_PCSX2_OPT_ACCURATE_DATE		 "pcsx2_accurate_date"
+#define BOOL_PCSX2_OPT_USERHACK_FAST_INVALIDATION      "pcsx2_fast_invalidation"
 
 #define STRING_PCSX2_OPT_BIOS			 "pcsx2_bios"
 #define STRING_PCSX2_OPT_RENDERER                "pcsx2_renderer"
