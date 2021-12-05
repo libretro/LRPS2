@@ -60,6 +60,7 @@ int option_pad_left_deadzone = 0;
 int option_pad_right_deadzone = 0;
 bool hack_fb_conversion = false;
 bool hack_AutoFlush = false;
+bool hack_fast_invalidation = false;
 
 std::string sel_bios_path = "";
 retro_environment_t environ_cb;
@@ -315,6 +316,7 @@ void retro_init(void)
 	option_upscale_mult = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 	hack_fb_conversion = option_value(BOOL_PCSX2_OPT_USERHACK_FB_CONVERSION, KeyOptionBool::return_type);
 	hack_AutoFlush = option_value(BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH, KeyOptionBool::return_type);
+	hack_fast_invalidation = option_value(BOOL_PCSX2_OPT_USERHACK_FAST_INVALIDATION, KeyOptionBool::return_type);
 
 	wxFileName f_bios;
 	f_bios.Assign(option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type));
