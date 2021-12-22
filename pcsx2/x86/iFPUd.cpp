@@ -374,7 +374,6 @@ void FPU_ADD_SUB(int tempd, int tempt) //tempd and tempt are overwritten, they a
 	x86SetJ8(j8Ptr[3]);
 	//diff = -255 .. -25, expd < expt
 	xAND.PS(xRegisterSSE(tempd), ptr[s_const.neg]);
-	j8Ptr[7] = JMP8(0);
 
 	x86SetJ8(j8Ptr[2]);
 	//diff == 0
@@ -382,7 +381,6 @@ void FPU_ADD_SUB(int tempd, int tempt) //tempd and tempt are overwritten, they a
 	x86SetJ8(j8Ptr[4]);
 	x86SetJ8(j8Ptr[5]);
 	x86SetJ8(j8Ptr[6]);
-	x86SetJ8(j8Ptr[7]);
 
 	_freeXMMreg(xmmtemp);
 	_freeX86reg(temp2);
