@@ -38,7 +38,7 @@
 // Applies a single patch line to emulation memory regardless of its "place" value.
 extern void _ApplyPatch(IniPatch* p);
 
-std::vector<IniPatch> Patch;
+static std::vector<IniPatch> Patch;
 
 struct PatchTextTable
 {
