@@ -403,6 +403,22 @@ struct retro_core_option_v2_definition option_defs_us[] = {
       "enabled"
    },
    {
+      BOOL_PCSX2_OPT_PALETTE_CONVERSION,
+      "Video: GPU Palette Conversion",
+      "GPU Palette Conversion",
+      "Enabled: GPU converts colormap-textures. \
+      \nDisabled: CPU converts colormap-textures. \
+      \nIt is a trade-off between GPU and CPU.",
+      NULL,
+      "video_options",
+      {
+         {"disabled", NULL},
+         {"enabled", NULL},
+         {NULL, NULL},
+      },
+      "disabled"
+   },
+   {
       BOOL_PCSX2_OPT_FRAMESKIP,
       "Video: Frame Skip",
       "Frame Skip",
