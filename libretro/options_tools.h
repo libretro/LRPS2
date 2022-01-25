@@ -10,6 +10,7 @@ extern void ResetContentStuffs();
 extern int option_upscale_mult;
 extern int option_pad_left_deadzone;
 extern int option_pad_right_deadzone;
+extern bool option_palette_conversion;
 extern bool hack_fb_conversion;
 extern bool hack_AutoFlush;
 extern bool hack_fast_invalidation;

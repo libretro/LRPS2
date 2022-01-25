@@ -33,8 +33,6 @@ GSTextureCache::GSTextureCache(GSRenderer* r)
 	: m_renderer(r)
 	, m_palette_map(r)
 {
-
-
 	UserHacks_HalfPixelOffset      = false;
 	m_preload_frame                = false;
 	m_disable_partial_invalidation = hack_fast_invalidation;
@@ -42,10 +40,8 @@ GSTextureCache::GSTextureCache(GSRenderer* r)
 	m_cpu_fb_conversion            = hack_fb_conversion;
 	m_texture_inside_rt            = false;
 	m_wrap_gs_mem                  = false;
-	
+	m_paltex                       = option_palette_conversion;
 
-
-	m_paltex = theApp.GetConfigB("paltex");
 	m_crc_hack_level = theApp.GetConfigT<CRCHackLevel>("crc_hack_level");
 	if (m_crc_hack_level == CRCHackLevel::Automatic)
 		m_crc_hack_level = GSUtil::GetRecommendedCRCHackLevel(theApp.GetCurrentRendererType());
