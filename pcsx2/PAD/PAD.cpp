@@ -53,19 +53,6 @@ typedef struct
     u8 rx, ry;
 } PADAnalog;
 
-class KeyStatus
-{
-public:
-    KeyStatus()
-    {
-    }
-
-    u16 get(u32 pad);
-    u8 get(u32 pad, u32 index);
-};
-
-static KeyStatus g_key_status;
-
 extern retro_environment_t environ_cb;
 static retro_input_poll_t poll_cb;
 static retro_input_state_t input_cb;
@@ -196,7 +183,7 @@ void PADupdate(int pad)
 {
 }
 
-void GamePad_DoRumble(unsigned type, unsigned pad)
+static void GamePad_DoRumble(unsigned type, unsigned pad)
 {
 	if (!rumble_enabled)
 		return;
@@ -238,51 +225,76 @@ static int keymap[] =
 	RETRO_DEVICE_ID_JOYPAD_LEFT,   // PAD_LEFT
 };
 
-u16 KeyStatus::get(u32 pad)
+static int ApplyDeadZoneX(int val_x, int val_y, float deadzone_percent) 
 {
-	u16 mask     = input_cb(pad, RETRO_DEVICE_JOYPAD,
-			0, RETRO_DEVICE_ID_JOYPAD_MASK);
-	u16 new_mask = 0;
-	for (int i = 0; i < 16; i++)
-		new_mask |= !(mask & (1 << keymap[i])) << i;
+	if (deadzone_percent == 0.0f) return val_x;
 
-	return new_mask;
+	float deadzone_axis = 32767.0f * deadzone_percent / 100.0f;
+	float magnitude = (float)sqrt((val_x * val_x) + (val_y * val_y));
+
+	if ((magnitude < deadzone_axis) || magnitude == 0.0f)
+		return 0;
+	float normalized_x = val_x / magnitude;
+	int ret_val        = (int)((normalized_x * ((magnitude - deadzone_axis) / (32767.0f - deadzone_axis))) * 32767.0f);
+	if (abs(ret_val) > 32767)
+		ret_val = 32767 * abs(ret_val) / ret_val;
+	return ret_val;
+}
+
+static int ApplyDeadZoneY(int val_x, int val_y, float deadzone_percent) 
+{
+	if (deadzone_percent == 0.0f) return val_y;
+
+	float deadzone_val_percent = 50.0f;
+	float deadzone_axis = 32767.0f * deadzone_percent / 100.0f;
+
+	float magnitude = (float)sqrt((val_x * val_x) + (val_y * val_y));
+
+	if ((magnitude < deadzone_axis) || magnitude == 0.0f)
+		return 0;
+	// we keep a smooth ""kick" into motion
+	float normalized_y = val_y / magnitude;
+	int ret_val        = (int)((normalized_y * ((magnitude - deadzone_axis) / (32767.0f - deadzone_axis))) * 32767.0f);
+	if (abs(ret_val) > 32767)
+		ret_val = 32767 * abs(ret_val) / ret_val;
+	return ret_val;
 }
 
 
+
 // +- 32766
-u8 KeyStatus::get(u32 pad, u32 index)
+static u8 key_status_get(u32 pad, u32 index)
 {
-	int x = 0;
-	int y = 0;
+	int x   = 0;
+	int y   = 0;
 	int val = 0;
 	switch (index)
 	{
 		case PAD_R_LEFT:
 		case PAD_R_RIGHT:
-			x = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_X);
-			y = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y);
+			x   = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_X);
+			y   = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y);
 			val = ApplyDeadZoneX(x, y, option_pad_right_deadzone);
 			break;
 
 		case PAD_R_DOWN:
 		case PAD_R_UP:
-			x = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_X);
-			y = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y);
+			x   = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_X);
+			y   = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y);
 			val = ApplyDeadZoneY(x, y, option_pad_right_deadzone);
 			break;
 
 		case PAD_L_LEFT:
 		case PAD_L_RIGHT:
-			x = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X);
-			y = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y);
+			x   = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X);
+			y   = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y);
 			val = ApplyDeadZoneX(x, y, option_pad_left_deadzone);
 			break;
 
 		case PAD_L_DOWN:
 		case PAD_L_UP:
-			x = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X);
-			y = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y);
+			x   = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X);
+			y   = input_cb(pad, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y);
 			val = ApplyDeadZoneY(x, y, option_pad_left_deadzone);
 			break;
 
@@ -297,56 +309,6 @@ u8 KeyStatus::get(u32 pad, u32 index)
 
 	return 0x80 + (val >> 8);
 }
-
-
-int ApplyDeadZoneX(int val_x, int val_y, float deadzone_percent) 
-{
-	if (deadzone_percent == 0.0f) return val_x;
-
-	float deadzone_axis = 32767.0f * deadzone_percent / 100.0f;
-	float magnitude = (float)sqrt((val_x * val_x) + (val_y * val_y));
-
-	if ((magnitude < deadzone_axis) || magnitude == 0.0f)
-		return 0;
-	else
-	{
-		float normalized_x = val_x / magnitude;
-		int ret_val = (int)((normalized_x * ((magnitude - deadzone_axis) / (32767.0f - deadzone_axis))) * 32767.0f);
-		if (abs(ret_val) > 32767) {
-			ret_val = 32767 * abs(ret_val) / ret_val;
-		}
-		return ret_val;
-		
-	}
-
-}
-
-int ApplyDeadZoneY(int val_x, int val_y, float deadzone_percent) 
-{
-	if (deadzone_percent == 0.0f) return val_y;
-
-	float deadzone_val_percent = 50.0f;
-	float deadzone_axis = 32767.0f * deadzone_percent / 100.0f;
-
-	float magnitude = (float)sqrt((val_x * val_x) + (val_y * val_y));
-
-	if ((magnitude < deadzone_axis) || magnitude == 0.0f)
-		return 0;
-	else
-	{
-		// we keep a smooth ""kick" into motion
-		float normalized_y = val_y / magnitude;
-		int ret_val = (int)((normalized_y * ((magnitude - deadzone_axis) / (32767.0f - deadzone_axis))) * 32767.0f);
-		if (abs(ret_val) > 32767) {
-			ret_val = 32767 * abs(ret_val) / ret_val;
-		}
-		return ret_val;
-
-	}
-	
-
-}
-
 
 s32 PADinit(u32 flags)
 {
@@ -654,12 +616,10 @@ u8 pad_start_poll(u8 pad)
 
 u8 pad_poll(u8 value)
 {
-    if (query.lastByte + 1 >= query.numBytes) {
+    if (query.lastByte + 1 >= query.numBytes)
         return 0;
-    }
-    if (query.lastByte && query.queryDone) {
+    if (query.lastByte && query.queryDone)
         return query.response[++query.lastByte];
-    }
 
     Pad *pad = &pads[query.port][query.slot];
 
@@ -714,7 +674,11 @@ u8 pad_poll(u8 value)
 					b1=b1 & 0x1f;
 #endif
 
-                uint16_t buttons = g_key_status.get(query.port);
+		u16 mask         = input_cb(query.port, RETRO_DEVICE_JOYPAD,
+			0, RETRO_DEVICE_ID_JOYPAD_MASK);
+		uint16_t buttons = 0;
+		for (int i = 0; i < 16; i++)
+			buttons |= !(mask & (1 << keymap[i])) << i;
 
                 query.numBytes = 5;
 
@@ -724,27 +688,27 @@ u8 pad_poll(u8 value)
                 if (pad->mode != MODE_DIGITAL) { // ANALOG || DS2 native
                     query.numBytes = 9;
 
-                    query.response[5] = g_key_status.get(query.port, PAD_R_RIGHT);
-                    query.response[6] = g_key_status.get(query.port, PAD_R_UP);
-                    query.response[7] = g_key_status.get(query.port, PAD_L_RIGHT);
-                    query.response[8] = g_key_status.get(query.port, PAD_L_UP);
+                    query.response[5] = key_status_get(query.port, PAD_R_RIGHT);
+                    query.response[6] = key_status_get(query.port, PAD_R_UP);
+                    query.response[7] = key_status_get(query.port, PAD_L_RIGHT);
+                    query.response[8] = key_status_get(query.port, PAD_L_UP);
 
                     if (pad->mode != MODE_ANALOG) { // DS2 native
                         query.numBytes = 21;
 
-                        query.response[9]  = !(buttons & (1 << 13)) ? g_key_status.get(query.port, PAD_RIGHT) : 0;
-                        query.response[10] = !(buttons & (1 << 15)) ? g_key_status.get(query.port, PAD_LEFT) : 0;
-                        query.response[11] = !(buttons & (1 << 12)) ? g_key_status.get(query.port, PAD_UP) : 0;
-                        query.response[12] = !(buttons & (1 << 14)) ? g_key_status.get(query.port, PAD_DOWN) : 0;
+                        query.response[9]  = !(buttons & (1 << 13)) ? key_status_get(query.port, PAD_RIGHT) : 0;
+                        query.response[10] = !(buttons & (1 << 15)) ? key_status_get(query.port, PAD_LEFT) : 0;
+                        query.response[11] = !(buttons & (1 << 12)) ? key_status_get(query.port, PAD_UP) : 0;
+                        query.response[12] = !(buttons & (1 << 14)) ? key_status_get(query.port, PAD_DOWN) : 0;
 
-                        query.response[13] = !(buttons & (1 <<  4)) ? g_key_status.get(query.port, PAD_TRIANGLE) : 0;
-                        query.response[14] = !(buttons & (1 <<  5)) ? g_key_status.get(query.port, PAD_CIRCLE) : 0;
-                        query.response[15] = !(buttons & (1 <<  6)) ? g_key_status.get(query.port, PAD_CROSS) : 0;
-                        query.response[16] = !(buttons & (1 <<  7)) ? g_key_status.get(query.port, PAD_SQUARE) : 0;
-                        query.response[17] = !(buttons & (1 <<  2)) ? g_key_status.get(query.port, PAD_L1) : 0;
-                        query.response[18] = !(buttons & (1 <<  3)) ? g_key_status.get(query.port, PAD_R1) : 0;
-                        query.response[19] = !(buttons & (1 <<  0)) ? g_key_status.get(query.port, PAD_L2) : 0;
-                        query.response[20] = !(buttons & (1 <<  1)) ? g_key_status.get(query.port, PAD_R2) : 0;
+                        query.response[13] = !(buttons & (1 <<  4)) ? key_status_get(query.port, PAD_TRIANGLE) : 0;
+                        query.response[14] = !(buttons & (1 <<  5)) ? key_status_get(query.port, PAD_CIRCLE) : 0;
+                        query.response[15] = !(buttons & (1 <<  6)) ? key_status_get(query.port, PAD_CROSS) : 0;
+                        query.response[16] = !(buttons & (1 <<  7)) ? key_status_get(query.port, PAD_SQUARE) : 0;
+                        query.response[17] = !(buttons & (1 <<  2)) ? key_status_get(query.port, PAD_L1) : 0;
+                        query.response[18] = !(buttons & (1 <<  3)) ? key_status_get(query.port, PAD_R1) : 0;
+                        query.response[19] = !(buttons & (1 <<  0)) ? key_status_get(query.port, PAD_L2) : 0;
+                        query.response[20] = !(buttons & (1 <<  1)) ? key_status_get(query.port, PAD_R2) : 0;
                     }
                 }
 
