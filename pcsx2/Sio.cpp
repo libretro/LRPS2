@@ -27,8 +27,6 @@ _mcd *mcd;
 
 SIO_MODE siomode = SIO_START;
 static void sioWrite8inl(u8 data);
-#define SIO_WRITE void inline
-#define SIO_FORCEINLINE __fi
 
 // Magic psx values from nocash info
 static const u8 memcard_psx[] = {0x5A, 0x5D, 0x5C, 0x5D, 0x04, 0x00, 0x00, 0x80};
@@ -45,9 +43,9 @@ static const u8 memcard_psx[] = {0x5A, 0x5D, 0x5C, 0x5D, 0x04, 0x00, 0x00, 0x80}
 //E.g. if the game polls the card 100 times/sec and max tries=100, then after 1 second it will see the card as inserted (ms timeout not reached).
 //E.g. if the game polls the card 1 time/sec, then it will see the card ejected 4 times, and on the 5th it will see it as inserted (4 secs from the initial access).
 //(A 'try' in this context is the game accessing SIO)
-static const int   FORCED_MCD_EJECTION_MIN_TRIES =2;
-static const int   FORCED_MCD_EJECTION_MAX_TRIES =128;
-static const float FORCED_MCD_EJECTION_MAX_MS_AFTER_MIN_TRIES =2800; 
+#define FORCED_MCD_EJECTION_MIN_TRIES 2
+#define FORCED_MCD_EJECTION_MAX_TRIES 128
+#define FORCED_MCD_EJECTION_MAX_MS_AFTER_MIN_TRIES 2800
 
 //allow timeout also for the mcd manager panel
 void SetForceMcdEjectTimeoutNow( uint port, uint slot )
@@ -119,7 +117,7 @@ bool isR3000ATest = false;
 // Check the active game's type, and fire the matching interrupt.
 // The 3rd bit of the HW_IFCG register lets us know if PSX mode is active. 1 = PSX, 0 = PS2
 // Note that the R3000A's call to interrupts only calls the PS2 based (lack of) delays.
-SIO_FORCEINLINE void sioInterrupt() {
+__fi void sioInterrupt() {
 	if ((psxHu32(HW_ICFG) & (1 << 3)) && !isR3000ATest) {
 		if (!(psxRegs.interrupt & (1 << IopEvt_SIO)))
 			PSX_INT(IopEvt_SIO, 64); // PSXCLK/250000);
@@ -142,21 +140,15 @@ __fi void sioInterruptR() {
 	sioInterrupt();
 }
 
-SIO_WRITE sioWriteStart(u8 data)
+void inline sioWriteStart(u8 data)
 {
 	u32 sioreg = sio2.packet.sendArray3[sio2.cmdport ? (sio2.cmdport - 1) : 0];
 
-	//u16 size1 = (sioreg >>  8) & 0x1FF;
 	u16 size2 = (sioreg >> 18) & 0x1FF;
 
-#if 0
-	if(size1 != size2)
-		log_cb(RETRO_LOG_DEBUG, "SIO: Bad command length [%02X] (%02X|%02X)\n", data, size1, size2);
-#endif
-	
 	// On mismatch, sio2.cmdlength (size1) is smaller than what it should (Persona 3)
 	// while size2 is the proper length. -KrossX
-	sio.bufSize = size2; //std::max(size1, size2);
+	sio.bufSize = size2;
 
 	if(sio.bufSize)
 		sio.bufSize--;
@@ -191,7 +183,7 @@ int byteCnt = 0;
 //On the real PS1, asserting /ACK after the last byte would cause the transfer to fail.
 #define IS_LAST_BYTE_IN_PACKET ((sio.bufCount >= 3) ? 1 : 0)
 
-SIO_WRITE sioWriteController(u8 data)
+void inline sioWriteController(u8 data)
 {
 	//if (data == 0x01) byteCnt = 0;
 	switch(sio.bufCount)
@@ -211,7 +203,7 @@ SIO_WRITE sioWriteController(u8 data)
 	sioInterrupt(); //Don't all commands(transfers) cause an interrupt?
 }
 
-SIO_WRITE sioWriteMultitap(u8 data)
+void inline sioWriteMultitap(u8 data)
 {
 	static u8 siocmd = 0;
 	//sio.packetsize++;
@@ -301,7 +293,7 @@ SIO_WRITE sioWriteMultitap(u8 data)
 	sioInterrupt();
 }
 
-SIO_WRITE MemcardResponse()
+void inline MemcardResponse()
 {
 	if(sio.bufSize > 1)
 	{
@@ -310,7 +302,7 @@ SIO_WRITE MemcardResponse()
 	}
 }
 
-SIO_WRITE memcardAuth(u8 data)
+void inline memcardAuth(u8 data)
 {
 	static bool doXorCheck = false;
 	static u8 xorResult = 0;
@@ -344,7 +336,7 @@ SIO_WRITE memcardAuth(u8 data)
 	}
 }
 
-SIO_WRITE memcardErase(u8 data)
+void inline memcardErase(u8 data)
 {
 	switch(sio.bufCount)
 	{
@@ -391,7 +383,7 @@ SIO_WRITE memcardErase(u8 data)
 	}
 }
 
-SIO_WRITE memcardWrite(u8 data)
+void inline memcardWrite(u8 data)
 {
 	static u8 checksum_pos = 0;
 	static u8 transfer_size = 0;
@@ -483,7 +475,7 @@ SIO_WRITE memcardWrite(u8 data)
 	}
 }
 
-SIO_WRITE memcardRead(u8 data)
+void inline memcardRead(u8 data)
 {
 	/*static u8 checksum_pos = 0;*/
 	// psxmode: check if memcard reads need checksum_pos as well as writes (function above!)
@@ -559,7 +551,7 @@ SIO_WRITE memcardRead(u8 data)
 }
 
 
-SIO_WRITE memcardSector(u8 data)
+void inline memcardSector(u8 data)
 {
 	static u8 xor_check = 0;
 	
@@ -586,7 +578,7 @@ SIO_WRITE memcardSector(u8 data)
 	}
 }
 
-SIO_WRITE memcardInit()
+void inline memcardInit()
 {
 	mcd = &mcds[sio.GetPort()][sio.GetSlot()];
 
@@ -628,7 +620,7 @@ SIO_WRITE memcardInit()
 	
 }
 
-SIO_WRITE sioWriteMemcard(u8 data)
+void inline sioWriteMemcard(u8 data)
 {
 	switch(sio.bufCount)
 	{
@@ -728,7 +720,7 @@ SIO_WRITE sioWriteMemcard(u8 data)
 	}
 }
 
-SIO_WRITE sioWriteMemcardPSX(u8 data)
+void inline sioWriteMemcardPSX(u8 data)
 {
 	switch(sio.bufCount)
 	{
@@ -838,7 +830,7 @@ SIO_WRITE sioWriteMemcardPSX(u8 data)
 	}
 }
 
-SIO_WRITE sioWriteInfraRed(u8 data)
+void inline sioWriteInfraRed(u8 data)
 {
 	SIO_STAT_READY();
 	DEVICE_PLUGGED();
@@ -907,25 +899,24 @@ static void sioWrite8inl(u8 data)
 	byteCnt++;
 }
 
-int clrAckCnt =0;
 
-void sioStatRead() {
-
-if (clrAckCnt > 1) {  //This check can probably be removed...
-	sio.StatReg &= ~ACK_INP; //clear (goes inactive) /ACK line.
-	// sio.StatReg &= ~TX_RDY;
-	// sio.StatReg &= ~0x200; //irq
-	// if (byteCnt == 1)
-	// 	sio.StatReg &= ~RX_RDY;
-	clrAckCnt = 0;
-}
+void sioStatRead()
+{
+	static int clrAckCnt =0;
+	if (clrAckCnt > 1) {  //This check can probably be removed...
+		sio.StatReg &= ~ACK_INP; //clear (goes inactive) /ACK line.
+		// sio.StatReg &= ~TX_RDY;
+		// sio.StatReg &= ~0x200; //irq
+		// if (byteCnt == 1)
+		// 	sio.StatReg &= ~RX_RDY;
+		clrAckCnt = 0;
+	}
 	//The /ACK line should go active for >2us, in a time window between 12us and 100us after each byte is sent (received by the controller).
 	//If that doesn't happen, the controller is considered missing.
 	//The /ACK line must NOT go active after the last byte in the transmission! (Otherwise some err. may happen - tested.)
-if ((sio.StatReg & ACK_INP)) clrAckCnt++;
+	if ((sio.StatReg & ACK_INP)) clrAckCnt++;
 
 	chkTriggerInt();
-	return;
 }
 
 void sioWriteCtrl16(u16 value)
@@ -971,9 +962,7 @@ u8 sioRead8()
 		sio.StatReg &= ~TX_RDY; //all clear (transfer of byte ended)
 	}
 	else
-	{
 		ret = sio.ret;
-	}
 		//	sio.StatReg &= ~TX_RDY; //all clear (transfer of byte ended)
 //	log_cb(RETRO_LOG_DEBUG, "SIO DATA read %02X  stat= %08X \n" , ret, sio.StatReg);
 	return ret;
