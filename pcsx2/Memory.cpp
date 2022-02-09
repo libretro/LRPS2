@@ -35,7 +35,6 @@ BIOS
 */
 
 #include "PrecompiledHeader.h"
-#include <wx/file.h>
 
 #include "IopCommon.h"
 #include "GS.h"
@@ -77,16 +76,6 @@ u16 ba0R16(u32 mem)
 		return ba6;
 	}
 	return 0;
-}
-
-#define CHECK_MEM(mem) //MyMemCheck(mem)
-
-void MyMemCheck(u32 mem)
-{
-#ifndef NDEBUG
-    if( mem == 0x1c02f2a0 )
-        log_cb(RETRO_LOG_INFO, "yo; (mem == 0x1c02f2a0) in MyMemCheck...\n");
-#endif
 }
 
 /////////////////////////////
