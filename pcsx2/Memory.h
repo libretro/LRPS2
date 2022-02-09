@@ -107,9 +107,6 @@ static __fi void ZeroQWC( u128& dest )
 #define psSu128(mem)	(*(u128*)&eeMem->Scratch[(mem) & 0x3fff])
 
 
-extern void memSetKernelMode();
-//extern void memSetSupervisorMode();
-extern void memSetUserMode();
 extern void memSetPageAddr(u32 vaddr, u32 paddr);
 extern void memClearPageAddr(u32 vaddr);
 extern void memBindConditionalHandlers();

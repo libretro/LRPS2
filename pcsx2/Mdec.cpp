@@ -49,9 +49,8 @@ int iq_y[DCTSIZE2],iq_uv[DCTSIZE2];
 
 static void idct1(int *block)
 {
-	int i, val;
-
-	val = RANGE(DESCALE(block[0], PASS1_BITS+3));
+	int i;
+	int val = RANGE(DESCALE(block[0], PASS1_BITS+3));
 
 	for(i=0;i<DCTSIZE2;i++)
 		block[i]=val;

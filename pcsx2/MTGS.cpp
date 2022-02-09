@@ -40,19 +40,11 @@ __aligned(32) MTGS_BufferedData RingBuffer;
 extern bool renderswitch;
 
 
-#ifdef RINGBUF_DEBUG_STACK
-#include <list>
-std::list<uint> ringposStack;
-#endif
-
 SysMtgsThread::SysMtgsThread() :
 #ifdef __LIBRETRO__
 	SysFakeThread()
 #else
 	SysThreadBase()
-#endif
-#ifdef RINGBUF_DEBUG_STACK
-,	m_lock_Stack()
 #endif
 {
 	m_name = L"MTGS";
@@ -243,10 +235,6 @@ void SysMtgsThread::ExecuteTaskInThread()
 	// Threading info: run in MTGS thread
 	// m_ReadPos is only update by the MTGS thread so it is safe to load it with a relaxed atomic
 
-#ifdef RINGBUF_DEBUG_STACK
-	PacketTagType prevCmd;
-#endif
-
 #ifndef __LIBRETRO__
 	RingBufferLock busy (*this);
 #endif
@@ -290,21 +278,6 @@ void SysMtgsThread::ExecuteTaskInThread()
 
 			const PacketTagType& tag = (PacketTagType&)RingBuffer[local_ReadPos];
 			u32 ringposinc = 1;
-
-#ifdef RINGBUF_DEBUG_STACK
-			// pop a ringpos off the stack.  It should match this one!
-
-			m_lock_Stack.Lock();
-			uptr stackpos = ringposStack.back();
-			if( stackpos != local_ReadPos )
-			{
-				log_cb(RETRO_LOG_ERROR, "MTGS Ringbuffer Critical Failure ---> %x to %x (prevCmd: %x)\n", stackpos, local_ReadPos, prevCmd.command );
-			}
-			pxAssert( stackpos == local_ReadPos );
-			prevCmd = tag;
-			ringposStack.pop_back();
-			m_lock_Stack.Release();
-#endif
 
 			switch( tag.command )
 			{

@@ -29,20 +29,11 @@
 
 using namespace R5900;		// for OPCODE and OpcodeImpl
 
-extern int vu0branch, vu1branch;
-
-static int branch2 = 0;
 static u32 cpuBlockCycles = 0;		// 3 bit fixed point version of cycle count
-static std::string disOut;
 
 static void intEventTest();
 
 // These macros are used to assemble the repassembler functions
-
-static void debugI()
-{
-}
-
 
 void intBreakpoint(bool memcheck)
 {
@@ -123,20 +114,6 @@ void intCheckMemcheck()
 
 static void execI()
 {
-	// execI is called for every instruction so it must remains as light as possible.
-	// If you enable the next define, Interpreter will be much slower (around
-	// ~4fps on 3.9GHz Haswell vs ~8fps (even 10fps on dev build))
-	// Extra note: due to some cycle count issue PCSX2's internal debugger is
-	// not yet usable with the interpreter
-//#define EXTRA_DEBUG
-#ifdef EXTRA_DEBUG
-	// check if any breakpoints or memchecks are triggered by this instruction
-	if (isBreakpointNeeded(cpuRegs.pc))
-		intBreakpoint(false);
-
-	intCheckMemcheck();
-#endif
-
 	u32 pc = cpuRegs.pc;
 	// We need to increase the pc before executing the memRead32. An exception could appears
 	// and it expects the PC counter to be pre-incremented
@@ -146,33 +123,6 @@ static void execI()
 	cpuRegs.code = memRead32( pc );
 
 	const OPCODE& opcode = GetCurrentInstruction();
-#if 0
-	static long int runs = 0;
-	//use this to find out what opcodes your game uses. very slow! (rama)
-	runs++;
-	if (runs > 1599999999){ //leave some time to startup the testgame
-		if (opcode.Name[0] == 'L') { //find all opcodes beginning with "L"
-			log_cb (RETRO_LOG_INFO, "Load %s\n", opcode.Name);
-		}
-	}
-#endif
-
-#if 0
-	static long int print_me = 0;
-	// Based on cycle
-	// if( cpuRegs.cycle > 0x4f24d714 )
-	// Or dump from a particular PC (useful to debug handler/syscall)
-	if (pc == 0x80000000) {
-		print_me = 2000;
-	}
-	if (print_me) {
-		print_me--;
-		disOut.clear();
-		disR5900Fasm(disOut, cpuRegs.code, pc);
-		CPU_LOG( disOut.c_str() );
-	}
-#endif
-
 
 	cpuBlockCycles += opcode.cycles;
 
@@ -181,7 +131,7 @@ static void execI()
 
 static __fi void _doBranch_shared(u32 tar)
 {
-	branch2 = cpuRegs.branch = 1;
+	cpuRegs.branch = 1;
 	execI();
 
 	// branch being 0 means an exception was thrown, since only the exception
@@ -217,7 +167,6 @@ void __fastcall intDoBranch(u32 target)
 
 void intSetBranch()
 {
-	branch2 = /*cpuRegs.branch =*/ 1;
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -487,7 +436,6 @@ static void intAlloc()
 static void intReset()
 {
 	cpuRegs.branch = 0;
-	branch2 = 0;
 }
 
 static void intEventTest()

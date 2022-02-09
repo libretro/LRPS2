@@ -154,16 +154,18 @@ void CTC2() {
 			break;
 		case REG_FBRST:
 			VU0.VI[REG_FBRST].UL = cpuRegs.GPR.r[_Rt_].UL[0] & 0x0C0C;
-			if (cpuRegs.GPR.r[_Rt_].UL[0] & 0x1) { // VU0 Force Break
+#if 0
+			if (cpuRegs.GPR.r[_Rt_].UL[0] & 0x1) // VU0 Force Break
 				log_cb(RETRO_LOG_ERROR, "fixme: VU0 Force Break\n");
-			}
+#endif
 			if (cpuRegs.GPR.r[_Rt_].UL[0] & 0x2) { // VU0 Reset
 				//log_cb(RETRO_LOG_INFO, "fixme: VU0 Reset\n");
 				vu0ResetRegs();
 			}
-			if (cpuRegs.GPR.r[_Rt_].UL[0] & 0x100) { // VU1 Force Break
+#if 0
+			if (cpuRegs.GPR.r[_Rt_].UL[0] & 0x100) // VU1 Force Break
 				log_cb(RETRO_LOG_ERROR, "fixme: VU1 Force Break\n");
-			}
+#endif
 			if (cpuRegs.GPR.r[_Rt_].UL[0] & 0x200) { // VU1 Reset
 //				log_cb(RETRO_LOG_INFO, "fixme: VU1 Reset\n");
 				vu1ResetRegs();
