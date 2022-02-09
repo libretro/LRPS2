@@ -21,27 +21,11 @@
 u32 s_iLastCOP0Cycle = 0;
 u32 s_iLastPERFCycle[2] = { 0, 0 };
 
-// Updates the CPU's mode of operation (either, Kernel, Supervisor, or User modes).
-// Currently the different modes are not implemented.
-// Given this function is called so much, it's commented out for now. (rama)
-__ri void cpuUpdateOperationMode() {
-
-	//u32 value = cpuRegs.CP0.n.Status.val;
-
-	//if (value & 0x06 ||
-	//	(value & 0x18) == 0) { // Kernel Mode (KSU = 0 | EXL = 1 | ERL = 1)*/
-	//	memSetKernelMode();	// Kernel memory always
-	//} else { // User Mode
-	//	memSetUserMode();
-	//}
-}
-
 void __fastcall WriteCP0Status(u32 value) {
 
 	//DMA_LOG("COP0 Status write = 0x%08x", value);
 
 	cpuRegs.CP0.n.Status.val = value;
-    cpuUpdateOperationMode();
     cpuSetNextEventDelta(4);
 }
 
@@ -148,6 +132,7 @@ __fi void COP0_UpdatePCCR()
 			cpuRegs.PERF.n.pcr0 += incr;
 			s_iLastPERFCycle[0] = cpuRegs.cycle;
 
+#if 0
 			//prev ^= (1UL<<31);		// XOR is fun!
 			//if( (prev & cpuRegs.PERF.n.pcr0) & (1UL<<31) )
 			if((cpuRegs.PERF.n.pcr0 & 0x80000000))
@@ -180,6 +165,7 @@ __fi void COP0_UpdatePCCR()
 				cpuRegs.CP0.n.Status.b.ERL = 1;
 				cpuRegs.CP0.n.Cause |= 0x20000;*/
 			}
+#endif
 		}
 	}
 
@@ -197,6 +183,7 @@ __fi void COP0_UpdatePCCR()
 			cpuRegs.PERF.n.pcr1 += incr;
 			s_iLastPERFCycle[1] = cpuRegs.cycle;
 
+#if 0
 			if( (cpuRegs.PERF.n.pcr1 & 0x80000000))
 			{
 				// TODO: Vector to the appropriate exception here.
@@ -228,6 +215,7 @@ __fi void COP0_UpdatePCCR()
 				cpuRegs.CP0.n.Status.b.ERL = 1;
 				cpuRegs.CP0.n.Cause |= 0x20000;*/
 			}
+#endif
 		}
 	}
 }
@@ -564,7 +552,6 @@ void ERET() {
 		cpuRegs.pc = cpuRegs.CP0.n.EPC;
 		cpuRegs.CP0.n.Status.b.EXL = 0;
 	}
-	cpuUpdateOperationMode();
 	cpuSetNextEventDelta(4);
 	intSetBranch();
 }

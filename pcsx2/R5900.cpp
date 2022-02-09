@@ -160,7 +160,6 @@ __ri void cpuException(u32 code, u32 bd)
 			//Reset / NMI
 			cpuRegs.pc = 0xBFC00000;
 			log_cb(RETRO_LOG_WARN, "Reset request\n");
-			cpuUpdateOperationMode();
 			return;
 		}
 		else if((code & 0x38000) == 0x10000)
@@ -199,8 +198,6 @@ __ri void cpuException(u32 code, u32 bd)
 		cpuRegs.pc = 0x80000000 + offset;
 	else
 		cpuRegs.pc = 0xBFC00200 + offset;
-
-	cpuUpdateOperationMode();
 }
 
 void cpuTlbMiss(u32 addr, u32 bd, u32 excode)
