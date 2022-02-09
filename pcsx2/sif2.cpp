@@ -22,12 +22,9 @@
 
 _sif sif2;
 
-static bool done = false;
-
 static __fi void Sif2Init()
 {
 	SIF_LOG("SIF2 DMA start... free %x iop busy %x", sif2.fifo.sif_free(), sif2.iop.busy);
-	done = false;
 	sif2.ee.cycles = 0;
 	sif2.iop.cycles = 0;
 }
@@ -224,22 +221,11 @@ static __fi void HandleEETransfer()
 		return;
 	}
 	
-	/*if (sif2dma.qwc == 0)
-	if (sif2dma.chcr.MOD == NORMAL_MODE)
-	if (!sif2.ee.end){
-	log_cb(RETRO_LOG_DEBUG, "sif2 irq prevented\n");
-	done = true;
-	return;
-	}*/
-
 	if (sif2dma.qwc <= 0)
 	{
+		// Stop transferring ee, and signal an interrupt.
 		if ((sif2dma.chcr.MOD == NORMAL_MODE) || sif2.ee.end)
-		{
-			// Stop transferring ee, and signal an interrupt.
-			done = true;
 			EndEE();
-		}
 		else if (sif2.fifo.size >= 4) // Read a tag
 		{
 			// Read Fifo into an ee tag, transfer it to sif2dma
@@ -292,12 +278,9 @@ static __fi void HandleIOPTransfer()
 {
 	if (sif2.iop.counter <= 0) // If there's no more to transfer
 	{
+		// Stop transferring iop, and signal an interrupt.
 		if (sif2.iop.end)
-		{
-			// Stop transferring iop, and signal an interrupt.
-			done = true;
 			EndIOP();
-		}
 		else
 		{
 			// Read Fifo into an iop tag, and transfer it to hw_dma9.
@@ -354,7 +337,7 @@ __fi void SIF2Dma()
 				HandleEETransfer();
 			}
 		}
-	} while (/*!done && */BusyCheck > 0); // Substituting (sif2.ee.busy || sif2.iop.busy) breaks things.
+	} while (BusyCheck > 0); // Substituting (sif2.ee.busy || sif2.iop.busy) breaks things.
 
 	Sif2End();
 }

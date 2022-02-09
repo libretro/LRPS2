@@ -22,13 +22,11 @@
 
 _sif sif1;
 
-static bool done = false;
 static bool sif1_dma_stall = false;
 
 static __fi void Sif1Init()
 {
 	SIF_LOG("SIF1 DMA start...");
-	done = false;
 	sif1.ee.cycles = 0;
 	sif1.iop.cycles = 0;
 }
@@ -194,26 +192,14 @@ static __fi void HandleEETransfer()
 		return;
 	}
 
-	/*if (sif1ch.qwc == 0)
-		if (sif1ch.chcr.MOD == NORMAL_MODE)
-			if (!sif1.ee.end){
-				log_cb(RETRO_LOG_DEBUG, "sif1 irq prevented CHCR %x QWC %x\n", sif1ch.chcr, sif1ch.qwc);
-				done = true;
-				return;
-			}*/
-
 	// If there's no more to transfer.
 	if (sif1ch.qwc <= 0)
 	{
 		// If NORMAL mode or end of CHAIN then stop DMA.
 		if ((sif1ch.chcr.MOD == NORMAL_MODE) || sif1.ee.end)
-		{
-			done = true;
 			EndEE();
-		}
 		else
 		{
-			done = false;
 			if (!ProcessEETag()) return;
 		}
 	}
@@ -257,16 +243,9 @@ static __fi void HandleIOPTransfer()
 	if (sif1.iop.counter <= 0)
 	{
 		if (sif1.iop.end)
-		{
-			done = true;
 			EndIOP();
-		}
 		else if (sif1.fifo.size >= 4)
-		{
-
-			done = false;
 			SIFIOPReadTag();
-		}
 	}
 }
 
@@ -316,7 +295,7 @@ __fi void SIF1Dma()
 			}
 		}
 
-	} while (/*!done &&*/ BusyCheck > 0);
+	} while (BusyCheck > 0);
 
 	Sif1End();
 }
