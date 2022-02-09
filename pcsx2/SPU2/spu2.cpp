@@ -23,9 +23,6 @@
 
 extern retro_audio_sample_t sample_cb;
 
-int Interpolation = 4;
-unsigned int delayCycles = 4;
-
 int SampleRate = 48000;
 
 u32 lClocks = 0;
@@ -142,7 +139,6 @@ s32 SPU2init()
 {
 	assert(regtable[0x400] == nullptr);
 
-	Interpolation = 4;
 	VolumeAdjustCdb = 0;
 	VolumeAdjustFLdb = 0;
 	VolumeAdjustFRdb = 0;
@@ -151,7 +147,6 @@ s32 SPU2init()
 	VolumeAdjustSLdb = 0;
 	VolumeAdjustSRdb = 0;
 	VolumeAdjustLFEdb = 0;
-	delayCycles = 4;
 	VolumeAdjustC = powf(10, VolumeAdjustCdb / 10);
 	VolumeAdjustFL = powf(10, VolumeAdjustFLdb / 10);
 	VolumeAdjustFR = powf(10, VolumeAdjustFRdb / 10);

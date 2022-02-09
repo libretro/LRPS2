@@ -18,14 +18,14 @@
 // Number of stereo samples per SndOut block.
 // All drivers must work in units of this size when communicating with
 // SndOut.
-static const int SndOutPacketSize = 64;
+#define SndOutPacketSize 64
 
 // Overall master volume shift; this is meant to be a precision value and does not affect
 // actual output volumes.  It converts SPU2 16 bit volumes to 32-bit volumes, and likewise
 // downsamples 32 bit samples to 16 bit sound driver output (this way timestretching and
 // DSP effects get better precision results)
-static const int SndOutVolumeShift = 12;
-static const int SndOutVolumeShift32 = 16 - SndOutVolumeShift; // shift up, not down
+#define SndOutVolumeShift 12
+#define SndOutVolumeShift32 4 // shift up, not down, (formula = 16 - SndOutVolumeShift)
 
 // Samplerate of the SPU2. For accurate playback we need to match this
 // exactly.  Trying to scale samplerates and maintain SPU2's Ts timing accuracy
@@ -555,9 +555,3 @@ struct Stereo51Out32
 		LFE = (s32)(LFE * VolumeAdjustLFE);
 	}
 };
-
-// =====================================================================================================
-
-extern void RecordStart(std::wstring* filename);
-extern void RecordStop();
-extern void RecordWrite(const StereoOut16& sample);

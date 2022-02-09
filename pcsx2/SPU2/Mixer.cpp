@@ -468,6 +468,7 @@ static __forceinline void spu2M_WriteFast(u32 addr, s16 value)
 	*GetMemPtr(addr) = value;
 }
 
+#define Interpolation 4
 
 static __forceinline StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 {

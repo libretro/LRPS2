@@ -294,8 +294,8 @@ void V_Voice::Stop()
 	ADSR.Phase = 0;
 }
 
-uint TickInterval = 768;
-static const int SanityInterval = 4800;
+#define TickInterval 768
+#define SanityInterval 4800
 
 __forceinline void TimeUpdate(u32 cClocks)
 {
@@ -324,7 +324,7 @@ __forceinline void TimeUpdate(u32 cClocks)
 		{
 			//ConLog("* SPU2: Irq Called (%04x) at cycle %d.\n", Spdif.Info, Cycles);
 			has_to_call_irq = false;
-         spu2Irq();
+			spu2Irq();
 		}
 
 		//Update DMA4 interrupt delay counter
@@ -371,10 +371,7 @@ __forceinline void TimeUpdate(u32 cClocks)
 		lClocks += TickInterval;
 		Cycles++;
 
-		// Note: IOP does not use MMX regs, so no need to save them.
-		//SaveMMXRegs();
 		Mix();
-		//RestoreMMXRegs();
 	}
 }
 
@@ -397,9 +394,7 @@ __forceinline void UpdateSpdifMode()
 	{
 		PlayMode = 0; //normal processing
 		if (Spdif.Out & SPDIF_OUT_PCM)
-		{
 			PlayMode = 1;
-		}
 	}
 }
 
