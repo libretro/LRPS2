@@ -233,7 +233,7 @@ set(pcsx2SPU2Headers
 # PAD sources
 set(pcsx2PADSources
     PAD/PAD.cpp
-    PAD/state_management.cpp)
+    )
 
 # PAD headers
 set(pcsx2DEV9Headers
@@ -247,9 +247,8 @@ set(pcsx2DEV9Sources
 
 # DEV9 headers
 set(pcsx2DEV9Headers
-     PAD/KeyStatus.h
      PAD/PAD.h
-     PAD/state_management.h)
+     )
 
 # USB sources
 set(pcsx2USBSources
