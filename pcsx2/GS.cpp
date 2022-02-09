@@ -68,11 +68,13 @@ static __fi void gsCSRwrite( const tGS_CSR& csr )
 		GSIMR.reset();
 	}
 
+#if 0
 	if(csr.FLUSH)
 	{
 		// Our emulated GS has no FIFO, but if it did, it would flush it here...
 		//log_cb(RETRO_LOG_INFO, "GS_CSR FLUSH GS fifo: %x (CSRr=%x)\n", value, GSCSRr);
 	}
+#endif
 	
 	if(csr.SIGNAL)
 	{

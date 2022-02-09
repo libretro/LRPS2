@@ -15,58 +15,28 @@
 
 #include "PrecompiledHeader.h"
 
+#ifdef PCSX2_DEVBUILD
+
 #include <list>
 #include <memory>
 
 #include "GS.h"
 
-#ifdef PCSX2_DEVBUILD
-
-// GS Playback
-int g_SaveGSStream = 0; // save GS stream; 1 - prepare, 2 - save
-int g_nLeftGSFrames = 0; // when saving, number of frames left
-static std::unique_ptr<memSavingState> g_fGSSave;
-
 // fixme - need to take this concept and make it MTGS friendly.
 #ifdef _STGS_GSSTATE_CODE
 void GSGIFTRANSFER1(u32 *pMem, u32 addr) {
-	if( g_SaveGSStream == 2) {
-		u32 type = GSRUN_TRANS1;
-		u32 size = (0x4000-(addr))/16;
-		g_fGSSave->Freeze( type );
-		g_fGSSave->Freeze( size );
-		g_fGSSave->FreezeMem( ((u8*)pMem)+(addr), size*16 );
-	}
 	GSgifTransfer1(pMem, addr);
 }
 
 void GSGIFTRANSFER2(u32 *pMem, u32 size) {
-	if( g_SaveGSStream == 2) {
-		u32 type = GSRUN_TRANS2;
-		u32 _size = size;
-		g_fGSSave->Freeze( type );
-		g_fGSSave->Freeze( size );
-		g_fGSSave->FreezeMem( pMem, _size*16 );
-	}
 	GSgifTransfer2(pMem, size);
 }
 
 void GSGIFTRANSFER3(u32 *pMem, u32 size) {
-	if( g_SaveGSStream == 2 ) {
-		u32 type = GSRUN_TRANS3;
-		u32 _size = size;
-		g_fGSSave->Freeze( type );
-		g_fGSSave->Freeze( size );
-		g_fGSSave->FreezeMem( pMem, _size*16 );
-	}
 	GSgifTransfer3(pMem, size);
 }
 
 __fi void GSVSYNC(void) {
-	if( g_SaveGSStream == 2 ) {
-		u32 type = GSRUN_VSYNC;
-		g_fGSSave->Freeze( type );
-	}
 }
 #endif
 
