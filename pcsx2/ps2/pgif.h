@@ -37,5 +37,4 @@ extern void kernelTTYFileDescrWrite(u32 mem, u32 data);
 extern u32 getIntTmrKReg(u32 mem, u32 data);
 extern void testInt(void);
 extern void HPCoS_print(u32 mem, u32 data);
-extern void anyIopLS(u32 addr, u32 data, int Wr);
 extern void dma6_OTClear(void);

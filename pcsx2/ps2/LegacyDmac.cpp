@@ -500,27 +500,6 @@ __fi bool dmacWrite32( u32 mem, mem32_t& value )
 				}
 				//log_cb(RETRO_LOG_DEBUG, "32bit Stall Source Changed to %s\n", new_source.c_str());
 			}
-			if ((oldvalue & 0xC0) != (value & 0xC0))
-			{
-				std::string new_dest;
-
-				switch ((value & 0xC0) >> 6)
-				{
-				case 1:
-					new_dest = "VIF1";
-					break;
-				case 2:
-					new_dest = "GIF";
-					break;
-				case 3:
-					new_dest = "SIF1";
-					break;
-				default:
-					new_dest = "None";
-					break;
-				}
-				//log_cb(RETRO_LOG_DEBUG, "32bit Stall Destination Changed to %s\n", new_dest.c_str());
-			}
 #endif
 			return false;
 		}

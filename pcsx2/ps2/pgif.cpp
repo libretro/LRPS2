@@ -21,13 +21,6 @@
 
 #define psxHu(mem) (*(u32 *)&iopHw[(mem)&0xffff])
 
-
-//using namespace Internal;
-
-int doAnyIopLs = 0;
-
-
-
 //Debug printf:
 #define REG_LOG 0
 #define LOG_PGPU_DMA 0
@@ -143,21 +136,10 @@ static u32 PGpuDataReg = 0;  //Read-only to IOP
 u32 lastGpuCmd = 0;
 u32 lastGpuData = 0;
 
-//int clrBufCnt = 0;
-
-
-#if 0
-u32 pgpuDmaMadr = 0;
-u32 pgpuDmaBcr = 0;
-u32 pgpuDmaChcr = 0;
-u32 pgpuDmaTadr = 0;
-#else
 #define pgpuDmaMadr HW_DMA2_MADR
 #define pgpuDmaBcr HW_DMA2_BCR
 #define pgpuDmaChcr HW_DMA2_CHCR
-//u32 pgpuDmaChcr = 0;
 #define pgpuDmaTadr HW_DMA2_TADR
-#endif
 
 //Internal flags:
 int PgpuDmaLlAct = 0;
@@ -181,10 +163,6 @@ void fillFifoOnDrain(void);
 void drainPgpuDmaLl(void);
 void drainPgpuDmaNrToGpu(void);
 void drainPgpuDmaNrToIop(void);
-
-//u32 getUpdPgifCtrlReg(void);
-
-
 
 //Generic FIFO-related:
 struct ringBuf_t
@@ -1046,21 +1024,6 @@ void HPCoS_print(u32 mem, u32 data)
 
     //}
 }
-
-int startPrntPc = 0;
-void anyIopLS(u32 addr, u32 data, int Wr)
-{
-    if (doAnyIopLs == 0)
-        return;
-//#define nrRuns 0xFFFFFF
-#define nrRuns 0xFFFFFFF
-    //if ((startPrntPc > nrRuns) && (startPrntPc < (nrRuns + 2000)))
-    //	log_cb(RETRO_LOG_DEBUG, "MEM %d  0x%08X = 0x%08X IOPpc= %08X \n",  Wr, addr, data, psxRegs.pc);
-    //else
-    if (startPrntPc <= (nrRuns + 2000))
-        startPrntPc++;
-}
-
 
 void dma6_OTClear()
 {
