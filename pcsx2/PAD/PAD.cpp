@@ -104,8 +104,9 @@ static struct retro_input_descriptor desc[] = {
 	{0},
 };
 
-bool rumble_enabled = true;
-const uint16_t rumble_max = 0xFFFF;
+#define RUMBLE_MAX 0xFFFF
+
+bool rumble_enabled   = true;
 uint16_t rumble_level = 0x0;
 
 namespace Input
@@ -135,12 +136,6 @@ void Shutdown()
 void Update()
 {
 	poll_cb();
-#ifdef __ANDROID__
-	/* Android doesn't support input polling on all threads by default
-   * this will force the poll for this frame to happen in the main thread
-   * in case the frontend is doing late-polling */
-	input_cb(0, 0, 0, 0);
-#endif
 	Pad::rumble_all();
 }
 
@@ -157,8 +152,7 @@ void setRumbleLevel(int percent)
 	else if (percent < 0)
 		percent = 0;
 
-	rumble_level = rumble_max * percent / 100;
-	
+	rumble_level = RUMBLE_MAX * percent / 100;
 }
 
 

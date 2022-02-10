@@ -41,8 +41,6 @@ int PlayMode;
 
 bool has_to_call_irq = false;
 
-bool psxmode = false;
-
 void SetIrqCall(int core)
 {
 	// reset by an irq disable/enable cycle, behaviour found by
@@ -116,7 +114,6 @@ void V_Core::Init(int index)
 	TADR = 0;
 	KeyOn = 0;
 
-	psxmode = false;
 	psxSoundDataTransferControl = 0;
 	psxSPUSTAT = 0;
 
@@ -1264,7 +1261,8 @@ static void __fastcall RegWrite_Core(u16 value)
 			// adma isn't available in psx mode either
 			if (value == 32767)
 			{
-				psxmode = true;
+                                // psxmode is true here
+
 				//memset(_spu2mem, 0, 0x200000);
 				Cores[1].FxEnable = 0;
 				Cores[1].EffectsStartA = 0x7FFF8; // park core1 effect area in inaccessible mem

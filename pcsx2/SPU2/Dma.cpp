@@ -19,8 +19,6 @@
 
 #include "spu2.h" // temporary until I resolve cyclePtr/TimeUpdate dependencies.
 
-extern u8 callirq;
-
 void V_Core::AutoDMAReadBuffer(int mode) //mode: 0= split stereo; 1 = do not split stereo
 {
 	int spos = ((InputPosRead + 0xff) & 0x100); //starting position of the free buffer
@@ -31,8 +29,7 @@ void V_Core::AutoDMAReadBuffer(int mode) //mode: 0= split stereo; 1 = do not spl
 
 	if (mode)
 	{
-		if (DMAPtr != nullptr)
-			//memcpy((ADMATempBuffer+(spos<<1)),DMAPtr+InputDataProgress,0x400);
+		if (DMAPtr)
 			memcpy(GetMemPtr(0x2000 + (Index << 10) + spos), DMAPtr + InputDataProgress, 0x400);
 		MADR += 0x400;
 		InputDataLeft -= 0x200;
@@ -40,15 +37,13 @@ void V_Core::AutoDMAReadBuffer(int mode) //mode: 0= split stereo; 1 = do not spl
 	}
 	else
 	{
-		if (DMAPtr != nullptr)
-			//memcpy((ADMATempBuffer+spos),DMAPtr+InputDataProgress,0x200);
+		if (DMAPtr)
 			memcpy(GetMemPtr(0x2000 + (Index << 10) + spos), DMAPtr + InputDataProgress, 0x200);
 		MADR += 0x200;
 		InputDataLeft -= 0x100;
 		InputDataProgress += 0x100;
 
-		if (DMAPtr != nullptr)
-			//memcpy((ADMATempBuffer+spos+0x200),DMAPtr+InputDataProgress,0x200);
+		if (DMAPtr)
 			memcpy(GetMemPtr(0x2200 + (Index << 10) + spos), DMAPtr + InputDataProgress, 0x200);
 		MADR += 0x200;
 		InputDataLeft -= 0x100;

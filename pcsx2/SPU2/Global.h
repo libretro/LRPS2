@@ -18,8 +18,6 @@
 
 #define NOMINMAX
 
-extern bool psxmode;
-
 struct StereoOut16;
 struct StereoOut32;
 struct StereoOutFloat;

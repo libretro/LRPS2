@@ -15,7 +15,6 @@
 
 #pragma once
 
-#include "Utilities/Threading.h"
 #include "SaveState.h"
 
 s32 SPU2init();
@@ -42,8 +41,6 @@ void SPU2interruptDMA4();
 void SPU2interruptDMA7();
 void SPU2readDMA7Mem(u16* pMem, u32 size);
 void SPU2writeDMA7Mem(u16* pMem, u32 size);
-
-extern u8 callirq;
 
 extern u32 lClocks;
 

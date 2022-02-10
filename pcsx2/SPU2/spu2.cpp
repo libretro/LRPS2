@@ -106,8 +106,6 @@ s32 SPU2reset()
 
 s32 SPU2ps1reset()
 {
-	printf("RESET PS1 \n");
-
 	if (SampleRate != 44100)
 	{
 		SampleRate = 44100;
@@ -255,10 +253,7 @@ s32 SPU2freeze(int mode, freezeData* data)
 {
 	pxAssume(data != nullptr);
 	if (!data)
-	{
-		printf("SPU2 savestate null pointer!\n");
 		return -1;
-	}
 
 	if (mode == FREEZE_SIZE)
 	{
@@ -269,10 +264,7 @@ s32 SPU2freeze(int mode, freezeData* data)
 	pxAssume(mode == FREEZE_LOAD || mode == FREEZE_SAVE);
 
 	if (data->data == nullptr)
-	{
-		printf("SPU2 savestate null pointer!\n");
 		return -1;
-	}
 
 	SPU2Savestate::DataBlock& spud = (SPU2Savestate::DataBlock&)*(data->data);
 
