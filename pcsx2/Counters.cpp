@@ -36,7 +36,7 @@
 using namespace Threading;
 
 extern u8 psxhblankgate;
-static const uint EECNT_FUTURE_TARGET = 0x10000000;
+#define EECNT_FUTURE_TARGET 0x10000000
 static int gates = 0;
 
 uint g_FrameCount = 0;
