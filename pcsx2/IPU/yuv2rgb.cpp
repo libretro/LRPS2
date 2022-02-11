@@ -36,42 +36,33 @@
 #define IPU_RCR_COEFF 0xcc	//  1.59375
 #define IPU_BCB_COEFF 0x102	//  2.015625
 
-// conforming implementation for reference, do not optimise
-void yuv2rgb_reference(void)
+#if !defined(_M_SSE)
+#if defined(__GNUC__)
+#if defined(__SSE2__)
+#define _M_SSE 0x200
+#endif
+#endif
+
+#if !defined(_M_SSE) && (!defined(_WIN32) || defined(_M_AMD64) || defined(_M_IX86_FP) && _M_IX86_FP >= 2)
+#define _M_SSE 0x200
+#endif
+#endif
+
+__ri void yuv2rgb()
 {
-	const macroblock_8& mb8 = decoder.mb8;
-	macroblock_rgb32& rgb32 = decoder.rgb32;
-
-	for (int y = 0; y < 16; y++)
-		for (int x = 0; x < 16; x++)
-		{
-			s32 lum = (IPU_Y_COEFF * (std::max(0, (s32)mb8.Y[y][x] - IPU_Y_BIAS))) >> 6;
-			s32 rcr = (IPU_RCR_COEFF * ((s32)mb8.Cr[y>>1][x>>1] - 128)) >> 6;
-			s32 gcr = (IPU_GCR_COEFF * ((s32)mb8.Cr[y>>1][x>>1] - 128)) >> 6;
-			s32 gcb = (IPU_GCB_COEFF * ((s32)mb8.Cb[y>>1][x>>1] - 128)) >> 6;
-			s32 bcb = (IPU_BCB_COEFF * ((s32)mb8.Cb[y>>1][x>>1] - 128)) >> 6;
-
-			rgb32.c[y][x].r = std::max(0, std::min(255, (lum + rcr + 1) >> 1));
-			rgb32.c[y][x].g = std::max(0, std::min(255, (lum + gcr + gcb + 1) >> 1));
-			rgb32.c[y][x].b = std::max(0, std::min(255, (lum + bcb + 1) >> 1));
-			rgb32.c[y][x].a = 0x80; // the norm to save doing this on the alpha pass
-		}
-}
-
-// Suikoden Tactics FMV speed results: Reference - ~72fps, SSE2 - ~120fps
-// An AVX2 version is only slightly faster than an SSE2 version (+2-3fps)
-// (or I'm a poor optimiser), though it might be worth attempting again
-// once we've ported to 64 bits (the extra registers should help).
-__ri void yuv2rgb_sse2()
-{
-	const __m128i c_bias = _mm_set1_epi8(s8(IPU_C_BIAS));
-	const __m128i y_bias = _mm_set1_epi8(IPU_Y_BIAS);
-	const __m128i y_mask = _mm_set1_epi16(s16(0xFF00));
+#if _M_SSE >= 0x200
+	// Suikoden Tactics FMV speed results: Reference - ~72fps, SSE2 - ~120fps
+	// An AVX2 version is only slightly faster than an SSE2 version (+2-3fps)
+	// (or I'm a poor optimiser), though it might be worth attempting again
+	// once we've ported to 64 bits (the extra registers should help).
+	const __m128i c_bias          = _mm_set1_epi8(s8(IPU_C_BIAS));
+	const __m128i y_bias          = _mm_set1_epi8(IPU_Y_BIAS);
+	const __m128i y_mask          = _mm_set1_epi16(s16(0xFF00));
 	// Specifying round off instead of round down as everywhere else
 	// implies that this is right
-	const __m128i round_1bit = _mm_set1_epi16(0x0001);;
+	const __m128i round_1bit      = _mm_set1_epi16(0x0001);;
 
-	const __m128i y_coefficient = _mm_set1_epi16(s16(IPU_Y_COEFF << 2));
+	const __m128i y_coefficient   = _mm_set1_epi16(s16(IPU_Y_COEFF << 2));
 	const __m128i gcr_coefficient = _mm_set1_epi16(s16(u16(IPU_GCR_COEFF) << 2));
 	const __m128i gcb_coefficient = _mm_set1_epi16(s16(u16(IPU_GCB_COEFF) << 2));
 	const __m128i rcr_coefficient = _mm_set1_epi16(s16(IPU_RCR_COEFF << 2));
@@ -148,4 +139,24 @@ __ri void yuv2rgb_sse2()
 			_mm_store_si128(reinterpret_cast<__m128i*>(&decoder.rgb32.c[n * 2 + m][12]), rgba_hh);
 		}
 	}
+#else
+	// conforming implementation for reference, do not optimise
+	const macroblock_8& mb8 = decoder.mb8;
+	macroblock_rgb32& rgb32 = decoder.rgb32;
+
+	for (int y = 0; y < 16; y++)
+		for (int x = 0; x < 16; x++)
+		{
+			s32 lum = (IPU_Y_COEFF * (std::max(0, (s32)mb8.Y[y][x] - IPU_Y_BIAS))) >> 6;
+			s32 rcr = (IPU_RCR_COEFF * ((s32)mb8.Cr[y>>1][x>>1] - 128)) >> 6;
+			s32 gcr = (IPU_GCR_COEFF * ((s32)mb8.Cr[y>>1][x>>1] - 128)) >> 6;
+			s32 gcb = (IPU_GCB_COEFF * ((s32)mb8.Cb[y>>1][x>>1] - 128)) >> 6;
+			s32 bcb = (IPU_BCB_COEFF * ((s32)mb8.Cb[y>>1][x>>1] - 128)) >> 6;
+
+			rgb32.c[y][x].r = std::max(0, std::min(255, (lum + rcr + 1) >> 1));
+			rgb32.c[y][x].g = std::max(0, std::min(255, (lum + gcr + gcb + 1) >> 1));
+			rgb32.c[y][x].b = std::max(0, std::min(255, (lum + bcb + 1) >> 1));
+			rgb32.c[y][x].a = 0x80; // the norm to save doing this on the alpha pass
+		}
+#endif
 }

@@ -79,16 +79,11 @@ static __fi int IPU1chain() {
 
 	if (ipu1ch.qwc > 0 && IPU1Status.InProgress)
 	{
-		int qwc = ipu1ch.qwc;
-		u32 *pMem;
+		int qwc   = ipu1ch.qwc;
+		u32 *pMem = (u32*)dmaGetAddr(ipu1ch.madr, false);
 
-		pMem = (u32*)dmaGetAddr(ipu1ch.madr, false);
-
-		if (pMem == NULL)
-		{
-			log_cb(RETRO_LOG_ERROR, "ipu1dma NULL!\n");
+		if (!pMem)
 			return totalqwc;
-		}
 
 		//Write our data to the fifo
 		qwc = ipu_fifo.in.write(pMem, qwc);
@@ -253,15 +248,9 @@ void IPU0dma()
 				break;
 		}
 	}
-	//Fixme ( voodoocycles ):
-	//This was IPU_INT_FROM(readsize*BIAS );
-	//This broke vids in Digital Devil Saga
-	//Note that interrupting based on totalsize is just guessing..
 	
 	IPU_INT_FROM( readsize * BIAS );
 	if (ipuRegs.ctrl.IFC > 0) { IPUProcessInterrupt(); }
-
-	//return readsize;
 }
 
 __fi void dmaIPU0() // fromIPU

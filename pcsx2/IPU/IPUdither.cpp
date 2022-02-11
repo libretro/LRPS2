@@ -21,6 +21,7 @@
 #include "yuv2rgb.h"
 #include "mpeg2lib/Mpeg.h"
 
+#if !defined(_M_SSE)
 #if defined(__GNUC__)
 #if defined(__SSE2__)
 #define _M_SSE 0x200
@@ -29,6 +30,7 @@
 
 #if !defined(_M_SSE) && (!defined(_WIN32) || defined(_M_AMD64) || defined(_M_IX86_FP) && _M_IX86_FP >= 2)
 #define _M_SSE 0x200
+#endif
 #endif
 
 __ri void ipu_dither(const macroblock_rgb32 &rgb32, macroblock_rgb16 &rgb16, int dte)
