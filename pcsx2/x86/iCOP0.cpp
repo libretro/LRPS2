@@ -230,7 +230,6 @@ void recMTC0()
 					iFlushCall(FLUSH_INTERPRETER);
 					xFastCall((void*)COP0_UpdatePCCR);
 					xMOV(ptr32[&cpuRegs.PERF.n.pccr], g_cpuConstRegs[_Rt_].UL[0]);
-					xFastCall((void*)COP0_DiagnosticPCCR);
 				}
 				else if (0 == (_Imm_ & 2)) // MTPC 0, only LSB of register matters
 				{
@@ -279,7 +278,6 @@ void recMTC0()
 					iFlushCall(FLUSH_INTERPRETER);
 					xFastCall((void*)COP0_UpdatePCCR);
 					_eeMoveGPRtoM((uptr)&cpuRegs.PERF.n.pccr, _Rt_);
-					xFastCall((void*)COP0_DiagnosticPCCR);
 				}
 				else if (0 == (_Imm_ & 2)) // MTPC 0, only LSB of register matters
 				{
