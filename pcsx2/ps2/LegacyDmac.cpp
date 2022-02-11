@@ -26,7 +26,7 @@ bool DMACh::transfer(const char *s, tDMA_TAG* ptag)
 {
 	if (ptag == NULL)  					 // Is ptag empty?
 	{
-		throwBusError(s);
+		dmacRegs.stat.BEIS = true;
 		return false;
 	}
     chcrTransfer(ptag);
@@ -44,10 +44,10 @@ void DMACh::unsafeTransfer(tDMA_TAG* ptag)
 tDMA_TAG *DMACh::getAddr(u32 addr, u32 num, bool write)
 {
 	tDMA_TAG *ptr = dmaGetAddr(addr, write);
-	if (ptr == NULL)
+	if (!ptr)
 	{
-		throwBusError("dmaGetAddr");
-		setDmacStat(num);
+		dmacRegs.stat.BEIS = true;
+		dmacRegs.stat.set_flags(1 << num);
 		chcr.STR = false;
 	}
 
@@ -58,27 +58,18 @@ tDMA_TAG *DMACh::DMAtransfer(u32 addr, u32 num)
 {
 	tDMA_TAG *tag = getAddr(addr, num, false);
 
-	if (tag == NULL) return NULL;
-
-    chcrTransfer(tag);
-    qwcTransfer(tag);
-    return tag;
+	if (tag)
+	{
+		chcrTransfer(tag);
+		qwcTransfer(tag);
+		return tag;
+	}
+	return NULL;
 }
 
 tDMA_TAG DMACh::dma_tag()
 {
 	return chcr.tag();
-}
-
-__fi void throwBusError(const char *s)
-{
-    log_cb(RETRO_LOG_ERROR, "%s BUSERR\n", s);
-    dmacRegs.stat.BEIS = true;
-}
-
-__fi void setDmacStat(u32 num)
-{
-	dmacRegs.stat.set_flags(1 << num);
 }
 
 // Note: Dma addresses are guaranteed to be aligned to 16 bytes (128 bits)
@@ -88,21 +79,15 @@ __fi tDMA_TAG* SPRdmaGetAddr(u32 addr, bool write)
 
 	//For some reason Getaway references SPR Memory from itself using SPR0, oh well, let it i guess...
 	if((addr & 0x70000000) == 0x70000000)
-	{
 		return (tDMA_TAG*)&eeMem->Scratch[addr & 0x3ff0];
-	}
 
 	// FIXME: Why??? DMA uses physical addresses
 	addr &= 0x1ffffff0;
 
 	if (addr < Ps2MemSize::MainRam)
-	{
 		return (tDMA_TAG*)&eeMem->Main[addr];
-	}
 	else if (addr < 0x10000000)
-	{
 		return (tDMA_TAG*)(write ? eeMem->ZeroWrite : eeMem->ZeroRead);
-	}
 	else if ((addr >= 0x11000000) && (addr < 0x11010000))
 	{
 		if (addr >= 0x11008000 && THREAD_VU1)
@@ -139,16 +124,9 @@ __fi tDMA_TAG* SPRdmaGetAddr(u32 addr, bool write)
 			//log_cb(RETRO_LOG_DEBUG, "VU1 Micro %x\n", addr);
 			return (tDMA_TAG*)(VU1.Micro + (addr & 0x3ff0));
 		}
-		
-		
-		// Unreachable
-		return NULL;
 	}
-	else
-	{
-		log_cb(RETRO_LOG_ERROR, "*PCSX2*: DMA error: %8.8x\n", addr);
-		return NULL;
-	}
+	// Unreachable
+	return NULL;
 }
 
 // Note: Dma addresses are guaranteed to be aligned to 16 bytes (128 bits)
@@ -184,7 +162,7 @@ __ri tDMA_TAG *dmaGetAddr(u32 addr, bool write)
 static bool QuickDmaExec( void (*func)(), u32 mem)
 {
 	bool ret = false;
-    DMACh& reg = (DMACh&)psHu32(mem);
+	DMACh& reg = (DMACh&)psHu32(mem);
 
 	if (reg.chcr.STR && dmacRegs.ctrl.DMAE && !psHu8(DMAC_ENABLER+2))
 	{

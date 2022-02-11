@@ -537,8 +537,6 @@ static DMACh& sif0ch	= (DMACh&)eeHw[0xc000];
 static DMACh& sif1ch	= (DMACh&)eeHw[0xc400];
 static DMACh& sif2dma	= (DMACh&)eeHw[0xc800];
 
-extern void throwBusError(const char *s);
-extern void setDmacStat(u32 num);
 extern tDMA_TAG *SPRdmaGetAddr(u32 addr, bool write);
 extern tDMA_TAG *dmaGetAddr(u32 addr, bool write);
 
