@@ -21,51 +21,19 @@
 #include "yuv2rgb.h"
 #include "mpeg2lib/Mpeg.h"
 
-void ipu_dither_reference(const macroblock_rgb32 &rgb32, macroblock_rgb16 &rgb16, int dte);
-void ipu_dither_sse2(const macroblock_rgb32 &rgb32, macroblock_rgb16 &rgb16, int dte);
+#if defined(__GNUC__)
+#if defined(__SSE2__)
+#define _M_SSE 0x200
+#endif
+#endif
+
+#if !defined(_M_SSE) && (!defined(_WIN32) || defined(_M_AMD64) || defined(_M_IX86_FP) && _M_IX86_FP >= 2)
+#define _M_SSE 0x200
+#endif
 
 __ri void ipu_dither(const macroblock_rgb32 &rgb32, macroblock_rgb16 &rgb16, int dte)
 {
-    ipu_dither_sse2(rgb32, rgb16, dte);
-}
-
-__ri void ipu_dither_reference(const macroblock_rgb32 &rgb32, macroblock_rgb16 &rgb16, int dte)
-{
-    if (dte) {
-        // I'm guessing values are rounded down when clamping.
-        const int dither_coefficient[4][4] = {
-            {-4, 0, -3, 1},
-            {2, -2, 3, -1},
-            {-3, 1, -4, 0},
-            {3, -1, 2, -2},
-        };
-        for (int i = 0; i < 16; ++i) {
-            for (int j = 0; j < 16; ++j) {
-                const int dither = dither_coefficient[i & 3][j & 3];
-                const int r = std::max(0, std::min(rgb32.c[i][j].r + dither, 255));
-                const int g = std::max(0, std::min(rgb32.c[i][j].g + dither, 255));
-                const int b = std::max(0, std::min(rgb32.c[i][j].b + dither, 255));
-
-                rgb16.c[i][j].r = r >> 3;
-                rgb16.c[i][j].g = g >> 3;
-                rgb16.c[i][j].b = b >> 3;
-                rgb16.c[i][j].a = rgb32.c[i][j].a == 0x40;
-            }
-        }
-    } else {
-        for (int i = 0; i < 16; ++i) {
-            for (int j = 0; j < 16; ++j) {
-                rgb16.c[i][j].r = rgb32.c[i][j].r >> 3;
-                rgb16.c[i][j].g = rgb32.c[i][j].g >> 3;
-                rgb16.c[i][j].b = rgb32.c[i][j].b >> 3;
-                rgb16.c[i][j].a = rgb32.c[i][j].a == 0x40;
-            }
-        }
-    }
-}
-
-__ri void ipu_dither_sse2(const macroblock_rgb32 &rgb32, macroblock_rgb16 &rgb16, int dte)
-{
+#if _M_SSE >= 0x200
     const __m128i alpha_test = _mm_set1_epi16(0x40);
     const __m128i dither_add_matrix[] = {
         _mm_setr_epi32(0x00000000, 0x00000000, 0x00000000, 0x00010101),
@@ -119,4 +87,37 @@ __ri void ipu_dither_sse2(const macroblock_rgb32 &rgb32, macroblock_rgb16 &rgb16
             _mm_store_si128(reinterpret_cast<__m128i *>(&rgb16.c[i][n * 8]), rgba16);
         }
     }
+#else
+    if (dte) {
+        // I'm guessing values are rounded down when clamping.
+        const int dither_coefficient[4][4] = {
+            {-4, 0, -3, 1},
+            {2, -2, 3, -1},
+            {-3, 1, -4, 0},
+            {3, -1, 2, -2},
+        };
+        for (int i = 0; i < 16; ++i) {
+            for (int j = 0; j < 16; ++j) {
+                const int dither = dither_coefficient[i & 3][j & 3];
+                const int r = std::max(0, std::min(rgb32.c[i][j].r + dither, 255));
+                const int g = std::max(0, std::min(rgb32.c[i][j].g + dither, 255));
+                const int b = std::max(0, std::min(rgb32.c[i][j].b + dither, 255));
+
+                rgb16.c[i][j].r = r >> 3;
+                rgb16.c[i][j].g = g >> 3;
+                rgb16.c[i][j].b = b >> 3;
+                rgb16.c[i][j].a = rgb32.c[i][j].a == 0x40;
+            }
+        }
+    } else {
+        for (int i = 0; i < 16; ++i) {
+            for (int j = 0; j < 16; ++j) {
+                rgb16.c[i][j].r = rgb32.c[i][j].r >> 3;
+                rgb16.c[i][j].g = rgb32.c[i][j].g >> 3;
+                rgb16.c[i][j].b = rgb32.c[i][j].b >> 3;
+                rgb16.c[i][j].a = rgb32.c[i][j].a == 0x40;
+            }
+        }
+    }
+#endif
 }

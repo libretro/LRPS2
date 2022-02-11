@@ -36,12 +36,6 @@ __aligned16 decoder_t decoder;
 
 void IPUWorker();
 
-// Color conversion stuff, the memory layout is a total hack
-// convert_data_buffer is a pointer to the internal rgb struct (the first param in convert_init_t)
-//char convert_data_buffer[sizeof(convert_rgb_t)];
-//char convert_data_buffer[0x1C];							// unused?
-//u8 PCT[] = {'r', 'I', 'P', 'B', 'D', '-', '-', '-'};		// unused?
-
 // Quantization matrix
 static rgb16_t vqclut[16];			//clut conversion table
 static u8 s_thresh[2];				//thresholds for color conversions
@@ -49,7 +43,6 @@ int coded_block_pattern = 0;
 
 alignas(16) static u8 indx4[16*16/2];
 
-uint eecount_on_last_vdec = 0;
 bool FMVstarted = false;
 bool EnableFMV = false;
 
@@ -360,7 +353,6 @@ static __fi bool ipuVDEC(u32 val)
 			}
 			count = 0;
 		}
-		eecount_on_last_vdec = cpuRegs.cycle;
 	}
 	switch (ipu_cmd.pos[0])
 	{
