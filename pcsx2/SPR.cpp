@@ -59,16 +59,16 @@ static void TestClearVUs(u32 madr, u32 qwc, bool isWrite)
 				CpuVU1->Clear(madr&0x3fff, qwc * 16);
 			}
 		}
+#ifndef NDEBUG
 		else if (madr >= 0x11004000 && madr < 0x11008000)
 		{
-#ifndef NDEBUG
 			// SPR trying to write to to VU0 Mem mirror address.
 			if(((madr & 0xff0) + (qwc * 16)) > 0x1000)
 			{
 				log_cb(RETRO_LOG_DEBUG, "Warning! SPR%d Crossing in to VU0 Mem Mirror address! Start MADR = %x, End MADR = %x\n", isWrite ? 0 : 1, madr, madr + (qwc * 16));
 			}
-#endif
 		}
+#endif
 	}
 }
 
@@ -108,7 +108,7 @@ int  _SPR0chain()
 	int partialqwc = 0;
 	if (spr0ch.qwc == 0) return 0;
 	pMem = SPRdmaGetAddr(spr0ch.madr, true);
-	if (pMem == NULL) return -1;
+	if (!pMem) return -1;
 
 	if(spr0ch.madr >= dmacRegs.rbor.ADDR && spr0ch.madr < (dmacRegs.rbor.ADDR + dmacRegs.rbsr.RMSK + 16u))
 	{
@@ -391,7 +391,7 @@ int  _SPR1chain()
 	if (spr1ch.qwc == 0) return 0;
 
 	pMem = SPRdmaGetAddr(spr1ch.madr, false);
-	if (pMem == NULL) return -1;
+	if (!pMem) return -1;
 	int partialqwc = 0;
 	// Taking an arbitary small value for games which like to check the QWC/MADR instead of STR, so get most of
 	// the cycle delay out of the way before the end.

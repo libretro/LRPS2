@@ -143,8 +143,7 @@ bool _VIF1chain()
 
 	if (vif1.irqoffset.enabled)
 		return VIF1transfer(pMem + vif1.irqoffset.value, vif1ch.qwc * 4 - vif1.irqoffset.value, false);
-	else
-		return VIF1transfer(pMem, vif1ch.qwc * 4, false);
+	return VIF1transfer(pMem, vif1ch.qwc * 4, false);
 }
 
 __fi void vif1SetupTransfer()
