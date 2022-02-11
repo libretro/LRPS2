@@ -159,40 +159,6 @@ bool Gif_HandlerAD_MTVU(u8* pMem)
 	return 0;
 }
 
-// Returns true if pcsx2 needed to process the packet...
-bool Gif_HandlerAD_Debug(u8* pMem)
-{
-	u32 reg = pMem[8];
-	if (reg == 0x60)
-	{
-#ifndef NDEBUG
-		log_cb(RETRO_LOG_ERROR, "GIF Handler Debug - SIGNAL\n");
-#endif
-		return 1;
-	} 	
-	else if (reg == 0x61)
-	{
-#ifndef NDEBUG
-		log_cb(RETRO_LOG_ERROR, "GIF Handler Debug - FINISH\n");
-#endif
-		return 1;
-	} 	
-	else if (reg == 0x62)
-	{
-#ifndef NDEBUG
-		log_cb(RETRO_LOG_ERROR, "GIF Handler Debug - LABEL\n");
-#endif
-		return 1;
-	} 	
-#ifndef NDEBUG
-	else if (reg >= 0x63 && reg != 0x7f)
-	{
-		log_cb(RETRO_LOG_DEBUG, "GIF Handler Debug - Write to unknown register! [reg=%x]\n", reg);
-	}
-#endif
-	return 0;
-}
-
 void Gif_FinishIRQ()
 {
 	if (CSRreg.FINISH && !GSIMR.FINISHMSK && !gifUnit.gsFINISH.gsFINISHFired)

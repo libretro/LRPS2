@@ -28,7 +28,6 @@ extern void Gif_MTGS_Wait(bool isMTVU);
 extern void Gif_FinishIRQ();
 extern bool Gif_HandlerAD(u8* pMem);
 extern bool Gif_HandlerAD_MTVU(u8* pMem);
-extern bool Gif_HandlerAD_Debug(u8* pMem);
 extern void Gif_AddBlankGSPacket(u32 size, GIF_PATH path);
 extern void Gif_AddGSPacketMTVU(GS_Packet& gsPack, GIF_PATH path);
 extern void Gif_AddCompletedGSPacket(GS_Packet& gsPack, GIF_PATH path);
@@ -590,10 +589,12 @@ struct Gif_Unit
 			GUNIT_WARN("Gif Unit - Size == 0");
 			return 0;
 		}
+#if 0
 		if (!CanDoGif())
 		{
 			GUNIT_WARN("Gif Unit - Signal or PSE Set or Dir = GS to EE");
 		}
+#endif
 		//pxAssertDev((stat.APATH==0) || checkPaths(1,1,1), "Gif Unit - APATH wasn't cleared?");
 		lastTranType = tranType;
 
@@ -780,8 +781,7 @@ struct Gif_Unit
 		//Path3 can rewind the DMA, so we send back the amount we go back!
 		if (isPath3)
 			return gifPath[2].dmaRewind;
-		else
-			return 0;
+		return 0;
 	}
 
 	// XGkick
@@ -809,32 +809,6 @@ struct Gif_Unit
 	bool CanDoGif() const { return stat.PSE == 0 && stat.DIR == 0 && gsSIGNAL.queued == 0; }
 	//Mask stops the next packet which hasnt started from transferring
 	bool Path3Masked() const { return ((stat.M3R || stat.M3P) && (gifPath[GIF_PATH_3].state == GIF_PATH_IDLE || gifPath[GIF_PATH_3].state == GIF_PATH_WAIT)); }
-
-	void PrintInfo(bool printP1 = 1, bool printP2 = 1, bool printP3 = 1)
-	{
-		u32 a = checkPaths(1, 1, 1), b = checkQueued(1, 1, 1);
-		(void)a; // Don't warn about unused variable
-		(void)b;
-		GUNIT_LOG("Gif Unit - LastTransfer = %s, Paths = [%d,%d,%d], Queued = [%d,%d,%d]",
-			Gif_TransferStr[(lastTranType >> 8) & 0xf],
-			!!(a & 1), !!(a & 2), !!(a & 4), !!(b & 1), !!(b & 2), !!(b & 4));
-		GUNIT_LOG("Gif Unit - [APATH = %d][Signal = %d][PSE = %d][DIR = %d]",
-			stat.APATH, gsSIGNAL.queued, stat.PSE, stat.DIR);
-		GUNIT_LOG("Gif Unit - [CanDoGif = %d][CanDoPath3 = %d][CanDoP3Slice = %d]",
-			CanDoGif(), CanDoPath3(), CanDoP3Slice());
-		if (printP1)
-			PrintPathInfo(GIF_PATH_1);
-		if (printP2)
-			PrintPathInfo(GIF_PATH_2);
-		if (printP3)
-			PrintPathInfo(GIF_PATH_3);
-	}
-
-	void PrintPathInfo(GIF_PATH path)
-	{
-		GUNIT_LOG("Gif Path %d - [hasData = %d][state = %d]", path,
-			gifPath[path].hasDataRemaining(), gifPath[path].state);
-	}
 };
 
 extern Gif_Unit gifUnit;
