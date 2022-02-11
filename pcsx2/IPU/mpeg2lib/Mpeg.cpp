@@ -75,9 +75,7 @@ int get_macroblock_modes()
 
 			if ((!(decoder.frame_pred_frame_dct)) &&
 				(decoder.picture_structure == FRAME_PICTURE))
-			{
 				macroblock_modes |= GETBITS(1) * DCT_TYPE_INTERLACED;
-			}
 			return macroblock_modes;
 
 		case P_TYPE:
@@ -92,33 +90,23 @@ int get_macroblock_modes()
 			if (decoder.picture_structure != FRAME_PICTURE)
 			{
 				if (macroblock_modes & MACROBLOCK_MOTION_FORWARD)
-				{
 					macroblock_modes |= GETBITS(2) * MOTION_TYPE_BASE;
-				}
-
-				return macroblock_modes;
 			}
 			else if (decoder.frame_pred_frame_dct)
 			{
 				if (macroblock_modes & MACROBLOCK_MOTION_FORWARD)
 					macroblock_modes |= MC_FRAME;
-
-				return macroblock_modes;
 			}
 			else
 			{
 				if (macroblock_modes & MACROBLOCK_MOTION_FORWARD)
-				{
 					macroblock_modes |= GETBITS(2) * MOTION_TYPE_BASE;
-				}
 
 				if (macroblock_modes & (MACROBLOCK_INTRA | MACROBLOCK_PATTERN))
-				{
 					macroblock_modes |= GETBITS(1) * DCT_TYPE_INTERLACED;
-				}
 
-				return macroblock_modes;
 			}
+			return macroblock_modes;
 
 		case B_TYPE:
 			macroblock_modes = UBITS(6);
@@ -132,17 +120,10 @@ int get_macroblock_modes()
 			if (decoder.picture_structure != FRAME_PICTURE)
 			{
 				if (!(macroblock_modes & MACROBLOCK_INTRA))
-				{
 					macroblock_modes |= GETBITS(2) * MOTION_TYPE_BASE;
-				}
-				return (macroblock_modes | (tab->len << 16));
 			}
 			else if (decoder.frame_pred_frame_dct)
-			{
-				/* if (! (macroblock_modes & MACROBLOCK_INTRA)) */
 				macroblock_modes |= MC_FRAME;
-				return (macroblock_modes | (tab->len << 16));
-			}
 			else
 			{
 				if (macroblock_modes & MACROBLOCK_INTRA) goto intra;
@@ -150,12 +131,10 @@ int get_macroblock_modes()
 				macroblock_modes |= GETBITS(2) * MOTION_TYPE_BASE;
 
 				if (macroblock_modes & (MACROBLOCK_INTRA | MACROBLOCK_PATTERN))
-				{
 intra:
 					macroblock_modes |= GETBITS(1) * DCT_TYPE_INTERLACED;
-				}
-				return (macroblock_modes | (tab->len << 16));
 			}
+			return (macroblock_modes | (tab->len << 16));
 
 		case D_TYPE:
 			macroblock_modes = GETBITS(1);
@@ -168,20 +147,19 @@ intra:
 			return (MACROBLOCK_INTRA | (1 << 16));
 
 		default:
-			return 0;
+			break;
 	}
+
+	return 0;
 }
 
 static __fi int get_quantizer_scale()
 {
-	int quantizer_scale_code;
-
-	quantizer_scale_code = GETBITS(5);
+	int quantizer_scale_code = GETBITS(5);
 
 	if (decoder.q_scale_type)
 		return non_linear_quantizer_scale [quantizer_scale_code];
-	else
-		return quantizer_scale_code << 1;
+	return quantizer_scale_code << 1;
 }
 
 static __fi int get_coded_block_pattern()
@@ -211,13 +189,9 @@ int __fi get_motion_delta(const int f_code)
 		return 0x00010000;
 	}
 	else if ((code & 0xf000) || ((code & 0xfc00) == 0x0c00))
-	{
 		tab = MV_4 + UBITS(4);
-	}
 	else
-	{
 		tab = MV_10 + UBITS(10);
-	}
 
 	delta = tab->delta + 1;
 	DUMPBITS(tab->len);
@@ -329,9 +303,7 @@ static __fi int get_chroma_dc_dct_diff()
 		dc_diff = GETBITS(size);
 
 		if ((dc_diff & (1<<(size-1)))==0)
-		{
 			dc_diff-= (1<<size) - 1;
-		}
 	}
 
 	return dc_diff;
@@ -935,7 +907,9 @@ finish_idec:
 			return false;
 		}
 
+#ifndef MSB_FIRST
 		ipuRegs.top = BigEndian(ipuRegs.top);
+#endif
 		break;
 
 	jNO_DEFAULT;
@@ -1204,7 +1178,9 @@ __fi bool mpeg2_slice()
 			return false;
 		}
 
+#ifndef MSB_FIRST
 		ipuRegs.top = BigEndian(ipuRegs.top);
+#endif
 		break;
 	}
 

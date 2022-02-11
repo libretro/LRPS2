@@ -51,14 +51,9 @@ static __aligned16 u8 clip_lut[1024];
 
 static __fi void BUTTERFLY(int& t0, int& t1, int w0, int w1, int d0, int d1)
 {
-#if 0
-    t0 = w0*d0 + w1*d1;
-    t1 = w0*d1 - w1*d0;
-#else
     int tmp = w0 * (d0 + d1);
-    t0 = tmp + (w1 - w0) * d1;
-    t1 = tmp - (w1 + w0) * d0;
-#endif
+    t0      = tmp + (w1 - w0) * d1;
+    t1      = tmp - (w1 + w0) * d0;
 }
 
 static __fi void idct_row (s16 * const block)

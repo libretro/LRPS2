@@ -215,12 +215,6 @@ extern int slice (u8 * buffer);
 #define BigEndian(in) __builtin_bswap32(in) // or we could use the asm function bswap...
 #endif
 
-#ifdef _MSC_VER
-#define BigEndian64(in) _byteswap_uint64(in)
-#else
-#define BigEndian64(in) __builtin_bswap64(in) // or we could use the asm function bswap...
-#endif
-
 extern __aligned16 const mpeg2_scan_pack mpeg2_scan;
 extern const int non_linear_quantizer_scale[];
 
