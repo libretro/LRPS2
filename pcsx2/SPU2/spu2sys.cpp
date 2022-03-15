@@ -456,7 +456,7 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 				break;
 			}
 			case 0x4:
-				Voices[voice].Pitch = value & 0x3fff;
+				Voices[voice].Pitch = value;
 				//ConLog("voice %x Pitch write: %x\n", voice, Voices[voice].Pitch);
 				break;
 			case 0x6:
@@ -927,7 +927,7 @@ static void __fastcall RegWrite_VoiceParams(u16 value)
 		break;
 
 		case 2:
-			thisvoice.Pitch = value & 0x3fff;
+			thisvoice.Pitch = value;
 			break;
 
 		case 3: // ADSR1 (Envelope)
