@@ -882,7 +882,9 @@ __fi bool mpeg2sliceIDEC()
 
 			ipu_cmd.pos[1] = 0;
 			ipu_cmd.pos[2] = 0;
-			return false;
+
+			if ((ipu0ch.qwc - ipuRegs.ctrl.OFC) <= 0)
+				return false;
 		}
 		// Fall through
 
