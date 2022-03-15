@@ -38,6 +38,13 @@ void IPU_Fifo_Input::clear()
 	ipuRegs.ctrl.IFC = 0;
 	readpos = 0;
 	writepos = 0;
+
+	// Because the FIFO is drained it will request more data immediately
+	IPU1Status.DataRequested = true;
+	if (ipu1ch.chcr.STR && cpuRegs.eCycle[4] == 0x9999)
+	{
+		CPU_INT(DMAC_TO_IPU, 32);
+	}
 }
 
 void IPU_Fifo_Output::clear()
@@ -75,10 +82,12 @@ int IPU_Fifo_Input::write(u32* pMem, int size)
 int IPU_Fifo_Input::read(void *value)
 {
 	// wait until enough data to ensure proper streaming.
-	if (g_BP.IFC < 3)
+	if (g_BP.IFC <= 1)
 	{
 		// IPU FIFO is empty and DMA is waiting so lets tell the DMA we are ready to put data in the FIFO
-		if(cpuRegs.eCycle[4] == 0x9999)
+		IPU1Status.DataRequested = true;
+
+		if(ipu1ch.chcr.STR && cpuRegs.eCycle[4] == 0x9999)
 		{
 			CPU_INT( DMAC_TO_IPU, 32 );
 		}
