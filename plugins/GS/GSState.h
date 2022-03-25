@@ -37,12 +37,12 @@
 
 struct GSFrameInfo
 {
-	u32 FBP;
-	u32 FPSM;
-	u32 FBMSK;
-	u32 TBP0;
-	u32 TPSM;
-	u32 TZTST;
+	uint32_t FBP;
+	uint32_t FPSM;
+	uint32_t FBMSK;
+	uint32_t TBP0;
+	uint32_t TPSM;
+	uint32_t TZTST;
 	bool TME;
 };
 
@@ -62,8 +62,8 @@ class GSState : public GSAlignedClass<32>
 	void GIFPackedRegHandlerSTQ(const GIFPackedReg* RESTRICT r);
 	void GIFPackedRegHandlerUV(const GIFPackedReg* RESTRICT r);
 	void GIFPackedRegHandlerUV_Hack(const GIFPackedReg* RESTRICT r);
-	template<u32 prim, u32 adc, bool auto_flush> void GIFPackedRegHandlerXYZF2(const GIFPackedReg* RESTRICT r);
-	template<u32 prim, u32 adc, bool auto_flush> void GIFPackedRegHandlerXYZ2(const GIFPackedReg* RESTRICT r);
+	template<uint32_t prim, uint32_t adc, bool auto_flush> void GIFPackedRegHandlerXYZF2(const GIFPackedReg* RESTRICT r);
+	template<uint32_t prim, uint32_t adc, bool auto_flush> void GIFPackedRegHandlerXYZ2(const GIFPackedReg* RESTRICT r);
 	void GIFPackedRegHandlerFOG(const GIFPackedReg* RESTRICT r);
 	void GIFPackedRegHandlerA_D(const GIFPackedReg* RESTRICT r);
 	void GIFPackedRegHandlerNOP(const GIFPackedReg* RESTRICT r);
@@ -73,18 +73,18 @@ class GSState : public GSAlignedClass<32>
 	GIFRegHandler m_fpGIFRegHandlers[256];
 	GIFRegHandler m_fpGIFRegHandlerXYZ[8][4];
 
-	typedef void (GSState::*GIFPackedRegHandlerC)(const GIFPackedReg* RESTRICT r, u32 size);
+	typedef void (GSState::*GIFPackedRegHandlerC)(const GIFPackedReg* RESTRICT r, uint32_t size);
 
 	GIFPackedRegHandlerC m_fpGIFPackedRegHandlersC[2];
 	GIFPackedRegHandlerC m_fpGIFPackedRegHandlerSTQRGBAXYZF2[8];
 	GIFPackedRegHandlerC m_fpGIFPackedRegHandlerSTQRGBAXYZ2[8];
 
-	template<u32 prim, bool auto_flush> void GIFPackedRegHandlerSTQRGBAXYZF2(const GIFPackedReg* RESTRICT r, u32 size);
-	template<u32 prim, bool auto_flush> void GIFPackedRegHandlerSTQRGBAXYZ2(const GIFPackedReg* RESTRICT r, u32 size);
-	void GIFPackedRegHandlerNOP(const GIFPackedReg* RESTRICT r, u32 size);
+	template<uint32_t prim, bool auto_flush> void GIFPackedRegHandlerSTQRGBAXYZF2(const GIFPackedReg* RESTRICT r, uint32_t size);
+	template<uint32_t prim, bool auto_flush> void GIFPackedRegHandlerSTQRGBAXYZ2(const GIFPackedReg* RESTRICT r, uint32_t size);
+	void GIFPackedRegHandlerNOP(const GIFPackedReg* RESTRICT r, uint32_t size);
 
 	template<int i> void ApplyTEX0(GIFRegTEX0& TEX0);
-	void ApplyPRIM(u32 prim);
+	void ApplyPRIM(uint32_t prim);
 
 	void GIFRegHandlerNull(const GIFReg* RESTRICT r);
 	void GIFRegHandlerPRIM(const GIFReg* RESTRICT r);
@@ -92,8 +92,8 @@ class GSState : public GSAlignedClass<32>
 	void GIFRegHandlerST(const GIFReg* RESTRICT r);
 	void GIFRegHandlerUV(const GIFReg* RESTRICT r);
 	void GIFRegHandlerUV_Hack(const GIFReg* RESTRICT r);
-	template<u32 prim, u32 adc, bool auto_flush> void GIFRegHandlerXYZF2(const GIFReg* RESTRICT r);
-	template<u32 prim, u32 adc, bool auto_flush> void GIFRegHandlerXYZ2(const GIFReg* RESTRICT r);
+	template<uint32_t prim, uint32_t adc, bool auto_flush> void GIFRegHandlerXYZF2(const GIFReg* RESTRICT r);
+	template<uint32_t prim, uint32_t adc, bool auto_flush> void GIFRegHandlerXYZ2(const GIFReg* RESTRICT r);
 	template<int i> void GIFRegHandlerTEX0(const GIFReg* RESTRICT r);
 	template<int i> void GIFRegHandlerCLAMP(const GIFReg* RESTRICT r);
 	void GIFRegHandlerFOG(const GIFReg* RESTRICT r);
@@ -136,7 +136,7 @@ class GSState : public GSAlignedClass<32>
 		int x, y;
 		int start, end, total;
 		bool overflow;
-		u8* buff;
+		uint8_t* buff;
 		GIFRegBITBLTBUF m_blit;
 
 		GSTransferBuffer();
@@ -171,12 +171,12 @@ protected:
 		GSVertex* buff; 
 		size_t head, tail, next, maxcount; // head: first vertex, tail: last vertex + 1, next: last indexed + 1
 		size_t xy_tail;
-		u64 xy[4];
+		uint64_t xy[4];
 	} m_vertex; 
 
 	struct
 	{
-		u32* buff; 
+		uint32_t* buff; 
 		size_t tail;
 	} m_index;
 
@@ -187,8 +187,8 @@ protected:
 
 	void GrowVertexBuffer();
 
-	template<u32 prim, bool auto_flush>
-	void VertexKick(u32 skip);
+	template<uint32_t prim, bool auto_flush>
+	void VertexKick(uint32_t skip);
 
 	// following functions need m_vt to be initialized
 
@@ -196,11 +196,11 @@ protected:
 
 	void GetTextureMinMax(GSVector4i& r, const GIFRegTEX0& TEX0, const GIFRegCLAMP& CLAMP, bool linear);
 	void GetAlphaMinMax();
-	bool TryAlphaTest(u32& fm, u32& zm);
+	bool TryAlphaTest(uint32_t& fm, uint32_t& zm);
 	bool IsOpaque();
 	bool IsMipMapDraw();
 	bool IsMipMapActive();
-	GIFRegTEX0 GetTex0Layer(u32 lod);
+	GIFRegTEX0 GetTex0Layer(uint32_t lod);
 
 public:
 	GIFPath m_path[4];
@@ -209,21 +209,13 @@ public:
 	GSLocalMemory m_mem;
 	GSDrawingEnvironment m_env;
 	GSDrawingContext* m_context;
-	u32 m_crc;
+	uint32_t m_crc;
 	CRC::Game m_game;
 	int m_options;
 	int m_frameskip;
 	bool m_NTSC_Saturation;
 	bool m_nativeres;
 	int m_mipmap;
-
-	static int s_n;
-	bool s_save;
-	bool s_savet;
-	bool s_savez;
-	bool s_savef;
-	int s_savel;
-
 public:
 	GSState();
 	virtual ~GSState();
@@ -251,18 +243,18 @@ public:
 	virtual void InvalidateLocalMem(const GIFRegBITBLTBUF& BITBLTBUF, const GSVector4i& r, bool clut = false) {}
 
 	void Move();
-	void Write(const u8* mem, int len);
-	void Read(u8* mem, int len);
-	void InitReadFIFO(u8* mem, int len);
+	void Write(const uint8_t* mem, int len);
+	void Read(uint8_t* mem, int len);
+	void InitReadFIFO(uint8_t* mem, int len);
 
-	void SoftReset(u32 mask);
-	void WriteCSR(u32 csr) {m_regs->CSR.U32[1] = csr;}
-	void ReadFIFO(u8* mem, int size);
-	template<int index> void Transfer(const u8* mem, u32 size);
+	void SoftReset(uint32_t mask);
+	void WriteCSR(uint32_t csr) {m_regs->CSR.U32[1] = csr;}
+	void ReadFIFO(uint8_t* mem, int size);
+	template<int index> void Transfer(const uint8_t* mem, uint32_t size);
 	int Freeze(GSFreezeData* fd, bool sizeonly);
 	int Defrost(const GSFreezeData* fd);
-	virtual void SetGameCRC(u32 crc, int options);
+	virtual void SetGameCRC(uint32_t crc, int options);
 	void SetFrameSkip(int skip);
-	void SetRegsMem(u8* basemem);
+	void SetRegsMem(uint8_t* basemem);
 };
 

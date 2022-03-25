@@ -2410,8 +2410,6 @@ void GSDeviceOGL::InitPrimDateTexture(GSTexture* rt, const GSVector4i& area)
 void GSDeviceOGL::RecycleDateTexture()
 {
 	if (m_date.t) {
-		//static_cast<GSTextureOGL*>(m_date.t)->Save(format("/tmp/date_adv_%04ld.csv", GSState::s_n));
-
 		Recycle(m_date.t);
 		m_date.t = NULL;
 	}
@@ -3109,29 +3107,6 @@ void GSDeviceOGL::DebugOutputToFile(GLenum gl_source, GLenum gl_type, GLuint id,
 		case GL_DEBUG_SOURCE_OTHER_ARB           : source = "Others"; break;
 		default                                  : source = "???"; break;
 	}
-
-#ifdef _DEBUG
-	// Don't spam noisy information on the terminal
-	if (gl_severity != GL_DEBUG_SEVERITY_NOTIFICATION) {
-		log_cb(RETRO_LOG_DEBUG, "T:%s\tID:%d\tS:%s\t=> %s\n", type.c_str(), GSState::s_n, severity.c_str(), message.c_str());
-	}
-#else
-	// Print nouveau shader compiler info
-	if (GSState::s_n == 0) {
-		int t, local, gpr, inst, byte;
-		int status = sscanf(message.c_str(), "type: %d, local: %d, gpr: %d, inst: %d, bytes: %d",
-				&t, &local, &gpr, &inst, &byte);
-		if (status == 5) {
-			m_shader_inst += inst;
-			m_shader_reg  += gpr;
-			log_cb(RETRO_LOG_DEBUG, "T:%s\t\tS:%s\t=> %s\n", type.c_str(), severity.c_str(), message.c_str());
-		}
-	}
-#endif
-
-#ifdef ENABLE_OGL_DEBUG
-	log_cb(RETRO_LOG_DEBUG, "T:%s\tID:%d\tS:%s\t=> %s\n", type.c_str(), GSState::s_n, severity.c_str(), message.c_str());
-#endif
 }
 
 u16 GSDeviceOGL::ConvertBlendEnum(u16 generic)
