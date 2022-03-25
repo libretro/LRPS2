@@ -59,8 +59,6 @@ extern u32 s_nBlockCycles;		// cycles of current block recompiling
 
 
 // Used to clear recompiled code blocks during memory/dma write operations.
-u32 recClearMem(u32 pc);
-u32 REC_CLEARM( u32 mem );
 extern bool g_recompilingDelaySlot;
 
 // used when processing branches
@@ -122,8 +120,6 @@ void _flushEEreg(int reg);
 
 // allocates memory on the instruction size and returns the pointer
 u32* recGetImm64(u32 hi, u32 lo);
-
-void _vuRegsCOP22(VURegs * VU, _VURegsNum *VUregsn);
 
 //////////////////////////////////////
 // Templates for code recompilation //

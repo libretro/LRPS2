@@ -513,11 +513,8 @@ void recCOP2_BC2();
 void recCOP2_SPEC1();
 void recCOP2_SPEC2();
 void rec_C2UNK() {
-	log_cb(RETRO_LOG_ERROR, "Cop2 bad opcode: %x\n", cpuRegs.code);
+	//log_cb(RETRO_LOG_ERROR, "Cop2 bad opcode: %x\n", cpuRegs.code);
 }
-
-// This is called by EE Recs to setup sVU info, this isn't needed for mVU Macro (cottonvibes)
-void _vuRegsCOP22(VURegs* VU, _VURegsNum* VUregsn) {}
 
 // Recompilation
 void (*recCOP2t[32])() = {
