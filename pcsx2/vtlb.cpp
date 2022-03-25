@@ -237,20 +237,6 @@ template void vtlb_memWrite<mem32_t>(u32 mem, mem32_t data);
 //
 // Important recompiler note: Mid-block Exception handling isn't reliable *yet* because
 // memory ops don't flush the PC prior to invoking the indirect handlers.
-#ifndef NDEBUG
-static void GoemonTlbMissDebug()
-{
-	// 0x3d5580 is the address of the TLB cache
-	GoemonTlb* tlb = (GoemonTlb*)&eeMem->Main[0x3d5580];
-
-	for (u32 i = 0; i < 150; i++) {
-		if (tlb[i].valid == 0x1 && tlb[i].low_add != tlb[i].high_add)
-			log_cb(RETRO_LOG_DEBUG, "GoemonTlbMissDebug: Entry %d is valid. Key %x. From V:0x%8.8x to V:0x%8.8x (P:0x%8.8x)\n", i, tlb[i].key, tlb[i].low_add, tlb[i].high_add, tlb[i].physical_add);
-		else if (tlb[i].low_add != tlb[i].high_add)
-			log_cb(RETRO_LOG_DEBUG, "GoemonTlbMissDebug: Entry %d is invalid. Key %x. From V:0x%8.8x to V:0x%8.8x (P:0x%8.8x)\n", i, tlb[i].key, tlb[i].low_add, tlb[i].high_add, tlb[i].physical_add);
-	}
-}
-#endif
 
 void __fastcall GoemonPreloadTlb()
 {
@@ -306,11 +292,6 @@ void __fastcall GoemonUnloadTlb(u32 key)
 // Generates a tlbMiss Exception
 static __ri void vtlb_Miss(u32 addr,u32 mode)
 {
-#ifndef NDEBUG
-	if (EmuConfig.Gamefixes.GoemonTlbHack)
-		GoemonTlbMissDebug();
-#endif
-
 	// Hack to handle expected tlb miss by some games.
 	if (Cpu == &intCpu) {
 		if (mode)
