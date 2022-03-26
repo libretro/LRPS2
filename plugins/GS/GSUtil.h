@@ -41,5 +41,3 @@ public:
 
 	static CRCHackLevel GetRecommendedCRCHackLevel(GSRendererType type);
 };
-
-const char* psm_str(int psm);

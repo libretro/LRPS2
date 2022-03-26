@@ -140,12 +140,6 @@ GSTextureCache::Source* GSTextureCache::LookupDepthSource(const GIFRegTEX0& TEX0
 	}
 
 	if (dst) {
-#if 0
-		log_cb(RETRO_LOG_DEBUG, "TC depth: dst %s hit: %d (0x%x, %s)\n", to_string(dst->m_type),
-				dst->m_texture ? dst->m_texture->GetID() : 0,
-				TEX0.TBP0, psm_str(psm));
-#endif
-
 		// Create a shared texture source
 		src = new Source(m_renderer, TEX0, TEXA, m_temp, true);
 		src->m_texture = dst->m_texture;
@@ -167,7 +161,6 @@ GSTextureCache::Source* GSTextureCache::LookupDepthSource(const GIFRegTEX0& TEX0
 
 		m_src.m_surfaces.insert(src);
 	} else {
-		//log_cb(RETRO_LOG_ERROR, "TC depth: ERROR miss (0x%x, %s)\n", TEX0.TBP0, psm_str(psm));
 		// Possible ? In this case we could call LookupSource
 		// Or just put a basic texture
 		// src->m_texture = m_renderer->m_dev->CreateTexture(tw, th);
@@ -366,10 +359,6 @@ GSTextureCache::Source* GSTextureCache::LookupSource(const GIFRegTEX0& TEX0, con
 								entry.x_offset = x_offset;
 								entry.y_offset = y_offset;
 								m_texture_inside_rt_cache.emplace_back(entry);
-#if 0
-								log_cb(RETRO_LOG_DEBUG, "TC tex in rt: Cached HIT element (size %d), BW: %d, PSM %s, rt 0x%x <%d,%d> + off <%d,%d> -> 0x%x <%d,%d> (END: 0x%x)\n",
-									m_texture_inside_rt_cache.size(), bw, psm_str(psm), t->m_TEX0.TBP0, t->m_valid.z, t->m_valid.w, x_offset, y_offset, bp, tw, th, bp_end);
-#endif
 								break;
 							}
 						}
@@ -385,10 +374,6 @@ GSTextureCache::Source* GSTextureCache::LookupSource(const GIFRegTEX0& TEX0, con
 						//log_cb(RETRO_LOG_DEBUG, "TC tex in rt: Size of cache %d too big, clearing it.\n", m_texture_inside_rt_cache.size());
 						m_texture_inside_rt_cache.clear();
 					}
-#if 0
-					log_cb(RETRO_LOG_DEBUG, "TC tex in rt: Cached MISS element (size %d), BW: %d, PSM %s, rt 0x%x <%d,%d> -/-> 0x%x <%d,%d> (END: 0x%x)\n",
-						m_texture_inside_rt_cache.size(), bw, psm_str(psm), t->m_TEX0.TBP0, t->m_valid.z, t->m_valid.w, bp, tw, th, bp_end);
-#endif
 					m_texture_inside_rt_cache.emplace_back(entry);
 
 				}
@@ -502,8 +487,6 @@ GSTextureCache::Target* GSTextureCache::LookupTarget(const GIFRegTEX0& TEX0, int
 	}
 
 	if (dst) {
-		//log_cb(RETRO_LOG_DEBUG, "TC: Lookup Target(%s) %dx%d, hit: %d (0x%x, %s)\n", to_string(type), w, h, dst->m_texture->GetID(), bp, psm_str(TEX0.PSM));
-
 		dst->Update();
 
 		dst->m_dirty_alpha |= (psm_s.trbpp == 32 && (fbmask & 0xFF000000) != 0xFF000000) || (psm_s.trbpp == 16);
@@ -536,10 +519,8 @@ GSTextureCache::Target* GSTextureCache::LookupTarget(const GIFRegTEX0& TEX0, int
 			int shader;
 			bool fmt_16_bits = (psm_s.bpp == 16 && GSLocalMemory::m_psm[dst_match->m_TEX0.PSM].bpp == 16);
 			if (type == DepthStencil) {
-				//log_cb(RETRO_LOG_DEBUG, "TC: Lookup Target(Depth) %dx%d, hit Color (0x%x, %s was %s)\n", w, h, bp, psm_str(TEX0.PSM), psm_str(dst_match->m_TEX0.PSM));
 				shader = (fmt_16_bits) ? ShaderConvert_RGB5A1_TO_FLOAT16 : ShaderConvert_RGBA8_TO_FLOAT32 + psm_s.fmt;
 			} else {
-				//log_cb(RETRO_LOG_DEBUG, "TC: Lookup Target(Color) %dx%d, hit Depth (0x%x, %s was %s)\n", w, h, bp, psm_str(TEX0.PSM), psm_str(dst_match->m_TEX0.PSM));
 				shader = (fmt_16_bits) ? ShaderConvert_FLOAT16_TO_RGB5A1 : ShaderConvert_FLOAT32_TO_RGBA8;
 			}
 			m_renderer->m_dev->StretchRect(dst_match->m_texture, sRect, dst->m_texture, dRect, shader, false);
@@ -548,8 +529,6 @@ GSTextureCache::Target* GSTextureCache::LookupTarget(const GIFRegTEX0& TEX0, int
 
 	if(dst == NULL)
 	{
-		//log_cb(RETRO_LOG_DEBUG, "TC: Lookup Target(%s) %dx%d, miss (0x%x, %s)\n", to_string(type), w, h, bp, psm_str(TEX0.PSM));
-
 		dst = CreateTarget(TEX0, w, h, type);
 
 		// In theory new textures contain invalidated data. Still in theory a new target
@@ -603,7 +582,6 @@ GSTextureCache::Target* GSTextureCache::LookupTarget(const GIFRegTEX0& TEX0, int
 	for(auto t : m_dst[RenderTarget]) {
 		if(bp == t->m_TEX0.TBP0 && t->m_end_block >= bp) {
 			dst = t;
-			//log_cb(RETRO_LOG_DEBUG, "TC: Lookup Frame %dx%d, perfect hit: %d (0x%x -> 0x%x %s)\n", w, h, dst->m_texture->GetID(), bp, t->m_end_block, psm_str(TEX0.PSM));
 			break;
 		}
 	}
@@ -613,7 +591,6 @@ GSTextureCache::Target* GSTextureCache::LookupTarget(const GIFRegTEX0& TEX0, int
 		for(auto t : m_dst[RenderTarget]) {
 			if (t->m_TEX0.TBP0 < bp && bp <= t->m_end_block) {
 				dst = t;
-				//log_cb(RETRO_LOG_DEBUG, "TC: Lookup Frame %dx%d, inclusive hit: %d (0x%x, took 0x%x -> 0x%x %s)\n", w, h, t->m_texture->GetID(), bp, t->m_TEX0.TBP0, t->m_end_block, psm_str(TEX0.PSM));
 				break;
 			}
 		}
@@ -624,9 +601,6 @@ GSTextureCache::Target* GSTextureCache::LookupTarget(const GIFRegTEX0& TEX0, int
 		for(auto t : m_dst[RenderTarget]) {
 			if(bp == t->m_TEX0.TBP0) {
 				dst = t;
-
-				//log_cb(RETRO_LOG_DEBUG, "TC: Lookup Frame %dx%d, empty hit: %d (0x%x -> 0x%x %s)\n", w, h, dst->m_texture->GetID(), bp, t->m_end_block, psm_str(TEX0.PSM));
-
 				break;
 			}
 		}
@@ -659,8 +633,6 @@ GSTextureCache::Target* GSTextureCache::LookupTarget(const GIFRegTEX0& TEX0, int
 
 	if(dst == NULL)
 	{
-		//log_cb(RETRO_LOG_DEBUG, "TC: Lookup Frame %dx%d, miss (0x%x %s)\n", w, h, bp, psm_str(TEX0.PSM));
-
 		dst = CreateTarget(TEX0, w, h, RenderTarget);
 		ScaleTexture(dst->m_texture);
 

@@ -865,8 +865,6 @@ void GSRendererHW::SwSpriteRender()
 	const int w = trxreg.RRW;
 	const int h = trxreg.RRH;
 
-	//log_cb(RETRO_LOG_DEBUG, "SwSpriteRender: Dest 0x%x W:%d F:%s, size(%d %d)\n", bitbltbuf.DBP, bitbltbuf.DBW, psm_str(bitbltbuf.DPSM), w, h);
-
 	if (texture_mapping_enabled)
 		InvalidateLocalMem(bitbltbuf, GSVector4i(sx, sy, sx + w, sy + h));
 	InvalidateVideoMem(bitbltbuf, GSVector4i(dx, dy, dx + w, dy + h));

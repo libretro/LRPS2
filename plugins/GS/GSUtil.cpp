@@ -147,32 +147,3 @@ CRCHackLevel GSUtil::GetRecommendedCRCHackLevel(GSRendererType type)
 {
 	return type == GSRendererType::OGL_HW ? CRCHackLevel::Partial : CRCHackLevel::Full;
 }
-
-const char* psm_str(int psm)
-{
-	switch(psm) {
-		// Normal color
-		case PSM_PSMCT32:  return "C_32";
-		case PSM_PSMCT24:  return "C_24";
-		case PSM_PSMCT16:  return "C_16";
-		case PSM_PSMCT16S: return "C_16S";
-
-		// Palette color
-		case PSM_PSMT8:    return "P_8";
-		case PSM_PSMT4:    return "P_4";
-		case PSM_PSMT8H:   return "P_8H";
-		case PSM_PSMT4HL:  return "P_4HL";
-		case PSM_PSMT4HH:  return "P_4HH";
-
-		// Depth
-		case PSM_PSMZ32:   return "Z_32";
-		case PSM_PSMZ24:   return "Z_24";
-		case PSM_PSMZ16:   return "Z_16";
-		case PSM_PSMZ16S:  return "Z_16S";
-
-		case PSM_PSGPU24:     return "PS24";
-
-		default:break;
-	}
-	return "BAD_PSM";
-}
