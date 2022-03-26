@@ -340,12 +340,8 @@ void GSRendererHW::SetGameCRC(u32 crc, int options)
 bool GSRendererHW::CanUpscale()
 {
 	if(m_hacks.m_cu && !(this->*m_hacks.m_cu)())
-	{
 		return false;
-	}
-
-	// upscale ratio depends on the display size, with no output it may not be set correctly (ps2 logo to game transition)
-	return m_upscale_multiplier != 1 && m_regs->PMODE.EN != 0;
+	return m_upscale_multiplier != 1;
 }
 
 int GSRendererHW::GetUpscaleMultiplier()
@@ -1130,6 +1126,10 @@ void GSRendererHW::Draw()
 	GSDrawingContext* context = m_context;
 	const GSLocalMemory::psm_t& tex_psm = GSLocalMemory::m_psm[m_context->TEX0.PSM];
 
+	// Skipping draw with FRAME.FBW = 0? 
+	if (!context->FRAME.FBW)
+		return;
+
 	// Fix TEX0 size
 	if(PRIM->TME && !IsMipMapActive())
 		m_context->ComputeFixedTEX0(m_vt.m_min.t.xyxy(m_vt.m_max.t));
@@ -1167,6 +1167,10 @@ void GSRendererHW::Draw()
 			// Depth will be written through the RT
 			(context->FRAME.FBP == context->ZBUF.ZBP && !PRIM->TME && zm == 0 && fm == 0 && context->TEST.ZTE)
 			);
+
+	// Skipping draw with no color nor depth output ? 
+	if (no_rt && no_ds)
+		return;
 
 	const bool draw_sprite_tex = PRIM->TME && (m_vt.m_primclass == GS_SPRITE_CLASS);
 	const GSVector4 delta_p = m_vt.m_max.p - m_vt.m_min.p;
