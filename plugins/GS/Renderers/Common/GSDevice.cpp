@@ -91,12 +91,8 @@ void GSDevice::Present(const GSVector4i& r, int shader)
 	if(!m_backbuffer || m_backbuffer->GetWidth() != w || m_backbuffer->GetHeight() != h)
 	{
 		if(!Reset(w, h))
-		{
 			return;
-		}
 	}
-
-	GL_PUSH("Present");
 
 	// FIXME is it mandatory, it could be slow
 	ClearRenderTarget(m_backbuffer, 0);

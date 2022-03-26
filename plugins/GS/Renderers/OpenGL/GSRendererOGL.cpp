@@ -45,8 +45,6 @@ bool GSRendererOGL::CreateDevice(GSDevice* dev)
 
 void GSRendererOGL::SetupIA(const float& sx, const float& sy)
 {
-	GL_PUSH("IA");
-
 	GSDeviceOGL* dev = (GSDeviceOGL*)m_dev;
 
 
@@ -190,10 +188,8 @@ void GSRendererOGL::EmulateZbuffer()
 
 	const GSVertex* v = &m_vertex.buff[0];
 	// Minor optimization of a corner case (it allow to better emulate some alpha test effects)
-	if (m_om_dssel.ztst == ZTST_GEQUAL && m_vt.m_eq.z && v[0].XYZ.Z == max_z) {
-		GL_DBG("Optimize Z test GEQUAL to ALWAYS (%s)", psm_str(m_context->ZBUF.PSM));
+	if (m_om_dssel.ztst == ZTST_GEQUAL && m_vt.m_eq.z && v[0].XYZ.Z == max_z)
 		m_om_dssel.ztst = ZTST_ALWAYS;
-	}
 }
 
 void GSRendererOGL::EmulateTextureShuffleAndFbmask()
@@ -228,46 +224,38 @@ void GSRendererOGL::EmulateTextureShuffleAndFbmask()
 
 		// 2 Select the new mask (Please someone put SSE here)
 		if (rg_mask != 0xFF) {
-			if (write_ba) {
-				GL_INS("Color shuffle %s => B", read_ba ? "B" : "R");
+			if (write_ba)
 				m_om_csel.wb = 1;
-			} else {
-				GL_INS("Color shuffle %s => R", read_ba ? "B" : "R");
+			else
 				m_om_csel.wr = 1;
-			}
 			if (rg_mask)
 				m_ps_sel.fbmask = 1;
 		}
 
 		if (ba_mask != 0xFF) {
-			if (write_ba) {
-				GL_INS("Color shuffle %s => A", read_ba ? "A" : "G");
+			if (write_ba)
 				m_om_csel.wa = 1;
-			} else {
-				GL_INS("Color shuffle %s => G", read_ba ? "A" : "G");
+			else
 				m_om_csel.wg = 1;
-			}
 			if (ba_mask)
 				m_ps_sel.fbmask = 1;
 		}
 
-		if (m_ps_sel.fbmask && m_sw_blending) {
+		if (m_ps_sel.fbmask && m_sw_blending)
+		{
 			ps_cb.FbMask.r = rg_mask;
 			ps_cb.FbMask.g = rg_mask;
 			ps_cb.FbMask.b = ba_mask;
 			ps_cb.FbMask.a = ba_mask;
 
 			// No blending so hit unsafe path.
-			if (!PRIM->ABE) {
-				GL_INS("FBMASK Unsafe SW emulated fb_mask:%x on tex shuffle", fbmask);
+			if (!PRIM->ABE)
 				m_require_one_barrier = true;
-			} else {
-				GL_INS("FBMASK SW emulated fb_mask:%x on tex shuffle", fbmask);
+			else
 				m_require_full_barrier = true;
-			}
-		} else {
-			m_ps_sel.fbmask = 0;
 		}
+		else
+			m_ps_sel.fbmask = 0;
 
 	} else {
 		m_ps_sel.dfmt = GSLocalMemory::m_psm[m_context->FRAME.PSM].fmt;
@@ -303,13 +291,9 @@ void GSRendererOGL::EmulateTextureShuffleAndFbmask()
 			 */
 			// No blending so hit unsafe path.
 			if (!PRIM->ABE || !(~ff_fbmask & ~zero_fbmask & 0x7)) {
-				GL_INS("FBMASK Unsafe SW emulated fb_mask:%x on %d bits format", m_context->FRAME.FBMSK,
-						(GSLocalMemory::m_psm[m_context->FRAME.PSM].fmt == 2) ? 16 : 32);
 				m_require_one_barrier = true;
 			} else {
 				// The safe and accurate path (but slow)
-				GL_INS("FBMASK SW emulated fb_mask:%x on %d bits format", m_context->FRAME.FBMSK,
-						(GSLocalMemory::m_psm[m_context->FRAME.PSM].fmt == 2) ? 16 : 32);
 				m_require_full_barrier = true;
 			}
 		}
@@ -326,14 +310,14 @@ void GSRendererOGL::EmulateChannelShuffle(GSTexture** rt, const GSTextureCache::
 	// First let's check we really have a channel shuffle effect
 	if (m_channel_shuffle) {
 		if (m_game.title == CRC::GT4 || m_game.title == CRC::GT3 || m_game.title == CRC::GTConcept || m_game.title == CRC::TouristTrophy) {
-			GL_INS("Gran Turismo RGB Channel");
+			// Gran Turismo RGB channel
 			m_ps_sel.channel = ChannelFetch_RGB;
 			m_context->TEX0.TFX = TFX_DECAL;
 			*rt = tex->m_from_target;
 		} else if (m_game.title == CRC::Tekken5) {
 			if (m_context->FRAME.FBW == 1) {
 				// Used in stages: Secret Garden, Acid Rain, Moonlit Wilderness
-				GL_INS("Tekken5 RGB Channel");
+				// Tekken 5 RGB channel
 				m_ps_sel.channel = ChannelFetch_RGB;
 				m_context->FRAME.FBMSK = 0xFF000000;
 				// 12 pages: 2 calls by channel, 3 channels, 1 blit
@@ -350,10 +334,10 @@ void GSRendererOGL::EmulateChannelShuffle(GSTexture** rt, const GSTextureCache::
 			// ToA: will copy depth to alpha channel
 			if ((m_context->FRAME.FBMSK & 0xFF0000) == 0xFF0000) {
 				// Green channel is masked
-				GL_INS("Tales Of Abyss Crazyness (MSB 16b depth to Alpha)");
+				// Tales of Abyss Craziness (MSB 16b Depth to Alpha 
 				m_ps_sel.tales_of_abyss_hle = 1;
 			} else {
-				GL_INS("Urban Chaos Crazyness (Green extraction)");
+				// Urban Chaos craziness (Green extraction)
 				m_ps_sel.urban_chaos_hle = 1;
 			}
 		} else if (m_index.tail <= 64 && m_context->CLAMP.WMT == 3) {
@@ -363,12 +347,12 @@ void GSRendererOGL::EmulateChannelShuffle(GSTexture** rt, const GSTextureCache::
 			//
 			// Note: Tales Of Abyss and Tekken5 could hit this path too. Those games are
 			// handled above.
-			GL_INS("Maybe not a channel!");
+			// Maybe not a channel!
 			m_channel_shuffle = false;
 		} else if (m_context->CLAMP.WMS == 3 && ((m_context->CLAMP.MAXU & 0x8) == 8)) {
 			// Read either blue or Alpha. Let's go for Blue ;)
 			// MGS3/Kill Zone
-			GL_INS("Blue channel");
+			// Blue channel
 			m_ps_sel.channel = ChannelFetch_BLUE;
 		} else if (m_context->CLAMP.WMS == 3 && ((m_context->CLAMP.MINU & 0x8) == 0)) {
 			// Read either Red or Green. Let's check the V coordinate. 0-1 is likely top so
@@ -397,24 +381,24 @@ void GSRendererOGL::EmulateChannelShuffle(GSTexture** rt, const GSTextureCache::
 				dev->SetupCBMisc(GSVector4i(blue_mask, blue_shift, green_mask, green_shift));
 
 				if (blue_shift >= 0) {
-					GL_INS("Green/Blue channel (%d, %d)", blue_shift, green_shift);
+					// Green/blue channel
 					m_ps_sel.channel = ChannelFetch_GXBY;
 					m_context->FRAME.FBMSK = 0x00FFFFFF;
 				} else {
-					GL_INS("Green channel (wrong mask) (fbmask %x)", m_context->FRAME.FBMSK >> 24);
+					// Green channel (wrong mask)
 					m_ps_sel.channel = ChannelFetch_GREEN;
 				}
 
 			} else if (green) {
-				GL_INS("Green channel");
+				// Green channel
 				m_ps_sel.channel = ChannelFetch_GREEN;
 			} else {
 				// Pop
-				GL_INS("Red channel");
+				// Red channel
 				m_ps_sel.channel = ChannelFetch_RED;
 			}
 		} else {
-			GL_INS("Channel not supported");
+			// Channel not supported
 			m_channel_shuffle = false;
 		}
 	}
@@ -458,8 +442,8 @@ void GSRendererOGL::EmulateBlending(bool& DATE_GL42, bool& DATE_GL45)
 	}
 
 	if (m_env.PABE.PABE) {
-      // Breath of Fire Dragon Quarter, Strawberry Shortcake, Super Robot Wars, Cartoon Network Racing.
-		GL_INS("PABE mode ENABLED");
+		// Breath of Fire Dragon Quarter, Strawberry Shortcake, Super Robot Wars, Cartoon Network Racing.
+		// PABE mode ENABLED
 		m_ps_sel.pabe = 1;
 	}
 
@@ -510,25 +494,23 @@ void GSRendererOGL::EmulateBlending(bool& DATE_GL42, bool& DATE_GL45)
 		// fixes shadows in Superman shadows of Apokolips.
 		const bool sw_fbmask_colclip = !m_require_one_barrier && m_ps_sel.fbmask;
 		const bool free_colclip = m_prim_overlap == PRIM_OVERLAP_NO || blend_non_recursive || sw_fbmask_colclip;
-		GL_DBG("COLCLIP Info (Blending: %d/%d/%d/%d, SW FBMASK: %d, OVERLAP: %d)",
-			ALPHA.A, ALPHA.B, ALPHA.C, ALPHA.D, sw_fbmask_colclip, m_prim_overlap);
 		if (free_colclip) {
 			// The fastest algo that requires a single pass
-			GL_INS("COLCLIP Free mode ENABLED");
+			// COLCLIP Free mode ENABLED
 			m_ps_sel.colclip = 1;
 			sw_blending = true;
 			accumulation_blend = false; // disable the HDR algo
 		} else if (accumulation_blend) {
 			// A fast algo that requires 2 passes
-			GL_INS("COLCLIP Fast HDR mode ENABLED");
+			// COLCLIP Fast HDR mode ENABLED
 			m_ps_sel.hdr = 1;
 			sw_blending  = true; // Enable sw blending for the HDR algo
 		} else if (sw_blending) {
 			// A slow algo that could requires several passes (barely used)
-			GL_INS("COLCLIP SW mode ENABLED");
+			// COLCLIP SW mode ENABLED
 			m_ps_sel.colclip = 1;
 		} else {
-			GL_INS("COLCLIP HDR mode ENABLED");
+			// COLCLIP HDR mode ENABLED
 			m_ps_sel.hdr = 1;
 		}
 	}
@@ -540,17 +522,12 @@ void GSRendererOGL::EmulateBlending(bool& DATE_GL42, bool& DATE_GL45)
 	// No mix of COLCLIP + sw blend + DATE_GL42, neither sw fbmask + DATE_GL42.
 	// Note: Do the swap after colclip to avoid adding extra conditions.
 	if (sw_blending && DATE_GL42) {
-		GL_PERF("DATE: Swap DATE_GL42 with DATE_GL45");
 		m_require_full_barrier = true;
 		DATE_GL42 = false;
 		DATE_GL45 = true;
 	}
 
 	// For stat to optimize accurate option
-#if 0
-	GL_INS("BLEND_INFO: %d/%d/%d/%d. Clamp:%d. Prim:%d number %d (drawlist %d) (sw %d)",
-			ALPHA.A, ALPHA.B,  ALPHA.C, ALPHA.D, m_env.COLCLAMP.CLAMP, m_vt.m_primclass, m_vertex.next, m_drawlist.size(), sw_blending);
-#endif
 	if (sw_blending) {
 		m_ps_sel.blend_a = ALPHA.A;
 		m_ps_sel.blend_b = ALPHA.B;
@@ -931,22 +908,6 @@ void GSRendererOGL::SendDraw()
 	} else if (m_vt.m_primclass == GS_SPRITE_CLASS) {
 		const size_t nb_vertex = (m_gs_sel.sprite == 1) ? 2 : 6;
 
-		GL_PUSH("Split the draw (SPRITE)");
-
-#if defined(_DEBUG)
-		// Check how draw call is split.
-		std::map<size_t, size_t> frequency;
-		for (const auto& it: m_drawlist)
-			++frequency[it];
-
-		std::string message;
-		for (const auto& it: frequency)
-			message += " " + std::to_string(it.first) + "(" + std::to_string(it.second) + ")";
-
-		GL_PERF("Split single draw (%d sprites) into %zu draws: consecutive draws(frequency):%s",
-			m_index.tail / nb_vertex, m_drawlist.size(), message.c_str());
-#endif
-
 		for (size_t count = 0, p = 0, n = 0; n < m_drawlist.size(); p += count, ++n) {
 			count = m_drawlist[n] * nb_vertex;
 			glTextureBarrier();
@@ -956,10 +917,6 @@ void GSRendererOGL::SendDraw()
 		// FIXME: Investigate: a dynamic check to pack as many primitives as possibles
 		// I'm nearly sure GSdx already have this kind of code (maybe we can adapt GSDirtyRect)
 		const size_t nb_vertex = GSUtil::GetClassVertexCount(m_vt.m_primclass);
-
-		GL_PUSH("Split the draw");
-
-		GL_PERF("Split single draw in %d draw", m_index.tail/nb_vertex);
 
 		for (size_t p = 0; p < m_index.tail; p += nb_vertex) {
 			glTextureBarrier();
@@ -984,18 +941,6 @@ void GSRendererOGL::ResetStates()
 
 void GSRendererOGL::DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Source* tex)
 {
-#ifdef ENABLE_OGL_DEBUG
-	GSVector4i area_out = GSVector4i(m_vt.m_min.p.xyxy(m_vt.m_max.p)).rintersect(GSVector4i(m_context->scissor.in));
-	GSVector4i area_in  = GSVector4i(m_vt.m_min.t.xyxy(m_vt.m_max.t));
-
-	GL_PUSH("GL Draw from %d (area %d,%d => %d,%d) in %d (Depth %d) (area %d,%d => %d,%d)",
-			tex && tex->m_texture ? tex->m_texture->GetID() : -1,
-			area_in.x, area_in.y, area_in.z, area_in.w,
-			rt ? rt->GetID() : -1, ds ? ds->GetID() : -1,
-			area_out.x, area_out.y, area_out.z, area_out.w
-		   );
-#endif
-
 	GSTexture* hdr_rt = NULL;
 
 	const GSVector2i& rtsize = ds ? ds->GetSize()  : rt->GetSize();
@@ -1034,13 +979,12 @@ void GSRendererOGL::DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Sour
 			// This pattern is used by several games to emulate a stencil (shadow)
 			// Ratchet & Clank, Jak do alpha integer multiplication (tfx) which is mostly equivalent to +1/-1
 			// Tri-Ace (Star Ocean 3/RadiataStories/VP2) uses a palette to handle the +1/-1
-			GL_DBG("Source and Target are the same! Let's sample the framebuffer");
 			m_ps_sel.tex_is_fb = 1;
 			m_require_full_barrier = true;
 		} else if (m_prim_overlap != PRIM_OVERLAP_NO) {
 			// Note: It is fine if the texture fits in a single GS page. First access will cache
 			// the page in the GS texture buffer.
-			GL_INS("ERROR: Source and Target are the same!");
+			// Source and Target are the same!
 		}
 	}
 
@@ -1051,7 +995,6 @@ void GSRendererOGL::DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Sour
 		if (m_prim_overlap == PRIM_OVERLAP_NO || m_texture_shuffle) {
 			// It is way too complex to emulate texture shuffle with DATE. So just use
 			// the slow but accurate algo
-			GL_PERF("DATE: With %s", m_texture_shuffle ? "texture shuffle" : "no prim overlap");
 			m_require_full_barrier = true;
 			DATE_GL45 = true;
 		} else if (m_om_csel.wa && !m_context->TEST.ATE) {
@@ -1061,22 +1004,18 @@ void GSRendererOGL::DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Sour
 			GetAlphaMinMax();
 			if (m_context->TEST.DATM && m_vt.m_alpha.max < 128) {
 				// Only first pixel (write 0) will pass (alpha is 1)
-				GL_PERF("DATE: Fast with alpha %d-%d", m_vt.m_alpha.min, m_vt.m_alpha.max);
 				DATE_one = true;
 			} else if (!m_context->TEST.DATM && m_vt.m_alpha.min >= 128) {
 				// Only first pixel (write 1) will pass (alpha is 0)
-				GL_PERF("DATE: Fast with alpha %d-%d", m_vt.m_alpha.min, m_vt.m_alpha.max);
 				DATE_one = true;
 			} else if ((m_vt.m_primclass == GS_SPRITE_CLASS && m_drawlist.size() < 50) || (m_index.tail < 100)) {
 				// texture barrier will split the draw call into n draw call. It is very efficient for
 				// few primitive draws. Otherwise it sucks.
-				GL_PERF("DATE: Slow with alpha %d-%d", m_vt.m_alpha.min, m_vt.m_alpha.max);
 				m_require_full_barrier = true;
 				DATE_GL45 = true;
 			} else {
 				switch (m_accurate_date) {
 					case ACC_DATE_FULL:
-						GL_PERF("DATE: Full AD with alpha %d-%d", m_vt.m_alpha.min, m_vt.m_alpha.max);
 						if (GLLoader::found_GL_ARB_shader_image_load_store && GLLoader::found_GL_ARB_clear_texture) {
 							DATE_GL42 = true;
 						} else {
@@ -1085,12 +1024,10 @@ void GSRendererOGL::DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Sour
 						}
 						break;
 					case ACC_DATE_FAST:
-						GL_PERF("DATE: Fast AD with alpha %d-%d", m_vt.m_alpha.min, m_vt.m_alpha.max);
 						DATE_one = true;
 						break;
 					case ACC_DATE_NONE:
 					default:
-						GL_PERF("DATE: Off AD with alpha %d-%d", m_vt.m_alpha.min, m_vt.m_alpha.max);
 						break;
 				}
 			}
@@ -1206,8 +1143,6 @@ void GSRendererOGL::DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Sour
 
 	if (m_ps_sel.dither)
 	{
-		GL_DBG("DITHERING mode ENABLED (%d)", m_dithering);
-
 		m_ps_sel.dither = m_dithering;
 		ps_cb.DitherMatrix[0] = GSVector4(m_env.DIMX.DM00, m_env.DIMX.DM01, m_env.DIMX.DM02, m_env.DIMX.DM03);
 		ps_cb.DitherMatrix[1] = GSVector4(m_env.DIMX.DM10, m_env.DIMX.DM11, m_env.DIMX.DM12, m_env.DIMX.DM13);
@@ -1235,7 +1170,6 @@ void GSRendererOGL::DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Sour
 	bool ate_RGBA_then_Z = false;
 	bool ate_RGB_then_ZA = false;
 	if (ate_first_pass & ate_second_pass) {
-		GL_DBG("Complex Alpha Test");
 		bool commutative_depth = (m_om_dssel.ztst == ZTST_GEQUAL && m_vt.m_eq.z) || (m_om_dssel.ztst == ZTST_ALWAYS);
 		bool commutative_alpha = (m_context->ALPHA.C != 1); // when either Alpha Src or a constant
 
@@ -1244,12 +1178,10 @@ void GSRendererOGL::DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Sour
 	}
 
 	if (ate_RGBA_then_Z) {
-		GL_DBG("Alternate ATE handling: ate_RGBA_then_Z");
 		// Render all color but don't update depth
 		// ATE is disabled here
 		m_om_dssel.zwe = false;
 	} else if (ate_RGB_then_ZA) {
-		GL_DBG("Alternate ATE handling: ate_RGB_then_ZA");
 		// Render RGB color but don't update depth/alpha
 		// ATE is disabled here
 		m_om_dssel.zwe = false;
@@ -1282,7 +1214,7 @@ void GSRendererOGL::DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Sour
 			// texel:pixel mapping accuracy.
 			//
 			// Use an HLE shader to sample depth directly as the alpha channel
-			GL_INS("ICO sample depth as alpha");
+			// ICO sample depth as alpha
 			m_require_full_barrier = true;
 			// Extract the depth as palette index
 			m_ps_sel.depth_fmt = 1;
@@ -1320,7 +1252,6 @@ void GSRendererOGL::DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Sour
 		ds->CommitRegion(GSVector2i(commitRect.z, commitRect.w));
 
 	if (DATE_GL42) {
-		GL_PUSH("Date GL42");
 		// It could be good idea to use stencil in the same time.
 		// Early stencil test will reduce the number of atomic-load operation
 

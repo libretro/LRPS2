@@ -136,11 +136,6 @@ namespace PboPool {
 			if (m_fence[segment_next]) {
 				GLenum status = glClientWaitSync(m_fence[segment_next], GL_SYNC_FLUSH_COMMANDS_BIT, GL_TIMEOUT_IGNORED);
 				// Potentially it doesn't work on AMD driver which might always return GL_CONDITION_SATISFIED
-#if 0
-				if (status != GL_ALREADY_SIGNALED) {
-					GL_PERF("GL_PIXEL_UNPACK_BUFFER: Sync Sync (%x)! Buffer too small ?", status);
-				}
-#endif
 
 				glDeleteSync(m_fence[segment_next]);
 				m_fence[segment_next] = 0;
@@ -394,8 +389,6 @@ bool GSTextureOGL::Update(const GSVector4i& r, const void* data, int pitch, int 
 	}
 #endif
 
-	GL_PUSH("Upload Texture %d", m_texture_id);
-
 	// The easy solution without PBO
 #if 0
 	// Likely a bad texture
@@ -514,8 +507,6 @@ void GSTextureOGL::Unmap()
 		PboPool::EndTransfer();
 
 		m_generate_mipmap = true;
-
-		GL_POP(); // PUSH is in Map
 	}
 }
 
@@ -534,10 +525,8 @@ void GSTextureOGL::CommitPages(const GSVector2i& region, bool commit)
 	if (commit) {
 		if (m_committed_size.x == 0) {
 			// Nothing allocated so far
-			GL_INS("CommitPages initial %dx%d of %u", region.x, region.y, m_texture_id);
 			glTexturePageCommitmentEXT(m_texture_id, GL_TEX_LEVEL_0, 0, 0, 0, region.x, region.y, 1, commit);
 		} else {
-			GL_INS("CommitPages extend %dx%d to %dx%d of %u", m_committed_size.x, m_committed_size.y, region.x, region.y, m_texture_id);
 			int w = region.x - m_committed_size.x;
 			int h = region.y - m_committed_size.y;
 			// Extend width
@@ -549,7 +538,6 @@ void GSTextureOGL::CommitPages(const GSVector2i& region, bool commit)
 
 	} else {
 		// Release everything
-		GL_INS("CommitPages release of %u", m_texture_id);
 
 		glTexturePageCommitmentEXT(m_texture_id, GL_TEX_LEVEL_0, 0, 0, 0, m_committed_size.x, m_committed_size.y, 1, commit);
 

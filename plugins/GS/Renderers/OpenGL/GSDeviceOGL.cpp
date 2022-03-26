@@ -1737,8 +1737,6 @@ GSDeviceOGL::~GSDeviceOGL()
 	if (m_shader == NULL)
 		return;
 
-	GL_PUSH("GSDeviceOGL destructor");
-
 	// Clean vertex buffer state
 	delete m_va;
 
@@ -1783,8 +1781,6 @@ GSDeviceOGL::~GSDeviceOGL()
 
 GSTexture* GSDeviceOGL::CreateSurface(int type, int w, int h, int fmt)
 {
-	GL_PUSH("Create surface");
-
 	// A wrapper to call GSTextureOGL, with the different kind of parameter
 	GSTextureOGL* t = new GSTextureOGL(type, w, h, fmt, m_fbo_read, m_mipmap > 1 || m_filter != TriFiltering::None);
 
@@ -1852,32 +1848,13 @@ GSVector2i GSgetInternalResolution();
 
 bool GSDeviceOGL::Create()
 {
-	// ****************************************************************
-	// Debug helper
-	// ****************************************************************
-#ifdef ENABLE_OGL_DEBUG
-	if (theApp.GetConfigB("debug_opengl")) {
-		glDebugMessageCallback((GLDEBUGPROC)DebugOutputToFile, NULL);
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
-
-		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, true);
-		// Useless info message on Nvidia driver
-		GLuint ids[] = {0x20004};
-		glDebugMessageControl(GL_DEBUG_SOURCE_API_ARB, GL_DEBUG_TYPE_OTHER_ARB, GL_DONT_CARE, countof(ids), ids, false);
-	}
-#endif
-
 	m_force_texture_clear = theApp.GetConfigI("force_texture_clear");
 
 	// WARNING it must be done after the control setup (at least on MESA)
-	GL_PUSH("GSDeviceOGL::Create");
-
 	// ****************************************************************
 	// Various object
 	// ****************************************************************
 	{
-		GL_PUSH("GSDeviceOGL::Various");
-
 		m_shader = new GSShaderOGL();
 
 		glGenFramebuffers(1, &m_fbo);
@@ -1898,8 +1875,6 @@ bool GSDeviceOGL::Create()
 	// Vertex buffer state
 	// ****************************************************************
 	{
-		GL_PUSH("GSDeviceOGL::Vertex Buffer");
-
 		static_assert(sizeof(GSVertexPT1) == sizeof(GSVertex), "wrong GSVertex size");
 		std::vector<GSInputLayoutOGL> il_convert = {
 			{0, 2 , GL_FLOAT          , GL_FALSE , sizeof(GSVertexPT1) , (const GLvoid*)(0) }  ,
@@ -1918,11 +1893,8 @@ bool GSDeviceOGL::Create()
 	// Pre Generate the different sampler object
 	// ****************************************************************
 	{
-		GL_PUSH("GSDeviceOGL::Sampler");
-
-		for (u32 key = 0; key < countof(m_ps_ss); key++) {
+		for (u32 key = 0; key < countof(m_ps_ss); key++)
 			m_ps_ss[key] = CreateSampler(PSSamplerSelector(key));
-		}
 	}
 
 	// ****************************************************************
@@ -1931,8 +1903,6 @@ bool GSDeviceOGL::Create()
 	GLuint vs = 0;
 	GLuint ps = 0;
 	{
-		GL_PUSH("GSDeviceOGL::Convert");
-
 		m_convert.cb = new GSUniformBufferOGL("Misc UBO", g_convert_index, sizeof(MiscConstantBuffer));
 		// Upload once and forget about it.
 		// Use value of 1 when upscale multiplier is 0 for ScalingFactor,
@@ -1968,8 +1938,6 @@ bool GSDeviceOGL::Create()
 	// merge
 	// ****************************************************************
 	{
-		GL_PUSH("GSDeviceOGL::Merge");
-
 		m_merge_obj.cb = new GSUniformBufferOGL("Merge UBO", g_merge_cb_index, sizeof(MergeConstantBuffer));
 
 		std::vector<char> merge_shader(merge_glsl_shader_raw, merge_glsl_shader_raw + sizeof(merge_glsl_shader_raw)/sizeof(*merge_glsl_shader_raw));
@@ -1985,8 +1953,6 @@ bool GSDeviceOGL::Create()
 	// interlace
 	// ****************************************************************
 	{
-		GL_PUSH("GSDeviceOGL::Interlace");
-
 		m_interlace.cb = new GSUniformBufferOGL("Interlace UBO", g_interlace_cb_index, sizeof(InterlaceConstantBuffer));
 
 		std::vector<char> interlace_shader(interlace_glsl_shader_raw, interlace_glsl_shader_raw + sizeof(interlace_glsl_shader_raw)/sizeof(*interlace_glsl_shader_raw));
@@ -2002,8 +1968,6 @@ bool GSDeviceOGL::Create()
 	// rasterization configuration
 	// ****************************************************************
 	{
-		GL_PUSH("GSDeviceOGL::Rasterization");
-
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glDisable(GL_CULL_FACE);
 		glEnable(GL_SCISSOR_TEST);
@@ -2015,8 +1979,6 @@ bool GSDeviceOGL::Create()
 	// DATE
 	// ****************************************************************
 	{
-		GL_PUSH("GSDeviceOGL::Date");
-
 		m_date.dss = new GSDepthStencilOGL();
 		m_date.dss->EnableStencil();
 		m_date.dss->SetStencil(GL_ALWAYS, GL_REPLACE);
@@ -2044,8 +2006,6 @@ bool GSDeviceOGL::Create()
 	// Pbo Pool allocation
 	// ****************************************************************
 	{
-		GL_PUSH("GSDeviceOGL::PBO");
-
 		// Mesa seems to use it to compute the row length. In our case, we are
 		// tightly packed so don't bother with this parameter and set it to the
 		// minimum alignment (1 byte)
@@ -2090,8 +2050,6 @@ bool GSDeviceOGL::Create()
 
 void GSDeviceOGL::CreateTextureFX()
 {
-	GL_PUSH("GSDeviceOGL::CreateTextureFX");
-
 	m_vs_cb = new GSUniformBufferOGL("HW VS UBO", g_vs_cb_index, sizeof(VSConstantBuffer));
 	m_ps_cb = new GSUniformBufferOGL("HW PS UBO", g_ps_cb_index, sizeof(PSConstantBuffer));
 
@@ -2197,7 +2155,7 @@ void GSDeviceOGL::ClearRenderTarget(GSTexture* t, const GSVector4& c)
 
 	// So using the old/standard path is faster/better albeit verbose.
 
-	GL_PUSH("Clear RT %d", T->GetID());
+        // Clear RT
 
 	// TODO: check size of scissor before toggling it
 	glDisable(GL_SCISSOR_TEST);
@@ -2240,8 +2198,6 @@ void GSDeviceOGL::ClearDepth(GSTexture* t)
 
 	GSTextureOGL* T = static_cast<GSTextureOGL*>(t);
 
-	GL_PUSH("Clear Depth %d", T->GetID());
-
 	if (0 && GLLoader::found_GL_ARB_clear_texture) {
 		// I don't know what the driver does but it creates
 		// some slowdowns on Harry Potter PS
@@ -2279,8 +2235,6 @@ void GSDeviceOGL::ClearStencil(GSTexture* t, u8 c)
 
 	GSTextureOGL* T = static_cast<GSTextureOGL*>(t);
 
-	GL_PUSH("Clear Stencil %d", T->GetID());
-
 	// Keep SCISSOR_TEST enabled on purpose to reduce the size
 	// of clean in DATE (impact big upscaling)
 	OMSetFBO(m_fbo);
@@ -2292,8 +2246,6 @@ void GSDeviceOGL::ClearStencil(GSTexture* t, u8 c)
 
 GLuint GSDeviceOGL::CreateSampler(PSSamplerSelector sel)
 {
-	GL_PUSH("Create Sampler");
-
 	GLuint sampler;
 	glCreateSamplers(1, &sampler);
 
@@ -2410,8 +2362,6 @@ void GSDeviceOGL::InitPrimDateTexture(GSTexture* rt, const GSVector4i& area)
 void GSDeviceOGL::RecycleDateTexture()
 {
 	if (m_date.t) {
-		//static_cast<GSTextureOGL*>(m_date.t)->Save(format("/tmp/date_adv_%04ld.csv", GSState::s_n));
-
 		Recycle(m_date.t);
 		m_date.t = NULL;
 	}
@@ -2523,8 +2473,6 @@ void GSDeviceOGL::CopyRectConv(GSTexture* sTex, GSTexture* dTex, const GSVector4
 	const GLuint& sid = static_cast<GSTextureOGL*>(sTex)->GetID();
 	const GLuint& did = static_cast<GSTextureOGL*>(dTex)->GetID();
 
-	GL_PUSH(format("CopyRectConv from %d to %d", sid, did).c_str());
-
 	dTex->CommitRegion(GSVector2i(r.z, r.w));
 
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo_read);
@@ -2547,8 +2495,6 @@ void GSDeviceOGL::CopyRect(GSTexture* sTex, GSTexture* dTex, const GSVector4i& r
 
 	const GLuint& sid = static_cast<GSTextureOGL*>(sTex)->GetID();
 	const GLuint& did = static_cast<GSTextureOGL*>(dTex)->GetID();
-
-	GL_PUSH("CopyRect from %d to %d", sid, did);
 
 #ifdef ENABLE_OGL_DEBUG
 	PSSetShaderResource(6, sTex);
@@ -2600,8 +2546,6 @@ void GSDeviceOGL::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture
 	// Performance optimization. It might be faster to use a framebuffer blit for standard case
 	// instead to emulate it with shader
 	// see https://www.opengl.org/wiki/Framebuffer#Blitting
-
-	GL_PUSH("StretchRect from %d to %d", sTex->GetID(), dTex->GetID());
 
 	// ************************************
 	// Init
@@ -2692,8 +2636,6 @@ void GSDeviceOGL::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture
 
 void GSDeviceOGL::DoMerge(GSTexture* sTex[3], GSVector4* sRect, GSTexture* dTex, GSVector4* dRect, const GSRegPMODE& PMODE, const GSRegEXTBUF& EXTBUF, const GSVector4& c)
 {
-	GL_PUSH("DoMerge");
-
 	GSVector4 full_r(0.0f, 0.0f, 1.0f, 1.0f);
 	bool feedback_write_2 = PMODE.EN2 && sTex[2] != nullptr && EXTBUF.FBIN == 1;
 	bool feedback_write_1 = PMODE.EN1 && sTex[2] != nullptr && EXTBUF.FBIN == 0;
@@ -2748,8 +2690,6 @@ void GSDeviceOGL::DoMerge(GSTexture* sTex[3], GSVector4* sRect, GSTexture* dTex,
 
 void GSDeviceOGL::DoInterlace(GSTexture* sTex, GSTexture* dTex, int shader, bool linear, float yoffset)
 {
-	GL_PUSH("DoInterlace");
-
 	OMSetColorMaskState();
 
 	GSVector4 s = GSVector4(dTex->GetSize());
@@ -2784,8 +2724,6 @@ void GSDeviceOGL::DoFXAA(GSTexture* sTex, GSTexture* dTex)
 		m_fxaa.ps = m_shader->LinkPipeline("FXAA pipe", m_convert.vs, 0, ps);
 	}
 
-	GL_PUSH("DoFxaa");
-
 	OMSetColorMaskState();
 
 	GSVector2i s = dTex->GetSize();
@@ -2798,8 +2736,6 @@ void GSDeviceOGL::DoFXAA(GSTexture* sTex, GSTexture* dTex)
 
 void GSDeviceOGL::SetupDATE(GSTexture* rt, GSTexture* ds, const GSVertexPT1* vertices, bool datm)
 {
-	GL_PUSH("DATE First Pass");
-
 	// sfex3 (after the capcom logo), vf4 (first menu fading in), ffxii shadows, rumble roses shadows, persona4 shadows
 
 	BeginScene();
@@ -3022,14 +2958,11 @@ void GSDeviceOGL::OMSetRenderTargets(GSTexture* rt, GSTexture* ds, const GSVecto
 
 void GSDeviceOGL::SetupCB(const VSConstantBuffer* vs_cb, const PSConstantBuffer* ps_cb)
 {
-	GL_PUSH("UBO");
-	if(m_vs_cb_cache.Update(vs_cb)) {
+	if(m_vs_cb_cache.Update(vs_cb))
 		m_vs_cb->upload(vs_cb);
-	}
 
-	if(m_ps_cb_cache.Update(ps_cb)) {
+	if(m_ps_cb_cache.Update(ps_cb))
 		m_ps_cb->upload(ps_cb);
-	}
 }
 
 void GSDeviceOGL::SetupCBMisc(const GSVector4i& channel)
@@ -3069,69 +3002,6 @@ GLuint GSDeviceOGL::GetPaletteSamplerID()
 void GSDeviceOGL::SetupOM(OMDepthStencilSelector dssel)
 {
 	OMSetDepthStencilState(m_om_dss[dssel]);
-}
-
-// Note: used as a callback of DebugMessageCallback. Don't change the signature
-void GSDeviceOGL::DebugOutputToFile(GLenum gl_source, GLenum gl_type, GLuint id, GLenum gl_severity, GLsizei gl_length, const GLchar *gl_message, const void* userParam)
-{
-	std::string message(gl_message, gl_length >= 0 ? gl_length : strlen(gl_message));
-	std::string type, severity, source;
-	static int sev_counter = 0;
-	switch(gl_type) {
-		case GL_DEBUG_TYPE_ERROR_ARB               : type = "Error"; break;
-		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB : type = "Deprecated bhv"; break;
-		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB  : type = "Undefined bhv"; break;
-		case GL_DEBUG_TYPE_PORTABILITY_ARB         : type = "Portability"; break;
-		case GL_DEBUG_TYPE_PERFORMANCE_ARB         : type = "Perf"; break;
-		case GL_DEBUG_TYPE_OTHER_ARB               : type = "Oth"; break;
-		case GL_DEBUG_TYPE_PUSH_GROUP              : return; // Don't print message injected by myself
-		case GL_DEBUG_TYPE_POP_GROUP               : return; // Don't print message injected by myself
-		default                                    : type = "TTT"; break;
-	}
-	switch(gl_severity) {
-		case GL_DEBUG_SEVERITY_HIGH_ARB   : severity = "High"; sev_counter++; break;
-		case GL_DEBUG_SEVERITY_MEDIUM_ARB : severity = "Mid"; break;
-		case GL_DEBUG_SEVERITY_LOW_ARB    : severity = "Low"; break;
-		default                           : if (id == 0xFEAD)
-												severity = "Cache";
-											else if (id == 0xB0B0)
-												severity = "REG";
-											else if (id == 0xD0D0)
-												severity = "EXTRA";
-											break;
-	}
-	switch(gl_source) {
-		case GL_DEBUG_SOURCE_API_ARB             : source = "API"; break;
-		case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB   : source = "WINDOW"; break;
-		case GL_DEBUG_SOURCE_SHADER_COMPILER_ARB : source = "COMPILER"; break;
-		case GL_DEBUG_SOURCE_THIRD_PARTY_ARB     : source = "3rdparty"; break;
-		case GL_DEBUG_SOURCE_APPLICATION_ARB     : source = "Application"; break;
-		case GL_DEBUG_SOURCE_OTHER_ARB           : source = "Others"; break;
-		default                                  : source = "???"; break;
-	}
-
-#ifdef _DEBUG
-	// Don't spam noisy information on the terminal
-	if (gl_severity != GL_DEBUG_SEVERITY_NOTIFICATION) {
-		log_cb(RETRO_LOG_DEBUG, "T:%s\tID:%d\tS:%s\t=> %s\n", type.c_str(), GSState::s_n, severity.c_str(), message.c_str());
-	}
-#else
-	// Print nouveau shader compiler info
-	if (GSState::s_n == 0) {
-		int t, local, gpr, inst, byte;
-		int status = sscanf(message.c_str(), "type: %d, local: %d, gpr: %d, inst: %d, bytes: %d",
-				&t, &local, &gpr, &inst, &byte);
-		if (status == 5) {
-			m_shader_inst += inst;
-			m_shader_reg  += gpr;
-			log_cb(RETRO_LOG_DEBUG, "T:%s\t\tS:%s\t=> %s\n", type.c_str(), severity.c_str(), message.c_str());
-		}
-	}
-#endif
-
-#ifdef ENABLE_OGL_DEBUG
-	log_cb(RETRO_LOG_DEBUG, "T:%s\tID:%d\tS:%s\t=> %s\n", type.c_str(), GSState::s_n, severity.c_str(), message.c_str());
-#endif
 }
 
 u16 GSDeviceOGL::ConvertBlendEnum(u16 generic)

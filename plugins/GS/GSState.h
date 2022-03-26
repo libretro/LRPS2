@@ -217,13 +217,6 @@ public:
 	bool m_nativeres;
 	int m_mipmap;
 
-	static int s_n;
-	bool s_save;
-	bool s_savet;
-	bool s_savez;
-	bool s_savef;
-	int s_savel;
-
 public:
 	GSState();
 	virtual ~GSState();
