@@ -123,6 +123,11 @@ void GSClut::Invalidate(u32 block)
 
 bool GSClut::WriteTest(const GIFRegTEX0& TEX0, const GIFRegTEXCLUT& TEXCLUT)
 {
+	// Check if PSM is an indexed format BEFORE the load condition, updating CBP0/1 on an invalid format is not allowed
+	// and can break games. Corvette (NTSC) is a good example of this.
+	if ((TEX0.PSM & 0x7) < 3)
+		return false;
+
 	switch (TEX0.CLD)
 	{
 		case 0:
@@ -153,6 +158,7 @@ bool GSClut::WriteTest(const GIFRegTEX0& TEX0, const GIFRegTEXCLUT& TEXCLUT)
 			__assume(0);
 	}
 
+	// CLUT only reloads if PSM is a valid index type, avoid unnecessary flushes
 	return m_write.IsDirty(TEX0, TEXCLUT);
 }
 
