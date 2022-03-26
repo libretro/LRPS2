@@ -468,8 +468,6 @@ bool GSTextureOGL::Map(GSMap& m, const GSVector4i* _r, int layer)
 
 		return true;
 	} else if (m_type == GSTexture::Texture || m_type == GSTexture::RenderTarget) {
-		GL_PUSH_("Upload Texture %d", m_texture_id); // POP is in Unmap
-
 		m_clean = false;
 
 		u32 map_size = r.height() * row_byte;
