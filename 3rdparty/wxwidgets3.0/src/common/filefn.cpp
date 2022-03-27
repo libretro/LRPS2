@@ -386,8 +386,7 @@ wxConcatFiles (const wxString& file1, const wxString& file2, const wxString& fil
 }
 
 // helper of generic implementation of wxCopyFile()
-#if !(defined(__WIN32__)
-
+#ifndef __WIN32__
 static bool
 wxDoCopyFile(wxFile& fileIn,
              const wxStructStat& fbuf,
@@ -807,7 +806,7 @@ bool wxEndsWithPathSeparator(const wxString& filename)
     return !filename.empty() && wxIsPathSeparator(filename.Last());
 }
 
-#if defined(__WINDOWS__) && !(defined(__UNIX__)
+#if defined(__WINDOWS__) && !(defined(__UNIX__))
 static bool wxCheckWin32Permission(const wxString& path, DWORD access)
 {
     // quoting the MSDN: "To obtain a handle to a directory, call the

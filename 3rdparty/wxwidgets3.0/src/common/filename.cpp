@@ -129,6 +129,11 @@
 #endif
 #endif
 
+#ifdef __EMX__
+#include <os2.h>
+#define MAX_PATH _MAX_PATH
+#endif
+
 #ifndef S_ISREG
     #define S_ISREG(mode) ((mode) & S_IFREG)
 #endif
@@ -654,7 +659,7 @@ wxFileSystemObjectExists(const wxString& path, int flags)
     // Anything else must be a file (perhaps we should check for
     // FILE_ATTRIBUTE_REPARSE_POINT?)
     return acceptFile;
-#else // Non-MSW, non-OS/2
+#else // Non-MSW
     wxStructStat st;
     if ( !StatAny(st, strPath, flags) )
         return false;
@@ -894,7 +899,7 @@ static wxString wxCreateTempImpl(
         dir = wxFileName::GetTempDir();
     }
 
-#elif defined(__WINDOWS__) && !defined(__WXMICROWIN__)
+#if defined(__WINDOWS__) && !defined(__WXMICROWIN__)
     if (!::GetTempFileName(dir.t_str(), name.t_str(), 0,
                            wxStringBuffer(path, MAX_PATH + 1)))
         path.clear();
@@ -1160,7 +1165,7 @@ wxString wxFileName::GetTempDir()
     {
 #if defined(__WINDOWS__) && !defined(__WXMICROWIN__)
         if ( !::GetTempPath(MAX_PATH, wxStringBuffer(dir, MAX_PATH + 1)) ) { }
-#elif defined(__WXMAC__) && wxOSX_USE_CARBON
+#elif defined(__WXMAC__)
         dir = wxMacFindFolderNoSeparator(short(kOnSystemDisk), kTemporaryFolderType, kCreateFolder);
 #endif // systems with native way
     }
@@ -1656,9 +1661,7 @@ wxString wxFileName::GetVolumeSeparator(wxPathFormat WXUNUSED_IN_WINCE(format))
 
     if ( (GetFormat(format) == wxPATH_DOS) ||
          (GetFormat(format) == wxPATH_VMS) )
-    {
         sepVol = wxFILE_SEP_DSK;
-    }
     //else: leave empty
 
     return sepVol;
@@ -2006,8 +2009,6 @@ wxPathFormat wxFileName::GetFormat( wxPathFormat format )
     {
 #if defined(__WINDOWS__) || defined(__DOS__)
         format = wxPATH_DOS;
-#elif defined(__VMS)
-        format = wxPATH_VMS;
 #else
         format = wxPATH_UNIX;
 #endif
