@@ -825,12 +825,7 @@ typedef short int WXTYPE;
     #define WXUNUSED_IN_UNICODE(param)  param
 #endif
 
-/*  some arguments are not used in WinCE build */
-#ifdef __WXWINCE__
-    #define WXUNUSED_IN_WINCE(param)  WXUNUSED(param)
-#else
-    #define WXUNUSED_IN_WINCE(param)  param
-#endif
+#define WXUNUSED_IN_WINCE(param)  param
 
 /*  unused parameters in non stream builds */
 #if wxUSE_STREAMS
@@ -1089,7 +1084,7 @@ typedef wxUint32 wxDword;
     #define wxLongLong_t __int64
     #define wxLongLongSuffix i64
     #define wxLongLongFmtSpec "L"
-#elif (defined(__WATCOMC__) && (defined(__WIN32__) || defined(__DOS__) || defined(__OS2__)))
+#elif (defined(__WATCOMC__) && (defined(__WIN32__) || defined(__DOS__)))
       #define wxLongLong_t __int64
       #define wxLongLongSuffix i64
       #define wxLongLongFmtSpec "L"
@@ -1709,11 +1704,7 @@ enum wxBorder
 };
 
 /* This makes it easier to specify a 'normal' border for a control */
-#if defined(__SMARTPHONE__) || defined(__POCKETPC__)
-#define wxDEFAULT_CONTROL_BORDER    wxBORDER_SIMPLE
-#else
 #define wxDEFAULT_CONTROL_BORDER    wxBORDER_SUNKEN
-#endif
 
 /*  ---------------------------------------------------------------------------- */
 /*  Window style flags */
@@ -1811,11 +1802,7 @@ enum wxBorder
  *  on other platforms
  */
 
-#ifdef __WXMOTIF__
-#define wxRETAINED              0x00020000
-#else
 #define wxRETAINED              0x00000000
-#endif
 #define wxBACKINGSTORE          wxRETAINED
 
 /*  set this flag to create a special popup window: it will be always shown on */
@@ -2632,7 +2619,7 @@ enum wxKeyModifier
     wxMOD_SHIFT     = 0x0004,
     wxMOD_META      = 0x0008,
     wxMOD_WIN       = wxMOD_META,
-#if defined(__WXMAC__) || defined(__WXCOCOA__)
+#if defined(__WXMAC__)
     wxMOD_RAW_CONTROL = 0x0010,
 #else
     wxMOD_RAW_CONTROL = wxMOD_CONTROL,
@@ -2839,13 +2826,8 @@ typedef int (* LINKAGEMODE wxListIterateFunction)(void *current);
 /*  miscellaneous */
 /*  ---------------------------------------------------------------------------- */
 
-/*  define this macro if font handling is done using the X font names */
-#if (defined(__WXGTK__) && !defined(__WXGTK20__)) || defined(__X__)
-    #define _WX_X_FONTLIKE
-#endif
-
 /*  macro to specify "All Files" on different platforms */
-#if defined(__WXMSW__) || defined(__WXPM__)
+#if defined(__WXMSW__)
 #   define wxALL_FILES_PATTERN   wxT("*.*")
 #   define wxALL_FILES           gettext_noop("All files (*.*)|*.*")
 #else
@@ -2953,7 +2935,7 @@ typedef MenuRef WXHMENU;
 
 #endif
 
-#if defined( __WXCOCOA__ ) || defined(__WXMAC__)
+#if defined(__WXMAC__)
 
 /* Definitions of 32-bit/64-bit types
  * These are typedef'd exactly the same way in newer OS X headers so
@@ -3063,39 +3045,6 @@ typedef WX_NSView WXWidget; /*  wxWidgets BASE definition */
 
 DECLARE_WXCOCOA_OBJC_CLASS(NSString);
 
-#if wxOSX_USE_COCOA
-
-typedef WX_NSWindow WXWindow;
-typedef WX_NSView WXWidget;
-typedef WX_NSMenu WXHMENU;
-typedef WX_NSOpenGLPixelFormat WXGLPixelFormat;
-typedef WX_NSOpenGLContext WXGLContext;
-
-#elif wxOSX_USE_IPHONE
-
-DECLARE_WXCOCOA_OBJC_CLASS(UIWindow);
-DECLARE_WXCOCOA_OBJC_CLASS(UIView);
-DECLARE_WXCOCOA_OBJC_CLASS(UIFont);
-DECLARE_WXCOCOA_OBJC_CLASS(UIImage);
-DECLARE_WXCOCOA_OBJC_CLASS(UIEvent);
-DECLARE_WXCOCOA_OBJC_CLASS(NSSet);
-DECLARE_WXCOCOA_OBJC_CLASS(EAGLContext);
-DECLARE_WXCOCOA_OBJC_CLASS(UIWebView);
-
-typedef WX_UIWindow WXWindow;
-typedef WX_UIView WXWidget;
-typedef WX_EAGLContext WXGLContext;
-typedef WX_NSString* WXGLPixelFormat;
-typedef WX_UIWebView OSXWebViewPtr;
-
-#endif
-
-#if wxOSX_USE_COCOA_OR_CARBON
-DECLARE_WXCOCOA_OBJC_CLASS(WebView);
-typedef WX_WebView OSXWebViewPtr;
-#endif
-
-
 #endif /* __WXMAC__ */
 
 /* ABX: check __WIN32__ instead of __WXMSW__ for the same MSWBase in any Win32 port */
@@ -3165,219 +3114,6 @@ typedef int             (*WXFARPROC)();
 typedef int             (__stdcall *WXFARPROC)();
 #endif
 #endif /*  __WIN32__ */
-
-
-#if defined(__OS2__)
-typedef unsigned long   DWORD;
-typedef unsigned short  WORD;
-#endif
-
-#if defined(__WXPM__) || defined(__EMX__)
-#ifdef __WXPM__
-/*  Stand-ins for OS/2 types, to avoid #including all of os2.h */
-typedef unsigned long   WXHWND;
-typedef unsigned long   WXHANDLE;
-typedef unsigned long   WXHICON;
-typedef unsigned long   WXHFONT;
-typedef unsigned long   WXHMENU;
-typedef unsigned long   WXHPEN;
-typedef unsigned long   WXHBRUSH;
-typedef unsigned long   WXHPALETTE;
-typedef unsigned long   WXHCURSOR;
-typedef unsigned long   WXHRGN;
-typedef unsigned long   WXHACCEL;
-typedef unsigned long   WXHINSTANCE;
-typedef unsigned long   WXHMODULE;
-typedef unsigned long   WXHBITMAP;
-typedef unsigned long   WXHDC;
-typedef unsigned int    WXUINT;
-typedef unsigned long   WXDWORD;
-typedef unsigned short  WXWORD;
-
-typedef unsigned long   WXCOLORREF;
-typedef void *          WXMSG;
-typedef unsigned long   WXHTREEITEM;
-
-typedef void *          WXDRAWITEMSTRUCT;
-typedef void *          WXMEASUREITEMSTRUCT;
-typedef void *          WXLPCREATESTRUCT;
-
-typedef WXHWND          WXWidget;
-#endif
-#ifdef __EMX__
-/* Need a well-known type for WXFARPROC
-   below. MPARAM is typedef'ed too late. */
-#define WXWPARAM        void *
-#define WXLPARAM        void *
-#else
-#define WXWPARAM        MPARAM
-#define WXLPARAM        MPARAM
-#endif
-#define RECT            RECTL
-#define LOGFONT         FATTRS
-#define LOWORD          SHORT1FROMMP
-#define HIWORD          SHORT2FROMMP
-
-typedef unsigned long   WXMPARAM;
-typedef unsigned long   WXMSGID;
-typedef void*           WXRESULT;
-/* typedef int             (*WXFARPROC)(); */
-/*  some windows handles not defined by PM */
-typedef unsigned long   HANDLE;
-typedef unsigned long   HICON;
-typedef unsigned long   HFONT;
-typedef unsigned long   HMENU;
-typedef unsigned long   HPEN;
-typedef unsigned long   HBRUSH;
-typedef unsigned long   HPALETTE;
-typedef unsigned long   HCURSOR;
-typedef unsigned long   HINSTANCE;
-typedef unsigned long   HIMAGELIST;
-typedef unsigned long   HGLOBAL;
-#endif /*  WXPM || EMX */
-
-#if defined (__WXPM__)
-/*  WIN32 graphics types for OS/2 GPI */
-
-/*  RGB under OS2 is more like a PALETTEENTRY struct under Windows so we need a real RGB def */
-#define OS2RGB(r,g,b) ((DWORD)((unsigned char)(b) | ((unsigned char)(g) << 8)) | ((unsigned char)(r) << 16))
-
-typedef unsigned long COLORREF;
-#define GetRValue(rgb) ((unsigned char)((rgb) >> 16))
-#define GetGValue(rgb) ((unsigned char)(((unsigned short)(rgb)) >> 8))
-#define GetBValue(rgb) ((unsigned char)(rgb))
-#define PALETTEINDEX(i) ((COLORREF)(0x01000000 | (DWORD)(WORD)(i)))
-#define PALETTERGB(r,g,b) (0x02000000 | OS2RGB(r,g,b))
-/*  OS2's RGB/RGB2 is backwards from this */
-typedef struct tagPALETTEENTRY
-{
-    char bRed;
-    char bGreen;
-    char bBlue;
-    char bFlags;
-} PALETTEENTRY;
-typedef struct tagLOGPALETTE
-{
-    WORD palVersion;
-    WORD palNumentries;
-    WORD PALETTEENTRY[1];
-} LOGPALETTE;
-
-#if (defined(__VISAGECPP__) && (__IBMCPP__ < 400)) || defined (__WATCOMC__)
-    /*  VA 3.0 for some reason needs base data types when typedefing a proc proto??? */
-typedef void* (_System *WXFARPROC)(unsigned long, unsigned long, void*, void*);
-#else
-#if defined(__EMX__) && !defined(_System)
-#define _System
-#endif
-typedef WXRESULT (_System *WXFARPROC)(WXHWND, WXMSGID, WXWPARAM, WXLPARAM);
-#endif
-
-#endif /* __WXPM__ */
-
-
-#if defined(__WXMOTIF__) || defined(__WXX11__)
-/* Stand-ins for X/Xt/Motif types */
-typedef void*           WXWindow;
-typedef void*           WXWidget;
-typedef void*           WXAppContext;
-typedef void*           WXColormap;
-typedef void*           WXColor;
-typedef void            WXDisplay;
-typedef void            WXEvent;
-typedef void*           WXCursor;
-typedef void*           WXPixmap;
-typedef void*           WXFontStructPtr;
-typedef void*           WXGC;
-typedef void*           WXRegion;
-typedef void*           WXFont;
-typedef void*           WXImage;
-typedef void*           WXFontList;
-typedef void*           WXFontSet;
-typedef void*           WXRendition;
-typedef void*           WXRenderTable;
-typedef void*           WXFontType; /* either a XmFontList or XmRenderTable */
-typedef void*           WXString;
-
-typedef unsigned long   Atom;  /* this might fail on a few architectures */
-typedef long            WXPixel; /* safety catch in src/motif/colour.cpp */
-
-#endif /*  Motif */
-
-#ifdef __WXGTK__
-
-/* Stand-ins for GLIB types */
-typedef struct _GSList GSList;
-
-/* Stand-ins for GDK types */
-typedef struct _GdkColor        GdkColor;
-typedef struct _GdkCursor       GdkCursor;
-typedef struct _GdkDragContext  GdkDragContext;
-
-#if defined(__WXGTK20__)
-    typedef struct _GdkAtom* GdkAtom;
-#else
-    typedef unsigned long GdkAtom;
-#endif
-
-#if !defined(__WXGTK3__)
-    typedef struct _GdkColormap GdkColormap;
-    typedef struct _GdkFont GdkFont;
-    typedef struct _GdkGC GdkGC;
-    typedef struct _GdkRegion GdkRegion;
-#endif
-
-#if defined(__WXGTK3__)
-    typedef struct _GdkWindow GdkWindow;
-#elif defined(__WXGTK20__)
-    typedef struct _GdkDrawable GdkWindow;
-    typedef struct _GdkDrawable GdkPixmap;
-#else
-    typedef struct _GdkWindow GdkWindow;
-    typedef struct _GdkWindow GdkBitmap;
-    typedef struct _GdkWindow GdkPixmap;
-#endif
-
-/* Stand-ins for GTK types */
-typedef struct _GtkWidget         GtkWidget;
-typedef struct _GtkRcStyle        GtkRcStyle;
-typedef struct _GtkAdjustment     GtkAdjustment;
-typedef struct _GtkToolbar        GtkToolbar;
-typedef struct _GtkNotebook       GtkNotebook;
-typedef struct _GtkNotebookPage   GtkNotebookPage;
-typedef struct _GtkAccelGroup     GtkAccelGroup;
-typedef struct _GtkSelectionData  GtkSelectionData;
-typedef struct _GtkTextBuffer     GtkTextBuffer;
-typedef struct _GtkRange          GtkRange;
-typedef struct _GtkCellRenderer   GtkCellRenderer;
-
-typedef GtkWidget *WXWidget;
-
-#ifndef __WXGTK20__
-#define GTK_OBJECT_GET_CLASS(object) (GTK_OBJECT(object)->klass)
-#define GTK_CLASS_TYPE(klass) ((klass)->type)
-#endif
-
-#endif /*  __WXGTK__ */
-
-#if defined(__WXGTK20__) || (defined(__WXX11__) && wxUSE_UNICODE)
-#define wxUSE_PANGO 1
-#else
-#define wxUSE_PANGO 0
-#endif
-
-#if wxUSE_PANGO
-/* Stand-ins for Pango types */
-typedef struct _PangoContext         PangoContext;
-typedef struct _PangoLayout          PangoLayout;
-typedef struct _PangoFontDescription PangoFontDescription;
-#endif
-
-#ifdef __WXDFB__
-/* DirectFB doesn't have the concept of non-TLW window, so use
-   something arbitrary */
-typedef const void* WXWidget;
-#endif /*  DFB */
 
 /*  This is required because of clashing macros in windows.h, which may be */
 /*  included before or after wxWidgets classes, and therefore must be */

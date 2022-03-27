@@ -131,20 +131,10 @@
 #if !defined(HAVE_USLEEP) && \
     ((defined(__SUN__) && !defined(__SunOs_5_6) && \
                          !defined(__SunOs_5_7) && !defined(__SUNPRO_CC)) || \
-     defined(__osf__) || defined(__EMX__))
+     defined(__osf__))
     extern "C"
     {
-        #ifdef __EMX__
-            /* I copied this from the XFree86 diffs. AV. */
-            #define INCL_DOSPROCESS
-            #include <os2.h>
-            inline void usleep(unsigned long delay)
-            {
-                DosSleep(delay ? (delay/1000l) : 1l);
-            }
-        #else // Unix
-            int usleep(unsigned int usec);
-        #endif // __EMX__/Unix
+	    int usleep(unsigned int usec);
     };
 
     #define HAVE_USLEEP 1

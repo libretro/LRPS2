@@ -14,17 +14,11 @@
 #ifndef _WX_FEATURES_H_
 #define _WX_FEATURES_H_
 
-/* Pango-based ports and wxDFB use UTF-8 for text and font encodings
- * internally and so their fonts can handle any encodings: */
-#if wxUSE_PANGO || defined(__WXDFB__)
-    #define wxHAS_UTF8_FONTS
-#endif
-
 /* This is defined when the compiler provides some type of extended locale
    functions.  Otherwise, we implement them ourselves to only support the
    'C' locale */
 #if defined(HAVE_LOCALE_T) || \
-    (wxCHECK_VISUALC_VERSION(8) && !defined(__WXWINCE__))
+    (wxCHECK_VISUALC_VERSION(8)
     #define wxHAS_XLOCALE_SUPPORT
 #else
     #undef wxHAS_XLOCALE_SUPPORT

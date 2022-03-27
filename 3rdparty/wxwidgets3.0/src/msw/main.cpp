@@ -34,14 +34,6 @@
 #include "wx/msw/private.h"
 #include "wx/msw/seh.h"
 
-#ifdef __WXWINCE__
-    // there is no ExitProcess() under CE but exiting the main thread has the
-    // same effect
-    #ifndef ExitProcess
-        #define ExitProcess ExitThread
-    #endif
-#endif // __WXWINCE__
-
 #if defined(__WXMICROWIN__)
     #define HINSTANCE HANDLE
 #endif

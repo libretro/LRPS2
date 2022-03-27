@@ -197,7 +197,7 @@ wxIsAbsolutePath (const wxString& filename)
         if ((filename[0] == wxT('[') && filename[1] != wxT('.')))
             return true;
 #endif
-#if defined(__WINDOWS__) || defined(__OS2__)
+#if defined(__WINDOWS__)
         // MSDOS like
         if (filename[0] == wxT('\\') || (wxIsalpha (filename[0]) && filename[1] == wxT(':')))
             return true;
@@ -324,14 +324,14 @@ void wxDos2UnixFilename(wchar_t *s) { wxDoDos2UnixFilename(s); }
 
 template<typename T>
 static void
-#if defined(__WINDOWS__) || defined(__OS2__)
+#if defined(__WINDOWS__)
 wxDoUnix2DosFilename(T *s)
 #else
 wxDoUnix2DosFilename(T *WXUNUSED(s) )
 #endif
 {
 // Yes, I really mean this to happen under DOS only! JACS
-#if defined(__WINDOWS__) || defined(__OS2__)
+#if defined(__WINDOWS__)
   if (s)
     while (*s)
       {
@@ -386,7 +386,7 @@ wxConcatFiles (const wxString& file1, const wxString& file2, const wxString& fil
 }
 
 // helper of generic implementation of wxCopyFile()
-#if !(defined(__WIN32__) || defined(__OS2__)) && wxUSE_FILE
+#if !(defined(__WIN32__)
 
 static bool
 wxDoCopyFile(wxFile& fileIn,
@@ -440,9 +440,6 @@ wxCopyFile (const wxString& file1, const wxString& file2, bool overwrite)
     // NB: 3rd parameter is bFailIfExists i.e. the inverse of overwrite
     if ( !::CopyFile(file1.t_str(), file2.t_str(), !overwrite) )
         return false;
-#elif defined(__OS2__)
-    if ( ::DosCopy(file1.c_str(), file2.c_str(), overwrite ? DCPY_EXISTING : 0) != 0 )
-        return false;
 #elif wxUSE_FILE // !Win32
 
     wxStructStat fbuf;
@@ -467,7 +464,7 @@ wxCopyFile (const wxString& file1, const wxString& file2, bool overwrite)
     if ( !wxDoCopyFile(fileIn, fbuf, file2, overwrite) )
         return false;
 
-#if defined(__WXMAC__) || defined(__WXCOCOA__)
+#if defined(__WXMAC__)
     // copy the resource fork of the file too if it's present
     wxString pathRsrcOut;
     wxFile fileRsrcIn;
@@ -531,11 +528,9 @@ wxRenameFile(const wxString& file1, const wxString& file2, bool overwrite)
     if ( !overwrite && wxFileExists(file2) )
         return false;
 
-#if !defined(__WXWINCE__)
     // Normal system call
   if ( wxRename (file1, file2) == 0 )
     return true;
-#endif
 
   // Try to copy
   if (wxCopyFile(file1, file2, overwrite)) {
@@ -569,7 +564,7 @@ bool wxMkdir(const wxString& dir, int perm)
 
     // assume mkdir() has 2 args on non Windows-OS/2 platforms and on Windows too
     // for the GNU compiler
-#elif (!(defined(__WINDOWS__) || defined(__OS2__) || defined(__DOS__))) || \
+#elif (!(defined(__WINDOWS__) || defined(__DOS__))) || \
       (defined(__GNUWIN32__) && !defined(__MINGW32__)) ||                \
       defined(__WINE__) || defined(__WXMICROWIN__)
     const wxChar *dirname = dir.c_str();
@@ -579,9 +574,6 @@ bool wxMkdir(const wxString& dir, int perm)
   #else
     if ( mkdir(wxFNCONV(dirname), perm) != 0 )
   #endif
-#elif defined(__OS2__)
-    wxUnusedVar(perm);
-    if (::DosCreateDir(dir.c_str(), NULL) != 0) // enhance for EAB's??
 #elif defined(__DOS__)
     const wxChar *dirname = dir.c_str();
   #if defined(__WATCOMC__)
@@ -594,11 +586,7 @@ bool wxMkdir(const wxString& dir, int perm)
   #endif
 #else  // !MSW, !DOS and !OS/2 VAC++
     wxUnusedVar(perm);
-  #ifdef __WXWINCE__
-    if ( CreateDirectory(dir.fn_str(), NULL) == 0 )
-  #else
     if ( wxMkDir(dir.fn_str()) != 0 )
-  #endif
 #endif // !MSW/MSW
     {
         return false;
@@ -609,22 +597,10 @@ bool wxMkdir(const wxString& dir, int perm)
 
 bool wxRmdir(const wxString& dir, int WXUNUSED(flags))
 {
-#if defined(__VMS__)
-    return false; //to be changed since rmdir exists in VMS7.x
-#else
-  #if defined(__OS2__)
-    if ( ::DosDeleteDir(dir.c_str()) != 0 )
-  #elif defined(__WXWINCE__)
-    if ( RemoveDirectory(dir.fn_str()) == 0 )
-  #else
     if ( wxRmDir(dir.fn_str()) != 0 )
-  #endif
-    {
         return false;
-    }
 
     return true;
-#endif
 }
 
 // does the path exists? (may have or not '/' or '\\' at the end)
@@ -695,15 +671,8 @@ wxString wxFindNextFile()
 
 wxChar *wxDoGetCwd(wxChar *buf, int sz)
 {
-#if defined(__WXWINCE__)
-    // TODO
-    if(buf && sz>0) buf[0] = wxT('\0');
-    return buf;
-#else
     if ( !buf )
-    {
         buf = new wxChar[sz + 1];
-    }
 
     bool ok = false;
 
@@ -731,25 +700,7 @@ wxChar *wxDoGetCwd(wxChar *buf, int sz)
     {
     #if defined(_MSC_VER) || defined(__MINGW32__)
         ok = _getcwd(cbuf, sz) != NULL;
-    #elif defined(__OS2__)
-        APIRET rc;
-        ULONG ulDriveNum = 0;
-        ULONG ulDriveMap = 0;
-        rc = ::DosQueryCurrentDisk(&ulDriveNum, &ulDriveMap);
-        ok = rc == 0;
-        if (ok)
-        {
-            sz -= 3;
-            rc = ::DosQueryCurrentDir( 0 // current drive
-                                      ,(PBYTE)cbuf + 3
-                                      ,(PULONG)&sz
-                                     );
-            cbuf[0] = char('A' + (ulDriveNum - 1));
-            cbuf[1] = ':';
-            cbuf[2] = '\\';
-            ok = rc == 0;
-        }
-    #else // !Win32/VC++ !Mac !OS2
+    #else // !Win32/VC++ !Mac
         ok = getcwd(cbuf, sz) != NULL;
     #endif // platform
 
@@ -807,9 +758,6 @@ wxChar *wxDoGetCwd(wxChar *buf, int sz)
 #if !wxUSE_UNICODE
     #undef cbuf
 #endif
-
-#endif
-    // __WXWINCE__
 }
 
 wxString wxGetCwd()
@@ -822,27 +770,12 @@ wxString wxGetCwd()
 bool wxSetWorkingDirectory(const wxString& d)
 {
     bool success = false;
-#if defined(__OS2__)
-    if (d[1] == ':')
-    {
-        ::DosSetDefaultDisk(wxToupper(d[0]) - wxT('A') + 1);
-    // do not call DosSetCurrentDir when just changing drive,
-    // since it requires e.g. "d:." instead of "d:"!
-    if (d.length() == 2)
-        return true;
-    }
-    success = (::DosSetCurrentDir(d.c_str()) == 0);
-#elif defined(__UNIX__) || defined(__WXMAC__) || defined(__DOS__)
+#if defined(__UNIX__) || defined(__WXMAC__) || defined(__DOS__)
     success = (chdir(wxFNSTRINGCAST d.fn_str()) == 0);
 #elif defined(__WINDOWS__)
 
 #ifdef __WIN32__
-#ifdef __WXWINCE__
-    // No equivalent in WinCE
-    wxUnusedVar(d);
-#else
     success = (SetCurrentDirectory(d.t_str()) != 0);
-#endif
 #else
     // Must change drive, too.
     bool isDriveSpec = ((strlen(d) > 1) && (d[1] == ':'));
@@ -874,7 +807,7 @@ bool wxEndsWithPathSeparator(const wxString& filename)
     return !filename.empty() && wxIsPathSeparator(filename.Last());
 }
 
-#if defined(__WINDOWS__) && !(defined(__UNIX__) || defined(__OS2__))
+#if defined(__WINDOWS__) && !(defined(__UNIX__)
 static bool wxCheckWin32Permission(const wxString& path, DWORD access)
 {
     // quoting the MSDN: "To obtain a handle to a directory, call the
@@ -908,7 +841,7 @@ static bool wxCheckWin32Permission(const wxString& path, DWORD access)
 
 bool wxIsWritable(const wxString &path)
 {
-#if defined( __UNIX__ ) || defined(__OS2__)
+#if defined( __UNIX__ )
     // access() will take in count also symbolic links
     return wxAccess(path.c_str(), W_OK) == 0;
 #elif defined( __WINDOWS__ )
@@ -922,7 +855,7 @@ bool wxIsWritable(const wxString &path)
 
 bool wxIsReadable(const wxString &path)
 {
-#if defined( __UNIX__ ) || defined(__OS2__)
+#if defined( __UNIX__ )
     // access() will take in count also symbolic links
     return wxAccess(path.c_str(), R_OK) == 0;
 #elif defined( __WINDOWS__ )
@@ -954,7 +887,7 @@ bool wxIsReadable(const wxString &path)
 //
 wxFileKind wxGetFileKind(int fd)
 {
-#if defined __WINDOWS__ && !defined __WXWINCE__ && defined wxGetOSFHandle
+#if defined __WINDOWS__ && defined wxGetOSFHandle
     switch (::GetFileType(wxGetOSFHandle(fd)) & ~FILE_TYPE_REMOTE)
     {
         case FILE_TYPE_CHAR:

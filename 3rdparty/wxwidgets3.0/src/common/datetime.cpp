@@ -78,9 +78,7 @@
 
 #ifdef __WINDOWS__
     #include <winnls.h>
-    #ifndef __WXWINCE__
-        #include <locale.h>
-    #endif
+#include <locale.h>
 #endif
 
 #include "wx/datetime.h"
@@ -668,7 +666,6 @@ void wxDateTime::GetAmPmStrings(wxString *am, wxString *pm)
 wxDateTime::Country wxDateTime::GetCountry()
 {
     // TODO use LOCALE_ICOUNTRY setting under Win32
-#ifndef __WXWINCE__
     if ( ms_country == Country_Unknown )
     {
         // try to guess from the time zone name
@@ -703,9 +700,6 @@ wxDateTime::Country wxDateTime::GetCountry()
             ms_country = USA;
         }
     }
-#else // __WXWINCE__
-     ms_country = USA;
-#endif // !__WXWINCE__/__WXWINCE__
 
     return ms_country;
 }

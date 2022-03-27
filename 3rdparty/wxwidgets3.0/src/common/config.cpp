@@ -93,9 +93,6 @@ wxString wxExpandEnvVars(const wxString& str)
 
           wxString strVarName(str.c_str() + n + 1, m - n - 1);
 
-#ifdef __WXWINCE__
-          const bool expanded = false;
-#else
           // NB: use wxGetEnv instead of wxGetenv as otherwise variables
           //     set through wxSetEnv may not be read correctly!
           bool expanded = false;
@@ -106,7 +103,6 @@ wxString wxExpandEnvVars(const wxString& str)
               expanded = true;
           }
           else
-#endif
           {
             // variable doesn't exist => don't change anything
             #ifdef  __WINDOWS__

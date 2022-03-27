@@ -136,27 +136,10 @@
    checks use wxUSE_XXX symbols in #if tests.
  */
 
-#if defined(__WXWINCE__)
-#  include "wx/msw/wince/chkconf.h"
-#elif defined(__WINDOWS__)
+#if defined(__WINDOWS__)
 #  include "wx/msw/chkconf.h"
-#  if defined(__WXGTK__)
-#      include "wx/gtk/chkconf.h"
-#  endif
-#elif defined(__WXGTK__)
-#  include "wx/gtk/chkconf.h"
-#elif defined(__WXCOCOA__)
-#  include "wx/cocoa/chkconf.h"
 #elif defined(__WXMAC__)
 #  include "wx/osx/chkconf.h"
-#elif defined(__OS2__)
-#  include "wx/os2/chkconf.h"
-#elif defined(__WXDFB__)
-#  include "wx/dfb/chkconf.h"
-#elif defined(__WXMOTIF__)
-#  include "wx/motif/chkconf.h"
-#elif defined(__WXX11__)
-#  include "wx/x11/chkconf.h"
 #elif defined(__WXANDROID__)
 #  include "wx/android/chkconf.h"
 #endif

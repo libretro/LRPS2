@@ -46,10 +46,8 @@
 #include <ctype.h>
 
 #ifdef __WINDOWS__
-    #include <winnls.h>
-    #ifndef __WXWINCE__
-        #include <locale.h>
-    #endif
+#include <winnls.h>
+#include <locale.h>
 #endif
 
 #include "wx/datetime.h"

@@ -39,12 +39,8 @@
     extern "C" int vswscanf(const wchar_t *, const wchar_t *, va_list);
 #endif
 
-#ifndef __WXWINCE__
-    #include <time.h>
-    #include <locale.h>
-#else
-    #include "wx/msw/wince/time.h"
-#endif
+#include <time.h>
+#include <locale.h>
 
 #ifndef WX_PRECOMP
     #include "wx/string.h"
@@ -56,14 +52,9 @@
     #include <langinfo.h>
 #endif
 
-#ifdef __WXWINCE__
-    // there is no errno.h under CE apparently
-    #define wxSET_ERRNO(value)
-#else
-    #include <errno.h>
+#include <errno.h>
 
-    #define wxSET_ERRNO(value) errno = value
-#endif
+#define wxSET_ERRNO(value) errno = value
 
 #if defined(__DARWIN__)
     #include "wx/osx/core/cfref.h"
@@ -1058,17 +1049,6 @@ char *strdup(const char *s)
     return dest ;
 }
 #endif // wxNEED_STRDUP
-
-#if defined(__WXWINCE__) && (_WIN32_WCE <= 211)
-
-void *calloc( size_t num, size_t size )
-{
-    void** ptr = (void **)malloc(num * size);
-    memset( ptr, 0, num * size);
-    return ptr;
-}
-
-#endif // __WXWINCE__ <= 211
 
 // ============================================================================
 // wx wrappers for CRT functions

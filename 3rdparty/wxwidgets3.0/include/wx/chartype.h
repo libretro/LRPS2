@@ -74,7 +74,7 @@
 #elif defined(HAVE_WCSTR_H)
     /* old compilers have relevant declarations here */
     #include <wcstr.h>
-#elif defined(__FreeBSD__) || defined(__DARWIN__) || defined(__EMX__)
+#elif defined(__FreeBSD__) || defined(__DARWIN__)
     /* include stdlib.h for wchar_t */
     #include <stdlib.h>
 #endif /* HAVE_WCHAR_H */

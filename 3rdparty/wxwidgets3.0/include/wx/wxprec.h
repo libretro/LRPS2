@@ -49,11 +49,6 @@
     #include "wx/msw/missing.h"
 #endif
 
-// include <os2.h>
-#ifdef __OS2__
-#   include "wx/os2/private.h"
-#endif
-
 // include the most common wx headers
 #include "wx/wx.h"
 

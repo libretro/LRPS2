@@ -48,7 +48,7 @@ WXDLLIMPEXP_BASE void wxSetInstance(HINSTANCE hInst);
 // define things missing from some compilers' headers
 // ---------------------------------------------------------------------------
 
-#if defined(__WXWINCE__) || (defined(__GNUWIN32__) && !wxUSE_NORLANDER_HEADERS)
+#if (defined(__GNUWIN32__) && !wxUSE_NORLANDER_HEADERS)
 #ifndef ZeroMemory
     inline void ZeroMemory(void *buf, size_t len) { memset(buf, 0, len); }
 #endif
@@ -147,10 +147,7 @@ extern LONG APIENTRY _EXPORT
 // Vc++, bcc, dmc, ow, mingw akk have _get_osfhandle() and Cygwin has
 // get_osfhandle. Others are currently unknown, e.g. Salford, Intel, Visual
 // Age.
-#if defined(__WXWINCE__)
-    #define wxGetOSFHandle(fd) ((HANDLE)fd)
-    #define wxOpenOSFHandle(h, flags) ((int)wxPtrToUInt(h))
-#elif defined(__CYGWIN__)
+#if defined(__CYGWIN__)
     #define wxGetOSFHandle(fd) ((HANDLE)get_osfhandle(fd))
 #elif defined(__VISUALC__) \
    || defined(__BORLANDC__) \

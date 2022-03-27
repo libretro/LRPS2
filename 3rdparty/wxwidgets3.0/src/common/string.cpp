@@ -27,9 +27,7 @@
 
 #include <ctype.h>
 
-#ifndef __WXWINCE__
-    #include <errno.h>
-#endif
+#include <errno.h>
 
 #include <string.h>
 #include <stdlib.h>
@@ -1345,11 +1343,7 @@ int wxString::Find(wxUniChar ch, bool bFromEnd) const
 // it out. Note that number extraction works correctly on UTF-8 strings, so
 // we can use wxStringCharType and wx_str() for maximum efficiency.
 
-#ifndef __WXWINCE__
-    #define DO_IF_NOT_WINCE(x) x
-#else
-    #define DO_IF_NOT_WINCE(x)
-#endif
+#define DO_IF_NOT_WINCE(x) x
 
 #define WX_STRING_TO_X_TYPE_START                                           \
     DO_IF_NOT_WINCE( errno = 0; )                                           \
@@ -1585,10 +1579,8 @@ static int DoStringPrintfV(wxString& str,
         va_list argptrcopy;
         wxVaCopy(argptrcopy, argptr);
 
-#ifndef __WXWINCE__
-        // Set errno to 0 to make it determinate if wxVsnprintf fails to set it.
-        errno = 0;
-#endif
+	// Set errno to 0 to make it determinate if wxVsnprintf fails to set it.
+	errno = 0;
         int len = wxVsnprintf(buf, size, format, argptrcopy);
         va_end(argptrcopy);
 
@@ -1618,13 +1610,6 @@ static int DoStringPrintfV(wxString& str,
             // assume it only returns error if there is not enough space, but
             // as we don't know how much we need, double the current size of
             // the buffer
-#ifndef __WXWINCE__
-            if( (errno == EILSEQ) || (errno == EINVAL) )
-            // If errno was set to one of the two well-known hard errors
-            // then fail immediately to avoid an infinite loop.
-                return -1;
-            else
-#endif // __WXWINCE__
             // still not enough, as we don't know how much we need, double the
             // current size of the buffer
                 size *= 2;

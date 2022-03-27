@@ -143,7 +143,7 @@ private:
     wxDECLARE_NO_COPY_CLASS(wxEventLoopBase);
 };
 
-#if defined(__WINDOWS__) || defined(__WXMAC__) || defined(__WXDFB__) || (defined(__UNIX__) && !defined(__WXOSX__))
+#if defined(__WINDOWS__) || defined(__WXMAC__) || (defined(__UNIX__) && !defined(__WXOSX__))
 
 // this class can be used to implement a standard event loop logic using
 // Pending() and Dispatch()

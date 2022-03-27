@@ -16,11 +16,7 @@
 
 #if wxUSE_DATETIME
 
-#ifdef __WXWINCE__
-    #include "wx/msw/wince/time.h"
-#else
-    #include <time.h>
-#endif // OS
+#include <time.h>
 
 #include <limits.h>             // for INT_MIN
 
@@ -117,13 +113,7 @@ extern WXDLLIMPEXP_DATA_BASE(const wxDateTime) wxDefaultDateTime;
 // conditional compilation
 // ----------------------------------------------------------------------------
 
-// if configure detected strftime(), we have it too
-#ifdef HAVE_STRFTIME
-    #define wxHAS_STRFTIME
-// suppose everyone else has strftime except Win CE unless VC8 is used
-#elif !defined(__WXWINCE__) || defined(__VISUALC8__)
-    #define wxHAS_STRFTIME
-#endif
+#define wxHAS_STRFTIME
 
 // ----------------------------------------------------------------------------
 // wxDateTime represents an absolute moment in the time

@@ -62,10 +62,8 @@
     (defined(__GNUG__) && defined(__MSVCRT__)) || \
     defined(__WATCOMC__)
 
-#ifndef __WXWINCE__
-    #undef wxUSE_BEGIN_THREAD
-    #define wxUSE_BEGIN_THREAD
-#endif
+#undef wxUSE_BEGIN_THREAD
+#define wxUSE_BEGIN_THREAD
 
 #endif
 

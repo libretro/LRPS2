@@ -27,7 +27,7 @@ class WXDLLIMPEXP_FWD_BASE wxFFile;
 
 // this symbol is defined for the platforms where file systems use volumes in
 // paths
-#if defined(__WINDOWS__) || defined(__DOS__) || defined(__OS2__)
+#if defined(__WINDOWS__) || defined(__DOS__)
     #define wxHAS_FILESYSTEM_VOLUMES
 #endif
 
@@ -345,7 +345,6 @@ public:
         return !m_dontFollowLinks;
     }
 
-#ifndef __WXWINCE__
         // if the path contains the value of the environment variable named envname
         // then this function replaces it with the string obtained from
         //    wxString::Format(replacementFmtString, value_of_envname_variable)
@@ -357,7 +356,6 @@ public:
     bool ReplaceEnvVariable(const wxString& envname,
                             const wxString& replacementFmtString = "$%s",
                             wxPathFormat format = wxPATH_NATIVE);
-#endif
 
     // Comparison
 

@@ -14,37 +14,18 @@
 #include "wx/list.h"
 #include "wx/arrstr.h"
 
-#ifdef __WXWINCE__
-    #include "wx/msw/wince/time.h"
-    #include "wx/msw/private.h"
-#else
-    #include <time.h>
-#endif
+#include <time.h>
 
-#ifndef __WXWINCE__
-    #include <sys/types.h>
-    #include <sys/stat.h>
-#endif
+#include <sys/types.h>
+#include <sys/stat.h>
 
-#ifdef __OS2__
-// need to check for __OS2__ first since currently both
-// __OS2__ and __UNIX__ are defined.
-    #include <process.h>
-    #include "wx/os2/private.h"
-    #ifdef __WATCOMC__
-        #include <direct.h>
-    #endif
-    #include <io.h>
-    #ifdef __EMX__
-        #include <unistd.h>
-    #endif
-#elif defined(__UNIX__)
+#if defined(__UNIX__)
     #include <unistd.h>
     #include <dirent.h>
 #endif
 
 #if defined(__WINDOWS__) && !defined(__WXMICROWIN__)
-#if !defined( __GNUWIN32__ ) && !defined(__WXWINCE__) && !defined(__CYGWIN__)
+#if !defined( __GNUWIN32__ ) && !defined(__CYGWIN__)
     #include <direct.h>
     #include <dos.h>
     #include <io.h>
@@ -69,9 +50,7 @@
     #include <dir.h>
 #endif
 
-#ifndef __WXWINCE__
-    #include  <fcntl.h>       // O_RDONLY &c
-#endif
+#include  <fcntl.h>       // O_RDONLY &c
 
 // ----------------------------------------------------------------------------
 // constants
@@ -81,18 +60,14 @@
     typedef int mode_t;
 #endif
 
-#ifdef __WXWINCE__
-    typedef long off_t;
+// define off_t
+#if !defined(__WXMAC__) || defined(__UNIX__) || defined(__MACH__)
+#include  <sys/types.h>
 #else
-    // define off_t
-    #if !defined(__WXMAC__) || defined(__UNIX__) || defined(__MACH__)
-        #include  <sys/types.h>
-    #else
-        typedef long off_t;
-    #endif
+    typedef long off_t;
 #endif
 
-#if defined(__VISUALC__) && !defined(__WXWINCE__)
+#if defined(__VISUALC__)
     typedef _off_t off_t;
 #elif defined(__SYMANTEC__)
     typedef long off_t;
@@ -165,27 +140,7 @@ enum wxPosixPermissions
 
 // Wrappers around Win32 api functions like CreateFile, ReadFile and such
 // Implemented in filefnwce.cpp
-#if defined( __WXWINCE__)
-    typedef __int64 wxFileOffset;
-    #define wxFileOffsetFmtSpec wxT("I64")
-    WXDLLIMPEXP_BASE int wxCRT_Open(const wxChar *filename, int oflag, int WXUNUSED(pmode));
-    WXDLLIMPEXP_BASE int wxCRT_Access(const wxChar *name, int WXUNUSED(how));
-    WXDLLIMPEXP_BASE int wxCRT_Chmod(const wxChar *name, int WXUNUSED(how));
-    WXDLLIMPEXP_BASE int wxClose(int fd);
-    WXDLLIMPEXP_BASE int wxFsync(int WXUNUSED(fd));
-    WXDLLIMPEXP_BASE int wxRead(int fd, void *buf, unsigned int count);
-    WXDLLIMPEXP_BASE int wxWrite(int fd, const void *buf, unsigned int count);
-    WXDLLIMPEXP_BASE int wxEof(int fd);
-    WXDLLIMPEXP_BASE wxFileOffset wxSeek(int fd, wxFileOffset offset, int origin);
-    #define wxLSeek wxSeek
-    WXDLLIMPEXP_BASE wxFileOffset wxTell(int fd);
-
-    // always Unicode under WinCE
-    #define   wxCRT_MkDir      _wmkdir
-    #define   wxCRT_RmDir      _wrmdir
-    #define   wxCRT_Stat       _wstat
-    #define   wxStructStat struct _stat
-#elif (defined(__WINDOWS__) || defined(__OS2__)) && \
+#if (defined(__WINDOWS__)) && \
       ( \
         defined(__VISUALC__) || \
         defined(__MINGW64_TOOLCHAIN__) || \
@@ -358,11 +313,7 @@ enum wxPosixPermissions
         #endif
     #else
         // Unfortunately Watcom is not consistent
-        #if defined(__OS2__) && defined(__WATCOMC__)
-            #define   wxCRT_StatA       _stat
-        #else
-            #define   wxCRT_StatA       wxPOSIX_IDENT(stat)
-        #endif
+#define   wxCRT_StatA       wxPOSIX_IDENT(stat)
     #endif
 
     // then wide char ones
@@ -506,23 +457,19 @@ inline int wxChmod(const wxString& path, mode_t mode)
 inline int wxOpen(const wxString& path, int flags, mode_t mode)
     { return wxCRT_Open(path.fn_str(), flags, mode); }
 
-// FIXME-CE: provide our own implementations of the missing CRT functions
-#ifndef __WXWINCE__
 inline int wxStat(const wxString& path, wxStructStat *buf)
     { return wxCRT_Stat(path.fn_str(), buf); }
 inline int wxLstat(const wxString& path, wxStructStat *buf)
     { return wxCRT_Lstat(path.fn_str(), buf); }
 inline int wxRmDir(const wxString& path)
     { return wxCRT_RmDir(path.fn_str()); }
-#if (defined(__WINDOWS__) && !defined(__CYGWIN__)) \
-        || (defined(__OS2__) && defined(__WATCOMC__))
+#if (defined(__WINDOWS__) && !defined(__CYGWIN__))
 inline int wxMkDir(const wxString& path, mode_t WXUNUSED(mode) = 0)
     { return wxCRT_MkDir(path.fn_str()); }
 #else
 inline int wxMkDir(const wxString& path, mode_t mode)
     { return wxCRT_MkDir(path.fn_str(), mode); }
 #endif
-#endif // !__WXWINCE__
 
 #ifdef O_BINARY
     #define wxO_BINARY O_BINARY
@@ -639,7 +586,7 @@ WXDLLIMPEXP_BASE bool wxIsReadable(const wxString &path);
 #define wxPATH_SEP_MAC        wxT(";")
 
 // platform independent versions
-#if defined(__UNIX__) && !defined(__OS2__)
+#if defined(__UNIX__)
   // CYGWIN also uses UNIX settings
   #define wxFILE_SEP_PATH     wxFILE_SEP_PATH_UNIX
   #define wxPATH_SEP          wxPATH_SEP_UNIX
@@ -653,7 +600,7 @@ WXDLLIMPEXP_BASE bool wxIsReadable(const wxString &path);
 
 // this is useful for wxString::IsSameAs(): to compare two file names use
 // filename1.IsSameAs(filename2, wxARE_FILENAMES_CASE_SENSITIVE)
-#if defined(__UNIX__) && !defined(__DARWIN__) && !defined(__OS2__)
+#if defined(__UNIX__) && !defined(__DARWIN__)
   #define wxARE_FILENAMES_CASE_SENSITIVE  true
 #else   // Windows, Mac OS and OS/2
   #define wxARE_FILENAMES_CASE_SENSITIVE  false
@@ -663,7 +610,7 @@ WXDLLIMPEXP_BASE bool wxIsReadable(const wxString &path);
 inline bool wxIsPathSeparator(wxChar c)
 {
     // under DOS/Windows we should understand both Unix and DOS file separators
-#if ( defined(__UNIX__) && !defined(__OS2__) )|| defined(__MAC__)
+#if ( defined(__UNIX__) || defined(__MAC__)
     return c == wxFILE_SEP_PATH;
 #else
     return c == wxFILE_SEP_PATH_DOS || c == wxFILE_SEP_PATH_UNIX;

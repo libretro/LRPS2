@@ -108,7 +108,7 @@ wxEventLoopBase::AddSourceForFD(int fd,
 #endif // wxUSE_EVENTLOOP_SOURCE
 
 // wxEventLoopManual is unused in the other ports
-#if defined(__WINDOWS__) || defined(__WXDFB__) || ( ( defined(__UNIX__) && !defined(__WXOSX__) ) && wxUSE_BASE)
+#if defined(__WINDOWS__) || ( ( defined(__UNIX__) && !defined(__WXOSX__) ) && wxUSE_BASE)
 
 // ============================================================================
 // wxEventLoopManual implementation
@@ -222,4 +222,4 @@ void wxEventLoopManual::ScheduleExit(int rc)
     WakeUp();
 }
 
-#endif // __WINDOWS__ || __WXMAC__ || __WXDFB__
+#endif // __WINDOWS__ || __WXMAC__

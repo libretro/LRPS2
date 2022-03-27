@@ -276,7 +276,7 @@ private:
 
         wxCritSectBuffer m_buffer;
     };
-#endif // Unix&OS2/Win32
+#endif // Unix/Win32
 
     wxDECLARE_NO_COPY_CLASS(wxCriticalSection);
 };

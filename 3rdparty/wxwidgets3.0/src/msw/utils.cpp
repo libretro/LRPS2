@@ -43,7 +43,7 @@
 #   include <sys/types.h>
 #endif
 
-#if !defined(__GNUWIN32__) && !defined(__WXMICROWIN__) && !defined(__WXWINCE__)
+#if !defined(__GNUWIN32__) && !defined(__WXMICROWIN__)
     #include <direct.h>
 
     #include <dos.h>
@@ -73,7 +73,7 @@
     #include <lm.h>
 #endif // USE_NET_API
 
-#if defined(__WIN32__) && !defined(__WXMICROWIN__) && !defined(__WXWINCE__)
+#if defined(__WIN32__) && !defined(__WXMICROWIN__)
     #ifndef __UNIX__
         #include <io.h>
     #endif
@@ -101,24 +101,16 @@
 bool wxGetUserId(wxChar *WXUNUSED_IN_WINCE(buf),
                  int WXUNUSED_IN_WINCE(maxSize))
 {
-#if defined(__WXWINCE__)
-    // TODO-CE
-    return false;
-#else
     DWORD nSize = maxSize;
     if ( ::GetUserName(buf, &nSize) == 0 )
     {
         // actually, it does happen on Win9x if the user didn't log on
         DWORD res = ::GetEnvironmentVariable(wxT("username"), buf, maxSize);
         if ( res == 0 )
-        {
-            // not found
             return false;
-        }
     }
 
     return true;
-#endif
 }
 
 const wxChar* wxGetHomeDir(wxString *pstr)
@@ -149,8 +141,6 @@ const wxChar* wxGetHomeDir(wxString *pstr)
         #endif
         strDir = windowsPath;
     #endif
-#elif defined(__WXWINCE__)
-    strDir = wxT("\\");
 #else
     strDir.clear();
 
@@ -227,27 +217,17 @@ wxString wxGetUserHome(const wxString& user)
 bool wxGetEnv(const wxString& WXUNUSED_IN_WINCE(var),
               wxString *WXUNUSED_IN_WINCE(value))
 {
-#ifdef __WXWINCE__
-    // no environment variables under CE
-    return false;
-#else // Win32
     // first get the size of the buffer
     DWORD dwRet = ::GetEnvironmentVariable(var.t_str(), NULL, 0);
     if ( !dwRet )
-    {
-        // this means that there is no such variable
         return false;
-    }
 
     if ( value )
-    {
         (void)::GetEnvironmentVariable(var.t_str(),
                                        wxStringBuffer(*value, dwRet),
                                        dwRet);
-    }
 
     return true;
-#endif // WinCE/32
 }
 
 // ----------------------------------------------------------------------------

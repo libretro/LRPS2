@@ -129,11 +129,6 @@
 #endif
 #endif
 
-#ifdef __EMX__
-#include <os2.h>
-#define MAX_PATH _MAX_PATH
-#endif
-
 #ifndef S_ISREG
     #define S_ISREG(mode) ((mode) & S_IFREG)
 #endif
@@ -305,7 +300,7 @@ static bool IsUNCPath(const wxString& path, wxPathFormat format)
 // the appropriate file with an extra twist that it also works when there is no
 // wxFileName object at all, as is the case in static methods.
 
-#if defined(__UNIX_LIKE__) || defined(__WXMAC__) || defined(__OS2__) || (defined(__DOS__) && defined(__WATCOMC__))
+#if defined(__UNIX_LIKE__) || defined(__WXMAC__) || (defined(__DOS__) && defined(__WATCOMC__))
     #define wxHAVE_LSTAT
 #endif
 
@@ -625,7 +620,7 @@ void RemoveTrailingSeparatorsFromPath(wxString& strPath)
     }
 }
 
-#endif // __WINDOWS__ || __OS2__
+#endif // __WINDOWS__
 
 bool
 wxFileSystemObjectExists(const wxString& path, int flags)
@@ -659,34 +654,6 @@ wxFileSystemObjectExists(const wxString& path, int flags)
     // Anything else must be a file (perhaps we should check for
     // FILE_ATTRIBUTE_REPARSE_POINT?)
     return acceptFile;
-#elif defined(__OS2__)
-    if ( acceptDir )
-    {
-        // OS/2 can't handle "d:", it wants either "d:\" or "d:."
-        if (strPath.length() == 2 && strPath[1u] == wxT(':'))
-            strPath << wxT('.');
-    }
-
-    FILESTATUS3 Info = {{0}};
-    APIRET rc = ::DosQueryPathInfo((PSZ)(WXSTRINGCAST strPath), FIL_STANDARD,
-            (void*) &Info, sizeof(FILESTATUS3));
-
-    if ( rc == NO_ERROR )
-    {
-        if ( Info.attrFile & FILE_DIRECTORY )
-            return acceptDir;
-        else
-            return acceptFile;
-    }
-
-    // We consider that the path must exist if we get a sharing violation for
-    // it but we don't know what is it in this case.
-    if ( rc == ERROR_SHARING_VIOLATION )
-        return flags & wxFILE_EXISTS_ANY;
-
-    // Any other error (usually ERROR_PATH_NOT_FOUND), means there is nothing
-    // there.
-    return false;
 #else // Non-MSW, non-OS/2
     wxStructStat st;
     if ( !StatAny(st, strPath, flags) )
@@ -925,16 +892,6 @@ static wxString wxCreateTempImpl(
     if (dir.empty())
     {
         dir = wxFileName::GetTempDir();
-    }
-
-#if defined(__WXWINCE__)
-    path = dir + wxT("\\") + name;
-    int i = 1;
-    while (wxFileName::FileExists(path))
-    {
-        path = dir + wxT("\\") + name ;
-        path << i;
-        i ++;
     }
 
 #elif defined(__WINDOWS__) && !defined(__WXMICROWIN__)
@@ -1201,9 +1158,7 @@ wxString wxFileName::GetTempDir()
     // if no environment variables are set, use the system default
     if ( dir.empty() )
     {
-#if defined(__WXWINCE__)
-        dir = CheckIfDirExists(wxT("\\temp"));
-#elif defined(__WINDOWS__) && !defined(__WXMICROWIN__)
+#if defined(__WINDOWS__) && !defined(__WXMICROWIN__)
         if ( !::GetTempPath(MAX_PATH, wxStringBuffer(dir, MAX_PATH + 1)) ) { }
 #elif defined(__WXMAC__) && wxOSX_USE_CARBON
         dir = wxMacFindFolderNoSeparator(short(kOnSystemDisk), kTemporaryFolderType, kCreateFolder);
@@ -1304,10 +1259,8 @@ bool wxFileName::Rmdir(const wxString& dir, int flags)
         fileop.wFunc = FO_DELETE;
         fileop.pFrom = path.t_str();
         fileop.fFlags = FOF_SILENT | FOF_NOCONFIRMATION;
-    #ifndef __WXWINCE__
         // FOF_NOERRORUI is not defined in WinCE
         fileop.fFlags |= FOF_NOERRORUI;
-    #endif
 
         int ret = SHFileOperation(&fileop);
         if ( ret != 0 )
@@ -1531,7 +1484,6 @@ bool wxFileName::Normalize(int flags,
     return true;
 }
 
-#ifndef __WXWINCE__
 bool wxFileName::ReplaceEnvVariable(const wxString& envname,
                                     const wxString& replacementFmtString,
                                     wxPathFormat format)
@@ -1555,7 +1507,6 @@ bool wxFileName::ReplaceEnvVariable(const wxString& envname,
 
     return true;
 }
-#endif
 
 // ----------------------------------------------------------------------------
 // absolute/relative paths
@@ -1701,9 +1652,6 @@ bool wxFileName::IsCaseSensitive( wxPathFormat format )
 /* static */
 wxString wxFileName::GetVolumeSeparator(wxPathFormat WXUNUSED_IN_WINCE(format))
 {
-#ifdef __WXWINCE__
-    return wxEmptyString;
-#else
     wxString sepVol;
 
     if ( (GetFormat(format) == wxPATH_DOS) ||
@@ -1714,7 +1662,6 @@ wxString wxFileName::GetVolumeSeparator(wxPathFormat WXUNUSED_IN_WINCE(format))
     //else: leave empty
 
     return sepVol;
-#endif
 }
 
 /* static */
@@ -1960,7 +1907,7 @@ wxString wxFileName::GetShortPath() const
 {
     wxString path(GetFullPath());
 
-#if defined(__WINDOWS__) && defined(__WIN32__) && !defined(__WXMICROWIN__) && !defined(__WXWINCE__)
+#if defined(__WINDOWS__) && defined(__WIN32__) && !defined(__WXMICROWIN__)
     DWORD sz = ::GetShortPathName(path.t_str(), NULL, 0);
     if ( sz != 0 )
     {
@@ -1986,7 +1933,7 @@ wxString wxFileName::GetLongPath() const
     wxString pathOut,
              path = GetFullPath();
 
-#if defined(__WIN32__) && !defined(__WXWINCE__) && !defined(__WXMICROWIN__)
+#if defined(__WIN32__) && !defined(__WXMICROWIN__)
 
     // The OS didn't support GetLongPathName, or some other error.
     // We need to call FindFirstFile on each component in turn.
@@ -2057,7 +2004,7 @@ wxPathFormat wxFileName::GetFormat( wxPathFormat format )
 {
     if (format == wxPATH_NATIVE)
     {
-#if defined(__WINDOWS__) || defined(__OS2__) || defined(__DOS__)
+#if defined(__WINDOWS__) || defined(__DOS__)
         format = wxPATH_DOS;
 #elif defined(__VMS)
         format = wxPATH_VMS;

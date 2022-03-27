@@ -367,11 +367,7 @@
     #undef IsMaximized
     inline BOOL IsMaximized(HWND WXUNUSED_IN_WINCE(hwnd))
     {
-#ifdef __WXWINCE__
-        return FALSE;
-#else
         return IsZoomed(hwnd);
-#endif
     }
 #endif
 
@@ -381,11 +377,7 @@
     #undef GetFirstChild
     inline HWND GetFirstChild(HWND WXUNUSED_IN_WINCE(hwnd))
     {
-#ifdef __WXWINCE__
-        return 0;
-#else
         return GetTopWindow(hwnd);
-#endif
     }
 #endif
 
@@ -460,24 +452,3 @@
 #ifdef Yield
     #undef Yield
 #endif
-
-
-#if defined(__WXWINCE__) && defined(DrawIcon) //#ifdef DrawIcon
-    #undef DrawIcon
-    inline BOOL DrawIcon(HDC hdc, int x, int y, HICON hicon)
-    {
-        return DrawIconEx(hdc,x,y,hicon,0,0,0,NULL, DI_NORMAL) ;
-    }
-#endif
-
-
-// GetWindowProc
-//ifdef GetWindowProc
-//   #undef GetWindowProc
-//endif
-//ifdef GetNextChild
-//    #undef GetNextChild
-//endif
-
-// #endif // _WX_WINUNDEF_H_
-

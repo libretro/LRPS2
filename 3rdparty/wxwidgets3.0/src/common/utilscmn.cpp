@@ -43,10 +43,6 @@
 #include "wx/config.h"
 #include "wx/versioninfo.h"
 
-#if defined(__WXWINCE__) && wxUSE_DATETIME
-    #include "wx/datetime.h"
-#endif
-
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,20 +54,14 @@
     #endif
 #endif
 
-#ifndef __WXWINCE__
-    #include <time.h>
-#else
-    #include "wx/msw/wince/time.h"
-#endif
+#include <time.h>
 
 #ifdef __WXMAC__
     #include "wx/osx/private.h"
 #endif
 
-#if !defined(__WXWINCE__)
-    #include <sys/types.h>
-    #include <sys/stat.h>
-#endif
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #if defined(__WINDOWS__)
     #include "wx/msw/private.h"
