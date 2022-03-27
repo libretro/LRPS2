@@ -51,13 +51,6 @@
     #endif
 #endif
 
-#if defined(__VISAGECPP__) && !defined(HAVE_FTIME)
-    #define HAVE_FTIME
-#  if __IBMCPP__ >= 400
-    #  define ftime(x) _ftime(x)
-#  endif
-#endif
-
 #include <time.h>
 
 #if !defined(__WXMAC__)
@@ -177,7 +170,7 @@ int wxGetTimeZone()
 
     #if defined(WX_TIMEZONE) // If WX_TIMEZONE was defined by configure, use it.
         return WX_TIMEZONE;
-    #elif defined(__MINGW32__) || defined(__VISAGECPP__)
+    #elif defined(__MINGW32__)
         return _timezone;
     #else // unknown platform -- assume it has timezone
         return timezone;

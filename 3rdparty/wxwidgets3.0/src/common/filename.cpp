@@ -109,12 +109,6 @@
 #include <unistd.h>
 #endif
 
-#ifdef __VISAGECPP__
-#ifndef MAX_PATH
-#define MAX_PATH 256
-#endif
-#endif
-
 #ifndef S_ISREG
     #define S_ISREG(mode) ((mode) & S_IFREG)
 #endif

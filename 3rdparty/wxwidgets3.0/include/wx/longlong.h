@@ -34,17 +34,10 @@
     // unknown pragma should never be an error -- except that, actually, some
     // broken compilers don't like it, so we have to disable it in this case
     // <sigh>
-    #ifdef __GNUC__
-        #warning "Your compiler does not appear to support 64 bit "\
-                 "integers, using emulation class instead.\n" \
-                 "Please report your compiler version to " \
-                 "wx-dev@lists.wxwidgets.org!"
-    #elif !(defined(__VISAGECPP__))
-        #pragma warning "Your compiler does not appear to support 64 bit "\
-                        "integers, using emulation class instead.\n" \
-                        "Please report your compiler version to " \
-                        "wx-dev@lists.wxwidgets.org!"
-    #endif
+#warning "Your compiler does not appear to support 64 bit "\
+	"integers, using emulation class instead.\n" \
+	"Please report your compiler version to " \
+	"wx-dev@lists.wxwidgets.org!"
 
     #define wxUSE_LONGLONG_WX 1
 #endif // compiler

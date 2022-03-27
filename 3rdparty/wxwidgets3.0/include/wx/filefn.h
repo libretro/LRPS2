@@ -415,15 +415,7 @@ inline int wxMkDir(const wxString& path, mode_t mode)
     #define wxO_BINARY 0
 #endif
 
-#if defined(__VISAGECPP__) && __IBMCPP__ >= 400
-//
-// VisualAge C++ V4.0 cannot have any external linkage const decs
-// in headers included by more than one primary source
-//
-extern const int wxInvalidOffset;
-#else
 const int wxInvalidOffset = -1;
-#endif
 
 // ----------------------------------------------------------------------------
 // functions

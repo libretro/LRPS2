@@ -26,8 +26,6 @@
         #endif
     #elif defined(__GNUWIN32__) && !defined(__MINGW32__)
         #define wxUSE_WCHAR_T 0
-    #elif defined(__VISAGECPP__) && (__IBMCPP__ < 400)
-        #define wxUSE_WCHAR_T 0
     #else
         /* add additional compiler checks if this fails */
         #define wxUSE_WCHAR_T 1
@@ -45,7 +43,7 @@
 
    Actually MinGW has tchar.h, but it does not include wchar.h
  */
-#if defined(__VISAGECPP__) || defined(__MINGW32__)
+#if defined(__MINGW32__)
     #ifndef HAVE_WCHAR_H
         #define HAVE_WCHAR_H
     #endif
@@ -97,15 +95,6 @@
     #include <stddef.h>
     #include <string.h>
     #include <ctype.h>
-#elif 0 && defined(__VISAGECPP__) && (__IBMCPP__ >= 400)
-    /* VZ: the old VisualAge definitions were completely wrong and had no    */
-    /*     chance at all to work in Unicode build anyhow so let's pretend    */
-    /*     that VisualAge does _not_ support TCHAR for the moment (as        */
-    /*     indicated by "0 &&" above) until someone really has time to delve */
-    /*     into Unicode issues under OS/2 */
-
-    /* VisualAge 4.0+ supports TCHAR */
-    #define wxHAVE_TCHAR_SUPPORT
 #endif /* compilers with (good) TCHAR support */
 
 #ifdef wxHAVE_TCHAR_SUPPORT

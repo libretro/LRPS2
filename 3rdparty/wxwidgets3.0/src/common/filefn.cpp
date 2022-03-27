@@ -99,14 +99,6 @@ wxDECL_FOR_STRICT_MINGW32(int, _fileno, (FILE*))
 static wxChar wxFileFunctionsBuffer[4*_MAXPATHLEN];
 #endif
 
-#if defined(__VISAGECPP__) && __IBMCPP__ >= 400
-//
-// VisualAge C++ V4.0 cannot have any external linkage const decs
-// in headers included by more than one primary source
-//
-const int wxInvalidOffset = -1;
-#endif
-
 // ============================================================================
 // implementation
 // ============================================================================
@@ -453,7 +445,7 @@ wxCopyFile (const wxString& file1, const wxString& file2, bool overwrite)
     }
 #endif // wxMac || wxCocoa
 
-#if !defined(__VISAGECPP__) && !defined(__WXMAC__) || defined(__UNIX__)
+#if !defined(__WXMAC__) || defined(__UNIX__)
     // no chmod in VA.  Should be some permission API for HPFS386 partitions
     // however
     if ( chmod(file2.fn_str(), fbuf.st_mode) != 0 )
