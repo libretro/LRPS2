@@ -648,12 +648,6 @@ void GSdxApp::Init()
 	m_current_configuration["Renderer"]                                   = std::to_string(static_cast<int>(GSRendererType::Default));
 	m_current_configuration["resx"]                                       = "1024";
 	m_current_configuration["resy"]                                       = "1024";
-	m_current_configuration["save"]                                       = "0";
-	m_current_configuration["savef"]                                      = "0";
-	m_current_configuration["savel"]                                      = "5000";
-	m_current_configuration["saven"]                                      = "0";
-	m_current_configuration["savet"]                                      = "0";
-	m_current_configuration["savez"]                                      = "0";
 	m_current_configuration["shaderfx"]                                   = "0";
 	m_current_configuration["shaderfx_conf"]                              = "shaders/GSdx_FX_Settings.ini";
 	m_current_configuration["shaderfx_glsl"]                              = "shaders/GSdx.fx";
