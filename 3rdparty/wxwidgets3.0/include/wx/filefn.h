@@ -32,18 +32,6 @@
 #endif // __WINDOWS__
 #endif // native Win compiler
 
-#if defined(__DOS__)
-    #ifdef __WATCOMC__
-        #include <direct.h>
-        #include <dos.h>
-        #include <io.h>
-    #endif
-    #ifdef __DJGPP__
-        #include <io.h>
-        #include <unistd.h>
-    #endif
-#endif
-
 #include  <fcntl.h>       // O_RDONLY &c
 
 // ----------------------------------------------------------------------------

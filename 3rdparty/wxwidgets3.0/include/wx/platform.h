@@ -163,31 +163,7 @@
 #endif /* wxUSE_UNICODE */
 
 
-/*
-   OS: first of all, test for MS-DOS platform. We must do this before testing
-       for Unix, because DJGPP compiler defines __unix__ under MS-DOS
- */
-#if defined(__GO32__) || defined(__DJGPP__) || defined(__DOS__)
-#    ifndef __DOS__
-#        define __DOS__
-#    endif
-    /* size_t is the same as unsigned int for Watcom 11 compiler, */
-    /* so define it if it hadn't been done by configure yet */
-#    if !defined(wxSIZE_T_IS_UINT) && !defined(wxSIZE_T_IS_ULONG)
-#        ifdef __WATCOMC__
-#            define wxSIZE_T_IS_UINT
-#        endif
-#        ifdef __DJGPP__
-#            define wxSIZE_T_IS_ULONG
-#        endif
-#    endif
-
-/*
-   OS: then test for generic Unix defines, then for particular flavours and
-       finally for Unix-like systems
-       Mac OS X matches this case (__MACH__), prior Mac OS do not.
- */
-#elif defined(__UNIX__) || defined(__unix) || defined(__unix__) || \
+#if defined(__UNIX__) || defined(__unix) || defined(__unix__) || \
       defined(____SVR4____) || defined(__LINUX__) || defined(__sgi) || \
       defined(__hpux) || defined(__sun) || defined(__SUN__) || defined(_AIX) || \
       defined(__VMS) || defined(__BEOS__) || defined(__MACH__)
@@ -287,8 +263,7 @@
  */
 #if ( defined( __GNUWIN32__ ) || defined( __MINGW32__ ) || \
     ( defined( __CYGWIN__ ) && defined( __WINDOWS__ ) ) || \
-      wxCHECK_WATCOM_VERSION(1,0) ) && \
-    !defined(__DOS__)
+      wxCHECK_WATCOM_VERSION(1,0) )
 #    include "wx/msw/gccpriv.h"
 #else
 #    undef wxCHECK_W32API_VERSION

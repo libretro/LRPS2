@@ -109,10 +109,6 @@
 #include <unistd.h>
 #endif
 
-#ifdef __DJGPP__
-#include <unistd.h>
-#endif
-
 #ifdef __WATCOMC__
 #include <io.h>
 #include <sys/utime.h>
@@ -296,7 +292,7 @@ static bool IsUNCPath(const wxString& path, wxPathFormat format)
 // the appropriate file with an extra twist that it also works when there is no
 // wxFileName object at all, as is the case in static methods.
 
-#if defined(__UNIX_LIKE__) || defined(__WXMAC__) || (defined(__DOS__) && defined(__WATCOMC__))
+#if defined(__UNIX_LIKE__) || defined(__WXMAC__)
     #define wxHAVE_LSTAT
 #endif
 
@@ -967,9 +963,7 @@ static wxString wxCreateTempImpl(
     }
 #else // !HAVE_MKTEMP (includes __DOS__)
     // generate the unique file name ourselves
-    #if !defined(__DOS__)
     path << (unsigned int)getpid();
-    #endif
 
     wxString pathTry;
 
@@ -1998,7 +1992,7 @@ wxPathFormat wxFileName::GetFormat( wxPathFormat format )
 {
     if (format == wxPATH_NATIVE)
     {
-#if defined(__WINDOWS__) || defined(__DOS__)
+#if defined(__WINDOWS__)
         format = wxPATH_DOS;
 #else
         format = wxPATH_UNIX;

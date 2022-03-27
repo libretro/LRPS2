@@ -71,11 +71,6 @@
     #include <sys/timeb.h>
 #endif
 
-#if defined(__DJGPP__) || defined(__WINE__)
-    #include <sys/timeb.h>
-    #include <values.h>
-#endif
-
 namespace
 {
 
@@ -161,10 +156,6 @@ int wxGetTimeZone()
             gmtoffset += 3600;
     }
     return (int)gmtoffset;
-#elif defined(__DJGPP__) || defined(__WINE__)
-    struct timeb tb;
-    ftime(&tb);
-    return tb.timezone*60;
 #elif defined(__VISUALC__)
     // We must initialize the time zone information before using it (this will
     // be done only once internally).

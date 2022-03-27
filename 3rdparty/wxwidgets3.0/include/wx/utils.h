@@ -31,9 +31,6 @@ class WXDLLIMPEXP_FWD_BASE wxArrayInt;
 
 #ifdef __WATCOMC__
     #include <direct.h>
-#elif defined(__X__)
-    #include <dirent.h>
-    #include <unistd.h>
 #endif
 
 #include <stdio.h>

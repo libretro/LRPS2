@@ -26,13 +26,6 @@
 
 #include "wx/platform.h"
 
-#ifdef __cplusplus
-/*  Make sure the environment is set correctly */
-#   if defined(__WXMSW__) && defined(__X__)
-#       error "Target can't be both X and MSW"
-#   endif
-#endif /*__cplusplus*/
-
 #ifndef __WXWINDOWS__
     #define __WXWINDOWS__ 1
 #endif
@@ -1068,7 +1061,7 @@ typedef wxUint32 wxDword;
     #define wxLongLong_t __int64
     #define wxLongLongSuffix i64
     #define wxLongLongFmtSpec "I64"
-#elif (defined(__WATCOMC__) && (defined(__WIN32__) || defined(__DOS__)))
+#elif (defined(__WATCOMC__) && (defined(__WIN32__)))
       #define wxLongLong_t __int64
       #define wxLongLongSuffix i64
       #define wxLongLongFmtSpec "L"
@@ -1085,8 +1078,7 @@ typedef wxUint32 wxDword;
 #elif (defined(SIZEOF_LONG_LONG) && SIZEOF_LONG_LONG >= 8)  || \
         defined(__GNUC__) || \
         defined(__CYGWIN__) || \
-        defined(__WXMICROWIN__) || \
-        (defined(__DJGPP__) && __DJGPP__ >= 2)
+        defined(__WXMICROWIN__)
     #define wxLongLong_t long long
     #define wxLongLongSuffix ll
     #define wxLongLongFmtSpec "ll"

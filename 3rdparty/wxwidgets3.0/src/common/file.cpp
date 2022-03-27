@@ -49,19 +49,6 @@
     #ifdef __GNUWIN32__
         #include "wx/msw/wrapwin.h"
     #endif
-#elif defined(__DOS__)
-    #if defined(__WATCOMC__)
-       #include <io.h>
-    #elif defined(__DJGPP__)
-       #include <io.h>
-       #include <unistd.h>
-       #include <stdio.h>
-    #else
-        #error  "Please specify the header with file functions declarations."
-    #endif
-#elif (defined(__WXSTUBS__))
-    // Have to ifdef this for different environments
-    #include <io.h>
 #elif (defined(__WXMAC__))
 #if __MSL__ < 0x6000
     int access( const char *path, int mode ) { return 0 ; }
@@ -426,7 +413,7 @@ bool wxFile::Eof() const
 {
     wxFileOffset iRc;
 
-#if defined(__DOS__) || defined(__UNIX__) || defined(__GNUWIN32__)
+#if defined(__UNIX__) || defined(__GNUWIN32__)
     // @@ this doesn't work, of course, on unseekable file descriptors
     wxFileOffset ofsCur = Tell(),
     ofsMax = Length();
