@@ -16,10 +16,6 @@
 // For compilers that support precompilation, includes "wx.h".
 #include "wx/wxprec.h"
 
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
-
 #ifndef WX_PRECOMP
     #include "wx/string.h"
     #include "wx/wxcrtvararg.h"
@@ -137,12 +133,10 @@ wxSTD ostream& operator<<(wxSTD ostream& os, const wxScopedCharBuffer& str)
     return os << str.data();
 }
 
-#ifndef __BORLANDC__
 wxSTD ostream& operator<<(wxSTD ostream& os, const wxScopedWCharBuffer& str)
 {
     return os << str.data();
 }
-#endif
 
 #if wxUSE_UNICODE && defined(HAVE_WOSTREAM)
 

@@ -18,10 +18,6 @@
 // for compilers that support precompilation, includes "wx.h".
 #include "wx/wxprec.h"
 
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
-
 // This is a horrible hack which only works because we don't currently include
 // <time.h> from wx/wxprec.h. It is needed because we need timezone-related
 // stuff from MinGW time.h, but it is not compiled in strict ANSI mode and it
@@ -106,12 +102,6 @@ struct tm *wxLocaltime_r(const time_t* ticks, struct tm* temp)
   wxMutexLocker locker(timeLock);
 #endif
 
-  // Borland CRT crashes when passed 0 ticks for some reason, see SF bug 1704438
-#ifdef __BORLANDC__
-  if ( !*ticks )
-      return NULL;
-#endif
-
   const tm * const t = localtime(ticks);
   if ( !t )
       return NULL;
@@ -128,11 +118,6 @@ struct tm *wxGmtime_r(const time_t* ticks, struct tm* temp)
   // No need to waste time with a mutex on windows since it's
   // using thread local storage for gmtime anyway.
   wxMutexLocker locker(timeLock);
-#endif
-
-#ifdef __BORLANDC__
-  if ( !*ticks )
-      return NULL;
 #endif
 
   const tm * const t = gmtime(ticks);
@@ -201,7 +186,7 @@ int wxGetTimeZone()
 
     #if defined(WX_TIMEZONE) // If WX_TIMEZONE was defined by configure, use it.
         return WX_TIMEZONE;
-    #elif defined(__BORLANDC__) || defined(__MINGW32__) || defined(__VISAGECPP__)
+    #elif defined(__MINGW32__) || defined(__VISAGECPP__)
         return _timezone;
     #else // unknown platform -- assume it has timezone
         return timezone;
@@ -317,8 +302,6 @@ wxLongLong wxGetUTCTimeMillis()
 
     #if defined(__VISUALC__) || defined (__WATCOMC__)
         #pragma message("wxStopWatch will be up to second resolution!")
-    #elif defined(__BORLANDC__)
-        #pragma message "wxStopWatch will be up to second resolution!"
     #else
         #warning "wxStopWatch will be up to second resolution!"
     #endif // compiler

@@ -21,8 +21,7 @@
 #include <string.h>
 
 // prefer snprintf over sprintf
-#if defined(__VISUALC__) || \
-        (defined(__BORLANDC__) && __BORLANDC__ >= 0x540)
+#if defined(__VISUALC__)
     #define system_sprintf(buff, max, flags, data)      \
         ::_snprintf(buff, max, flags, data)
 #elif defined(HAVE_SNPRINTF)

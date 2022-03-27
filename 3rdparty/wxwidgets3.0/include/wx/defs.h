@@ -127,11 +127,6 @@
     #endif /* VC++ 8 */
 #endif /*  __VISUALC__ */
 
-/*  suppress some Borland C++ warnings */
-#ifdef __BORLANDC__
-#   pragma warn -inl                /*  Functions containing reserved words and certain constructs are not expanded inline */
-#endif /*  __BORLANDC__ */
-
 /*
    g++ gives a warning when a class has private dtor if it has no friends but
    this is a perfectly valid situation for a ref-counted class which destroys
@@ -230,9 +225,6 @@ typedef short int WXTYPE;
     #elif ( defined(__MINGW32__) || defined(__CYGWIN32__) ) \
           && wxCHECK_GCC_VERSION(2, 95)
         /*  GCC 2.95 has explicit, what about earlier versions? */
-        #define HAVE_EXPLICIT
-    #elif defined(__BORLANDC__) && (__BORLANDC__ >= 0x0520)
-        /*  BC++ 4.52 doesn't support explicit, CBuilder 1 does */
         #define HAVE_EXPLICIT
     #elif defined(__DIGITALMARS__)
         #define HAVE_EXPLICIT
@@ -471,9 +463,9 @@ typedef short int WXTYPE;
     /* assume the compiler can use type or const expressions as template
        arguments if it supports partial specialization -- except if it's a
        Borland one which can't */
-    #if defined(HAVE_PARTIAL_SPECIALIZATION) && !defined(__BORLANDC__)
+    #if defined(HAVE_PARTIAL_SPECIALIZATION)
         #define HAVE_TEMPLATE_OVERLOAD_RESOLUTION
-    #endif /* (HAVE_PARTIAL_SPECIALIZATION) && !defined(__BORLANDC__) */
+    #endif /* (HAVE_PARTIAL_SPECIALIZATION) */
 #endif /* !defined(HAVE_TEMPLATE_OVERLOAD_RESOLUTION) */
 
 /*  ---------------------------------------------------------------------------- */
@@ -847,12 +839,8 @@ typedef short int WXTYPE;
 /*  sometimes the value of a variable is *really* not used, to suppress  the */
 /*  resulting warning you may pass it to this function */
 #ifdef __cplusplus
-#   ifdef __BORLANDC__
-#       define wxUnusedVar(identifier) identifier
-#   else
         template <class T>
             inline void wxUnusedVar(const T& WXUNUSED(t)) { }
-#   endif
 #endif
 
 /*  ---------------------------------------------------------------------------- */
@@ -1080,10 +1068,6 @@ typedef wxUint32 wxDword;
     #define wxLongLong_t __int64
     #define wxLongLongSuffix i64
     #define wxLongLongFmtSpec "I64"
-#elif defined(__BORLANDC__) && defined(__WIN32__) && (__BORLANDC__ >= 0x520)
-    #define wxLongLong_t __int64
-    #define wxLongLongSuffix i64
-    #define wxLongLongFmtSpec "L"
 #elif (defined(__WATCOMC__) && (defined(__WIN32__) || defined(__DOS__)))
       #define wxLongLong_t __int64
       #define wxLongLongSuffix i64

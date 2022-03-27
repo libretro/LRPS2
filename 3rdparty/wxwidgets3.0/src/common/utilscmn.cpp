@@ -19,10 +19,6 @@
 // For compilers that support precompilation, includes "wx.h".
 #include "wx/wxprec.h"
 
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
-
 // See comment about this hack in time.cpp: here we do it for environ external
 // variable which can't be easily declared when using MinGW in strict ANSI mode.
 #ifdef wxNEEDS_STRICT_ANSI_WORKAROUNDS

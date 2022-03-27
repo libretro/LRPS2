@@ -19,10 +19,6 @@
 // For compilers that support precompilation, includes "wx.h".
 #include "wx/wxprec.h"
 
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
-
 #include "wx/dir.h"
 #include "wx/filefn.h"          // for wxMatchWild
 #include "wx/filename.h"

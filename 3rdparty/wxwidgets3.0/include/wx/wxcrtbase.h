@@ -209,7 +209,7 @@ WXDLLIMPEXP_BASE void *calloc( size_t num, size_t size );
 
 /* define wxCRT_StricmpA/W and wxCRT_StrnicmpA/W for various compilers */
 
-#if defined(__BORLANDC__) || defined(__WATCOMC__) || \
+#if     defined(__WATCOMC__) || \
         defined(__VISAGECPP__) || \
         defined(__DJGPP__)
     #define wxCRT_StricmpA stricmp

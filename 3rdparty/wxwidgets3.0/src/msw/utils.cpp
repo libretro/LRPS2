@@ -19,10 +19,6 @@
 // For compilers that support precompilation, includes "wx.h".
 #include "wx/wxprec.h"
 
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
-
 #ifndef WX_PRECOMP
     #include "wx/utils.h"
     #include "wx/app.h"
@@ -56,12 +52,6 @@
     // and cygwin_conv_to_full_win32_path()
     #include <cygwin/version.h>
 #endif  //GNUWIN32
-
-#ifdef __BORLANDC__ // Please someone tell me which version of Borland needs
-                    // this (3.1 I believe) and how to test for it.
-                    // If this works for Borland 4.0 as well, then no worries.
-    #include <dir.h>
-#endif
 
 // VZ: there is some code using NetXXX() functions to get the full user name:
 //     I don't think it's a good idea because they don't work under Win95 and

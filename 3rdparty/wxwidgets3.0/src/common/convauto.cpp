@@ -18,10 +18,6 @@
 // for compilers that support precompilation, includes "wx.h".
 #include "wx/wxprec.h"
 
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
-
 #include "wx/convauto.h"
 
 // we use latin1 by default as it seems the least bad choice: the files we need

@@ -16,8 +16,7 @@
 #if defined(__VISUALC__)   || \
     defined(__DMC__)       || \
     defined(__VISAGECPP__) || \
-    defined(__WATCOMC__)   || \
-    defined(__BORLANDC__)
+    defined(__WATCOMC__)
 
 
     // If user did not request NOCPH and we're not building using configure

@@ -19,10 +19,6 @@
 // for compilers that support precompilation, includes "wx.h".
 #include "wx/wxprec.h"
 
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
-
 #ifndef WX_PRECOMP
     #ifdef __WINDOWS__
         #include  "wx/msw/wrapwin.h"  // includes windows.h for MessageBox()

@@ -10,11 +10,6 @@
 
 // For compilers that support precompilation, includes "wx.h".
 #include "wx/wxprec.h"
-
-#ifdef __BORLANDC__
-    #pragma hdrstop
-#endif
-
 #include "wx/hashmap.h"
 
 /* FYI: This is the "One-at-a-Time" algorithm by Bob Jenkins */

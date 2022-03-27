@@ -64,8 +64,6 @@
 #   pragma message("Please update wx/compiler.h to recognize this VC++ version")
 #endif
 
-#elif defined(__BCPLUSPLUS__) && !defined(__BORLANDC__)
-#   define __BORLANDC__
 #elif defined(__WATCOMC__)
 #elif defined(__SC__)
 #   define __SYMANTECC__

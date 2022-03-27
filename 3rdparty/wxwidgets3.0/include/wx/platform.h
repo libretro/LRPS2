@@ -164,43 +164,6 @@
 
 
 /*
-   test for old versions of Borland C, normally need at least 5.82, Turbo
-   explorer, available for free at http://www.turboexplorer.com/downloads
-*/
-
-
-/*
-    Older versions of Borland C have some compiler bugs that need
-    workarounds. Mostly pertains to the free command line compiler 5.5.1.
-*/
-#if defined(__BORLANDC__) && (__BORLANDC__ <= 0x551)
-    /*
-        The Borland free compiler is unable to handle overloaded enum
-        comparisons under certain conditions e.g. when any class has a
-        conversion ctor for an integral type and there's an overload to
-        compare between an integral type and that class type.
-    */
-#   define wxCOMPILER_NO_OVERLOAD_ON_ENUM
-
-    /*
-        This is needed to overcome bugs in 5.5.1 STL, linking errors will
-        result if it is not defined.
-     */
-#   define _RWSTD_COMPILE_INSTANTIATE
-
-    /*
-        Preprocessor in older Borland compilers have major problems
-        concatenating with ##. Specifically, if the string operands being
-        concatenated have special meaning (e.g. L"str", 123i64 etc)
-        then ## will not concatenate the operands correctly.
-
-        As a workaround, define wxPREPEND* and wxAPPEND* without using
-        wxCONCAT_HELPER.
-    */
-#   define wxCOMPILER_BROKEN_CONCAT_OPER
-#endif /* __BORLANDC__ */
-
-/*
    OS: first of all, test for MS-DOS platform. We must do this before testing
        for Unix, because DJGPP compiler defines __unix__ under MS-DOS
  */
@@ -314,7 +277,7 @@
 #   define __STDC_EXT__ 1
 #endif
 
-#if defined(__BORLANDC__) || (defined(__GNUC__) && __GNUC__ < 3)
+#if (defined(__GNUC__) && __GNUC__ < 3)
 #define wxNEEDS_CHARPP
 #endif
 

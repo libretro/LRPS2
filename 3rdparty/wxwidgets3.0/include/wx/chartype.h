@@ -92,9 +92,6 @@
 /* VC++ and BC++ starting with 5.2 have TCHAR support */
 #ifdef __VISUALC__
     #define wxHAVE_TCHAR_SUPPORT
-#elif defined(__BORLANDC__) && (__BORLANDC__ >= 0x520)
-    #define wxHAVE_TCHAR_SUPPORT
-    #include <ctype.h>
 #elif defined(__WATCOMC__)
     #define wxHAVE_TCHAR_SUPPORT
 #elif defined(__DMC__)
