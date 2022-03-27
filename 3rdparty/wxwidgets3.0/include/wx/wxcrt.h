@@ -397,22 +397,6 @@ WX_STRCMP_FUNC(wxStrnicmp, wxCRT_StrnicmpA, wxCRT_StrnicmpW, wxStrnicmp_String)
 #undef WX_STR_FUNC
 #undef WX_STR_FUNC_NO_INVERT
 
-inline char *wxStrtok(char *str, const char *delim, char **saveptr)
-    { return wxCRT_StrtokA(str, delim, saveptr); }
-inline wchar_t *wxStrtok(wchar_t *str, const wchar_t *delim, wchar_t **saveptr)
-    { return wxCRT_StrtokW(str, delim, saveptr); }
-template<typename T>
-inline T *wxStrtok(T *str, const wxScopedCharTypeBuffer<T>& delim, T **saveptr)
-    { return wxStrtok(str, delim.data(), saveptr); }
-inline char *wxStrtok(char *str, const wxCStrData& delim, char **saveptr)
-    { return wxCRT_StrtokA(str, delim.AsCharBuf(), saveptr); }
-inline wchar_t *wxStrtok(wchar_t *str, const wxCStrData& delim, wchar_t **saveptr)
-    { return wxCRT_StrtokW(str, delim.AsWCharBuf(), saveptr); }
-inline char *wxStrtok(char *str, const wxString& delim, char **saveptr)
-    { return wxCRT_StrtokA(str, delim.mb_str(), saveptr); }
-inline wchar_t *wxStrtok(wchar_t *str, const wxString& delim, wchar_t **saveptr)
-    { return wxCRT_StrtokW(str, delim.wc_str(), saveptr); }
-
 inline const char *wxStrstr(const char *haystack, const char *needle)
     { return wxCRT_StrstrA(haystack, needle); }
 inline const wchar_t *wxStrstr(const wchar_t *haystack, const wchar_t *needle)
