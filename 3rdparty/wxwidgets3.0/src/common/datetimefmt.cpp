@@ -381,13 +381,7 @@ wxString wxDateTime::Format(const wxString& formatp, const TimeZone& tz) const
         else
         {
             time += (int)tz.GetOffset();
-
-#if defined(__VMS__) || defined(__WATCOMC__) // time is unsigned so avoid warning
-            int time2 = (int) time;
-            if ( time2 >= 0 )
-#else
             if ( time >= 0 )
-#endif
                 tm = wxGmtime_r(&time, &tmstruct);
             else
                 tm = (struct tm *)NULL;

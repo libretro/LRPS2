@@ -262,8 +262,8 @@
     _UNICODE macros as it includes _mingw.h which relies on them being set.
  */
 #if ( defined( __GNUWIN32__ ) || defined( __MINGW32__ ) || \
-    ( defined( __CYGWIN__ ) && defined( __WINDOWS__ ) ) || \
-      wxCHECK_WATCOM_VERSION(1,0) )
+    ( defined( __CYGWIN__ ) && defined( __WINDOWS__ ) ) \
+       )
 #    include "wx/msw/gccpriv.h"
 #else
 #    undef wxCHECK_W32API_VERSION
@@ -389,7 +389,7 @@
 #if defined(_MSC_VER) && (_MSC_VER >= 1310)
 #    undef wxUSE_IOSTREAMH
 #    define wxUSE_IOSTREAMH 0
-#elif defined(__DMC__) || defined(__WATCOMC__)
+#elif defined(__DMC__)
 #    undef wxUSE_IOSTREAMH
 #    define wxUSE_IOSTREAMH 1
 #elif defined(__MINGW32__)

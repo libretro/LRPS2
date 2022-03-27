@@ -42,8 +42,7 @@
 // define wxUSE_BEGIN_THREAD if the compiler has _beginthreadex() function
 // which should be used instead of Win32 ::CreateThread() if possible
 #if defined(__VISUALC__) || \
-    (defined(__GNUG__) && defined(__MSVCRT__)) || \
-    defined(__WATCOMC__)
+    (defined(__GNUG__) && defined(__MSVCRT__))
 
 #undef wxUSE_BEGIN_THREAD
 #define wxUSE_BEGIN_THREAD
@@ -546,14 +545,6 @@ bool wxThreadInternal::Create(wxThread *thread, unsigned int stackSize)
     // creation instead of Win32 API one because otherwise we will have memory
     // leaks if the thread uses C RTL (and most threads do)
 #ifdef wxUSE_BEGIN_THREAD
-
-    // Watcom is reported to not like 0 stack size (which means "use default"
-    // for the other compilers and is also the default value for stackSize)
-#ifdef __WATCOMC__
-    if ( !stackSize )
-        stackSize = 10240;
-#endif // __WATCOMC__
-
     m_hThread = (HANDLE)_beginthreadex
                         (
                           NULL,                             // default security

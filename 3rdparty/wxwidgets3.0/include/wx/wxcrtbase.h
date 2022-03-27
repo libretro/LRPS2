@@ -209,8 +209,7 @@ WXDLLIMPEXP_BASE void *calloc( size_t num, size_t size );
 
 /* define wxCRT_StricmpA/W and wxCRT_StrnicmpA/W for various compilers */
 
-#if     defined(__WATCOMC__) || \
-        defined(__VISAGECPP__)
+#if defined(__VISAGECPP__) 
     #define wxCRT_StricmpA stricmp
     #define wxCRT_StrnicmpA strnicmp
 #elif defined(__SYMANTEC__) || (defined(__VISUALC__))
@@ -540,11 +539,7 @@ WXDLLIMPEXP_BASE size_t wxCRT_StrftimeW(wchar_t *s, size_t max,
                                 ctype.h
    ------------------------------------------------------------------------- */
 
-#ifdef __WATCOMC__
-  #define WXWCHAR_T_CAST(c) (wint_t)(c)
-#else
-  #define WXWCHAR_T_CAST(c) c
-#endif
+#define WXWCHAR_T_CAST(c) c
 
 #define wxCRT_IsalnumW(c)   iswalnum(WXWCHAR_T_CAST(c))
 #define wxCRT_IsalphaW(c)   iswalpha(WXWCHAR_T_CAST(c))

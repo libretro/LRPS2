@@ -73,10 +73,8 @@
     #endif
 #endif
 
-#ifndef __WATCOMC__
-    #if !(defined(_MSC_VER) && (_MSC_VER > 800))
-        #include <errno.h>
-    #endif
+#if !(defined(_MSC_VER) && (_MSC_VER > 800))
+#include <errno.h>
 #endif
 
 // ============================================================================

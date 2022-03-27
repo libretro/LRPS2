@@ -75,7 +75,7 @@
     #define wxIsNaN(x) std::isnan(x)
 #else /* C++98 */
 
-#if defined(__VISUALC__) || defined(__WATCOMC__)
+#if defined(__VISUALC__)
     #include <float.h>
     #define wxFinite(x) _finite(x)
 #elif defined(__MINGW64_TOOLCHAIN__) || defined(__clang__)

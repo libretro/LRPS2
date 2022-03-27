@@ -74,10 +74,6 @@
     #endif
 #endif
 
-#if wxCHECK_WATCOM_VERSION(1,0)
-    #define HAVE_W32API_H
-#endif
-
 /* check for MinGW/Cygwin w32api version ( releases >= 0.5, only ) */
 #if defined( HAVE_W32API_H )
 #include <w32api.h>

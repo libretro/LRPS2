@@ -42,10 +42,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if !wxONLY_WATCOM_EARLIER_THAN(1,4)
-    #if !(defined(_MSC_VER) && (_MSC_VER > 800))
-        #include <errno.h>
-    #endif
+#if !(defined(_MSC_VER) && (_MSC_VER > 800))
+#include <errno.h>
 #endif
 
 #if defined(__WXMAC__)
@@ -497,7 +495,6 @@ wxRenameFile(const wxString& file1, const wxString& file2, bool overwrite)
 bool wxRemoveFile(const wxString& file)
 {
 #if defined(__VISUALC__) \
- || defined(__WATCOMC__) \
  || defined(__DMC__) \
  || defined(__GNUWIN32__)
     int res = wxRemove(file);
@@ -516,7 +513,7 @@ bool wxMkdir(const wxString& dir, int perm)
 
     // assume mkdir() has 2 args on non Windows-OS/2 platforms and on Windows too
     // for the GNU compiler
-#elif (!(defined(__WINDOWS__) || \
+#elif (!(defined(__WINDOWS__))) || \
       (defined(__GNUWIN32__) && !defined(__MINGW32__)) ||                \
       defined(__WINE__) || defined(__WXMICROWIN__)
     const wxChar *dirname = dir.c_str();
@@ -862,10 +859,10 @@ wxFileKind wxGetFileKind(FILE *fp)
 {
     // Note: The watcom rtl dll doesn't have fileno (the static lib does).
     //       Should be fixed in version 1.4.
-#if defined(wxFILEKIND_STUB) || wxONLY_WATCOM_EARLIER_THAN(1,4)
+#if defined(wxFILEKIND_STUB)
     (void)fp;
     return wxFILE_KIND_DISK;
-#elif defined(__WINDOWS__) && !defined(__CYGWIN__) && !defined(__WATCOMC__) && !defined(__WINE__)
+#elif defined(__WINDOWS__) && !defined(__CYGWIN__)
     return fp ? wxGetFileKind(_fileno(fp)) : wxFILE_KIND_UNKNOWN;
 #else
     return fp ? wxGetFileKind(fileno(fp)) : wxFILE_KIND_UNKNOWN;

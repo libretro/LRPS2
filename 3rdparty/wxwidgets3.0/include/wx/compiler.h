@@ -64,7 +64,6 @@
 #   pragma message("Please update wx/compiler.h to recognize this VC++ version")
 #endif
 
-#elif defined(__WATCOMC__)
 #elif defined(__SC__)
 #   define __SYMANTECC__
 #elif defined(__SUNPRO_CC)
@@ -128,26 +127,5 @@
 #else
     #define wxCHECK_SUNCC_VERSION(maj, min) (0)
 #endif
-
-#ifndef __WATCOMC__
-#   define wxWATCOM_VERSION(major,minor) 0
-#   define wxCHECK_WATCOM_VERSION(major,minor) 0
-#   define wxONLY_WATCOM_EARLIER_THAN(major,minor) 0
-#   define WX_WATCOM_ONLY_CODE( x )
-#else
-#   if __WATCOMC__ < 1200
-#       error "Only Open Watcom is supported in this release"
-#   endif
-
-#   define wxWATCOM_VERSION(major,minor) ( major * 100 + minor * 10 + 1100 )
-#   define wxCHECK_WATCOM_VERSION(major,minor) ( __WATCOMC__ >= wxWATCOM_VERSION(major,minor) )
-#   define wxONLY_WATCOM_EARLIER_THAN(major,minor) ( __WATCOMC__ < wxWATCOM_VERSION(major,minor) )
-#   define WX_WATCOM_ONLY_CODE( x )  x
-#endif
-
-/*
-    wxCHECK_MINGW32_VERSION() is defined in wx/msw/gccpriv.h which is included
-    later, see comments there.
- */
 
 #endif // _WX_COMPILER_H_

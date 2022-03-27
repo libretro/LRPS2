@@ -109,12 +109,6 @@
 #include <unistd.h>
 #endif
 
-#ifdef __WATCOMC__
-#include <io.h>
-#include <sys/utime.h>
-#include <sys/stat.h>
-#endif
-
 #ifdef __VISAGECPP__
 #ifndef MAX_PATH
 #define MAX_PATH 256

@@ -143,7 +143,7 @@
 //
 // VC++ 5.0 does include standard C++ library headers, however they produce
 // many warnings that can't be turned off when compiled at warning level 4.
-#if defined(__DMC__) || defined(__WATCOMC__) \
+#if defined(__DMC__) \
         || (defined(_MSC_VER) && _MSC_VER < 1200)
     #define wxUSE_STD_DEFAULT  0
 #else

@@ -128,9 +128,7 @@ enum wxPosixPermissions
         defined(__MINGW64_TOOLCHAIN__) || \
         (defined(__MINGW32__) && !defined(__WINE__) && \
                                 wxCHECK_W32API_VERSION(0, 5)) || \
-        defined(__DMC__) || \
-        defined(__WATCOMC__) \
-      )
+        defined(__DMC__) )
 
     // temporary defines just used immediately below
     #undef wxHAS_HUGE_FILES
@@ -187,17 +185,9 @@ enum wxPosixPermissions
         #define wxPOSIX_STRUCT(s)    struct wxPOSIX_IDENT(s)
 
         #ifdef wxHAS_HUGE_FILES
-            #if wxUSE_UNICODE && wxONLY_WATCOM_EARLIER_THAN(1,4)
-                #define wxStructStat struct _wstati64
-            #else
                 #define wxStructStat struct _stati64
-            #endif
         #else
-            #if wxUSE_UNICODE && wxONLY_WATCOM_EARLIER_THAN(1,4)
-                #define wxStructStat struct _wstat
-            #else
                 #define wxStructStat struct _stat
-            #endif
         #endif
 
 
@@ -209,7 +199,7 @@ enum wxPosixPermissions
     // to avoid using them as they're not present in earlier versions and
     // always using the native functions spelling is easier than testing for
     // the versions
-    #if defined(__DMC__) || defined(__WATCOMC__) || defined(__MINGW64_TOOLCHAIN__)
+    #if defined(__DMC__) || defined(__MINGW64_TOOLCHAIN__)
         #define wxPOSIX_IDENT(func)    ::func
     #else // by default assume MSVC-compatible names
         #define wxPOSIX_IDENT(func)    _ ## func
@@ -240,15 +230,13 @@ enum wxPosixPermissions
         #define   wxTell       wxPOSIX_IDENT(tell)
     #endif // wxHAS_HUGE_FILES/!wxHAS_HUGE_FILES
 
-    #ifndef __WATCOMC__
-             // NB: this one is not POSIX and always has the underscore
-             #define   wxFsync      _commit
+	// NB: this one is not POSIX and always has the underscore
+#define   wxFsync      _commit
 
-             // could be already defined by configure (Cygwin)
-             #ifndef HAVE_FSYNC
-                 #define HAVE_FSYNC
-             #endif
-    #endif
+	// could be already defined by configure (Cygwin)
+#ifndef HAVE_FSYNC
+#define HAVE_FSYNC
+#endif
 
     #define   wxEof        wxPOSIX_IDENT(eof)
 

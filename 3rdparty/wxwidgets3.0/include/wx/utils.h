@@ -29,10 +29,6 @@ class WXDLLIMPEXP_FWD_BASE wxArrayInt;
 // wxLongLong
 #include "wx/longlong.h"
 
-#ifdef __WATCOMC__
-    #include <direct.h>
-#endif
-
 #include <stdio.h>
 
 // ----------------------------------------------------------------------------

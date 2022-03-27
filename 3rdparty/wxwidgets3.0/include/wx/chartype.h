@@ -26,8 +26,6 @@
         #endif
     #elif defined(__GNUWIN32__) && !defined(__MINGW32__)
         #define wxUSE_WCHAR_T 0
-    #elif defined(__WATCOMC__)
-        #define wxUSE_WCHAR_T 0
     #elif defined(__VISAGECPP__) && (__IBMCPP__ < 400)
         #define wxUSE_WCHAR_T 0
     #else
@@ -47,7 +45,7 @@
 
    Actually MinGW has tchar.h, but it does not include wchar.h
  */
-#if defined(__VISAGECPP__) || defined(__MINGW32__) || defined(__WATCOMC__)
+#if defined(__VISAGECPP__) || defined(__MINGW32__)
     #ifndef HAVE_WCHAR_H
         #define HAVE_WCHAR_H
     #endif
@@ -91,8 +89,6 @@
 
 /* VC++ and BC++ starting with 5.2 have TCHAR support */
 #ifdef __VISUALC__
-    #define wxHAVE_TCHAR_SUPPORT
-#elif defined(__WATCOMC__)
     #define wxHAVE_TCHAR_SUPPORT
 #elif defined(__DMC__)
     #define wxHAVE_TCHAR_SUPPORT

@@ -93,14 +93,8 @@
     Notice that wxASSERT_ARG_TYPE in wx/strvargarg.h relies on these macros
     creating some kind of a loop because it uses "break".
  */
-#ifdef __WATCOMC__
-    #define wxFOR_ONCE(name) for(int name=0; name<1; name++)
-    #define wxSTATEMENT_MACRO_BEGIN wxFOR_ONCE(wxMAKE_UNIQUE_NAME(wxmacro)) {
-    #define wxSTATEMENT_MACRO_END }
-#else
     #define wxSTATEMENT_MACRO_BEGIN  do {
     #define wxSTATEMENT_MACRO_END } while ( (void)0, 0 )
-#endif
 
 /*
     Define __WXFUNCTION__ which is like standard __FUNCTION__ but defined as
