@@ -1059,63 +1059,6 @@ char *strdup(const char *s)
     #define CALL_ANSI_OR_UNICODE(return_kw, callA, callW)  return_kw callA
 #endif
 
-int wxPuts(const wxString& s)
-{
-    // under IRIX putws() takes a non-const argument so use wchar_str() instead
-    // of wc_str()
-    CALL_ANSI_OR_UNICODE(return,
-                         wxCRT_PutsA(s.mb_str()),
-                         wxCRT_PutsW(s.wchar_str()));
-}
-
-int wxFputs(const wxString& s, FILE *stream)
-{
-    CALL_ANSI_OR_UNICODE(return,
-                         wxCRT_FputsA(s.mb_str(), stream),
-                         wxCRT_FputsW(s.wc_str(), stream));
-}
-
-int wxFputc(const wxUniChar& c, FILE *stream)
-{
-#if !wxUSE_UNICODE // FIXME-UTF8: temporary, remove this with ANSI build
-    return wxCRT_FputcA((char)c, stream);
-#else
-    CALL_ANSI_OR_UNICODE(return,
-                         wxCRT_FputsA(c.AsUTF8(), stream),
-                         wxCRT_FputcW((wchar_t)c, stream));
-#endif
-}
-
-#ifdef wxCRT_PerrorA
-
-void wxPerror(const wxString& s)
-{
-#ifdef wxCRT_PerrorW
-    CALL_ANSI_OR_UNICODE(wxEMPTY_PARAMETER_VALUE,
-                         wxCRT_PerrorA(s.mb_str()),
-                         wxCRT_PerrorW(s.wc_str()));
-#else
-    wxCRT_PerrorA(s.mb_str());
-#endif
-}
-
-#endif // wxCRT_PerrorA
-
-wchar_t *wxFgets(wchar_t *s, int size, FILE *stream)
-{
-    wxCharBuffer buf(size - 1);
-    // FIXME: this reads too little data if wxConvLibc uses UTF-8 ('size' wide
-    //        characters may be encoded by up to 'size'*4 bytes), but what
-    //        else can we do?
-    if ( wxFgets(buf.data(), size, stream) == NULL )
-        return NULL;
-
-    if ( wxConvLibc.ToWChar(s, size, buf, wxNO_LEN) == wxCONV_FAILED )
-        return NULL;
-
-    return s;
-}
-
 // ----------------------------------------------------------------------------
 // wxScanf() and friends
 // ----------------------------------------------------------------------------

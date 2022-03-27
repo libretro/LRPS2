@@ -106,31 +106,6 @@ namespace wxPrivate
 
 #endif // WXWIN_COMPATIBILITY_2_6
 
-// ---------------------------------------------------------------------------
-// global functions complementing standard C string library replacements for
-// strlen() and portable strcasecmp()
-//---------------------------------------------------------------------------
-
-#if WXWIN_COMPATIBILITY_2_8
-// Use wxXXX() functions from wxcrt.h instead! These functions are for
-// backwards compatibility only.
-
-// checks whether the passed in pointer is NULL and if the string is empty
-wxDEPRECATED_MSG("use wxIsEmpty() instead")
-inline bool IsEmpty(const char *p) { return (!p || !*p); }
-
-// safe version of strlen() (returns 0 if passed NULL pointer)
-wxDEPRECATED_MSG("use wxStrlen() instead")
-inline size_t Strlen(const char *psz)
-  { return psz ? strlen(psz) : 0; }
-
-// portable strcasecmp/_stricmp
-wxDEPRECATED_MSG("use wxStricmp() instead")
-inline int Stricmp(const char *psz1, const char *psz2)
-    { return wxCRT_StricmpA(psz1, psz2); }
-
-#endif // WXWIN_COMPATIBILITY_2_8
-
 // ----------------------------------------------------------------------------
 // wxCStrData
 // ----------------------------------------------------------------------------
