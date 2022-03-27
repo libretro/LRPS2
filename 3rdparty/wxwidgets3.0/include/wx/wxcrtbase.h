@@ -214,7 +214,7 @@ WXDLLIMPEXP_BASE void *calloc( size_t num, size_t size );
         defined(__DJGPP__)
     #define wxCRT_StricmpA stricmp
     #define wxCRT_StrnicmpA strnicmp
-#elif defined(__SYMANTEC__) || (defined(__VISUALC__)
+#elif defined(__SYMANTEC__) || (defined(__VISUALC__))
     #define wxCRT_StricmpA _stricmp
     #define wxCRT_StrnicmpA _strnicmp
 #elif defined(__UNIX__) || (defined(__GNUWIN32__) && !defined(__WX_STRICT_ANSI_GCC__))
