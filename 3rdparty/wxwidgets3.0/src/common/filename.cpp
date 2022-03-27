@@ -129,11 +129,6 @@
 #endif
 #endif
 
-#ifdef __EMX__
-#include <os2.h>
-#define MAX_PATH _MAX_PATH
-#endif
-
 #ifndef S_ISREG
     #define S_ISREG(mode) ((mode) & S_IFREG)
 #endif
