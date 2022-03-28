@@ -19,9 +19,6 @@ class WXDLLIMPEXP_BASE wxConsoleAppTraits : public wxConsoleAppTraitsBase
 {
 public:
     virtual wxEventLoopBase *CreateEventLoop();
-#if wxUSE_THREADS
-    virtual WXDWORD WaitForThread(WXHANDLE hThread, int flags);
-#endif // wxUSE_THREADS
 };
 
 #endif // _WX_MSW_APPTRAIT_H_

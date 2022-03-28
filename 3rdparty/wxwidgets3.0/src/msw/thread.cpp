@@ -21,11 +21,14 @@
 #include "wx/thread.h"
 
 #ifndef WX_PRECOMP
+    #include "wx/event.h"
     #include "wx/app.h"
     #include "wx/module.h"
 #endif
 
 #include "wx/apptrait.h"
+#include "wx/evtloop.h"
+#include "wx/crt.h"
 #include "wx/scopeguard.h"
 
 #include "wx/msw/private.h"
@@ -654,8 +657,6 @@ wxThreadInternal::WaitForTerminate(wxCriticalSection& cs,
     if ( threadToDelete )
         threadToDelete->OnDelete();
 
-    wxAppTraits& traits = wxApp::GetValidTraits();
-
     // we can't just wait for the thread to terminate because it might be
     // calling some GUI functions and so it will never terminate before we
     // process the Windows messages that result from these functions
@@ -666,7 +667,7 @@ wxThreadInternal::WaitForTerminate(wxCriticalSection& cs,
     {
         // Wait for the thread while still processing events in the GUI apps or
         // just simply wait for it in the console ones.
-        result = traits.WaitForThread(m_hThread, waitMode);
+	result = WaitForSingleObject((HANDLE)m_hThread, INFINITE);
 
         switch ( result )
         {
@@ -995,3 +996,16 @@ void wxMutexGuiLeaveImpl()
 #include "wx/thrimpl.cpp"
 
 #endif // wxUSE_THREADS
+
+// ============================================================================
+// wxAppTraits implementation
+// ============================================================================
+
+wxEventLoopBase *wxConsoleAppTraits::CreateEventLoop()
+{
+#if wxUSE_CONSOLE_EVENTLOOP
+    return new wxEventLoop();
+#else // !wxUSE_CONSOLE_EVENTLOOP
+    return NULL;
+#endif // wxUSE_CONSOLE_EVENTLOOP/!wxUSE_CONSOLE_EVENTLOOP
+}

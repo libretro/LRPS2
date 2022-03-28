@@ -13,7 +13,6 @@ set(wxUnixSources
 endif()
 if(WIN32)
 set(wxWindowsSources
-   src/msw/basemsw.cpp
    src/msw/dir.cpp
    src/msw/evtloopconsole.cpp
    src/msw/main.cpp

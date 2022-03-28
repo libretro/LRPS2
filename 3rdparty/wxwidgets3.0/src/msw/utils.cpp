@@ -219,40 +219,6 @@ bool wxGetEnv(const wxString& WXUNUSED_IN_WINCE(var),
 }
 
 // ----------------------------------------------------------------------------
-// OS version
-// ----------------------------------------------------------------------------
-
-namespace
-{
-
-// Helper function wrapping Windows GetVersionEx() which is deprecated since
-// Windows 8. For now, all we do in this wrapper is to avoid the deprecation
-// warnings but this is not enough as the function now actually doesn't return
-// the correct value any more and we need to use VerifyVersionInfo() to perform
-// binary search to find the real Windows version.
-OSVERSIONINFOEX wxGetWindowsVersionInfo()
-{
-    OSVERSIONINFOEX info;
-    wxZeroMemory(info);
-
-#ifdef __VISUALC__
-    #pragma warning(push)
-    #pragma warning(disable:4996) // 'xxx': was declared deprecated
-#endif
-
-    info.dwOSVersionInfoSize = sizeof(info);
-    if ( !::GetVersionEx(reinterpret_cast<OSVERSIONINFO *>(&info)) ) { }
-
-#ifdef __VISUALC__
-    #pragma warning(pop)
-#endif
-
-    return info;
-}
-
-} // anonymous namespace
-
-// ----------------------------------------------------------------------------
 // sleep functions
 // ----------------------------------------------------------------------------
 

@@ -229,9 +229,7 @@ bool wxDirData::Read(wxString *filename)
         // open first
         wxString filespec = m_dirname;
         if ( !wxEndsWithPathSeparator(filespec) )
-        {
             filespec += wxT('\\');
-        }
         if ( !m_filespec )
             filespec += wxT("*.*");
         else
@@ -251,9 +249,7 @@ bool wxDirData::Read(wxString *filename)
     for ( ;; )
     {
         if ( first )
-        {
             first = false;
-        }
         else
         {
             if ( !FindNext(m_finddata, m_filespec, PTR_TO_FINDDATA) )
@@ -324,12 +320,10 @@ bool wxDir::Open(const wxString& dirname)
 
         return true;
     }
-    else
-    {
-        m_data = NULL;
 
-        return false;
-    }
+    m_data = NULL;
+
+    return false;
 }
 
 bool wxDir::IsOpened() const
@@ -348,11 +342,9 @@ wxString wxDir::GetName() const
             // bring to canonical Windows form
             name.Replace(wxT("/"), wxT("\\"));
 
+	    // chop off the last (back)slash
             if ( name.Last() == wxT('\\') )
-            {
-                // chop off the last (back)slash
                 name.Truncate(name.length() - 1);
-            }
         }
     }
 
