@@ -280,12 +280,6 @@ bool wxDir::Exists(const wxString& dir)
 }
 
 /* static */
-bool wxDir::Make(const wxString &dir, int perm, int flags)
-{
-    return wxFileName::Mkdir(dir, perm, flags);
-}
-
-/* static */
 bool wxDir::Remove(const wxString &dir, int flags)
 {
     return wxFileName::Rmdir(dir, flags);

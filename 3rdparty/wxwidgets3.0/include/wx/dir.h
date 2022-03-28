@@ -157,9 +157,6 @@ public:
     // test for existence of a directory with the given name
     static bool Exists(const wxString& dir);
 
-    static bool Make(const wxString &dir, int perm = wxS_DIR_DEFAULT,
-                     int flags = 0);
-
     static bool Remove(const wxString &dir, int flags = 0);
 
 
