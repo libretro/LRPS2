@@ -14,7 +14,6 @@
 #include "wx/event.h"
 #include "wx/icon.h"
 
-class WXDLLIMPEXP_FWD_CORE wxWindow;
 class WXDLLIMPEXP_FWD_CORE wxApp;
 class WXDLLIMPEXP_FWD_CORE wxKeyEvent;
 
@@ -38,4 +37,3 @@ protected:
 };
 
 #endif // _WX_APP_H_
-

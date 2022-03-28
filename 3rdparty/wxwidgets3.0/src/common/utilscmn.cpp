@@ -37,7 +37,6 @@
 
 #include "wx/txtstrm.h"
 #include "wx/config.h"
-#include "wx/versioninfo.h"
 
 #include <ctype.h>
 #include <stdio.h>

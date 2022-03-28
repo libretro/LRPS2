@@ -540,25 +540,6 @@ inline int wxRename(const wxString& oldpath, const wxString& newpath)
 // ----------------------------------------------------------------------------
 //                             stdlib.h functions
 // ----------------------------------------------------------------------------
-
-#ifdef wxCRT_AtoiW
-inline int wxAtoi(const wxString& str) { return wxCRT_AtoiW(str.wc_str()); }
-#else
-inline int wxAtoi(const wxString& str) { return wxCRT_AtoiA(str.mb_str()); }
-#endif
-
-#ifdef wxCRT_AtolW
-inline long wxAtol(const wxString& str) { return wxCRT_AtolW(str.wc_str()); }
-#else
-inline long wxAtol(const wxString& str) { return wxCRT_AtolA(str.mb_str()); }
-#endif
-
-#ifdef wxCRT_AtofW
-inline double wxAtof(const wxString& str) { return wxCRT_AtofW(str.wc_str()); }
-#else
-inline double wxAtof(const wxString& str) { return wxCRT_AtofA(str.mb_str()); }
-#endif
-
 inline double wxStrtod(const char *nptr, char **endptr)
     { return wxCRT_StrtodA(nptr, endptr); }
 inline double wxStrtod(const wchar_t *nptr, wchar_t **endptr)
