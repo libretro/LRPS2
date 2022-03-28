@@ -481,9 +481,7 @@ WXDLLIMPEXP_BASE wchar_t * wxCRT_GetenvW(const wchar_t *name);
     #define  wxCRT_AtolW           _wtol
     /* _wtof doesn't exist */
 #else
-#ifndef __VMS
     #define wxCRT_AtofW(s)         wcstod(s, NULL)
-#endif
     #define wxCRT_AtolW(s)         wcstol(s, NULL, 10)
     /* wcstoi doesn't exist */
 #endif
@@ -493,35 +491,8 @@ WXDLLIMPEXP_BASE wchar_t * wxCRT_GetenvW(const wchar_t *name);
    ------------------------------------------------------------------------- */
 
 #define wxCRT_StrftimeA  strftime
-#ifdef __SGI__
-    /*
-        IRIX provides not one but two versions of wcsftime(): XPG4 one which
-        uses "const char*" for the third parameter and so can't be used and the
-        correct, XPG5, one. Unfortunately we can't just define _XOPEN_SOURCE
-        high enough to get XPG5 version as this undefines other symbols which
-        make other functions we use unavailable (see <standards.h> for gory
-        details). So just declare the XPG5 version ourselves, we're extremely
-        unlikely to ever be compiled on a system without it. But if we ever do,
-        a configure test would need to be added for it (and _MIPS_SYMBOL_PRESENT
-        should be used to check for its presence during run-time, i.e. it would
-        probably be simpler to just always use our own wxCRT_StrftimeW() below
-        if it does ever become a problem).
-     */
-#ifdef __cplusplus
-    extern "C"
-#endif
-    size_t
-    _xpg5_wcsftime(wchar_t *, size_t, const wchar_t *, const struct tm * );
-    #define wxCRT_StrftimeW _xpg5_wcsftime
-#else
-    /*
-        Assume it's always available under non-Unix systems as this does seem
-        to be the case for now. And under Unix we trust configure to detect it
-        (except for SGI special case above).
-     */
-    #if defined(HAVE_WCSFTIME) || !defined(__UNIX__)
-        #define wxCRT_StrftimeW  wcsftime
-    #endif
+#if defined(HAVE_WCSFTIME) || !defined(__UNIX__)
+#define wxCRT_StrftimeW  wcsftime
 #endif
 
 #ifndef wxCRT_StrftimeW

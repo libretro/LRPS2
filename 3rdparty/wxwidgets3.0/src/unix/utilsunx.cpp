@@ -87,12 +87,6 @@
     #define wxStatfs_t WX_STATFS_T
 #endif
 
-// SGI signal.h defines signal handler arguments differently depending on
-// whether _LANGUAGE_C_PLUS_PLUS is set or not - do set it
-#if defined(__SGI__) && !defined(_LANGUAGE_C_PLUS_PLUS)
-    #define _LANGUAGE_C_PLUS_PLUS 1
-#endif // SGI hack
-
 #include <stdarg.h>
 #include <dirent.h>
 #include <string.h>
@@ -110,12 +104,6 @@
 #ifdef HAVE_UNAME
     #include <sys/utsname.h> // for uname()
 #endif // HAVE_UNAME
-
-// Used by wxGetFreeMemory().
-#ifdef __SGI__
-    #include <sys/sysmp.h>
-    #include <sys/sysinfo.h>   // for SAGET and MINFO structures
-#endif
 
 #ifdef HAVE_SETPRIORITY
     #include <sys/resource.h>   // for setpriority()
@@ -195,11 +183,6 @@ const wxChar* wxGetHomeDir( wxString *home  )
     wxString tmp;
     if ( home->empty() )
         *home = wxT("/");
-#ifdef __VMS
-    tmp = *home;
-    if ( tmp.Last() != wxT(']'))
-        if ( tmp.Last() != wxT('/')) *home << wxT('/');
-#endif
     return home->c_str();
 }
 

@@ -164,7 +164,7 @@
    so define it ourselves (newer versions do it for all files, though, and
    don't allow it to be redefined)
  */
-#if defined(__DECCXX) && !defined(__VMS) && !defined(__cplusplus)
+#if defined(__DECCXX) && !defined(__cplusplus)
 #define __cplusplus
 #endif /* __DECCXX */
 

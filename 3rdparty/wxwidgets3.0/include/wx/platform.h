@@ -166,25 +166,9 @@
 #if defined(__UNIX__) || defined(__unix) || defined(__unix__) || \
       defined(____SVR4____) || defined(__LINUX__) || defined(__sgi) || \
       defined(__hpux) || defined(__sun) || defined(__SUN__) || defined(_AIX) || \
-      defined(__VMS) || defined(__BEOS__) || defined(__MACH__)
+      defined(__BEOS__) || defined(__MACH__)
 
 #    define __UNIX_LIKE__
-
-#    ifdef __SGI__
-#        ifdef __GNUG__
-#        else /* !gcc */
-            /*
-               Note I use the term __SGI_CC__ for both cc and CC, its not a good
-               idea to mix gcc and cc/CC, the name mangling is different
-             */
-#            define __SGI_CC__
-#        endif /* gcc/!gcc */
-
-        /* system headers use this symbol and not __cplusplus in some places */
-#       ifndef _LANGUAGE_C_PLUS_PLUS
-#           define _LANGUAGE_C_PLUS_PLUS
-#       endif
-#    endif  /* SGI */
 
 #    if defined(__INNOTEK_LIBC__)
         /* Ensure visibility of strnlen declaration */
@@ -382,19 +366,6 @@
 #    define wxSTD std::
 #else
 #    define wxSTD
-#endif
-
-/* On OpenVMS with the most recent HP C++ compiler some function (i.e. wscanf)
- * are only available in the std-namespace. (BUG???)
- */
-#if defined(  __VMS ) && (__DECCXX_VER >= 70100000) && !defined(__STD_CFRONT) && !defined( __NONAMESPACE_STD )
-# define wxVMS_USE_STD std::
-#else
-# define wxVMS_USE_STD
-#endif
-
-#ifdef __VMS
-#define XtDisplay XTDISPLAY
 #endif
 
 #endif /* _WX_PLATFORM_H_ */

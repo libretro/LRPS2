@@ -451,12 +451,7 @@ private:
 //     created by the wxThread object while "main thread" is the thread created
 //     during the process initialization (a.k.a. the GUI thread)
 
-// On VMS thread pointers are 64 bits (also needed for other systems???
-#ifdef __VMS
-   typedef unsigned long long wxThreadIdType;
-#else
-   typedef unsigned long wxThreadIdType;
-#endif
+typedef unsigned long wxThreadIdType;
 
 class WXDLLIMPEXP_BASE wxThread
 {

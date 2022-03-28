@@ -26,15 +26,6 @@
 #include <string.h>
 #include <wchar.h>
 
-#ifdef __SGI__
-    // wide character functions are declared in std namespace under IRIX
-    using namespace std;
-
-    // and this one is only declared if __c99 is defined which is not the case
-    // for C++ builds, so declare it ourselves
-    extern "C" int vswscanf(const wchar_t *, const wchar_t *, va_list);
-#endif
-
 #include <time.h>
 #include <locale.h>
 
@@ -277,17 +268,7 @@ int wxCRT_ScanfW(const wchar_t *format, ...)
 {
     va_list argptr;
     va_start(argptr, format);
-
-#ifdef __VMS
-#if (__DECCXX_VER >= 70100000) && !defined(__STD_CFRONT) && !defined( __NONAMESPACE_STD )
-   int ret = std::vwscanf(format, argptr);
-#else
-   int ret = vwscanf(format, argptr);
-#endif
-#else
-   int ret = vwscanf(format, argptr);
-#endif
-
+    int ret = vwscanf(format, argptr);
     va_end(argptr);
 
     return ret;
@@ -299,17 +280,7 @@ int wxCRT_SscanfW(const wchar_t *str, const wchar_t *format, ...)
 {
     va_list argptr;
     va_start(argptr, format);
-
-#ifdef __VMS
-#if (__DECCXX_VER >= 70100000) && !defined(__STD_CFRONT) && !defined( __NONAMESPACE_STD )
-   int ret = std::vswscanf(str, format, argptr);
-#else
-   int ret = vswscanf(str, format, argptr);
-#endif
-#else
-   int ret = vswscanf(str, format, argptr);
-#endif
-
+    int ret = vswscanf(str, format, argptr);
     va_end(argptr);
 
     return ret;
@@ -321,16 +292,7 @@ int wxCRT_FscanfW(FILE *stream, const wchar_t *format, ...)
 {
     va_list argptr;
     va_start(argptr, format);
-#ifdef __VMS
-#if (__DECCXX_VER >= 70100000) && !defined(__STD_CFRONT) && !defined( __NONAMESPACE_STD )
-   int ret = std::vfwscanf(stream, format, argptr);
-#else
-   int ret = vfwscanf(stream, format, argptr);
-#endif
-#else
-   int ret = vfwscanf(stream, format, argptr);
-#endif
-
+    int ret = vfwscanf(stream, format, argptr);
     va_end(argptr);
 
     return ret;
@@ -340,15 +302,7 @@ int wxCRT_FscanfW(FILE *stream, const wchar_t *format, ...)
 #ifndef wxCRT_VsscanfW
 int wxCRT_VsscanfW(const wchar_t *str, const wchar_t *format, va_list argptr)
 {
-#ifdef __VMS
-#if (__DECCXX_VER >= 70100000) && !defined(__STD_CFRONT) && !defined( __NONAMESPACE_STD )
-   return std::vswscanf(str, format, argptr);
-#else
    return vswscanf(str, format, argptr);
-#endif
-#else
-   return vswscanf(str, format, argptr);
-#endif
 }
 #endif
 

@@ -247,14 +247,14 @@
     int wxCRT_SscanfW(const wchar_t *str, const wchar_t *format, ...);
     int wxCRT_FscanfW(FILE *stream, const wchar_t *format, ...);
 #else
-    #define wxCRT_ScanfW     wxVMS_USE_STD wscanf
-    #define wxCRT_SscanfW    wxVMS_USE_STD swscanf
-    #define wxCRT_FscanfW    wxVMS_USE_STD fwscanf
+    #define wxCRT_ScanfW     wscanf
+    #define wxCRT_SscanfW    swscanf
+    #define wxCRT_FscanfW    fwscanf
 #endif
 #ifdef wxNEED_VSWSCANF
     int wxCRT_VsscanfW(const wchar_t *str, const wchar_t *format, va_list ap);
 #else
-    #define wxCRT_VsscanfW   wxVMS_USE_STD vswscanf
+    #define wxCRT_VsscanfW   vswscanf
 #endif
 
 // ----------------------------------------------------------------------------
