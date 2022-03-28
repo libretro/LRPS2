@@ -154,8 +154,4 @@ private :
 
 #define wxDEFINE_FLAGS( flags )
 
-#if WXWIN_COMPATIBILITY_2_8
-    #define WX_DEFINE_FLAGS     wxDEFINE_FLAGS
-#endif
-
 #endif

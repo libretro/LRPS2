@@ -351,12 +351,7 @@ bool wxEvtHandler::TryAfter(wxEvent& event)
     if ( GetNextHandler() )
         return GetNextHandler()->TryAfter(event);
 
-#if WXWIN_COMPATIBILITY_2_8
-    // as above, call the old virtual function for compatibility
-    return TryParent(event);
-#else
     return DoTryApp(event);
-#endif
 }
 
 bool wxEvtHandler::ProcessEvent(wxEvent& event)

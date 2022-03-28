@@ -94,19 +94,6 @@ namespace wxPrivate
 #define   wxWCSTRINGCAST (wchar_t *)(const wchar_t *)
 
 // ----------------------------------------------------------------------------
-// constants
-// ----------------------------------------------------------------------------
-
-#if WXWIN_COMPATIBILITY_2_6
-
-// deprecated in favour of wxString::npos, don't use in new code
-//
-// maximum possible length for a string means "take all string" everywhere
-#define wxSTRING_MAXLEN wxString::npos
-
-#endif // WXWIN_COMPATIBILITY_2_6
-
-// ----------------------------------------------------------------------------
 // wxCStrData
 // ----------------------------------------------------------------------------
 
@@ -2188,17 +2175,6 @@ public:
     // minimize the string's memory
     // only works if the data of this string is not shared
   bool Shrink();
-#if WXWIN_COMPATIBILITY_2_8 && !wxUSE_STL_BASED_WXSTRING && !wxUSE_UNICODE_UTF8
-    // These are deprecated, use wxStringBuffer or wxStringBufferLength instead
-    //
-    // get writable buffer of at least nLen bytes. Unget() *must* be called
-    // a.s.a.p. to put string back in a reasonable state!
-  wxDEPRECATED( wxStringCharType *GetWriteBuf(size_t nLen) );
-    // call this immediately after GetWriteBuf() has been used
-  wxDEPRECATED( void UngetWriteBuf() );
-  wxDEPRECATED( void UngetWriteBuf(size_t nLen) );
-#endif // WXWIN_COMPATIBILITY_2_8 && !wxUSE_STL_BASED_WXSTRING && wxUSE_UNICODE_UTF8
-
   // wxWidgets version 1 compatibility functions
 
   // use Mid()

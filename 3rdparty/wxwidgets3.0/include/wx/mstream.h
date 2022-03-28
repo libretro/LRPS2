@@ -30,11 +30,6 @@ public:
 
     wxStreamBuffer *GetInputStreamBuffer() const { return m_i_streambuf; }
 
-#if WXWIN_COMPATIBILITY_2_6
-    // deprecated, compatibility only
-    wxDEPRECATED( wxStreamBuffer *InputStreamBuffer() const );
-#endif // WXWIN_COMPATIBILITY_2_6
-
 protected:
     wxStreamBuffer *m_i_streambuf;
 
@@ -49,10 +44,6 @@ private:
     DECLARE_ABSTRACT_CLASS(wxMemoryInputStream)
     wxDECLARE_NO_ASSIGN_CLASS(wxMemoryInputStream);
 };
-
-#if WXWIN_COMPATIBILITY_2_6
-    inline wxStreamBuffer *wxMemoryInputStream::InputStreamBuffer() const { return m_i_streambuf; }
-#endif // WXWIN_COMPATIBILITY_2_6
 
 #endif
   // wxUSE_STREAMS

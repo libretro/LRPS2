@@ -15,13 +15,6 @@
 #define _GNU_SOURCE 1
 #endif
 #endif
-/* --- start common options --- */
-
-#define WXWIN_COMPATIBILITY_2_6 0
-
-#define WXWIN_COMPATIBILITY_2_8 0
-
-#define wxDIALOG_UNIT_COMPATIBILITY   0
 
 #ifndef wxUSE_UNICODE
     #define wxUSE_UNICODE 1

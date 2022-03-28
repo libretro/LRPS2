@@ -78,11 +78,7 @@ enum wxThreadWait
     // For compatibility reasons we use wxTHREAD_WAIT_YIELD by default as this
     // was the default behaviour of wxMSW 2.8 but it should be avoided as it's
     // dangerous and not portable.
-#if WXWIN_COMPATIBILITY_2_8
-    wxTHREAD_WAIT_DEFAULT = wxTHREAD_WAIT_YIELD
-#else
     wxTHREAD_WAIT_DEFAULT = wxTHREAD_WAIT_BLOCK
-#endif
 };
 
 // Obsolete synonyms for wxPRIORITY_XXX for backwards compatibility-only
@@ -381,22 +377,11 @@ public:
     // on the associated mutex object before returning.
     wxCondError Broadcast();
 
-
-#if WXWIN_COMPATIBILITY_2_6
-    // deprecated version, don't use
-    wxDEPRECATED( bool Wait(unsigned long milliseconds) );
-#endif // WXWIN_COMPATIBILITY_2_6
-
 private:
     wxConditionInternal *m_internal;
 
     wxDECLARE_NO_COPY_CLASS(wxCondition);
 };
-
-#if WXWIN_COMPATIBILITY_2_6
-    inline bool wxCondition::Wait(unsigned long milliseconds)
-        { return WaitTimeout(milliseconds) == wxCOND_NO_ERROR; }
-#endif // WXWIN_COMPATIBILITY_2_6
 
 // ----------------------------------------------------------------------------
 // wxSemaphore: a counter limiting the number of threads concurrently accessing

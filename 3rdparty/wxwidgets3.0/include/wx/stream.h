@@ -345,11 +345,6 @@ public:
     wxInputStream *GetInputStream() const;
     wxOutputStream *GetOutputStream() const;
 
-#if WXWIN_COMPATIBILITY_2_6
-    // deprecated, for compatibility only
-    wxDEPRECATED( wxStreamBase *Stream() );
-#endif // WXWIN_COMPATIBILITY_2_6
-
     // this constructs a dummy wxStreamBuffer, used by (and exists for)
     // wxMemoryStreams only, don't use!
     wxStreamBuffer(BufMode mode);
@@ -393,10 +388,6 @@ protected:
 
     wxDECLARE_NO_ASSIGN_CLASS(wxStreamBuffer);
 };
-
-#if WXWIN_COMPATIBILITY_2_6
-    inline wxStreamBase *wxStreamBuffer::Stream() { return m_stream; }
-#endif // WXWIN_COMPATIBILITY_2_6
 
 #endif // wxUSE_STREAMS
 

@@ -156,13 +156,6 @@
    Section 3a: check consistency of the non-GUI settings.
  */
 
-#if WXWIN_COMPATIBILITY_2_6
-#   if !WXWIN_COMPATIBILITY_2_8
-#           undef WXWIN_COMPATIBILITY_2_8
-#           define WXWIN_COMPATIBILITY_2_8 1
-#   endif
-#endif /* WXWIN_COMPATIBILITY_2_6 */
-
 #if wxUSE_PROTOCOL_FILE || wxUSE_PROTOCOL_FTP || wxUSE_PROTOCOL_HTTP
 #   if !wxUSE_PROTOCOL
 #            undef wxUSE_PROTOCOL

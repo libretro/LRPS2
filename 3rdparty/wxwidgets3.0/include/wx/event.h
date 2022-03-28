@@ -879,16 +879,6 @@ protected:
     // base class implementation passes the event to wxTheApp
     virtual bool TryAfter(wxEvent& event);
 
-#if WXWIN_COMPATIBILITY_2_8
-    // deprecated method: override TryBefore() instead of this one
-    wxDEPRECATED_BUT_USED_INTERNALLY_INLINE(
-        virtual bool TryValidator(wxEvent& WXUNUSED(event)), return false; )
-
-    wxDEPRECATED_BUT_USED_INTERNALLY_INLINE(
-        virtual bool TryParent(wxEvent& event), return DoTryApp(event); )
-#endif // WXWIN_COMPATIBILITY_2_8
-
-
     static const wxEventTable sm_eventTable;
     virtual const wxEventTable *GetEventTable() const;
 
@@ -1222,13 +1212,6 @@ typedef void (wxEvtHandler::*wxThreadEventFunction)(wxThreadEvent&);
     EVT_COMMAND_SCROLL_THUMBTRACK(winid, func) \
     EVT_COMMAND_SCROLL_THUMBRELEASE(winid, func) \
     EVT_COMMAND_SCROLL_CHANGED(winid, func)
-
-#if WXWIN_COMPATIBILITY_2_6
-    // compatibility macros for the old name, deprecated in 2.8
-    #define wxEVT_SCROLL_ENDSCROLL wxEVT_SCROLL_CHANGED
-    #define EVT_COMMAND_SCROLL_ENDSCROLL EVT_COMMAND_SCROLL_CHANGED
-    #define EVT_SCROLL_ENDSCROLL EVT_SCROLL_CHANGED
-#endif // WXWIN_COMPATIBILITY_2_6
 
 // Convenience macros for commonly-used commands
 #define EVT_CHECKBOX(winid, func) wx__DECLARE_EVT1(wxEVT_CHECKBOX, winid, wxCommandEventHandler(func))
