@@ -446,7 +446,7 @@ typedef short int WXTYPE;
 
 /*  wxCALLBACK should be used for the functions which are called back by */
 /*  Windows (such as compare function for wxListCtrl) */
-#if defined(__WIN32__) && !defined(__WXMICROWIN__)
+#if defined(__WIN32__)
     #define wxCALLBACK wxSTDCALL
 #else
     /*  no stdcall under Unix nor Win16 */
@@ -1017,8 +1017,7 @@ typedef wxUint32 wxDword;
     #define wxLongLongFmtSpec "I64"
 #elif (defined(SIZEOF_LONG_LONG) && SIZEOF_LONG_LONG >= 8)  || \
         defined(__GNUC__) || \
-        defined(__CYGWIN__) || \
-        defined(__WXMICROWIN__)
+        defined(__CYGWIN__)
     #define wxLongLong_t long long
     #define wxLongLongSuffix ll
     #define wxLongLongFmtSpec "ll"
@@ -3014,7 +3013,7 @@ typedef wxW64 long         WXLPARAM;
 typedef wxW64 long         WXLRESULT;
 #endif
 
-#if defined(__GNUWIN32__) || defined(__WXMICROWIN__)
+#if defined(__GNUWIN32__)
 typedef int             (*WXFARPROC)();
 #else
 typedef int             (__stdcall *WXFARPROC)();

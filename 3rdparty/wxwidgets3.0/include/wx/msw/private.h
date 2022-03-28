@@ -15,11 +15,6 @@
 
 #include "wx/msw/wrapwin.h"
 
-#ifdef __WXMICROWIN__
-    // Extra prototypes and symbols not defined by MicroWindows
-    #include "wx/msw/microwin.h"
-#endif
-
 class WXDLLIMPEXP_FWD_CORE wxFont;
 
 // ---------------------------------------------------------------------------
@@ -136,7 +131,7 @@ extern LONG APIENTRY _EXPORT
 // ---------------------------------------------------------------------------
 
 // a wrapper macro for ZeroMemory()
-#if defined(__WIN32__) && !defined(__WXMICROWIN__)
+#if defined(__WIN32__)
 #define wxZeroMemory(obj)   ::ZeroMemory(&obj, sizeof(obj))
 #else
 #define wxZeroMemory(obj)   memset((void*) & obj, 0, sizeof(obj))

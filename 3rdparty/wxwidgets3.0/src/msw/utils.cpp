@@ -39,7 +39,7 @@
 #   include <sys/types.h>
 #endif
 
-#if !defined(__GNUWIN32__) && !defined(__WXMICROWIN__)
+#if !defined(__GNUWIN32__)
     #include <direct.h>
 
     #include <dos.h>
@@ -63,7 +63,7 @@
     #include <lm.h>
 #endif // USE_NET_API
 
-#if defined(__WIN32__) && !defined(__WXMICROWIN__)
+#if defined(__WIN32__)
     #ifndef __UNIX__
         #include <io.h>
     #endif

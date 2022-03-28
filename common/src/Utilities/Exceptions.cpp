@@ -27,7 +27,7 @@ Fnptr_OutOfMemory pxDoOutOfMemory = NULL;
 // Because wxTrap isn't available on Linux builds of wxWidgets (non-Debug, typically)
 void pxTrap()
 {
-#if defined(__WXMSW__) && !defined(__WXMICROWIN__)
+#if defined(__WXMSW__)
     __debugbreak();
 #elif defined(__WXMAC__) && !defined(__DARWIN__)
 #if __powerc
