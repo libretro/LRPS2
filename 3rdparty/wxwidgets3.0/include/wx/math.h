@@ -110,31 +110,10 @@
 
 #endif /* C++11/C++98 */
 
-#ifdef __INTELC__
-
-    inline bool wxIsSameDouble(double x, double y)
-    {
-        // VZ: this warning, given for operators==() and !=() is not wrong, as ==
-        //     shouldn't be used with doubles, but we get too many of them and
-        //     removing these operators is probably not a good idea
-        //
-        //     Maybe we should always compare doubles up to some "epsilon" precision
-        #pragma warning(push)
-
-        // floating-point equality and inequality comparisons are unreliable
-        #pragma warning(disable: 1572)
-
-        return x == y;
-
-        #pragma warning(pop)
-    }
-
-#else /* !__INTELC__ */
     wxGCC_WARNING_SUPPRESS(float-equal)
     inline bool wxIsSameDouble(double x, double y) { return x == y; }
     wxGCC_WARNING_RESTORE(float-equal)
 
-#endif /* __INTELC__/!__INTELC__ */
 #endif /* __cplusplus */
 
 #endif /* _WX_MATH_H_ */

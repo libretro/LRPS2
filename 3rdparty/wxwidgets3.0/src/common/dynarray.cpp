@@ -346,16 +346,6 @@ void name::insert(iterator it, const_iterator first, const_iterator last)   \
   m_nCount += nInsert;                                                      \
 }
 
-#ifdef __INTELC__
-    #pragma warning(push)
-    #pragma warning(disable: 1684)
-    #pragma warning(disable: 1572)
-#endif
-
 _WX_DEFINE_BASEARRAY(const void *, wxBaseArrayPtrVoid)
 _WX_DEFINE_BASEARRAY(char,         wxBaseArrayChar)
 _WX_DEFINE_BASEARRAY(int,          wxBaseArrayInt)
-
-#ifdef __INTELC__
-    #pragma warning(pop)
-#endif

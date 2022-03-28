@@ -561,19 +561,7 @@ wxStringList::wxStringList (const wxChar *first, ...)
   for (;;)
   {
       Add(s);
-
-      // icc gives this warning in its own va_arg() macro, argh
-#ifdef __INTELC__
-    #pragma warning(push)
-    #pragma warning(disable: 1684)
-#endif
-
       s = va_arg(ap, const wxChar *);
-
-#ifdef __INTELC__
-    #pragma warning(pop)
-#endif
-
       if ( !s )
           break;
   }

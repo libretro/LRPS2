@@ -16,14 +16,6 @@
     Compiler detection and related helpers.
  */
 
-/*
-    Notice that Intel compiler can be used as Microsoft Visual C++ add-on and
-    so we should define both __INTELC__ and __VISUALC__ for it.
-*/
-#ifdef __INTEL_COMPILER
-#   define __INTELC__
-#endif
-
 #if defined(_MSC_VER)
     /*
        define another standard symbol for Microsoft Visual C++: the standard

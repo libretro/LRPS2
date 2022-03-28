@@ -235,26 +235,7 @@ typedef short int WXTYPE;
    truncate from a larger to smaller type, static_cast<> can't be used for it
    as it results in warnings when using some compilers (SGI mipspro for example)
  */
-#if defined(__INTELC__) && defined(__cplusplus)
-    template <typename T, typename X>
-    inline T wx_truncate_cast_impl(X x)
-    {
-        #pragma warning(push)
-        /* implicit conversion of a 64-bit integral type to a smaller integral type */
-        #pragma warning(disable: 1682)
-        /* conversion from "X" to "T" may lose significant bits */
-        #pragma warning(disable: 810)
-        /* non-pointer conversion from "foo" to "bar" may lose significant bits */
-        #pragma warning(disable: 2259)
-
-        return x;
-
-        #pragma warning(pop)
-    }
-
-    #define wx_truncate_cast(t, x) wx_truncate_cast_impl<t>(x)
-
-#elif defined(__cplusplus) && defined(__VISUALC__) && __VISUALC__ >= 1310
+#if defined(__cplusplus) && defined(__VISUALC__) && __VISUALC__ >= 1310
     template <typename T, typename X>
     inline T wx_truncate_cast_impl(X x)
     {
@@ -1028,7 +1009,7 @@ typedef wxUint32 wxDword;
    architectures to be able to pass wxLongLong_t to the standard functions
    prototyped as taking "long long" such as strtoll().
  */
-#if (defined(__VISUALC__) || defined(__INTELC__)) && defined(__WIN32__)
+#if (defined(__VISUALC__)
     #define wxLongLong_t __int64
     #define wxLongLongSuffix i64
     #define wxLongLongFmtSpec "I64"
@@ -1194,15 +1175,11 @@ inline wxUIntPtr wxPtrToUInt(const void *p)
     #endif
     /* pointer truncation from '' to '' */
     #pragma warning(disable: 4311)
-#elif defined(__INTELC__)
-    #pragma warning(push)
-    /* conversion from pointer to same-sized integral type */
-    #pragma warning(disable: 1684)
 #endif
 
     return wx_reinterpret_cast(wxUIntPtr, p);
 
-#if (defined(__VISUALC__) && __VISUALC__ >= 1200) || defined(__INTELC__)
+#if (defined(__VISUALC__) && __VISUALC__ >= 1200)
     #pragma warning(pop)
 #endif
 }
@@ -1215,15 +1192,11 @@ inline void *wxUIntToPtr(wxUIntPtr p)
     #endif
     /* conversion to type of greater size */
     #pragma warning(disable: 4312)
-#elif defined(__INTELC__)
-    #pragma warning(push)
-    /* invalid type conversion: "wxUIntPtr={unsigned long}" to "void *" */
-    #pragma warning(disable: 171)
 #endif
 
     return wx_reinterpret_cast(void *, p);
 
-#if (defined(__VISUALC__) && __VISUALC__ >= 1200) || defined(__INTELC__)
+#if (defined(__VISUALC__) && __VISUALC__ >= 1200)
     #pragma warning(pop)
 #endif
 }
