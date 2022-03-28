@@ -40,8 +40,7 @@
 
 #define wxUSE_STL 0
 
-#if defined(__DMC__) \
-        || (defined(_MSC_VER) && _MSC_VER < 1200)
+#if (defined(_MSC_VER) && _MSC_VER < 1200)
     #define wxUSE_STD_DEFAULT  0
 #else
     #define wxUSE_STD_DEFAULT  1

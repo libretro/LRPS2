@@ -487,7 +487,6 @@ wxRenameFile(const wxString& file1, const wxString& file2, bool overwrite)
 bool wxRemoveFile(const wxString& file)
 {
 #if defined(__VISUALC__) \
- || defined(__DMC__) \
  || defined(__GNUWIN32__)
     int res = wxRemove(file);
 #elif defined(__WXMAC__)

@@ -88,8 +88,6 @@
 /* VC++ and BC++ starting with 5.2 have TCHAR support */
 #ifdef __VISUALC__
     #define wxHAVE_TCHAR_SUPPORT
-#elif defined(__DMC__)
-    #define wxHAVE_TCHAR_SUPPORT
 #elif defined(__MINGW32__) && wxCHECK_W32API_VERSION( 1, 0 )
     #define wxHAVE_TCHAR_SUPPORT
     #include <stddef.h>

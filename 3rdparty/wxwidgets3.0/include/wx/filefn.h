@@ -127,8 +127,7 @@ enum wxPosixPermissions
         defined(__VISUALC__) || \
         defined(__MINGW64_TOOLCHAIN__) || \
         (defined(__MINGW32__) && !defined(__WINE__) && \
-                                wxCHECK_W32API_VERSION(0, 5)) || \
-        defined(__DMC__) )
+                                wxCHECK_W32API_VERSION(0, 5)) )
 
     // temporary defines just used immediately below
     #undef wxHAS_HUGE_FILES
@@ -168,11 +167,7 @@ enum wxPosixPermissions
         #endif
     #endif
 
-    // other Windows compilers (DMC, Watcom, and Borland) don't have huge file
-    // support (or at least not all functions needed for it by wx) currently
-
     // types
-
     #ifdef wxHAS_HUGE_FILES
         typedef wxLongLong_t wxFileOffset;
         #define wxFileOffsetFmtSpec wxLongLongFmtSpec
@@ -199,7 +194,7 @@ enum wxPosixPermissions
     // to avoid using them as they're not present in earlier versions and
     // always using the native functions spelling is easier than testing for
     // the versions
-    #if defined(__DMC__) || defined(__MINGW64_TOOLCHAIN__)
+    #if defined(__MINGW64_TOOLCHAIN__)
         #define wxPOSIX_IDENT(func)    ::func
     #else // by default assume MSVC-compatible names
         #define wxPOSIX_IDENT(func)    _ ## func

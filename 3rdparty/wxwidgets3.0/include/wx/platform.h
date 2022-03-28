@@ -380,22 +380,8 @@
  */
 #include "wx/chkconf.h"
 
-
-/*
-   some compilers don't support iostream.h any longer, while some of theme
-   are not updated with <iostream> yet, so override the users setting here
-   in such case.
- */
-#if defined(_MSC_VER) && (_MSC_VER >= 1310)
-#    undef wxUSE_IOSTREAMH
-#    define wxUSE_IOSTREAMH 0
-#elif defined(__DMC__)
-#    undef wxUSE_IOSTREAMH
-#    define wxUSE_IOSTREAMH 1
-#elif defined(__MINGW32__)
-#    undef wxUSE_IOSTREAMH
-#    define wxUSE_IOSTREAMH 0
-#endif /* compilers with/without iostream.h */
+#undef wxUSE_IOSTREAMH
+#define wxUSE_IOSTREAMH 0
 
 /*
    old C++ headers (like <iostream.h>) declare classes in the global namespace

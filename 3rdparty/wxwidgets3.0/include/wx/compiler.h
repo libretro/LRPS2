@@ -71,11 +71,7 @@
 #       define __SUNCC__ __SUNPRO_CC
 #   endif /* Sun CC */
 #elif defined(__SC__)
-#    ifdef __DMC__
-#         define __DIGITALMARS__
-#    else
 #         define __SYMANTEC__
-#    endif
 #endif  /* compiler */
 
 /*
