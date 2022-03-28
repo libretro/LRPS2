@@ -26,7 +26,6 @@
 #if wxUSE_THREADS
 
 #include "wx/thread.h"
-#include "wx/except.h"
 
 #ifndef WX_PRECOMP
     #include "wx/app.h"

@@ -87,37 +87,9 @@ wxDECL_FOR_STRICT_MINGW32(int, _fileno, (FILE*))
     #define _MAXPATHLEN 1024
 #endif
 
-// ----------------------------------------------------------------------------
-// private globals
-// ----------------------------------------------------------------------------
-
-#if WXWIN_COMPATIBILITY_2_8
-static wxChar wxFileFunctionsBuffer[4*_MAXPATHLEN];
-#endif
-
 // ============================================================================
 // implementation
 // ============================================================================
-
-// ----------------------------------------------------------------------------
-// miscellaneous global functions
-// ----------------------------------------------------------------------------
-
-#if WXWIN_COMPATIBILITY_2_8
-static inline wxChar* MYcopystring(const wxString& s)
-{
-    wxChar* copy = new wxChar[s.length() + 1];
-    return wxStrcpy(copy, s.c_str());
-}
-
-template<typename CharType>
-static inline CharType* MYcopystring(const CharType* s)
-{
-    CharType* copy = new CharType[wxStrlen(s) + 1];
-    return wxStrcpy(copy, s);
-}
-#endif
-
 
 bool
 wxFileExists (const wxString& filename)
@@ -235,91 +207,6 @@ void wxMacFilename2FSSpec( const wxString& path , FSSpec *spec )
 #endif
 
 #endif // __WXMAC__
-
-
-#if WXWIN_COMPATIBILITY_2_8
-
-template<typename T>
-static void wxDoDos2UnixFilename(T *s)
-{
-  if (s)
-    while (*s)
-      {
-        if (*s == wxT('\\'))
-          *s = wxT('/');
-#ifdef __WINDOWS__
-        else
-          *s = wxTolower(*s);        // Case INDEPENDENT
-#endif
-        s++;
-      }
-}
-
-void wxDos2UnixFilename(char *s) { wxDoDos2UnixFilename(s); }
-void wxDos2UnixFilename(wchar_t *s) { wxDoDos2UnixFilename(s); }
-
-template<typename T>
-static void
-#if defined(__WINDOWS__)
-wxDoUnix2DosFilename(T *s)
-#else
-wxDoUnix2DosFilename(T *WXUNUSED(s) )
-#endif
-{
-// Yes, I really mean this to happen under DOS only! JACS
-#if defined(__WINDOWS__)
-  if (s)
-    while (*s)
-      {
-        if (*s == wxT('/'))
-          *s = wxT('\\');
-        s++;
-      }
-#endif
-}
-
-void wxUnix2DosFilename(char *s) { wxDoUnix2DosFilename(s); }
-void wxUnix2DosFilename(wchar_t *s) { wxDoUnix2DosFilename(s); }
-
-#endif // #if WXWIN_COMPATIBILITY_2_8
-
-// Concatenate two files to form third
-bool
-wxConcatFiles (const wxString& file1, const wxString& file2, const wxString& file3)
-{
-#if wxUSE_FILE
-
-    wxFile in1(file1), in2(file2);
-    wxTempFile out(file3);
-
-    if ( !in1.IsOpened() || !in2.IsOpened() || !out.IsOpened() )
-        return false;
-
-    ssize_t ofs;
-    unsigned char buf[1024];
-
-    for( int i=0; i<2; i++)
-    {
-        wxFile *in = i==0 ? &in1 : &in2;
-        do{
-            if ( (ofs = in->Read(buf,WXSIZEOF(buf))) == wxInvalidOffset ) return false;
-            if ( ofs > 0 )
-                if ( !out.Write(buf,ofs) )
-                    return false;
-        } while ( ofs == (ssize_t)WXSIZEOF(buf) );
-    }
-
-    return out.Commit();
-
-#else
-
-    wxUnusedVar(file1);
-    wxUnusedVar(file2);
-    wxUnusedVar(file3);
-    return false;
-
-#endif
-}
 
 // helper of generic implementation of wxCopyFile()
 #ifndef __WIN32__
@@ -530,59 +417,6 @@ bool wxDirExists(const wxString& pathName)
 {
     return wxFileName::DirExists(pathName);
 }
-
-// Get first file name matching given wild card.
-
-static wxDir *gs_dir = NULL;
-static wxString gs_dirPath;
-
-wxString wxFindFirstFile(const wxString& spec, int flags)
-{
-    wxFileName::SplitPath(spec, &gs_dirPath, NULL, NULL);
-    if ( gs_dirPath.empty() )
-        gs_dirPath = wxT(".");
-    if ( !wxEndsWithPathSeparator(gs_dirPath ) )
-        gs_dirPath << wxFILE_SEP_PATH;
-
-    delete gs_dir; // can be NULL, this is ok
-    gs_dir = new wxDir(gs_dirPath);
-
-    if ( !gs_dir->IsOpened() )
-    {
-        return wxEmptyString;
-    }
-
-    int dirFlags;
-    switch (flags)
-    {
-        case wxDIR:  dirFlags = wxDIR_DIRS; break;
-        case wxFILE: dirFlags = wxDIR_FILES; break;
-        default:     dirFlags = wxDIR_DIRS | wxDIR_FILES; break;
-    }
-
-    wxString result;
-    gs_dir->GetFirst(&result, wxFileNameFromPath(spec), dirFlags);
-    if ( result.empty() )
-    {
-        wxDELETE(gs_dir);
-        return result;
-    }
-
-    return gs_dirPath + result;
-}
-
-wxString wxFindNextFile()
-{
-    wxString result;
-    if ( !gs_dir->GetNext(&result) || result.empty() )
-    {
-        wxDELETE(gs_dir);
-        return result;
-    }
-
-    return gs_dirPath + result;
-}
-
 
 // Get current working directory.
 // If buf is NULL, allocates space using new, else copies into buf.

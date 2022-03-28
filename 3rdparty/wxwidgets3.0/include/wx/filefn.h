@@ -429,32 +429,15 @@ WXDLLIMPEXP_BASE wxString wxFileNameFromPath(const wxString& path);
 // Get directory
 WXDLLIMPEXP_BASE wxString wxPathOnly(const wxString& path);
 
-// all deprecated functions below are deprecated in favour of wxFileName's methods
-#if WXWIN_COMPATIBILITY_2_8
-
-wxDEPRECATED( WXDLLIMPEXP_BASE void wxDos2UnixFilename(char *s) );
-wxDEPRECATED( WXDLLIMPEXP_BASE void wxDos2UnixFilename(wchar_t *s) );
-
-wxDEPRECATED_BUT_USED_INTERNALLY(
-    WXDLLIMPEXP_BASE void wxUnix2DosFilename(char *s) );
-wxDEPRECATED_BUT_USED_INTERNALLY(
-    WXDLLIMPEXP_BASE void wxUnix2DosFilename(wchar_t *s) );
-#endif
-
 // Get first file name matching given wild card.
 // Flags are reserved for future use.
 #define wxFILE  1
 #define wxDIR   2
-WXDLLIMPEXP_BASE wxString wxFindFirstFile(const wxString& spec, int flags = wxFILE);
-WXDLLIMPEXP_BASE wxString wxFindNextFile();
 
 // Does the pattern match the text (usually a filename)?
 // If dot_special is true, doesn't match * against . (eliminating
 // `hidden' dot files)
 WXDLLIMPEXP_BASE bool wxMatchWild(const wxString& pattern,  const wxString& text, bool dot_special = true);
-
-// Concatenate two files to form third
-WXDLLIMPEXP_BASE bool wxConcatFiles(const wxString& file1, const wxString& file2, const wxString& file3);
 
 // Copy file1 to file2
 WXDLLIMPEXP_BASE bool wxCopyFile(const wxString& file1, const wxString& file2,

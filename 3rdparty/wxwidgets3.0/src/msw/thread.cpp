@@ -35,8 +35,6 @@
 #include "wx/msw/missing.h"
 #include "wx/msw/seh.h"
 
-#include "wx/except.h"
-
 // must have this symbol defined to get _beginthread/_endthread declarations
 #ifndef _MT
     #define _MT

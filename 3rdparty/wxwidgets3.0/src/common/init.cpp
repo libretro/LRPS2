@@ -28,7 +28,6 @@
 #include "wx/thread.h"
 
 #include "wx/scopedptr.h"
-#include "wx/except.h"
 
 #if defined(__WINDOWS__)
     #include "wx/msw/private.h"
