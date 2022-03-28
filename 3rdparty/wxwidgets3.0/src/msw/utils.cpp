@@ -250,30 +250,6 @@ OSVERSIONINFOEX wxGetWindowsVersionInfo()
     return info;
 }
 
-// check if we're running under a server or workstation Windows system: it
-// returns true or false with obvious meaning as well as -1 if the system type
-// couldn't be determined
-//
-// this function is currently private but we may want to expose it later if
-// it's really useful
-
-int wxIsWindowsServer()
-{
-#ifdef VER_NT_WORKSTATION
-    switch ( wxGetWindowsVersionInfo().wProductType )
-    {
-        case VER_NT_WORKSTATION:
-            return false;
-
-        case VER_NT_SERVER:
-        case VER_NT_DOMAIN_CONTROLLER:
-            return true;
-    }
-#endif // VER_NT_WORKSTATION
-
-    return -1;
-}
-
 } // anonymous namespace
 
 // ----------------------------------------------------------------------------
@@ -288,9 +264,4 @@ void wxMilliSleep(unsigned long milliseconds)
 void wxMicroSleep(unsigned long microseconds)
 {
     wxMilliSleep(microseconds/1000);
-}
-
-void wxSleep(int nSecs)
-{
-    wxMilliSleep(1000*nSecs);
 }

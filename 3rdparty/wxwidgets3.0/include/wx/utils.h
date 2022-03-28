@@ -146,9 +146,6 @@ private:
 // Process management
 // ----------------------------------------------------------------------------
 
-// Sleep for nSecs seconds
-WXDLLIMPEXP_BASE void wxSleep(int nSecs);
-
 // Sleep for a given amount of milliseconds
 WXDLLIMPEXP_BASE void wxMilliSleep(unsigned long milliseconds);
 

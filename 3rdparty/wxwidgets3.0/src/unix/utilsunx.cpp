@@ -148,11 +148,6 @@
 // sleeping
 // ----------------------------------------------------------------------------
 
-void wxSleep(int nSecs)
-{
-    sleep(nSecs);
-}
-
 void wxMicroSleep(unsigned long microseconds)
 {
 #if defined(HAVE_NANOSLEEP)
