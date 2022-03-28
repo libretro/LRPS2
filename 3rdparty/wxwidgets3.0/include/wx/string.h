@@ -71,12 +71,6 @@
 
 class WXDLLIMPEXP_FWD_BASE wxString;
 
-// unless this symbol is predefined to disable the compatibility functions, do
-// use them
-#ifndef WXWIN_COMPATIBILITY_STRING_PTR_AS_ITER
-    #define WXWIN_COMPATIBILITY_STRING_PTR_AS_ITER 1
-#endif
-
 namespace wxPrivate
 {
     template <typename T> struct wxStringAsBufHelper;
@@ -2235,26 +2229,6 @@ public:
     // take all characters from first to last
   wxString(const_iterator first, const_iterator last)
       : m_impl(first.impl(), last.impl()) { }
-#if WXWIN_COMPATIBILITY_STRING_PTR_AS_ITER
-    // the 2 overloads below are for compatibility with the existing code using
-    // pointers instead of iterators
-  wxString(const char *first, const char *last)
-  {
-      SubstrBufFromMB str(ImplStr(first, last - first));
-      m_impl.assign(str.data, str.len);
-  }
-  wxString(const wchar_t *first, const wchar_t *last)
-  {
-      SubstrBufFromWC str(ImplStr(first, last - first));
-      m_impl.assign(str.data, str.len);
-  }
-    // and this one is needed to compile code adding offsets to c_str() result
-  wxString(const wxCStrData& first, const wxCStrData& last)
-      : m_impl(CreateConstIterator(first).impl(),
-               CreateConstIterator(last).impl())
-  {
-  }
-#endif // WXWIN_COMPATIBILITY_STRING_PTR_AS_ITER
 
   // lib.string.modifiers
     // append elements str[pos], ..., str[pos+n]
@@ -2361,14 +2335,6 @@ public:
       m_impl.append(first.impl(), last.impl());
       return *this;
   }
-#if WXWIN_COMPATIBILITY_STRING_PTR_AS_ITER
-  wxString& append(const char *first, const char *last)
-    { return append(first, last - first); }
-  wxString& append(const wchar_t *first, const wchar_t *last)
-    { return append(first, last - first); }
-  wxString& append(const wxCStrData& first, const wxCStrData& last)
-    { return append(CreateConstIterator(first), CreateConstIterator(last)); }
-#endif // WXWIN_COMPATIBILITY_STRING_PTR_AS_ITER
 
     // same as `this_string = str'
   wxString& assign(const wxString& str)
@@ -2500,14 +2466,6 @@ public:
 
       return *this;
   }
-#if WXWIN_COMPATIBILITY_STRING_PTR_AS_ITER
-  wxString& assign(const char *first, const char *last)
-    { return assign(first, last - first); }
-  wxString& assign(const wchar_t *first, const wchar_t *last)
-    { return assign(first, last - first); }
-  wxString& assign(const wxCStrData& first, const wxCStrData& last)
-    { return assign(CreateConstIterator(first), CreateConstIterator(last)); }
-#endif // WXWIN_COMPATIBILITY_STRING_PTR_AS_ITER
 
     // string comparison
   int compare(const wxString& str) const;
@@ -2618,15 +2576,6 @@ public:
 
       m_impl.insert(it.impl(), first.impl(), last.impl());
   }
-
-#if WXWIN_COMPATIBILITY_STRING_PTR_AS_ITER
-  void insert(iterator it, const char *first, const char *last)
-    { insert(it - begin(), first, last - first); }
-  void insert(iterator it, const wchar_t *first, const wchar_t *last)
-    { insert(it - begin(), first, last - first); }
-  void insert(iterator it, const wxCStrData& first, const wxCStrData& last)
-    { insert(it, CreateConstIterator(first), CreateConstIterator(last)); }
-#endif // WXWIN_COMPATIBILITY_STRING_PTR_AS_ITER
 
   void insert(iterator it, size_type n, wxUniChar ch)
   {
@@ -4089,14 +4038,6 @@ void wxStringIteratorNode::clear()
     m_str = NULL;
 }
 #endif // wxUSE_UNICODE_UTF8
-
-#if WXWIN_COMPATIBILITY_2_8
-    // lot of code out there doesn't explicitly include wx/crt.h, but uses
-    // CRT wrappers that are now declared in wx/wxcrt.h and wx/wxcrtvararg.h,
-    // so let's include this header now that wxString is defined and it's safe
-    // to do it:
-    #include "wx/crt.h"
-#endif
 
 // ----------------------------------------------------------------------------
 // Checks on wxString characters
