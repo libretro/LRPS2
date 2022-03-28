@@ -30,6 +30,5 @@ class Pcsx2AppTraits : public wxConsoleAppTraits
     typedef wxConsoleAppTraits _parent;
 public:
     virtual ~Pcsx2AppTraits() {}
-    wxMessageOutput *CreateMessageOutput();
     wxEventLoopBase* CreateEventLoop();
 };

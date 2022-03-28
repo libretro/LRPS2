@@ -24,7 +24,6 @@
 class WXDLLIMPEXP_FWD_BASE wxAppConsole;
 class WXDLLIMPEXP_FWD_BASE wxAppTraits;
 class WXDLLIMPEXP_FWD_BASE wxEventLoopBase;
-class WXDLLIMPEXP_FWD_BASE wxMessageOutput;
 
 // ----------------------------------------------------------------------------
 // typedefs
