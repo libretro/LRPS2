@@ -53,8 +53,6 @@ public:
   FILE *fp() const { return m_fp; }
 
   // read/write (unbuffered)
-    // read all data from the file into a string (useful for text files)
-  bool ReadAll(wxString *str, const wxMBConv& conv = wxConvAuto());
     // returns number of bytes read - use Eof() and Error() to see if an error
     // occurred or not
   size_t Read(void *pBuf, size_t nCount);

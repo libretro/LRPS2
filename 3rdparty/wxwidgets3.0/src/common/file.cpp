@@ -245,34 +245,6 @@ bool wxFile::Close()
 // read/write
 // ----------------------------------------------------------------------------
 
-bool wxFile::ReadAll(wxString *str, const wxMBConv& conv)
-{
-    ssize_t length = Length();
-    wxCharBuffer buf(length);
-    char* p = buf.data();
-    for ( ;; )
-    {
-        static const ssize_t READSIZE = 4096;
-
-        ssize_t nread = Read(p, length > READSIZE ? READSIZE : length);
-        if ( nread == wxInvalidOffset )
-            return false;
-
-        p += nread;
-        if ( length <= nread )
-            break;
-
-        length -= nread;
-    }
-
-    *p = 0;
-
-    wxString strTmp(buf, conv);
-    str->swap(strTmp);
-
-    return true;
-}
-
 // read
 ssize_t wxFile::Read(void *pBuf, size_t nCount)
 {

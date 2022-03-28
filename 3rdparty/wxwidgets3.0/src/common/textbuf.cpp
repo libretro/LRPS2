@@ -53,69 +53,6 @@ const wxChar *wxTextBuffer::GetEOL(wxTextFileType type)
     }
 }
 
-wxString wxTextBuffer::Translate(const wxString& text, wxTextFileType type)
-{
-    // don't do anything if there is nothing to do
-    if ( type == wxTextFileType_None )
-        return text;
-
-    // nor if it is empty
-    if ( text.empty() )
-        return text;
-
-    wxString eol = GetEOL(type), result;
-
-    // optimization: we know that the length of the new string will be about
-    // the same as the length of the old one, so prealloc memory to avoid
-    // unnecessary relocations
-    result.Alloc(text.Len());
-
-    wxChar chLast = 0;
-    for ( wxString::const_iterator i = text.begin(); i != text.end(); ++i )
-    {
-        wxChar ch = *i;
-        switch ( ch ) {
-            case wxT('\n'):
-                // Dos/Unix line termination
-                result += eol;
-                chLast = 0;
-                break;
-
-            case wxT('\r'):
-                if ( chLast == wxT('\r') ) {
-                    // Mac empty line
-                    result += eol;
-                }
-                else {
-                    // just remember it: we don't know whether it is just "\r"
-                    // or "\r\n" yet
-                    chLast = wxT('\r');
-                }
-                break;
-
-            default:
-                if ( chLast == wxT('\r') ) {
-                    // Mac line termination
-                    result += eol;
-
-                    // reset chLast to avoid inserting another eol before the
-                    // next character
-                    chLast = 0;
-                }
-
-                // add to the current line
-                result += ch;
-        }
-    }
-
-    if ( chLast ) {
-        // trailing '\r'
-        result += eol;
-    }
-
-    return result;
-}
-
 #if wxUSE_TEXTBUFFER
 
 wxString wxTextBuffer::ms_eof;
@@ -184,64 +121,6 @@ bool wxTextBuffer::Open(const wxMBConv& conv)
 
     return m_isOpened;
 }
-
-// analyse some lines of the buffer trying to guess it's type.
-// if it fails, it assumes the native type for our platform.
-wxTextFileType wxTextBuffer::GuessType() const
-{
-    // scan the buffer lines
-    size_t nUnix = 0,     // number of '\n's alone
-           nDos  = 0,     // number of '\r\n'
-           nMac  = 0;     // number of '\r's
-
-    // we take MAX_LINES_SCAN in the beginning, middle and the end of buffer
-    #define MAX_LINES_SCAN    (10)
-    size_t nCount = m_aLines.GetCount() / 3,
-        nScan =  nCount > 3*MAX_LINES_SCAN ? MAX_LINES_SCAN : nCount / 3;
-
-    #define   AnalyseLine(n)              \
-        switch ( m_aTypes[n] ) {            \
-            case wxTextFileType_Unix: nUnix++; break;   \
-            case wxTextFileType_Dos:  nDos++;  break;   \
-            case wxTextFileType_Mac:  nMac++;  break;   \
-            default: break; \
-        }
-
-    size_t n;
-    for ( n = 0; n < nScan; n++ )     // the beginning
-        AnalyseLine(n);
-    for ( n = (nCount - nScan)/2; n < (nCount + nScan)/2; n++ )
-        AnalyseLine(n);
-    for ( n = nCount - nScan; n < nCount; n++ )
-        AnalyseLine(n);
-
-    #undef   AnalyseLine
-
-    // interpret the results (FIXME far from being even 50% fool proof)
-    if ( nScan > 0 && nDos + nUnix + nMac == 0 ) {
-        // no newlines at all
-    }
-    else {
-        #define   GREATER_OF(t1, t2) n##t1 == n##t2 ? typeDefault               \
-                                                : n##t1 > n##t2             \
-                                                    ? wxTextFileType_##t1   \
-                                                    : wxTextFileType_##t2
-
-        if ( nDos > nUnix )
-            return GREATER_OF(Dos, Mac);
-        else if ( nDos < nUnix )
-            return GREATER_OF(Unix, Mac);
-        else {
-            // nDos == nUnix
-            return nMac > nDos ? wxTextFileType_Mac : typeDefault;
-        }
-
-        #undef    GREATER_OF
-    }
-
-    return typeDefault;
-}
-
 
 bool wxTextBuffer::Close()
 {

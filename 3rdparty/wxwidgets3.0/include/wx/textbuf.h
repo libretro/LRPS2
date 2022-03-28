@@ -63,6 +63,7 @@ public:
     // get the buffer termination string
     static const wxChar *GetEOL(wxTextFileType type = typeDefault);
 
+
     // the static methods of this class are compiled in even when
     // !wxUSE_TEXTBUFFER because they are used by the library itself, but the
     // rest can be left out
@@ -129,9 +130,6 @@ public:
 
     // get the type of the line (see also GetEOL)
     wxTextFileType GetLineType(size_t n) const { return m_aTypes[n]; }
-
-    // guess the type of buffer
-    wxTextFileType GuessType() const;
 
     // get the name of the buffer
     const wxString& GetName() const { return m_strBufferName; }

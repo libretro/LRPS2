@@ -71,30 +71,6 @@ bool wxFFile::Close()
 // read/write
 // ----------------------------------------------------------------------------
 
-bool wxFFile::ReadAll(wxString *str, const wxMBConv& conv)
-{
-    size_t length = wx_truncate_cast(size_t, Length());
-
-    clearerr(m_fp);
-
-    wxCharBuffer buf(length);
-
-    // note that real length may be less than file length for text files with DOS EOLs
-    // ('\r's get dropped by CRT when reading which means that we have
-    // realLen = fileLen - numOfLinesInTheFile)
-    length = fread(buf.data(), 1, length, m_fp);
-
-    if ( Error() )
-        return false;
-
-    buf.data()[length] = 0;
-
-    wxString strTmp(buf, conv);
-    str->swap(strTmp);
-
-    return true;
-}
-
 size_t wxFFile::Read(void *pBuf, size_t nCount)
 {
     return fread(pBuf, 1, nCount, m_fp);
