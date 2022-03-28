@@ -38,7 +38,7 @@
 // constants
 // ----------------------------------------------------------------------------
 
-#if defined(__VISUALC__) || defined(__DIGITALMARS__)
+#if defined(__VISUALC__)
     typedef int mode_t;
 #endif
 

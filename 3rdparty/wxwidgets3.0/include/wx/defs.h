@@ -214,8 +214,6 @@ typedef short int WXTYPE;
           && wxCHECK_GCC_VERSION(2, 95)
         /*  GCC 2.95 has explicit, what about earlier versions? */
         #define HAVE_EXPLICIT
-    #elif defined(__DIGITALMARS__)
-        #define HAVE_EXPLICIT
     #endif
 #endif /*  !HAVE_EXPLICIT */
 
@@ -1009,14 +1007,10 @@ typedef wxUint32 wxDword;
    architectures to be able to pass wxLongLong_t to the standard functions
    prototyped as taking "long long" such as strtoll().
  */
-#if (defined(__VISUALC__)
+#if (defined(__VISUALC__))
     #define wxLongLong_t __int64
     #define wxLongLongSuffix i64
     #define wxLongLongFmtSpec "I64"
-#elif defined(__DIGITALMARS__)
-      #define wxLongLong_t __int64
-      #define wxLongLongSuffix LL
-      #define wxLongLongFmtSpec "ll"
 #elif defined(__MINGW32__)
     #define wxLongLong_t long long
     #define wxLongLongSuffix ll

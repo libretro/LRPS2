@@ -59,13 +59,6 @@
             __WX_BO_STRINGIZE(__GNUC__) "." __WX_BO_STRINGIZE(__GNUC_MINOR__)
 #elif defined(__VISUALC__)
     #define __WX_BO_COMPILER ",Visual C++ " __WX_BO_STRINGIZE(_MSC_VER)
-#elif defined(__INTEL_COMPILER)
-    // Notice that this must come after MSVC check as ICC under Windows is
-    // ABI-compatible with the corresponding version of the MSVC and we want to
-    // allow using it compile the application code using MSVC-built DLLs.
-    #define __WX_BO_COMPILER ",Intel C++"
-#elif defined(__DIGITALMARS__)
-    #define __WX_BO_COMPILER ",DigitalMars"
 #else
     #define __WX_BO_COMPILER
 #endif

@@ -99,11 +99,7 @@
 
 #ifndef RESTRICT
 
-    #ifdef __INTEL_COMPILER
-
-        #define RESTRICT restrict
-
-    #elif defined(_MSC_VER)
+    #if defined(_MSC_VER)
 
         #define RESTRICT __restrict
 
