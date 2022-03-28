@@ -72,10 +72,6 @@
     #endif
 #endif // __WINDOWS__
 
-#if defined(__VMS__)
-    #include <fab.h>
-#endif
-
 // TODO: Borland probably has _wgetcwd as well?
 #ifdef _MSC_VER
     #define HAVE_WGETCWD
@@ -137,10 +133,6 @@ wxIsAbsolutePath (const wxString& filename)
         // Unix like or Windows
         if (filename[0] == wxT('/'))
             return true;
-#ifdef __VMS__
-        if ((filename[0] == wxT('[') && filename[1] != wxT('.')))
-            return true;
-#endif
 #if defined(__WINDOWS__)
         // MSDOS like
         if (filename[0] == wxT('\\') || (wxIsalpha (filename[0]) && filename[1] == wxT(':')))
@@ -803,7 +795,6 @@ bool wxIsReadable(const wxString &path)
 //
 // Known examples:
 //   *  Pipes on Windows
-//   *  Files on VMS with a record format other than StreamLF
 //
 wxFileKind wxGetFileKind(int fd)
 {
@@ -831,11 +822,6 @@ wxFileKind wxGetFileKind(int fd)
         return wxFILE_KIND_PIPE;
     if (!S_ISREG(st.st_mode))
         return wxFILE_KIND_UNKNOWN;
-
-    #if defined(__VMS__)
-        if (st.st_fab_rfm != FAB$C_STMLF)
-            return wxFILE_KIND_UNKNOWN;
-    #endif
 
     return wxFILE_KIND_DISK;
 

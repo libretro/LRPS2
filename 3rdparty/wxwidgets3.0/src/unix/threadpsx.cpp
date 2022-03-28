@@ -895,17 +895,6 @@ wxThreadError wxThreadInternal::Create(wxThread *thread,
 #ifdef HAVE_THREAD_PRIORITY_FUNCTIONS
     int policy;
     if ( pthread_attr_getschedpolicy(&attr, &policy) != 0 ) {}
-
-#ifdef __VMS__
-   /* the pthread.h contains too many spaces. This is a work-around */
-# undef sched_get_priority_max
-#undef sched_get_priority_min
-#define sched_get_priority_max(_pol_) \
-     (_pol_ == SCHED_OTHER ? PRI_FG_MAX_NP : PRI_FIFO_MAX)
-#define sched_get_priority_min(_pol_) \
-     (_pol_ == SCHED_OTHER ? PRI_FG_MIN_NP : PRI_FIFO_MIN)
-#endif
-
     int max_prio = sched_get_priority_max(policy),
         min_prio = sched_get_priority_min(policy),
         prio = GetPriority();

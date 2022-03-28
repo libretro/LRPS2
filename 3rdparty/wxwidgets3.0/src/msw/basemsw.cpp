@@ -33,17 +33,12 @@
 // ============================================================================
 
 #if wxUSE_THREADS
-WXDWORD wxAppTraits::DoSimpleWaitForThread(WXHANDLE hThread)
-{
-    return ::WaitForSingleObject((HANDLE)hThread, INFINITE);
-}
-
 // ============================================================================
 // wxConsoleAppTraits implementation
 // ============================================================================
 WXDWORD wxConsoleAppTraits::WaitForThread(WXHANDLE hThread, int WXUNUSED(flags))
 {
-    return DoSimpleWaitForThread(hThread);
+    return ::WaitForSingleObject((HANDLE)hThread, INFINITE);
 }
 #endif // wxUSE_THREADS
 

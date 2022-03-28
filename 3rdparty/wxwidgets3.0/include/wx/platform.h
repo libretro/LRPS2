@@ -191,11 +191,6 @@
 #        define _GNU_SOURCE
 #    endif
 
-    /* define __HPUX__ for HP-UX where standard macro is __hpux */
-#    if defined(__hpux) && !defined(__HPUX__)
-#        define __HPUX__
-#    endif /* HP-UX */
-
     /*  All of these should already be defined by including configure-
         generated setup.h but we wish to support Xcode compilation without
         requiring the user to define these himself.
@@ -244,14 +239,6 @@
 #if !defined(__UNIX__) && defined(__UNIX_LIKE__)
 #    define __UNIX__
 #endif /* Unix */
-
-/*
-   We get "Large Files (ILP32) not supported in strict ANSI mode." #error
-   from HP-UX standard headers when compiling with g++ without this:
- */
-#if defined(__HPUX__) && !defined(__STDC_EXT__)
-#   define __STDC_EXT__ 1
-#endif
 
 #if (defined(__GNUC__) && __GNUC__ < 3)
 #define wxNEEDS_CHARPP

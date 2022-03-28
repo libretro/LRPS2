@@ -1446,14 +1446,7 @@ WX_DECLARE_USER_EXPORTED_OBJARRAY(wxDateTime, wxDateTimeArray, WXDLLIMPEXP_BASE)
 
 #define MILLISECONDS_PER_DAY 86400000l
 
-// some broken compilers (HP-UX CC) refuse to compile the "normal" version, but
-// using a temp variable always might prevent other compilers from optimising
-// it away - hence use of this ugly macro
-#ifndef __HPUX__
-    #define MODIFY_AND_RETURN(op) return wxDateTime(*this).op
-#else
-    #define MODIFY_AND_RETURN(op) wxDateTime dt(*this); dt.op; return dt
-#endif
+#define MODIFY_AND_RETURN(op) return wxDateTime(*this).op
 
 // ----------------------------------------------------------------------------
 // wxDateTime construction

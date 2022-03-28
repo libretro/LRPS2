@@ -94,8 +94,7 @@
 
     #define wxFinite(x) _finite(x)
 #elif ( defined(__GNUG__)||defined(__GNUWIN32__)|| \
-      defined(__SGI_CC__)||defined(__SUNCC__)||defined(__XLC__)|| \
-      defined(__HPUX__) )
+      defined(__SGI_CC__)||defined(__SUNCC__))
 #ifdef __SOLARIS__
 #include <ieeefp.h>
 #endif
@@ -108,8 +107,7 @@
 #if defined(__VISUALC__)
     #define wxIsNaN(x) _isnan(x)
 #elif defined(__GNUG__)||defined(__GNUWIN32__)|| \
-      defined(__SGI_CC__)||defined(__SUNCC__)||defined(__XLC__)|| \
-      defined(__HPUX__)
+      defined(__SGI_CC__)||defined(__SUNCC__)
     #define wxIsNaN(x) isnan(x)
 #else
     #define wxIsNaN(x) ((x) != (x))

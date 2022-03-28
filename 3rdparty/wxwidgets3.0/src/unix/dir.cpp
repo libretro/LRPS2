@@ -73,8 +73,6 @@ private:
 // wxDirData
 // ----------------------------------------------------------------------------
 
-#if !defined( __VMS__ ) || ( __VMS_VER >= 70000000 )
-
 wxDirData::wxDirData(const wxString& dirname)
          : m_dirname(dirname)
 {
@@ -93,9 +91,7 @@ wxDirData::wxDirData(const wxString& dirname)
 wxDirData::~wxDirData()
 {
     if ( m_dir )
-    {
         if ( closedir(m_dir) != 0 ) { }
-    }
 }
 
 bool wxDirData::Read(wxString *filename)
@@ -170,23 +166,6 @@ bool wxDirData::Read(wxString *filename)
 
     return true;
 }
-
-#else // old VMS (TODO)
-
-wxDirData::wxDirData(const wxString& WXUNUSED(dirname))
-{
-}
-
-wxDirData::~wxDirData()
-{
-}
-
-bool wxDirData::Read(wxString * WXUNUSED(filename))
-{
-    return false;
-}
-
-#endif // not or new VMS/old VMS
 
 // ----------------------------------------------------------------------------
 // wxDir construction/destruction
