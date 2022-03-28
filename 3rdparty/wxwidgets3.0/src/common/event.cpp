@@ -441,8 +441,4 @@ bool wxEvtHandler::DoTryChain(wxEvent& event)
     return false;
 }
 
-void wxEvtHandler::OnSinkDestroyed( wxEvtHandler *sink )
-{
-}
-
 #endif // wxUSE_BASE

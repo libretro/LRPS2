@@ -869,11 +869,6 @@ public:
 
     void DeletePendingEvents();
 
-    // implementation from now on
-    // --------------------------
-    void OnSinkDestroyed( wxEvtHandler *sink );
-
-
 private:
     static const wxEventTableEntry sm_eventTableEntries[];
 
