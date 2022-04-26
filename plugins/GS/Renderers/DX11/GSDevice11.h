@@ -492,9 +492,9 @@ public:
 	bool Reset(int w, int h);
 	void Flip();
 
-	void DrawPrimitive() final;
+	void DrawPrimitive();
 	void DrawIndexedPrimitive();
-	void DrawIndexedPrimitive(int offset, int count) final;
+	void DrawIndexedPrimitive(int offset, int count);
 
 	void ClearRenderTarget(GSTexture* t, const GSVector4& c) final;
 	void ClearRenderTarget(GSTexture* t, u32 c) final;
@@ -526,8 +526,8 @@ public:
 	void VSSetShader(ID3D11VertexShader* vs, ID3D11Buffer* vs_cb);
 	void GSSetShader(ID3D11GeometryShader* gs, ID3D11Buffer* gs_cb = NULL);
 
-	void PSSetShaderResources(GSTexture* sr0, GSTexture* sr1) final;
-	void PSSetShaderResource(int i, GSTexture* sr) final;
+	void PSSetShaderResources(GSTexture* sr0, GSTexture* sr1);
+	void PSSetShaderResource(int i, GSTexture* sr);
 	void PSSetShaderResourceView(int i, ID3D11ShaderResourceView* srv, GSTexture* sr);
 	void PSSetShader(ID3D11PixelShader* ps, ID3D11Buffer* ps_cb);
 	void PSUpdateShaderState();
@@ -535,7 +535,7 @@ public:
 
 	void OMSetDepthStencilState(ID3D11DepthStencilState* dss, u8 sref);
 	void OMSetBlendState(ID3D11BlendState* bs, float bf);
-	void OMSetRenderTargets(GSTexture* rt, GSTexture* ds, const GSVector4i* scissor = NULL) final;
+	void OMSetRenderTargets(GSTexture* rt, GSTexture* ds, const GSVector4i* scissor = NULL);
 
 	bool CreateTextureFX();
 	void SetupVS(VSSelector sel, const VSConstantBuffer* cb);

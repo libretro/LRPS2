@@ -164,9 +164,6 @@ public:
 	virtual void Flip() {  }
 
 	virtual void BeginScene() {}
-	virtual void DrawPrimitive() {};
-	virtual void DrawIndexedPrimitive() {}
-	virtual void DrawIndexedPrimitive(int offset, int count) {}
 	virtual void EndScene();
 
 	virtual bool HasDepthSparse() { return false; }
@@ -191,10 +188,6 @@ public:
 	virtual void StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture* dTex, const GSVector4& dRect, bool red, bool green, bool blue, bool alpha) {}
 
 	void StretchRect(GSTexture* sTex, GSTexture* dTex, const GSVector4& dRect, int shader = 0, bool linear = true);
-
-	virtual void PSSetShaderResources(GSTexture* sr0, GSTexture* sr1) {}
-	virtual void PSSetShaderResource(int i, GSTexture* sRect) {}
-	virtual void OMSetRenderTargets(GSTexture* rt, GSTexture* ds, const GSVector4i* scissor = NULL) {}
 
 	GSTexture* GetCurrent();
 
