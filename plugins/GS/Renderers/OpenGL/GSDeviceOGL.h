@@ -521,8 +521,6 @@ public:
 	void DrawPrimitive(int offset, int count);
 	void DrawIndexedPrimitive();
 	void DrawIndexedPrimitive(int offset, int count);
-	inline void BeforeDraw();
-	inline void AfterDraw();
 
 	void ClearRenderTarget(GSTexture* t, const GSVector4& c) final;
 	void ClearRenderTarget(GSTexture* t, u32 c) final;
