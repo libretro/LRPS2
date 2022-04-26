@@ -33,11 +33,6 @@
 #include "GSShaderOGL.h"
 #include "GLState.h"
 
-#ifdef ENABLE_OGL_DEBUG_MEM_BW
-extern u64 g_real_texture_upload_byte;
-extern u64 g_vertex_upload_byte;
-#endif
-
 class GSDepthStencilOGL {
 	bool m_depth_enable;
 	GLenum m_depth_func;

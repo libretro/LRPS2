@@ -423,10 +423,6 @@ void GSRendererOGL::EmulateChannelShuffle(GSTexture** rt, const GSTextureCache::
 		m_index.tail = 2;
 
 	}
-#ifdef ENABLE_OGL_DEBUG
-	else
-		dev->PSSetShaderResource(4, NULL);
-#endif
 }
 
 void GSRendererOGL::EmulateBlending(bool& DATE_GL42, bool& DATE_GL45)

@@ -1684,13 +1684,6 @@ static const char tfx_vgs_glsl_shader_raw[] =
 "#endif\n"
 ;
 
-// TODO port those value into PerfMon API
-#ifdef ENABLE_OGL_DEBUG_MEM_BW
-u64 g_real_texture_upload_byte = 0;
-u64 g_vertex_upload_byte = 0;
-u64 g_uniform_upload_byte = 0;
-#endif
-
 static const u32 g_merge_cb_index      = 10;
 static const u32 g_interlace_cb_index  = 11;
 static const u32 g_convert_index       = 15;
@@ -2335,10 +2328,6 @@ void GSDeviceOGL::InitPrimDateTexture(GSTexture* rt, const GSVector4i& area)
 	static_cast<GSTextureOGL*>(m_date.t)->Clear(&max_int, area);
 
 	glBindImageTexture(2, static_cast<GSTextureOGL*>(m_date.t)->GetID(), 0, false, 0, GL_READ_WRITE, GL_R32I);
-#ifdef ENABLE_OGL_DEBUG
-	// Help to see the texture in apitrace
-	PSSetShaderResource(2, m_date.t);
-#endif
 }
 
 void GSDeviceOGL::RecycleDateTexture()
@@ -2477,10 +2466,6 @@ void GSDeviceOGL::CopyRect(GSTexture* sTex, GSTexture* dTex, const GSVector4i& r
 
 	const GLuint& sid = static_cast<GSTextureOGL*>(sTex)->GetID();
 	const GLuint& did = static_cast<GSTextureOGL*>(dTex)->GetID();
-
-#ifdef ENABLE_OGL_DEBUG
-	PSSetShaderResource(6, sTex);
-#endif
 
 	dTex->CommitRegion(GSVector2i(r.z, r.w));
 

@@ -26,10 +26,6 @@
 #include "GSTextureOGL.h"
 #include "GLState.h"
 
-#ifdef ENABLE_OGL_DEBUG_MEM_BW
-extern u64 g_real_texture_upload_byte;
-#endif
-
 // FIXME OGL4: investigate, only 1 unpack buffer always bound
 namespace PboPool {
 
@@ -376,28 +372,6 @@ bool GSTextureOGL::Update(const GSVector4i& r, const void* data, int pitch, int 
 
 	u32 row_byte = r.width() << m_int_shift;
 	u32 map_size = r.height() * row_byte;
-#ifdef ENABLE_OGL_DEBUG_MEM_BW
-	g_real_texture_upload_byte += map_size;
-#endif
-
-#if 0
-	if (r.height() == 1) {
-		// Palette data. Transfer is small either 64B or 1024B.
-		// Sometimes it is faster, sometimes slower.
-		glTextureSubImage2D(m_texture_id, GL_TEX_LEVEL_0, r.x, r.y, r.width(), r.height(), m_int_format, m_int_type, data);
-		return true;
-	}
-#endif
-
-	// The easy solution without PBO
-#if 0
-	// Likely a bad texture
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, pitch >> m_int_shift);
-
-	glTextureSubImage2D(m_texture_id, GL_TEX_LEVEL_0, r.x, r.y, r.width(), r.height(), m_int_format, m_int_type, data);
-
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0); // Restore default behavior
-#endif
 
 	// The complex solution with PBO
 #if 1
@@ -473,10 +447,6 @@ bool GSTextureOGL::Map(GSMap& m, const GSVector4i* _r, int layer)
 		u32 map_size = r.height() * row_byte;
 
 		m.bits = (u8*)PboPool::Map(map_size);
-
-#ifdef ENABLE_OGL_DEBUG_MEM_BW
-	g_real_texture_upload_byte += map_size;
-#endif
 
 		// Save the area for the unmap
 		m_r_x = r.x;
