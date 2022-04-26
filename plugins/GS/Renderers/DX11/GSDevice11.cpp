@@ -472,12 +472,8 @@ bool GSDevice11::SetFeatureLevel(D3D_FEATURE_LEVEL level, bool compat_mode)
 
 bool GSDevice11::Create()
 {
-	bool nvidia_vendor = false;
-
 	if(!__super::Create())
-	{
 		return false;
-	}
 
 	HRESULT hr = E_FAIL;
 
@@ -509,12 +505,6 @@ bool GSDevice11::Create()
 		m_d3d_texsize = D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;
 	else
 		m_d3d_texsize = D3D10_REQ_TEXTURE2D_U_OR_V_DIMENSION;
-
-	{	// HACK: check nVIDIA
-		// Note: It can cause issues on several games such as SOTC, Fatal Frame, plus it adds border offset.
-		bool disable_safe_features = theApp.GetConfigB("UserHacks_Disable_Safe_Features");
-		m_hack_topleft_offset = (m_upscale_multiplier != 1 && nvidia_vendor && !disable_safe_features) ? -0.01f : 0.0f;
-	}
 
 	// convert
 
@@ -762,13 +752,6 @@ void GSDevice11::Flip()
 	m_ctx->OMSetDepthStencilState(m_state.dss, m_state.sref);
 	float BlendFactor[] = {m_state.bf, m_state.bf, m_state.bf, 0};
 	m_ctx->OMSetBlendState(m_state.bs, BlendFactor, 0xffffffff);
-#if 0
-	m_ctx->OMSetRenderTargets(1, &m_state.rt_view, m_state.dsv);
-	D3D11_VIEWPORT vp = {m_hack_topleft_offset, m_hack_topleft_offset,
-						 (float)m_state.viewport.x, (float)m_state.viewport.y, 0.0f, 1.0f};
-	m_ctx->RSSetViewports(1, &vp);
-	m_ctx->RSSetScissorRects(1, m_state.scissor);
-#endif
 }
 
 void GSDevice11::BeforeDraw()
@@ -1540,8 +1523,8 @@ void GSDevice11::OMSetRenderTargets(GSTexture* rt, GSTexture* ds, const GSVector
 
 		D3D11_VIEWPORT vp;
 
-		vp.TopLeftX = m_hack_topleft_offset;
-		vp.TopLeftY = m_hack_topleft_offset;
+		vp.TopLeftX = 0.0f;
+		vp.TopLeftY = 0.0f;
 		vp.Width = (float)size.x;
 		vp.Height = (float)size.y;
 		vp.MinDepth = 0.0f;
