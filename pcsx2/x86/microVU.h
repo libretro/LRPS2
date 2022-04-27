@@ -225,9 +225,6 @@ struct microVU {
 __aligned16 microVU microVU0;
 __aligned16 microVU microVU1;
 
-// Debug Helper
-int mVUdebugNow = 0;
-
 // Main Functions
 extern void  mVUclear(mV, u32, u32);
 extern void  mVUreset(microVU& mVU, bool resetReserve);

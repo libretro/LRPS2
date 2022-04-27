@@ -239,19 +239,16 @@ void mVUprintUniqueRatio(microVU& mVU) {
 __fi bool mVUcmpProg(microVU& mVU, microProgram& prog, const bool cmpWholeProg) {
 	if (cmpWholeProg)
 	{
-		if (memcmp_mmx((u8*)prog.data, mVU.regs().Micro, mVU.microMemSize))
+		if (memcmp((u8*)prog.data, mVU.regs().Micro, mVU.microMemSize))
 			return false;
 	} 
 	else
 	{
-		for (const auto& range : *prog.ranges) {
+		for (const auto& range : *prog.ranges)
+		{
 			auto cmpOffset = [&](void* x) { return (u8*)x + range.start; };
-#ifndef NDEBUG
-			if ((range.start < 0) || (range.end < 0)) { log_cb(RETRO_LOG_DEBUG, "microVU%d: Negative Range![%d][%d]\n", mVU.index, range.start, range.end); }
-#endif
-			if (memcmp_mmx(cmpOffset(prog.data), cmpOffset(mVU.regs().Micro), (range.end - range.start))) {
+			if (memcmp(cmpOffset(prog.data), cmpOffset(mVU.regs().Micro), (range.end - range.start)))
 				return false;
-			}
 		}
 	}
 	mVU.prog.cleared = 0;

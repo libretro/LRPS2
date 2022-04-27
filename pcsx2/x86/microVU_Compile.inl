@@ -16,24 +16,13 @@
 #pragma once
 
 //------------------------------------------------------------------
-// Messages Called at Execution Time...
-//------------------------------------------------------------------
-
-static void __fc mVUbadOp0  (u32 prog, u32 pc)	{ log_cb(RETRO_LOG_ERROR, "microVU0 Warning: Exiting... Block contains an illegal opcode. [%04x] [%03d]\n", pc, prog); }
-static void __fc mVUbadOp1  (u32 prog, u32 pc)	{ log_cb(RETRO_LOG_ERROR, "microVU1 Warning: Exiting... Block contains an illegal opcode. [%04x] [%03d]\n", pc, prog); }
-static void __fc mVUwarning0(u32 prog, u32 pc)	{ log_cb(RETRO_LOG_ERROR, "microVU0 Warning: Exiting from Possible Infinite Loop [%04x] [%03d]\n", pc, prog); }
-static void __fc mVUwarning1(u32 prog, u32 pc)	{ log_cb(RETRO_LOG_ERROR, "microVU1 Warning: Exiting from Possible Infinite Loop [%04x] [%03d]\n", pc, prog); }
-static void __fc mVUprintPC1(u32 pc)			{ log_cb(RETRO_LOG_DEBUG, "Block Start PC = 0x%04x\n", pc); }
-static void __fc mVUprintPC2(u32 pc)			{ log_cb(RETRO_LOG_DEBUG, "Block End PC   = 0x%04x\n", pc); }
-
-//------------------------------------------------------------------
 // Program Range Checking and Setting up Ranges
 //------------------------------------------------------------------
 
 // Used by mVUsetupRange
 __fi void mVUcheckIsSame(mV) {
 	if (mVU.prog.isSame == -1) {
-		mVU.prog.isSame = !memcmp_mmx((u8*)mVUcurProg.data, mVU.regs().Micro, mVU.microMemSize);
+		mVU.prog.isSame = !memcmp((u8*)mVUcurProg.data, mVU.regs().Micro, mVU.microMemSize);
 	}
 	if (mVU.prog.isSame == 0) {
 		mVUcacheProg(mVU, *mVU.prog.cur);
@@ -44,7 +33,6 @@ __fi void mVUcheckIsSame(mV) {
 // Sets up microProgram PC ranges based on whats been recompiled
 void mVUsetupRange(microVU& mVU, s32 pc, bool isStartPC) {
 	std::deque<microRange>*& ranges = mVUcurProg.ranges;
-	pxAssertDev(pc <= mVU.microMemSize, pxsFmt("microVU%d: PC outside of VU memory PC=0x%04x", mVU.index, pc));
 
 	if (isStartPC) { // Check if startPC is already within a block we've recompiled
 		std::deque<microRange>::const_iterator it(ranges->begin());
@@ -209,14 +197,6 @@ __fi void mVUcheckBadOp(mV) {
 // Prints msg when exiting block early if 1st op was a bad opcode (Dawn of Mana Level 2)
 // #ifdef PCSX2_DEVBUILD because starting with SVN R5586 we get log spam in releases (Shadow Hearts battles)  
 __fi void handleBadOp(mV, int count) {
-#ifdef PCSX2_DEVBUILD
-	if (mVUinfo.isBadOp) {
-		mVUbackupRegs(mVU, true);
-		if (!isVU1) xFastCall(mVUbadOp0, mVU.prog.cur->idx, xPC);
-		else		xFastCall(mVUbadOp1, mVU.prog.cur->idx, xPC);
-		mVUrestoreRegs(mVU, true);
-	}
-#endif
 }
 
 __ri void branchWarning(mV) {
@@ -365,16 +345,6 @@ void mVUsetCycles(mV) {
 	tCycles(mVUregs.xgkick,					mVUregsTemp.xgkick);
 }
 
-// Prints Start/End PC of blocks executed, for debugging...
-void mVUdebugPrintBlocks(microVU& mVU, bool isEndPC) {
-	if (mVUdebugNow) {
-		mVUbackupRegs(mVU, true);
-		if (isEndPC) xFastCall(mVUprintPC2, xPC);
-		else		 xFastCall(mVUprintPC1, xPC);
-		mVUrestoreRegs(mVU, true);
-	}
-}
-
 // Saves Pipeline State for resuming from early exits
 __fi void mVUsavePipelineState(microVU& mVU) {
 	u32* lpS = (u32*)&mVU.prog.lpState;
@@ -507,7 +477,6 @@ void* mVUcompileSingleInstruction(microVU& mVU, u32 startPC, uptr pState, microF
 
 	mVUsetFlags(mVU, mFC);           // Sets Up Flag instances
 	mVUoptimizePipeState(mVU);       // Optimize the End Pipeline State for nicer Block Linking
-	mVUdebugPrintBlocks(mVU, false); // Prints Start/End PC of blocks executed, for debugging...
 
 	// Second Pass
 	iPC = startPC / 4;
@@ -662,7 +631,6 @@ void* mVUcompile(microVU& mVU, u32 startPC, uptr pState)
 
 	mVUsetFlags(mVU, mFC);           // Sets Up Flag instances
 	mVUoptimizePipeState(mVU);       // Optimize the End Pipeline State for nicer Block Linking
-	mVUdebugPrintBlocks(mVU, false); // Prints Start/End PC of blocks executed, for debugging...
 	mVUtestCycles(mVU, mFC);              // Update VU Cycles and Exit Early if Necessary
 
 	// Second Pass
@@ -729,7 +697,6 @@ void* mVUcompile(microVU& mVU, u32 startPC, uptr pState)
 		else {
 			incPC(1);
 			mVUsetupRange(mVU, xPC, false);
-			mVUdebugPrintBlocks(mVU, true);
 			incPC(-4); // Go back to branch opcode
 
 			switch (mVUlow.branch) {
@@ -785,8 +752,6 @@ __fi void* mVUentryGet(microVU& mVU, microBlockManager* block, u32 startPC, uptr
  // Search for Existing Compiled Block (if found, return x86ptr; else, compile and return x86ptr)
 __fi void* mVUblockFetch(microVU& mVU, u32 startPC, uptr pState) {
 
-	pxAssertDev((startPC & 7) == 0,				pxsFmt("microVU%d: unaligned startPC=0x%04x", mVU.index, startPC) );
-	pxAssertDev( startPC <= mVU.microMemSize-8,	pxsFmt("microVU%d: invalid startPC=0x%04x",   mVU.index, startPC) );
 	startPC &= mVU.microMemSize-8;
 
 	blockCreate(startPC/8);

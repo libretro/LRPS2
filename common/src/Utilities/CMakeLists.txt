@@ -74,11 +74,6 @@ elseif(Windows)
 		Windows/WinHostSys.cpp
 		Semaphore.cpp
 	)
-# if(x86)
-#   LIST(APPEND UtilitiesSources
-#		x86/MemcpyFast.cpp
-#	)
-# endif()
 
 else()
 	LIST(APPEND UtilitiesSources
