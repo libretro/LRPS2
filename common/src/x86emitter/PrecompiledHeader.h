@@ -29,7 +29,6 @@
 
 #include "Utilities/Exceptions.h"
 #include "Utilities/General.h"
-#include "Utilities/MemcpyFast.h"
 
 #include "../../../libretro/retro_messager.h"
 
