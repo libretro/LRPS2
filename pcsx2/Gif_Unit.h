@@ -262,7 +262,6 @@ struct Gif_Path
 			else
 				Gif_AddBlankGSPacket(buffLimit - offset, idx);
 		}
-		//log_cb(RETRO_LOG_DEBUG, "Realign Packet [%d]\n", curSize - offset);
 		if (intersect)
 			memmove(buffer, &buffer[offset], curSize - offset);
 		else
@@ -450,8 +449,6 @@ struct Gif_Path
 		// FIXME is the error path useful ?
 		if (!mtvu.gsPackQueue.empty())
 			return mtvu.gsPackQueue.front();
-
-		log_cb(RETRO_LOG_ERROR, "MTVU: Expected gsPackQueue to have elements!\n");
 		pxAssert(0);
 		return GS_Packet(); // gsPack.size will be 0
 	}
@@ -538,10 +535,7 @@ struct Gif_Unit
 			Gif_Tag gifTag(&pMem[offset & memMask]);
 			incTag(offset, curSize, 16 + gifTag.len); // Tag + Data length
 			if (pathIdx == GIF_PATH_1 && curSize >= 0x4000)
-			{
-				log_cb(RETRO_LOG_DEBUG, "Gif Unit - GS packet size exceeded VU memory size!\n");
 				return 0; // Bios does this... (Fixed if you delay vu1's xgkick by 103 vu cycles)
-			}
 			if (curSize >= size)
 				return size;
 			if (gifTag.tag.EOP)
@@ -585,7 +579,6 @@ struct Gif_Unit
 					stat.P3Q = 1;
 				return 0;
 			} // DMA Stall
-			  //if (stat.P2Q) log_cb(RETRO_LOG_DEBUG, "P2Q while path 3\n");
 		}
 		if (tranType == GIF_TRANS_XGKICK)
 		{
@@ -658,10 +651,7 @@ struct Gif_Unit
 	int Execute(bool isPath3, bool isResume)
 	{
 		if (!CanDoGif())
-		{
-			log_cb(RETRO_LOG_DEBUG, "Gif Unit - Signal or PSE Set or Dir = GS to EE\n");
 			return 0;
-		}
 		bool didPath3 = false;
 		int curPath = stat.APATH > 0 ? stat.APATH - 1 : 0; //Init to zero if no path is already set.
 		gifPath[2].dmaRewind = 0;
@@ -699,14 +689,10 @@ struct Gif_Unit
 						}
 					}
 					//FlushToMTGS();
-					//log_cb(RETRO_LOG_DEBUG, "Incomplete GS Packet for path %d, size=%d\n", stat.APATH, gsPack.size);
 					break; // Not finished with GS packet
 				}
-				//log_cb(RETRO_LOG_DEBUG, "Adding GS Packet for path %d\n", stat.APATH);
 				if (gifPath[curPath].state == GIF_PATH_WAIT || gifPath[curPath].state == GIF_PATH_IDLE)
-				{
 					AddCompletedGSPacket(gsPack, (GIF_PATH)(stat.APATH - 1));
-				}
 			}
 			if (!gsSIGNAL.queued && !gifPath[0].isDone())
 			{
