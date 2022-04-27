@@ -27,11 +27,6 @@
 #define SndOutVolumeShift 12
 #define SndOutVolumeShift32 4 // shift up, not down, (formula = 16 - SndOutVolumeShift)
 
-// Samplerate of the SPU2. For accurate playback we need to match this
-// exactly.  Trying to scale samplerates and maintain SPU2's Ts timing accuracy
-// is too problematic. :)
-extern int SampleRate;
-
 // Implemented in Config.cpp
 extern float VolumeAdjustFL;
 extern float VolumeAdjustC;
