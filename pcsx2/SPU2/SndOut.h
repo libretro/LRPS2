@@ -61,8 +61,6 @@ struct StereoOut16
 		, Right(right)
 	{
 	}
-
-	StereoOut32 UpSample() const;
 };
 
 struct StereoOutFloat

@@ -37,8 +37,6 @@ struct StereoOut32
 	StereoOut32(const StereoOut16& src);
 	explicit StereoOut32(const StereoOutFloat& src);
 
-	StereoOut16 DownSample() const;
-
 	StereoOut32 operator*(const int& factor) const
 	{
 		return StereoOut32(
