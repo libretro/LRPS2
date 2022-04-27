@@ -154,11 +154,6 @@ GSShaderOGL::GSShaderOGL() :
 
 GSShaderOGL::~GSShaderOGL()
 {
-#if 0
-	printf("Delete %zu Shaders, %zu Programs, %zu Pipelines\n",
-			m_shad_to_delete.size(), m_prog_to_delete.size(), m_pipe_to_delete.size());
-#endif
-
 	for (auto s : m_shad_to_delete) glDeleteShader(s);
 	for (auto p : m_prog_to_delete) glDeleteProgram(p);
 	glDeleteProgramPipelines(m_pipe_to_delete.size(), &m_pipe_to_delete[0]);

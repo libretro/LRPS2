@@ -2183,10 +2183,8 @@ public:
 	{
 		if (x == 1) return;
 		if (x < 1 || (x & (x - 1))) throw Error(ERR_BAD_ALIGN);
-		if (isAutoGrow() && x > (int)inner::ALIGN_PAGE_SIZE) fprintf(stderr, "warning:autoGrow mode does not support %d align\n", x);
-		while (size_t(getCurr()) % x) {
+		while (size_t(getCurr()) % x)
 			nop();
-		}
 	}
 #endif
 };

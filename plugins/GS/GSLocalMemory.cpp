@@ -1441,8 +1441,6 @@ void GSLocalMemory::ReadImageX(int& tx, int& ty, u8* dst, int len, GIFRegBITBLTB
 	int sx = (int)TRXPOS.SSAX;
 	int ex = sx + (int)TRXREG.RRW;
 
-	// printf("spsm=%d x=%d ex=%d y=%d len=%d\n", BITBLTBUF.SPSM, x, ex, y, len);
-
 	switch(BITBLTBUF.SPSM)
 	{
 	case PSM_PSMCT32:
@@ -1873,10 +1871,6 @@ void GSLocalMemory::ReadTexture(const GSOffset* RESTRICT off, const GSVector4i& 
 		if(cr.rempty() || !aligned)
 		{
 			// TODO: expand r to block size, read into temp buffer
-#ifndef NDEBUG
-			if(!aligned) printf("unaligned memory pointer passed to ReadTexture\n");
-#endif
-
 			for(int y = r.top; y < r.bottom; y++, dst += dstpitch)
 			{
 				for(int x = r.left, i = 0; x < r.right; x++, i++)

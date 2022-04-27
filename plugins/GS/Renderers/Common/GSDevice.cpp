@@ -155,8 +155,6 @@ void GSDevice::Recycle(GSTexture* t)
 
 		m_pool.push_front(t);
 
-		//printf("%d\n",m_pool.size());
-
 		while(m_pool.size() > 300)
 		{
 			delete m_pool.back();

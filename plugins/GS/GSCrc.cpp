@@ -573,37 +573,25 @@ bool IsCrcExcluded(std::string exclusionList, u32 crc)
 
 CRC::Game CRC::Lookup(u32 crc)
 {
-	printf("GSdx Lookup CRC:%08X\n", crc);
 	if(m_map.empty())
 	{
 		std::string exclusions = theApp.GetConfigS("CrcHacksExclusions");
-		if (exclusions.length() != 0)
- 			printf( "GSdx: CrcHacksExclusions: %s\n", exclusions.c_str() ); 
 		int crcDups = 0;
 		for(size_t i = 0; i < countof(m_games); i++)
 		{
 			if( !IsCrcExcluded( exclusions, m_games[i].crc ) ){
-				if(m_map[m_games[i].crc]){
-					printf("[FIXME] GSdx: Duplicate CRC: 0x%08X: (game-id/region-id) %d/%d overrides %d/%d\n"
-						, m_games[i].crc, m_games[i].title, m_games[i].region, m_map[m_games[i].crc]->title, m_map[m_games[i].crc]->region);
+				if(m_map[m_games[i].crc])
 					crcDups++;
-				}
 
 				m_map[m_games[i].crc] = &m_games[i];
 			}
-			//else
-			//	printf( "GSdx: excluding CRC hack for 0x%08x\n", m_games[i].crc );
 		}
-		if(crcDups)
-			printf("[FIXME] GSdx: Duplicate CRC: Overall: %d\n", crcDups);
 	}
 
 	auto i = m_map.find(crc);
 
 	if(i != m_map.end())
-	{
 		return *i->second;
-	}
 
 	return m_games[0];
 }

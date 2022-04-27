@@ -391,19 +391,15 @@ public:
 	{ n_ = 10; tbl_[0] = &t0; tbl_[1] = &t1; tbl_[2] = &t2; tbl_[3] = &t3; tbl_[4] = &t4; tbl_[5] = &t5; tbl_[6] = &t6; tbl_[7] = &t7; tbl_[8] = &t8; tbl_[9] = &t9; }
 	Pack& append(const Xbyak::Reg64& t)
 	{
-		if (n_ == 10) {
-			fprintf(stderr, "ERR Pack::can't append\n");
+		if (n_ == 10)
 			throw Error(ERR_BAD_PARAMETER);
-		}
 		tbl_[n_++] = &t;
 		return *this;
 	}
 	void init(const Xbyak::Reg64 *tbl, size_t n)
 	{
-		if (n > maxTblNum) {
-			fprintf(stderr, "ERR Pack::init bad n=%d\n", (int)n);
+		if (n > maxTblNum)
 			throw Error(ERR_BAD_PARAMETER);
-		}
 		n_ = n;
 		for (size_t i = 0; i < n; i++) {
 			tbl_[i] = &tbl[i];
@@ -411,10 +407,8 @@ public:
 	}
 	const Xbyak::Reg64& operator[](size_t n) const
 	{
-		if (n >= n_) {
-			fprintf(stderr, "ERR Pack bad n=%d\n", (int)n);
+		if (n >= n_)
 			throw Error(ERR_BAD_PARAMETER);
-		}
 		return *tbl_[n];
 	}
 	size_t size() const { return n_; }
@@ -424,10 +418,8 @@ public:
 	Pack sub(size_t pos, size_t num = size_t(-1)) const
 	{
 		if (num == size_t(-1)) num = n_ - pos;
-		if (pos + num > n_) {
-			fprintf(stderr, "ERR Pack::sub bad pos=%d, num=%d\n", (int)pos, (int)num);
+		if (pos + num > n_)
 			throw Error(ERR_BAD_PARAMETER);
-		}
 		Pack pack;
 		pack.n_ = num;
 		for (size_t i = 0; i < num; i++) {

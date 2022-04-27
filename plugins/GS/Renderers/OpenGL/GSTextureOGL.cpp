@@ -69,10 +69,6 @@ namespace PboPool {
 		// Note: keep offset aligned for SSE/AVX
 		m_size = (size + 63) & ~0x3F;
 
-		if (m_size > m_pbo_size) {
-			fprintf(stderr, "BUG: PBO too small %u but need %u\n", m_pbo_size, m_size);
-		}
-
 		// Note: texsubimage will access currently bound buffer
 		// Pbo ready let's get a pointer
 		BindPbo();
@@ -117,13 +113,6 @@ namespace PboPool {
 			}
 			// Align current transfer on the start of the segment
 			m_offset = m_seg_size * segment_next;
-
-#if 0
-			if (m_size > m_seg_size) {
-				fprintf(stderr, "BUG: PBO Map size %u is bigger than a single segment %u. Crossing more than one fence is not supported yet, texture data may be corrupted.\n", m_size, m_seg_size);
-				// TODO Synchronize all crossed fences
-			}
-#endif
 
 			// protect the left segment
 			m_fence[segment_current] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
@@ -299,12 +288,6 @@ GSTextureOGL::GSTextureOGL(int type, int w, int h, int format, GLuint fbo_read, 
 	if (m_sparse) {
 		GSVector2i old_size = m_size;
 		m_size = RoundUpPage(m_size);
-#if 0
-		if (m_size != old_size) {
-			fprintf(stderr, "Sparse texture size (%dx%d) isn't a multiple of gpu page size (%dx%d)\n",
-					old_size.x, old_size.y, m_gpu_page_size.x, m_gpu_page_size.y);
-		}
-#endif
 		glTextureParameteri(m_texture_id, GL_TEXTURE_SPARSE_ARB, true);
 	} else {
 		m_committed_size = m_size;
@@ -315,7 +298,7 @@ GSTextureOGL::GSTextureOGL(int type, int w, int h, int format, GLuint fbo_read, 
 	static int every_512 = 0;
 	GLState::available_vram -= m_mem_usage;
 	if ((GLState::available_vram < 0) && (every_512 % 512 == 0)) {
-		fprintf(stderr, "Available VRAM is very low (%lld), a crash is expected ! Disable Larger framebuffer or reduce upscaling!\n", GLState::available_vram);
+                /* Available VRAM is very low, a crash is expected. Disable Larger Framebuffer or reduce upscaling */
 		every_512++;
 		// Pull emergency break
 		throw std::bad_alloc();

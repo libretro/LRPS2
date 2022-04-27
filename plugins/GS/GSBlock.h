@@ -328,8 +328,6 @@ public:
 
 	template<int i, int alignment> __forceinline static void WriteColumn4(u8* RESTRICT dst, const u8* RESTRICT src, int srcpitch)
 	{
-		//printf("WriteColumn4\n");
-
 		// TODO: read unaligned as WriteColumn32 does and try saving a few shuffles
 
 		// TODO: pshufb
@@ -651,8 +649,6 @@ public:
 
 	template<int i> __forceinline static void ReadColumn4(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch)
 	{
-		//printf("ReadColumn4\n");
-
 		#if _M_SSE >= 0x301
 
 		const GSVector4i* s = (const GSVector4i*)src;
@@ -820,8 +816,6 @@ public:
 
 	__forceinline static void ReadBlock4P(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch)
 	{
-		//printf("ReadBlock4P\n");
-
 		const GSVector4i* s = (const GSVector4i*)src;
 
 		GSVector4i v0, v1, v2, v3;
@@ -1521,8 +1515,6 @@ public:
 
 	__forceinline static void UnpackAndWriteBlock4HL(const u8* RESTRICT src, int srcpitch, u8* RESTRICT dst)
 	{
-		//printf("4HL\n");
-
 		if(0)
 		{
 			u8* s = (u8*)src;
@@ -1932,8 +1924,6 @@ public:
 
 	__forceinline static void ReadAndExpandBlock8_32(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch, const u32* RESTRICT pal)
 	{
-		//printf("ReadAndExpandBlock8_32\n");
-
 		#if _M_SSE >= 0x401
 
 		const GSVector4i* s = (const GSVector4i*)src;
@@ -1993,8 +1983,6 @@ public:
 
 	__forceinline static void ReadAndExpandBlock4_32(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch, const u64* RESTRICT pal)
 	{
-		//printf("ReadAndExpandBlock4_32\n");
-
 		#if _M_SSE >= 0x401
 
 		const GSVector4i* s = (const GSVector4i*)src;
@@ -2070,8 +2058,6 @@ public:
 
 	__forceinline static void ReadAndExpandBlock8H_32(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch, const u32* RESTRICT pal)
 	{
-		//printf("ReadAndExpandBlock8H_32\n");
-
 		#if _M_SSE >= 0x401
 
 		const GSVector4i* s = (const GSVector4i*)src;
@@ -2113,8 +2099,6 @@ public:
 
 	__forceinline static void ReadAndExpandBlock4HL_32(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch, const u32* RESTRICT pal)
 	{
-		//printf("ReadAndExpandBlock4HL_32\n");
-
 		#if _M_SSE >= 0x401
 
 		const GSVector4i* s = (const GSVector4i*)src;
@@ -2156,8 +2140,6 @@ public:
 
 	__forceinline static void ReadAndExpandBlock4HH_32(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch, const u32* RESTRICT pal)
 	{
-		//printf("ReadAndExpandBlock4HH_32\n");
-
 		#if _M_SSE >= 0x401
 
 		const GSVector4i* s = (const GSVector4i*)src;
