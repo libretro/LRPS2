@@ -38,6 +38,7 @@ set(pcsx2Sources
 	COP0.cpp
 	COP2.cpp
 	Counters.cpp
+	Dmac.cpp
 	GameDatabase.cpp
 	Elfheader.cpp
 	FW.cpp
@@ -443,7 +444,6 @@ set(pcsx2LinuxHeaders
 set(pcsx2ps2Sources
 	ps2/BiosTools.cpp
 	ps2/pgif.cpp
-	ps2/LegacyDmac.cpp
 	ps2/Iop/IopHwRead.cpp
 	ps2/Iop/IopHwWrite.cpp
 	ps2/Iop/PsxBios.cpp)
