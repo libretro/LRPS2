@@ -17,46 +17,43 @@
 #include "IopCommon.h"
 #include <stdlib.h>
 #include <string>
-using namespace std;
 
 #include "FW.h"
 
 u8 phyregs[16];
 s8* fwregs;
 
-s32 FWopen()
+s32 FWopen(void)
 {
 	memset(phyregs, 0, sizeof(phyregs));
 	// Initializing our registers.
 	fwregs = (s8*)calloc(0x10000, 1);
-	if (fwregs == NULL)
-	{
-		log_cb(RETRO_LOG_ERROR, "FW: Error allocating Memory\n");
+	if (!fwregs)
 		return -1;
-	}
 	return 0;
 }
 
-void FWclose()
+void FWclose(void)
 {
 	// Freeing the registers.
-	free(fwregs);
+	if (fwregs)
+		free(fwregs);
 	fwregs = NULL;
 }
 
-void PHYWrite()
+void PHYWrite(void)
 {
-	u8 reg = (PHYACC >> 8) & 0xf;
-	u8 data = PHYACC & 0xff;
+	u8 reg        = (PHYACC >> 8) & 0xf;
+	u8 data       = PHYACC & 0xff;
 
-	phyregs[reg] = data;
+	phyregs[reg]  = data;
 
-	PHYACC &= ~0x4000ffff;
+	PHYACC       &= ~0x4000ffff;
 }
 
-void PHYRead()
+void PHYRead(void)
 {
-	u8 reg = (PHYACC >> 24) & 0xf;
+	u8 reg  = (PHYACC >> 24) & 0xf;
 
 	PHYACC &= ~0x80000000;
 
@@ -71,41 +68,27 @@ void PHYRead()
 
 u32 FWread32(u32 addr)
 {
-	u32 ret = 0;
-
 	switch (addr)
 	{
 		//Node ID Register the top part is default, bottom part i got from my ps2
 		case 0x1f808400:
-			ret = /*(0x3ff << 22) | 1;*/ 0xffc00001;
-			break;
-		// Control Register 2
-		case 0x1f808410:
-			ret = fwRu32(addr); //SCLK OK (Needs to be set when FW is "Ready"
-			break;
-		//Interrupt 0 Register
-		case 0x1f808420:
-			ret = fwRu32(addr);
+			return /*(0x3ff << 22) | 1;*/ 0xffc00001;
+		case 0x1f808410: // Control Register 2 - SCLK OK (Needs to be set when FW is "Ready"
+		case 0x1f808420: // Interrupt 0 Register
 			break;
 
 		//Dunno what this is, but my home console always returns this value 0x10000001
 		//Seems to be related to the Node ID however (does some sort of compare/check)
 		case 0x1f80847c:
-			ret = 0x10000001;
-			break;
+			return 0x10000001;
 
 		// Include other relevant 32 bit addresses we need to catch here.
 		default:
 			// By default, read fwregs.
-			ret = fwRu32(addr);
 			break;
 	}
 
-#ifndef NDEBUG
-	log_cb(RETRO_LOG_INFO, "FW: read mem 0x%x: 0x%x\n", addr, ret);
-#endif
-
-	return ret;
+	return fwRu32(addr);
 }
 
 void FWwrite32(u32 addr, u32 value)
@@ -178,22 +161,13 @@ void FWwrite32(u32 addr, u32 value)
 		//Interrupt 2 Register Mask
 		case 0x1f808434:
 			//These are direct writes (as it's a mask!)
-			fwRu32(addr) = value;
-			break;
 		//DMA Control and Status Register 0
 		case 0x1f8084B8:
-			fwRu32(addr) = value;
-			break;
 		//DMA Control and Status Register 1
 		case 0x1f808538:
-			fwRu32(addr) = value;
-			break;
 		default:
 			// By default, just write it to fwregs.
 			fwRu32(addr) = value;
 			break;
 	}
-#ifndef NDEBUG
-	log_cb(RETRO_LOG_INFO, "FW: write mem 0x%x: 0x%x\n", addr, value);
-#endif
 }

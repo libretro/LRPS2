@@ -17,8 +17,6 @@
 
 #include <stdio.h>
 
-#define FWdefs
-
 // Our main memory storage, and defines for accessing it.
 extern s8* fwregs;
 #define fwRs32(mem) (*(s32*)&fwregs[(mem)&0xffff])
@@ -27,9 +25,9 @@ extern s8* fwregs;
 //PHY Access Address for ease of use :P
 #define PHYACC fwRu32(0x8414)
 
-s32 FWopen();
-void FWclose();
-void PHYWrite();
-void PHYRead();
+s32 FWopen(void);
+void FWclose(void);
+void PHYWrite(void);
+void PHYRead(void);
 u32 FWread32(u32 addr);
 void FWwrite32(u32 addr, u32 value);
