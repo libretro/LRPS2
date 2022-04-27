@@ -129,11 +129,6 @@ static int _GSopen(const char* title, GSRendererType renderer, int threads = -1)
 
 	is_d3d       = false;
 
-	if(threads == -1)
-	{
-		threads = theApp.GetConfigI("extrathreads");
-	}
-
 	if (theApp.GetCurrentRendererType() != renderer)
 	{
 		// Emulator has made a render change request, which requires a completely
@@ -219,6 +214,8 @@ static int _GSopen(const char* title, GSRendererType renderer, int threads = -1)
 				s_gs = (GSRenderer*)new GSRendererOGL();
 				break;
 			case GSRendererType::OGL_SW:
+				if(threads == -1)
+					threads = theApp.GetConfigI("extrathreads");
 				s_gs = new GSRendererSW(threads);
 				break;
 			case GSRendererType::Null:
@@ -390,13 +387,13 @@ EXPORT_C GSsetFrameSkip(int frameskip)
 
 std::string format(const char* fmt, ...)
 {
+	int size;
 	va_list args;
 
 	va_start(args, fmt);
-	int size = vsnprintf(nullptr, 0, fmt, args) + 1;
+	size = vsnprintf(nullptr, 0, fmt, args) + 1;
 	va_end(args);
 
-	assert(size > 0);
 	std::vector<char> buffer(std::max(1, size));
 
 	va_start(args, fmt);
@@ -422,8 +419,6 @@ static u8* s_Next[8];
 
 void* fifo_alloc(size_t size, size_t repeat)
 {
-	ASSERT(s_fh == NULL);
-
 	if (repeat >= countof(s_Next))
 		return vmalloc(size * repeat, false); // Fallback to default vmalloc
 
@@ -459,11 +454,9 @@ void* fifo_alloc(size_t size, size_t repeat)
 
 void fifo_free(void* ptr, size_t size, size_t repeat)
 {
-	ASSERT(s_fh != NULL);
-
-	if (s_fh == NULL)
+	if (!s_fh)
 	{
-		if (ptr != NULL)
+		if (ptr)
 			vmfree(ptr, size);
 		return;
 	}
@@ -489,14 +482,13 @@ void fifo_free(void* ptr, size_t size, size_t repeat)
 
 void* vmalloc(size_t size, bool code)
 {
+	int prot    = PROT_READ | PROT_WRITE;
+	int flags   = MAP_PRIVATE | MAP_ANONYMOUS;
 	size_t mask = getpagesize() - 1;
+	size        = (size + mask) & ~mask;
 
-	size = (size + mask) & ~mask;
-
-	int prot = PROT_READ | PROT_WRITE;
-	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
-
-	if(code) {
+	if(code)
+	{
 		prot |= PROT_EXEC;
 #ifdef _M_AMD64
 		flags |= MAP_32BIT;
@@ -517,15 +509,14 @@ static int s_shm_fd = -1;
 
 void* fifo_alloc(size_t size, size_t repeat)
 {
-	ASSERT(s_shm_fd == -1);
-
+	void *fifo            = NULL;
 	const char* file_name = "/GSDX.mem";
 	s_shm_fd = shm_open(file_name, O_RDWR | O_CREAT | O_EXCL, 0600);
 	if (s_shm_fd == -1)
 		return nullptr;
 	shm_unlink(file_name); // file is deleted but descriptor is still open
 	ftruncate(s_shm_fd, repeat * size);
-	void* fifo = mmap(nullptr, size * repeat, PROT_READ | PROT_WRITE, MAP_SHARED, s_shm_fd, 0);
+	fifo = mmap(nullptr, size * repeat, PROT_READ | PROT_WRITE, MAP_SHARED, s_shm_fd, 0);
 
 	for (size_t i = 1; i < repeat; i++)
 	{
@@ -538,8 +529,6 @@ void* fifo_alloc(size_t size, size_t repeat)
 
 void fifo_free(void* ptr, size_t size, size_t repeat)
 {
-	ASSERT(s_shm_fd >= 0);
-
 	if (s_shm_fd < 0)
 		return;
 
@@ -548,7 +537,6 @@ void fifo_free(void* ptr, size_t size, size_t repeat)
 	close(s_shm_fd);
 	s_shm_fd = -1;
 }
-
 #endif
 
 #if !defined(_MSC_VER)
@@ -593,7 +581,6 @@ void GSdxApp::Init()
 
 	// Avoid to clutter the ini file with useless options
 #ifdef _WIN32
-	m_current_configuration["dx_break_on_severity"]                       = "0";
 	// D3D Blending option
 	m_current_configuration["accurate_blending_unit_d3d11"]               = "1";
 #endif
@@ -605,11 +592,8 @@ void GSdxApp::Init()
 	m_current_configuration["clut_load_before_draw"]                      = "0";
 	m_current_configuration["crc_hack_level"]                             = std::to_string(static_cast<s8>(CRCHackLevel::Automatic));
 	m_current_configuration["CrcHacksExclusions"]                         = "";
-	m_current_configuration["debug_glsl_shader"]                          = "0";
-	m_current_configuration["debug_opengl"]                               = "0";
 	m_current_configuration["disable_hw_gl_draw"]                         = "0";
 	m_current_configuration["dithering_ps2"]                              = "2";
-	m_current_configuration["dump"]                                       = "0";
 	m_current_configuration["extrathreads"]                               = "2";
 	m_current_configuration["extrathreads_height"]                        = "4";
 	m_current_configuration["filter"]                                     = std::to_string(static_cast<s8>(BiFiltering::PS2));
@@ -621,8 +605,6 @@ void GSdxApp::Init()
 	m_current_configuration["MaxAnisotropy"]                              = "0";
 	m_current_configuration["mipmap"]                                     = "1";
 	m_current_configuration["mipmap_hw"]                                  = std::to_string(static_cast<int>(HWMipmapLevel::Automatic));
-	m_current_configuration["ModeHeight"]                                 = "480";
-	m_current_configuration["ModeWidth"]                                  = "640";
 	m_current_configuration["NTSC_Saturation"]                            = "1";
 	m_current_configuration["override_geometry_shader"]                   = "-1";
 	m_current_configuration["override_GL_ARB_compute_shader"]             = "-1";
@@ -648,10 +630,6 @@ void GSdxApp::Init()
 	m_current_configuration["Renderer"]                                   = std::to_string(static_cast<int>(GSRendererType::Default));
 	m_current_configuration["resx"]                                       = "1024";
 	m_current_configuration["resy"]                                       = "1024";
-	m_current_configuration["shaderfx"]                                   = "0";
-	m_current_configuration["shaderfx_conf"]                              = "shaders/GSdx_FX_Settings.ini";
-	m_current_configuration["shaderfx_glsl"]                              = "shaders/GSdx.fx";
-	m_current_configuration["TVShader"]                                   = "0";
 	m_current_configuration["upscale_multiplier"]                         = "1";
 	m_current_configuration["UserHacks"]                                  = "0";
 	m_current_configuration["UserHacks_align_sprite_X"]                   = "0";
@@ -672,7 +650,6 @@ void GSdxApp::Init()
 	m_current_configuration["UserHacks_TriFilter"]                        = std::to_string(static_cast<s8>(TriFiltering::None));
 	m_current_configuration["UserHacks_WildHack"]                         = "0";
 	m_current_configuration["wrap_gs_mem"]                                = "0";
-	m_current_configuration["vsync"]                                      = "0";
 }
 
 
