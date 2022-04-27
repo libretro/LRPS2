@@ -33,7 +33,7 @@ static void __fc mVUprintPC2(u32 pc)			{ log_cb(RETRO_LOG_DEBUG, "Block End PC  
 // Used by mVUsetupRange
 __fi void mVUcheckIsSame(mV) {
 	if (mVU.prog.isSame == -1) {
-		mVU.prog.isSame = !memcmp((u8*)mVUcurProg.data, mVU.regs().Micro, mVU.microMemSize);
+		mVU.prog.isSame = !memcmp_mmx((u8*)mVUcurProg.data, mVU.regs().Micro, mVU.microMemSize);
 	}
 	if (mVU.prog.isSame == 0) {
 		mVUcacheProg(mVU, *mVU.prog.cur);

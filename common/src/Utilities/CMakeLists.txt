@@ -46,6 +46,7 @@ set(UtilitiesHeaders
 	../../include/Utilities/FastJmp.h
 	../../include/Utilities/FixedPointTypes.h
 	../../include/Utilities/General.h
+	../../include/Utilities/MemcpyFast.h
 	../../include/Utilities/MemsetFast.inl
 	../../include/Utilities/Path.h
 	../../include/Utilities/PageFaultSource.h
@@ -73,6 +74,11 @@ elseif(Windows)
 		Windows/WinHostSys.cpp
 		Semaphore.cpp
 	)
+# if(x86)
+#   LIST(APPEND UtilitiesSources
+#		x86/MemcpyFast.cpp
+#	)
+# endif()
 
 else()
 	LIST(APPEND UtilitiesSources

@@ -73,6 +73,7 @@ typedef int BOOL;
 
 #include "Utilities/FixedPointTypes.h"
 #include "Utilities/Path.h"
+#include "Utilities/MemcpyFast.h"
 #include "Utilities/General.h"
 #include "x86emitter/tools.h"
 
