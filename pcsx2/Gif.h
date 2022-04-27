@@ -15,9 +15,6 @@
 
 #pragma once
 
-#define GUNIT_LOG(...) do {} while(0)
-#define GUNIT_WARN(...) do {} while(0)
-
 enum GIF_PATH {
 	GIF_PATH_1 = 0,
 	GIF_PATH_2,
@@ -76,7 +73,7 @@ enum GIF_REG {
 	GIF_REG_XYZF3	= 0x0c,
 	GIF_REG_XYZ3	= 0x0d,
 	GIF_REG_A_D		= 0x0e,
-	GIF_REG_NOP		= 0x0f,
+	GIF_REG_NOP		= 0x0f
 };
 
 enum gifstate_t {
@@ -292,10 +289,10 @@ struct GIFregisters
 
 static GIFregisters& gifRegs = (GIFregisters&)eeHw[0x3000];
 
-extern void gifInterrupt();
-extern int _GIFchain();
-extern void GIFdma();
-extern void dmaGIF();
-extern void mfifoGIFtransfer();
-extern void gifMFIFOInterrupt();
+extern void gifInterrupt(void);
+extern int _GIFchain(void);
+extern void GIFdma(void);
+extern void dmaGIF(void);
+extern void mfifoGIFtransfer(void);
+extern void gifMFIFOInterrupt(void);
 extern void clearFIFOstuff(bool full);

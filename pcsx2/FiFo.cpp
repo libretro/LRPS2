@@ -60,7 +60,6 @@ void __fastcall ReadFIFO_VIF1(mem128_t* out)
 			GetMTGS().WaitGS(false); // wait without reg sync
 			GSreadFIFO((u64*)out);
 			vif1.GSLastDownloadSize--;
-			GUNIT_LOG("ReadFIFO_VIF1");
 			if (vif1.GSLastDownloadSize <= 16)
 				gifRegs.stat.OPH = false;
 			vif1Regs.stat.FQC = std::min((u32)16, vif1.GSLastDownloadSize);
@@ -125,7 +124,6 @@ void __fastcall WriteFIFO_VIF1(const mem128_t *value)
 
 void __fastcall WriteFIFO_GIF(const mem128_t *value)
 {
-	GUNIT_LOG("WriteFIFO_GIF()");
 	if ((!gifUnit.CanDoPath3() || gif_fifo.fifoSize > 0)) {
 		//DevCon.Warning("GIF FIFO HW Write");
 		gif_fifo.write_fifo((u32*)value, 1);

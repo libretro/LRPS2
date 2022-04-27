@@ -100,7 +100,6 @@ void __fastcall _hwWrite32( u32 mem, u32 value )
 					// Not exactly sure what RST needs to do
 					gifRegs.ctrl.write(value & 9);
 					if (gifRegs.ctrl.RST) {
-						GUNIT_LOG("GIF CTRL - Reset");
 						gifUnit.Reset(true); // Should it reset gsSIGNAL?
 						//gifUnit.ResetRegs();
 					}

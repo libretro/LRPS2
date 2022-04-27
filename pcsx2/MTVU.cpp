@@ -352,12 +352,10 @@ void VU_Thread::Get_GSChanges()
 		// If load of signal was moved after clearing the flag, the other thread could write a new value before we load without noticing the double signal
 		// Prevent that with release semantics
 		gsInterrupts.fetch_and(~InterruptFlagSignal, std::memory_order_release);
-		GUNIT_WARN("SIGNAL firing");
 		const u32 signalMsk = (u32)(signal >> 32);
 		const u32 signalData = (u32)signal;
 		if (CSRreg.SIGNAL)
 		{
-			GUNIT_WARN("Queue SIGNAL");
 			gifUnit.gsSIGNAL.queued = true;
 #if 0
 			log_cb(RETRO_LOG_DEBUG, "Firing pending signal\n");
@@ -377,7 +375,6 @@ void VU_Thread::Get_GSChanges()
 	if (interrupts & InterruptFlagFinish)
 	{
 		gsInterrupts.fetch_and(~InterruptFlagFinish, std::memory_order_relaxed);
-		GUNIT_WARN("Finish firing");
 		CSRreg.FINISH = true;
 		gifUnit.gsFINISH.gsFINISHFired = false;
 
@@ -391,7 +388,6 @@ void VU_Thread::Get_GSChanges()
 		// We do not want the exchange of gsLabel to move ahead of clearing the flag, or the other thread could add more work before we clear the flag, resulting in an update with the flag unset
 		// acquire semantics should supply that guarantee
 		const u64 label = gsLabel.exchange(0, std::memory_order_relaxed);
-		GUNIT_WARN("LABEL firing");
 		const u32 labelMsk = (u32)(label >> 32);
 		const u32 labelData = (u32)label;
 		GSSIGLBLID.LBLID = (GSSIGLBLID.LBLID & ~labelMsk) | (labelData & labelMsk);

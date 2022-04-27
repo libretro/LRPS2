@@ -171,8 +171,6 @@ __fi void vif1FBRST(u32 value) {
 		vif1.MaskRow._u64[0] = SaveRow._u64[0];
 		vif1.MaskRow._u64[1] = SaveRow._u64[1];
 		
-
-		GUNIT_WARN(Color_Red, "VIF FBRST Reset MSK = %x", vif1Regs.mskpath3);
 		vif1Regs.mskpath3 = false;
 		gifRegs.stat.M3P  = 0;
 		vif1Regs.err.reset();

@@ -218,10 +218,7 @@ struct Gif_Path
 		if (softReset)
 		{
 			if (!isMTVU()) // MTVU Freaks out if you try to reset it, so let's just let it transfer
-			{
-				GUNIT_WARN("Gif Path %d - Soft Reset", idx + 1);
 				curSize = curOffset;
-			}
 			return;
 		}
 		mtvu.Reset();
@@ -246,7 +243,6 @@ struct Gif_Path
 	// Moves packet data to start of buffer
 	void RealignPacket()
 	{
-		GUNIT_LOG("Path Buffer: Realigning packet!");
 		s32 offset = curOffset - gsPack.size;
 		s32 sizeToAdd = curSize - offset;
 		s32 intersect = sizeToAdd - offset;
@@ -278,11 +274,9 @@ struct Gif_Path
 
 	void CopyGSPacketData(u8* pMem, u32 size, bool aligned = false)
 	{
+		// Move gsPack to front of buffer
 		if (curSize + size > buffSize)
-		{ // Move gsPack to front of buffer
-			GUNIT_LOG("CopyGSPacketData: Realigning packet!");
 			RealignPacket();
-		}
 		for (;;)
 		{
 			s32 offset = curOffset - gsPack.size;
@@ -315,10 +309,7 @@ struct Gif_Path
 			{ // Need new Gif Tag
 				// We don't have enough data for a Gif Tag
 				if (curOffset + 16 > curSize)
-				{
-					//GUNIT_LOG("Path Buffer: Not enough data for gif tag! [%d]", curSize-curOffset);
 					return gsPack;
-				}
 
 				// Move packet to start of buffer
 				if (curOffset > buffLimit)
@@ -501,7 +492,6 @@ struct Gif_Unit
 	// Enable softReset when resetting during game emulation
 	void Reset(bool softReset = false)
 	{
-		GUNIT_WARN(Color_Red, "Gif Unit Reset!!! [soft=%d]", softReset);
 		ResetRegs();
 		gsSIGNAL.Reset();
 		gsFINISH.Reset();
@@ -583,28 +573,10 @@ struct Gif_Unit
 			}
 		}
 
-		GUNIT_LOG("%s - [path=%d][size=%d]", Gif_TransferStr[(tranType >> 8) & 0xf], (tranType & 3) + 1, size);
 		if (size == 0)
-		{
-			GUNIT_WARN("Gif Unit - Size == 0");
 			return 0;
-		}
-#if 0
-		if (!CanDoGif())
-		{
-			GUNIT_WARN("Gif Unit - Signal or PSE Set or Dir = GS to EE");
-		}
-#endif
-		//pxAssertDev((stat.APATH==0) || checkPaths(1,1,1), "Gif Unit - APATH wasn't cleared?");
 		lastTranType = tranType;
 
-		if (tranType == GIF_TRANS_FIFO)
-		{
-#ifndef NDEBUG
-			if (!CanDoPath3())
-				log_cb(RETRO_LOG_DEBUG, "Gif Unit - Path 3 FIFO transfer while !CanDoPath3()\n");
-#endif
-		}
 		if (tranType == GIF_TRANS_DMA)
 		{
 			if (!CanDoPath3())
@@ -711,7 +683,6 @@ struct Gif_Unit
 							didPath3 = true;
 							stat.APATH = 0;
 							stat.IP3 = 1;
-							GUNIT_LOG(Color_Magenta, "Gif Unit - Path 3 slicing arbitration");
 							if (gsPack.size > 16)
 							{                                                 // Packet had other tags which we already processed
 								u32 subOffset = path.gifTag.isValid ? 16 : 0; // if isValid, image-primitive not finished
@@ -723,7 +694,6 @@ struct Gif_Unit
 								path.gifTag.isValid = false;                  // Reload tag next ExecuteGSPacket()
 								pxAssert((s32)path.curOffset >= 0);
 								pxAssert(path.state == GIF_PATH_IMAGE);
-								GUNIT_LOG(Color_Magenta, "Gif Unit - Sending path 3 sliced gs packet!");
 							}
 							continue;
 						}

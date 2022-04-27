@@ -68,7 +68,6 @@ bool Gif_HandlerAD(u8* pMem)
 	{ // SIGNAL
 		if (CSRreg.SIGNAL)
 		{ // Time to ignore all subsequent drawing operations.
-			GUNIT_WARN(Color_Orange, "GIF Handler - Stalling SIGNAL");
 			if (!gifUnit.gsSIGNAL.queued)
 			{
 				gifUnit.gsSIGNAL.queued = true;
@@ -79,7 +78,6 @@ bool Gif_HandlerAD(u8* pMem)
 		}
 		else 
 		{
-			GUNIT_WARN("GIF Handler - SIGNAL");
 			GSSIGLBLID.SIGID = (GSSIGLBLID.SIGID & ~data[1]) | (data[0] & data[1]);
 			if (!GSIMR.SIGMSK)
 				gsIrq();
@@ -88,12 +86,10 @@ bool Gif_HandlerAD(u8* pMem)
 	}
 	else if (reg == 0x61)
 	{ // FINISH
-		GUNIT_WARN("GIF Handler - FINISH");
 		CSRreg.FINISH = true;
 	}
 	else if (reg == 0x62)
 	{ // LABEL
-		GUNIT_WARN("GIF Handler - LABEL");
 		GSSIGLBLID.LBLID = (GSSIGLBLID.LBLID & ~data[1]) | (data[0] & data[1]);
 	}
 #ifndef NDEBUG
@@ -113,7 +109,6 @@ bool Gif_HandlerAD_MTVU(u8* pMem)
 
 	if (reg == 0x60)
 	{ // SIGNAL
-		GUNIT_WARN("GIF Handler - SIGNAL");
 		if (vu1Thread.gsInterrupts.load(std::memory_order_acquire) & VU_Thread::InterruptFlagSignal)
 		{
 #ifndef NDEBUG
@@ -125,7 +120,6 @@ bool Gif_HandlerAD_MTVU(u8* pMem)
 	} 	
 	else if (reg == 0x61)
 	{ // FINISH
-		GUNIT_WARN("GIF Handler - FINISH");
 		u32 old = vu1Thread.gsInterrupts.fetch_or(VU_Thread::InterruptFlagFinish, std::memory_order_relaxed);
 #ifndef NDEBUG
 		if (old & VU_Thread::InterruptFlagFinish)
@@ -134,7 +128,6 @@ bool Gif_HandlerAD_MTVU(u8* pMem)
 	} 	
 	else if (reg == 0x62)
 	{ // LABEL
-		GUNIT_WARN("GIF Handler - LABEL");
 		// It's okay to coalesce label updates
 		u32 labelData = data[0];
 		u32 labelMsk = data[1];

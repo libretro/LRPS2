@@ -160,9 +160,6 @@ template<int idx> __fi int _vifCode_Direct(int pass, const u8* data, bool isDire
 			log_cb(RETRO_LOG_DEBUG, "Vif %s: No Data Transfer?\n", name); // Can this happen?
 #endif
 		if (size != ret) { // Stall if gif didn't process all the data (path2 queued)
-#ifndef NDEBUG
-			GUNIT_WARN("Vif %s: Stall! [size=%d][ret=%d]", name, size, ret);
-#endif
 			//gifUnit.PrintInfo();
 			vif1.vifstalled.enabled   = VifStallEnable(vif1ch);
 			vif1.vifstalled.value = VIF_TIMING_BREAK;
@@ -198,7 +195,6 @@ vifOp(vifCode_Flush) {
 		vif1Regs.stat.VGW = false;
 		vifFlush(idx);
 		if (gifUnit.checkPaths(1,1,0) || p1or2) {
-			GUNIT_WARN("Vif Flush: Stall!");
 			//gifUnit.PrintInfo();
 			vif1Regs.stat.VGW = true;
 			vif1.vifstalled.enabled   = VifStallEnable(vif1ch);
@@ -224,7 +220,6 @@ vifOp(vifCode_FlushA) {
 
 		if (gifBusy) 
 		{
-			GUNIT_WARN("Vif FlushA: Stall!");
 			vif1Regs.stat.VGW = true;
 			vif1.vifstalled.enabled   = VifStallEnable(vif1ch);
 			vif1.vifstalled.value = VIF_TIMING_BREAK;
@@ -388,7 +383,6 @@ vifOp(vifCode_MSCALF) {
 		vifXRegs.stat.VGW = false;
 		vifFlush(idx);
 		if (u32 a = gifUnit.checkPaths(1,1,0)) {
-			GUNIT_WARN("Vif MSCALF: Stall! [%d,%d]", !!(a&1), !!(a&2));
 			vif1Regs.stat.VGW = true;
 			vifX.vifstalled.enabled   = VifStallEnable(vifXch);
 			vifX.vifstalled.value = VIF_TIMING_BREAK;
@@ -433,11 +427,8 @@ vifOp(vifCode_MskPath3) {
 	pass1 {
 		vif1Regs.mskpath3 = (vif1Regs.code >> 15) & 0x1;
 		gifRegs.stat.M3P  = (vif1Regs.code >> 15) & 0x1;
-		GUNIT_LOG("Vif1 - MskPath3 [p3 = %s]", vif1Regs.mskpath3 ? "masked" : "enabled");
-		if(!vif1Regs.mskpath3) {
-			GUNIT_WARN("VIF MSKPATH3 off Path3 triggering!");
+		if(!vif1Regs.mskpath3)
 			gifInterrupt();
-		}
 		vif1.cmd = 0;
 		vif1.pass = 0;
 	}

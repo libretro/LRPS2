@@ -313,7 +313,6 @@ __fi void vif1Interrupt()
 		bool isDirectHL = (vif1.cmd & 0x7f) == 0x51;
 		if((isDirect   && !gifUnit.CanDoPath2())
 		|| (isDirectHL && !gifUnit.CanDoPath2HL())) {
-			GUNIT_WARN("vif1Interrupt() - Waiting for Path 2 to be ready");
 			CPU_INT(DMAC_VIF1, 128);
 			if(gifRegs.stat.APATH == 3) vif1Regs.stat.VGW = 1; //We're waiting for path 3. Gunslinger II
 			return;

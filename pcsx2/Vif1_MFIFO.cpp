@@ -294,7 +294,6 @@ void vifMFIFOInterrupt()
 		bool isDirectHL = (vif1.cmd & 0x7f) == 0x51;
 		if((isDirect   && !gifUnit.CanDoPath2())
 		|| (isDirectHL && !gifUnit.CanDoPath2HL())) {
-			GUNIT_WARN("vifMFIFOInterrupt() - Waiting for Path 2 to be ready");
 			CPU_INT(DMAC_MFIFO_VIF, 128);
 			return;
 		}

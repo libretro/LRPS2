@@ -58,7 +58,6 @@ void gsUpdateFrequency(Pcsx2Config& config)
 static __fi void gsCSRwrite( const tGS_CSR& csr )
 {
 	if (csr.RESET) {
-		GUNIT_WARN("GUNIT_WARN: csr.RESET");
 		//log_cb(RETRO_LOG_INFO, "csr.RESET\n" );
 		//gifUnit.Reset(true); // Don't think gif should be reset...
 		gifUnit.gsSIGNAL.queued = false;
@@ -80,7 +79,6 @@ static __fi void gsCSRwrite( const tGS_CSR& csr )
 	{
 		// SIGNAL : What's not known here is whether or not the SIGID register should be updated
 		//  here or when the IMR is cleared (below).
-		GUNIT_LOG("csr.SIGNAL");
 		if (gifUnit.gsSIGNAL.queued) {
 			//log_cb(RETRO_LOG_INFO, "Firing pending signal\n");
 			GSSIGLBLID.SIGID = (GSSIGLBLID.SIGID & ~gifUnit.gsSIGNAL.data[1])
@@ -105,8 +103,6 @@ static __fi void gsCSRwrite( const tGS_CSR& csr )
 
 static __fi void IMRwrite(u32 value)
 {
-	GUNIT_LOG("IMRwrite()");
-
 	if (CSRreg.GetInterruptMask() & (~value & GSIMR._u32) >> 8)
 		gsIrq();
 
@@ -219,10 +215,6 @@ void __fastcall gsWrite64_page_01( u32 mem, const mem64_t* value )
 			if (gifUnit.stat.DIR) {      // Assume will do local->host transfer
 				gifUnit.stat.OPH = true; // Should we set OPH here?
 				gifUnit.FlushToMTGS();   // Send any pending GS Primitives to the GS
-				GUNIT_LOG("Busdir - GS->EE Download");
-			}
-			else {
-				GUNIT_LOG("Busdir - EE->GS Upload");
 			}
 
 			//=========================================================================
