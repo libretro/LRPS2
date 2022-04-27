@@ -54,58 +54,17 @@ ElfObject::ElfObject( const wxString& srcfile, uint hdrsize )
 
 void ElfObject::initElfHeaders()
 {
-#ifndef NDEBUG
-	log_cb(RETRO_LOG_DEBUG, "Initializing Elf: %d bytes\n", data.GetSizeInBytes());
-#endif
-
 	if ( header.e_phnum > 0 )
-		proghead = (ELF_PHR*)&data[header.e_phoff];
+	{
+		if ((header.e_phoff + sizeof(ELF_PHR)) <= data.GetSizeInBytes())
+			proghead = (ELF_PHR*)&data[header.e_phoff];
+	}
 
 	if ( header.e_shnum > 0 )
-		secthead = (ELF_SHR*)&data[header.e_shoff];
-
-#ifndef NDEBUG
-	if ( ( header.e_shnum > 0 ) && ( header.e_shentsize != sizeof(ELF_SHR) ) )
-		log_cb(RETRO_LOG_ERROR, "(ELF) Size of section headers is not standard\n" );
-
-	if ( ( header.e_phnum > 0 ) && ( header.e_phentsize != sizeof(ELF_PHR) ) )
-		log_cb(RETRO_LOG_ERROR, "(ELF) Size of program headers is not standard\n" );
-#endif
-
-	//getCRC();
-
-	const char* elftype = NULL;
-	switch( header.e_type )
 	{
-		default:
-			ELF_LOG( "type:      unknown = %x", header.e_type );
-			break;
-
-		case 0x0: elftype = "no file type";	break;
-		case 0x1: elftype = "relocatable";	break;
-		case 0x2: elftype = "executable";	break;
+		if ((header.e_shoff + sizeof(ELF_SHR)) <= data.GetSizeInBytes())
+			secthead = (ELF_SHR*)&data[header.e_shoff];
 	}
-
-	if (elftype != NULL) ELF_LOG( "type:      %s", elftype );
-
-	const char* machine = NULL;
-
-	switch(header.e_machine)
-	{
-		case 1: machine = "AT&T WE 32100";	break;
-		case 2: machine = "SPARC";			break;
-		case 3: machine = "Intel 80386";	break;
-		case 4: machine = "Motorola 68000";	break;
-		case 5: machine = "Motorola 88000";	break;
-		case 7: machine = "Intel 80860";	break;
-		case 8: machine = "mips_rs3000";	break;
-
-		default:
-			ELF_LOG( "machine:  unknown = %x", header.e_machine );
-			break;
-	}
-
-	if (machine != NULL) ELF_LOG( "machine:  %s", machine );
 
 	ELF_LOG("version:   %d",header.e_version);
 	ELF_LOG("entry:	    %08x",header.e_entry);
@@ -120,8 +79,6 @@ void ElfObject::initElfHeaders()
 	ELF_LOG("sh strndx: %08x",header.e_shstrndx);
 
 	ELF_LOG("\n");
-
-	//applyPatches();
 }
 
 bool ElfObject::hasProgramHeaders() { return (proghead != NULL); }
