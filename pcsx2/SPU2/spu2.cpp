@@ -116,43 +116,9 @@ s32 SPU2ps1reset()
 	return 0;
 }
 
-float VolumeAdjustFLdb; // decibels settings, cos audiophiles love that
-float VolumeAdjustCdb;
-float VolumeAdjustFRdb;
-float VolumeAdjustBLdb;
-float VolumeAdjustBRdb;
-float VolumeAdjustSLdb;
-float VolumeAdjustSRdb;
-float VolumeAdjustLFEdb;
-float VolumeAdjustFL; // linear coefs calcualted from decibels,
-float VolumeAdjustC;
-float VolumeAdjustFR;
-float VolumeAdjustBL;
-float VolumeAdjustBR;
-float VolumeAdjustSL;
-float VolumeAdjustSR;
-float VolumeAdjustLFE;
-
 s32 SPU2init()
 {
 	assert(regtable[0x400] == nullptr);
-
-	VolumeAdjustCdb = 0;
-	VolumeAdjustFLdb = 0;
-	VolumeAdjustFRdb = 0;
-	VolumeAdjustBLdb = 0;
-	VolumeAdjustBRdb = 0;
-	VolumeAdjustSLdb = 0;
-	VolumeAdjustSRdb = 0;
-	VolumeAdjustLFEdb = 0;
-	VolumeAdjustC = powf(10, VolumeAdjustCdb / 10);
-	VolumeAdjustFL = powf(10, VolumeAdjustFLdb / 10);
-	VolumeAdjustFR = powf(10, VolumeAdjustFRdb / 10);
-	VolumeAdjustBL = powf(10, VolumeAdjustBLdb / 10);
-	VolumeAdjustBR = powf(10, VolumeAdjustBRdb / 10);
-	VolumeAdjustSL = powf(10, VolumeAdjustSLdb / 10);
-	VolumeAdjustSR = powf(10, VolumeAdjustSRdb / 10);
-	VolumeAdjustLFE = powf(10, VolumeAdjustLFEdb / 10);
 
 	srand((unsigned)time(nullptr));
 

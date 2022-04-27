@@ -16,12 +16,3 @@
 #pragma once
 
 #include "Global.h"
-
-extern float VolumeAdjustFLdb;
-extern float VolumeAdjustCdb;
-extern float VolumeAdjustFRdb;
-extern float VolumeAdjustBLdb;
-extern float VolumeAdjustBRdb;
-extern float VolumeAdjustSLdb;
-extern float VolumeAdjustSRdb;
-extern float VolumeAdjustLFEdb;
