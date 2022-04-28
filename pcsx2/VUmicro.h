@@ -252,20 +252,3 @@ extern void vu1Finish(bool add_cycles);
 extern void vu1ResetRegs();
 extern void __fastcall vu1ExecMicro(u32 addr);
 extern void vu1Exec(VURegs* VU);
-
-#ifdef VUM_LOG
-
-#define IdebugUPPER(VU) \
-	VUM_LOG("%s", dis##VU##MicroUF(VU.code, VU.VI[REG_TPC].UL));
-#define IdebugLOWER(VU) \
-	VUM_LOG("%s", dis##VU##MicroLF(VU.code, VU.VI[REG_TPC].UL));
-#define _vuExecMicroDebug(VU) \
-	VUM_LOG("_vuExecMicro: %8.8x", VU.VI[REG_TPC].UL);
-
-#else
-
-#define IdebugUPPER(VU)
-#define IdebugLOWER(VU)
-#define _vuExecMicroDebug(VU)
-
-#endif

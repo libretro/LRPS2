@@ -41,7 +41,6 @@ namespace R3000A
 #define BIOS_LOG		macTrace(EE.Bios)
 #define CPU_LOG			macTrace(EE.R5900)
 #define COP0_LOG		macTrace(EE.COP0)
-#define VUM_LOG			macTrace(EE.COP2)
 #define MEM_LOG			macTrace(EE.Memory)
 #define CACHE_LOG		macTrace(EE.Cache)
 #define HW_LOG			macTrace(EE.KnownHw)

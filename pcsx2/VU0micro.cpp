@@ -27,22 +27,18 @@
 using namespace R5900;
 
 // This is called by the COP2 as per the CTC instruction
-void vu0ResetRegs()
+void vu0ResetRegs(void)
 {
 	VU0.VI[REG_VPU_STAT].UL &= ~0xff; // stop vu0
 	VU0.VI[REG_FBRST].UL &= ~0xff; // stop vu0
 	vif0Regs.stat.VEW = false;
 }
 
-void __fastcall vu0ExecMicro(u32 addr) {
-	VUM_LOG("vu0ExecMicro %x", addr);
-
-	if(VU0.VI[REG_VPU_STAT].UL & 0x1) {
-#ifndef NDEBUG
-		log_cb(RETRO_LOG_DEBUG, "vu0ExecMicro > Stalling for previous microprogram to finish\n");
-#endif
+void __fastcall vu0ExecMicro(u32 addr)
+{
+	/* vu0ExecMicro > Stalling for previous microprogram to finish */
+	if(VU0.VI[REG_VPU_STAT].UL & 0x1)
 		vu0Finish();
-	}
 
 	// Need to copy the clip flag back to the interpreter in case COP2 has edited it
 	VU0.clipflag = VU0.VI[REG_CLIP_FLAG].UL;
@@ -52,6 +48,5 @@ void __fastcall vu0ExecMicro(u32 addr) {
 	if ((s32)addr != -1) VU0.VI[REG_TPC].UL = addr & 0x1FF;
 
 	CpuVU0->SetStartPC(VU0.VI[REG_TPC].UL << 3);
-	_vuExecMicroDebug(VU0);
 	CpuVU0->ExecuteBlock(1);
 }

@@ -24,13 +24,11 @@ extern void _vuFlushAll(VURegs* VU);
 
 void _vu1ExecUpper(VURegs* VU, u32 *ptr) {
 	VU->code = ptr[1];
-	//IdebugUPPER(VU1);
 	VU1_UPPER_OPCODE[VU->code & 0x3f]();
 }
 
 void _vu1ExecLower(VURegs* VU, u32 *ptr) {
 	VU->code = ptr[0];
-	IdebugLOWER(VU1);
 	VU1_LOWER_OPCODE[VU->code >> 25]();
 }
 
@@ -71,8 +69,6 @@ static void _vu1Exec(VURegs* VU)
 		}
 		
 	}
-
-	//VUM_LOG("VU->cycle = %d (flags st=%x;mac=%x;clip=%x,q=%f)", VU->cycle, VU->statusflag, VU->macflag, VU->clipflag, VU->q.F);
 
 	VU->code = ptr[1];
 	VU1regs_UPPER_OPCODE[VU->code & 0x3f](&uregs);

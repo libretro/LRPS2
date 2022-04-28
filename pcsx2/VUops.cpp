@@ -54,12 +54,10 @@ static __ri void _vuFMACflush(VURegs * VU) {
 		if (VU->fmac[i].enable == 0) continue;
 
 		if ((VU->cycle - VU->fmac[i].sCycle) >= VU->fmac[i].Cycle) {
-			VUM_LOG("flushing FMAC pipe[%d] (macflag=%x)", i, VU->fmac[i].macflag);
-
-			VU->fmac[i].enable = 0;
-			VU->VI[REG_MAC_FLAG].UL = VU->fmac[i].macflag;
+			VU->fmac[i].enable         = 0;
+			VU->VI[REG_MAC_FLAG].UL    = VU->fmac[i].macflag;
 			VU->VI[REG_STATUS_FLAG].UL = VU->fmac[i].statusflag;
-			VU->VI[REG_CLIP_FLAG].UL = VU->fmac[i].clipflag;
+			VU->VI[REG_CLIP_FLAG].UL   = VU->fmac[i].clipflag;
 		}
 	}
 }
@@ -68,10 +66,9 @@ static __ri void _vuFDIVflush(VURegs * VU) {
 	if (VU->fdiv.enable == 0) return;
 
 	if ((VU->cycle - VU->fdiv.sCycle) >= VU->fdiv.Cycle) {
-		VUM_LOG("flushing FDIV pipe");
-
-		VU->fdiv.enable = 0;
-		VU->VI[REG_Q].UL = VU->fdiv.reg.UL;
+		/* Flushing FDIV pipe */
+		VU->fdiv.enable            = 0;
+		VU->VI[REG_Q].UL           = VU->fdiv.reg.UL;
 		VU->VI[REG_STATUS_FLAG].UL = VU->fdiv.statusflag;
 	}
 }
@@ -80,9 +77,8 @@ static __ri void _vuEFUflush(VURegs * VU) {
 	if (VU->efu.enable == 0) return;
 
 	if ((VU->cycle - VU->efu.sCycle) >= VU->efu.Cycle) {
-//		VUM_LOG("flushing EFU pipe");
-
-		VU->efu.enable = 0;
+		/* Flushing EFU pipe */
+		VU->efu.enable   = 0;
 		VU->VI[REG_P].UL = VU->efu.reg.UL;
 	}
 }
@@ -101,12 +97,10 @@ void _vuFlushAll(VURegs* VU)
 			nRepeat = 1;
 
 			if ((VU->cycle - VU->fmac[i].sCycle) >= VU->fmac[i].Cycle) {
-				VUM_LOG("flushing FMAC pipe[%d] (macflag=%x)", i, VU->fmac[i].macflag);
-
-				VU->fmac[i].enable = 0;
-				VU->VI[REG_MAC_FLAG].UL = VU->fmac[i].macflag;
+				VU->fmac[i].enable         = 0;
+				VU->VI[REG_MAC_FLAG].UL    = VU->fmac[i].macflag;
 				VU->VI[REG_STATUS_FLAG].UL = VU->fmac[i].statusflag;
-				VU->VI[REG_CLIP_FLAG].UL = VU->fmac[i].clipflag;
+				VU->VI[REG_CLIP_FLAG].UL   = VU->fmac[i].clipflag;
 			}
 		}
 
@@ -115,10 +109,8 @@ void _vuFlushAll(VURegs* VU)
 			nRepeat = 1;
 
 			if ((VU->cycle - VU->fdiv.sCycle) >= VU->fdiv.Cycle) {
-				VUM_LOG("flushing FDIV pipe");
-
-				VU->fdiv.enable = 0;
-				VU->VI[REG_Q].UL = VU->fdiv.reg.UL;
+				VU->fdiv.enable            = 0;
+				VU->VI[REG_Q].UL           = VU->fdiv.reg.UL;
 				VU->VI[REG_STATUS_FLAG].UL = VU->fdiv.statusflag;
 			}
 		}
@@ -128,9 +120,7 @@ void _vuFlushAll(VURegs* VU)
 			nRepeat = 1;
 
 			if ((VU->cycle - VU->efu.sCycle) >= VU->efu.Cycle) {
-	//			VUM_LOG("flushing EFU pipe");
-
-				VU->efu.enable = 0;
+				VU->efu.enable   = 0;
 				VU->VI[REG_P].UL = VU->efu.reg.UL;
 			}
 		}
@@ -162,7 +152,6 @@ static void __fastcall _vuFMACTestStall(VURegs * VU, int reg, int xyzw) {
 	VU->VI[REG_STATUS_FLAG].UL = VU->fmac[i].statusflag;
 	VU->VI[REG_CLIP_FLAG].UL = VU->fmac[i].clipflag;
 	u32 newCycle = VU->fmac[i].Cycle + VU->fmac[i].sCycle + 1; // HACK: add 1 delay (fixes segaclassics bad geom)
-	VUM_LOG("FMAC[%d] stall %d", i, newCycle - VU->cycle);
 
 	VU->cycle = newCycle;
 	_vuTestPipes(VU);
@@ -178,8 +167,6 @@ static __ri void __fastcall _vuFMACAdd(VURegs * VU, int reg, int xyzw) {
 	}
 
 	if (i < 8) {
-		VUM_LOG("adding FMAC pipe[%d]; xyzw=%x", i, xyzw);
-
 		VU->fmac[i].enable = 1;
 		VU->fmac[i].sCycle = VU->cycle;
 		VU->fmac[i].Cycle = 3;
@@ -194,8 +181,6 @@ static __ri void __fastcall _vuFMACAdd(VURegs * VU, int reg, int xyzw) {
 }
 
 static __ri void __fastcall _vuFDIVAdd(VURegs * VU, int cycles) {
-	VUM_LOG("adding FDIV pipe");
-
 	VU->fdiv.enable = 1;
 	VU->fdiv.sCycle = VU->cycle;
 	VU->fdiv.Cycle  = cycles;
@@ -204,8 +189,6 @@ static __ri void __fastcall _vuFDIVAdd(VURegs * VU, int cycles) {
 }
 
 static __ri void __fastcall _vuEFUAdd(VURegs * VU, int cycles) {
-//	VUM_LOG("adding EFU pipe\n");
-
 	VU->efu.enable = 1;
 	VU->efu.sCycle = VU->cycle;
 	VU->efu.Cycle  = cycles;
@@ -216,11 +199,9 @@ static __ri void __fastcall _vuFlushFDIV(VURegs * VU) {
 	if (VU->fdiv.enable == 0)
 		return;
 
-	u32 newCycle = VU->fdiv.Cycle + VU->fdiv.sCycle;
-	VUM_LOG("waiting FDIV pipe %d", newCycle - VU->cycle);
-
+	u32 newCycle    = VU->fdiv.Cycle + VU->fdiv.sCycle;
 	VU->fdiv.enable = 0;
-	VU->cycle = newCycle;
+	VU->cycle       = newCycle;
 
 	VU->VI[REG_Q].UL = VU->fdiv.reg.UL;
 	VU->VI[REG_STATUS_FLAG].UL = VU->fdiv.statusflag;
