@@ -243,24 +243,6 @@ static void vSyncInfoCalc(vSyncTimingInfo* info, Fixed100 framesPerSecond, u32 s
 	// is thus not worth the effort at this time.
 }
 
-const char* ReportVideoMode()
-{
-	switch (gsVideoMode)
-	{
-	case GS_VideoMode::PAL:          return "PAL";
-	case GS_VideoMode::NTSC:         return "NTSC";
-	case GS_VideoMode::DVD_NTSC:     return "DVD NTSC";
-	case GS_VideoMode::DVD_PAL:      return "DVD PAL";
-	case GS_VideoMode::VESA:         return "VESA";
-	case GS_VideoMode::SDTV_480P:    return "SDTV 480p";
-	case GS_VideoMode::SDTV_576P:    return "SDTV 576p";
-	case GS_VideoMode::HDTV_720P:    return "HDTV 720p";
-	case GS_VideoMode::HDTV_1080I:   return "HDTV 1080i";
-	case GS_VideoMode::HDTV_1080P:   return "HDTV 1080p";
-	default:                         return "Unknown";
-	}
-}
-
 Fixed100 GetVerticalFrequency()
 {
 	// Note about NTSC/PAL "double strike" modes:

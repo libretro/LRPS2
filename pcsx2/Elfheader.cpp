@@ -108,8 +108,9 @@ void ElfObject::readIso(IsoFile& file)
 void ElfObject::readFile()
 {
 	int rsize = 0;
-	FILE *f = wxFopen( filename, "rb" );
-	if (f == NULL) throw Exception::FileNotFound( filename );
+	FILE *f = fopen( filename, "rb" );
+	if (!f)
+		throw Exception::FileNotFound( filename );
 
 	fseek(f, 0, SEEK_SET);
 	rsize = fread(data.GetPtr(), 1, data.GetSizeInBytes(), f);
