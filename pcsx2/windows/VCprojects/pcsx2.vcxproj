@@ -194,7 +194,6 @@
     <ClCompile Include="..\..\DebugTools\DebugInterface.cpp" />
     <ClCompile Include="..\..\DebugTools\ExpressionParser.cpp" />
     <ClCompile Include="..\..\DebugTools\MIPSAnalyst.cpp" />
-    <ClCompile Include="..\..\DebugTools\MipsAssemblerTables.cpp" />
     <ClCompile Include="..\..\DebugTools\SymbolMap.cpp" />
     <ClCompile Include="..\..\GameDatabase.cpp" />
     <ClCompile Include="..\..\Gif_Logger.cpp" />
@@ -422,7 +421,6 @@
     <ClInclude Include="..\..\DebugTools\DebugInterface.h" />
     <ClInclude Include="..\..\DebugTools\ExpressionParser.h" />
     <ClInclude Include="..\..\DebugTools\MIPSAnalyst.h" />
-    <ClInclude Include="..\..\DebugTools\MipsAssemblerTables.h" />
     <ClInclude Include="..\..\DebugTools\SymbolMap.h" />
     <ClInclude Include="..\..\GameDatabase.h" />
     <ClInclude Include="..\..\Gif_Unit.h" />
