@@ -43,9 +43,6 @@ namespace R5900
 #define SPR_LOG			macTrace(EE.SPR)
 #define GIF_LOG			macTrace(EE.GIF)
 #define EECNT_LOG		macTrace(EE.Counters)
-#define VifCodeLog		macTrace(EE.VIFcode)
-#define GifTagLog		macTrace(EE.GIFtag)
-
 
 #define PSXBIOS_LOG		macTrace(IOP.Bios)
 #define PSXCPU_LOG		macTrace(IOP.R3000A)
