@@ -91,5 +91,3 @@ private:
 	u32 encoding;
 	std::string error;
 };
-
-bool MipsAssembleOpcode(const char* line, DebugInterface* cpu, u32 address, u32& dest, std::string& errorText);

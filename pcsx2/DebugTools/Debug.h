@@ -28,12 +28,6 @@ namespace R5900
 	extern const char * const COP2_VFnames[4];
 }
 
-namespace R3000A
-{
-	extern void (*IOP_DEBUG_BSC[64])(char *buf);
-	extern const char * const disRNameGPR[];
-}
-
 #define macTrace(trace)
 
 #define SIF_LOG			macTrace(SIF)

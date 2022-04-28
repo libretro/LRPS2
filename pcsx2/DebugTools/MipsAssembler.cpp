@@ -16,26 +16,6 @@
 #include "PrecompiledHeader.h"
 #include "MipsAssembler.h"
 
-// just an empty class, so that it's not necessary to remove all the calls manually
-// will make it easier to update if there are changes later on
-class Logger
-{
-public:
-	enum ErrorType { Warning, Error, FatalError, Notice };
-
-	static void printError(ErrorType type, const wchar_t* text, ...)
-	{
-		//
-	}
-	
-	static void queueError(ErrorType type, const wchar_t* text, ...)
-	{
-		//
-	}
-
-};
-
-
 const tMipsRegister MipsRegister[] = {
 	{ "r0", 0, 2 }, { "zero", 0, 4}, { "$0", 0, 2 }, { "$zero", 0, 5 },
 	{ "at", 1, 2 }, { "r1", 1, 2 }, { "$1", 1, 2 }, { "$at", 1, 3 },
@@ -153,56 +133,7 @@ const tMipsRegister MipsPs2Cop2FpRegister[] = {
 	{ "vf31", 31, 4},	{ "$vf31", 31, 5 }
 };
 
-void SplitLine(const char* Line, char* Name, char* Arguments)
-{
-	while (*Line == ' ' || *Line == '\t') Line++;
-	while (*Line != ' ' && *Line != '\t')
-	{
-		if (*Line  == 0)
-		{
-			*Name = 0;
-			*Arguments = 0;
-			return;
-		}
-		*Name++ = *Line++;
-	}
-	*Name = 0;
-	
-	while (*Line == ' ' || *Line == '\t') Line++;
-
-	while (*Line != 0)
-	{
-		*Arguments++ = *Line++;
-	}
-	*Arguments = 0;
-}
-
-bool MipsAssembleOpcode(const char* line, DebugInterface* cpu, u32 address, u32& dest, std::string& errorText)
-{
-	char name[64],args[256];
-	SplitLine(line,name,args);
-
-	CMipsInstruction opcode(cpu);
-	if (cpu == NULL || !opcode.Load(name,args,(int)address))
-	{
-		errorText = opcode.getErrorMessage();
-		return false;
-	}
-
-	if (!opcode.Validate())
-	{
-		errorText = "Parameter failure.";
-		return false;
-	}
-
-	opcode.Encode();
-	dest = opcode.getEncoding();
-
-	return true;
-}
-
-
-bool MipsGetRegister(const char* source, int& RetLen, MipsRegisterInfo& Result)
+static bool MipsGetRegister(const char* source, int& RetLen, MipsRegisterInfo& Result)
 {
 	for (int z = 0; MipsRegister[z].name != NULL; z++)
 	{
@@ -223,7 +154,7 @@ bool MipsGetRegister(const char* source, int& RetLen, MipsRegisterInfo& Result)
 	return false;
 }
 
-int MipsGetRegister(const char* source, int& RetLen)
+static int MipsGetRegister(const char* source, int& RetLen)
 {
 	for (int z = 0; MipsRegister[z].name != NULL; z++)
 	{
@@ -241,8 +172,7 @@ int MipsGetRegister(const char* source, int& RetLen)
 	return -1;
 }
 
-
-bool MipsGetFloatRegister(const char* source, int& RetLen, MipsRegisterInfo& Result)
+static bool MipsGetFloatRegister(const char* source, int& RetLen, MipsRegisterInfo& Result)
 {
 	for (int z = 0; MipsFloatRegister[z].name != NULL; z++)
 	{
@@ -263,7 +193,7 @@ bool MipsGetFloatRegister(const char* source, int& RetLen, MipsRegisterInfo& Res
 	return false;
 }
 
-bool MipsGetPs2VectorRegister(const char* source, int& RetLen, MipsRegisterInfo& Result)
+static bool MipsGetPs2VectorRegister(const char* source, int& RetLen, MipsRegisterInfo& Result)
 {
 	for (int z = 0; MipsPs2Cop2FpRegister[z].name != NULL; z++)
 	{
@@ -284,7 +214,7 @@ bool MipsGetPs2VectorRegister(const char* source, int& RetLen, MipsRegisterInfo&
 	return false;
 }
 
-int MipsGetFloatRegister(const char* source, int& RetLen)
+static int MipsGetFloatRegister(const char* source, int& RetLen)
 {
 	for (int z = 0; MipsFloatRegister[z].name != NULL; z++)
 	{
@@ -302,8 +232,7 @@ int MipsGetFloatRegister(const char* source, int& RetLen)
 	return -1;
 }
 
-
-bool MipsCheckImmediate(const char* Source, DebugInterface* cpu, int& dest, int& RetLen)
+static bool MipsCheckImmediate(const char* Source, DebugInterface* cpu, int& dest, int& RetLen)
 {
 	char Buffer[512];
 	int BufferPos = 0;
@@ -623,10 +552,7 @@ int getImmediateBits(MipsImmediateType type)
 bool CMipsInstruction::Validate()
 {
 	if (RamPos % 4)
-	{
-		Logger::queueError(Logger::Error,L"opcode not aligned to word boundary");
 		return false;
-	}
 
 	// check immediates
 	if (immediateType != MIPS_NOIMMEDIATE)
@@ -636,10 +562,7 @@ bool CMipsInstruction::Validate()
 		if (Opcode.flags & MO_IMMALIGNED)	// immediate must be aligned
 		{
 			if (immediate.value % 4)
-			{
-				Logger::queueError(Logger::Error,L"Immediate must be word aligned",immediate.value);
 				return false;
-			}
 		}
 
 		if (Opcode.flags & MO_IPCA)	// absolute value >> 2)
@@ -650,10 +573,7 @@ bool CMipsInstruction::Validate()
 			int num = (immediate.value-RamPos-4);
 			
 			if (num > 0x20000 || num < (-0x20000))
-			{
-				Logger::queueError(Logger::Error,L"Branch target %08X out of range",immediate.value);
 				return false;
-			}
 			immediate.value = num >> 2;
 		}
 		
@@ -662,10 +582,7 @@ bool CMipsInstruction::Validate()
 		int digits = (immediateBits+3) / 4;
 
 		if ((unsigned int)std::abs(immediate.value) > mask)
-		{
-			Logger::queueError(Logger::Error,L"Immediate value %0*X out of range",digits,immediate.value);
 			return false;
-		}
 
 		immediate.value &= mask;
 	}

@@ -34,16 +34,11 @@ public:
 	virtual void write32(u32 address, u32 value) = 0;
 
 	// register stuff
-	virtual int getRegisterCategoryCount() = 0;
-	virtual const char* getRegisterCategoryName(int cat) = 0;
-	virtual RegisterType getRegisterType(int cat) = 0;
 	virtual const char* getRegisterName(int cat, int num) = 0;
 	virtual u128 getRegister(int cat, int num) = 0;
 	virtual u128 getHI() = 0;
 	virtual u128 getLO() = 0;
 	virtual u32 getPC() = 0;
-	virtual void setPc(u32 newPc) = 0;
-	virtual void setRegister(int cat, int num, u128 newValue) = 0;
 	
 	virtual bool isValidAddress(u32 address) = 0;
 	virtual u32 getCycles() = 0;
@@ -69,16 +64,11 @@ public:
 	virtual void write32(u32 address, u32 value);
 
 	// register stuff
-	virtual int getRegisterCategoryCount();
-	virtual const char* getRegisterCategoryName(int cat);
-	virtual RegisterType getRegisterType(int cat);
 	virtual const char* getRegisterName(int cat, int num);
 	virtual u128 getRegister(int cat, int num);
 	virtual u128 getHI();
 	virtual u128 getLO();
 	virtual u32 getPC();
-	virtual void setPc(u32 newPc);
-	virtual void setRegister(int cat, int num, u128 newValue);
 
 	virtual bool isValidAddress(u32 address);
 	virtual u32 getCycles();

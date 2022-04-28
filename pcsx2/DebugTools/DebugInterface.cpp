@@ -296,48 +296,6 @@ void R5900DebugInterface::write32(u32 address, u32 value)
 }
 
 
-int R5900DebugInterface::getRegisterCategoryCount()
-{
-	return EECAT_COUNT;
-}
-
-const char* R5900DebugInterface::getRegisterCategoryName(int cat)
-{
-	switch (cat)
-	{
-	case EECAT_GPR:
-		return "GPR";
-	case EECAT_CP0:
-		return "CP0";
-	case EECAT_FPR:
-		return "FPR";
-	case EECAT_FCR:
-		return "FCR";
-	case EECAT_VU0F:
-		return "VU0f";
-	case EECAT_VU0I:
-		return "VU0i";
-	default:
-		return "Invalid";
-	}
-}
-
-DebugInterface::RegisterType R5900DebugInterface::getRegisterType(int cat)
-{
-	switch (cat)
-	{
-	case EECAT_GPR:
-	case EECAT_CP0:
-	case EECAT_VU0F:
-	case EECAT_VU0I:
-	case EECAT_FCR:
-	default:
-		return NORMAL;
-	case EECAT_FPR:
-		return SPECIAL;
-	}
-}
-
 const char* R5900DebugInterface::getRegisterName(int cat, int num)
 {
 	switch (cat)
@@ -441,60 +399,6 @@ u128 R5900DebugInterface::getLO()
 u32 R5900DebugInterface::getPC()
 {
 	return cpuRegs.pc;
-}
-
-void R5900DebugInterface::setPc(u32 newPc)
-{
-	cpuRegs.pc = newPc;
-}
-
-void R5900DebugInterface::setRegister(int cat, int num, u128 newValue)
-{
-	switch (cat)
-	{
-	case EECAT_GPR:
-		switch (num)
-		{
-		case 32:	// pc
-			cpuRegs.pc = newValue._u32[0];
-			break;
-		case 33:	// hi
-			cpuRegs.HI.UQ = newValue;
-			break;
-		case 34:	// lo
-			cpuRegs.LO.UQ = newValue;
-			break;
-		default:
-			cpuRegs.GPR.r[num].UQ = newValue;
-			break;
-		}
-		break;
-	case EECAT_CP0:
-		cpuRegs.CP0.r[num] = newValue._u32[0];
-		break;
-	case EECAT_FPR:
-		fpuRegs.fpr[num].UL = newValue._u32[0];
-		break;
-	case EECAT_FCR:
-		fpuRegs.fprc[num] = newValue._u32[0];
-		break;
-	case EECAT_VU0F:
-		switch (num)
-		{
-		case 32:	// ACC
-			VU0.ACC.UQ = newValue;
-			break;
-		default:
-			VU0.VF[num].UQ = newValue;
-			break;
-		}
-		break;
-	case EECAT_VU0I:
-		VU0.VI[num].UL = newValue._u32[0];
-		break;
-	default:
-		break;
-	}
 }
 
 bool R5900DebugInterface::isValidAddress(u32 addr)
