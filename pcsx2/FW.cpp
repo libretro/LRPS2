@@ -20,8 +20,14 @@
 
 #include "FW.h"
 
+// Our main memory storage, and defines for accessing it.
+#define fwRu32(mem) (*(u32*)&fwregs[(mem)&0xffff])
+
+//PHY Access Address for ease of use :P
+#define PHYACC fwRu32(0x8414)
+
 u8 phyregs[16];
-s8* fwregs;
+static s8* fwregs = NULL;
 
 s32 FWopen(void)
 {
@@ -73,15 +79,13 @@ u32 FWread32(u32 addr)
 		//Node ID Register the top part is default, bottom part i got from my ps2
 		case 0x1f808400:
 			return /*(0x3ff << 22) | 1;*/ 0xffc00001;
-		case 0x1f808410: // Control Register 2 - SCLK OK (Needs to be set when FW is "Ready"
-		case 0x1f808420: // Interrupt 0 Register
-			break;
-
 		//Dunno what this is, but my home console always returns this value 0x10000001
 		//Seems to be related to the Node ID however (does some sort of compare/check)
 		case 0x1f80847c:
 			return 0x10000001;
 
+		case 0x1f808410: // Control Register 2 - SCLK OK (Needs to be set when FW is "Ready"
+		case 0x1f808420: // Interrupt 0 Register
 		// Include other relevant 32 bit addresses we need to catch here.
 		default:
 			// By default, read fwregs.
@@ -111,13 +115,9 @@ void FWwrite32(u32 addr, u32 value)
 			//Im presuming we send that back to pcsx2 then. This register stores the result, plus whatever was written (minus the read/write flag
 			fwRu32(addr) = value;   //R/W Bit cleaned in underneath function
 			if (value & 0x40000000) //Writing to PHY
-			{
 				PHYWrite();
-			}
 			else if (value & 0x80000000) //Reading from PHY
-			{
 				PHYRead();
-			}
 			break;
 
 		//Control Register 0
