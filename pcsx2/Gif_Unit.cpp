@@ -92,12 +92,6 @@ bool Gif_HandlerAD(u8* pMem)
 	{ // LABEL
 		GSSIGLBLID.LBLID = (GSSIGLBLID.LBLID & ~data[1]) | (data[0] & data[1]);
 	}
-#ifndef NDEBUG
-	else if (reg >= 0x63 && reg != 0x7f)
-	{
-		log_cb(RETRO_LOG_DEBUG, "GIF Handler - Write to unknown register! [reg=%x]\n", reg);
-	}
-#endif
 	return false;
 }
 
@@ -121,10 +115,6 @@ bool Gif_HandlerAD_MTVU(u8* pMem)
 	else if (reg == 0x61)
 	{ // FINISH
 		u32 old = vu1Thread.gsInterrupts.fetch_or(VU_Thread::InterruptFlagFinish, std::memory_order_relaxed);
-#ifndef NDEBUG
-		if (old & VU_Thread::InterruptFlagFinish)
-			log_cb(RETRO_LOG_ERROR, "GIF Handler MTVU - Double FINISH Not Handled\n");
-#endif
 	} 	
 	else if (reg == 0x62)
 	{ // LABEL
@@ -143,12 +133,6 @@ bool Gif_HandlerAD_MTVU(u8* pMem)
 		}
 		vu1Thread.gsInterrupts.fetch_or(VU_Thread::InterruptFlagLabel, std::memory_order_release);
 	} 	
-#ifndef NDEBUG
-	else if (reg >= 0x63 && reg != 0x7f)
-	{
-		log_cb(RETRO_LOG_DEBUG, "GIF Handler Debug - Write to unknown register! [reg=%x]\n", reg);
-	}
-#endif
 	return 0;
 }
 
@@ -169,15 +153,12 @@ void Gif_AddGSPacketMTVU(GS_Packet& gsPack, GIF_PATH path)
 
 void Gif_AddCompletedGSPacket(GS_Packet& gsPack, GIF_PATH path)
 {
-	//log_cb(RETRO_LOG_DEBUG, "Adding Completed Gif Packet [size=%x]\n", gsPack.size);
-	//pxAssertDev(!gsPack.readAmount, "Gif Unit - gsPack.readAmount only valid for MTVU path 1!");
 	gifUnit.gifPath[path].readAmount.fetch_add(gsPack.size);
 	GetMTGS().SendSimpleGSPacket(GS_RINGTYPE_GSPACKET, gsPack.offset, gsPack.size, path);
 }
 
 void Gif_AddBlankGSPacket(u32 size, GIF_PATH path) 
 {
-	//log_cb(RETRO_LOG_DEBUG, "Adding Blank Gif Packet [size=%x]\n", size);
 	gifUnit.gifPath[path].readAmount.fetch_add(size);
 	GetMTGS().SendSimpleGSPacket(GS_RINGTYPE_GSPACKET, ~0u, size, path);
 }
@@ -228,14 +209,4 @@ void SaveStateBase::gifFreeze()
 	gifPathFreeze(GIF_PATH_1);
 	gifPathFreeze(GIF_PATH_2);
 	gifPathFreeze(GIF_PATH_3);
-	if (!IsSaving())
-	{
-#ifndef NDEBUG
-		if (mtvuMode != THREAD_VU1)
-		{
-			log_cb(RETRO_LOG_DEBUG, "gifUnit: MTVU Mode has switched between save/load state\n");
-			// ToDo: gifUnit.SwitchMTVU(mtvuMode);
-		}
-#endif
-	}
 }

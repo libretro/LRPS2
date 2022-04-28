@@ -286,9 +286,8 @@ Fixed100 GetVerticalFrequency()
 	}
 }
 
-void UpdateVSyncRate()
+void UpdateVSyncRate(void)
 {
-	static s64 m_iTicks=0;
 	// Notice:  (and I probably repeat this elsewhere, but it's worth repeating)
 	//  The PS2's vsync timer is an *independent* crystal that is fixed to either 59.94 (NTSC)
 	//  or 50.0 (PAL) Hz.  It has *nothing* to do with real TV timings or the real vsync of
@@ -296,45 +295,43 @@ void UpdateVSyncRate()
 	//  or progressive scan content. 
 
 	Fixed100	framerate = GetVerticalFrequency() / 2;
-	u32			scanlines = 0;
+	u32		scanlines = 0;
 	bool		isCustom  = false;
 
 	//Set up scanlines and framerate based on video mode
 	switch (gsVideoMode)
 	{
-	case GS_VideoMode::Uninitialized: // SYSCALL instruction hasn't executed yet, give some temporary values.
-		scanlines = SCANLINES_TOTAL_NTSC;
-		break;
+		case GS_VideoMode::Uninitialized: // SYSCALL instruction hasn't executed yet, give some temporary values.
+			scanlines = SCANLINES_TOTAL_NTSC;
+			break;
 
-	case GS_VideoMode::PAL:
-	case GS_VideoMode::DVD_PAL:
-		isCustom = (EmuConfig.GS.FrameratePAL != 50.0);
-		scanlines = SCANLINES_TOTAL_PAL;
-		break;
+		case GS_VideoMode::PAL:
+		case GS_VideoMode::DVD_PAL:
+			isCustom = (EmuConfig.GS.FrameratePAL != 50.0);
+			scanlines = SCANLINES_TOTAL_PAL;
+			break;
 
-	case GS_VideoMode::NTSC:
-	case GS_VideoMode::DVD_NTSC:
-		isCustom = (EmuConfig.GS.FramerateNTSC != 59.94);
-		scanlines = SCANLINES_TOTAL_NTSC;
-		break;
+		case GS_VideoMode::NTSC:
+		case GS_VideoMode::DVD_NTSC:
+			isCustom = (EmuConfig.GS.FramerateNTSC != 59.94);
+			scanlines = SCANLINES_TOTAL_NTSC;
+			break;
 
-	case GS_VideoMode::SDTV_480P:
-	case GS_VideoMode::SDTV_576P:
-	case GS_VideoMode::HDTV_1080P:
-	case GS_VideoMode::HDTV_1080I:
-	case GS_VideoMode::HDTV_720P:
-	case GS_VideoMode::VESA:
-		scanlines = SCANLINES_TOTAL_NTSC;
-		break;
+		case GS_VideoMode::SDTV_480P:
+		case GS_VideoMode::SDTV_576P:
+		case GS_VideoMode::HDTV_1080P:
+		case GS_VideoMode::HDTV_1080I:
+		case GS_VideoMode::HDTV_720P:
+		case GS_VideoMode::VESA:
+			scanlines = SCANLINES_TOTAL_NTSC;
+			break;
 
-	case GS_VideoMode::Unknown:
-	default:
-		// Falls through to default when unidentified mode parameter of SetGsCrt is detected.
-		// For Release builds, keep using the NTSC timing values when unknown video mode is detected.
-		// Assert will be triggered for debug/dev builds.
-		scanlines = SCANLINES_TOTAL_NTSC;
-		log_cb(RETRO_LOG_ERROR, "PCSX2-Counters: Unknown video mode detected\n");
-		pxAssertDev(false , "Unknown video mode detected via SetGsCrt");
+		case GS_VideoMode::Unknown:
+		default:
+			// Falls through to default when unidentified mode parameter of SetGsCrt is detected.
+			// For Release builds, keep using the NTSC timing values when unknown video mode is detected.
+			// Assert will be triggered for debug/dev builds.
+			scanlines = SCANLINES_TOTAL_NTSC;
 	}
 
 	bool ActiveVideoMode = gsVideoMode != GS_VideoMode::Uninitialized;
@@ -348,26 +345,6 @@ void UpdateVSyncRate()
 
 		cpuRcntSet();
 	}
-
-	/* TODO/FIXME - MTGS has no frameskip sync logic implemented
-	 * yet for GS_RINGTYPE_MODECHANGE, so this code block is useless and can         * be skipped 
-         */
-#if 0 
-	Fixed100 fpslimit = framerate * 1.0;
-	s64	ticks = (GetTickFrequency()*500) / (fpslimit * 1000).ToIntRounded();
-
-	if( m_iTicks != ticks )
-	{
-		m_iTicks = ticks;
-		gsOnModeChanged( vSyncInfo.Framerate, m_iTicks );
-#ifndef NDEBUG
-		if (ActiveVideoMode)
-			log_cb(RETRO_LOG_INFO, "(UpdateVSyncRate) FPS Limit Changed : %.02f fps\n", fpslimit.ToFloat()*2 );
-#endif
-	}
-
-	return (u32)m_iTicks;
-#endif
 }
 
 static __fi void VSyncStart(u32 sCycle)
@@ -382,25 +359,6 @@ static __fi void VSyncStart(u32 sCycle)
 	psxVBlankStart();
 	gsPostVsyncStart();
 	if (gates) rcntStartGate(true, sCycle); // Counters Start Gate code
-
-	// INTC - VB Blank Start Hack --
-	// Hack fix!  This corrects a freezeup in Granda 2 where it decides to spin
-	// on the INTC_STAT register after the exception handler has already cleared
-	// it.  But be warned!  Set the value to larger than 4 and it breaks Dark
-	// Cloud and other games. -_-
-
-	// How it works: Normally the INTC raises exceptions immediately at the end of the
-	// current branch test.  But in the case of Grandia 2, the game's code is spinning
-	// on the INTC status, and the exception handler (for some reason?) clears the INTC
-	// before returning *and* returns to a location other than EPC.  So the game never
-	// gets to the point where it sees the INTC Irq set true.
-
-	// (I haven't investigated why Dark Cloud freezes on larger values)
-	// (all testing done using the recompiler -- dunno how the ints respond yet)
-
-	//cpuRegs.eCycle[30] = 2;
-
-	// Should no longer be required (Refraction)
 }
 
 static __fi void GSVSync(void)
@@ -423,7 +381,7 @@ static __fi void VSyncEnd(u32 sCycle)
 	if (gates) rcntEndGate(true, sCycle); // Counters End Gate Code
 }
 
-__fi void rcntUpdate_hScanline()
+__fi void rcntUpdate_hScanline(void)
 {
 	if( !cpuTestCycle( hsyncCounter.sCycle, hsyncCounter.CycleT ) ) return;
 
@@ -529,7 +487,7 @@ static __fi void _cpuTestOverflow( int i )
 // forceinline note: this method is called from two locations, but one
 // of them is the interpreter, which doesn't count. ;)  So might as
 // well forceinline it!
-__fi void rcntUpdate()
+__fi void rcntUpdate(void)
 {
 	rcntUpdate_vSync();
 
@@ -850,7 +808,7 @@ template u16 rcntRead32<0x01>( u32 mem );
 template bool rcntWrite32<0x00>( u32 mem, mem32_t& value );
 template bool rcntWrite32<0x01>( u32 mem, mem32_t& value );
 
-void SaveStateBase::rcntFreeze()
+void SaveStateBase::rcntFreeze(void)
 {
 	Freeze( counters );
 	Freeze( hsyncCounter );
