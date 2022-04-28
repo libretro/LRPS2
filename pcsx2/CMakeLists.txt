@@ -265,7 +265,6 @@ set(pcsx2DebugToolsSources
 	DebugTools/DebugInterface.cpp
 	DebugTools/ExpressionParser.cpp
 	DebugTools/MIPSAnalyst.cpp
-	DebugTools/MipsAssembler.cpp
 	DebugTools/MipsAssemblerTables.cpp
 	DebugTools/Breakpoints.cpp
 	DebugTools/SymbolMap.cpp
@@ -280,7 +279,6 @@ set(pcsx2DebugToolsHeaders
 	DebugTools/DebugInterface.h
 	DebugTools/ExpressionParser.h
 	DebugTools/MIPSAnalyst.h
-	DebugTools/MipsAssembler.h
 	DebugTools/MipsAssemblerTables.h
 	DebugTools/Breakpoints.h
 	DebugTools/SymbolMap.h
