@@ -267,7 +267,6 @@ set(pcsx2DebugToolsSources
 	DebugTools/MIPSAnalyst.cpp
 	DebugTools/Breakpoints.cpp
 	DebugTools/SymbolMap.cpp
-	DebugTools/DisR3000A.cpp
 	DebugTools/DisR5900asm.cpp
 	DebugTools/DisVU0Micro.cpp
 	DebugTools/DisVU1Micro.cpp
