@@ -24,112 +24,78 @@ _sif sif1;
 
 static bool sif1_dma_stall = false;
 
-static __fi void Sif1Init()
+static __fi void Sif1Init(void)
 {
-	SIF_LOG("SIF1 DMA start...");
-	sif1.ee.cycles = 0;
+	sif1.ee.cycles  = 0;
 	sif1.iop.cycles = 0;
 }
 
 // Write from the EE to Fifo.
-static __fi bool WriteEEtoFifo()
+static __fi bool WriteEEtoFifo(void)
 {
 	// There's some data ready to transfer into the fifo..
-
-	SIF_LOG("Sif 1: Write EE to Fifo");
 	const int writeSize = std::min((s32)sif1ch.qwc, sif1.fifo.sif_free() >> 2);
 
-	tDMA_TAG *ptag;
-
-	ptag = sif1ch.getAddr(sif1ch.madr, DMAC_SIF1, false);
-	if (ptag == NULL)
-	{
-#ifndef NDEBUG
-		log_cb(RETRO_LOG_DEBUG, "Write EE to Fifo: ptag == NULL\n");
-#endif
+	tDMA_TAG *ptag = sif1ch.getAddr(sif1ch.madr, DMAC_SIF1, false);
+	if (!ptag)
 		return false;
-	}
 
 	sif1.fifo.write((u32*)ptag, writeSize << 2);
 
 	sif1ch.madr += writeSize << 4;
 	hwDmacSrcTadrInc(sif1ch);
-	sif1.ee.cycles += writeSize;		// fixme : BIAS is factored in above
+	sif1.ee.cycles += writeSize; // fixme : BIAS is factored in above
 	sif1ch.qwc -= writeSize;
 
 	return true;
 }
 
 // Read from the fifo and write to IOP
-static __fi bool WriteFifoToIOP()
+static __fi bool WriteFifoToIOP(void)
 {
 	// If we're reading something, continue to do so.
 
-	SIF_LOG("Sif1: Write Fifo to IOP");
 	const int readSize = std::min(sif1.iop.counter, sif1.fifo.size);
-
-	SIF_LOG("Sif 1 IOP doing transfer %04X to %08X", readSize, HW_DMA10_MADR);
 
 	sif1.fifo.read((u32*)iopPhysMem(hw_dma10.madr), readSize);
 	psxCpu->Clear(hw_dma10.madr, readSize);
 	hw_dma10.madr += readSize << 2;
-	sif1.iop.cycles += readSize >> 2;		// fixme: should be >> 4
+	sif1.iop.cycles += readSize >> 2; // FIXME: should be >> 4
 	sif1.iop.counter -= readSize;
 
 	return true;
 }
 
 // Get a tag and process it.
-static __fi bool ProcessEETag()
+static __fi bool ProcessEETag(void)
 {
 	// Chain mode
-	tDMA_TAG *ptag;
-	SIF_LOG("Sif1: ProcessEETag");
-
 	// Process DMA tag at sif1ch.tadr
-	ptag = sif1ch.DMAtransfer(sif1ch.tadr, DMAC_SIF1);
+	tDMA_TAG *ptag = sif1ch.DMAtransfer(sif1ch.tadr, DMAC_SIF1);
 	if (ptag == NULL)
-	{
-		log_cb(RETRO_LOG_INFO, "Sif1 ProcessEETag: ptag = NULL");
 		return false;
-	}
 
 	if (sif1ch.chcr.TTE)
-	{
-		log_cb(RETRO_LOG_INFO, "SIF1 TTE");
 		sif1.fifo.write((u32*)ptag + 2, 2);
-	}
 
-	SIF_LOG(wxString(ptag->tag_to_str()).To8BitData());
 	sif1ch.madr = ptag[1]._u32;
 
 	sif1.ee.end = hwDmacSrcChain(sif1ch, ptag->ID);
 
 	if (sif1ch.chcr.TIE && ptag->IRQ)
-	{
-		//log_cb(RETRO_LOG_DEBUG, "SIF1 TIE\n");
 		sif1.ee.end = true;
-	}
 
 	return true;
 }
 
 // Write fifo to data, and put it in IOP.
-static __fi bool SIFIOPReadTag()
+static __fi bool SIFIOPReadTag(void)
 {
 	// Read a tag.
 	sif1.fifo.read((u32*)&sif1.iop.data, 4);
-	//sif1words = (sif1words + 3) & 0xfffffffc; // Round up to nearest 4.
-	SIF_LOG("SIF 1 IOP: dest chain tag madr:%08X wc:%04X id:%X irq:%d",
-		sif1data & 0xffffff, sif1words, sif1tag.ID, sif1tag.IRQ);
-
 	// Only use the first 24 bits.
 	hw_dma10.madr = sif1data & 0xffffff;
 
-	
-#ifndef NDEBUG
-	if (sif1words > 0xFFFFC) log_cb(RETRO_LOG_DEBUG, "SIF1 Overrun %x\n", sif1words);
-#endif
 	//Maximum transfer amount 1mb-16 also masking out top part which is a "Mode" cache stuff, we don't care :)
 	sif1.iop.counter = sif1words & 0xFFFFC;
 
@@ -139,45 +105,34 @@ static __fi bool SIFIOPReadTag()
 }
 
 // Stop processing EE, and signal an interrupt.
-static __fi void EndEE()
+static __fi void EndEE(void)
 {
-	sif1.ee.end = false;
+	sif1.ee.end  = false;
 	sif1.ee.busy = false;
-	SIF_LOG("Sif 1: End EE");
 
 	// Voodoocycles : Okami wants around 100 cycles when booting up
 	// Other games reach like 50k cycles here, but the EE will long have given up by then and just retry.
 	// (Cause of double interrupts on the EE)
 	if (sif1.ee.cycles == 0)
-	{
-		SIF_LOG("SIF1 EE: cycles = 0");
 		sif1.ee.cycles = 1;
-	}
-
 
 	CPU_INT(DMAC_SIF1, /*std::min((int)(*/sif1.ee.cycles*BIAS/*), 384)*/);
 }
 
 // Stop processing IOP, and signal an interrupt.
-static __fi void EndIOP()
+static __fi void EndIOP(void)
 {
-	sif1data = 0;
-	sif1.iop.end = false;
+	sif1data      = 0;
+	sif1.iop.end  = false;
 	sif1.iop.busy = false;
-	SIF_LOG("Sif 1: End IOP");
 
 	//Fixme ( voodoocycles ):
-	//The *24 are needed for ecco the dolphin (CDVD hangs) and silver surfer (Pad not detected)
+	//The *24 are needed for Ecco The Dolphin (CDVD hangs) and silver surfer (Pad not detected)
 	//Greater than *35 break rebooting when trying to play Tekken5 arcade history
 	//Total cycles over 1024 makes SIF too slow to keep up the sound stream in so3...
 	if (sif1.iop.cycles == 0)
-	{
-#ifndef NDEBUG
-		log_cb(RETRO_LOG_DEBUG, "SIF1 IOP: cycles = 0\n");
-#endif
 		sif1.iop.cycles = 1;
-	}
-	// iop is 1/8th the clock rate of the EE and psxcycles is in words (not quadwords)
+	// IOP is 1/8th the clock rate of the EE and psxcycles is in words (not quadwords)
 	PSX_INT(IopEvt_SIF1, /*std::min((*/sif1.iop.cycles/* * 26*//*), 1024)*/);
 }
 
@@ -186,7 +141,6 @@ static __fi void HandleEETransfer()
 {
 	if(!sif1ch.chcr.STR)
 	{
-		//log_cb(RETRO_LOG_DEBUG, "Replacement for irq prevention hack EE SIF1\n");
 		sif1.ee.end = false;
 		sif1.ee.busy = false;
 		return;
@@ -209,9 +163,6 @@ static __fi void HandleEETransfer()
 		{
 			if ((sif1ch.chcr.MOD == NORMAL_MODE) || ((sif1ch.chcr.TAG >> 28) & 0x7) == TAG_REFS)
 			{
-#ifndef NDEBUG
-				log_cb(RETRO_LOG_DEBUG, "SIF1 Stall Control\n");
-#endif
 				const int writeSize = std::min((s32)sif1ch.qwc, sif1.fifo.sif_free() >> 2);
 				if ((sif1ch.madr + (writeSize * 16)) > dmacRegs.stadr.ADDR)
 				{
@@ -220,24 +171,19 @@ static __fi void HandleEETransfer()
 					return;
 				}
 			}
-				//log_cb(RETRO_LOG_DEBUG, "SIF1 stall control Not Implemented\n"); // STD == fromSIF1
 		}
 		if (sif1.fifo.sif_free() > 0)
-		{
 			WriteEEtoFifo();
-		}
 	}
 }
 
 // Handle the IOP transfer.
-static __fi void HandleIOPTransfer()
+static __fi void HandleIOPTransfer(void)
 {
 	if (sif1.iop.counter > 0)
 	{
 		if (sif1.fifo.size > 0)
-		{
 			WriteFifoToIOP();
-		}
 	}
 
 	if (sif1.iop.counter <= 0)
@@ -249,16 +195,14 @@ static __fi void HandleIOPTransfer()
 	}
 }
 
-static __fi void Sif1End()
+static __fi void Sif1End(void)
 {
 	psHu32(SBUS_F240) &= ~0x40;
 	psHu32(SBUS_F240) &= ~0x4000;
-
-	DMA_LOG("SIF1 DMA End");
 }
 
 // Transfer EE to IOP, putting data in the fifo as an intermediate step.
-__fi void SIF1Dma()
+__fi void SIF1Dma(void)
 {
 	int BusyCheck = 0;
 
@@ -300,13 +244,13 @@ __fi void SIF1Dma()
 	Sif1End();
 }
 
-__fi void  sif1Interrupt()
+__fi void  sif1Interrupt(void)
 {
 	HW_DMA10_CHCR &= ~0x01000000; //reset TR flag
 	psxDmaInterrupt2(3);
 }
 
-__fi void  EEsif1Interrupt()
+__fi void  EEsif1Interrupt(void)
 {
 	hwDmacIrq(DMAC_SIF1);
 	sif1ch.chcr.STR = false;
@@ -314,18 +258,10 @@ __fi void  EEsif1Interrupt()
 
 // Do almost exactly the same thing as psxDma10 in IopDma.cpp.
 // Main difference is this checks for iop, where psxDma10 checks for ee.
-__fi void dmaSIF1()
+__fi void dmaSIF1(void)
 {
-#ifndef NDEBUG
-	if (sif1.fifo.readPos != sif1.fifo.writePos)
-	{
-		SIF_LOG("warning, sif1.fifoReadPos != sif1.fifoWritePos");
-	}
-#endif
-
 	psHu32(SBUS_F240) |= 0x4000;
 	sif1.ee.busy = true;
-
 
 	// Okay, this here is needed currently (r3644). 
 	// FFX battles in the thunder plains map die otherwise, Phantasy Star 4 as well
@@ -342,9 +278,7 @@ __fi void dmaSIF1()
 	if (sif1ch.chcr.MOD == CHAIN_MODE && sif1ch.qwc > 0)
 	{
 		if ((sif1ch.chcr.tag().ID == TAG_REFE) || (sif1ch.chcr.tag().ID == TAG_END) || (sif1ch.chcr.tag().IRQ && vif1ch.chcr.TIE))
-		{
 			sif1.ee.end = true;
-		}
 	}	
 
 	SIF1Dma();

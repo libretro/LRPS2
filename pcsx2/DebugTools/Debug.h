@@ -30,8 +30,6 @@ namespace R5900
 
 #define macTrace(trace)
 
-#define SIF_LOG			macTrace(SIF)
-
 #define BIOS_LOG		macTrace(EE.Bios)
 #define CPU_LOG			macTrace(EE.R5900)
 #define COP0_LOG		macTrace(EE.COP0)

@@ -44,22 +44,13 @@ s32 PrepareEERead()
 	sif0.iop.counter = sif0words;
 
 	if (sif0tag.IRQ  || (sif0tag.ID & 4)) sif0.iop.end = true;
-	SIF_LOG("SIF0 IOP to EE Tag: madr=%lx, tadr=%lx, counter=%lx (%08X_%08X)"
-		"\n\tread tag: %x %x %x %x", hw_dma9.madr, hw_dma9.tadr, sif0.iop.counter, sif0words, sif0data,
-		tag[0], tag[1], tag[2], tag[3]);
 
 	sif0ch.unsafeTransfer(((tDMA_TAG*)(tag)));
 	sif0ch.madr = tag[1];
 	tDMA_TAG ptag(tag[0]);
 
-	SIF_LOG("SIF0 EE dest chain tag madr:%08X qwc:%04X id:%X irq:%d(%08X_%08X)",
-		sif0ch.madr, sif0ch.qwc, ptag.ID, ptag.IRQ, tag[1], tag[0]);
-
 	if (sif0ch.chcr.TIE && ptag.IRQ)
-	{
-		//log_cb(RETRO_LOG_DEBUG, "SIF0 TIE\n");
 		sif0.ee.end = true;
-	}
 
 	switch (ptag.ID)
 	{
@@ -83,10 +74,8 @@ s32 PrepareEERead()
 
 void FinalizeEERead()
 {
-	SIF_LOG("Sif0: End EE");
 	sif0.ee.end = false;
 	sif0.ee.busy = false;
-	SIF_LOG("CPU INT FIRED SIF0");
 	CPU_INT(DMAC_SIF0, 16);
 }
 
@@ -103,8 +92,6 @@ s32 DoSifRead(u32 iopAvailable)
 	u32 transferSizeBytes = std::min(std::min(iopAvailable,eeAvailable),fifoSize);
 	u32 transferSizeWords = transferSizeBytes >> 2;
 	u32 transferSizeQWords = transferSizeBytes >> 4;
-
-	SIF_LOG("Write IOP to EE: +++++++++++ %lX of %lX", transferSizeWords, sif0.iop.counter);
 
 	tDMA_TAG *ptag = sif0ch.getAddr(sif0ch.madr, DMAC_SIF0, true);
 	if (ptag == NULL)
