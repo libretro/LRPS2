@@ -23,13 +23,13 @@ struct IPUStatus {
 	bool DataRequested;
 };
 
-extern void ipu0Interrupt();
-extern void ipu1Interrupt();
+extern void ipu0Interrupt(void);
+extern void ipu1Interrupt(void);
 
-extern void dmaIPU0();
-extern void dmaIPU1();
-extern void IPU0dma();
-extern void IPU1dma();
+extern void dmaIPU0(void);
+extern void dmaIPU1(void);
+extern void IPU0dma(void);
+extern void IPU1dma(void);
 
-extern void ipuDmaReset();
+extern void ipuDmaReset(void);
 extern IPUStatus IPU1Status;

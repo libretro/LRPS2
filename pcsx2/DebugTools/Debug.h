@@ -37,8 +37,6 @@ namespace R5900
 #define HW_LOG			macTrace(EE.KnownHw)
 #define UnknownHW_LOG	macTrace(EE.UnknownHw)
 #define DMA_LOG			macTrace(EE.DMAhw)
-#define IPU_LOG			macTrace(EE.IPU)
-#define VIF_LOG			macTrace(EE.VIF)
 #define SPR_LOG			macTrace(EE.SPR)
 #define GIF_LOG			macTrace(EE.GIF)
 #define EECNT_LOG		macTrace(EE.Counters)

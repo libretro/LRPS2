@@ -21,7 +21,7 @@
 
 IPUStatus IPU1Status;
 
-void ipuDmaReset()
+void ipuDmaReset(void)
 {
 	IPU1Status.InProgress	= false;
 	IPU1Status.DMAFinished	= true;
@@ -33,20 +33,14 @@ void SaveStateBase::ipuDmaFreeze()
 	Freeze(IPU1Status);
 }
 
-static __fi int IPU1chain() {
-
+static __fi int IPU1chain(void)
+{
 	int totalqwc = 0;
-
-	int qwc = ipu1ch.qwc;
-	u32 *pMem;
-
-	pMem = (u32*)dmaGetAddr(ipu1ch.madr, false);
+	int qwc      = ipu1ch.qwc;
+	u32 *pMem    = (u32*)dmaGetAddr(ipu1ch.madr, false);
 
 	if (pMem == NULL)
-	{
-		//Console.Error("ipu1dma NULL!");
 		return totalqwc;
-	}
 
 	//Write our data to the fifo
 	qwc = ipu_fifo.in.write(pMem, qwc);
@@ -84,20 +78,13 @@ void IPU1dma()
 		return;
 	}
 
-	//IPU_LOG("IPU1 DMA Called QWC %x Finished %d In Progress %d tadr %x", ipu1ch.qwc, IPU1Status.DMAFinished, IPU1Status.InProgress, ipu1ch.tadr);
 	if (!IPU1Status.InProgress)
 	{
-#if 0
-		if (IPU1Status.DMAFinished)
-			DevCon.Warning("IPU1 DMA Somehow reading tag when finished??");
-#endif
 
 		tDMA_TAG* ptag = dmaGetAddr(ipu1ch.tadr, false);  //Set memory pointer to TADR
 
 		if (!ipu1ch.transfer("IPU1", ptag))
-		{
 			return;
-		}
 		ipu1ch.madr = ptag[1]._u32;
 
 		ipu1cycles += 1; // Add 1 cycles from the QW read for the tag
@@ -105,11 +92,6 @@ void IPU1dma()
 		//if (ipu1ch.chcr.TTE) DevCon.Warning("TTE?");
 
 		IPU1Status.DMAFinished = hwDmacSrcChain(ipu1ch, ptag->ID);
-
-#if 0
-		IPU_LOG("dmaIPU1 dmaChain %8.8x_%8.8x size=%d, addr=%lx, fifosize=%x",
-			ptag[1]._u32, ptag[0]._u32, ipu1ch.qwc, ipu1ch.madr, 8 - g_BP.IFC);
-#endif
 
 		if (ipu1ch.chcr.TIE && ptag->IRQ) //Tag Interrupt is set, so schedule the end/interrupt
 			IPU1Status.DMAFinished = true;
@@ -132,9 +114,7 @@ void IPU1dma()
 		IPU1Status.DataRequested = false;
 
 		if (!(IPU1Status.DMAFinished && !IPU1Status.InProgress))
-		{
 			cpuRegs.eCycle[4] = 0x9999;//IPU_INT_TO(2048);
-		}
 		else
 		{
 			IPU_INT_TO(totalqwc*BIAS);
@@ -142,13 +122,9 @@ void IPU1dma()
 	}
 
 	IPUProcessInterrupt();
-
-#if 0
-	IPU_LOG("Completed Call IPU1 DMA QWC Remaining %x Finished %d In Progress %d tadr %x", ipu1ch.qwc, IPU1Status.DMAFinished, IPU1Status.InProgress, ipu1ch.tadr);
-#endif
 }
 
-void IPU0dma()
+void IPU0dma(void)
 {
 	if(!ipuRegs.ctrl.OFC) 
 	{
@@ -160,19 +136,7 @@ void IPU0dma()
 	tDMA_TAG* pMem;
 
 	if ((!(ipu0ch.chcr.STR) || (cpuRegs.interrupt & (1 << DMAC_FROM_IPU))) || (ipu0ch.qwc == 0))
-	{
-		//DevCon.Warning("How??");
 		return;
-	}
-
-#if 0
-	pxAssert(!(ipu0ch.chcr.TTE));
-
-	IPU_LOG("dmaIPU0 chcr = %lx, madr = %lx, qwc  = %lx",
-	        ipu0ch.chcr._u32, ipu0ch.madr, ipu0ch.qwc);
-
-	pxAssert(ipu0ch.chcr.MOD == NORMAL_MODE);
-#endif
 
 	pMem = dmaGetAddr(ipu0ch.madr, true);
 
@@ -183,10 +147,7 @@ void IPU0dma()
 	ipu0ch.qwc -= readsize;
 	
 	if (dmacRegs.ctrl.STS == STS_fromIPU)   // STS == fromIPU
-	{
-		//DevCon.Warning("fromIPU Stall Control");
 		dmacRegs.stadr.ADDR = ipu0ch.madr;
-	}
 
 	IPU_INT_FROM( readsize * BIAS );
 }
@@ -216,17 +177,13 @@ __fi void dmaIPU0() // fromIPU
 		ipu0ch.qwc = 0;
 		ipu0ch.chcr.STR = false;
 		hwDmacIrq(DMAC_FROM_IPU);
-		//DMA_LOG("IPU0 DMA End");
 	}
 }
 
-__fi void dmaIPU1() // toIPU
+__fi void dmaIPU1(void) // toIPU
 {
-	//IPU_LOG("IPU1DMAStart QWC %x, MADR %x, CHCR %x, TADR %x", ipu1ch.qwc, ipu1ch.madr, ipu1ch.chcr._u32, ipu1ch.tadr);
-
 	if (ipu1ch.chcr.MOD == CHAIN_MODE)  //Chain Mode
 	{
-		//IPU_LOG("Setting up IPU1 Chain mode");
 		if(ipu1ch.qwc == 0)
 		{
 			IPU1Status.InProgress = false;
@@ -234,16 +191,11 @@ __fi void dmaIPU1() // toIPU
 		}
 		else // Attempting to continue a previous chain
 		{
-			//IPU_LOG("Resuming DMA TAG %x", (ipu1ch.chcr.TAG >> 12));
 			IPU1Status.InProgress = true;
 			if ((ipu1ch.chcr.tag().ID == TAG_REFE) || (ipu1ch.chcr.tag().ID == TAG_END) || (ipu1ch.chcr.tag().IRQ && ipu1ch.chcr.TIE))
-			{
 				IPU1Status.DMAFinished = true;
-			}
 			else
-			{
 				IPU1Status.DMAFinished = false;
-			}
 		}
 
 		if(IPU1Status.DataRequested)
@@ -253,7 +205,6 @@ __fi void dmaIPU1() // toIPU
 	}
 	else // Normal Mode
 	{
-			//IPU_LOG("Setting up IPU1 Normal mode");
 			IPU1Status.InProgress = true;
 			IPU1Status.DMAFinished = true;
 
@@ -264,10 +215,8 @@ __fi void dmaIPU1() // toIPU
 	}
 }
 
-void ipu0Interrupt()
+void ipu0Interrupt(void)
 {
-	//IPU_LOG("ipu0Interrupt: %x", cpuRegs.cycle);
-
 	if(ipu0ch.qwc > 0)
 	{
 		IPU0dma();
@@ -276,20 +225,16 @@ void ipu0Interrupt()
 
 	ipu0ch.chcr.STR = false;
 	hwDmacIrq(DMAC_FROM_IPU);
-	//DMA_LOG("IPU0 DMA End");
 }
 
-__fi void ipu1Interrupt()
+__fi void ipu1Interrupt(void)
 {
-	//IPU_LOG("ipu1Interrupt %x:", cpuRegs.cycle);
-
 	if(!IPU1Status.DMAFinished || IPU1Status.InProgress)  //Sanity Check
 	{
 		IPU1dma();
 		return;
 	}
 
-	//DMA_LOG("IPU1 DMA End");
 	ipu1ch.chcr.STR = false;
 	hwDmacIrq(DMAC_TO_IPU);
 }
