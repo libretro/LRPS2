@@ -34,7 +34,6 @@ namespace R5900
 #define CPU_LOG			macTrace(EE.R5900)
 #define COP0_LOG		macTrace(EE.COP0)
 #define MEM_LOG			macTrace(EE.Memory)
-#define CACHE_LOG		macTrace(EE.Cache)
 #define HW_LOG			macTrace(EE.KnownHw)
 #define UnknownHW_LOG	macTrace(EE.UnknownHw)
 #define DMA_LOG			macTrace(EE.DMAhw)
