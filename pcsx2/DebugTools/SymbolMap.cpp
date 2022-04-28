@@ -46,7 +46,7 @@ void SymbolMap::Clear() {
 
 bool SymbolMap::LoadNocashSym(const char *filename) {
 	std::lock_guard<std::recursive_mutex> guard(m_lock);
-	FILE *f = wxFopen(filename, "r");
+	FILE *f = fopen(filename, "r");
 	if (!f)
 		return false;
 
