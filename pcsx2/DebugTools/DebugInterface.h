@@ -84,33 +84,4 @@ public:
 	virtual u32 getCycles();
 };
 
-
-class R3000DebugInterface: public DebugInterface
-{
-public:
-	virtual u32 read8(u32 address);
-	virtual u32 read16(u32 address);
-	virtual u32 read32(u32 address);
-	virtual u64 read64(u32 address);
-	virtual u128 read128(u32 address);
-	virtual void write8(u32 address, u8 value);
-	virtual void write32(u32 address, u32 value);
-
-	// register stuff
-	virtual int getRegisterCategoryCount();
-	virtual const char* getRegisterCategoryName(int cat);
-	virtual RegisterType getRegisterType(int cat);
-	virtual const char* getRegisterName(int cat, int num);
-	virtual u128 getRegister(int cat, int num);
-	virtual u128 getHI();
-	virtual u128 getLO();
-	virtual u32 getPC();
-	virtual void setPc(u32 newPc);
-	virtual void setRegister(int cat, int num, u128 newValue);
-
-	virtual bool isValidAddress(u32 address);
-	virtual u32 getCycles();
-};
-
 extern R5900DebugInterface r5900Debug;
-extern R3000DebugInterface r3000Debug;
