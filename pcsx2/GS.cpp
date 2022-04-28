@@ -39,9 +39,8 @@ void gsSetVideoMode(GS_VideoMode mode )
 	UpdateVSyncRate();
 }
 
-
 // Make sure framelimiter options are in sync with the plugin's capabilities.
-void gsReset()
+void gsReset(void)
 {
 	GetMTGS().ResetGS();
 
@@ -51,15 +50,10 @@ void gsReset()
 	CSRreg.Reset();
 	GSIMR.reset();
 }
-void gsUpdateFrequency(Pcsx2Config& config)
-{
-}
 
 static __fi void gsCSRwrite( const tGS_CSR& csr )
 {
 	if (csr.RESET) {
-		//log_cb(RETRO_LOG_INFO, "csr.RESET\n" );
-		//gifUnit.Reset(true); // Don't think gif should be reset...
 		gifUnit.gsSIGNAL.queued = false;
 		GetMTGS().SendSimplePacket(GS_RINGTYPE_RESET, 0, 0, 0);
 
@@ -67,20 +61,12 @@ static __fi void gsCSRwrite( const tGS_CSR& csr )
 		GSIMR.reset();
 	}
 
-#if 0
-	if(csr.FLUSH)
-	{
-		// Our emulated GS has no FIFO, but if it did, it would flush it here...
-		//log_cb(RETRO_LOG_INFO, "GS_CSR FLUSH GS fifo: %x (CSRr=%x)\n", value, GSCSRr);
-	}
-#endif
-	
 	if(csr.SIGNAL)
 	{
 		// SIGNAL : What's not known here is whether or not the SIGID register should be updated
 		//  here or when the IMR is cleared (below).
 		if (gifUnit.gsSIGNAL.queued) {
-			//log_cb(RETRO_LOG_INFO, "Firing pending signal\n");
+			/* Firing pending signal */
 			GSSIGLBLID.SIGID = (GSSIGLBLID.SIGID & ~gifUnit.gsSIGNAL.data[1])
 				        | (gifUnit.gsSIGNAL.data[0]&gifUnit.gsSIGNAL.data[1]);
 
@@ -134,7 +120,6 @@ __fi void gsWrite8(u32 mem, u8 value)
 			*PS2GS_BASE(mem) = value;
 		break;
 	}
-	GIF_LOG("GS write 8 at %8.8lx with data %8.8lx", mem, value);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -142,24 +127,22 @@ __fi void gsWrite8(u32 mem, u8 value)
 
 __fi void gsWrite16(u32 mem, u16 value)
 {
-	GIF_LOG("GS write 16 at %8.8lx with data %8.8lx", mem, value);
-
 	switch (mem)
 	{
 		// See note above about CSR 8 bit writes, and handling them as zero'd bits
 		// for all but the written parts.
-		
+
 		case GS_CSR:
 			gsCSRwrite( tGS_CSR((u32)value) );
-		return; // do not write to MTGS memory
+			return; // do not write to MTGS memory
 
 		case GS_CSR+2:
 			gsCSRwrite( tGS_CSR(((u32)value) << 16) );
-		return; // do not write to MTGS memory
+			return; // do not write to MTGS memory
 
 		case GS_IMR:
 			IMRwrite(value);
-		return; // do not write to MTGS memory
+			return; // do not write to MTGS memory
 	}
 
 	*(u16*)PS2GS_BASE(mem) = value;
@@ -170,18 +153,15 @@ __fi void gsWrite16(u32 mem, u16 value)
 
 __fi void gsWrite32(u32 mem, u32 value)
 {
-	pxAssume( (mem & 3) == 0 );
-	GIF_LOG("GS write 32 at %8.8lx with data %8.8lx", mem, value);
-
 	switch (mem)
 	{
 		case GS_CSR:
 			gsCSRwrite(tGS_CSR(value));
-		return;
+			return;
 
 		case GS_IMR:
 			IMRwrite(value);
-		return;
+			return;
 	}
 
 	*(u32*)PS2GS_BASE(mem) = value;
@@ -193,7 +173,6 @@ __fi void gsWrite32(u32 mem, u32 value)
 void __fastcall gsWrite64_generic( u32 mem, const mem64_t* value )
 {
 	const u32* const srcval32 = (u32*)value;
-	GIF_LOG("GS Write64 at %8.8lx with data %8.8x_%8.8x", mem, srcval32[1], srcval32[0]);
 
 	*(u64*)PS2GS_BASE(mem) = *value;
 }
@@ -205,8 +184,6 @@ void __fastcall gsWrite64_page_00( u32 mem, const mem64_t* value )
 
 void __fastcall gsWrite64_page_01( u32 mem, const mem64_t* value )
 {
-	GIF_LOG("GS Write64 at %8.8lx with data %8.8x_%8.8x", mem, (u32*)value[1], (u32*)value[0]);
-
 	switch( mem )
 	{
 		case GS_BUSDIR:
@@ -270,34 +247,26 @@ void __fastcall gsWrite128_generic( u32 mem, const mem128_t* value )
 {
 	const u32* const srcval32 = (u32*)value;
 
-	GIF_LOG("GS Write128 at %8.8lx with data %8.8x_%8.8x_%8.8x_%8.8x", mem,
-		srcval32[3], srcval32[2], srcval32[1], srcval32[0]);
-
 	CopyQWC(PS2GS_BASE(mem), value);
 }
 
 __fi u8 gsRead8(u32 mem)
 {
-	GIF_LOG("GS read 8 from %8.8lx  value: %8.8lx", mem, *(u8*)PS2GS_BASE(mem));
 	return *(u8*)PS2GS_BASE(mem);
 }
 
 __fi u16 gsRead16(u32 mem)
 {
-	GIF_LOG("GS read 16 from %8.8lx  value: %8.8lx", mem, *(u16*)PS2GS_BASE(mem));
 	return *(u16*)PS2GS_BASE(mem);
 }
 
 __fi u32 gsRead32(u32 mem)
 {
-	GIF_LOG("GS read 32 from %8.8lx  value: %8.8lx", mem, *(u32*)PS2GS_BASE(mem));
 	return *(u32*)PS2GS_BASE(mem);
 }
 
 __fi u64 gsRead64(u32 mem)
 {
-	// fixme - PS2GS_BASE(mem+4) = (g_RealGSMem+(mem + 4 & 0x13ff))
-	GIF_LOG("GS read 64 from %8.8lx  value: %8.8lx_%8.8lx", mem, *(u32*)PS2GS_BASE(mem+4), *(u32*)PS2GS_BASE(mem) );
 	return *(u64*)PS2GS_BASE(mem);
 }
 
@@ -306,7 +275,8 @@ __fi u128 gsNonMirroredRead(u32 mem)
 	return *(u128*)PS2GS_BASE(mem);
 }
 
-void gsIrq() {
+void gsIrq(void)
+{
 	hwIntcIrq(INTC_GS);
 }
 
@@ -330,11 +300,11 @@ void gsIrq() {
 //   functions are performed by the EE, which itself uses thread sleep logic to avoid spin
 //   waiting as much as possible (maximizes CPU resource availability for the GS).
 
-__fi void gsFrameSkip()
+__fi void gsFrameSkip(void)
 {
 	static int consec_skipped = 0;
-	static int consec_drawn = 0;
-	static bool isSkipping = false;
+	static int consec_drawn   = 0;
+	static bool isSkipping    = false;
 
 	if( !EmuConfig.GS.FrameSkipEnable )
 	{
@@ -373,25 +343,23 @@ __fi void gsFrameSkip()
 //These are done at VSync Start.  Drawing is done when VSync is off, then output the screen when Vsync is on
 //The GS needs to be told at the start of a vsync else it loses half of its picture (could be responsible for some halfscreen issues)
 //We got away with it before i think due to our awful GS timing, but now we have it right (ish)
-void gsPostVsyncStart()
+void gsPostVsyncStart(void)
 {
-	//gifUnit.FlushToMTGS();  // Needed for some (broken?) homebrew game loaders
-	
 	GetMTGS().PostVsyncStart();
 }
 
-void _gs_ResetFrameskip()
+void _gs_ResetFrameskip(void)
 {
 	GSsetFrameSkip( 0 );
 }
 
 // Disables the GS Frameskip at runtime without any racy mess...
-void gsResetFrameSkip()
+void gsResetFrameSkip(void)
 {
 	GetMTGS().SendSimplePacket(GS_RINGTYPE_FRAMESKIP, 0, 0, 0);
 }
 
-void SaveStateBase::gsFreeze()
+void SaveStateBase::gsFreeze(void)
 {
 	FreezeMem(PS2MEM_GS, 0x2000);
 	Freeze(gsVideoMode);

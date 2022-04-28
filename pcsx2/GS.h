@@ -19,7 +19,7 @@
 #include "System/SysThreads.h"
 #include "Gif.h"
 
-extern Fixed100 GetVerticalFrequency();
+extern Fixed100 GetVerticalFrequency(void);
 extern __aligned16 u8 g_RealGSMem[Ps2MemSize::GSregs];
 
 enum CSR_FifoState
@@ -200,42 +200,6 @@ union tGS_IMR
 };
 
 // --------------------------------------------------------------------------------------
-//  GSRegSMODE1
-// --------------------------------------------------------------------------------------
-// Previously, the union was used to get the CMOD bit of the SMODE1 register
-// Commenting it out as it's unused right now. (Might potentially be useful in the future)
-//union GSRegSMODE1
-//{
-//	struct
-//	{
-//		u32 RC : 3;
-//		u32 LC : 7;
-//		u32 T1248 : 2;
-//		u32 SLCK : 1;
-//		u32 CMOD : 2;
-//		u32 EX : 1;
-//		u32 PRST : 1;
-//		u32 SINT : 1;
-//		u32 XPCK : 1;
-//		u32 PCK2 : 2;
-//		u32 SPML : 4;
-//		u32 GCONT : 1;
-//		u32 PHS : 1;
-//		u32 PVS : 1;
-//		u32 PEHS : 1;
-//		u32 PEVS : 1;
-//		u32 CLKSEL : 2;
-//		u32 NVCK : 1;
-//		u32 SLCK2 : 1;
-//		u32 VCKSEL : 2;
-//		u32 VHP : 1;
-//		u32 _PAD1 : 27;
-//	};
-//
-//	u64 SMODE1;
-//};
-
-// --------------------------------------------------------------------------------------
 //  GSRegSIGBLID
 // --------------------------------------------------------------------------------------
 struct GSRegSIGBLID
@@ -405,18 +369,17 @@ extern SysMtgsThread& GetMTGS();
 /////////////////////////////////////////////////////////////////////////////
 // Generalized GS Functions and Stuff
 
-extern s32 gsOpen();
-extern void gsClose();
-extern void gsReset();
+extern s32 gsOpen(void);
+extern void gsClose(void);
+extern void gsReset(void);
 extern void gsOnModeChanged( Fixed100 framerate, u32 newTickrate );
 extern void gsSetVideoMode( GS_VideoMode mode );
-extern void gsResetFrameSkip();
-extern void gsPostVsyncStart();
-extern void gsFrameSkip();
-extern void gsUpdateFrequency( Pcsx2Config& config );
+extern void gsResetFrameSkip(void);
+extern void gsPostVsyncStart(void);
+extern void gsFrameSkip(void);
 
 // Some functions shared by both the GS and MTGS
-extern void _gs_ResetFrameskip();
+extern void _gs_ResetFrameskip(void);
 
 extern void gsWrite8(u32 mem, u8 value);
 extern void gsWrite16(u32 mem, u16 value);
@@ -471,7 +434,6 @@ struct MTGS_BufferedData
 
 	u128& operator[]( uint idx )
 	{
-		pxAssert( idx < RingBufferSize );
 		return m_Ring[idx];
 	}
 };

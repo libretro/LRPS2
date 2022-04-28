@@ -460,8 +460,6 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 			}
 		}
 	}
-
-	gsUpdateFrequency(fixup);
 }
 
 // FIXME: This function is not for general consumption. Its only consumer (and
