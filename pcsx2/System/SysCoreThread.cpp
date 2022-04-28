@@ -206,7 +206,6 @@ void SysCoreThread::Reset()
 	ResetQuick();
 	GetVmMemory().DecommitAll();
 	SysClearExecutionCache();
-	g_FrameCount = 0;
 }
 
 
