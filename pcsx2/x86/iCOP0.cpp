@@ -192,10 +192,8 @@ void recMFC0()
 
 		return;
 	}
-	else if(_Rd_ == 24){
-		COP0_LOG("MFC0 Breakpoint debug Registers code = %x\n", cpuRegs.code & 0x3FF);
-        return;
-	}
+	else if(_Rd_ == 24)
+		return;
 	_eeOnWriteReg(_Rt_, 1);
 	_deleteEEreg(_Rt_, 0);
 	xMOV(eax, ptr[&cpuRegs.CP0.r[ _Rd_ ]]);
@@ -246,7 +244,6 @@ void recMTC0()
 			break;
 
 			case 24:
-				COP0_LOG("MTC0 Breakpoint debug Registers code = %x\n", cpuRegs.code & 0x3FF);
 			break;
 
 			default:
@@ -294,7 +291,6 @@ void recMTC0()
 			break;
 
 			case 24:
-				COP0_LOG("MTC0 Breakpoint debug Registers code = %x\n", cpuRegs.code & 0x3FF);
 			break;
 
 			default:

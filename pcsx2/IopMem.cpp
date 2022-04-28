@@ -154,7 +154,6 @@ u8 __fastcall iopMemRead8(u32 mem)
 		{
 			if (t == 0x1000)
 				return DEV9read8(mem);
-			PSXMEM_LOG("err lb %8.8lx", mem);
 			return 0;
 		}
 	}
@@ -213,7 +212,6 @@ u16 __fastcall iopMemRead16(u32 mem)
 				return SPU2read(mem);
 			if (t == 0x1000)
 				return DEV9read16(mem);
-			PSXMEM_LOG("err lh %8.8lx", mem);
 			return 0;
 		}
 	}
@@ -321,10 +319,7 @@ void __fastcall iopMemWrite8(u32 mem, u8 value)
 				return;
 			}
 			if (t == 0x1000)
-			{
 				DEV9write8(mem, value); return;
-			}
-			PSXMEM_LOG("err sb %8.8lx = %x", mem, value);
 		}
 	}
 }
@@ -391,13 +386,10 @@ void __fastcall iopMemWrite16(u32 mem, u16 value)
 				}
 				psxSu16(mem) = value; return;
 			}
-			if (t == 0x1F90) {
+			if (t == 0x1F90)
 				SPU2write(mem, value); return;
-			}
-			if (t == 0x1000) {
+			if (t == 0x1000)
 				DEV9write16(mem, value); return;
-			}
-			PSXMEM_LOG("err sh %8.8lx = %x", mem, value);
 		}
 	}
 }
@@ -432,7 +424,6 @@ void __fastcall iopMemWrite32(u32 mem, u32 value)
 		{
 			if (t == 0x1d00)
 			{
-				MEM_LOG("iop Sif reg write %x value %x", mem, value);
 				switch (mem & 0x8f0)
 				{
 					case 0x00:		// EE write path (EE/IOP readable)

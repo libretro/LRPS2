@@ -21,12 +21,10 @@
 u32 s_iLastCOP0Cycle = 0;
 u32 s_iLastPERFCycle[2] = { 0, 0 };
 
-void __fastcall WriteCP0Status(u32 value) {
-
-	//DMA_LOG("COP0 Status write = 0x%08x", value);
-
+void __fastcall WriteCP0Status(u32 value)
+{
 	cpuRegs.CP0.n.Status.val = value;
-    cpuSetNextEventDelta(4);
+	cpuSetNextEventDelta(4);
 }
 
 
@@ -127,14 +125,8 @@ void MapTLB(int i)
 	u32 mask, addr;
 	u32 saddr, eaddr;
 
-	COP0_LOG("MAP TLB %d: 0x%08X-> [0x%08X 0x%08X] S=%d G=%d ASID=%d Mask=0x%03X EntryLo0 PFN=%x EntryLo0 Cache=%x EntryLo1 PFN=%x EntryLo1 Cache=%x VPN2=%x",
-		i, tlb[i].VPN2, tlb[i].PFN0, tlb[i].PFN1, tlb[i].S >> 31, tlb[i].G, tlb[i].ASID,
-		tlb[i].Mask, tlb[i].EntryLo0 >> 6, (tlb[i].EntryLo0 & 0x38) >> 3, tlb[i].EntryLo1 >> 6, (tlb[i].EntryLo1 & 0x38) >> 3, tlb[i].VPN2);
-
 	if (tlb[i].S)
-	{
 		vtlb_VMapBuffer(tlb[i].VPN2, eeMem->Scratch, Ps2MemSize::Scratch);
-	}
 
 	if (tlb[i].VPN2 == 0x70000000) return; //uh uhh right ...
 	if (tlb[i].EntryLo0 & 0x2) {
@@ -229,10 +221,6 @@ namespace OpcodeImpl {
 namespace COP0 {
 
 void TLBR() {
-	COP0_LOG("COP0_TLBR %d:%x,%x,%x,%x",
-			cpuRegs.CP0.n.Index,   cpuRegs.CP0.n.PageMask, cpuRegs.CP0.n.EntryHi,
-			cpuRegs.CP0.n.EntryLo0, cpuRegs.CP0.n.EntryLo1);
-
 	int i = cpuRegs.CP0.n.Index & 0x3f;
 
 	cpuRegs.CP0.n.PageMask = tlb[i].PageMask;
@@ -243,12 +231,6 @@ void TLBR() {
 
 void TLBWI() {
 	int j = cpuRegs.CP0.n.Index & 0x3f;
-
-	//if (j > 48) return;
-
-	COP0_LOG("COP0_TLBWI %d:%x,%x,%x,%x",
-			cpuRegs.CP0.n.Index,    cpuRegs.CP0.n.PageMask, cpuRegs.CP0.n.EntryHi,
-			cpuRegs.CP0.n.EntryLo0, cpuRegs.CP0.n.EntryLo1);
 
 	UnmapTLB(j);
 	tlb[j].PageMask = cpuRegs.CP0.n.PageMask;
@@ -342,7 +324,6 @@ void MFC0()
 		break;
 
 		case 24:
-			COP0_LOG("MFC0 Breakpoint debug Registers code = %x", cpuRegs.code & 0x3FF);
 		break;
 
 		case 9:
@@ -361,10 +342,6 @@ void MFC0()
 
 void MTC0()
 {
-#if 0
-	if(bExecBIOS == FALSE && _Rd_ == 25)
-		log_cb(RETRO_LOG_DEBUG, "MTC0 _Rd_ %x = %x\n", _Rd_, cpuRegs.CP0.r[_Rd_]);
-#endif
 	switch (_Rd_)
 	{
 		case 9:
@@ -377,15 +354,9 @@ void MTC0()
 		break;
 
 		case 24:
-			COP0_LOG("MTC0 Breakpoint debug Registers code = %x", cpuRegs.code & 0x3FF);
 		break;
 
 		case 25:
-#if 0
-		if(bExecBIOS == FALSE && _Rd_ == 25)
-			log_cb(RETRO_LOG_DEBUG, "MTC0 PCCR = %x PCR0 = %x PCR1 = %x IMM= %x\n", params
-					cpuRegs.PERF.n.pccr, cpuRegs.PERF.n.pcr0, cpuRegs.PERF.n.pcr1, _Imm_ & 0x3F);
-#endif
 			if (0 == (_Imm_ & 1)) // MTPS
 			{
 				if (0 != (_Imm_ & 0x3E)) // only effective when the register is 0

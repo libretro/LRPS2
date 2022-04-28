@@ -27,36 +27,3 @@ namespace R5900
 	extern const char * const COP2_REG_CTL[32];
 	extern const char * const COP2_VFnames[4];
 }
-
-#define macTrace(trace)
-
-#define BIOS_LOG		macTrace(EE.Bios)
-#define CPU_LOG			macTrace(EE.R5900)
-#define COP0_LOG		macTrace(EE.COP0)
-#define MEM_LOG			macTrace(EE.Memory)
-#define HW_LOG			macTrace(EE.KnownHw)
-#define UnknownHW_LOG	macTrace(EE.UnknownHw)
-#define DMA_LOG			macTrace(EE.DMAhw)
-#define SPR_LOG			macTrace(EE.SPR)
-#define GIF_LOG			macTrace(EE.GIF)
-#define EECNT_LOG		macTrace(EE.Counters)
-
-#define PSXBIOS_LOG		macTrace(IOP.Bios)
-#define PSXCPU_LOG		macTrace(IOP.R3000A)
-#define PSXMEM_LOG		macTrace(IOP.Memory)
-#define PSXHW_LOG		macTrace(IOP.KnownHw)
-#define PSXUnkHW_LOG	macTrace(IOP.UnknownHw)
-#define PSXCNT_LOG		macTrace(IOP.Counters)
-#define MEMCARDS_LOG	macTrace(IOP.Memcards)
-#define PAD_LOG			macTrace(IOP.PAD)
-#define GPU_LOG			macTrace(IOP.GPU)
-#define CDVD_LOG		macTrace(IOP.CDVD)
-#define MDEC_LOG		macTrace(IOP.MDEC)
-
-
-#define ELF_LOG
-#define eeRecPerfLog		false	
-#define eeConLog		false
-#define eeDeci2Log		false
-#define iopConLog		false
-#define sysConLog		false

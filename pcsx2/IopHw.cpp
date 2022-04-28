@@ -41,8 +41,7 @@ void psxHwReset() {
 __fi u8 psxHw4Read8(u32 add)
 {
 	u16 mem = add & 0xFF;
-	u8 ret = cdvdRead(mem);
-	PSXHW_LOG("HwRead8 from Cdvd [segment 0x1f40], addr 0x%02x = 0x%02x", mem, ret);
+	u8 ret  = cdvdRead(mem);
 	return ret;
 }
 
@@ -50,7 +49,6 @@ __fi void psxHw4Write8(u32 add, u8 value)
 {
 	u8 mem = (u8)add;	// only lower 8 bits are relevant (cdvd regs mirror across the page)
 	cdvdWrite(mem, value);
-	PSXHW_LOG("HwWrite8 to Cdvd [segment 0x1f40], addr 0x%02x = 0x%02x", mem, value);
 }
 
 void psxDmaInterrupt(int n)
@@ -95,15 +93,7 @@ void psxDmaInterrupt2(int n)
 		}
 	}
 	else if (HW_DMA_ICR2 & (1 << (16 + n)))
-	{
-#if 0
-		if (HW_DMA_ICR2 & (1 << (24 + n)))
-			log_cb(RETRO_LOG_DEBUG, "*PCSX2*: HW_DMA_ICR2 n=%d already set\n", n);
-		if (psxHu32(0x1070) & 8)
-			log_cb(RETRO_LOG_DEBUG, "*PCSX2*: psxHu32(0x1070) 8 already set (n=%d)\n", n);
-#endif
 		fire_interrupt = true;
-	}
 
 	if (fire_interrupt)
 	{

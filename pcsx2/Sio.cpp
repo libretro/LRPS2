@@ -117,15 +117,17 @@ bool isR3000ATest = false;
 // Check the active game's type, and fire the matching interrupt.
 // The 3rd bit of the HW_IFCG register lets us know if PSX mode is active. 1 = PSX, 0 = PS2
 // Note that the R3000A's call to interrupts only calls the PS2 based (lack of) delays.
-__fi void sioInterrupt() {
-	if ((psxHu32(HW_ICFG) & (1 << 3)) && !isR3000ATest) {
+__fi void sioInterrupt(void)
+{
+	if ((psxHu32(HW_ICFG) & (1 << 3)) && !isR3000ATest)
+	{
 		if (!(psxRegs.interrupt & (1 << IopEvt_SIO)))
 			PSX_INT(IopEvt_SIO, 64); // PSXCLK/250000);
-	} else {
-		PAD_LOG("Sio Interrupt");
+	}
+	else
+	{
 		sio.StatReg |= IRQ;
 		iopIntcIrq(7); //Should this be used instead of the one below?
-		//psxHu32(0x1070)|=0x80;
 	}
 
 	isR3000ATest = false;
@@ -135,7 +137,8 @@ __fi void sioInterrupt() {
 // Following the design of the old preprocessor system, the R3000A should
 // never call the PSX delays (oddly enough), and only the PS2. So we need
 // an extra layer here to help control that.
-__fi void sioInterruptR() {
+__fi void sioInterruptR(void)
+{
 	isR3000ATest = true;
 	sioInterrupt();
 }
@@ -161,9 +164,6 @@ void inline sioWriteStart(u8 data)
 	case 0x81: siomode = SIO_MEMCARD; break;
 
 	default:
-#ifndef NDEBUG
-		log_cb(RETRO_LOG_DEBUG, "%s cmd: %02X??\n", __FUNCTION__, data);
-#endif
 		DEVICE_UNPLUGGED();
 		siomode = SIO_DUMMY;
 		break;
@@ -199,7 +199,6 @@ void inline sioWriteController(u8 data)
 		sio.buf[sio.bufCount] = PADpoll(data);
 		break;
 	}
-	//log_cb(RETRO_LOG_DEBUG, "SIO: sent = %02X  From pad data =  %02X  bufCnt %08X \n", data, sio.buf[sio.bufCount], sio.bufCount);
 	sioInterrupt(); //Don't all commands(transfers) cause an interrupt?
 }
 
@@ -249,9 +248,6 @@ void inline sioWriteMultitap(u8 data)
 			break;
 
 		default:
-#ifndef NDEBUG
-			log_cb(RETRO_LOG_DEBUG, "%s cmd: %02X??\n", __FUNCTION__, data);
-#endif
 			sio.buf[3] = 0x00;
 			sio.buf[4] = 0x00;
 			sio.buf[5] = 0x00;
@@ -358,9 +354,6 @@ void inline memcardErase(u8 data)
 				break;
 
 			default:
-#ifndef NDEBUG
-				log_cb(RETRO_LOG_DEBUG, "%s cmd: %02X??\n", __FUNCTION__, data);
-#endif
 				sio.bufCount = -1;
 				//sio.bufSize = 3;
 				//sio.bufCount = 4;
@@ -421,9 +414,6 @@ void inline memcardWrite(u8 data)
 				}
 
 			default:
-#ifndef NDEBUG
-				log_cb(RETRO_LOG_DEBUG, "%s cmd: %02X??\n", __FUNCTION__, data);
-#endif
 				sio.bufCount = -1;
 				//sio.bufSize = 3;
 				//sio.bufCount = 4;
@@ -453,11 +443,6 @@ void inline memcardWrite(u8 data)
 		else if(sio.bufCount == checksum_pos)
 		{
 			u8 xor_check = mcd->DoXor(&sio.buf[4], checksum_pos - 4);
-#ifndef NDEBUG
-			if(xor_check != sio.buf[sio.bufCount])
-				log_cb(RETRO_LOG_WARN, "MemWrite: Checksum invalid! XOR: %02X, IN: %02X\n", xor_check, sio.buf[sio.bufCount]);
-#endif
-
 			sio.buf[sio.bufCount] = xor_check;
 			mcd->Write(&sio.buf[4], transfer_size);
 			mcd->transferAddr += transfer_size;
@@ -514,12 +499,7 @@ void inline memcardRead(u8 data)
 				}
 
 			default:
-#ifndef NDEBUG
-				log_cb(RETRO_LOG_DEBUG, "%s cmd: %02X??\n", __FUNCTION__, data);
-#endif
 				sio.bufCount = -1;
-				//sio.bufSize = 3;
-				//sio.bufCount = 4;
 				break;
 			}
 		}
@@ -634,76 +614,70 @@ void inline sioWriteMemcard(u8 data)
 		sio.cmd = data;
 		switch(data)
 		{
-		case 0x21: // SET_SECTOR_ERASE
-		case 0x22: // SET_SECTOR_WRITE
-		case 0x23: // SET_SECTOR_READ
-			sio2.packet.recvVal3 = 0x8C;
-			MemcardResponse();
-			siomode = SIO_MEMCARD_SECTOR;
-			break;
+			case 0x21: // SET_SECTOR_ERASE
+			case 0x22: // SET_SECTOR_WRITE
+			case 0x23: // SET_SECTOR_READ
+				sio2.packet.recvVal3 = 0x8C;
+				MemcardResponse();
+				siomode = SIO_MEMCARD_SECTOR;
+				break;
 
-		case 0x26: // GET_SPECS ?
-			{
-				sio2.packet.recvVal3 = 0x83;
+			case 0x26: // GET_SPECS ?
+				{
+					sio2.packet.recvVal3 = 0x83;
 
-				mc_command_0x26_tag cmd;
-				McdSizeInfo info;
+					mc_command_0x26_tag cmd;
+					McdSizeInfo info;
 
-				mcd->GetSizeInfo(info);
+					mcd->GetSizeInfo(info);
 
-				cmd.field_151			= 0x2B;
-				cmd.sectorSize			= info.SectorSize;
-				cmd.eraseBlocks			= info.EraseBlockSizeInSectors;
-				cmd.mcdSizeInSectors	= info.McdSizeInSectors;
-				cmd.mc_xor				= info.Xor;
-				cmd.Z					= mcd->term;
+					cmd.field_151			= 0x2B;
+					cmd.sectorSize			= info.SectorSize;
+					cmd.eraseBlocks			= info.EraseBlockSizeInSectors;
+					cmd.mcdSizeInSectors	= info.McdSizeInSectors;
+					cmd.mc_xor				= info.Xor;
+					cmd.Z					= mcd->term;
 
-				memcpy(&sio.buf[2], &cmd, sizeof(mc_command_0x26_tag));
-			}
-			break;
+					memcpy(&sio.buf[2], &cmd, sizeof(mc_command_0x26_tag));
+				}
+				break;
 
-		case 0x27: // SET_TERMINATOR
-			sio2.packet.recvVal3 = 0x8B;
-			break;
+			case 0x27: // SET_TERMINATOR
+				sio2.packet.recvVal3 = 0x8B;
+				break;
 
-		case 0x28: // GET_TERMINATOR
-			sio2.packet.recvVal3 = 0x8B;
-			sio.buf[2] = 0x2B;
-			sio.buf[3] = mcd->term;
-			sio.buf[4] = 0x55; // 0x55 or 0xFF ?
-			break;
+			case 0x28: // GET_TERMINATOR
+				sio2.packet.recvVal3 = 0x8B;
+				sio.buf[2] = 0x2B;
+				sio.buf[3] = mcd->term;
+				sio.buf[4] = 0x55; // 0x55 or 0xFF ?
+				break;
 
-		// If the PS2 commands fail, it falls back into PSX mode
-		case 0x52: // PSX 'R'ead
-		case 0x53: // PSX 'S'tate
-		case 0x57: // PSX 'W'rite
-		case 0x58: // PSX Pocketstation
-			siomode = SIO_DUMMY;
-			break;
 
-		case 0xF0: // Auth stuff
-			siomode = SIO_MEMCARD_AUTH;
-			break;
+			case 0xF0: // Auth stuff
+				siomode = SIO_MEMCARD_AUTH;
+				break;
 
-		case 0x11: // On Boot/Probe
-		case 0x12: // On Write/Delete/Recheck?
-			sio2.packet.recvVal3 = 0x8C;
-			// Fall through
+			case 0x11: // On Boot/Probe
+			case 0x12: // On Write/Delete/Recheck?
+				sio2.packet.recvVal3 = 0x8C;
+				// Fall through
 
-		case 0x81: // Checked right after copy/delete
-		case 0xBF: // Wtf?? On game booting?
-		case 0xF3: // Reset?
-		case 0xF7: // No idea
-			MemcardResponse();
-			siomode = SIO_DUMMY;
-			break;
+			case 0x81: // Checked right after copy/delete
+			case 0xBF: // Wtf?? On game booting?
+			case 0xF3: // Reset?
+			case 0xF7: // No idea
+				MemcardResponse();
+				/* Fall through */
 
-		default:
-#ifndef NDEBUG
-			log_cb(RETRO_LOG_DEBUG, "%s cmd: %02X??\n", __FUNCTION__, data);
-#endif
-			siomode = SIO_DUMMY;
-			break;
+				// If the PS2 commands fail, it falls back into PSX mode
+			case 0x52: // PSX 'R'ead
+			case 0x53: // PSX 'S'tate
+			case 0x57: // PSX 'W'rite
+			case 0x58: // PSX Pocketstation
+			default:
+				siomode = SIO_DUMMY;
+				break;
 		}
 		sioInterrupt();
 		break;
@@ -756,7 +730,6 @@ void inline sioWriteMemcardPSX(u8 data)
 		//	break;
 
 		default:
-			//printf("%s cmd: %02X??\n", __FUNCTION__, data);
 			siomode = SIO_DUMMY;
 			break;
 		}
@@ -857,22 +830,20 @@ void inline sioWriteInfraRed(u8 data)
 //Selects slot 1 or 2
 #define SLOT_NR 0x2000
 
-void chkTriggerInt() {
+void chkTriggerInt(void)
+{
 	//Conditions for triggerring an interrupt.
 	//this is not correct, but ... it can be fixed later
-	 sioInterrupt(); return;
+	sioInterrupt(); return;
 	if ((sio.StatReg & IRQ)) { sioInterrupt(); return; } //The interrupt flag in the main INTR_STAT reg should go active on multiple occasions. Set it here for now (hack), until the correct mechanism is made.
 	if ((sio.CtrlReg & ACK_INT_EN) && ((sio.StatReg & TX_RDY) || (sio.StatReg & TX_EMPTY))) { sioInterrupt(); return; }
 	if ((sio.CtrlReg & ACK_INT_EN) && (sio.StatReg & ACK_INP)) { sioInterrupt(); return; }
-	//The following one may be incorrect.
-	//if ((sio.CtrlReg & RX_INT_EN) && ((byteCnt >= (1<< ((sio.CtrlReg & RX_BYTES_INT) >>8))) ? 1:0) ) { sioInterrupt(); return; }
 	return;
 }
 
 
 static void sioWrite8inl(u8 data)
 {
-//	log_cb(RETRO_LOG_DEBUG, "SIO DATA write %02X  mode %08X \n" , data, siomode);
 	switch(siomode)
 	{
 	case SIO_START: sioWriteStart(data); break;
@@ -894,8 +865,6 @@ static void sioWrite8inl(u8 data)
 		sio.StatReg |= ACK_INP; //Signal that Controller (or MC) has brought the /ACK (Acknowledge) line active low.
 
 	sioInterrupt();
-	//chkTriggerInt();
-	//log_cb(RETRO_LOG_DEBUG, "SIO0 WR DATA COMMON %02X  INT_STAT= %08X  IOPpc= %08X \n" , data, psxHu32(0x1070), psxRegs.pc);
 	byteCnt++;
 }
 
@@ -923,8 +892,6 @@ void sioWriteCtrl16(u16 value)
 {
 	static u8 tcount[2];
 
-//	log_cb(RETRO_LOG_DEBUG, "SIO0 WR CTRL %02X  IOPpc= %08X \n" , value, psxRegs.pc);
-
 	tcount[sio.port] = sio.bufCount;
 	sio.port = (value >> 13) & 1;
 
@@ -949,23 +916,18 @@ void sioWriteCtrl16(u16 value)
 	//chkTriggerInt(); //necessary? - causes transfer to stup after the third byte
 }
 
-u8 sioRead8()
+u8 sioRead8(void)
 {
-	u8 ret;
-
 	if(sio.StatReg & RX_RDY)
 	{
-		ret = sio.buf[sio.bufCount];
+		u8 ret = sio.buf[sio.bufCount];
 		if(sio.bufCount == sio.bufSize) SIO_STAT_EMPTY();
 		sio.bufCount++;
 		SIO_STAT_EMPTY(); //this should depend on the counter above... but it seems wrong (buffer never empties).
 		sio.StatReg &= ~TX_RDY; //all clear (transfer of byte ended)
+		return ret;
 	}
-	else
-		ret = sio.ret;
-		//	sio.StatReg &= ~TX_RDY; //all clear (transfer of byte ended)
-//	log_cb(RETRO_LOG_DEBUG, "SIO DATA read %02X  stat= %08X \n" , ret, sio.StatReg);
-	return ret;
+	return sio.ret;
 }
 
 void sioWrite8(u8 value)
@@ -978,15 +940,17 @@ void SIODMAWrite(u8 value) //Why does the SIO2 FIFO handler call this function..
 	sioWrite8inl(value);
 }
 
-void sioNextFrame() {
-	for ( uint port = 0; port < 2; ++port ) {
-		for ( uint slot = 0; slot < 4; ++slot ) {
+void sioNextFrame(void)
+{
+	for ( uint port = 0; port < 2; ++port )
+	{
+		for ( uint slot = 0; slot < 4; ++slot )
 			mcds[port][slot].NextFrame();
-		}
 	}
 }
 
-void sioSetGameSerial( const wxString& serial ) {
+void sioSetGameSerial( const wxString& serial )
+{
 	for ( uint port = 0; port < 2; ++port ) {
 		for ( uint slot = 0; slot < 4; ++slot ) {
 			if ( mcds[port][slot].ReIndex( serial ) ) {
@@ -996,7 +960,7 @@ void sioSetGameSerial( const wxString& serial ) {
 	}
 }
 
-void SaveStateBase::sioFreeze()
+void SaveStateBase::sioFreeze(void)
 {
 	// CRCs for memory cards.
 	u64 m_mcdCRCs[2][8];

@@ -603,18 +603,6 @@ irxDEBUG irxImportDebug(const std::string &libname, u16 index)
 #undef EXPORT_D
 #undef EXPORT_H
 
-void irxImportLog(const std::string &libname, u16 index, const char *funcname)
-{
-	PSXBIOS_LOG("%8.8s.%03d: %s (%x, %x, %x, %x)",
-		libname.data(), index, funcname ? funcname : "unknown",
-		a0, a1, a2, a3);
-}
-
-void __fastcall irxImportLog_rec(u32 import_table, u16 index, const char *funcname)
-{
-	irxImportLog(iopMemReadString(import_table + 12, 8), index, funcname);
-}
-
 int irxImportExec(u32 import_table, u16 index)
 {
 	if (!import_table)
@@ -624,8 +612,6 @@ int irxImportExec(u32 import_table, u16 index)
 	const char *funcname = irxImportFuncname(libname, index);
 	irxHLE hle = irxImportHLE(libname, index);
 	irxDEBUG debug = irxImportDebug(libname, index);
-
-	irxImportLog(libname, index, funcname);
 
 	if (debug)
 		debug();

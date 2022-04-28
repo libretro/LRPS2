@@ -40,16 +40,15 @@
 
 using namespace R5900;
 
-void COP2_BC2() { Int_COP2BC2PrintTable[_Rt_]();}
-void COP2_SPECIAL() { Int_COP2SPECIAL1PrintTable[_Funct_]();}
+void COP2_BC2(void) { Int_COP2BC2PrintTable[_Rt_]();}
+void COP2_SPECIAL(void) { Int_COP2SPECIAL1PrintTable[_Funct_]();}
 
-void COP2_SPECIAL2() {
+void COP2_SPECIAL2(void) {
 	Int_COP2SPECIAL2PrintTable[(cpuRegs.code & 0x3) | ((cpuRegs.code >> 4) & 0x7c)]();
 }
 
-void COP2_Unknown()
+void COP2_Unknown(void)
 {
-	CPU_LOG("Unknown COP2 opcode called");
 }
 
 //****************************************************************************
@@ -81,15 +80,15 @@ __fi void _vu0run(bool breakOnMbit, bool addCycles) {
 	}
 }
 
-void _vu0WaitMicro()   { _vu0run(1, 1); } // Runs VU0 Micro Until E-bit or M-Bit End
-void _vu0FinishMicro() { _vu0run(0, 1); } // Runs VU0 Micro Until E-Bit End
-void vu0Finish()	   { _vu0run(0, 0); } // Runs VU0 Micro Until E-Bit End (doesn't stall EE)
+void _vu0WaitMicro(void)   { _vu0run(1, 1); } // Runs VU0 Micro Until E-bit or M-Bit End
+void _vu0FinishMicro(void) { _vu0run(0, 1); } // Runs VU0 Micro Until E-Bit End
+void vu0Finish(void)	   { _vu0run(0, 0); } // Runs VU0 Micro Until E-Bit End (doesn't stall EE)
 
 namespace R5900 {
 namespace Interpreter{
 namespace OpcodeImpl
 {
-	void LQC2() {
+	void LQC2(void) {
 		u32 addr = cpuRegs.GPR.r[_Rs_].UL[0] + (s16)cpuRegs.code;
 		if (_Ft_) {
 			memRead128(addr, VU0.VF[_Ft_].UQ);
@@ -109,28 +108,28 @@ namespace OpcodeImpl
 }}}
 
 
-void QMFC2() {
-	if (cpuRegs.code & 1) {
+void QMFC2(void)
+{
+	if (cpuRegs.code & 1)
 		_vu0FinishMicro();
-	}
 	if (_Rt_ == 0) return;
 	cpuRegs.GPR.r[_Rt_].UD[0] = VU0.VF[_Fs_].UD[0];
 	cpuRegs.GPR.r[_Rt_].UD[1] = VU0.VF[_Fs_].UD[1];
 }
 
-void QMTC2() {
-	if (cpuRegs.code & 1) {
+void QMTC2(void)
+{
+	if (cpuRegs.code & 1)
 		_vu0WaitMicro();
-	}
 	if (_Fs_ == 0) return;
 	VU0.VF[_Fs_].UD[0] = cpuRegs.GPR.r[_Rt_].UD[0];
 	VU0.VF[_Fs_].UD[1] = cpuRegs.GPR.r[_Rt_].UD[1];
 }
 
-void CFC2() {
-	if (cpuRegs.code & 1) {
+void CFC2(void)
+{
+	if (cpuRegs.code & 1)
 		_vu0FinishMicro();
-	}
 	if (_Rt_ == 0) return;
 	
 	cpuRegs.GPR.r[_Rt_].UL[0] = VU0.VI[_Fs_].UL;
@@ -141,10 +140,10 @@ void CFC2() {
 		cpuRegs.GPR.r[_Rt_].UL[1] = 0;
 }
 
-void CTC2() {
-	if (cpuRegs.code & 1) {
+void CTC2(void)
+{
+	if (cpuRegs.code & 1)
 		_vu0WaitMicro();
-	}
 	if (_Fs_ == 0) return;
 
 	switch(_Fs_) {
@@ -154,20 +153,10 @@ void CTC2() {
 			break;
 		case REG_FBRST:
 			VU0.VI[REG_FBRST].UL = cpuRegs.GPR.r[_Rt_].UL[0] & 0x0C0C;
-#if 0
-			if (cpuRegs.GPR.r[_Rt_].UL[0] & 0x1) // VU0 Force Break
-				log_cb(RETRO_LOG_ERROR, "fixme: VU0 Force Break\n");
-#endif
 			if (cpuRegs.GPR.r[_Rt_].UL[0] & 0x2) { // VU0 Reset
-				//log_cb(RETRO_LOG_INFO, "fixme: VU0 Reset\n");
 				vu0ResetRegs();
 			}
-#if 0
-			if (cpuRegs.GPR.r[_Rt_].UL[0] & 0x100) // VU1 Force Break
-				log_cb(RETRO_LOG_ERROR, "fixme: VU1 Force Break\n");
-#endif
 			if (cpuRegs.GPR.r[_Rt_].UL[0] & 0x200) { // VU1 Reset
-//				log_cb(RETRO_LOG_INFO, "fixme: VU1 Reset\n");
 				vu1ResetRegs();
 			}
 			break;

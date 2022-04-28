@@ -180,8 +180,6 @@ void mdecInit(void) {
 
 
 void mdecWrite0(u32 data) {
-	MDEC_LOG("mdec0 write %lx", data);
-
 	mdec.command = data;
 	if ((data&0xf5ff0000)==0x30000000) {
 		mdec.rlsize = data&0xffff;
@@ -189,30 +187,21 @@ void mdecWrite0(u32 data) {
 }
 
 void mdecWrite1(u32 data) {
-	MDEC_LOG("mdec1 write %lx", data);
-
 	if (data&0x80000000) { // mdec reset
 		round_init();
-//		mdecInit();
 	}
 }
 
 u32 mdecRead0(void) {
-	MDEC_LOG("mdec0 read %lx", mdec.command);
-
 	return mdec.command;
 }
 
 u32 mdecRead1(void) {
-	MDEC_LOG("mdec1 read %lx", mdec.status);
-
 	return mdec.status;
 }
 
 void psxDma0(u32 adr, u32 bcr, u32 chcr) {
 	int cmd = mdec.command;
-
-	MDEC_LOG("DMA0 %lx %lx %lx", adr, bcr, chcr);
 
 	if (chcr != 0x01000201) return;
 
@@ -225,11 +214,8 @@ void psxDma0(u32 adr, u32 bcr, u32 chcr) {
 		return;
 	}
 
-	for (int i = 0; i<(size); i++) {
+	for (int i = 0; i<(size); i++)
 		*(u32*)PSXM(((i + 0) * 4)) = iopMemRead32(adr + ((i + 0) * 4));
-		if (i <20)
-			MDEC_LOG(" data %08X  %08X ", iopMemRead32((adr & 0x00FFFFFF) + (i * 4)), *(u32*)PSXM((i * 4)));
-	}
 
 
 	if (cmd == 0x40000001) {
@@ -248,8 +234,6 @@ void psxDma0(u32 adr, u32 bcr, u32 chcr) {
 void psxDma1(u32 adr, u32 bcr, u32 chcr) {
 	int blk[DCTSIZE2*6];
 	unsigned short *image;
-
-	MDEC_LOG("DMA1 %lx %lx %lx (cmd = %lx)", adr, bcr, chcr, mdec.command);
 
 	if (chcr != 0x01000200) return;
 	// bcr LSBs are the blocksize in words
@@ -276,11 +260,8 @@ void psxDma1(u32 adr, u32 bcr, u32 chcr) {
 		}
 	}
 
-	for (int i = 0; i<(size2); i++) {
+	for (int i = 0; i<(size2); i++)
 		iopMemWrite32(((adr & 0x00FFFFFF) + (i * 4) + 0), mdecArr2[i]);
-		if (i <20)
-			MDEC_LOG(" data %08X  %08X ", iopMemRead32((adr & 0x00FFFFFF) + (i * 4)), mdecArr2[i]);
-	}
 
 	HW_DMA1_CHCR &= ~0x01000000;
 	psxDmaInterrupt(1);

@@ -107,8 +107,6 @@ static void cdvdGetMechaVer(u8* ver)
 
 	if (Path::GetFileSize(fname) < 4)
 	{
-		log_cb(RETRO_LOG_WARN, "MEC File Not Found, creating substitute...\n");
-
 		wxFFile fp(fname, L"wb");
 		if (!fp.IsOpened())
 			throw Exception::CannotCreateStream(fname);
@@ -116,14 +114,6 @@ static void cdvdGetMechaVer(u8* ver)
 		u8 version[4] = {0x3, 0x6, 0x2, 0x0};
 		fp.Write(version, sizeof(version));
 	}
-
-	wxFFile fp(fname, L"rb");
-	if (!fp.IsOpened())
-		throw Exception::CannotCreateStream(fname);
-
-	size_t ret = fp.Read(ver, 4);
-	if (ret != 4)
-		log_cb(RETRO_LOG_ERROR, "Failed to read from %s. Did only %zu/4 bytes\n", WX_STR(fname), ret);
 }
 
 NVMLayout* getNvmLayout()
@@ -152,8 +142,6 @@ static void cdvdNVM(u8* buffer, int offset, size_t bytes, bool read)
 
 	if (Path::GetFileSize(fname) < 1024)
 	{
-		log_cb(RETRO_LOG_WARN, "NVM File Not Found, creating substitute...\n");
-
 		wxFFile fp(fname, L"wb");
 		if (!fp.IsOpened())
 			throw Exception::CannotCreateStream(fname);
@@ -181,10 +169,6 @@ static void cdvdNVM(u8* buffer, int offset, size_t bytes, bool read)
 		ret = fp.Read(buffer, bytes);
 	else
 		ret = fp.Write(buffer, bytes);
-
-	if (ret != bytes)
-		log_cb(RETRO_LOG_ERROR, "Failed to %s %s. Did only %zu/%zu bytes\n",
-					  read ? L"read from" : L"write to", WX_STR(fname), ret, bytes);
 }
 
 static void cdvdReadNVM(u8* dst, int offset, int bytes)
@@ -351,10 +335,6 @@ static __fi ElfObject* loadElf(const wxString filename)
 	// be sufficient (no known games have their ELF binary as anything but version ;1)
 
 	const wxString fixedname(wxStringTokenizer(filename, L';').GetNextToken() + L";1");
-
-	if (fixedname != filename)
-		log_cb(RETRO_LOG_INFO, "(LoadELF) Non-conforming version suffix detected and replaced.\n");
-
 	IsoFSCDVD isofs;
 	IsoFile file(isofs, fixedname);
 	return new ElfObject(fixedname, file);
@@ -383,7 +363,6 @@ static __fi void _reloadElfInfo(wxString elfpath)
 	ElfCRC = elfptr->getCRC();
 	ElfEntry = elfptr->header.e_entry;
 	ElfTextRange = elfptr->getTextRange();
-	log_cb(RETRO_LOG_INFO, "ELF (%s) Game CRC = 0x%08X, EntryPoint = 0x%08X\n", WX_STR(elfpath), ElfCRC, ElfEntry);
 
 	// Note: Do not load game database info here.  This code is generic and called from
 	// BIOS key encryption as well as eeloadReplaceOSDSYS.  The first is actually still executing
@@ -438,10 +417,7 @@ static __fi s32 StrToS32(const wxString& str, int base = 10)
 {
 	long l;
 	if (!str.ToLong(&l, base))
-	{
-		log_cb(RETRO_LOG_ERROR, "StrToS32: fail to translate '%s' as long\n", WX_STR(str));
 		return 0;
-	}
 
 	return l;
 }
@@ -507,9 +483,6 @@ void cdvdReadKey(u8, u16, u32 arg2, u8* key)
 			key[15] = 0x01;
 			break;
 	}
-
-	log_cb(RETRO_LOG_DEBUG, "CDVD.KEY = %02X,%02X,%02X,%02X,%02X,%02X,%02X\n",
-				   cdvd.Key[0], cdvd.Key[1], cdvd.Key[2], cdvd.Key[3], cdvd.Key[4], cdvd.Key[14], cdvd.Key[15]);
 }
 
 s32 cdvdGetToc(void* toc)
@@ -536,7 +509,6 @@ static void cdvdDetectDisk()
 
 s32 cdvdCtrlTrayOpen()
 {
-	log_cb(RETRO_LOG_DEBUG, "Open virtual disk tray\n");
 	DiscSwapTimerSeconds = cdvd.RTC.second; // remember the PS2 time when this happened
 	cdvd.Status = CDVD_STATUS_TRAY_OPEN;
 	cdvd.Ready = CDVD_NOTREADY;
@@ -546,7 +518,6 @@ s32 cdvdCtrlTrayOpen()
 
 s32 cdvdCtrlTrayClose()
 {
-	log_cb(RETRO_LOG_WARN, "Close virtual disk tray\n");
 	cdvd.Status = CDVD_STATUS_PAUSE;
 	cdvd.Ready = CDVD_READY1;
 	cdvd.TrayTimeout = 0; // Reset so it can't get closed twice by cdvdVsync()
@@ -625,7 +596,6 @@ static uint cdvdBlockReadTime(CDVD_MODE_TYPE mode)
 	// Required for Shadowman to work
 	// Use SeekToSector as Sector hasn't been updated yet
 	const float sectorSpeed = (((float)(cdvd.SeekToSector - offset) / numSectors) * 0.63f) + 0.37f;
-	//log_cb(RETRO_LOG_WARN, "Read speed %f sector %d\n", sectorSpeed, cdvd.Sector);
 	return ((PSXCLK * cdvd.BlockSize) / ((float)(((mode == MODE_CDROM) ? PSX_CD_READSPEED : PSX_DVD_READSPEED) * cdvd.Speed) * sectorSpeed));
 }
 
@@ -706,14 +676,9 @@ static void mechaDecryptBytes(u32 madr, int size)
 
 int cdvdReadSector()
 {
-	s32 bcr;
-
-	CDVD_LOG("SECTOR %d (BCR %x;%x)", cdvd.Sector, HW_DMA3_BCR_H16, HW_DMA3_BCR_L16);
-
-	bcr = (HW_DMA3_BCR_H16 * HW_DMA3_BCR_L16) * 4;
+	s32 bcr = (HW_DMA3_BCR_H16 * HW_DMA3_BCR_L16) * 4;
 	if (bcr < cdvd.BlockSize)
 	{
-		CDVD_LOG("READBLOCK:  bcr < cdvd.BlockSize; %x < %x", bcr, cdvd.BlockSize);
 		if (HW_DMA3_CHCR & 0x01000000)
 		{
 			HW_DMA3_CHCR &= ~0x01000000;
@@ -721,11 +686,6 @@ int cdvdReadSector()
 		}
 		return -1;
 	}
-
-	//if( (HW_DMA3_CHCR & 0x01000000) == 0 ) {
-	//	// DMA3 problem?
-	//	log_cb(RETRO_LOG_WARN, "CDVD READ - DMA3 transfer off (try again)\n" );
-	//}
 
 	// DMAs use physical addresses (air)
 	u8* mdest = iopPhysMem(HW_DMA3_MADR);
@@ -800,8 +760,6 @@ int cdvdReadSector()
 	// be more correct. (air)
 	psxCpu->Clear(HW_DMA3_MADR, cdvd.BlockSize / 4);
 
-	//	log_cb(RETRO_LOG_INFO, "sector %x;%x;%x\n", PSXMu8(madr+0), PSXMu8(madr+1), PSXMu8(madr+2));
-
 	HW_DMA3_BCR_H16 -= (cdvd.BlockSize / (HW_DMA3_BCR_L16 * 4));
 	HW_DMA3_MADR += cdvd.BlockSize;
 
@@ -821,7 +779,6 @@ __fi void cdvdActionInterrupt()
 			break;
 
 		case cdvdAction_Standby:
-			log_cb(RETRO_LOG_WARN, "CDVD Standby Call\n");
 			cdvd.Spinning = true;     //check (rama)
 			cdvd.Ready = CDVD_READY1; //check (rama)
 			cdvd.Sector = cdvd.SeekToSector;
@@ -837,7 +794,6 @@ __fi void cdvdActionInterrupt()
 
 		case cdvdAction_Break:
 			// Make sure the cdvd action state is pretty well cleared:
-			log_cb(RETRO_LOG_WARN, "CDVD Break Call\n");
 			cdvd.Reading = 0;
 			cdvd.Readed = 0;
 			cdvd.Ready = CDVD_READY2;        // should be CDVD_READY1 or something else?
@@ -855,8 +811,6 @@ __fi void cdvdActionInterrupt()
 // inlined due to being referenced in only one place.
 __fi void cdvdReadInterrupt()
 {
-	//log_cb(RETRO_LOG_INFO, "cdvdReadInterrupt %x %x %x %x %x\n", cpuRegs.interrupt, cdvd.Readed, cdvd.Reading, cdvd.nSectors, (HW_DMA3_BCR_H16 * HW_DMA3_BCR_L16) *4);
-
 	cdvd.Ready = CDVD_NOTREADY;
 	if (!cdvd.Readed)
 	{
@@ -874,9 +828,6 @@ __fi void cdvdReadInterrupt()
 		cdvd.Status = CDVD_STATUS_READ | CDVD_STATUS_SPIN; // Time Crisis 2
 
 		cdvd.Sector = cdvd.SeekToSector;
-
-		CDVD_LOG("Cdvd Seek Complete > Scheduling block read interrupt at iopcycle=%8.8x.",
-				 psxRegs.cycle + cdvd.ReadTime);
 
 		CDVDREAD_INT(cdvd.ReadTime);
 		return;
@@ -899,12 +850,9 @@ __fi void cdvdReadInterrupt()
 
 			if (cdvd.RetryCntP <= cdvd.RetryCnt)
 			{
-				CDVD_LOG("CDVD read err, retrying... (attempt %d of %d)", cdvd.RetryCntP, cdvd.RetryCnt);
 				cdvd.RErr = DoCDVDreadTrack(cdvd.Sector, cdvd.ReadMode);
 				CDVDREAD_INT(cdvd.ReadTime);
 			}
-			else
-				log_cb(RETRO_LOG_ERROR, "CDVD READ ERROR, sector = 0x%08x\n", cdvd.Sector);
 
 			return;
 		}
@@ -974,7 +922,6 @@ static uint cdvdStartSeek(uint newsector, CDVD_MODE_TYPE mode)
 
 	if (!cdvd.Spinning)
 	{
-		CDVD_LOG("CdSpinUp > Simulating CdRom Spinup Time, and seek to sector %d", cdvd.SeekToSector);
 		seektime = PSXCLK / 3; // 333ms delay
 		cdvd.Spinning = true;
 	}
@@ -982,22 +929,14 @@ static uint cdvdStartSeek(uint newsector, CDVD_MODE_TYPE mode)
 	{
 		// Select either Full or Fast seek depending on delta:
 
+		// Full Seek
 		if (delta >= tbl_FastSeekDelta[mode])
-		{
-			// Full Seek
-			CDVD_LOG("CdSeek Begin > to sector %d, from %d - delta=%d [FULL]", cdvd.SeekToSector, cdvd.Sector, delta);
 			seektime = Cdvd_FullSeek_Cycles;
-		}
 		else
-		{
-			CDVD_LOG("CdSeek Begin > to sector %d, from %d - delta=%d [FAST]", cdvd.SeekToSector, cdvd.Sector, delta);
 			seektime = Cdvd_FastSeek_Cycles;
-		}
 	}
 	else
 	{
-		CDVD_LOG("CdSeek Begin > Contiguous block without seek - delta=%d sectors", delta);
-
 		// seektime is the time it takes to read to the destination block:
 		seektime = delta * cdvd.ReadTime;
 
@@ -1080,7 +1019,6 @@ static __fi u8 cdvdRead18(void) // SDATAOUT
 			cdvd.sDataIn |= 0x40;
 		ret = cdvd.Result[cdvd.ResultP - 1];
 	}
-	CDVD_LOG("cdvdRead18(SDataOut) %x (ResultC=%d, ResultP=%d)", ret, cdvd.ResultC, cdvd.ResultP);
 
 	return ret;
 }
@@ -1090,68 +1028,52 @@ u8 cdvdRead(u8 key)
 	switch (key)
 	{
 		case 0x04: // NCOMMAND
-			CDVD_LOG("cdvdRead04(NCMD) %x", cdvd.nCommand);
 			return cdvd.nCommand;
 
 		case 0x05: // N-READY
-			CDVD_LOG("cdvdRead05(NReady) %x", cdvd.Ready);
 			return cdvd.Ready;
 
 		case 0x06: // ERROR
-			CDVD_LOG("cdvdRead06(Error) %x", cdvd.Error);
 			return cdvd.Error;
 
 		case 0x07: // BREAK
-			CDVD_LOG("cdvdRead07(Break) %x", 0);
 			return 0;
 
 		case 0x08: // INTR_STAT
-			CDVD_LOG("cdvdRead08(IntrReason) %x", cdvd.PwOff);
 			return cdvd.PwOff;
 
 		case 0x0A: // STATUS
-			CDVD_LOG("cdvdRead0A(Status) %x", cdvd.Status);
 			return cdvd.Status;
 
 		case 0x0B: // TRAY-STATE (if tray has been opened)
 		{
-			CDVD_LOG("cdvdRead0B(Tray) (1 open, 0 closed): %x", cdvd.Status);
 			if (cdvd.Status == CDVD_STATUS_TRAY_OPEN)
 				return 1;
-			else
-				return 0;
+			return 0;
 		}
 		case 0x0C: // CRT MINUTE
-			CDVD_LOG("cdvdRead0C(Min) %x", itob((u8)(cdvd.Sector / (60 * 75))));
 			return itob((u8)(cdvd.Sector / (60 * 75)));
 
 		case 0x0D: // CRT SECOND
-			CDVD_LOG("cdvdRead0D(Sec) %x", itob((u8)((cdvd.Sector / 75) % 60) + 2));
 			return itob((u8)((cdvd.Sector / 75) % 60) + 2);
 
 		case 0x0E: // CRT FRAME
-			CDVD_LOG("cdvdRead0E(Frame) %x", itob((u8)(cdvd.Sector % 75)));
 			return itob((u8)(cdvd.Sector % 75));
 
 		case 0x0F: // TYPE
-			CDVD_LOG("cdvdRead0F(Disc Type) %x", cdvd.Type);
 			cdvdGetDiskType();
 			return cdvd.Type;
 
 		case 0x13: // UNKNOWN
-			CDVD_LOG("cdvdRead13(Unknown) %x", 4);
 			return 4;
 
 		case 0x15: // RSV
-			CDVD_LOG("cdvdRead15(RSV)");
 			return 0x01; // | 0x80 for ATAPI mode
 
 		case 0x16: // SCOMMAND
-			CDVD_LOG("cdvdRead16(SCMD) %x", cdvd.sCommand);
 			return cdvd.sCommand;
 
 		case 0x17: // SREADY
-			CDVD_LOG("cdvdRead17(SReady) %x", cdvd.sDataIn);
 			return cdvd.sDataIn;
 
 		case 0x18:
@@ -1165,7 +1087,6 @@ u8 cdvdRead(u8 key)
 		{
 			int temp = key - 0x20;
 
-			CDVD_LOG("cdvdRead%d(Key%d) %x", key, temp, cdvd.Key[temp]);
 			return cdvd.Key[temp];
 		}
 		case 0x28:
@@ -1176,7 +1097,6 @@ u8 cdvdRead(u8 key)
 		{
 			int temp = key - 0x23;
 
-			CDVD_LOG("cdvdRead%d(Key%d) %x", key, temp, cdvd.Key[temp]);
 			return cdvd.Key[temp];
 		}
 
@@ -1188,38 +1108,29 @@ u8 cdvdRead(u8 key)
 		{
 			int temp = key - 0x26;
 
-			CDVD_LOG("cdvdRead%d(Key%d) %x", key, temp, cdvd.Key[temp]);
 			return cdvd.Key[temp];
 		}
 
 		case 0x38: // valid parts of key data (first and last are valid)
-			CDVD_LOG("cdvdRead38(KeysValid) %x", cdvd.Key[15]);
 
 			return cdvd.Key[15];
 
 		case 0x39: // KEY-XOR
-			CDVD_LOG("cdvdRead39(KeyXor) %x", cdvd.KeyXor);
-
 			return cdvd.KeyXor;
 
 		case 0x3A: // DEC_SET
-			CDVD_LOG("cdvdRead3A(DecSet) %x", cdvd.decSet);
-
 			return cdvd.decSet;
 
 		default:
 			// note: notify the console since this is a potentially serious emulation problem:
-			// return -1 (all bits set) instead of 0, improves chances of the software being happy
-			PSXHW_LOG("*Unknown 8bit read at address 0x1f4020%x", key);
-			log_cb(RETRO_LOG_ERROR, "IOP Unknown 8bit read from addr 0x1f4020%x\n", key);
-			return -1;
+			break;
 	}
+
+	return -1;
 }
 
 static void cdvdWrite04(u8 rt)
 { // NCOMMAND
-	CDVD_LOG("cdvdWrite04: NCMD %s (%x) (ParamP = %x)", nCmdName[rt], rt, cdvd.ParamP);
-
 	cdvd.nCommand = rt;
 	// Why fiddle with Status and PwOff here at all? (rama)
 	cdvd.Status = cdvd.Spinning ? CDVD_STATUS_SPIN : CDVD_STATUS_STOP; // checkme
@@ -1237,14 +1148,12 @@ static void cdvdWrite04(u8 rt)
 			// Seek to sector zero.  The cdvdStartSeek function will simulate
 			// spinup times if needed.
 
-			log_cb(RETRO_LOG_WARN, "CdStandby : %d\n", rt);
 			cdvd.Action = cdvdAction_Standby;
 			cdvd.ReadTime = cdvdBlockReadTime(MODE_DVDROM);
 			CDVD_INT(cdvdStartSeek(0, MODE_DVDROM));
 			break;
 
 		case N_CD_STOP: // CdStop
-			log_cb(RETRO_LOG_WARN, "CdStop : %d\n", rt);
 			cdvd.Action = cdvdAction_Stop;
 			CDVD_INT(PSXCLK / 6); // 166ms delay?
 			break;
@@ -1283,9 +1192,6 @@ static void cdvdWrite04(u8 rt)
 					cdvd.BlockSize = 2048;
 					break;
 			}
-
-			CDVD_LOG("CdRead > startSector=%d, seekTo=%d, nSectors=%d, RetryCnt=%x, Speed=%x(%x), ReadMode=%x(%x) (1074=%x)",
-					 cdvd.Sector, cdvd.SeekToSector, cdvd.nSectors, cdvd.RetryCnt, cdvd.Speed, cdvd.Param[9], cdvd.ReadMode, cdvd.Param[10], psxHu32(0x1074));
 
 			cdvd.ReadTime = cdvdBlockReadTime(MODE_CDROM);
 			CDVDREAD_INT(cdvdStartSeek(cdvd.SeekToSector, MODE_CDROM));
@@ -1346,9 +1252,6 @@ static void cdvdWrite04(u8 rt)
 					break;
 			}
 
-			CDVD_LOG("CdReadCDDA > startSector=%d, nSectors=%d, RetryCnt=%x, Speed=%xx(%x), ReadMode=%x(%x) (1074=%x)",
-					 cdvd.Sector, cdvd.nSectors, cdvd.RetryCnt, cdvd.Speed, cdvd.Param[9], cdvd.ReadMode, cdvd.Param[10], psxHu32(0x1074));
-
 			cdvd.ReadTime = cdvdBlockReadTime(MODE_CDROM);
 			CDVDREAD_INT(cdvdStartSeek(cdvd.SeekToSector, MODE_CDROM));
 
@@ -1378,9 +1281,6 @@ static void cdvdWrite04(u8 rt)
 			cdvd.ReadMode = CDVD_MODE_2048;
 			cdvd.BlockSize = 2064; // Why oh why was it 2064
 
-			CDVD_LOG("DvdRead > startSector=%d, seekTo=%d nSectors=%d, RetryCnt=%x, Speed=%x(%x), ReadMode=%x(%x) (1074=%x)",
-					 cdvd.Sector, cdvd.SeekToSector, cdvd.nSectors, cdvd.RetryCnt, cdvd.Speed, cdvd.Param[9], cdvd.ReadMode, cdvd.Param[10], psxHu32(0x1074));
-
 			cdvd.ReadTime = cdvdBlockReadTime(MODE_DVDROM);
 			CDVDREAD_INT(cdvdStartSeek(cdvd.SeekToSector, MODE_DVDROM));
 
@@ -1397,11 +1297,6 @@ static void cdvdWrite04(u8 rt)
 
 		case N_CD_GET_TOC: // CdGetToc & cdvdman_call19
 			//Param[0] is 0 for CdGetToc and any value for cdvdman_call19
-			//the code below handles only CdGetToc!
-			//if(cdvd.Param[0]==0x01)
-			//{
-			log_cb(RETRO_LOG_WARN, "CDGetToc Param[0]=%d, Param[1]=%d\n", cdvd.Param[0], cdvd.Param[1]);
-			//}
 			cdvdGetToc(iopPhysMem(HW_DMA3_MADR));
 			cdvdSetIrq((1 << Irq_CommandComplete)); //| (1<<Irq_DataReady) );
 			HW_DMA3_CHCR &= ~0x01000000;
@@ -1413,7 +1308,6 @@ static void cdvdWrite04(u8 rt)
 			u8 arg0 = cdvd.Param[0];
 			u16 arg1 = cdvd.Param[1] | (cdvd.Param[2] << 8);
 			u32 arg2 = cdvd.Param[3] | (cdvd.Param[4] << 8) | (cdvd.Param[5] << 16) | (cdvd.Param[6] << 24);
-			log_cb(RETRO_LOG_WARN, "cdvdReadKey(%d, %d, %d)\n", arg0, arg1, arg2);
 			cdvdReadKey(arg0, arg1, arg2, cdvd.Key);
 			cdvd.KeyXor = 0x00;
 			cdvdSetIrq();
@@ -1421,12 +1315,10 @@ static void cdvdWrite04(u8 rt)
 		break;
 
 		case N_CD_CHG_SPDL_CTRL: // CdChgSpdlCtrl
-			log_cb(RETRO_LOG_INFO, "sceCdChgSpdlCtrl(%d)\n", cdvd.Param[0]);
 			cdvdSetIrq();
 			break;
 
 		default:
-			log_cb(RETRO_LOG_WARN, "NCMD Unknown %x\n", rt);
 			cdvdSetIrq();
 			break;
 	}
@@ -1436,8 +1328,6 @@ static void cdvdWrite04(u8 rt)
 
 static __fi void cdvdWrite05(u8 rt)
 { // NDATAIN
-	CDVD_LOG("cdvdWrite05(NDataIn) %x", rt);
-
 	if (cdvd.ParamP < 32)
 	{
 		cdvd.Param[cdvd.ParamP++] = rt;
@@ -1447,19 +1337,14 @@ static __fi void cdvdWrite05(u8 rt)
 
 static __fi void cdvdWrite06(u8 rt)
 { // HOWTO
-	CDVD_LOG("cdvdWrite06(HowTo) %x", rt);
 	cdvd.HowTo = rt;
 }
 
 static __fi void cdvdWrite07(u8 rt) // BREAK
 {
-	CDVD_LOG("cdvdWrite07(Break) %x", rt);
-
 	// If we're already in a Ready state or already Breaking, then do nothing:
 	if ((cdvd.Ready != CDVD_NOTREADY) || (cdvd.Action == cdvdAction_Break))
 		return;
-
-	log_cb(RETRO_LOG_DEBUG, "*PCSX2*: CDVD BREAK %x\n", rt);
 
 	// Aborts any one of several CD commands:
 	// Pause, Seek, Read, Status, Standby, and Stop
@@ -1478,21 +1363,15 @@ static __fi void cdvdWrite07(u8 rt) // BREAK
 
 static __fi void cdvdWrite08(u8 rt)
 { // INTR_STAT
-	CDVD_LOG("cdvdWrite08(IntrReason) = ACK(%x)", rt);
 	cdvd.PwOff &= ~rt;
 }
 
 static __fi void cdvdWrite0A(u8 rt)
 { // STATUS
-	CDVD_LOG("cdvdWrite0A(Status) %x", rt);
 }
 
 static __fi void cdvdWrite0F(u8 rt)
 { // TYPE
-#ifndef NDEBUG
-	CDVD_LOG("cdvdWrite0F(Type) %x", rt);
-	log_cb(RETRO_LOG_DEBUG, "*PCSX2*: CDVD TYPE %x\n", rt);
-#endif
 }
 
 static __fi void cdvdWrite14(u8 rt)
@@ -1509,7 +1388,6 @@ static __fi void cdvdWrite14(u8 rt)
 
 static __fi void fail_pol_cal()
 {
-	log_cb(RETRO_LOG_ERROR, "[MG] ERROR - Make sure the file is already decrypted!!!\n");
 	cdvd.Result[0] = 0x80;
 }
 
@@ -1522,8 +1400,6 @@ static void cdvdWrite16(u8 rt) // SCOMMAND
 		//	int i, lbn, type, min, sec, frm, address;
 		int address;
 		u8 tmp;
-
-		CDVD_LOG("cdvdWrite16: SCMD %s (%x) (ParamP = %x)", sCmdName[rt], rt, cdvd.ParamP);
 
 		cdvd.sCommand = rt;
 		cdvd.Result[0] = 0; // assume success -- failures will overwrite this with an error code.
@@ -1579,7 +1455,6 @@ static void cdvdWrite16(u8 rt) // SCOMMAND
 					default:
 						SetResultSize(1);
 						cdvd.Result[0] = 0x80;
-						log_cb(RETRO_LOG_WARN, "*Unknown Mecacon Command param[0]=%02X\n", cdvd.Param[0]);
 						break;
 				}
 				break;
@@ -1591,25 +1466,17 @@ static void cdvdWrite16(u8 rt) // SCOMMAND
 				// Cdvd.Status can be different than 1 here, yet we may still have to report an open status.
 				// Gonna have to investigate further. (rama)
 
-				//log_cb(RETRO_LOG_WARN, "CdTrayReqState. cdvd.Status = %d\n", cdvd.Status);
 				SetResultSize(1);
 
 				if (cdvd.Status == CDVD_STATUS_TRAY_OPEN)
-				{
-					//log_cb(RETRO_LOG_WARN, "reporting Open status\n" );
 					cdvd.Result[0] = 1;
-				}
 				else
-				{
-					//log_cb(RETRO_LOG_WARN, "reporting Close status\n" );
 					cdvd.Result[0] = 0; // old behaviour was always this
-				}
 
 				break;
 
 			case 0x06: // CdTrayCtrl  (1:1)
 				SetResultSize(1);
-				//log_cb(RETRO_LOG_WARN, "CdTrayCtrl, param = %d\n", cdvd.Param[0]);
 				if (cdvd.Param[0] == 0)
 					cdvd.Result[0] = cdvdCtrlTrayOpen();
 				else
@@ -1626,10 +1493,6 @@ static void cdvdWrite16(u8 rt) // SCOMMAND
 				cdvd.Result[5] = itob(cdvd.RTC.day);    //Day
 				cdvd.Result[6] = itob(cdvd.RTC.month);  //Month
 				cdvd.Result[7] = itob(cdvd.RTC.year);   //Year
-				/*log_cb(RETRO_LOG_INFO, "RTC Read Sec %x Min %x Hr %x Day %x Month %x Year %x\n", cdvd.Result[1], cdvd.Result[2],
-				  cdvd.Result[3], cdvd.Result[5], cdvd.Result[6], cdvd.Result[7]);
-				  log_cb(RETRO_LOG_INFO, "RTC Read Real Sec %d Min %d Hr %d Day %d Month %d Year %d\n", cdvd.RTC.second, cdvd.RTC.minute,
-				  cdvd.RTC.hour, cdvd.RTC.day, cdvd.RTC.month, cdvd.RTC.year);*/
 				break;
 
 			case 0x09: // sceCdWriteRTC (7:1)
@@ -1643,12 +1506,6 @@ static void cdvdWrite16(u8 rt) // SCOMMAND
 				cdvd.RTC.day = btoi(cdvd.Param[cdvd.ParamP - 3]);
 				cdvd.RTC.month = btoi(cdvd.Param[cdvd.ParamP - 2] & 0x7f);
 				cdvd.RTC.year = btoi(cdvd.Param[cdvd.ParamP - 1]);
-				/*
-				   log_cb(RETRO_LOG_INFO, "RTC write incomming Sec %x Min %x Hr %x Day %x Month %x Year %x\n", cdvd.Param[cdvd.ParamP-7], cdvd.Param[cdvd.ParamP-6],
-				   cdvd.Param[cdvd.ParamP-5], cdvd.Param[cdvd.ParamP-3], cdvd.Param[cdvd.ParamP-2], cdvd.Param[cdvd.ParamP-1]);
-				   log_cb(RETRO_LOG_INFO, "RTC Write Sec %d Min %d Hr %d Day %d Month %d Year %d\n", cdvd.RTC.second, cdvd.RTC.minute,
-				   cdvd.RTC.hour, cdvd.RTC.day, cdvd.RTC.month, cdvd.RTC.year);*/
-				//memcpy((u8*)&cdvd.RTC, cdvd.Param, 7);
 				break;
 
 			case 0x0A: // sceCdReadNVM (2:3)
@@ -1714,7 +1571,6 @@ static void cdvdWrite16(u8 rt) // SCOMMAND
 				break;
 
 			case 0x15: // sceCdForbidDVDP (0:1)
-				//log_cb(RETRO_LOG_INFO, "sceCdForbidDVDP\n");
 				SetResultSize(1);
 				cdvd.Result[0] = 5;
 				break;
@@ -1848,7 +1704,6 @@ static void cdvdWrite16(u8 rt) // SCOMMAND
 
 				cdvdGetMechaVer(&cdvd.Result[1]);
 				cdvdReadRegionParams(&cdvd.Result[3]); //size==8
-				log_cb(RETRO_LOG_DEBUG, "REGION PARAMS = %s %s\n", mg_zones[cdvd.Result[1] & 7], &cdvd.Result[3]);
 				cdvd.Result[1] = 1 << cdvd.Result[1]; //encryption zone; see offset 0x1C in encrypted headers
 				//////////////////////////////////////////
 				cdvd.Result[2] = 0; //??
@@ -2022,10 +1877,6 @@ static void cdvdWrite16(u8 rt) // SCOMMAND
 							zoneStr += mg_zones[i];
 					}
 
-					log_cb(RETRO_LOG_INFO, "[MG] ELF_size=0x%X Hdr_size=0x%X unk=0x%X flags=0x%X count=%d zones=%s\n",
-									*(u32*)&cdvd.mg_buffer[0x10], *(u16*)&cdvd.mg_buffer[0x14], *(u16*)&cdvd.mg_buffer[0x16],
-									*(u16*)&cdvd.mg_buffer[0x18], *(u16*)&cdvd.mg_buffer[0x1A],
-									zoneStr.c_str());
 
 					bit_ofs = mg_BIToffset(cdvd.mg_buffer);
 
@@ -2055,8 +1906,6 @@ static void cdvdWrite16(u8 rt) // SCOMMAND
 				SetResultSize(1); //in:5
 				cdvd.mg_size = 0;
 				cdvd.mg_datatype = 1; //header data
-				log_cb(RETRO_LOG_INFO, "[MG] hcode=%d cnum=%d a2=%d length=0x%X\n",
-								cdvd.Param[0], cdvd.Param[3], cdvd.Param[4], cdvd.mg_maxsize = cdvd.Param[1] | (((int)cdvd.Param[2]) << 8));
 
 				cdvd.Result[0] = 0; // 0 complete ; 1 busy ; 0x80 error
 				break;
@@ -2069,7 +1918,6 @@ static void cdvdWrite16(u8 rt) // SCOMMAND
 
 				cdvd.mg_maxsize = 0;                       // don't allow any write
 				cdvd.mg_size = 8 + 16 * cdvd.mg_buffer[4]; //new offset, i just moved the data
-				log_cb(RETRO_LOG_INFO, "[MG] BIT count=%d\n", cdvd.mg_buffer[4]);
 
 				cdvd.Result[0] = (cdvd.mg_datatype == 1) ? 0 : 0x80; // 0 complete ; 1 busy ; 0x80 error
 				cdvd.Result[1] = (cdvd.mg_size >> 0) & 0xFF;
@@ -2134,11 +1982,9 @@ static void cdvdWrite16(u8 rt) // SCOMMAND
 				// fake a 'correct' command
 				SetResultSize(1);   //in:0
 				cdvd.Result[0] = 0; // 0 complete ; 1 busy ; 0x80 error
-				log_cb(RETRO_LOG_INFO, "SCMD Unknown %x", rt);
 				break;
 		} // end switch
 
-		//log_cb(RETRO_LOG_INFO, "SCMD - 0x%x\n", rt);
 		cdvd.ParamP = 0;
 		cdvd.ParamC = 0;
 	}
@@ -2152,8 +1998,6 @@ static void cdvdWrite16(u8 rt) // SCOMMAND
 
 static __fi void cdvdWrite17(u8 rt)
 { // SDATAIN
-	CDVD_LOG("cdvdWrite17(SDataIn) %x", rt);
-
 	if (cdvd.ParamP < 32)
 	{
 		cdvd.Param[cdvd.ParamP++] = rt;
@@ -2163,13 +2007,10 @@ static __fi void cdvdWrite17(u8 rt)
 
 static __fi void cdvdWrite18(u8 rt)
 { // SDATAOUT
-	CDVD_LOG("cdvdWrite18(SDataOut) %x", rt);
-	log_cb(RETRO_LOG_INFO, "*PCSX2* SDATAOUT");
 }
 
 static __fi void cdvdWrite3A(u8 rt)
 { // DEC-SET
-	CDVD_LOG("cdvdWrite3A(DecSet) %x", rt);
 	cdvd.decSet = rt;
 }
 
@@ -2214,9 +2055,6 @@ void cdvdWrite(u8 key, u8 rt)
 			cdvdWrite3A(rt);
 			break;
 		default:
-#ifndef NDEBUG
-			log_cb(RETRO_LOG_WARN, "IOP Unknown 8bit write to addr 0x1f4020%x = 0x%x\n", key, rt);
-#endif
 			break;
 	}
 }

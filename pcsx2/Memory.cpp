@@ -53,8 +53,6 @@ BIOS
 
 u16 ba0R16(u32 mem)
 {
-	//MEM_LOG("ba00000 Memory read16 address %x", mem);
-
 	if (mem == 0x1a000006) {
 		static int ba6;
 		ba6++;
@@ -176,44 +174,34 @@ void memMapKernelMem()
 }
 
 static mem8_t __fastcall nullRead8(u32 mem) {
-	MEM_LOG("Read uninstalled memory at address %08x", mem);
 	return 0;
 }
 static mem16_t __fastcall nullRead16(u32 mem) {
-	MEM_LOG("Read uninstalled memory at address %08x", mem);
 	return 0;
 }
 static mem32_t __fastcall nullRead32(u32 mem) {
-	MEM_LOG("Read uninstalled memory at address %08x", mem);
 	return 0;
 }
 static void __fastcall nullRead64(u32 mem, mem64_t *out) {
-	MEM_LOG("Read uninstalled memory at address %08x", mem);
 	*out = 0;
 }
 static void __fastcall nullRead128(u32 mem, mem128_t *out) {
-	MEM_LOG("Read uninstalled memory at address %08x", mem);
 	ZeroQWC(out);
 }
 static void __fastcall nullWrite8(u32 mem, mem8_t value)
 {
-	MEM_LOG("Write uninstalled memory at address %08x", mem);
 }
 static void __fastcall nullWrite16(u32 mem, mem16_t value)
 {
-	MEM_LOG("Write uninstalled memory at address %08x", mem);
 }
 static void __fastcall nullWrite32(u32 mem, mem32_t value)
 {
-	MEM_LOG("Write uninstalled memory at address %08x", mem);
 }
 static void __fastcall nullWrite64(u32 mem, const mem64_t *value)
 {
-	MEM_LOG("Write uninstalled memory at address %08x", mem);
 }
 static void __fastcall nullWrite128(u32 mem, const mem128_t *value)
 {
-	MEM_LOG("Write uninstalled memory at address %08x", mem);
 }
 
 template<int p>
@@ -234,7 +222,6 @@ static mem8_t __fastcall _ext_memRead8 (u32 mem)
 		default: break;
 	}
 
-	MEM_LOG("Unknown Memory Read8   from address %8.8x", mem);
 	cpuTlbMissR(mem, cpuRegs.branch);
 	return 0;
 }
@@ -245,7 +232,6 @@ static mem16_t __fastcall _ext_memRead16(u32 mem)
 	switch (p)
 	{
 		case 4: // b80
-			MEM_LOG("b800000 Memory read16 address %x", mem);
 			return 0;
 		case 5: // ba0
 			return ba0R16(mem);
@@ -264,7 +250,6 @@ static mem16_t __fastcall _ext_memRead16(u32 mem)
 
 		default: break;
 	}
-	MEM_LOG("Unknown Memory read16  from address %8.8x", mem);
 	cpuTlbMissR(mem, cpuRegs.branch);
 	return 0;
 }
@@ -285,7 +270,6 @@ static mem32_t __fastcall _ext_memRead32(u32 mem)
 		default: break;
 	}
 
-	MEM_LOG("Unknown Memory read32  from address %8.8x (Status=%8.8x)", mem, cpuRegs.CP0.n.Status.val);
 	cpuTlbMissR(mem, cpuRegs.branch);
 	return 0;
 }
@@ -300,7 +284,6 @@ static void __fastcall _ext_memRead64(u32 mem, mem64_t *out)
 		default: break;
 	}
 
-	MEM_LOG("Unknown Memory read64  from address %8.8x", mem);
 	cpuTlbMissR(mem, cpuRegs.branch);
 }
 
@@ -317,7 +300,6 @@ static void __fastcall _ext_memRead128(u32 mem, mem128_t *out)
 		default: break;
 	}
 
-	MEM_LOG("Unknown Memory read128 from address %8.8x", mem);
 	cpuTlbMissR(mem, cpuRegs.branch);
 }
 
@@ -336,7 +318,6 @@ static void __fastcall _ext_memWrite8 (u32 mem, mem8_t  value)
 		default: break;
 	}
 
-	MEM_LOG("Unknown Memory write8   to  address %x with data %2.2x", mem, value);
 	cpuTlbMissW(mem, cpuRegs.branch);
 }
 
@@ -345,19 +326,16 @@ static void __fastcall _ext_memWrite16(u32 mem, mem16_t value)
 {
 	switch (p) {
 		case 5: // ba0
-			MEM_LOG("ba00000 Memory write16 to  address %x with data %x", mem, value);
 			return;
 		case 6: // gsm
 			gsWrite16(mem, value); return;
 		case 7: // dev9
 			DEV9write16(mem & ~0xa4000000, value);
-			log_cb(RETRO_LOG_INFO, "DEV9 write16 %8.8lx: %4.4lx\n", mem & ~0xa4000000, value);
 			return;
 		case 8: // spu2
 			SPU2write(mem, value); return;
 		default: break;
 	}
-	MEM_LOG("Unknown Memory write16  to  address %x with data %4.4x", mem, value);
 	cpuTlbMissW(mem, cpuRegs.branch);
 }
 
@@ -373,40 +351,18 @@ static void __fastcall _ext_memWrite32(u32 mem, mem32_t value)
 			return;
 		default: break;
 	}
-	MEM_LOG("Unknown Memory write32  to  address %x with data %8.8x", mem, value);
 	cpuTlbMissW(mem, cpuRegs.branch);
 }
 
 template<int p>
 static void __fastcall _ext_memWrite64(u32 mem, const mem64_t* value)
 {
-
-	/*switch (p) {
-		//case 1: // hwm
-		//	hwWrite64(mem & ~0xa0000000, *value);
-		//	return;
-		//case 6: // gsm
-		//	gsWrite64(mem & ~0xa0000000, *value); return;
-	}*/
-
-	MEM_LOG("Unknown Memory write64  to  address %x with data %8.8x_%8.8x", mem, (u32)(*value>>32), (u32)*value);
 	cpuTlbMissW(mem, cpuRegs.branch);
 }
 
 template<int p>
 static void __fastcall _ext_memWrite128(u32 mem, const mem128_t *value)
 {
-	/*switch (p) {
-		//case 1: // hwm
-		//	hwWrite128(mem & ~0xa0000000, value);
-		//	return;
-		//case 6: // gsm
-		//	mem &= ~0xa0000000;
-		//	gsWrite64(mem,   value[0]);
-		//	gsWrite64(mem+8, value[1]); return;
-	}*/
-
-	MEM_LOG("Unknown Memory write128 to  address %x with data %8.8x_%8.8x_%8.8x_%8.8x", mem, ((u32*)value)[3], ((u32*)value)[2], ((u32*)value)[1], ((u32*)value)[0]);
 	cpuTlbMissW(mem, cpuRegs.branch);
 }
 
@@ -908,13 +864,6 @@ void mmap_MarkCountedRamPage( u32 paddr )
 
 	if( m_PageProtectInfo[rampage].Mode == ProtMode_Write )
 		return;		// skip town if we're already protected.
-
-#if 0
-	eeRecPerfLog.Write( (m_PageProtectInfo[rampage].Mode == ProtMode_Manual) ?
-		"Re-protecting page @ 0x%05x" : "Protected page @ 0x%05x",
-		paddr>>12
-	);
-#endif
 
 	m_PageProtectInfo[rampage].Mode = ProtMode_Write;
 	HostSys::MemProtect( &eeMem->Main[rampage<<12], __pagesize, PageAccess_ReadOnly() );

@@ -89,18 +89,12 @@ void GIF_Fifo::init()
 
 int GIF_Fifo::write_fifo(u32* pMem, int size)
 {
-	if (fifoSize == 16) {
-		//log_cb(RETRO_LOG_DEBUG, "GIF FIFO Full\n");
+	if (fifoSize == 16)
 		return 0;
-	}
 
 	int transferSize = std::min(size, 16 - (int)fifoSize);
 
 	int writePos = fifoSize * 4;
-
-#if 0
-	GIF_LOG("GIF FIFO Adding %d QW to GIF FIFO at offset %d FIFO now contains %d QW", transferSize, writePos, fifoSize);
-#endif
 
 	memcpy(&data[writePos], pMem, transferSize * 16);
 
@@ -118,10 +112,7 @@ int GIF_Fifo::read_fifo()
 		gifRegs.stat.FQC = fifoSize;
 		CalculateFIFOCSR();
 		if (fifoSize)
-		{
-			//log_cb(RETRO_LOG_DEBUG, "GIF FIFO Can't read, GIF paused/busy. Waiting\n");
 			GifDMAInt(128);
-		}
 		return 0;
 	}
 
@@ -129,8 +120,6 @@ int GIF_Fifo::read_fifo()
 	int sizeRead = 0;
 
 	sizeRead = gifUnit.TransferGSPacketData(GIF_TRANS_DMA, (u8*)&data, fifoSize * 16) / 16; //returns the size actually read
-
-	//GIF_LOG("GIF FIFO Read %d QW from FIFO Current Size %d", sizeRead, fifoSize);
 
 	if (sizeRead < (int)fifoSize) {
 		if (sizeRead > 0)
@@ -143,20 +132,10 @@ int GIF_Fifo::read_fifo()
 
 			fifoSize = copyAmount;
 
-			//GIF_LOG("GIF FIFO rearranged to now only contain %d QW", fifoSize);
 		}
-#if 0
-		else
-		{
-			GIF_LOG("GIF FIFO not read");
-		}
-#endif
 	}
 	else
-	{
-		//GIF_LOG("GIF FIFO now empty");
 		fifoSize = 0;
-	}
 
 	gifRegs.stat.FQC = fifoSize;
 	CalculateFIFOCSR();
@@ -170,10 +149,6 @@ void incGifChAddr(u32 qwc) {
 		gifch.qwc  -= qwc;
 		hwDmacSrcTadrInc(gifch);
 	}
-#if 0
-	else
-		log_cb(RETRO_LOG_DEBUG, "incGifAddr() Error!\n");
-#endif
 }
 
 __fi void gifCheckPathStatus() {
@@ -195,7 +170,6 @@ __fi void gifCheckPathStatus() {
 
 __fi void gifInterrupt()
 {
-	//GIF_LOG("gifInterrupt caught qwc=%d fifo=%d apath=%d oph=%d state=%d!", gifch.qwc, gifRegs.stat.FQC, gifRegs.stat.APATH, gifRegs.stat.OPH, gifUnit.gifPath[GIF_PATH_3].state);
 	gifCheckPathStatus();
 
 	if(gifUnit.gifPath[GIF_PATH_3].state == GIF_PATH_IDLE)
@@ -217,13 +191,11 @@ __fi void gifInterrupt()
 	}
 
 	if (dmacRegs.ctrl.MFD == MFD_GIF) { // GIF MFIFO
-		//log_cb(RETRO_LOG_INFO, "GIF MFIFO\n");
 		gifMFIFOInterrupt();
 		return;
 	}
 
 	if (gifUnit.gsSIGNAL.queued) {
-		//GIF_LOG("Path 3 Paused");
 		GifDMAInt(128);
 		if (gif_fifo.fifoSize == 16)
 			return;
@@ -261,7 +233,6 @@ __fi void gifInterrupt()
 	{
 		if (!dmacRegs.ctrl.DMAE)
 		{
-			//log_cb(RETRO_LOG_WARN, "gs dma masked, re-scheduling...\n");
 			// Re-raise the int shortly in the future
 			GifDMAInt(64);
 			return;
@@ -279,7 +250,6 @@ __fi void gifInterrupt()
 
 	if (gif_fifo.fifoSize)
 		GifDMAInt(8 * BIAS);
-	//GIF_LOG("GIF DMA End QWC in fifo %x APATH = %x OPH = %x state = %x", gifRegs.stat.FQC, gifRegs.stat.APATH, gifRegs.stat.OPH, gifUnit.gifPath[GIF_PATH_3].state);
 }
 
 static u32 WRITERING_DMA(u32 *pMem, u32 qwc) {
@@ -324,7 +294,6 @@ static __fi void GIFchain()
 		//must increment madr and clear qwc, else it loops
 		gifch.madr += gifch.qwc * 16;
 		gifch.qwc = 0;
-		//log_cb(RETRO_LOG_WARN, "Hackfix - NULL GIFchain\n");
 		return;
 	}
 
@@ -338,7 +307,6 @@ static __fi void GIFchain()
 static __fi bool checkTieBit(tDMA_TAG* &ptag)
 {
 	if (gifch.chcr.TIE && ptag->IRQ) {
-		//GIF_LOG("dmaIrq Set");
 		gif.gspath3done = true;
 		return true;
 	}
@@ -376,13 +344,11 @@ void GIFdma()
 		gif.gscycles = gif.prevcycles;
 
 		if (gifRegs.ctrl.PSE) { // temporarily stop
-			//log_cb(RETRO_LOG_INFO, "Gif dma temp paused? (non MFIFO GIF)\n");
 			GifDMAInt(16);
 			return;
 		}
 
 		if ((dmacRegs.ctrl.STD == STD_GIF) && (gif.prevcycles != 0)) {
-			//log_cb(RETRO_LOG_INFO, "GS Stall Control Source = %x, Drain = %x\n MADR = %x, STADR = %x\n", (psHu32(0xe000) >> 4) & 0x3, (psHu32(0xe000) >> 6) & 0x3, gifch.madr, psHu32(DMAC_STADR));
 			if ((gifch.madr + (gifch.qwc * 16)) > dmacRegs.stadr.ADDR) {
 				GifDMAInt(4);
 				gif.gscycles = 0;
@@ -397,8 +363,6 @@ void GIFdma()
 			ptag = ReadTag();
 			if (ptag == NULL)
 				return;
-			//log_cb(RETRO_LOG_DEBUG, "GIF Reading Tag MSK = %x\n", vif1Regs.mskpath3);
-			//GIF_LOG("gifdmaChain %8.8x_%8.8x size=%d, id=%d, addr=%lx tadr=%lx", ptag[1]._u32, ptag[0]._u32, gifch.qwc, ptag->ID, gifch.madr, gifch.tadr);
 			gifRegs.stat.FQC = std::min((u32)0x10, gifch.qwc);
 			CalculateFIFOCSR();
 
@@ -409,7 +373,6 @@ void GIFdma()
 				{
 					// stalled.
 					// We really need to test this. Pay attention to prevcycles, as it used to trigger GIFchains in the code above. (rama)
-					//log_cb(RETRO_LOG_DEBUG, "GS Stall Control start Source = %x, Drain = %x\n MADR = %x, STADR = %x\n", (psHu32(0xe000) >> 4) & 0x3, (psHu32(0xe000) >> 6) & 0x3,gifch.madr, psHu32(DMAC_STADR));
 					gif.prevcycles = gif.gscycles;
 					gifch.tadr -= 16;
 					gifch.qwc = 0;
@@ -422,12 +385,6 @@ void GIFdma()
 
 			checkTieBit(ptag);
 		}
-#ifndef NDEBUG
-		else if (dmacRegs.ctrl.STD == STD_GIF && gifch.chcr.MOD == NORMAL_MODE)
-		{
-			log_cb(RETRO_LOG_DEBUG, "GIF DMA Stall in Normal mode not implemented - Report which game to PCSX2 Team\n");
-		}
-#endif
 
 		// Transfer Dn_QWC from Dn_MADR to GIF
 		if (gifch.qwc > 0) // Normal Mode
@@ -441,9 +398,8 @@ void GIFdma()
 	GifDMAInt(16);
 }
 
-void dmaGIF()
+void dmaGIF(void)
 {
-	//log_cb(RETRO_LOG_DEBUG, "dmaGIFstart chcr = %lx, madr = %lx, qwc  = %lx\n tadr = %lx, asr0 = %lx, asr1 = %lx\n", gifch.chcr._u32, gifch.madr, gifch.qwc, gifch.tadr, gifch.asr0, gifch.asr1);
 
 	gif.gspath3done = false; // For some reason this doesn't clear? So when the system starts the thread, we will clear it :)
 
@@ -452,7 +408,6 @@ void dmaGIF()
 	}
 
 	if(gifch.chcr.MOD == CHAIN_MODE && gifch.qwc > 0) {
-		//log_cb(RETRO_LOG_DEBUG, "GIF QWC on Chain %s\n", gifch.chcr.desc());
 		if ((gifch.chcr.tag().ID == TAG_REFE) || (gifch.chcr.tag().ID == TAG_END) || (gifch.chcr.tag().IRQ && gifch.chcr.TIE)) {
 			gif.gspath3done = true;
 		}
@@ -465,7 +420,6 @@ static u32 QWCinGIFMFIFO(u32 DrainADDR)
 {
 	u32 ret;
 
-	SPR_LOG("GIF MFIFO Requesting %x QWC from the MFIFO Base %x, SPR MADR %x Drain %x", gifch.qwc, dmacRegs.rbor.ADDR, spr0ch.madr, DrainADDR);
 	//Calculate what we have in the fifo.
 	if (DrainADDR <= spr0ch.madr) {
 		//Drain is below the write position, calculate the difference between them
@@ -480,7 +434,6 @@ static u32 QWCinGIFMFIFO(u32 DrainADDR)
 	if (ret == 0)
 		gif.gifstate = GIF_STATE_EMPTY;
 
-	SPR_LOG("%x Available of the %x requested", ret, gifch.qwc);
 	return ret;
 }
 
@@ -533,7 +486,6 @@ static __fi void mfifoGIFchain() {
 	if ((gifch.madr & ~dmacRegs.rbsr.RMSK) == dmacRegs.rbor.ADDR)
 	{
 		if (QWCinGIFMFIFO(gifch.madr) == 0) {
-			SPR_LOG("GIF FIFO EMPTY before transfer");
 			gif.gifstate = GIF_STATE_EMPTY;
 			gif.mfifocycles += 4;
 			return;
@@ -553,7 +505,6 @@ static __fi void mfifoGIFchain() {
 		gifch.tadr = gifch.madr;
 	}
 	else {
-		SPR_LOG("Non-MFIFO Location transfer doing %x Total QWC", gifch.qwc);
 		tDMA_TAG* pMem = dmaGetAddr(gifch.madr, false);
 		if (pMem == NULL)
 		{
@@ -584,14 +535,10 @@ void mfifoGifMaskMem(int id)
 		case TAG_END:
 			if(gifch.madr < dmacRegs.rbor.ADDR) //probably not needed but we will check anyway.
 			{
-				SPR_LOG("GIF MFIFO MADR below bottom of ring buffer, wrapping GIF MADR = %x Ring Bottom %x", gifch.madr, dmacRegs.rbor.ADDR);
 				gifch.madr = qwctag(gifch.madr);
 			} else
 			if(gifch.madr > (dmacRegs.rbor.ADDR + (u32)dmacRegs.rbsr.RMSK)) //Usual scenario is the tag is near the end (Front Mission 4)
-			{
-				SPR_LOG("GIF MFIFO MADR outside top of ring buffer, wrapping GIF MADR = %x Ring Top %x", gifch.madr, (dmacRegs.rbor.ADDR + dmacRegs.rbsr.RMSK) + 16);
 				gifch.madr = qwctag(gifch.madr);
-			}
 			break;
 		default:
 			// Do nothing as the MADR could be outside
@@ -605,7 +552,6 @@ void mfifoGIFtransfer()
 	gif.mfifocycles = 0;
 
 	if (gifRegs.ctrl.PSE) { // temporarily stop
-		//log_cb(RETRO_LOG_DEBUG, "Gif dma temp paused?\n");
 		CPU_INT(DMAC_MFIFO_GIF, 16);
 		return;
 	}
@@ -614,7 +560,6 @@ void mfifoGIFtransfer()
 		gifch.tadr = qwctag(gifch.tadr);
 
 		if (QWCinGIFMFIFO(gifch.tadr) == 0) {
-			SPR_LOG("GIF FIFO EMPTY before tag read");
 			gif.gifstate = GIF_STATE_EMPTY;
 			GifDMAInt(4);
 			return;
@@ -629,25 +574,14 @@ void mfifoGIFtransfer()
 
 		gif.mfifocycles += 2;
 
-#if 0
-		GIF_LOG("dmaChain %8.8x_%8.8x size=%d, id=%d, madr=%lx, tadr=%lx mfifo qwc = %x spr0 madr = %x",
-			ptag[1]._u32, ptag[0]._u32, gifch.qwc, ptag->ID, gifch.madr, gifch.tadr, gif.gifqwc, spr0ch.madr);
-#endif
 
 		gif.gspath3done = hwDmacSrcChainWithStack(gifch, ptag->ID);
 
-#ifndef NDEBUG
-		if (dmacRegs.ctrl.STD == STD_GIF && (ptag->ID == TAG_REFS))
-		{
-			log_cb(RETRO_LOG_DEBUG, "GIF MFIFO DMA Stall not implemented - Report which game to PCSX2 Team\n");
-		}
-#endif
 		mfifoGifMaskMem(ptag->ID);
 
 		gifch.tadr = qwctag(gifch.tadr);
 
 		if ((gifch.chcr.TIE) && (ptag->IRQ)) {
-			SPR_LOG("dmaIrq Set");
 			gif.gspath3done = true;
 		}
 	}
@@ -655,8 +589,6 @@ void mfifoGIFtransfer()
 	mfifoGIFchain();
 
 	GifDMAInt(std::max(gif.mfifocycles, (u32)4));
-
-	SPR_LOG("mfifoGIFtransfer end %x madr %x, tadr %x", gifch.chcr._u32, gifch.madr, gifch.tadr);
 }
 
 void gifMFIFOInterrupt()
@@ -665,9 +597,6 @@ void gifMFIFOInterrupt()
 	gif.mfifocycles = 0;
 
 	if (dmacRegs.ctrl.MFD != MFD_GIF) { // GIF not in MFIFO anymore, come out.
-#ifndef NDEBUG
-		log_cb(RETRO_LOG_DEBUG, "GIF Leaving MFIFO - Report if any errors\n");
-#endif
 		gifInterrupt();
 		return;
 	}
@@ -770,7 +699,6 @@ void gifMFIFOInterrupt()
 
 	if (gif_fifo.fifoSize)
 		GifDMAInt(8 * BIAS);
-	DMA_LOG("GIF MFIFO DMA End");
 }
 
 void SaveStateBase::gifDmaFreeze() {

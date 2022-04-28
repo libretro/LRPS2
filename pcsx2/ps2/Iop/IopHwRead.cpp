@@ -61,27 +61,13 @@ mem8_t __fastcall iopHwRead8_Page1( u32 addr )
 
 		default:
 			if( masked_addr >= 0x100 && masked_addr < 0x130 )
-			{
-#ifndef NDEBUG
-				log_cb(RETRO_LOG_DEBUG, "HwRead8 from Counter16 [ignored] @ 0x%08x = 0x%02x\n", addr, psxHu8(addr) );
-#endif
 				ret = psxHu8( addr );
-			}
 			else if( masked_addr >= 0x480 && masked_addr < 0x4a0 )
-			{
-				log_cb(RETRO_LOG_DEBUG, "HwRead8 from Counter32 [ignored] @ 0x%08x = 0x%02x\n", addr, psxHu8(addr) );
 				ret = psxHu8( addr );
-			}
 			else if( (masked_addr >= pgmsk(HW_USB_START)) && (masked_addr < pgmsk(HW_USB_END)) )
-			{
 				ret = USBread8( addr );
-				PSXHW_LOG( "HwRead8 from USB @ 0x%08x = 0x%02x", addr, ret );
-			}
 			else
-			{
 				ret = psxHu8(addr);
-				PSXUnkHW_LOG( "HwRead8 from Unknown @ 0x%08x = 0x%02x", addr, ret );
-			}
 		return ret;
 	}
 
@@ -165,9 +151,6 @@ static __fi T _HwRead_16or32_Page1( u32 addr )
 			break;
 			
 			default:
-#ifndef NDEBUG
-				log_cb(RETRO_LOG_DEBUG, "Unknown 16bit counter read %x\n", addr);
-#endif
 				ret = psxHu32(addr);
 			break;
 		}
@@ -207,9 +190,6 @@ static __fi T _HwRead_16or32_Page1( u32 addr )
 			break;
 
 			default:
-#ifndef NDEBUG
-				log_cb(RETRO_LOG_DEBUG, "Unknown 32bit counter read %x\n", addr);
-#endif
 				ret = psxHu32(addr);
 			break;
 		}
@@ -230,9 +210,6 @@ static __fi T _HwRead_16or32_Page1( u32 addr )
 			ret = SPU2read( addr );
 		else
 		{
-#ifndef NDEBUG
-			log_cb(RETRO_LOG_DEBUG, "HwRead32 from SPU2? @ 0x%08X .. What manner of trickery is this?!\n", addr );
-#endif
 			ret = psxHu32(addr);
 		}
 	}
@@ -240,17 +217,7 @@ static __fi T _HwRead_16or32_Page1( u32 addr )
 	// PS1 GPU access
 	//
 	else if( (masked_addr >= pgmsk(HW_PS1_GPU_START)) && (masked_addr < pgmsk(HW_PS1_GPU_END)) )
-	{
-#ifndef NDEBUG
-		// todo: psx mode: this is new
-		if( sizeof(T) == 2 )
-			log_cb(RETRO_LOG_DEBUG, "HwRead16 from PS1 GPU? @ 0x%08X .. What manner of trickery is this?!\n", addr );
-#endif
-
-		pxAssert(sizeof(T) == 4);
-
 		ret = psxDma2GpuR(addr);
-	}
 	else
 	{
 		switch( masked_addr )
@@ -269,9 +236,6 @@ static __fi T _HwRead_16or32_Page1( u32 addr )
 			mcase(HW_SIO_STAT):
 				ret = sio.StatReg;
 				sioStatRead();
-#if 0
-				log_cb(RETRO_LOG_DEBUG, "SIO0 Read STAT %02X INT_STAT= %08X IOPpc= %08X \n" , ret, psxHu32(0x1070), psxRegs.pc);
-#endif
 			break;
 
 			mcase(HW_SIO_MODE):
@@ -324,15 +288,10 @@ static __fi T _HwRead_16or32_Page1( u32 addr )
 			//
 			mcase(0x1f8010ac) :
 				ret = psxHu32(addr);
-#ifndef NDEBUG
-				log_cb(RETRO_LOG_DEBUG, "SIF2 IOP TADR?? read\n");
-#endif
 			break;
 
 			mcase(HW_PS1_GPU_DATA) :
 				ret = psxGPUr(addr);
-				//ret = psxHu32(addr); // old
-				log_cb(RETRO_LOG_DEBUG, "GPU Data Read %x\n", ret);
 			break;
 			
 			mcase(HW_PS1_GPU_STATUS) :
@@ -456,14 +415,6 @@ mem32_t __fastcall iopHwRead32_Page8( u32 addr )
 				// The old IOP system just ignored it, so that's what we do here.  I've included commented code
 				// for treating it as a 16/32 bit write though [which is what the SIO does, for example).
 				mcase(HW_SIO2_FIFO) :
-					//ret = sio2_fifoOut();
-					//ret |= sio2_fifoOut() << 8;
-					//ret |= sio2_fifoOut() << 16;
-					//ret |= sio2_fifoOut() << 24;
-				//break;
-#ifndef NDEBUG
-					log_cb(RETRO_LOG_DEBUG, "HW_SIO2_FIFO read\n");
-#endif
 					ret = psxHu32(addr);
 				break;
 

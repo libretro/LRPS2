@@ -37,22 +37,18 @@ static void flush_stdout(bool closing = false)
             if (!psxout_buf.compare(0, linelen, psxout_last))
                 psxout_repeat++;
             else {
-                if (psxout_repeat) {
-                    //iopConLog(wxString::Format(L"[%u more]\n", psxout_repeat));
+                if (psxout_repeat)
                     psxout_repeat = 0;
-                }
                 psxout_last = psxout_buf.substr(0, linelen);
             }
         }
         psxout_buf.erase(0, linelen);
     }
-    if (closing && psxout_repeat) {
-        //iopConLog(wxString::Format(L"[%u more]\n", psxout_repeat));
+    if (closing && psxout_repeat)
         psxout_repeat = 0;
-    }
 }
 
-void psxBiosReset()
+void psxBiosReset(void)
 {
     flush_stdout(true);
 }
