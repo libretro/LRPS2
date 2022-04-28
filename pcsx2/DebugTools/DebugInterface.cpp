@@ -160,11 +160,6 @@ private:
 // DebugInterface
 //
 
-bool DebugInterface::isAlive()
-{
-	return GetCoreThread().IsOpen() && g_FrameCount > 0;
-}
-
 bool DebugInterface::isCpuPaused()
 {
 	return GetCoreThread().IsPaused();
@@ -184,36 +179,6 @@ void DebugInterface::resumeCpu()
 		core.Resume();
 }
 
-
-char* DebugInterface::stringFromPointer(u32 p)
-{
-	const int BUFFER_LEN = 25;
-	static char buf[BUFFER_LEN] = { 0 };
-
-	if (!isValidAddress(p))
-		return NULL;
-
-	try {
-		for (u32 i = 0; i < BUFFER_LEN; i++) {
-			char c = read8(p + i);
-			buf[i] = c;
-
-			if (c == 0) {
-				return i > 0 ? buf : NULL;
-			}
-			else if (c < 0x20 || c >= 0x7f) {
-				// non printable character
-				return NULL;
-			}
-		}
-	}
-	catch (Exception::Ps2Generic&) {
-		return NULL;
-	}
-	buf[BUFFER_LEN - 1] = 0;
-	buf[BUFFER_LEN - 2] = '~';
-	return buf;
-}
 
 bool DebugInterface::initExpression(const char* exp, PostfixExpression& dest)
 {

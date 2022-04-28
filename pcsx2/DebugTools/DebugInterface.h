@@ -45,11 +45,9 @@ public:
 	
 	bool initExpression(const char* exp, PostfixExpression& dest);
 	bool parseExpression(PostfixExpression& exp, u64& dest);
-	bool isAlive();
 	bool isCpuPaused();
 	void pauseCpu();
 	void resumeCpu();
-	char *stringFromPointer(u32 p);
 };
 
 class R5900DebugInterface: public DebugInterface

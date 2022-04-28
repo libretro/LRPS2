@@ -40,36 +40,4 @@ namespace MIPSAnalyst
 	};
 
 	void ScanForFunctions(u32 startAddr, u32 endAddr, bool insertSymbols);
-
-	enum LoadStoreLRType { LOADSTORE_NORMAL, LOADSTORE_LEFT, LOADSTORE_RIGHT };
-
-	typedef struct {
-		DebugInterface* cpu;
-		u32 opcodeAddress;
-		u32 encodedOpcode;
-		
-		// shared between branches and conditional moves
-		bool isConditional;
-		bool conditionMet;
-
-		// branches
-		u32 branchTarget;
-		bool isSyscall;
-		bool isBranch;
-		bool isLinkedBranch;
-		bool isLikelyBranch;
-		bool isBranchToRegister;
-		int branchRegisterNum;
-
-		// data access
-		bool isDataAccess;
-		LoadStoreLRType lrType;
-		int dataSize;
-		u32 dataAddress;
-
-		bool hasRelevantAddress;
-		u32 releventAddress;
-	} MipsOpcodeInfo;
-	
-	MipsOpcodeInfo GetOpcodeInfo(DebugInterface* cpu, u32 address);
 };
