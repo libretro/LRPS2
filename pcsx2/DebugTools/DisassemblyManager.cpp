@@ -26,11 +26,6 @@
 
 int DisassemblyManager::maxParamChars = 29;
 
-bool isInInterval(u32 start, u32 size, u32 value)
-{
-	return start <= value && value <= (start+size-1);
-}
-
 static u32 computeHash(u32 address, u32 size)
 {
 	u32 end = address+size;
@@ -41,267 +36,6 @@ static u32 computeHash(u32 address, u32 size)
 		address += 4;
 	}
 	return hash;
-}
-
-
-void parseDisasm(const char* disasm, char* opcode, char* arguments, bool insertSymbols)
-{
-	if (*disasm == '(')
-	{
-		while (*disasm != ')' && *disasm != 0)
-			disasm++;
-		if (*disasm == ')')
-			disasm++;
-	}
-
-	// copy opcode
-	while (*disasm != 0 && *disasm != '\t')
-	{
-		*opcode++ = *disasm++;
-	}
-	*opcode = 0;
-
-	if (*disasm++ == 0)
-	{
-		*arguments = 0;
-		return;
-	}
-
-	const char* jumpAddress = strstr(disasm,"->$");
-	const char* jumpRegister = strstr(disasm,"->");
-	while (*disasm != 0)
-	{
-		// parse symbol
-		if (disasm == jumpAddress)
-		{
-			u32 branchTarget;
-			sscanf(disasm+3,"0x%08x",&branchTarget);
-
-			const std::string addressSymbol = symbolMap.GetLabelString(branchTarget);
-			if (!addressSymbol.empty() && insertSymbols)
-			{
-				arguments += sprintf(arguments,"%s",addressSymbol.c_str());
-			} else {
-				arguments += sprintf(arguments,"0x%08X",branchTarget);
-			}
-
-			disasm += 3+2+8;
-			continue;
-		}
-
-		if (disasm == jumpRegister)
-			disasm += 2;
-
-		if (*disasm == ' ')
-		{
-			disasm++;
-			continue;
-		}
-		*arguments++ = *disasm++;
-	}
-
-	*arguments = 0;
-}
-
-std::map<u32,DisassemblyEntry*>::iterator findDisassemblyEntry(std::map<u32,DisassemblyEntry*>& entries, u32 address, bool exact)
-{
-	if (exact)
-		return entries.find(address);
-
-	if (entries.empty())
-		return entries.end();
-
-	// find first elem that's >= address
-	auto it = entries.lower_bound(address);
-	if (it != entries.end())
-	{
-		// it may be an exact match
-		if (isInInterval(it->second->getLineAddress(0),it->second->getTotalSize(),address))
-			return it;
-
-		// otherwise it may point to the next
-		if (it != entries.begin())
-		{
-			it--;
-			if (isInInterval(it->second->getLineAddress(0),it->second->getTotalSize(),address))
-				return it;
-		}
-	}
-
-	// check last entry manually
-	auto rit = entries.rbegin();
-	if (isInInterval(rit->second->getLineAddress(0),rit->second->getTotalSize(),address))
-	{
-		return (++rit).base();
-	}
-
-	// no match otherwise
-	return entries.end();
-}
-
-void DisassemblyManager::analyze(u32 address, u32 size = 1024)
-{
-	if (!cpu->isAlive())
-		return;
-
-	u32 end = address+size;
-
-	address &= ~3;
-	u32 start = address;
-
-	while (address < end && start <= address)
-	{
-		auto it = findDisassemblyEntry(entries,address,false);
-		if (it != entries.end())
-		{
-			DisassemblyEntry* entry = it->second;
-			entry->recheck();
-			address = entry->getLineAddress(0)+entry->getTotalSize();
-			continue;
-		}
-
-		SymbolInfo info;
-		if (!symbolMap.GetSymbolInfo(&info,address,ST_ALL))
-		{
-			if (address % 4)
-			{
-				u32 next = std::min<u32>((address+3) & ~3,symbolMap.GetNextSymbolAddress(address,ST_ALL));
-				DisassemblyData* data = new DisassemblyData(cpu,address,next-address,DATATYPE_BYTE);
-				entries[address] = data;
-				address = next;
-				continue;
-			}
-
-			u32 next = symbolMap.GetNextSymbolAddress(address,ST_ALL);
-
-			if ((next % 4) && next != 0xFFFFFFFF)
-			{
-				u32 alignedNext = next & ~3;
-
-				if (alignedNext != address)
-				{
-					DisassemblyOpcode* opcode = new DisassemblyOpcode(cpu,address,(alignedNext-address)/4);
-					entries[address] = opcode;
-				}
-
-				DisassemblyData* data = new DisassemblyData(cpu,address,next-alignedNext,DATATYPE_BYTE);
-				entries[alignedNext] = data;
-			} else {
-				DisassemblyOpcode* opcode = new DisassemblyOpcode(cpu,address,(next-address)/4);
-				entries[address] = opcode;
-			}
-
-			address = next;
-			continue;
-		}
-
-		switch (info.type)
-		{
-		case ST_FUNCTION:
-			{
-				DisassemblyFunction* function = new DisassemblyFunction(cpu,info.address,info.size);
-				entries[info.address] = function;
-				address = info.address+info.size;
-			}
-			break;
-		case ST_DATA:
-			{
-				DisassemblyData* data = new DisassemblyData(cpu,info.address,info.size,symbolMap.GetDataType(info.address));
-				entries[info.address] = data;
-				address = info.address+info.size;
-			}
-			break;
-		default:
-			break;
-		}
-	}
-
-}
-
-std::vector<BranchLine> DisassemblyManager::getBranchLines(u32 start, u32 size)
-{
-	std::vector<BranchLine> result;
-	
-	auto it = findDisassemblyEntry(entries,start,false);
-	if (it != entries.end())
-	{
-		do 
-		{
-			it->second->getBranchLines(start,size,result);
-			it++;
-		} while (it != entries.end() && start+size > it->second->getLineAddress(0));
-	}
-
-	return result;
-}
-
-u32 DisassemblyManager::getStartAddress(u32 address)
-{
-	auto it = findDisassemblyEntry(entries,address,false);
-	if (it == entries.end())
-	{
-		analyze(address);
-		it = findDisassemblyEntry(entries,address,false);
-		if (it == entries.end())
-			return address;
-	}
-	
-	DisassemblyEntry* entry = it->second;
-	int line = entry->getLineNum(address,true);
-	return entry->getLineAddress(line);
-}
-
-u32 DisassemblyManager::getNthPreviousAddress(u32 address, int n)
-{
-	while (cpu->isValidAddress(address))
-	{
-		auto it = findDisassemblyEntry(entries,address,false);
-	
-		while (it != entries.end())
-		{
-			DisassemblyEntry* entry = it->second;
-			int oldLineNum = entry->getLineNum(address,true);
-			if (n <= oldLineNum)
-			{
-				return entry->getLineAddress(oldLineNum-n);
-			}
-
-			address = entry->getLineAddress(0)-1;
-			n -= oldLineNum+1;
-			it = findDisassemblyEntry(entries,address,false);
-		}
-	
-		analyze(address-127,128);
-	}
-	
-	return address-n*4;
-}
-
-u32 DisassemblyManager::getNthNextAddress(u32 address, int n)
-{
-	while (cpu->isValidAddress(address))
-	{
-		auto it = findDisassemblyEntry(entries,address,false);
-	
-		while (it != entries.end())
-		{
-			DisassemblyEntry* entry = it->second;
-			int oldLineNum = entry->getLineNum(address,true);
-			int oldNumLines = entry->getNumLines();
-			if (oldLineNum+n < oldNumLines)
-			{
-				return entry->getLineAddress(oldLineNum+n);
-			}
-
-			address = entry->getLineAddress(0)+entry->getTotalSize();
-			n -= (oldNumLines-oldLineNum);
-			it = findDisassemblyEntry(entries,address,false);
-		}
-
-		analyze(address);
-	}
-
-	return address+n*4;
 }
 
 void DisassemblyManager::clear()
@@ -318,17 +52,6 @@ DisassemblyFunction::DisassemblyFunction(DebugInterface* _cpu, u32 _address, u32
 	cpu = _cpu;
 	hash = computeHash(address,size);
 	load();
-}
-
-void DisassemblyFunction::recheck()
-{
-	u32 newHash = computeHash(address,size);
-	if (hash != newHash)
-	{
-		hash = newHash;
-		clear();
-		load();
-	}
 }
 
 int DisassemblyFunction::getNumLines()
@@ -368,26 +91,6 @@ int DisassemblyFunction::getLineNum(u32 address, bool findStart)
 u32 DisassemblyFunction::getLineAddress(int line)
 {
 	return lineAddresses[line];
-}
-
-void DisassemblyFunction::getBranchLines(u32 start, u32 size, std::vector<BranchLine>& dest)
-{
-	u32 end = start+size;
-
-	for (size_t i = 0; i < lines.size(); i++)
-	{
-		BranchLine& line = lines[i];
-
-		u32 first = line.first;
-		u32 second = line.second;
-
-		// skip branches that are entirely before or entirely after the window
-		if ((first < start && second < start) ||
-			(first > end && second > end))
-			continue;
-
-		dest.push_back(line);
-	}
 }
 
 #define NUM_LANES 16
@@ -647,42 +350,6 @@ void DisassemblyFunction::clear()
 	hash = 0;
 }
 
-void DisassemblyOpcode::getBranchLines(u32 start, u32 size, std::vector<BranchLine>& dest)
-{
-	if (start < address)
-	{
-		size = start+size-address;
-		start = address;
-	}
-
-	if (start+size > address+num*4)
-		size = address+num*4-start;
-
-	int lane = 0;
-	for (u32 pos = start; pos < start+size; pos += 4)
-	{
-		MIPSAnalyst::MipsOpcodeInfo info = MIPSAnalyst::GetOpcodeInfo(cpu,pos);
-		if (info.isBranch && !info.isBranchToRegister && !info.isLinkedBranch)
-		{
-			BranchLine line;
-			line.laneIndex = lane++;
-
-			if (info.branchTarget < pos)
-			{
-				line.first = info.branchTarget;
-				line.second = pos;
-				line.type = LINE_UP;
-			} else {
-				line.first = pos;
-				line.second = info.branchTarget;
-				line.type = LINE_DOWN;
-			}
-
-			dest.push_back(line);
-		}
-	}
-}
-
 
 void DisassemblyMacro::setMacroLi(u32 _immediate, u8 _rt)
 {
@@ -708,16 +375,6 @@ DisassemblyData::DisassemblyData(DebugInterface* _cpu, u32 _address, u32 _size, 
 	cpu = _cpu;
 	hash = computeHash(address,size);
 	createLines();
-}
-
-void DisassemblyData::recheck()
-{
-	u32 newHash = computeHash(address,size);
-	if (newHash != hash)
-	{
-		hash = newHash;
-		createLines();
-	}
 }
 
 int DisassemblyData::getLineNum(u32 address, bool findStart)
