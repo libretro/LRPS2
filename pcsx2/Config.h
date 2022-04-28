@@ -379,7 +379,3 @@ extern Pcsx2Config EmuConfig;
 #endif
 
 #define EE_CONST_PROP 1 // rec2 - enables constant propagation (faster)
-
-// Change to 1 for console logs of SIF, GPU (PS1 mode) and MDEC (PS1 mode).
-// These do spam a lot though!
-#define PSX_EXTRALOGS 0

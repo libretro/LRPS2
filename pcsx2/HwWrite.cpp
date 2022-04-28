@@ -47,12 +47,6 @@ void __fastcall _hwWrite32( u32 mem, u32 value )
 	// All unknown registers on the EE are "reserved" as discarded writes and indeterminate
 	// reads.  Bus error is only generated for registers outside the first 16k of mapped
 	// register space (which is handled by the VTLB mapping, so no need for checks here).
-#if PSX_EXTRALOGS
-	if ((mem & 0x1000ff00) == 0x1000f300)
-		log_cb(RETRO_LOG_DEBUG, "32bit Write to SIF Register %x value %x\n", mem, value);
-	//if ((mem & 0x1000ff00) == 0x1000f200)
-	//log_cb(RETRO_LOG_DEBUG, "Write to SIF Register %x value %x\n", mem, value);
-#endif
 
 	switch (page)
 	{
@@ -195,9 +189,6 @@ void __fastcall _hwWrite32( u32 mem, u32 value )
 				return;
 
 				mcase(SBUS_F260):
-#if PSX_EXTRALOGS
-					log_cb(RETRO_LOG_DEBUG, "Write  SBUS_F260  %x \n", psHu32(SBUS_F260));
-#endif
 					psHu32(mem) = value;
 				return;
 
@@ -281,9 +272,6 @@ void __fastcall hwWrite32( u32 mem, u32 value )
 template< uint page >
 void __fastcall _hwWrite8(u32 mem, u8 value)
 {
-#if PSX_EXTRALOGS
-	if ((mem & 0x1000ff00) == 0x1000f300) log_cb(RETRO_LOG_DEBUG, "8bit Write to SIF Register %x value %x wibble\n", mem, value);
-#endif
 	iswitch (mem)
 	icase(SIO_TXFIFO)
 	{
@@ -337,10 +325,6 @@ template< uint page >
 void __fastcall _hwWrite16(u32 mem, u16 value)
 {
 	pxAssume( (mem & 0x01) == 0 );
-#if PSX_EXTRALOGS
-	if ((mem & 0x1000ff00) == 0x1000f300)
-		log_cb(RETRO_LOG_DEBUG, "16bit Write to SIF Register %x wibble\n", mem);
-#endif
 	switch(mem & ~3)
 	{
 		case DMAC_STAT:
@@ -373,10 +357,6 @@ void __fastcall _hwWrite64( u32 mem, const mem64_t* srcval )
 	// * FIFOs have 128 bit registers that are probably zero-fill.
 	// * All other registers likely disregard the upper 32-bits and simply act as normal
 	//   32-bit writes.
-#if PSX_EXTRALOGS
-	if ((mem & 0x1000ff00) == 0x1000f300)
-		log_cb(RETRO_LOG_DEBUG, "64bit Write to SIF Register %x wibble\n", mem);
-#endif
 	switch (page)
 	{
 		case 0x02:
@@ -418,10 +398,6 @@ void __fastcall _hwWrite128(u32 mem, const mem128_t* srcval)
 	// FIFOs are the only "legal" 128 bit registers.  Handle them first.
 	// all other registers fall back on the 64-bit handler (and from there
 	// most of them fall back to the 32-bit handler).
-#if PSX_EXTRALOGS
-	if ((mem & 0x1000ff00) == 0x1000f300)
-		log_cb(RETRO_LOG_DEBUG, "128bit Write to SIF Register %x wibble\n", mem);
-#endif
 	switch (page)
 	{
 		case 0x04:

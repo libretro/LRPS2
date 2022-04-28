@@ -105,9 +105,6 @@ mem32_t __fastcall _hwRead32(u32 mem)
 					ret = psxHu32(0x1f801814);
 					break;
 				case 0x80:					
-#if PSX_EXTRALOGS
-					log_cb(RETRO_LOG_DEBUG, "FIFO Size %x\n", sif2fifosize);
-#endif
 					ret = psHu32(mem) | (sif2fifosize << 16);
 					if (sif2.fifo.size > 0) ret |= 0x80000000;
 					break;
@@ -125,9 +122,6 @@ mem32_t __fastcall _hwRead32(u32 mem)
 					else ret = 0;
 					break;
 				}
-#if PSX_EXTRALOGS
-				log_cb(RETRO_LOG_DEBUG, "SBUS read %x value sending %x\n", mem, ret);
-#endif
 				return ret;
 
 				
@@ -146,14 +140,8 @@ mem32_t __fastcall _hwRead32(u32 mem)
 					return 0;
 
 				case SBUS_F240:
-#if PSX_EXTRALOGS
-					log_cb(RETRO_LOG_DEBUG, "Read  SBUS_F240  %x \n", psHu32(SBUS_F240));
-#endif
 					return psHu32(SBUS_F240) | 0xF0000102;
 				case SBUS_F260:
-#if PSX_EXTRALOGS
-					log_cb(RETRO_LOG_DEBUG, "Read  SBUS_F260  %x \n", psHu32(SBUS_F260));
-#endif
 					return psHu32(SBUS_F260);
 				case MCH_DRD:
 					if( !((psHu32(MCH_RICM) >> 6) & 0xF) )

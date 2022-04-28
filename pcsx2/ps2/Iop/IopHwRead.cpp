@@ -342,17 +342,11 @@ static __fi T _HwRead_16or32_Page1( u32 addr )
 			mcase (0x1f801820): // MDEC
 				// ret = psxHu32(addr); // old
 				ret = mdecRead0();
-#if PSX_EXTRALOGS
-				log_cb(RETRO_LOG_DEBUG, "MDEC 1820 Read %x\n", ret);
-#endif
 			break;
 			
 			mcase (0x1f801824): // MDEC
 				//ret = psxHu32(addr); // old
 				ret = mdecRead1();
-#if PSX_EXTRALOGS
-			log_cb(RETRO_LOG_DEBUG, "MDEC 1824 Read %x\n", ret);
-#endif
 			break;
 
 			// ------------------------------------------------------------------------
