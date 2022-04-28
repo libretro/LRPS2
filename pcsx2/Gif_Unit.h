@@ -37,7 +37,7 @@
 
 struct GS_Packet;
 extern void Gif_MTGS_Wait(bool isMTVU);
-extern void Gif_FinishIRQ();
+extern void Gif_FinishIRQ(void);
 extern bool Gif_HandlerAD(u8* pMem);
 extern bool Gif_HandlerAD_MTVU(u8* pMem);
 extern void Gif_AddBlankGSPacket(u32 size, GIF_PATH path);
@@ -92,12 +92,12 @@ struct Gif_Tag
 
 	__ri void setTag(u8* pMem, bool analyze = false)
 	{
-		tag = *(HW_Gif_Tag*)pMem;
-		nLoop = tag.NLOOP;
-		hasAD = false;
+		tag     = *(HW_Gif_Tag*)pMem;
+		nLoop   = tag.NLOOP;
+		hasAD   = false;
 		nRegIdx = 0;
 		isValid = 1;
-		len = 0; // avoid uninitialized compiler warning
+		len     = 0; // avoid uninitialized compiler warning
 		switch (tag.FLG)
 		{
 		case GIF_FLG_PACKED:
@@ -271,7 +271,7 @@ struct Gif_Path
 	// Moves packet data to start of buffer
 	void RealignPacket()
 	{
-		s32 offset = curOffset - gsPack.size;
+		s32 offset    = curOffset - gsPack.size;
 		s32 sizeToAdd = curSize - offset;
 		s32 intersect = sizeToAdd - offset;
 		if (intersect < 0)
@@ -306,7 +306,7 @@ struct Gif_Path
 			RealignPacket();
 		for (;;)
 		{
-			s32 offset = curOffset - gsPack.size;
+			s32 offset  = curOffset - gsPack.size;
 			s32 readPos = offset - getReadAmount();
 			if (readPos >= 0)
 				break; // MTGS is reading in back of curOffset
@@ -314,7 +314,6 @@ struct Gif_Path
 				break;      // Enough free front space
 			mtgsReadWait(); // Let MTGS run to free up buffer space
 		}
-		pxAssertDev(curSize + size <= buffSize, "Gif Path Buffer Overflow!");
 		memcpy(&buffer[curSize], pMem, size);
 		curSize += size;
 	}
@@ -329,7 +328,6 @@ struct Gif_Path
 			done = true;
 			return mtvu.fakePacket;
 		}
-		pxAssert(!isMTVU());
 		for (;;)
 		{
 			if (!gifTag.isValid)
@@ -340,9 +338,7 @@ struct Gif_Path
 
 				// Move packet to start of buffer
 				if (curOffset > buffLimit)
-				{
 					RealignPacket();
-				}
 
 				gifTag.setTag(&buffer[curOffset], 1);
 
@@ -420,9 +416,7 @@ struct Gif_Path
 	{
 		// Move packet to start of buffer
 		if (curOffset > buffLimit)
-		{
 			RealignPacket();
-		}
 		for (;;)
 		{ // needed to be processed by pcsx2...
 			if (curOffset + 16 > curSize)
@@ -454,7 +448,6 @@ struct Gif_Path
 			if (gifTag.tag.EOP)
 				break;
 		}
-		pxAssert(curOffset == curSize);
 		gifTag.isValid = false;
 	}
 
@@ -477,7 +470,6 @@ struct Gif_Path
 		// FIXME is the error path useful ?
 		if (!mtvu.gsPackQueue.empty())
 			return mtvu.gsPackQueue.front();
-		pxAssert(0);
 		return GS_Packet(); // gsPack.size will be 0
 	}
 
@@ -610,10 +602,9 @@ struct Gif_Unit
 		}
 		if (tranType == GIF_TRANS_XGKICK)
 		{
+			// We always buffer path1 packets
 			if (!CanDoPath1())
-			{
 				stat.P1Q = 1;
-			} // We always buffer path1 packets
 		}
 		if (tranType == GIF_TRANS_DIRECT)
 		{
@@ -710,8 +701,6 @@ struct Gif_Unit
 								path.curOffset -= subOffset;                  // Start the next GS packet at the image-tag
 								path.gsPack.offset = path.curOffset;          // Set to image-tag
 								path.gifTag.isValid = false;                  // Reload tag next ExecuteGSPacket()
-								pxAssert((s32)path.curOffset >= 0);
-								pxAssert(path.state == GIF_PATH_IMAGE);
 							}
 							continue;
 						}

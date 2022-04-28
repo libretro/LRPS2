@@ -26,16 +26,12 @@ Gif_Unit gifUnit;
 // Returns true on stalling SIGNAL
 bool Gif_HandlerAD(u8* pMem)
 {
-	u32 reg = pMem[8];
+	u32 reg   = pMem[8];
 	u32* data = (u32*)pMem;
 	if (reg == 0x50)
-	{
 		vif1.BITBLTBUF._u64 = *(u64*)pMem;
-	}
 	else if (reg == 0x52)
-	{
 		vif1.TRXREG._u64 = *(u64*)pMem;
-	}
 	else if (reg == 0x53)
 	{ // TRXDIR
 		if ((pMem[0] & 3) == 1)
@@ -43,9 +39,6 @@ bool Gif_HandlerAD(u8* pMem)
 			u8 bpp = 32; // Onimusha does TRXDIR without BLTDIVIDE first, assume 32bit
 			switch (vif1.BITBLTBUF.SPSM & 7)
 			{
-				case 0:
-					bpp = 32;
-					break;
 				case 1:
 					bpp = 24;
 					break;
@@ -55,8 +48,8 @@ bool Gif_HandlerAD(u8* pMem)
 				case 3:
 					bpp = 8;
 					break;
+				case 0:
 				default: // 4 is 4 bit but this is forbidden
-					log_cb(RETRO_LOG_ERROR, "Illegal format for GS upload: SPSM=0%02o\n", vif1.BITBLTBUF.SPSM);
 					break;
 			}
 			// qwords, rounded down; any extra bits are lost
@@ -98,17 +91,11 @@ bool Gif_HandlerAD(u8* pMem)
 bool Gif_HandlerAD_MTVU(u8* pMem)
 {
 	// Note: Atomic communication is with MTVU.cpp Get_GSChanges
-	u32 reg = pMem[8];
+	u32   reg = pMem[8];
 	u32* data = (u32*)pMem;
 
 	if (reg == 0x60)
 	{ // SIGNAL
-		if (vu1Thread.gsInterrupts.load(std::memory_order_acquire) & VU_Thread::InterruptFlagSignal)
-		{
-#ifndef NDEBUG
-			log_cb(RETRO_LOG_ERROR, "GIF Handler MTVU - Double SIGNAL Not Handled\n");
-#endif
-		}
 		vu1Thread.gsSignal.store(((u64)data[1] << 32) | data[0], std::memory_order_relaxed);
 		vu1Thread.gsInterrupts.fetch_or(VU_Thread::InterruptFlagSignal, std::memory_order_release);
 	} 	
@@ -126,17 +113,17 @@ bool Gif_HandlerAD_MTVU(u8* pMem)
 		while (!vu1Thread.gsLabel.compare_exchange_weak(existing, wanted, std::memory_order_relaxed))
 		{
 			u32 existingData = (u32)existing;
-			u32 existingMsk = (u32)(existing >> 32);
-			u32 wantedData = (existingData & ~labelMsk) | (labelData & labelMsk);
-			u32 wantedMsk = existingMsk | labelMsk;
-			wanted = ((u64)wantedMsk << 32) | wantedData;
+			u32 existingMsk  = (u32)(existing >> 32);
+			u32 wantedData   = (existingData & ~labelMsk) | (labelData & labelMsk);
+			u32 wantedMsk    = existingMsk | labelMsk;
+			wanted           = ((u64)wantedMsk << 32) | wantedData;
 		}
 		vu1Thread.gsInterrupts.fetch_or(VU_Thread::InterruptFlagLabel, std::memory_order_release);
 	} 	
 	return 0;
 }
 
-void Gif_FinishIRQ()
+void Gif_FinishIRQ(void)
 {
 	if (CSRreg.FINISH && !GSIMR.FINISHMSK && !gifUnit.gsFINISH.gsFINISHFired)
 	{
@@ -170,11 +157,7 @@ void Gif_MTGS_Wait(bool isMTVU)
 
 void SaveStateBase::gifPathFreeze(u32 path) 
 {
-
 	Gif_Path& gifPath = gifUnit.gifPath[path];
-	pxAssertDev(!gifPath.readAmount, "Gif Path readAmount should be 0!");
-	pxAssertDev(!gifPath.gsPack.readAmount, "GS Pack readAmount should be 0!");
-	pxAssertDev(!gifPath.GetPendingGSPackets(), "MTVU GS Pack Queue should be 0!");
 
 	if (!gifPath.isMTVU())
 	{ // FixMe: savestate freeze bug (Gust games) with MTVU enabled
@@ -195,7 +178,7 @@ void SaveStateBase::gifPathFreeze(u32 path)
 	}
 }
 
-void SaveStateBase::gifFreeze()
+void SaveStateBase::gifFreeze(void)
 {
 	bool mtvuMode = THREAD_VU1;
 	pxAssert(vu1Thread.IsDone());
