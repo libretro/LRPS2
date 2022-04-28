@@ -676,9 +676,6 @@
     <ClCompile Include="..\..\DebugTools\DebugInterface.cpp">
       <Filter>System\Ps2\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\DebugTools\DisassemblyManager.cpp">
-      <Filter>System\Ps2\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\gui\Debugger\CtrlDisassemblyView.cpp">
       <Filter>AppHost\Debugger</Filter>
     </ClCompile>
@@ -1225,9 +1222,6 @@
       <Filter>System\Ps2\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\DebugTools\DebugInterface.h">
-      <Filter>System\Ps2\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\DebugTools\DisassemblyManager.h">
       <Filter>System\Ps2\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\gui\Debugger\CtrlDisassemblyView.h">

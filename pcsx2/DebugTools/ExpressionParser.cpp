@@ -379,27 +379,6 @@ bool initPostfixExpression(const char* infix, IExpressionFunctions* funcs, Postf
 		dest.push_back(ExpressionPair(EXCOMM_OP,t));
 	}
 
-#if 0			// only for testing
-	char test[1024];
-	int testPos = 0;
-	for (int i = 0; i < dest.size(); i++)
-	{
-		switch (dest[i].first)
-		{
-		case EXCOMM_CONST:
-		case EXCOMM_CONST_FLOAT:
-			testPos += sprintf(&test[testPos],"0x%04X ",dest[i].second);
-			break;
-		case EXCOMM_REF:
-			testPos += sprintf(&test[testPos],"r%d ",dest[i].second);
-			break;
-		case EXCOMM_OP:
-			testPos += sprintf(&test[testPos],"%s ",ExpressionOpcodes[dest[i].second].Name);
-			break;
-		};
-	}
-#endif
-
 	return true;
 }
 
