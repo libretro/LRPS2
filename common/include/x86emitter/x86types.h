@@ -120,11 +120,7 @@ static const bool AlwaysUseMovaps = false;
 // when needed.  There's no point in using __emitline in these cases since the debugger
 // can't trace into single-line functions anyway.
 //
-#ifdef PCSX2_DEVBUILD
-#define __emitinline
-#else
 #define __emitinline __fi
-#endif
 
 // ModRM 'mod' field enumeration.   Provided mostly for reference:
 enum ModRm_ModField {

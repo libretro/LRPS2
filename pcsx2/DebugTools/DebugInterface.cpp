@@ -498,15 +498,6 @@ void R5900DebugInterface::setRegister(int cat, int num, u128 newValue)
 	}
 }
 
-std::string R5900DebugInterface::disasm(u32 address, bool simplify)
-{
-	std::string out;
-
-	u32 op = read32(address);
-	R5900::disR5900Fasm(out,op,address,simplify);
-	return out;
-}
-
 bool R5900DebugInterface::isValidAddress(u32 addr)
 {
 	u32 lopart = addr & 0xfFFffFF;
@@ -743,15 +734,6 @@ void R3000DebugInterface::setRegister(int cat, int num, u128 newValue)
 	default:
 		break;
 	}
-}
-
-std::string R3000DebugInterface::disasm(u32 address, bool simplify)
-{
-	std::string out;
-
-	u32 op = read32(address);
-	R5900::disR5900Fasm(out,op,address,simplify);
-	return out;
 }
 
 bool R3000DebugInterface::isValidAddress(u32 addr)

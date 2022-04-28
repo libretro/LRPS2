@@ -174,20 +174,13 @@ static int __Deci2Call(int call, u32 *addr)
 	switch (call)
 	{
 		case 1: // open
-			if( addr != NULL )
+			if(addr)
 			{
-				deci2addr = addr[1];
-				BIOS_LOG("deci2open: %x,%x,%x,%x",
-						 addr[3], addr[2], addr[1], addr[0]);
+				deci2addr    = addr[1];
 				deci2handler = addr[2];
 			}
 			else
-			{
 				deci2handler = 0;
-#ifndef NDEBUG
-				log_cb(RETRO_LOG_DEBUG, "Deci2Call.Open > NULL address ignored.\n" );
-#endif
-			}
 			return 1;
 
 		case 2: // close
@@ -198,20 +191,12 @@ static int __Deci2Call(int call, u32 *addr)
 		case 3: // reqsend
 		{
 			char reqaddr[128];
-			if( addr != NULL )
+			if(addr)
 				sprintf( reqaddr, "%x %x %x %x", addr[3], addr[2], addr[1], addr[0] );
 
 			if (!deci2addr) return 1;
 			
 			const u32* d2ptr = (u32*)PSM(deci2addr);
-
-			BIOS_LOG("deci2reqsend: %s: deci2addr: %x,%x,%x,buf=%x %x,%x,len=%x,%x",
-				(( addr == NULL ) ? "NULL" : reqaddr),
-				d2ptr[7], d2ptr[6], d2ptr[5], d2ptr[4],
-				d2ptr[3], d2ptr[2], d2ptr[1], d2ptr[0]);
-
-//			cpuRegs.pc = deci2handler;
-//			log_cb(RETRO_LOG_INFO, "deci2msg: %s\n",  (char*)PSM(d2ptr[4]+0xc));
 
 			if (d2ptr[1]>0xc){
 				// this looks horribly wrong, justification please?
@@ -230,8 +215,6 @@ static int __Deci2Call(int call, u32 *addr)
 		}
 
 		case 4: // poll
-			if( addr != NULL )
-				BIOS_LOG("deci2poll: %x,%x,%x,%x\n", addr[3], addr[2], addr[1], addr[0]);
 			return 1;
 
 		case 5: // exrecv
@@ -251,22 +234,15 @@ namespace R5900 {
 namespace Interpreter {
 namespace OpcodeImpl {
 
-void COP2()
+void COP2(void)
 {
-	//std::string disOut;
-	//disR5900Fasm(disOut, cpuRegs.code, cpuRegs.pc);
-
-	//VU0_LOG("%s", disOut.c_str());
 	Int_COP2PrintTable[_Rs_]();
 }
 
-void Unknown() {
-	CPU_LOG("%8.8lx: Unknown opcode called", cpuRegs.pc);
-}
-
-void MMI_Unknown() { log_cb(RETRO_LOG_WARN, "Unknown MMI opcode called\n"); }
-void COP0_Unknown() { log_cb(RETRO_LOG_WARN, "Unknown COP0 opcode called\n"); }
-void COP1_Unknown() { log_cb(RETRO_LOG_WARN, "Unknown FPU/COP1 opcode called\n"); }
+void Unknown(void) { }
+void MMI_Unknown(void) { }
+void COP0_Unknown(void) {  }
+void COP1_Unknown(void) {  }
 
 
 
@@ -877,9 +853,6 @@ void SYSCALL()
 	else
 		call = cpuRegs.GPR.n.v1.UC[0];
 
-	BIOS_LOG("Bios call: %s (%x)", R5900::bios[call], call);
-
-
 	switch (static_cast<Syscall>(call))
 	{
 		case Syscall::SetGsCrt:
@@ -932,14 +905,8 @@ void SYSCALL()
 						case 0x73: mode = "DVD PAL 720x480 @ ??.???"; gsSetVideoMode(GS_VideoMode::DVD_PAL); break;
 
 						default:
-#ifndef NDEBUG
-							log_cb(RETRO_LOG_DEBUG, "Mode %x is not supported. Report me upstream\n", cpuRegs.GPR.n.a1.UC[0]);
-#endif
 							gsSetVideoMode(GS_VideoMode::Unknown);
 					}
-#ifndef NDEBUG
-					log_cb(RETRO_LOG_DEBUG, "Set GS CRTC configuration. %s %s (%s)\n",mode.c_str(), inter, field);
-#endif
 				}
 				break;
 		case Syscall::GetOSParamConfig:
@@ -979,9 +946,6 @@ void SYSCALL()
 			break;
 
 		case Syscall::SetVTLBRefillHandler:
-#ifndef NDEBUG
-			log_cb(RETRO_LOG_DEBUG, "A tlb refill handler is set. New handler %x\n", (u32*)PSM(cpuRegs.GPR.n.a1.UL[0]));
-#endif
 			break;
 
 
@@ -1044,7 +1008,6 @@ static void trap(u16 code=0)
 	// throw R5900Exception::Trap(code);
 
 	cpuRegs.pc -= 4;
-	log_cb(RETRO_LOG_WARN, "Trap exception at 0x%08x\n", cpuRegs.pc);
 	cpuException(0x34, cpuRegs.branch);
 }
 

@@ -61,7 +61,7 @@ u32 lastLSN; // needed for block dumping
 
 // Assertion check for CDVD != NULL (in devel and debug builds), because its handier than
 // relying on DEP exceptions -- and a little more reliable too.
-static void CheckNullCDVD()
+static void CheckNullCDVD(void)
 {
 	pxAssertDev(CDVD != NULL, "Invalid CDVD object state (null pointer exception)");
 }
@@ -116,9 +116,6 @@ static int CheckDiskTypeFS(int baseType)
 	{
 	}
 
-#ifdef PCSX2_DEVBUILD
-	return CDVD_TYPE_PS2DVD; // need this hack for some homebrew (SMS)
-#endif
 	return CDVD_TYPE_ILLEGAL; // << Only for discs which aren't ps2 at all.
 }
 

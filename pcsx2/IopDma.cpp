@@ -30,24 +30,11 @@ using namespace R3000A;
 static void __fastcall psxDmaGeneric(u32 madr, u32 bcr, u32 chcr, u32 spuCore)
 {
 	const char dmaNum = spuCore ? 7 : 4;
-
-#if 0
-	if (chcr & 0x400)
-		log_cb(RETRO_LOG_DEBUG, "SPU 2 DMA %c linked list chain mode! chcr = %x madr = %x bcr = %x\n", dmaNum, chcr, madr, bcr);
-	if (chcr & 0x40000000)
-		log_cb(RETRO_LOG_DEBUG, "SPU 2 DMA %c Unusual bit set on 'to' direction chcr = %x madr = %x bcr = %x\n", dmaNum, chcr, madr, bcr);
-	if ((chcr & 0x1) == 0)
-		log_cb(RETRO_LOG_DEBUG, "SPU 2 DMA %c loading from spu2 memory chcr = %x madr = %x bcr = %x\n", dmaNum, chcr, madr, bcr);
-#endif
-
-	const int size = (bcr >> 16) * (bcr & 0xFFFF);
+	const int size    = (bcr >> 16) * (bcr & 0xFFFF);
 
 	// Update the spu2 to the current cycle before initiating the DMA
 
 	SPU2async(psxRegs.cycle - psxCounters[6].sCycleT);
-#if 0
-	log_cb(RETRO_LOG_DEBUG, "cycles sent to SPU2 %x\n", psxRegs.cycle - psxCounters[6].sCycleT);
-#endif
 
 	psxCounters[6].sCycleT = psxRegs.cycle;
 	psxCounters[6].CycleT = size * 3;
@@ -58,17 +45,11 @@ static void __fastcall psxDmaGeneric(u32 madr, u32 bcr, u32 chcr, u32 spuCore)
 		psxNextCounter = psxCounters[6].CycleT;
 
 	if ((g_iopNextEventCycle - psxNextsCounter) > (u32)psxNextCounter)
-	{
-#if 0
-		log_cb(RETRO_LOG_DEBUG, "SPU2async Setting new counter branch, old %x new %x ((%x - %x = %x) > %x delta)\n", g_iopNextEventCycle, psxNextsCounter + psxNextCounter, g_iopNextEventCycle, psxNextsCounter, (g_iopNextEventCycle - psxNextsCounter), psxNextCounter);
-#endif
 		g_iopNextEventCycle = psxNextsCounter + psxNextCounter;
-	}
 
 	switch (chcr)
 	{
 		case 0x01000201: //cpu to spu2 transfer
-			PSXDMA_LOG("*** DMA %d - mem2spu *** %x addr = %x size = %x", dmaNum, chcr, madr, bcr);
 			if (dmaNum == 7)
 				SPU2writeDMA7Mem((u16*)iopPhysMem(madr), size * 2);
 			else if (dmaNum == 4)
@@ -76,7 +57,6 @@ static void __fastcall psxDmaGeneric(u32 madr, u32 bcr, u32 chcr, u32 spuCore)
 			break;
 
 		case 0x01000200: //spu2 to cpu transfer
-			PSXDMA_LOG("*** DMA %d - spu2mem *** %x addr = %x size = %x", dmaNum, chcr, madr, bcr);
 			if (dmaNum == 7)
 				SPU2readDMA7Mem((u16*)iopPhysMem(madr), size * 2);
 			else if (dmaNum == 4)
@@ -85,7 +65,6 @@ static void __fastcall psxDmaGeneric(u32 madr, u32 bcr, u32 chcr, u32 spuCore)
 			break;
 
 		default:
-			log_cb(RETRO_LOG_ERROR, "*** DMA %d - SPU unknown *** %x addr = %x size = %x\n", dmaNum, chcr, madr, bcr);
 			break;
 	}
 }
@@ -95,22 +74,16 @@ void psxDma4(u32 madr, u32 bcr, u32 chcr) // SPU2's Core 0
 	psxDmaGeneric(madr, bcr, chcr, 0);
 }
 
-int psxDma4Interrupt()
+int psxDma4Interrupt(void)
 {
-#ifdef SPU2IRQTEST
-	log_cb(RETRO_LOG_DEBUG, "psxDma4Interrupt()\n");
-#endif
 	HW_DMA4_CHCR &= ~0x01000000;
 	psxDmaInterrupt(4);
 	iopIntcIrq(9);
 	return 1;
 }
 
-void spu2DMA4Irq()
+void spu2DMA4Irq(void)
 {
-#ifdef SPU2IRQTEST
-	log_cb(RETRO_LOG_DEBUG, "spu2DMA4Irq()\n");
-#endif
 	SPU2interruptDMA4();
 	if (HW_DMA4_CHCR & 0x01000000)
 	{
@@ -124,21 +97,15 @@ void psxDma7(u32 madr, u32 bcr, u32 chcr) // SPU2's Core 1
 	psxDmaGeneric(madr, bcr, chcr, 1);
 }
 
-int psxDma7Interrupt()
+int psxDma7Interrupt(void)
 {
-#ifdef SPU2IRQTEST
-	log_cb(RETRO_LOG_WARN, "psxDma7Interrupt()\n");
-#endif
 	HW_DMA7_CHCR &= ~0x01000000;
 	psxDmaInterrupt2(0);
 	return 1;
 }
 
-void spu2DMA7Irq()
+void spu2DMA7Irq(void)
 {
-#ifdef SPU2IRQTEST
-	log_cb(RETRO_LOG_WARN, "spu2DMA7Irq()\n");
-#endif
 	SPU2interruptDMA7();
 	if (HW_DMA7_CHCR & 0x01000000)
 	{
@@ -147,12 +114,8 @@ void spu2DMA7Irq()
 	}
 }
 
-#ifndef DISABLE_PSX_GPU_DMAS
 void psxDma2(u32 madr, u32 bcr, u32 chcr) // GPU
 {
-#if 0
-	log_cb(RETRO_LOG_DEBUG, "SIF2 IOP CHCR = %x MADR = %x BCR = %x first 16bits %x\n", chcr, madr, bcr, iopMemRead16(madr));
-#endif
 	sif2.iop.busy = true;
 	sif2.iop.end = false;
 	//SIF2Dma();
@@ -165,8 +128,6 @@ void psxDma6(u32 madr, u32 bcr, u32 chcr)
 {
 	u32* mem = (u32*)iopPhysMem(madr);
 
-	PSXDMA_LOG("*** DMA 6 - OT *** %lx addr = %lx size = %lx", chcr, madr, bcr);
-
 	if (chcr == 0x11000002)
 	{
 		while (bcr--)
@@ -177,15 +138,9 @@ void psxDma6(u32 madr, u32 bcr, u32 chcr)
 		mem++;
 		*mem = 0xffffff;
 	}
-	else
-	{
-		// Unknown option
-		PSXDMA_LOG("*** DMA 6 - OT unknown *** %lx addr = %lx size = %lx", chcr, madr, bcr);
-	}
 	HW_DMA6_CHCR &= ~0x01000000;
 	psxDmaInterrupt(6);
 }
-#endif
 
 void psxDma8(u32 madr, u32 bcr, u32 chcr)
 {
@@ -194,17 +149,14 @@ void psxDma8(u32 madr, u32 bcr, u32 chcr)
 	switch (chcr & 0x01000201)
 	{
 		case 0x01000201: //cpu to dev9 transfer
-			PSXDMA_LOG("*** DMA 8 - DEV9 mem2dev9 *** %lx addr = %lx size = %lx", chcr, madr, bcr);
 			DEV9writeDMA8Mem((u32*)iopPhysMem(madr), size);
 			break;
 
 		case 0x01000200: //dev9 to cpu transfer
-			PSXDMA_LOG("*** DMA 8 - DEV9 dev9mem *** %lx addr = %lx size = %lx", chcr, madr, bcr);
 			DEV9readDMA8Mem((u32*)iopPhysMem(madr), size);
 			break;
 
 		default:
-			PSXDMA_LOG("*** DMA 8 - DEV9 unknown *** %lx addr = %lx size = %lx", chcr, madr, bcr);
 			break;
 	}
 	HW_DMA8_CHCR &= ~0x01000000;
@@ -213,20 +165,16 @@ void psxDma8(u32 madr, u32 bcr, u32 chcr)
 
 void psxDma9(u32 madr, u32 bcr, u32 chcr)
 {
-	SIF_LOG("IOP: dmaSIF0 chcr = %lx, madr = %lx, bcr = %lx, tadr = %lx", chcr, madr, bcr, HW_DMA9_TADR);
-
 	sif0.iop.busy = true;
-	sif0.iop.end = false;
+	sif0.iop.end  = false;
 
 	SIF0Dma();
 }
 
 void psxDma10(u32 madr, u32 bcr, u32 chcr)
 {
-	SIF_LOG("IOP: dmaSIF1 chcr = %lx, madr = %lx, bcr = %lx", chcr, madr, bcr);
-
 	sif1.iop.busy = true;
-	sif1.iop.end = false;
+	sif1.iop.end  = false;
 
 	SIF1Dma();
 }

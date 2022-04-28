@@ -17,16 +17,8 @@
 
 #include "../Memory.h"
 
-
-extern char* disVU0MicroUF(u32 code, u32 pc);
-extern char* disVU0MicroLF(u32 code, u32 pc);
-extern char* disVU1MicroUF(u32 code, u32 pc);
-extern char* disVU1MicroLF(u32 code, u32 pc);
-
 namespace R5900
 {
-	void disR5900Fasm( std::string& output, u32 code, u32 pc, bool simplify = false);
-
 	extern const char * const GPR_REG[32];
 	extern const char * const COP0_REG[32];
 	extern const char * const COP1_REG_FP[32];
@@ -39,17 +31,8 @@ namespace R5900
 namespace R3000A
 {
 	extern void (*IOP_DEBUG_BSC[64])(char *buf);
-
 	extern const char * const disRNameGPR[];
-	extern char* disR3000AF(u32 code, u32 pc);
 }
-
-#ifdef __WXMAC__
-    // Not available on OSX, apparently always double buffered window.
-#   define                          SetDoubleBuffered(x)
-
-    // TODO OSX OsxKeyCodes.cpp pending
-#endif
 
 #define macTrace(trace)
 
@@ -78,7 +61,6 @@ namespace R3000A
 #define PSXMEM_LOG		macTrace(IOP.Memory)
 #define PSXHW_LOG		macTrace(IOP.KnownHw)
 #define PSXUnkHW_LOG	macTrace(IOP.UnknownHw)
-#define PSXDMA_LOG		macTrace(IOP.DMAhw)
 #define PSXCNT_LOG		macTrace(IOP.Counters)
 #define MEMCARDS_LOG	macTrace(IOP.Memcards)
 #define PAD_LOG			macTrace(IOP.PAD)

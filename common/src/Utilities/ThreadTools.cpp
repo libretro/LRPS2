@@ -428,24 +428,6 @@ void Threading::pxThread::_try_virtual_invoke(void (pxThread::*method)())
         woot->DiagMsg() += pxsFmt(L"(thread:%s)", WX_STR(GetName()));
         m_except = woot;
     }
-#ifndef PCSX2_DEVBUILD
-    // ----------------------------------------------------------------------------
-    // Bleh... don't bother with std::exception.  runtime_error should catch anything
-    // useful coming out of the core STL libraries anyway, and these are best handled by
-    // the MSVC debugger (or by silent random annoying fail on debug-less linux).
-    /*catch( std::logic_error& ex )
-	{
-		throw BaseException( pxsFmt( L"STL Logic Error (thread:%s): %s",
-			WX_STR(GetName()), WX_STR(fromUTF8( ex.what() )) )
-		);
-	}
-	catch( std::exception& ex )
-	{
-		throw BaseException( pxsFmt( L"STL exception (thread:%s): %s",
-			WX_STR(GetName()), WX_STR(fromUTF8( ex.what() )) )
-		);
-	}*/
-    // ----------------------------------------------------------------------------
     // BaseException --  same deal as LogicErrors.
     //
     catch (BaseException &ex) {
@@ -453,7 +435,6 @@ void Threading::pxThread::_try_virtual_invoke(void (pxThread::*method)())
         woot->DiagMsg() += pxsFmt(L"(thread:%s)", WX_STR(GetName()));
         m_except = woot;
     }
-#endif
 }
 
 // invoked internally when canceling or exiting the thread.  Extending classes should implement

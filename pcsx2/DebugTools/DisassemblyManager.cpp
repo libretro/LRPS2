@@ -235,38 +235,6 @@ std::vector<BranchLine> DisassemblyManager::getBranchLines(u32 start, u32 size)
 	return result;
 }
 
-void DisassemblyManager::getLine(u32 address, bool insertSymbols, DisassemblyLineInfo& dest)
-{
-	auto it = findDisassemblyEntry(entries,address,false);
-	if (it == entries.end())
-	{
-		analyze(address);
-		it = findDisassemblyEntry(entries,address,false);
-
-		if (it == entries.end())
-		{
-			if (address % 4)
-				dest.totalSize = ((address+3) & ~3)-address;
-			else
-				dest.totalSize = 4;
-			dest.name = "ERROR";
-			dest.params = "Disassembly failure";
-			return;
-		}
-	}
-
-	DisassemblyEntry* entry = it->second;
-	if (entry->disassemble(address,dest,insertSymbols))
-		return;
-	
-	if (address % 4)
-		dest.totalSize = ((address+3) & ~3)-address;
-	else
-		dest.totalSize = 4;
-	dest.name = "ERROR";
-	dest.params = "Disassembly failure";
-}
-
 u32 DisassemblyManager::getStartAddress(u32 address)
 {
 	auto it = findDisassemblyEntry(entries,address,false);
@@ -400,15 +368,6 @@ int DisassemblyFunction::getLineNum(u32 address, bool findStart)
 u32 DisassemblyFunction::getLineAddress(int line)
 {
 	return lineAddresses[line];
-}
-
-bool DisassemblyFunction::disassemble(u32 address, DisassemblyLineInfo& dest, bool insertSymbols)
-{
-	auto it = findDisassemblyEntry(entries,address,false);
-	if (it == entries.end())
-		return false;
-
-	return it->second->disassemble(address,dest,insertSymbols);
 }
 
 void DisassemblyFunction::getBranchLines(u32 start, u32 size, std::vector<BranchLine>& dest)
@@ -688,20 +647,6 @@ void DisassemblyFunction::clear()
 	hash = 0;
 }
 
-bool DisassemblyOpcode::disassemble(u32 address, DisassemblyLineInfo& dest, bool insertSymbols)
-{
-	char opcode[64],arguments[256];
-	
-	std::string dis = cpu->disasm(address,insertSymbols);
-	parseDisasm(dis.c_str(),opcode,arguments,insertSymbols);
-	dest.type = DISTYPE_OPCODE;
-	dest.name = opcode;
-	dest.params = arguments;
-	dest.totalSize = 4;
-	dest.info = MIPSAnalyst::GetOpcodeInfo(cpu,address);
-	return true;
-}
-
 void DisassemblyOpcode::getBranchLines(u32 start, u32 size, std::vector<BranchLine>& dest)
 {
 	if (start < address)
@@ -758,60 +703,6 @@ void DisassemblyMacro::setMacroMemory(std::string _name, u32 _immediate, u8 _rt,
 	numOpcodes = 2;
 }
 
-bool DisassemblyMacro::disassemble(u32 address, DisassemblyLineInfo& dest, bool insertSymbols)
-{
-	char buffer[64];
-	dest.type = DISTYPE_MACRO;
-	dest.info = MIPSAnalyst::GetOpcodeInfo(cpu,address);
-
-	std::string addressSymbol;
-	switch (type)
-	{
-	case MACRO_LI:
-		dest.name = name;
-		
-		addressSymbol = symbolMap.GetLabelString(immediate);
-		if (!addressSymbol.empty() && insertSymbols)
-		{
-			sprintf(buffer,"%s,%s",cpu->getRegisterName(0,rt),addressSymbol.c_str());
-		} else {
-			sprintf(buffer,"%s,0x%08X",cpu->getRegisterName(0,rt),immediate);
-		}
-
-		dest.params = buffer;
-		
-		dest.info.hasRelevantAddress = true;
-		dest.info.releventAddress = immediate;
-		break;
-	case MACRO_MEMORYIMM:
-		dest.name = name;
-
-		addressSymbol = symbolMap.GetLabelString(immediate);
-		if (!addressSymbol.empty() && insertSymbols)
-		{
-			sprintf(buffer,"%s,%s",cpu->getRegisterName(0,rt),addressSymbol.c_str());
-		} else {
-			sprintf(buffer,"%s,0x%08X",cpu->getRegisterName(0,rt),immediate);
-		}
-
-		dest.params = buffer;
-
-		dest.info.isDataAccess = true;
-		dest.info.dataAddress = immediate;
-		dest.info.dataSize = dataSize;
-
-		dest.info.hasRelevantAddress = true;
-		dest.info.releventAddress = immediate;
-		break;
-	default:
-		return false;
-	}
-
-	dest.totalSize = getTotalSize();
-	return true;
-}
-
-
 DisassemblyData::DisassemblyData(DebugInterface* _cpu, u32 _address, u32 _size, DataType _type): address(_address), size(_size), type(_type)
 {
 	cpu = _cpu;
@@ -827,37 +718,6 @@ void DisassemblyData::recheck()
 		hash = newHash;
 		createLines();
 	}
-}
-
-bool DisassemblyData::disassemble(u32 address, DisassemblyLineInfo& dest, bool insertSymbols)
-{
-	dest.type = DISTYPE_DATA;
-
-	switch (type)
-	{
-	case DATATYPE_BYTE:
-		dest.name = ".byte";
-		break;
-	case DATATYPE_HALFWORD:
-		dest.name = ".half";
-		break;
-	case DATATYPE_WORD:
-		dest.name = ".word";
-		break;
-	case DATATYPE_ASCII:
-		dest.name = ".ascii";
-		break;
-	default:
-		return false;
-	}
-
-	auto it = lines.find(address);
-	if (it == lines.end())
-		return false;
-
-	dest.params = it->second.text;
-	dest.totalSize = it->second.size;
-	return true;
 }
 
 int DisassemblyData::getLineNum(u32 address, bool findStart)
@@ -1025,13 +885,4 @@ DisassemblyComment::DisassemblyComment(DebugInterface* _cpu, u32 _address, u32 _
 	: cpu(_cpu), address(_address), size(_size), name(_name), param(_param)
 {
 
-}
-
-bool DisassemblyComment::disassemble(u32 address, DisassemblyLineInfo& dest, bool insertSymbols)
-{
-	dest.type = DISTYPE_OTHER;
-	dest.name = name;
-	dest.params = param;
-	dest.totalSize = size;
-	return true;
 }

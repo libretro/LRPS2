@@ -19,7 +19,7 @@
 
 using namespace R3000A;
 
-void dev9Interrupt()
+void dev9Interrupt(void)
 {
 	if ((dev9Handler != NULL) && (dev9Handler() != 1)) return;
 
@@ -31,7 +31,7 @@ void dev9Irq(int cycles)
 	PSX_INT(IopEvt_DEV9, cycles);
 }
 
-void usbInterrupt()
+void usbInterrupt(void)
 {
 	if (usbHandler != NULL && (usbHandler() != 1)) return;
 
@@ -43,16 +43,13 @@ void usbIrq(int cycles)
 	PSX_INT(IopEvt_USB, cycles);
 }
 
-void fwIrq()
+void fwIrq(void)
 {
 	iopIntcIrq(24);
 }
 
-void spu2Irq()
+void spu2Irq(void)
 {
-#ifdef SPU2IRQTEST
-	log_cb(RETRO_LOG_WARN, "spu2Irq\n");
-#endif
 	iopIntcIrq(9);
 }
 

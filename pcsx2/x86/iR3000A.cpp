@@ -432,13 +432,8 @@ static void psxRecompileIrxImport()
 	const std::string libname = iopMemReadString(import_table + 12, 8);
 
 	irxHLE hle = irxImportHLE(libname, index);
-#ifdef PCSX2_DEVBUILD
-	const irxDEBUG debug = irxImportDebug(libname, index);
-	const char* funcname = irxImportFuncname(libname, index);
-#else
 	const irxDEBUG debug = 0;
 	const char *funcname = nullptr;
-#endif
 
 	if (!hle && !debug)
 		return;
@@ -676,11 +671,6 @@ static __noinline s32 recExecuteBlock( s32 eeCycles )
 {
 	iopBreak = 0;
 	iopCycleEE = eeCycles;
-
-#ifdef PCSX2_DEVBUILD
-	//if (SysTrace.SIF.IsActive())
-	//	SysTrace.IOP.R3000A.Write("Switching to IOP CPU for %d cycles", eeCycles);
-#endif
 
 	// [TODO] recExecuteBlock could be replaced by a direct call to the iopEnterRecompiledCode()
 	//   (by assigning its address to the psxRec structure).  But for that to happen, we need

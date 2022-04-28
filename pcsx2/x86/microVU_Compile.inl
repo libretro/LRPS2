@@ -203,9 +203,6 @@ __ri void branchWarning(mV) {
 	incPC(-2);
 	if (mVUup.eBit && mVUbranch) {
 		incPC(2);
-#ifndef NDEBUG
-		log_cb(RETRO_LOG_DEBUG, "microVU%d Warning: Branch in E-bit delay slot! [%04x]\n", mVU.index, xPC);
-#endif
 		mVUlow.isNOP = true;
 	}
 	else incPC(2);

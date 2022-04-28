@@ -140,11 +140,7 @@ static const int __pagesize = PCSX2_PAGESIZE;
 // from Devel builds is likely useful; but which should be inlined in an optimized Release
 // environment.
 //
-#ifdef PCSX2_DEVBUILD
-#define __releaseinline
-#else
 #define __releaseinline __forceinline
-#endif
 
 #define __ri __releaseinline
 #define __fi __forceinline

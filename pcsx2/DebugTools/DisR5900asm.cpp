@@ -656,18 +656,6 @@ void (*COP2SPECIAL2PrintTable[128])( std::string& output ) =
  P_COP2_Unknown,P_COP2_Unknown,P_COP2_Unknown,P_COP2_Unknown,P_COP2_Unknown,P_COP2_Unknown,P_COP2_Unknown,P_COP2_Unknown,
 };
 
-//**************************TABLES CALLS***********************
-
-
-void disR5900Fasm( std::string& output, u32 code, u32 pc, bool simplify )
-{
-	opcode_addr = pc;
-	disasmOpcode = code;
-	disSimplify = simplify;
-
-	GetInstruction(code).disasm( output );
-}
-
 //*************************************************************
 //************************COP2**********************************
 void P_COP2_BC2( std::string& output )

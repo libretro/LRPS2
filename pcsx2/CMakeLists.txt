@@ -47,7 +47,6 @@ set(pcsx2Sources
 	Gif.cpp
 	Gif_Unit.cpp
 	GS.cpp
-	GSState.cpp
 	Hw.cpp
 	HwRead.cpp
 	HwWrite.cpp

@@ -137,9 +137,6 @@ static __fi void execI()
 	}
 
 	psxRegs.code = iopMemRead32(psxRegs.pc);
-
-		PSXCPU_LOG("%s", disR3000AF(psxRegs.code, psxRegs.pc));
-
 	psxRegs.pc+= 4;
 	psxRegs.cycle++;
 	
@@ -159,7 +156,6 @@ static void doBranch(s32 tar) {
 	branch2 = iopIsDelaySlot = true;
 	branchPC = tar;
 	execI();
-	PSXCPU_LOG( "\n" );
 	iopIsDelaySlot = false;
 	psxRegs.pc = branchPC;
 

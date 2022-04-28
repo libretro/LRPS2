@@ -35,13 +35,6 @@ struct BASEBLOCKEX
 	uptr fnptr;
 	u16  size;	 // The size in dwords (equivalent to the number of instructions)
 	u16  x86size; // The size in byte of the translated x86 instructions
-
-#ifdef PCSX2_DEVBUILD
-	// Could be useful to instrument the block
-	//u32 visited; // number of times called
-	//u64 ltime; // regs it assumes to have set already
-#endif
-
 };
 
 class BaseBlockArray {

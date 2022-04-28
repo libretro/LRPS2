@@ -28,9 +28,3 @@
 #include "IopCounters.h"
 #include "IopSio2.h"
 #include "IopGte.h"
-//#define PSXCLK	 9216000	/* 36.864 Mhz */
-//#define PSXCLK	186864000	/* 36.864 Mhz */
-
-// Uncomment to make pcsx2 print each spu2 interrupt it receives
-//#define SPU2IRQTEST
-
