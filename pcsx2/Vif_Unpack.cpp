@@ -187,30 +187,20 @@ __aligned16 const UNPACKFUNCTYPE VIFfuncTable[2][4][4 * 4 * 2 * 2] =
 // Unpack Setup Code
 //----------------------------------------------------------------------------
 
-_vifT void vifUnpackSetup(const u32 *data) {
-
+_vifT void vifUnpackSetup(const u32 *data)
+{
 	vifStruct& vifX = GetVifX;
 
 	GetVifX.unpackcalls++;
 	
 	if (GetVifX.unpackcalls > 3)
-	{
 		vifExecQueue(idx);
-	}
-	//if (!idx) vif0FLUSH(); // Only VU0?
 
 	vifX.usn   = (vifXRegs.code >> 14) & 0x01;
 	int vifNum = (vifXRegs.code >> 16) & 0xff;
 
 	if (vifNum == 0) vifNum = 256;
 	vifXRegs.num =  vifNum;
-
-	// Traditional-style way of calculating the gsize, based on VN/VL parameters.
-	// Useful when VN/VL are known template params, but currently they are not so we use
-	// the LUT instead (for now).
-	//uint vl = vifX.cmd & 0x03;
-	//uint vn = (vifX.cmd >> 2) & 0x3;
-	//uint gsize = ((32 >> vl) * (vn+1)) / 8;
 
 	const u8& gsize = nVifT[vifX.cmd & 0x0f];
 
@@ -230,8 +220,6 @@ _vifT void vifUnpackSetup(const u32 *data) {
 	if (idx && ((addr>>15)&1)) addr += vif1Regs.tops;
 	vifX.tag.addr = (addr<<4) & (idx ? 0x3ff0 : 0xff0);
 
-	VIF_LOG("Unpack VIF%x, QWC %x tagsize %x", idx, vifNum, vifX.tag.size);
-
 	vifX.cl			 = 0;
 	vifX.tag.cmd	 = vifX.cmd;
 	GetVifX.pass	 = 1;
@@ -242,7 +230,6 @@ _vifT void vifUnpackSetup(const u32 *data) {
 	//the W vector becomes 0, so we need to know how far through the current QW the data begins.
 	//same happens with V3 8
 	vifX.start_aligned = 4-((vifX.vifpacketsize-1) & 0x3);
-	//log_cb(RETRO_LOG_DEBUG, "Aligned %d packetsize at data start %d\n", vifX.start_aligned, vifX.vifpacketsize - 1);
 }
 
 template void vifUnpackSetup<0>(const u32 *data);

@@ -72,19 +72,11 @@ void SaveStateBase::vif1Freeze()
 //------------------------------------------------------------------
 
 __fi void vif0FBRST(u32 value) {
-	VIF_LOG("VIF0_FBRST write32 0x%8.8x", value);
-
 	if (value & 0x1) // Reset Vif.
 	{
-		//log_cb(RETRO_LOG_WARN, "Vif0 Reset %x\n", vif0Regs.stat._u32);
 		u128 SaveCol;
 		u128 SaveRow;
 
-#if 0
-		if(vif0ch.chcr.STR)
-			log_cb(RETRO_LOG_WARN, "FBRST While Vif0 active\n");
-		//Must Preserve Row/Col registers! (Downhill Domination for testing)
-#endif
 		SaveCol._u64[0] = vif0.MaskCol._u64[0];
 		SaveCol._u64[1] = vif0.MaskCol._u64[1];
 		SaveRow._u64[0] = vif0.MaskRow._u64[0];
@@ -149,17 +141,11 @@ __fi void vif0FBRST(u32 value) {
 }
 
 __fi void vif1FBRST(u32 value) {
-	VIF_LOG("VIF1_FBRST write32 0x%8.8x", value);
 	
 	if (FBRST(value).RST) // Reset Vif.
 	{
 		u128 SaveCol;
 		u128 SaveRow;
-#if 0
-		if(vif1ch.chcr.STR)
-			log_cb(RETRO_LOG_WARN, "FBRST While Vif1 active\n");
-		//Must Preserve Row/Col registers! (Downhill Domination for testing) - Really shouldnt be part of the vifstruct.
-#endif
 		SaveCol._u64[0] = vif1.MaskCol._u64[0];
 		SaveCol._u64[1] = vif1.MaskCol._u64[1];
 		SaveRow._u64[0] = vif1.MaskRow._u64[0];
@@ -243,18 +229,12 @@ __fi void vif1FBRST(u32 value) {
 }
 
 __fi void vif1STAT(u32 value) {
-	VIF_LOG("VIF1_STAT write32 0x%8.8x", value);
-
 	/* Only FDR bit is writable, so mask the rest */
 	if ((vif1Regs.stat.FDR) ^ ((tVIF_STAT&)value).FDR) {
 		bool isStalled = false;
 		// different so can't be stalled
-		if (vif1Regs.stat.test(VIF1_STAT_INT | VIF1_STAT_VSS | VIF1_STAT_VIS | VIF1_STAT_VFS)) {
-#ifndef NDEBUG
-			log_cb(RETRO_LOG_DEBUG, "changing dir when vif1 fifo stalled done = %x qwc = %x stat = %x\n", vif1.done, vif1ch.qwc, vif1Regs.stat._u32);
-#endif
+		if (vif1Regs.stat.test(VIF1_STAT_INT | VIF1_STAT_VSS | VIF1_STAT_VIS | VIF1_STAT_VFS))
 			isStalled = true;
-		}
 
 		//Hack!! Hotwheels seems to leave 1QW in the fifo and expect the DMA to be ready for a reverse FIFO
 		//There's no important data in there so for it to work, we will just end it.
@@ -325,7 +305,6 @@ _vifT __fi bool vifWrite32(u32 mem, u32 value) {
 
 	switch (mem) {
 		case caseVif(MARK):
-			VIF_LOG("VIF%d_MARK write32 0x%8.8x", idx, value);
 			vifXRegs.stat.MRK = false;
 			//vifXRegs.mark	   = value;
 		break;

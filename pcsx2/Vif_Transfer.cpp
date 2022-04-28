@@ -32,13 +32,11 @@ _vifT void vifTransferLoop(u32* &data) {
 
 	vifXRegs.stat.VPS |= VPS_TRANSFERRING;
 	vifXRegs.stat.ER1  = false;
-#if 0
-	if(!idx)VIF_LOG("Starting VIF0 loop, pSize = %x, stalled = %x", pSize, vifX.vifstalled.enabled );
-#endif
 	while (pSize > 0 && !vifX.vifstalled.enabled) {
 
-		if(!vifX.cmd) { // Get new VifCode
-
+		if(!vifX.cmd)
+		{
+			// Get new VifCode
 			if(!vifXRegs.err.MII)
 			{
 				if(vifX.irq && !CHECK_VIF1STALLHACK) 
@@ -49,11 +47,6 @@ _vifT void vifTransferLoop(u32* &data) {
 
 			vifXRegs.code = data[0];
 			vifX.cmd	  = data[0] >> 24;
-			
-			
-#ifndef NDEBUG
-			VIF_LOG("New VifCMD %x tagsize %x irq %d", vifX.cmd, vifX.tag.size, vifX.irq);
-#endif
 		}
 
 		ret = vifCmdHandler[idx][vifX.cmd & 0x7f](vifX.pass, data);
@@ -80,8 +73,8 @@ _vifT static __fi bool vifTransfer(u32 *data, int size, bool TTE) {
 
 	vifX.irqoffset.value = transferred % 4; // cannot lose the offset
 	
-	if (vifX.irq && vifX.cmd == 0) {
-		VIF_LOG("Vif%d IRQ Triggering", idx);
+	if (vifX.irq && vifX.cmd == 0)
+	{
 		//Always needs to be set to return to the correct offset if there is data left.
 		vifX.vifstalled.enabled = VifStallEnable(vifXch);
 		vifX.vifstalled.value = VIF_IRQ_STALL;
