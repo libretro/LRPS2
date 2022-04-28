@@ -47,12 +47,10 @@ struct romdir
 #	pragma pack()
 #endif
 
-static_assert( sizeof(romdir) == DIRENTRY_SIZE, "romdir struct not packed to 16 bytes" );
-
 u32 BiosVersion;
 u32 BiosChecksum;
 wxString BiosDescription;
-const BiosDebugInformation* CurrentBiosInformation;
+static const BiosDebugInformation* CurrentBiosInformation;
 
 const BiosDebugInformation biosVersions[] = {
 	// USA     v02.00(14/06/2004)  Console
@@ -173,7 +171,7 @@ static void LoadBiosVersion( pxInputStream& fp, u32& version, wxString& descript
 }
 
 template< size_t _size >
-void ChecksumIt( u32& result, const u8 (&srcdata)[_size] )
+static void ChecksumIt( u32& result, const u8 (&srcdata)[_size] )
 {
 	pxAssume( (_size & 3) == 0 );
 	for( size_t i=0; i<_size/4; ++i )
@@ -258,7 +256,7 @@ static void LoadIrx( const wxString& filename, u8* dest )
 // Exceptions:
 //   BadStream - Thrown if the primary bios file (usually .bin) is not found, corrupted, etc.
 //
-void LoadBIOS()
+void LoadBIOS(void)
 {
 	pxAssertDev( eeMem->ROM != NULL, "PS2 system memory has not been initialized yet." );
 

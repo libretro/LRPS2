@@ -38,8 +38,7 @@ struct BiosDebugInformation
 extern u32 BiosVersion;		//  Used by CDVD
 extern u32 BiosChecksum;
 extern wxString BiosDescription;
-extern const BiosDebugInformation* CurrentBiosInformation;
 
-extern void LoadBIOS();
+extern void LoadBIOS(void);
 extern bool IsBIOS(const wxString& filename, wxString& description);
 extern bool IsBIOSlite(const wxString& filename, wxString& description);
