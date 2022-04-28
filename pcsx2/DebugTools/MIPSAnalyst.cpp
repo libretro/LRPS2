@@ -115,11 +115,8 @@ namespace MIPSAnalyst
 				return addr + 4 + ((signed short)(op&0xFFFF)<<2);
 			else if (sure && !takeBranch)
 				return addr + 8;
-			else
-				return INVALIDTARGET;
 		}
-		else
-			return INVALIDTARGET;
+		return INVALIDTARGET;
 	}
 
 	static const char *DefaultFunctionName(char buffer[256], u32 startAddr) {
