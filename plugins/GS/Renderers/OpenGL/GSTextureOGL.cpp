@@ -357,7 +357,6 @@ bool GSTextureOGL::Update(const GSVector4i& r, const void* data, int pitch, int 
 	u32 map_size = r.height() * row_byte;
 
 	// The complex solution with PBO
-#if 1
 	char* src = (char*)data;
 	char* map = PboPool::Map(map_size);
 
@@ -377,7 +376,6 @@ bool GSTextureOGL::Update(const GSVector4i& r, const void* data, int pitch, int 
 	PboPool::UnbindPbo();
 
 	PboPool::EndTransfer();
-#endif
 
 	m_generate_mipmap = true;
 

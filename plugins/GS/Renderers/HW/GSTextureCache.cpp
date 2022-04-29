@@ -846,7 +846,6 @@ void GSTextureCache::InvalidateVideoMem(GSOffset* off, const GSVector4i& rect, b
 				}
 
 				// FIXME: this code "fixes" black FMV issue with rule of rose.
-#if 1
 				// Greg: I'm not sure the 'bw' equality is required but it won't hurt too much
 				//
 				// Ben 10 Alien Force : Vilgax Attacks uses a small temporary target for multiple textures (different bw)
@@ -865,7 +864,6 @@ void GSTextureCache::InvalidateVideoMem(GSOffset* off, const GSVector4i& rect, b
 						continue;
 					}
 				}
-#endif
 			}
 		}
 	}

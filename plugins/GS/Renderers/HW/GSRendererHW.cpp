@@ -1051,7 +1051,6 @@ void GSRendererHW::RoundSpriteOffset()
 		const float  ay1 = alpha1(Ly, Y0, Y1);
 		const u16 ty0 = Interpolate_UV(ay0, v[i].V, v[i+1].V);
 		const u16 ty1 = Interpolate_UV(ay1, v[i].V, v[i+1].V);
-#if 1
 		// Use rounded value of the newly computed texture coordinate. It ensures
 		// that sampling will remains inside texture boundary
 		//
@@ -1074,8 +1073,6 @@ void GSRendererHW::RoundSpriteOffset()
 				v[i+1].U = tx1;
 			}
 		}
-#endif
-#if 1
 		if (linear) {
 			const int Lv = v[i+1].V - v[i].V;
 			if ((Lv > 0) && (Lv <= (Ly+32))) {
@@ -1090,7 +1087,6 @@ void GSRendererHW::RoundSpriteOffset()
 				v[i+1].V = ty1;
 			}
 		}
-#endif
 	}
 }
 
