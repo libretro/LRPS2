@@ -62,7 +62,6 @@ void SysMtgsThread::OnStart()
 	m_packet_size		= 0;
 	m_packet_writepos	= 0;
 
-	m_QueuedFrameCount    = 0;
 	m_VsyncSignalListener = false;
 	m_SignalRingEnable    = false;
 	m_SignalRingPosition  = 0;
@@ -95,7 +94,6 @@ void SysMtgsThread::ResetGS()
 	//  * clear the path and byRegs structs (used by GIFtagDummy)
 
 	m_ReadPos             = m_WritePos.load();
-	m_QueuedFrameCount    = 0;
 	m_VsyncSignalListener = 0;
 
 	MTGS_LOG( "MTGS: Sending Reset..." );
@@ -133,20 +131,6 @@ void SysMtgsThread::PostVsyncStart()
 
 	// Vsyncs should always start the GS thread, regardless of how little has actually be queued.
 	if (m_CopyDataTally != 0) SetEvent();
-
-	// If the MTGS is allowed to queue a lot of frames in advance, it creates input lag.
-	// Use the Queued FrameCount to stall the EE if another vsync (or two) are already queued
-	// in the ringbuffer.  The queue limit is disabled when both FrameLimiting and Vsync are
-	// disabled, since the queue can have perverse effects on framerate benchmarking.
-
-	// Edit: It's possible that MTGS is that much faster than the GS plugin that it creates so much lag,
-	// a game becomes uncontrollable (software rendering for example).
-	// For that reason it's better to have the limit always in place, at the cost of a few max FPS in benchmarks.
-	// If those are needed back, it's better to increase the VsyncQueueSize via PCSX_vm.ini.
-	// (The Xenosaga engine is known to run into this, due to it throwing bulks of data in one frame followed by 2 empty frames.)
-
-	if ((m_QueuedFrameCount.fetch_add(1) < EmuConfig.GS.VsyncQueueSize))
-		return;
 
 	m_VsyncSignalListener.store(true, std::memory_order_release);
 	//log_cb(RETRO_LOG_DEBUG, "(EEcore Sleep) Vsync\t\tringpos=0x%06x, writepos=0x%06x\n", m_ReadPos.load(), m_WritePos.load() );
@@ -335,7 +319,6 @@ void SysMtgsThread::ExecuteTaskInThread()
 							GSvsync(((u32&)RingBuffer.Regs[0x1000]) & 0x2000);
 							gsFrameSkip();
 
-							m_QueuedFrameCount.fetch_sub(1);
 							if (m_VsyncSignalListener.exchange(false))
 								m_sem_Vsync.Post();
 

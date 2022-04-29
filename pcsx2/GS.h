@@ -287,7 +287,6 @@ public:
 	std::atomic<bool>	m_SignalRingEnable;
 	std::atomic<int>	m_SignalRingPosition;
 
-	std::atomic<int>	m_QueuedFrameCount;
 	std::atomic<bool>	m_VsyncSignalListener;
 
 	Mutex			m_mtx_RingBufferBusy;  // Is obtained while processing ring-buffer data
