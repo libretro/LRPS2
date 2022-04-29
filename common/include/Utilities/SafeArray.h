@@ -55,7 +55,6 @@ public:
     explicit SafeArray(const wxChar *name = L"Unnamed");
     explicit SafeArray(int initialSize, const wxChar *name = L"Unnamed");
 
-    void Dispose();
     void ExactAlloc(int newsize);
     void MakeRoomFor(int newsize)
     {
@@ -63,19 +62,10 @@ public:
             ExactAlloc(newsize);
     }
 
-    bool IsDisposed() const { return (m_ptr == NULL); }
-
     // Returns the size of the memory allocation, as according to the array type.
     int GetLength() const { return m_size; }
     // Returns the size of the memory allocation in bytes.
     int GetSizeInBytes() const { return m_size * sizeof(T); }
-
-    // Extends the containment area of the array.  Extensions are performed
-    // in chunks.
-    void GrowBy(int items)
-    {
-        MakeRoomFor(m_size + ChunkSize + items + 1);
-    }
 
     // Gets a pointer to the requested allocation index.
     // DevBuilds : Generates assertion if the index is invalid.

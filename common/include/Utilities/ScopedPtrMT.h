@@ -71,15 +71,6 @@ public:
         return m_ptr;
     }
 
-    void SwapPtr(ScopedPtrMT &other)
-    {
-        ScopedLock lock(m_mtx);
-        m_ptr.exchange(other.m_ptr.exchange(m_ptr.load()));
-        T *const tmp = other.m_ptr;
-        other.m_ptr = m_ptr;
-        m_ptr = tmp;
-    }
-
     // ----------------------------------------------------------------------------
     //  ScopedPtrMT Operators
     // ----------------------------------------------------------------------------

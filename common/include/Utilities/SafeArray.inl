@@ -70,14 +70,6 @@ SafeArray<T>::SafeArray(int initialSize, const wxChar *name)
             .SetDiagMsg(wxsFormat(L"Called from 'SafeArray::ctor' [size=%d]", initialSize));
 }
 
-// Clears the contents of the array to zero, and frees all memory allocations.
-template <typename T>
-void SafeArray<T>::Dispose()
-{
-    m_size = 0;
-    safe_free(m_ptr);
-}
-
 template <typename T>
 T *SafeArray<T>::_getPtr(uint i) const
 {
