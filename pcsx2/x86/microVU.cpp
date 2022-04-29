@@ -178,13 +178,6 @@ __ri microProgram* mVUcreateProg(microVU& mVU, int startPC) {
 	prog->ranges  = new std::deque<microRange>();
 	prog->startPC = startPC;
 	mVUcacheProg(mVU, *prog); // Cache Micro Program
-#ifndef NDEBUG
-	double cacheSize = (double)((uptr)mVU.prog.x86end - (uptr)mVU.prog.x86start);
-	double cacheUsed =((double)((uptr)mVU.prog.x86ptr - (uptr)mVU.prog.x86start)) / (double)_1mb;
-	double cachePerc =((double)((uptr)mVU.prog.x86ptr - (uptr)mVU.prog.x86start)) / cacheSize * 100;
-	log_cb(RETRO_LOG_DEBUG, "microVU%d: Cached Prog = [%03d] [PC=%04x] [List=%02d] (Cache=%3.3f%%) [%3.1fmb]\n",
-				   mVU.index, prog->idx, startPC*8, mVU.prog.prog[startPC]->size()+1, cachePerc, cacheUsed);
-#endif
 	return prog;
 }
 
@@ -192,7 +185,6 @@ __ri microProgram* mVUcreateProg(microVU& mVU, int startPC) {
 __ri void mVUcacheProg(microVU& mVU, microProgram& prog) {
 	if (!mVU.index)	memcpy(prog.data, mVU.regs().Micro, 0x1000);
 	else			memcpy(prog.data, mVU.regs().Micro, 0x4000);
-	mVUdumpProg(mVU, prog);
 }
 
 // Generate Hash for partial program based on compiled ranges...
@@ -204,9 +196,6 @@ u64 mVUrangesHash(microVU& mVU, microProgram& prog) {
 
 	std::deque<microRange>::const_iterator it(prog.ranges->begin());
 	for ( ; it != prog.ranges->end(); ++it) {
-#ifndef NDEBUG
-		if((it[0].start<0)||(it[0].end<0))  { log_cb(RETRO_LOG_DEBUG, "microVU%d: Negative Range![%d][%d]\n", mVU.index, it[0].start, it[0].end); }
-#endif
 		for(int i = it[0].start/4; i < it[0].end/4; i++) {
 			hash.v32[0] -= prog.data[i];
 			hash.v32[1] ^= prog.data[i];
@@ -229,10 +218,6 @@ void mVUprintUniqueRatio(microVU& mVU) {
 	u32 total = v.size();
 	sortVector(v);
 	makeUnique(v);
-	if (!total) return;
-#ifndef NDEBUG
-	log_cb(RETRO_LOG_DEBUG, "%d / %d [%3.1f%%]\n", v.size(), total, 100.-(double)v.size()/(double)total*100.);
-#endif
 }
 
 // Compare Cached microProgram to mVU.regs().Micro
@@ -413,17 +398,11 @@ uint recMicroVU1::GetCacheReserve() const {
 }
 
 void recMicroVU0::SetCacheReserve(uint reserveInMegs) const {
-#ifndef NDEBUG
-	log_cb(RETRO_LOG_DEBUG, "microVU0: Changing cache size [%dmb]\n", reserveInMegs);
-#endif
 	microVU0.cacheSize = std::min(reserveInMegs, mVUcacheReserve);
 	safe_delete(microVU0.cache_reserve); // I assume this unmaps the memory
 	mVUreserveCache(microVU0); // Need rec-reset after this
 }
 void recMicroVU1::SetCacheReserve(uint reserveInMegs) const {
-#ifndef NDEBUG
-	log_cb(RETRO_LOG_DEBUG, "microVU1: Changing cache size [%dmb]\n", reserveInMegs);
-#endif
 	microVU1.cacheSize = std::min(reserveInMegs, mVUcacheReserve);
 	safe_delete(microVU1.cache_reserve); // I assume this unmaps the memory
 	mVUreserveCache(microVU1); // Need rec-reset after this

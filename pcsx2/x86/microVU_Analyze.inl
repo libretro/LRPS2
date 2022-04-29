@@ -315,15 +315,8 @@ __ri void mVUanalyzeSflag(mV, int It) {
 	analyzeVIreg2(mVU, It, mVUlow.VI_write, 1);
 	if (!It) { mVUlow.isNOP = 1; }
 	else {
-		//mVUsFlagHack = 0; // Don't Optimize Out Status Flags for this block
 		mVUinfo.swapOps = 1;
 		flagSet(mVU, 0);
-		if (mVUcount < 4) {
-#ifndef NDEBUG
-			if (!(mVUpBlock->pState.needExactMatch & 1)) // The only time this should happen is on the first program block
-				log_cb(RETRO_LOG_DEBUG, "microVU%d: pState's sFlag Info was expected to be set [%04x]\n", getIndex, xPC);
-#endif
-		}
 	}
 }
 
@@ -344,12 +337,6 @@ __ri void mVUanalyzeMflag(mV, int Is, int It) {
 	else {
 		mVUinfo.swapOps = 1;
 		flagSet(mVU, 1);
-		if (mVUcount < 4) { 
-#ifndef NDEBUG
-			if (!(mVUpBlock->pState.needExactMatch & 2)) // The only time this should happen is on the first program block
-				log_cb(RETRO_LOG_DEBUG, "microVU%d: pState's mFlag Info was expected to be set [%04x]\n", getIndex, xPC);
-#endif
-		}
 	}
 }
 
@@ -360,12 +347,6 @@ __ri void mVUanalyzeMflag(mV, int Is, int It) {
 __fi void mVUanalyzeCflag(mV, int It) {
 	mVUinfo.swapOps = 1;
 	mVUlow.readFlags = true;
-	if (mVUcount < 4) { 
-#ifndef NDEBUG
-		if (!(mVUpBlock->pState.needExactMatch & 4)) // The only time this should happen is on the first program block
-			log_cb(RETRO_LOG_DEBUG, "microVU%d: pState's cFlag Info was expected to be set [%04x]\n", getIndex, xPC);
-#endif
-	}
 	analyzeVIreg2(mVU, It, mVUlow.VI_write, 1);
 }
 
@@ -396,7 +377,6 @@ __fi void mVUanalyzeXGkick(mV, int Fs, int xCycles) {
 static void analyzeBranchVI(mV, int xReg, bool& infoVar) {
 	if (!xReg) return;
 	if (mVUstall) { // I assume a stall on branch means the vi reg is not modified directly b4 the branch...
-		log_cb(RETRO_LOG_DEBUG, "microVU%d: %d cycle stall on branch instruction [%04x]\n", getIndex, mVUstall, xPC);
 		return;
 	}
 	int i, j = 0;
@@ -405,11 +385,6 @@ static void analyzeBranchVI(mV, int xReg, bool& infoVar) {
 	int bPC  = iPC;
 	incPC2(-2);
 	for (i = 0; i < iEnd && cyc < iEnd; i++) {
-#ifndef NDEBUG
-		if (i && mVUstall) {
-			log_cb(RETRO_LOG_DEBUG, "microVU%d: Branch VI-Delay with %d cycle stall (%d) [%04x]\n", getIndex, mVUstall, i, xPC);
-		}
-#endif
 		if (i == (int)mVUcount)
 		{
 			if (mVUpBlock->pState.viBackUp == xReg)
@@ -421,9 +396,6 @@ static void analyzeBranchVI(mV, int xReg, bool& infoVar) {
 		}
 		if ((mVUlow.VI_write.reg == xReg) && mVUlow.VI_write.used) {
 			if (mVUlow.readFlags) {
-#ifndef NDEBUG
-				if (i) log_cb(RETRO_LOG_DEBUG, "microVU%d: Branch VI-Delay with Read Flags Set (%d) [%04x]\n", getIndex, i, xPC);
-#endif
 				break; // Not sure if on the above "if (i)" case, if we need to "continue" or if we should "break"
 			}
 			j = i;
@@ -442,9 +414,6 @@ static void analyzeBranchVI(mV, int xReg, bool& infoVar) {
 			infoVar = true;
 		}
 		iPC = bPC;
-#ifndef NDEBUG
-		log_cb(RETRO_LOG_DEBUG, "microVU%d: Branch VI-Delay (%d) [%04x][%03d]\n", getIndex, j+1, xPC, mVU.prog.cur->idx);
-#endif
 	}
 	else
 		iPC = bPC;
@@ -458,9 +427,11 @@ __ri int mVUbranchCheck(mV)
 
 	incPC(-2);
 
-	if (mVUlow.branch) {
+	if (mVUlow.branch)
+	{
 		u32 branchType = mVUlow.branch;
-		if (doBranchInDelaySlot) {
+		if (doBranchInDelaySlot)
+		{
 			mVUlow.badBranch  = true;
 			incPC(2);
 			mVUlow.evilBranch = true;
@@ -469,14 +440,7 @@ __ri int mVUbranchCheck(mV)
 			{
 				if(branchType <= 2 || branchType >= 9) //First branch is not conditional so we know what the link will be
 				{								       //So we can let the existing evil block do its thing! We know where to get the addr :)
-#ifndef NDEBUG
-					log_cb(RETRO_LOG_DEBUG, "yo\n");
-					log_cb(RETRO_LOG_DEBUG, "yo\n");
-					log_cb(RETRO_LOG_DEBUG, "yo\n");
-					log_cb(RETRO_LOG_DEBUG, "yo\n");
-					log_cb(RETRO_LOG_DEBUG, "----\n");
-#endif
-					
+
 					mVUregs.blockType = 2;
 				} //Else it is conditional, so we need to do some nasty processing later in microVU_Branch.inl
 			}
@@ -486,21 +450,9 @@ __ri int mVUbranchCheck(mV)
 
 			mVUregs.needExactMatch |= 7; // This might not be necessary, but w/e...
 			mVUregs.flagInfo   = 0;
-#ifndef NDEBUG
-			log_cb(RETRO_LOG_DEBUG, "microVU%d: %s in %s delay slot! [%04x]  - If game broken report to PCSX2 Team\n", mVU.index,
-							branchSTR[mVUlow.branch&0xf], branchSTR[branchType&0xf], xPC);
-#endif
 			return 1;
 		}
-		else {
-			incPC(2);
-			mVUlow.isNOP = true;
-#ifndef NDEBUG
-			log_cb(RETRO_LOG_DEBUG, "microVU%d: %s in %s delay slot! [%04x]\n", mVU.index,
-							branchSTR[mVUlow.branch&0xf], branchSTR[branchType&0xf], xPC);
-#endif
-			return 0;
-		}
+		mVUlow.isNOP = true;
 	}
 	incPC(2);
 	return 0;

@@ -121,13 +121,6 @@ public:
 			for (u32 j = 0; j < 4;  j++) viCRC -= ((u32*)linkI->block.pState.VI)[j];
 			for (u32 j = 0; j < 32; j++) vfCRC -= linkI->block.pState.VF[j].reg;
 			for (u32 j = 0; j < z;  j++) crc   -= ((u32*)&linkI->block.pState)[j];
-#ifndef NDEBUG
-			log_cb(RETRO_LOG_DEBUG, "[%04x][Block #%d][crc=%08x][q=%02d][p=%02d][xgkick=%d][vi15=%04x][vi15v=%d][viBackup=%02d]"
-			"[flags=%02x][exactMatch=%x][blockType=%d][viCRC=%08x][vfCRC=%08x]\n", pc, i, crc, linkI->block.pState.q, 
-			linkI->block.pState.p, linkI->block.pState.xgkick, linkI->block.pState.vi15, linkI->block.pState.vi15v,
-			linkI->block.pState.viBackUp, linkI->block.pState.flagInfo, linkI->block.pState.needExactMatch,
-			linkI->block.pState.blockType, viCRC, vfCRC);
-#endif
 			linkI = linkI->next;
 		}
 	}

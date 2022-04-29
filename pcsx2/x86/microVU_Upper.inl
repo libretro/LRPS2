@@ -128,15 +128,6 @@ enum clampModes {
 	cACC = 0x04, // Clamp ACC
 };
 
-// Prints Opcode to MicroProgram Logs
-static void mVU_printOP(microVU& mVU, int opCase, microOpcode opEnum, bool isACC) {
-	mVUlog(microOpcodeName[opEnum]);
-	opCase1 { if (isACC) { mVUlogACC(); } else { mVUlogFd(); } mVUlogFt(); }
-	opCase2 { if (isACC) { mVUlogACC(); } else { mVUlogFd(); } mVUlogBC(); }
-	opCase3 { if (isACC) { mVUlogACC(); } else { mVUlogFd(); } mVUlogI();  }
-	opCase4 { if (isACC) { mVUlogACC(); } else { mVUlogFd(); } mVUlogQ();  }
-}
-
 // Sets Up Pass1 Info for Normal, BC, I, and Q Cases
 static void setupPass1(microVU& mVU, int opCase, bool isACC, bool noFlagUpdate) {
 	opCase1 { mVUanalyzeFMAC1(mVU, ((isACC) ? 0 : _Fd_), _Fs_, _Ft_); }
@@ -221,8 +212,7 @@ static void mVU_FMACa(microVU& mVU, int recPass, int opCase, int opType, bool is
 		mVU.regAlloc->clearNeeded(Fs); // Always Clear Written Reg First
 		mVU.regAlloc->clearNeeded(Ft);
 	}
-	pass3 { mVU_printOP(mVU, opCase, opEnum, isACC); }
-	pass4 { if ((opType != 3) && (opType != 4)) mVUregs.needExactMatch |= 8; }
+	pass3 { if ((opType != 3) && (opType != 4)) mVUregs.needExactMatch |= 8; }
 }
 
 // MADDA/MSUBA Opcodes
@@ -262,8 +252,7 @@ static void mVU_FMACb(microVU& mVU, int recPass, int opCase, int opType, microOp
 		mVU.regAlloc->clearNeeded(Fs);
 		mVU.regAlloc->clearNeeded(Ft);
 	}
-	pass3 { mVU_printOP(mVU, opCase, opEnum, true); }
-	pass4 { mVUregs.needExactMatch |= 8; }
+	pass3 { mVUregs.needExactMatch |= 8; }
 }
 
 // MADD Opcodes
@@ -293,8 +282,7 @@ static void mVU_FMACc(microVU& mVU, int recPass, int opCase, microOpcode opEnum,
 		mVU.regAlloc->clearNeeded(Ft);
 		mVU.regAlloc->clearNeeded(ACC);
 	}
-	pass3 { mVU_printOP(mVU, opCase, opEnum, false); }
-	pass4 { mVUregs.needExactMatch |= 8; }
+	pass3 { mVUregs.needExactMatch |= 8; }
 }
 
 // MSUB Opcodes
@@ -320,8 +308,7 @@ static void mVU_FMACd(microVU& mVU, int recPass, int opCase, microOpcode opEnum,
 		mVU.regAlloc->clearNeeded(Ft);
 		mVU.regAlloc->clearNeeded(Fs);
 	}
-	pass3 { mVU_printOP(mVU, opCase, opEnum, false); }
-	pass4 { mVUregs.needExactMatch |= 8; }
+	pass3 { mVUregs.needExactMatch |= 8; }
 }
 
 // ABS Opcode
@@ -333,7 +320,6 @@ mVUop(mVU_ABS) {
 		xAND.PS(Fs, ptr128[mVUglob.absclip]);
 		mVU.regAlloc->clearNeeded(Fs);
 	}
-	pass3 { mVUlog("ABS"); mVUlogFtFs(); }
 }
 
 // OPMULA Opcode
@@ -350,8 +336,7 @@ mVUop(mVU_OPMULA) {
 		mVUupdateFlags(mVU, Fs);
 		mVU.regAlloc->clearNeeded(Fs);
 	}
-	pass3 { mVUlog("OPMULA"); mVUlogACC(); mVUlogFt(); }
-	pass4 { mVUregs.needExactMatch |= 8; }
+	pass3 { mVUregs.needExactMatch |= 8; }
 }
 
 // OPMSUB Opcode
@@ -371,8 +356,7 @@ mVUop(mVU_OPMSUB) {
 		mVUupdateFlags(mVU, ACC);
 		mVU.regAlloc->clearNeeded(ACC);
 	}
-	pass3 { mVUlog("OPMSUB"); mVUlogFd(); mVUlogFt(); }
-	pass4 { mVUregs.needExactMatch |= 8; }
+	pass3 { mVUregs.needExactMatch |= 8; }
 }
 
 // FTOI0/FTIO4/FTIO12/FTIO15 Opcodes
@@ -399,7 +383,6 @@ static void mVU_FTOIx(mP, const float* addr, microOpcode opEnum) {
 		mVU.regAlloc->clearNeeded(t1);
 		mVU.regAlloc->clearNeeded(t2);
 	}
-	pass3 { mVUlog(microOpcodeName[opEnum]); mVUlogFtFs(); }
 }
 
 // ITOF0/ITOF4/ITOF12/ITOF15 Opcodes
@@ -415,7 +398,6 @@ static void mVU_ITOFx(mP, const float* addr, microOpcode opEnum) {
 
 		mVU.regAlloc->clearNeeded(Fs);
 	}
-	pass3 { mVUlog(microOpcodeName[opEnum]); mVUlogFtFs(); }
 }
 
 // Clip Opcode
@@ -456,7 +438,6 @@ mVUop(mVU_CLIP) {
 		mVU.regAlloc->clearNeeded(Ft);
 		mVU.regAlloc->clearNeeded(t1);
 	}
-	pass3 { mVUlog("CLIP"); mVUlogCLIP(); }
 }
 
 //------------------------------------------------------------------
@@ -553,4 +534,4 @@ mVUop(mVU_ITOF0)  { mVU_ITOFx(mX, NULL,                  opITOF0);      }
 mVUop(mVU_ITOF4)  { mVU_ITOFx(mX, mVUglob.ITOF_4,        opITOF4);      }
 mVUop(mVU_ITOF12) { mVU_ITOFx(mX, mVUglob.ITOF_12,       opITOF12);     }
 mVUop(mVU_ITOF15) { mVU_ITOFx(mX, mVUglob.ITOF_15,       opITOF15);     }
-mVUop(mVU_NOP)    { pass2 {  } pass3 { mVUlog("NOP"); } }
+mVUop(mVU_NOP)    { pass2 {  } }

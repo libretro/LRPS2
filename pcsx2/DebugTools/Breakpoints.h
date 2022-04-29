@@ -63,20 +63,18 @@ struct BreakPoint
 
 enum MemCheckCondition
 {
-	MEMCHECK_READ = 0x01,
-	MEMCHECK_WRITE = 0x02,
+	MEMCHECK_READ 		= 0x01,
+	MEMCHECK_WRITE 		= 0x02,
 	MEMCHECK_WRITE_ONCHANGE = 0x04,
-
-	MEMCHECK_READWRITE = 0x03,
+	MEMCHECK_READWRITE 	= 0x03
 };
 
 enum MemCheckResult
 {
-	MEMCHECK_IGNORE = 0x00,
-	MEMCHECK_LOG = 0x01,
-	MEMCHECK_BREAK = 0x02,
-
-	MEMCHECK_BOTH = 0x03,
+	MEMCHECK_IGNORE 	= 0x00,
+	MEMCHECK_LOG 		= 0x01,
+	MEMCHECK_BREAK 		= 0x02,
+	MEMCHECK_BOTH 		= 0x03
 };
 
 struct MemCheck
@@ -161,7 +159,6 @@ private:
 	static std::vector<MemCheck> memChecks_;
 	static std::vector<MemCheck *> cleanupMemChecks_;
 };
-
 
 // called from the dynarec
 u32 __fastcall standardizeBreakpointAddress(u32 addr);

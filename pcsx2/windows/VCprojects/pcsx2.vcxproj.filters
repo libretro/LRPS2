@@ -1263,9 +1263,6 @@
     <ClInclude Include="..\..\CDVD\CompressedFileReaderUtils.h">
       <Filter>System\ISO</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\x86\R5900_Profiler.h">
-      <Filter>System\Include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\IopGte.h">
       <Filter>System\Ps2\Iop</Filter>
     </ClInclude>

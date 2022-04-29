@@ -539,7 +539,6 @@ set(pcsx2x86Headers
 	x86/newVif.h
 	x86/newVif_HashBucket.h
 	x86/newVif_UnpackSSE.h
-	x86/R5900_Profiler.h
 	)
 
 # common Sources

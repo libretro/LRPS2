@@ -212,9 +212,5 @@ mVUop(mVUopU)			{ mVU_UPPER_OPCODE			[ (mVU.code & 0x3f) ](mX); } // Gets Upper 
 mVUop(mVUopL)			{ mVULOWER_OPCODE			[ (mVU.code >>  25) ](mX); } // Gets Lower Opcode
 mVUop(mVUunknown) {
 	pass1{ if (mVU.code != 0x8000033c) mVUinfo.isBadOp = true; }
-	pass2 {
-		if(mVU.code != 0x8000033c)
-			log_cb(RETRO_LOG_ERROR, "microVU%d: Unknown Micro VU opcode called (%x) [%04x]\n", getIndex, mVU.code, xPC); }
-	pass3 { mVUlog("Unknown", mVU.code); }
 }
 
