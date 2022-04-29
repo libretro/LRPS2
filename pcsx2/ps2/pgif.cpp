@@ -485,12 +485,8 @@ u32 psxGPUr(int addr)
 
 void PGIFw(int addr, u32 data)
 {
-    if (addr == PGPU_CMD_FIFO) {
-        log_cb(RETRO_LOG_INFO, "PGIF CMD FIFO write by EE (SHOULDN'T HAPPEN) 0x%08X = 0x%08X\n", addr, data);
-    } else if (addr == PGPU_DAT_FIFO) {  //reverse write - mind the direction set by reg f380
-        //PGpuDataReg = data;
+    if (addr == PGPU_DAT_FIFO) {  //reverse write - mind the direction set by reg f380
         ringBufPut(&pgifDatRbC, &data);
-		// 	log_cb(RETRO_LOG_INFO, "\n\r PGIF REVERSE !!! DATA write 0x%08X = 0x%08X  IF_CTRL= %08X   PGPU_STAT= %08X  CmdCnt 0x%X \n\r\n",  addr, data,  getUpdPgifCtrlReg(),  getUpdPgpuStatReg(), pgifCmdRbC.count);
         drainPgpuDmaNrToIop();
     } else if (addr == PGPU_STAT) {
         PGpuStatReg = data;          //Should all bits be writable?
@@ -720,17 +716,13 @@ void processPgpuDma()
             PgpuDmaLlAct = 1;
             //for the very start, the address of the first word should come for the address, stored at MADR
             nextAddr = (pgpuDmaMadr & 0x1FFFFFFF);  //The address in IOP RAM where to load the first header word from
-            //u32 data = iopMemRead32(nextAddr);
-            //log_cb(RETRO_LOG_INFO, "PGPU LL DMA data= %08X  \n", data);
-
             wCnt = 0;    //current word
             wordNr = 0;  //total number of words
             fillFifoOnDrain();  //drainPgpuDmaLl(); //fill a single word in fifo now, because otherwise PS1DRV won't know that there is aything in it and it wouldn't know that a transfer is pending.
             return;
-        } else {
-            log_cb(RETRO_LOG_ERROR, "ERR: Linked list GPU DMA TO IOP!\n");
-            return;
         }
+	else
+            return;
     }
     crWordN = 0;
     addrNdma = pgpuDmaMadr & 0x1FFFFFFF;

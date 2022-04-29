@@ -102,9 +102,9 @@ static u32 s_savenBlockCycles = 0;
 
 static void iBranchTest(u32 newpc = 0xffffffff);
 static void ClearRecLUT(BASEBLOCK* base, int count);
-static u32 scaleblockcycles();
+static u32 scaleblockcycles(void);
 
-void _eeFlushAllUnused()
+void _eeFlushAllUnused(void)
 {
 	u32 i;
 	for(i = 0; i < 34; ++i) {
@@ -254,20 +254,7 @@ u32* recGetImm64(u32 hi, u32 lo)
 		return imm64;
 
 	if (recConstBufPtr >= recConstBuf + RECCONSTBUF_SIZE)
-	{
-		log_cb(RETRO_LOG_DEBUG, "EErec const buffer filled; Resetting...\n" );
 		throw Exception::ExitCpuExecute();
-
-		/*for (u32 *p = recConstBuf; p < recConstBuf + RECCONSTBUF_SIZE; p += 2)
-		{
-			if (p[0] == lo && p[1] == hi) {
-				imm64_cache[cacheidx] = p;
-				return p;
-			}
-		}
-
-		return recConstBuf;*/
-	}
 
 	imm64 = recConstBufPtr;
 	recConstBufPtr += 2;
@@ -275,8 +262,6 @@ u32* recGetImm64(u32 hi, u32 lo)
 
 	imm64[0] = lo;
 	imm64[1] = hi;
-
-	//log_cb(RETRO_LOG_WARN, "Consts allocated: %d of %u\n", (recConstBufPtr - recConstBuf) / 2, count);
 
 	return imm64;
 }
@@ -583,8 +568,6 @@ static void recResetRaw()
 	if( eeRecIsReset.exchange(true) ) return;
 	eeRecNeedsReset = false;
 
-	log_cb(RETRO_LOG_INFO, "EE/iR5900-32 Recompiler Reset\n" );
-
 	recMem->Reset();
 	ClearRecLUT((BASEBLOCK*)recLutReserve_RAM, recLutSize);
 	memset(recRAMCopy, 0, Ps2MemSize::MainRam);
@@ -807,16 +790,6 @@ void recClear(u32 addr, u32 size)
 
 	upperextent = std::min(upperextent, ceiling);
 
-	for (int i = 0; pexblock = recBlocks[i]; i++) {
-		if (s_pCurBlock == PC_GETBLOCK(pexblock->startpc))
-			continue;
-		u32 blockend = pexblock->startpc + pexblock->size * 4;
-		if (pexblock->startpc >= addr && pexblock->startpc < addr + size * 4
-		 || pexblock->startpc < addr && blockend > addr) {
-			log_cb(RETRO_LOG_DEBUG, "Impossible block clearing failure\n" );
-		}
-	}
-
 	if (upperextent > lowerextent)
 		ClearRecLUT(PC_GETBLOCK(lowerextent), upperextent - lowerextent);
 }
@@ -947,10 +920,10 @@ void iFlushCall(int flushtype)
 
 #define DEFAULT_SCALED_BLOCKS() (s_nBlockCycles >> 3)
 
-static u32 scaleblockcycles_calculation()
+static u32 scaleblockcycles_calculation(void)
 {
-	bool lowcycles = (s_nBlockCycles <= 40);
-	s8 cyclerate = EmuConfig.Speedhacks.EECycleRate;
+	bool lowcycles   = (s_nBlockCycles <= 40);
+	s8 cyclerate     = EmuConfig.Speedhacks.EECycleRate;
 	u32 scale_cycles = 0;
 
 	if (cyclerate == 0 || lowcycles || cyclerate < -99 || cyclerate > 3)
@@ -973,51 +946,14 @@ static u32 scaleblockcycles_calculation()
 	return (scale_cycles < 1) ? 1 : scale_cycles;
 }
 
-static u32 scaleblockcycles()
+static u32 scaleblockcycles(void)
 {
 	u32 scaled = scaleblockcycles_calculation();
-
-#if 0 // Enable this to get some runtime statistics about the scaling result in practice
-	static u32 scaled_overall = 0, unscaled_overall = 0;
-	if (g_resetEeScalingStats)
-	{
-		scaled_overall = unscaled_overall = 0;
-		g_resetEeScalingStats = false;
-	}
-	u32 unscaled = DEFAULT_SCALED_BLOCKS();
-	if (!unscaled) unscaled = 1;
-
-	scaled_overall += scaled;
-	unscaled_overall += unscaled;
-	float ratio = static_cast<float>(unscaled_overall) / scaled_overall;
-
-	log_cb(RETRO_LOG_DEBUG, "Unscaled overall: %d,  scaled overall: %d,  relative EE clock speed: %d %%\n",
-	               unscaled_overall, scaled_overall, static_cast<int>(100 * ratio));
-#endif
-
 	return scaled;
 }
-u32 scaleblockcycles_clear()
+u32 scaleblockcycles_clear(void)
 {
-	u32 scaled = scaleblockcycles_calculation();
-
-#if 0 // Enable this to get some runtime statistics about the scaling result in practice
-	static u32 scaled_overall = 0, unscaled_overall = 0;
-	if (g_resetEeScalingStats)
-	{
-		scaled_overall = unscaled_overall = 0;
-		g_resetEeScalingStats = false;
-	}
-	u32 unscaled = DEFAULT_SCALED_BLOCKS();
-	if (!unscaled) unscaled = 1;
-
-	scaled_overall += scaled;
-	unscaled_overall += unscaled;
-	float ratio = static_cast<float>(unscaled_overall) / scaled_overall;
-
-	log_cb(RETRO_LOG_DEBUG, "Unscaled overall: %d,  scaled overall: %d,  relative EE clock speed: %d %%\n",
-		unscaled_overall, scaled_overall, static_cast<int>(100 * ratio));
-#endif
+	u32 scaled   = scaleblockcycles_calculation();
 	s8 cyclerate = g_Conf->EmuOptions.Speedhacks.EECycleRate;
 
 	if (cyclerate > 1)
@@ -1246,8 +1182,6 @@ void recompileNextInstruction(int delayslot)
 
 	const OPCODE& opcode = GetCurrentInstruction();
 
- 	//pxAssert( !(g_pCurInstInfo->info & EEINSTINFO_NOREC) );
-	//log_cb(RETRO_LOG_WARN, "opcode name = %s, it's cycles = %d\n",opcode.Name,opcode.cycles);
 	// if this instruction is a jump or a branch, exit right away
 	if( delayslot ) {
 		bool check_branch_delay = false;
@@ -1291,10 +1225,6 @@ void recompileNextInstruction(int delayslot)
 		} catch (Exception::FailedToAllocateRegister&) {
 			// Fall back to the interpreter
 			recCall(opcode.interpret);
-#if 0
-			// TODO: Free register ?
-			//	_freeXMMregs();
-#endif
 		}
 	}
 
@@ -1334,7 +1264,6 @@ static u32 s_recblocks[] = {0};
 //  less likely, self-modifying code)
 void __fastcall dyna_block_discard(u32 start,u32 sz)
 {
-	//log_cb(RETRO_LOG_DEBUG, "Clearing Manual Block @ 0x%08X  [size=%d]\n", start, sz*4);
 	recClear(start, sz);
 }
 
@@ -1442,7 +1371,6 @@ bool skipMPEG_By_Pattern(u32 sPC) {
 		iBranchTest();
 		g_branch = 1;
 		pc = s_nEndBlock;
-		log_cb(RETRO_LOG_DEBUG, "sceMpegIsEnd pattern found! Recompiling skip video fix...\n");
 		return 1;
 	}
 	return 0;
@@ -1466,13 +1394,10 @@ static void __fastcall recRecompile( const u32 startpc )
 	pxAssert( startpc );
 
 	// if recPtr reached the mem limit reset whole mem
-	if (recPtr >= (recMem->GetPtrEnd() - _64kb)) {
+	if (recPtr >= (recMem->GetPtrEnd() - _64kb))
 		eeRecNeedsReset = true;
-	}
-	else if ((recConstBufPtr - recConstBuf) >= RECCONSTBUF_SIZE - 64) {
-		log_cb(RETRO_LOG_DEBUG, "EE recompiler stack reset\n");
+	else if ((recConstBufPtr - recConstBuf) >= RECCONSTBUF_SIZE - 64)
 		eeRecNeedsReset = true;
-	}
 
 	if (eeRecNeedsReset) recResetRaw();
 
@@ -1514,9 +1439,6 @@ static void __fastcall recRecompile( const u32 startpc )
 				g_eeloadExec = EELOAD_START + 0x2B8;
 			else if (typeAexecjump >> 26 == 3) // JAL to 0x82170
 				g_eeloadExec = EELOAD_START + 0x170;
-			else // There might be other types of EELOAD, because these models' BIOSs have not been examined: 18000, 3500x, 3700x,
-				 // 5500x, and 7900x. However, all BIOS versions have been examined except for v1.01 and v1.10.
-				log_cb(RETRO_LOG_DEBUG, "recRecompile: Could not enable launch arguments for fast boot mode; unidentified BIOS version! Please report this to the PCSX2 developers.\n");
 		}
 
 		// On fast/full boot this will have a crc of 0x0. But when the game/elf itself is

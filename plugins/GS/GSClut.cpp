@@ -262,54 +262,6 @@ void GSClut::WriteCLUT_NULL(const GIFRegTEX0& TEX0, const GIFRegTEXCLUT& TEXCLUT
  	// CLUT write ignored
 }
 
-#if 0
-void GSClut::Read(const GIFRegTEX0& TEX0)
-{
-	if(m_read.IsDirty(TEX0))
-	{
-		m_read.TEX0 = TEX0;
-		m_read.dirty = false;
-
-		u16* clut = m_clut;
-
-		if(TEX0.CPSM == PSM_PSMCT32 || TEX0.CPSM == PSM_PSMCT24)
-		{
-			switch(TEX0.PSM)
-			{
-			case PSM_PSMT8:
-			case PSM_PSMT8H:
-				clut += (TEX0.CSA & 15) << 4;
-				ReadCLUT_T32_I8(clut, m_buff32);
-				break;
-			case PSM_PSMT4:
-			case PSM_PSMT4HL:
-			case PSM_PSMT4HH:
-				clut += (TEX0.CSA & 15) << 4;
-				ReadCLUT_T32_I4(clut, m_buff32, m_buff64);
-				break;
-			}
-		}
-		else if(TEX0.CPSM == PSM_PSMCT16 || TEX0.CPSM == PSM_PSMCT16S)
-		{
-			switch(TEX0.PSM)
-			{
-			case PSM_PSMT8:
-			case PSM_PSMT8H:
-				clut += TEX0.CSA << 4;
-				ReadCLUT_T16_I8(clut, m_buff32);
-				break;
-			case PSM_PSMT4:
-			case PSM_PSMT4HL:
-			case PSM_PSMT4HH:
-				clut += TEX0.CSA << 4;
-				ReadCLUT_T16_I4(clut, m_buff32, m_buff64);
-				break;
-			}
-		}
-	}
-}
-#endif
-
 void GSClut::Read32(const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA)
 {
 	if (m_read.IsDirty(TEX0, TEXA))
@@ -553,85 +505,6 @@ __forceinline void GSClut::ReadCLUT_T32_I4(const u16* RESTRICT clut, u32* RESTRI
 	d[3] = v3;
 }
 
-#if 0
-__forceinline void GSClut::ReadCLUT_T32_I4(const u16* RESTRICT clut, u32* RESTRICT dst32, u64* RESTRICT dst64)
-{
-	GSVector4i* s = (GSVector4i*)clut;
-	GSVector4i* d32 = (GSVector4i*)dst32;
-	GSVector4i* d64 = (GSVector4i*)dst64;
-
-	GSVector4i s0 = s[0];
-	GSVector4i s1 = s[1];
-	GSVector4i s2 = s[32];
-	GSVector4i s3 = s[33];
-
-	GSVector4i::sw16(s0, s2, s1, s3);
-
-	d32[0] = s0;
-	d32[1] = s1;
-	d32[2] = s2;
-	d32[3] = s3;
-
-	ExpandCLUT64_T32(s0, s0, s1, s2, s3, &d64[0]);
-	ExpandCLUT64_T32(s1, s0, s1, s2, s3, &d64[32]);
-	ExpandCLUT64_T32(s2, s0, s1, s2, s3, &d64[64]);
-	ExpandCLUT64_T32(s3, s0, s1, s2, s3, &d64[96]);
-}
-#endif
-
-#if 0
-void GSClut::ReadCLUT_T16_I8(const u16* RESTRICT clut, u32* RESTRICT dst)
-{
-	for(int i = 0; i < 256; i += 16)
-	{
-		ReadCLUT_T16_I4(&clut[i], &dst[i]);
-	}
-}
-#endif
-
-#if 0
-__forceinline void GSClut::ReadCLUT_T16_I4(const u16* RESTRICT clut, u32* RESTRICT dst)
-{
-	GSVector4i* s = (GSVector4i*)clut;
-	GSVector4i* d = (GSVector4i*)dst;
-
-	GSVector4i v0 = s[0];
-	GSVector4i v1 = s[1];
-
-	d[0] = v0.upl16();
-	d[1] = v0.uph16();
-	d[2] = v1.upl16();
-	d[3] = v1.uph16();
-}
-#endif
-
-#if 0
-__forceinline void GSClut::ReadCLUT_T16_I4(const u16* RESTRICT clut, u32* RESTRICT dst32, u64* RESTRICT dst64)
-{
-	GSVector4i* s = (GSVector4i*)clut;
-	GSVector4i* d32 = (GSVector4i*)dst32;
-	GSVector4i* d64 = (GSVector4i*)dst64;
-
-	GSVector4i v0 = s[0];
-	GSVector4i v1 = s[1];
-
-	GSVector4i s0 = v0.upl16();
-	GSVector4i s1 = v0.uph16();
-	GSVector4i s2 = v1.upl16();
-	GSVector4i s3 = v1.uph16();
-
-	d32[0] = s0;
-	d32[1] = s1;
-	d32[2] = s2;
-	d32[3] = s3;
-
-	ExpandCLUT64_T16(s0, s0, s1, s2, s3, &d64[0]);
-	ExpandCLUT64_T16(s1, s0, s1, s2, s3, &d64[32]);
-	ExpandCLUT64_T16(s2, s0, s1, s2, s3, &d64[64]);
-	ExpandCLUT64_T16(s3, s0, s1, s2, s3, &d64[96]);
-}
-#endif
-
 void GSClut::ExpandCLUT64_T32_I8(const u32* RESTRICT src, u64* RESTRICT dst)
 {
 	GSVector4i* s = (GSVector4i*)src;
@@ -673,24 +546,6 @@ __forceinline void GSClut::ExpandCLUT64_T32(const GSVector4i& hi, const GSVector
 	dst[0] = lo.upl32(hi);
 	dst[1] = lo.uph32(hi);
 }
-
-#if 0
-void GSClut::ExpandCLUT64_T16_I8(const u32* RESTRICT src, u64* RESTRICT dst)
-{
-	GSVector4i* s = (GSVector4i*)src;
-	GSVector4i* d = (GSVector4i*)dst;
-
-	GSVector4i s0 = s[0];
-	GSVector4i s1 = s[1];
-	GSVector4i s2 = s[2];
-	GSVector4i s3 = s[3];
-
-	ExpandCLUT64_T16(s0, s0, s1, s2, s3, &d[0]);
-	ExpandCLUT64_T16(s1, s0, s1, s2, s3, &d[32]);
-	ExpandCLUT64_T16(s2, s0, s1, s2, s3, &d[64]);
-	ExpandCLUT64_T16(s3, s0, s1, s2, s3, &d[96]);
-}
-#endif
 
 __forceinline void GSClut::ExpandCLUT64_T16(const GSVector4i& hi, const GSVector4i& lo0, const GSVector4i& lo1, const GSVector4i& lo2, const GSVector4i& lo3, GSVector4i* dst)
 {

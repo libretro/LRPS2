@@ -62,14 +62,11 @@ void IPU1dma()
 	int ipu1cycles = 0;
 	int totalqwc = 0;
 
+	//We MUST stop the IPU from trying to fill the FIFO with more data if the DMA has been suspended
+	//if we don't, we risk causing the data to go out of sync with the fifo and we end up losing some!
+	//This is true for Dragons Quest 8 and probably others which suspend the DMA.
 	if(!ipu1ch.chcr.STR || ipu1ch.chcr.MOD == 2)
-	{
-		//We MUST stop the IPU from trying to fill the FIFO with more data if the DMA has been suspended
-		//if we don't, we risk causing the data to go out of sync with the fifo and we end up losing some!
-		//This is true for Dragons Quest 8 and probably others which suspend the DMA.
-		//DevCon.Warning("IPU1 running when IPU1 DMA disabled! CHCR %x QWC %x", ipu1ch.chcr._u32, ipu1ch.qwc);
 		return;
-	}
 
 	if (IPU1Status.DataRequested == false)
 	{
@@ -88,8 +85,6 @@ void IPU1dma()
 		ipu1ch.madr = ptag[1]._u32;
 
 		ipu1cycles += 1; // Add 1 cycles from the QW read for the tag
-
-		//if (ipu1ch.chcr.TTE) DevCon.Warning("TTE?");
 
 		IPU1Status.DMAFinished = hwDmacSrcChain(ipu1ch, ptag->ID);
 
@@ -154,8 +149,6 @@ void IPU0dma(void)
 
 __fi void dmaIPU0() // fromIPU
 {
-	//if (dmacRegs.ctrl.STS == STS_fromIPU) DevCon.Warning("DMA Stall enabled on IPU0");
-
 	if (dmacRegs.ctrl.STS == STS_fromIPU)   // STS == fromIPU - Initial settings
 		dmacRegs.stadr.ADDR = ipu0ch.madr;
 

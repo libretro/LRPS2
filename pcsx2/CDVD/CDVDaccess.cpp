@@ -256,30 +256,11 @@ static void DetectDiskType()
 
 	switch (baseMediaType)
 	{
-#if 0
-		case CDVD_TYPE_CDDA:
-		case CDVD_TYPE_PSCD:
-		case CDVD_TYPE_PS2CD:
-		case CDVD_TYPE_PSCDDA:
-		case CDVD_TYPE_PS2CDDA:
-			mType = CDVD_TYPE_DETCTCD;
-			break;
-
-		case CDVD_TYPE_DVDV:
-		case CDVD_TYPE_PS2DVD:
-			mType = CDVD_TYPE_DETCTDVDS;
-			break;
-
-		case CDVD_TYPE_DETCTDVDS:
-		case CDVD_TYPE_DETCTDVDD:
-		case CDVD_TYPE_DETCTCD:
-			mType = baseMediaType;
-			break;
-#endif
-
 		case CDVD_TYPE_NODISC:
 			diskTypeCached = CDVD_TYPE_NODISC;
 			return;
+		default:
+			break;
 	}
 
 	diskTypeCached = FindDiskType(mType);

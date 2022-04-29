@@ -571,13 +571,6 @@ GSTextureCache::Target* GSTextureCache::LookupTarget(const GIFRegTEX0& TEX0, int
 
 	Target* dst = NULL;
 
-#if 0
-	// Dump the list of targets for debug
-	for(auto t : m_dst[RenderTarget]) {
-		log_cb(RETRO_LOG_DEBUG, "TC: frame 0x%x -> 0x%x : %d (age %d)\n", t->m_TEX0.TBP0, t->m_end_block, t->m_texture->GetID(), t->m_age);
-	}
-#endif
-
 	// Let's try to find a perfect frame that contains valid data
 	for(auto t : m_dst[RenderTarget]) {
 		if(bp == t->m_TEX0.TBP0 && t->m_end_block >= bp) {
@@ -605,31 +598,6 @@ GSTextureCache::Target* GSTextureCache::LookupTarget(const GIFRegTEX0& TEX0, int
 			}
 		}
 	}
-
-
-#if 0
-	for(auto t : m_dst[RenderTarget])
-	{
-		if(bp == t->m_TEX0.TBP0)
-		{
-			dst = t;
-
-			log_cb(RETRO_LOG_DEBUG, "TC: Lookup Frame %dx%d, perfect hit: %d (0x%x -> 0x%x)\n", w, h, dst->m_texture->GetID(), bp, t->m_end_block);
-
-			break;
-		}
-		else
-		{
-			// HACK: try to find something close to the base pointer
-
-			if(t->m_TEX0.TBP0 <= bp && bp < t->m_TEX0.TBP0 + 0xe00UL && (!dst || t->m_TEX0.TBP0 >= dst->m_TEX0.TBP0))
-			{
-				log_cb(RETRO_LOG_DEBUG, "TC: Lookup Frame %dx%d, close hit: %d (0x%x, took 0x%x -> 0x%x)\n", w, h, t->m_texture->GetID(), bp, t->m_TEX0.TBP0, t->m_end_block);
-				dst = t;
-			}
-		}
-	}
-#endif
 
 	if(dst == NULL)
 	{
@@ -673,15 +641,8 @@ void GSTextureCache::InvalidateVideoMemType(int type, u32 bp)
 
 		if(bp == t->m_TEX0.TBP0)
 		{
-#if 0
-			log_cb(RETRO_LOG_DEBUG, "TC: InvalidateVideoMemType: Remove Target(%s) %d (0x%x)\n", to_string(type),
-					t->m_texture ? t->m_texture->GetID() : 0,
-					t->m_TEX0.TBP0);
-#endif
-
 			list.erase(i);
 			delete t;
-
 			break;
 		}
 	}
@@ -751,11 +712,6 @@ void GSTextureCache::InvalidateVideoMem(GSOffset* off, const GSVector4i& rect, b
 					// miss will load invalid data.
 					//
 					// So just clear the damn buffer and forget about it.
-#if 0
-					log_cb(RETRO_LOG_DEBUG, "TC: Clear Sub Target(%s) %d (0x%x)\n", to_string(type),
-							t->m_texture ? t->m_texture->GetID() : 0,
-							t->m_TEX0.TBP0);
-#endif
 					m_renderer->m_dev->ClearRenderTarget(t->m_texture, 0);
 				}
 			}
@@ -851,22 +807,12 @@ void GSTextureCache::InvalidateVideoMem(GSOffset* off, const GSVector4i& rect, b
 			{
 				if(!found && GSUtil::HasCompatibleBits(psm, t->m_TEX0.PSM))
 				{
-#if 0
-					log_cb(RETRO_LOG_DEBUG, "TC: Dirty Target(%s) %d (0x%x) r(%d,%d,%d,%d)\n", to_string(type),
-								t->m_texture ? t->m_texture->GetID() : 0,
-								t->m_TEX0.TBP0, r.x, r.y, r.z, r.w);
-#endif
 					t->m_dirty.push_back(GSDirtyRect(r, psm));
 					t->m_TEX0.TBW = bw;
 				}
 				else
 				{
 					list.erase(j);
-#if 0
-					log_cb(RETRO_LOG_DEBUG, "TC: Remove Target(%s) %d (0x%x)\n", to_string(type),
-								t->m_texture ? t->m_texture->GetID() : 0,
-								t->m_TEX0.TBP0);
-#endif
 					delete t;
 					continue;
 				}
@@ -891,11 +837,6 @@ void GSTextureCache::InvalidateVideoMem(GSOffset* off, const GSVector4i& rect, b
 
 						if(r.bottom > y)
 						{
-#if 0
-							log_cb(RETRO_LOG_DEBUG, "TC: Dirty After Target(%s) %d (0x%x)\n", to_string(type),
-									t->m_texture ? t->m_texture->GetID() : 0,
-									t->m_TEX0.TBP0);
-#endif
 							// TODO: do not add this rect above too
 							t->m_dirty.push_back(GSDirtyRect(GSVector4i(r.left, r.top - y, r.right, r.bottom - y), psm));
 							t->m_TEX0.TBW = bw;
@@ -918,12 +859,6 @@ void GSTextureCache::InvalidateVideoMem(GSOffset* off, const GSVector4i& rect, b
 					if(rowsize > 0 && offset % rowsize == 0) {
 						int y = GSLocalMemory::m_psm[psm].pgs.y * offset / rowsize;
 
-#if 0
-						log_cb(RETRO_LOG_DEBUG, "TC: Dirty in the middle of Target(%s) %d (0x%x->0x%x) pos(%d,%d => %d,%d) bw:%u\n", to_string(type),
-								t->m_texture ? t->m_texture->GetID() : 0,
-								t->m_TEX0.TBP0, t->m_end_block,
-								r.left, r.top + y, r.right, r.bottom + y, bw);
-#endif
 
 						t->m_dirty.push_back(GSDirtyRect(GSVector4i(r.left, r.top + y, r.right, r.bottom + y), psm));
 						t->m_TEX0.TBW = bw;
@@ -1086,10 +1021,6 @@ void GSTextureCache::InvalidateVideoMemSubTarget(GSTextureCache::Target* rt)
 
 		if((t->m_TEX0.TBP0 > rt->m_TEX0.TBP0) && (t->m_end_block < rt->m_end_block) && (t->m_TEX0.TBW == rt->m_TEX0.TBW)
 				&& (t->m_TEX0.TBP0 < t->m_end_block)) {
-#if 0
-			log_cb(RETRO_LOG_DEBUG, "InvalidateVideoMemSubTarget: rt 0x%x -> 0x%x, sub rt 0x%x -> 0x%x\n",
-					rt->m_TEX0.TBP0, rt->m_end_block, t->m_TEX0.TBP0, t->m_end_block);
-#endif
 
 			i = list.erase(i);
 			delete t;
@@ -1148,15 +1079,10 @@ void GSTextureCache::IncAge()
 			if(++t->m_age > maxage)
 			{
 				i = list.erase(i);
-#if 0
-				log_cb(RETRO_LOG_DEBUG, "TC: Remove Target(%s): %d (0x%x) due to age\n", to_string(type),
-							t->m_texture ? t->m_texture->GetID() : 0,
-							t->m_TEX0.TBP0);
-#endif
 				delete t;
-			} else {
-				++i;
 			}
+			else 
+				++i;
 		}
 	}
 }
@@ -1994,12 +1920,6 @@ void GSTextureCache::SourceMap::RemoveAll()
 void GSTextureCache::SourceMap::RemoveAt(Source* s)
 {
 	m_surfaces.erase(s);
-
-#if 0
-	log_cb(RETRO_LOG_DEBUG, "TC: Remove Src Texture: %d (0x%x)\n",
-				s->m_texture ? s->m_texture->GetID() : 0,
-				s->m_TEX0.TBP0);
-#endif
 
 	if (s->m_target)
 	{

@@ -214,34 +214,22 @@ __ri void __fastcall _nVifUnpackLoop(const u8* data) {
 	// skipSize used for skipping writes only
 	const int skipSize  = (vifRegs.cycle.cl - vifRegs.cycle.wl) * 16;
 
-#if 0
-	log_cb(RETRO_LOG_DEBUG, "[%d][%d][%d][num=%d][upk=%d][cl=%d][bl=%d][skip=%d]\n", isFill, doMask, doMode, vifRegs.num, upkNum, vif.cl, blockSize, skipSize);
-#endif
-
 	if (!doMode && (vif.cmd & 0x10)) setMasks(vif, vifRegs);
 
 	const int	usn		= !!vif.usn;
 	const int	upkNum	= vif.cmd & 0x1f;
 	const u8&	vSize	= nVifT[upkNum & 0x0f];
-	//uint vl = vif.cmd & 0x03;
-	//uint vn = (vif.cmd >> 2) & 0x3;
-	//uint vSize = ((32 >> vl) * (vn+1)) / 8;		// size of data (in bytes) used for each write cycle
-
 	const nVifCall*	fnbase  = &nVifUpk[ ((usn*2*16) + upkNum) * (4*1) ];
 	const UNPACKFUNCTYPE ft = VIFfuncTable[idx][doMode ? vifRegs.mode : 0][ ((usn*2*16) + upkNum) ];
 
 	pxAssume (vif.cl == 0);
-	//pxAssume (vifRegs.cycle.wl > 0);
 
 	do {
 		u8* dest = getVUptr(idx, vif.tag.addr);
 
-		if (doMode) {
-		//if (1) {
+		if (doMode)
 			ft(dest, data);
-		}
 		else {
-			//log_cb(RETRO_LOG_DEBUG, "SSE Unpack!\n");
 			uint cl3 = std::min(vif.cl, 3);
 			fnbase[cl3](dest, data);
 		}
@@ -251,7 +239,6 @@ __ri void __fastcall _nVifUnpackLoop(const u8* data) {
 		++vif.cl;
 
 		if (isFill) {
-			//log_cb(RETRO_LOG_DEBUG, "isFill!\n");
 			if (vif.cl <= vifRegs.cycle.cl)			data += vSize;
 			else if (vif.cl == vifRegs.cycle.wl)	vif.cl = 0;
 		}

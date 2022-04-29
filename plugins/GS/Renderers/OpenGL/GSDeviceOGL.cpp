@@ -2549,15 +2549,10 @@ void GSDeviceOGL::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture
 	// Original code from DX
 	float left = dRect.x * 2 / ds.x - 1.0f;
 	float right = dRect.z * 2 / ds.x - 1.0f;
-#if 0
-	float top = 1.0f - dRect.y * 2 / ds.y;
-	float bottom = 1.0f - dRect.w * 2 / ds.y;
-#else
 	// Opengl get some issues with the coordinate
 	// I flip top/bottom to fix scaling of the internal resolution
 	float top = -1.0f + dRect.y * 2 / ds.y;
 	float bottom = -1.0f + dRect.w * 2 / ds.y;
-#endif
 
 	// Flip y axis only when we render in the backbuffer
 	// By default everything is render in the wrong order (ie dx).

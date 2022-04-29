@@ -681,12 +681,6 @@ GSVector4 GSRendererHW::RealignTargetTextureCoordinate(const GSTextureCache::Sou
 				half_offset.y = 8;
 			}
 		}
-
-#if 0
-		log_cb(RETRO_LOG_DEBUG, "offset detected %f,%f t_pos %d (linear %d, scale %f)\n",
-				half_offset.x, half_offset.y, t_position, linear, scale.x);
-#endif
-
 	} else if (m_vt.m_eq.q) {
 		const float tw = (float)(1 << m_context->TEX0.TW);
 		const float th = (float)(1 << m_context->TEX0.TH);
@@ -695,11 +689,6 @@ GSVector4 GSRendererHW::RealignTargetTextureCoordinate(const GSTextureCache::Sou
 		// Tales of Abyss
 		half_offset.x = 0.5f * q / tw;
 		half_offset.y = 0.5f * q / th;
-
-#if 0
-		log_cb(RETRO_LOG_DEBUG, "ST offset detected %f,%f (linear %d, scale %f)\n",
-				half_offset.x, half_offset.y, linear, scale.x);
-#endif
 	}
 
 	return half_offset;
@@ -736,13 +725,6 @@ void GSRendererHW::MergeSprite(GSTextureCache::Source* tex)
 					break;
 				}
 			}
-
-#if 0
-			GSVector4 delta_p = m_vt.m_max.p - m_vt.m_min.p;
-			GSVector4 delta_t = m_vt.m_max.t - m_vt.m_min.t;
-			bool is_blit = PrimitiveOverlap() == PRIM_OVERLAP_NO;
-			log_cb(RETRO_LOG_DEBUG, "PP SAMPLER: Dp %f %f Dt %f %f. Is blit %d, is paving %d, count %d\n", delta_p.x, delta_p.y, delta_t.x, delta_t.y, is_blit, is_paving, m_vertex.tail);
-#endif
 
 			if (is_paving) {
 				// Replace all sprite with a single fullscreen sprite.
@@ -1255,9 +1237,6 @@ void GSRendererHW::Draw()
 					m_lod.x = std::max<int>((int)floor(m_vt.m_lod.x), 0);
 				} else {
 					// On GS lod is a fixed float number 7:4 (4 bit for the frac part)
-#if 0
-					m_lod.x = std::max<int>((int)round(m_vt.m_lod.x + 0.0625), 0);
-#else
 					// Same as above with a bigger margin on rounding
 					// The goal is to avoid 1 undrawn pixels around the edge which trigger the load of the big
 					// layer.
@@ -1265,7 +1244,6 @@ void GSRendererHW::Draw()
 						m_lod.x = std::max<int>((int)round(m_vt.m_lod.x + 0.0625 + 0.01), 0);
 					else
 						m_lod.x = std::max<int>((int)round(m_vt.m_lod.x + 0.0625), 0);
-#endif
 				}
 
 				m_lod.y = std::max<int>((int)ceil(m_vt.m_lod.y), 0);
@@ -1457,16 +1435,6 @@ void GSRendererHW::Draw()
 
 	//
 
-	// Help to detect rendering outside of the framebuffer
-#if 0
-	if (m_upscale_multiplier * m_r.z > m_width) {
-		log_cb(RETRO_LOG_ERROR, "ERROR: RT width is too small only %d but require %d\n", m_width, m_upscale_multiplier * m_r.z);
-	}
-	if (m_upscale_multiplier * m_r.w > m_height) {
-		log_cb(RETRO_LOG_ERROR, "ERROR: RT height is too small only %d but require %d\n", m_height, m_upscale_multiplier * m_r.w);
-	}
-#endif
-
 	if(fm != 0xffffffff && rt)
 	{
 		//rt->m_valid = rt->m_valid.runion(r);
@@ -1588,11 +1556,6 @@ void GSRendererHW::OI_DoubleHalfClear(GSTexture* rt, GSTexture* ds)
 			const u32 color = v[1].RGBAQ.U32[0];
 			const bool clear_depth = (m_context->FRAME.FBP > m_context->ZBUF.ZBP);
 
-#if 0
-			log_cb(RETRO_LOG_DEBUG, "OI_DoubleHalfClear:%s: base %x half %x. w_pages %d h_pages %d fbw %d. Color %x\n",
-					clear_depth ? "depth" : "target", base << 5, half << 5, w_pages, h_pages, m_context->FRAME.FBW, color);
-#endif
-
 			// Commit texture with a factor 2 on the height
 			GSTexture* t = clear_depth ? ds : rt;
 			const GSVector4i commitRect = ComputeBoundingBox(t->GetScale(), t->GetSize());
@@ -1653,21 +1616,6 @@ void GSRendererHW::OI_GsMemClear()
 					d[col[x]] &= 0xff000000; // Clear the color
 				}
 			}
-		} else if (format == 2) {
-			; // Hack is used for FMV which are likely 24/32 bits. Let's keep the for reference
-#if 0
-			// Based on WritePixel16
-			for(int y = r.top; y < r.bottom; y++)
-			{
-				u32* RESTRICT d = &m_mem.m_vm16[off->pixel.row[y]];
-				int* RESTRICT col = off->pixel.col[0];
-
-				for(int x = r.left; x < r.right; x++)
-				{
-					d[col[x]] = 0; // Here the constant color
-				}
-			}
-#endif
 		}
 	}
 }

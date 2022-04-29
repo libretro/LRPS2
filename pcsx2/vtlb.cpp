@@ -79,18 +79,14 @@ __inline int CheckCache(u32 addr)
 			if (((tlb[i].EntryLo1 & 0x38) >> 3) == 0x3) {
 				u32 mask  = tlb[i].PageMask;
 
-				if ((addr >= tlb[i].PFN1) && (addr <= tlb[i].PFN1 + mask)) {
-					//log_cb(RETRO_LOG_DEBUG, "Yay! Cache check cache addr=%x, mask=%x, addr+mask=%x, VPN2=%x PFN0=%x\n", addr, mask, (addr & mask), tlb[i].VPN2, tlb[i].PFN0); 
+				if ((addr >= tlb[i].PFN1) && (addr <= tlb[i].PFN1 + mask))
 					return true;
-				}
 			}
 			if (((tlb[i].EntryLo0 & 0x38) >> 3) == 0x3) {
 				u32 mask  = tlb[i].PageMask;
 
-				if ((addr >= tlb[i].PFN0) && (addr <= tlb[i].PFN0 + mask)) {
-					//log_cb(RETRO_LOG_DEBUG, "Yay! Cache check cache addr=%x, mask=%x, addr+mask=%x, VPN2=%x PFN0=%x\n", addr, mask, (addr & mask), tlb[i].VPN2, tlb[i].PFN0); 
+				if ((addr >= tlb[i].PFN0) && (addr <= tlb[i].PFN0 + mask))
 					return true;
-				}
 			}
 		}
 	}
@@ -113,8 +109,6 @@ DataType __fastcall vtlb_memRead(u32 addr)
 
 	//has to: translate, find function, call function
 	u32 paddr=vmv.assumeHandlerGetPAddr(addr);
-	//log_cb(RETRO_LOG_DEBUG, "Translated 0x%08X to 0x%08X\n", addr,paddr);
-	//return reinterpret_cast<TemplateHelper<DataSize,false>::HandlerType*>(vtlbdata.RWFT[TemplateHelper<DataSize,false>::sidx][0][hand])(paddr,data);
 
 	switch( DataSize )
 	{
@@ -143,7 +137,6 @@ void __fastcall vtlb_memRead64(u32 mem, mem64_t *out)
 	{
 		//has to: translate, find function, call function
 		u32 paddr = vmv.assumeHandlerGetPAddr(mem);
-		//log_cb(RETRO_LOG_DEBUG, "Translated 0x%08X to 0x%08X\n", addr,paddr);
 		vmv.assumeHandler<64, false>()(paddr, out);
 	}
 }
@@ -159,7 +152,6 @@ void __fastcall vtlb_memRead128(u32 mem, mem128_t *out)
 	{
 		//has to: translate, find function, call function
 		u32 paddr = vmv.assumeHandlerGetPAddr(mem);
-		//log_cb(RETRO_LOG_DEBUG, "Translated 0x%08X to 0x%08X\n", addr,paddr);
 		vmv.assumeHandler<128, false>()(paddr, out);
 	}
 }
@@ -179,7 +171,6 @@ void __fastcall vtlb_memWrite(u32 addr, DataType data)
 	{
 		//has to: translate, find function, call function
 		u32 paddr = vmv.assumeHandlerGetPAddr(addr);
-		//log_cb(RETRO_LOG_DEBUG, "Translated 0x%08X to 0x%08X\n", addr,paddr);
 		return vmv.assumeHandler<sizeof(DataType)*8, true>()(paddr, data);
 	}
 }
@@ -196,8 +187,6 @@ void __fastcall vtlb_memWrite64(u32 mem, const mem64_t* value)
 	{
 		//has to: translate, find function, call function
 		u32 paddr = vmv.assumeHandlerGetPAddr(mem);
-		//log_cb(RETRO_LOG_DEBUG, "Translated 0x%08X to 0x%08X\n", addr,paddr);
-
 		vmv.assumeHandler<64, true>()(paddr, value);
 	}
 }
@@ -214,8 +203,6 @@ void __fastcall vtlb_memWrite128(u32 mem, const mem128_t *value)
 	{
 		//has to: translate, find function, call function
 		u32 paddr = vmv.assumeHandlerGetPAddr(mem);
-		//log_cb(RETRO_LOG_DEBUG, "Translated 0x%08X to 0x%08X\n", addr,paddr);
-
 		vmv.assumeHandler<128, true>()(paddr, value);
 	}
 }
@@ -254,7 +241,6 @@ void __fastcall GoemonPreloadTlb()
 			//if ((uptr)vtlbdata.vmap[vaddr>>VTLB_PAGE_BITS] == POINTER_SIGN_BIT) {
 			auto vmv = vtlbdata.vmap[vaddr>>VTLB_PAGE_BITS];
 			if (vmv.isHandler(vaddr) && vmv.assumeHandlerGetID() == 0) {
-				log_cb(RETRO_LOG_DEBUG, "GoemonPreloadTlb: Entry %d. Key %x. From V:0x%8.8x to P:0x%8.8x (%d pages)\n", i, tlb[i].key, vaddr, paddr, size >> VTLB_PAGE_BITS);
 				vtlb_VMap(           vaddr , paddr, size);
 				vtlb_VMap(0x20000000|vaddr , paddr, size);
 			}
@@ -271,7 +257,6 @@ void __fastcall GoemonUnloadTlb(u32 key)
 			if (tlb[i].valid == 0x1) {
 				u32 size  = tlb[i].high_add - tlb[i].low_add;
 				u32 vaddr = tlb[i].low_add;
-				log_cb(RETRO_LOG_DEBUG, "GoemonUnloadTlb: Entry %d. Key %x. From V:0x%8.8x to V:0x%8.8x (%d pages)\n", i, tlb[i].key, vaddr, vaddr+size, size >> VTLB_PAGE_BITS);
 
 				vtlb_VMapUnmap(           vaddr , size);
 				vtlb_VMapUnmap(0x20000000|vaddr , size);
@@ -282,8 +267,6 @@ void __fastcall GoemonUnloadTlb(u32 key)
 				tlb[i].key      = 0xFEFEFEFE;
 				tlb[i].low_add  = 0xFEFEFEFE;
 				tlb[i].high_add = 0xFEFEFEFE;
-			} else {
-				log_cb(RETRO_LOG_ERROR, "GoemonUnloadTlb: Entry %d is not valid. Key %x\n", i, tlb[i].key);
 			}
 		}
 	}

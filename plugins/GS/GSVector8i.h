@@ -85,15 +85,7 @@ public:
 
 	__forceinline GSVector8i(__m128i m0, __m128i m1)
 	{
-		#if 0 // _MSC_VER >= 1700 
-		
-		this->m = _mm256_permute2x128_si256(_mm256_castsi128_si256(m0), _mm256_castsi128_si256(m1), 0);
-		
-		#else
-		
 		*this = zero().insert<0>(m0).insert<1>(m1);
-
-		#endif
 	}
 
 	__forceinline GSVector8i(const GSVector8i& v)
@@ -123,7 +115,7 @@ public:
 
 	__forceinline void operator = (int i)
 	{
-		m = _mm256_broadcastd_epi32(_mm_cvtsi32_si128(i)); // m = _mm256_set1_epi32(i);
+		m = _mm256_broadcastd_epi32(_mm_cvtsi32_si128(i));
 	}
 
 	__forceinline void operator = (__m128i m)

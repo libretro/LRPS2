@@ -314,7 +314,6 @@ __fi void fpuFloat4(int regd) { // +NaN -> +fMax, -NaN -> -fMax, +Inf -> +fMax, 
 		_freeXMMreg(t1reg);
 	}
 	else {
-		log_cb(RETRO_LOG_ERROR, "fpuFloat2() allocation error\n");
 		t1reg = (regd == 0) ? 1 : 0; // get a temp reg thats not regd
 		xMOVAPS(ptr[&FPU_FLOAT_TEMP[0]], xRegisterSSE(t1reg )); // backup data in t1reg to a temp address
 		xMOVSS(xRegisterSSE(t1reg), xRegisterSSE(regd));
@@ -577,7 +576,6 @@ int recCommutativeOp(int info, int regd, int op)
 			}
 			break;
 		default:
-			log_cb(RETRO_LOG_DEBUG, "FPU: recCommutativeOp case 4\n");
 			xMOVSSZX(xRegisterSSE(regd), ptr[&fpuRegs.fpr[_Fs_]]);
 			xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.fpr[_Ft_]]);
 			if (CHECK_FPU_EXTRA_OVERFLOW || (op >= 2)) { fpuFloat2(regd); fpuFloat2(t0reg); }
@@ -662,8 +660,6 @@ void recC_EQ_xmm(int info)
 	int tempReg;
 	int t0reg;
 
-	//log_cb(RETRO_LOG_DEBUG, "recC_EQ_xmm()\n");
-
 	switch(info & (PROCESS_EE_S|PROCESS_EE_T) ) {
 		case PROCESS_EE_S:
 			fpuFloat3(EEREC_S);
@@ -693,7 +689,6 @@ void recC_EQ_xmm(int info)
 			xUCOMI.SS(xRegisterSSE(EEREC_S), xRegisterSSE(EEREC_T));
 			break;
 		default:
-			log_cb(RETRO_LOG_DEBUG, "recC_EQ_xmm: Default\n");
 			tempReg = _allocX86reg(xEmptyReg, X86TYPE_TEMP, 0, 0);
 			xMOV(xRegister32(tempReg), ptr[&fpuRegs.fpr[_Fs_]]);
 			xCMP(xRegister32(tempReg), ptr[&fpuRegs.fpr[_Ft_]]);
@@ -730,8 +725,6 @@ void recC_LE_xmm(int info )
 {
 	int tempReg; //tempX86reg
 	int t0reg; //tempXMMreg
-
-	//log_cb(RETRO_LOG_DEBUG, "recC_LE_xmm()\n");
 
 	switch(info & (PROCESS_EE_S|PROCESS_EE_T) ) {
 		case PROCESS_EE_S:
@@ -772,7 +765,6 @@ void recC_LE_xmm(int info )
 			xUCOMI.SS(xRegisterSSE(EEREC_S), xRegisterSSE(EEREC_T));
 			break;
 		default: // Untested and incorrect, but this case is never reached AFAIK (cottonvibes)
-			log_cb(RETRO_LOG_DEBUG, "recC_LE_xmm: Default\n");
 			tempReg = _allocX86reg(xEmptyReg, X86TYPE_TEMP, 0, 0);
 			xMOV(xRegister32(tempReg), ptr[&fpuRegs.fpr[_Fs_]]);
 			xCMP(xRegister32(tempReg), ptr[&fpuRegs.fpr[_Ft_]]);
@@ -803,8 +795,6 @@ void recC_LT_xmm(int info)
 {
 	int tempReg;
 	int t0reg;
-
-	//log_cb(RETRO_LOG_DEBUG, "recC_LT_xmm()\n");
 
 	switch(info & (PROCESS_EE_S|PROCESS_EE_T) ) {
 		case PROCESS_EE_S:
@@ -847,7 +837,6 @@ void recC_LT_xmm(int info)
 			xUCOMI.SS(xRegisterSSE(EEREC_S), xRegisterSSE(EEREC_T));
 			break;
 		default:
-			log_cb(RETRO_LOG_DEBUG, "recC_LT_xmm: Default\n");
 			tempReg = _allocX86reg(xEmptyReg, X86TYPE_TEMP, 0, 0);
 			xMOV(xRegister32(tempReg), ptr[&fpuRegs.fpr[_Fs_]]);
 			xCMP(xRegister32(tempReg), ptr[&fpuRegs.fpr[_Ft_]]);
@@ -995,14 +984,12 @@ void recDIV_S_xmm(int info)
 {
 	bool roundmodeFlag = false;
 	int t0reg = _allocTempXMMreg(XMMT_FPS, -1);
-	//log_cb(RETRO_LOG_DEBUG, "DIV\n");
 
 	if( CHECK_FPUNEGDIVHACK )
 	{
 		if (g_sseMXCSR.GetRoundMode() != SSEround_NegInf)
 		{
 			// Set roundmode to nearest since it isn't already
-			//log_cb(RETRO_LOG_DEBUG, "div to negative inf\n");
 
 			roundmode_neg = g_sseMXCSR;
 			roundmode_neg.SetRoundMode( SSEround_NegInf );
@@ -1015,7 +1002,6 @@ void recDIV_S_xmm(int info)
 		if (g_sseMXCSR.GetRoundMode() != SSEround_Nearest)
 		{
 			// Set roundmode to nearest since it isn't already
-			//log_cb(RETRO_LOG_DEBUG, "div to nearest\n");
 
 			roundmode_nearest = g_sseMXCSR;
 			roundmode_nearest.SetRoundMode( SSEround_Nearest );
@@ -1026,14 +1012,12 @@ void recDIV_S_xmm(int info)
 
 	switch(info & (PROCESS_EE_S|PROCESS_EE_T) ) {
 		case PROCESS_EE_S:
-			//log_cb(RETRO_LOG_DEBUG, "FPU: DIV case 1\n");
 			xMOVSS(xRegisterSSE(EEREC_D), xRegisterSSE(EEREC_S));
 			xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.fpr[_Ft_]]);
 			if (CHECK_FPU_EXTRA_FLAGS) recDIVhelper1(EEREC_D, t0reg);
 			else recDIVhelper2(EEREC_D, t0reg);
 			break;
 		case PROCESS_EE_T:
-			//log_cb(RETRO_LOG_DEBUG, "FPU: DIV case 2\n");
 			if (EEREC_D == EEREC_T) {
 				xMOVSS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_T));
 				xMOVSSZX(xRegisterSSE(EEREC_D), ptr[&fpuRegs.fpr[_Fs_]]);
@@ -1047,7 +1031,6 @@ void recDIV_S_xmm(int info)
 			}
 			break;
 		case (PROCESS_EE_S|PROCESS_EE_T):
-			//log_cb(RETRO_LOG_DEBUG, "FPU: DIV case 3\n");
 			if (EEREC_D == EEREC_T) {
 				xMOVSS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_T));
 				xMOVSS(xRegisterSSE(EEREC_D), xRegisterSSE(EEREC_S));
@@ -1061,7 +1044,6 @@ void recDIV_S_xmm(int info)
 			}
 			break;
 		default:
-			//log_cb(RETRO_LOG_DEBUG, "FPU: DIV case 4\n");
 			xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.fpr[_Ft_]]);
 			xMOVSSZX(xRegisterSSE(EEREC_D), ptr[&fpuRegs.fpr[_Fs_]]);
 			if (CHECK_FPU_EXTRA_FLAGS) recDIVhelper1(EEREC_D, t0reg);
@@ -1502,13 +1484,11 @@ void recSUBop(int info, int regd)
 
 	switch(info & (PROCESS_EE_S|PROCESS_EE_T) ) {
 		case PROCESS_EE_S:
-			//log_cb(RETRO_LOG_DEBUG, "FPU: SUB case 1\n");
 			if (regd != EEREC_S) xMOVSS(xRegisterSSE(regd), xRegisterSSE(EEREC_S));
 			xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.fpr[_Ft_]]);
 			recSUBhelper(regd, t0reg);
 			break;
 		case PROCESS_EE_T:
-			//log_cb(RETRO_LOG_DEBUG, "FPU: SUB case 2\n");
 			if (regd == EEREC_T) {
 				xMOVSS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_T));
 				xMOVSSZX(xRegisterSSE(regd), ptr[&fpuRegs.fpr[_Fs_]]);
@@ -1520,7 +1500,6 @@ void recSUBop(int info, int regd)
 			}
 			break;
 		case (PROCESS_EE_S|PROCESS_EE_T):
-			//log_cb(RETRO_LOG_DEBUG, "FPU: SUB case 3\n");
 			if (regd == EEREC_T) {
 				xMOVSS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_T));
 				xMOVSS(xRegisterSSE(regd), xRegisterSSE(EEREC_S));
@@ -1532,7 +1511,6 @@ void recSUBop(int info, int regd)
 			}
 			break;
 		default:
-			log_cb(RETRO_LOG_WARN, "FPU: SUB case 4\n");
 			xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.fpr[_Ft_]]);
 			xMOVSSZX(xRegisterSSE(regd), ptr[&fpuRegs.fpr[_Fs_]]);
 			recSUBhelper(regd, t0reg);
@@ -1567,12 +1545,10 @@ void recSQRT_S_xmm(int info)
 {
 	u8* pjmp;
 	bool roundmodeFlag = false;
-	//log_cb(RETRO_LOG_DEBUG, "FPU: SQRT\n");
 
 	if (g_sseMXCSR.GetRoundMode() != SSEround_Nearest)
 	{
 		// Set roundmode to nearest if it isn't already
-		//log_cb(RETRO_LOG_DEBUG, "sqrt to nearest\n");
 		roundmode_nearest = g_sseMXCSR;
 		roundmode_nearest.SetRoundMode( SSEround_Nearest );
 		xLDMXCSR (roundmode_nearest);
@@ -1688,32 +1664,27 @@ void recRSQRT_S_xmm(int info)
 	// Should this do the same, or should Full mode leave roundmode alone? --air
 
 	int t0reg = _allocTempXMMreg(XMMT_FPS, -1);
-	//log_cb(RETRO_LOG_DEBUG, "FPU: RSQRT\n");
 
 	switch(info & (PROCESS_EE_S|PROCESS_EE_T) ) {
 		case PROCESS_EE_S:
-			//log_cb(RETRO_LOG_DEBUG, "FPU: RSQRT case 1\n");
 			xMOVSS(xRegisterSSE(EEREC_D), xRegisterSSE(EEREC_S));
 			xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.fpr[_Ft_]]);
 			if (CHECK_FPU_EXTRA_FLAGS) recRSQRThelper1(EEREC_D, t0reg);
 			else recRSQRThelper2(EEREC_D, t0reg);
 			break;
 		case PROCESS_EE_T:
-			//log_cb(RETRO_LOG_DEBUG, "FPU: RSQRT case 2\n");
 			xMOVSS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_T));
 			xMOVSSZX(xRegisterSSE(EEREC_D), ptr[&fpuRegs.fpr[_Fs_]]);
 			if (CHECK_FPU_EXTRA_FLAGS) recRSQRThelper1(EEREC_D, t0reg);
 			else recRSQRThelper2(EEREC_D, t0reg);
 			break;
 		case (PROCESS_EE_S|PROCESS_EE_T):
-			//log_cb(RETRO_LOG_DEBUG, "FPU: RSQRT case 3\n");
 			xMOVSS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_T));
 			xMOVSS(xRegisterSSE(EEREC_D), xRegisterSSE(EEREC_S));
 			if (CHECK_FPU_EXTRA_FLAGS) recRSQRThelper1(EEREC_D, t0reg);
 			else recRSQRThelper2(EEREC_D, t0reg);
 			break;
 		default:
-			//log_cb(RETRO_LOG_DEBUG, "FPU: RSQRT case 4\n");
 			xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.fpr[_Ft_]]);
 			xMOVSSZX(xRegisterSSE(EEREC_D), ptr[&fpuRegs.fpr[_Fs_]]);
 			if (CHECK_FPU_EXTRA_FLAGS) recRSQRThelper1(EEREC_D, t0reg);

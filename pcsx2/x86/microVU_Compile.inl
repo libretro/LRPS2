@@ -83,9 +83,6 @@ void mVUsetupRange(microVU& mVU, s32 pc, bool isStartPC) {
 	}
 	else {
 		mVUrange.end = mVU.microMemSize;
-#ifndef NDEBUG
-		log_cb(RETRO_LOG_DEBUG, "microVU%d: Prog Range Wrap [%04x] [%d]\n", mVU.index, mVUrange.start, mVUrange.end);
-#endif
 		microRange mRange = {0, pc};
 		ranges->push_front(mRange);
 	}
@@ -110,9 +107,6 @@ void doIbit(mV) {
 		else {
 			u32 tempI;
 			if (CHECK_VU_OVERFLOW && ((curI & 0x7fffffff) >= 0x7f800000)) {
-#ifndef NDEBUG
-				log_cb(RETRO_LOG_DEBUG, "microVU%d: Clamping I Reg\n", mVU.index);
-#endif
 				tempI = (0x80000000 & curI) | 0x7f7fffff; // Clamp I Reg
 			}
 			else tempI = curI;
@@ -125,9 +119,6 @@ void doIbit(mV) {
 
 void doSwapOp(mV) { 
 	if (mVUinfo.backupVF && !mVUlow.noWriteVF) {
-#ifndef NDEBUG
-		log_cb(RETRO_LOG_DEBUG, "microVU%d: Backing Up VF Reg [%04x]\n", getIndex, xPC);
-#endif
 
 		// Allocate t1 first for better chance of reg-alloc
 		const xmm& t1 = mVU.regAlloc->allocReg(mVUlow.VF_write.reg);
@@ -184,14 +175,8 @@ __fi void mVUcheckBadOp(mV) {
 	// The BIOS writes upper and lower NOPs in reversed slots (bug)
 	//So to prevent spamming we ignore these, however its possible the real VU will bomb out if 
 	//this happens, so we will bomb out without warning.
-	if (mVUinfo.isBadOp && mVU.code != 0x8000033c) {
-		
+	if (mVUinfo.isBadOp && mVU.code != 0x8000033c)
 		mVUinfo.isEOB = true;
-#ifndef NDEBUG
-		log_cb(RETRO_LOG_DEBUG, "microVU Warning: Block contains an illegal opcode...\n");
-#endif
-
-	}
 }
 
 // Prints msg when exiting block early if 1st op was a bad opcode (Dawn of Mana Level 2)
@@ -223,19 +208,9 @@ __fi void eBitPass1(mV, int& branch) {
 }
 
 __ri void eBitWarning(mV) {
-#ifndef NDEBUG
-	if (mVUpBlock->pState.blockType == 1)
-		log_cb(RETRO_LOG_ERROR, "microVU%d Warning: Branch, E-bit, Branch! [%04x]\n",  mVU.index, xPC);
-	if (mVUpBlock->pState.blockType == 2)
-		log_cb(RETRO_LOG_ERROR, "microVU%d Warning: Branch, Branch, Branch! [%04x]\n", mVU.index, xPC);
-#endif
 	incPC(2);
-	if (curI & _Ebit_) {
-#ifndef NDEBUG
-		log_cb(RETRO_LOG_DEBUG, "microVU%d: E-bit in Branch delay slot! [%04x]\n", mVU.index, xPC);
-#endif
+	if (curI & _Ebit_)
 		mVUregs.blockType = 1;
-	}
 	incPC(-2);
 }
 
@@ -372,11 +347,6 @@ void mVUtestCycles(microVU& mVU, microFlagCycles& mFC) {
 
 // This gets run at the start of every loop of mVU's first pass
 __fi void startLoop(mV) {
-#ifndef NDEBUG
-	if (curI & _Mbit_ && isVU0)	{ log_cb (RETRO_LOG_DEBUG, "microVU%d: M-bit set! PC = %x\n", getIndex, xPC); }
-	if (curI & _Dbit_)	{ log_cb (RETRO_LOG_DEBUG, "microVU%d: D-bit set! PC = %x\n", getIndex, xPC); }
-	if (curI & _Tbit_)	{ log_cb (RETRO_LOG_DEBUG, "microVU%d: T-bit set! PC = %x\n", getIndex, xPC); }
-#endif
 	memzero(mVUinfo);
 	memzero(mVUregsTemp);
 }
@@ -438,28 +408,15 @@ void* mVUcompileSingleInstruction(microVU& mVU, u32 startPC, uptr pState, microF
 	mVUopU(mVU, 0);
 	mVUcheckBadOp(mVU);
 	if (curI & _Ebit_) 
-	{
 		eBitPass1(mVU, g_branch);
-#ifndef NDEBUG
-		log_cb(RETRO_LOG_DEBUG, "E Bit on single instruction\n");
-#endif
-	}
 	if (curI & _Dbit_) { mVUup.dBit = true; }
 	if (curI & _Tbit_) { mVUup.tBit = true; }
 	if (curI & _Mbit_)
-	{
 		mVUup.mBit = true;
-#ifndef NDEBUG
-		log_cb(RETRO_LOG_DEBUG, "M Bit on single instruction\n");
-#endif
-	}
 	if (curI & _Ibit_)  
 	{ 
 		mVUlow.isNOP = true;
 		mVUup.iBit   = true;
-#ifndef NDEBUG
-		log_cb(RETRO_LOG_DEBUG, "I Bit on single instruction\n");
-#endif
 	}
 	else			    { incPC(-1); mVUopL(mVU, 0); incPC(1); }
 	mVUsetCycles(mVU);
@@ -726,11 +683,6 @@ void* mVUcompile(microVU& mVU, u32 startPC, uptr pState)
 			}
 		}
 	}
-#ifndef NDEBUG
-	if ((x == endCount) && (x != 1)) {
-		log_cb(RETRO_LOG_ERROR, "microVU%d: Possible infinite compiling loop!\n", mVU.index);
-	}
-#endif
 
 	// E-bit End
 	mVUsetupRange(mVU, xPC, false);

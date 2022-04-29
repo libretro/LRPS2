@@ -107,7 +107,6 @@ void __fastcall _hwWrite32( u32 mem, u32 value )
 					//Need to kickstart the GIF if the M3R mask comes off
 					if (gifRegs.stat.M3R == 1 && gifRegs.mode.M3R == 0 && (gifch.chcr.STR || gif_fifo.fifoSize))
 					{
-						log_cb(RETRO_LOG_DEBUG, "GIF Mode cancelling P3 Disable\n");
 						CPU_INT(DMAC_GIF, 8);
 					}
 						
@@ -192,38 +191,6 @@ void __fastcall _hwWrite32( u32 mem, u32 value )
 					psHu32(mem) = value;
 				return;
 
-				// TODO: psx handling is done in the default case. Keep the code until we decide if we decide which interface to use (sif2/Pgif dma)
-#if 0
-				mcase(SBUS_F300) :
-					psxHu32(0x1f801814) = value;
-				/*
-				if (sif2.fifo.size == 0) psxHu32(0x1f801814) |= 0x4000000;
-				switch ((psxHu32(HW_PS1_GPU_STATUS) >> 29) & 0x3)
-					{
-					case 0x0:
-						//log_cb(RETRO_LOG_DEBUG, "Set DMA Mode OFF\n");
-						psxHu32(HW_PS1_GPU_STATUS) &= ~0x2000000;
-						break;
-					case 0x1:
-						//log_cb(RETRO_LOG_DEBUG, "Set DMA Mode FIFO\n");
-						psxHu32(HW_PS1_GPU_STATUS) |= 0x2000000;
-						break;
-					case 0x2:
-						//log_cb(RETRO_LOG_DEBUG, "Set DMA Mode CPU->GPU\n");
-						psxHu32(HW_PS1_GPU_STATUS) = (psxHu32(HW_PS1_GPU_STATUS) & ~0x2000000) | ((psxHu32(HW_PS1_GPU_STATUS) & 0x10000000) >> 3);
-						break;
-					case 0x3:
-						//log_cb(RETRO_LOG_DEBUG, "Set DMA Mode GPUREAD->CPU\n");
-						psxHu32(HW_PS1_GPU_STATUS) = (psxHu32(HW_PS1_GPU_STATUS) & ~0x2000000) | ((psxHu32(HW_PS1_GPU_STATUS) & 0x8000000) >> 2);
-						break;
-					}*/
-					//psHu32(mem) = 0;
-				return;
-				mcase(SBUS_F380) :
-					psHu32(mem) = value;
-				return;
-#endif
-
 				mcase(MCH_RICM)://MCH_RICM: x:4|SA:12|x:5|SDEV:1|SOP:4|SBC:1|SDEV:5
 					if ((((value >> 16) & 0xFFF) == 0x21) && (((value >> 6) & 0xF) == 1) && (((psHu32(0xf440) >> 7) & 1) == 0))//INIT & SRP=0
 						rdram_sdevid = 0;	// if SIO repeater is cleared, reset sdevid
@@ -304,7 +271,6 @@ void __fastcall _hwWrite8(u32 mem, u8 value)
 		case INTC_STAT:
 		case INTC_MASK:
 		case DMAC_FAKESTAT:
-			log_cb (RETRO_LOG_DEBUG, "8bit write mem = %x value %x\n", mem, value );
 			_hwWrite32<page>(mem & ~3, (u32)value << (mem & 3) * 8);
 			return;
 	}
@@ -331,7 +297,6 @@ void __fastcall _hwWrite16(u32 mem, u16 value)
 		case INTC_STAT:
 		case INTC_MASK:
 		case DMAC_FAKESTAT:
-			log_cb (RETRO_LOG_DEBUG, "16bit write mem = %x value %x\n", mem, value );
 			_hwWrite32<page>(mem & ~3, (u32)value << (mem & 3) * 8);
 			return;
 	}

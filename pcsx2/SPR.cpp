@@ -160,11 +160,6 @@ void _SPR0interleave()
 		qwc -= spr0ch.qwc;
 		pMem = SPRdmaGetAddr(spr0ch.madr, true);
 
-#if 0
-		if(spr0ch.qwc > (0x400 - ((spr0ch.sadr & 0x3fff) >> 4)))
-			DevCon.Warning("Warning! Interleave on SPR0 going outside of SPR memory!");
-#endif
-
 		switch (dmacRegs.ctrl.MFD)
  		{
 			case MFD_VIF1:

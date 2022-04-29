@@ -65,11 +65,10 @@ meaning that only the first 13 game arguments supplied by the user can be added 
 In fast boot mode, 15 arguments can fit because the only call to EELOAD is "<ELF> <<args>>". */
 const int kMaxArgs = 16;
 uptr g_argPtrs[kMaxArgs];
-#define DEBUG_LAUNCHARG 0 // show lots of helpful console messages as the launch arguments are passed to the game
 
 extern SysMainMemory& GetVmMemory();
 
-void cpuReset()
+void cpuReset(void)
 {
 	vu1Thread.WaitVU();
 	if (GetMTGS().IsOpen())
@@ -154,20 +153,16 @@ __ri void cpuException(u32 code, u32 bd)
 		errLevel2 = TRUE;
 		checkStatus = (cpuRegs.CP0.n.Status.b.DEV == 0); // for perf/debug exceptions
 
-		log_cb(RETRO_LOG_ERROR, "*PCSX2* FIX ME: Level 2 cpuException\n");
 		if ((code & 0x38000) <= 0x8000 )
 		{
 			//Reset / NMI
 			cpuRegs.pc = 0xBFC00000;
-			log_cb(RETRO_LOG_WARN, "Reset request\n");
 			return;
 		}
 		else if((code & 0x38000) == 0x10000)
 			offset = 0x80; //Performance Counter
 		else if((code & 0x38000) == 0x18000)
 			offset = 0x100; //Debug
-		else
-			log_cb(RETRO_LOG_ERROR, "Unknown Level 2 Exception!! Cause %x\n", code);
 	}
 
 	if (cpuRegs.CP0.n.Status.b.EXL == 0)
@@ -175,8 +170,7 @@ __ri void cpuException(u32 code, u32 bd)
 		cpuRegs.CP0.n.Status.b.EXL = 1;
 		if (bd)
 		{
-			//log_cb(RETRO_LOG_WARN, "branch delay!!\n");
-			cpuRegs.CP0.n.EPC = cpuRegs.pc - 4;
+			cpuRegs.CP0.n.EPC    = cpuRegs.pc - 4;
 			cpuRegs.CP0.n.Cause |= 0x80000000;
 		}
 		else
@@ -186,13 +180,7 @@ __ri void cpuException(u32 code, u32 bd)
 		}
 	}
 	else
-	{
 		offset = 0x180; //Override the cause
-#ifndef NDEBUG
-		if (errLevel2)
-			log_cb(RETRO_LOG_WARN, "cpuException: Status.EXL = 1 cause %x\n", code);
-#endif
-	}
 
 	if (checkStatus)
 		cpuRegs.pc = 0x80000000 + offset;
@@ -202,14 +190,6 @@ __ri void cpuException(u32 code, u32 bd)
 
 void cpuTlbMiss(u32 addr, u32 bd, u32 excode)
 {
-#ifndef NDEBUG
-	// Avoid too much spamming on the interpreter
-	if (Cpu != &intCpu) {
-		log_cb(RETRO_LOG_ERROR, "cpuTlbMiss pc:%x, cycl:%x, addr: %x, status=%x, code=%x\n",
-				cpuRegs.pc, cpuRegs.cycle, addr, cpuRegs.CP0.n.Status.val, excode);
-	}
-#endif
-
 	cpuRegs.CP0.n.BadVAddr = addr;
 	cpuRegs.CP0.n.Context &= 0xFF80000F;
 	cpuRegs.CP0.n.Context |= (addr >> 9) & 0x007FFFF0;
@@ -285,10 +265,7 @@ static __fi void TESTINT( u8 n, void (*callback)() )
 static __fi void _cpuTestInterrupts()
 {
 	if (!dmacRegs.ctrl.DMAE || (psHu8(DMAC_ENABLER+2) & 1))
-	{
-		//log_cb(RETRO_LOG_WARN, "DMAC Disabled or suspended\n");
 		return;
-	}
 	/* These are 'pcsx2 interrupts', they handle asynchronous stuff
 	   that depends on the cycle timings */
 
@@ -334,7 +311,6 @@ static __fi void _cpuTestTIMR()
 	if ( (cpuRegs.CP0.n.Status.val & 0x8000) &&
 		cpuRegs.CP0.n.Count >= cpuRegs.CP0.n.Compare && cpuRegs.CP0.n.Count < cpuRegs.CP0.n.Compare+1000 )
 	{
-		log_cb(RETRO_LOG_DEBUG, "timr intr: %x, %x\n", cpuRegs.CP0.n.Count, cpuRegs.CP0.n.Compare);
 		cpuException(0x808000, cpuRegs.branch);
 	}
 }
@@ -431,9 +407,6 @@ __fi void _cpuEventTest_Shared()
 
 	if( iopEventAction )
 	{
-		//if( EEsCycle < -450 )
-		//	log_cb(RETRO_LOG_INFO, " IOP ahead by: %d cycles\n", -EEsCycle );
-
 		EEsCycle = psxCpu->ExecuteBlock( EEsCycle );
 
 		iopEventAction = false;
@@ -456,7 +429,6 @@ __fi void _cpuEventTest_Shared()
 		// IOP extra timeslices in short order.
 
 		cpuSetNextEventDelta( 48 );
-		//log_cb(RETRO_LOG_WARN, "EE ahead of the IOP -- Rapid Event!  %d\n", EEsCycle );
 	}
 
 	// The IOP could be running ahead/behind of us, so adjust the iop's next branch by its
@@ -548,7 +520,6 @@ void __fastcall eeGameStarting()
 {
 	if (!g_GameStarted)
 	{
-		//log_cb(RETRO_LOG_INFO, "(R5900) ELF Entry point! [addr=0x%08X]\n", ElfEntry );
 		g_GameStarted = true;
 		g_GameLoading = false;
 		GetCoreThread().GameStartingInThread();
@@ -556,10 +527,6 @@ void __fastcall eeGameStarting()
 		// GameStartingInThread may issue a reset of the cpu and/or recompilers.  Check for and
 		// handle such things here:
 		Cpu->CheckExecutionState();
-	}
-	else
-	{
-		log_cb(RETRO_LOG_INFO, "(R5900) Re-executed ELF Entry point (ignored) [addr=0x%08X]\n", ElfEntry );
 	}
 }
 
@@ -590,24 +557,15 @@ int ParseArgumentString(u32 arg_block)
 				argc++;
 			}
 			else
-			{
-				log_cb(RETRO_LOG_INFO, "ParseArgumentString: Discarded additional arguments beyond the maximum of %d.\n", kMaxArgs);
 				break;
-			}
 		}
 		wasSpace = isSpace;
 	}
-#if DEBUG_LAUNCHARG
-	// Check our args block
-	log_cb(RETRO_LOG_DEBUG, "ParseArgumentString: Saving these strings:\n");
-	for (int a = 0; a < argc; a++)
-		log_cb(RETRO_LOG_DEBUG, "%p -> '%s'.\n", g_argPtrs[a], (char *)PSM(g_argPtrs[a]));
-#endif
 	return argc;
 }
 
 // Called from recompilers; __fastcall define is mandatory.
-void __fastcall eeloadHook()
+void __fastcall eeloadHook(void)
 {
 	const wxString &elf_override = GetCoreThread().GetElfOverride();
 
@@ -623,13 +581,6 @@ void __fastcall eeloadHook()
 	int argc = cpuRegs.GPR.n.a0.SD[0];
 	if (argc) // calls to EELOAD *after* the first one during the startup process will come here
 	{
-#if DEBUG_LAUNCHARG
-		log_cb(RETRO_LOG_DEBUG, "eeloadHook: EELOAD was called with %d arguments according to $a0 and %d according to vargs block:\n",
-			argc, memRead32(cpuRegs.GPR.n.a1.UD[0] - 4));
-		for (int a = 0; a < argc; a++)
-			log_cb(RETRO_LOG_DEBUG, "argv[%d]: %p -> %p -> '%s'\n", a, cpuRegs.GPR.n.a1.UL[0] + (a * 4),
-				memRead32(cpuRegs.GPR.n.a1.UD[0] + (a * 4)), (char *)PSM(memRead32(cpuRegs.GPR.n.a1.UD[0] + (a * 4))));
-#endif
 		if (argc > 1)
 			elfname = (char*)PSM(memRead32(cpuRegs.GPR.n.a1.UD[0] + 4)); // argv[1] in OSDSYS's invocation "EELOAD <game ELF>"
 
@@ -640,9 +591,6 @@ void __fastcall eeloadHook()
 		// then we add the desired launch arguments. PS2LOGO passes those on to the game itself as it calls EELOAD a third time.
 		if (!g_Conf->CurrentGameArgs.empty() && !strcmp(elfname.c_str(), "rom0:PS2LOGO"))
 		{
-			const char *argString = g_Conf->CurrentGameArgs.c_str();
-			log_cb(RETRO_LOG_DEBUG, "eeloadHook: Supplying launch argument(s) '%s' to module '%s'...\n", argString, elfname.c_str());
-
 			// Join all arguments by space characters so they can be processed as one string by ParseArgumentString(), then add the
 			// user's launch arguments onto the end
 			u32 arg_ptr = 0;
@@ -655,34 +603,16 @@ void __fastcall eeloadHook()
 			}
 			strcpy((char *)PSM(arg_ptr + arg_len + 1), g_Conf->CurrentGameArgs.c_str());
 			u32 first_arg_ptr = memRead32(cpuRegs.GPR.n.a1.UD[0]);
-#if DEBUG_LAUNCHARG
-			log_cb(RETRO_LOG_INFO, "eeloadHook: arg block is '%s'.\n", (char *)PSM(first_arg_ptr));
-#endif
 			argc = ParseArgumentString(first_arg_ptr);
 
 			// Write pointer to next slot in $a1
 			for (int a = 0; a < argc; a++)
 				memWrite32(cpuRegs.GPR.n.a1.UD[0] + (a * 4), g_argPtrs[a]);
 			cpuRegs.GPR.n.a0.SD[0] = argc;
-#if DEBUG_LAUNCHARG
-			// Check our work
-			log_cb(RETRO_LOG_DEBUG, "eeloadHook: New arguments are:\n");
-			for (int a = 0; a < argc; a++)
-				log_cb(RETRO_LOG_DEBUG, "argv[%d]: %p -> '%s'\n", a, memRead32(cpuRegs.GPR.n.a1.UD[0] + (a * 4)),
-				(char *)PSM(memRead32(cpuRegs.GPR.n.a1.UD[0] + (a * 4))));
-#endif
 		}
 		// else it's presumed that the invocation is "EELOAD <game ELF> <<launch args>>", coming from PS2LOGO, and we needn't do
 		// anything more
 	}
-#if DEBUG_LAUNCHARG
-	// This code fires in full/fast boot mode when EELOAD is called the first/only time. When EELOAD is not given any arguments,
-	// it calls rom0:OSDSYS by default, which displays the Sony Computer Entertainment screen. OSDSYS then calls "EELOAD
-	// rom0:PS2LOGO" and we end up above.
-	else
-		log_cb(RETRO_LOG_DEBUG, "eeloadHook: EELOAD was called with no arguments.\n");
-#endif
-
 	// If "fast boot" was chosen, then on EELOAD's first call we won't yet know what the game's ELF is. Find the name and write it
 	// into EELOAD's memory.
 	if (g_SkipBiosHack && elfname.empty())
@@ -729,38 +659,25 @@ void __fastcall eeloadHook2()
 		return;
 
 	if (!g_osdsys_str)
-	{
-		log_cb(RETRO_LOG_DEBUG, "eeloadHook2: Called before \"rom0:OSDSYS\" was found by eeloadHook()!\n");
 		return;
-	}
 
 	const char *argString = g_Conf->CurrentGameArgs.c_str();
-	log_cb(RETRO_LOG_INFO, "eeloadHook2: Supplying launch argument(s) '%s' to ELF '%s'.\n", argString, (char *)PSM(g_osdsys_str));
 
 	// Add args string after game's ELF name that was written over "rom0:OSDSYS" by eeloadHook(). In between the ELF name and args
 	// string we insert a space character so that ParseArgumentString() has one continuous string to process.
 	int game_len = strlen((char *)PSM(g_osdsys_str));
 	memset(PSM(g_osdsys_str + game_len), 0x20, 1);
 	strcpy((char *)PSM(g_osdsys_str + game_len + 1), g_Conf->CurrentGameArgs.c_str());
-#if DEBUG_LAUNCHARG
-	log_cb(RETRO_LOG_DEBUG, "eeloadHook2: arg block is '%s'.\n", (char *)PSM(g_osdsys_str));
-#endif
 	int argc = ParseArgumentString(g_osdsys_str);
 	
 	// Back up 4 bytes from start of args block for every arg + 4 bytes for start of argv pointer block, write pointers
 	uptr block_start = g_osdsys_str - (argc * 4);
 	for (int a = 0; a < argc; a++)
 	{
-#if DEBUG_LAUNCHARG
-		log_cb(RETRO_LOG_DEBUG, "eeloadHook2: Writing address %p to location %p.\n", g_argPtrs[a], block_start + (a * 4));
-#endif
 		memWrite32(block_start + (a * 4), g_argPtrs[a]);
 	}
 
 	// Save argc and argv as incoming arguments for EELOAD function which calls ExecPS2()
-#if DEBUG_LAUNCHARG
-	log_cb(RETRO_LOG_DEBUG, "eeloadHook2: Saving %d and %p in $a0 and $a1.\n", argc, block_start);
-#endif
 	cpuRegs.GPR.n.a0.SD[0] = argc;
 	cpuRegs.GPR.n.a1.UD[0] = block_start;
 }

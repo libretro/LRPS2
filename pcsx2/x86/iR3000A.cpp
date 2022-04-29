@@ -318,32 +318,6 @@ void _psxMoveGPRtoR(const xRegister32& to, int fromgpr)
 	}
 }
 
-#if 0
-void _psxMoveGPRtoM(uptr to, int fromgpr)
-{
-	if( PSX_IS_CONST1(fromgpr) )
-		xMOV(ptr32[(u32*)(to)], g_psxConstRegs[fromgpr] );
-	else {
-		// check x86
-		xMOV(eax, ptr[&psxRegs.GPR.r[ fromgpr ] ]);
-		xMOV(ptr[(void*)(to)], eax);
-	}
-}
-#endif
-
-#if 0
-void _psxMoveGPRtoRm(x86IntRegType to, int fromgpr)
-{
-	if( PSX_IS_CONST1(fromgpr) )
-		xMOV(ptr32[xAddressReg(to)], g_psxConstRegs[fromgpr] );
-	else {
-		// check x86
-		xMOV(eax, ptr[&psxRegs.GPR.r[ fromgpr ] ]);
-		xMOV(ptr[xAddressReg(to)], eax);
-	}
-}
-#endif
-
 void _psxFlushCall(int flushtype)
 {
 	// x86-32 ABI : These registers are not preserved across calls:
@@ -422,7 +396,7 @@ void psxRecompileCodeConst0(R3000AFNPTR constcode, R3000AFNPTR_INFO constscode, 
 	PSX_DEL_CONST(_Rd_);
 }
 
-static void psxRecompileIrxImport()
+static void psxRecompileIrxImport(void)
 {
 	u32 import_table = irxImportTableAddr(psxpc - 4);
 	u16 index = psxRegs.code & 0xffff;
@@ -532,7 +506,7 @@ static u8* m_recBlockAlloc = NULL;
 static const uint m_recBlockAllocSize =
 	(((Ps2MemSize::IopRam + Ps2MemSize::Rom + Ps2MemSize::Rom1 + Ps2MemSize::Rom2) / 4) * sizeof(BASEBLOCK));
 
-static void recReserveCache()
+static void recReserveCache(void)
 {
 	if (!recMem) recMem = new RecompiledCodeReserve(L"R3000A Recompiler Cache", _8mb);
 
@@ -548,14 +522,13 @@ static void recReserveCache()
 	recMem->ThrowIfNotOk();
 }
 
-static void recReserve()
+static void recReserve(void)
 {
 	// IOP has no hardware requirements!
-
 	recReserveCache();
 }
 
-static void recAlloc()
+static void recAlloc(void)
 {
 	// Goal: Allocate BASEBLOCKs for every possible branch target in IOP memory.
 	// Any 4-byte aligned address makes a valid branch target as per MIPS design (all instructions are
@@ -586,10 +559,8 @@ static void recAlloc()
 	_DynGen_Dispatchers();
 }
 
-void recResetIOP()
+void recResetIOP(void)
 {
-	log_cb(RETRO_LOG_DEBUG, "iR3000A Recompiler reset.\n" );
-
 	recAlloc();
 	recMem->Reset();
 
@@ -734,13 +705,6 @@ static __fi u32 psxRecClearMem(u32 pc)
 	}
 
 	blockidx=0;
-	while(BASEBLOCKEX* pexblock = recBlocks[blockidx++])
-	{
-		if (pc >= pexblock->startpc && pc < pexblock->startpc + pexblock->size * 4) {
-			log_cb(RETRO_LOG_DEBUG, "Impossible block clearing failure\n");
-			//pxFailDev( "Impossible block clearing failure" );
-		}
-	}
 
 	iopClearRecLUT(PSX_GETBLOCK(lowerextent), (upperextent - lowerextent) / 4);
 
@@ -865,25 +829,7 @@ static void iPsxBranchTest(u32 newpc, u32 cpuBranch)
 	}
 }
 
-#if 0
-//static const int *s_pCode;
-
-#if !defined(_MSC_VER)
-static void checkcodefn()
-{
-	int pctemp;
-
-#ifdef _MSC_VER
-	__asm mov pctemp, eax;
-#else
-    __asm__ __volatile__("movl %%eax, %[pctemp]" : [pctemp]"m="(pctemp) );
-#endif
-	log_cb(RETRO_LOG_DEBUG, "iop code changed! %x\n", pctemp);
-}
-#endif
-#endif
-
-void rpsxSYSCALL()
+void rpsxSYSCALL(void)
 {
 	xMOV(ptr32[&psxRegs.code], psxRegs.code );
 	xMOV(ptr32[&psxRegs.pc], psxpc - 4);

@@ -73,15 +73,7 @@ public:
 
 	__forceinline GSVector8(__m128 m0, __m128 m1)
 	{
-		#if 0 // _MSC_VER >= 1700 
-		
-		this->m = _mm256_permute2f128_ps(_mm256_castps128_ps256(m0), _mm256_castps128_ps256(m1), 0x20);
-
-		#else
-
 		this->m = zero().insert<0>(m0).insert<1>(m1);
-
-		#endif
 	}
 
 	__forceinline GSVector8(const GSVector8& v)
@@ -266,54 +258,22 @@ public:
 
 	__forceinline GSVector8 madd(const GSVector8& a, const GSVector8& b) const
 	{
-		#if 0//_M_SSE >= 0x501
-
-		return GSVector8(_mm256_fmadd_ps(m, a, b));
-		
-		#else
-		
 		return *this * a + b;
-		
-		#endif
 	}
 
 	__forceinline GSVector8 msub(const GSVector8& a, const GSVector8& b) const
 	{
-		#if 0//_M_SSE >= 0x501
-
-		return GSVector8(_mm256_fmsub_ps(m, a, b));
-		
-		#else
-		
 		return *this * a - b;
-		
-		#endif
 	}
 
 	__forceinline GSVector8 nmadd(const GSVector8& a, const GSVector8& b) const
 	{
-		#if 0//_M_SSE >= 0x501
-
-		return GSVector8(_mm256_fnmadd_ps(m, a, b));
-		
-		#else
-		
 		return b - *this * a;
-		
-		#endif
 	}
 
 	__forceinline GSVector8 nmsub(const GSVector8& a, const GSVector8& b) const
 	{
-		#if 0//_M_SSE >= 0x501
-
-		return GSVector8(_mm256_fnmsub_ps(m, a, b));
-		
-		#else
-
 		return -b - *this * a;
-
-		#endif
 	}
 
 	__forceinline GSVector8 addm(const GSVector8& a, const GSVector8& b) const

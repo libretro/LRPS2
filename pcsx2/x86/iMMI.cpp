@@ -196,8 +196,7 @@ void recPMFHL()
 			}
 			break;
 		default:
-			log_cb(RETRO_LOG_ERROR, "PMFHL??  *pcsx2 head esplode!*\n");
-			//pxFail("PMFHL??  *pcsx2 head esplode!*");
+			break;
 	}
 
 	_clearNeededXMMregs();
@@ -1401,10 +1400,9 @@ void recPEXTUH()
 
 static __aligned16 u32 tempqw[8];
 
-void recQFSRV()
+void recQFSRV(void)
 {
 	if ( !_Rd_ ) return;
-	//log_cb(RETRO_LOG_ERROR, "recQFSRV()\n");
 
 	if (_Rs_ == _Rt_ + 1) {
 		_flushEEreg(_Rs_);
@@ -1429,7 +1427,7 @@ void recQFSRV()
 }
 
 
-void recPEXTUB()
+void recPEXTUB(void)
 {
 	if (!_Rd_) return;
 
@@ -1457,7 +1455,7 @@ void recPEXTUB()
 }
 
 ////////////////////////////////////////////////////
-void recPEXTUW()
+void recPEXTUW(void)
 {
 	if ( ! _Rd_ ) return;
 

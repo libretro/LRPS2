@@ -63,10 +63,7 @@ bool CheckPaths() {
 	if (!gifUnit.CanDoPath3())
 	{
 		if (!gifUnit.Path3Masked())
-		{
-			//DevCon.Warning("Path3 stalled APATH %x PSE %x DIR %x Signal %x", gifRegs.stat.APATH, gifRegs.stat.PSE, gifRegs.stat.DIR, gifUnit.gsSIGNAL.queued);
 			GifDMAInt(128);
-		}
 		return false;
 	}
 	return true;
@@ -591,9 +588,8 @@ void mfifoGIFtransfer()
 	GifDMAInt(std::max(gif.mfifocycles, (u32)4));
 }
 
-void gifMFIFOInterrupt()
+void gifMFIFOInterrupt(void)
 {
-	//DevCon.Warning("gifMFIFOInterrupt");
 	gif.mfifocycles = 0;
 
 	if (dmacRegs.ctrl.MFD != MFD_GIF) { // GIF not in MFIFO anymore, come out.

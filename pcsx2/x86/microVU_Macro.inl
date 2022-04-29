@@ -513,7 +513,6 @@ void recCOP2_BC2();
 void recCOP2_SPEC1();
 void recCOP2_SPEC2();
 void rec_C2UNK() {
-	//log_cb(RETRO_LOG_ERROR, "Cop2 bad opcode: %x\n", cpuRegs.code);
 }
 
 // Recompilation

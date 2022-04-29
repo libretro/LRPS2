@@ -94,59 +94,6 @@ static void iMOV64_Smart( const xIndirectVoid& destRm, const xIndirectVoid& srcR
 	xMOV( destRm+4, eax );
 }
 
-/*
-	// Pseudo-Code For the following Dynarec Implementations -->
-
-	u32 vmv = vmap[addr>>VTLB_PAGE_BITS].raw();
-	sptr ppf=addr+vmv;
-	if (!(ppf<0))
-	{
-		data[0]=*reinterpret_cast<DataType*>(ppf);
-		if (DataSize==128)
-			data[1]=*reinterpret_cast<DataType*>(ppf+8);
-		return 0;
-	}
-	else
-	{
-		//has to: translate, find function, call function
-		u32 hand=(u8)vmv;
-		u32 paddr=(ppf-hand) << 1;
-		//log_cb(RETRO_LOG_INFO, "Translated 0x%08X to 0x%08X\n",params addr,paddr);
-		return reinterpret_cast<TemplateHelper<DataSize,false>::HandlerType*>(RWFT[TemplateHelper<DataSize,false>::sidx][0][hand])(paddr,data);
-	}
-
-	// And in ASM it looks something like this -->
-
-	mov eax,ecx;
-	shr eax,VTLB_PAGE_BITS;
-	mov rax,[rax*wordsize+vmap];
-	add rcx,rax;
-	js _fullread;
-
-	//these are wrong order, just an example ...
-	mov [rax],ecx;
-	mov ecx,[rdx];
-	mov [rax+4],ecx;
-	mov ecx,[rdx+4];
-	mov [rax+4+4],ecx;
-	mov ecx,[rdx+4+4];
-	mov [rax+4+4+4+4],ecx;
-	mov ecx,[rdx+4+4+4+4];
-	///....
-
-	jmp cont;
-	_fullread:
-	movzx eax,al;
-	sub   ecx,eax;
- #ifndef __M_X86_64 // The x86-64 marker will be cleared by using 32-bit ops
-	sub   ecx,0x80000000;
- #endif
-	call [eax+stuff];
-	cont:
-	........
-
-*/
-
 namespace vtlb_private
 {
 	// ------------------------------------------------------------------------

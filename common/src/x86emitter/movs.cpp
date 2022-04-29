@@ -187,20 +187,6 @@ void xImpl_MovExtend::operator()(const xRegister32or64 &to, const xIndirect16 &s
     xOpWrite0F(SignExtend ? 0xbf : 0xb7, to, sibsrc);
 }
 
-#if 0
-void xImpl_MovExtend::operator()( const xRegister32& to, const xDirectOrIndirect16& src ) const
-{
-	EbpAssert();
-	_DoI_helpermess( *this, to, src );
-}
-
-void xImpl_MovExtend::operator()( const xRegister16or32& to, const xDirectOrIndirect8& src ) const
-{
-	EbpAssert();
-	_DoI_helpermess( *this, to, src );
-}
-#endif
-
 const xImpl_MovExtend xMOVSX = {true};
 const xImpl_MovExtend xMOVZX = {false};
 

@@ -19,12 +19,6 @@
 #include "CDVD/IsoFS/IsoFSCDVD.h"
 #include "CDVD/IsoFS/IsoFS.h"
 
-#if 0
-//2002-09-20 (Florin)
-extern char args[256];		//to be filled by GUI
-extern unsigned int args_ptr;
-#endif
-
 struct ELF_HEADER {
 	u8	e_ident[16];	//0x7f,"ELF"  (ELF file identifier)
 	u16	e_type;			//ELF type: 0=NONE, 1=REL, 2=EXEC, 3=SHARED, 4=CORE

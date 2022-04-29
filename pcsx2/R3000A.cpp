@@ -130,10 +130,6 @@ __fi int psxTestCycle( u32 startCycle, s32 delta )
 
 __fi void PSX_INT( IopEventId n, s32 ecycle )
 {
-	// 19 is CDVD read int, it's supposed to be high.
-	//if (ecycle > 8192 && n != 19)
-	//	log_cb(RETRO_LOG_DEBUG, "IOP cycles high: %d, n %d\n", ecycle, n );
-
 	psxRegs.interrupt |= 1 << n;
 
 	psxRegs.sCycle[n] = psxRegs.cycle;
@@ -234,7 +230,6 @@ void iopTestIntc()
 
 		cpuSetNextEventDelta( 16 );
 		iopEventAction = true;
-		//log_cb(RETRO_LOG_ERROR, "** IOP Needs an EE EventText, kthx **  %d\n", iopCycleEE );
 
 		// Note: No need to set the iop's branch delta here, since the EE
 		// will run an IOP branch test regardless.

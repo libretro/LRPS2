@@ -41,19 +41,9 @@
 
 void __fastcall ReadFIFO_VIF1(mem128_t* out)
 {
-#ifndef NDEBUG
-	if (vif1Regs.stat.test(VIF1_STAT_INT | VIF1_STAT_VSS | VIF1_STAT_VIS | VIF1_STAT_VFS) )
-		log_cb(RETRO_LOG_DEBUG, "Reading from vif1 fifo when stalled\n" );
-#endif
-
 	ZeroQWC(out); // Clear first in case no data gets written...
 	//pxAssertRel(vif1Regs.stat.FQC != 0, "FQC = 0 on VIF FIFO READ!");
 	if (vif1Regs.stat.FDR) {
-#ifndef NDEBUG
-		if (vif1Regs.stat.FQC > vif1.GSLastDownloadSize) {
-			log_cb(RETRO_LOG_DEBUG, "Warning! GS Download size < FIFO count!\n");
-		}
-#endif
 		if (vif1Regs.stat.FQC > 0) {
 			GetMTGS().WaitGS();
 			GetMTGS().SendPointerPacket(GS_RINGTYPE_INIT_READ_FIFO1, 0, out);
@@ -73,10 +63,6 @@ void __fastcall ReadFIFO_VIF1(mem128_t* out)
 void __fastcall WriteFIFO_VIF0(const mem128_t *value)
 {
 	vif0ch.qwc += 1;
-#ifndef NDEBUG
-	if(vif0.irqoffset.value != 0 && vif0.vifstalled.enabled)
-		log_cb(RETRO_LOG_DEBUG, "Offset on VIF0 FIFO start!\n");
-#endif
 	bool ret = VIF0transfer((u32*)value, 4);
 
 	if (vif0.cmd) 
@@ -91,18 +77,6 @@ void __fastcall WriteFIFO_VIF0(const mem128_t *value)
 
 void __fastcall WriteFIFO_VIF1(const mem128_t *value)
 {
-#ifndef NDEBUG
-	if (vif1Regs.stat.FDR) {
-		log_cb(RETRO_LOG_DEBUG, "writing to fifo when fdr is set!\n");
-	}
-	if (vif1Regs.stat.test(VIF1_STAT_INT | VIF1_STAT_VSS | VIF1_STAT_VIS | VIF1_STAT_VFS) ) {
-		log_cb(RETRO_LOG_DEBUG, "writing to vif1 fifo when stalled\n");
-	}
-	if (vif1.irqoffset.value != 0 && vif1.vifstalled.enabled) {
-		log_cb(RETRO_LOG_DEBUG, "Offset on VIF1 FIFO start!\n");
-	}
-#endif
-
 	bool ret = VIF1transfer((u32*)value, 4);
 
 	if (vif1.cmd) {
@@ -125,7 +99,6 @@ void __fastcall WriteFIFO_VIF1(const mem128_t *value)
 void __fastcall WriteFIFO_GIF(const mem128_t *value)
 {
 	if ((!gifUnit.CanDoPath3() || gif_fifo.fifoSize > 0)) {
-		//DevCon.Warning("GIF FIFO HW Write");
 		gif_fifo.write_fifo((u32*)value, 1);
 		gif_fifo.read_fifo();
 	}

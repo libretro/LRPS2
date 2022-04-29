@@ -154,7 +154,6 @@ static void __fastcall doBranch( u32 target )
 
 void __fastcall intDoBranch(u32 target)
 {
-	//log_cb(RETRO_LOG_INFO, "Interpreter Branch \n");
 	_doBranch_shared( target );
 
 	if( Cpu == &intCpu )
@@ -484,8 +483,6 @@ static void intExecute()
 								g_eeloadExec = EELOAD_START + 0x2B8;
 							else if (typeAexecjump >> 26 == 3) // JAL to 0x82170
 								g_eeloadExec = EELOAD_START + 0x170;
-							else
-								log_cb(RETRO_LOG_INFO, "intExecute: Could not enable launch arguments for fast boot mode; unidentified BIOS version! Please report this to the PCSX2 developers.\n");
 						}
 					}
 					else if (cpuRegs.pc == g_eeloadExec)

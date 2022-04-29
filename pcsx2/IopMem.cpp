@@ -61,8 +61,6 @@ void iopMemoryReserve::Reset()
 		psxMemRLUT = psxMemWLUT + 0x2000; //(uptr*)_aligned_malloc(0x10000 * sizeof(uptr),16);
 	}
 
-	log_cb(RETRO_LOG_DEBUG, "IOP resetting main memory...\n");
-
 	memset(psxMemWLUT, 0, 0x2000 * sizeof(uptr) * 2);	// clears both allocations, RLUT and WLUT
 
 	// Trick!  We're accessing RLUT here through WLUT, since it's the non-const pointer.
@@ -314,7 +312,6 @@ void __fastcall iopMemWrite8(u32 mem, u8 value)
 		{
 			if (t == 0x1d00)
 			{
-				log_cb(RETRO_LOG_INFO, "sw8 [0x%08X]=0x%08X\n", mem, value);
 				psxSu8(mem) = value;
 				return;
 			}
@@ -346,10 +343,6 @@ void __fastcall iopMemWrite16(u32 mem, u16 value)
 		u8* p = (u8 *)(psxMemWLUT[mem >> 16]);
 		if (p != NULL && !(psxRegs.CP0.n.Status & 0x10000) )
 		{
-#ifndef NDEBUG
-			if( t==0x1D00 )
-				log_cb(RETRO_LOG_INFO, "sw16 [0x%08X]=0x%08X\n", mem, value);
-#endif
 			*(u16 *)(p + (mem & 0xffff)) = value;
 			psxCpu->Clear(mem&~3, 1);
 		}

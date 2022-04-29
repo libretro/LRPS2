@@ -44,19 +44,6 @@ struct xImpl_Group2
     void operator()(const xIndirect64orLess &to, const xRegisterCL &from) const;
     void operator()(const xRegisterInt &to, u8 imm) const;
     void operator()(const xIndirect64orLess &to, u8 imm) const;
-
-#if 0
-	// ------------------------------------------------------------------------
-	template< typename T > __noinline void operator()( const xDirectOrIndirect<T>& to, u8 imm ) const
-	{
-		_DoI_helpermess( *this, to, imm );
-	}
-
-	template< typename T > __noinline void operator()( const xDirectOrIndirect<T>& to, const xRegisterCL& from ) const
-	{
-		_DoI_helpermess( *this, to, from );
-	}
-#endif
 };
 
 } // End namespace x86Emitter

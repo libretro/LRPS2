@@ -239,23 +239,8 @@ public:
 	}
 };
 
-_mVUt void __fc mVUprintRegs() {
-	microVU& mVU = mVUx;
-	for(int i = 0; i < 8; i++) {
-		log_cb(RETRO_LOG_DEBUG, "xmm%d = [0x%08x,0x%08x,0x%08x,0x%08x]\n", i,
-			mVU.xmmBackup[i][0], mVU.xmmBackup[i][1],
-			mVU.xmmBackup[i][2], mVU.xmmBackup[i][3]);
-	}
-	for(int i = 0; i < 8; i++) {
-		log_cb(RETRO_LOG_DEBUG, "xmm%d = [%f,%f,%f,%f]\n", i,
-			(float&)mVU.xmmBackup[i][0], (float&)mVU.xmmBackup[i][1],
-			(float&)mVU.xmmBackup[i][2], (float&)mVU.xmmBackup[i][3]);
-	}
-}
-
 // Gets called by mVUaddrFix at execution-time
 static void __fc mVUwarningRegAccess(u32 prog, u32 pc) {
-	log_cb(RETRO_LOG_ERROR, "microVU0 Warning: Accessing VU1 Regs! [%04x] [%x]\n", pc, prog);
 }
 
 static inline u32 branchAddrN(const mV)
@@ -271,7 +256,7 @@ static inline u32 branchAddr(const mV)
 	return ((((iPC + 2) + (_Imm11_ * 2)) & mVU.progMemMask) * 4);
 }
 
-static void __fc mVUwaitMTVU() {
+static void __fc mVUwaitMTVU(void) {
 	vu1Thread.WaitVU();
 }
 

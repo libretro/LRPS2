@@ -168,10 +168,8 @@ void psxSYSCALL() {
 }
 
 void psxRFE() {
-//	log_cb(RETRO_LOG_INFO, "RFE\n");
 	psxRegs.CP0.n.Status = (psxRegs.CP0.n.Status & 0xfffffff0) |
 						  ((psxRegs.CP0.n.Status & 0x3c) >> 2);
-//	Log=0;
 }
 
 /*********************************************************
@@ -313,7 +311,6 @@ void psxCTC2() { _c2dRd_ = _u32(_rRt_); };
 * Format:  ?                                             *
 *********************************************************/
 void psxNULL() {
-log_cb(RETRO_LOG_WARN, "psx: Unimplemented op %x\n", psxRegs.code);
 }
 
 void psxSPECIAL() {

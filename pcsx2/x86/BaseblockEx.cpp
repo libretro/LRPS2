@@ -45,31 +45,6 @@ int BaseBlocks::LastIndex(u32 startpc) const
 	return imin;
 }
 
-#if 0
-BASEBLOCKEX* BaseBlocks::GetByX86(uptr ip)
-{
-	if (0 == blocks.size())
-		return 0;
-
-	int imin = 0, imax = blocks.size() - 1, imid;
-
-	while(imin != imax) {
-		imid = (imin+imax+1)>>1;
-
-		if (blocks[imid].fnptr > ip)
-			imax = imid - 1;
-		else
-			imin = imid;
-	}
-
-	if (ip < blocks[imin].fnptr ||
-		ip >= blocks[imin].fnptr + blocks[imin].x86size)
-		return 0;
-
-	return &blocks[imin];
-}
-#endif
-
 void BaseBlocks::Link(u32 pc, s32* jumpptr)
 {
 	BASEBLOCKEX *targetblock = Get(pc);

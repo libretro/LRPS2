@@ -1424,24 +1424,23 @@ REC_GTE_FUNC(SWC2);
 
 
 // R3000A tables
-extern void (*rpsxBSC[64])();
-extern void (*rpsxSPC[64])();
-extern void (*rpsxREG[32])();
-extern void (*rpsxCP0[32])();
-extern void (*rpsxCP2[64])();
-extern void (*rpsxCP2BSC[32])();
+extern void (*rpsxBSC[64])(void);
+extern void (*rpsxSPC[64])(void);
+extern void (*rpsxREG[32])(void);
+extern void (*rpsxCP0[32])(void);
+extern void (*rpsxCP2[64])(void);
+extern void (*rpsxCP2BSC[32])(void);
 
-static void rpsxSPECIAL() { rpsxSPC[_Funct_](); }
-static void rpsxREGIMM() { rpsxREG[_Rt_](); }
-static void rpsxCOP0() { rpsxCP0[_Rs_](); }
-static void rpsxCOP2() { rpsxCP2[_Funct_](); }
-static void rpsxBASIC() { rpsxCP2BSC[_Rs_](); }
+static void rpsxSPECIAL(void) { rpsxSPC[_Funct_](); }
+static void rpsxREGIMM(void) { rpsxREG[_Rt_](); }
+static void rpsxCOP0(void) { rpsxCP0[_Rs_](); }
+static void rpsxCOP2(void) { rpsxCP2[_Funct_](); }
+static void rpsxBASIC(void) { rpsxCP2BSC[_Rs_](); }
 
-static void rpsxNULL() {
-	//log_cb(RETRO_LOG_DEBUG, "psxUNK: %8.8x\n", psxRegs.code);
+static void rpsxNULL(void) {
 }
 
-void (*rpsxBSC[64])() = {
+void (*rpsxBSC[64])(void) = {
 	rpsxSPECIAL, rpsxREGIMM, rpsxJ   , rpsxJAL  , rpsxBEQ , rpsxBNE , rpsxBLEZ, rpsxBGTZ,
 	rpsxADDI   , rpsxADDIU , rpsxSLTI, rpsxSLTIU, rpsxANDI, rpsxORI , rpsxXORI, rpsxLUI ,
 	rpsxCOP0   , rpsxNULL  , rpsxCOP2, rpsxNULL , rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL,
@@ -1463,21 +1462,21 @@ void (*rpsxSPC[64])() = {
 	rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL   , rpsxNULL , rpsxNULL, rpsxNULL
 };
 
-void (*rpsxREG[32])() = {
+void (*rpsxREG[32])(void) = {
 	rpsxBLTZ  , rpsxBGEZ  , rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL,
 	rpsxNULL  , rpsxNULL  , rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL,
 	rpsxBLTZAL, rpsxBGEZAL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL,
 	rpsxNULL  , rpsxNULL  , rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL
 };
 
-void (*rpsxCP0[32])() = {
+void (*rpsxCP0[32])(void) = {
 	rpsxMFC0, rpsxNULL, rpsxCFC0, rpsxNULL, rpsxMTC0, rpsxNULL, rpsxCTC0, rpsxNULL,
 	rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL,
 	rpsxRFE , rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL,
 	rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL
 };
 
-void (*rpsxCP2[64])() = {
+void (*rpsxCP2[64])(void) = {
 	rpsxBASIC, rgteRTPS , rpsxNULL , rpsxNULL, rpsxNULL, rpsxNULL , rgteNCLIP, rpsxNULL, // 00
 	rpsxNULL , rpsxNULL , rpsxNULL , rpsxNULL, rgteOP  , rpsxNULL , rpsxNULL , rpsxNULL, // 08
 	rgteDPCS , rgteINTPL, rgteMVMVA, rgteNCDS, rgteCDP , rpsxNULL , rgteNCDT , rpsxNULL, // 10
@@ -1488,7 +1487,7 @@ void (*rpsxCP2[64])() = {
 	rpsxNULL , rpsxNULL , rpsxNULL , rpsxNULL, rpsxNULL, rgteGPF  , rgteGPL  , rgteNCCT  // 38
 };
 
-void(*rpsxCP2BSC[32])() = {
+void(*rpsxCP2BSC[32])(void) = {
 	rgteMFC2, rpsxNULL, rgteCFC2, rpsxNULL, rgteMTC2, rpsxNULL, rgteCTC2, rpsxNULL,
 	rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL,
 	rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL, rpsxNULL,

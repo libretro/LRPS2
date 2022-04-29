@@ -35,39 +35,6 @@ struct xImpl_Mov
     void operator()(const xRegisterInt &to, const xIndirectVoid &src) const;
     void operator()(const xIndirect64orLess &dest, sptr imm) const;
     void operator()(const xRegisterInt &to, sptr imm, bool preserve_flags = false) const;
-
-#if 0
-	template< typename T > __noinline void operator()( const ModSibBase& to, const xImmReg<T>& immOrReg ) const
-	{
-		_DoI_helpermess( *this, to, immOrReg );
-	}
-
-	template< typename T > __noinline void operator()( const xDirectOrIndirect<T>& to, const xImmReg<T>& immOrReg ) const
-	{
-		_DoI_helpermess( *this, to, immOrReg );
-	}
-
-	template< typename T > __noinline void operator()( const xDirectOrIndirect<T>& to, int imm ) const
-	{
-		_DoI_helpermess( *this, to, imm );
-	}
-
-	template< typename T > __noinline void operator()( const xDirectOrIndirect<T>& to, const xDirectOrIndirect<T>& from ) const
-	{
-		if( to == from ) return;
-		_DoI_helpermess( *this, to, from );
-	}
-
-	/*template< typename T > __noinline void operator()( const xRegister<T>& to, const xDirectOrIndirect<T>& from ) const
-	{
-		_DoI_helpermess( *this, xDirectOrIndirect<T>( to ), from );
-	}
-
-	template< typename T > __noinline void operator()( const xDirectOrIndirect<T>& to, const xRegister<T>& from ) const
-	{
-		_DoI_helpermess( *this, to, xDirectOrIndirect<T>( from ) );
-	}*/
-#endif
 };
 
 #ifdef __M_X86_64

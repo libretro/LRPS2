@@ -255,9 +255,6 @@ void SPU2DoFreezeOut(void* dest)
 		return;
 	if (!fP.size)
 		return;
-
-	log_cb(RETRO_LOG_INFO, "Saving SPU2\n");
-
 	if (SPU2freeze(FREEZE_SAVE, &fP) != 0)
 		throw std::runtime_error(" * SPU2: Error saving state!\n");
 }
@@ -269,22 +266,10 @@ void SPU2DoFreezeIn(pxInputStream& infp)
 	if (SPU2freeze(FREEZE_SIZE, &fP) != 0)
 		fP.size = 0;
 
-	log_cb(RETRO_LOG_INFO, "Loading SPU2\n");
-
+	// no state data to read, but SPU2 expects some state data?
+	// Issue a warning to console...
 	if (!infp.IsOk() || !infp.Length())
-	{
-		// no state data to read, but SPU2 expects some state data?
-		// Issue a warning to console...
-		if (fP.size != 0)
-			log_cb(RETRO_LOG_WARN, "Warning: No data for SPU2 found. Status may be unpredictable.\n");
-
 		return;
-
-		// Note: Size mismatch check could also be done here on loading, but
-		// some plugins may have built-in version support for non-native formats or
-		// older versions of a different size... or could give different sizes depending
-		// on the status of the plugin when loading, so let's ignore it.
-	}
 
 	ScopedAlloc<s8> data(fP.size);
 	fP.data = data.GetPtr();

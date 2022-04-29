@@ -95,22 +95,17 @@ static void _vu1Exec(VURegs* VU)
 
 		vfreg = 0; vireg = 0;
 		if (uregs.VFwrite) {
-			if (lregs.VFwrite == uregs.VFwrite) {
-//				log_cb(RETRO_LOG_WARN, "*PCSX2*: Warning, VF write to the same reg in both lower/upper cycle\n");
+			if (lregs.VFwrite == uregs.VFwrite)
 				discard = 1;
-			}
 			if (lregs.VFread0 == uregs.VFwrite ||
 				lregs.VFread1 == uregs.VFwrite) {
-//				log_cb(RETRO_LOG_INFO, "saving reg %d at pc=%x\n", i, VU->VI[REG_TPC].UL);
 				_VF = VU->VF[uregs.VFwrite];
 				vfreg = uregs.VFwrite;
 			}
 		}
 		if (uregs.VIread & (1 << REG_CLIP_FLAG)) {
-			if (lregs.VIwrite & (1 << REG_CLIP_FLAG)) {
-				log_cb(RETRO_LOG_WARN, "*PCSX2*: Warning, VI write to the same reg in both lower/upper cycle\n");
+			if (lregs.VIwrite & (1 << REG_CLIP_FLAG))
 				discard = 1;
-			}
 			if (lregs.VIread & (1 << REG_CLIP_FLAG)) {
 				_VI = VU->VI[REG_CLIP_FLAG];
 				vireg = REG_CLIP_FLAG;
@@ -153,10 +148,9 @@ static void _vu1Exec(VURegs* VU)
 
 			if(VU->takedelaybranch)
 			{				
-				VU->branch = 1;
-				//log_cb(RETRO_LOG_DEBUG, "VU1 - Branch/Jump in Delay Slot\n");			
-				VU->branchpc = VU->delaybranchpc;
-				VU->delaybranchpc = 0;
+				VU->branch          = 1;
+				VU->branchpc        = VU->delaybranchpc;
+				VU->delaybranchpc   = 0;
 				VU->takedelaybranch = false;
 			}			
 		}
@@ -176,19 +170,6 @@ void vu1Exec(VURegs* VU)
 {
 	_vu1Exec(VU);
 	VU->cycle++;
-
-#if 0
-	if (VU->VI[0].UL != 0)
-		log_cb(RETRO_LOG_DEBUG, "VI[0] != 0!!!!\n");
-	if (VU->VF[0].f.x != 0.0f)
-		log_cb(RETRO_LOG_DEBUG, "VF[0].x != 0.0!!!!\n");
-	if (VU->VF[0].f.y != 0.0f)
-		log_cb(RETRO_LOG_DEBUG, "VF[0].y != 0.0!!!!\n");
-	if (VU->VF[0].f.z != 0.0f)
-		log_cb(RETRO_LOG_DEBUG, "VF[0].z != 0.0!!!!\n");
-	if (VU->VF[0].f.w != 1.0f)
-		log_cb(RETRO_LOG_DEBUG, "VF[0].w != 1.0!!!!\n");
-#endif
 }
 
 InterpVU1::InterpVU1()

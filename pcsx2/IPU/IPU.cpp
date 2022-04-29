@@ -174,10 +174,7 @@ __fi u64 ipuRead64(u32 mem)
 void ipuSoftReset()
 {
 	if (ipu1ch.chcr.STR && g_BP.IFC < 8 && IPU1Status.DataRequested)
-	{
-		//DevCon.Warning("Refill input fifo on reset");
 		ipu1Interrupt();
-	}
 
 	if (!ipu1ch.chcr.STR)
 		psHu32(DMAC_STAT) &= ~(1 << DMAC_TO_IPU);

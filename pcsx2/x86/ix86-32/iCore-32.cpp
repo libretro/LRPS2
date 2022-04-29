@@ -168,10 +168,6 @@ void _flushConstReg(int reg)
 		xMOV(ptr32[&cpuRegs.GPR.r[reg].UL[0]], g_cpuConstRegs[reg].UL[0]);
 		xMOV(ptr32[&cpuRegs.GPR.r[reg].UL[1]], g_cpuConstRegs[reg].UL[1]);
 		g_cpuFlushedConstReg |= (1<<reg);
-#ifndef NDEBUG
-		if (reg == 0)
-			log_cb(RETRO_LOG_DEBUG, "Flushing r0!\n");
-#endif
 	}
 }
 

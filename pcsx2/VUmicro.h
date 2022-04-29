@@ -64,11 +64,6 @@ public:
 
 	virtual ~BaseCpuProvider()
 	{
-		try {
-			if( m_Reserved != 0 )
-				log_cb(RETRO_LOG_WARN, "Cleanup miscount detected on CPU provider.  Count=%d\n", m_Reserved.load() );
-		}
-		DESTRUCTOR_CATCHALL
 	}
 
 	// returns the number of bytes committed to the working caches for this CPU

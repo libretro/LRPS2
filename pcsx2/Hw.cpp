@@ -216,22 +216,21 @@ __ri bool hwDmacSrcChainWithStack(DMACh& dma, int id) {
 
 			// Stash an address on the address stack pointer.
 			switch(dma.chcr.ASP)
-            {
-                case 0: //Check if ASR0 is empty
-                    // Store the succeeding tag in asr0, and mark chcr as having 1 address.
-                    dma.asr0 = dma.madr + (dma.qwc << 4);
-                    dma.chcr.ASP++;
-                    break;
+			{
+				case 0: //Check if ASR0 is empty
+					// Store the succeeding tag in asr0, and mark chcr as having 1 address.
+					dma.asr0 = dma.madr + (dma.qwc << 4);
+					dma.chcr.ASP++;
+					break;
 
-                case 1:
-                    // Store the succeeding tag in asr1, and mark chcr as having 2 addresses.
-                    dma.asr1 = dma.madr + (dma.qwc << 4);
-                    dma.chcr.ASP++;
-                    break;
+				case 1:
+					// Store the succeeding tag in asr1, and mark chcr as having 2 addresses.
+					dma.asr1 = dma.madr + (dma.qwc << 4);
+					dma.chcr.ASP++;
+					break;
 
-                default:
-                    log_cb(RETRO_LOG_WARN, "Call Stack Overflow (report if it fixes/breaks anything)\n");
-                    return true;
+				default:
+					return true;
 			}
 
 			// Set TADR to the address from MADR we stored in temp.
@@ -246,32 +245,30 @@ __ri bool hwDmacSrcChainWithStack(DMACh& dma, int id) {
 
 			// Snag an address from the address stack pointer.
 			switch(dma.chcr.ASP)
-            {
-                case 2:
-                    // Pull asr1 from the stack, give it to TADR, and decrease the # of addresses.
-                    dma.tadr = dma.asr1;
-                    dma.asr1 = 0;
-                    dma.chcr.ASP--;
-                    break;
+			{
+				case 2:
+					// Pull asr1 from the stack, give it to TADR, and decrease the # of addresses.
+					dma.tadr = dma.asr1;
+					dma.asr1 = 0;
+					dma.chcr.ASP--;
+					break;
 
-                case 1:
-                    // Pull asr0 from the stack, give it to TADR, and decrease the # of addresses.
-                    dma.tadr = dma.asr0;
-                    dma.asr0 = 0;
-                    dma.chcr.ASP--;
-                    break;
+				case 1:
+					// Pull asr0 from the stack, give it to TADR, and decrease the # of addresses.
+					dma.tadr = dma.asr0;
+					dma.asr0 = 0;
+					dma.chcr.ASP--;
+					break;
 
-                case 0:
-                    // There aren't any addresses to pull, so end the transfer.
-                    //dma.tadr += 16;						   //Clear tag address - Kills Klonoa 2
-                    return true;
+				case 0:
+					// There aren't any addresses to pull, so end the transfer.
+					//dma.tadr += 16;						   //Clear tag address - Kills Klonoa 2
+					return true;
 
-                default:
-                    // If ASR1 and ASR0 are messed up, end the transfer.
-                    //log_cb(RETRO_LOG_ERROR, "TAG_RET: ASR 1 & 0 == 1. This shouldn't happen!\n");
-		    //dma.tadr += 16;						   //Clear tag address - Kills Klonoa 2
-                    return true;
-            }
+				default:
+					// If ASR1 and ASR0 are messed up, end the transfer.
+					return true;
+			}
 			return false;
 
 		case TAG_END: // End - Transfer QWC following the tag

@@ -69,10 +69,8 @@ static __fi void vuExecMicro(int idx, u32 addr) {
 	if(GetVifX.waitforvu)
 		return;
 
-	if (vifRegs.itops  > (idx ? 0x3ffu : 0xffu)) {
-		log_cb(RETRO_LOG_WARN, "VIF%d ITOP overrun! %x\n", idx, vifRegs.itops);
+	if (vifRegs.itops  > (idx ? 0x3ffu : 0xffu))
 		vifRegs.itops &= (idx ? 0x3ffu : 0xffu);
-	}
 
 	vifRegs.itop = vifRegs.itops;
 
@@ -152,12 +150,6 @@ template<int idx> __fi int _vifCode_Direct(int pass, const u8* data, bool isDire
 		vif1.tag.size    -= ret/4; // Convert to u32's
 		vif1Regs.stat.VGW = false;
 
-#ifndef NDEBUG
-		if (ret  &  3)
-			log_cb(RETRO_LOG_DEBUG, "Vif %s: Ret wasn't a multiple of 4!\n", name); // Shouldn't happen
-		if (size == 0)
-			log_cb(RETRO_LOG_DEBUG, "Vif %s: No Data Transfer?\n", name); // Can this happen?
-#endif
 		if (size != ret) { // Stall if gif didn't process all the data (path2 queued)
 			//gifUnit.PrintInfo();
 			vif1.vifstalled.enabled   = VifStallEnable(vif1ch);
@@ -279,7 +271,6 @@ static __fi void _vifCode_MPG(int idx, u32 addr, const u32 *data, int size) {
 	// Don't forget the Unsigned designator for these checks
 	if((addr + size *4) > vuMemSize)
 	{
-		//log_cb(RETRO_LOG_DEBUG, "Handling split MPG\n");
 		if (!idx)  CpuVU0->Clear(addr, vuMemSize - addr);
 		else	   CpuVU1->Clear(addr, vuMemSize - addr);
 		
@@ -318,17 +309,11 @@ vifOp(vifCode_MPG) {
 	}
 	pass2 {
 		if (vifX.vifpacketsize < vifX.tag.size) { // Partial Transfer
-			if((vifX.tag.addr + vifX.vifpacketsize*4) > (idx ? 0x4000 : 0x1000)) {
-				//log_cb(RETRO_LOG_DEBUG, "Vif%d MPG Split Overflow\n", idx);
-			}
 			_vifCode_MPG(idx,    vifX.tag.addr, data, vifX.vifpacketsize);
 			vifX.tag.size -= vifX.vifpacketsize; //We can do this first as its passed as a pointer
 			return vifX.vifpacketsize;
 		}
 		else { // Full Transfer
-			if((vifX.tag.addr + vifX.tag.size*4) > (idx ? 0x4000 : 0x1000)) {
-				//log_cb(RETRO_LOG_DEBUG, "Vif%d MPG Split Overflow full %x\n", idx, vifX.tag.addr + vifX.tag.size*4);
-			}
 			_vifCode_MPG(idx,  vifX.tag.addr, data, vifX.tag.size);
 			int ret = vifX.tag.size;
 			vifX.tag.size = 0;
@@ -444,7 +429,6 @@ vifOp(vifCode_Null) {
 	pass1 {
 		// if ME1, then force the vif to interrupt
 		if (!(vifXRegs.err.ME1)) { // Ignore vifcode and tag mismatch error
-			log_cb(RETRO_LOG_WARN, "Vif%d: Unknown VifCmd! [%x]\n", idx, vifX.cmd);
 			vifXRegs.stat.ER1 = true;
 			vifX.vifstalled.enabled = VifStallEnable(vifXch);
 			vifX.vifstalled.value = VIF_IRQ_STALL;
@@ -456,7 +440,6 @@ vifOp(vifCode_Null) {
 		//If the top bit was set to interrupt, we don't want it to take commands from a bad code
 		if (vifXRegs.code & 0x80000000) vifX.irq = 0;
 	}
-	pass2 { log_cb(RETRO_LOG_ERROR, "Vif%d bad vifcode! [CMD = %x]\n", idx, vifX.cmd); }
 	return 1;
 }
 

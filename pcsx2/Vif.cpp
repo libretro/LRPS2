@@ -108,7 +108,6 @@ __fi void vif0FBRST(u32 value) {
 		cpuRegs.interrupt &= ~1; //Stop all vif0 DMA's
 		vif0Regs.stat.VFS = true;
 		vif0Regs.stat.VPS = VPS_IDLE;
-		log_cb(RETRO_LOG_DEBUG, "vif0 force break\n");
 	}
 
 	if (value & 0x4) // Stop Vif.
@@ -177,7 +176,6 @@ __fi void vif1FBRST(u32 value) {
 		cpuRegs.interrupt &= ~((1 << 1) | (1 << 10)); //Stop all vif1 DMA's
 		vif1.vifstalled.enabled = VifStallEnable(vif1ch);
 		vif1.vifstalled.value = VIF_IRQ_STALL;
-		log_cb(RETRO_LOG_DEBUG, "vif1 force break\n");
 	}
 
 	if (FBRST(value).STP) // Stop Vif.
@@ -193,7 +191,6 @@ __fi void vif1FBRST(u32 value) {
 	if (FBRST(value).STC) // Cancel Vif Stall.
 	{
 		bool cancel = false;
-		//log_cb(RETRO_LOG_WARN, "Cancel stall. Stat = %x\n", vif1Regs.stat._u32);
 		/* Cancel stall, first check if there is a stall to cancel, and then clear VIF1_STAT VSS|VFS|VIS|INT|ER0|ER1 bits */
 		if (vif1Regs.stat.test(VIF1_STAT_VSS | VIF1_STAT_VIS | VIF1_STAT_VFS))
 		{
@@ -210,8 +207,7 @@ __fi void vif1FBRST(u32 value) {
 				switch(dmacRegs.ctrl.MFD)
 				{
 				    case MFD_VIF1:
-                        //log_cb(RETRO_LOG_WARN, "MFIFO Stall\n");
-						//MFIFO active and not empty
+					    //MFIFO active and not empty
 					    if(vif1ch.chcr.STR && !vif1Regs.stat.test(VIF1_STAT_FDR)) CPU_INT(DMAC_MFIFO_VIF, 0);
                         break;
 
@@ -266,8 +262,6 @@ __fi void vif1STAT(u32 value) {
 		// was expecting data, the GS should already be sending it over (buffering in the FIFO)
 
 		vif1Regs.stat.FQC = std::min((u32)16, vif1.GSLastDownloadSize);
-		//log_cb(RETRO_LOG_WARN, "Reversing VIF Transfer for %x QWC\n", vif1.GSLastDownloadSize);
-
 	}
 	else // Memory transferring to Vif.
 	{

@@ -672,12 +672,6 @@ mVUop(mVU_FSEQ) {
 	pass1 { mVUanalyzeSflag(mVU, _It_); }
 	pass2 {
 		int imm = 0;
-#ifndef NDEBUG
-		if (_Imm12_ & 0x0c30)
-			log_cb(RETRO_LOG_DEBUG, "mVU_FSEQ: Checking I/D/IS/DS Flags\n");
-		if (_Imm12_ & 0x030c)
-			log_cb(RETRO_LOG_DEBUG, "mVU_FSEQ: Checking U/O/US/OS Flags\n");
-#endif
 		if (_Imm12_ & 0x0001) imm |= 0x0000f00; // Z
 		if (_Imm12_ & 0x0002) imm |= 0x000f000; // S
 		if (_Imm12_ & 0x0004) imm |= 0x0010000; // U
@@ -1281,7 +1275,6 @@ void __fastcall mVU_XGKICK_(u32 addr) {
 	u32 size = gifUnit.GetGSPacketSize(GIF_PATH_1, vuRegs[1].Mem, addr);
 
 	if (size > diff) {
-		//log_cb(RETRO_LOG_DEBUG, "microVU1: XGkick Wrap!\n");
 		gifUnit.gifPath[GIF_PATH_1].CopyGSPacketData(  &vuRegs[1].Mem[addr],  diff,true);
 		gifUnit.TransferGSPacketData(GIF_TRANS_XGKICK, &vuRegs[1].Mem[0],size-diff,true);
 	}
@@ -1292,11 +1285,6 @@ void __fastcall mVU_XGKICK_(u32 addr) {
 
 static __fi void mVU_XGKICK_DELAY(mV) {
 	mVUbackupRegs(mVU);
-#if 0 // XGkick Break - ToDo: Change "SomeGifPathValue" to w/e needs to be tested
-	xTEST (ptr32[&SomeGifPathValue], 1); // If '1', breaks execution
-	xMOV  (ptr32[&mVU.resumePtrXG], (uptr)xGetPtr() + 10 + 6);
-	xJcc32(Jcc_NotZero, (uptr)mVU.exitFunctXG - ((uptr)xGetPtr()+6));
-#endif
 	xFastCall(mVU_XGKICK_, ptr32[&mVU.VIxgkick]);
 	mVUrestoreRegs(mVU);
 }
@@ -1336,7 +1324,6 @@ void setBranchA(mP, int x, int _x_) {
 
 	pass1 {
 		if (_Imm11_ == 1 && !_x_ && !isBranchDelaySlot) {
-			log_cb(RETRO_LOG_DEBUG, "microVU%d: Branch Optimization\n", mVU.index);
 			mVUlow.isNOP = true;
 			return;
 		}
@@ -1368,10 +1355,6 @@ void condEvilBranch(mV, int JMPcc) {
 		xMOV(ptr32[&mVU.evilBranch], gprT1);
 	cJMP.SetTarget();
 	incPC(-2);
-#ifndef NDEBUG
-	if(mVUlow.branch >= 9)
-		log_cb(RETRO_LOG_DEBUG, "Conditional in JALR/JR delay slot - If game broken report to PCSX2 Team\n"); 
-#endif
 	incPC(2);
 }
 
@@ -1508,9 +1491,6 @@ mVUop(mVU_JALR) {
 			if(mVUlow.branch >= 9) //Previous branch is a jump of some type so 
 								   //we need to take the branch address from the register it uses.
 			{
-#ifndef NDEBUG
-				log_cb(RETRO_LOG_DEBUG, "Linking JALR from JALR/JR branch target! - If game broken report to PCSX2 Team\n");
-#endif
 				mVUallocVIa(mVU, gprT1, _Is_);
 				xADD(gprT1, 8);
 				xSHR(gprT1, 3);

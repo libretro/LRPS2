@@ -1376,14 +1376,6 @@ static __fi void cdvdWrite0F(u8 rt)
 
 static __fi void cdvdWrite14(u8 rt)
 {
-#if 0
-	// Rama Or WISI guessed that "2" literally meant 2x but we can get 0x02 or 0xfe for "Standard" or "Fast" it appears. It is unsure what those values are meant to be
-	// Tests with ref suggest this register is write only? - Weirdbeard
-	if (rt == 0xFE)
-		Console.Warning("*PCSX2*: Unimplemented PS1 mode DISC SPEED = FAST");
-	else
-		Console.Warning("*PCSX2*: Unimplemented PS1 mode DISC SPEED = STANDARD");
-#endif
 }
 
 static __fi void fail_pol_cal()

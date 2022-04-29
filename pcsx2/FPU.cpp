@@ -77,9 +77,6 @@
 bool checkOverflow(u32& xReg, u32 cFlagsToSet)
 {
 	if ( (xReg & ~0x80000000) == PosInfinity ) {
-#if 0
-		log_cb(RETRO_LOG_WARN, "FPU OVERFLOW!: Changing to +/-Fmax!!!!!!!!!!!!\n" );
-#endif
 		xReg = (xReg & 0x80000000) | posFmax;
 		_ContVal_ |= (cFlagsToSet);
 		return true;
@@ -91,9 +88,6 @@ bool checkOverflow(u32& xReg, u32 cFlagsToSet)
 // If we have a denormal value, then Underflow has occured.
 bool checkUnderflow(u32& xReg, u32 cFlagsToSet) {
 	if ( ( (xReg & 0x7F800000) == 0 ) && ( (xReg & 0x007FFFFF) != 0 ) ) {
-#if 0
-		log_cb(RETRO_LOG_WARN, "FPU UNDERFLOW!: Changing to +/-0!!!!!!!!!!!!\n" );
-#endif
 		xReg &= 0x80000000;
 		_ContVal_ |= (cFlagsToSet);
 		return true;
@@ -391,20 +385,16 @@ void LWC1(void)
 {
 	u32 addr = cpuRegs.GPR.r[_Rs_].UL[0] + (s16)(cpuRegs.code & 0xffff);	// force sign extension to 32bit
 	if (addr & 0x00000003)
-	{
-		//log_cb(RETRO_LOG_ERROR, "FPU (LWC1 Opcode): Invalid Unaligned Memory Address\n");
 		return; 
-	}  // Should signal an exception?
+	// Should signal an exception?
 	fpuRegs.fpr[_Rt_].UL = memRead32(addr);
 }
 
 void SWC1(void) {
 	u32 addr = cpuRegs.GPR.r[_Rs_].UL[0] + (s16)(cpuRegs.code & 0xffff);	// force sign extension to 32bit
 	if (addr & 0x00000003)
-{
-		//log_cb(RETRO_LOG_ERROR, "FPU (SWC1 Opcode): Invalid Unaligned Memory Address" );
 		return;
-	}  // Should signal an exception?
+	// Should signal an exception?
 	memWrite32(addr, fpuRegs.fpr[_Rt_].UL);
 }
 

@@ -44,41 +44,6 @@ struct xImpl_Group1
     void operator()(const xRegisterInt &to, const xIndirectVoid &from) const;
     void operator()(const xRegisterInt &to, int imm) const;
     void operator()(const xIndirect64orLess &to, int imm) const;
-
-#if 0
-	// ------------------------------------------------------------------------
-	template< typename T > __noinline void operator()( const ModSibBase& to, const xImmReg<T>& immOrReg ) const
-	{
-		_DoI_helpermess( *this, to, immOrReg );
-	}
-
-	template< typename T > __noinline void operator()( const xDirectOrIndirect<T>& to, const xImmReg<T>& immOrReg ) const
-	{
-		_DoI_helpermess( *this, to, immOrReg );
-	}
-
-	template< typename T > __noinline void operator()( const xDirectOrIndirect<T>& to, int imm ) const
-	{
-		_DoI_helpermess( *this, to, imm );
-	}
-
-	template< typename T > __noinline void operator()( const xDirectOrIndirect<T>& to, const xDirectOrIndirect<T>& from ) const
-	{
-		_DoI_helpermess( *this, to, from );
-	}
-
-	// FIXME : Make this struct to 8, 16, and 32 bit registers
-	template< typename T > __noinline void operator()( const xRegisterBase& to, const xDirectOrIndirect<T>& from ) const
-	{
-		_DoI_helpermess( *this, xDirectOrIndirect<T>( to ), from );
-	}
-
-	// FIXME : Make this struct to 8, 16, and 32 bit registers
-	template< typename T > __noinline void operator()( const xDirectOrIndirect<T>& to, const xRegisterBase& from ) const
-	{
-		_DoI_helpermess( *this, to, xDirectOrIndirect<T>( from ) );
-	}
-#endif
 };
 
 // ------------------------------------------------------------------------

@@ -204,22 +204,9 @@ s32 V_Core::EffectsBufferIndexer(s32 offset) const
 	return EffectsStartA + offset;
 }
 
-void V_Core::UpdateEffectsBufferSize()
+void V_Core::UpdateEffectsBufferSize(void)
 {
 	const s32 newbufsize = EffectsEndA - EffectsStartA + 1;
-
-#if 0
-	if ((newbufsize * 2) > 0x20000) // max 128kb per core
-	{
-		//printf("too big, returning\n");
-		//return;
-	}
-#endif
-
-	// bad optimization?
-	//if (newbufsize == EffectsBufferSize && EffectsStartA == EffectsBufferStart) return;
-
-	//printf("Rvb Area change: ESA = %x, EEA = %x, Size(dec) = %d, Size(hex) = %x FxEnable = %d\n", EffectsStartA, EffectsEndA, newbufsize * 2, newbufsize * 2, FxEnable);
 
 	RevBuffers.NeedsUpdated = false;
 	EffectsBufferSize = newbufsize;
@@ -264,7 +251,7 @@ void V_Core::UpdateEffectsBufferSize()
 	RevBuffers.APF2_R_SRC = EffectsBufferIndexer(Revb.APF2_R_DST - Revb.APF2_SIZE);
 }
 
-bool V_Voice::Start()
+bool V_Voice::Start(void)
 {
 	if (StartA & 7)
 		StartA = (StartA + 0xFFFF8) + 0x8;
@@ -285,7 +272,7 @@ bool V_Voice::Start()
 	return true;
 }
 
-void V_Voice::Stop()
+void V_Voice::Stop(void)
 {
 	ADSR.Value = 0;
 	ADSR.Phase = 0;
@@ -319,7 +306,6 @@ __forceinline void TimeUpdate(u32 cClocks)
 	{
 		if (has_to_call_irq)
 		{
-			//ConLog("* SPU2: Irq Called (%04x) at cycle %d.\n", Spdif.Info, Cycles);
 			has_to_call_irq = false;
 			spu2Irq();
 		}
@@ -333,7 +319,6 @@ __forceinline void TimeUpdate(u32 cClocks)
 				if (Cores[0].IsDMARead)
 					Cores[0].FinishDMAread();
 
-				//ConLog("counter set and callback!\n");
 				Cores[0].MADR = Cores[0].TADR;
 				Cores[0].DMAICounter = 0;
             spu2DMA4Irq();
@@ -355,13 +340,10 @@ __forceinline void TimeUpdate(u32 cClocks)
 
 				Cores[1].MADR = Cores[1].TADR;
 				Cores[1].DMAICounter = 0;
-				//ConLog( "* SPU2 > DMA 7 Callback!  %d\n", Cycles );
             spu2DMA7Irq();
 			}
 			else
-			{
 				Cores[1].MADR += TickInterval << 1;
-			}
 		}
 
 		dClocks -= TickInterval;
@@ -377,7 +359,6 @@ __forceinline void UpdateSpdifMode()
 	if (Spdif.Out & 0x4) // use 24/32bit PCM data streaming
 	{
 		PlayMode = 8;
-		//ConLog("* SPU2: WARNING: Possibly CDDA mode set!\n");
 		return;
 	}
 
@@ -452,26 +433,21 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 					thisvol.Mode = 0;
 					thisvol.Increment = 0;
 				}
-				//ConLog("voice %x VOL%c write: %x\n", voice, vval == 0 ? 'L' : 'R', value);
 				break;
 			}
 			case 0x4:
 				Voices[voice].Pitch = value;
-				//ConLog("voice %x Pitch write: %x\n", voice, Voices[voice].Pitch);
 				break;
 			case 0x6:
 				Voices[voice].StartA = map_spu1to2(value);
-				//ConLog("voice %x StartA write: %x\n", voice, Voices[voice].StartA);
 				break;
 
 			case 0x8: // ADSR1 (Envelope)
 				Voices[voice].ADSR.regADSR1 = value;
-				//ConLog("voice %x regADSR1 write: %x\n", voice, Voices[voice].ADSR.regADSR1);
 				break;
 
 			case 0xa: // ADSR2 (Envelope)
 				Voices[voice].ADSR.regADSR2 = value;
-				//ConLog("voice %x regADSR2 write: %x\n", voice, Voices[voice].ADSR.regADSR2);
 				break;
 			case 0xc: // Voice 0..23 ADSR Current Volume
 				// not commonly set by games
@@ -479,7 +455,6 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 				break;
 			case 0xe:
 				Voices[voice].LoopStartA = map_spu1to2(value);
-				//ConLog("voice %x LoopStartA write: %x\n", voice, Voices[voice].LoopStartA);
 				break;
 
 				jNO_DEFAULT;
@@ -542,14 +517,12 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 				//Regs.VMIXEL = value & 0xFFFF;
 				SPU2_FastWrite(REG_S_VMIXEL, value);
 				SPU2_FastWrite(REG_S_VMIXER, value);
-				//ConLog("spu2x warning: setting reverb mode reg1 to %x \n", Regs.VMIXEL);
 				break;
 
 			case 0x1d9a: //         1F801D98h + 2 - Voice 0..23 Reverb mode aka Echo On (EON) (R/W)
 				//Regs.VMIXEL = value << 16;
 				SPU2_FastWrite(REG_S_VMIXEL + 2, value);
 				SPU2_FastWrite(REG_S_VMIXER + 2, value);
-				//ConLog("spu2x warning: setting reverb mode reg2 to %x \n", Regs.VMIXEL);
 				break;
 
 			// this was wrong? // edit: appears so!
@@ -581,16 +554,13 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 
 			case 0x1da4:
 				IRQA = map_spu1to2(value);
-				//ConLog("SPU2 Setting IRQA to %x \n", IRQA);
 				break;
 
 			case 0x1da6:
 				TSA = map_spu1to2(value);
-				//ConLog("SPU2 Setting TSA to %x \n", TSA);
 				break;
 
 			case 0x1da8: // Spu Write to Memory
-				//ConLog("SPU direct DMA Write. Current TSA = %x\n", TSA);
 				if (Cores[0].IRQEnable && (Cores[0].IRQA <= Cores[0].TSA))
 				{
 					SetIrqCall(0);
@@ -760,11 +730,9 @@ u16 V_Core::ReadRegPS1(u32 mem)
 
 			case 0x4:
 				value = Voices[voice].Pitch;
-				//ConLog("voice %d read pitch result = %x\n", voice, value);
 				break;
 			case 0x6:
 				value = map_spu2to1(Voices[voice].StartA);
-				//ConLog("voice %d read StartA result = %x\n", voice, value);
 				break;
 			case 0x8:
 				value = Voices[voice].ADSR.regADSR1;
@@ -774,11 +742,9 @@ u16 V_Core::ReadRegPS1(u32 mem)
 				break;
 			case 0xc:                                   // Voice 0..23 ADSR Current Volume
 				value = Voices[voice].ADSR.Value >> 16; // no clue
-				//if (value != 0) ConLog("voice %d read ADSR.Value result = %x\n", voice, value);
 				break;
 			case 0xe:
 				value = map_spu2to1(Voices[voice].LoopStartA);
-				//ConLog("voice %d read LoopStartA result = %x\n", voice, value);
 				break;
 
 				jNO_DEFAULT;
@@ -846,25 +812,21 @@ u16 V_Core::ReadRegPS1(u32 mem)
 				break;
 			case 0x1da4:
 				value = map_spu2to1(IRQA);
-				//ConLog("SPU2 IRQA read: 0x1da4 = %x , (IRQA = %x)\n", value, IRQA);
 				break;
 			case 0x1da6:
 				value = map_spu2to1(TSA);
-				//ConLog("SPU2 TSA read: 0x1da6 = %x , (TSA = %x)\n", value, TSA);
 				break;
 			case 0x1da8:
 				value = DmaRead();
 				break;
 			case 0x1daa:
 				value = Cores[0].Regs.ATTR;
-				//ConLog("SPU2 ps1 reg psxSPUCNT read return value: %x\n", value);
 				break;
 			case 0x1dac: // 1F801DACh - Sound RAM Data Transfer Control (should be 0004h)
 				value = psxSoundDataTransferControl;
 				break;
 			case 0x1dae:
 				value = Cores[0].Regs.STATX;
-				//ConLog("SPU2 ps1 reg REG_P_STATX read return value: %x\n", value);
 				break;
 		}
 
@@ -944,15 +906,8 @@ static void __fastcall RegWrite_VoiceParams(u16 value)
 		case 5:
 			// [Air] : Mysterious ADSR set code.  Too bad none of my games ever use it.
 			//      (as usual... )
-			//thisvoice.ADSR.Value = (value << 16) | value;
-			//ConLog("* SPU2: Mysterious ADSR Volume Set to 0x%x\n", value);
-			break;
-
 		case 6:
-			//thisvoice.Volume.Left.RegSet(value);
-			break;
 		case 7:
-			//thisvoice.Volume.Right.RegSet(value);
 			break;
 
 			jNO_DEFAULT;
@@ -1076,16 +1031,8 @@ static void __fastcall RegWrite_Core(u16 value)
 
 			if (thiscore.IRQEnable != irqe)
 			{
-				//ConLog("* SPU2: Core%d IRQ %s at cycle %d. Current IRQA = %x Current EffectA = %x\n",
-				//	core, ((thiscore.IRQEnable==0)?"disabled":"enabled"), Cycles, thiscore.IRQA, thiscore.EffectsStartA);
-
 				if (!thiscore.IRQEnable)
 					Spdif.Info &= ~(4 << thiscore.Index);
-#if 0
-				else
-					if ((thiscore.IRQA & 0xFFF00000) != 0)
-						log_cb(RETRO_LOG_WARN, "SPU2: Core %d IRQA Outside of SPU2 memory, Addr %x\n", thiscore.Index, thiscore.IRQA);
-#endif
 			}
 		}
 		break;
@@ -1688,8 +1635,6 @@ void SPU2_FastWrite(u32 rmem, u16 value)
 
 void StartVoices(int core, u32 value)
 {
-	//log_cb(RETRO_LOG_DEBUG, "KeyOn Write %x\n", value);
-
 	// Optimization: Games like to write zero to the KeyOn reg a lot, so shortcut
 	// this loop if value is zero.
 
@@ -1715,8 +1660,6 @@ void StartVoices(int core, u32 value)
 
 void StopVoices(int core, u32 value)
 {
-	//log_cb(RETRO_LOG_DEBUG, "KeyOff Write %x\n", value);
-
 	if (value == 0)
 		return;
 	for (u8 vc = 0; vc < V_Core::NumVoices; vc++)
@@ -1725,10 +1668,7 @@ void StopVoices(int core, u32 value)
 			continue;
 
 		if (Cycles - Cores[core].Voices[vc].PlayCycle < 2)
-		{
-			//log_cb(RETRO_LOG_DEBUG, "Attempt to stop voice %d on core %d in less than 2T since KeyOn\n", vc, core);
 			continue;
-		}
 
 		Cores[core].Voices[vc].ADSR.Releasing = true;
 	}

@@ -626,14 +626,12 @@ static __aligned16 SSE_MXCSR roundmode_nearest, roundmode_neg;
 void recDIV_S_xmm(int info)
 {
 	bool roundmodeFlag = false;
-	//log_cb(RETRO_LOG_DEBUG, "DIV\n");
 
 	if( CHECK_FPUNEGDIVHACK )
 	{
 		if (g_sseMXCSR.GetRoundMode() != SSEround_NegInf)
 		{
 			// Set roundmode to nearest since it isn't already
-			//log_cb(RETRO_LOG_DEBUG, "div to negative inf\n");
 
 			roundmode_neg = g_sseMXCSR;
 			roundmode_neg.SetRoundMode( SSEround_NegInf );
@@ -646,7 +644,6 @@ void recDIV_S_xmm(int info)
 		if (g_sseMXCSR.GetRoundMode() != SSEround_Nearest)
 		{
 			// Set roundmode to nearest since it isn't already
-			//log_cb(RETRO_LOG_DEBUG, "div to nearest\n");
 
 			roundmode_nearest = g_sseMXCSR;
 			roundmode_nearest.SetRoundMode( SSEround_Nearest );
@@ -906,12 +903,10 @@ void recSQRT_S_xmm(int info)
 	int roundmodeFlag = 0;
 	int tempReg = _allocX86reg(xEmptyReg, X86TYPE_TEMP, 0, 0);
 	int t1reg = _allocTempXMMreg(XMMT_FPS, -1);
-	//log_cb(RETRO_LOG_DEBUG, "FPU: SQRT\n");
 
 	if (g_sseMXCSR.GetRoundMode() != SSEround_Nearest)
 	{
 		// Set roundmode to nearest if it isn't already
-		//log_cb(RETRO_LOG_DEBUG, "sqrt to nearest\n");
 		roundmode_nearest = g_sseMXCSR;
 		roundmode_nearest.SetRoundMode( SSEround_Nearest );
 		xLDMXCSR (roundmode_nearest);
@@ -1035,7 +1030,6 @@ void recRSQRT_S_xmm(int info)
 	if (g_sseMXCSR.GetRoundMode() != SSEround_Nearest)
 	{
 		// Set roundmode to nearest if it isn't already
-		//log_cb(RETRO_LOG_DEBUG, "sqrt to nearest\n");
 		roundmode_nearest = g_sseMXCSR;
 		roundmode_nearest.SetRoundMode( SSEround_Nearest );
 		xLDMXCSR (roundmode_nearest);

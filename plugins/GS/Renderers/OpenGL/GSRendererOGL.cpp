@@ -703,14 +703,6 @@ void GSRendererOGL::EmulateTextureSampler(const GSTextureCache::Source* tex)
 		m_ps_sel.tex_fmt = 3 << 2;
 
 	}
-#if 0
-	else
-	{
-		// Standard texture. Both index and AEM expansion were already done by the CPU.
-		// m_ps_sel.tex_fmt = 0; // removed as an optimization
-		// m_ps_sel.aem     = 0; // removed as an optimization
-	}
-#endif
 
 	if (m_context->TEX0.TFX == TFX_MODULATE && m_vt.m_eq.rgba == 0xFFFF && m_vt.m_min.c.eq(GSVector4i(128))) {
 		// Micro optimization that reduces GPU load (removes 5 instructions on the FS program)

@@ -214,11 +214,7 @@ static mem8_t __fastcall _ext_memRead8 (u32 mem)
 		case 6: // gsm
 			return gsRead8(mem);
 		case 7: // dev9
-		{
-			mem8_t retval = DEV9read8(mem & ~0xa4000000);
-			log_cb(RETRO_LOG_INFO, "DEV9 read8 %8.8lx: %2.2lx\n", mem & ~0xa4000000, retval);
-			return retval;
-		}
+			return DEV9read8(mem & ~0xa4000000);
 		default: break;
 	}
 
@@ -239,11 +235,7 @@ static mem16_t __fastcall _ext_memRead16(u32 mem)
 			return gsRead16(mem);
 
 		case 7: // dev9
-		{
-			mem16_t retval = DEV9read16(mem & ~0xa4000000);
-			log_cb(RETRO_LOG_INFO, "DEV9 read16 %8.8lx: %4.4lx\n", mem & ~0xa4000000, retval);
-			return retval;
-		}
+			return DEV9read16(mem & ~0xa4000000);
 
 		case 8: // spu2
 			return SPU2read(mem);
@@ -262,11 +254,7 @@ static mem32_t __fastcall _ext_memRead32(u32 mem)
 		case 6: // gsm
 			return gsRead32(mem);
 		case 7: // dev9
-		{
-			mem32_t retval = DEV9read32(mem & ~0xa4000000);
-			log_cb(RETRO_LOG_INFO, "DEV9 read32 %8.8lx: %8.8lx\n", mem & ~0xa4000000, retval);
-			return retval;
-		}
+			return DEV9read32(mem & ~0xa4000000);
 		default: break;
 	}
 
@@ -313,7 +301,6 @@ static void __fastcall _ext_memWrite8 (u32 mem, mem8_t  value)
 			gsWrite8(mem, value); return;
 		case 7: // dev9
 			DEV9write8(mem & ~0xa4000000, value);
-			log_cb(RETRO_LOG_INFO, "DEV9 write8 %8.8lx: %2.2lx\n", mem & ~0xa4000000, value);
 			return;
 		default: break;
 	}
@@ -347,7 +334,6 @@ static void __fastcall _ext_memWrite32(u32 mem, mem32_t value)
 			gsWrite32(mem, value); return;
 		case 7: // dev9
 			DEV9write32(mem & ~0xa4000000, value);
-			log_cb(RETRO_LOG_INFO, "DEV9 write32 %8.8lx: %8.8lx\n", mem & ~0xa4000000, value);
 			return;
 		default: break;
 	}
@@ -564,22 +550,13 @@ template<int vunum> static void __fc vuDataWrite128(u32 addr, const mem128_t* da
 
 void memSetPageAddr(u32 vaddr, u32 paddr)
 {
-	//log_cb(RETRO_LOG_INFO, "memSetPageAddr: %8.8x -> %8.8x\n", vaddr, paddr);
-
 	vtlb_VMap(vaddr,paddr,0x1000);
 
 }
 
 void memClearPageAddr(u32 vaddr)
 {
-	//log_cb(RETRO_LOG_INFO, "memClearPageAddr: %8.8x\n", vaddr);
-
 	vtlb_VMapUnmap(vaddr,0x1000); // -> whut ?
-
-#ifdef FULLTLB
-//	memLUTRK[vaddr >> 12] = 0;
-//	memLUTWK[vaddr >> 12] = 0;
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -906,9 +883,6 @@ void mmap_PageFaultHandler::OnPageFaultEvent( const PageFaultInfo& info, bool& h
 //  (this function is called by default from the eerecReset).
 void mmap_ResetBlockTracking()
 {
-#if 0
-	log_cb(RETRO_LOG_DEBUG, "vtlb/mmap: Block Tracking reset...\n" );
-#endif
 	memzero( m_PageProtectInfo );
 	if (eeMem) HostSys::MemProtect( eeMem->Main, Ps2MemSize::MainRam, PageAccess_ReadWrite() );
 }

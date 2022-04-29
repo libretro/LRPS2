@@ -58,9 +58,6 @@ __fi void mVUstatusFlagOp(mV) {
 		}
 	}
 	iPC = curPC;
-#ifndef NDEBUG
-	log_cb(RETRO_LOG_DEBUG, "microVU%d: FSSET Optimization\n", getIndex);
-#endif
 }
 
 int findFlagInst(int* fFlag, int cycles) {
@@ -225,7 +222,6 @@ __fi void mVUsetupFlags(mV, microFlagCycles& mFC) {
 	if (doSFlagInsts && __Status) {
 		int bStatus[4];
 		int sortRegs = sortFlag(mFC.xStatus, bStatus, mFC.cycles);
-		// DevCon::Status("sortRegs = %d", params sortRegs);
 		// Note: Emitter will optimize out mov(reg1, reg1) cases...
 		if (sortRegs == 1) {
 			xMOV(gprF0,  getFlagReg(bStatus[0]));

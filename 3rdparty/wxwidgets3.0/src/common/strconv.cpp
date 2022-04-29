@@ -3074,8 +3074,6 @@ wxCharBuffer wxSafeConvertWX2MB(const wchar_t *ws)
 
 #ifdef __WINDOWS__
     WX_DEFINE_GLOBAL_CONV2(wxMBConv, wxMBConv_win32, wxConvLibc, wxEMPTY_PARAMETER_VALUE);
-#elif 0 // defined(__WXOSX__)
-    WX_DEFINE_GLOBAL_CONV2(wxMBConv, wxMBConv_cf, wxConvLibc,  (wxFONTENCODING_UTF8));
 #else
     WX_DEFINE_GLOBAL_CONV2(wxMBConv, wxMBConvLibc, wxConvLibc, wxEMPTY_PARAMETER_VALUE);
 #endif

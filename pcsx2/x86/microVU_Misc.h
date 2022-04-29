@@ -80,13 +80,6 @@ static const uint _Tbit_ = 1 << 27;
 static const uint divI = 0x1040000;
 static const uint divD = 0x2080000;
 
-static const char branchSTR[16][8] = {
-	"None",  "B",     "BAL",   "IBEQ",
-	"IBGEZ", "IBGTZ", "IBLEZ", "IBLTZ",
-	"IBNE",  "JR",    "JALR",  "N/A",
-	"N/A",   "N/A",   "N/A",   "N/A"
-};
-
 //------------------------------------------------------------------
 // Helper Macros
 //------------------------------------------------------------------
@@ -233,7 +226,6 @@ typedef u32 (__fastcall *mVUCall)(void*, void*);
 #define aWrap(x, m)	 ((x > m) ? 0 : x)
 #define shuffleSS(x) ((x==1)?(0x27):((x==2)?(0xc6):((x==4)?(0xe1):(0xe4))))
 #define clampE       CHECK_VU_EXTRA_OVERFLOW
-#define varPrint(x)  log_cb(RETRO_LOG_DEBUG, #x " = %d", (int)x)
 #define islowerOP    ((iPC & 1) == 0)
 
 #define blockCreate(addr) {												\
@@ -249,13 +241,6 @@ typedef u32 (__fastcall *mVUCall)(void*, void*);
 #define __Status	 (mVUregs.needExactMatch & 1)
 #define __Mac		 (mVUregs.needExactMatch & 2)
 #define __Clip		 (mVUregs.needExactMatch & 4)
-
-// Pass 3 Helper Macros (Used for program logging)
-#define _Fsf_String	 ((_Fsf_ == 3) ? "w" : ((_Fsf_ == 2) ? "z" : ((_Fsf_ == 1) ? "y" : "x")))
-#define _Ftf_String	 ((_Ftf_ == 3) ? "w" : ((_Ftf_ == 2) ? "z" : ((_Ftf_ == 1) ? "y" : "x")))
-#define xyzwStr(x,s) (_X_Y_Z_W == x) ? s :
-#define _XYZW_String (xyzwStr(1, "w") (xyzwStr(2, "z") (xyzwStr(3, "zw") (xyzwStr(4, "y") (xyzwStr(5, "yw") (xyzwStr(6, "yz") (xyzwStr(7, "yzw") (xyzwStr(8, "x") (xyzwStr(9, "xw") (xyzwStr(10, "xz") (xyzwStr(11, "xzw") (xyzwStr(12, "xy") (xyzwStr(13, "xyw") (xyzwStr(14, "xyz") "xyzw"))))))))))))))
-#define _BC_String	 (_bc_x ? "x" : (_bc_y ? "y" : (_bc_z ? "z" : "w")))
 
 //------------------------------------------------------------------
 // Optimization / Debug Options

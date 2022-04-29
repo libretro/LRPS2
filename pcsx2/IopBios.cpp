@@ -45,8 +45,6 @@ static char HostRoot[1024];
 void Hle_SetElfPath(const char* elfFileName)
 {
 #if USE_HOST_REWRITE
-	log_cb(RETRO_LOG_DEBUG, "HLE Host: Will load ELF: %s\n", elfFileName);
-
 	const char* pos1 = strrchr(elfFileName,'/');
 	const char* pos2 = strrchr(elfFileName,'\\');
 
@@ -55,15 +53,11 @@ void Hle_SetElfPath(const char* elfFileName)
 
 	if(!pos1) // if pos1 is NULL, then pos2 was not > pos1, so it must also be NULL
 	{
-		log_cb(RETRO_LOG_INFO, "HLE Notice: ELF does not have a path.\n");
-
 		// use %CD%/host/
 		char* cwd = getcwd(HostRoot,1000); // save the other 23 chars to append /host/ :P
 		HostRoot[1000]=0; // Be Safe.
-		if (cwd == nullptr) {
-			log_cb(RETRO_LOG_ERROR, "Hle_SetElfPath: getcwd: buffer is too small\n");
+		if (cwd == nullptr)
 			return;
-		}
 
 		char* last = HostRoot + strlen(HostRoot) - 1;
 
@@ -78,9 +72,6 @@ void Hle_SetElfPath(const char* elfFileName)
 	int len = pos1-elfFileName+1;
 	memcpy(HostRoot,elfFileName,len); // include the / (or \\)
 	HostRoot[len] = 0;
-
-	log_cb(RETRO_LOG_INFO, "HLE Host: Set 'host:' root path to: %s\n", HostRoot);
-
 #endif
 }
 
@@ -491,10 +482,6 @@ namespace sysmem {
 namespace loadcore {
 	void RegisterLibraryEntries_DEBUG()
 	{
-#ifndef NDEBUG
-		const std::string modname = iopMemReadString(a0 + 12);
-		log_cb(RETRO_LOG_DEBUG, "RegisterLibraryEntries: %8.8s version %x.%02x\n", modname.data(), (unsigned)iopMemRead8(a0 + 9), (unsigned)iopMemRead8(a0 + 8));
-#endif
 	}
 }
 
@@ -519,16 +506,14 @@ namespace intrman {
 		"INT_MAX"														//40
 	};
 
-	void RegisterIntrHandler_DEBUG()
+	void RegisterIntrHandler_DEBUG(void)
 	{
-		log_cb(RETRO_LOG_DEBUG, "RegisterIntrHandler: intr %s, handler %x\n", intrname[a0], a2);
 	}
 }
 
 namespace sifcmd {
-	void sceSifRegisterRpc_DEBUG()
+	void sceSifRegisterRpc_DEBUG(void)
 	{
-		log_cb(RETRO_LOG_DEBUG, "sifcmd sceSifRegisterRpc: rpc_id %x\n", a1);
 	}
 }
 

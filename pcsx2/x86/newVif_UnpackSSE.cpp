@@ -418,13 +418,9 @@ static void nVifGen(int usn, int mask, int curCycle) {
 	}
 }
 
-void VifUnpackSSE_Init()
+void VifUnpackSSE_Init(void)
 {
 	if (nVifUpkExec) return;
-
-#ifndef NDEBUG
-	log_cb(RETRO_LOG_DEBUG, "Generating SSE-optimized unpacking functions for VIF interpreters...\n" );
-#endif
 
 	nVifUpkExec = new RecompiledCodeReserve(L"VIF SSE-optimized Unpacking Functions", _64kb);
 	nVifUpkExec->Reserve(GetVmMemory().BumpAllocator(), _64kb);
@@ -440,19 +436,9 @@ void VifUnpackSSE_Init()
 			}}}
 
 	nVifUpkExec->ForbidModification();
-
-#ifndef NDEBUG
-	log_cb(RETRO_LOG_DEBUG, "Unpack function generation complete.  Generated function statistics:\n" );
-	log_cb(RETRO_LOG_DEBUG,
-		"Reserved buffer    : %u bytes @ %ls\nx86 code generated : %u bytes\n",
-		(uint)nVifUpkExec->GetCommittedBytes(),
-		pxsPtr(nVifUpkExec->GetPtr()),
-		(uint)(xGetPtr() - nVifUpkExec->GetPtr())
-	);
-#endif
 }
 
-void VifUnpackSSE_Destroy()
+void VifUnpackSSE_Destroy(void)
 {
 	safe_delete( nVifUpkExec );
 }

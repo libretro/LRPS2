@@ -554,33 +554,7 @@ public:
 
 	template<int i> __forceinline static void ReadColumn8(const u8* RESTRICT src, u8* RESTRICT dst, int dstpitch)
 	{
-		//for(int j = 0; j < 64; j++) ((u8*)src)[j] = (u8)j;
-
-		#if 0//_M_SSE >= 0x501
-
-		const GSVector8i* s = (const GSVector8i*)src;
-		
-		GSVector8i v0 = s[i * 2 + 0];
-		GSVector8i v1 = s[i * 2 + 1];
-
-		GSVector8i::sw8(v0, v1);
-		GSVector8i::sw16(v0, v1);
-		GSVector8i::sw8(v0, v1);
-		GSVector8i::sw128(v0, v1);
-		GSVector8i::sw16(v0, v1);
-
-		v0 = v0.acbd();
-		v1 = v1.acbd();
-		v1 = v1.yxwz();
-
-		GSVector8i::storel(&dst[dstpitch * 0], v0);
-		GSVector8i::storeh(&dst[dstpitch * 1], v0);
-		GSVector8i::storel(&dst[dstpitch * 2], v1);
-		GSVector8i::storeh(&dst[dstpitch * 3], v1);
-
-		// TODO: not sure if this is worth it, not in this form, there should be a shorter path
-
-		#elif _M_SSE >= 0x301
+		#if _M_SSE >= 0x301
 
 		const GSVector4i* s = (const GSVector4i*)src;
 
@@ -1876,39 +1850,6 @@ public:
 			d0[1] = Expand16to32<AEM>(v0.uph16(v0), TA0, TA1);
 			d1[0] = Expand16to32<AEM>(v1.upl16(v1), TA0, TA1);
 			d1[1] = Expand16to32<AEM>(v1.uph16(v1), TA0, TA1);
-		}
-
-		#elif 0 // not faster
-		
-		const GSVector4i* s = (const GSVector4i*)src;
-
-		GSVector4i TA0(TEXA.TA0 << 24);
-		GSVector4i TA1(TEXA.TA1 << 24);
-
-		for(int i = 0; i < 4; i++, dst += dstpitch * 2)
-		{
-			GSVector4i v0 = s[i * 4 + 0];
-			GSVector4i v1 = s[i * 4 + 1];
-			GSVector4i v2 = s[i * 4 + 2];
-			GSVector4i v3 = s[i * 4 + 3];
-
-			GSVector4i::sw16(v0, v1, v2, v3);
-			GSVector4i::sw32(v0, v1, v2, v3);
-			GSVector4i::sw16(v0, v2, v1, v3);
-
-			GSVector4i* d0 = (GSVector4i*)&dst[dstpitch * 0];
-
-			d0[0] = Expand16to32<AEM>(v0.upl16(v0), TA0, TA1);
-			d0[1] = Expand16to32<AEM>(v0.uph16(v0), TA0, TA1);
-			d0[2] = Expand16to32<AEM>(v1.upl16(v1), TA0, TA1);
-			d0[3] = Expand16to32<AEM>(v1.uph16(v1), TA0, TA1);
-			
-			GSVector4i* d1 = (GSVector4i*)&dst[dstpitch * 1];
-
-			d1[0] = Expand16to32<AEM>(v2.upl16(v2), TA0, TA1);
-			d1[1] = Expand16to32<AEM>(v2.uph16(v2), TA0, TA1);
-			d1[2] = Expand16to32<AEM>(v3.upl16(v3), TA0, TA1);
-			d1[3] = Expand16to32<AEM>(v3.uph16(v3), TA0, TA1);
 		}
 
 		#else

@@ -86,19 +86,9 @@ void __fastcall iopHwWrite8_Page1( u32 addr, mem8_t val )
 
 		default:
 			if( masked_addr >= 0x100 && masked_addr < 0x130 )
-			{
-#if 0
-				log_cb(RETRO_LOG_DEBUG, "HwWrite8 to Counter16 [ignored] @ addr 0x%08x = 0x%02x\n", addr, psxHu8(addr) );
-#endif
 				psxHu8( addr ) = val;
-			}
 			else if( masked_addr >= 0x480 && masked_addr < 0x4a0 )
-			{
-#if 0
-				log_cb(RETRO_LOG_DEBUG, "HwWrite8 to Counter32 [ignored] @ addr 0x%08x = 0x%02x\n", addr, psxHu8(addr) );
-#endif
 				psxHu8( addr ) = val;
-			}
 			else if( (masked_addr >= pgmsk(HW_USB_START)) && (masked_addr < pgmsk(HW_USB_END)) )
 			{
 				USBwrite8( addr, val );
@@ -219,25 +209,12 @@ static __fi void _HwWrite_16or32_Page1( u32 addr, T val )
 	{
 		if( sizeof(T) == 2 )
 			SPU2write( addr, val );
-#if 0
-		else
-		{
-			log_cb(RETRO_LOG_DEBUG, "HwWrite32 to SPU2? @ 0x%08X .. What manner of trickery is this?!\n", addr );
-			//psxHu(addr) = val;
-		}
-#endif
 	}
 	// ------------------------------------------------------------------------
 	// PS1 GPU access
 	//
 	else if( (masked_addr >= pgmsk(HW_PS1_GPU_START)) && (masked_addr < pgmsk(HW_PS1_GPU_END)) )
 	{
-#ifndef NDEBUG
-		// todo: psx mode: this is new
-		if( sizeof(T) == 2 )
-			log_cb(RETRO_LOG_DEBUG, "HwWrite16 to PS1 GPU? @ 0x%08X .. What manner of trickery is this?!\n", addr );
-#endif
-
 		pxAssert(sizeof(T) == 4);
 
 		psxDma2GpuW(addr, val);
@@ -349,9 +326,6 @@ static __fi void _HwWrite_16or32_Page1( u32 addr, T val )
 				psxDma1(HW_DMA1_MADR, HW_DMA1_BCR, HW_DMA1_CHCR);
 			break;
 			mcase(0x1f8010ac):
-#ifndef NDEBUG
-				log_cb(RETRO_LOG_DEBUG, "SIF2 IOP TADR?? write\n");
-#endif
 				psxHu(addr) = val;
 			break;
 
@@ -426,13 +400,8 @@ static __fi void _HwWrite_16or32_Page1( u32 addr, T val )
 				else {
 					newtmp &= ~0x80000000;
 				}
-				//if (newtmp != old)
-				//	log_cb(RETRO_LOG_DEBUG, "ICR Old %x New %x\n", old, newtmp);
 				psxHu(addr) = newtmp;
 				if ((HW_DMA_ICR >> 15) & 0x1) {
-#ifndef NDEBUG
-					log_cb(RETRO_LOG_DEBUG, "Force ICR IRQ!\n");
-#endif
 					psxRegs.CP0.n.Cause &= ~0x7C;
 					iopIntcIrq(3);
 				}
@@ -444,9 +413,6 @@ static __fi void _HwWrite_16or32_Page1( u32 addr, T val )
 			
 			mcase(0x1f8010f6):		// ICR_hi (16 bit?) [dunno if it ever happens]
 			{
-#ifndef NDEBUG
-				log_cb(RETRO_LOG_DEBUG, "High ICR Write!!\n");
-#endif
 				const u32 val2 = (u32)val << 16;
 				const u32 tmp = (~val2) & HW_DMA_ICR;
 				psxHu(addr) = (((tmp ^ val2) & 0xffffff) ^ tmp) >> 16;
@@ -468,11 +434,8 @@ static __fi void _HwWrite_16or32_Page1( u32 addr, T val )
 				else {
 					newtmp &= ~0x80000000;
 				}
-				//if (newtmp != old)
-				//	log_cb(RETRO_LOG_DEBUG, "ICR2 Old %x New %x\n", old, newtmp);
 				psxHu(addr) = newtmp;
 				if ((HW_DMA_ICR2 >> 15) & 0x1) {
-					log_cb(RETRO_LOG_DEBUG, "Force ICR2 IRQ!\n");
 					psxRegs.CP0.n.Cause &= ~0x7C;
 					iopIntcIrq(3);
 				}
@@ -484,7 +447,6 @@ static __fi void _HwWrite_16or32_Page1( u32 addr, T val )
 
 			mcase(0x1f801576):		// ICR2_hi (16 bit?) [dunno if it ever happens]
 			{
-				log_cb(RETRO_LOG_DEBUG, "ICR2 high write!\n");
 				const u32 val2 = (u32)val << 16;
 				const u32 tmp = (~val2) & HW_DMA_ICR2;
 				psxHu(addr) = (((tmp ^ val2) & 0xffffff) ^ tmp) >> 16;

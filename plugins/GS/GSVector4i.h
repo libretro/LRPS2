@@ -591,15 +591,7 @@ public:
 
 	__forceinline GSVector4i upl8() const
 	{
-		#if 0 // _M_SSE >= 0x401 // TODO: compiler bug
-
-		return GSVector4i(_mm_cvtepu8_epi16(m));
-
-		#else
-
 		return GSVector4i(_mm_unpacklo_epi8(m, _mm_setzero_si128()));
-
-		#endif
 	}
 
 	__forceinline GSVector4i uph8() const
@@ -609,15 +601,7 @@ public:
 
 	__forceinline GSVector4i upl16() const
 	{
-		#if 0 //_M_SSE >= 0x401 // TODO: compiler bug
-
-		return GSVector4i(_mm_cvtepu16_epi32(m));
-
-		#else
-
 		return GSVector4i(_mm_unpacklo_epi16(m, _mm_setzero_si128()));
-
-		#endif
 	}
 
 	__forceinline GSVector4i uph16() const
@@ -627,15 +611,7 @@ public:
 
 	__forceinline GSVector4i upl32() const
 	{
-		#if 0 //_M_SSE >= 0x401 // TODO: compiler bug
-
-		return GSVector4i(_mm_cvtepu32_epi64(m));
-
-		#else
-
 		return GSVector4i(_mm_unpacklo_epi32(m, _mm_setzero_si128()));
-
-		#endif
 	}
 
 	__forceinline GSVector4i uph32() const

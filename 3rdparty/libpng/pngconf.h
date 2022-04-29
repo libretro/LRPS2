@@ -380,13 +380,8 @@
 #        define PNG_DEPRECATED __attribute__((__deprecated__))
 #      endif
 #      ifndef PNG_PRIVATE
-#        if 0 /* Doesn't work so we use deprecated instead*/
-#          define PNG_PRIVATE \
-            __attribute__((warning("This function is not exported by libpng.")))
-#        else
 #          define PNG_PRIVATE \
             __attribute__((__deprecated__))
-#        endif
 #      endif
 #      if ((__GNUC__ > 3) || !defined(__GNUC_MINOR__) || (__GNUC_MINOR__ >= 1))
 #        ifndef PNG_RESTRICT

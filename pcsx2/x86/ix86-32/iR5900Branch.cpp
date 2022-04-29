@@ -389,21 +389,8 @@ EERECOMPILE_CODE0(BNEL, XMMINFO_READS|XMMINFO_READT);
 *********************************************************/
 
 ////////////////////////////////////////////////////
-//void recBLTZAL()
-//{
-//	log_cb(RETRO_LOG_DEBUG, "BLTZAL\n");
-//	_eeFlushAllUnused();
-//	xMOV(ptr32[(u32*)((int)&cpuRegs.code)], cpuRegs.code );
-//	xMOV(ptr32[(u32*)((int)&cpuRegs.pc)], pc );
-//	iFlushCall(FLUSH_EVERYTHING);
-//	xFastCall((void*)(int)BLTZAL );
-//	branch = 2;
-//}
-
-////////////////////////////////////////////////////
-void recBLTZAL()
+void recBLTZAL(void)
 {
-
 	u32 branchTo = ((s32)_Imm_ * 4) + pc;
 
 	_eeOnWriteReg(31, 0);

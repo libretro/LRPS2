@@ -175,8 +175,6 @@ static __ri void __fastcall _vuFMACAdd(VURegs * VU, int reg, int xyzw) {
 		VU->fmac[i].macflag = VU->macflag;
 		VU->fmac[i].statusflag = VU->statusflag;
 		VU->fmac[i].clipflag = VU->clipflag;
-	} else {
-		//log_cb(RETRO_LOG_ERROR, "*PCSX2*: error , out of fmacs %d\n", VU->cycle);
 	}
 }
 
@@ -318,33 +316,13 @@ static __fi float vuDouble(u32 f)
 
 static __fi float vuADD_TriAceHack(u32 a, u32 b) {
 	// On VU0 TriAce Games use ADDi and expects these bit-perfect results:
-	//if (a == 0xb3e2a619 && b == 0x42546666) return vuDouble(0x42546666);
-	//if (a == 0x8b5b19e9 && b == 0xc7f079b3) return vuDouble(0xc7f079b3);
 	if (a == 0x4b1ed4a8 && b == 0x43a02666) return vuDouble(0x4b1ed5e7);
-	//if (a == 0x7d1ca47b && b == 0x42f23333) return vuDouble(0x7d1ca47b);
-
 	// In the 3rd case, some other rounding error is giving us incorrect
 	// operands ('a' is wrong); and therefor an incorrect result.
 	// We're getting:        0x4b1ed4a8 + 0x43a02666 = 0x4b1ed5e8
 	// We should be getting: 0x4b1ed4a7 + 0x43a02666 = 0x4b1ed5e7
 	// microVU gets the correct operands and result. The interps likely
 	// don't get it due to rounding towards nearest in other calculations.
-
-	if (0) {
-		// microVU uses something like this to get TriAce games working,
-		// but VU interpreters don't seem to need it currently:
-		s32 aExp = (a >> 23) & 0xff;
-		s32 bExp = (b >> 23) & 0xff;
-		if (aExp - bExp >= 25) b &= 0x80000000;
-		if (aExp - bExp <=-25) a &= 0x80000000;
-		float ret = vuDouble(a) + vuDouble(b);
-#ifndef NDEBUG
-		log_cb(RETRO_LOG_DEBUG, "aExp = %d, bExp = %d\n", aExp, bExp);
-		log_cb(RETRO_LOG_DEBUG, "0x%08x + 0x%08x = 0x%08x\n", a, b, (u32&)ret);
-		log_cb(RETRO_LOG_DEBUG, "%f + %f = %f\n", vuDouble(a), vuDouble(b), ret);
-#endif
-		return ret;
-	}
 	return vuDouble(a) + vuDouble(b);
 }
 
@@ -1892,7 +1870,6 @@ s32 _branchAddr(VURegs * VU) {
 static __fi void _setBranch(VURegs * VU, u32 bpc) {
 	if(VU->branch == 1) 
 	{		
-		//log_cb(RETRO_LOG_DEBUG, "Branch in Branch Delay slot!\n");
 		VU->delaybranchpc = bpc;
 		VU->takedelaybranch = true;
 	}
@@ -2197,13 +2174,11 @@ static __ri void _vuXGKICK(VURegs * VU)
 	u32 size = gifUnit.GetGSPacketSize(GIF_PATH_1, VU->Mem, addr);
 
 	if (size > diff) {
-		//log_cb(RETRO_LOG_DEBUG, "VU1 Int: XGkick Wrap!\n");
 		gifUnit.gifPath[GIF_PATH_1].CopyGSPacketData(  &VU->Mem[addr],  diff,true);
 		gifUnit.TransferGSPacketData(GIF_TRANS_XGKICK, &VU->Mem[0],size-diff,true);
 	}
-	else {
+	else
 		gifUnit.TransferGSPacketData(GIF_TRANS_XGKICK, &VU->Mem[addr], size, true);
-	}
 }
 
 static __ri void _vuXTOP(VURegs * VU) {

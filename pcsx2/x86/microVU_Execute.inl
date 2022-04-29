@@ -123,15 +123,9 @@ void mVUdispatcherCD(mV) {
 // Executes for number of cycles
 _mVUt void* __fastcall mVUexecute(u32 startPC, u32 cycles) {
 
-	microVU& mVU = mVUx;
-	u32 vuLimit  = vuIndex ? 0x3ff8 : 0xff8;
-#ifndef NDEBUG
-	if (startPC  > vuLimit + 7) {
-		log_cb(RETRO_LOG_DEBUG, "microVU%x Warning: startPC = 0x%x, cycles = 0x%x\n", vuIndex, startPC, cycles);
-	}
-#endif
-
-	mVU.cycles		= cycles;
+	microVU& mVU 	= mVUx;
+	u32 vuLimit  	= vuIndex ? 0x3ff8 : 0xff8;
+	mVU.cycles	= cycles;
 	mVU.totalCycles = cycles;
 
 	xSetPtr(mVU.prog.x86ptr); // Set x86ptr to where last program left off
@@ -147,12 +141,8 @@ _mVUt void mVUcleanUp() {
 
 	mVU.prog.x86ptr = x86Ptr;
 
-	if ((xGetPtr() < mVU.prog.x86start) || (xGetPtr() >= mVU.prog.x86end)) {
-#ifndef NDEBUG
-		log_cb(RETRO_LOG_DEBUG, "microVU%d: Program cache limit reached.\n", mVU.index);
-#endif
+	if ((xGetPtr() < mVU.prog.x86start) || (xGetPtr() >= mVU.prog.x86end))
 		mVUreset(mVU, false);
-	}
 
 	mVU.cycles = mVU.totalCycles - mVU.cycles;
 	mVU.regs().cycle += mVU.cycles;

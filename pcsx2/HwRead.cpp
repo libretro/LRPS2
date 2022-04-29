@@ -126,11 +126,6 @@ mem32_t __fastcall _hwRead32(u32 mem)
 
 				
 			}
-			/*if ((mem & 0x1000ff00) == 0x1000f200)
-			{
-				if((mem & 0xffff) != 0xf230)
-				log_cb(RETRO_LOG_DEBUG, "SBUS read %x value sending %x\n", mem, psHu32(mem));
-			}*/
 			switch( mem )
 			{
 				case SIO_ISR:
@@ -281,7 +276,6 @@ static void _hwRead64(u32 mem, mem64_t* result )
 		case 0x0F:
 			if ((mem & 0xffffff00) == 0x1000f300)
 			{
-				log_cb(RETRO_LOG_DEBUG, "64bit read from %x wibble\n", mem);
 				if (mem == 0x1000f3E0)
 				{
 
@@ -345,9 +339,6 @@ void __fastcall _hwRead128(u32 mem, mem128_t* result )
 			// It requires investigation of what to do.
 			if ((mem & 0xffffff00) == 0x1000f300)
 			{
-#ifndef NDEBUG
-				log_cb(RETRO_LOG_DEBUG, "128bit read from %x wibble\n", mem);
-#endif
 				if (mem == 0x1000f3E0)
 				{
 					

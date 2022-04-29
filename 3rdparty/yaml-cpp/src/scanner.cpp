@@ -37,14 +37,6 @@ Token& Scanner::peek() {
   assert(!m_tokens.empty());  // should we be asserting here? I mean, we really
                               // just be checking
                               // if it's empty before peeking.
-
-#if 0
-		static Token *pLast = 0;
-		if(pLast != &m_tokens.front())
-			std::cerr << "peek: " << m_tokens.front() << "\n";
-		pLast = &m_tokens.front();
-#endif
-
   return m_tokens.front();
 }
 

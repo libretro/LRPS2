@@ -208,11 +208,9 @@ void psxDma0(u32 adr, u32 bcr, u32 chcr) {
 	// bcr LSBs are the blocksize in words
 	// bcr MSBs are the number of block
 	int size = (bcr >> 16)*(bcr & 0xffff);
-	if (size < 0) {
-		// Need to investigate what happen if the transfer is huge
-		log_cb(RETRO_LOG_ERROR, "psxDma0 DMA transfer overflow !\n");
+	// Need to investigate what happen if the transfer is huge
+	if (size < 0)
 		return;
-	}
 
 	for (int i = 0; i<(size); i++)
 		*(u32*)PSXM(((i + 0) * 4)) = iopMemRead32(adr + ((i + 0) * 4));
@@ -240,11 +238,9 @@ void psxDma1(u32 adr, u32 bcr, u32 chcr) {
 	// bcr MSBs are the number of block
 	int size = (bcr >> 16)*(bcr & 0xffff);
 	int size2 = (bcr >> 16)*(bcr & 0xffff);
-	if (size < 0) {
-		// Need to investigate what happen if the transfer is huge
-		log_cb(RETRO_LOG_ERROR, "psxDma1 DMA transfer overflow !\n");
+	// Need to investigate what happen if the transfer is huge
+	if (size < 0)
 		return;
-	}
 
 	image = (u16*)mdecArr2;//(u16*)PSXM(0); //image = (u16*)PSXM(adr);
 
