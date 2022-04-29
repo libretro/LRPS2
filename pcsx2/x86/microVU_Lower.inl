@@ -560,7 +560,7 @@ mVUop(mVU_FCAND) {
 		xSHR(gprT1, 24);
 		mVUallocVIb(mVU, gprT1, 1);
 	}
-	pass3 { mVUregs.needExactMatch |= 4; }
+	pass4 { mVUregs.needExactMatch |= 4; }
 }
 
 mVUop(mVU_FCEQ) {
@@ -572,7 +572,7 @@ mVUop(mVU_FCEQ) {
 		xSHR(gprT1, 31);
 		mVUallocVIb(mVU, gprT1, 1);
 	}
-	pass3 { mVUregs.needExactMatch |= 4; }
+	pass4 { mVUregs.needExactMatch |= 4; }
 }
 
 mVUop(mVU_FCGET) {
@@ -582,7 +582,7 @@ mVUop(mVU_FCGET) {
 		xAND(gprT1, 0xfff);
 		mVUallocVIb(mVU, gprT1, _It_);
 	}
-	pass3 { mVUregs.needExactMatch |= 4; }
+	pass4 { mVUregs.needExactMatch |= 4; }
 }
 
 mVUop(mVU_FCOR) {
@@ -594,7 +594,7 @@ mVUop(mVU_FCOR) {
 		xSHR(gprT1, 24); // Get the 25th bit (also clears the rest of the garbage in the reg)
 		mVUallocVIb(mVU, gprT1, 1);
 	}
-	pass3 { mVUregs.needExactMatch |= 4; }
+	pass4 { mVUregs.needExactMatch |= 4; }
 }
 
 mVUop(mVU_FCSET) {
@@ -617,7 +617,7 @@ mVUop(mVU_FMAND) {
 		xAND(gprT1b, gprT2b);
 		mVUallocVIb(mVU, gprT1, _It_);
 	}
-	pass3 { mVUregs.needExactMatch |= 2; }
+	pass4 { mVUregs.needExactMatch |= 2; }
 }
 
 mVUop(mVU_FMEQ) {
@@ -630,7 +630,7 @@ mVUop(mVU_FMEQ) {
 		xSHR(gprT1, 31);
 		mVUallocVIb(mVU, gprT1, _It_);
 	}
-	pass3 { mVUregs.needExactMatch |= 2; }
+	pass4 { mVUregs.needExactMatch |= 2; }
 }
 
 mVUop(mVU_FMOR) {
@@ -641,7 +641,7 @@ mVUop(mVU_FMOR) {
 		xOR(gprT1b, gprT2b);
 		mVUallocVIb(mVU, gprT1, _It_);
 	}
-	pass3 { mVUregs.needExactMatch |= 2; }
+	pass4 { mVUregs.needExactMatch |= 2; }
 }
 
 //------------------------------------------------------------------
@@ -655,7 +655,7 @@ mVUop(mVU_FSAND) {
 		xAND(gprT1, _Imm12_);
 		mVUallocVIb(mVU, gprT1, _It_);
 	}
-	pass3 { mVUregs.needExactMatch |= 1; }
+	pass4 { mVUregs.needExactMatch |= 1; }
 }
 
 mVUop(mVU_FSOR) {
@@ -665,7 +665,7 @@ mVUop(mVU_FSOR) {
 		xOR(gprT1, _Imm12_);
 		mVUallocVIb(mVU, gprT1, _It_);
 	}
-	pass3 { mVUregs.needExactMatch |= 1; }
+	pass4 { mVUregs.needExactMatch |= 1; }
 }
 
 mVUop(mVU_FSEQ) {
@@ -695,7 +695,7 @@ mVUop(mVU_FSEQ) {
 		xSHR(gprT1, 31);
 		mVUallocVIb(mVU, gprT1, _It_);
 	}
-	pass3 { mVUregs.needExactMatch |= 1; }
+	pass4 { mVUregs.needExactMatch |= 1; }
 }
 
 mVUop(mVU_FSSET) {
