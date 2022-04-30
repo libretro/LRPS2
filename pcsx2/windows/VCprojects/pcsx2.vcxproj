@@ -262,7 +262,6 @@
     <ClCompile Include="..\..\Recording\InputRecordingFile.cpp" />
     <ClCompile Include="..\..\Recording\PadData.cpp" />
     <ClCompile Include="..\..\Utilities\FileUtils.cpp" />
-    <ClCompile Include="..\..\x86\iMisc.cpp" />
     <ClCompile Include="..\..\Pcsx2Config.cpp" />
     <ClCompile Include="..\..\PluginManager.cpp" />
     <ClCompile Include="..\FlatFileReaderWindows.cpp" />

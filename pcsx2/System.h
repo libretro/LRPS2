@@ -194,3 +194,6 @@ extern SysMainMemory& GetVmMemory();
 #else
 #	define __unique_stackframe
 #endif
+
+extern void SetCPUState(SSE_MXCSR sseMXCSR, SSE_MXCSR sseVUMXCSR);
+extern SSE_MXCSR g_sseVUMXCSR, g_sseMXCSR;

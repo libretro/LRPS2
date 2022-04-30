@@ -30,8 +30,3 @@ extern s64 PSXCLK;	/* 36.864 Mhz */
 
 #include "SaveState.h"
 #include "DebugTools/Debug.h"
-
-// Some homeless externs.  This is as good a spot as any for now...
-
-extern void SetCPUState(SSE_MXCSR sseMXCSR, SSE_MXCSR sseVUMXCSR);
-extern SSE_MXCSR g_sseVUMXCSR, g_sseMXCSR;

@@ -20,12 +20,27 @@
 #include "VUmicro.h"
 #include "newVif.h"
 #include "MTVU.h"
+#include "x86emitter/x86_intrin.h"
 
 #include "Elfheader.h"
 
 #include "System/RecTypes.h"
 
 #include "Utilities/MemsetFast.inl"
+
+SSE_MXCSR g_sseMXCSR	= { DEFAULT_sseMXCSR };
+SSE_MXCSR g_sseVUMXCSR	= { DEFAULT_sseVUMXCSR };
+
+// SetCPUState -- for assignment of SSE roundmodes and clampmodes.
+//
+void SetCPUState(SSE_MXCSR sseMXCSR, SSE_MXCSR sseVUMXCSR)
+{
+	g_sseMXCSR	= sseMXCSR.ApplyReserveMask();
+	g_sseVUMXCSR	= sseVUMXCSR.ApplyReserveMask();
+
+	_mm_setcsr( g_sseMXCSR.bitmask );
+}
+
 
 // --------------------------------------------------------------------------------------
 //  RecompiledCodeReserve  (implementations)
