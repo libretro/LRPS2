@@ -459,10 +459,6 @@ static __forceinline void spu2M_WriteFast(u32 addr, s16 value)
 		if (Cores[i].IRQEnable && Cores[i].IRQA == addr)
 			SetIrqCall(i);
 	}
-// throw an assertion if the memory range is invalid:
-#ifndef DEBUG_FAST
-	pxAssume(addr < SPU2_DYN_MEMLINE);
-#endif
 	*GetMemPtr(addr) = value;
 }
 
