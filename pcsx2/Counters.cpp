@@ -358,13 +358,15 @@ static __fi void VSyncStart(u32 sCycle)
 	hwIntcIrq(INTC_VBLANK_S);
 	psxVBlankStart();
 	gsPostVsyncStart();
-	if (gates) rcntStartGate(true, sCycle); // Counters Start Gate code
+	if (gates)
+		rcntStartGate(true, sCycle); // Counters Start Gate code
 }
 
 static __fi void GSVSync(void)
 {
 	// CSR is swapped and GS vBlank IRQ is triggered roughly 3.5 hblanks after VSync Start
-	CSRreg.SwapField();
+        // Swap field
+	CSRreg._u32 ^= 0x2000;
 
 	if (!CSRreg.VSINT)
 	{
@@ -385,7 +387,6 @@ __fi void rcntUpdate_hScanline(void)
 {
 	if( !cpuTestCycle( hsyncCounter.sCycle, hsyncCounter.CycleT ) ) return;
 
-	//iopEventAction = 1;
 	if (hsyncCounter.Mode & MODE_HBLANK) { //HBLANK Start
 		rcntStartGate(false, hsyncCounter.sCycle);
 		psxCheckStartGate16(0);
@@ -430,7 +431,7 @@ __fi void rcntUpdate_vSync(void)
 	{
 		GSVSync();
 
-		vsyncCounter.Mode = MODE_VSYNC;
+		vsyncCounter.Mode   = MODE_VSYNC;
 		// Don't set the start cycle, makes it easier to calculate the correct Vsync End time
 		vsyncCounter.CycleT = vSyncInfo.Blank;
 	}
@@ -439,8 +440,8 @@ __fi void rcntUpdate_vSync(void)
 		VSyncStart(vsyncCounter.sCycle);
 
 		vsyncCounter.sCycle += vSyncInfo.Render;
-		vsyncCounter.CycleT = vSyncInfo.GSBlank;
-		vsyncCounter.Mode = MODE_GSBLANK;
+		vsyncCounter.CycleT  = vSyncInfo.GSBlank;
+		vsyncCounter.Mode    = MODE_GSBLANK;
 
 		// Accumulate hsync rounding errors:
 		hsyncCounter.sCycle += vSyncInfo.hSyncError;
@@ -497,8 +498,6 @@ __fi void rcntUpdate(void)
 	{
 		// We want to count gated counters (except the hblank which exclude below, and are
 		// counted by the hblank timer instead)
-
-		//if ( gates & (1<<i) ) continue;
 
 		if (!counters[i].mode.IsCounting ) continue;
 

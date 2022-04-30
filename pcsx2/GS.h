@@ -25,8 +25,8 @@ extern __aligned16 u8 g_RealGSMem[Ps2MemSize::GSregs];
 enum CSR_FifoState
 {
     CSR_FIFO_NORMAL = 0,	// Somwhere in between (Neither empty or almost full).
-    CSR_FIFO_EMPTY,			// Empty
-    CSR_FIFO_FULL,			// Almost Full
+    CSR_FIFO_EMPTY,		// Empty
+    CSR_FIFO_FULL,		// Almost Full
     CSR_FIFO_RESERVED		// Reserved / Unused.
 };
 
@@ -136,10 +136,10 @@ union tGS_CSR
 		u32	_unused32;		// upper 32 bits (unused -- should probably be 0)
     };
 
-	void SwapField()
-	{
-		_u32 ^= 0x2000;
-	}
+    void SwapField()
+    {
+	    _u32 ^= 0x2000;
+    }
 
     void Reset()
     {
@@ -149,21 +149,14 @@ union tGS_CSR
         ID		= 0x55; // GS ID
     }
 
-    bool HasAnyInterrupts() const { return (SIGNAL || FINISH || HSINT || VSINT || EDWINT); }
-
-	u32 GetInterruptMask() const
-	{
-		return _u32 & 0x1f;
-	}
-
-    void SetAllInterrupts(bool value=true)
+    u32 GetInterruptMask() const
     {
-        SIGNAL = FINISH = HSINT = VSINT = EDWINT = value;
+	    return _u32 & 0x1f;
     }
 
-	tGS_CSR(u64 val) { _u64 = val; }
-	tGS_CSR(u32 val) { _u32 = val; }
-	tGS_CSR() { Reset(); }
+    tGS_CSR(u64 val) { _u64 = val; }
+    tGS_CSR(u32 val) { _u32 = val; }
+    tGS_CSR() { Reset(); }
 };
 
 // --------------------------------------------------------------------------------------
@@ -261,7 +254,7 @@ enum MTGS_RingCommand
 struct MTGS_FreezeData
 {
 	freezeData*	fdata;
-	s32			retval;		// value returned from the call, valid only after an mtgsWaitGS()
+	s32		retval;		// value returned from the call, valid only after an mtgsWaitGS()
 };
 
 // --------------------------------------------------------------------------------------
@@ -295,10 +288,6 @@ public:
 	Mutex			m_mtx_WaitGS;
 	Semaphore		m_sem_OnRingReset;
 	Semaphore		m_sem_Vsync;
-
-	// used to keep multiple threads from sending packets to the ringbuffer concurrently.
-	// (currently not used or implemented -- is a planned feature for a future threaded VU1)
-	//MutexLockRecursive m_PacketLocker;
 
 	// Used to delay the sending of events.  Performance is better if the ringbuffer
 	// has more than one command in it when the thread is kicked.
@@ -402,15 +391,6 @@ extern u128 gsNonMirroredRead(u32 mem);
 void gsIrq();
 
 extern tGS_CSR CSRr;
-
-// GS Playback
-enum gsrun
-{
-	GSRUN_TRANS1	= 1,
-	GSRUN_TRANS2,
-	GSRUN_TRANS3,
-	GSRUN_VSYNC
-};
 
 // Size of the ringbuffer as a power of 2 -- size is a multiple of simd128s.
 // (actual size is 1<<m_RingBufferSizeFactor simd vectors [128-bit values])
