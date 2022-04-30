@@ -18,9 +18,7 @@
 #include "Common.h"
 #include "VUmicro.h"
 
-
 __aligned16 VURegs vuRegs[2];
-
 
 vuMemoryReserve::vuMemoryReserve()
 	: _parent( L"VU0/1 on-chip memory", VU1_PROGSIZE + VU1_MEMSIZE + VU0_PROGSIZE + VU0_MEMSIZE )
@@ -30,7 +28,6 @@ vuMemoryReserve::vuMemoryReserve()
 void vuMemoryReserve::Reserve(VirtualMemoryManagerPtr allocator)
 {
 	_parent::Reserve(std::move(allocator), HostMemoryMap::VUmemOffset);
-	//_parent::Reserve(EmuConfig.HostMemMap.VUmem);
 
 	u8* curpos = m_reserve.GetPtr();
 	VU0.Micro	= curpos; curpos += VU0_PROGSIZE;
@@ -52,18 +49,15 @@ void vuMemoryReserve::Reset()
 	pxAssert( VU0.Mem );
 	pxAssert( VU1.Mem );
 
-	// Below memMap is already called by "void eeMemoryReserve::Reset()"
-	//memMapVUmicro();
-
 	// === VU0 Initialization ===
 	memzero(VU0.ACC);
 	memzero(VU0.VF);
 	memzero(VU0.VI);
-    VU0.VF[0].f.x = 0.0f;
+	VU0.VF[0].f.x = 0.0f;
 	VU0.VF[0].f.y = 0.0f;
 	VU0.VF[0].f.z = 0.0f;
 	VU0.VF[0].f.w = 1.0f;
-	VU0.VI[0].UL = 0;
+	VU0.VI[0].UL  = 0;
 
 	// === VU1 Initialization ===
 	memzero(VU1.ACC);

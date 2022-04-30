@@ -207,7 +207,6 @@ public:
 
 namespace HostMemoryMap {
 	// For debuggers
-	uptr EEmem, IOPmem, VUmem, EErec, IOPrec, VIF0rec, VIF1rec, mVU0rec, mVU1rec, bumpAllocator;
 }
 
 /// Attempts to find a spot near static variables for the main memory
@@ -223,14 +222,12 @@ static VirtualMemoryManagerPtr makeMainMemoryManager() {
 	// We start high and count down because on macOS code starts at the beginning of useable address space, so starting as far ahead as possible reduces address variations due to code size.  Not sure about other platforms.  Obviously this only actually affects what shows up in a debugger and won't affect performance or correctness of anything.
 	for (int offset = 4; offset >= -6; offset--) {
 		uptr base = codeBase + (offset << 28);
-		if ((sptr)base < 0 || (sptr)(base + HostMemoryMap::Size - 1) < 0) {
-			// VTLB will throw a fit if we try to put EE main memory here
+		// VTLB will throw a fit if we try to put EE main memory here
+		if ((sptr)base < 0 || (sptr)(base + HostMemoryMap::Size - 1) < 0)
 			continue;
-		}
 		auto mgr = std::make_shared<VirtualMemoryManager>("Main Memory Manager", base, HostMemoryMap::Size, /*upper_bounds=*/0, /*strict=*/true);
-		if (mgr->IsOk()) {
+		if (mgr->IsOk())
 			return mgr;
-		}
 	}
 
 	return std::make_shared<VirtualMemoryManager>("Main Memory Manager", 0, HostMemoryMap::Size);
@@ -243,17 +240,19 @@ SysMainMemory::SysMainMemory()
 	: m_mainMemory(makeMainMemoryManager())
 	, m_bumpAllocator(m_mainMemory, HostMemoryMap::bumpAllocatorOffset, HostMemoryMap::Size - HostMemoryMap::bumpAllocatorOffset)
 {
-	uptr base = (uptr)MainMemory()->GetBase();
-	HostMemoryMap::EEmem   = base + HostMemoryMap::EEmemOffset;
-	HostMemoryMap::IOPmem  = base + HostMemoryMap::IOPmemOffset;
-	HostMemoryMap::VUmem   = base + HostMemoryMap::VUmemOffset;
-	HostMemoryMap::EErec   = base + HostMemoryMap::EErecOffset;
-	HostMemoryMap::IOPrec  = base + HostMemoryMap::IOPrecOffset;
-	HostMemoryMap::VIF0rec = base + HostMemoryMap::VIF0recOffset;
-	HostMemoryMap::VIF1rec = base + HostMemoryMap::VIF1recOffset;
-	HostMemoryMap::mVU0rec = base + HostMemoryMap::mVU0recOffset;
-	HostMemoryMap::mVU1rec = base + HostMemoryMap::mVU1recOffset;
-	HostMemoryMap::bumpAllocator = base + HostMemoryMap::bumpAllocatorOffset;
+#if 0
+	uptr base    = (uptr)MainMemory()->GetBase();
+	uptr EEmem   = base + HostMemoryMap::EEmemOffset;
+	uptr IOPmem  = base + HostMemoryMap::IOPmemOffset;
+	uptr VUmem   = base + HostMemoryMap::VUmemOffset;
+	uptr EErec   = base + HostMemoryMap::EErecOffset;
+	uptr IOPrec  = base + HostMemoryMap::IOPrecOffset;
+	uptr VIF0rec = base + HostMemoryMap::VIF0recOffset;
+	uptr VIF1rec = base + HostMemoryMap::VIF1recOffset;
+	uptr mVU0rec = base + HostMemoryMap::mVU0recOffset;
+	uptr mVU1rec = base + HostMemoryMap::mVU1recOffset;
+	uptr bumpAllocator = base + HostMemoryMap::bumpAllocatorOffset;
+#endif
 }
 
 SysMainMemory::~SysMainMemory()
@@ -267,10 +266,6 @@ SysMainMemory::~SysMainMemory()
 void SysMainMemory::ReserveAll()
 {
 	pxInstallSignalHandler();
-
-#ifndef NDEBUG
-	log_cb(RETRO_LOG_DEBUG, "Mapping host memory for virtual systems...\n" );
-#endif
 	m_ee.Reserve(MainMemory());
 	m_iop.Reserve(MainMemory());
 	m_vu.Reserve(MainMemory());
@@ -280,10 +275,6 @@ void SysMainMemory::CommitAll()
 {
 	vtlb_Core_Alloc();
 	if (m_ee.IsCommitted() && m_iop.IsCommitted() && m_vu.IsCommitted()) return;
-
-#ifndef NDEBUG
-	log_cb(RETRO_LOG_DEBUG, "Allocating host memory for virtual systems...\n" );
-#endif
 	m_ee.Commit();
 	m_iop.Commit();
 	m_vu.Commit();
@@ -293,10 +284,6 @@ void SysMainMemory::CommitAll()
 void SysMainMemory::ResetAll()
 {
 	CommitAll();
-
-#ifndef NDEBUG
-	log_cb(RETRO_LOG_DEBUG, "Resetting host memory for virtual systems...\n" );
-#endif
 	m_ee.Reset();
 	m_iop.Reset();
 	m_vu.Reset();
@@ -475,8 +462,6 @@ u8* SysMmapEx(uptr base, u32 size, uptr bounds, const char *caller)
 	{
 		if( base )
 		{
-			log_cb(RETRO_LOG_DEBUG, "First try failed allocating %s at address 0x%x\n", caller, base );
-
 			// Let's try again at an OS-picked memory area, and then hope it meets needed
 			// boundschecking criteria below.
 			SafeSysMunmap( Mem, size );
@@ -484,37 +469,28 @@ u8* SysMmapEx(uptr base, u32 size, uptr bounds, const char *caller)
 		}
 
 		if( (bounds != 0) && (((uptr)Mem + size) > bounds) )
-		{
-			log_cb(RETRO_LOG_WARN, "Second try failed allocating %s, block ptr 0x%x does not meet required criteria.\n", caller, Mem );
 			SafeSysMunmap( Mem, size );
-
-			// returns NULL, caller should throw an exception.
-		}
 	}
 	return Mem;
 }
 
-wxString SysGetBiosDiscID()
+wxString SysGetBiosDiscID(void)
 {
 	// FIXME: we should return a serial based on
 	// the BIOS being run (either a checksum of the BIOS roms, and/or a string based on BIOS
 	// region and revision).
-
 	return wxEmptyString;
 }
 
 // This function always returns a valid DiscID -- using the Sony serial when possible, and
 // falling back on the CRC checksum of the ELF binary if the PS2 software being run is
 // homebrew or some other serial-less item.
-wxString SysGetDiscID()
+wxString SysGetDiscID(void)
 {
-	if( !DiscSerial.IsEmpty() ) return DiscSerial;
-
+	if( !DiscSerial.IsEmpty() )
+		return DiscSerial;
+	// system is currently running the BIOS
 	if( !ElfCRC )
-	{
-		// system is currently running the BIOS
 		return SysGetBiosDiscID();
-	}
-
 	return pxsFmt( L"%08x", ElfCRC );
 }
