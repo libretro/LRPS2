@@ -41,12 +41,9 @@ class microBlockManager {
 private:
 	microBlockLink* qBlockList, *qBlockEnd; // Quick Search
 	microBlockLink* fBlockList, *fBlockEnd; // Full  Search
-	int qListI, fListI;
 
 public:
-	inline int getFullListCount() const { return fListI; }
 	microBlockManager() {
-		qListI = fListI = 0;
 		qBlockEnd = qBlockList = NULL;
 		fBlockEnd = fBlockList = NULL;
 	}
@@ -64,7 +61,6 @@ public:
 			linkI = linkI->next;
 			_aligned_free(freeI);
 		}
-		qListI = fListI = 0;
 		qBlockEnd = qBlockList = NULL;
 		fBlockEnd = fBlockList = NULL;
 	}
@@ -72,7 +68,6 @@ public:
 		microBlock* thisBlock = search(&pBlock->pState);
 		if (!thisBlock) {
 			u8 fullCmp = pBlock->pState.needExactMatch;
-			if (fullCmp) fListI++; else qListI++;
 
 			microBlockLink*& blockList = fullCmp ? fBlockList : qBlockList;
 			microBlockLink*& blockEnd  = fullCmp ? fBlockEnd  : qBlockEnd;
