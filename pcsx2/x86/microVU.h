@@ -31,7 +31,6 @@ using namespace x86Emitter;
 #include "x86emitter/x86emitter.h"
 #include "microVU_Misc.h"
 #include "microVU_IR.h"
-#include "microVU_Profiler.h"
 
 struct microBlockLink {
 	microBlock		block;

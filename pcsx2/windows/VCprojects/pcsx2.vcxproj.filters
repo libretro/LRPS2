@@ -1200,9 +1200,6 @@
     <ClInclude Include="..\..\Gif_Unit.h">
       <Filter>System\Ps2\GS</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\x86\microVU_Profiler.h">
-      <Filter>System\Ps2\EmotionEngine\VU\Dynarec\microVU</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\AsyncFileReader.h">
       <Filter>System\ISO</Filter>
     </ClInclude>

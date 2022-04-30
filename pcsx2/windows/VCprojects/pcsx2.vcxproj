@@ -478,7 +478,6 @@
     <ClInclude Include="..\..\x86\microVU.h" />
     <ClInclude Include="..\..\x86\microVU_IR.h" />
     <ClInclude Include="..\..\x86\microVU_Misc.h" />
-    <ClInclude Include="..\..\x86\microVU_Profiler.h" />
     <ClInclude Include="..\..\VUflags.h" />
     <ClInclude Include="..\..\VUops.h" />
     <ClInclude Include="..\..\Sif.h" />

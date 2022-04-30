@@ -532,7 +532,6 @@ set(pcsx2x86Headers
 	x86/microVU_Macro.inl
 	x86/microVU_Misc.h
 	x86/microVU_Misc.inl
-	x86/microVU_Profiler.h
 	x86/microVU_Tables.inl
 	x86/microVU_Upper.inl
 	x86/newVif.h
