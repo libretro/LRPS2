@@ -158,7 +158,6 @@ void SocketIPC::ExecuteTaskInThread()
 			if (!(errno == ECONNABORTED || errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK))
 			{
 #endif
-				fprintf(stderr, "IPC: An unrecoverable error happened! Shutting down...\n");
 				m_end = true;
 				break;
 			}

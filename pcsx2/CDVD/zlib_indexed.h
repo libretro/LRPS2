@@ -313,10 +313,7 @@ local int build_index(FILE* in, PX_off_t span, struct access** built)
 			}
 		} while (strm.avail_in != 0);
 		if (totin / (50 * 1024 * 1024) != totPrinted / (50 * 1024 * 1024))
-		{
-			printf("%dMB ", (int)(totin / (1024 * 1024)));
 			totPrinted = totin;
-		}
 	} while (ret != Z_STREAM_END);
 
 	if (index == NULL)

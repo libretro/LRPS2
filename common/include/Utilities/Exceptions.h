@@ -20,7 +20,7 @@
 #include <memory>
 
 // Because wxTrap isn't available on Linux builds of wxWidgets (non-Debug, typically)
-void pxTrap();
+void pxTrap(void);
 
 // --------------------------------------------------------------------------------------
 //  DESTRUCTOR_CATCHALL - safe destructor helper

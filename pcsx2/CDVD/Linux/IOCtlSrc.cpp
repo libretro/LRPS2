@@ -95,13 +95,6 @@ bool IOCtlSrc::ReadSectors2048(u32 sector, u32 count, u8* buffer) const
 	ssize_t bytes_read = pread(m_device, buffer, bytes_to_read, sector * 2048ULL);
 	if (bytes_read == bytes_to_read)
 		return true;
-
-	if (bytes_read == -1)
-		fprintf(stderr, " * CDVD read sectors %u-%u failed: %s\n",
-				sector, sector + count - 1, strerror(errno));
-	else
-		fprintf(stderr, " * CDVD read sectors %u-%u: %zd bytes read, %zd bytes expected\n",
-				sector, sector + count - 1, bytes_read, bytes_to_read);
 	return false;
 }
 
@@ -119,11 +112,7 @@ bool IOCtlSrc::ReadSectors2352(u32 sector, u32 count, u8* buffer) const
 		u32 lba = sector + n;
 		lba_to_msf(lba, &data.msf.cdmsf_min0, &data.msf.cdmsf_sec0, &data.msf.cdmsf_frame0);
 		if (ioctl(m_device, CDROMREADRAW, &data) == -1)
-		{
-			fprintf(stderr, " * CDVD CDROMREADRAW sector %u failed: %s\n",
-					lba, strerror(errno));
 			return false;
-		}
 		memcpy(buffer, data.buffer, CD_FRAMESIZE_RAW);
 		buffer += CD_FRAMESIZE_RAW;
 	}

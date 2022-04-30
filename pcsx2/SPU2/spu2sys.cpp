@@ -1271,7 +1271,6 @@ static void __fastcall RegWrite_CoreExt(u16 value)
 			{
 				thisvol.Mode = (value & 0xF000) >> 12;
 				thisvol.Increment = (value & 0x7F);
-				//printf("slides Mode = %x, Increment = %x\n",thisvol.Mode,thisvol.Increment);
 			}
 			else
 			{

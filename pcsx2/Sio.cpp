@@ -893,11 +893,9 @@ void sioWriteCtrl16(u16 value)
 	static u8 tcount[2];
 
 	tcount[sio.port] = sio.bufCount;
-	sio.port = (value >> 13) & 1;
+	sio.port         = (value >> 13) & 1;
+	sio.CtrlReg      = value & ~RESET_ERR;
 
-	//printf("RegCtrl: %04X, %d\n", value, sio.bufCount);
-
-	sio.CtrlReg = value & ~RESET_ERR;
 	if (value & RESET_ERR) sio.StatReg &= ~IRQ;
 
 	if ((sio.CtrlReg & SIO_RESET) || (!sio.CtrlReg))

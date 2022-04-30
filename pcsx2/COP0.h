@@ -21,6 +21,6 @@ extern void WriteTLB(int i);
 extern void UnmapTLB(int i);
 extern void MapTLB(int i);
 
-extern void COP0_UpdatePCCR();
+extern void COP0_UpdatePCCR(void);
 
 #endif /* __COP0_H__ */

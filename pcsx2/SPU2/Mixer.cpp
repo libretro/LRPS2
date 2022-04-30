@@ -457,10 +457,7 @@ static __forceinline void spu2M_WriteFast(u32 addr, s16 value)
 	for (int i = 0; i < 2; i++)
 	{
 		if (Cores[i].IRQEnable && Cores[i].IRQA == addr)
-		{
-			//printf("Core %d special write IRQ Called (IRQ passed). IRQA = %x\n",i,addr);
 			SetIrqCall(i);
-		}
 	}
 // throw an assertion if the memory range is invalid:
 #ifndef DEBUG_FAST

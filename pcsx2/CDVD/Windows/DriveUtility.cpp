@@ -50,7 +50,6 @@ void GetValidDrive(std::wstring& drive)
 	int size = WideCharToMultiByte(CP_UTF8, 0, drive.c_str(), -1, nullptr, 0, nullptr, nullptr);
 	std::vector<char> converted_string(size);
 	WideCharToMultiByte(CP_UTF8, 0, drive.c_str(), -1, converted_string.data(), converted_string.size(), nullptr, nullptr);
-	printf(" * CDVD: Opening drive '%s'...\n", converted_string.data());
 
 	// The drive string has the form "X:\", but to open the drive, the string
 	// has to be in the form "\\.\X:"

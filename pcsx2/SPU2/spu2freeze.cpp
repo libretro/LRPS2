@@ -81,16 +81,6 @@ s32 __fastcall SPU2Savestate::ThawIt(DataBlock& spud)
 {
 	if (spud.spu2id != SAVE_ID || spud.version < SAVE_VERSION)
 	{
-		fprintf(stderr, "\n*** SPU2 Warning:\n");
-		if (spud.spu2id == SAVE_ID)
-			fprintf(stderr, "\tSavestate version is from an older version of PCSX2.\n");
-		else
-			fprintf(stderr, "\tThe savestate you are trying to load is incorrect or corrupted.\n");
-
-		fprintf(stderr,
-				"\tAudio may not recover correctly.  Save your game to memorycard, reset,\n\n"
-				"\tand then continue from there.\n\n");
-
 		// Do *not* reset the cores.
 		// We'll need some "hints" as to how the cores should be initialized, and the
 		// only way to get that is to use the game's existing core settings and hope

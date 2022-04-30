@@ -88,8 +88,6 @@ bool GSRenderer::Merge(int field)
 			display_baseline.y = std::min(dr[i].top, display_baseline.y);
 			frame_baseline.x = std::min(fr[i].left, frame_baseline.x);
 			frame_baseline.y = std::min(fr[i].top, frame_baseline.y);
-
-			//printf("[%d]: %d %d %d %d, %d %d %d %d\n", i, fr[i].x,fr[i].y,fr[i].z,fr[i].w , dr[i].x,dr[i].y,dr[i].z,dr[i].w);
 		}
 	}
 
