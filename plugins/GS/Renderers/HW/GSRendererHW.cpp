@@ -169,8 +169,6 @@ void GSRendererHW::UpdateRendererOptions()
 		m_userHacks_merge_sprite = false;
 		m_userhacks_wildhack = false;
 	}
-
-	log_cb(RETRO_LOG_INFO, "Rendering Options Updated!\n");
 }
 
 void GSRendererHW::SetScaling()
@@ -234,7 +232,6 @@ void GSRendererHW::SetScaling()
 	m_tc->RemovePartial();
 	m_width = upscaled_fb_w;
 	m_height = upscaled_fb_h;
-	//log_cb(RETRO_LOG_INFO, "Frame buffer size set to  %dx%d (%dx%d)\n", fb_width, fb_height , m_width, m_height);
 }
 
 void GSRendererHW::CustomResolutionScaling()
@@ -270,7 +267,6 @@ void GSRendererHW::CustomResolutionScaling()
 	m_tc->RemovePartial();
 	m_width = std::max(m_width, default_rt_size.x);
 	m_height = std::max(framebuffer_height, default_rt_size.y);
-	//log_cb(RETRO_LOG_INFO, "Frame buffer size set to  %dx%d (%dx%d)\n", scissored_buffer_size.x, scissored_buffer_size.y, m_width, m_height);
 }
 
 GSRendererHW::~GSRendererHW()
@@ -412,7 +408,6 @@ GSTexture* GSRendererHW::GetOutput(int i, int& y_offset)
 			const int pages = delta >> 5u;
 			int y_pages = pages / DISPFB.FBW;
 			y_offset = y_pages * GSLocalMemory::m_psm[DISPFB.PSM].pgs.y;
-			//log_cb(RETRO_LOG_DEBUG, "Frame y offset %d pixels, unit %d\n", y_offset, i);
 		}
 	}
 
@@ -563,8 +558,6 @@ void GSRendererHW::ConvertSpriteTextureShuffle(bool& write_ba, bool& read_ba)
 	}
 
 	if (PRIM->FST) {
-		//log_cb(RETRO_LOG_DEBUG, "First vertex is  P: %d => %d    T: %d => %d\n", v[0].XYZ.X, v[1].XYZ.X, v[0].U, v[1].U);
-
 		for(size_t i = 0; i < count; i += 2) {
 			if (write_ba)
 				v[i].XYZ.X   -= 128u;
@@ -592,7 +585,6 @@ void GSRendererHW::ConvertSpriteTextureShuffle(bool& write_ba, bool& read_ba)
 		}
 	} else {
 		const float offset_8pix = 8.0f / tw;
-		//log_cb(RETRO_LOG_DEBUG, "First vertex is  P: %d => %d    T: %f => %f (offset %f)\n", v[0].XYZ.X, v[1].XYZ.X, v[0].ST.S, v[1].ST.S, offset_8pix);
 
 		for(size_t i = 0; i < count; i += 2) {
 			if (write_ba)
@@ -1092,11 +1084,8 @@ void GSRendererHW::RoundSpriteOffset()
 
 void GSRendererHW::Draw()
 {
-	if(IsBadFrame()) {
-		//log_cb(RETRO_LOG_WARN, "Warning skipping a draw call (%d)\n", s_n);
+	if(IsBadFrame())
 		return;
-	}
-	//log_cb(RETRO_LOG_DEBUG, "HW Draw %d\n", s_n);
 
 	const GSDrawingEnvironment& env = m_env;
 	GSDrawingContext* context = m_context;
@@ -1154,22 +1143,17 @@ void GSRendererHW::Draw()
 
 	if (m_channel_shuffle) {
 		m_channel_shuffle = draw_sprite_tex && (m_context->TEX0.PSM == PSM_PSMT8) && single_page;
-		if (m_channel_shuffle) {
-			//log_cb(RETRO_LOG_DEBUG, "Channel shuffle effect detected SKIP\n");
+		if (m_channel_shuffle)
 			return;
-		}
 	} else if (draw_sprite_tex && m_context->FRAME.Block() == m_context->TEX0.TBP0) {
 		// Special post-processing effect
-		if ((m_context->TEX0.PSM == PSM_PSMT8) && single_page) {
-			//log_cb(RETRO_LOG_DEBUG, "Channel shuffle effect detected\n");
+		if ((m_context->TEX0.PSM == PSM_PSMT8) && single_page)
 			m_channel_shuffle = true;
-		} else {
-			//log_cb(RETRO_LOG_DEBUG, "Special post-processing effect not supported\n");
+		else
 			m_channel_shuffle = false;
-		}
-	} else {
-		m_channel_shuffle = false;
 	}
+	else
+		m_channel_shuffle = false;
 
 	GIFRegTEX0 TEX0;
 
@@ -1259,11 +1243,9 @@ void GSRendererHW::Draw()
 				m_vt.m_min.t *= 0.5f;
 				m_vt.m_max.t *= 0.5f;
 			}
-
-			//log_cb(RETRO_LOG_DEBUG, "Mipmap LOD %d %d (%f %f) new size %dx%d (K %d L %u)\n", m_lod.x, m_lod.y, m_vt.m_lod.x, m_vt.m_lod.y, 1 << TEX0.TW, 1 << TEX0.TH, m_context->TEX1.K, m_context->TEX1.L);
-		} else {
-			TEX0 = GetTex0Layer(0);
 		}
+		else
+			TEX0 = GetTex0Layer(0);
 
 		m_context->offset.tex = m_mem.GetOffset(TEX0.TBP0, TEX0.TBW, TEX0.PSM);
 
@@ -1327,19 +1309,15 @@ void GSRendererHW::Draw()
 				// They do fullscreen rectangle with scissor, then shift by 8 pixels, not done with recursion.
 				// So we check if it's a TS effect by checking the scissor.
 				((m_context->SCISSOR.SCAX1 - m_context->SCISSOR.SCAX0) < 32);
-
-			//log_cb(RETRO_LOG_WARN, "WARNING: Possible misdetection of effect, texture shuffle is %s\n", m_texture_shuffle ? "Enabled" : "Disabled");
 		}
 
 		// Texture shuffle is not yet supported with strange clamp mode
 		ASSERT(!m_texture_shuffle || (context->CLAMP.WMS < 3 && context->CLAMP.WMT < 3));
 
-		if (m_src->m_target && m_context->TEX0.PSM == PSM_PSMT8 && single_page && draw_sprite_tex) {
-			//log_cb(RETRO_LOG_DEBUG, "Channel shuffle effect detected (2nd shot)\n");
+		if (m_src->m_target && m_context->TEX0.PSM == PSM_PSMT8 && single_page && draw_sprite_tex)
 			m_channel_shuffle = true;
-		} else {
+		else
 			m_channel_shuffle = false;
-		}
 	}
 	if (rt) {
 		// Be sure texture shuffle detection is properly propagated
@@ -1352,15 +1330,10 @@ void GSRendererHW::Draw()
 	m_r = GSVector4i(m_vt.m_min.p.xyxy(m_vt.m_max.p)).rintersect(GSVector4i(context->scissor.in));
 
 	if(m_hacks.m_oi && !(this->*m_hacks.m_oi)(rt_tex, ds_tex, m_src))
-	{
-		//log_cb(RETRO_LOG_WARN, "Warning skipping a draw call (%d)\n", s_n);
 		return;
-	}
 
-	if (!OI_BlitFMV(rt, m_src, m_r)) {
-		//log_cb(RETRO_LOG_WARN, "Warning skipping a draw call (%d)\n", s_n);
+	if (!OI_BlitFMV(rt, m_src, m_r))
 		return;
-	}
 
 	if (m_userhacks_enabled_gs_mem_clear) {
 		// Constant Direct Write without texture/test/blending (aka a GS mem clear)
@@ -1582,7 +1555,6 @@ void GSRendererHW::OI_GsMemClear()
 		if (r.width() <= 128 || r.height() <= 128)
 			return;
 
-		//log_cb(RETRO_LOG_DEBUG, "OI_GsMemClear (%d,%d => %d,%d)\n", r.x, r.y, r.z, r.w);
 		const int format = GSLocalMemory::m_psm[m_context->FRAME.PSM].fmt;
 
 		// FIXME: loop can likely be optimized with AVX/SSE. Pixels aren't
@@ -1619,9 +1591,6 @@ void GSRendererHW::OI_GsMemClear()
 bool GSRendererHW::OI_BlitFMV(GSTextureCache::Target* _rt, GSTextureCache::Source* tex, const GSVector4i& r_draw)
 {
 	if (r_draw.w > 1024 && (m_vt.m_primclass == GS_SPRITE_CLASS) && (m_vertex.next == 2) && PRIM->TME && !PRIM->ABE && tex && !tex->m_target && m_context->TEX0.TBW > 0) {
-		//log_cb(RETRO_LOG_DEBUG, "OI_BlitFMV\n");
-		//log_cb(RETRO_LOG_DEBUG, "OI_BlitFMV\n");
-
 		// The draw is done past the RT at the location of the texture. To avoid various upscaling mess
 		// We will blit the data from the top to the bottom of the texture manually.
 
@@ -1699,8 +1668,6 @@ bool GSRendererHW::OI_BigMuthaTruckers(GSTexture* rt, GSTexture* ds, GSTextureCa
 	if (PRIM->TME && Frame.TBW == 10 && Texture.TBW == 10 && Frame.TBP0 == 0x00a00 && Texture.PSM == PSM_PSMT8H && (m_r.y == 256 || m_r.y == 224))
 	{
 		// 224 ntsc, 256 pal.
-		//log_cb(RETRO_LOG_DEBUG, "OI_BigMuthaTruckers half bottom offset\n");
-
 		const size_t count = m_vertex.next;
 		GSVertex* v = &m_vertex.buff[0];
 		const u16 offset = (u16)m_r.y * 16;
@@ -1817,7 +1784,6 @@ bool GSRendererHW::OI_FFX(GSTexture* rt, GSTexture* ds, GSTextureCache::Source* 
 	if((FBP == 0x00d00 || FBP == 0x00000) && ZBP == 0x02100 && PRIM->TME && TBP == 0x01a00 && m_context->TEX0.PSM == PSM_PSMCT16S)
 	{
 		// random battle transition (z buffer written directly, clear it now)
-		//log_cb(RETRO_LOG_DEBUG, "OI_FFX ZB clear\n");
 		if(ds)
 			ds->Commit(); // Don't bother to save few MB for a single game
 		m_dev->ClearDepth(ds);
@@ -1870,7 +1836,6 @@ bool GSRendererHW::OI_RozenMaidenGebetGarden(GSTexture* rt, GSTexture* ds, GSTex
 
 			if(GSTextureCache::Target* tmp_rt = m_tc->LookupTarget(TEX0, m_width, m_height, GSTextureCache::RenderTarget, true))
 			{
-				//log_cb(RETRO_LOG_DEBUG, "OI_RozenMaidenGebetGarden FB clear\n");
 				tmp_rt->m_texture->Commit(); // Don't bother to save few MB for a single game
 				m_dev->ClearRenderTarget(tmp_rt->m_texture, 0);
 			}
@@ -1889,7 +1854,6 @@ bool GSRendererHW::OI_RozenMaidenGebetGarden(GSTexture* rt, GSTexture* ds, GSTex
 
 			if(GSTextureCache::Target* tmp_ds = m_tc->LookupTarget(TEX0, m_width, m_height, GSTextureCache::DepthStencil, true))
 			{
-				//log_cb(RETRO_LOG_DEBUG, "OI_RozenMaidenGebetGarden ZB clear\n");
 				tmp_ds->m_texture->Commit(); // Don't bother to save few MB for a single game
 				m_dev->ClearDepth(tmp_ds->m_texture);
 			}
@@ -1923,8 +1887,6 @@ bool GSRendererHW::OI_SonicUnleashed(GSTexture* rt, GSTexture* ds, GSTextureCach
 	if ((Texture.TBP0 == Frame.TBP0) || (Frame.TBW != 16 && Texture.TBW != 16))
 		return true;
 
-	//log_cb(RETRO_LOG_DEBUG, "OI_SonicUnleashed replace draw by a copy\n");
-
 	GSTextureCache::Target* src = m_tc->LookupTarget(Texture, m_width, m_height, GSTextureCache::RenderTarget, true);
 
 	const GSVector2i size = rt->GetSize();
@@ -1946,7 +1908,6 @@ bool GSRendererHW::OI_StarWarsForceUnleashed(GSTexture* rt, GSTexture* ds, GSTex
 	{
 		if((FBP == 0x0 || FBP == 0x01180) && FPSM == PSM_PSMCT32 && (m_vt.m_eq.z && m_vt.m_max.p.z == 0))
 		{
-			//log_cb(RETRO_LOG_DEBUG, "OI_StarWarsForceUnleashed FB clear\n");
 			if(ds)
 				ds->Commit(); // Don't bother to save few MB for a single game
 			m_dev->ClearDepth(ds);
@@ -2038,7 +1999,6 @@ bool GSRendererHW::OI_SuperManReturns(GSTexture* rt, GSTexture* ds, GSTextureCac
 	m_dev->ClearRenderTarget(rt, GSVector4(m_vt.m_min.c));
 
 	m_tc->InvalidateVideoMemType(GSTextureCache::DepthStencil, ctx->FRAME.Block());
-	//log_cb(RETRO_LOG_DEBUG, "OI_SuperManReturns\n");
 
 	return false;
 }
@@ -2069,7 +2029,6 @@ bool GSRendererHW::OI_ArTonelico2(GSTexture* rt, GSTexture* ds, GSTextureCache::
 	const GSVertex* v = &m_vertex.buff[0];
 
 	if (m_vertex.next == 2 && !PRIM->TME && m_context->FRAME.FBW == 10 && v->XYZ.Z == 0 && m_context->TEST.ZTST == ZTST_ALWAYS) {
-		//log_cb(RETRO_LOG_DEBUG, "OI_ArTonelico2\n");
 		if(ds)
 			ds->Commit(); // Don't bother to save few MB for a single game
 		m_dev->ClearDepth(ds);

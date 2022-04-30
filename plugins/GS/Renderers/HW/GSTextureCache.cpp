@@ -92,7 +92,6 @@ void GSTextureCache::RemoveAll()
 GSTextureCache::Source* GSTextureCache::LookupDepthSource(const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA, const GSVector4i& r, bool palette)
 {
 	if (!m_can_convert_depth) {
-		//log_cb(RETRO_LOG_WARN, "LookupDepthSource not supported (0x%x, F:0x%x)\n", TEX0.TBP0, TEX0.PSM);
 		if (m_renderer->m_game.title == CRC::JackieChanAdv || m_renderer->m_game.title == CRC::SVCChaos) {
 			// JackieChan and SVCChaos cause regressions when skipping the draw calls when depth is disabled/not supported.
 			// This way we make sure there are no regressions on D3D as well.
@@ -352,7 +351,6 @@ GSTextureCache::Source* GSTextureCache::LookupSource(const GIFRegTEX0& TEX0, con
 								// Add result to cache
 								while (m_texture_inside_rt_cache.size() > m_texture_inside_rt_cache_size)
 								{
-									//log_cb(RETRO_LOG_DEBUG, "TC tex in rt: Size of cache %d too big, clearing it.\n", m_texture_inside_rt_cache.size());
 									m_texture_inside_rt_cache.clear();
 								}
 								entry.has_valid_offset = true;
@@ -370,10 +368,7 @@ GSTextureCache::Source* GSTextureCache::LookupSource(const GIFRegTEX0& TEX0, con
 
 					// SWEEP MISS: no valid <x,y> offset found
 					while (m_texture_inside_rt_cache.size() > m_texture_inside_rt_cache_size)
-					{
-						//log_cb(RETRO_LOG_DEBUG, "TC tex in rt: Size of cache %d too big, clearing it.\n", m_texture_inside_rt_cache.size());
 						m_texture_inside_rt_cache.clear();
-					}
 					m_texture_inside_rt_cache.emplace_back(entry);
 
 				}
@@ -396,7 +391,6 @@ GSTextureCache::Source* GSTextureCache::LookupSource(const GIFRegTEX0& TEX0, con
 			for(auto t : m_dst[DepthStencil]) {
 				if(!t->m_age && t->m_used && t->m_dirty.empty() && GSUtil::HasSharedBits(bp, psm, t->m_TEX0.TBP0, t->m_TEX0.PSM))
 				{
-					//log_cb(RETRO_LOG_WARN, "TC: Warning depth format read as color format. Pixels will be scrambled\n");
 					// Let's fetch a depth format texture. Rational, it will avoid the texture allocation and the
 					// rescaling of the current function.
 					if (psm_s.bpp > 8) {
@@ -544,7 +538,6 @@ GSTextureCache::Target* GSTextureCache::LookupTarget(const GIFRegTEX0& TEX0, int
 		// but normally few RT are miss so it must remain reasonable.
 		bool supported_fmt = m_can_convert_depth || psm_s.depth == 0;
 		if (m_preload_frame && TEX0.TBW > 0 && supported_fmt) {
-			//log_cb(RETRO_LOG_DEBUG, "Preloading the RT DATA\n");
 			// RT doesn't have height but if we use a too big value, we will read outside of the GS memory.
 			int page0 = TEX0.TBP0 >> 5;
 			int max_page = (MAX_PAGES - page0);
@@ -879,7 +872,6 @@ void GSTextureCache::InvalidateLocalMem(GSOffset* off, const GSVector4i& r)
 
 	// No depth handling please.
 	if (psm == PSM_PSMZ32 || psm == PSM_PSMZ24 || psm == PSM_PSMZ16 || psm == PSM_PSMZ16S) {
-		//log_cb(RETRO_LOG_ERROR, "ERROR: InvalidateLocalMem depth format isn't supported (%d,%d to %d,%d)\n", r.x, r.y, r.z, r.w);
 		if (m_can_convert_depth) {
 			for(auto t : m_dst[DepthStencil]) {
 				if(GSUtil::HasSharedBits(bp, psm, t->m_TEX0.TBP0, t->m_TEX0.PSM)) {
@@ -1158,10 +1150,8 @@ GSTextureCache::Source* GSTextureCache::CreateSource(const GIFRegTEX0& TEX0, con
 		int shader = dst->m_type != RenderTarget ? ShaderConvert_FLOAT32_TO_RGBA8 : ShaderConvert_COPY;
 		bool is_8bits = TEX0.PSM == PSM_PSMT8;
 
-		if (is_8bits) {
-			//log_cb(RETRO_LOG_DEBUG, "Reading RT as a packed-indexed 8 bits format\n");
+		if (is_8bits)
 			shader = ShaderConvert_RGBA_TO_8I;
-		}
 
 		if (GSLocalMemory::m_psm[TEX0.PSM].bpp > 8) {
 			src->m_32_bits_fmt = dst->m_32_bits_fmt;
@@ -1787,11 +1777,8 @@ void GSTextureCache::Target::Update()
 	// No handling please
 	if ((m_type == DepthStencil) && !m_depth_supported) {
 		// do the most likely thing a direct write would do, clear it
-		//log_cb(RETRO_LOG_ERROR, "ERROR: Update DepthStencil dummy\n");
-
 		return;
 	} else if (m_type == DepthStencil && m_renderer->m_game.title == CRC::FFX2) {
-		//log_cb(RETRO_LOG_ERROR, "ERROR: bad invalidation detected, depth buffer will be cleared\n");
 		// FFX2 menu. Invalidation of the depth is wrongly done and only the first
 		// page is invalidated. Technically a CRC hack will be better but I don't expect
 		// any games to only upload a single page of data for the depth.
@@ -1836,15 +1823,9 @@ void GSTextureCache::Target::Update()
 
 	// Copy the new GS memory content into the destination texture.
 	if(m_type == RenderTarget)
-	{
-		//log_cb(RETRO_LOG_ERROR, "ERROR: Update RenderTarget 0x%x bw:%d (%d,%d => %d,%d)\n", m_TEX0.TBP0, m_TEX0.TBW, r.x, r.y, r.z, r.w);
-
 		m_renderer->m_dev->StretchRect(t, m_texture, GSVector4(r) * GSVector4(m_texture->GetScale()).xyxy());
-	}
 	else if(m_type == DepthStencil)
 	{
-		//log_cb(RETRO_LOG_ERROR, "ERROR: Update DepthStencil 0x%x\n", m_TEX0.TBP0);
-
 		// FIXME linear or not?
 		m_renderer->m_dev->StretchRect(t, m_texture, GSVector4(r) * GSVector4(m_texture->GetScale()).xyxy(), ShaderConvert_RGBA8_TO_FLOAT32);
 	}
@@ -1858,8 +1839,6 @@ void GSTextureCache::Target::UpdateValidity(const GSVector4i& rect)
 
 	// Block of the bottom right texel of the validity rectangle, last valid block of the texture
 	m_end_block = GSLocalMemory::m_psm[m_TEX0.PSM].bn(m_valid.z - 1, m_valid.w - 1, m_TEX0.TBP0, m_TEX0.TBW);  // Valid only for color formats
-
-	//log_cb(RETRO_LOG_DEBUG, "UpdateValidity (0x%x->0x%x) from R:%d,%d Valid: %d,%d\n", m_TEX0.TBP0, m_end_block, rect.z, rect.w, m_valid.z, m_valid.w);
 }
 
 // GSTextureCache::SourceMap
@@ -2085,7 +2064,6 @@ std::shared_ptr<GSTextureCache::Palette> GSTextureCache::PaletteMap::LookupPalet
 
 	if (map.size() > MAX_SIZE) {
 		// If the map is too big, try to clean it by disposing and removing unused palettes, before adding the new one
-		//log_cb(RETRO_LOG_WARN, "WARNING, %u-bit PaletteMap (Size %u): Max size %u exceeded, clearing unused palettes.\n", pal * sizeof(u32), map.size(), MAX_SIZE);
 
 		u32 current_size = map.size();
 
@@ -2107,7 +2085,6 @@ std::shared_ptr<GSTextureCache::Palette> GSTextureCache::PaletteMap::LookupPalet
 		if (cleared_palette_count != 0)
 		{
 			map.reserve(MAX_SIZE); // Ensure map capacity is not modified by the clearing
-			//log_cb(RETRO_LOG_DEBUG, "INFO, %u-bit PaletteMap (Size %u): Cleared %u palettes.\n", pal * sizeof(u32), map.size(), cleared_palette_count);
 		}
 	}
 
@@ -2115,8 +2092,6 @@ std::shared_ptr<GSTextureCache::Palette> GSTextureCache::PaletteMap::LookupPalet
 	
 	map.emplace(palette->GetPaletteKey(), palette);
 
-	//log_cb(RETRO_LOG_DEBUG, "TC, %u-bit PaletteMap (Size %u): Added new palette.\n", pal * sizeof(u32), map.size());
-	
 	return palette;
 }
 

@@ -484,15 +484,11 @@ bool GSDevice11::Create()
 	D3D11_BLEND_DESC bsd;
 
 	retro_hw_render_interface_d3d11 *d3d11 = nullptr;
-	if (!environ_cb(RETRO_ENVIRONMENT_GET_HW_RENDER_INTERFACE, (void **)&d3d11) || !d3d11) {
-		log_cb(RETRO_LOG_ERROR, "Failed to get HW rendering interface!\n\n");
+	if (!environ_cb(RETRO_ENVIRONMENT_GET_HW_RENDER_INTERFACE, (void **)&d3d11) || !d3d11)
 		return false;
-	}
 
-	if (d3d11->interface_version != RETRO_HW_RENDER_INTERFACE_D3D11_VERSION) {
-		log_cb(RETRO_LOG_ERROR, "HW render interface mismatch, expected %u, got %u!\n", RETRO_HW_RENDER_INTERFACE_D3D11_VERSION, d3d11->interface_version);
+	if (d3d11->interface_version != RETRO_HW_RENDER_INTERFACE_D3D11_VERSION)
 		return false;
-	}
 
 	m_dev = d3d11->device;
 	m_ctx = d3d11->context;
@@ -769,9 +765,6 @@ void GSDevice11::BeforeDraw()
 
 		if (tex->Equal(m_state.rt_texture) || tex->Equal(m_state.rt_ds))
 		{
-#ifdef _DEBUG
-			log_cb(RETRO_LOG_WARN, "FB read detected on slot %i, copying...\n", i);
-#endif
 			GSTexture* cp = nullptr;
 
 			CloneTexture(tex, &cp);
@@ -790,9 +783,6 @@ void GSDevice11::AfterDraw()
 	unsigned long i;
 	while (_BitScanForward(&i, m_state.ps_sr_bitfield))
 	{
-#ifdef _DEBUG
-		log_cb(RETRO_LOG_WARN, "Cleaning up copied texture on slot %i\n", i);
-#endif
 		Recycle(m_state.ps_sr_texture[i]);
 		PSSetShaderResource(i, NULL);
 	}

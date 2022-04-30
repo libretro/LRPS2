@@ -192,8 +192,6 @@ static int _GSopen(const char* title, GSRendererType renderer, int threads = -1)
 			break;
 	}
 
-	log_cb(RETRO_LOG_INFO, "Launching with Renderer:%s\n", renderer_name.c_str());
-
 	if (dev == NULL)
 		return -1;
 
@@ -252,23 +250,15 @@ EXPORT_C_(int) GSopen2(u32 flags)
 	{
 		case RETRO_HW_CONTEXT_DIRECT3D:
 			theApp.SetCurrentRendererType(GSRendererType::DX1011_HW);
-			log_cb(RETRO_LOG_INFO, "Selected Renderer: DX1011_HW\n" );
 			break;
 		case RETRO_HW_CONTEXT_NONE:
 			theApp.SetCurrentRendererType(GSRendererType::Null);
-			log_cb(RETRO_LOG_INFO, "Selected Renderer: NULL\n");
 			break;
 		default:
 			if (! std::strcmp(option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type), "Software"))
-			{
 				theApp.SetCurrentRendererType(GSRendererType::OGL_SW);
-				log_cb(RETRO_LOG_INFO, "Selected Renderer: OGL_SW\n");
-			}
 			else
-			{
 				theApp.SetCurrentRendererType(GSRendererType::OGL_HW);
-				log_cb(RETRO_LOG_INFO, "Selected Renderer: OGL_HW\n");
-			}
 			break;
 	}
 	

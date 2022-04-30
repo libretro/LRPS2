@@ -2011,16 +2011,13 @@ bool GSDeviceOGL::Create()
 	// Get Available Memory
 	// ****************************************************************
 	GLint vram[4] = {0};
-	if (GLLoader::vendor_id_amd) {
+	if (GLLoader::vendor_id_amd)
 		// Full vram, remove a small margin for others buffer
 		glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, vram);
-	} else if (GLExtension::Has("GL_NVX_gpu_memory_info")) {
+	else if (GLExtension::Has("GL_NVX_gpu_memory_info"))
 		// GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX <= give full memory
 		// Available vram
 		glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, vram);
-	} else {
-		log_cb(RETRO_LOG_ERROR, "No extenstion supported to get available memory. Use default value !\n");
-	}
 
 	// When VRAM is at least 2GB, we set the limit to the default i.e. 3.8 GB
 	// When VRAM is below 2GB, we add a factor 2 because RAM can be used. Potentially
@@ -2028,7 +2025,6 @@ bool GSDeviceOGL::Create()
 	if (vram[0] > 0 && vram[0] < 1800000)
 		GLState::available_vram = (s64)(vram[0]) * 1024ul * 2ul;
 
-	log_cb(RETRO_LOG_ERROR, "Available VRAM/RAM:%lldMB for textures\n", GLState::available_vram >> 20u);
 	// ****************************************************************
 	// Finish window setup and backbuffer
 	// ****************************************************************
@@ -2173,35 +2169,24 @@ void GSDeviceOGL::ClearDepth(GSTexture* t)
 
 	GSTextureOGL* T = static_cast<GSTextureOGL*>(t);
 
-	if (0 && GLLoader::found_GL_ARB_clear_texture) {
-		// I don't know what the driver does but it creates
-		// some slowdowns on Harry Potter PS
-		// Maybe it triggers some texture relocations, or maybe
-		// it clears also the stencil value (2 times slower)
-		//
-		// Let's disable this code for the moment.
+	OMSetFBO(m_fbo);
+	// RT must be detached, if RT is too small, depth won't be fully cleared
+	// AT tolenico 2 map clip bug
+	OMAttachRt(NULL);
+	OMAttachDs(T);
 
-		// Don't bother with Depth_Stencil insanity
-		T->Clear(NULL);
-	} else {
-		OMSetFBO(m_fbo);
-		// RT must be detached, if RT is too small, depth won't be fully cleared
-		// AT tolenico 2 map clip bug
-		OMAttachRt(NULL);
-		OMAttachDs(T);
-
-		// TODO: check size of scissor before toggling it
-		glDisable(GL_SCISSOR_TEST);
-		float c = 0.0f;
-		if (GLState::depth_mask) {
-			glClearBufferfv(GL_DEPTH, 0, &c);
-		} else {
-			glDepthMask(true);
-			glClearBufferfv(GL_DEPTH, 0, &c);
-			glDepthMask(false);
-		}
-		glEnable(GL_SCISSOR_TEST);
+	// TODO: check size of scissor before toggling it
+	glDisable(GL_SCISSOR_TEST);
+	float c = 0.0f;
+	if (GLState::depth_mask)
+		glClearBufferfv(GL_DEPTH, 0, &c);
+	else
+	{
+		glDepthMask(true);
+		glClearBufferfv(GL_DEPTH, 0, &c);
+		glDepthMask(false);
 	}
+	glEnable(GL_SCISSOR_TEST);
 }
 
 void GSDeviceOGL::ClearStencil(GSTexture* t, u8 c)
@@ -2255,9 +2240,6 @@ GLuint GSDeviceOGL::CreateSampler(PSSamplerSelector sel)
 		default:
 			break;
 	}
-
-	//glSamplerParameterf(sampler, GL_TEXTURE_MIN_LOD, 0);
-	//glSamplerParameterf(sampler, GL_TEXTURE_MAX_LOD, 6);
 
 	if (sel.tau)
 		glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -2349,8 +2331,7 @@ GLuint GSDeviceOGL::CompileVS(VSSelector sel)
 
 	if (GLLoader::buggy_sso_dual_src)
 		return m_shader->CompileShader("tfx_vgs.glsl", "vs_main", GL_VERTEX_SHADER, m_shader_tfx_vgs.data(), macro);
-	else
-		return m_shader->Compile("tfx_vgs.glsl", "vs_main", GL_VERTEX_SHADER, m_shader_tfx_vgs.data(), macro);
+	return m_shader->Compile("tfx_vgs.glsl", "vs_main", GL_VERTEX_SHADER, m_shader_tfx_vgs.data(), macro);
 }
 
 GLuint GSDeviceOGL::CompileGS(GSSelector sel)
@@ -2360,8 +2341,7 @@ GLuint GSDeviceOGL::CompileGS(GSSelector sel)
 
 	if (GLLoader::buggy_sso_dual_src)
 		return m_shader->CompileShader("tfx_vgs.glsl", "gs_main", GL_GEOMETRY_SHADER, m_shader_tfx_vgs.data(), macro);
-	else
-		return m_shader->Compile("tfx_vgs.glsl", "gs_main", GL_GEOMETRY_SHADER, m_shader_tfx_vgs.data(), macro);
+	return m_shader->Compile("tfx_vgs.glsl", "gs_main", GL_GEOMETRY_SHADER, m_shader_tfx_vgs.data(), macro);
 }
 
 GLuint GSDeviceOGL::CompilePS(PSSelector sel)
@@ -2408,8 +2388,7 @@ GLuint GSDeviceOGL::CompilePS(PSSelector sel)
 
 	if (GLLoader::buggy_sso_dual_src)
 		return m_shader->CompileShader("tfx.glsl", "ps_main", GL_FRAGMENT_SHADER, m_shader_tfx_fs.data(), macro);
-	else
-		return m_shader->Compile("tfx.glsl", "ps_main", GL_FRAGMENT_SHADER, m_shader_tfx_fs.data(), macro);
+	return m_shader->Compile("tfx.glsl", "ps_main", GL_FRAGMENT_SHADER, m_shader_tfx_fs.data(), macro);
 }
 
 // blit a texture into an offscreen buffer
@@ -2502,10 +2481,7 @@ void GSDeviceOGL::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture
 void GSDeviceOGL::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture* dTex, const GSVector4& dRect, GLuint ps, int bs, OMColorMaskSelector cms, bool linear)
 {
 	if(!sTex || !dTex)
-	{
-		ASSERT(0);
 		return;
-	}
 
 	bool draw_in_depth = (ps == m_convert.ps[ShaderConvert_RGBA8_TO_FLOAT32] || ps == m_convert.ps[ShaderConvert_RGBA8_TO_FLOAT24] ||
 		ps == m_convert.ps[ShaderConvert_RGBA8_TO_FLOAT16] || ps == m_convert.ps[ShaderConvert_RGB5A1_TO_FLOAT16]);
@@ -2547,11 +2523,11 @@ void GSDeviceOGL::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture
 
 
 	// Original code from DX
-	float left = dRect.x * 2 / ds.x - 1.0f;
-	float right = dRect.z * 2 / ds.x - 1.0f;
+	float left   = dRect.x * 2 / ds.x - 1.0f;
+	float right  = dRect.z * 2 / ds.x - 1.0f;
 	// Opengl get some issues with the coordinate
 	// I flip top/bottom to fix scaling of the internal resolution
-	float top = -1.0f + dRect.y * 2 / ds.y;
+	float top    = -1.0f + dRect.y * 2 / ds.y;
 	float bottom = -1.0f + dRect.w * 2 / ds.y;
 
 	// Flip y axis only when we render in the backbuffer
@@ -2636,14 +2612,15 @@ void GSDeviceOGL::DoMerge(GSTexture* sTex[3], GSVector4* sRect, GSTexture* dTex,
 			OMSetColorMaskState(OMColorMaskSelector(0x7));
 
 		// 1st output is enabled. It must be blended
-		if (PMODE.MMOD == 1) {
+		if (PMODE.MMOD == 1)
+		{
 			// Blend with a constant alpha
 			m_merge_obj.cb->cache_upload(&c.v);
 			StretchRect(sTex[0], sRect[0], dTex, dRect[0], m_merge_obj.ps[1], m_MERGE_BLEND, OMColorMaskSelector());
-		} else {
+		}
+		else
 			// Blend with 2 * input alpha
 			StretchRect(sTex[0], sRect[0], dTex, dRect[0], m_merge_obj.ps[0], m_MERGE_BLEND, OMColorMaskSelector());
-		}
 	}
 
 	if (feedback_write_1) // FIXME I'm not sure dRect[0] is always correct
@@ -2672,10 +2649,10 @@ void GSDeviceOGL::DoInterlace(GSTexture* sTex, GSTexture* dTex, int shader, bool
 void GSDeviceOGL::DoFXAA(GSTexture* sTex, GSTexture* dTex)
 {
 	// Lazy compile
-	if (!m_fxaa.ps) {
-		if (!GLLoader::found_GL_ARB_gpu_shader5) { // GL4.0 extension
+	if (!m_fxaa.ps)
+	{
+		if (!GLLoader::found_GL_ARB_gpu_shader5) // GL4.0 extension
 			return;
-		}
 
 		std::string fxaa_macro = "#define FXAA_GLSL_130 1\n";
 		fxaa_macro += "#extension GL_ARB_gpu_shader5 : enable\n";
@@ -2709,9 +2686,8 @@ void GSDeviceOGL::SetupDATE(GSTexture* rt, GSTexture* ds, const GSVertexPT1* ver
 	// om
 
 	OMSetDepthStencilState(m_date.dss);
-	if (GLState::blend) {
+	if (GLState::blend)
 		glDisable(GL_BLEND);
-	}
 	OMSetRenderTargets(NULL, ds, &GLState::scissor);
 
 	// ia
@@ -2727,9 +2703,8 @@ void GSDeviceOGL::SetupDATE(GSTexture* rt, GSTexture* ds, const GSVertexPT1* ver
 
 	DrawPrimitive();
 
-	if (GLState::blend) {
+	if (GLState::blend)
 		glEnable(GL_BLEND);
-	}
 
 	EndScene();
 }
@@ -2783,15 +2758,15 @@ void GSDeviceOGL::PSSetSamplerState(GLuint ss)
 
 void GSDeviceOGL::OMAttachRt(GSTextureOGL* rt)
 {
-	GLuint id;
-	if (rt) {
+	GLuint id  = 0;
+	if (rt)
+	{
 		rt->WasAttached();
 		id = rt->GetID();
-	} else {
-		id = 0;
 	}
 
-	if (GLState::rt != id) {
+	if (GLState::rt != id)
+	{
 		GLState::rt = id;
 		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, id, 0);
 	}
@@ -2799,15 +2774,15 @@ void GSDeviceOGL::OMAttachRt(GSTextureOGL* rt)
 
 void GSDeviceOGL::OMAttachDs(GSTextureOGL* ds)
 {
-	GLuint id;
-	if (ds) {
+	GLuint id  = 0;
+	if (ds)
+	{
 		ds->WasAttached();
 		id = ds->GetID();
-	} else {
-		id = 0;
 	}
 
-	if (GLState::ds != id) {
+	if (GLState::ds != id)
+	{
 		GLState::ds = id;
 		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, id, 0);
 	}
@@ -2882,11 +2857,10 @@ void GSDeviceOGL::OMSetRenderTargets(GSTexture* rt, GSTexture* ds, const GSVecto
 
 	if (rt == NULL || !RT->IsBackbuffer()) {
 		OMSetFBO(m_fbo);
-		if (rt) {
+		if (rt)
 			OMAttachRt(RT);
-		} else {
+		else
 			OMAttachRt();
-		}
 
 		// Note: it must be done after OMSetFBO
 		if (ds)
@@ -2938,12 +2912,13 @@ void GSDeviceOGL::SetupPipeline(const VSSelector& vsel, const GSSelector& gsel, 
 	GLuint ps;
 	auto i = m_ps.find(psel);
 
-	if (i == m_ps.end()) {
+	if (i == m_ps.end())
+	{
 		ps = CompilePS(psel);
 		m_ps[psel] = ps;
-	} else {
-		ps = i->second;
 	}
+	else
+		ps = i->second;
 
 	if (GLLoader::buggy_sso_dual_src)
 		m_shader->BindProgram(m_vs[vsel], m_gs[gsel], ps);

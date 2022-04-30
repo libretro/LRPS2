@@ -260,15 +260,9 @@ void GSRendererDX11::EmulateTextureShuffleAndFbmask()
 		if (rg_mask != 0xFF)
 		{
 			if (write_ba)
-			{
-				//log_cb(RETRO_LOG_DEBUG, "%d: Color shuffle %s => B\n", s_n, read_ba ? "B" : "R");
 				m_om_bsel.wb = 1;
-			}
 			else
-			{
-				// fprintf(stderr, "%d: Color shuffle %s => R\n", s_n, read_ba ? "B" : "R");
 				m_om_bsel.wr = 1;
-			}
 			if (rg_mask)
 				m_ps_sel.fbmask = 1;
 		}
@@ -354,7 +348,6 @@ void GSRendererDX11::EmulateChannelShuffle(GSTexture** rt, const GSTextureCache:
 			if (m_context->FRAME.FBW == 1)
 			{
 				// Used in stages: Secret Garden, Acid Rain, Moonlit Wilderness
-				// log_cb(RETRO_LOG_DEBUG, "%d: Tekken5 RGB Channel\n", s_n);
 				m_ps_sel.channel = ChannelFetch_RGB;
 				m_context->FRAME.FBMSK = 0xFF000000;
 				// 12 pages: 2 calls by channel, 3 channels, 1 blit
@@ -1078,8 +1071,6 @@ void GSRendererDX11::DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Sou
 			// texel:pixel mapping accuracy.
 			//
 			// Use an HLE shader to sample depth directly as the alpha channel
-
-			// log_cb(RETRO_LOG_DEBUG, "ICO HLE\n");
 
 			m_ps_sel.depth_fmt = 1;
 			m_ps_sel.channel = ChannelFetch_BLUE;
