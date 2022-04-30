@@ -88,11 +88,6 @@ VirtualMemoryManager::VirtualMemoryManager(const wxString &name, uptr base, size
 
     if (!m_baseptr || (upper_bounds != 0 && (((uptr)m_baseptr + reserved_bytes) > upper_bounds)))
     {
-#ifndef NDEBUG
-	    log_cb(RETRO_LOG_DEBUG, "%s: host memory @ %ls -> %ls is unavailable; attempting to map elsewhere...\n",
-			    WX_STR(m_name), pxsPtr(base), pxsPtr(base + size));
-#endif
-
 	    SafeSysMunmap(m_baseptr, reserved_bytes);
 
 	    if (base) {
@@ -114,18 +109,6 @@ VirtualMemoryManager::VirtualMemoryManager(const wxString &name, uptr base, size
     if (!m_baseptr) return;
 
     m_pageuse = new std::atomic<bool>[m_pages_reserved]();
-
-    FastFormatUnicode mbkb;
-    uint mbytes = reserved_bytes / _1mb;
-    if (mbytes)
-        mbkb.Write("[%umb]", mbytes);
-    else
-        mbkb.Write("[%ukb]", reserved_bytes / 1024);
-
-#ifndef NDEBUG
-    log_cb(RETRO_LOG_DEBUG, "%-32s @ %ls -> %ls %ls\n", WX_STR(m_name),
-		    pxsPtr(m_baseptr), pxsPtr((uptr)m_baseptr + reserved_bytes), mbkb.c_str());
-#endif
 }
 
 VirtualMemoryManager::~VirtualMemoryManager()
@@ -270,17 +253,6 @@ void *VirtualMemoryReserve::Assign(VirtualMemoryManagerPtr allocator, void * bas
 
     if (!m_baseptr)
         return nullptr;
-#ifndef NDEBUG
-    FastFormatUnicode mbkb;
-    uint mbytes = reserved_bytes / _1mb;
-    if (mbytes)
-        mbkb.Write("[%umb]", mbytes);
-    else
-        mbkb.Write("[%ukb]", reserved_bytes / 1024);
-    log_cb(RETRO_LOG_DEBUG, "%-32s @ %ls -> %ls %ls\n", WX_STR(m_name),
-                   pxsPtr(m_baseptr), pxsPtr((uptr)m_baseptr + reserved_bytes), mbkb.c_str());
-#endif
-
     return m_baseptr;
 }
 
@@ -347,42 +319,23 @@ bool VirtualMemoryReserve::TryResize(uint newsize)
 {
     uint newPages = pageAlign(newsize) / __pagesize;
 
-    if (newPages > m_pages_reserved) {
-        uint toReservePages = newPages - m_pages_reserved;
-        uint toReserveBytes = toReservePages * __pagesize;
+    if (newPages > m_pages_reserved)
+    {
+	    uint toReservePages = newPages - m_pages_reserved;
+	    uint toReserveBytes = toReservePages * __pagesize;
 
-#ifndef NDEBUG
-	log_cb(RETRO_LOG_DEBUG,
-			"%-32s is being expanded by %u pages.\n", WX_STR(m_name), toReservePages);
-#endif
+	    if (!m_allocator->AllocAtAddress(GetPtrEnd(), toReserveBytes))
+		    return false;
+    }
+    else if (newPages < m_pages_reserved)
+    {
+	    if (m_pages_commited > newsize)
+		    return false;
 
-        if (!m_allocator->AllocAtAddress(GetPtrEnd(), toReserveBytes)) {
-            log_cb(RETRO_LOG_DEBUG, "%-32s could not be passively resized due to virtual memory conflict!\n", WX_STR(m_name));
-            log_cb(RETRO_LOG_INFO, "(attempted to map memory @ %08p -> %08p)\n", m_baseptr, (uptr)m_baseptr + toReserveBytes);
-            return false;
-        }
+	    uint toRemovePages = m_pages_reserved - newPages;
+	    uint toRemoveBytes = toRemovePages * __pagesize;
 
-#ifndef NDEBUG
-	log_cb(RETRO_LOG_DEBUG, "%-32s @ %08p -> %08p [%umb]\n", WX_STR(m_name),
-			m_baseptr, (uptr)m_baseptr + toReserveBytes, toReserveBytes / _1mb);
-#endif
-    } else if (newPages < m_pages_reserved) {
-        if (m_pages_commited > newsize)
-            return false;
-
-        uint toRemovePages = m_pages_reserved - newPages;
-        uint toRemoveBytes = toRemovePages * __pagesize;
-
-#ifndef NDEBUG
-        log_cb(RETRO_LOG_DEBUG, "%-32s is being shrunk by %u pages.\n", WX_STR(m_name), toRemovePages);
-#endif
-
-        m_allocator->Free(GetPtrEnd() - toRemoveBytes, toRemoveBytes);
-
-#ifndef NDEBUG
-        log_cb(RETRO_LOG_DEBUG, "%-32s @ %08p -> %08p [%umb]\n", WX_STR(m_name),
-                       m_baseptr, GetPtrEnd(), GetReserveSizeInBytes() / _1mb);
-#endif
+	    m_allocator->Free(GetPtrEnd() - toRemoveBytes, toRemoveBytes);
     }
 
     m_pages_reserved = newPages;
