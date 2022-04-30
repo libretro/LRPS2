@@ -34,10 +34,10 @@ extern  void (*Int_COP2BC2PrintTable[32])();
 extern  void (*Int_COP2SPECIAL1PrintTable[64])();
 extern  void (*Int_COP2SPECIAL2PrintTable[128])();
 
-void COP2_BC2();
-void COP2_SPECIAL();
-void COP2_SPECIAL2();
-void COP2_Unknown();
+void COP2_BC2(void);
+void COP2_SPECIAL(void);
+void COP2_SPECIAL2(void);
+void COP2_Unknown(void);
 
 // reserve the lower 8 bits for opcode specific types
 // which of these are actually used depends on the opcode
@@ -159,24 +159,6 @@ namespace R5900
 		using ::R5900::OPCODE;
 
 		extern const OPCODE tbl_Standard[64];
-
-		/*extern const OPCODE Standard[64];
-		extern const OPCODE Special[64];
-		extern const OPCODE RegImm[32];
-		extern const OPCODE MMI[64];
-		extern const OPCODE MMI0[32];
-		extern const OPCODE MMI1[32];
-		extern const OPCODE MMI2[32];
-		extern const OPCODE MMI3[32];
-
-		extern const OPCODE COP0[32];
-		extern const OPCODE COP0_BC0[32];
-		extern const OPCODE COP0_C0[64];
-
-		extern const OPCODE COP1[32];
-		extern const OPCODE COP1_BC1[32];
-		extern const OPCODE COP1_S[64];
-		extern const OPCODE COP1_W[64];*/
 	}
 
 	namespace Opcodes

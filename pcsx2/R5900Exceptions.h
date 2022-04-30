@@ -124,15 +124,4 @@ namespace R5900Exception
 			TrapCode = trapcode;
 		}
 	};
-
-	class DebugBreakpoint : public BaseR5900Exception
-	{
-		DEFINE_EXCEPTION_COPYTORS(DebugBreakpoint, BaseR5900Exception)
-		
-	public:
-		explicit DebugBreakpoint()
-		{
-			_parent::Init( "Debug Breakpoint" );
-		}
-	};
 }
