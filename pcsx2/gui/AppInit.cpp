@@ -18,7 +18,8 @@
 #include "MTVU.h" // for thread cancellation on shutdown
 
 #include <memory>
-bool Pcsx2App::DetectCpuAndUserMode()
+
+bool Pcsx2App::DetectCpuAndUserMode(void)
 {
 	AffinityAssert_AllowFrom_MainUI();
 	
@@ -32,7 +33,7 @@ bool Pcsx2App::DetectCpuAndUserMode()
 	return true;
 }
 
-void Pcsx2App::AllocateCoreStuffs()
+void Pcsx2App::AllocateCoreStuffs(void)
 {
 	if( AppRpc_TryInvokeAsync( &Pcsx2App::AllocateCoreStuffs ) ) return;
 
@@ -55,36 +56,28 @@ void Pcsx2App::AllocateCoreStuffs()
 			Pcsx2Config::RecompilerOptions& recOps = g_Conf->EmuOptions.Cpu.Recompiler;
 			
 			if( m_CpuProviders->GetException_EE() )
-			{
 				recOps.EnableEE		= false;
-			}
 
 			if( m_CpuProviders->GetException_IOP() )
-			{
 				recOps.EnableIOP	= false;
-			}
 
 			if( m_CpuProviders->GetException_MicroVU0() )
-			{
 				recOps.EnableVU0	= false;
-			}
 
 			if( m_CpuProviders->GetException_MicroVU1() )
-			{
 				recOps.EnableVU1	= false;
-			}
 		}
 	}
 }
 
-bool Pcsx2App::OnInit()
+bool Pcsx2App::OnInit(void)
 {
     return true;
 }
 
 // This cleanup procedure can only be called when the App message pump is still active.
 // OnExit() must use CleanupOnExit instead.
-void Pcsx2App::CleanupRestartable()
+void Pcsx2App::CleanupRestartable(void)
 {
 	AffinityAssert_AllowFrom_MainUI();
 
@@ -95,7 +88,7 @@ void Pcsx2App::CleanupRestartable()
 // but should not be called from the App destructor.  It's needed because wxWidgets doesn't
 // always call OnExit(), so I had to make CleanupRestartable, and then encapsulate it here
 // to be friendly to the OnExit scenario (no message pump).
-void Pcsx2App::CleanupOnExit()
+void Pcsx2App::CleanupOnExit(void)
 {
 	AffinityAssert_AllowFrom_MainUI();
 
@@ -124,24 +117,24 @@ void Pcsx2App::CleanupOnExit()
 	// FIXME: performing a wxYield() here may fix that problem. -- air
 }
 
-void Pcsx2App::CleanupResources()
+void Pcsx2App::CleanupResources(void)
 {
 	m_mtx_LoadingGameDB.Wait();
 	ScopedLock lock(m_mtx_Resources);
 	m_Resources = NULL;
 }
 
-int Pcsx2App::OnExit()
+int Pcsx2App::OnExit(void)
 {
 	CleanupOnExit();
 	return wxApp::OnExit();
 }
 
-Pcsx2App::Pcsx2App() 
+Pcsx2App::Pcsx2App(void)
 {
 }
 
-Pcsx2App::~Pcsx2App()
+Pcsx2App::~Pcsx2App(void)
 {
 	try {
 		vu1Thread.Cancel();
@@ -149,36 +142,6 @@ Pcsx2App::~Pcsx2App()
 	DESTRUCTOR_CATCHALL
 }
 
-void Pcsx2App::CleanUp()
+void Pcsx2App::CleanUp(void)
 {
 }
-
-// ------------------------------------------------------------------------------------------
-//  Using the MSVCRT to track memory leaks:
-// ------------------------------------------------------------------------------------------
-// When exiting PCSX2 normally, the CRT will make a list of all memory that's leaked.  The
-// number inside {} can be pasted into the line below to cause MSVC to breakpoint on that
-// allocation at the time it's made.  And then using a stacktrace you can figure out what
-// leaked! :D
-//
-// Limitations: Unfortunately, wxWidgets gui uses a lot of heap allocations while handling
-// messages, and so any mouse movements will pretty much screw up the leak value.  So to use
-// this feature you need to execute pcsx in no-gui mode, and then not move the mouse or use
-// the keyboard until you get to the leak. >_<
-//
-// (but this tool is still better than nothing!)
-
-#ifdef PCSX2_DEBUG
-struct CrtDebugBreak
-{
-	CrtDebugBreak( int spot )
-	{
-#ifdef __WXMSW__
-		_CrtSetBreakAlloc( spot );
-#endif
-	}
-};
-
-//CrtDebugBreak breakAt( 11549 );
-
-#endif

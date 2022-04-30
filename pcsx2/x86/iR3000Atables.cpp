@@ -980,23 +980,12 @@ void rpsxJALR()
 		pxAssert( x86regs[calleeSavedReg2d.GetId()].type == X86TYPE_PCWRITEBACK );
 		xMOV(ptr32[&psxRegs.pc], calleeSavedReg2d);
 		x86regs[calleeSavedReg2d.GetId()].inuse = 0;
-		#ifdef PCSX2_DEBUG
-		xOR( calleeSavedReg2d, calleeSavedReg2d );
-		#endif
 
 	}
 	else {
 		xMOV(eax, ptr32[&g_recWriteback]);
 		xMOV(ptr32[&psxRegs.pc], eax);
-		#ifdef PCSX2_DEBUG
-		xOR( eax, eax );
-		#endif
 	}
-	#ifdef PCSX2_DEBUG
-	xForwardJNZ8 skipAssert;
-	xWrite8( 0xcc );
-	skipAssert.SetTarget();
-	#endif
 
 	psxSetBranchReg(0xffffffff);
 }

@@ -1253,12 +1253,6 @@ void recompileNextInstruction(int delayslot)
 		s_nEndBlock = pc;
 }
 
-#ifdef PCSX2_DEBUG
-// Array of cpuRegs.pc block addresses to dump.  USeful for selectively dumping potential
-// problem blocks, and seeing what the MIPS code equates to.
-static u32 s_recblocks[] = {0};
-#endif
-
 // Called when a block under manual protection fails it's pre-execution integrity check.
 // (meaning the actual code area has been modified -- ie dynamic modules being loaded or,
 //  less likely, self-modifying code)

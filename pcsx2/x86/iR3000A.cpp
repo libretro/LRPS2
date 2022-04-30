@@ -74,7 +74,7 @@ static u32 s_saveConstRegs[32];
 static u32 s_saveHasConstReg = 0, s_saveFlushedConstReg = 0;
 static EEINST* s_psaveInstInfo = NULL;
 
-u32 s_psxBlockCycles = 0; // cycles of current block recompiling
+static u32 s_psxBlockCycles = 0; // cycles of current block recompiling
 static u32 s_savenBlockCycles = 0;
 
 static void iPsxBranchTest(u32 newpc, u32 cpuBranch);
@@ -100,26 +100,24 @@ static void __fastcall iopRecRecompile( const u32 startpc );
 // Recompiled code buffer for EE recompiler dispatchers!
 static u8 __pagealigned iopRecDispatchers[__pagesize];
 
-typedef void DynGenFunc();
+typedef void DynGenFunc(void);
 
 static DynGenFunc* iopDispatcherEvent		= NULL;
-static DynGenFunc* iopDispatcherReg			= NULL;
-static DynGenFunc* iopJITCompile			= NULL;
+static DynGenFunc* iopDispatcherReg		= NULL;
+static DynGenFunc* iopJITCompile		= NULL;
 static DynGenFunc* iopJITCompileInBlock		= NULL;
 static DynGenFunc* iopEnterRecompiledCode	= NULL;
 static DynGenFunc* iopExitRecompiledCode	= NULL;
 
-static void recEventTest()
+static void recEventTest(void)
 {
 	_cpuEventTest_Shared();
 }
 
 // The address for all cleared blocks.  It recompiles the current pc and then
 // dispatches to the recompiled block address.
-static DynGenFunc* _DynGen_JITCompile()
+static DynGenFunc* _DynGen_JITCompile(void)
 {
-	pxAssertMsg( iopDispatcherReg != NULL, "Please compile the DispatcherReg subroutine *before* JITComple.  Thanks." );
-
 	u8* retval = xGetPtr();
 
 	xFastCall((void*)iopRecRecompile, ptr32[&psxRegs.pc] );
@@ -133,7 +131,7 @@ static DynGenFunc* _DynGen_JITCompile()
 	return (DynGenFunc*)retval;
 }
 
-static DynGenFunc* _DynGen_JITCompileInBlock()
+static DynGenFunc* _DynGen_JITCompileInBlock(void)
 {
 	u8* retval = xGetPtr();
 	xJMP( (void*)iopJITCompile );
@@ -141,7 +139,7 @@ static DynGenFunc* _DynGen_JITCompileInBlock()
 }
 
 // called when jumping to variable pc address
-static DynGenFunc* _DynGen_DispatcherReg()
+static DynGenFunc* _DynGen_DispatcherReg(void)
 {
 	u8* retval = xGetPtr();
 
@@ -157,7 +155,7 @@ static DynGenFunc* _DynGen_DispatcherReg()
 // --------------------------------------------------------------------------------------
 //  EnterRecompiledCode  - dynamic compilation stub!
 // --------------------------------------------------------------------------------------
-static DynGenFunc* _DynGen_EnterRecompiledCode()
+static DynGenFunc* _DynGen_EnterRecompiledCode(void)
 {
 	// Optimization: The IOP never uses stack-based parameter invocation, so we can avoid
 	// allocating any room on the stack for it (which is important since the IOP's entry
@@ -180,7 +178,7 @@ static DynGenFunc* _DynGen_EnterRecompiledCode()
 	return (DynGenFunc*)retval;
 }
 
-static void _DynGen_Dispatchers()
+static void _DynGen_Dispatchers(void)
 {
 	// In case init gets called multiple times:
 	HostSys::MemProtectStatic( iopRecDispatchers, PageAccess_ReadWrite() );
@@ -228,7 +226,7 @@ u8 _psxIsLoadStore(u32 tempcode)
 	return 0;
 }
 
-void _psxFlushAllUnused()
+void _psxFlushAllUnused(void)
 {
 	int i;
 	for(i = 0; i < 34; ++i) {
@@ -276,7 +274,7 @@ void _psxFlushConstReg(int reg)
 	}
 }
 
-void _psxFlushConstRegs()
+void _psxFlushConstRegs(void)
 {
 	int i;
 
@@ -329,7 +327,7 @@ void _psxFlushCall(int flushtype)
 		_psxFlushConstRegs();
 }
 
-void psxSaveBranchState()
+void psxSaveBranchState(void)
 {
 	s_savenBlockCycles = s_psxBlockCycles;
 	memcpy(s_saveConstRegs, g_psxConstRegs, sizeof(g_psxConstRegs));
@@ -341,7 +339,7 @@ void psxSaveBranchState()
 	memcpy(s_saveX86regs, x86regs, sizeof(x86regs));
 }
 
-void psxLoadBranchState()
+void psxLoadBranchState(void)
 {
 	s_psxBlockCycles = s_savenBlockCycles;
 
@@ -616,7 +614,7 @@ void recResetIOP(void)
 	psxbranch = 0;
 }
 
-static void recShutdown()
+static void recShutdown(void)
 {
 	safe_delete( recMem );
 
@@ -632,7 +630,7 @@ static void iopClearRecLUT(BASEBLOCK* base, int count)
 		base[i].SetFnptr((uptr)iopJITCompile);
 }
 
-static void recExecute()
+static void recExecute(void)
 {
 	// note: this function is currently never used.
 	//for (;;) R3000AExecute();
@@ -670,7 +668,6 @@ static __fi u32 psxRecClearMem(u32 pc)
 	BASEBLOCK* pblock;
 
 	pblock = PSX_GETBLOCK(pc);
-	// if ((u8*)iopJITCompile == pblock->GetFnptr())
 	if (pblock->GetFnptr() == (uptr)iopJITCompile)
 		return 4;
 
@@ -732,24 +729,11 @@ void psxSetBranchReg(u32 reg)
 			pxAssert( x86regs[calleeSavedReg2d.GetId()].type == X86TYPE_PCWRITEBACK );
 			xMOV(ptr32[&psxRegs.pc], calleeSavedReg2d);
 			x86regs[calleeSavedReg2d.GetId()].inuse = 0;
-			#ifdef PCSX2_DEBUG
-			xOR( calleeSavedReg2d, calleeSavedReg2d );
-			#endif
 		}
 		else {
 			xMOV(eax, ptr32[&g_recWriteback]);
 			xMOV(ptr32[&psxRegs.pc], eax);
-
-			#ifdef PCSX2_DEBUG
-			xOR( eax, eax );
-			#endif
 		}
-
-		#ifdef PCSX2_DEBUG
-		xForwardJNZ8 skipAssert;
-		xWrite8( 0xcc );
-		skipAssert.SetTarget();
-		#endif
 	}
 
 	_psxFlushCall(FLUSH_EVERYTHING);

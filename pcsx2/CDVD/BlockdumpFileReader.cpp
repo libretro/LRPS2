@@ -130,18 +130,9 @@ int BlockdumpFileReader::ReadSync(void* pBuffer, uint lsn, uint count)
 			if (m_dtable[i] != lsn)
 				continue;
 
-				// We store the LSN (u32) along with each block inside of blockdumps, so the
-				// seek position ends up being based on (m_blocksize + 4) instead of just m_blocksize.
-
-#ifdef PCSX2_DEBUG
-			u32 check_lsn;
-			m_file->SeekI(BlockDumpHeaderSize + (i * (m_blocksize + 4)));
-			m_file->Read(&check_lsn, sizeof(check_lsn));
-			pxAssert(check_lsn == lsn);
-#else
+			// We store the LSN (u32) along with each block inside of blockdumps, so the
+			// seek position ends up being based on (m_blocksize + 4) instead of just m_blocksize.
 			m_file->SeekI(BlockDumpHeaderSize + (i * (m_blocksize + 4)) + 4);
-#endif
-
 			m_file->Read(dst, m_blocksize);
 
 			ok = true;
@@ -149,12 +140,7 @@ int BlockdumpFileReader::ReadSync(void* pBuffer, uint lsn, uint count)
 		}
 
 		if (!ok)
-		{
-#ifndef NDEBUG
-			log_cb(RETRO_LOG_ERROR, "Block %u not found in dump\n", lsn);
-#endif
 			return -1;
-		}
 
 		count--;
 		lsn++;
