@@ -50,7 +50,7 @@ static int s_xmmchecknext = 0;
 // Clear current register mapping structure
 // Clear allocation counter
 void _initXMMregs(void)
-{{
+{
 	memzero( xmmregs );
 	g_xmmAllocCounter = 0;
 	s_xmmchecknext = 0;
