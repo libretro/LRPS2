@@ -73,7 +73,7 @@ bool Gif_HandlerAD(u8* pMem)
 		{
 			GSSIGLBLID.SIGID = (GSSIGLBLID.SIGID & ~data[1]) | (data[0] & data[1]);
 			if (!GSIMR.SIGMSK)
-				gsIrq();
+				hwIntcIrq(INTC_GS);
 			CSRreg.SIGNAL = true;
 		}
 	}
@@ -127,7 +127,7 @@ void Gif_FinishIRQ(void)
 {
 	if (CSRreg.FINISH && !GSIMR.FINISHMSK && !gifUnit.gsFINISH.gsFINISHFired)
 	{
-		gsIrq();
+		hwIntcIrq(INTC_GS);
 		gifUnit.gsFINISH.gsFINISHFired = true;
 	}
 }

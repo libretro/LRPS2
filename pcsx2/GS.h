@@ -136,22 +136,12 @@ union tGS_CSR
 		u32	_unused32;		// upper 32 bits (unused -- should probably be 0)
     };
 
-    void SwapField()
-    {
-	    _u32 ^= 0x2000;
-    }
-
     void Reset()
     {
-        _u64	= 0;
-        FIFO	= CSR_FIFO_EMPTY;
+        _u64		= 0;
+        FIFO		= CSR_FIFO_EMPTY;
         REV		= 0x1B; // GS Revision
         ID		= 0x55; // GS ID
-    }
-
-    u32 GetInterruptMask() const
-    {
-	    return _u32 & 0x1f;
     }
 
     tGS_CSR(u64 val) { _u64 = val; }
@@ -386,9 +376,9 @@ extern u8   gsRead8(u32 mem);
 extern u16  gsRead16(u32 mem);
 extern u32  gsRead32(u32 mem);
 extern u64  gsRead64(u32 mem);
+#if 0
 extern u128 gsNonMirroredRead(u32 mem);
-
-void gsIrq();
+#endif
 
 extern tGS_CSR CSRr;
 

@@ -372,7 +372,7 @@ static __fi void GSVSync(void)
 	{
 		CSRreg.VSINT = true;
 		if (!GSIMR.VSMSK)
-			gsIrq();
+			hwIntcIrq(INTC_GS);
 	}
 }
 
@@ -401,7 +401,7 @@ __fi void rcntUpdate_hScanline(void)
 		{
 			CSRreg.HSINT = true;
 			if (!GSIMR.HSMSK)
-				gsIrq();
+				hwIntcIrq(INTC_GS);
 		}
 		if (gates) rcntEndGate(false, hsyncCounter.sCycle);
 		if (psxhblankgate) psxCheckEndGate16(0);

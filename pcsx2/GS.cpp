@@ -70,7 +70,8 @@ static __fi void gsCSRwrite( const tGS_CSR& csr )
 			GSSIGLBLID.SIGID = (GSSIGLBLID.SIGID & ~gifUnit.gsSIGNAL.data[1])
 				        | (gifUnit.gsSIGNAL.data[0]&gifUnit.gsSIGNAL.data[1]);
 
-			if (!GSIMR.SIGMSK) gsIrq();
+			if (!GSIMR.SIGMSK)
+				hwIntcIrq(INTC_GS);
 			CSRreg.SIGNAL  = true; // Just to be sure :p
 		}
 		else CSRreg.SIGNAL = false;
@@ -85,14 +86,6 @@ static __fi void gsCSRwrite( const tGS_CSR& csr )
 	if(csr.HSINT)	CSRreg.HSINT	= false;
 	if(csr.VSINT)	CSRreg.VSINT	= false;
 	if(csr.EDWINT)	CSRreg.EDWINT	= false;
-}
-
-static __fi void IMRwrite(u32 value)
-{
-	if (CSRreg.GetInterruptMask() & (~value & GSIMR._u32) >> 8)
-		gsIrq();
-
-	GSIMR._u32 = (value & 0x1f00)|0x6000;
 }
 
 __fi void gsWrite8(u32 mem, u8 value)
@@ -141,7 +134,11 @@ __fi void gsWrite16(u32 mem, u16 value)
 			return; // do not write to MTGS memory
 
 		case GS_IMR:
-			IMRwrite(value);
+			/* Get interrupt mask */
+			if ((CSRreg._u32 & 0x1f) & (~value & GSIMR._u32) >> 8)
+				hwIntcIrq(INTC_GS);
+
+			GSIMR._u32 = (value & 0x1f00)|0x6000;
 			return; // do not write to MTGS memory
 	}
 
@@ -160,7 +157,11 @@ __fi void gsWrite32(u32 mem, u32 value)
 			return;
 
 		case GS_IMR:
-			IMRwrite(value);
+			/* Get interrupt mask */
+			if ((CSRreg._u32 & 0x1f) & (~value & GSIMR._u32) >> 8)
+				hwIntcIrq(INTC_GS);
+
+			GSIMR._u32 = (value & 0x1f00)|0x6000;
 			return;
 	}
 
@@ -205,15 +206,20 @@ void __fastcall gsWrite64_page_01( u32 mem, const mem64_t* value )
 			// the GS and MTGS register states, and upload our screwy busdir register in the process. :)
 			gsWrite64_generic( mem, value );
 			GetMTGS().WaitGS();
-		return;
+			return;
 
 		case GS_CSR:
 			gsCSRwrite(tGS_CSR(*value));
-		return;
+			return;
 
 		case GS_IMR:
-			IMRwrite((u32)value[0]);
-		return;
+			u32 _value = (u32)value[0];
+			/* Get interrupt mask */
+			if ((CSRreg._u32 & 0x1f) & (~_value & GSIMR._u32) >> 8)
+				hwIntcIrq(INTC_GS);
+
+			GSIMR._u32 = (_value & 0x1f00)|0x6000;
+			return;
 	}
 
 	gsWrite64_generic( mem, value );
@@ -233,11 +239,16 @@ void __fastcall gsWrite128_page_01( u32 mem, const mem128_t* value )
 	{
 		case GS_CSR:
 			gsCSRwrite((u32)value[0]);
-		return;
+			return;
 
 		case GS_IMR:
-			IMRwrite((u32)value[0]);
-		return;
+			u32 _value = (u32)value[0];
+			/* Get interrupt mask */
+			if ((CSRreg._u32 & 0x1f) & (~_value & GSIMR._u32) >> 8)
+				hwIntcIrq(INTC_GS);
+
+			GSIMR._u32 = (_value & 0x1f00)|0x6000;
+			return;
 	}
 
 	gsWrite128_generic( mem, value );
@@ -270,15 +281,12 @@ __fi u64 gsRead64(u32 mem)
 	return *(u64*)PS2GS_BASE(mem);
 }
 
+#if 0
 __fi u128 gsNonMirroredRead(u32 mem)
 {
 	return *(u128*)PS2GS_BASE(mem);
 }
-
-void gsIrq(void)
-{
-	hwIntcIrq(INTC_GS);
-}
+#endif
 
 // --------------------------------------------------------------------------------------
 //  gsFrameSkip

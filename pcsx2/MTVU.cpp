@@ -366,7 +366,7 @@ void VU_Thread::Get_GSChanges()
 			GSSIGLBLID.SIGID = (GSSIGLBLID.SIGID & ~signalMsk) | (signalData & signalMsk);
 
 			if (!GSIMR.SIGMSK)
-				gsIrq();
+				hwIntcIrq(INTC_GS);
 		}
 	}
 	if (interrupts & InterruptFlagFinish)
