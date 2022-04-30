@@ -67,7 +67,7 @@ public:
 		qListI = fListI = 0;
 		qBlockEnd = qBlockList = NULL;
 		fBlockEnd = fBlockList = NULL;
-	};
+	}
 	microBlock* add(microBlock* pBlock) {
 		microBlock* thisBlock = search(&pBlock->pState);
 		if (!thisBlock) {
@@ -110,18 +110,6 @@ public:
 			}
 		}
 		return NULL;
-	}
-	void printInfo(int pc, bool printQuick) {
-		int listI = printQuick ? qListI : fListI;
-		if (listI < 7) return;
-		microBlockLink* linkI = printQuick ? qBlockList : fBlockList;
-		for (int i = 0; i <= listI; i++) {
-			u32 viCRC = 0, vfCRC = 0, crc = 0, z = sizeof(microRegInfo)/4;
-			for (u32 j = 0; j < 4;  j++) viCRC -= ((u32*)linkI->block.pState.VI)[j];
-			for (u32 j = 0; j < 32; j++) vfCRC -= linkI->block.pState.VF[j].reg;
-			for (u32 j = 0; j < z;  j++) crc   -= ((u32*)&linkI->block.pState)[j];
-			linkI = linkI->next;
-		}
 	}
 };
 
