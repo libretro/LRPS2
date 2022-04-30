@@ -494,8 +494,7 @@ u32 __fastcall FPU_MUL_HACK(u32 s, u32 t)
 {
 	if ((s == 0x3e800000) && (t == 0x40490fdb))
 		return 0x3f490fda; // needed for Tales of Destiny Remake (only in a very specific room late-game)
-	else
-		return 0;
+	return 0;
 }
 
 void FPU_MUL(int regd, int regt, bool reverseOperands)
@@ -531,9 +530,6 @@ static void (*recComOpXMM_to_XMM[] )(x86SSERegType, x86SSERegType) = {
 
 static void (*recComOpXMM_to_XMM_REV[] )(x86SSERegType, x86SSERegType) = { //reversed operands
 	FPU_ADD, FPU_MUL_REV, SSE_MAXSS_XMM_to_XMM, SSE_MINSS_XMM_to_XMM };
-
-//static void (*recComOpM32_to_XMM[] )(x86SSERegType, uptr) = {
-//	SSE_ADDSS_M32_to_XMM, SSE_MULSS_M32_to_XMM, SSE_MAXSS_M32_to_XMM, SSE_MINSS_M32_to_XMM };
 
 int recCommutativeOp(int info, int regd, int op)
 {
@@ -594,16 +590,13 @@ int recCommutativeOp(int info, int regd, int op)
 //------------------------------------------------------------------
 void recADD_S_xmm(int info)
 {
-	//xAND(ptr32[&fpuRegs.fprc[31]], ~(FPUflagO|FPUflagU)); // Clear O and U flags
     ClampValues(recCommutativeOp(info, EEREC_D, 0));
-	//REC_FPUOP(ADD_S);
 }
 
 FPURECOMPILE_CONSTCODE(ADD_S, XMMINFO_WRITED|XMMINFO_READS|XMMINFO_READT);
 
 void recADDA_S_xmm(int info)
 {
-	//xAND(ptr32[&fpuRegs.fprc[31]], ~(FPUflagO|FPUflagU)); // Clear O and U flags
     ClampValues(recCommutativeOp(info, EEREC_ACC, 0));
 }
 
@@ -614,7 +607,7 @@ FPURECOMPILE_CONSTCODE(ADDA_S, XMMINFO_WRITEACC|XMMINFO_READS|XMMINFO_READT);
 // BC1x XMM
 //------------------------------------------------------------------
 
-static void _setupBranchTest()
+static void _setupBranchTest(void)
 {
 	_eeFlushAllUnused();
 
@@ -626,25 +619,25 @@ static void _setupBranchTest()
 	xTEST(eax, FPUflagC);
 }
 
-void recBC1F()
+void recBC1F(void)
 {
 	_setupBranchTest();
 	recDoBranchImm(JNZ32(0));
 }
 
-void recBC1T()
+void recBC1T(void)
 {
 	_setupBranchTest();
 	recDoBranchImm(JZ32(0));
 }
 
-void recBC1FL()
+void recBC1FL(void)
 {
 	_setupBranchTest();
 	recDoBranchImm_Likely(JNZ32(0));
 }
 
-void recBC1TL()
+void recBC1TL(void)
 {
 	_setupBranchTest();
 	recDoBranchImm_Likely(JZ32(0));
@@ -715,7 +708,7 @@ void recC_EQ_xmm(int info)
 FPURECOMPILE_CONSTCODE(C_EQ, XMMINFO_READS|XMMINFO_READT);
 //REC_FPUFUNC(C_EQ);
 
-void recC_F()
+void recC_F(void)
 {
 	xAND(ptr32[&fpuRegs.fprc[31]], ~FPUflagC );
 }

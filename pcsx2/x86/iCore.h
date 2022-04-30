@@ -97,11 +97,7 @@
 
 #define X86TYPE_VU1 0x80
 
-//#define X86_ISVI(type) ((type&~X86TYPE_VU1) == X86TYPE_VI)
-static __fi int X86_ISVI(int type)
-{
-	return ((type&~X86TYPE_VU1) == X86TYPE_VI);
-}
+#define X86_ISVI(type) ((type&~X86TYPE_VU1) == X86TYPE_VI)
 
 struct _x86regs {
 	u8 inuse;
@@ -116,18 +112,18 @@ struct _x86regs {
 extern _x86regs x86regs[iREGCNT_GPR], s_saveX86regs[iREGCNT_GPR];
 
 uptr _x86GetAddr(int type, int reg);
-void _initX86regs();
+void _initX86regs(void);
 int  _getFreeX86reg(int mode);
 int  _allocX86reg(x86Emitter::xRegister32 x86reg, int type, int reg, int mode);
 void _deleteX86reg(int type, int reg, int flush);
 int _checkX86reg(int type, int reg, int mode);
 void _addNeededX86reg(int type, int reg);
-void _clearNeededX86regs();
+void _clearNeededX86regs(void);
 void _freeX86reg(const x86Emitter::xRegister32& x86reg);
 void _freeX86reg(int x86reg);
-void _freeX86regs();
-void _flushCachedRegs();
-void _flushConstRegs();
+void _freeX86regs(void);
+void _flushCachedRegs(void);
+void _flushConstRegs(void);
 void _flushConstReg(int reg);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -168,11 +164,9 @@ void _addNeededFPtoXMMreg(int fpreg);
 void _addNeededFPACCtoXMMreg();
 void _addNeededGPRtoXMMreg(int gprreg);
 void _clearNeededXMMregs();
-//void _deleteACCtoXMMreg(int vu, int flush);
 void _deleteGPRtoXMMreg(int reg, int flush);
 void _deleteFPtoXMMreg(int reg, int flush);
 void _freeXMMreg(u32 xmmreg);
-//void _moveXMMreg(int xmmreg); // instead of freeing, moves it to a diff location
 void _flushXMMregs();
 u8 _hasFreeXMMreg();
 void _freeXMMregs();
@@ -202,7 +196,6 @@ int _signExtendXMMtoM(uptr to, x86SSERegType from, int candestroy); // returns t
 #define EEINST_LIVE0	1	// if var is ever used (read or write)
 #define EEINST_LIVE2	4	// if cur var's next 64 bits are needed
 #define EEINST_LASTUSE	8	// if var isn't written/read anymore
-//#define EEINST_MMX		0x10 // removed
 #define EEINST_XMM		0x20	// var will be used in xmm ops
 #define EEINST_USED		0x40
 
@@ -229,8 +222,6 @@ extern void _recClearInst(EEINST* pinst);
 
 // returns the number of insts + 1 until written (0 if not written)
 extern u32 _recIsRegWritten(EEINST* pinst, int size, u8 xmmtype, u8 reg);
-// returns the number of insts + 1 until used (0 if not used)
-//extern u32 _recIsRegUsed(EEINST* pinst, int size, u8 xmmtype, u8 reg);
 extern void _recFillRegister(EEINST& pinst, int type, int reg, int write);
 
 static __fi bool EEINST_ISLIVE64(u32 reg)	{ return !!(g_pCurInstInfo->regs[reg] & (EEINST_LIVE0)); }
@@ -244,8 +235,8 @@ extern u32 g_recWriteback; // used for jumps (VUrec mess!)
 
 extern _xmmregs xmmregs[iREGCNT_XMM], s_saveXMMregs[iREGCNT_XMM];
 
-extern __tls_emit u8  *j8Ptr[32];		// depreciated item.  use local u8* vars instead.
-extern __tls_emit u32 *j32Ptr[32];		// depreciated item.  use local u32* vars instead.
+extern __tls_emit u8  *j8Ptr[32];		// deprecated item.  use local u8* vars instead.
+extern __tls_emit u32 *j32Ptr[32];		// deprecated item.  use local u32* vars instead.
 
 extern u16 g_x86AllocCounter;
 extern u16 g_xmmAllocCounter;
@@ -284,7 +275,6 @@ int _allocCheckGPRtoX86(EEINST* pinst, int gprreg, int mode);
 #define FLUSH_CODE			0x800	// opcode for interpreter
 
 #define FLUSH_EVERYTHING	0x1ff
-//#define FLUSH_EXCEPTION		0x1ff   // will probably do this totally differently actually
 #define FLUSH_INTERPRETER	0xfff
 #define FLUSH_FULLVTLB FLUSH_NOCONST
 

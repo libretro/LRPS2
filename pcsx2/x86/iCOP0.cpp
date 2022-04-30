@@ -42,7 +42,7 @@ namespace COP0 {
 
 // emits "setup" code for a COP0 branch test.  The instruction immediately following
 // this should be a conditional Jump -- JZ or JNZ normally.
-static void _setupBranchTest()
+static void _setupBranchTest(void)
 {
 	_eeFlushAllUnused();
 
@@ -62,48 +62,48 @@ static void _setupBranchTest()
 	xCMP(eax, ecx);
 }
 
-void recBC0F()
+void recBC0F(void)
 {
 	_setupBranchTest();
 	recDoBranchImm(JE32(0));
 }
 
-void recBC0T()
+void recBC0T(void)
 {
 	_setupBranchTest();
 	recDoBranchImm(JNE32(0));
 }
 
-void recBC0FL()
+void recBC0FL(void)
 {
 	_setupBranchTest();
 	recDoBranchImm_Likely(JE32(0));
 }
 
-void recBC0TL()
+void recBC0TL(void)
 {
 	_setupBranchTest();
 	recDoBranchImm_Likely(JNE32(0));
 }
 
-void recTLBR() { recCall(Interp::TLBR); }
-void recTLBP() { recCall(Interp::TLBP); }
-void recTLBWI() { recCall(Interp::TLBWI); }
-void recTLBWR() { recCall(Interp::TLBWR); }
+void recTLBR(void) { recCall(Interp::TLBR); }
+void recTLBP(void) { recCall(Interp::TLBP); }
+void recTLBWI(void) { recCall(Interp::TLBWI); }
+void recTLBWR(void) { recCall(Interp::TLBWR); }
 
-void recERET()
+void recERET(void)
 {
 	recBranchCall( Interp::ERET );
 }
 
-void recEI()
+void recEI(void)
 {
 	// must branch after enabling interrupts, so that anything
 	// pending gets triggered properly.
 	recBranchCall( Interp::EI );
 }
 
-void recDI()
+void recDI(void)
 {
 	//// No need to branch after disabling interrupts...
 
@@ -139,7 +139,7 @@ REC_SYS( MTC0 );
 
 #else
 
-void recMFC0()
+void recMFC0(void)
 {
 	if( _Rd_ == 9 )
 	{
@@ -202,7 +202,7 @@ void recMFC0()
 	xMOV(ptr[&cpuRegs.GPR.r[_Rt_].UL[1]], edx);
 }
 
-void recMTC0()
+void recMTC0(void)
 {
 	if( GPR_IS_CONST1(_Rt_) )
 	{
@@ -300,33 +300,5 @@ void recMTC0()
 	}
 }
 #endif
-
-
-/*void rec(COP0) {
-}
-
-void rec(BC0F) {
-}
-
-void rec(BC0T) {
-}
-
-void rec(BC0FL) {
-}
-
-void rec(BC0TL) {
-}
-
-void rec(TLBR) {
-}
-
-void rec(TLBWI) {
-}
-
-void rec(TLBWR) {
-}
-
-void rec(TLBP) {
-}*/
 
 }}}}

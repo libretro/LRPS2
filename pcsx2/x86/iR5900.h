@@ -61,17 +61,17 @@ extern u32 s_nBlockCycles;		// cycles of current block recompiling
 extern bool g_recompilingDelaySlot;
 
 // used when processing branches
-void SaveBranchState();
-void LoadBranchState();
+void SaveBranchState(void);
+void LoadBranchState(void);
 
 void recompileNextInstruction(int delayslot);
 void SetBranchReg( u32 reg );
 void SetBranchImm( u32 imm );
 
 void iFlushCall(int flushtype);
-void recBranchCall( void (*func)() );
-void recCall( void (*func)() );
-u32 scaleblockcycles_clear();
+void recBranchCall( void (*func)(void) );
+void recCall( void (*func)(void) );
+u32 scaleblockcycles_clear(void);
 
 namespace R5900{
 namespace Dynarec {
@@ -107,7 +107,7 @@ void _eeMoveGPRtoM(uptr to, int fromgpr);
 void _eeMoveGPRtoRm(x86IntRegType to, int fromgpr);
 void eeSignExtendTo(int gpr, bool onlyupper=false);
 
-void _eeFlushAllUnused();
+void _eeFlushAllUnused(void);
 void _eeOnWriteReg(int reg, int signext);
 
 // totally deletes from const, xmm, and mmx entries

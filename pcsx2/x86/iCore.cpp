@@ -49,7 +49,8 @@ static int s_xmmchecknext = 0;
 
 // Clear current register mapping structure
 // Clear allocation counter
-void _initXMMregs() {
+void _initXMMregs(void)
+{{
 	memzero( xmmregs );
 	g_xmmAllocCounter = 0;
 	s_xmmchecknext = 0;
@@ -90,7 +91,7 @@ __fi void* _XMMGetAddr(int type, int reg, VURegs *VU)
 //
 // Note: I don't understand why we don't check register that aren't useful anymore
 // (i.e EEINST_USED is cleared)
-int  _getFreeXMMreg()
+int  _getFreeXMMreg(void)
 {
 	int i, tempi;
 	u32 bestcount = 0x10000;
@@ -147,7 +148,6 @@ int  _getFreeXMMreg()
 		return tempi;
 	}
 
-	//pxFailDev("*PCSX2*: XMM Reg Allocation Error in _getFreeXMMreg()!");
 	throw Exception::FailedToAllocateRegister();
 }
 
@@ -263,12 +263,9 @@ int _allocGPRtoXMMreg(int xmmreg, int gprreg, int mode)
 		if (!(xmmregs[i].mode & MODE_READ) && (mode & MODE_READ))
 		{
 			if (gprreg == 0 )
-			{
 				xPXOR(xRegisterSSE(i), xRegisterSSE(i));
-			}
 			else
 			{
-				//pxAssert( !(g_cpuHasConstReg & (1<<gprreg)) || (g_cpuFlushedConstReg & (1<<gprreg)) );
 				_flushConstReg(gprreg);
 				xMOVDQA(xRegisterSSE(i), ptr[&cpuRegs.GPR.r[gprreg].UL[0]]);
 			}
@@ -276,10 +273,7 @@ int _allocGPRtoXMMreg(int xmmreg, int gprreg, int mode)
 		}
 
 		if  ((mode & MODE_WRITE) && (gprreg < 32))
-		{
 			g_cpuHasConstReg &= ~(1<<gprreg);
-			//pxAssert( !(g_cpuHasConstReg & (1<<gprreg)) );
-		}
 
 		xmmregs[i].counter = g_xmmAllocCounter++; // update counter
 		xmmregs[i].needed = 1;
@@ -290,10 +284,7 @@ int _allocGPRtoXMMreg(int xmmreg, int gprreg, int mode)
 	// currently only gpr regs are const
 	// fixme - do we really need to execute this both here and in the loop?
 	if ((mode & MODE_WRITE) && gprreg < 32)
-	{
-		//pxAssert( !(g_cpuHasConstReg & (1<<gprreg)) );
 		g_cpuHasConstReg &= ~(1<<gprreg);
-	}
 
 	if (xmmreg == -1)
 		xmmreg = _getFreeXMMreg();
@@ -414,7 +405,8 @@ void _addNeededFPACCtoXMMreg() {
 
 // Clear needed flags of all registers
 // Written register will set MODE_READ (aka data is valid, no need to load it)
-void _clearNeededXMMregs() {
+void _clearNeededXMMregs(void)
+{
 	int i;
 
 	for (i=0; (uint)i<iREGCNT_XMM; i++) {
@@ -540,7 +532,6 @@ void _freeXMMreg(u32 xmmreg)
 						// no free reg
 						xMOVL.PS(ptr[(void*)(VU_VFx_ADDR(xmmregs[xmmreg].reg))], xRegisterSSE(xmmreg));
 						xSHUF.PS(xRegisterSSE(xmmreg), xRegisterSSE(xmmreg), 0xc6);
-						//xMOVHL.PS(xRegisterSSE(xmmreg), xRegisterSSE(xmmreg));
 						xMOVSS(ptr[(void*)(VU_VFx_ADDR(xmmregs[xmmreg].reg)+8)], xRegisterSSE(xmmreg));
 						xSHUF.PS(xRegisterSSE(xmmreg), xRegisterSSE(xmmreg), 0xc6);
 					}
@@ -582,7 +573,6 @@ void _freeXMMreg(u32 xmmreg)
 						// no free reg
 						xMOVL.PS(ptr[(void*)(VU_ACCx_ADDR)], xRegisterSSE(xmmreg));
 						xSHUF.PS(xRegisterSSE(xmmreg), xRegisterSSE(xmmreg), 0xc6);
-						//xMOVHL.PS(xRegisterSSE(xmmreg), xRegisterSSE(xmmreg));
 						xMOVSS(ptr[(void*)(VU_ACCx_ADDR+8)], xRegisterSSE(xmmreg));
 						xSHUF.PS(xRegisterSSE(xmmreg), xRegisterSSE(xmmreg), 0xc6);
 					}
@@ -601,7 +591,6 @@ void _freeXMMreg(u32 xmmreg)
 
 		case XMMTYPE_GPRREG:
 			pxAssert( xmmregs[xmmreg].reg != 0 );
-			//pxAssert( g_xmmtypes[xmmreg] == XMMT_INT );
 			xMOVDQA(ptr[&cpuRegs.GPR.r[xmmregs[xmmreg].reg].UL[0]], xRegisterSSE(xmmreg));
 			break;
 
@@ -622,7 +611,7 @@ void _freeXMMreg(u32 xmmreg)
 }
 
 // Return the number of inuse XMM register that have the MODE_WRITE flag
-int _getNumXMMwrite()
+int _getNumXMMwrite(void)
 {
 	int num = 0, i;
 	for (i=0; (uint)i<iREGCNT_XMM; i++) {
@@ -635,7 +624,7 @@ int _getNumXMMwrite()
 // Step1: check any available register (inuse == 0)
 // Step2: check registers that are not live (both EEINST_LIVE* are cleared)
 // Step3: check registers that are not useful anymore (EEINST_USED cleared)
-u8 _hasFreeXMMreg()
+u8 _hasFreeXMMreg(void)
 {
 	int i;
 
@@ -666,7 +655,7 @@ u8 _hasFreeXMMreg()
 }
 
 // Flush in memory all inuse registers but registers are still valid
-void _flushXMMregs()
+void _flushXMMregs(void)
 {
 	int i;
 
@@ -684,7 +673,7 @@ void _flushXMMregs()
 }
 
 // Flush in memory all inuse registers. All registers are invalid
-void _freeXMMregs()
+void _freeXMMregs(void)
 {
 	int i;
 
@@ -692,7 +681,6 @@ void _freeXMMregs()
 		if (xmmregs[i].inuse == 0) continue;
 
 		pxAssert( xmmregs[i].type != XMMTYPE_TEMP );
-		//pxAssert( xmmregs[i].mode & (MODE_READ|MODE_WRITE) );
 
 		_freeXMMreg(i);
 	}
