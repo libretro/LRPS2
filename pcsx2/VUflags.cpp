@@ -21,31 +21,10 @@
 
 #include "VUmicro.h"
 
-/*****************************************/
-/*          NEW FLAGS                    */ //By asadr. Thnkx F|RES :p
-/*****************************************/
-
-
-void vuUpdateDI(VURegs * VU) {
-//	u32 Flag_S = 0;
-//	u32 Flag_I = 0;
-//	u32 Flag_D = 0;
-//
-//	/*
-//	FLAG D - I
-//	*/
-//	Flag_I = (VU->statusflag >> 4) & 0x1;
-//	Flag_D = (VU->statusflag >> 5) & 0x1;
-//
-//	VU->statusflag|= (Flag_I | (VU0.VI[REG_STATUS_FLAG].US[0] >> 4)) << 10;
-//	VU->statusflag|= (Flag_D | (VU0.VI[REG_STATUS_FLAG].US[0] >> 5)) << 11;
-}
-
 static __ri u32 VU_MAC_UPDATE( int shift, VURegs * VU, float f )
 {
-	u32 v = *(u32*)&f;
-	int exp = (v >> 23) & 0xff;
-	u32 s = v & 0x80000000;
+	u32 v   = *(u32*)&f;
+	u32 s   = v & 0x80000000;
 
 	if (s)
 		VU->macflag |= 0x0010<<shift;
@@ -53,23 +32,26 @@ static __ri u32 VU_MAC_UPDATE( int shift, VURegs * VU, float f )
 		VU->macflag &= ~(0x0010<<shift);
 
 	if( f == 0 )
-	{
 		VU->macflag = (VU->macflag & ~(0x1100<<shift)) | (0x0001<<shift);
-		return v;
+	else
+	{
+		int exp = (v >> 23) & 0xff;
+
+		switch(exp)
+		{
+			case 0:
+				VU->macflag = (VU->macflag&~(0x1000<<shift)) | (0x0101<<shift);
+				return s;
+			case 255:
+				VU->macflag = (VU->macflag&~(0x0100<<shift)) | (0x1000<<shift);
+				return s|0x7f7fffff; /* max allowed */
+			default:
+				VU->macflag = (VU->macflag & ~(0x1101<<shift));
+				break;
+		}
 	}
 
-	switch(exp)
-	{
-		case 0:
-			VU->macflag = (VU->macflag&~(0x1000<<shift)) | (0x0101<<shift);
-			return s;
-		case 255:
-			VU->macflag = (VU->macflag&~(0x0100<<shift)) | (0x1000<<shift);
-			return s|0x7f7fffff; /* max allowed */
-		default:
-			VU->macflag = (VU->macflag & ~(0x1101<<shift));
-			return v;
-	}
+	return v;
 }
 
 __fi u32 VU_MACx_UPDATE(VURegs * VU, float x)
@@ -112,7 +94,8 @@ __fi void VU_MACw_CLEAR(VURegs * VU)
 	VU->macflag&= ~(0x1111<<0);
 }
 
-__ri void VU_STAT_UPDATE(VURegs * VU) {
+__ri void VU_STAT_UPDATE(VURegs * VU)
+{
 	int newflag = 0 ;
 	if (VU->macflag & 0x000F) newflag = 0x1;
 	if (VU->macflag & 0x00F0) newflag |= 0x2;
