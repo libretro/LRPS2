@@ -38,8 +38,6 @@
 #include "../DebugTools/Breakpoints.h"
 #include "R5900OpcodeTables.h"
 
-using namespace R5900;	// for R5900 disasm tools
-
 s32 EEsCycle;		// used to sync the IOP to the EE
 u32 EEoCycle;
 
@@ -66,7 +64,7 @@ In fast boot mode, 15 arguments can fit because the only call to EELOAD is "<ELF
 const int kMaxArgs = 16;
 uptr g_argPtrs[kMaxArgs];
 
-extern SysMainMemory& GetVmMemory();
+extern SysMainMemory& GetVmMemory(void);
 
 void cpuReset(void)
 {
@@ -121,17 +119,12 @@ void cpuReset(void)
 	g_eeloadMain = 0, g_eeloadExec = 0, g_osdsys_str = 0;
 }
 
-void cpuShutdown()
-{
-	hwShutdown();
-}
-
 __ri void cpuException(u32 code, u32 bd)
 {
 	bool errLevel2, checkStatus;
 	u32 offset = 0;
 
-    cpuRegs.branch = 0;		// Tells the interpreter that an exception occurred during a branch.
+	cpuRegs.branch = 0;		// Tells the interpreter that an exception occurred during a branch.
 	cpuRegs.CP0.n.Cause = code & 0xffff;
 
 	if(cpuRegs.CP0.n.Status.b.ERL == 0)
@@ -214,9 +207,7 @@ __fi void cpuSetNextEvent( u32 startCycle, s32 delta )
 	// if startCycle is greater than our next branch cycle.
 
 	if( (int)(g_nextEventCycle - startCycle) > delta )
-	{
 		g_nextEventCycle = startCycle + delta;
-	}
 }
 
 // sets a branch to occur some time from the current cycle
@@ -236,7 +227,7 @@ __fi int cpuTestCycle( u32 startCycle, s32 delta )
 }
 
 // tells the EE to run the branch test the next time it gets a chance.
-__fi void cpuSetEvent()
+__fi void cpuSetEvent(void)
 {
 	g_nextEventCycle = cpuRegs.cycle;
 }
@@ -247,7 +238,7 @@ __fi void cpuClearInt( uint i )
 	cpuRegs.interrupt &= ~(1 << i);
 }
 
-static __fi void TESTINT( u8 n, void (*callback)() )
+static __fi void TESTINT( u8 n, void (*callback)(void) )
 {
 	if( !(cpuRegs.interrupt & (1 << n)) ) return;
 
@@ -262,7 +253,7 @@ static __fi void TESTINT( u8 n, void (*callback)() )
 
 // [TODO] move this function to Dmac.cpp, and remove most of the DMAC-related headers from
 // being included into R5900.cpp.
-static __fi void _cpuTestInterrupts()
+static __fi void _cpuTestInterrupts(void)
 {
 	if (!dmacRegs.ctrl.DMAE || (psHu8(DMAC_ENABLER+2) & 1))
 		return;
@@ -298,7 +289,7 @@ static __fi void _cpuTestInterrupts()
 	}
 }
 
-static __fi void _cpuTestTIMR()
+static __fi void _cpuTestTIMR(void)
 {
 	cpuRegs.CP0.n.Count += cpuRegs.cycle-s_iLastCOP0Cycle;
 	s_iLastCOP0Cycle = cpuRegs.cycle;
@@ -310,19 +301,7 @@ static __fi void _cpuTestTIMR()
 
 	if ( (cpuRegs.CP0.n.Status.val & 0x8000) &&
 		cpuRegs.CP0.n.Count >= cpuRegs.CP0.n.Compare && cpuRegs.CP0.n.Count < cpuRegs.CP0.n.Compare+1000 )
-	{
 		cpuException(0x808000, cpuRegs.branch);
-	}
-}
-
-static __fi void _cpuTestPERF()
-{
-	// Perfs are updated when read by games (COP0's MFC0/MTC0 instructions), so we need
-	// only update them at semi-regular intervals to keep cpuRegs.cycle from wrapping
-	// around twice on us btween updates.  Hence this function is called from the cpu's
-	// Counters update.
-
-	COP0_UpdatePCCR();
 }
 
 // Checks the COP0.Status for exception enablings.
@@ -343,7 +322,7 @@ u32 g_nextEventCycle = 0;
 
 // Shared portion of the branch test, called from both the Interpreter
 // and the recompiler.  (moved here to help alleviate redundant code)
-__fi void _cpuEventTest_Shared()
+__fi void _cpuEventTest_Shared(void)
 {
 	eeEventTestIsActive = true;
 	g_nextEventCycle = cpuRegs.cycle + eeWaitCycles;
@@ -365,7 +344,11 @@ __fi void _cpuEventTest_Shared()
 	if( cpuTestCycle( nextsCounter, nextCounter ) )
 	{
 		rcntUpdate();
-		_cpuTestPERF();
+		// Perfs are updated when read by games (COP0's MFC0/MTC0 instructions), so we need
+		// only update them at semi-regular intervals to keep cpuRegs.cycle from wrapping
+		// around twice on us btween updates.  Hence this function is called from the cpu's
+		// Counters update.
+		COP0_UpdatePCCR();
 	}
 
 	rcntUpdate_hScanline();
@@ -423,13 +406,10 @@ __fi void _cpuEventTest_Shared()
 
 	// ---- Schedule Next Event Test --------------
 
+	// EE's running way ahead of the IOP still, so we should branch quickly to give the
+	// IOP extra timeslices in short order.
 	if( EEsCycle > 192 )
-	{
-		// EE's running way ahead of the IOP still, so we should branch quickly to give the
-		// IOP extra timeslices in short order.
-
 		cpuSetNextEventDelta( 48 );
-	}
 
 	// The IOP could be running ahead/behind of us, so adjust the iop's next branch by its
 	// relative position to the EE (via EEsCycle)
@@ -444,7 +424,7 @@ __fi void _cpuEventTest_Shared()
 	eeEventTestIsActive = false;
 }
 
-__ri void cpuTestINTCInts()
+__ri void cpuTestINTCInts(void)
 {
 	// Check the COP0's Status register for general interrupt disables, and the 0x400
 	// bit (which is INTC master toggle).
@@ -460,7 +440,7 @@ __ri void cpuTestINTCInts()
 	}
 }
 
-__fi void cpuTestDMACInts()
+__fi void cpuTestDMACInts(void)
 {
 	// Check the COP0's Status register for general interrupt disables, and the 0x800
 	// bit (which is the DMAC master toggle).
@@ -477,17 +457,16 @@ __fi void cpuTestDMACInts()
 	}
 }
 
-__fi void cpuTestTIMRInts() {
+__fi void cpuTestTIMRInts(void)
+{
 	if ((cpuRegs.CP0.n.Status.val & 0x10007) == 0x10001) {
-		_cpuTestPERF();
+		// Perfs are updated when read by games (COP0's MFC0/MTC0 instructions), so we need
+		// only update them at semi-regular intervals to keep cpuRegs.cycle from wrapping
+		// around twice on us btween updates.  Hence this function is called from the cpu's
+		// Counters update.
+		COP0_UpdatePCCR();
 		_cpuTestTIMR();
 	}
-}
-
-__fi void cpuTestHwInts() {
-	cpuTestINTCInts();
-	cpuTestDMACInts();
-	cpuTestTIMRInts();
 }
 
 __fi void CPU_INT( EE_EventType n, s32 ecycle)
@@ -516,7 +495,7 @@ __fi void CPU_INT( EE_EventType n, s32 ecycle)
 }
 
 // Called from recompilers; __fastcall define is mandatory.
-void __fastcall eeGameStarting()
+void __fastcall eeGameStarting(void)
 {
 	if (!g_GameStarted)
 	{
@@ -531,7 +510,7 @@ void __fastcall eeGameStarting()
 }
 
 // Count arguments, save their starting locations, and replace the space separators with null terminators so they're separate strings
-int ParseArgumentString(u32 arg_block)
+static int ParseArgumentString(u32 arg_block)
 {
 	if (!arg_block)
 		return 0;
@@ -653,7 +632,7 @@ void __fastcall eeloadHook(void)
 
 // Called from recompilers; __fastcall define is mandatory.
 // Only called if g_SkipBiosHack is true
-void __fastcall eeloadHook2()
+void __fastcall eeloadHook2(void)
 {
 	if (g_Conf->CurrentGameArgs.empty())
 		return;
@@ -673,9 +652,7 @@ void __fastcall eeloadHook2()
 	// Back up 4 bytes from start of args block for every arg + 4 bytes for start of argv pointer block, write pointers
 	uptr block_start = g_osdsys_str - (argc * 4);
 	for (int a = 0; a < argc; a++)
-	{
 		memWrite32(block_start + (a * 4), g_argPtrs[a]);
-	}
 
 	// Save argc and argv as incoming arguments for EELOAD function which calls ExecPS2()
 	cpuRegs.GPR.n.a0.SD[0] = argc;
@@ -685,8 +662,7 @@ void __fastcall eeloadHook2()
 inline bool isBranchOrJump(u32 addr)
 {
 	u32 op = memRead32(addr);
-	const OPCODE& opcode = GetInstruction(op);
-
+	const R5900::OPCODE& opcode = R5900::GetInstruction(op);
 	return (opcode.flags & IS_BRANCH) != 0;
 }
 
@@ -717,7 +693,7 @@ int isMemcheckNeeded(u32 pc)
 		addr += 4;
 
 	u32 op = memRead32(addr);
-	const OPCODE& opcode = GetInstruction(op);
+	const R5900::OPCODE& opcode = R5900::GetInstruction(op);
 
 	if (opcode.flags & IS_MEMORY)
 		return addr == pc ? 1 : 2;

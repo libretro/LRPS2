@@ -436,7 +436,6 @@ extern void cpuReset();		// can throw Exception::FileNotFound.
 extern void cpuException(u32 code, u32 bd);
 extern void cpuTlbMissR(u32 addr, u32 bd);
 extern void cpuTlbMissW(u32 addr, u32 bd);
-extern void cpuTestHwInts();
 extern void cpuClearInt(uint n);
 extern void __fastcall GoemonPreloadTlb();
 extern void __fastcall GoemonUnloadTlb(u32 key);
