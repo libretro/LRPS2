@@ -256,7 +256,8 @@ static inline u32 branchAddr(const mV)
 	return ((((iPC + 2) + (_Imm11_ * 2)) & mVU.progMemMask) * 4);
 }
 
-static void __fc mVUwaitMTVU(void) {
+static void __fc mVUwaitMTVU(void)
+{
 	vu1Thread.WaitVU();
 }
 
@@ -302,60 +303,35 @@ static const __aligned16 SSEMasks sseMasks =
 
 
 // Warning: Modifies t1 and t2
-void MIN_MAX_PS(microVU& mVU, const xmm& to, const xmm& from, const xmm& t1in, const xmm& t2in, bool min)
+static void MIN_MAX_PS(microVU& mVU, const xmm& to, const xmm& from, const xmm& t1in, const xmm& t2in, bool min)
 {
 	const xmm& t1 = t1in.IsEmpty() ? mVU.regAlloc->allocReg() : t1in;
 	const xmm& t2 = t2in.IsEmpty() ? mVU.regAlloc->allocReg() : t2in;
+	// use integer comparison
+	const xmm& c1 = min ? t2 : t1;
+	const xmm& c2 = min ? t1 : t2;
 
-	if (0) { // use double comparison
-		// ZW
-		xPSHUF.D(t1, to, 0xfa);
-		xPAND   (t1, ptr128[sseMasks.MIN_MAX_1]);
-		xPOR    (t1, ptr128[sseMasks.MIN_MAX_2]);
-		xPSHUF.D(t2, from, 0xfa);
-		xPAND   (t2, ptr128[sseMasks.MIN_MAX_1]);
-		xPOR    (t2, ptr128[sseMasks.MIN_MAX_2]);
-		if (min) xMIN.PD(t1, t2);
-		else     xMAX.PD(t1, t2);
+	xMOVAPS  (t1, to);
+	xPSRA.D  (t1, 31);
+	xPSRL.D  (t1,  1);
+	xPXOR    (t1, to);
 
-		// XY
-		xPSHUF.D(t2, from, 0x50);
-		xPAND   (t2, ptr128[sseMasks.MIN_MAX_1]);
-		xPOR    (t2, ptr128[sseMasks.MIN_MAX_2]);
-		xPSHUF.D(to, to, 0x50);
-		xPAND   (to, ptr128[sseMasks.MIN_MAX_1]);
-		xPOR    (to, ptr128[sseMasks.MIN_MAX_2]);
-		if (min) xMIN.PD(to, t2);
-		else     xMAX.PD(to, t2);
+	xMOVAPS  (t2, from);
+	xPSRA.D  (t2, 31);
+	xPSRL.D  (t2,  1);
+	xPXOR    (t2, from);
 
-		xSHUF.PS(to, t1, 0x88);
-	}
-	else { // use integer comparison
-		const xmm& c1 = min ? t2 : t1;
-		const xmm& c2 = min ? t1 : t2;
-
-		xMOVAPS  (t1, to);
-		xPSRA.D  (t1, 31);
-		xPSRL.D  (t1,  1);
-		xPXOR    (t1, to);
-
-		xMOVAPS  (t2, from);
-		xPSRA.D  (t2, 31);
-		xPSRL.D  (t2,  1);
-		xPXOR    (t2, from);
-
-		xPCMP.GTD(c1, c2);
-		xPAND    (to, c1);
-		xPANDN   (c1, from);
-		xPOR     (to, c1);
-	}
+	xPCMP.GTD(c1, c2);
+	xPAND    (to, c1);
+	xPANDN   (c1, from);
+	xPOR     (to, c1);
 
 	if (t1 != t1in) mVU.regAlloc->clearNeeded(t1);
 	if (t2 != t2in) mVU.regAlloc->clearNeeded(t2);
 }
 
 // Warning: Modifies to's upper 3 vectors, and t1
-void MIN_MAX_SS(mV, const xmm& to, const xmm& from, const xmm& t1in, bool min)
+static void MIN_MAX_SS(mV, const xmm& to, const xmm& from, const xmm& t1in, bool min)
 {
 	const xmm& t1 = t1in.IsEmpty() ? mVU.regAlloc->allocReg() : t1in;
 	xSHUF.PS(to, from, 0);
@@ -367,67 +343,9 @@ void MIN_MAX_SS(mV, const xmm& to, const xmm& from, const xmm& t1in, bool min)
 	if (t1 != t1in) mVU.regAlloc->clearNeeded(t1);
 }
 
-// Not Used! - TriAce games only need a portion of this code to boot (see function below)
-// What this code attempts to do is do a floating point ADD with only 1 guard bit,
-// whereas FPU calculations that follow the IEEE standard have 3 guard bits (guard|round|sticky)
-// Warning: Modifies all vectors in 'to' and 'from', and Modifies t1in
-void ADD_SS_Single_Guard_Bit(microVU& mVU, const xmm& to, const xmm& from, const xmm& t1in)
-{
-	const xmm& t1 = t1in.IsEmpty() ? mVU.regAlloc->allocReg() : t1in;
-
-	xMOVD(eax, to);
-	xMOVD(ecx, from);
-	xSHR (eax, 23);
-	xSHR (ecx, 23);
-	xAND (eax, 0xff);
-	xAND (ecx, 0xff);
-	xSUB (ecx, eax); // Exponent Difference
-
-	xForwardJL8 case_neg;
-	xForwardJE8 case_end1;
-
-	xCMP (ecx, 24);
-	xForwardJLE8 case_pos_small;
-
-	// case_pos_big:
-	xPAND(to, ptr128[sseMasks.ADD_SS]);
-	xForwardJump8 case_end2;
-
-	case_pos_small.SetTarget();
-	xDEC   (ecx);
-	xMOV   (eax, 0xffffffff);
-	xSHL   (eax, cl);
-	xMOVDZX(t1, eax);
-	xPAND  (to, t1);
-	xForwardJump8 case_end3;
-
-	case_neg.SetTarget();
-	xCMP (ecx, -24);
-	xForwardJGE8 case_neg_small;
-
-	// case_neg_big:
-	xPAND(from, ptr128[sseMasks.ADD_SS]);
-	xForwardJump8 case_end4;
-
-	case_neg_small.SetTarget();
-	xNOT   (ecx); // -ecx - 1
-	xMOV   (eax, 0xffffffff);
-	xSHL   (eax, cl);
-	xMOVDZX(t1, eax);
-	xPAND  (from, t1);
-
-	case_end1.SetTarget();
-	case_end2.SetTarget();
-	case_end3.SetTarget();
-	case_end4.SetTarget();
-
-	xADD.SS(to, from);
-	if (t1 != t1in) mVU.regAlloc->clearNeeded(t1);
-}
-
 // Turns out only this is needed to get TriAce games booting with mVU
 // Modifies from's lower vector
-void ADD_SS_TriAceHack(microVU& mVU, const xmm& to, const xmm& from)
+static void ADD_SS_TriAceHack(microVU& mVU, const xmm& to, const xmm& from)
 {
 	xMOVD(eax, to);
 	xMOVD(ecx, from);
@@ -455,11 +373,11 @@ void ADD_SS_TriAceHack(microVU& mVU, const xmm& to, const xmm& from)
 	xADD.SS(to, from);
 }
 
-#define clampOp(opX, isPS) {					\
-	mVUclamp3(mVU, to,   t1, (isPS)?0xf:0x8);	\
-	mVUclamp3(mVU, from, t1, (isPS)?0xf:0x8);	\
-	opX(to, from);								\
-	mVUclamp4(to, t1, (isPS)?0xf:0x8);			\
+#define clampOp(opX, isPS) { \
+	mVUclamp3(mVU, to,   t1, (isPS)?0xf:0x8); \
+	mVUclamp3(mVU, from, t1, (isPS)?0xf:0x8); \
+	opX(to, from); \
+	mVUclamp4(to, t1, (isPS)?0xf:0x8); \
 }
 
 void SSE_MAXPS(mV, const xmm& to, const xmm& from, const xmm& t1 = xEmptyReg, const xmm& t2 = xEmptyReg)
@@ -530,7 +448,8 @@ __pagealigned u8 mVUsearchXMM[__pagesize];
 
 // Generates a custom optimized block-search function
 // Note: Structs must be 16-byte aligned! (GCC doesn't guarantee this)
-void mVUcustomSearch() {
+void mVUcustomSearch(void)
+{
 	HostSys::MemProtectStatic(mVUsearchXMM, PageAccess_ReadWrite());
 	memset(mVUsearchXMM, 0xcc, __pagesize);
 	xSetPtr(mVUsearchXMM);
