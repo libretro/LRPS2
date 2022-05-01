@@ -81,17 +81,9 @@ void mVUDTendProgram(mV, microFlagCycles* mFC, int isEbit) {
 	xMOV(ptr32[&mVU.regs().VI[REG_MAC_FLAG].UL], gprT1);
 	xMOV(ptr32[&mVU.regs().VI[REG_CLIP_FLAG].UL], gprT2);
 
-	if (!isEbit) { // Backup flag instances
-		xMOVAPS(xmmT1, ptr128[mVU.macFlag]);
-		xMOVAPS(ptr128[&mVU.regs().micro_macflags], xmmT1);
-		xMOVAPS(xmmT1, ptr128[mVU.clipFlag]);
-		xMOVAPS(ptr128[&mVU.regs().micro_clipflags], xmmT1);
-
-		xMOV(ptr32[&mVU.regs().micro_statusflags[0]], gprF0);
-		xMOV(ptr32[&mVU.regs().micro_statusflags[1]], gprF1);
-		xMOV(ptr32[&mVU.regs().micro_statusflags[2]], gprF2);
-		xMOV(ptr32[&mVU.regs().micro_statusflags[3]], gprF3);
-	} else { // Flush flag instances
+	if (isEbit)
+	{
+		// Flush flag instances
 		xMOVDZX(xmmT1, ptr32[&mVU.regs().VI[REG_CLIP_FLAG].UL]);
 		xSHUF.PS(xmmT1, xmmT1, 0);
 		xMOVAPS(ptr128[&mVU.regs().micro_clipflags], xmmT1);
@@ -103,17 +95,30 @@ void mVUDTendProgram(mV, microFlagCycles* mFC, int isEbit) {
 		xMOVDZX(xmmT1, getFlagReg(fStatus));
 		xSHUF.PS(xmmT1, xmmT1, 0);
 		xMOVAPS(ptr128[&mVU.regs().micro_statusflags], xmmT1);
-	}
 
-	if (isEbit)	{ // Clear 'is busy' Flags
+		// Clear 'is busy' Flags
 		xMOV(ptr32[&mVU.regs().nextBlockCycles], 0);
-		if (!mVU.index || !THREAD_VU1) {
+		if (!mVU.index || !THREAD_VU1)
+		{
 			xAND(ptr32[&VU0.VI[REG_VPU_STAT].UL], (isVU1 ? ~0x100 : ~0x001)); // VBS0/VBS1 flag
 			xAND(ptr32[&mVU.getVifRegs().stat], ~VIF1_STAT_VEW); // Clear VU 'is busy' signal for vif
 		}
 	}
 	else
+	{
+		// Backup flag instances
+		xMOVAPS(xmmT1, ptr128[mVU.macFlag]);
+		xMOVAPS(ptr128[&mVU.regs().micro_macflags], xmmT1);
+		xMOVAPS(xmmT1, ptr128[mVU.clipFlag]);
+		xMOVAPS(ptr128[&mVU.regs().micro_clipflags], xmmT1);
+
+		xMOV(ptr32[&mVU.regs().micro_statusflags[0]], gprF0);
+		xMOV(ptr32[&mVU.regs().micro_statusflags[1]], gprF1);
+		xMOV(ptr32[&mVU.regs().micro_statusflags[2]], gprF2);
+		xMOV(ptr32[&mVU.regs().micro_statusflags[3]], gprF3);
+
 		xMOV(ptr32[&mVU.regs().nextBlockCycles], mVUcycles);
+	}
 
 	if (isEbit != 2) { // Save PC, and Jump to Exit Point
 		xMOV(ptr32[&mVU.regs().VI[REG_TPC].UL], xPC);
