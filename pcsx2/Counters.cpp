@@ -352,9 +352,6 @@ static __fi void VSyncStart(u32 sCycle)
 	GetCoreThread().VsyncInThread();
 	Cpu->CheckExecutionState();
 
-	CpuVU0->Vsync();
-	CpuVU1->Vsync();
-
 	hwIntcIrq(INTC_VBLANK_S);
 	psxVBlankStart();
 	gsPostVsyncStart();
