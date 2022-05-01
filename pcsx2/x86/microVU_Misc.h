@@ -327,6 +327,9 @@ static const bool doDBitHandling = false;
 
 //------------------------------------------------------------------
 
+extern void mVUsaveReg_SSE4(const xmm& reg, xAddressVoid ptr, int xyzw, bool modXYZW);
+extern void mVUsaveReg_C(const xmm& reg, xAddressVoid ptr, int xyzw, bool modXYZW);
+
 extern void mVUmergeRegs(const xmm& dest, const xmm& src,  int xyzw, bool modXYZW=false);
-extern void mVUsaveReg(const xmm& reg, xAddressVoid ptr, int xyzw, bool modXYZW);
+extern void (*mVUsaveReg)(const xmm& reg, xAddressVoid ptr, int xyzw, bool modXYZW);
 extern void mVUloadReg(const xmm& reg, xAddressVoid ptr, int xyzw);

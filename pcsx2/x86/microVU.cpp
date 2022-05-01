@@ -50,10 +50,13 @@ void mVUinit(microVU& mVU, uint vuIndex) {
 	memzero(mVU.prog);
 
 	if(x86caps.hasStreamingSIMD4Extensions)
-		mVUclamp2 = mVUclamp2_SSE4;
+        {
+		mVUclamp2  	= mVUclamp2_SSE4;
+		mVUsaveReg 	= mVUsaveReg_SSE4;
+	}
 
-	mVU.index			=  vuIndex;
-	mVU.cop2			=  0;
+	mVU.index		=  vuIndex;
+	mVU.cop2		=  0;
 	mVU.vuMemSize		= (mVU.index ? 0x4000 : 0x1000);
 	mVU.microMemSize	= (mVU.index ? 0x4000 : 0x1000);
 	mVU.progSize		= (mVU.index ? 0x4000 : 0x1000) / 4;

@@ -47,75 +47,102 @@ void mVUloadIreg(const xmm& reg, int xyzw, VURegs* vuRegs)
 }
 
 // Modifies the Source Reg!
-void mVUsaveReg(const xmm& reg, xAddressVoid ptr, int xyzw, bool modXYZW)
+void mVUsaveReg_SSE4(const xmm& reg, xAddressVoid ptr, int xyzw, bool modXYZW)
 {
 	switch ( xyzw ) {
-		case 5:		if (x86caps.hasStreamingSIMD4Extensions) {
-						xEXTRACTPS(ptr32[ptr+4], reg, 1);
-						xEXTRACTPS(ptr32[ptr+12], reg, 3);
-					}
-					else {
-						xPSHUF.D(reg, reg, 0xe1); //WZXY
-						xMOVSS(ptr32[ptr+4], reg);
-						xPSHUF.D(reg, reg, 0xff); //WWWW
-						xMOVSS(ptr32[ptr+12], reg);
-					}
+		case 5:		
+					xEXTRACTPS(ptr32[ptr+4], reg, 1);
+					xEXTRACTPS(ptr32[ptr+12], reg, 3);
 					break; // YW
-		case 6:		xPSHUF.D(reg, reg, 0xc9);
+		case 6:		
+					xPSHUF.D(reg, reg, 0xc9);
 					xMOVL.PS(ptr64[ptr+4], reg);
 					break; // YZ
-		case 7:		if (x86caps.hasStreamingSIMD4Extensions) {
-						xMOVH.PS(ptr64[ptr+8], reg);
-						xEXTRACTPS(ptr32[ptr+4],  reg, 1);
-					}
-					else {
-						xPSHUF.D(reg, reg, 0x93); //ZYXW
-						xMOVH.PS(ptr64[ptr+4], reg);
-						xMOVSS(ptr32[ptr+12], reg);
-					}
+		case 7:		
+					xMOVH.PS(ptr64[ptr+8], reg);
+					xEXTRACTPS(ptr32[ptr+4],  reg, 1);
 					break; // YZW
-		case 9:		if (x86caps.hasStreamingSIMD4Extensions) {
-						xMOVSS(ptr32[ptr], reg);
-						xEXTRACTPS(ptr32[ptr+12], reg, 3);
-					}
-					else {
-						xMOVSS(ptr32[ptr], reg);
-						xPSHUF.D(reg, reg, 0xff); //WWWW
-						xMOVSS(ptr32[ptr+12], reg);
-					}
+		case 9:		
+					xMOVSS(ptr32[ptr], reg);
+					xEXTRACTPS(ptr32[ptr+12], reg, 3);
 					break; // XW
-		case 10:	if (x86caps.hasStreamingSIMD4Extensions) {
-						xMOVSS(ptr32[ptr], reg);
-						xEXTRACTPS(ptr32[ptr+8], reg, 2);
-					}
-					else {
-						xMOVSS(ptr32[ptr], reg);
-						xMOVHL.PS(reg, reg);
-						xMOVSS(ptr32[ptr+8], reg);
-					}
+		case 10:	
+					xMOVSS(ptr32[ptr], reg);
+					xEXTRACTPS(ptr32[ptr+8], reg, 2);
 					break; //XZ
-		case 11:	xMOVSS(ptr32[ptr], reg);
+		case 11:	
+					xMOVSS(ptr32[ptr], reg);
 					xMOVH.PS(ptr64[ptr+8], reg);
 					break; //XZW
-		case 13:	if (x86caps.hasStreamingSIMD4Extensions) {
-						xMOVL.PS(ptr64[ptr], reg);
-						xEXTRACTPS(ptr32[ptr+12], reg, 3);
-					}
-					else {
-						xPSHUF.D(reg, reg, 0x4b); //YXZW				
-						xMOVH.PS(ptr64[ptr], reg);
-						xMOVSS(ptr32[ptr+12], reg);
-					}
+		case 13:	
+					xMOVL.PS(ptr64[ptr], reg);
+					xEXTRACTPS(ptr32[ptr+12], reg, 3);
 					break; // XYW
-		case 14:	if (x86caps.hasStreamingSIMD4Extensions) {
-						xMOVL.PS(ptr64[ptr], reg);
-						xEXTRACTPS(ptr32[ptr+8], reg, 2);
-					}
-					else {
-						xMOVL.PS(ptr64[ptr], reg);
-						xMOVHL.PS(reg, reg);
-						xMOVSS(ptr32[ptr+8], reg);
-					}
+		case 14:	
+					xMOVL.PS(ptr64[ptr], reg);
+					xEXTRACTPS(ptr32[ptr+8], reg, 2);
+					break; // XYZ
+		case 4:		
+					if (!modXYZW) mVUunpack_xyzw(reg, reg, 1);
+					xMOVSS(ptr32[ptr+4], reg);		
+					break; // Y
+		case 2:		
+					if (!modXYZW) mVUunpack_xyzw(reg, reg, 2);
+					xMOVSS(ptr32[ptr+8], reg);	
+					break; // Z
+		case 1:		
+					if (!modXYZW) mVUunpack_xyzw(reg, reg, 3);
+					xMOVSS(ptr32[ptr+12], reg);	
+					break; // W
+		case 8:		xMOVSS(ptr32[ptr], reg);	 break; // X
+		case 12:	xMOVL.PS(ptr64[ptr], reg);	 break; // XY
+		case 3:		xMOVH.PS(ptr64[ptr+8], reg); break; // ZW
+		default:	xMOVAPS(ptr128[ptr], reg);	 break; // XYZW
+	}
+}
+
+// Modifies the Source Reg!
+void mVUsaveReg_C(const xmm& reg, xAddressVoid ptr, int xyzw, bool modXYZW)
+{
+	switch ( xyzw ) {
+		case 5:		
+					xPSHUF.D(reg, reg, 0xe1); //WZXY
+					xMOVSS(ptr32[ptr+4], reg);
+					xPSHUF.D(reg, reg, 0xff); //WWWW
+					xMOVSS(ptr32[ptr+12], reg);
+					break; // YW
+		case 6:		
+					xPSHUF.D(reg, reg, 0xc9);
+					xMOVL.PS(ptr64[ptr+4], reg);
+					break; // YZ
+		case 7:		
+					xPSHUF.D(reg, reg, 0x93); //ZYXW
+					xMOVH.PS(ptr64[ptr+4], reg);
+					xMOVSS(ptr32[ptr+12], reg);
+					break; // YZW
+		case 9:		
+					xMOVSS(ptr32[ptr], reg);
+					xPSHUF.D(reg, reg, 0xff); //WWWW
+					xMOVSS(ptr32[ptr+12], reg);
+					break; // XW
+		case 10:	
+					xMOVSS(ptr32[ptr], reg);
+					xMOVHL.PS(reg, reg);
+					xMOVSS(ptr32[ptr+8], reg);
+					break; //XZ
+		case 11:	
+					xMOVSS(ptr32[ptr], reg);
+					xMOVH.PS(ptr64[ptr+8], reg);
+					break; //XZW
+		case 13:	
+					xPSHUF.D(reg, reg, 0x4b); //YXZW				
+					xMOVH.PS(ptr64[ptr], reg);
+					xMOVSS(ptr32[ptr+12], reg);
+					break; // XYW
+		case 14:	
+					xMOVL.PS(ptr64[ptr], reg);
+					xMOVHL.PS(reg, reg);
+					xMOVSS(ptr32[ptr+8], reg);
 					break; // XYZ
 		case 4:		if (!modXYZW) mVUunpack_xyzw(reg, reg, 1);
 					xMOVSS(ptr32[ptr+4], reg);		
@@ -132,6 +159,8 @@ void mVUsaveReg(const xmm& reg, xAddressVoid ptr, int xyzw, bool modXYZW)
 		default:	xMOVAPS(ptr128[ptr], reg);	 break; // XYZW
 	}
 }
+
+void (*mVUsaveReg)(const xmm& reg, xAddressVoid ptr, int xyzw, bool modXYZW) = mVUsaveReg_C;
 
 // Modifies the Source Reg! (ToDo: Optimize modXYZW = 1 cases)
 void mVUmergeRegs(const xmm& dest, const xmm& src, int xyzw, bool modXYZW)
