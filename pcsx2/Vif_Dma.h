@@ -94,7 +94,7 @@ struct vifStruct {
 
 	bool queued_program;
 	u32 queued_pc;
-
+	bool queued_gif_wait;
 	
 };
 

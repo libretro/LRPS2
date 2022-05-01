@@ -381,6 +381,7 @@ __fi void mVUinitFirstPass(microVU& mVU, uptr pState, u8* thisPtr) {
 	mVUregs.blockType		= 0;
 	mVUregs.viBackUp		= 0;
 	mVUregs.flagInfo		= 0;
+	mVUregs.mbitinblock             = false;
 	mVUsFlagHack			= CHECK_VU_FLAGHACK;
 	mVUinitConstValues(mVU);
 }
@@ -505,6 +506,7 @@ void* mVUcompile(microVU& mVU, u32 startPC, uptr pState)
 		}
 
 		if ((curI & _Mbit_) && isVU0) {
+			mVUregs.mbitinblock = true;
 			if (xPC > 0)
 			{
 				incPC(-2);
