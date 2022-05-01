@@ -140,23 +140,63 @@ int GIF_Fifo::read_fifo()
 	return sizeRead;
 }
 
-void incGifChAddr(u32 qwc) {
-	if (gifch.chcr.STR) {
+void incGifChAddr(u32 qwc)
+{
+	if (gifch.chcr.STR)
+	{
 		gifch.madr += qwc * 16;
 		gifch.qwc  -= qwc;
 		hwDmacSrcTadrInc(gifch);
 	}
 }
 
-__fi void gifCheckPathStatus() {
-
+__fi void gifCheckPathStatusCalledFromGIF(void)
+{
+	// If GIF is running on it's own, let it handle its own timing.
+	if (gifch.chcr.STR)
+	{
+		if(gif_fifo.fifoSize == 16)
+			GifDMAInt(16);
+		return;
+	}
 	if (gifRegs.stat.APATH == 3)
 	{
 		gifRegs.stat.APATH = 0;
-		gifRegs.stat.OPH = 0;
+		gifRegs.stat.OPH   = 0;
+	}
+
+	//Required for Path3 Masking timing!
+	if (gifUnit.gifPath[GIF_PATH_3].state == GIF_PATH_WAIT)
+		gifUnit.gifPath[GIF_PATH_3].state = GIF_PATH_IDLE;
+
+	// GIF DMA isn't running but VIF might be waiting on PATH3 so resume it here
+	if (gifUnit.gifPath[GIF_PATH_3].state == GIF_PATH_IDLE)
+	{
+		if (vif1Regs.stat.VGW)
+		{
+			// Check if VIF is in a cycle or is currently "idle" waiting for GIF to come back.
+			if (!(cpuRegs.interrupt & (1 << DMAC_VIF1)))
+				CPU_INT(DMAC_VIF1, 1);
+
+			// Make sure it loops if the GIF packet is empty to prepare for the next packet
+			// or end if it was the end of a packet.
+			// This must trigger after VIF retriggers as VIf might instantly mask Path3
+			if ((!gifUnit.Path3Masked() || gifch.qwc == 0) && (gifch.chcr.STR || gif_fifo.fifoSize))
+				GifDMAInt(16);
+		}
+	}
+}
+
+static __fi void gifCheckPathStatus(void)
+{
+	if (gifRegs.stat.APATH == 3)
+	{
+		gifRegs.stat.APATH = 0;
+		gifRegs.stat.OPH   = 0;
 		if (gifUnit.gifPath[GIF_PATH_3].state == GIF_PATH_IDLE || gifUnit.gifPath[GIF_PATH_3].state == GIF_PATH_WAIT)
 		{
-			if (gifUnit.checkPaths(1, 1, 0)) gifUnit.Execute(false, true);
+			if (gifUnit.checkPaths(1, 1, 0))
+				gifUnit.Execute(false, true);
 		}
 	}
 
@@ -165,7 +205,7 @@ __fi void gifCheckPathStatus() {
 		gifUnit.gifPath[GIF_PATH_3].state = GIF_PATH_IDLE;
 }
 
-__fi void gifInterrupt()
+__fi void gifInterrupt(void)
 {
 	gifCheckPathStatus();
 
@@ -192,13 +232,15 @@ __fi void gifInterrupt()
 		return;
 	}
 
-	if (gifUnit.gsSIGNAL.queued) {
+	if (gifUnit.gsSIGNAL.queued)
+	{
 		GifDMAInt(128);
 		if (gif_fifo.fifoSize == 16)
 			return;
 	}
 
-	// If there's something in the FIFO and we can do PATH3, empty the FIFO.
+	// If there's something in the FIFO and we can do PATH3, 
+	// empty the FIFO.
 	if (gif_fifo.fifoSize > 0)
 	{
 		const int readSize = gif_fifo.read_fifo();
@@ -239,8 +281,8 @@ __fi void gifInterrupt()
 		return;
 	}
 
-	gif.gscycles = 0;
-	gifch.chcr.STR = false;
+	gif.gscycles     = 0;
+	gifch.chcr.STR   = false;
 	gifRegs.stat.FQC = gif_fifo.fifoSize;
 	CalculateFIFOCSR();
 	hwDmacIrq(DMAC_GIF);
