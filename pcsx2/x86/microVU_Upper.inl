@@ -194,8 +194,8 @@ static void mVU_FMACa(microVU& mVU, int recPass, int opCase, int opType, bool is
 		}
 		else { Fs = mVU.regAlloc->allocReg(_Fs_, _Fd_, _X_Y_Z_W); }
 
-		if (clampType & cFt) mVUclamp2(mVU, Ft, xEmptyReg, _X_Y_Z_W);
-		if (clampType & cFs) mVUclamp2(mVU, Fs, xEmptyReg, _X_Y_Z_W);
+		if (clampType & cFt) mVUclamp2(mVU, Ft, xEmptyReg, _X_Y_Z_W, 0);
+		if (clampType & cFs) mVUclamp2(mVU, Fs, xEmptyReg, _X_Y_Z_W, 0);
 
 		if (_XYZW_SS) SSE_SS[opType](mVU, Fs, Ft, xEmptyReg, xEmptyReg);
 		else		  SSE_PS[opType](mVU, Fs, Ft, xEmptyReg, xEmptyReg);
@@ -227,8 +227,8 @@ static void mVU_FMACb(microVU& mVU, int recPass, int opCase, int opType, int cla
 
 		if (_XYZW_SS2) { xPSHUF.D(ACC, ACC, shuffleSS(_X_Y_Z_W)); }
 
-		if (clampType & cFt) mVUclamp2(mVU, Ft, xEmptyReg, _X_Y_Z_W);
-		if (clampType & cFs) mVUclamp2(mVU, Fs, xEmptyReg, _X_Y_Z_W);
+		if (clampType & cFt) mVUclamp2(mVU, Ft, xEmptyReg, _X_Y_Z_W, 0);
+		if (clampType & cFs) mVUclamp2(mVU, Fs, xEmptyReg, _X_Y_Z_W, 0);
 
 		if (_XYZW_SS) SSE_SS[2](mVU, Fs, Ft, xEmptyReg, xEmptyReg);
 		else		  SSE_PS[2](mVU, Fs, Ft, xEmptyReg, xEmptyReg);
@@ -267,9 +267,9 @@ static void mVU_FMACc(microVU& mVU, int recPass, int opCase, int clampType) {
 
 		if (_XYZW_SS2) { xPSHUF.D(ACC, ACC, shuffleSS(_X_Y_Z_W)); }
 
-		if (clampType & cFt)  mVUclamp2(mVU, Ft,  xEmptyReg, _X_Y_Z_W);
-		if (clampType & cFs)  mVUclamp2(mVU, Fs,  xEmptyReg, _X_Y_Z_W);
-		if (clampType & cACC) mVUclamp2(mVU, ACC, xEmptyReg, _X_Y_Z_W);
+		if (clampType & cFt)  mVUclamp2(mVU, Ft,  xEmptyReg, _X_Y_Z_W, 0);
+		if (clampType & cFs)  mVUclamp2(mVU, Fs,  xEmptyReg, _X_Y_Z_W, 0);
+		if (clampType & cACC) mVUclamp2(mVU, ACC, xEmptyReg, _X_Y_Z_W, 0);
 
 		if (_XYZW_SS) { SSE_SS[2](mVU, Fs, Ft, xEmptyReg, xEmptyReg); SSE_SS[0](mVU, Fs, ACC, tempFt, xEmptyReg); }
 		else		  { SSE_PS[2](mVU, Fs, Ft, xEmptyReg, xEmptyReg); SSE_PS[0](mVU, Fs, ACC, tempFt, xEmptyReg); }
@@ -295,9 +295,9 @@ static void mVU_FMACd(microVU& mVU, int recPass, int opCase, int clampType) {
 		Fs = mVU.regAlloc->allocReg(_Fs_,  0, _X_Y_Z_W);
 		Fd = mVU.regAlloc->allocReg(32, _Fd_, _X_Y_Z_W);
 
-		if (clampType & cFt)  mVUclamp2(mVU, Ft, xEmptyReg, _X_Y_Z_W);
-		if (clampType & cFs)  mVUclamp2(mVU, Fs, xEmptyReg, _X_Y_Z_W);
-		if (clampType & cACC) mVUclamp2(mVU, Fd, xEmptyReg, _X_Y_Z_W);
+		if (clampType & cFt)  mVUclamp2(mVU, Ft, xEmptyReg, _X_Y_Z_W, 0);
+		if (clampType & cFs)  mVUclamp2(mVU, Fs, xEmptyReg, _X_Y_Z_W, 0);
+		if (clampType & cACC) mVUclamp2(mVU, Fd, xEmptyReg, _X_Y_Z_W, 0);
 
 		if (_XYZW_SS) { SSE_SS[2](mVU, Fs, Ft, xEmptyReg, xEmptyReg); SSE_SS[1](mVU, Fd, Fs, tempFt, xEmptyReg); }
 		else		  { SSE_PS[2](mVU, Fs, Ft, xEmptyReg, xEmptyReg); SSE_PS[1](mVU, Fd, Fs, tempFt, xEmptyReg); }
@@ -394,7 +394,6 @@ static void mVU_ITOFx(mP, const float* addr) {
 
 		xCVTDQ2PS(Fs, Fs);
 		if (addr) { xMUL.PS(Fs, ptr128[addr]); }
-		//mVUclamp2(Fs, xmmT1, 15); // Clamp (not sure if this is needed)
 
 		mVU.regAlloc->clearNeeded(Fs);
 	}
