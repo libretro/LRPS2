@@ -59,9 +59,6 @@ void Threading::Semaphore::Post(int multiple)
 
 void Threading::Semaphore::WaitWithoutYield()
 {
-#ifndef __LIBRETRO__
-    pxAssertMsg(!wxThread::IsMain(), "Unyielding semaphore wait issued from the main/gui thread.  Please use Wait() instead.");
-#endif
     sem_wait(&m_sema);
 }
 
