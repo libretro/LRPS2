@@ -56,24 +56,11 @@ namespace
 			ALL_FLAGS = 0xFFF
 		};
 
-		bool isValid() const  { return rawValue & VALID_FLAG; }
-		bool isDirty() const  { return rawValue & DIRTY_FLAG; }
-
-		bool isDirtyAndValid() const
-		{
-			return (rawValue & (DIRTY_FLAG | VALID_FLAG)) == (DIRTY_FLAG | VALID_FLAG);
-		}
-
 		bool matches(uptr other) const
 		{
 			uptr adr      = rawValue & ~ALL_FLAGS;
 			bool is_valid = rawValue & VALID_FLAG;
 			return is_valid && adr == (other & ~ALL_FLAGS);
-		}
-
-		void clear()
-		{
-			rawValue &= CacheTag::LRF_FLAG;
 		}
 	};
 
@@ -85,7 +72,8 @@ namespace
 
 		void writeBackIfNeeded()
 		{
-			if (!tag.isDirtyAndValid())
+			bool is_dirty_and_valid = (tag.rawValue & (CacheTag::DIRTY_FLAG | CacheTag::VALID_FLAG)) == (CacheTag::DIRTY_FLAG | CacheTag::VALID_FLAG);
+			if (!is_dirty_and_valid)
 				return;
 
 			uptr adr    = tag.rawValue & ~CacheTag::ALL_FLAGS;
@@ -105,7 +93,7 @@ namespace
 
 		void clear()
 		{
-			tag.clear();
+			tag.rawValue &= CacheTag::LRF_FLAG;
 			data = CacheData();
 		}
 	};
