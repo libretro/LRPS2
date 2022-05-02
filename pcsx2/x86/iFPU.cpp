@@ -1007,40 +1007,34 @@ void recDIV_S_xmm(int info)
 		case PROCESS_EE_S:
 			xMOVSS(xRegisterSSE(EEREC_D), xRegisterSSE(EEREC_S));
 			xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.fpr[_Ft_]]);
-			if (CHECK_FPU_EXTRA_FLAGS) recDIVhelper1(EEREC_D, t0reg);
-			else recDIVhelper2(EEREC_D, t0reg);
+			recDIVhelper1(EEREC_D, t0reg);
 			break;
 		case PROCESS_EE_T:
 			if (EEREC_D == EEREC_T) {
 				xMOVSS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_T));
 				xMOVSSZX(xRegisterSSE(EEREC_D), ptr[&fpuRegs.fpr[_Fs_]]);
-				if (CHECK_FPU_EXTRA_FLAGS) recDIVhelper1(EEREC_D, t0reg);
-				else recDIVhelper2(EEREC_D, t0reg);
+				recDIVhelper1(EEREC_D, t0reg);
 			}
 			else {
 				xMOVSSZX(xRegisterSSE(EEREC_D), ptr[&fpuRegs.fpr[_Fs_]]);
-				if (CHECK_FPU_EXTRA_FLAGS) recDIVhelper1(EEREC_D, EEREC_T);
-				else recDIVhelper2(EEREC_D, EEREC_T);
+				recDIVhelper1(EEREC_D, EEREC_T);
 			}
 			break;
 		case (PROCESS_EE_S|PROCESS_EE_T):
 			if (EEREC_D == EEREC_T) {
 				xMOVSS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_T));
 				xMOVSS(xRegisterSSE(EEREC_D), xRegisterSSE(EEREC_S));
-				if (CHECK_FPU_EXTRA_FLAGS) recDIVhelper1(EEREC_D, t0reg);
-				else recDIVhelper2(EEREC_D, t0reg);
+				recDIVhelper1(EEREC_D, t0reg);
 			}
 			else {
 				xMOVSS(xRegisterSSE(EEREC_D), xRegisterSSE(EEREC_S));
-				if (CHECK_FPU_EXTRA_FLAGS) recDIVhelper1(EEREC_D, EEREC_T);
-				else recDIVhelper2(EEREC_D, EEREC_T);
+				recDIVhelper1(EEREC_D, EEREC_T);
 			}
 			break;
 		default:
 			xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.fpr[_Ft_]]);
 			xMOVSSZX(xRegisterSSE(EEREC_D), ptr[&fpuRegs.fpr[_Fs_]]);
-			if (CHECK_FPU_EXTRA_FLAGS) recDIVhelper1(EEREC_D, t0reg);
-			else recDIVhelper2(EEREC_D, t0reg);
+			recDIVhelper1(EEREC_D, t0reg);
 			break;
 	}
 	if (roundmodeFlag) xLDMXCSR (g_sseMXCSR);
@@ -1551,7 +1545,7 @@ void recSQRT_S_xmm(int info)
 	if( info & PROCESS_EE_T ) xMOVSS(xRegisterSSE(EEREC_D), xRegisterSSE(EEREC_T));
 	else xMOVSSZX(xRegisterSSE(EEREC_D), ptr[&fpuRegs.fpr[_Ft_]]);
 
-	if (CHECK_FPU_EXTRA_FLAGS) {
+	{
 		int tempReg = _allocX86reg(xEmptyReg, X86TYPE_TEMP, 0, 0);
 
 		xAND(ptr32[&fpuRegs.fprc[31]], ~(FPUflagI|FPUflagD)); // Clear I and D flags
@@ -1566,7 +1560,6 @@ void recSQRT_S_xmm(int info)
 
 		_freeX86reg(tempReg);
 	}
-	else xAND.PS(xRegisterSSE(EEREC_D), ptr[&s_pos[0]]); // Make EEREC_D Positive
 
 	if (CHECK_FPU_OVERFLOW) xMIN.SS(xRegisterSSE(EEREC_D), ptr[&g_maxvals[0]]);// Only need to do positive clamp, since EEREC_D is positive
 	xSQRT.SS(xRegisterSSE(EEREC_D), xRegisterSSE(EEREC_D));
@@ -1662,26 +1655,22 @@ void recRSQRT_S_xmm(int info)
 		case PROCESS_EE_S:
 			xMOVSS(xRegisterSSE(EEREC_D), xRegisterSSE(EEREC_S));
 			xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.fpr[_Ft_]]);
-			if (CHECK_FPU_EXTRA_FLAGS) recRSQRThelper1(EEREC_D, t0reg);
-			else recRSQRThelper2(EEREC_D, t0reg);
+			recRSQRThelper1(EEREC_D, t0reg);
 			break;
 		case PROCESS_EE_T:
 			xMOVSS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_T));
 			xMOVSSZX(xRegisterSSE(EEREC_D), ptr[&fpuRegs.fpr[_Fs_]]);
-			if (CHECK_FPU_EXTRA_FLAGS) recRSQRThelper1(EEREC_D, t0reg);
-			else recRSQRThelper2(EEREC_D, t0reg);
+			recRSQRThelper1(EEREC_D, t0reg);
 			break;
 		case (PROCESS_EE_S|PROCESS_EE_T):
 			xMOVSS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_T));
 			xMOVSS(xRegisterSSE(EEREC_D), xRegisterSSE(EEREC_S));
-			if (CHECK_FPU_EXTRA_FLAGS) recRSQRThelper1(EEREC_D, t0reg);
-			else recRSQRThelper2(EEREC_D, t0reg);
+			recRSQRThelper1(EEREC_D, t0reg);
 			break;
 		default:
 			xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.fpr[_Ft_]]);
 			xMOVSSZX(xRegisterSSE(EEREC_D), ptr[&fpuRegs.fpr[_Fs_]]);
-			if (CHECK_FPU_EXTRA_FLAGS) recRSQRThelper1(EEREC_D, t0reg);
-			else recRSQRThelper2(EEREC_D, t0reg);
+			recRSQRThelper1(EEREC_D, t0reg);
 			break;
 	}
 	_freeXMMreg(t0reg);

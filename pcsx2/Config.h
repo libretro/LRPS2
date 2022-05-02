@@ -322,11 +322,11 @@ extern Pcsx2Config EmuConfig;
 #define THREAD_VU1					(EmuConfig.Cpu.Recompiler.EnableVU1 && EmuConfig.Speedhacks.vuThread)
 #define INSTANT_VU1					(EmuConfig.Speedhacks.vu1Instant)
 #define CHECK_EEREC					(EmuConfig.Cpu.Recompiler.EnableEE)
-#define CHECK_IOPREC				(EmuConfig.Cpu.Recompiler.EnableIOP)
+#define CHECK_IOPREC					(EmuConfig.Cpu.Recompiler.EnableIOP)
 
 //------------ SPECIAL GAME FIXES!!! ---------------
 #define CHECK_VUADDSUBHACK			(EmuConfig.Gamefixes.VuAddSubHack)	 // Special Fix for Tri-ace games, they use an encryption algorithm that requires VU addi opcode to be bit-accurate.
-#define CHECK_FPUCOMPAREHACK		(EmuConfig.Gamefixes.FpuCompareHack) // Special Fix for Digimon Rumble Arena 2, fixes spinning/hanging on intro-menu.
+#define CHECK_FPUCOMPAREHACK			(EmuConfig.Gamefixes.FpuCompareHack) // Special Fix for Digimon Rumble Arena 2, fixes spinning/hanging on intro-menu.
 #define CHECK_FPUMULHACK			(EmuConfig.Gamefixes.FpuMulHack)	 // Special Fix for Tales of Destiny hangs.
 #define CHECK_FPUNEGDIVHACK			(EmuConfig.Gamefixes.FpuNegDivHack)	 // Special Fix for Gundam games messed up camera-view.
 #define CHECK_XGKICKHACK			(EmuConfig.Gamefixes.XgKickHack)	 // Special Fix for Erementar Gerad, adds more delay to VU XGkick instructions. Corrects the color of some graphics.
@@ -338,17 +338,16 @@ extern Pcsx2Config EmuConfig;
 #define CHECK_VIFFIFOHACK			(EmuConfig.Gamefixes.VIFFIFOHack)    // Pretends to fill the non-existant VIF FIFO Buffer.
 #define CHECK_VIF1STALLHACK			(EmuConfig.Gamefixes.VIF1StallHack)  // Like above, processes FIFO data before the stall is allowed (to make sure data goes over).
 #define CHECK_GIFFIFOHACK			(EmuConfig.Gamefixes.GIFFIFOHack)	 // Enabled the GIF FIFO (more correct but slower)
-#define CHECK_FMVINSOFTWAREHACK	 	(EmuConfig.Gamefixes.FMVinSoftwareHack) // Toggle in and out of software rendering when an FMV runs.
+#define CHECK_FMVINSOFTWAREHACK	 		(EmuConfig.Gamefixes.FMVinSoftwareHack) // Toggle in and out of software rendering when an FMV runs.
 //------------ Advanced Options!!! ---------------
 #define CHECK_VU_OVERFLOW			(EmuConfig.Cpu.Recompiler.vuOverflow)
-#define CHECK_VU_EXTRA_OVERFLOW		(EmuConfig.Cpu.Recompiler.vuExtraOverflow) // If enabled, Operands are clamped before being used in the VU recs
-#define CHECK_VU_SIGN_OVERFLOW		(EmuConfig.Cpu.Recompiler.vuSignOverflow)
+#define CHECK_VU_EXTRA_OVERFLOW			(EmuConfig.Cpu.Recompiler.vuExtraOverflow) // If enabled, Operands are clamped before being used in the VU recs
+#define CHECK_VU_SIGN_OVERFLOW			(EmuConfig.Cpu.Recompiler.vuSignOverflow)
 #define CHECK_VU_UNDERFLOW			(EmuConfig.Cpu.Recompiler.vuUnderflow)
-#define CHECK_VU_EXTRA_FLAGS		0	// Always disabled now // Sets correct flags in the sVU recs
+#define CHECK_VU_EXTRA_FLAGS			0	// Always disabled now // Sets correct flags in the sVU recs
 
 #define CHECK_FPU_OVERFLOW			(EmuConfig.Cpu.Recompiler.fpuOverflow)
-#define CHECK_FPU_EXTRA_OVERFLOW	(EmuConfig.Cpu.Recompiler.fpuExtraOverflow) // If enabled, Operands are checked for infinities before being used in the FPU recs
-#define CHECK_FPU_EXTRA_FLAGS		1	// Always enabled now // Sets D/I flags on FPU instructions
+#define CHECK_FPU_EXTRA_OVERFLOW		(EmuConfig.Cpu.Recompiler.fpuExtraOverflow) // If enabled, Operands are checked for infinities before being used in the FPU recs
 #define CHECK_FPU_FULL				(EmuConfig.Cpu.Recompiler.fpuFullMode)
 
 //------------ EE Recompiler defines - Comment to disable a recompiler ---------------
