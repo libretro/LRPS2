@@ -78,9 +78,6 @@ void recRSQRT_S_xmm(int info);
 #define FPUflagSO	0X00000010
 #define FPUflagSU	0X00000008
 
-// Add/Sub opcodes produce the same results as the ps2
-#define FPU_CORRECT_ADD_SUB 1
-
 static const __aligned16 u32 s_neg[4] = { 0x80000000, 0xffffffff, 0xffffffff, 0xffffffff };
 static const __aligned16 u32 s_pos[4] = { 0x7fffffff, 0xffffffff, 0xffffffff, 0xffffffff };
 
@@ -474,13 +471,11 @@ void FPU_ADD_SUB(int regd, int regt, int issub)
 }
 
 void FPU_ADD(int regd, int regt) {
-	if (FPU_CORRECT_ADD_SUB) FPU_ADD_SUB(regd, regt, 0);
-	else xADD.SS(xRegisterSSE(regd), xRegisterSSE(regt));
+	FPU_ADD_SUB(regd, regt, 0);
 }
 
 void FPU_SUB(int regd, int regt) {
-	if (FPU_CORRECT_ADD_SUB) FPU_ADD_SUB(regd, regt, 1);
-	else xSUB.SS(xRegisterSSE(regd), xRegisterSSE(regt));
+	FPU_ADD_SUB(regd, regt, 1);
 }
 
 //------------------------------------------------------------------
