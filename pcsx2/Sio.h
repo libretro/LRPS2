@@ -113,17 +113,14 @@ struct _sio
 };
 
 extern _sio sio;
-extern _mcd mcds[2][4];
-extern _mcd *mcd;
 
-extern void sioInit();
-extern u8 sioRead8();
+extern void sioInit(void);
+extern u8 sioRead8(void);
 extern void sioWrite8(u8 value);
 extern void sioWriteCtrl16(u16 value);
-extern void sioInterrupt();
-extern void sioInterruptR();
-extern void SetForceMcdEjectTimeoutNow();
-extern void ClearMcdEjectTimeoutNow();
-extern void sioStatRead();
+extern void sioInterrupt(void);
+extern void sioInterruptR(void);
+extern void sioStatRead(void);
 extern void sioSetGameSerial(const wxString& serial);
-extern void sioNextFrame();
+extern void sioNextFrame(void);
+void ClearMcdEjectTimeoutNow(void);

@@ -71,8 +71,6 @@ void __fastcall WriteFIFO_VIF0(const mem128_t *value)
 	}
 	else		 
 		vif0Regs.stat.VPS = VPS_IDLE;
-
-	//pxAssertDev( ret, "vif stall code not implemented" );
 }
 
 void __fastcall WriteFIFO_VIF1(const mem128_t *value)
@@ -92,8 +90,6 @@ void __fastcall WriteFIFO_VIF1(const mem128_t *value)
 
 		if(gifUnit.checkPaths(1,0,1)) gifUnit.Execute(false, true);
 	}
-
-	//pxAssertDev( ret, "vif stall code not implemented" );
 }
 
 void __fastcall WriteFIFO_GIF(const mem128_t *value)
