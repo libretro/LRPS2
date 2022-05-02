@@ -95,24 +95,6 @@ union tDMA_TAG {
 	tDMA_TAG() {}
 
 	tDMA_TAG(u32 val) { _u32 = val; }
-	u16 upper() const { return (_u32 >> 16); }
-	u16 lower() const { return (u16)_u32; }
-	wxString tag_to_str() const
-	{
-		switch(ID)
-		{
-			case TAG_REFE: return wxsFormat(L"REFE %08X", _u32); break;
-			case TAG_CNT: return L"CNT"; break;
-			case TAG_NEXT: return wxsFormat(L"NEXT %08X", _u32); break;
-			case TAG_REF: return wxsFormat(L"REF %08X", _u32); break;
-			case TAG_REFS: return wxsFormat(L"REFS %08X", _u32); break;
-			case TAG_CALL: return L"CALL"; break;
-			case TAG_RET: return L"RET"; break;
-			case TAG_END: return L"END"; break;
-			default: return L"????"; break;
-		}
-	}
-	void reset() { _u32 = 0; }
 };
 #define DMA_TAG(value) ((tDMA_TAG)(value))
 
@@ -132,13 +114,7 @@ union tDMA_CHCR {
 
 	tDMA_CHCR( u32 val) { _u32 = val; }
 
-	bool test(u32 flags) const { return !!(_u32 & flags); }
 	void set(u32 value) { _u32 = value; }
-	void set_flags(u32 flags) { _u32 |= flags; }
-	void clear_flags(u32 flags) { _u32 &= ~flags; }
-	void reset() { _u32 = 0; }
-	u16 upper() const { return (_u32 >> 16); }
-	u16 lower() const { return (u16)_u32; }
 	tDMA_TAG tag() { return (tDMA_TAG)_u32; }
 };
 
@@ -153,7 +129,6 @@ union tDMA_SADR {
 
 	tDMA_SADR(u32 val) { _u32 = val; }
 
-	void reset() { _u32 = 0; }
 	tDMA_TAG tag() const { return (tDMA_TAG)_u32; }
 };
 
@@ -165,7 +140,6 @@ union tDMA_QWC {
 
 	tDMA_QWC(u32 val) { _u32 = val; }
 
-	void reset() { _u32 = 0; }
 	tDMA_TAG tag() const { return (tDMA_TAG)_u32; }
 };
 
@@ -186,7 +160,7 @@ struct DMACh {
 
 	void chcrTransfer(tDMA_TAG* ptag)
 	{
-	    chcr.TAG = ptag[0].upper();
+	    chcr.TAG = ptag[0]._u32 >> 16;
 	}
 
 	void qwcTransfer(tDMA_TAG* ptag)
@@ -268,7 +242,6 @@ union tDMAC_QUEUE
 	u16 _u16;
 
 	tDMAC_QUEUE(u16 val) { _u16 = val; }
-	void reset() { _u16 = 0; }
 	bool empty() const { return (_u16 == 0); }
 };
 
@@ -288,7 +261,6 @@ static __fi int ChannelNumber(u32 addr)
         case D8_CHCR: return 8;
         case D9_CHCR: return 9;
 		default:
-		      //pxFailDev("Invalid DMA channel number");
 		      break;
     }
     return 51; // some value
@@ -307,11 +279,6 @@ union tDMAC_CTRL {
 	u32 _u32;
 
 	tDMAC_CTRL(u32 val) { _u32 = val; }
-
-	bool test(u32 flags) const { return !!(_u32 & flags); }
-	void set_flags(u32 flags) { _u32 |= flags; }
-	void clear_flags(u32 flags) { _u32 &= ~flags; }
-	void reset() { _u32 = 0; }
 };
 
 union tDMAC_STAT {
@@ -331,16 +298,6 @@ union tDMAC_STAT {
 	u16 _u16[2];
 
 	tDMAC_STAT(u32 val) { _u32 = val; }
-
-	bool test(u32 flags) const { return !!(_u32 & flags); }
-	void set_flags(u32 flags) { _u32 |= flags; }
-	void clear_flags(u32 flags) { _u32 &= ~flags; }
-	void reset() { _u32 = 0; }
-
-	bool TestForInterrupt() const
-	{
-		return ((_u16[0] & _u16[1]) != 0) || BEIS;
-	}
 };
 
 union tDMAC_PCR {
@@ -354,11 +311,6 @@ union tDMAC_PCR {
 	u32 _u32;
 
 	tDMAC_PCR(u32 val) { _u32 = val; }
-
-	bool test(u32 flags) const { return !!(_u32 & flags); }
-	void set_flags(u32 flags) { _u32 |= flags; }
-	void clear_flags(u32 flags) { _u32 &= ~flags; }
-	void reset() { _u32 = 0; }
 };
 
 union tDMAC_SQWC {
@@ -371,11 +323,6 @@ union tDMAC_SQWC {
 	u32 _u32;
 
 	tDMAC_SQWC(u32 val) { _u32 = val; }
-
-	bool test(u32 flags) const { return !!(_u32 & flags); }
-	void set_flags(u32 flags) { _u32 |= flags; }
-	void clear_flags(u32 flags) { _u32 &= ~flags; }
-	void reset() { _u32 = 0; }
 };
 
 union tDMAC_RBSR {
@@ -386,8 +333,6 @@ union tDMAC_RBSR {
 	u32 _u32;
 
 	tDMAC_RBSR(u32 val) { _u32 = val; }
-
-	void reset() { _u32 = 0; }
 };
 
 union tDMAC_RBOR {
@@ -398,8 +343,6 @@ union tDMAC_RBOR {
 	u32 _u32;
 
 	tDMAC_RBOR(u32 val) { _u32 = val; }
-
-	void reset() { _u32 = 0; }
 };
 
 // --------------------------------------------------------------------------------------
@@ -419,30 +362,6 @@ union tDMAC_ADDR
 
 	tDMAC_ADDR() {}
 	tDMAC_ADDR(u32 val) { _u32 = val; }
-
-	void clear() { _u32 = 0; }
-
-	void AssignADDR(uint addr)
-	{
-		ADDR = addr;
-		if (SPR) ADDR &= (Ps2MemSize::Scratch-1);
-	}
-
-	void IncrementQWC(uint incval = 1)
-	{
-		ADDR += incval;
-		if (SPR) ADDR &= (Ps2MemSize::Scratch-1);
-	}
-
-	wxString ToString(bool sprIsValid=true) const
-	{
-		return pxsFmt((sprIsValid && SPR) ? L"0x%04X(SPR)" : L"0x%08X", ADDR);
-	}
-
-	wxCharBuffer ToUTF8(bool sprIsValid=true) const
-	{
-		return FastFormatAscii().Write((sprIsValid && SPR) ? "0x%04X(SPR)" : "0x%08X", ADDR).c_str();
-	}
 };
 
 struct DMACregisters
@@ -473,11 +392,6 @@ union tINTC_STAT {
 	u32 _u32;
 
 	tINTC_STAT(u32 val) { _u32 = val; }
-
-	bool test(u32 flags) const { return !!(_u32 & flags); }
-	void set_flags(u32 flags) { _u32 |= flags; }
-	void clear_flags(u32 flags) { _u32 &= ~flags; }
-	void reset() { _u32 = 0; }
 };
 
 union tINTC_MASK {
@@ -488,11 +402,6 @@ union tINTC_MASK {
 	u32 _u32;
 
 	tINTC_MASK(u32 val) { _u32 = val; }
-
-	bool test(u32 flags) const { return !!(_u32 & flags); }
-	void set_flags(u32 flags) { _u32 |= flags; }
-	void clear_flags(u32 flags) { _u32 &= ~flags; }
-	void reset() { _u32 = 0; }
 };
 
 struct INTCregisters

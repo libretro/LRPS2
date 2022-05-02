@@ -47,7 +47,7 @@ tDMA_TAG *DMACh::getAddr(u32 addr, u32 num, bool write)
 	if (!ptr)
 	{
 		dmacRegs.stat.BEIS = true;
-		dmacRegs.stat.set_flags(1 << num);
+		dmacRegs.stat._u32 |= (1 << num);
 		chcr.STR = false;
 	}
 
