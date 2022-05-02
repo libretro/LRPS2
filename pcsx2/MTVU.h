@@ -65,9 +65,6 @@ public:
 	// Get MTVU to start processing its packets if it isn't already
 	void KickStart(bool forceKick = false);
 
-	// Used for assertions...
-	bool IsDone();
-
 	// Waits till MTVU is done processing
 	void WaitVU();
 
@@ -96,13 +93,7 @@ private:
 	void WaitOnSize(s32 size);
 	void ReserveSpace(s32 size);
 
-	s32 GetReadPos();
-	s32 GetWritePos();
-
-	u32* GetWritePtr();
-
 	void CommitWritePos();
-	void CommitReadPos();
 
 	u32 Read();
 	void Read(void* dest, u32 size);
@@ -111,8 +102,6 @@ private:
 	void Write(u32 val);
 	void Write(void* src, u32 size);
 	void WriteRegs(VIFregisters* src);
-
-	u32 Get_vuCycles();
 };
 
 extern __aligned16 VU_Thread vu1Thread;

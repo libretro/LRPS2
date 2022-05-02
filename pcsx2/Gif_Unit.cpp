@@ -181,7 +181,6 @@ void SaveStateBase::gifPathFreeze(u32 path)
 void SaveStateBase::gifFreeze(void)
 {
 	bool mtvuMode = THREAD_VU1;
-	pxAssert(vu1Thread.IsDone());
 	GetMTGS().WaitGS();
 	FreezeTag("Gif Unit");
 	Freeze(mtvuMode);
