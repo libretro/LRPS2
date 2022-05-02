@@ -32,12 +32,7 @@ public:
 	cpuRegisters cpuState;
 
 protected:
-	void Init( const wxString& msg )
-	{
-		cpuState = cpuRegs;
-	}
-
-	void Init( const char* msg )
+	void Init()
 	{
 		cpuState = cpuRegs;
 	}
@@ -57,9 +52,9 @@ namespace R5900Exception
 		u32 Address;
 
 	protected:
-		void Init( u32 ps2addr, bool onWrite, const wxString& msg )
+		void Init( u32 ps2addr, bool onWrite)
 		{
-			_parent::Init( wxsFormat( msg+L", addr=0x%x [%s]", ps2addr, onWrite ? L"store" : L"load" ) );
+			_parent::Init();
 			OnWrite = onWrite;
 			Address = ps2addr;
 		}
@@ -71,7 +66,7 @@ namespace R5900Exception
 	public:
 		AddressError( u32 ps2addr, bool onWrite )
 		{
-			BaseAddressError::Init( ps2addr, onWrite, L"Address error" );
+			BaseAddressError::Init( ps2addr, onWrite);
 		}
 	};
 
@@ -82,7 +77,7 @@ namespace R5900Exception
 	public:
 		TLBMiss( u32 ps2addr, bool onWrite )
 		{
-			BaseAddressError::Init( ps2addr, onWrite, L"TLB Miss" );
+			BaseAddressError::Init( ps2addr, onWrite);
 		}
 	};
 
@@ -93,7 +88,7 @@ namespace R5900Exception
 	public:
 		BusError( u32 ps2addr, bool onWrite )
 		{
-			BaseAddressError::Init( ps2addr, onWrite, L"Bus Error" );
+			BaseAddressError::Init( ps2addr, onWrite);
 		}
 	};
 
@@ -108,7 +103,7 @@ namespace R5900Exception
 		// Generates a trap for immediate-style Trap opcodes
 		Trap()
 		{
-			_parent::Init( "Trap" );
+			_parent::Init();
 			TrapCode = 0;
 		}
 
@@ -116,7 +111,7 @@ namespace R5900Exception
 		// error code in the opcode
 		explicit Trap( u16 trapcode )
 		{
-			_parent::Init( "Trap" ),
+			_parent::Init(),
 			TrapCode = trapcode;
 		}
 	};
