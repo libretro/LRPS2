@@ -104,17 +104,12 @@ namespace
 		CacheData& data;
 		int set;
 
-		uptr addr()
-		{
-			return tag.addr() | (set << 6);
-		}
-
 		void writeBackIfNeeded()
 		{
 			if (!tag.isDirtyAndValid())
 				return;
 
-			uptr target = addr();
+			uptr target = tag.addr() | (set << 6);
 			*reinterpret_cast<CacheData*>(target) = data;
 			tag.clearDirty();
 		}
@@ -143,16 +138,6 @@ namespace
 	struct Cache
 	{
 		CacheSet sets[64];
-
-		int setIdxFor(u32 vaddr) const
-		{
-			return (vaddr >> 6) & 0x3F;
-		}
-
-		CacheLine lineAt(int idx, int way)
-		{
-			return { sets[idx].tags[way], sets[idx].data[way], idx };
-		}
 	};
 
 	static Cache cache;
@@ -180,16 +165,16 @@ static bool findInCache(const CacheSet& set, uptr ppf, int* way)
 
 static int getFreeCache(u32 mem, int* way)
 {
-	const int setIdx = cache.setIdxFor(mem);
-	CacheSet& set = cache.sets[setIdx];
-	VTLBVirtual vmv = vtlbdata.vmap[mem >> VTLB_PAGE_BITS];
-	uptr ppf = vmv.assumePtr(mem);
+	const int setIdx = (mem >> 6) & 0x3F;
+	CacheSet& set    = cache.sets[setIdx];
+	VTLBVirtual vmv  = vtlbdata.vmap[mem >> VTLB_PAGE_BITS];
+	uptr ppf         = vmv.assumePtr(mem);
 
 	if (!findInCache(set, ppf, way))
 	{
-		int newWay = set.tags[0].lrf() ^ set.tags[1].lrf();
-		*way = newWay;
-		CacheLine line = cache.lineAt(setIdx, newWay);
+		int newWay     = set.tags[0].lrf() ^ set.tags[1].lrf();
+		*way           = newWay;
+		CacheLine line = { cache.sets[setIdx].tags[newWay], cache.sets[setIdx].data[newWay], setIdx };
 
 		line.writeBackIfNeeded();
 		line.load(ppf);
@@ -200,14 +185,14 @@ static int getFreeCache(u32 mem, int* way)
 }
 
 template <typename Int>
-void writeCache(u32 mem, Int value)
+static void writeCache(u32 mem, Int value)
 {
 	int way = 0;
 	const int idx  = getFreeCache(mem, &way);
-	CacheLine line = cache.lineAt(idx, way);
+	CacheLine line = { cache.sets[idx].tags[way], cache.sets[idx].data[way], idx };
 
 	line.tag.setDirty(); // Set dirty bit for writes;
-	u32 aligned = mem & ~(sizeof(value) - 1);
+	u32 aligned    = mem & ~(sizeof(value) - 1);
 	*reinterpret_cast<Int*>(&line.data.bytes[aligned & 0x3f]) = value;
 }
 
@@ -235,18 +220,18 @@ void writeCache128(u32 mem, const mem128_t* value)
 {
 	int way        = 0;
 	const int idx  = getFreeCache(mem, &way);
-	CacheLine line = cache.lineAt(idx, way);
+	CacheLine line = { cache.sets[idx].tags[way], cache.sets[idx].data[way], idx };
 	line.tag.setDirty(); // Set dirty bit for writes;
-	u32 aligned = mem & ~0xF;
+	u32 aligned    = mem & ~0xF;
 	*reinterpret_cast<mem128_t*>(&line.data.bytes[aligned & 0x3f]) = *value;
 }
 
 template <typename Int>
-Int readCache(u32 mem)
+static Int readCache(u32 mem)
 {
 	int way        = 0;
 	const int idx  = getFreeCache(mem, &way);
-	CacheLine line = cache.lineAt(idx, way);
+	CacheLine line = { cache.sets[idx].tags[way], cache.sets[idx].data[way], idx };
 	u32 aligned    = mem & ~(sizeof(Int) - 1);
 	return *reinterpret_cast<Int*>(&line.data.bytes[aligned & 0x3f]);
 }
@@ -273,18 +258,16 @@ u64 readCache64(u32 mem)
 }
 
 template <typename Op>
-void doCacheHitOp(u32 addr, const char* name, Op op)
+static void doCacheHitOp(u32 addr, Op op)
 {
 	int way;
-	const int index = cache.setIdxFor(addr);
+	const int index = (addr >> 6) & 0x3F;
 	CacheSet  & set = cache.sets[index];
 	VTLBVirtual vmv = vtlbdata.vmap[addr >> VTLB_PAGE_BITS];
 	uptr        ppf = vmv.assumePtr(addr);
 
-	if (!findInCache(set, ppf, &way))
-		return;
-
-	op(cache.lineAt(index, way));
+	if (findInCache(set, ppf, &way))
+		op({ cache.sets[index].tags[way], cache.sets[index].data[way], index });
 }
 
 namespace R5900 {
@@ -293,22 +276,21 @@ namespace Interpreter
 namespace OpcodeImpl
 {
 
-extern int Dcache;
-void CACHE()
+void CACHE(void)
 {
 	u32 addr = cpuRegs.GPR.r[_Rs_].UL[0] + _Imm_;
 
 	switch (_Rt_) 
 	{
 		case 0x1a: //DHIN (Data Cache Hit Invalidate)
-			doCacheHitOp(addr, "DHIN", [](CacheLine line)
+			doCacheHitOp(addr, [](CacheLine line)
 			{
 				line.clear();
 			});
 			break;
 
 		case 0x18: //DHWBIN (Data Cache Hit WriteBack with Invalidate)
-			doCacheHitOp(addr, "DHWBIN", [](CacheLine line)
+			doCacheHitOp(addr, [](CacheLine line)
 			{
 				line.writeBackIfNeeded();
 				line.clear();
@@ -316,7 +298,7 @@ void CACHE()
 			break;
 
 		case 0x1c: //DHWOIN (Data Cache Hit WriteBack Without Invalidate)
-			doCacheHitOp(addr, "DHWOIN", [](CacheLine line)
+			doCacheHitOp(addr, [](CacheLine line)
 			{
 				line.writeBackIfNeeded();
 			});
@@ -324,18 +306,18 @@ void CACHE()
 
 		case 0x16: //DXIN (Data Cache Index Invalidate)
 		{
-			const int index = cache.setIdxFor(addr);
-			const int way = addr & 0x1;
-			CacheLine line = cache.lineAt(index, way);
+			const int index = (addr >> 6) & 0x3F;
+			const int way   = addr & 0x1;
+			CacheLine line  = { cache.sets[index].tags[way], cache.sets[index].data[way], index };
 			line.clear();
 			break;
 		}
 
 		case 0x11: //DXLDT (Data Cache Load Data into TagLo)
 		{
-			const int index     = cache.setIdxFor(addr);
+			const int index     = (addr >> 6) & 0x3F;
 			const int way       = addr & 0x1;
-			CacheLine line      = cache.lineAt(index, way);
+			CacheLine line      = { cache.sets[index].tags[way], cache.sets[index].data[way], index };
 			cpuRegs.CP0.n.TagLo = *reinterpret_cast<u32*>(&line.data.bytes[addr & 0x3C]);
 			break;
 		}
@@ -343,15 +325,15 @@ void CACHE()
 		case 0x10: //DXLTG (Data Cache Load Tag into TagLo)
 		{
 			const int index = (addr >> 6) & 0x3F;
-			const int way = addr & 0x1;
-			CacheLine line = cache.lineAt(index, way);
+			const int way   = addr & 0x1;
+			CacheLine line  = { cache.sets[index].tags[way], cache.sets[index].data[way], index };
 
 			// DXLTG demands that SYNC.L is called before this command, which forces the cache to write back, so presumably games are checking the cache has updated the memory
 			// For speed, we will do it here.
 			line.writeBackIfNeeded();
 
 			// Our tags don't contain PS2 paddrs (instead they contain x86 addrs)
-			cpuRegs.CP0.n.TagLo = line.tag.flags();
+			cpuRegs.CP0.n.TagLo = line.tag.rawValue & CacheTag::ALL_FLAGS;
 			break;
 		}
 
@@ -359,7 +341,7 @@ void CACHE()
 		{
 			const int index = (addr >> 6) & 0x3F;
 			const int way   = addr & 0x1;
-			CacheLine line  = cache.lineAt(index, way);
+			CacheLine line  = { cache.sets[index].tags[way], cache.sets[index].data[way], index };
 
 			*reinterpret_cast<u32*>(&line.data.bytes[addr & 0x3C]) = cpuRegs.CP0.n.TagLo;
 
@@ -370,7 +352,7 @@ void CACHE()
 		{
 			const int index    = (addr >> 6) & 0x3F;
 			const int way      = addr & 0x1;
-			CacheLine line     = cache.lineAt(index, way);
+			CacheLine line     = { cache.sets[index].tags[way], cache.sets[index].data[way], index };
 
 			line.tag.rawValue &= ~CacheTag::ALL_FLAGS;
 			line.tag.rawValue |= (cpuRegs.CP0.n.TagLo & CacheTag::ALL_FLAGS);
@@ -382,7 +364,7 @@ void CACHE()
 		{
 			const int index = (addr >> 6) & 0x3F;
 			const int way   = addr & 0x1;
-			CacheLine line  = cache.lineAt(index, way);
+			CacheLine line  = { cache.sets[index].tags[way], cache.sets[index].data[way], index };
 
 			line.writeBackIfNeeded();
 			line.clear();
