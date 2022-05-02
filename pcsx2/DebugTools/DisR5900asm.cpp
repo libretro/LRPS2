@@ -52,7 +52,7 @@ static void vssappendf(std::string &dest, const char *format, va_list args)
     dest += output.data();
 }
 
-void ssappendf(std::string &dest, const char *format, ...)
+static void ssappendf(std::string &dest, const char *format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -60,37 +60,12 @@ void ssappendf(std::string &dest, const char *format, ...)
     va_end(args);
 }
 
-
 unsigned long opcode_addr;
 u32 disasmOpcode;
-bool disSimplify;
 
 namespace R5900
 {
 
-/*
-//DECODE PROCUDURES
-
-//cop0
-#define DECODE_FS           (DECODE_RD)
-#define DECODE_FT           (DECODE_RT)
-#define DECODE_FD           (DECODE_SA)
-/// ********
-
-#define DECODE_FUNCTION     ((disasmOpcode) & 0x3F)
-#define DECODE_RD     ((disasmOpcode >> 11) & 0x1F) // The rd part of the instruction register
-#define DECODE_RT     ((disasmOpcode >> 16) & 0x1F) // The rt part of the instruction register
-#define DECODE_RS     ((disasmOpcode >> 21) & 0x1F) // The rs part of the instruction register
-#define DECODE_SA     ((disasmOpcode >>  6) & 0x1F) // The sa part of the instruction register
-#define DECODE_IMMED     ( disasmOpcode & 0xFFFF)      // The immediate part of the instruction register
-#define DECODE_OFFSET  ((((short)DECODE_IMMED * 4) + opcode_addr + 4))
-#define DECODE_JUMP     (opcode_addr & 0xf0000000)|((disasmOpcode&0x3ffffff)<<2)
-#define DECODE_SYSCALL      ((opcode_addr & 0x03FFFFFF) >> 6)
-#define DECODE_BREAK        (DECODE_SYSCALL)
-#define DECODE_C0BC         ((disasmOpcode >> 16) & 0x03)
-#define DECODE_C1BC         ((disasmOpcode >> 16) & 0x03)
-#define DECODE_C2BC         ((disasmOpcode >> 16) & 0x03)
-*/
 /*************************CPUS REGISTERS**************************/
 const char * const GPR_REG[32] = {
     "zero", "at", "v0", "v1", "a0", "a1", "a2", "a3",
@@ -681,19 +656,19 @@ void P_COP2_Unknown( std::string& output )
 
 //*****************SOME DECODE STUFF***************************
 
-void label_decode( std::string& output, u32 addr )
+static void label_decode( std::string& output, u32 addr )
 {
 	char buffer[32];
 	sprintf(buffer, "->$0x%08X", addr);
 	output += std::string(buffer);
 }
 
-void jump_decode( std::string& output )
+static void jump_decode( std::string& output )
 {
     label_decode( output, DECODE_JUMP );
 }
 
-void offset_decode( std::string& output )
+static void offset_decode( std::string& output )
 {
 	label_decode( output, DECODE_OFFSET );
 }
@@ -733,7 +708,7 @@ void COP1_Unknown( std::string& output )
 // the copy-paste marathon of code below more readable!
 #define _sap( str ) ssappendf( output, str,
 
-const char* signedImmediate(s32 imm, int len = 0)
+static const char* signedImmediate(s32 imm, int len = 0)
 {
 	static char buffer[32];
 
@@ -745,10 +720,10 @@ const char* signedImmediate(s32 imm, int len = 0)
 	return buffer;
 }
 
-const char* disDestSource(int dest, int source)
+static const char* disDestSource(int dest, int source)
 {
 	static char buffer[64];
-	if (disSimplify && dest == source)
+	if (dest == source)
 		sprintf(buffer,"%s",GPR_REG[dest]);
 	else
 		sprintf(buffer,"%s,%s",GPR_REG[dest],GPR_REG[source]);
@@ -756,19 +731,19 @@ const char* disDestSource(int dest, int source)
 	return buffer;
 }
 
-void disBranch(std::string& output, const char* op)
+static void disBranch(std::string& output, const char* op)
 {
 	ssappendf(output, "%s\t", op);
 	offset_decode(output);
 }
 
-void disBranch(std::string& output, const char* op, int rs)
+static void disBranch(std::string& output, const char* op, int rs)
 {
 	ssappendf(output, "%s\t%s, ", op, GPR_REG[rs]);
 	offset_decode(output);
 }
 
-void disBranch(std::string& output, const char* op, int rs, int rt)
+static void disBranch(std::string& output, const char* op, int rs, int rt)
 {
 	ssappendf(output, "%s\t%s, %s, ", op, GPR_REG[rs], GPR_REG[rt]);
 	offset_decode(output);
@@ -783,27 +758,14 @@ void BEQ( std::string& output )
 	int rs = DECODE_RS;
 	int rt = DECODE_RT;
 
-	if (disSimplify && rs == rt)
-		disBranch(output, "b");
-	else if (disSimplify && rs == 0 && rt != 0)
-		disBranch(output, "beqz", rt);
-	else if (disSimplify && rs != 0 && rt == 0)
-		disBranch(output, "beqz", rs);
-	else
-		disBranch(output, "beq", rs, rt);
+	disBranch(output, "beq", rs, rt);
 }
 
 void BNE( std::string& output )
 {
 	int rs = DECODE_RS;
 	int rt = DECODE_RT;
-
-	if (disSimplify && rs == 0 && rt != 0)
-		disBranch(output, "bnez", rt);
-	else if (disSimplify && rs != 0 && rt == 0)
-		disBranch(output, "bnez", rs);
-	else
-		disBranch(output, "bne", rs, rt);
+	disBranch(output, "bne", rs, rt);
 }
 
 void BLEZ( std::string& output )   { disBranch(output, "blez", DECODE_RS); }
@@ -815,11 +777,7 @@ void ADDIU( std::string& output )
 	int rt = DECODE_RT;
 	int rs = DECODE_RS;
 	s16 imm = DECODE_IMMED;
-
-	if (disSimplify && rs == 0)
-		ssappendf(output, "li\t%s, %s",GPR_REG[rt],signedImmediate(imm));
-	else
-		ssappendf(output, "addiu\t%s, %s",disDestSource(rt,rs),signedImmediate(imm));
+	ssappendf(output, "addiu\t%s, %s",disDestSource(rt,rs),signedImmediate(imm));
 }
 
 void SLTI( std::string& output )   { _sap("slti\t%s, 0x%04X")   disDestSource(DECODE_RT, DECODE_RS), DECODE_IMMED); }
@@ -830,13 +788,8 @@ void ORI( std::string& output )
 {
 	int rt = DECODE_RT;
 	int rs = DECODE_RS;
-
 	u32 unsignedImm = (u16) DECODE_IMMED;
-
-	if (disSimplify && rs == 0)
-		ssappendf(output, "li\t%s, 0x%X",GPR_REG[rt],unsignedImm);
-	else
-		ssappendf(output, "ori\t%s, 0x%X",disDestSource(DECODE_RT, DECODE_RS),unsignedImm);
+	ssappendf(output, "ori\t%s, 0x%X",disDestSource(DECODE_RT, DECODE_RS),unsignedImm);
 }
 
 void XORI( std::string& output )   { _sap("xori\t%s, 0x%04X")       disDestSource(DECODE_RT, DECODE_RS), DECODE_IMMED); }
@@ -846,28 +799,14 @@ void BEQL( std::string& output )
 {
 	int rs = DECODE_RS;
 	int rt = DECODE_RT;
-
-	if (disSimplify && rs == rt)
-		disBranch(output, "bl");
-	else if (disSimplify && rs == 0 && rt != 0)
-		disBranch(output, "beqzl", rt);
-	else if (disSimplify && rs != 0 && rt == 0)
-		disBranch(output, "beqzl", rs);
-	else
-		disBranch(output, "beql", rs, rt);
+	disBranch(output, "beql", rs, rt);
 }
 
 void BNEL( std::string& output )
 {
 	int rs = DECODE_RS;
 	int rt = DECODE_RT;
-
-	if (disSimplify && rs == 0 && rt != 0)
-		disBranch(output, "bnezl", rt);
-	else if (disSimplify && rs != 0 && rt == 0)
-		disBranch(output, "bnezl", rs);
-	else
-		disBranch(output, "bnel", rs, rt);
+	disBranch(output, "bnel", rs, rt);
 }
 
 void BLEZL( std::string& output )  { disBranch(output, "blezl", DECODE_RS); }
@@ -896,11 +835,7 @@ void disMemAccess( std::string& output, const char* name, int cop = 0)
 
 	const char* rs = GPR_REG[DECODE_RS];
 	s16 imm = DECODE_IMMED;
-
-	if (disSimplify && imm == 0)
-		ssappendf(output, "%s\t%s,(%s)",name,rt,rs);
-	else
-		ssappendf(output, "%s\t%s, %s(%s)",name,rt,signedImmediate(imm,4),rs);
+	ssappendf(output, "%s\t%s, %s(%s)",name,rt,signedImmediate(imm,4),rs);
 }
 
 void LDL( std::string& output )    { disMemAccess(output,"ldl"); }
@@ -974,17 +909,7 @@ void disAddAddu( std::string& output, const char* name )
 	int rd = DECODE_RD;
 	int rs = DECODE_RS;
 	int rt = DECODE_RT;
-
-	if (disSimplify && rs == 0)
-		ssappendf(output,"move\t%s, %s",GPR_REG[rd],GPR_REG[rt]);
-	else if (disSimplify && rt == 0)
-		ssappendf(output,"move\t%s, %s",GPR_REG[rd],GPR_REG[rs]);
-	else if (disSimplify && rd == rs)
-		ssappendf(output, "%s\t%s, %s",name,GPR_REG[rd],GPR_REG[rt]);
-	else if (disSimplify && rd == rt)
-		ssappendf(output, "%s\t%s, %s",name,GPR_REG[rd],GPR_REG[rs]);
-	else
-		ssappendf(output, "%s\t%s, %s, %s",name,GPR_REG[rd], GPR_REG[rs], GPR_REG[rt]);
+	ssappendf(output, "%s\t%s, %s, %s",name,GPR_REG[rd], GPR_REG[rs], GPR_REG[rt]);
 }
 
 void ADD( std::string& output )     { disAddAddu(output,"add"); }
@@ -1004,17 +929,7 @@ void disDaddDaddu( std::string& output, const char* name )
 	int rd = DECODE_RD;
 	int rs = DECODE_RS;
 	int rt = DECODE_RT;
-
-	if (disSimplify && rs == 0)
-		ssappendf(output,"dmove\t%s, %s",GPR_REG[DECODE_RD],GPR_REG[DECODE_RT]);
-	else if (disSimplify && rt == 0)
-		ssappendf(output,"dmove\t%s, %s",GPR_REG[DECODE_RD],GPR_REG[DECODE_RS]);
-	else if (disSimplify && rd == rs)
-		ssappendf(output, "%s\t%s, %s",name,GPR_REG[rd],GPR_REG[rt]);
-	else if (disSimplify && rd == rt)
-		ssappendf(output, "%s\t%s, %s",name,GPR_REG[rd],GPR_REG[rs]);
-	else
-		ssappendf(output, "%s\t%s, %s, %s",name,GPR_REG[DECODE_RD], GPR_REG[DECODE_RS], GPR_REG[DECODE_RT]);
+	ssappendf(output, "%s\t%s, %s, %s",name,GPR_REG[DECODE_RD], GPR_REG[DECODE_RS], GPR_REG[DECODE_RT]);
 }
 
 void DADD( std::string& output )    { disDaddDaddu(output,"dadd"); }
