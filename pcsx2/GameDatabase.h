@@ -88,7 +88,6 @@ class IGameDatabase
 public:
 	virtual bool initDatabase(std::istream& stream) = 0;
 	virtual GameDatabaseSchema::GameEntry findGame(const std::string serial) = 0;
-	virtual int numGames() = 0;
 };
 
 class YamlGameDatabaseImpl : public IGameDatabase
@@ -96,15 +95,6 @@ class YamlGameDatabaseImpl : public IGameDatabase
 public:
 	bool initDatabase(std::istream& stream) override;
 	GameDatabaseSchema::GameEntry findGame(const std::string serial) override;
-	int numGames() override;
-
 private:
 	std::unordered_map<std::string, GameDatabaseSchema::GameEntry> gameDb;
-	GameDatabaseSchema::GameEntry entryFromYaml(const std::string serial, const YAML::Node& node);
-
-	std::vector<std::string> convertMultiLineStringToVector(const std::string multiLineString);
 };
-
-extern IGameDatabase* AppHost_GetGameDatabase();
-extern std::string strToLower(std::string str);
-extern bool compareStrNoCase(const std::string str1, const std::string str2);

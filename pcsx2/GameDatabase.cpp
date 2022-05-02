@@ -21,19 +21,11 @@
 #include <algorithm>
 #include <cctype>
 
-std::string strToLower(std::string str)
+static std::string strToLower(std::string str)
 {
 	std::transform(str.begin(), str.end(), str.begin(),
 		[](unsigned char c) { return std::tolower(c); });
 	return str;
-}
-
-bool compareStrNoCase(const std::string str1, const std::string str2)
-{
-	return std::equal(str1.begin(), str1.end(), str2.begin(),
-		[](char a, char b) {
-			return tolower(a) == tolower(b);
-		});
 }
 
 static std::string join(const std::vector<std::string> & v, const std::string & delimiter = "/")
@@ -70,21 +62,17 @@ bool GameDatabaseSchema::GameEntry::findPatch(const std::string crc, Patch& patc
 	return false;
 }
 
-std::vector<std::string> YamlGameDatabaseImpl::convertMultiLineStringToVector(const std::string multiLineString)
+static std::vector<std::string> convertMultiLineStringToVector(const std::string multiLineString)
 {
 	std::vector<std::string> lines;
 	std::istringstream stream(multiLineString);
 	std::string line;
-
 	while (std::getline(stream, line))
-	{
 		lines.push_back(line);
-	}
-
 	return lines;
 }
 
-GameDatabaseSchema::GameEntry YamlGameDatabaseImpl::entryFromYaml(const std::string serial, const YAML::Node& node)
+static GameDatabaseSchema::GameEntry entryFromYaml(const std::string serial, const YAML::Node& node)
 {
 	GameDatabaseSchema::GameEntry gameEntry;
 	try
@@ -199,11 +187,6 @@ GameDatabaseSchema::GameEntry YamlGameDatabaseImpl::findGame(const std::string s
 	GameDatabaseSchema::GameEntry entry;
 	entry.isValid = false;
 	return entry;
-}
-
-int YamlGameDatabaseImpl::numGames()
-{
-	return gameDb.size();
 }
 
 bool YamlGameDatabaseImpl::initDatabase(std::istream& stream)

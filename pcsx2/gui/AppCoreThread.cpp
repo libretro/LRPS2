@@ -333,7 +333,7 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 
 	if (!curGameKey.IsEmpty())
 	{
-		if (IGameDatabase* GameDB = AppHost_GetGameDatabase())
+		if (IGameDatabase* GameDB = wxGetApp().GetGameDatabase())
 		{
 			GameDatabaseSchema::GameEntry game = GameDB->findGame(std::string(curGameKey));
 			if (game.isValid)

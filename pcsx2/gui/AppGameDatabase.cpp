@@ -23,16 +23,8 @@ AppGameDatabase& AppGameDatabase::Load()
 {
 	std::string game_index(reinterpret_cast<const char*>(&GameIndex_yaml), GameIndex_yaml_len);
 	std::istringstream stream(game_index);
-
 	if (!this->initDatabase(stream))
-	{
 		log_cb(RETRO_LOG_ERROR, "[GameDB] Database could not be loaded successfully\n");
-		return *this;
-	}
-
-	log_cb(RETRO_LOG_INFO, "[GameDB] %d games on record\n", this->numGames()
-		);
-
 	return *this;
 }
 
@@ -47,9 +39,4 @@ AppGameDatabase* Pcsx2App::GetGameDatabase()
 		res.GameDB->Load();
 	}
 	return res.GameDB.get();
-}
-
-IGameDatabase* AppHost_GetGameDatabase()
-{
-	return wxGetApp().GetGameDatabase();
 }
