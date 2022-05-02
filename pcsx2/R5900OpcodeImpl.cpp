@@ -187,10 +187,6 @@ static int __Deci2Call(int call, u32 *addr)
 
 		case 3: // reqsend
 		{
-			char reqaddr[128];
-			if(addr)
-				sprintf( reqaddr, "%x %x %x %x", addr[3], addr[2], addr[1], addr[0] );
-
 			if (!deci2addr) return 1;
 			
 			const u32* d2ptr = (u32*)PSM(deci2addr);

@@ -19,19 +19,17 @@
 #ifndef __MDEC_H__
 #define __MDEC_H__
 
-
-// mdec status:
-#define MDEC_BUSY 0x20000000
-#define MDEC_DREQ 0x18000000
+// MDEC status:
+#define MDEC_BUSY	0x20000000
+#define MDEC_DREQ	0x18000000
 #define MDEC_FIFO	0xc0000000
-#define MDEC_RGB24 0x02000000
-#define MDEC_STP 0x00800000
+#define MDEC_RGB24	0x02000000
+#define MDEC_STP	0x00800000
 
-
-#define CONST_BITS  8
-#define PASS1_BITS  2
-#define CONST_BITS14 14
-#define	IFAST_SCALE_BITS 2
+#define CONST_BITS		8
+#define PASS1_BITS		2
+#define CONST_BITS14		14
+#define	IFAST_SCALE_BITS	2
 
 #define FIX_1_082392200  (277)
 #define FIX_1_414213562  (362)
@@ -52,19 +50,10 @@
 #define VALOF(a) (((int)(a)<<(32-10))>>(32-10))
 #define NOP	0xfe00
 
-#define FIXED
-
-#ifdef FIXED
 #define	MULR(a)		((((int)0x0000059B) * (a)) >> 10)
 #define	MULG(a)		((((int)0xFFFFFEA1) * (a)) >> 10)
 #define	MULG2(a)	((((int)0xFFFFFD25) * (a)) >> 10)
 #define	MULB(a)		((((int)0x00000716) * (a)) >> 10)
-#else
-#define	MULR(a)		((int)((float)1.40200 * (a)))
-#define	MULG(a)		((int)((float)-0.3437 * (a)))
-#define	MULG2(a)	((int)((float)-0.7143 * (a)))
-#define	MULB(a)		((int)((float)1.77200 * (a)))
-#endif
 
 #define	MAKERGB15(r,g,b)	( (((r)>>3)<<10)|(((g)>>3)<<5)|((b)>>3) )
 #define	ROUND(c)	roundtbl[((c)+128+256)]//&0x3ff]
@@ -85,20 +74,12 @@
 	image[n+1] = ROUND(Y); \
 	image[n+0] = ROUND(Y);
 
-extern void mdecInit();
+extern void mdecInit(void);
 extern void mdecWrite0(u32 data);
 extern void mdecWrite1(u32 data);
-extern u32  mdecRead0();
-extern u32  mdecRead1();
+extern u32  mdecRead0(void);
+extern u32  mdecRead1(void);
 extern void psxDma0(u32 madr, u32 bcr, u32 chcr);
 extern void psxDma1(u32 madr, u32 bcr, u32 chcr);
-//int  mdecFreeze(gzFile f, int Mode);
-
-
-u16* rl2blk(int *blk,u16 *mdec_rl);
-void iqtab_init(int *iqtab,unsigned char *iq_y);
-void round_init(void);
-void yuv2rgb24(int *blk,unsigned char *image);
-void yuv2rgb15(int *blk,u16 *image);
 
 #endif /* __MDEC_H__ */
