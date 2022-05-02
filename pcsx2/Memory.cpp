@@ -45,23 +45,6 @@ BIOS
 #include "ps2/BiosTools.h"
 #include "SPU2/spu2.h"
 
-#include "Utilities/PageFaultSource.h"
-
-#ifdef ENABLECACHE
-#include "Cache.h"
-#endif
-
-u16 ba0R16(u32 mem)
-{
-	if (mem == 0x1a000006) {
-		static int ba6;
-		ba6++;
-		if (ba6 == 3) ba6 = 0;
-		return ba6;
-	}
-	return 0;
-}
-
 /////////////////////////////
 // REGULAR MEM START
 /////////////////////////////
@@ -91,7 +74,7 @@ static vtlbHandler
 	iopHw_by_page_08;
 
 
-void memMapVUmicro()
+static void memMapVUmicro(void)
 {
 	// VU0/VU1 micro mem (instructions)
 	// (Like IOP memory, these are generally only used by the EE Bios kernel during
@@ -112,11 +95,13 @@ void memMapVUmicro()
 	// Note: In order for the below conditional to work correctly
 	// support needs to be coded to reset the memMappings when MTVU is
 	// turned off/on. For now we just always use the vu data handlers...
-	if (1||THREAD_VU1) vtlb_MapHandler(vu1_data_mem,0x1100c000,0x00004000);
-	else               vtlb_MapBlock  (VU1.Mem,     0x1100c000,0x00004000);
+	if (1||THREAD_VU1)
+		vtlb_MapHandler(vu1_data_mem,0x1100c000,0x00004000);
+	else
+		vtlb_MapBlock  (VU1.Mem,     0x1100c000,0x00004000);
 }
 
-void memMapPhy()
+static void memMapPhy(void)
 {
 	// Main memory
 	vtlb_MapBlock(eeMem->Main,	0x00000000,Ps2MemSize::MainRam);//mirrored on first 256 mb ?
@@ -163,10 +148,9 @@ void memMapPhy()
 }
 
 //Why is this required ?
-void memMapKernelMem()
+static void memMapKernelMem(void)
 {
 	//lower 512 mb: direct map
-	//vtlb_VMap(0x00000000,0x00000000,0x20000000);
 	//0x8* mirror
 	vtlb_VMap(0x80000000, 0x00000000, _1mb*512);
 	//0xa* mirror
@@ -227,10 +211,18 @@ static mem16_t __fastcall _ext_memRead16(u32 mem)
 {
 	switch (p)
 	{
+		case 5: // ba0
+			if (mem == 0x1a000006)
+			{
+				static int ba6;
+				ba6++;
+				if (ba6 == 3)
+					ba6 = 0;
+				return ba6;
+			}
+			/* fall-through */
 		case 4: // b80
 			return 0;
-		case 5: // ba0
-			return ba0R16(mem);
 		case 6: // gsm
 			return gsRead16(mem);
 
@@ -582,7 +574,6 @@ void memBindConditionalHandlers()
 	{
 		vtlbMemR16FP* page0F16(hwRead16_page_0F_INTC_HACK);
 		vtlbMemR32FP* page0F32(hwRead32_page_0F_INTC_HACK);
-		//vtlbMemR64FP* page0F64(hwRead64_generic_INTC_HACK);
 
 		vtlb_ReassignHandler( hw_by_page[0xf],
 			hwRead8<0x0f>,	page0F16,			page0F32,			hwRead64<0x0f>,		hwRead128<0x0f>,
@@ -593,7 +584,6 @@ void memBindConditionalHandlers()
 	{
 		vtlbMemR16FP* page0F16(hwRead16<0x0f>);
 		vtlbMemR32FP* page0F32(hwRead32<0x0f>);
-		//vtlbMemR64FP* page0F64(hwRead64<0x0f>);
 
 		vtlb_ReassignHandler( hw_by_page[0xf],
 			hwRead8<0x0f>,	page0F16,			page0F32,			hwRead64<0x0f>,		hwRead128<0x0f>,
@@ -626,10 +616,8 @@ void eeMemoryReserve::Commit()
 // Resets memory mappings, unmaps TLBs, reloads bios roms, etc.
 void eeMemoryReserve::Reset()
 {
-	if(!mmap_faultHandler) {
-		pxAssert(Source_PageFault);
+	if(!mmap_faultHandler)
 		mmap_faultHandler = new mmap_PageFaultHandler();
-	}
 	
 	_parent::Reset();
 
@@ -639,10 +627,6 @@ void eeMemoryReserve::Reset()
 	// we opt for the hard/safe version.
 
 	pxAssume( eeMem );
-
-#ifdef ENABLECACHE
-	memset(pCache,0,sizeof(_cacheS)*64);
-#endif
 
 	vtlb_Init();
 
@@ -719,25 +703,19 @@ void eeMemoryReserve::Reset()
 	// GS Optimized Mappings
 
 	tlb_fallback_6 = vtlb_RegisterHandler(
-		_ext_memRead8<6>, _ext_memRead16<6>, _ext_memRead32<6>, _ext_memRead64<6>, _ext_memRead128<6>,
-		_ext_memWrite8<6>, _ext_memWrite16<6>, _ext_memWrite32<6>, gsWrite64_generic, gsWrite128_generic
+		gsRead8, gsRead16, gsRead32, _ext_memRead64<6>, _ext_memRead128<6>,
+		gsWrite8, gsWrite16, gsWrite32, gsWrite64_generic, gsWrite128_generic
 	);
 
 	gs_page_0 = vtlb_RegisterHandler(
-		_ext_memRead8<6>, _ext_memRead16<6>, _ext_memRead32<6>, _ext_memRead64<6>, _ext_memRead128<6>,
-		_ext_memWrite8<6>, _ext_memWrite16<6>, _ext_memWrite32<6>, gsWrite64_page_00, gsWrite128_page_00
+		gsRead8, gsRead16, gsRead32, _ext_memRead64<6>, _ext_memRead128<6>,
+		gsWrite8, gsWrite16, gsWrite32, gsWrite64_page_00, gsWrite128_page_00
 	);
 
 	gs_page_1 = vtlb_RegisterHandler(
-		_ext_memRead8<6>, _ext_memRead16<6>, _ext_memRead32<6>, _ext_memRead64<6>, _ext_memRead128<6>,
-		_ext_memWrite8<6>, _ext_memWrite16<6>, _ext_memWrite32<6>, gsWrite64_page_01, gsWrite128_page_01
+		gsRead8, gsRead16, gsRead32, _ext_memRead64<6>, _ext_memRead128<6>,
+		gsWrite8, gsWrite16, gsWrite32, gsWrite64_page_01, gsWrite128_page_01
 	);
-
-	//vtlb_Reset();
-
-	// reset memLUT (?)
-	//vtlb_VMap(0x00000000,0x00000000,0x20000000);
-	//vtlb_VMapUnmap(0x20000000,0x60000000);
 
 	memMapPhy();
 	memMapVUmicro();
@@ -809,11 +787,9 @@ static __aligned16 vtlb_PageProtectionInfo m_PageProtectInfo[Ps2MemSize::MainRam
 //
 vtlb_ProtectionMode mmap_GetRamPageInfo( u32 paddr )
 {
-	pxAssert( eeMem );
-
 	paddr &= ~0xfff;
 
-	uptr ptr = (uptr)PSM( paddr );
+	uptr ptr     = (uptr)PSM( paddr );
 	uptr rampage = ptr - (uptr)eeMem->Main;
 
 	if (rampage >= Ps2MemSize::MainRam)
@@ -827,11 +803,9 @@ vtlb_ProtectionMode mmap_GetRamPageInfo( u32 paddr )
 // paddr - physically mapped PS2 address
 void mmap_MarkCountedRamPage( u32 paddr )
 {
-	pxAssert( eeMem );
-	
 	paddr &= ~0xfff;
 
-	uptr ptr = (uptr)PSM( paddr );
+	uptr ptr    = (uptr)PSM( paddr );
 	int rampage = (ptr - (uptr)eeMem->Main) >> 12;
 
 	// Important: Update the ReverseRamMap here because TLB changes could alter the paddr
@@ -851,15 +825,7 @@ void mmap_MarkCountedRamPage( u32 paddr )
 // from code residing in this page will use manual protection.
 static __fi void mmap_ClearCpuBlock( uint offset )
 {
-	pxAssert( eeMem );
-
 	int rampage = offset >> 12;
-
-	// Assertion: This function should never be run on a block that's already under
-	// manual protection.  Indicates a logic error in the recompiler or protection code.
-	pxAssertMsg( m_PageProtectInfo[rampage].Mode != ProtMode_Manual,
-		"Attempted to clear a block that is already under manual protection." );
-
 	HostSys::MemProtect( &eeMem->Main[rampage<<12], __pagesize, PageAccess_ReadWrite() );
 	m_PageProtectInfo[rampage].Mode = ProtMode_Manual;
 	Cpu->Clear( m_PageProtectInfo[rampage].ReverseRamMap, 0x400 );
@@ -867,8 +833,6 @@ static __fi void mmap_ClearCpuBlock( uint offset )
 
 void mmap_PageFaultHandler::OnPageFaultEvent( const PageFaultInfo& info, bool& handled )
 {
-	pxAssert( eeMem );
-
 	// get bad virtual address
 	uptr offset = info.addr - (uptr)eeMem->Main;
 	if( offset >= Ps2MemSize::MainRam ) return;
@@ -881,7 +845,7 @@ void mmap_PageFaultHandler::OnPageFaultEvent( const PageFaultInfo& info, bool& h
 // This does not clear any recompiler blocks.  It is assumed (and necessary) for the caller
 // to ensure the EErec is also reset in conjunction with calling this function.
 //  (this function is called by default from the eerecReset).
-void mmap_ResetBlockTracking()
+void mmap_ResetBlockTracking(void)
 {
 	memzero( m_PageProtectInfo );
 	if (eeMem) HostSys::MemProtect( eeMem->Main, Ps2MemSize::MainRam, PageAccess_ReadWrite() );

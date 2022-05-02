@@ -111,8 +111,6 @@ extern void memSetPageAddr(u32 vaddr, u32 paddr);
 extern void memClearPageAddr(u32 vaddr);
 extern void memBindConditionalHandlers();
 
-extern void memMapVUmicro();
-
 enum vtlb_ProtectionMode
 {
 	ProtMode_None = 0,		// page is 'unaccounted' -- neither protected nor unprotected
@@ -143,6 +141,3 @@ static __fi void memWrite64(u32 mem, const mem64_t* val)	{ vtlb_memWrite64(mem, 
 static __fi void memWrite64(u32 mem, const mem64_t& val)	{ vtlb_memWrite64(mem, &val); }
 static __fi void memWrite128(u32 mem, const mem128_t* val)	{ vtlb_memWrite128(mem, val); }
 static __fi void memWrite128(u32 mem, const mem128_t& val)	{ vtlb_memWrite128(mem, &val); }
-
-
-extern u16 ba0R16(u32 mem);
