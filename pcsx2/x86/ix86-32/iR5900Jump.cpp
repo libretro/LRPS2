@@ -63,17 +63,9 @@ void recJAL()
 
 	u32 newpc = (_InstrucTarget_ << 2) + ( pc & 0xf0000000 );
 	_deleteEEreg(31, 0);
-	if(EE_CONST_PROP)
-	{
-		GPR_SET_CONST(31);
-		g_cpuConstRegs[31].UL[0] = pc + 4;
-		g_cpuConstRegs[31].UL[1] = 0;
-	}
-	else
-	{
-		xMOV(ptr32[&cpuRegs.GPR.r[31].UL[0]], pc + 4);
-		xMOV(ptr32[&cpuRegs.GPR.r[31].UL[1]], 0);
-	}
+	GPR_SET_CONST(31);
+	g_cpuConstRegs[31].UL[0] = pc + 4;
+	g_cpuConstRegs[31].UL[1] = 0;
 
 	recompileNextInstruction(1);
 	if (EmuConfig.Gamefixes.GoemonTlbHack)
@@ -127,17 +119,9 @@ void recJALR()
 	if ( _Rd_ )
 	{
 		_deleteEEreg(_Rd_, 0);
-		if(EE_CONST_PROP)
-		{
-			GPR_SET_CONST(_Rd_);
-			g_cpuConstRegs[_Rd_].UL[0] = newpc;
-			g_cpuConstRegs[_Rd_].UL[1] = 0;
-		}
-		else
-		{
-			xMOV(ptr32[&cpuRegs.GPR.r[_Rd_].UL[0]], newpc);
-			xMOV(ptr32[&cpuRegs.GPR.r[_Rd_].UL[1]], 0);
-		}
+		GPR_SET_CONST(_Rd_);
+		g_cpuConstRegs[_Rd_].UL[0] = newpc;
+		g_cpuConstRegs[_Rd_].UL[1] = 0;
 	}
 
 	_clearNeededXMMregs();

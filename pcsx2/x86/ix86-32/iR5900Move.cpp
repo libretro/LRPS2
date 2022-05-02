@@ -73,18 +73,8 @@ void recLUI()
 
 	_deleteEEreg(_Rt_, 0);
 
-	if(EE_CONST_PROP)
-	{
-		GPR_SET_CONST(_Rt_);
-		g_cpuConstRegs[_Rt_].UD[0] = (s32)(cpuRegs.code << 16);
-	}
-	else
-	{
-		xMOV(eax, (s32)(cpuRegs.code << 16));
-		xCDQ();
-		xMOV(ptr[&cpuRegs.GPR.r[_Rt_].UL[0]], eax);
-		xMOV(ptr[&cpuRegs.GPR.r[_Rt_].UL[1]], edx);
-	}
+	GPR_SET_CONST(_Rt_);
+	g_cpuConstRegs[_Rt_].UD[0] = (s32)(cpuRegs.code << 16);
 }
 
 ////////////////////////////////////////////////////

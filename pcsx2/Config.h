@@ -377,5 +377,3 @@ extern Pcsx2Config EmuConfig;
 #ifndef ARITHMETIC_RECOMPILE
 #undef ARITHMETICIMM_RECOMPILE
 #endif
-
-#define EE_CONST_PROP 1 // rec2 - enables constant propagation (faster)
