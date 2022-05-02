@@ -93,8 +93,6 @@ private:
 	void WaitOnSize(s32 size);
 	void ReserveSpace(s32 size);
 
-	void CommitWritePos();
-
 	u32 Read();
 	void Read(void* dest, u32 size);
 	void ReadRegs(VIFregisters* dest);
