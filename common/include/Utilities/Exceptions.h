@@ -124,9 +124,6 @@ protected:
 public:
     virtual ~Ps2Generic() = default;
 
-    virtual u32 GetPc() const = 0;
-    virtual bool IsDelaySlot() const = 0;
-
     virtual void Rethrow() const = 0;
     virtual Ps2Generic *Clone() const = 0;
 };

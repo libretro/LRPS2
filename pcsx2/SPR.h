@@ -17,8 +17,9 @@
 #ifndef __SPR_H__
 #define __SPR_H__
 
-extern void dmaSPR0();
-extern void dmaSPR1();
-extern void SPRFROMinterrupt();
-extern void SPRTOinterrupt();
+extern void dmaSPR0(void);
+extern void dmaSPR1(void);
+extern void SPRFROMinterrupt(void);
+extern void SPRTOinterrupt(void);
+
 #endif /* __SPR_H__ */

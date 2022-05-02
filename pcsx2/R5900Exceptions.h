@@ -31,10 +31,6 @@ class BaseR5900Exception : public Exception::Ps2Generic
 public:
 	cpuRegisters cpuState;
 
-public:
-	u32 GetPc() const { return cpuState.pc; }
-	bool IsDelaySlot() const { return !!cpuState.IsDelaySlot; }
-
 protected:
 	void Init( const wxString& msg )
 	{
