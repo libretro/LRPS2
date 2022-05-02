@@ -56,45 +56,24 @@ namespace
 			ALL_FLAGS = 0xFFF
 		};
 
-		int flags() const
-		{
-			return rawValue & ALL_FLAGS;
-		}
-
 		bool isValid() const  { return rawValue & VALID_FLAG; }
 		bool isDirty() const  { return rawValue & DIRTY_FLAG; }
-		bool lrf() const      { return rawValue & LRF_FLAG; }
-		bool isLocked() const { return rawValue & LOCK_FLAG; }
 
 		bool isDirtyAndValid() const
 		{
 			return (rawValue & (DIRTY_FLAG | VALID_FLAG)) == (DIRTY_FLAG | VALID_FLAG);
 		}
 
-		void setValid()  { rawValue |= VALID_FLAG; }
-		void setDirty()  { rawValue |= DIRTY_FLAG; }
-		void setLocked() { rawValue |= LOCK_FLAG; }
-		void clearValid()  { rawValue &= ~VALID_FLAG; }
-		void clearDirty()  { rawValue &= ~DIRTY_FLAG; }
-		void clearLocked() { rawValue &= ~LOCK_FLAG; }
-		void toggleLRF() { rawValue ^= LRF_FLAG; }
-
-		uptr addr() const { return rawValue & ~ALL_FLAGS; }
-
-		void setAddr(uptr addr)
-		{
-			rawValue &= ALL_FLAGS;
-			rawValue |= (addr & ~ALL_FLAGS);
-		}
-
 		bool matches(uptr other) const
 		{
-			return isValid() && addr() == (other & ~ALL_FLAGS);
+			uptr adr      = rawValue & ~ALL_FLAGS;
+			bool is_valid = rawValue & VALID_FLAG;
+			return is_valid && adr == (other & ~ALL_FLAGS);
 		}
 
 		void clear()
 		{
-			rawValue &= LRF_FLAG;
+			rawValue &= CacheTag::LRF_FLAG;
 		}
 	};
 
@@ -109,17 +88,19 @@ namespace
 			if (!tag.isDirtyAndValid())
 				return;
 
-			uptr target = tag.addr() | (set << 6);
+			uptr adr    = tag.rawValue & ~CacheTag::ALL_FLAGS;
+			uptr target = adr | (set << 6);
 			*reinterpret_cast<CacheData*>(target) = data;
-			tag.clearDirty();
+			tag.rawValue &= ~CacheTag::DIRTY_FLAG;
 		}
 
 		void load(uptr ppf)
 		{
-			tag.setAddr(ppf);
+			tag.rawValue &= CacheTag::ALL_FLAGS;
+			tag.rawValue |= (ppf & ~CacheTag::ALL_FLAGS);
 			data = *reinterpret_cast<CacheData*>(ppf & ~0x3FULL);
-			tag.setValid();
-			tag.clearDirty();
+			tag.rawValue |= CacheTag::VALID_FLAG;
+			tag.rawValue &= ~CacheTag::DIRTY_FLAG;
 		}
 
 		void clear()
@@ -172,13 +153,15 @@ static int getFreeCache(u32 mem, int* way)
 
 	if (!findInCache(set, ppf, way))
 	{
-		int newWay     = set.tags[0].lrf() ^ set.tags[1].lrf();
+		bool lrf0      = set.tags[0].rawValue & CacheTag::LRF_FLAG;
+		bool lrf1      = set.tags[1].rawValue & CacheTag::LRF_FLAG;
+		int newWay     = lrf0 ^ lrf1;
 		*way           = newWay;
 		CacheLine line = { cache.sets[setIdx].tags[newWay], cache.sets[setIdx].data[newWay], setIdx };
 
 		line.writeBackIfNeeded();
 		line.load(ppf);
-		line.tag.toggleLRF();
+		line.tag.rawValue ^= CacheTag::LRF_FLAG;
 	}
 
 	return setIdx;
@@ -191,8 +174,8 @@ static void writeCache(u32 mem, Int value)
 	const int idx  = getFreeCache(mem, &way);
 	CacheLine line = { cache.sets[idx].tags[way], cache.sets[idx].data[way], idx };
 
-	line.tag.setDirty(); // Set dirty bit for writes;
-	u32 aligned    = mem & ~(sizeof(value) - 1);
+	line.tag.rawValue |= CacheTag::DIRTY_FLAG;; // Set dirty bit for writes;
+	u32 aligned        = mem & ~(sizeof(value) - 1);
 	*reinterpret_cast<Int*>(&line.data.bytes[aligned & 0x3f]) = value;
 }
 
@@ -221,7 +204,7 @@ void writeCache128(u32 mem, const mem128_t* value)
 	int way        = 0;
 	const int idx  = getFreeCache(mem, &way);
 	CacheLine line = { cache.sets[idx].tags[way], cache.sets[idx].data[way], idx };
-	line.tag.setDirty(); // Set dirty bit for writes;
+	line.tag.rawValue |= CacheTag::DIRTY_FLAG;; // Set dirty bit for writes;
 	u32 aligned    = mem & ~0xF;
 	*reinterpret_cast<mem128_t*>(&line.data.bytes[aligned & 0x3f]) = *value;
 }
