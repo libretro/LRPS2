@@ -142,7 +142,6 @@ set(pcsx2Headers
 	R5900.h
 	R5900OpcodeTables.h
 	SaveState.h
-	Sifcmd.h
 	Sif.h
 	Sio.h
 	sio_internal.h
