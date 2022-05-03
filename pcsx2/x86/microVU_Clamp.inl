@@ -70,22 +70,19 @@ void mVUclamp2_C(microVU& mVU, const xmm& reg, const xmm& regT1in, int xyzw, boo
 	if ((!clampE && CHECK_VU_SIGN_OVERFLOW) || (clampE && bClampE && CHECK_VU_SIGN_OVERFLOW)) {
 		const xmm& regT1 = regT1in.IsEmpty() ? xmm((reg.Id + 1) % 8) : regT1in;
 		if (regT1 != regT1in) xMOVAPS(ptr128[mVU.xmmCTemp], regT1);
+		xMOVAPS(regT1, reg);
+		xAND.PS(regT1, ptr128[mVUglob.signbit]);
 		switch (xyzw) {
 			case 1: case 2: case 4: case 8:
-				xMOVAPS(regT1, reg);
-				xAND.PS(regT1, ptr128[mVUglob.signbit]);
 				xMIN.SS(reg,   ptr128[mVUglob.maxvals]);
 				xMAX.SS(reg,   ptr128[mVUglob.minvals]);
-				xOR.PS (reg,   regT1);
 				break;
 			default:
-				xMOVAPS(regT1, reg);
-				xAND.PS(regT1, ptr128[mVUglob.signbit]);
 				xMIN.PS(reg,   ptr128[mVUglob.maxvals]);
 				xMAX.PS(reg,   ptr128[mVUglob.minvals]);
-				xOR.PS (reg,   regT1);
 				break;
 		}
+		xOR.PS (reg,   regT1);
 		if (regT1 != regT1in) xMOVAPS(regT1, ptr128[mVU.xmmCTemp]);
 	}
 	else mVUclamp1(reg, regT1in, xyzw, bClampE);

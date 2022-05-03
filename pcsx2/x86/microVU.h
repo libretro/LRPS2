@@ -207,8 +207,6 @@ extern void* mVUblockFetch(microVU& mVU, u32 startPC, uptr pState);
 _mVUt extern void* __fastcall mVUcompileJIT(u32 startPC, uptr ptr);
 
 // Prototypes for Linux
-extern void  __fastcall mVUcleanUpVU0(void);
-extern void  __fastcall mVUcleanUpVU1(void);
 mVUop(mVUopU);
 mVUop(mVUopL);
 
