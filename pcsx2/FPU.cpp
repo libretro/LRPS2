@@ -74,7 +74,7 @@
 //****************************************************************
 
 // If we have an infinity value, then Overflow has occured.
-bool checkOverflow(u32& xReg, u32 cFlagsToSet)
+static bool checkOverflow(u32& xReg, u32 cFlagsToSet)
 {
 	if ( (xReg & ~0x80000000) == PosInfinity ) {
 		xReg = (xReg & 0x80000000) | posFmax;
@@ -86,7 +86,7 @@ bool checkOverflow(u32& xReg, u32 cFlagsToSet)
 }
 
 // If we have a denormal value, then Underflow has occured.
-bool checkUnderflow(u32& xReg, u32 cFlagsToSet) {
+static bool checkUnderflow(u32& xReg, u32 cFlagsToSet) {
 	if ( ( (xReg & 0x7F800000) == 0 ) && ( (xReg & 0x007FFFFF) != 0 ) ) {
 		xReg &= 0x80000000;
 		_ContVal_ |= (cFlagsToSet);
@@ -101,8 +101,8 @@ bool checkUnderflow(u32& xReg, u32 cFlagsToSet) {
 	cFlagsToSet2 = Flags to set if (z == 0)
 	( Denormals are counted as "0" )
 */
-bool checkDivideByZero(u32& xReg, u32 yDivisorReg, u32 zDividendReg, u32 cFlagsToSet1, u32 cFlagsToSet2) {
-
+static bool checkDivideByZero(u32& xReg, u32 yDivisorReg, u32 zDividendReg, u32 cFlagsToSet1, u32 cFlagsToSet2)
+{
 	if ( (yDivisorReg & 0x7F800000) == 0 ) {
 		_ContVal_ |= ( (zDividendReg & 0x7F800000) == 0 ) ? cFlagsToSet2 : cFlagsToSet1;
 		xReg = ( (yDivisorReg ^ zDividendReg) & 0x80000000 ) | posFmax;
@@ -179,21 +179,21 @@ float fpuDouble(u32 f)
 	return *(float*)&f;
 }
 
-void ABS_S() {
+void ABS_S(void) {
 	_FdValUl_ = _FsValUl_ & 0x7fffffff;
 	clearFPUFlags( FPUflagO | FPUflagU );
 }
 
-void ADD_S() {
+void ADD_S(void) {
 	_FdValf_  = fpuDouble( _FsValUl_ ) + fpuDouble( _FtValUl_ );
-	if (checkOverflow( _FdValUl_, FPUflagO | FPUflagSO)) return;
-	checkUnderflow( _FdValUl_, FPUflagU | FPUflagSU);
+	if (!checkOverflow( _FdValUl_, FPUflagO | FPUflagSO))
+		checkUnderflow( _FdValUl_, FPUflagU | FPUflagSU);
 }
 
 void ADDA_S() {
 	_FAValf_  = fpuDouble( _FsValUl_ ) + fpuDouble( _FtValUl_ );
-	if (checkOverflow( _FAValUl_, FPUflagO | FPUflagSO)) return;
-	checkUnderflow( _FAValUl_, FPUflagU | FPUflagSU);
+	if (!checkOverflow( _FAValUl_, FPUflagO | FPUflagSO))
+		checkUnderflow( _FAValUl_, FPUflagU | FPUflagSU);
 }
 
 void BC1F() {
@@ -208,15 +208,15 @@ void BC1T() {
 	BC1(!=);
 }
 
-void BC1TL() {
+void BC1TL(void) {
 	BC1L(!=); // different from 0
 }
 
-void C_EQ() {
+void C_EQ(void) {
 	C_cond_S(==);
 }
 
-void C_F() {
+void C_F(void) {
 	clearFPUFlags( FPUflagC ); //clears C regardless
 }
 
@@ -253,11 +253,12 @@ void CVT_W() {
 	else { _FdValUl_ = 0x80000000; }
 }
 
-void DIV_S() {
+void DIV_S()
+{
 	if (checkDivideByZero( _FdValUl_, _FtValUl_, _FsValUl_, FPUflagD | FPUflagSD, FPUflagI | FPUflagSI)) return;
 	_FdValf_ = fpuDouble( _FsValUl_ ) / fpuDouble( _FtValUl_ );
-	if (checkOverflow( _FdValUl_, 0)) return;
-	checkUnderflow( _FdValUl_, 0);
+	if (!checkOverflow( _FdValUl_, 0))
+		checkUnderflow( _FdValUl_, 0);
 }
 
 /*	The Instruction Set manual has an overly complicated way of
@@ -268,14 +269,14 @@ void MADD_S() {
 	FPRreg temp;
 	temp.f = fpuDouble( _FsValUl_ ) * fpuDouble( _FtValUl_ );
 	_FdValf_  = fpuDouble( _FAValUl_ ) + fpuDouble( temp.UL );
-	if (checkOverflow( _FdValUl_, FPUflagO | FPUflagSO)) return;
-	checkUnderflow( _FdValUl_, FPUflagU | FPUflagSU);
+	if (!checkOverflow( _FdValUl_, FPUflagO | FPUflagSO))
+		checkUnderflow( _FdValUl_, FPUflagU | FPUflagSU);
 }
 
 void MADDA_S() {
 	_FAValf_ += fpuDouble( _FsValUl_ ) * fpuDouble( _FtValUl_ );
-	if (checkOverflow( _FAValUl_, FPUflagO | FPUflagSO)) return;
-	checkUnderflow( _FAValUl_, FPUflagU | FPUflagSU);
+	if (!checkOverflow( _FAValUl_, FPUflagO | FPUflagSO))
+		checkUnderflow( _FAValUl_, FPUflagU | FPUflagSU);
 }
 
 void MAX_S() {
@@ -301,14 +302,14 @@ void MSUB_S() {
 	FPRreg temp;
 	temp.f = fpuDouble( _FsValUl_ ) * fpuDouble( _FtValUl_ );
 	_FdValf_  = fpuDouble( _FAValUl_ ) - fpuDouble( temp.UL );
-	if (checkOverflow( _FdValUl_, FPUflagO | FPUflagSO)) return;
-	checkUnderflow( _FdValUl_, FPUflagU | FPUflagSU);
+	if (!checkOverflow( _FdValUl_, FPUflagO | FPUflagSO))
+		checkUnderflow( _FdValUl_, FPUflagU | FPUflagSU);
 }
 
 void MSUBA_S() {
 	_FAValf_ -= fpuDouble( _FsValUl_ ) * fpuDouble( _FtValUl_ );
-	if (checkOverflow( _FAValUl_, FPUflagO | FPUflagSO)) return;
-	checkUnderflow( _FAValUl_, FPUflagU | FPUflagSU);
+	if (!checkOverflow( _FAValUl_, FPUflagO | FPUflagSO))
+		checkUnderflow( _FAValUl_, FPUflagU | FPUflagSU);
 }
 
 void MTC1() {
@@ -317,14 +318,14 @@ void MTC1() {
 
 void MUL_S() {
 	_FdValf_  = fpuDouble( _FsValUl_ ) * fpuDouble( _FtValUl_ );
-	if (checkOverflow( _FdValUl_, FPUflagO | FPUflagSO)) return;
-	checkUnderflow( _FdValUl_, FPUflagU | FPUflagSU);
+	if (!checkOverflow( _FdValUl_, FPUflagO | FPUflagSO))
+		checkUnderflow( _FdValUl_, FPUflagU | FPUflagSU);
 }
 
 void MULA_S() {
 	_FAValf_  = fpuDouble( _FsValUl_ ) * fpuDouble( _FtValUl_ );
-	if (checkOverflow( _FAValUl_, FPUflagO | FPUflagSO)) return;
-	checkUnderflow( _FAValUl_, FPUflagU | FPUflagSU);
+	if (!checkOverflow( _FAValUl_, FPUflagO | FPUflagSO))
+		checkUnderflow( _FAValUl_, FPUflagU | FPUflagSU);
 }
 
 void NEG_S() {
@@ -346,8 +347,8 @@ void RSQRT_S() {
 	}
 	else { _FdValf_ = fpuDouble( _FsValUl_ ) / sqrt( fpuDouble( _FtValUl_ ) ); } // Ft is positive and not zero
 
-	if (checkOverflow( _FdValUl_, 0)) return;
-	checkUnderflow( _FdValUl_, 0);
+	if (!checkOverflow( _FdValUl_, 0))
+		checkUnderflow( _FdValUl_, 0);
 }
 
 void SQRT_S() {
@@ -361,16 +362,16 @@ void SQRT_S() {
 	clearFPUFlags( FPUflagD );
 }
 
-void SUB_S() {
+void SUB_S(void) {
 	_FdValf_  = fpuDouble( _FsValUl_ ) - fpuDouble( _FtValUl_ );
-	if (checkOverflow( _FdValUl_, FPUflagO | FPUflagSO)) return;
-	checkUnderflow( _FdValUl_, FPUflagU | FPUflagSU);
+	if (!checkOverflow( _FdValUl_, FPUflagO | FPUflagSO))
+		checkUnderflow( _FdValUl_, FPUflagU | FPUflagSU);
 }
 
-void SUBA_S() {
+void SUBA_S(void) {
 	_FAValf_  = fpuDouble( _FsValUl_ ) - fpuDouble( _FtValUl_ );
-	if (checkOverflow( _FAValUl_, FPUflagO | FPUflagSO)) return;
-	checkUnderflow( _FAValUl_, FPUflagU | FPUflagSU);
+	if (!checkOverflow( _FAValUl_, FPUflagO | FPUflagSO))
+		checkUnderflow( _FAValUl_, FPUflagU | FPUflagSU);
 }
 
 }	// End Namespace COP1
