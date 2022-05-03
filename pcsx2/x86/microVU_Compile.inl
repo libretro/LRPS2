@@ -490,7 +490,7 @@ static void mVUDoTBit(microVU& mVU, microFlagCycles* mFC)
 	eJMP.SetTarget();
 }
 
-static void* mVUcompile(microVU& mVU, u32 startPC, uptr pState)
+void *mVUcompile(microVU& mVU, u32 startPC, uptr pState)
 {
 	microFlagCycles mFC;
 	u8* thisPtr = x86Ptr;
