@@ -240,16 +240,9 @@ void ToPS2FPU_Full(int reg, bool flags, int absreg, bool acc, bool addsub)
 		x86SetJ8(end4);
 }
 
-void ToPS2FPU(int reg, bool flags, int absreg, bool acc, bool addsub = false)
-{
-	ToPS2FPU_Full(reg, flags, absreg, acc, addsub);
-}
-
 //sets the maximum (positive or negative) value into regd.
-void SetMaxValue(int regd)
-{
-	xOR.PS(xRegisterSSE(regd), ptr[&s_const.pos[0]]); // set regd to maximum
-}
+//set regd to maximum
+#define SetMaxValue(regd) xOR.PS(xRegisterSSE((regd)), ptr[&s_const.pos[0]]) 
 
 #define GET_S(sreg) { \
 	if( info & PROCESS_EE_S ) xMOVSS(xRegisterSSE(sreg), xRegisterSSE(EEREC_S)); \
@@ -298,7 +291,7 @@ FPURECOMPILE_CONSTCODE(ABS_S, XMMINFO_WRITED|XMMINFO_READS);
 // The difference of the exponents = the amount that the smaller operand will be shifted right by.
 // Modification - the PS2 uses a single guard bit? (Coded by Nneeve)
 //------------------------------------------------------------------
-void FPU_ADD_SUB(int tempd, int tempt) //tempd and tempt are overwritten, they are floats
+static void FPU_ADD_SUB(int tempd, int tempt) //tempd and tempt are overwritten, they are floats
 {
 	int tempecx = _allocX86reg(ecx, X86TYPE_TEMP, 0, 0); //receives regd
 	int temp2 = _allocX86reg(xEmptyReg, X86TYPE_TEMP, 0, 0); //receives regt
@@ -380,7 +373,7 @@ void FPU_MUL(int info, int regd, int sreg, int treg, bool acc)
 
 	ToDouble(sreg); ToDouble(treg);
 	xMUL.SD(xRegisterSSE(sreg), xRegisterSSE(treg));
-	ToPS2FPU(sreg, true, treg, acc);
+	ToPS2FPU_Full(sreg, true, treg, acc, false);
 	xMOVSS(xRegisterSSE(regd), xRegisterSSE(sreg));
 
 	if (CHECK_FPUMULHACK)
@@ -406,7 +399,7 @@ void recFPUOp(int info, int regd, int op, bool acc)
 
 	recFPUOpXMM_to_XMM[op](sreg, treg);
 
-	ToPS2FPU(sreg, true, treg, acc, true);
+	ToPS2FPU_Full(sreg, true, treg, acc, true);
 	xMOVSS(xRegisterSSE(regd), xRegisterSSE(sreg));
 
 	_freeXMMreg(sreg); _freeXMMreg(treg);
@@ -505,7 +498,7 @@ void recCVT_S_xmm(int info)
 
 FPURECOMPILE_CONSTCODE(CVT_S, XMMINFO_WRITED|XMMINFO_READS);
 
-void recCVT_W() //called from iFPU.cpp's recCVT_W
+void recCVT_W(void) //called from iFPU.cpp's recCVT_W
 {
 	int regs = _checkXMMreg(XMMTYPE_FPREG, _Fs_, MODE_READ);
 
@@ -539,7 +532,7 @@ void recCVT_W() //called from iFPU.cpp's recCVT_W
 //------------------------------------------------------------------
 // DIV XMM
 //------------------------------------------------------------------
-void recDIVhelper1(int regd, int regt) // Sets flags
+static void recDIVhelper1(int regd, int regt) // Sets flags
 {
 	u8 *pjmp1, *pjmp2;
 	u32 *ajmp32, *bjmp32;
@@ -575,25 +568,17 @@ void recDIVhelper1(int regd, int regt) // Sets flags
 	x86SetJ32(ajmp32);
 
 	//--- Normal Divide ---
-	ToDouble(regd); ToDouble(regt);
+	ToDouble(regd);
+	ToDouble(regt);
 
 	xDIV.SD(xRegisterSSE(regd), xRegisterSSE(regt));
 
-	ToPS2FPU(regd, false, regt, false);
+	ToPS2FPU_Full(regd, false, regt, false, false);
 
 	x86SetJ32(bjmp32);
 
 	_freeXMMreg(t1reg);
 	_freeX86reg(tempReg);
-}
-
-void recDIVhelper2(int regd, int regt) // Doesn't sets flags
-{
-	ToDouble(regd); ToDouble(regt);
-
-	xDIV.SD(xRegisterSSE(regd), xRegisterSSE(regt));
-
-	ToPS2FPU(regd, false, regt, false);
 }
 
 static __aligned16 SSE_MXCSR roundmode_nearest, roundmode_neg;
@@ -654,10 +639,11 @@ FPURECOMPILE_CONSTCODE(DIV_S, XMMINFO_WRITED|XMMINFO_READS|XMMINFO_READT);
 // For example,   { adda.s -MAX, 0.0 ; madd.s fd, MAX, 1.0 } -> fd = 0
 // while          { adda.s -MAX, -MAX ; madd.s fd, MAX, 1.0 } -> fd = -MAX
 // (where MAX is 0x7fffffff and -MAX is 0xffffffff)
-void recMaddsub(int info, int regd, int op, bool acc)
+static void recMaddsub(int info, int regd, int op, bool acc)
 {
 	int sreg, treg;
-	ALLOC_S(sreg); ALLOC_T(treg);
+	ALLOC_S(sreg);
+	ALLOC_T(treg);
 
 	FPU_MUL(info, sreg, sreg, treg, false);
 
@@ -689,7 +675,7 @@ void recMaddsub(int info, int regd, int op, bool acc)
 		xOR(ptr32[&fpuRegs.ACCflag], 1);
 	u32 *skipall = JMP32(0);
 
-	//			PERFORM THE ACCUMULATION AND TEST RESULT. CONVERT TO SINGLE
+	//PERFORM THE ACCUMULATION AND TEST RESULT. CONVERT TO SINGLE
 
 	x86SetJ8(operation);
 	if (op == 1)
@@ -697,12 +683,13 @@ void recMaddsub(int info, int regd, int op, bool acc)
 	else
 		xADD.SD(xRegisterSSE(treg), xRegisterSSE(sreg));
 
-	ToPS2FPU(treg, true, sreg, acc, true);
+	ToPS2FPU_Full(treg, true, sreg, acc, true);
 	x86SetJ32(skipall);
 
 	xMOVSS(xRegisterSSE(regd), xRegisterSSE(treg));
 
-	_freeXMMreg(sreg); _freeXMMreg(treg);
+	_freeXMMreg(sreg);
+	_freeXMMreg(treg);
 }
 
 void recMADD_S_xmm(int info)
@@ -730,11 +717,13 @@ static const __aligned16 u32 minmax_mask[8] =
 	0xffffffff,	0x80000000, 0, 0,
 	0,			0x40000000, 0, 0
 };
+
 // FPU's MAX/MIN work with all numbers (including "denormals"). Check VU's logical min max for more info.
-void recMINMAX(int info, bool ismin)
+static void recMINMAX(int info, bool ismin)
 {
 	int sreg, treg;
-	ALLOC_S(sreg); ALLOC_T(treg);
+	ALLOC_S(sreg);
+	ALLOC_T(treg);
 
 	CLEAR_OU_FLAGS;
 
@@ -751,7 +740,8 @@ void recMINMAX(int info, bool ismin)
 
 	xMOVSS(xRegisterSSE(EEREC_D), xRegisterSSE(sreg));
 
-	_freeXMMreg(sreg); _freeXMMreg(treg);
+	_freeXMMreg(sreg);
+	_freeXMMreg(treg);
 }
 
 void recMAX_S_xmm(int info)
@@ -818,10 +808,12 @@ FPURECOMPILE_CONSTCODE(MUL_S, XMMINFO_WRITED|XMMINFO_READS|XMMINFO_READT);
 void recMULA_S_xmm(int info)
 {
 	int sreg, treg;
-	ALLOC_S(sreg); ALLOC_T(treg);
+	ALLOC_S(sreg);
+	ALLOC_T(treg);
 
 	FPU_MUL(info, EEREC_ACC, sreg, treg, true);
-	_freeXMMreg(sreg); _freeXMMreg(treg);
+	_freeXMMreg(sreg);
+	_freeXMMreg(treg);
 }
 
 FPURECOMPILE_CONSTCODE(MULA_S, XMMINFO_WRITEACC|XMMINFO_READS|XMMINFO_READT);
@@ -901,7 +893,7 @@ void recSQRT_S_xmm(int info)
 
 	xSQRT.SD(xRegisterSSE(EEREC_D), xRegisterSSE(EEREC_D));
 
-	ToPS2FPU(EEREC_D, false, t1reg, false);
+	ToPS2FPU_Full(EEREC_D, false, t1reg, false, false);
 
 	if (roundmodeFlag == 1) {
 		xLDMXCSR (g_sseMXCSR);
@@ -959,12 +951,13 @@ void recRSQRThelper1(int regd, int regt) // Preforms the RSQRT function when reg
 		pjmp32 = JMP32(0);
 	x86SetJ8(pjmp1);
 
-	ToDouble(regt); ToDouble(regd);
+	ToDouble(regt);
+	ToDouble(regd);
 
 	xSQRT.SD(xRegisterSSE(regt), xRegisterSSE(regt));
 	xDIV.SD(xRegisterSSE(regd), xRegisterSSE(regt));
 
-	ToPS2FPU(regd, false, regt, false);
+	ToPS2FPU_Full(regd, false, regt, false, false);
 	x86SetJ32(pjmp32);
 
 	_freeXMMreg(t1reg);
@@ -975,12 +968,13 @@ void recRSQRThelper2(int regd, int regt) // Preforms the RSQRT function when reg
 {
 	xAND.PS(xRegisterSSE(regt), ptr[&s_const.pos[0]]); // Make regt Positive
 
-	ToDouble(regt); ToDouble(regd);
+	ToDouble(regt);
+	ToDouble(regd);
 
 	xSQRT.SD(xRegisterSSE(regt), xRegisterSSE(regt));
 	xDIV.SD(xRegisterSSE(regd), xRegisterSSE(regt));
 
-	ToPS2FPU(regd, false, regt, false);
+	ToPS2FPU_Full(regd, false, regt, false, false);
 }
 
 void recRSQRT_S_xmm(int info)
@@ -1001,13 +995,15 @@ void recRSQRT_S_xmm(int info)
 		roundmodeFlag = true;
 	}
 
-	ALLOC_S(sreg); ALLOC_T(treg);
+	ALLOC_S(sreg);
+	ALLOC_T(treg);
 
 	recRSQRThelper1(sreg, treg);
 
 	xMOVSS(xRegisterSSE(EEREC_D), xRegisterSSE(sreg));
 
-	_freeXMMreg(treg); _freeXMMreg(sreg);
+	_freeXMMreg(treg);
+	_freeXMMreg(sreg);
 
 	if (roundmodeFlag) xLDMXCSR (g_sseMXCSR);
 }

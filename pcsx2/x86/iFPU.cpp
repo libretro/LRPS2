@@ -300,7 +300,7 @@ REC_FPUFUNC(RSQRT_S);
 //------------------------------------------------------------------
 
 static __aligned16 u64 FPU_FLOAT_TEMP[2];
-__fi void fpuFloat4(int regd) { // +NaN -> +fMax, -NaN -> -fMax, +Inf -> +fMax, -Inf -> -fMax
+static __fi void fpuFloat4(int regd) { // +NaN -> +fMax, -NaN -> -fMax, +Inf -> +fMax, -Inf -> -fMax
 	int t1reg = _allocTempXMMreg(XMMT_FPS, -1);
 	if (t1reg >= 0) {
 		xMOVSS(xRegisterSSE(t1reg), xRegisterSSE(regd));
@@ -322,20 +322,21 @@ __fi void fpuFloat4(int regd) { // +NaN -> +fMax, -NaN -> -fMax, +Inf -> +fMax, 
 	}
 }
 
-__fi void fpuFloat(int regd) {  // +/-NaN -> +fMax, +Inf -> +fMax, -Inf -> -fMax
+static __fi void fpuFloat(int regd) {  // +/-NaN -> +fMax, +Inf -> +fMax, -Inf -> -fMax
 	if (CHECK_FPU_OVERFLOW) {
 		xMIN.SS(xRegisterSSE(regd), ptr[&g_maxvals[0]]); // MIN() must be before MAX()! So that NaN's become +Maximum
 		xMAX.SS(xRegisterSSE(regd), ptr[&g_minvals[0]]);
 	}
 }
 
-__fi void fpuFloat2(int regd) { // +NaN -> +fMax, -NaN -> -fMax, +Inf -> +fMax, -Inf -> -fMax
+static __fi void fpuFloat2(int regd) { // +NaN -> +fMax, -NaN -> -fMax, +Inf -> +fMax, -Inf -> -fMax
 	if (CHECK_FPU_OVERFLOW) {
 		fpuFloat4(regd);
 	}
 }
 
-__fi void fpuFloat3(int regd) {
+static __fi void fpuFloat3(int regd)
+{
 	// This clamp function is used in the recC_xx opcodes
 	// Rule of Rose needs clamping or else it crashes (minss or maxss both fix the crash)
 	// Tekken 5 has disappearing characters unless preserving NaN sign (fpuFloat4() preserves NaN sign).
@@ -349,7 +350,8 @@ __fi void fpuFloat3(int regd) {
 	else fpuFloat4(regd);
 }
 
-void ClampValues(int regd) {
+static void ClampValues(int regd)
+{
 	fpuFloat(regd);
 }
 //------------------------------------------------------------------
@@ -384,10 +386,10 @@ FPURECOMPILE_CONSTCODE(ABS_S, XMMINFO_WRITED|XMMINFO_READS);
 // The difference of the exponents = the amount that the smaller operand will be shifted right by.
 // Modification - the PS2 uses a single guard bit? (Coded by Nneeve)
 //------------------------------------------------------------------
-void FPU_ADD_SUB(int regd, int regt, int issub)
+static void FPU_ADD_SUB(int regd, int regt, int issub)
 {
 	int tempecx = _allocX86reg(ecx, X86TYPE_TEMP, 0, 0); //receives regd
-	int temp2 = _allocX86reg(xEmptyReg, X86TYPE_TEMP, 0, 0); //receives regt
+	int temp2   = _allocX86reg(xEmptyReg, X86TYPE_TEMP, 0, 0); //receives regt
 	int xmmtemp = _allocTempXMMreg(XMMT_FPS, -1); //temporary for anding with regd/regt
 
 	xMOVD(xRegister32(tempecx), xRegisterSSE(regd));
@@ -470,12 +472,9 @@ void FPU_ADD_SUB(int regd, int regt, int issub)
 	_freeX86reg(tempecx);
 }
 
-void FPU_ADD(int regd, int regt) {
-	FPU_ADD_SUB(regd, regt, 0);
-}
-
-void FPU_SUB(int regd, int regt) {
-	FPU_ADD_SUB(regd, regt, 1);
+static void FPU_ADD(int regd, int regt)
+{
+       FPU_ADD_SUB(regd, regt, 0);
 }
 
 //------------------------------------------------------------------
@@ -868,7 +867,7 @@ void recCVT_S_xmm(int info)
 
 FPURECOMPILE_CONSTCODE(CVT_S, XMMINFO_WRITED|XMMINFO_READS);
 
-void recCVT_W()
+void recCVT_W(void)
 {
 	if (CHECK_FPU_FULL)
 	{
@@ -911,7 +910,7 @@ void recCVT_W()
 //------------------------------------------------------------------
 // DIV XMM
 //------------------------------------------------------------------
-void recDIVhelper1(int regd, int regt) // Sets flags
+static void recDIVhelper1(int regd, int regt) // Sets flags
 {
 	u8 *pjmp1, *pjmp2;
 	u32 *ajmp32, *bjmp32;
@@ -957,13 +956,6 @@ void recDIVhelper1(int regd, int regt) // Sets flags
 
 	_freeXMMreg(t1reg);
 	_freeX86reg(tempReg);
-}
-
-void recDIVhelper2(int regd, int regt) // Doesn't sets flags
-{
-	if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat2(regd); fpuFloat2(regt); }
-	xDIV.SS(xRegisterSSE(regd), xRegisterSSE(regt));
-	ClampValues(regd);
 }
 
 static __aligned16 SSE_MXCSR roundmode_nearest, roundmode_neg;
@@ -1057,12 +1049,12 @@ void recMADDtemp(int info, int regd)
 				xMUL.SS(xRegisterSSE(regd), xRegisterSSE(t0reg));
 				if (info & PROCESS_EE_ACC) {
 					if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(EEREC_ACC); fpuFloat(regd); }
-					FPU_ADD(regd, EEREC_ACC);
+					FPU_ADD_SUB(regd, EEREC_ACC, 0);
 				}
 				else {
 					xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.ACC]);
 					if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(EEREC_ACC); fpuFloat(t0reg); }
-					FPU_ADD(regd, t0reg);
+					FPU_ADD_SUB(regd, t0reg, 0);
 				}
 			}
 			else if (regd == EEREC_ACC){
@@ -1070,7 +1062,7 @@ void recMADDtemp(int info, int regd)
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat2(EEREC_S); fpuFloat2(t0reg); }
 				xMUL.SS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_S));
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(t0reg); }
-				FPU_ADD(regd, t0reg);
+				FPU_ADD_SUB(regd, t0reg, 0);
 			}
 			else {
 				xMOVSSZX(xRegisterSSE(regd), ptr[&fpuRegs.fpr[_Ft_]]);
@@ -1078,12 +1070,12 @@ void recMADDtemp(int info, int regd)
 				xMUL.SS(xRegisterSSE(regd), xRegisterSSE(EEREC_S));
 				if (info & PROCESS_EE_ACC) {
 					if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(EEREC_ACC); fpuFloat(regd); }
-					FPU_ADD(regd, EEREC_ACC);
+					FPU_ADD_SUB(regd, EEREC_ACC, 0);
 				}
 				else {
 					xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.ACC]);
 					if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(EEREC_ACC); fpuFloat(t0reg); }
-					FPU_ADD(regd, t0reg);
+					FPU_ADD_SUB(regd, t0reg, 0);
 				}
 			}
 			break;
@@ -1094,12 +1086,12 @@ void recMADDtemp(int info, int regd)
 				xMUL.SS(xRegisterSSE(regd), xRegisterSSE(t0reg));
 				if (info & PROCESS_EE_ACC) {
 					if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(EEREC_ACC); fpuFloat(regd); }
-					FPU_ADD(regd, EEREC_ACC);
+					FPU_ADD_SUB(regd, EEREC_ACC, 0);
 				}
 				else {
 					xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.ACC]);
 					if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(EEREC_ACC); fpuFloat(t0reg); }
-					FPU_ADD(regd, t0reg);
+					FPU_ADD_SUB(regd, t0reg, 0);
 				}
 			}
 			else if (regd == EEREC_ACC){
@@ -1107,7 +1099,7 @@ void recMADDtemp(int info, int regd)
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat2(EEREC_T); fpuFloat2(t0reg); }
 				xMUL.SS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_T));
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(t0reg); }
-				FPU_ADD(regd, t0reg);
+				FPU_ADD_SUB(regd, t0reg, 0);
 			}
 			else {
 				xMOVSSZX(xRegisterSSE(regd), ptr[&fpuRegs.fpr[_Fs_]]);
@@ -1115,12 +1107,12 @@ void recMADDtemp(int info, int regd)
 				xMUL.SS(xRegisterSSE(regd), xRegisterSSE(EEREC_T));
 				if (info & PROCESS_EE_ACC) {
 					if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(EEREC_ACC); fpuFloat(regd); }
-					FPU_ADD(regd, EEREC_ACC);
+					FPU_ADD_SUB(regd, EEREC_ACC, 0);
 				}
 				else {
 					xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.ACC]);
 					if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(EEREC_ACC); fpuFloat(t0reg); }
-					FPU_ADD(regd, t0reg);
+					FPU_ADD_SUB(regd, t0reg, 0);
 				}
 			}
 			break;
@@ -1130,12 +1122,12 @@ void recMADDtemp(int info, int regd)
 				xMUL.SS(xRegisterSSE(regd), xRegisterSSE(EEREC_T));
 				if (info & PROCESS_EE_ACC) {
 					if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(EEREC_ACC); }
-					FPU_ADD(regd, EEREC_ACC);
+					FPU_ADD_SUB(regd, EEREC_ACC, 0);
 				}
 				else {
 					xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.ACC]);
 					if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(t0reg); }
-					FPU_ADD(regd, t0reg);
+					FPU_ADD_SUB(regd, t0reg, 0);
 				}
 			}
 			else if(regd == EEREC_T) {
@@ -1143,12 +1135,12 @@ void recMADDtemp(int info, int regd)
 				xMUL.SS(xRegisterSSE(regd), xRegisterSSE(EEREC_S));
 				if (info & PROCESS_EE_ACC) {
 					if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(EEREC_ACC); }
-					FPU_ADD(regd, EEREC_ACC);
+					FPU_ADD_SUB(regd, EEREC_ACC, 0);
 				}
 				else {
 					xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.ACC]);
 					if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(t0reg); }
-					FPU_ADD(regd, t0reg);
+					FPU_ADD_SUB(regd, t0reg, 0);
 				}
 			}
 			else if(regd == EEREC_ACC) {
@@ -1156,7 +1148,7 @@ void recMADDtemp(int info, int regd)
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat2(t0reg); fpuFloat2(EEREC_T); }
 				xMUL.SS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_T));
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(t0reg); }
-				FPU_ADD(regd, t0reg);
+				FPU_ADD_SUB(regd, t0reg, 0);
 			}
 			else {
 				xMOVSS(xRegisterSSE(regd), xRegisterSSE(EEREC_S));
@@ -1164,12 +1156,12 @@ void recMADDtemp(int info, int regd)
 				xMUL.SS(xRegisterSSE(regd), xRegisterSSE(EEREC_T));
 				if (info & PROCESS_EE_ACC) {
 					if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(EEREC_ACC); }
-					FPU_ADD(regd, EEREC_ACC);
+					FPU_ADD_SUB(regd, EEREC_ACC, 0);
 				}
 				else {
 					xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.ACC]);
 					if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(t0reg); }
-					FPU_ADD(regd, t0reg);
+					FPU_ADD_SUB(regd, t0reg, 0);
 				}
 			}
 			break;
@@ -1181,7 +1173,7 @@ void recMADDtemp(int info, int regd)
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat2(t0reg); fpuFloat2(t1reg); }
 				xMUL.SS(xRegisterSSE(t0reg), xRegisterSSE(t1reg));
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(t0reg); }
-				FPU_ADD(regd, t0reg);
+				FPU_ADD_SUB(regd, t0reg, 0);
 				_freeXMMreg(t1reg);
 			}
 			else
@@ -1192,12 +1184,12 @@ void recMADDtemp(int info, int regd)
 				xMUL.SS(xRegisterSSE(regd), xRegisterSSE(t0reg));
 				if (info & PROCESS_EE_ACC) {
 					if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(EEREC_ACC); }
-					FPU_ADD(regd, EEREC_ACC);
+					FPU_ADD_SUB(regd, EEREC_ACC, 0);
 				}
 				else {
 					xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.ACC]);
 					if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(t0reg); }
-					FPU_ADD(regd, t0reg);
+					FPU_ADD_SUB(regd, t0reg, 0);
 				}
 			}
 			break;
@@ -1276,7 +1268,7 @@ int t1reg;
 				if (info & PROCESS_EE_ACC) { xMOVSS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_ACC)); }
 				else { xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.ACC]); }
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(t0reg); }
-				FPU_SUB(t0reg, regd);
+				FPU_ADD_SUB(t0reg, regd, 1);
 				xMOVSS(xRegisterSSE(regd), xRegisterSSE(t0reg));
 			}
 			else if (regd == EEREC_ACC){
@@ -1284,7 +1276,7 @@ int t1reg;
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat2(EEREC_S); fpuFloat2(t0reg); }
 				xMUL.SS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_S));
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(t0reg); }
-				FPU_SUB(regd, t0reg);
+				FPU_ADD_SUB(regd, t0reg, 1);
 			}
 			else {
 				xMOVSSZX(xRegisterSSE(regd), ptr[&fpuRegs.fpr[_Ft_]]);
@@ -1293,7 +1285,7 @@ int t1reg;
 				if (info & PROCESS_EE_ACC) { xMOVSS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_ACC)); }
 				else { xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.ACC]); }
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(t0reg); }
-				FPU_SUB(t0reg, regd);
+				FPU_ADD_SUB(t0reg, regd, 1);
 				xMOVSS(xRegisterSSE(regd), xRegisterSSE(t0reg));
 			}
 			break;
@@ -1305,7 +1297,7 @@ int t1reg;
 				if (info & PROCESS_EE_ACC) { xMOVSS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_ACC)); }
 				else { xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.ACC]); }
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(t0reg); }
-				FPU_SUB(t0reg, regd);
+				FPU_ADD_SUB(t0reg, regd, 1);
 				xMOVSS(xRegisterSSE(regd), xRegisterSSE(t0reg));
 			}
 			else if (regd == EEREC_ACC){
@@ -1313,7 +1305,7 @@ int t1reg;
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat2(EEREC_T); fpuFloat2(t0reg); }
 				xMUL.SS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_T));
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(t0reg); }
-				FPU_SUB(regd, t0reg);
+				FPU_ADD_SUB(regd, t0reg, 1);
 			}
 			else {
 				xMOVSSZX(xRegisterSSE(regd), ptr[&fpuRegs.fpr[_Fs_]]);
@@ -1322,7 +1314,7 @@ int t1reg;
 				if (info & PROCESS_EE_ACC) { xMOVSS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_ACC)); }
 				else { xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.ACC]); }
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(t0reg); }
-				FPU_SUB(t0reg, regd);
+				FPU_ADD_SUB(t0reg, regd, 1);
 				xMOVSS(xRegisterSSE(regd), xRegisterSSE(t0reg));
 			}
 			break;
@@ -1333,7 +1325,7 @@ int t1reg;
 				if (info & PROCESS_EE_ACC) { xMOVSS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_ACC)); }
 				else { xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.ACC]); }
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(t0reg); }
-				FPU_SUB(t0reg, regd);
+				FPU_ADD_SUB(t0reg, regd, 1);
 				xMOVSS(xRegisterSSE(regd), xRegisterSSE(t0reg));
 			}
 			else if(regd == EEREC_T) {
@@ -1342,7 +1334,7 @@ int t1reg;
 				if (info & PROCESS_EE_ACC) { xMOVSS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_ACC)); }
 				else { xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.ACC]); }
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(t0reg); }
-				FPU_SUB(t0reg, regd);
+				FPU_ADD_SUB(t0reg, regd, 1);
 				xMOVSS(xRegisterSSE(regd), xRegisterSSE(t0reg));
 			}
 			else if(regd == EEREC_ACC) {
@@ -1350,7 +1342,7 @@ int t1reg;
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat2(t0reg); fpuFloat2(EEREC_T); }
 				xMUL.SS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_T));
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(t0reg); }
-				FPU_SUB(regd, t0reg);
+				FPU_ADD_SUB(regd, t0reg, 1);
 			}
 			else {
 				xMOVSS(xRegisterSSE(regd), xRegisterSSE(EEREC_S));
@@ -1359,7 +1351,7 @@ int t1reg;
 				if (info & PROCESS_EE_ACC) { xMOVSS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_ACC)); }
 				else { xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.ACC]); }
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(t0reg); }
-				FPU_SUB(t0reg, regd);
+				FPU_ADD_SUB(t0reg, regd, 1);
 				xMOVSS(xRegisterSSE(regd), xRegisterSSE(t0reg));
 			}
 			break;
@@ -1371,7 +1363,7 @@ int t1reg;
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat2(t0reg); fpuFloat2(t1reg); }
 				xMUL.SS(xRegisterSSE(t0reg), xRegisterSSE(t1reg));
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(t0reg); }
-				FPU_SUB(regd, t0reg);
+				FPU_ADD_SUB(regd, t0reg, 1);
 				_freeXMMreg(t1reg);
 			}
 			else
@@ -1383,7 +1375,7 @@ int t1reg;
 				if (info & PROCESS_EE_ACC)  { xMOVSS(xRegisterSSE(t0reg), xRegisterSSE(EEREC_ACC)); }
 				else { xMOVSSZX(xRegisterSSE(t0reg), ptr[&fpuRegs.ACC]); }
 				if (CHECK_FPU_EXTRA_OVERFLOW) { fpuFloat(regd); fpuFloat(t0reg); }
-				FPU_SUB(t0reg, regd);
+				FPU_ADD_SUB(t0reg, regd, 1);
 				xMOVSS(xRegisterSSE(regd), xRegisterSSE(t0reg));
 			}
 			break;
@@ -1455,14 +1447,12 @@ FPURECOMPILE_CONSTCODE(NEG_S, XMMINFO_WRITED|XMMINFO_READS);
 void recSUBhelper(int regd, int regt)
 {
 	if (CHECK_FPU_EXTRA_OVERFLOW /*&& !CHECK_FPUCLAMPHACK*/) { fpuFloat2(regd); fpuFloat2(regt); }
-	FPU_SUB(regd, regt);
+	FPU_ADD_SUB(regd, regt, 1);
 }
 
 void recSUBop(int info, int regd)
 {
 	int t0reg = _allocTempXMMreg(XMMT_FPS, -1);
-
-	//xAND(ptr32[&fpuRegs.fprc[31]], ~(FPUflagO|FPUflagU)); // Clear O and U flags
 
 	switch(info & (PROCESS_EE_S|PROCESS_EE_T) ) {
 		case PROCESS_EE_S:
