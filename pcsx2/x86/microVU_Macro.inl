@@ -26,10 +26,8 @@ static VURegs& vu0Regs = vuRegs[0];
 
 using namespace R5900::Dynarec;
 
-#define printCOP2(...) (void)0
-
-void setupMacroOp(int mode, const char* opName) {
-	printCOP2(opName);
+static void setupMacroOp(int mode, const char* opName)
+{
 	microVU0.cop2 = 1;
 	microVU0.prog.IRinfo.curPC = 0;
 	microVU0.code = cpuRegs.code;
@@ -57,7 +55,8 @@ void setupMacroOp(int mode, const char* opName) {
 	}
 }
 
-void endMacroOp(int mode) {
+static void endMacroOp(int mode)
+{
 	if (mode & 0x02) { // Q-Reg was Written To
 		xMOVSS(ptr32[&vu0Regs.VI[REG_Q].UL], xmmPQ);
 	}
@@ -234,8 +233,8 @@ REC_COP2_mVU0(RXOR,		"RXOR",		0x00);
 // Macro VU - Misc...
 //------------------------------------------------------------------
 
-void recVNOP()	{}
-void recVWAITQ(){}
+static void recVNOP(void)	{}
+static void recVWAITQ(void)     {}
 INTERPRETATE_COP2_FUNC(CALLMS);
 INTERPRETATE_COP2_FUNC(CALLMSR);
 
@@ -244,40 +243,38 @@ INTERPRETATE_COP2_FUNC(CALLMSR);
 //------------------------------------------------------------------
 
 void _setupBranchTest(u32*(jmpType)(u32), bool isLikely) {
-	printCOP2("COP2 Branch");
 	_eeFlushAllUnused();
 	//xTEST(ptr32[&vif1Regs.stat._u32], 0x4);
 	xTEST(ptr32[&VU0.VI[REG_VPU_STAT].UL], 0x100);
 	recDoBranchImm(jmpType(0), isLikely);
 }
 
-void recBC2F()  { _setupBranchTest(JNZ32, false); }
-void recBC2T()  { _setupBranchTest(JZ32,  false); }
-void recBC2FL() { _setupBranchTest(JNZ32, true);  }
-void recBC2TL() { _setupBranchTest(JZ32,  true);  }
+static void recBC2F(void)  { _setupBranchTest(JNZ32, false); }
+static void recBC2T(void)  { _setupBranchTest(JZ32,  false); }
+static void recBC2FL(void) { _setupBranchTest(JNZ32, true);  }
+static void recBC2TL(void) { _setupBranchTest(JZ32,  true);  }
 
 //------------------------------------------------------------------
 // Macro VU - COP2 Transfer Instructions
 //------------------------------------------------------------------
 
-void COP2_Interlock(bool mBitSync) {
-
-	if (cpuRegs.code & 1) {
-		iFlushCall(FLUSH_EVERYTHING);
-		xTEST(ptr32[&VU0.VI[REG_VPU_STAT].UL], 0x1);
-		xForwardJZ32 skipvuidle;
-		xMOV(eax, ptr[&cpuRegs.cycle]);
-		xADD(eax, scaleblockcycles_clear());
-		xMOV(ptr[&cpuRegs.cycle], eax); // update cycles
-		xLoadFarAddr(arg1reg, CpuVU0);
-		xFastCall((void*)BaseVUmicroCPU::ExecuteBlockJIT, arg1reg);
-		if (mBitSync) xFastCall((void*)_vu0WaitMicro);
-		else		  xFastCall((void*)_vu0FinishMicro);
-		skipvuidle.SetTarget();
-	}
+static void COP2_Interlock(bool mBitSync)
+{
+	iFlushCall(FLUSH_EVERYTHING);
+	xTEST(ptr32[&VU0.VI[REG_VPU_STAT].UL], 0x1);
+	xForwardJZ32 skipvuidle;
+	xMOV(eax, ptr[&cpuRegs.cycle]);
+	xADD(eax, scaleblockcycles_clear());
+	xMOV(ptr[&cpuRegs.cycle], eax); // update cycles
+	xLoadFarAddr(arg1reg, CpuVU0);
+	xFastCall((void*)BaseVUmicroCPU::ExecuteBlockJIT, arg1reg);
+	if (mBitSync) xFastCall((void*)_vu0WaitMicro);
+	else		  xFastCall((void*)_vu0FinishMicro);
+	skipvuidle.SetTarget();
 }
 
-void TEST_FBRST_RESET(FnType_Void* resetFunct, int vuIndex) {
+static void TEST_FBRST_RESET(FnType_Void* resetFunct, int vuIndex)
+{
 	xTEST(eax, (vuIndex) ? 0x200 : 0x002);
 	xForwardJZ8 skip;
 		xFastCall((void*)resetFunct);
@@ -285,11 +282,10 @@ void TEST_FBRST_RESET(FnType_Void* resetFunct, int vuIndex) {
 	skip.SetTarget();
 }
 
-static void recCFC2() {
-
-	printCOP2("CFC2");
-
-	COP2_Interlock(false);
+static void recCFC2(void)
+{
+	if (cpuRegs.code & 1)
+		COP2_Interlock(false);
 	if (!_Rt_) return;
 
 	iFlushCall(FLUSH_EVERYTHING);
@@ -310,47 +306,10 @@ static void recCFC2() {
 		skipvuidle.SetTarget();
 	}
 
-	if (_Rd_ == REG_STATUS_FLAG) { // Normalize Status Flag
+	if (_Rd_ == REG_STATUS_FLAG) // Normalize Status Flag
 		xMOV(eax, ptr32[&vu0Regs.VI[REG_STATUS_FLAG].UL]);
-	}
-	else xMOV(eax, ptr32[&vu0Regs.VI[_Rd_].UL]);
-
-	if (_Rd_ == REG_TPC) { // Divide TPC register value by 8 during copying
-		// Ok, this deserves an explanation.
-		// Accoring to the official PS2 VU0 coding manual there are 3 ways to execute a micro subroutine on VU0
-		// one of which is using the VCALLMSR intruction.
-		// The manual requires putting the address of the micro subroutine
-		// into the CMSAR0 register divided by 8 using the CTC2 command before executing VCALLMSR.
-		// Many games (for instance, 24: The Game, GTA LCS, GTA VCS and FFXII) do in fact use this way, 
-		// they diligently put the address of the micro subroutine into a separate register (v0, v1 etc), divide it by 8
-		// and move it to CMSAR0 by calling the CTC2 command.
-	
-		// However, there are also at least 2 confirmed games (R Racing Evolution, Street Fighter EX3) 
-		// that execute a piece of code to run a micro subroutine on VU0 like this:
-		// 
-		// ...
-		// cfc2	t4, TPC
-		// ctc2	t4, CMSAR0
-		// callmsr
-		// ...
-		//
-		// Interestingly enough there is no division by 8 but it works fine in these 2 mentioned games.
-		// It means the division operation is implicit.
-		// Homebrew tests for the real PS2 have shown that in fact the instruction "cfc2 t4, TPC" ends up with values that are not always divisible by 8.
-
-		// There are 2 possibilities: either the CFC2 instruction divides the value of the TPC (which is the Program Counter register
-		// for micro subroutines) by 8 itself during copying or the TPC register always works with addresses already divided by 8.
-		// The latter seems less possible because the Program Counter register by definition holds the memory address of the instruction.
-		// In addition, PCSX2 already implements TPC as an instruction pointer so we'll assume that division by 8 
-		// is done by CFC2 while working with the TPC register.
-		// (fixes R Racing Evolution and Street Fighter EX3)
-		
-		//xSHR(eax, 3);
-
-		//Update Refraction - Don't need to do this anymore as addresses are fed in divided by 8 always.
-		//Games such at The Incredible Hulk will read VU1's TPC from VU0 (which will already be multiplied by 8) then try to use CMSAR1 (which will also multiply by 8)
-		//So everything is now fed in without multiplication
-	}
+	else
+		xMOV(eax, ptr32[&vu0Regs.VI[_Rd_].UL]);
 
 	// FixMe: Should R-Reg have upper 9 bits 0?
 	xMOV(ptr32[&cpuRegs.GPR.r[_Rt_].UL[0]], eax);
@@ -365,10 +324,10 @@ static void recCFC2() {
 	_eeOnWriteReg(_Rt_, 1);
 }
 
-static void recCTC2() {
-
-	printCOP2("CTC2");
-	COP2_Interlock(1);
+static void recCTC2(void)
+{
+	if (cpuRegs.code & 1)
+		COP2_Interlock(true);
 	if (!_Rd_) return;
 
 	iFlushCall(FLUSH_EVERYTHING);
@@ -446,10 +405,10 @@ static void recCTC2() {
 	}
 }
 
-static void recQMFC2() {
-
-	printCOP2("QMFC2");
-	COP2_Interlock(false);
+static void recQMFC2(void)
+{
+	if (cpuRegs.code & 1)
+		COP2_Interlock(false);
 	if (!_Rt_) return;
 
 	iFlushCall(FLUSH_EVERYTHING);
@@ -477,10 +436,10 @@ static void recQMFC2() {
 	xMOVAPS(ptr128[&cpuRegs.GPR.r[_Rt_]], xmmT1);
 }
 
-static void recQMTC2() {
-
-	printCOP2("QMTC2");
-	COP2_Interlock(true);
+static void recQMTC2(void)
+{
+	if (cpuRegs.code & 1)
+		COP2_Interlock(true);
 	if (!_Rd_) return;
 
 	iFlushCall(FLUSH_EVERYTHING);
@@ -508,29 +467,28 @@ static void recQMTC2() {
 // Macro VU - Tables
 //------------------------------------------------------------------
 
-void recCOP2();
-void recCOP2_BC2();
-void recCOP2_SPEC1();
-void recCOP2_SPEC2();
-void rec_C2UNK() {
-}
+static void recCOP2(void);
+static void recCOP2_BC2(void);
+static void recCOP2_SPEC1(void);
+static void recCOP2_SPEC2(void);
+static void rec_C2UNK(void) { }
 
 // Recompilation
-void (*recCOP2t[32])() = {
+void (*recCOP2t[32])(void) = {
     rec_C2UNK,	   recQMFC2,      recCFC2,		 rec_C2UNK,		rec_C2UNK,	   recQMTC2,      recCTC2,       rec_C2UNK,
     recCOP2_BC2,   rec_C2UNK,	  rec_C2UNK,	 rec_C2UNK,		rec_C2UNK,	   rec_C2UNK,	  rec_C2UNK,	 rec_C2UNK,
     recCOP2_SPEC1, recCOP2_SPEC1, recCOP2_SPEC1, recCOP2_SPEC1, recCOP2_SPEC1, recCOP2_SPEC1, recCOP2_SPEC1, recCOP2_SPEC1,
 	recCOP2_SPEC1, recCOP2_SPEC1, recCOP2_SPEC1, recCOP2_SPEC1, recCOP2_SPEC1, recCOP2_SPEC1, recCOP2_SPEC1, recCOP2_SPEC1,
 };
 
-void (*recCOP2_BC2t[32])() = {
+void (*recCOP2_BC2t[32])(void) = {
     recBC2F,	recBC2T,	recBC2FL,	recBC2TL,	rec_C2UNK,	rec_C2UNK,	rec_C2UNK,	rec_C2UNK,
     rec_C2UNK,	rec_C2UNK,	rec_C2UNK,	rec_C2UNK,	rec_C2UNK,	rec_C2UNK,	rec_C2UNK,	rec_C2UNK,
     rec_C2UNK,	rec_C2UNK,	rec_C2UNK,	rec_C2UNK,	rec_C2UNK,	rec_C2UNK,	rec_C2UNK,	rec_C2UNK,
     rec_C2UNK,	rec_C2UNK,	rec_C2UNK,	rec_C2UNK,	rec_C2UNK,	rec_C2UNK,	rec_C2UNK,	rec_C2UNK,
 }; 
 
-void (*recCOP2SPECIAL1t[64])() = { 
+void (*recCOP2SPECIAL1t[64])(void) = { 
 	recVADDx,	recVADDy,	recVADDz,	recVADDw,	recVSUBx,		recVSUBy,		recVSUBz,		recVSUBw,  
 	recVMADDx,	recVMADDy,	recVMADDz,	recVMADDw,	recVMSUBx,		recVMSUBy,		recVMSUBz,		recVMSUBw, 
 	recVMAXx,	recVMAXy,	recVMAXz,	recVMAXw,	recVMINIx,		recVMINIy,		recVMINIz,		recVMINIw, 
@@ -563,8 +521,8 @@ void (*recCOP2SPECIAL2t[128])() = {
 namespace R5900 {
 namespace Dynarec {
 namespace OpcodeImpl { void recCOP2() { recCOP2t[_Rs_](); }}}}
-void recCOP2_BC2  () { recCOP2_BC2t[_Rt_](); }
-void recCOP2_SPEC1() {
+static void recCOP2_BC2  (void) { recCOP2_BC2t[_Rt_](); }
+static void recCOP2_SPEC1(void) {
 	iFlushCall(FLUSH_EVERYTHING);
 	xTEST(ptr32[&VU0.VI[REG_VPU_STAT].UL], 0x1);
 	xForwardJZ32 skipvuidle;
@@ -573,4 +531,4 @@ void recCOP2_SPEC1() {
 
 	recCOP2SPECIAL1t[_Funct_]();
 }
-void recCOP2_SPEC2() { recCOP2SPECIAL2t[(cpuRegs.code&3)|((cpuRegs.code>>4)&0x7c)](); }
+static void recCOP2_SPEC2(void) { recCOP2SPECIAL2t[(cpuRegs.code&3)|((cpuRegs.code>>4)&0x7c)](); }
