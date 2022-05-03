@@ -84,22 +84,12 @@ emitterT void x86SetPtr(u8 *ptr)
 void x86SetJ8(u8 *j8)
 {
     u32 jump = (x86Ptr - j8) - 1;
-
-    if (jump > 0x7f) {
-        log_cb(RETRO_LOG_ERROR, "j8 greater than 0x7f!!\n");
-        assert(0);
-    }
-    *j8 = (u8)jump;
+    *j8      = (u8)jump;
 }
 
 void x86SetJ8A(u8 *j8)
 {
     u32 jump = (x86Ptr - j8) - 1;
-
-    if (jump > 0x7f) {
-        log_cb(RETRO_LOG_ERROR, "j8 greater than 0x7f!!\n");
-        assert(0);
-    }
 
     if (((uptr)x86Ptr & 0xf) > 4) {
 
