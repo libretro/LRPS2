@@ -80,7 +80,7 @@ void resetNewVif(int idx)
 	nVif[idx].bSize = 0;
 	memzero(nVif[idx].buffer);
 
-	if (newVifDynaRec) dVifReset(idx);
+	dVifReset(idx);
 }
 
 void closeNewVif(int idx) {
@@ -117,8 +117,7 @@ _vifT int nVifUnpack(const u8* data) {
 		}
 
 		if (!idx || !THREAD_VU1) {
-			if (newVifDynaRec)	dVifUnpack<idx>(data, isFill);
-			else			   _nVifUnpack(idx, data, vifRegs.mode, isFill);
+			dVifUnpack<idx>(data, isFill);
 		}
 		else vu1Thread.VifUnpack(vif, vifRegs, (u8*)data, (size + 4) & ~0x3);
 
