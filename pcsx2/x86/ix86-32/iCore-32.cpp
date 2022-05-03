@@ -33,95 +33,73 @@ static int g_x86checknext;
 
 // use special x86 register allocation for ia32
 
-void _initX86regs() {
+void _initX86regs(void)
+{
 	memzero(x86regs);
 	g_x86AllocCounter = 0;
 	g_x86checknext = 0;
 }
 
-uptr _x86GetAddr(int type, int reg)
+static uptr _x86GetAddr(int type, int reg)
 {
-	uptr ret = 0;
-
 	switch(type&~X86TYPE_VU1)
 	{
 		case X86TYPE_GPR:
-			ret = (uptr)&cpuRegs.GPR.r[reg];
-			break;
-
+			return (uptr)&cpuRegs.GPR.r[reg];
 		case X86TYPE_VI:
 			if (type & X86TYPE_VU1)
-				ret = (uptr)&VU1.VI[reg];
-			else
-				ret = (uptr)&VU0.VI[reg];
-			break;
+				return (uptr)&VU1.VI[reg];
+			return (uptr)&VU0.VI[reg];
 
 		case X86TYPE_MEMOFFSET:
-			ret = 0;
-			break;
-
 		case X86TYPE_VIMEMOFFSET:
-			ret = 0;
 			break;
 
 		case X86TYPE_VUQREAD:
 			if  (type & X86TYPE_VU1)
-				ret = (uptr)&VU1.VI[REG_Q];
-			else
-				ret = (uptr)&VU0.VI[REG_Q];
-			break;
+				return (uptr)&VU1.VI[REG_Q];
+			return (uptr)&VU0.VI[REG_Q];
 
 		case X86TYPE_VUPREAD:
 			if  (type & X86TYPE_VU1)
-				ret = (uptr)&VU1.VI[REG_P];
-			else
-				ret = (uptr)&VU0.VI[REG_P];
-			break;
+				return (uptr)&VU1.VI[REG_P];
+			return (uptr)&VU0.VI[REG_P];
 
 		case X86TYPE_VUQWRITE:
 			if  (type & X86TYPE_VU1)
-				ret = (uptr)&VU1.q;
-			else
-				ret = (uptr)&VU0.q;
-			break;
+				return (uptr)&VU1.q;
+			return (uptr)&VU0.q;
 
 		case X86TYPE_VUPWRITE:
 			if  (type & X86TYPE_VU1)
-				ret = (uptr)&VU1.p;
-			else
-				ret = (uptr)&VU0.p;
-			break;
+				return (uptr)&VU1.p;
+			return (uptr)&VU0.p;
 
 		case X86TYPE_PSX:
-			ret = (uptr)&psxRegs.GPR.r[reg];
-			break;
+			return (uptr)&psxRegs.GPR.r[reg];
 
 		case X86TYPE_PCWRITEBACK:
-			ret = (uptr)&g_recWriteback;
-			break;
+			return (uptr)&g_recWriteback;
 
 		case X86TYPE_VUJUMP:
-			ret = (uptr)&g_recWriteback;
-			break;
+			return (uptr)&g_recWriteback;
 
 		jNO_DEFAULT;
 	}
 
-	return ret;
+	return 0;
 }
 
-int _getFreeX86reg(int mode)
+static int _getFreeX86reg(int mode)
 {
-	int tempi = -1;
+	int tempi     = -1;
 	u32 bestcount = 0x10000;
-
-	int maxreg = (mode&MODE_8BITREG)?4:iREGCNT_GPR;
+	int maxreg    = (mode&MODE_8BITREG)?4:iREGCNT_GPR;
 
 	for (uint i=0; i<iREGCNT_GPR; i++) {
 		int reg = (g_x86checknext+i)%iREGCNT_GPR;
 		if( reg == 0 || reg == esp.GetId() || reg == ebp.GetId() ) continue;
 		if( reg >= maxreg ) continue;
-		//if( (mode&MODE_NOFRAME) && reg==EBP ) continue;
 
 		if (x86regs[reg].inuse == 0) {
 			g_x86checknext = (reg+1)%iREGCNT_GPR;
@@ -131,7 +109,6 @@ int _getFreeX86reg(int mode)
 
 	for (int i=1; i<maxreg; i++) {
 		if( i == esp.GetId()  || i==ebp.GetId()) continue;
-		//if( (mode&MODE_NOFRAME) && i==EBP ) continue;
 
 		if (x86regs[i].needed) continue;
 		if (x86regs[i].type != X86TYPE_TEMP) {
@@ -152,14 +129,7 @@ int _getFreeX86reg(int mode)
 		return tempi;
 	}
 
-	//pxFailDev( "x86 register allocation error" );
 	throw Exception::FailedToAllocateRegister();
-}
-
-void _flushCachedRegs()
-{
-	_flushConstRegs();
-	_flushXMMregs();
 }
 
 void _flushConstReg(int reg)
@@ -171,7 +141,7 @@ void _flushConstReg(int reg)
 	}
 }
 
-void _flushConstRegs()
+void _flushConstRegs(void)
 {
 	s32 zero_cnt = 0, minusone_cnt = 0;
 	s32 eaxval = 1; // 0, -1
@@ -241,8 +211,6 @@ void _flushConstRegs()
 int _allocX86reg(xRegister32 x86reg, int type, int reg, int mode)
 {
 	uint i;
-	pxAssertDev( reg >= 0 && reg < 32, "Register index out of bounds." );
-	pxAssertDev( x86reg != esp && x86reg != ebp, "Allocation of ESP/EBP is not allowed!" );
 
 	// don't alloc EAX and ESP,EBP if MODE_NOFRAME
 	int oldmode = mode;
@@ -273,15 +241,6 @@ int _allocX86reg(xRegister32 x86reg, int type, int reg, int mode)
 		for (i=1; i<maxreg; i++) {
 			if ( (int)i == esp.GetId() || (int)i == ebp.GetId() ) continue;
 			if (!x86regs[i].inuse || x86regs[i].type != type || x86regs[i].reg != reg) continue;
-
-			// We're in a for loop until i<maxreg. This will never happen.
-			/*if( i >= maxreg ) {
-				if (x86regs[i].mode & MODE_READ) readfromreg = i;
-
-				mode |= x86regs[i].mode&MODE_WRITE;
-				x86regs[i].inuse = 0;
-				break;
-			}*/
 
 			if( !x86reg.IsEmpty() ) {
 				// requested specific reg, so return that instead
@@ -353,7 +312,6 @@ int _allocX86reg(xRegister32 x86reg, int type, int reg, int mode)
 	}
 
 	// Need to port all the code
-	// return x86reg;
 	return x86reg.GetId();
 }
 
@@ -381,19 +339,8 @@ int _checkX86reg(int type, int reg, int mode)
 	return -1;
 }
 
-void _addNeededX86reg(int type, int reg)
+void _clearNeededX86regs(void)
 {
-	uint i;
-
-	for (i=0; i<iREGCNT_GPR; i++) {
-		if (!x86regs[i].inuse || x86regs[i].reg != reg || x86regs[i].type != type ) continue;
-
-		x86regs[i].counter = g_x86AllocCounter++;
-		x86regs[i].needed = 1;
-	}
-}
-
-void _clearNeededX86regs() {
 	uint i;
 
 	for (i=0; i<iREGCNT_GPR; i++) {
@@ -461,7 +408,7 @@ void _freeX86reg(int x86reg)
 	x86regs[x86reg].inuse = 0;
 }
 
-void _freeX86regs()
+void _freeX86regs(void)
 {
 	for (uint i=0; i<iREGCNT_GPR; i++)
 		_freeX86reg(i);

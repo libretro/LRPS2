@@ -111,18 +111,14 @@ struct _x86regs {
 
 extern _x86regs x86regs[iREGCNT_GPR], s_saveX86regs[iREGCNT_GPR];
 
-uptr _x86GetAddr(int type, int reg);
 void _initX86regs(void);
-int  _getFreeX86reg(int mode);
 int  _allocX86reg(x86Emitter::xRegister32 x86reg, int type, int reg, int mode);
 void _deleteX86reg(int type, int reg, int flush);
 int _checkX86reg(int type, int reg, int mode);
-void _addNeededX86reg(int type, int reg);
 void _clearNeededX86regs(void);
 void _freeX86reg(const x86Emitter::xRegister32& x86reg);
 void _freeX86reg(int x86reg);
 void _freeX86regs(void);
-void _flushCachedRegs(void);
 void _flushConstRegs(void);
 void _flushConstReg(int reg);
 
