@@ -19,21 +19,20 @@
 
 #include "VUmicro.h"
 
-#include "retro_messager.h"
-
 extern void _vuFlushAll(VURegs* VU);
 
-static void _vu0ExecUpper(VURegs* VU, u32 *ptr) {
+static void _vu0ExecUpper(VURegs* VU, u32 *ptr)
+{
 	VU->code = ptr[1];
 	VU0_UPPER_OPCODE[VU->code & 0x3f]();
 }
 
-static void _vu0ExecLower(VURegs* VU, u32 *ptr) {
+static void _vu0ExecLower(VURegs* VU, u32 *ptr)
+{
 	VU->code = ptr[0];
 	VU0_LOWER_OPCODE[VU->code >> 25]();
 }
 
-int vu0branch = 0;
 static void _vu0Exec(VURegs* VU)
 {
 	_VURegsNum lregs;
@@ -42,20 +41,16 @@ static void _vu0Exec(VURegs* VU)
 	VECTOR _VFc;
 	REG_VI _VI;
 	REG_VI _VIc;
-	u32 *ptr;
 	int vfreg;
 	int vireg;
 	int discard=0;
-
-	ptr = (u32*)&VU->Micro[VU->VI[REG_TPC].UL];
+	u32 *ptr = (u32*)&VU->Micro[VU->VI[REG_TPC].UL];
 	VU->VI[REG_TPC].UL+=8;
 
-	if (ptr[1] & 0x40000000) {
+	if (ptr[1] & 0x40000000)
 		VU->ebit = 2;
-	}
-	if (ptr[1] & 0x20000000) { /* M flag */
+	if (ptr[1] & 0x20000000) /* M flag */
 		VU->flags|= VUFLAG_MFLAGSET;
-	}
 	if (ptr[1] & 0x10000000) { /* D flag */
 		if (VU0.VI[REG_FBRST].UL & 0x4) {
 			VU0.VI[REG_VPU_STAT].UL|= 0x2;
@@ -92,13 +87,11 @@ static void _vu0Exec(VURegs* VU)
 		_vuTestLowerStalls(VU, &lregs);
 #endif
 
-		vu0branch = lregs.pipe == VUPIPE_BRANCH;
-
-		vfreg = 0; vireg = 0;
+		vfreg = 0;
+		vireg = 0;
 		if (uregs.VFwrite) {
-			if (lregs.VFwrite == uregs.VFwrite) {
+			if (lregs.VFwrite == uregs.VFwrite)
 				discard = 1;
-			}
 			if (lregs.VFread0 == uregs.VFwrite ||
 				lregs.VFread1 == uregs.VFwrite) {
 				_VF = VU->VF[uregs.VFwrite];
@@ -106,9 +99,8 @@ static void _vu0Exec(VURegs* VU)
 			}
 		}
 		if (uregs.VIread & (1 << REG_CLIP_FLAG)) {
-			if (lregs.VIwrite & (1 << REG_CLIP_FLAG)) {
+			if (lregs.VIwrite & (1 << REG_CLIP_FLAG))
 				discard = 1;
-			}
 			if (lregs.VIread & (1 << REG_CLIP_FLAG)) {
 				_VI = VU0.VI[REG_CLIP_FLAG];
 				vireg = REG_CLIP_FLAG;
@@ -129,12 +121,10 @@ static void _vu0Exec(VURegs* VU)
 
 			_vu0ExecLower(VU, ptr);
 
-			if (vfreg) {
+			if (vfreg)
 				VU->VF[vfreg] = _VFc;
-			}
-			if (vireg) {
+			if (vireg)
 				VU->VI[vireg] = _VIc;
-			}
 		}
 	}
 	_vuAddUpperStalls(VU, &uregs);
@@ -171,7 +161,7 @@ static void _vu0Exec(VURegs* VU)
 	}
 }
 
-void vu0Exec(VURegs* VU)
+static void vu0Exec(VURegs* VU)
 {
 	VU0.VI[REG_TPC].UL &= VU0_PROGMASK;
 	_vu0Exec(VU);
@@ -192,20 +182,14 @@ void InterpVU0::SetStartPC(u32 startPC)
 	VU0.start_pc = startPC;
 }
 
-void InterpVU0::Step()
-{
-	vu0Exec( &VU0 );
-}
-
 void InterpVU0::Execute(u32 cycles)
 {
 	VU0.VI[REG_TPC].UL <<= 3;
 	VU0.flags &= ~VUFLAG_MFLAGSET;
 	for (int i = (int)cycles; i > 0; i--) {
 		if (!(VU0.VI[REG_VPU_STAT].UL & 0x1) || (VU0.flags & VUFLAG_MFLAGSET)) {
-			if (VU0.branch || VU0.ebit) {
+			if (VU0.branch || VU0.ebit)
 				vu0Exec(&VU0); // run branch delay slot?
-			}
 			break;
 		}
 		vu0Exec(&VU0);

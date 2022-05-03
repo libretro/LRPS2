@@ -19,10 +19,10 @@
 #include "VUops.h"
 #include "R5900.h"
 
-static const uint VU0_MEMSIZE	= 0x1000;		// 4kb
-static const uint VU0_PROGSIZE	= 0x1000;		// 4kb
-static const uint VU1_MEMSIZE	= 0x4000;		// 16kb
-static const uint VU1_PROGSIZE	= 0x4000;		// 16kb
+#define VU0_MEMSIZE	0x1000		// 4kb
+#define VU0_PROGSIZE	0x1000		// 4kb
+#define VU1_MEMSIZE	0x4000		// 16kb
+#define VU1_PROGSIZE	0x4000		// 16kb
 
 static const uint VU0_MEMMASK	= VU0_MEMSIZE-1;
 static const uint VU0_PROGMASK	= VU0_PROGSIZE-1;
@@ -66,14 +66,6 @@ public:
 	{
 	}
 
-	// returns the number of bytes committed to the working caches for this CPU
-	// provider (typically this refers to recompiled code caches, but could also refer
-	// to other optional growable allocations).
-	virtual size_t GetCommittedCache() const
-	{
-		return 0;
-	}
-
 	virtual void Reserve()=0;
 	virtual void Shutdown()=0;
 	virtual void Reset()=0;
@@ -81,7 +73,6 @@ public:
 	virtual void Execute(u32 cycles)=0;
 	virtual void ExecuteBlock(bool startUp)=0;
 
-	virtual void Step()=0;
 	virtual void Clear(u32 Addr, u32 Size)=0;
 
 	// C++ Calling Conventions are unstable, and some compilers don't even allow us to take the
@@ -117,12 +108,6 @@ public:
 	}
 	virtual ~BaseVUmicroCPU() = default;
 
-	virtual void Step() {
-		// Ideally this would fall back on interpretation for executing single instructions
-		// for all CPU types, but due to VU complexities and large discrepancies between
-		// clamping in recs and ints, it's not really worth bothering with yet.
-	}
-
 	// Executes a Block based on EE delta time (see VUmicro.cpp)
 	virtual void ExecuteBlock(bool startUp=0);
 
@@ -148,7 +133,6 @@ public:
 	void Shutdown() noexcept { }
 	void Reset() { }
 
-	void Step();
 	void SetStartPC(u32 startPC);
 	void Execute(u32 cycles);
 	void Clear(u32 addr, u32 size) {}
@@ -168,7 +152,6 @@ public:
 	void Reset();
 
 	void SetStartPC(u32 startPC);
-	void Step();
 	void Execute(u32 cycles);
 	void Clear(u32 addr, u32 size) {}
 	void ResumeXGkick() {}
@@ -221,14 +204,12 @@ extern BaseVUmicroCPU* CpuVU1;
 
 
 // VU0
-extern void vu0ResetRegs();
+extern void vu0ResetRegs(void);
 extern void __fastcall vu0ExecMicro(u32 addr);
-extern void vu0Exec(VURegs* VU);
-extern void _vu0FinishMicro();
-extern void vu0Finish();
+extern void _vu0FinishMicro(void);
+extern void vu0Finish(void);
 
 // VU1
 extern void vu1Finish(bool add_cycles);
-extern void vu1ResetRegs();
+extern void vu1ResetRegs(void);
 extern void __fastcall vu1ExecMicro(u32 addr);
-extern void vu1Exec(VURegs* VU);

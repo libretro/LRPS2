@@ -22,17 +22,17 @@
 
 extern void _vuFlushAll(VURegs* VU);
 
-void _vu1ExecUpper(VURegs* VU, u32 *ptr) {
+static void _vu1ExecUpper(VURegs* VU, u32 *ptr)
+{
 	VU->code = ptr[1];
 	VU1_UPPER_OPCODE[VU->code & 0x3f]();
 }
 
-void _vu1ExecLower(VURegs* VU, u32 *ptr) {
+static void _vu1ExecLower(VURegs* VU, u32 *ptr)
+{
 	VU->code = ptr[0];
 	VU1_LOWER_OPCODE[VU->code >> 25]();
 }
-
-int vu1branch = 0;
 
 static void _vu1Exec(VURegs* VU)
 {
@@ -42,17 +42,14 @@ static void _vu1Exec(VURegs* VU)
 	VECTOR _VFc;
 	REG_VI _VI;
 	REG_VI _VIc;
-	u32 *ptr;
 	int vfreg;
 	int vireg;
 	int discard=0;
-
-	ptr = (u32*)&VU->Micro[VU->VI[REG_TPC].UL];
+	u32 *ptr = (u32*)&VU->Micro[VU->VI[REG_TPC].UL];
 	VU->VI[REG_TPC].UL+=8;
 
-	if (ptr[1] & 0x40000000) { /* E flag */
+	if (ptr[1] & 0x40000000) /* E flag */
 		VU->ebit = 2;
-	}
 	if (ptr[1] & 0x10000000) { /* D flag */
 		if (VU0.VI[REG_FBRST].UL & 0x400) {
 			VU0.VI[REG_VPU_STAT].UL|= 0x200;
@@ -91,9 +88,8 @@ static void _vu1Exec(VURegs* VU)
 		_vuTestLowerStalls(VU, &lregs);
 #endif
 
-		vu1branch = lregs.pipe == VUPIPE_BRANCH;
-
-		vfreg = 0; vireg = 0;
+		vfreg = 0;
+		vireg = 0;
 		if (uregs.VFwrite) {
 			if (lregs.VFwrite == uregs.VFwrite)
 				discard = 1;
@@ -166,7 +162,7 @@ static void _vu1Exec(VURegs* VU)
 	}
 }
 
-void vu1Exec(VURegs* VU)
+static void vu1Exec(VURegs* VU)
 {
 	_vu1Exec(VU);
 	VU->cycle++;
@@ -191,23 +187,22 @@ void InterpVU1::SetStartPC(u32 startPC)
 	VU1.start_pc = startPC;
 }
 
-void InterpVU1::Step()
-{
-	VU1.VI[REG_TPC].UL &= VU1_PROGMASK;
-	vu1Exec( &VU1 );
-}
-
 void InterpVU1::Execute(u32 cycles)
 {
 	VU1.VI[REG_TPC].UL <<= 3;
 	for (int i = (int)cycles; i > 0; i--) {
-		if (!(VU0.VI[REG_VPU_STAT].UL & 0x100)) {
-			if (VU1.branch || VU1.ebit) {
-				Step(); // run branch delay slot?
+		if (!(VU0.VI[REG_VPU_STAT].UL & 0x100))
+		{
+			/* run branch delay slot? */
+			if (VU1.branch || VU1.ebit)
+			{
+				VU1.VI[REG_TPC].UL &= VU1_PROGMASK;
+				vu1Exec( &VU1 );
 			}
 			break;
 		}
-		Step();
+		VU1.VI[REG_TPC].UL &= VU1_PROGMASK;
+		vu1Exec( &VU1 );
 	}
 	VU1.VI[REG_TPC].UL >>= 3;
 }
