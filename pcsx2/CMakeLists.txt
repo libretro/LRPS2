@@ -276,8 +276,6 @@ set(pcsx2DebugToolsHeaders
 	DebugTools/SymbolMap.h
 	DebugTools/Debug.h
 	DebugTools/DisASM.h
-	DebugTools/DisVUmicro.h
-	DebugTools/DisVUops.h
 	)
 
 	# gui sources

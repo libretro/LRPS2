@@ -362,8 +362,6 @@
     <ClCompile Include="..\..\GSState.cpp" />
     <ClCompile Include="..\..\MTGS.cpp" />
     <ClCompile Include="..\..\DebugTools\DisR5900asm.cpp" />
-    <ClCompile Include="..\..\DebugTools\DisVU0Micro.cpp" />
-    <ClCompile Include="..\..\DebugTools\DisVU1Micro.cpp" />
     <ClCompile Include="..\..\rdebug\deci2.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -526,8 +524,6 @@
     <ClInclude Include="..\..\GS.h" />
     <ClInclude Include="..\..\DebugTools\Debug.h" />
     <ClInclude Include="..\..\DebugTools\DisASM.h" />
-    <ClInclude Include="..\..\DebugTools\DisVUmicro.h" />
-    <ClInclude Include="..\..\DebugTools\DisVUops.h" />
     <CustomBuildStep Include="..\..\rdebug\deci2.h">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </CustomBuildStep>
