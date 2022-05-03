@@ -41,13 +41,6 @@ public:
 	virtual u32 getPC() = 0;
 	
 	virtual bool isValidAddress(u32 address) = 0;
-	virtual u32 getCycles() = 0;
-	
-	bool initExpression(const char* exp, PostfixExpression& dest);
-	bool parseExpression(PostfixExpression& exp, u64& dest);
-	bool isCpuPaused();
-	void pauseCpu();
-	void resumeCpu();
 };
 
 class R5900DebugInterface: public DebugInterface
@@ -69,7 +62,6 @@ public:
 	virtual u32 getPC();
 
 	virtual bool isValidAddress(u32 address);
-	virtual u32 getCycles();
 };
 
 extern R5900DebugInterface r5900Debug;

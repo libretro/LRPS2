@@ -157,43 +157,6 @@ private:
 };
 
 //
-// DebugInterface
-//
-
-bool DebugInterface::isCpuPaused()
-{
-	return GetCoreThread().IsPaused();
-}
-
-void DebugInterface::pauseCpu()
-{
-	SysCoreThread& core = GetCoreThread();
-	if (!core.IsPaused())
-		core.Pause();
-}
-
-void DebugInterface::resumeCpu()
-{
-	SysCoreThread& core = GetCoreThread();
-	if (core.IsPaused())
-		core.Resume();
-}
-
-
-bool DebugInterface::initExpression(const char* exp, PostfixExpression& dest)
-{
-	MipsExpressionFunctions funcs(this);
-	return initPostfixExpression(exp,&funcs,dest);
-}
-
-bool DebugInterface::parseExpression(PostfixExpression& exp, u64& dest)
-{
-	MipsExpressionFunctions funcs(this);
-	return parsePostfixExpression(exp,&funcs,dest);
-}
-
-
-//
 // R5900DebugInterface
 //
 
@@ -421,9 +384,4 @@ bool R5900DebugInterface::isValidAddress(u32 addr)
 	}
 
 	return false;
-}
-
-u32 R5900DebugInterface::getCycles()
-{
-	return cpuRegs.cycle;
 }
