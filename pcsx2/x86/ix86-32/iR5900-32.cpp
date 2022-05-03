@@ -31,7 +31,6 @@
 #include "CDVD/CDVD.h"
 #include "Elfheader.h"
 
-#include "../DebugTools/Breakpoints.h"
 #include "Patch.h"
 
 #if !PCSX2_SEH
@@ -929,136 +928,10 @@ static void iBranchTest(u32 newpc)
 	}
 }
 
-static void dynarecCheckBreakpoint(void)
-{
-	u32 pc = cpuRegs.pc;
- 	if (CBreakPoints::CheckSkipFirst(pc) != 0)
-		return;
-
-	int bpFlags = isBreakpointNeeded(pc);
-	bool hit = false;
-	//check breakpoint at current pc
-	if (bpFlags & 1) {
-		auto cond = CBreakPoints::GetBreakPointCondition(pc);
-		if (cond == NULL || cond->Evaluate()) {
-			hit = true;
-		}
-	}
-	//check breakpoint in delay slot
-	if (bpFlags & 2) {
-		auto cond = CBreakPoints::GetBreakPointCondition(pc + 4);
-		if (cond == NULL || cond->Evaluate())
-			hit = true;
-	}
-
-	if (!hit)
-		return;
-
-	CBreakPoints::SetBreakpointTriggered(true);
-	recExitExecution();
-}
-
-static void dynarecMemcheck(void)
-{
-	u32 pc = cpuRegs.pc;
- 	if (CBreakPoints::CheckSkipFirst(pc) != 0)
-		return;
-
-	CBreakPoints::SetBreakpointTriggered(true);
-	recExitExecution();
-}
-
-static void recMemcheck(u32 op, u32 bits, bool store)
-{
-	iFlushCall(FLUSH_EVERYTHING|FLUSH_PC);
-
-	// compute accessed address
-	_eeMoveGPRtoR(ecx, (op >> 21) & 0x1F);
-	if ((s16)op != 0)
-		xADD(ecx, (s16)op);
-	if (bits == 128)
-		xAND(ecx, ~0x0F);
-
-	xFastCall((void*)standardizeBreakpointAddress, ecx);
-	xMOV(ecx,eax);
-	xMOV(edx,eax);
-	xADD(edx,bits/8);
-
-	// ecx = access address
-	// edx = access address+size
-
-	auto checks = CBreakPoints::GetMemChecks();
-	for (size_t i = 0; i < checks.size(); i++)
-	{
-		if (checks[i].result == 0)
-			continue;
-		if ((checks[i].cond & MEMCHECK_WRITE) == 0 && store)
-			continue;
-		if ((checks[i].cond & MEMCHECK_READ) == 0 && !store)
-			continue;
-
-		// logic: memAddress < bpEnd && bpStart < memAddress+memSize
-
-		xMOV(eax,standardizeBreakpointAddress(checks[i].end));
-		xCMP(ecx,eax);				// address < end
-		xForwardJGE8 next1;			// if address >= end then goto next1
-
-		xMOV(eax,standardizeBreakpointAddress(checks[i].start));
-		xCMP(eax,edx);				// start < address+size
-		xForwardJGE8 next2;			// if start >= address+size then goto next2
-
-		// hit the breakpoint
-		if (checks[i].result & MEMCHECK_BREAK) {
-			xFastCall((void*)dynarecMemcheck);
-		}
-
-		next1.SetTarget();
-		next2.SetTarget();
-	}
-}
-
-static void encodeMemcheck(int needed)
-{
-	u32 op     = memRead32(needed == 2 ? pc+4 : pc);
-	const OPCODE& opcode = GetInstruction(op);
-	bool store = (opcode.flags & IS_STORE) != 0;
-	switch (opcode.flags & MEMTYPE_MASK)
-	{
-	case MEMTYPE_BYTE:
-		recMemcheck(op,8,store);
-		break;
-	case MEMTYPE_HALF:
-		recMemcheck(op,16,store);
-		break;
-	case MEMTYPE_WORD:
-		recMemcheck(op,32,store);
-		break;
-	case MEMTYPE_DWORD:
-		recMemcheck(op,64,store);
-		break;
-	case MEMTYPE_QWORD:
-		recMemcheck(op,128,store);
-		break;
-	}
-}
-
 void recompileNextInstruction(int delayslot)
 {
 	u32 i;
 	int count;
-
-	// add breakpoint
-	if (!delayslot)
-	{
-		if (isBreakpointNeeded(pc) != 0)
-		{
-			iFlushCall(FLUSH_EVERYTHING|FLUSH_PC);
-			xFastCall((void*)dynarecCheckBreakpoint);
-		}
-		int needed = isMemcheckNeeded(pc);
-		if (needed != 0)
-			encodeMemcheck(needed);
-	}
 
 	s_pCode = (int *)PSM( pc );
 	pxAssert(s_pCode);
@@ -1387,25 +1260,8 @@ static void __fastcall recRecompile( const u32 startpc )
 	s_nEndBlock = 0xffffffff;
 	s_branchTo = -1;
 
-	// compile breakpoints as individual blocks
-	int n1 = isBreakpointNeeded(i);
-	int n2 = isMemcheckNeeded(i);
-	int n = std::max<int>(n1,n2);
-	if (n != 0)
-	{
-		s_nEndBlock = i + n*4;
-		goto StartRecomp;
-	}
-
 	while(1) {
 		BASEBLOCK* pblock = PC_GETBLOCK(i);
-
-		// stop before breakpoints
-		if (isBreakpointNeeded(i) != 0 || isMemcheckNeeded(i) != 0)
-		{
-			s_nEndBlock = i;
-			break;
-		}
 
 		if(i != startpc)	// Block size truncation checks.
 		{

@@ -35,7 +35,6 @@
 #include "Patch.h"
 #include "GameDatabase.h"
 
-#include "../DebugTools/Breakpoints.h"
 #include "R5900OpcodeTables.h"
 
 s32 EEsCycle;		// used to sync the IOP to the EE
@@ -664,39 +663,4 @@ inline bool isBranchOrJump(u32 addr)
 	u32 op = memRead32(addr);
 	const R5900::OPCODE& opcode = R5900::GetInstruction(op);
 	return (opcode.flags & IS_BRANCH) != 0;
-}
-
-// The next two functions return 0 if no breakpoint is needed,
-// 1 if it's needed on the current pc, 2 if it's needed in the delay slot
-// 3 if needed in both
-
-int isBreakpointNeeded(u32 addr)
-{
-	int bpFlags = 0;
-	if (CBreakPoints::IsAddressBreakPoint(addr))
-		bpFlags += 1;
-
-	// there may be a breakpoint in the delay slot
-	if (isBranchOrJump(addr) && CBreakPoints::IsAddressBreakPoint(addr+4))
-		bpFlags += 2;
-
-	return bpFlags;
-}
-
-int isMemcheckNeeded(u32 pc)
-{
-	if (CBreakPoints::GetNumMemchecks() == 0)
-		return 0;
-	
-	u32 addr = pc;
-	if (isBranchOrJump(addr))
-		addr += 4;
-
-	u32 op = memRead32(addr);
-	const R5900::OPCODE& opcode = R5900::GetInstruction(op);
-
-	if (opcode.flags & IS_MEMORY)
-		return addr == pc ? 1 : 2;
-
-	return 0;
 }

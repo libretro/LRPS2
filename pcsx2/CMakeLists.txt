@@ -264,7 +264,6 @@ set(pcsx2DebugToolsSources
 	DebugTools/DebugInterface.cpp
 	DebugTools/ExpressionParser.cpp
 	DebugTools/MIPSAnalyst.cpp
-	DebugTools/Breakpoints.cpp
 	DebugTools/SymbolMap.cpp
 	DebugTools/DisR5900asm.cpp
 	)
@@ -274,7 +273,6 @@ set(pcsx2DebugToolsHeaders
 	DebugTools/DebugInterface.h
 	DebugTools/ExpressionParser.h
 	DebugTools/MIPSAnalyst.h
-	DebugTools/Breakpoints.h
 	DebugTools/SymbolMap.h
 	DebugTools/Debug.h
 	DebugTools/DisASM.h

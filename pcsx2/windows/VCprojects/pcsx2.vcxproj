@@ -190,7 +190,6 @@
     </ClCompile>
     <ClCompile Include="..\..\CDVD\Windows\DriveUtility.cpp" />
     <ClCompile Include="..\..\CDVD\Windows\IOCtlSrc.cpp" />
-    <ClCompile Include="..\..\DebugTools\Breakpoints.cpp" />
     <ClCompile Include="..\..\DebugTools\DebugInterface.cpp" />
     <ClCompile Include="..\..\DebugTools\ExpressionParser.cpp" />
     <ClCompile Include="..\..\DebugTools\MIPSAnalyst.cpp" />
@@ -415,7 +414,6 @@
     <ClInclude Include="..\..\CDVD\CsoFileReader.h" />
     <ClInclude Include="..\..\CDVD\GzippedFileReader.h" />
     <ClInclude Include="..\..\CDVD\zlib_indexed.h" />
-    <ClInclude Include="..\..\DebugTools\Breakpoints.h" />
     <ClInclude Include="..\..\DebugTools\DebugInterface.h" />
     <ClInclude Include="..\..\DebugTools\ExpressionParser.h" />
     <ClInclude Include="..\..\DebugTools\MIPSAnalyst.h" />

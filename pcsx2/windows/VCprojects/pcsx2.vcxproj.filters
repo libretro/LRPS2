@@ -679,9 +679,6 @@
     <ClCompile Include="..\..\DebugTools\MIPSAnalyst.cpp">
       <Filter>System\Ps2\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\DebugTools\Breakpoints.cpp">
-      <Filter>System\Ps2\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\gui\Debugger\DebugEvents.cpp">
       <Filter>AppHost\Debugger</Filter>
     </ClCompile>
@@ -693,9 +690,6 @@
     </ClCompile>
     <ClCompile Include="..\..\DebugTools\ExpressionParser.cpp">
       <Filter>System\Ps2\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\gui\Debugger\BreakpointWindow.cpp">
-      <Filter>AppHost\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="..\..\sif2.cpp">
       <Filter>System\Ps2\EmotionEngine\DMAC\Sif</Filter>
@@ -1218,9 +1212,6 @@
     <ClInclude Include="..\..\DebugTools\MIPSAnalyst.h">
       <Filter>System\Ps2\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\DebugTools\Breakpoints.h">
-      <Filter>System\Ps2\Debug</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\gui\Debugger\DebugEvents.h">
       <Filter>AppHost\Debugger</Filter>
     </ClInclude>
@@ -1232,9 +1223,6 @@
     </ClInclude>
     <ClInclude Include="..\..\DebugTools\ExpressionParser.h">
       <Filter>System\Ps2\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\gui\Debugger\BreakpointWindow.h">
-      <Filter>AppHost\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\..\gui\Debugger\DebuggerLists.h">
       <Filter>AppHost\Debugger</Filter>
@@ -1423,12 +1411,6 @@
       <Filter>AppHost\Resources</Filter>
     </CustomBuild>
     <CustomBuild Include="..\..\gui\Resources\ConfigIcon_Video.png">
-      <Filter>AppHost\Resources</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\gui\Resources\Breakpoint_Inactive.png">
-      <Filter>AppHost\Resources</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\gui\Resources\Breakpoint_Active.png">
       <Filter>AppHost\Resources</Filter>
     </CustomBuild>
     <CustomBuild Include="..\..\gui\Resources\Logo.png">
