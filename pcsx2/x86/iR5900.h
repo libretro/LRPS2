@@ -21,11 +21,9 @@
 #include "VU.h"
 #include "iCore.h"
 
-extern u32 maxrecmem;
 extern u32 pc;			         // recompiler pc 
 extern int g_branch;	         // set for branch
 extern u32 target;		         // branch target
-extern u32 s_nBlockCycles;		// cycles of current block recompiling
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -97,9 +95,6 @@ extern void recDoBranchImm_Likely( u32* jmpSkip );
 
 extern __aligned16 GPR_reg64 g_cpuConstRegs[32];
 extern u32 g_cpuHasConstReg, g_cpuFlushedConstReg;
-
-// gets a memory pointer to the constant reg
-u32* _eeGetConstReg(int reg);
 
 // finds where the GPR is stored and moves lower 32 bits to EAX
 void _eeMoveGPRtoR(const x86Emitter::xRegister32& to, int fromgpr);
