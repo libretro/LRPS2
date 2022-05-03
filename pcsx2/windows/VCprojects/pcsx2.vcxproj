@@ -191,7 +191,6 @@
     <ClCompile Include="..\..\CDVD\Windows\DriveUtility.cpp" />
     <ClCompile Include="..\..\CDVD\Windows\IOCtlSrc.cpp" />
     <ClCompile Include="..\..\DebugTools\DebugInterface.cpp" />
-    <ClCompile Include="..\..\DebugTools\ExpressionParser.cpp" />
     <ClCompile Include="..\..\DebugTools\MIPSAnalyst.cpp" />
     <ClCompile Include="..\..\DebugTools\SymbolMap.cpp" />
     <ClCompile Include="..\..\GameDatabase.cpp" />
@@ -413,7 +412,6 @@
     <ClInclude Include="..\..\CDVD\GzippedFileReader.h" />
     <ClInclude Include="..\..\CDVD\zlib_indexed.h" />
     <ClInclude Include="..\..\DebugTools\DebugInterface.h" />
-    <ClInclude Include="..\..\DebugTools\ExpressionParser.h" />
     <ClInclude Include="..\..\DebugTools\MIPSAnalyst.h" />
     <ClInclude Include="..\..\DebugTools\SymbolMap.h" />
     <ClInclude Include="..\..\GameDatabase.h" />
