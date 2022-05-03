@@ -214,8 +214,6 @@ mVUop(mVUopL);
 extern void  mVUcacheProg (microVU& mVU, microProgram&  prog);
 extern void  mVUdeleteProg(microVU& mVU, microProgram*& prog);
 _mVUt extern void* mVUsearchProg(u32 startPC, uptr pState);
-extern void* __fastcall mVUexecuteVU0(u32 startPC, u32 cycles);
-extern void* __fastcall mVUexecuteVU1(u32 startPC, u32 cycles);
 
 // recCall Function Pointer
 typedef void (__fastcall *mVUrecCall)(u32, u32);
