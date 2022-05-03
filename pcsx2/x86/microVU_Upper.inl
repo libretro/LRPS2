@@ -23,13 +23,12 @@
 #define ADD_XYZW			((_XYZW_SS && modXYZW) ? (_X ? 3 : (_Y ? 2 : (_Z ? 1 : 0))) : 0)
 #define SHIFT_XYZW(gprReg)	{ if (_XYZW_SS && modXYZW && !_W) { xSHL(gprReg, ADD_XYZW); } }
 
-const __aligned16 u32 sse4_compvals[2][4] = {
-   { 0x7f7fffff, 0x7f7fffff, 0x7f7fffff, 0x7f7fffff }, //1111
-   { 0x7fffffff, 0x7fffffff, 0x7fffffff, 0x7fffffff }, //1111
-};
-
 // Note: If modXYZW is true, then it adjusts XYZW for Single Scalar operations
 static void mVUupdateFlags(mV, const xmm& reg, const xmm& regT1in = xEmptyReg, const xmm& regT2in = xEmptyReg, bool modXYZW = 1) {
+	static const __aligned16 u32 sse4_compvals[2][4] = {
+		{ 0x7f7fffff, 0x7f7fffff, 0x7f7fffff, 0x7f7fffff }, //1111
+		{ 0x7fffffff, 0x7fffffff, 0x7fffffff, 0x7fffffff }, //1111
+	};
 	const x32&  mReg   = gprT1;
 	const x32&  sReg   = getFlagReg(sFLAG.write);
 	bool regT1b = regT1in.IsEmpty(), regT2b = false;
