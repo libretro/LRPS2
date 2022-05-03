@@ -19,15 +19,6 @@
 // Micro VU - Clamp Functions
 //------------------------------------------------------------------
 
-const __aligned16 u32 sse4_minvals[2][4] = {
-   { 0xff7fffff, 0xffffffff, 0xffffffff, 0xffffffff }, //1000
-   { 0xff7fffff, 0xff7fffff, 0xff7fffff, 0xff7fffff }, //1111
-};
-const __aligned16 u32 sse4_maxvals[2][4] = {
-   { 0x7f7fffff, 0x7fffffff, 0x7fffffff, 0x7fffffff }, //1000
-   { 0x7f7fffff, 0x7f7fffff, 0x7f7fffff, 0x7f7fffff }, //1111
-};
-
 // Used for Result Clamping
 // Note: This function will not preserve NaN values' sign.
 // The theory behind this is that when we compute a result, and we've
@@ -58,6 +49,15 @@ void mVUclamp2_SSE4(microVU& mVU, const xmm& reg, const xmm& regT1in, int xyzw, 
 {
 	if ((!clampE && CHECK_VU_SIGN_OVERFLOW) || (clampE && bClampE && CHECK_VU_SIGN_OVERFLOW))
 	{
+		static const __aligned16 u32 sse4_maxvals[2][4] = {
+			{ 0x7f7fffff, 0x7fffffff, 0x7fffffff, 0x7fffffff }, //1000
+			{ 0x7f7fffff, 0x7f7fffff, 0x7f7fffff, 0x7f7fffff }, //1111
+		};
+
+		static const __aligned16 u32 sse4_minvals[2][4] = {
+			{ 0xff7fffff, 0xffffffff, 0xffffffff, 0xffffffff }, //1000
+			{ 0xff7fffff, 0xff7fffff, 0xff7fffff, 0xff7fffff }, //1111
+		};
 		int i = (xyzw==1||xyzw==2||xyzw==4||xyzw==8) ? 0: 1;
 		xPMIN.SD(reg, ptr128[&sse4_maxvals[i][0]]);
 		xPMIN.UD(reg, ptr128[&sse4_minvals[i][0]]);
