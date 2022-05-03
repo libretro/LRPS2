@@ -23,96 +23,19 @@
 
 #include "Elfheader.h"
 
-#include "../DebugTools/Breakpoints.h"
-
 #include <float.h>
 
 using namespace R5900;		// for OPCODE and OpcodeImpl
 
-static u32 cpuBlockCycles = 0;		// 3 bit fixed point version of cycle count
+static u32 cpuBlockCycles = 0;	// 3 bit fixed point version of cycle count
 
-static void intEventTest();
-
-// These macros are used to assemble the repassembler functions
-
-void intBreakpoint(bool memcheck)
+static void intEventTest(void)
 {
-	u32 pc = cpuRegs.pc;
- 	if (CBreakPoints::CheckSkipFirst(pc) != 0)
-		return;
-
-	if (!memcheck)
-	{
-		auto cond = CBreakPoints::GetBreakPointCondition(pc);
-		if (cond && !cond->Evaluate())
-			return;
-	}
-
-	CBreakPoints::SetBreakpointTriggered(true);
-	throw Exception::ExitCpuExecute();
+	// Perform counters, ints, and IOP updates:
+	_cpuEventTest_Shared();
 }
 
-void intMemcheck(u32 op, u32 bits, bool store)
-{
-	// compute accessed address
-	u32 start = cpuRegs.GPR.r[(op >> 21) & 0x1F].UD[0];
-	if ((s16)op != 0)
-		start += (s16)op;
-	if (bits == 128)
-		start &= ~0x0F;
-
-	start = standardizeBreakpointAddress(start);
-	u32 end = start + bits/8;
-	
-	auto checks = CBreakPoints::GetMemChecks();
-	for (size_t i = 0; i < checks.size(); i++)
-	{
-		auto& check = checks[i];
-
-		if (check.result == 0)
-			continue;
-		if ((check.cond & MEMCHECK_WRITE) == 0 && store)
-			continue;
-		if ((check.cond & MEMCHECK_READ) == 0 && !store)
-			continue;
-
-		if (start < check.end && check.start < end)
-			intBreakpoint(true);
-	}
-}
-
-void intCheckMemcheck()
-{
-	u32 pc = cpuRegs.pc;
-	int needed = isMemcheckNeeded(pc);
-	if (needed == 0)
-		return;
-
-	u32 op = memRead32(needed == 2 ? pc+4 : pc);
-	const OPCODE& opcode = GetInstruction(op);
-
-	bool store = (opcode.flags & IS_STORE) != 0;
-	switch (opcode.flags & MEMTYPE_MASK)
-	{
-	case MEMTYPE_BYTE:
-		intMemcheck(op,8,store);
-		break;
-	case MEMTYPE_HALF:
-		intMemcheck(op,16,store);
-		break;
-	case MEMTYPE_WORD:
-		intMemcheck(op,32,store);
-		break;
-	case MEMTYPE_DWORD:
-		intMemcheck(op,64,store);
-		break;
-	case MEMTYPE_QWORD:
-		intMemcheck(op,128,store);
-		break;
-	}
-}
-
-static void execI()
+static void execI(void)
 {
 	u32 pc = cpuRegs.pc;
 	// We need to increase the pc before executing the memRead32. An exception could appears
@@ -187,12 +110,12 @@ namespace OpcodeImpl {
 // fixme: looking at the other branching code, shouldn't those _SetLinks in BGEZAL and such only be set
 // if the condition is true? --arcum42
 
-void J()
+void J(void)
 {
 	doBranch(_JumpTarget_);
 }
 
-void JAL()
+void JAL(void)
 {
 	// 0x3563b8 is the start address of the function that invalidate entry in TLB cache
 	if (EmuConfig.Gamefixes.GoemonTlbHack) {
@@ -208,7 +131,7 @@ void JAL()
 * Format:  OP rs, rt, offset                             *
 *********************************************************/
 
-void BEQ()  // Branch if Rs == Rt
+void BEQ(void)  // Branch if Rs == Rt
 {
 	if (cpuRegs.GPR.r[_Rs_].SD[0] == cpuRegs.GPR.r[_Rt_].SD[0])
 		doBranch(_BranchTarget_);
@@ -216,7 +139,7 @@ void BEQ()  // Branch if Rs == Rt
 		intEventTest();
 }
 
-void BNE()  // Branch if Rs != Rt
+void BNE(void)  // Branch if Rs != Rt
 {
 	if (cpuRegs.GPR.r[_Rs_].SD[0] != cpuRegs.GPR.r[_Rt_].SD[0])
 		doBranch(_BranchTarget_);
@@ -229,54 +152,42 @@ void BNE()  // Branch if Rs != Rt
 * Format:  OP rs, offset                                 *
 *********************************************************/
 
-void BGEZ()    // Branch if Rs >= 0
+void BGEZ(void)    // Branch if Rs >= 0
 {
 	if(cpuRegs.GPR.r[_Rs_].SD[0] >= 0)
-	{
 		doBranch(_BranchTarget_);
-	}
 }
 
-void BGEZAL() // Branch if Rs >= 0 and link
+void BGEZAL(void) // Branch if Rs >= 0 and link
 {
 	_SetLink(31);
 	if (cpuRegs.GPR.r[_Rs_].SD[0] >= 0)
-	{
 		doBranch(_BranchTarget_);
-	}
 }
 
-void BGTZ()    // Branch if Rs >  0
+void BGTZ(void)    // Branch if Rs >  0
 {
 	if (cpuRegs.GPR.r[_Rs_].SD[0] > 0)
-	{
 		doBranch(_BranchTarget_);
-	}
 }
 
-void BLEZ()   // Branch if Rs <= 0
+void BLEZ(void)   // Branch if Rs <= 0
 {
 	if (cpuRegs.GPR.r[_Rs_].SD[0] <= 0)
-	{
 		doBranch(_BranchTarget_);
-	}
 }
 
-void BLTZ()    // Branch if Rs <  0
+void BLTZ(void)    // Branch if Rs <  0
 {
 	if (cpuRegs.GPR.r[_Rs_].SD[0] < 0)
-	{
 		doBranch(_BranchTarget_);
-	}
 }
 
-void BLTZAL()  // Branch if Rs <  0 and link
+void BLTZAL(void)  // Branch if Rs <  0 and link
 {
 	_SetLink(31);
 	if (cpuRegs.GPR.r[_Rs_].SD[0] < 0)
-	{
 		doBranch(_BranchTarget_);
-	}
 }
 
 /*********************************************************
@@ -285,12 +196,10 @@ void BLTZAL()  // Branch if Rs <  0 and link
 *********************************************************/
 
 
-void BEQL()    // Branch if Rs == Rt
+void BEQL(void)    // Branch if Rs == Rt
 {
 	if(cpuRegs.GPR.r[_Rs_].SD[0] == cpuRegs.GPR.r[_Rt_].SD[0])
-	{
 		doBranch(_BranchTarget_);
-	}
 	else
 	{
 		cpuRegs.pc +=4;
@@ -298,12 +207,10 @@ void BEQL()    // Branch if Rs == Rt
 	}
 }
 
-void BNEL()     // Branch if Rs != Rt
+void BNEL(void)     // Branch if Rs != Rt
 {
 	if(cpuRegs.GPR.r[_Rs_].SD[0] != cpuRegs.GPR.r[_Rt_].SD[0])
-	{
 		doBranch(_BranchTarget_);
-	}
 	else
 	{
 		cpuRegs.pc +=4;
@@ -311,12 +218,10 @@ void BNEL()     // Branch if Rs != Rt
 	}
 }
 
-void BLEZL()    // Branch if Rs <= 0
+void BLEZL(void)    // Branch if Rs <= 0
 {
 	if(cpuRegs.GPR.r[_Rs_].SD[0] <= 0)
-	{
 		doBranch(_BranchTarget_);
-	}
 	else
 	{
 		cpuRegs.pc +=4;
@@ -324,12 +229,10 @@ void BLEZL()    // Branch if Rs <= 0
 	}
 }
 
-void BGTZL()     // Branch if Rs >  0
+void BGTZL(void)     // Branch if Rs >  0
 {
 	if(cpuRegs.GPR.r[_Rs_].SD[0] > 0)
-	{
 		doBranch(_BranchTarget_);
-	}
 	else
 	{
 		cpuRegs.pc +=4;
@@ -337,12 +240,10 @@ void BGTZL()     // Branch if Rs >  0
 	}
 }
 
-void BLTZL()     // Branch if Rs <  0
+void BLTZL(void)     // Branch if Rs <  0
 {
 	if(cpuRegs.GPR.r[_Rs_].SD[0] < 0)
-	{
 		doBranch(_BranchTarget_);
-	}
 	else
 	{
 		cpuRegs.pc +=4;
@@ -350,7 +251,7 @@ void BLTZL()     // Branch if Rs <  0
 	}
 }
 
-void BGEZL()     // Branch if Rs >= 0
+void BGEZL(void)     // Branch if Rs >= 0
 {
 	if(cpuRegs.GPR.r[_Rs_].SD[0] >= 0)
 	{
@@ -363,13 +264,11 @@ void BGEZL()     // Branch if Rs >= 0
 	}
 }
 
-void BLTZALL()   // Branch if Rs <  0 and link
+void BLTZALL(void)   // Branch if Rs <  0 and link
 {
 	_SetLink(31);
 	if(cpuRegs.GPR.r[_Rs_].SD[0] < 0)
-	{
 		doBranch(_BranchTarget_);
-	}
 	else
 	{
 		cpuRegs.pc +=4;
@@ -377,13 +276,11 @@ void BLTZALL()   // Branch if Rs <  0 and link
 	}
 }
 
-void BGEZALL()   // Branch if Rs >= 0 and link
+void BGEZALL(void)   // Branch if Rs >= 0 and link
 {
 	_SetLink(31);
 	if(cpuRegs.GPR.r[_Rs_].SD[0] >= 0)
-	{
 		doBranch(_BranchTarget_);
-	}
 	else
 	{
 		cpuRegs.pc +=4;
@@ -395,7 +292,7 @@ void BGEZALL()   // Branch if Rs >= 0 and link
 * Register jump                                          *
 * Format:  OP rs, rd                                     *
 *********************************************************/
-void JR()
+void JR(void)
 {
 	// 0x33ad48 and 0x35060c are the return address of the function (0x356250) that populate the TLB cache
 	if (EmuConfig.Gamefixes.GoemonTlbHack) {
@@ -406,7 +303,7 @@ void JR()
 	doBranch(cpuRegs.GPR.r[_Rs_].UL[0]);
 }
 
-void JALR()
+void JALR(void)
 {
 	u32 temp = cpuRegs.GPR.r[_Rs_].UL[0];
 
@@ -422,28 +319,22 @@ void JALR()
 //  R5900cpu/intCpu interface (implementations)
 // --------------------------------------------------------------------------------------
 
-static void intReserve()
+static void intReserve(void)
 {
 	// fixme : detect cpu for use the optimize asm code
 }
 
-static void intAlloc()
+static void intAlloc(void)
 {
 	// Nothing to do!
 }
 
-static void intReset()
+static void intReset(void)
 {
 	cpuRegs.branch = 0;
 }
 
-static void intEventTest()
-{
-	// Perform counters, ints, and IOP updates:
-	_cpuEventTest_Shared();
-}
-
-static void intExecute()
+static void intExecute(void)
 {
 	bool instruction_was_cancelled;
 	enum ExecuteState {
@@ -515,23 +406,17 @@ static void intExecute()
 	} while (instruction_was_cancelled);
 }
 
-static void intCheckExecutionState()
+static void intCheckExecutionState(void)
 {
 	if( GetCoreThread().HasPendingStateChangeRequest() )
 		throw Exception::ExitCpuExecute();
-}
-
-static void intStep()
-{
-	execI();
 }
 
 static void intClear(u32 Addr, u32 Size)
 {
 }
 
-static void intShutdown() {
-}
+static void intShutdown(void) { }
 
 static void intThrowException( const BaseR5900Exception& ex )
 {
@@ -560,7 +445,7 @@ R5900cpu intCpu =
 	intShutdown,
 
 	intReset,
-	intStep,
+	execI,
 	intExecute,
 
 	intCheckExecutionState,
