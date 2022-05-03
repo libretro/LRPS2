@@ -39,7 +39,7 @@ static std::vector<MIPSAnalyst::AnalyzedFunction> functions;
 
 namespace MIPSAnalyst
 {
-	u32 GetJumpTarget(u32 addr)
+	static u32 GetJumpTarget(u32 addr)
 	{
 		u32 op = r5900Debug.read32(addr);
 		const R5900::OPCODE& opcode = R5900::GetInstruction(op);
@@ -49,18 +49,7 @@ namespace MIPSAnalyst
 		return INVALIDTARGET;
 	}
 
-	u32 GetBranchTarget(u32 addr)
-	{
-		u32 op = r5900Debug.read32(addr);
-		const R5900::OPCODE& opcode = R5900::GetInstruction(op);
-		
-		int branchType = (opcode.flags & BRANCHTYPE_MASK);
-		if ((opcode.flags & IS_BRANCH) && (branchType == BRANCHTYPE_BRANCH || branchType == BRANCHTYPE_BC1))
-			return addr + 4 + ((signed short)(op&0xFFFF)<<2);
-		return INVALIDTARGET;
-	}
-	
-	u32 GetBranchTargetNoRA(u32 addr)
+	static u32 GetBranchTargetNoRA(u32 addr)
 	{
 		u32 op = r5900Debug.read32(addr);
 		const R5900::OPCODE& opcode = R5900::GetInstruction(op);
@@ -74,7 +63,7 @@ namespace MIPSAnalyst
 		return INVALIDTARGET;
 	}
 
-	u32 GetSureBranchTarget(u32 addr)
+	static u32 GetSureBranchTarget(u32 addr)
 	{
 		u32 op = r5900Debug.read32(addr);
 		const R5900::OPCODE& opcode = R5900::GetInstruction(op);
@@ -130,9 +119,8 @@ namespace MIPSAnalyst
 		// Maybe a bit high... just to make sure we don't get confused by recursive tail recursion.
 		static const u32 MAX_FUNC_SIZE = 0x20000;
 
-		if (fromAddr > knownEnd + MAX_FUNC_SIZE) {
+		if (fromAddr > knownEnd + MAX_FUNC_SIZE)
 			return INVALIDTARGET;
-		}
 
 		// Code might jump halfway up to before fromAddr, but after knownEnd.
 		// In that area, there could be another jump up to the valid range.
@@ -161,9 +149,8 @@ namespace MIPSAnalyst
 					closestJumpbackTarget = target;
 				}
 			}
-			if (aheadOp == MIPS_MAKE_JR_RA()) {
+			if (aheadOp == MIPS_MAKE_JR_RA())
 				break;
-			}
 		}
 
 		if (closestJumpbackAddr != INVALIDTARGET && furthestJumpbackAddr == INVALIDTARGET) {
@@ -191,7 +178,6 @@ namespace MIPSAnalyst
 		u32 furthestBranch = 0;
 		bool looking = false;
 		bool end = false;
-		bool isStraightLeaf = true;
 
 		functions.clear();
 
@@ -217,7 +203,6 @@ namespace MIPSAnalyst
 
 			u32 target = GetBranchTargetNoRA(addr);
 			if (target != INVALIDTARGET) {
-				isStraightLeaf = false;
 				if (target > furthestBranch) {
 					furthestBranch = target;
 				}
@@ -287,13 +272,11 @@ namespace MIPSAnalyst
 					addr += 4;
 
 				currentFunction.end = addr + 4;
-				currentFunction.isStraightLeaf = isStraightLeaf;
 				functions.push_back(currentFunction);
 				furthestBranch = 0;
 				addr += 4;
 				looking = false;
 				end = false;
-				isStraightLeaf = true;
 
 				currentFunction.start = addr+4;
 			}
