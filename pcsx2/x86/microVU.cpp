@@ -282,8 +282,8 @@ _mVUt __fi void* mVUsearchProg(u32 startPC, uptr pState) {
 //------------------------------------------------------------------
 // recMicroVU0 / recMicroVU1
 //------------------------------------------------------------------
-recMicroVU0::recMicroVU0()		  { m_Idx = 0; IsInterpreter = false; }
-recMicroVU1::recMicroVU1()		  { m_Idx = 1; IsInterpreter = false; }
+recMicroVU0::recMicroVU0()		  { m_Idx = 0; }
+recMicroVU1::recMicroVU1()		  { m_Idx = 1; }
 
 void recMicroVU0::Reserve() {
 	if (m_Reserved.exchange(1) == 0)

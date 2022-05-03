@@ -174,7 +174,6 @@ static void vu0Exec(VURegs* VU)
 InterpVU0::InterpVU0()
 {
 	m_Idx = 0;
-	IsInterpreter = true;
 }
 
 void InterpVU0::SetStartPC(u32 startPC)

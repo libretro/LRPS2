@@ -171,7 +171,6 @@ static void vu1Exec(VURegs* VU)
 InterpVU1::InterpVU1()
 {
 	m_Idx = 1;
-	IsInterpreter = true;
 }
 
 void InterpVU1::Reset() {

@@ -50,16 +50,9 @@ protected:
 	std::atomic<int>		m_Reserved;
 
 public:
-	// this boolean indicates to some generic logging facilities if the VU's registers
-	// are valid for logging or not. (see DisVU1Micro.cpp, etc)  [kinda hacky, might
-	// be removed in the future]
-	bool	IsInterpreter;
-
-public:
 	BaseCpuProvider()
 	{
 		m_Reserved = 0;
-		IsInterpreter = false;
 	}
 
 	virtual ~BaseCpuProvider()

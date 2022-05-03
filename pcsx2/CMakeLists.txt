@@ -267,8 +267,6 @@ set(pcsx2DebugToolsSources
 	DebugTools/Breakpoints.cpp
 	DebugTools/SymbolMap.cpp
 	DebugTools/DisR5900asm.cpp
-	DebugTools/DisVU0Micro.cpp
-	DebugTools/DisVU1Micro.cpp
 	)
 
 # DebugTools headers
