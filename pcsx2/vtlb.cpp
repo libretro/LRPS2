@@ -69,30 +69,6 @@ vtlb_private::VTLBVirtual::VTLBVirtual(VTLBPhysical phys, u32 paddr, u32 vaddr) 
 		value = phys.raw() - vaddr;
 }
 
-__inline int CheckCache(u32 addr)
-{
-	// Data Cache Disabled ?
-	if(((cpuRegs.CP0.n.Config >> 16) & 0x1) != 0) 
-	{
-		for(int i = 1; i < 48; i++)
-		{
-			if (((tlb[i].EntryLo1 & 0x38) >> 3) == 0x3) {
-				u32 mask  = tlb[i].PageMask;
-
-				if ((addr >= tlb[i].PFN1) && (addr <= tlb[i].PFN1 + mask))
-					return true;
-			}
-			if (((tlb[i].EntryLo0 & 0x38) >> 3) == 0x3) {
-				u32 mask  = tlb[i].PageMask;
-
-				if ((addr >= tlb[i].PFN0) && (addr <= tlb[i].PFN0 + mask))
-					return true;
-			}
-		}
-	}
-
-	return false;
-}
 // --------------------------------------------------------------------------------------
 // Interpreter Implementations of VTLB Memory Operations.
 // --------------------------------------------------------------------------------------
@@ -225,7 +201,7 @@ template void vtlb_memWrite<mem32_t>(u32 mem, mem32_t data);
 // Important recompiler note: Mid-block Exception handling isn't reliable *yet* because
 // memory ops don't flush the PC prior to invoking the indirect handlers.
 
-void __fastcall GoemonPreloadTlb()
+void __fastcall GoemonPreloadTlb(void)
 {
 	// 0x3d5580 is the address of the TLB cache table
 	GoemonTlb* tlb = (GoemonTlb*)&eeMem->Main[0x3d5580];
@@ -287,13 +263,6 @@ static __ri void vtlb_Miss(u32 addr,u32 mode)
 	}
 }
 
-// BusError exception: more serious than a TLB miss.  If properly emulated the PS2 kernel
-// itself would invoke a diagnostic/assertion screen that displays the cpu state at the
-// time of the exception.
-static __ri void vtlb_BusError(u32 addr,u32 mode)
-{
-}
-
 template<typename OperandType, u32 saddr>
 OperandType __fastcall vtlbUnmappedVReadSm(u32 addr)					{ vtlb_Miss(addr|saddr,0); return 0; }
 
@@ -307,16 +276,16 @@ template<typename OperandType, u32 saddr>
 void __fastcall vtlbUnmappedVWriteLg(u32 addr,const OperandType* data)	{ vtlb_Miss(addr|saddr,1); }
 
 template<typename OperandType, u32 saddr>
-OperandType __fastcall vtlbUnmappedPReadSm(u32 addr)					{ vtlb_BusError(addr|saddr,0); return 0; }
+OperandType __fastcall vtlbUnmappedPReadSm(u32 addr)					{ return 0; }
 
 template<typename OperandType, u32 saddr>
-void __fastcall vtlbUnmappedPReadLg(u32 addr,OperandType* data)			{ vtlb_BusError(addr|saddr,0); }
+void __fastcall vtlbUnmappedPReadLg(u32 addr,OperandType* data)	{ }
 
 template<typename OperandType, u32 saddr>
-void __fastcall vtlbUnmappedPWriteSm(u32 addr,OperandType data)			{ vtlb_BusError(addr|saddr,1); }
+void __fastcall vtlbUnmappedPWriteSm(u32 addr,OperandType data)	{ }
 
 template<typename OperandType, u32 saddr>
-void __fastcall vtlbUnmappedPWriteLg(u32 addr,const OperandType* data)	{ vtlb_BusError(addr|saddr,1); }
+void __fastcall vtlbUnmappedPWriteLg(u32 addr,const OperandType* data) { }
 
 // --------------------------------------------------------------------------------------
 //  VTLB mapping errors
@@ -325,58 +294,16 @@ void __fastcall vtlbUnmappedPWriteLg(u32 addr,const OperandType* data)	{ vtlb_Bu
 // properly.  All addressable physical memory should be configured as TLBMiss or Bus Error.
 //
 
-static mem8_t __fastcall vtlbDefaultPhyRead8(u32 addr)
-{
-	//pxFailDev(pxsFmt("(VTLB) Attempted read8 from unmapped physical address @ 0x%08X.", addr));
-	return 0;
-}
-
-static mem16_t __fastcall vtlbDefaultPhyRead16(u32 addr)
-{
-	//pxFailDev(pxsFmt("(VTLB) Attempted read16 from unmapped physical address @ 0x%08X.", addr));
-	return 0;
-}
-
-static mem32_t __fastcall vtlbDefaultPhyRead32(u32 addr)
-{
-	//pxFailDev(pxsFmt("(VTLB) Attempted read32 from unmapped physical address @ 0x%08X.", addr));
-	return 0;
-}
-
-static void __fastcall vtlbDefaultPhyRead64(u32 addr, mem64_t* dest)
-{
-	//pxFailDev(pxsFmt("(VTLB) Attempted read64 from unmapped physical address @ 0x%08X.", addr));
-}
-
-static void __fastcall vtlbDefaultPhyRead128(u32 addr, mem128_t* dest)
-{
-	//pxFailDev(pxsFmt("(VTLB) Attempted read128 from unmapped physical address @ 0x%08X.", addr));
-}
-
-static void __fastcall vtlbDefaultPhyWrite8(u32 addr, mem8_t data)
-{
-	//pxFailDev(pxsFmt("(VTLB) Attempted write8 to unmapped physical address @ 0x%08X.", addr));
-}
-
-static void __fastcall vtlbDefaultPhyWrite16(u32 addr, mem16_t data)
-{
-	//pxFailDev(pxsFmt("(VTLB) Attempted write16 to unmapped physical address @ 0x%08X.", addr));
-}
-
-static void __fastcall vtlbDefaultPhyWrite32(u32 addr, mem32_t data)
-{
-	//pxFailDev(pxsFmt("(VTLB) Attempted write32 to unmapped physical address @ 0x%08X.", addr));
-}
-
-static void __fastcall vtlbDefaultPhyWrite64(u32 addr,const mem64_t* data)
-{
-	//pxFailDev(pxsFmt("(VTLB) Attempted write64 to unmapped physical address @ 0x%08X.", addr));
-}
-
-static void __fastcall vtlbDefaultPhyWrite128(u32 addr,const mem128_t* data)
-{
-	//pxFailDev(pxsFmt("(VTLB) Attempted write128 to unmapped physical address @ 0x%08X.", addr));
-}
+static mem8_t __fastcall vtlbDefaultPhyRead8(u32 addr)	 { return 0; }
+static mem16_t __fastcall vtlbDefaultPhyRead16(u32 addr) { return 0; }
+static mem32_t __fastcall vtlbDefaultPhyRead32(u32 addr) { return 0; }
+static void __fastcall vtlbDefaultPhyRead64(u32 addr, mem64_t* dest) { }
+static void __fastcall vtlbDefaultPhyRead128(u32 addr, mem128_t* dest) { }
+static void __fastcall vtlbDefaultPhyWrite8(u32 addr, mem8_t data) { }
+static void __fastcall vtlbDefaultPhyWrite16(u32 addr, mem16_t data) { }
+static void __fastcall vtlbDefaultPhyWrite32(u32 addr, mem32_t data) { }
+static void __fastcall vtlbDefaultPhyWrite64(u32 addr,const mem64_t* data){}
+static void __fastcall vtlbDefaultPhyWrite128(u32 addr,const mem128_t* data){}
 
 // ===========================================================================================
 //  VTLB Public API -- Init/Term/RegisterHandler stuff 
@@ -407,9 +334,8 @@ __ri void vtlb_ReassignHandler( vtlbHandler rv,
 	vtlbdata.RWFT[4][1][rv] = (void*)((w128!=0) ? w128	: vtlbDefaultPhyWrite128);
 }
 
-vtlbHandler vtlb_NewHandler()
+vtlbHandler vtlb_NewHandler(void)
 {
-	pxAssertDev( vtlbHandlerCount < VTLB_HANDLER_ITEMS, "VTLB handler count overflow!" );
 	return vtlbHandlerCount++;
 }
 
@@ -507,15 +433,15 @@ void vtlb_VMap(u32 vaddr,u32 paddr,u32 size)
 	while (size > 0)
 	{
 		VTLBVirtual vmv;
-		if (paddr >= VTLB_PMAP_SZ) {
-			if ((s32)paddr >= 0) {
+		if (paddr >= VTLB_PMAP_SZ)
+		{
+			if ((s32)paddr >= 0)
 				vmv = VTLBVirtual(VTLBPhysical::fromHandler(UnmappedPhyHandler0), paddr, vaddr);
-			} else {
+			else
 				vmv = VTLBVirtual(VTLBPhysical::fromHandler(UnmappedPhyHandler1), paddr & ~(1<<31), vaddr);
-			}
-		} else {
-			vmv = VTLBVirtual(vtlbdata.pmap[paddr>>VTLB_PAGE_BITS], paddr, vaddr);
 		}
+		else
+			vmv = VTLBVirtual(vtlbdata.pmap[paddr>>VTLB_PAGE_BITS], paddr, vaddr);
 
 		vtlbdata.vmap[vaddr>>VTLB_PAGE_BITS] = vmv;
 		if (vtlbdata.ppmap)
@@ -546,11 +472,10 @@ void vtlb_VMapUnmap(u32 vaddr,u32 size)
 	{
 
 		VTLBVirtual handl;
-		if ((s32)vaddr >= 0) {
+		if ((s32)vaddr >= 0)
 			handl = VTLBVirtual(VTLBPhysical::fromHandler(UnmappedVirtHandler0), vaddr, vaddr);
-		} else {
+		else
 			handl = VTLBVirtual(VTLBPhysical::fromHandler(UnmappedVirtHandler1), vaddr & ~(1<<31), vaddr);
-		}
 
 		vtlbdata.vmap[vaddr>>VTLB_PAGE_BITS] = handl;
 		vaddr += VTLB_PAGE_SIZE;
@@ -559,7 +484,7 @@ void vtlb_VMapUnmap(u32 vaddr,u32 size)
 }
 
 // vtlb_Init -- Clears vtlb handlers and memory mappings.
-void vtlb_Init()
+void vtlb_Init(void)
 {
 	vtlbHandlerCount=0;
 	memzero(vtlbdata.RWFT);
@@ -604,12 +529,12 @@ void vtlb_Init()
 
 // vtlb_Reset -- Performs a COP0-level reset of the PS2's TLB.
 // This function should probably be part of the COP0 rather than here in VTLB.
-void vtlb_Reset()
+void vtlb_Reset(void)
 {
 	for(int i=0; i<48; i++) UnmapTLB(i);
 }
 
-void vtlb_Term()
+void vtlb_Term(void)
 {
 	//nothing to do for now
 }
@@ -620,7 +545,7 @@ static constexpr size_t VMAP_SIZE = sizeof(VTLBVirtual) * VTLB_VMAP_ITEMS;
 // [TODO] basemem - request allocating memory at the specified virtual location, which can allow
 //    for easier debugging and/or 3rd party cheat programs.  If 0, the operating system
 //    default is used.
-void vtlb_Core_Alloc()
+void vtlb_Core_Alloc(void)
 {
 	// Can't return regions to the bump allocator
 	static VTLBVirtual* vmap = nullptr;
@@ -629,13 +554,11 @@ void vtlb_Core_Alloc()
 	if (!vtlbdata.vmap)
 	{
 		bool okay = HostSys::MmapCommitPtr(vmap, VMAP_SIZE, PageProtectionMode().Read().Write());
-		if (okay) {
+		if (okay)
 			vtlbdata.vmap = vmap;
-		} else {
+		else
 			throw Exception::OutOfMemory( L"VTLB Virtual Address Translation LUT" )
-				.SetDiagMsg(pxsFmt("(%u megs)", VTLB_VMAP_ITEMS * sizeof(*vtlbdata.vmap) / _1mb)
-			);
-		}
+				.SetDiagMsg(pxsFmt("(%u megs)", VTLB_VMAP_ITEMS * sizeof(*vtlbdata.vmap) / _1mb));
 	}
 }
 
@@ -643,7 +566,7 @@ static constexpr size_t PPMAP_SIZE = sizeof(*vtlbdata.ppmap) * VTLB_VMAP_ITEMS;
 
 // The LUT is only used for 1 game so we allocate it only when the gamefix is enabled (save 4MB)
 // However automatic gamefix is done after the standard init so a new init function was done.
-void vtlb_Alloc_Ppmap()
+void vtlb_Alloc_Ppmap(void)
 {
 	static u32* ppmap = nullptr;
 
@@ -662,7 +585,7 @@ void vtlb_Alloc_Ppmap()
 		vtlbdata.ppmap[i] = i<<VTLB_PAGE_BITS;
 }
 
-void vtlb_Core_Free()
+void vtlb_Core_Free(void)
 {
 	if (vtlbdata.vmap)
 	{
@@ -695,7 +618,7 @@ void VtlbMemoryReserve::Reserve( VirtualMemoryManagerPtr allocator, sptr offset 
 	}
 }
 
-void VtlbMemoryReserve::Commit()
+void VtlbMemoryReserve::Commit(void)
 {
 	if (IsCommitted()) return;
 	if (!m_reserve.Commit())
@@ -706,18 +629,18 @@ void VtlbMemoryReserve::Commit()
 	}
 }
 
-void VtlbMemoryReserve::Reset()
+void VtlbMemoryReserve::Reset(void)
 {
 	Commit();
 	memzero_sse_a(m_reserve.GetPtr(), m_reserve.GetCommittedBytes());
 }
 
-void VtlbMemoryReserve::Decommit()
+void VtlbMemoryReserve::Decommit(void)
 {
 	m_reserve.Reset();
 }
 
-bool VtlbMemoryReserve::IsCommitted() const
+bool VtlbMemoryReserve::IsCommitted(void) const
 {
 	return !!m_reserve.GetCommittedPageCount();
 }

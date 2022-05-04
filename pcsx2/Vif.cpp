@@ -96,7 +96,7 @@ __fi void vif0FBRST(u32 value) {
 		vif0.cmd = 0;
 		vif0.done = true;
 		vif0ch.chcr.STR = false;
-		vif0Regs.err.reset();
+		vif0Regs.err._u32 = 0;
 		vif0Regs.stat.clear_flags(VIF0_STAT_FQC | VIF0_STAT_INT | VIF0_STAT_VSS | VIF0_STAT_VIS | VIF0_STAT_VFS | VIF0_STAT_VPS); // FQC=0
 	}
 
@@ -158,7 +158,7 @@ __fi void vif1FBRST(u32 value) {
 		
 		vif1Regs.mskpath3 = false;
 		gifRegs.stat.M3P  = 0;
-		vif1Regs.err.reset();
+		vif1Regs.err._u32 = 0;
 		vif1.inprogress = mfifo_empty;
 		vif1.cmd = 0;
 		vif1.vifstalled.enabled = false;

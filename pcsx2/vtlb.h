@@ -50,15 +50,15 @@ template<> struct vtlbMemFP<128,  true> { typedef vtlbMemW128FP fn; static const
 
 typedef u32 vtlbHandler;
 
-extern void vtlb_Core_Alloc();
-extern void vtlb_Core_Free();
-extern void vtlb_Alloc_Ppmap();
-extern void vtlb_Init();
-extern void vtlb_Reset();
-extern void vtlb_Term();
+extern void vtlb_Core_Alloc(void);
+extern void vtlb_Core_Free(void);
+extern void vtlb_Alloc_Ppmap(void);
+extern void vtlb_Init(void);
+extern void vtlb_Reset(void);
+extern void vtlb_Term(void);
 
 
-extern vtlbHandler vtlb_NewHandler();
+extern vtlbHandler vtlb_NewHandler(void);
 
 extern vtlbHandler vtlb_RegisterHandler(
 	vtlbMemR8FP* r8,vtlbMemR16FP* r16,vtlbMemR32FP* r32,vtlbMemR64FP* r64,vtlbMemR128FP* r128,
@@ -76,7 +76,7 @@ extern void vtlb_MapBlock(void* base,u32 start,u32 size,u32 blocksize=0);
 extern void* vtlb_GetPhyPtr(u32 paddr);
 //extern void vtlb_Mirror(u32 new_region,u32 start,u32 size); // -> not working yet :(
 extern u32  vtlb_V2P(u32 vaddr);
-extern void vtlb_DynV2P();
+extern void vtlb_DynV2P(void);
 
 //virtual mappings
 extern void vtlb_VMap(u32 vaddr,u32 paddr,u32 sz);
@@ -116,11 +116,11 @@ public:
 
 	void Reserve( VirtualMemoryManagerPtr allocator, sptr offset );
 
-	virtual void Commit();
-	virtual void Reset();
-	virtual void Decommit();
+	virtual void Commit(void);
+	virtual void Reset(void);
+	virtual void Decommit(void);
 
-	bool IsCommitted() const;
+	bool IsCommitted(void) const;
 };
 
 // --------------------------------------------------------------------------------------
@@ -131,13 +131,13 @@ class eeMemoryReserve : public VtlbMemoryReserve
 	typedef VtlbMemoryReserve _parent;
 
 public:
-	eeMemoryReserve();
-	~eeMemoryReserve();
+	eeMemoryReserve(void);
+	~eeMemoryReserve(void);
 
 	void Reserve(VirtualMemoryManagerPtr allocator);
-	void Commit() override;
-	void Decommit() override;
-	void Reset() override;
+	void Commit(void) override;
+	void Decommit(void) override;
+	void Reset(void) override;
 };
 
 // --------------------------------------------------------------------------------------
@@ -148,12 +148,12 @@ class iopMemoryReserve : public VtlbMemoryReserve
 	typedef VtlbMemoryReserve _parent;
 
 public:
-	iopMemoryReserve();
+	iopMemoryReserve(void);
 
 	void Reserve(VirtualMemoryManagerPtr allocator);
-	void Commit() override;
-	void Decommit() override;
-	void Reset() override;
+	void Commit(void) override;
+	void Decommit(void) override;
+	void Reset(void) override;
 };
 
 // --------------------------------------------------------------------------------------
@@ -164,12 +164,12 @@ class vuMemoryReserve : public VtlbMemoryReserve
 	typedef VtlbMemoryReserve _parent;
 
 public:
-	vuMemoryReserve();
-	~vuMemoryReserve();
+	vuMemoryReserve(void);
+	~vuMemoryReserve(void);
 
 	void Reserve(VirtualMemoryManagerPtr allocator);
 
-	void Reset() override;
+	void Reset(void) override;
 };
 
 namespace vtlb_private
@@ -201,13 +201,13 @@ namespace vtlb_private
 		static VTLBPhysical fromHandler(vtlbHandler handler);
 
 		/// Get the raw value held by the entry
-		uptr raw() const { return value; }
+		uptr raw(void) const { return value; }
 		/// Returns whether or not this entry is a handler
-		bool isHandler() const { return value < 0; }
+		bool isHandler(void) const { return value < 0; }
 		/// Assumes the entry is a pointer, giving back its value
-		uptr assumePtr() const { return value; }
+		uptr assumePtr(void) const { return value; }
 		/// Assumes the entry is a handler, and gets the raw handler ID
-		u8 assumeHandler() const { return value; }
+		u8 assumeHandler(void) const { return value; }
 	};
 
 	struct VTLBVirtual
@@ -223,20 +223,20 @@ namespace vtlb_private
 		}
 
 		/// Get the raw value held by the entry
-		uptr raw() const { return value; }
+		uptr raw(void) const { return value; }
 		/// Returns whether or not this entry is a handler
 		bool isHandler(u32 vaddr) const { return (sptr)(value + vaddr) < 0; }
 		/// Assumes the entry is a pointer, giving back its value
 		uptr assumePtr(u32 vaddr) const { return value + vaddr; }
 		/// Assumes the entry is a handler, and gets the raw handler ID
-		u8 assumeHandlerGetID() const { return value; }
+		u8 assumeHandlerGetID(void) const { return value; }
 		/// Assumes the entry is a handler, and gets the physical address
 		u32 assumeHandlerGetPAddr(u32 vaddr) const { return (value + vaddr - assumeHandlerGetID()) & ~POINTER_SIGN_BIT; }
 		/// Assumes the entry is a handler, returning it as a void*
 		void *assumeHandlerGetRaw(int index, bool write) const;
 		/// Assumes the entry is a handler, returning it
 		template <size_t Width, bool Write>
-		typename vtlbMemFP<Width, Write>::fn *assumeHandler() const;
+		typename vtlbMemFP<Width, Write>::fn *assumeHandler(void) const;
 	};
 
 	struct MapData

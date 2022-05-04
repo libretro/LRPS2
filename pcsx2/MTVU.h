@@ -19,8 +19,6 @@
 #include "Vif_Dma.h"
 #include "VUmicro.h"
 
-#define MTVU_LOG(...) do{} while(0)
-
 // Notes:
 // - This class should only be accessed from the EE thread...
 // - buffer_size must be power of 2

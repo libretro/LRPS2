@@ -507,9 +507,9 @@ struct Gif_Unit
 	// Resets Gif HW Regs
 	void ResetRegs()
 	{
-		gifRegs.stat.reset();
-		gifRegs.ctrl.reset();
-		gifRegs.mode.reset();
+		gifRegs.stat._u32 = 0;
+		gifRegs.ctrl._u32 = 0;
+		gifRegs.mode._u32 = 0;
 		gif_fifo.init();
 	}
 

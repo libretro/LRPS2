@@ -46,13 +46,13 @@ alignas(16) static u8 indx4[16*16/2];
 bool FMVstarted = false;
 bool EnableFMV = false;
 
-void tIPU_cmd::clear()
+void tIPU_cmd::clear(void)
 {
 	memzero_sse_a(*this);
 	current = 0xffffffff;
 }
 
-__fi void IPUProcessInterrupt()
+__fi void IPUProcessInterrupt(void)
 {
 	if (ipuRegs.ctrl.BUSY) // && (g_BP.FP || g_BP.IFC || (ipu1ch.chcr.STR && ipu1ch.qwc > 0)))
 		IPUWorker();
@@ -61,7 +61,7 @@ __fi void IPUProcessInterrupt()
 /////////////////////////////////////////////////////////
 // Register accesses (run on EE thread)
 
-void ipuReset()
+void ipuReset(void)
 {
 	memzero(ipuRegs);
 	memzero(g_BP);
@@ -171,7 +171,7 @@ __fi u64 ipuRead64(u32 mem)
 	return psHu64(IPU_CMD + mem);
 }
 
-void ipuSoftReset()
+void ipuSoftReset(void)
 {
 	if (ipu1ch.chcr.STR && g_BP.IFC < 8 && IPU1Status.DataRequested)
 		ipu1Interrupt();
@@ -184,7 +184,7 @@ void ipuSoftReset()
 
 	coded_block_pattern = 0;
 
-	ipuRegs.ctrl.reset();
+	ipuRegs.ctrl._u32 &= 0x7F33F00;
 	ipuRegs.top = 0;
 	ipu_cmd.clear();
 	ipuRegs.cmd.BUSY = 0;
@@ -206,7 +206,7 @@ __fi bool ipuWrite32(u32 mem, u32 value)
 		ipucase(IPU_CMD): // IPU_CMD
 			IPUCMD_WRITE(value);
 			IPUProcessInterrupt();
-		return false;
+			return false;
 
 		ipucase(IPU_CTRL): // IPU_CTRL
             // CTRL = the first 16 bits of ctrl [0x8000ffff], + value for the next 16 bits,
@@ -429,10 +429,10 @@ static __ri bool ipuCSC(tIPU_CMD_CSC csc)
 		}
 
 		ipu_csc(decoder.mb8, decoder.rgb32, 0);
-		if (csc.OFM) ipu_dither(decoder.rgb32, decoder.rgb16, csc.DTE);
 		
 		if (csc.OFM)
 		{
+			ipu_dither(decoder.rgb32, decoder.rgb16, csc.DTE);
 			ipu_cmd.pos[1] += ipu_fifo.out.write(((u32*) & decoder.rgb16) + 4 * ipu_cmd.pos[1], 32 - ipu_cmd.pos[1]);
 			if (ipu_cmd.pos[1] < 32) return false;
 		}
@@ -460,8 +460,6 @@ static __ri bool ipuPACK(tIPU_CMD_CSC csc)
 
 		ipu_dither(decoder.rgb32, decoder.rgb16, csc.DTE);
 
-		if (!csc.OFM) ipu_vq(decoder.rgb16, indx4);
-
 		if (csc.OFM)
 		{
 			ipu_cmd.pos[1] += ipu_fifo.out.write(((u32*) & decoder.rgb16) + 4 * ipu_cmd.pos[1], 32 - ipu_cmd.pos[1]);
@@ -469,6 +467,7 @@ static __ri bool ipuPACK(tIPU_CMD_CSC csc)
 		}
 		else
 		{
+			ipu_vq(decoder.rgb16, indx4);
 			ipu_cmd.pos[1] += ipu_fifo.out.write(((u32*)indx4) + 4 * ipu_cmd.pos[1], 8 - ipu_cmd.pos[1]);
 			if (ipu_cmd.pos[1] < 8) return false;
 		}

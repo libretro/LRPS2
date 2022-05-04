@@ -120,10 +120,6 @@ union tGIF_CTRL
 	tGIF_CTRL(u32 val) { _u32 = val; }
 
 	void write(u32 val) { _u32 = val; }
-	bool test(u32 flags) { return !!(_u32 & flags); }
-	void set_flags(u32 flags) { _u32 |= flags; }
-	void clear_flags(u32 flags) { _u32 &= ~flags; }
-	void reset() { _u32 = 0; }
 };
 
 union tGIF_MODE
@@ -139,10 +135,6 @@ union tGIF_MODE
 	tGIF_MODE(u32 val) { _u32 = val; }
 
 	void write(u32 val) { _u32 = val; }
-	bool test(u32 flags) { return !!(_u32 & flags); }
-	void set_flags(u32 flags) { _u32 |= flags; }
-	void clear_flags(u32 flags) { _u32 &= ~flags; }
-	void reset() { _u32 = 0; }
 };
 
 union tGIF_STAT
@@ -169,10 +161,6 @@ union tGIF_STAT
 	tGIF_STAT(u32 val) { _u32 = val; }
 
 	void write(u32 val) { _u32 = val; }
-	bool test(u32 flags) { return !!(_u32 & flags); }
-	void set_flags(u32 flags) { _u32 |= flags; }
-	void clear_flags(u32 flags) { _u32 &= ~flags; }
-	void reset() { _u32 = 0; }
 };
 
 union tGIF_TAG0
@@ -186,10 +174,6 @@ union tGIF_TAG0
 
 	tGIF_TAG0(u32 val) { _u32 = val; }
 
-	bool test(u32 flags) { return !!(_u32 & flags); }
-	void set_flags(u32 flags) { _u32 |= flags; }
-	void clear_flags(u32 flags) { _u32 &= ~flags; }
-	void reset() { _u32 = 0; }
 };
 
 union tGIF_TAG1
@@ -205,10 +189,6 @@ union tGIF_TAG1
 
 	tGIF_TAG1(u32 val) { _u32 = val; }
 
-	bool test(u32 flags) { return !!(_u32 & flags); }
-	void set_flags(u32 flags) { _u32 |= flags; }
-	void clear_flags(u32 flags) { _u32 &= ~flags; }
-	void reset() { _u32 = 0; }
 };
 
 union tGIF_CNT
@@ -225,10 +205,6 @@ union tGIF_CNT
 
 	tGIF_CNT(u32 val) { _u32 = val; }
 
-	bool test(u32 flags) { return !!(_u32 & flags); }
-	void set_flags(u32 flags) { _u32 |= flags; }
-	void clear_flags(u32 flags) { _u32 &= ~flags; }
-	void reset() { _u32 = 0; }
 };
 
 union tGIF_P3CNT
@@ -241,7 +217,6 @@ union tGIF_P3CNT
 
 	tGIF_P3CNT(u32 val) { _u32 = val; }
 
-	void reset() { _u32 = 0; }
 };
 
 union tGIF_P3TAG
@@ -254,11 +229,6 @@ union tGIF_P3TAG
 	u32 _u32;
 
 	tGIF_P3TAG(u32 val) { _u32 = val; }
-
-	bool test(u32 flags) { return !!(_u32 & flags); }
-	void set_flags(u32 flags) { _u32 |= flags; }
-	void clear_flags(u32 flags) { _u32 &= ~flags; }
-	void reset() { _u32 = 0; }
 };
 
 struct GIFregisters

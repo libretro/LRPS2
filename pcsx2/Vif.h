@@ -115,9 +115,7 @@ union tVIF_STAT {
 	tVIF_STAT() {}
 	tVIF_STAT(u32 val)			{ _u32 = val; }
 	bool test(u32 flags) const	{ return !!(_u32 & flags); }
-	void set_flags	(u32 flags)	{ _u32 |=  flags; }
 	void clear_flags(u32 flags) { _u32 &= ~flags; }
-	void reset()				{ _u32 = 0; }
 };
 
 #define VIF_STAT(value) ((tVIF_STAT)(value))
@@ -134,9 +132,7 @@ union tVIF_FBRST {
 
 	tVIF_FBRST(u32 val)					{ _u32 = val; }
 	bool test		(u32 flags) const	{ return !!(_u32 & flags); }
-	void set_flags	(u32 flags)			{ _u32 |=  flags; }
 	void clear_flags(u32 flags)			{ _u32 &= ~flags; }
-	void reset()						{ _u32 = 0; }
 };
 
 #define FBRST(value) ((tVIF_FBRST)(value))
@@ -154,9 +150,7 @@ union tVIF_ERR {
 	tVIF_ERR  (u32 val)					{ _u32 = val; }
 	void write(u32 val)					{ _u32 = val; }
 	bool test		(u32 flags) const	{ return !!(_u32 & flags); }
-	void set_flags	(u32 flags)			{ _u32 |=  flags; }
 	void clear_flags(u32 flags)			{ _u32 &= ~flags; }
-	void reset()						{ _u32 = 0; }
 };
 
 struct vifCycle

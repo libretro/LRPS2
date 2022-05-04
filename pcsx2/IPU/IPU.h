@@ -69,11 +69,6 @@ union tIPU_CTRL {
     // CTRL = the first 16 bits of ctrl [0x8000ffff], + value for the next 16 bits,
     // minus the reserved bits. (18-19; 27-29) [0x47f30000]
 	void write(u32 value) { _u32 = (value & 0x47f30000) | (_u32 & 0x8000ffff); }
-
-	bool test(u32 flags) const { return !!(_u32 & flags); }
-	void set_flags(u32 flags) { _u32 |= flags; }
-	void clear_flags(u32 flags) { _u32 &= ~flags; }
-	void reset() { _u32 &= 0x7F33F00; }
 };
 
 struct __aligned16 tIPU_BP {
@@ -160,11 +155,6 @@ union tIPU_CMD_IDEC
 	u32 _u32;
 
 	tIPU_CMD_IDEC( u32 val ) { _u32 = val; }
-
-	bool test(u32 flags) const { return !!(_u32 & flags); }
-	void set_flags(u32 flags) { _u32 |= flags; }
-	void clear_flags(u32 flags) { _u32 &= ~flags; }
-	void reset() { _u32 = 0; }
 };
 
 union tIPU_CMD_BDEC
@@ -183,11 +173,6 @@ union tIPU_CMD_BDEC
 	u32 _u32;
 
 	tIPU_CMD_BDEC( u32 val ) { _u32 = val; }
-
-	bool test(u32 flags) const { return !!(_u32 & flags); }
-	void set_flags(u32 flags) { _u32 |= flags; }
-	void clear_flags(u32 flags) { _u32 &= ~flags; }
-	void reset() { _u32 = 0; }
 };
 
 union tIPU_CMD_CSC
@@ -203,11 +188,6 @@ union tIPU_CMD_CSC
 	u32 _u32;
 
 	tIPU_CMD_CSC( u32 val ){ _u32 = val; }
-
-	bool test(u32 flags) const { return !!(_u32 & flags); }
-	void set_flags(u32 flags) { _u32 |= flags; }
-	void clear_flags(u32 flags) { _u32 &= ~flags; }
-	void reset() { _u32 = 0; }
 };
 
 enum SCE_IPU
