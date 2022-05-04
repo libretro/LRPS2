@@ -169,17 +169,10 @@ union tGS_IMR
 
     void reset()
     {
-        _u32 = 0;
-        SIGMSK = FINISHMSK = HSMSK = VSMSK = EDWMSK = true;
+        _u32       = 0;
+        SIGMSK     = FINISHMSK = HSMSK = VSMSK = EDWMSK = true;
         _undefined = 0x3;
     }
-    void set(u32 value)
-    {
-        _u32 = (value & 0x1f00); // Set only the interrupt mask fields.
-        _undefined = 0x3; // These should always be set.
-    }
-
-    bool masked() const { return (SIGMSK || FINISHMSK || HSMSK || VSMSK || EDWMSK); }
 };
 
 // --------------------------------------------------------------------------------------
@@ -281,9 +274,9 @@ public:
 
 	// Used to delay the sending of events.  Performance is better if the ringbuffer
 	// has more than one command in it when the thread is kicked.
-	int				m_CopyDataTally;
+	int			m_CopyDataTally;
 
-	Semaphore			m_sem_OpenDone;
+	Semaphore		m_sem_OpenDone;
 	std::atomic<bool>	m_Opened;
 
 	// These vars maintain instance data for sending Data Packets.
@@ -398,7 +391,7 @@ static const uint RingBufferMask = RingBufferSize - 1;
 struct MTGS_BufferedData
 {
 	u128		m_Ring[RingBufferSize];
-	u8			Regs[Ps2MemSize::GSregs];
+	u8		Regs[Ps2MemSize::GSregs];
 
 	MTGS_BufferedData() {}
 

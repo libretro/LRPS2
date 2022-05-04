@@ -304,7 +304,7 @@ void SysMtgsThread::ExecuteTaskInThread()
 					GS_Packet gsPack = path.GetGSPacketMTVU(); // Get vu1 program's xgkick packet(s)
 					if (gsPack.size) GSgifTransfer((u32*)&path.buffer[gsPack.offset], gsPack.size/16);
 					path.readAmount.fetch_sub(gsPack.size + gsPack.readAmount, std::memory_order_acq_rel);
-					path.PopGSPacketMTVU(); // Should be done last, for proper Gif_MTGS_Wait()
+					path.mtvu.gsPackQueue.pop(); // Should be done last, for proper Gif_MTGS_Wait()
 					break;
 				}
 
@@ -505,7 +505,7 @@ void SysMtgsThread::WaitGS(bool syncRegs, bool weakWait, bool isMTVU)
 	if( !pxAssertDev( IsOpen(), "MTGS Warning!  WaitGS issued on a closed thread." ) ) return;
 
 	Gif_Path&   path = gifUnit.gifPath[GIF_PATH_1];
-	u32 startP1Packs = weakWait ? path.GetPendingGSPackets() : 0;
+	u32 startP1Packs = weakWait ? path.mtvu.gsPackQueue.size() : 0;
 
 	// Both m_ReadPos and m_WritePos can be relaxed as we only want to test if the queue is empty but
 	// we don't want to access the content of the queue
@@ -518,7 +518,7 @@ void SysMtgsThread::WaitGS(bool syncRegs, bool weakWait, bool isMTVU)
 			else          m_mtx_RingBufferBusy .Wait();
 			RethrowException();
 			if(!isMTVU && m_ReadPos.load(std::memory_order_relaxed) == m_WritePos.load(std::memory_order_relaxed)) break;
-			u32 curP1Packs = weakWait ? path.GetPendingGSPackets() : 0;
+			u32 curP1Packs = weakWait ? path.mtvu.gsPackQueue.size() : 0;
 			if (weakWait && ((startP1Packs-curP1Packs) || !curP1Packs)) break;
 			// On weakWait we will stop waiting on the MTGS thread if the
 			// MTGS thread has processed a vu1 xgkick packet, or is pending on

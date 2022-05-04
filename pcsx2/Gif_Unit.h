@@ -262,12 +262,6 @@ struct Gif_Path
 	bool hasDataRemaining() const { return curOffset < curSize; }
 	bool isDone() const { return isMTVU() ? !mtvu.fakePackets : (!hasDataRemaining() && (state == GIF_PATH_IDLE || state == GIF_PATH_WAIT)); }
 
-	// Waits on the MTGS to process gs packets
-	void mtgsReadWait()
-	{
-		Gif_MTGS_Wait(isMTVU());
-	}
-
 	// Moves packet data to start of buffer
 	void RealignPacket()
 	{
@@ -281,7 +275,7 @@ struct Gif_Path
 			s32 frontFree = offset - getReadAmount();
 			if (frontFree >= sizeToAdd - intersect)
 				break;
-			mtgsReadWait();
+			Gif_MTGS_Wait(isMTVU());
 		}
 		if (offset < (s32)buffLimit)
 		{ // Needed for correct readAmount values
@@ -312,7 +306,7 @@ struct Gif_Path
 				break; // MTGS is reading in back of curOffset
 			if ((s32)buffLimit + readPos > (s32)curSize + (s32)size)
 				break;      // Enough free front space
-			mtgsReadWait(); // Let MTGS run to free up buffer space
+			Gif_MTGS_Wait(isMTVU()); // Let MTGS run to free up buffer space
 		}
 		memcpy(&buffer[curSize], pMem, size);
 		curSize += size;
@@ -412,7 +406,7 @@ struct Gif_Path
 	}
 
 	// MTVU: Gets called on VU XGkicks on MTVU thread
-	void ExecuteGSPacketMTVU()
+	void ExecuteGSPacketMTVU(void)
 	{
 		// Move packet to start of buffer
 		if (curOffset > buffLimit)
@@ -433,10 +427,6 @@ struct Gif_Path
 				{
 					if (curOffset + 16 > curSize)
 						break; // Exit Early
-					if (gifTag.curReg() == GIF_REG_A_D)
-					{
-						pxAssert(!Gif_HandlerAD_MTVU(&buffer[curOffset]));
-					}
 					incTag(curOffset, gsPack.size, 16); // 1 QWC
 					gifTag.packedStep();
 				}
@@ -471,19 +461,6 @@ struct Gif_Path
 		if (!mtvu.gsPackQueue.empty())
 			return mtvu.gsPackQueue.front();
 		return GS_Packet(); // gsPack.size will be 0
-	}
-
-	// MTVU: Gets called by MTGS thread
-	void PopGSPacketMTVU()
-	{
-		mtvu.gsPackQueue.pop();
-	}
-
-	// MTVU: Returns the amount of pending
-	// GS Packets that MTGS hasn't yet processed
-	u32 GetPendingGSPackets()
-	{
-		return mtvu.gsPackQueue.size();
 	}
 };
 
