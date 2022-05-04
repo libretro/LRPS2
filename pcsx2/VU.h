@@ -22,12 +22,12 @@ enum VURegFlags
     REG_MAC_FLAG	= 17,
     REG_CLIP_FLAG	= 18,
     REG_ACC_FLAG	= 19, // dummy flag that indicates that VFACC is written/read (nothing to do with VI[19])
-    REG_R			= 20,
-    REG_I			= 21,
-    REG_Q			= 22,
-    REG_P           = 23, // only exists in micromode
+    REG_R		= 20,
+    REG_I		= 21,
+    REG_Q		= 22,
+    REG_P           	= 23, // only exists in micromode
     REG_VF0_FLAG	= 24, // dummy flag that indicates VF0 is read (nothing to do with VI[24])
-    REG_TPC			= 26,
+    REG_TPC		= 26,
     REG_CMSAR0		= 27,
     REG_FBRST		= 28,
     REG_VPU_STAT	= 29,
@@ -80,9 +80,9 @@ struct REG_VI {
 					// VU0 mem, with only lower 16 bits valid, and the upper 112bits are hardwired to 0 (cottonvibes)
 };
 
-//#define VUFLAG_BREAKONMFLAG		0x00000001
 #define VUFLAG_MFLAGSET			0x00000002
 #define VUFLAG_INTCINTERRUPT    0x00000004
+
 struct fdivPipe {
 	int enable;
 	REG_VI reg;
@@ -173,12 +173,11 @@ struct __aligned16 VURegs {
 
 	VURegs()
 	{
-		Mem = NULL;
+		Mem   = NULL;
 		Micro = NULL;
 	}
 
 	bool IsVU1() const;
-	bool IsVU0() const;
 
 	VIFregisters& GetVifRegs() const
 	{
@@ -206,7 +205,3 @@ static VURegs& VU1 = vuRegs[1];
 
 // Do not use __fi here because it fires 'multiple definition' error in GCC
 inline bool VURegs::IsVU1() const  { return this == &vuRegs[1]; }
-inline bool VURegs::IsVU0() const  { return this == &vuRegs[0]; }
-
-extern u32* GET_VU_MEM(VURegs* VU, u32 addr);
-

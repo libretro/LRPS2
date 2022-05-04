@@ -235,10 +235,6 @@ __ri void VU_Thread::WaitOnSize(s32 size)
 // to write a continuous 'size * sizeof(u32)' bytes
 void VU_Thread::ReserveSpace(s32 size)
 {
-	pxAssert(m_write_pos < buffer_size);
-	pxAssert(size < buffer_size);
-	pxAssert(size > 0);
-
 	if (m_write_pos + size > (buffer_size - 1))
 	{
 		WaitOnSize(1); // Size of MTVU_NULL_PACKET
