@@ -28,7 +28,7 @@ using namespace R5900;
 const int rdram_devices = 2;	// put 8 for TOOL and 2 for PS2 and PSX
 int rdram_sdevid = 0;
 
-void hwInit()
+void hwInit(void)
 {
 	// [TODO] / FIXME:  PCSX2 no longer works on an Init system.  It assumes that the
 	// static global vars for the process will be initialized when the process is created, and
@@ -37,7 +37,7 @@ void hwInit()
 	VifUnpackSSE_Init();
 }
 
-void hwShutdown()
+void hwShutdown(void)
 {
 	VifUnpackSSE_Destroy();
 }
@@ -55,9 +55,7 @@ void hwReset()
 	psHu32(DMAC_ENABLER) = 0x1201;
 
 	if ((psxHu32(HW_ICFG) & (1 << 3)))
-	{
 		SPU2ps1reset();
-	}
 
 	SPU2reset();
 
@@ -73,7 +71,7 @@ void hwReset()
 	ipuDmaReset();
 }
 
-__fi uint intcInterrupt()
+__fi uint intcInterrupt(void)
 {
 	if ((psHu32(INTC_STAT)) == 0)
 		return 0;
@@ -135,112 +133,101 @@ __ri bool hwMFIFOWrite(u32 addr, const u128* data, uint qwc)
 	if (u128* dst = (u128*)PSM(dmacRegs.rbor.ADDR))
 	{
 		const u32 ringsize = (dmacRegs.rbsr.RMSK / 16) + 1;
-		uint startpos = (addr & dmacRegs.rbsr.RMSK)/16;
+		uint startpos      = (addr & dmacRegs.rbsr.RMSK)/16;
 		MemCopy_WrappedDest( data, dst, startpos, ringsize, qwc );
+		return true;
 	}
-	else
-		return false;
-	return true;
+	return false;
 }
 
-__ri void hwMFIFOResume(u32 transferred) {
-	
-	if (transferred == 0)
-		return; //Nothing got put in the MFIFO, we don't care
-
+__ri void hwMFIFOResume(u32 transferred)
+{
 	switch (dmacRegs.ctrl.MFD)
 	{
 		case MFD_VIF1: // Most common case.
-		{
 			if (vif1.inprogress & 0x10)
 			{
 				vif1.inprogress &= ~0x10;
 				//Don't resume if stalled or already looping
 				if (vif1ch.chcr.STR && !(cpuRegs.interrupt & (1 << DMAC_MFIFO_VIF)) && !vif1Regs.stat.INT)
 				{
-					//Need to simulate the time it takes to copy here, if the VIF resumes before the SPR has finished, it isn't happy.
+					// Need to simulate the time it takes to copy here,
+					// if the VIF resumes before the SPR has finished, it isn't happy.
 					CPU_INT(DMAC_MFIFO_VIF, transferred * BIAS);
 				}
-
-				//Apparently this is bad, i guess so, the data is going to memory rather than the FIFO
-				//vif1Regs.stat.FQC = 0x10; // FQC=16
 			}			
 			break;
-		}
 		case MFD_GIF:
-		{
 			if ((gif.gifstate & GIF_STATE_EMPTY)) {
 				CPU_INT(DMAC_MFIFO_GIF, transferred * BIAS);
 				gif.gifstate = GIF_STATE_READY;
 			}
 			break;
-		}
 		default:
 			break;
 	}
 }
 
-__ri bool hwDmacSrcChainWithStack(DMACh& dma, int id) {
+__ri bool hwDmacSrcChainWithStack(DMACh& dma, int id)
+{
 	switch (id) {
 		case TAG_REFE: // Refe - Transfer Packet According to ADDR field
 			dma.tadr += 16;
-            //End Transfer
+			//End Transfer
 			return true;
 
 		case TAG_CNT: // CNT - Transfer QWC following the tag.
-            // Set MADR to QW afer tag, and set TADR to QW following the data.
+			// Set MADR to QW afer tag, and set TADR to QW following the data.
 			dma.tadr += 16;
 			dma.madr = dma.tadr;
-			//dma.tadr = dma.madr + (dma.qwc << 4);
-			return false;
+			break;
 
 		case TAG_NEXT: // Next - Transfer QWC following tag. TADR = ADDR
-		{
-		    // Set MADR to QW following the tag, and set TADR to the address formerly in MADR.
-			u32 temp = dma.madr;
-			dma.madr = dma.tadr + 16;
-			dma.tadr = temp;
-			return false;
-		}
-		case TAG_REF: // Ref - Transfer QWC from ADDR field
+			{
+				// Set MADR to QW following the tag, and set TADR to the address formerly in MADR.
+				u32 temp = dma.madr;
+				dma.madr = dma.tadr + 16;
+				dma.tadr = temp;
+				break;
+			}
+		case TAG_REF:  // Ref - Transfer QWC from ADDR field
 		case TAG_REFS: // Refs - Transfer QWC from ADDR field (Stall Control)
-            //Set TADR to next tag
+			//Set TADR to next tag
 			dma.tadr += 16;
-			return false;
+			break;
 
 		case TAG_CALL: // Call - Transfer QWC following the tag, save succeeding tag
-		{
-		    // Store the address in MADR in temp, and set MADR to the data following the tag.
-			u32 temp = dma.madr;
-			dma.madr = dma.tadr + 16;
-
-			// Stash an address on the address stack pointer.
-			switch(dma.chcr.ASP)
 			{
-				case 0: //Check if ASR0 is empty
-					// Store the succeeding tag in asr0, and mark chcr as having 1 address.
-					dma.asr0 = dma.madr + (dma.qwc << 4);
-					dma.chcr.ASP++;
-					break;
+				// Store the address in MADR in temp, and set MADR to the data following the tag.
+				u32 temp = dma.madr;
+				dma.madr = dma.tadr + 16;
 
-				case 1:
-					// Store the succeeding tag in asr1, and mark chcr as having 2 addresses.
-					dma.asr1 = dma.madr + (dma.qwc << 4);
-					dma.chcr.ASP++;
-					break;
+				// Stash an address on the address stack pointer.
+				switch(dma.chcr.ASP)
+				{
+					case 0: //Check if ASR0 is empty
+						// Store the succeeding tag in asr0, and mark chcr as having 1 address.
+						dma.asr0 = dma.madr + (dma.qwc << 4);
+						dma.chcr.ASP++;
+						break;
 
-				default:
-					return true;
+					case 1:
+						// Store the succeeding tag in asr1, and mark chcr as having 2 addresses.
+						dma.asr1 = dma.madr + (dma.qwc << 4);
+						dma.chcr.ASP++;
+						break;
+
+					default:
+						return true;
+				}
+
+				// Set TADR to the address from MADR we stored in temp.
+				dma.tadr = temp;
 			}
-
-			// Set TADR to the address from MADR we stored in temp.
-			dma.tadr = temp;
-
-			return false;
-		}
+			break;
 
 		case TAG_RET: // Ret - Transfer QWC following the tag, load next tag
-            //Set MADR to data following the tag.
+			//Set MADR to data following the tag.
 			dma.madr = dma.tadr + 16;
 
 			// Snag an address from the address stack pointer.
@@ -262,17 +249,14 @@ __ri bool hwDmacSrcChainWithStack(DMACh& dma, int id) {
 
 				case 0:
 					// There aren't any addresses to pull, so end the transfer.
-					//dma.tadr += 16;						   //Clear tag address - Kills Klonoa 2
-					return true;
-
 				default:
 					// If ASR1 and ASR0 are messed up, end the transfer.
 					return true;
 			}
-			return false;
+			break;
 
 		case TAG_END: // End - Transfer QWC following the tag
-            //Set MADR to data following the tag, and end the transfer.
+			//Set MADR to data following the tag, and end the transfer.
 			dma.madr = dma.tadr + 16;
 			//Don't Increment tadr; breaks Soul Calibur II and III
 			return true;
@@ -308,44 +292,49 @@ void hwDmacSrcTadrInc(DMACh& dma)
 	u16 tagid = (dma.chcr.TAG >> 12) & 0x7;
 
 	if (tagid == TAG_CNT)
-	{
 		dma.tadr = dma.madr;
-	}
 }
+
 bool hwDmacSrcChain(DMACh& dma, int id)
 {
 	u32 temp;
 
 	switch (id)
 	{
-		case TAG_REFE: // Refe - Transfer Packet According to ADDR field
+		case TAG_REFE:
+			// Refe - Transfer Packet According to ADDR field
 			dma.tadr += 16;
-            // End the transfer.
+			// End the transfer.
 			return true;
 
-		case TAG_CNT: // CNT - Transfer QWC following the tag.
-            // Set MADR to QW after the tag, and TADR to QW following the data.
+		case TAG_CNT:
+			// CNT - Transfer QWC following the tag.
+			// Set MADR to QW after the tag, and TADR to QW following the data.
 			dma.madr = dma.tadr + 16;
 			dma.tadr = dma.madr;
-			return false;
+			break;
 
-		case TAG_NEXT: // Next - Transfer QWC following tag. TADR = ADDR
-            // Set MADR to QW following the tag, and set TADR to the address formerly in MADR.
+		case TAG_NEXT:
+			// Next - Transfer QWC following tag. TADR = ADDR
+			// Set MADR to QW following the tag, and set TADR to the address formerly in MADR.
 			temp = dma.madr;
 			dma.madr = dma.tadr + 16;
 			dma.tadr = temp;
-			return false;
+			break;
 
-		case TAG_REF: // Ref - Transfer QWC from ADDR field
-		case TAG_REFS: // Refs - Transfer QWC from ADDR field (Stall Control)
-            //Set TADR to next tag
+		case TAG_REF:
+			// Ref - Transfer QWC from ADDR field
+		case TAG_REFS:
+			// Refs - Transfer QWC from ADDR field (Stall Control)
+			// Set TADR to next tag
 			dma.tadr += 16;
-			return false;
+			break;
 
-		case TAG_END: // End - Transfer QWC following the tag
-            //Set MADR to data following the tag, and end the transfer.
+		case TAG_END:
+			// End - Transfer QWC following the tag
+			// Set MADR to data following the tag, and end the transfer.
 			dma.madr = dma.tadr + 16;
-			//Don't Increment tadr; breaks Soul Calibur II and III
+			// Don't Increment tadr; breaks Soul Calibur II and III
 			return true;
 	}
 

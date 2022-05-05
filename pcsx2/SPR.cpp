@@ -273,7 +273,9 @@ void SPRFROMinterrupt()
 				case MFD_GIF:
 				{
 					spr0ch.madr = dmacRegs.rbor.ADDR + (spr0ch.madr & dmacRegs.rbsr.RMSK);
-					hwMFIFOResume(mfifotransferred);
+					//If 0, nothing got put in the MFIFO, so we don't care
+					if (mfifotransferred != 0)
+						hwMFIFOResume(mfifotransferred);
 					break;
 				}
 				default:

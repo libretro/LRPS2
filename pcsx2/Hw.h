@@ -18,24 +18,24 @@
 namespace EEMemoryMap
 {
 	static const uint RCNT0_Start		= 0x10000000;
-	static const uint RCNT0_End			= 0x10000800;
+	static const uint RCNT0_End		= 0x10000800;
 	static const uint RCNT1_Start		= 0x10000800;
-	static const uint RCNT1_End			= 0x10001000;
+	static const uint RCNT1_End		= 0x10001000;
 	static const uint RCNT2_Start		= 0x10001000;
-	static const uint RCNT2_End			= 0x10001800;
+	static const uint RCNT2_End		= 0x10001800;
 	static const uint RCNT3_Start		= 0x10001800;
-	static const uint RCNT3_End			= 0x10002000;
+	static const uint RCNT3_End		= 0x10002000;
 
-	static const uint IPU_Start			= 0x10002000;
-	static const uint IPU_End			= 0x10003000;
+	static const uint IPU_Start		= 0x10002000;
+	static const uint IPU_End		= 0x10003000;
 
-	static const uint GIF_Start			= 0x10003000;
-	static const uint GIF_End			= 0x10003800;
+	static const uint GIF_Start		= 0x10003000;
+	static const uint GIF_End		= 0x10003800;
 
 	static const uint VIF0_Start		= 0x10003800;
-	static const uint VIF0_End			= 0x10003C00;
+	static const uint VIF0_End		= 0x10003C00;
 	static const uint VIF1_Start		= 0x10003C00;
-	static const uint VIF1_End			= 0x10004000;
+	static const uint VIF1_End		= 0x10004000;
 
 	static const uint VIF0_FIFO_Start	= 0x10004000;
 	static const uint VIF0_FIFO_End		= 0x10005000;
@@ -57,7 +57,7 @@ namespace EEMemoryMap
 	static const uint fromIPU_Start		= 0x1000B000;
 	static const uint fromIPU_End		= 0x1000B400;
 	static const uint toIPU_Start		= 0x1000B400;
-	static const uint toIPU_End			= 0x1000C000;
+	static const uint toIPU_End		= 0x1000C000;
 
 	static const uint SIF0dma_Start		= 0x1000C000;
 	static const uint SIF0dma_End		= 0x1000C400;
@@ -69,24 +69,24 @@ namespace EEMemoryMap
 	static const uint fromSPR_Start		= 0x1000D000;
 	static const uint fromSPR_End		= 0x1000D400;
 	static const uint toSPR_Start		= 0x1000D400;
-	static const uint toSPR_End			= 0x1000E000;
+	static const uint toSPR_End		= 0x1000E000;
 
 	static const uint DMAC_Start		= 0x1000E000;
-	static const uint DMAC_End			= 0x1000F000;
+	static const uint DMAC_End		= 0x1000F000;
 
 	static const uint INTC_Start		= 0x1000F000;
-	static const uint INTC_End			= 0x1000F100;
+	static const uint INTC_End		= 0x1000F100;
 
-	static const uint SIO_Start			= 0x1000F100;
-	static const uint SIO_End			= 0x1000F200;
+	static const uint SIO_Start		= 0x1000F100;
+	static const uint SIO_End		= 0x1000F200;
 	static const uint SBUS_Start		= 0x1000F200;
-	static const uint SBUS_End			= 0x1000F300;
+	static const uint SBUS_End		= 0x1000F300;
 	static const uint SBUS_PS1_Start	= 0x1000F300;
 	static const uint SBUS_PS1_End		= 0x1000F400;
 
 	// MCH area --  Really not sure what this area is.  Information is lacking.
-	static const uint MCH_Start			= 0x1000F400;
-	static const uint MCH_End			= 0x1000F500;
+	static const uint MCH_Start		= 0x1000F400;
+	static const uint MCH_End		= 0x1000F500;
 
 	// Extended master control register area for DMAC.
 	static const uint DMACext_Start		= 0x1000F500;
@@ -99,21 +99,21 @@ enum EERegisterAddresses
 {
 	RCNT0_COUNT		=	0x10000000,
 	RCNT0_MODE		=	0x10000010,
-	RCNT0_TARGET	=	0x10000020,
+	RCNT0_TARGET		=	0x10000020,
 	RCNT0_HOLD		=	0x10000030,
 
 	RCNT1_COUNT		=	0x10000800,
 	RCNT1_MODE		=	0x10000810,
-	RCNT1_TARGET	=	0x10000820,
+	RCNT1_TARGET		=	0x10000820,
 	RCNT1_HOLD		=	0x10000830,
 
 	RCNT2_COUNT		=	0x10001000,
 	RCNT2_MODE		=	0x10001010,
-	RCNT2_TARGET	=	0x10001020,
+	RCNT2_TARGET		=	0x10001020,
 
 	RCNT3_COUNT		=	0x10001800,
 	RCNT3_MODE		=	0x10001810,
-	RCNT3_TARGET	=	0x10001820,
+	RCNT3_TARGET		=	0x10001820,
 
 	IPU_CMD			=	0x10002000,
 	IPU_CTRL		=	0x10002010,
@@ -234,8 +234,8 @@ enum EERegisterAddresses
 	D3_MADR			=	0x1000B010,
 	D3_QWC			=	0x1000B020,
 
-	fromIPU_CHCR	=	0x1000B000,
-	fromIPU_MADR	=	0x1000B010,
+	fromIPU_CHCR		=	0x1000B000,
+	fromIPU_MADR		=	0x1000B010,
 	fromIPU_QWC		=	0x1000B020,
 
 //toIPU
@@ -284,10 +284,10 @@ enum EERegisterAddresses
 	D8_QWC			=	0x1000D020,
 	D8_SADR			=	0x1000D080,
 
-	fromSPR_CHCR	=	0x1000D000,
-	fromSPR_MADR	=	0x1000D010,
+	fromSPR_CHCR		=	0x1000D000,
+	fromSPR_MADR		=	0x1000D010,
 	fromSPR_QWC		=	0x1000D020,
-	fromSPR_SADR	=	0x1000D080,
+	fromSPR_SADR		=	0x1000D080,
 
 //toSPR
 	D9_CHCR			=	0x1000D400,
@@ -309,7 +309,7 @@ enum EERegisterAddresses
 	DMAC_RBSR		=	0x1000E040,
 	DMAC_RBOR		=	0x1000E050,
 	DMAC_STADR		=	0x1000E060,
-	DMAC_FAKESTAT	=	0x1000E100, //Midway, you're idiots (checked this in the MK Deception ELF!) (Refraction)
+	DMAC_FAKESTAT		=	0x1000E100, //Midway, you're idiots (checked this in the MK Deception ELF!) (Refraction)
 
 	INTC_STAT		=	0x1000F000,
 	INTC_MASK		=	0x1000F010,
@@ -336,8 +336,8 @@ enum EERegisterAddresses
 	MCH_RICM		=	0x1000F430,
 	MCH_DRD			=	0x1000F440,
 
-	DMAC_ENABLER	=	0x1000F520,
-	DMAC_ENABLEW	=	0x1000F590
+	DMAC_ENABLER		=	0x1000F520,
+	DMAC_ENABLEW		=	0x1000F590
 };
 
 enum GSRegisterAddresses
@@ -363,8 +363,8 @@ enum GSRegisterAddresses
 	GS_SIGLBLID		=	0x12001080
 };
 
-extern void hwReset();
-extern void hwShutdown();
+extern void hwReset(void);
+extern void hwShutdown(void);
 
 extern const int rdram_devices;
 extern int rdram_sdevid;

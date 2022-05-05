@@ -92,7 +92,7 @@ void __fastcall _hwWrite32( u32 mem, u32 value )
 				icase(GIF_CTRL)
 				{
 					// Not exactly sure what RST needs to do
-					gifRegs.ctrl.write(value & 9);
+					gifRegs.ctrl._u32 = value & 9;
 					if (gifRegs.ctrl.RST) {
 						gifUnit.Reset(true); // Should it reset gsSIGNAL?
 						//gifUnit.ResetRegs();
@@ -103,7 +103,7 @@ void __fastcall _hwWrite32( u32 mem, u32 value )
 
 				icase(GIF_MODE)
 				{
-					gifRegs.mode.write(value);
+					gifRegs.mode._u32 = value;
 					//Need to kickstart the GIF if the M3R mask comes off
 					if (gifRegs.stat.M3R == 1 && gifRegs.mode.M3R == 0 && (gifch.chcr.STR || gif_fifo.fifoSize))
 					{

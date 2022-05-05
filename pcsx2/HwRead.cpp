@@ -24,7 +24,7 @@
 
 using namespace R5900;
 
-static __fi void IntCHackCheck()
+static __fi void IntCHackCheck(void)
 {
 	// Sanity check: To protect from accidentally "rewinding" the cyclecount
 	// on the few times nextBranchCycle can be behind our current cycle.
@@ -51,8 +51,7 @@ mem32_t __fastcall _hwRead32(u32 mem)
 			{
 				if(mem >= EEMemoryMap::VIF1_Start)
 					return vifRead32<1>(mem);
-				else
-					return vifRead32<0>(mem);
+				return vifRead32<0>(mem);
 			}
 			return dmacRead32<0x03>( mem );
 		
@@ -88,9 +87,8 @@ mem32_t __fastcall _hwRead32(u32 mem)
 			}
 
 			// todo: psx mode: this is new
-			if (((mem & 0x1FFFFFFF) >= EEMemoryMap::SBUS_PS1_Start) && ((mem & 0x1FFFFFFF) < EEMemoryMap::SBUS_PS1_End)) {
+			if (((mem & 0x1FFFFFFF) >= EEMemoryMap::SBUS_PS1_Start) && ((mem & 0x1FFFFFFF) < EEMemoryMap::SBUS_PS1_End))
 				return PGIFr((mem & 0x1FFFFFFF));
-			}
 
 			// WARNING: this code is never executed anymore due to previous condition.
 			// It requires investigation of what to do.
@@ -175,15 +173,6 @@ mem32_t __fastcall _hwRead32(u32 mem)
 	//else itll take aaaaaaaaages to boot.
 	if(mem == (D1_CHCR + 0x10) && CHECK_VIFFIFOHACK) 
 		return psHu32(mem) + (vif1ch.qwc * 16);
-
-	/*if((mem == GIF_CHCR) && !vif1ch.chcr.STR && gifRegs.stat.M3P && gifRegs.stat.APATH != 3)
-	{
-		//Hack for Wallace and Gromit Curse Project Zoo - Enabled the mask, then starts a new
-		//GIF DMA, the mask never comes off and it won't proceed until this is unset.
-		//Unsetting it works too but messes up other PATH3 games.
-		//If STR is already unset, it won't make the slightest difference.
-		return (psHu32(mem) & ~0x100);
-	}*/
 	return psHu32(mem);
 }
 

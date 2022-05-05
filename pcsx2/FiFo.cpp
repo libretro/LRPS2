@@ -42,9 +42,10 @@
 void __fastcall ReadFIFO_VIF1(mem128_t* out)
 {
 	ZeroQWC(out); // Clear first in case no data gets written...
-	//pxAssertRel(vif1Regs.stat.FQC != 0, "FQC = 0 on VIF FIFO READ!");
-	if (vif1Regs.stat.FDR) {
-		if (vif1Regs.stat.FQC > 0) {
+	if (vif1Regs.stat.FDR)
+	{
+		if (vif1Regs.stat.FQC > 0)
+		{
 			GetMTGS().WaitGS();
 			GetMTGS().SendPointerPacket(GS_RINGTYPE_INIT_READ_FIFO1, 0, out);
 			GetMTGS().WaitGS(false); // wait without reg sync
@@ -67,7 +68,8 @@ void __fastcall WriteFIFO_VIF0(const mem128_t *value)
 
 	if (vif0.cmd) 
 	{
-		if(vif0.done && vif0ch.qwc == 0)	vif0Regs.stat.VPS = VPS_WAITING;
+		if(vif0.done && vif0ch.qwc == 0)
+			vif0Regs.stat.VPS = VPS_WAITING;
 	}
 	else		 
 		vif0Regs.stat.VPS = VPS_IDLE;
@@ -77,30 +79,34 @@ void __fastcall WriteFIFO_VIF1(const mem128_t *value)
 {
 	bool ret = VIF1transfer((u32*)value, 4);
 
-	if (vif1.cmd) {
-		if (vif1.done && !vif1ch.qwc) vif1Regs.stat.VPS = VPS_WAITING;
+	if (vif1.cmd)
+	{
+		if (vif1.done && !vif1ch.qwc)
+			vif1Regs.stat.VPS = VPS_WAITING;
 	}
-	else vif1Regs.stat.VPS = VPS_IDLE;
+	else
+		vif1Regs.stat.VPS = VPS_IDLE;
 
 	if( gifRegs.stat.APATH == 2  && gifUnit.gifPath[1].isDone())
 	{
 		gifRegs.stat.APATH = 0;
-		gifRegs.stat.OPH = 0;
-		vif1Regs.stat.VGW = false; //Let vif continue if it's stuck on a flush
+		gifRegs.stat.OPH   = 0;
+		vif1Regs.stat.VGW  = false; //Let vif continue if it's stuck on a flush
 
-		if(gifUnit.checkPaths(1,0,1)) gifUnit.Execute(false, true);
+		if(gifUnit.checkPaths(1,0,1))
+			gifUnit.Execute(false, true);
 	}
 }
 
 void __fastcall WriteFIFO_GIF(const mem128_t *value)
 {
-	if ((!gifUnit.CanDoPath3() || gif_fifo.fifoSize > 0)) {
+	if ((!gifUnit.CanDoPath3() || gif_fifo.fifoSize > 0))
+	{
 		gif_fifo.write_fifo((u32*)value, 1);
 		gif_fifo.read_fifo();
 	}
-	else {
+	else
 		gifUnit.TransferGSPacketData(GIF_TRANS_FIFO, (u8*)value, 16);
-	}
 
 	if (gifUnit.gifPath[GIF_PATH_3].state == GIF_PATH_WAIT)
 		gifUnit.gifPath[GIF_PATH_3].state = GIF_PATH_IDLE;
@@ -108,13 +114,10 @@ void __fastcall WriteFIFO_GIF(const mem128_t *value)
 	if (gifRegs.stat.APATH == 3)
 	{
 		gifRegs.stat.APATH = 0;
-		gifRegs.stat.OPH = 0;
+		gifRegs.stat.OPH   = 0;
 
-		if (gifUnit.gifPath[GIF_PATH_3].state == GIF_PATH_IDLE || gifUnit.gifPath[GIF_PATH_3].state == GIF_PATH_WAIT)
-		{
-			if (gifUnit.checkPaths(1, 1, 0)) gifUnit.Execute(false, true);
-		}
-
+		if (gifUnit.gifPath[GIF_PATH_3].state == GIF_PATH_IDLE)
+			if (gifUnit.checkPaths(1, 1, 0))
+				gifUnit.Execute(false, true);
 	}
-	
 }

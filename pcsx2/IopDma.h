@@ -29,19 +29,19 @@ extern void psxDma8(u32 madr, u32 bcr, u32 chcr);
 extern void psxDma9(u32 madr, u32 bcr, u32 chcr);
 extern void psxDma10(u32 madr, u32 bcr, u32 chcr);
 
-extern int  psxDma4Interrupt();
-extern int  psxDma7Interrupt();
-extern void dev9Interrupt();
+extern int  psxDma4Interrupt(void);
+extern int  psxDma7Interrupt(void);
+extern void dev9Interrupt(void);
 extern void dev9Irq(int cycles);
-extern void usbInterrupt();
+extern void usbInterrupt(void);
 extern void usbIrq(int cycles);
-extern void fwIrq();
-extern void spu2Irq();
-extern void spu2DMA4Irq();
-extern void spu2DMA7Irq();
+extern void fwIrq(void);
+extern void spu2Irq(void);
+extern void spu2DMA4Irq(void);
+extern void spu2DMA7Irq(void);
 
 extern void iopIntcIrq( uint irqType );
-extern void iopTestIntc();
+extern void iopTestIntc(void);
 
 extern DEV9handler dev9Handler;
 extern USBhandler usbHandler;

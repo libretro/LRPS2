@@ -18,7 +18,7 @@
 enum GIF_PATH {
 	GIF_PATH_1 = 0,
 	GIF_PATH_2,
-	GIF_PATH_3,
+	GIF_PATH_3
 };
 
 // Lower byte contains path minus 1
@@ -30,16 +30,6 @@ enum GIF_TRANSFER_TYPE {
 	GIF_TRANS_DIRECTHL = 0x401, // Path 2
 	GIF_TRANS_DMA      = 0x502, // Path 3
 	GIF_TRANS_FIFO     = 0x602  // Path 3
-};
-
-static const char Gif_TransferStr[7][32] = {
-	"Invalid Transfer Type",
-	"GIF_TRANS_XGKICK",
-	"GIF_TRANS_MTVU",
-	"GIF_TRANS_DIRECT",
-	"GIF_TRANS_DIRECTHL",
-	"GIF_TRANS_DMA",
-	"GIF_TRANS_FIFO"
 };
 
 enum GIF_PATH_STATE {
@@ -60,20 +50,20 @@ enum GIF_FLG {
 enum GIF_REG {
 	GIF_REG_PRIM	= 0x00,
 	GIF_REG_RGBA	= 0x01,
-	GIF_REG_STQ		= 0x02,
-	GIF_REG_UV		= 0x03,
+	GIF_REG_STQ	= 0x02,
+	GIF_REG_UV	= 0x03,
 	GIF_REG_XYZF2	= 0x04,
 	GIF_REG_XYZ2	= 0x05,
 	GIF_REG_TEX0_1	= 0x06,
 	GIF_REG_TEX0_2	= 0x07,
 	GIF_REG_CLAMP_1	= 0x08,
 	GIF_REG_CLAMP_2	= 0x09,
-	GIF_REG_FOG		= 0x0a,
+	GIF_REG_FOG	= 0x0a,
 	GIF_REG_INVALID	= 0x0b,
 	GIF_REG_XYZF3	= 0x0c,
 	GIF_REG_XYZ3	= 0x0d,
-	GIF_REG_A_D		= 0x0e,
-	GIF_REG_NOP		= 0x0f
+	GIF_REG_A_D	= 0x0e,
+	GIF_REG_NOP	= 0x0f
 };
 
 enum gifstate_t {
@@ -118,8 +108,6 @@ union tGIF_CTRL
 	u32 _u32;
 
 	tGIF_CTRL(u32 val) { _u32 = val; }
-
-	void write(u32 val) { _u32 = val; }
 };
 
 union tGIF_MODE
@@ -133,8 +121,6 @@ union tGIF_MODE
 	u32 _u32;
 
 	tGIF_MODE(u32 val) { _u32 = val; }
-
-	void write(u32 val) { _u32 = val; }
 };
 
 union tGIF_STAT
@@ -159,8 +145,6 @@ union tGIF_STAT
 	u32 _u32;
 
 	tGIF_STAT(u32 val) { _u32 = val; }
-
-	void write(u32 val) { _u32 = val; }
 };
 
 union tGIF_TAG0
