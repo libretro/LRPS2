@@ -547,7 +547,12 @@ __fi void rcntUpdate_vSync(void)
 
 			hwIntcIrq(INTC_VBLANK_S);
 			psxVBlankStart();
-			gsPostVsyncStart();
+
+			//These are done at VSync Start.  Drawing is done when VSync is off, then output the screen when Vsync is on
+			//The GS needs to be told at the start of a vsync else it loses half of its picture (could be responsible for some halfscreen issues)
+			//We got away with it before i think due to our awful GS timing, but now we have it right (ish)
+			GetMTGS().PostVsyncStart();
+
 			if (gates)
 				rcntStartGate(true, vsyncCounter.sCycle); // Counters Start Gate code
 			/* VsyncStart End */

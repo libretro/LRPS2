@@ -347,7 +347,6 @@ extern void gsReset(void);
 extern void gsOnModeChanged( Fixed100 framerate, u32 newTickrate );
 extern void gsSetVideoMode( GS_VideoMode mode );
 extern void gsResetFrameSkip(void);
-extern void gsPostVsyncStart(void);
 extern void gsFrameSkip(void);
 
 // Some functions shared by both the GS and MTGS

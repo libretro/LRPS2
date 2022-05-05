@@ -30,8 +30,6 @@
 
 using namespace Threading;
 
-#define MTGS_LOG(...) do {} while (0)
-
 // =====================================================================================================
 //  MTGS Threaded Class Implementation
 // =====================================================================================================
@@ -98,7 +96,6 @@ void SysMtgsThread::ResetGS()
 	m_QueuedFrameCount    = 0;
 	m_VsyncSignalListener = 0;
 
-	MTGS_LOG( "MTGS: Sending Reset..." );
 	SendSimplePacket( GS_RINGTYPE_RESET, 0, 0, 0 );
 	SendSimplePacket( GS_RINGTYPE_FRAMESKIP, 0, 0, 0 );
 	SetEvent();
@@ -317,8 +314,6 @@ void SysMtgsThread::ExecuteTaskInThread()
 							const int qsize = tag.data[0];
 							ringposinc += qsize;
 
-							MTGS_LOG( "(MTGS Packet Read) ringtype=Vsync, field=%u, skip=%s", !!(((u32&)RingBuffer.Regs[0x1000]) & 0x2000) ? 0 : 1, tag.data[1] ? "true" : "false" );
-
 							// Mail in the important GS registers.
 							// This seemingly obtuse system is needed in order to handle cases where the vsync data wraps
 							// around the edge of the ringbuffer.  If not for that I'd just use a struct. >_<
@@ -346,7 +341,6 @@ void SysMtgsThread::ExecuteTaskInThread()
 						break;
 
 						case GS_RINGTYPE_FRAMESKIP:
-							MTGS_LOG( "(MTGS Packet Read) ringtype=Frameskip" );
 							_gs_ResetFrameskip();
 						break;
 
@@ -359,14 +353,12 @@ void SysMtgsThread::ExecuteTaskInThread()
 						break;
 
 						case GS_RINGTYPE_RESET:
-							MTGS_LOG( "(MTGS Packet Read) ringtype=Reset" );
 							GSreset();
 						break;
 
 						case GS_RINGTYPE_SOFTRESET:
 						{
 							int mask = tag.data[0];
-							MTGS_LOG( "(MTGS Packet Read) ringtype=SoftReset" );
 							GSgifSoftReset( mask );
 						}
 						break;
@@ -380,12 +372,10 @@ void SysMtgsThread::ExecuteTaskInThread()
 						break;
 
 						case GS_RINGTYPE_INIT_READ_FIFO1:
-							MTGS_LOG( "(MTGS Packet Read) ringtype=Fifo1" );
 							GSinitReadFIFO( (u64*)tag.pointer);
 						break;
 
 						case GS_RINGTYPE_INIT_READ_FIFO2:
-							MTGS_LOG( "(MTGS Packet Read) ringtype=Fifo2, size=%d", tag.data[0] );
 							GSinitReadFIFO2( (u64*)tag.pointer, tag.data[0]);
 						break;
 
