@@ -330,9 +330,6 @@ void recMicroVU0::Execute(u32 cycles) {
 	if(!(VU0.VI[REG_VPU_STAT].UL & 1)) return;
 	VU0.VI[REG_TPC].UL <<= 3;
 
-	// Sometimes games spin on vu0, so be careful with this value
-	// woody hangs if too high on sVU (untested on mVU)
-	// Edit: Need to test this again, if anyone ever has a "Woody" game :p
 	((mVUrecCall)microVU0.startFunct)(VU0.VI[REG_TPC].UL, cycles);
 	VU0.VI[REG_TPC].UL >>= 3;
 	if(microVU0.regs().flags & 0x4)
