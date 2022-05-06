@@ -91,7 +91,7 @@ __fi void* _XMMGetAddr(int type, int reg, VURegs *VU)
 //
 // Note: I don't understand why we don't check register that aren't useful anymore
 // (i.e EEINST_USED is cleared)
-int  _getFreeXMMreg(void)
+static int  _getFreeXMMreg(void)
 {
 	int i, tempi;
 	u32 bestcount = 0x10000;

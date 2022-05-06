@@ -149,24 +149,23 @@ struct _xmmregs {
 	u16 counter;
 };
 
-void _initXMMregs();
-int  _getFreeXMMreg();
+void _initXMMregs(void);
 int  _allocTempXMMreg(XMMSSEType type, int xmmreg);
 int  _allocFPtoXMMreg(int xmmreg, int fpreg, int mode);
 int  _allocGPRtoXMMreg(int xmmreg, int gprreg, int mode);
 int  _allocFPACCtoXMMreg(int xmmreg, int mode);
 int  _checkXMMreg(int type, int reg, int mode);
 void _addNeededFPtoXMMreg(int fpreg);
-void _addNeededFPACCtoXMMreg();
+void _addNeededFPACCtoXMMreg(void);
 void _addNeededGPRtoXMMreg(int gprreg);
-void _clearNeededXMMregs();
+void _clearNeededXMMregs(void);
 void _deleteGPRtoXMMreg(int reg, int flush);
 void _deleteFPtoXMMreg(int reg, int flush);
 void _freeXMMreg(u32 xmmreg);
-void _flushXMMregs();
-u8 _hasFreeXMMreg();
-void _freeXMMregs();
-int _getNumXMMwrite();
+void _flushXMMregs(void);
+u8 _hasFreeXMMreg(void);
+void _freeXMMregs(void);
+int _getNumXMMwrite(void);
 void _signExtendSFtoM(uptr mem);
 
 // returns new index of reg, lower 32 bits already in mmx
@@ -220,12 +219,11 @@ extern void _recClearInst(EEINST* pinst);
 extern u32 _recIsRegWritten(EEINST* pinst, int size, u8 xmmtype, u8 reg);
 extern void _recFillRegister(EEINST& pinst, int type, int reg, int write);
 
-static __fi bool EEINST_ISLIVE64(u32 reg)	{ return !!(g_pCurInstInfo->regs[reg] & (EEINST_LIVE0)); }
-static __fi bool EEINST_ISLIVEXMM(u32 reg)	{ return !!(g_pCurInstInfo->regs[reg] & (EEINST_LIVE0|EEINST_LIVE2)); }
-static __fi bool EEINST_ISLIVE2(u32 reg)	{ return !!(g_pCurInstInfo->regs[reg] & EEINST_LIVE2); }
-
-static __fi bool FPUINST_ISLIVE(u32 reg)	{ return !!(g_pCurInstInfo->fpuregs[reg] & EEINST_LIVE0); }
-static __fi bool FPUINST_LASTUSE(u32 reg)	{ return !!(g_pCurInstInfo->fpuregs[reg] & EEINST_LASTUSE); }
+#define EEINST_ISLIVE64(reg)	(!!(g_pCurInstInfo->regs[reg] & (EEINST_LIVE0)))
+#define EEINST_ISLIVEXMM(reg)	(!!(g_pCurInstInfo->regs[reg] & (EEINST_LIVE0|EEINST_LIVE2)))
+#define EEINST_ISLIVE2(reg)	(!!(g_pCurInstInfo->regs[reg] & EEINST_LIVE2))
+#define FPUINST_ISLIVE(reg)	( (!!(g_pCurInstInfo->fpuregs[reg] & EEINST_LIVE0)))
+#define FPUINST_LASTUSE(reg)	( (!!(g_pCurInstInfo->fpuregs[reg] & EEINST_LASTUSE)) )
 
 extern u32 g_recWriteback; // used for jumps (VUrec mess!)
 
@@ -266,9 +264,9 @@ int _allocCheckGPRtoX86(EEINST* pinst, int gprreg, int mode);
 #define FLUSH_FREE_TEMPX86	0x040	// flush and free temporary x86 regs
 #define FLUSH_FREE_ALLX86	0x080	// free all x86 regs
 #define FLUSH_FREE_VU0		0x100	// free all vu0 related regs
-#define FLUSH_PC			0x200	// program counter
-#define FLUSH_CAUSE			0x000	// disabled for now: cause register, only the branch delay bit
-#define FLUSH_CODE			0x800	// opcode for interpreter
+#define FLUSH_PC		0x200	// program counter
+#define FLUSH_CAUSE		0x000	// disabled for now: cause register, only the branch delay bit
+#define FLUSH_CODE		0x800	// opcode for interpreter
 
 #define FLUSH_EVERYTHING	0x1ff
 #define FLUSH_INTERPRETER	0xfff
