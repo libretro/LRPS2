@@ -27,12 +27,6 @@ using namespace R5900;
 
 __aligned16 u8 g_RealGSMem[Ps2MemSize::GSregs];
 
-void gsOnModeChanged( Fixed100 framerate, u32 newTickrate )
-{
-	GetMTGS().SendSimplePacket( GS_RINGTYPE_MODECHANGE, framerate.Raw, newTickrate, 0 );
-}
-
-
 void gsSetVideoMode(GS_VideoMode mode )
 {
 	gsVideoMode = mode;
@@ -101,14 +95,17 @@ __fi void gsWrite8(u32 mem, u8 value)
 		// and change the GS revision or ID portions -- they're all hard wired.) --air
 	
 		case GS_CSR: // GS_CSR
-			gsCSRwrite( tGS_CSR((u32)value) );			break;
+			gsCSRwrite( tGS_CSR((u32)value) );
+			break;
 		case GS_CSR + 1: // GS_CSR
-			gsCSRwrite( tGS_CSR(((u32)value) <<  8) );	break;
+			gsCSRwrite( tGS_CSR(((u32)value) <<  8) );
+			break;
 		case GS_CSR + 2: // GS_CSR
-			gsCSRwrite( tGS_CSR(((u32)value) << 16) );	break;
+			gsCSRwrite( tGS_CSR(((u32)value) << 16) );
+			break;
 		case GS_CSR + 3: // GS_CSR
-			gsCSRwrite( tGS_CSR(((u32)value) << 24) );	break;
-
+			gsCSRwrite( tGS_CSR(((u32)value) << 24) );
+			break;
 		default:
 			*PS2GS_BASE(mem) = value;
 		break;
@@ -178,11 +175,6 @@ void __fastcall gsWrite64_generic( u32 mem, const mem64_t* value )
 	*(u64*)PS2GS_BASE(mem) = *value;
 }
 
-void __fastcall gsWrite64_page_00( u32 mem, const mem64_t* value )
-{
-	gsWrite64_generic( mem, value );
-}
-
 void __fastcall gsWrite64_page_01( u32 mem, const mem64_t* value )
 {
 	switch( mem )
@@ -190,7 +182,8 @@ void __fastcall gsWrite64_page_01( u32 mem, const mem64_t* value )
 		case GS_BUSDIR:
 
 			gifUnit.stat.DIR = value[0] & 1;
-			if (gifUnit.stat.DIR) {      // Assume will do local->host transfer
+			if (gifUnit.stat.DIR)
+			{      // Assume will do local->host transfer
 				gifUnit.stat.OPH = true; // Should we set OPH here?
 				gifUnit.FlushToMTGS();   // Send any pending GS Primitives to the GS
 			}
@@ -227,11 +220,6 @@ void __fastcall gsWrite64_page_01( u32 mem, const mem64_t* value )
 
 //////////////////////////////////////////////////////////////////////////
 // GS Write 128 bit
-
-void __fastcall gsWrite128_page_00( u32 mem, const mem128_t* value )
-{
-	gsWrite128_generic( mem, value );
-}
 
 void __fastcall gsWrite128_page_01( u32 mem, const mem128_t* value )
 {

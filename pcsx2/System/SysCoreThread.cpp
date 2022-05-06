@@ -287,20 +287,6 @@ void SysCoreThread::DoCpuReset()
 	cpuReset();
 }
 
-// This is called from the PS2 VM at the start of every vsync (either 59.94 or 50 hz by PS2
-// clock scale, which does not correlate to the actual host machine vsync).
-//
-// Default tasks: Updates PADs and applies vsync patches.  Derived classes can override this
-// to change either PAD and/or Patching behaviors.
-//
-// [TODO]: Should probably also handle profiling and debugging updates, once those are
-// re-implemented.
-//
-void SysCoreThread::VsyncInThread()
-{
-	ApplyLoadedPatches(PPT_CONTINUOUSLY);
-}
-
 void SysCoreThread::GameStartingInThread()
 {
 	GetMTGS().SendGameCRC(ElfCRC);

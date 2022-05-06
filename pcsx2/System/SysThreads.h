@@ -339,7 +339,6 @@ public:
 	virtual bool Cancel( const wxTimeSpan& timeout );
 
 	virtual bool StateCheckInThread();
-	virtual void VsyncInThread();
 	virtual void GameStartingInThread();
 
 	virtual void ApplySettings( const Pcsx2Config& src );

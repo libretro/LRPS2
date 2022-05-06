@@ -65,10 +65,7 @@ VifUnpackSSE_Dynarec::VifUnpackSSE_Dynarec(const nVifStruct& vif_, const nVifBlo
 	vCL			= 0;
 }
 
-__fi void makeMergeMask(u32& x)
-{
-	x = ((x&0x40)>>6) | ((x&0x10)>>3) | (x&4) | ((x&1)<<3);
-}
+#define makeMergeMask(x) ((((x) & 0x40) >> 6) | (((x) & 0x10) >> 3) | ((x) & 4) | (((x) & 1) << 3))
 
 __fi void VifUnpackSSE_Dynarec::SetMasks(int cS) const {
 	const int idx = v.idx;
@@ -87,31 +84,40 @@ __fi void VifUnpackSSE_Dynarec::SetMasks(int cS) const {
 		if ((cS>=4) && (m3&0xff000000)) xPSHUF.D(xmmCol3, xmmCol0, _v3);
 		if ((cS>=1) && (m3&0x000000ff)) xPSHUF.D(xmmCol0, xmmCol0, _v0);
 	}
-	//if (doMask||doMode) loadRowCol((nVifStruct&)v);
 }
 
 void VifUnpackSSE_Dynarec::doMaskWrite(const xRegisterSSE& regX) const {
-	pxAssertDev(regX.Id <= 1, "Reg Overflow! XMM2 thru XMM6 are reserved for masking.");
-
 	int cc = std::min(vCL, 3);
 	u32 m0 = (vB.mask >> (cc * 8)) & 0xff; //The actual mask example 0xE4 (protect, col, row, clear)
 	u32 m3 =  ((m0 & 0xaa)>>1) & ~m0; //all the upper bits (cols shifted right) cancelling out any write protects 0x10
 	u32 m2 = (m0 & 0x55) & (~m0>>1); // all the lower bits (rows)cancelling out any write protects 0x04
 	u32 m4 = (m0 & ~((m3<<1) | m2)) & 0x55; //  = 0xC0 & 0x55 = 0x40 (for merge mask)
+	u32 m5 = 0xf;
 
-	makeMergeMask(m2);
-	makeMergeMask(m3);
-	makeMergeMask(m4);
+	m2     = makeMergeMask(m2);
+	m3     = makeMergeMask(m3);
+	m4     = makeMergeMask(m4);
 
-	if (doMask&&m2) { mergeVectors(regX, xmmRow,						xmmTemp, m2); } // Merge MaskRow
-	if (doMask&&m3) { mergeVectors(regX, xRegisterSSE(xmmCol0.Id+cc),	xmmTemp, m3); } // Merge MaskCol
-	if (doMask&&m4) { xMOVAPS(xmmTemp,							   ptr[dstIndirect]);
-					  mergeVectors(regX, xmmTemp,						xmmTemp, m4); } // Merge Write Protect
-	if (doMode) {
-		u32 m5 = ~(m2|m3|m4) & 0xf;
+	if (doMask)
+	{
+		if (m2) // Merge MaskRow
+		{
+			mergeVectors(regX, xmmRow, xmmTemp, m2);
+		}
+		if (m3) // Merge MaskCol
+		{
+			mergeVectors(regX, xRegisterSSE(xmmCol0.Id+cc),	xmmTemp, m3);
+		}
+		if (m4) // Merge Write Protect
+		{
+			xMOVAPS(xmmTemp, ptr[dstIndirect]);
+			mergeVectors(regX, xmmTemp, xmmTemp, m4);
+		}
+		m5 = ~(m2|m3|m4) & 0xf;
+	}
 
-		if (!doMask)  m5 = 0xf;
-
+	if (doMode)
+	{
 		if (m5 < 0xf)
 		{
 			xPXOR(xmmTemp, xmmTemp);
@@ -182,15 +188,14 @@ void VifUnpackSSE_Dynarec::ModUnpack( int upknum, bool PostOp )
 		case 10:
 				if (!PostOp) { UnpkLoopIteration++; } break;
 		case 12:
-                case 13:
+		case 13:
 		case 14:
 		case 15: 	break;
 
 		case 3:
 		case 7:
 		case 11:
-			//pxFailRel( wxsFormat( L"Vpu/Vif - Invalid Unpack! [%d]", upknum ) );
-		break;
+				break;
 	}
 
 }

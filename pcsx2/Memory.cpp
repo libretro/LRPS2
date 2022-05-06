@@ -709,7 +709,7 @@ void eeMemoryReserve::Reset()
 
 	gs_page_0 = vtlb_RegisterHandler(
 		gsRead8, gsRead16, gsRead32, _ext_memRead64<6>, _ext_memRead128<6>,
-		gsWrite8, gsWrite16, gsWrite32, gsWrite64_page_00, gsWrite128_page_00
+		gsWrite8, gsWrite16, gsWrite32, gsWrite64_generic, gsWrite128_generic
 	);
 
 	gs_page_1 = vtlb_RegisterHandler(

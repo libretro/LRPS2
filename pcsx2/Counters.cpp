@@ -24,6 +24,7 @@
 #include "Common.h"
 #include "R3000A.h"
 #include "Counters.h"
+#include "Patch.h"
 #include "IopCounters.h"
 
 #include "GS.h"
@@ -542,7 +543,7 @@ __fi void rcntUpdate_vSync(void)
 		default:
 			/* VSYNC end / VRENDER begin */
 			/* VsyncStart Begin */
-			GetCoreThread().VsyncInThread();
+			ApplyLoadedPatches(PPT_CONTINUOUSLY);
 			Cpu->CheckExecutionState();
 
 			hwIntcIrq(INTC_VBLANK_S);

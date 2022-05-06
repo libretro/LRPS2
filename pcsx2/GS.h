@@ -344,7 +344,6 @@ extern SysMtgsThread& GetMTGS();
 extern s32 gsOpen(void);
 extern void gsClose(void);
 extern void gsReset(void);
-extern void gsOnModeChanged( Fixed100 framerate, u32 newTickrate );
 extern void gsSetVideoMode( GS_VideoMode mode );
 extern void gsResetFrameSkip(void);
 extern void gsFrameSkip(void);
@@ -356,7 +355,6 @@ extern void gsWrite8(u32 mem, u8 value);
 extern void gsWrite16(u32 mem, u16 value);
 extern void gsWrite32(u32 mem, u32 value);
 
-extern void __fastcall gsWrite64_page_00( u32 mem, const mem64_t* value );
 extern void __fastcall gsWrite64_page_01( u32 mem, const mem64_t* value );
 extern void __fastcall gsWrite64_generic( u32 mem, const mem64_t* value );
 
