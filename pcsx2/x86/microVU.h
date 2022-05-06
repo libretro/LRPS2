@@ -164,7 +164,7 @@ struct microVU {
 	u32 progMemMask;	// VU Micro Memory Size (in u32's)
 	u32 cacheSize;		// VU Cache Size
 
-	microProgManager				prog;		// Micro Program Data
+	microProgManager		prog;		// Micro Program Data
 	std::unique_ptr<microRegAlloc>	regAlloc;	// Reg Alloc Class
 
 	RecompiledCodeReserve* cache_reserve;
@@ -212,22 +212,11 @@ mVUop(mVUopL);
 
 // Private Functions
 extern void  mVUcacheProg (microVU& mVU, microProgram&  prog);
-extern void  mVUdeleteProg(microVU& mVU, microProgram*& prog);
 _mVUt extern void* mVUsearchProg(u32 startPC, uptr pState);
 
 // recCall Function Pointer
 typedef void (__fastcall *mVUrecCall)(u32, u32);
 typedef void (*mVUrecCallXG)(void);
-
-template<typename T>
-void makeUnique(T& v) { // Removes Duplicates
-	v.erase(unique(v.begin(), v.end()), v.end());
-}
-
-template<typename T>
-void sortVector(T& v) {
-	sort(v.begin(), v.end());
-}
 
 // Include all the *.inl files (microVU compiles as 1 Translation Unit)
 #include "microVU_Clamp.inl"
