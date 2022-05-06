@@ -18,13 +18,9 @@
 #include "PrecompiledHeader.h"
 #include "microVU.h"
 
-// Deletes a program
-static __ri void mVUdeleteProg(microVU& mVU, microProgram*& prog) {
-	for (u32 i = 0; i < (mVU.progSize / 2); i++)
-		safe_delete(prog->block[i]);
-	safe_delete(prog->ranges);
-	safe_aligned_free(prog);
-}
+//------------------------------------------------------------------
+// Micro VU - Private Functions
+//------------------------------------------------------------------
 
 // Caches Micro Program
 __ri void mVUcacheProg(microVU& mVU, microProgram& prog)
@@ -33,6 +29,25 @@ __ri void mVUcacheProg(microVU& mVU, microProgram& prog)
 		memcpy(prog.data, mVU.regs().Micro, 0x1000);
 	else
 		memcpy(prog.data, mVU.regs().Micro, 0x4000);
+}
+
+// Creates a new Micro Program
+static __ri microProgram* mVUcreateProg(microVU& mVU, int startPC) {
+	microProgram* prog = (microProgram*)_aligned_malloc(sizeof(microProgram), 64);
+	memset(prog, 0, sizeof(microProgram));
+	prog->idx     = mVU.prog.total++;
+	prog->ranges  = new std::deque<microRange>();
+	prog->startPC = startPC;
+	mVUcacheProg(mVU, *prog); // Cache Micro Program
+	return prog;
+}
+
+// Deletes a program
+static __ri void mVUdeleteProg(microVU& mVU, microProgram*& prog) {
+	for (u32 i = 0; i < (mVU.progSize / 2); i++)
+		safe_delete(prog->block[i]);
+	safe_delete(prog->ranges);
+	safe_aligned_free(prog);
 }
 
 // Compare Cached microProgram to mVU.regs().Micro
@@ -248,21 +263,6 @@ __fi void mVUclear(mV, u32 addr, u32 size) {
 			mVU.prog.quick[i].prog  = NULL; // Clear current quick-reference prog
 		}
 	}
-}
-
-//------------------------------------------------------------------
-// Micro VU - Private Functions
-//------------------------------------------------------------------
-
-// Creates a new Micro Program
-__ri microProgram* mVUcreateProg(microVU& mVU, int startPC) {
-	microProgram* prog = (microProgram*)_aligned_malloc(sizeof(microProgram), 64);
-	memset(prog, 0, sizeof(microProgram));
-	prog->idx     = mVU.prog.total++;
-	prog->ranges  = new std::deque<microRange>();
-	prog->startPC = startPC;
-	mVUcacheProg(mVU, *prog); // Cache Micro Program
-	return prog;
 }
 
 //------------------------------------------------------------------
