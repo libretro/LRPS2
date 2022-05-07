@@ -57,6 +57,8 @@ void recADDI_const( void )
 
 void recADDI_(int info)
 {
+	pxAssert( !(info&PROCESS_EE_XMM) );
+
 	if ( _Rt_ == _Rs_ ) {
 		// must perform the ADD unconditionally, to maintain flags status:
 		xADD(ptr32[&cpuRegs.GPR.r[ _Rt_ ].UL[ 0 ]], _Imm_);
@@ -89,6 +91,8 @@ void recDADDI_const()
 
 void recDADDI_(int info)
 {
+	pxAssert( !(info&PROCESS_EE_XMM) );
+
 	if( _Rt_ == _Rs_ ) {
 		xADD(ptr32[&cpuRegs.GPR.r[ _Rt_ ].UL[ 0 ]], _Imm_);
 		xADC(ptr32[&cpuRegs.GPR.r[ _Rt_ ].UL[ 1 ]], _Imm_<0?0xffffffff:0);
@@ -195,7 +199,7 @@ void recLogicalOpI(int info, int op)
 				case 0: xAND(ptr32[&cpuRegs.GPR.r[ _Rt_ ].UL[ 0 ]], _ImmU_); break;
 				case 1: xOR(ptr32[&cpuRegs.GPR.r[ _Rt_ ].UL[ 0 ]], _ImmU_); break;
 				case 2: xXOR(ptr32[&cpuRegs.GPR.r[ _Rt_ ].UL[ 0 ]], _ImmU_); break;
-				default: break;
+				default: pxAssert(0);
 			}
 		}
 		else {
@@ -207,7 +211,7 @@ void recLogicalOpI(int info, int op)
 				case 0: xAND(eax, _ImmU_); break;
 				case 1: xOR(eax, _ImmU_); break;
 				case 2: xXOR(eax, _ImmU_); break;
-				default: break;
+				default: pxAssert(0);
 			}
 
 			if( op != 0 )

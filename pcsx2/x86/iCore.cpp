@@ -67,6 +67,8 @@ __fi void* _XMMGetAddr(int type, int reg, VURegs *VU)
 			return (void*)VU_ACCx_ADDR;
 
 		case XMMTYPE_GPRREG:
+			if( reg < 32 )
+				pxAssert( !(g_cpuHasConstReg & (1<<reg)) || (g_cpuFlushedConstReg & (1<<reg)) );
 			return &cpuRegs.GPR.r[reg].UL[0];
 
 		case XMMTYPE_FPREG:
@@ -416,6 +418,10 @@ void _clearNeededXMMregs(void)
 				xmmregs[i].mode |= MODE_READ;
 			xmmregs[i].needed = 0;
 		}
+
+		if( xmmregs[i].inuse ) {
+			pxAssert( xmmregs[i].type != XMMTYPE_TEMP );
+		}
 	}
 }
 
@@ -437,6 +443,9 @@ void _deleteGPRtoXMMreg(int reg, int flush)
 				case 1:
 				case 2:
 					if( xmmregs[i].mode & MODE_WRITE ) {
+						pxAssert( reg != 0 );
+
+						//pxAssert( g_xmmtypes[i] == XMMT_INT );
 						xMOVDQA(ptr[&cpuRegs.GPR.r[reg].UL[0]], xRegisterSSE(i));
 
 						// get rid of MODE_WRITE since don't want to flush again
@@ -493,6 +502,8 @@ void _deleteFPtoXMMreg(int reg, int flush)
 // Step 2: clear 'inuse' field
 void _freeXMMreg(u32 xmmreg)
 {
+	pxAssert( xmmreg < iREGCNT_XMM );
+
 	if (!xmmregs[xmmreg].inuse) return;
 
 	if (xmmregs[xmmreg].mode & MODE_WRITE) {
@@ -579,6 +590,7 @@ void _freeXMMreg(u32 xmmreg)
 		break;
 
 		case XMMTYPE_GPRREG:
+			pxAssert( xmmregs[xmmreg].reg != 0 );
 			xMOVDQA(ptr[&cpuRegs.GPR.r[xmmregs[xmmreg].reg].UL[0]], xRegisterSSE(xmmreg));
 			break;
 
@@ -650,6 +662,9 @@ void _flushXMMregs(void)
 	for (i=0; (uint)i<iREGCNT_XMM; i++) {
 		if (xmmregs[i].inuse == 0) continue;
 
+		pxAssert( xmmregs[i].type != XMMTYPE_TEMP );
+		pxAssert( xmmregs[i].mode & (MODE_READ|MODE_WRITE) );
+
 		_freeXMMreg(i);
 		xmmregs[i].inuse = 1;
 		xmmregs[i].mode &= ~MODE_WRITE;
@@ -664,6 +679,8 @@ void _freeXMMregs(void)
 
 	for (i=0; (uint)i<iREGCNT_XMM; i++) {
 		if (xmmregs[i].inuse == 0) continue;
+
+		pxAssert( xmmregs[i].type != XMMTYPE_TEMP );
 
 		_freeXMMreg(i);
 	}
@@ -682,6 +699,10 @@ int _signExtendXMMtoM(uptr to, x86SSERegType from, int candestroy)
 		return 1;
 	}
 	else {
+		// can't destroy and type is int
+		pxAssert( g_xmmtypes[from] == XMMT_INT );
+
+
 		if( _hasFreeXMMreg() ) {
 			xmmregs[from].needed = 1;
 			t0reg = _allocTempXMMreg(XMMT_INT, -1);

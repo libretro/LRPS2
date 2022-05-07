@@ -93,6 +93,8 @@ void recMFHILO(int hi)
 
 	if( reghi >= 0 ) {
 		if( regd >= 0 ) {
+			pxAssert( regd != reghi );
+
 			xmmregs[regd].inuse = 0;
 
 			xMOVQ(ptr[&cpuRegs.GPR.r[_Rd_].UL[0]], xRegisterSSE(reghi));
@@ -134,6 +136,8 @@ void recMTHILO(int hi)
 
 	if( reghi >= 0 ) {
 		if( regs >= 0 ) {
+			pxAssert( reghi != regs );
+
 			_deleteGPRtoXMMreg(_Rs_, 0);
 			xPUNPCK.HQDQ(xRegisterSSE(reghi), xRegisterSSE(reghi));
 			xPUNPCK.LQDQ(xRegisterSSE(regs), xRegisterSSE(reghi));

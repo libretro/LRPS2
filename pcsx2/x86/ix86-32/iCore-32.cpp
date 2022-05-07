@@ -393,6 +393,8 @@ void _freeX86reg(const x86Emitter::xRegister32& x86reg)
 
 void _freeX86reg(int x86reg)
 {
+	pxAssert( x86reg >= 0 && x86reg < (int)iREGCNT_GPR );
+
 	if( x86regs[x86reg].inuse && (x86regs[x86reg].mode&MODE_WRITE) ) {
 		x86regs[x86reg].mode &= ~MODE_WRITE;
 

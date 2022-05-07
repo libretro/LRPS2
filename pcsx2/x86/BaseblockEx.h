@@ -44,12 +44,14 @@ class BaseBlockArray {
 
 	__fi void resize(s32 size)
 	{
+		pxAssert(size > 0);
 		BASEBLOCKEX *newMem = new BASEBLOCKEX[size];
 		if(blocks) {
 			memcpy(newMem, blocks, _Reserved * sizeof(BASEBLOCKEX));
 			delete[] blocks;
 		}
 		blocks = newMem;
+		pxAssert(blocks != NULL);
 	}
 
 	void reserve(u32 size)
@@ -89,6 +91,8 @@ public:
 				imin = imid + 1;
 		}
 	
+		pxAssert(imin == _Size || blocks[imin].startpc > startpc);
+
 		if(imin < _Size) {
 			// make a hole for a new block.
 			memmove(blocks + imin + 1, blocks + imin, (_Size - imin) * sizeof(BASEBLOCKEX));
@@ -181,8 +185,11 @@ public:
 
 	__fi void Remove(int first, int last)
 	{
+		pxAssert(first <= last);
 		int idx = first;
 		do{
+			pxAssert(idx <= last);
+
 			//u32 startpc = blocks[idx].startpc;
 			std::pair<linkiter_t, linkiter_t> range = links.equal_range(blocks[idx].startpc);
 			for (linkiter_t i = range.first; i != range.second; ++i)
@@ -218,6 +225,7 @@ static void recLUT_SetPage(uptr reclut[0x10000], u32 hwlut[0x10000],
 	// this value is in 64k pages!
 	uint page = pagebase + pageidx;
 
+	pxAssert( page < 0x10000 );
 	reclut[page] = (uptr)&mapbase[((s32)mappage - (s32)page) << 14];
 	if (hwlut)
 		hwlut[page] = 0u - (pagebase << 16);

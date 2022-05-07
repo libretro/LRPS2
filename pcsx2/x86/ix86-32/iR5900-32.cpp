@@ -758,6 +758,7 @@ void SetBranchReg( u32 reg )
 		recompileNextInstruction(1);
 
 		if( x86regs[calleeSavedReg2d.GetId()].inuse ) {
+			pxAssert( x86regs[calleeSavedReg2d.GetId()].type == X86TYPE_PCWRITEBACK );
 			xMOV(ptr[&cpuRegs.pc], calleeSavedReg2d);
 			x86regs[calleeSavedReg2d.GetId()].inuse = 0;
 		}
@@ -775,6 +776,8 @@ void SetBranchReg( u32 reg )
 void SetBranchImm( u32 imm )
 {
 	g_branch = 1;
+
+	pxAssert( imm );
 
 	// end the current block
 	iFlushCall(FLUSH_EVERYTHING);
@@ -931,6 +934,7 @@ void recompileNextInstruction(int delayslot)
 	int count;
 
 	s_pCode = (int *)PSM( pc );
+	pxAssert(s_pCode);
 
 	// acts as a tag for delimiting recompiled instructions when viewing x86 disasm.
 
@@ -1156,6 +1160,8 @@ static void __fastcall recRecompile( const u32 startpc )
 	u32 willbranch3 = 0;
 	u32 usecop2;
 
+	pxAssert( startpc );
+
 	// if recPtr reached the mem limit reset whole mem
 	if (recPtr >= (recMem->GetPtrEnd() - _64kb))
 		eeRecNeedsReset = true;
@@ -1167,9 +1173,17 @@ static void __fastcall recRecompile( const u32 startpc )
 	xSetPtr( recPtr );
 	recPtr = xGetAlignedCallTarget();
 
-	s_pCurBlock   = PC_GETBLOCK(startpc);
+	s_pCurBlock = PC_GETBLOCK(startpc);
+
+	pxAssert(s_pCurBlock->GetFnptr() == (uptr)JITCompile
+		|| s_pCurBlock->GetFnptr() == (uptr)JITCompileInBlock);
+
+	s_pCurBlockEx = recBlocks.Get(HWADDR(startpc));
+	pxAssert(!s_pCurBlockEx || s_pCurBlockEx->startpc != HWADDR(startpc));
 
 	s_pCurBlockEx = recBlocks.New(HWADDR(startpc), (uptr)recPtr);
+
+	pxAssert(s_pCurBlockEx);
 
 	if (HWADDR(startpc) == EELOAD_START)
 	{
@@ -1224,6 +1238,7 @@ static void __fastcall recRecompile( const u32 startpc )
 	s_nBlockCycles = 0;
 	pc = startpc;
 	g_cpuHasConstReg = g_cpuFlushedConstReg = 1;
+	pxAssert( g_cpuConstRegs[0].UD[0] == 0 );
 
 	_initX86regs();
 	_initXMMregs();
@@ -1420,6 +1435,7 @@ StartRecomp:
 			free(s_pInstCache);
 			s_nInstCacheSize = (s_nEndBlock-startpc)/4+10;
 			s_pInstCache = (EEINST*)malloc(sizeof(EEINST)*s_nInstCacheSize);
+			pxAssert( s_pInstCache != NULL );
 		}
 
 		pcur = s_pInstCache + (s_nEndBlock-startpc)/4;
@@ -1484,6 +1500,7 @@ StartRecomp:
 		}
 	}
 
+	pxAssert( (pc-startpc)>>2 <= 0xffff );
 	s_pCurBlockEx->size = (pc-startpc)>>2;
 
 	if (HWADDR(pc) <= Ps2MemSize::MainRam) {
@@ -1504,6 +1521,7 @@ StartRecomp:
 			{
 				recClear(startpc, (pc - startpc) / 4);
 				s_pCurBlockEx = recBlocks.Get(HWADDR(startpc));
+				pxAssert(s_pCurBlockEx->startpc == HWADDR(startpc));
 				break;
 			}
 		}
@@ -1534,6 +1552,9 @@ StartRecomp:
 	}
 	else
 	{
+		if( g_branch )
+			pxAssert( !willbranch3 );
+
 		if( willbranch3 || !g_branch) {
 
 			iFlushCall(FLUSH_EVERYTHING);
@@ -1556,9 +1577,15 @@ StartRecomp:
 		}
 	}
 
+	pxAssert( xGetPtr() < recMem->GetPtrEnd() );
+	pxAssert( recConstBufPtr < recConstBuf + RECCONSTBUF_SIZE );
+
+	pxAssert(xGetPtr() - recPtr < _64kb);
 	s_pCurBlockEx->x86size = xGetPtr() - recPtr;
 
 	recPtr = xGetPtr();
+
+	pxAssert( (g_cpuHasConstReg&g_cpuFlushedConstReg) == g_cpuHasConstReg );
 
 	s_pCurBlock = NULL;
 	s_pCurBlockEx = NULL;

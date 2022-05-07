@@ -128,6 +128,7 @@ void recJALR()
 	recompileNextInstruction(1);
 
 	if( x86regs[calleeSavedReg2d.GetId()].inuse ) {
+		pxAssert( x86regs[calleeSavedReg2d.GetId()].type == X86TYPE_PCWRITEBACK );
 		xMOV(ptr[&cpuRegs.pc], calleeSavedReg2d);
 		x86regs[calleeSavedReg2d.GetId()].inuse = 0;
 	}
