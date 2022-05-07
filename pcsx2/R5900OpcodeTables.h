@@ -90,16 +90,11 @@ namespace R5900
 	{
 		void recNULL();
 		void recUnknown();
-		void recMMI_Unknown();
-		void recCOP0_Unknown();
-		void recCOP1_Unknown();
 
 		void recCOP2();
 
-		void recPREF();
 		void recSYSCALL();
 		void recBREAK();
-		void recSYNC();
 
 		void recMFSA();
 		void recMTSA();
