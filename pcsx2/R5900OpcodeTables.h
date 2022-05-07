@@ -96,7 +96,6 @@ namespace R5900
 
 		void recCOP2();
 
-		void recCACHE();
 		void recPREF();
 		void recSYSCALL();
 		void recBREAK();

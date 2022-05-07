@@ -66,21 +66,6 @@ void recDoBranchImm_Likely( u32* jmpSkip )
 
 namespace OpcodeImpl {
 
-////////////////////////////////////////////////////
-//static void recCACHE() {
-//	xMOV(ptr32[&cpuRegs.code], cpuRegs.code );
-//	xMOV(ptr32[&cpuRegs.pc], pc );
-//	iFlushCall(FLUSH_EVERYTHING);
-//	xFastCall((void*)(uptr)CACHE );
-//	//branch = 2;
-//
-//	xCMP(ptr32[(u32*)((int)&cpuRegs.pc)], pc);
-//	j8Ptr[0] = JE8(0);
-//	xRET();
-//	x86SetJ8(j8Ptr[0]);
-//}
-
-
 void recPREF()
 {
 }
@@ -183,16 +168,6 @@ void recMTSAH()
 	*    UNHANDLED YET OPCODES
 	*
 	**********************************************************/
-
-	// Suikoden 3 uses it a lot
-	void recCACHE() //Interpreter only!
-	{
-	   //xMOV(ptr32[&cpuRegs.code], (u32)cpuRegs.code );
-	   //xMOV(ptr32[&cpuRegs.pc], (u32)pc );
-	   //iFlushCall(FLUSH_EVERYTHING);
-	   //xFastCall((void*)(uptr)R5900::Interpreter::OpcodeImpl::CACHE );
-	   //branch = 2;
-	}
 
 	void recTGE()
 	{
