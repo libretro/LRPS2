@@ -62,8 +62,6 @@ void recSLL_const()
 
 void recSLLs_(int info, int sa)
 {
-	pxAssert( !(info & PROCESS_EE_XMM) );
-
 	xMOV(eax, ptr[&cpuRegs.GPR.r[ _Rt_ ].UL[ 0 ] ]);
 	if ( sa != 0 )
 	{
@@ -90,8 +88,6 @@ void recSRL_const()
 
 void recSRLs_(int info, int sa)
 {
-	pxAssert( !(info & PROCESS_EE_XMM) );
-
 	xMOV(eax, ptr[&cpuRegs.GPR.r[ _Rt_ ].UL[ 0 ] ]);
 	if ( sa != 0 ) xSHR(eax, sa);
 
@@ -115,8 +111,6 @@ void recSRA_const()
 
 void recSRAs_(int info, int sa)
 {
-	pxAssert( !(info & PROCESS_EE_XMM) );
-
 	xMOV(eax, ptr[&cpuRegs.GPR.r[ _Rt_ ].UL[ 0 ] ]);
 	if ( sa != 0 ) xSAR(eax, sa);
 
@@ -141,7 +135,6 @@ void recDSLL_const()
 void recDSLLs_(int info, int sa)
 {
 	int rtreg, rdreg;
-	pxAssert( !(info & PROCESS_EE_XMM) );
 
 	_addNeededGPRtoXMMreg(_Rt_);
 	_addNeededGPRtoXMMreg(_Rd_);
@@ -175,7 +168,6 @@ void recDSRL_const()
 void recDSRLs_(int info, int sa)
 {
 	int rtreg, rdreg;
-	pxAssert( !(info & PROCESS_EE_XMM) );
 
 	_addNeededGPRtoXMMreg(_Rt_);
 	_addNeededGPRtoXMMreg(_Rd_);
@@ -209,7 +201,6 @@ void recDSRA_const()
 void recDSRAs_(int info, int sa)
 {
 	int rtreg, rdreg, t0reg;
-	pxAssert( !(info & PROCESS_EE_XMM) );
 
 	_addNeededGPRtoXMMreg(_Rt_);
 	_addNeededGPRtoXMMreg(_Rd_);
@@ -262,8 +253,6 @@ void recDSLL32_const()
 
 void recDSLL32s_(int info, int sa)
 {
-	pxAssert( !(info & PROCESS_EE_XMM) );
-
 	xMOV(eax, ptr[&cpuRegs.GPR.r[ _Rt_ ].UL[ 0 ] ]);
 	if ( sa != 0 )
 	{
@@ -289,8 +278,6 @@ void recDSRL32_const()
 
 void recDSRL32s_(int info, int sa)
 {
-	pxAssert( !(info & PROCESS_EE_XMM) );
-
 	xMOV(eax, ptr[&cpuRegs.GPR.r[ _Rt_ ].UL[ 1 ] ]);
 	if ( sa != 0 ) xSHR(eax, sa );
 
@@ -313,8 +300,6 @@ void recDSRA32_const()
 
 void recDSRA32s_(int info, int sa)
 {
-	pxAssert( !(info & PROCESS_EE_XMM) );
-
 	xMOV(eax, ptr[&cpuRegs.GPR.r[ _Rt_ ].UL[ 1 ] ]);
 	xCDQ( );
 	if ( sa != 0 ) xSAR(eax, sa );
@@ -340,8 +325,6 @@ __aligned16 u32 s_sa[4] = {0x1f, 0, 0x3f, 0};
 
 void recSetShiftV(int info, int* rsreg, int* rtreg, int* rdreg, int* rstemp)
 {
-	pxAssert( !(info & PROCESS_EE_XMM) );
-
 	_addNeededGPRtoXMMreg(_Rt_);
 	_addNeededGPRtoXMMreg(_Rd_);
 	*rtreg = _allocGPRtoXMMreg(-1, _Rt_, MODE_READ);

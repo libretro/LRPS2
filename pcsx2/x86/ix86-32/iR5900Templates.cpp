@@ -92,8 +92,6 @@ void eeRecompileCode0(R5900FNPTR constcode, R5900FNPTR_INFO constscode, R5900FNP
 
 	// test if should write xmm, mirror to mmx code
 	if( g_pCurInstInfo->info & EEINST_XMM ) {
-		pxAssert(0);
-
 		if( xmminfo & (XMMINFO_READLO|XMMINFO_WRITELO) ) _addNeededGPRtoXMMreg(XMMGPR_LO);
 		if( xmminfo & (XMMINFO_READHI|XMMINFO_WRITEHI) ) _addNeededGPRtoXMMreg(XMMGPR_HI);
 		_addNeededGPRtoXMMreg(_Rs_);
@@ -256,8 +254,6 @@ void eeRecompileCode1(R5900FNPTR constcode, R5900FNPTR_INFO noconstcode)
 
 	// test if should write xmm, mirror to mmx code
 	if( g_pCurInstInfo->info & EEINST_XMM ) {
-		pxAssert(0);
-
 		// no const regs
 		mmreg1 = _allocCheckGPRtoXMM(g_pCurInstInfo, _Rs_, MODE_READ);
 
@@ -312,8 +308,6 @@ void eeRecompileCode2(R5900FNPTR constcode, R5900FNPTR_INFO noconstcode)
 
 	// test if should write xmm, mirror to mmx code
 	if( g_pCurInstInfo->info & EEINST_XMM ) {
-		pxAssert(0);
-
 		// no const regs
 		mmreg1 = _allocCheckGPRtoXMM(g_pCurInstInfo, _Rt_, MODE_READ);
 
@@ -607,10 +601,8 @@ void eeFPURecompileCode(R5900FNPTR_INFO xmmcode, R5900FNPTR fpucode, int xmminfo
 	if( mmregs >= 0 ) info |= PROCESS_EE_SETMODES_XMM(mmregs);
 	if( mmregt >= 0 ) info |= PROCESS_EE_SETMODET_XMM(mmregt);
 
-	if( xmminfo & XMMINFO_READD ) {
-		pxAssert( xmminfo & XMMINFO_WRITED );
+	if( xmminfo & XMMINFO_READD )
 		mmregd = _allocFPtoXMMreg(-1, _Fd_, MODE_READ);
-	}
 
 	if( xmminfo & XMMINFO_READACC ) {
 		if( !(xmminfo&XMMINFO_WRITEACC) && (g_pCurInstInfo->fpuregs[_Ft_] & EEINST_LASTUSE) )
@@ -693,27 +685,16 @@ void eeFPURecompileCode(R5900FNPTR_INFO xmmcode, R5900FNPTR fpucode, int xmminfo
 		}
 	}
 
-	pxAssert( mmregs >= 0 || mmregt >= 0 || mmregd >= 0 || mmregacc >= 0 );
-
-	if( xmminfo & XMMINFO_WRITED ) {
-		pxAssert( mmregd >= 0 );
+	if( xmminfo & XMMINFO_WRITED )
 		info |= PROCESS_EE_SET_D(mmregd);
-	}
-	if( xmminfo & (XMMINFO_WRITEACC|XMMINFO_READACC) ) {
+	if( xmminfo & (XMMINFO_WRITEACC|XMMINFO_READACC) )
 		if( mmregacc >= 0 ) info |= PROCESS_EE_SET_ACC(mmregacc)|PROCESS_EE_ACC;
-		else pxAssert( !(xmminfo&XMMINFO_WRITEACC));
-	}
 
 	if( xmminfo & XMMINFO_READS ) {
 		if( mmregs >= 0 ) info |= PROCESS_EE_SET_S(mmregs)|PROCESS_EE_S;
 	}
 	if( xmminfo & XMMINFO_READT ) {
 		if( mmregt >= 0 ) info |= PROCESS_EE_SET_T(mmregt)|PROCESS_EE_T;
-	}
-
-	// at least one must be in xmm
-	if( (xmminfo & (XMMINFO_READS|XMMINFO_READT)) == (XMMINFO_READS|XMMINFO_READT) ) {
-		pxAssert( mmregs >= 0 || mmregt >= 0 );
 	}
 
 	xmmcode(info);

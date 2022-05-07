@@ -2391,7 +2391,6 @@ void recPINTEH()
 			xPSHUF.HW(xRegisterSSE(EEREC_D), xRegisterSSE(EEREC_D), 0xa0);
 		}
 		else if( EEREC_D == EEREC_T ) {
-			pxAssert( EEREC_D != EEREC_S );
 			t0reg = _allocTempXMMreg(XMMT_INT, -1);
 			xPSLL.D(xRegisterSSE(EEREC_D), 16);
 			xMOVDQA(xRegisterSSE(t0reg), xRegisterSSE(EEREC_S));

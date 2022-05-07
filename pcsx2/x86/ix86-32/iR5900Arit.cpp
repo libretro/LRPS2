@@ -63,8 +63,6 @@ void recADD_const()
 
 void recADD_constv(int info, int creg, u32 vreg)
 {
-	pxAssert( !(info&PROCESS_EE_XMM) );
-
 	s32 cval = g_cpuConstRegs[creg].SL[0];
 
 	xMOV(eax, ptr32[&cpuRegs.GPR.r[vreg].SL[0]]);
@@ -88,8 +86,6 @@ void recADD_constt(int info)
 // nothing is constant
 void recADD_(int info)
 {
-	pxAssert( !(info&PROCESS_EE_XMM) );
-
 	xMOV(eax, ptr32[&cpuRegs.GPR.r[_Rs_].SL[0]]);
 	if (_Rs_ == _Rt_)
 		xADD(eax, eax);
@@ -114,8 +110,6 @@ void recDADD_const(void)
 
 void recDADD_constv(int info, int creg, u32 vreg)
 {
-	pxAssert( !(info&PROCESS_EE_XMM) );
-
 	GPR_reg64 cval = g_cpuConstRegs[creg];
 
 	if (_Rd_ == vreg) {
@@ -147,8 +141,6 @@ void recDADD_constt(int info)
 
 void recDADD_(int info)
 {
-	pxAssert( !(info&PROCESS_EE_XMM) );
-
 	u32 rs = _Rs_, rt = _Rt_;
 	if (_Rd_ == _Rt_)
 		rs = _Rt_, rt = _Rs_;
@@ -196,8 +188,6 @@ void recSUB_const()
 
 void recSUB_consts(int info)
 {
-	pxAssert( !(info&PROCESS_EE_XMM) );
-
 	s32 sval = g_cpuConstRegs[_Rs_].SL[0];
 
 	xMOV(eax, sval);
@@ -207,8 +197,6 @@ void recSUB_consts(int info)
 
 void recSUB_constt(int info)
 {
-	pxAssert( !(info&PROCESS_EE_XMM) );
-
 	s32 tval = g_cpuConstRegs[_Rt_].SL[0];
 
 	xMOV(eax, ptr32[&cpuRegs.GPR.r[_Rs_].SL[0]]);
@@ -219,8 +207,6 @@ void recSUB_constt(int info)
 
 void recSUB_(int info)
 {
-	pxAssert( !(info&PROCESS_EE_XMM) );
-
 	if (_Rs_ == _Rt_) {
 		xMOV(ptr32[&cpuRegs.GPR.r[_Rd_].SL[0]], 0);
 		xMOV(ptr32[&cpuRegs.GPR.r[_Rd_].SL[1]], 0);
@@ -248,8 +234,6 @@ void recDSUB_const()
 
 void recDSUB_consts(int info)
 {
-	pxAssert( !(info&PROCESS_EE_XMM) );
-
 	GPR_reg64 sval = g_cpuConstRegs[_Rs_];
 
 	if (!sval.SD[0] && _Rd_ == _Rt_) {
@@ -276,8 +260,6 @@ void recDSUB_consts(int info)
 
 void recDSUB_constt(int info)
 {
-	pxAssert( !(info&PROCESS_EE_XMM) );
-
 	GPR_reg64 tval = g_cpuConstRegs[_Rt_];
 
 	if (_Rd_ == _Rs_) {
@@ -297,8 +279,6 @@ void recDSUB_constt(int info)
 
 void recDSUB_(int info)
 {
-	pxAssert( !(info&PROCESS_EE_XMM) );
-
 	if (_Rs_ == _Rt_) {
 		xMOV(ptr32[&cpuRegs.GPR.r[_Rd_].SL[0]], 0);
 		xMOV(ptr32[&cpuRegs.GPR.r[_Rd_].SL[1]], 0);
@@ -333,8 +313,6 @@ void recAND_const()
 
 void recAND_constv(int info, int creg, u32 vreg)
 {
-	pxAssert( !(info & PROCESS_EE_XMM) );
-
 	GPR_reg64 cval = g_cpuConstRegs[creg];
 
 	for (int i = 0; i < 2; i++) {
@@ -364,8 +342,6 @@ void recAND_constt(int info)
 
 void recAND_(int info)
 {
-	pxAssert( !(info & PROCESS_EE_XMM) );
-
 	u32 rs = _Rs_, rt = _Rt_;
 	if (_Rd_ == _Rt_)
 		rs = _Rt_, rt = _Rs_;
@@ -395,8 +371,6 @@ void recOR_const()
 
 void recOR_constv(int info, int creg, u32 vreg)
 {
-	pxAssert( !(info & PROCESS_EE_XMM) );
-
 	GPR_reg64 cval = g_cpuConstRegs[creg];
 
 	for (int i = 0; i < 2; i++) {
@@ -426,8 +400,6 @@ void recOR_constt(int info)
 
 void recOR_(int info)
 {
-	pxAssert( !(info & PROCESS_EE_XMM) );
-
 	u32 rs = _Rs_, rt = _Rt_;
 	if (_Rd_ == _Rt_)
 		rs = _Rt_, rt = _Rs_;
@@ -457,8 +429,6 @@ void recXOR_const()
 
 void recXOR_constv(int info, int creg, u32 vreg)
 {
-	pxAssert( !(info & PROCESS_EE_XMM) );
-
 	GPR_reg64 cval = g_cpuConstRegs[creg];
 
 	for (int i = 0; i < 2; i++) {
@@ -486,8 +456,6 @@ void recXOR_constt(int info)
 
 void recXOR_(int info)
 {
-	pxAssert( !(info & PROCESS_EE_XMM) );
-
 	u32 rs = _Rs_, rt = _Rt_;
 	if (_Rd_ == _Rt_)
 		rs = _Rt_, rt = _Rs_;
@@ -516,8 +484,6 @@ void recNOR_const()
 
 void recNOR_constv(int info, int creg, u32 vreg)
 {
-	pxAssert( !(info & PROCESS_EE_XMM) );
-
 	GPR_reg64 cval = g_cpuConstRegs[creg];
 
 	for (int i = 0; i < 2; i++) {
@@ -547,8 +513,6 @@ void recNOR_constt(int info)
 
 void recNOR_(int info)
 {
-	pxAssert( !(info & PROCESS_EE_XMM) );
-
 	u32 rs = _Rs_, rt = _Rt_;
 	if (_Rd_ == _Rt_)
 		rs = _Rt_, rt = _Rs_;
@@ -582,8 +546,6 @@ void recSLT_const()
 
 void recSLTs_const(int info, int sign, int st)
 {
-	pxAssert( !(info & PROCESS_EE_XMM) );
-
 	GPR_reg64 cval = g_cpuConstRegs[st ? _Rt_ : _Rs_];
 
 	xMOV(eax, 1);
@@ -607,8 +569,6 @@ void recSLTs_const(int info, int sign, int st)
 
 void recSLTs_(int info, int sign)
 {
-	pxAssert( !(info & PROCESS_EE_XMM) );
-
 	xMOV(eax, 1);
 
 	xMOV(edx, ptr32[&cpuRegs.GPR.r[_Rs_].UL[1]]);
