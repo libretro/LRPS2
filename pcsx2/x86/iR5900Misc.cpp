@@ -66,6 +66,14 @@ void recDoBranchImm_Likely( u32* jmpSkip )
 
 namespace OpcodeImpl {
 
+void recPREF()
+{
+}
+
+void recSYNC()
+{
+}
+
 void recMFSA()
 {
 	int mmreg;
@@ -137,6 +145,21 @@ void recMTSAH()
 
 	////////////////////////////////////////////////////
 	void recUnknown()
+	{
+		// TODO : Unknown ops should throw an exception.
+	}
+
+	void recMMI_Unknown()
+	{
+		// TODO : Unknown ops should throw an exception.
+	}
+
+	void recCOP0_Unknown()
+	{
+		// TODO : Unknown ops should throw an exception.
+	}
+
+	void recCOP1_Unknown()
 	{
 		// TODO : Unknown ops should throw an exception.
 	}
