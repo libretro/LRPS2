@@ -2041,8 +2041,6 @@ public:
 
       // get first nCount characters
   wxString Left(size_t nCount) const;
-      // get last nCount characters
-  wxString Right(size_t nCount) const;
       // get all characters before the first occurrence of ch
       // (returns the whole string if ch not found) and also put everything
       // following the first occurrence of ch into rest if it's non-NULL

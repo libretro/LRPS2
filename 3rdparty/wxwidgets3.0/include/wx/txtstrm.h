@@ -53,12 +53,8 @@ public:
     wxInt16  Read16S(int base = 10);
     wxInt8   Read8S(int base = 10);
     double   ReadDouble();
-    wxString ReadLine();
     wxString ReadWord();
     wxChar   GetChar() { wxChar c = NextChar(); return (wxChar)(c != wxEOT ? c : 0); }
-
-    wxString GetStringSeparators() const { return m_separators; }
-    void SetStringSeparators(const wxString &c) { m_separators = c; }
 
     // Operators
     wxTextInputStream& operator>>(wxString& word);
@@ -114,9 +110,6 @@ public:
     virtual ~wxTextOutputStream();
 
     const wxOutputStream& GetOutputStream() const { return m_output; }
-
-    void SetMode( wxEOL mode = wxEOL_NATIVE );
-    wxEOL GetMode() { return m_mode; }
 
     void Write32(wxUint32 i);
     void Write16(wxUint16 i);

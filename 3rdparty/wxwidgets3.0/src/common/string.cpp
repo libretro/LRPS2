@@ -1024,16 +1024,6 @@ bool wxString::EndsWith(const wxString& suffix, wxString *rest) const
     return true;
 }
 
-
-// extract nCount last (rightmost) characters
-wxString wxString::Right(size_t nCount) const
-{
-  if ( nCount > length() )
-    nCount = length();
-  wxString dest(*this, length() - nCount, nCount);
-  return dest;
-}
-
 // get all characters after the last occurrence of ch
 // (returns the whole string if ch not found)
 wxString wxString::AfterLast(wxUniChar ch) const

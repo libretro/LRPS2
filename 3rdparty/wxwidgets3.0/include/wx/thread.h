@@ -462,9 +462,6 @@ public:
         return !ms_idMainThread || GetCurrentId() == ms_idMainThread;
     }
 
-        // Return the main thread id
-    static wxThreadIdType GetMainId() { return ms_idMainThread; }
-
         // Sleep during the specified period of time in milliseconds
         //
         // This is the same as wxMilliSleep().
@@ -541,12 +538,8 @@ public:
     unsigned int GetPriority() const;
 
     // thread status inquiries
-        // Returns true if the thread is alive: i.e. running or suspended
-    bool IsAlive() const;
         // Returns true if the thread is running (not paused, not killed).
     bool IsRunning() const;
-        // Returns true if the thread is suspended
-    bool IsPaused() const;
 
         // is the thread of detached kind?
     bool IsDetached() const { return m_isDetached; }

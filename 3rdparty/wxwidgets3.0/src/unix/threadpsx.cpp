@@ -1364,28 +1364,6 @@ bool wxThread::IsRunning() const
     return m_internal->GetState() == STATE_RUNNING;
 }
 
-bool wxThread::IsAlive() const
-{
-    wxCriticalSectionLocker lock((wxCriticalSection&)m_critsect);
-
-    switch ( m_internal->GetState() )
-    {
-        case STATE_RUNNING:
-        case STATE_PAUSED:
-            return true;
-
-        default:
-            return false;
-    }
-}
-
-bool wxThread::IsPaused() const
-{
-    wxCriticalSectionLocker lock((wxCriticalSection&)m_critsect);
-
-    return (m_internal->GetState() == STATE_PAUSED);
-}
-
 //--------------------------------------------------------------------
 // wxThreadModule
 //--------------------------------------------------------------------

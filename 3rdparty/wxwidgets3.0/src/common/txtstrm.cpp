@@ -189,25 +189,6 @@ double wxTextInputStream::ReadDouble()
     return wxStrtod(word.c_str(), 0);
 }
 
-wxString wxTextInputStream::ReadLine()
-{
-    wxString line;
-
-    while ( !m_input.Eof() )
-    {
-        wxChar c = NextChar();
-        if(c == wxEOT)
-            break;
-
-        if (EatEOL(c))
-            break;
-
-        line += c;
-    }
-
-    return line;
-}
-
 wxString wxTextInputStream::ReadWord()
 {
     wxString word;
@@ -331,19 +312,6 @@ wxTextOutputStream::~wxTextOutputStream()
 #if wxUSE_UNICODE
     delete m_conv;
 #endif // wxUSE_UNICODE
-}
-
-void wxTextOutputStream::SetMode(wxEOL mode)
-{
-    m_mode = mode;
-    if (m_mode == wxEOL_NATIVE)
-    {
-#if defined(__WINDOWS__)
-        m_mode = wxEOL_DOS;
-#else
-        m_mode = wxEOL_UNIX;
-#endif
-    }
 }
 
 void wxTextOutputStream::Write32(wxUint32 i)
