@@ -164,7 +164,6 @@ public:
     virtual ~Mutex();
     virtual bool IsRecursive() const { return false; }
 
-    void Recreate();
     bool RecreateIfLocked();
     void Detach();
 
@@ -227,9 +226,6 @@ public:
     explicit ScopedLock(const Mutex &locker);
     void AssignAndLock(const Mutex &locker);
     void AssignAndLock(const Mutex *locker);
-
-    void Assign(const Mutex &locker);
-    void Assign(const Mutex *locker);
 
     void Release();
     void Acquire();

@@ -107,10 +107,6 @@ void Threading::Mutex::Detach()
 
     if (Wait(def_detach_timeout))
         pthread_mutex_destroy(&m_mutex);
-#ifndef NDEBUG
-    else
-        log_cb(RETRO_LOG_ERROR, "(Thread Log) Mutex cleanup failed due to possible deadlock.\n");
-#endif
 }
 
 Threading::Mutex::~Mutex()
@@ -131,12 +127,7 @@ Threading::MutexRecursive::MutexRecursive()
         pthread_mutexattr_settype(&_attr_recursive, PTHREAD_MUTEX_RECURSIVE);
     }
 
-    if (pthread_mutex_init(&m_mutex, &_attr_recursive))
-    {
-#ifndef NDEBUG
-	    log_cb(RETRO_LOG_ERROR, "(Thread Log) Failed to initialize mutex.\n");
-#endif
-    }
+    pthread_mutex_init(&m_mutex, &_attr_recursive);
 }
 
 Threading::MutexRecursive::~MutexRecursive()
@@ -145,24 +136,20 @@ Threading::MutexRecursive::~MutexRecursive()
         pthread_mutexattr_destroy(&_attr_recursive);
 }
 
-// This is a bit of a hackish function, which is technically unsafe, but can be useful for allowing
-// the application to survive unexpected or inconvenient failures, where a mutex is deadlocked by
-// a rogue thread.  This function allows us to Recreate the mutex and let the deadlocked one ponder
-// the deeper meanings of the universe for eternity.
-void Threading::Mutex::Recreate()
-{
-    Detach();
-    pthread_mutex_init(&m_mutex, NULL);
-}
-
 // Returns:
 //   true if the mutex had to be recreated due to lock contention, or false if the mutex is safely
 //   unlocked.
 bool Threading::Mutex::RecreateIfLocked()
 {
-    if (!Wait(def_detach_timeout)) {
-        Recreate();
-        return true;
+    if (!Wait(def_detach_timeout))
+    {
+	    // This is a bit hackish, which is technically unsafe, but can be useful for allowing
+	    // the application to survive unexpected or inconvenient failures, where a mutex is deadlocked by
+	    // a rogue thread.  This allows us to Recreate the mutex and let the deadlocked one ponder
+	    // the deeper meanings of the universe for eternity.
+	    Detach();
+	    pthread_mutex_init(&m_mutex, NULL);
+	    return true;
     }
     return false;
 }
@@ -289,16 +276,6 @@ void Threading::ScopedLock::AssignAndLock(const Mutex *locker)
 
     m_IsLocked = true;
     m_lock->Acquire();
-}
-
-void Threading::ScopedLock::Assign(const Mutex &locker)
-{
-    m_lock = const_cast<Mutex *>(&locker);
-}
-
-void Threading::ScopedLock::Assign(const Mutex *locker)
-{
-    m_lock = const_cast<Mutex *>(locker);
 }
 
 // Provides manual unlocking of a scoped lock prior to object destruction.
