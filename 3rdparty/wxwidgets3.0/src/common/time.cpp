@@ -178,35 +178,6 @@ int wxGetTimeZone()
 #endif // different ways to determine time zone
 }
 
-// Get local time as seconds since 00:00:00, Jan 1st 1970
-long wxGetLocalTime()
-{
-    struct tm tm;
-    time_t t0, t1;
-
-    // This cannot be made static because mktime can overwrite it.
-    //
-    memset(&tm, 0, sizeof(tm));
-    tm.tm_year  = 70;
-    tm.tm_mon   = 0;
-    tm.tm_mday  = 5;        // not Jan 1st 1970 due to mktime 'feature'
-    tm.tm_hour  = 0;
-    tm.tm_min   = 0;
-    tm.tm_sec   = 0;
-    tm.tm_isdst = -1;       // let mktime guess
-
-    // Note that mktime assumes that the struct tm contains local time.
-    //
-    t1 = time(&t1);         // now
-    t0 = mktime(&tm);       // origin
-
-    // Return the difference in seconds.
-    //
-    if (( t0 != (time_t)-1 ) && ( t1 != (time_t)-1 ))
-        return (long)difftime(t1, t0) + (60 * 60 * 24 * 4);
-    return -1;
-}
-
 // Get UTC time as seconds since 00:00:00, Jan 1st 1970
 long wxGetUTCTime()
 {

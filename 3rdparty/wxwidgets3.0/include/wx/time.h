@@ -15,9 +15,6 @@
 // Returns the difference between UTC and local time in seconds.
 WXDLLIMPEXP_BASE int wxGetTimeZone();
 
-// Get number of seconds since local time 00:00:00 Jan 1st 1970.
-extern long WXDLLIMPEXP_BASE wxGetLocalTime();
-
 // Get number of seconds since GMT 00:00:00, Jan 1st 1970.
 extern long WXDLLIMPEXP_BASE wxGetUTCTime();
 
@@ -39,8 +36,6 @@ wxLongLong WXDLLIMPEXP_BASE wxGetUTCTimeMillis();
 wxLongLong WXDLLIMPEXP_BASE wxGetUTCTimeUSec();
 
 #endif // wxUSE_LONGLONG
-
-#define wxGetCurrentTime() wxGetLocalTime()
 
 // on some really old systems gettimeofday() doesn't have the second argument,
 // define wxGetTimeOfDay() to hide this difference
