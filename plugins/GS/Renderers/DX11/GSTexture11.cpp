@@ -53,8 +53,14 @@ bool GSTexture11::Update(const GSVector4i& r, const void* data, int pitch, int l
 
 	if(m_dev && m_texture)
 	{
-		D3D11_BOX box = { (UINT)r.left, (UINT)r.top, 0U, (UINT)r.right, (UINT)r.bottom, 1U };
+		D3D11_BOX box;
 		UINT subresource = layer; // MipSlice + (ArraySlice * MipLevels).
+		box.left   = (UINT)r.left;
+		box.top    = (UINT)r.top;
+		box.front  = 0U;
+		box.right  = (UINT)r.right;
+		box.bottom = (UINT)r.bottom;
+		box.back   = 1U;
 
 		m_ctx->UpdateSubresource(m_texture, subresource, &box, data, pitch, 0);
 
@@ -111,10 +117,10 @@ GSTexture11::operator ID3D11ShaderResourceView*()
 	{
 		if(m_desc.Format == DXGI_FORMAT_R32G8X24_TYPELESS)
 		{
-			D3D11_SHADER_RESOURCE_VIEW_DESC srvd = {};
+			D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
 
-			srvd.Format = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
-			srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+			srvd.Format              = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
+			srvd.ViewDimension       = D3D11_SRV_DIMENSION_TEXTURE2D;
 			srvd.Texture2D.MipLevels = 1;
 
 			m_dev->CreateShaderResourceView(m_texture, &srvd, &m_srv);
@@ -146,10 +152,11 @@ GSTexture11::operator ID3D11DepthStencilView*()
 	{
 		if(m_desc.Format == DXGI_FORMAT_R32G8X24_TYPELESS)
 		{
-			D3D11_DEPTH_STENCIL_VIEW_DESC dsvd = {};
+			D3D11_DEPTH_STENCIL_VIEW_DESC dsvd;
 
-			dsvd.Format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+			dsvd.Format        = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
 			dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+			dsvd.Flags         = 0;
 
 			m_dev->CreateDepthStencilView(m_texture, &dsvd, &m_dsv);
 		}
