@@ -88,10 +88,9 @@ void cpuReset(void)
 	EEsCycle = 0;
 	EEoCycle = cpuRegs.cycle;
 
+	psxReset();
 	pgifInit();
 	hwReset();
-	rcntInit();
-	psxReset();
 
 	extern void Deci2Reset();		// lazy, no good header for it yet.
 	Deci2Reset();

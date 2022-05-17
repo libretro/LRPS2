@@ -71,6 +71,7 @@ void ipuReset(void)
 
 	ipu_fifo.init();
 	ipu_cmd.clear();
+	ipuDmaReset();
 }
 
 void SaveStateBase::ipuFreeze()
