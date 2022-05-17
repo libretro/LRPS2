@@ -268,10 +268,6 @@ public:
 	}
 };
 
-// Gets called by mVUaddrFix at execution-time
-static void __fc mVUwarningRegAccess(u32 prog, u32 pc) {
-}
-
 static inline u32 branchAddrN(const mV)
 {
 	pxAssumeDev(islowerOP, "MicroVU: Expected Lower OP code for valid branch addr.");
