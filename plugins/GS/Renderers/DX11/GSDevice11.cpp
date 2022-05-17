@@ -550,7 +550,7 @@ bool GSDevice11::Create()
 	memset(&bd, 0, sizeof(bd));
 
 	bd.ByteWidth = sizeof(MergeConstantBuffer);
-	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.Usage     = D3D11_USAGE_DEFAULT;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
 	hr = m_dev->CreateBuffer(&bd, NULL, &m_merge.cb);
@@ -1151,7 +1151,7 @@ void GSDevice11::DoFXAA(GSTexture* sTex, GSTexture* dTex)
 
 void GSDevice11::SetupDATE(GSTexture* rt, GSTexture* ds, const GSVertexPT1* vertices, bool datm)
 {
-	// sfex3 (after the capcom logo), vf4 (first menu fading in), ffxii shadows, rumble roses shadows, persona4 shadows
+	// SFEX3 (after the capcom logo), VF4 (first menu fading in), FFXII shadows, Rumble Roses shadows, Persona 4 shadows
 
 	BeginScene();
 
@@ -1216,7 +1216,7 @@ bool GSDevice11::IAMapVertexBuffer(void** vertex, size_t stride, size_t count)
 		m_vertex.limit = std::max<int>(count * 3 / 2, 11000);
 	}
 
-	if(m_vb == NULL)
+	if (!m_vb)
 	{
 		D3D11_BUFFER_DESC bd;
 
@@ -1289,7 +1289,7 @@ void GSDevice11::IASetIndexBuffer(const void* index, size_t count)
 		m_index.limit = std::max<int>(count * 3 / 2, 11000);
 	}
 
-	if(m_ib == NULL)
+	if(!m_ib)
 	{
 		D3D11_BUFFER_DESC bd;
 
@@ -1606,11 +1606,10 @@ void GSDevice11::CreateShader(const std::vector<char>& source, const char* fn, I
 void GSDevice11::CompileShader(const std::vector<char>& source, const char* fn, ID3DInclude *include, const char* entry, D3D_SHADER_MACRO* macro, ID3DBlob** shader, std::string shader_model)
 {
 	CComPtr<ID3DBlob> error;
-
-	UINT flags = 0;
-
 #ifdef _DEBUG
-	flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_AVOID_FLOW_CONTROL;
+	UINT flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_AVOID_FLOW_CONTROL;
+#else
+	UINT flags = 0;
 #endif
 
 	const HRESULT hr = D3DCompile(
@@ -1649,6 +1648,7 @@ u16 GSDevice11::ConvertBlendEnum(u16 generic)
 	case OP_ADD          : return D3D11_BLEND_OP_ADD;
 	case OP_SUBTRACT     : return D3D11_BLEND_OP_SUBTRACT;
 	case OP_REV_SUBTRACT : return D3D11_BLEND_OP_REV_SUBTRACT;
-	default              : ASSERT(0); return 0;
+	default              : ASSERT(0); break;
 	}
+	return 0;
 }

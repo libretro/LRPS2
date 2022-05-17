@@ -867,19 +867,8 @@ void GSRendererDX11::DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Sou
 			else
 			{
 				if (m_accurate_date)
-				{
-					// fprintf(stderr, "%d: Fast Accurate DATE with alpha %d-%d\n", s_n, m_vt.m_alpha.min, m_vt.m_alpha.max);
 					DATE_one = true;
-				}
-				else
-				{
-					// fprintf(stderr, "%d: Inaccurate DATE with alpha %d-%d\n", s_n, m_vt.m_alpha.min, m_vt.m_alpha.max);
-				}
 			}
-		}
-		else if (!m_om_bsel.wa && !m_context->TEST.ATE)
-		{
-			// TODO: is it legal ? Likely but it need to be tested carefully.
 		}
 	}
 

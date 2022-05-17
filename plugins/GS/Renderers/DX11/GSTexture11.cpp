@@ -115,20 +115,17 @@ GSTexture11::operator ID3D11ShaderResourceView*()
 {
 	if(!m_srv && m_dev && m_texture)
 	{
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
+		D3D11_SHADER_RESOURCE_VIEW_DESC *p_desc = NULL;
+
 		if(m_desc.Format == DXGI_FORMAT_R32G8X24_TYPELESS)
 		{
-			D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
-
 			srvd.Format              = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
 			srvd.ViewDimension       = D3D11_SRV_DIMENSION_TEXTURE2D;
 			srvd.Texture2D.MipLevels = 1;
-
-			m_dev->CreateShaderResourceView(m_texture, &srvd, &m_srv);
+			p_desc                   = &srvd;
 		}
-		else
-		{
-			m_dev->CreateShaderResourceView(m_texture, NULL, &m_srv);
-		}
+		m_dev->CreateShaderResourceView(m_texture, p_desc, &m_srv);
 	}
 
 	return m_srv;
@@ -139,9 +136,7 @@ GSTexture11::operator ID3D11RenderTargetView*()
 	ASSERT(m_dev);
 
 	if(!m_rtv && m_dev && m_texture)
-	{
 		m_dev->CreateRenderTargetView(m_texture, NULL, &m_rtv);
-	}
 
 	return m_rtv;
 }
@@ -150,20 +145,16 @@ GSTexture11::operator ID3D11DepthStencilView*()
 {
 	if(!m_dsv && m_dev && m_texture)
 	{
+		D3D11_DEPTH_STENCIL_VIEW_DESC dsvd;
+		const D3D11_DEPTH_STENCIL_VIEW_DESC *p_desc = NULL;
 		if(m_desc.Format == DXGI_FORMAT_R32G8X24_TYPELESS)
 		{
-			D3D11_DEPTH_STENCIL_VIEW_DESC dsvd;
-
 			dsvd.Format        = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
 			dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 			dsvd.Flags         = 0;
-
-			m_dev->CreateDepthStencilView(m_texture, &dsvd, &m_dsv);
+                        p_desc             = &dsvd;
 		}
-		else
-		{
-			m_dev->CreateDepthStencilView(m_texture, NULL, &m_dsv);
-		}
+		m_dev->CreateDepthStencilView(m_texture, p_desc, &m_dsv);
 	}
 
 	return m_dsv;
