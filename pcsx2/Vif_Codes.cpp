@@ -149,8 +149,9 @@ template<int idx> __fi int _vifCode_Direct(int pass, const u8* data, bool isDire
 		vif1.tag.size    -= ret/4; // Convert to u32's
 		vif1Regs.stat.VGW = false;
 
-		if (size != ret) { // Stall if gif didn't process all the data (path2 queued)
-			//gifUnit.PrintInfo();
+		if (size != ret)
+		{
+			// Stall if gif didn't process all the data (path2 queued)
 			vif1.vifstalled.enabled   = VifStallEnable(vif1ch);
 			vif1.vifstalled.value = VIF_TIMING_BREAK;
 			vif1Regs.stat.VGW = true;

@@ -998,9 +998,7 @@ void psxDma3(u32 madr, u32 bcr, u32 chcr)
 
 			break;
 		case 0x41000200:
-			//SysPrintf("unhandled cdrom dma3: madr: %x, bcr: %x, chcr %x\n", madr, bcr, chcr);
 			return;
-
 		default:
 			break;
 	}
@@ -1008,7 +1006,7 @@ void psxDma3(u32 madr, u32 bcr, u32 chcr)
 	psxDmaInterrupt(3);
 }
 
-void cdrReset()
+void cdrReset(void)
 {
 	memzero(cdr);
 	cdr.CurTrack = 1;

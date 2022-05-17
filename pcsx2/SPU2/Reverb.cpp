@@ -100,7 +100,6 @@ StereoOut32 V_Core::DoReverb(const StereoOut32& Input)
 				(Cores[i].IRQA == apf1_dst) || (Cores[i].IRQA == apf1_src) ||
 				(Cores[i].IRQA == apf2_dst) || (Cores[i].IRQA == apf2_src))
 			{
-				//printf("Core %d IRQ Called (Reverb). IRQA = %x\n",i,addr);
 				SetIrqCall(i);
 			}
 		}
