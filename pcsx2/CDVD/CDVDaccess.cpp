@@ -31,7 +31,7 @@
 
 #include "IsoFS/IsoFS.h"
 #include "IsoFS/IsoFSCDVD.h"
-#include "CDVDisoReader.h"
+#include "IsoFileFormats.h"
 
 #include "DebugTools/SymbolMap.h"
 #include "AppConfig.h"

@@ -1068,9 +1068,6 @@
     <ClInclude Include="..\..\CDVD\CDVDaccess.h">
       <Filter>System\Ps2\Iop\CDVD</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\CDVD\CDVDisoReader.h">
-      <Filter>System\Ps2\Iop\CDVD</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Ipu\IPU.h">
       <Filter>System\Ps2\IPU</Filter>
     </ClInclude>

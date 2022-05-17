@@ -394,11 +394,6 @@ struct V_Core
 	u8 AttrBit0;
 	u8 DmaMode;
 
-	// new dma only
-	bool DmaStarted;
-	u32 AutoDmaFree;
-
-	// old dma only
 	u16* DMAPtr;
 	u16* DMARPtr; // Mem pointer for DMA Reads
 	u32 ReadSize;
@@ -481,11 +476,6 @@ struct V_Core
 		TSA &= 0xfffff;
 	}
 
-	s32 NewDmaRead(u32* data, u32 bytesLeft, u32* bytesProcessed);
-	s32 NewDmaWrite(u32* data, u32 bytesLeft, u32* bytesProcessed);
-	void NewDmaInterrupt();
-
-	// old dma only
 	void DoDMAwrite(u16* pMem, u32 size);
 	void DoDMAread(u16* pMem, u32 size);
 	void FinishDMAread();

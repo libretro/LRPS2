@@ -244,7 +244,6 @@ struct GIFregisters
 static GIFregisters& gifRegs = (GIFregisters&)eeHw[0x3000];
 
 extern void gifInterrupt(void);
-extern int _GIFchain(void);
 extern void GIFdma(void);
 extern void dmaGIF(void);
 extern void mfifoGIFtransfer(void);

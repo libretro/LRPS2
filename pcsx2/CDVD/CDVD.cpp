@@ -26,7 +26,7 @@
 #include "CdRom.h"
 #include "CDVD.h"
 #include "CDVD_internal.h"
-#include "CDVDisoReader.h"
+#include "IsoFileFormats.h"
 
 #include "GS.h" // for gsVideoMode
 #include "Elfheader.h"

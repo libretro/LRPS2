@@ -178,9 +178,7 @@ void V_Core::Init(int index)
 	}
 
 	DMAICounter = 0;
-	AutoDmaFree = 0;
 	AdmaInProgress = false;
-	DmaStarted = false;
 
 	Regs.STATX = 0x80;
 	Regs.ENDX = 0xffffff; // PS2 confirmed

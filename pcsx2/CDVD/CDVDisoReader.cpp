@@ -22,7 +22,7 @@
 
 #include "PrecompiledHeader.h"
 
-#include "CDVDisoReader.h"
+#include "IsoFileFormats.h"
 #include "AsyncFileReader.h"
 
 #include <cstring>
