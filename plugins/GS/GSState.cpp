@@ -165,13 +165,9 @@ void GSState::SetFrameSkip(int skip)
 
 void GSState::Reset()
 {
-	// FIXME: memset(m_mem.m_vm8, 0, m_mem.m_vmsize);
-	// bios logo not shown cut in half after reset, missing graphics in GoW after first FMV
+	// BIOS logo not shown cut in half after reset, missing graphics in GoW after first FMV
 	memset(&m_path[0], 0, sizeof(m_path[0]) * countof(m_path));
 	memset(&m_v, 0, sizeof(m_v));
-
-//	PRIM = &m_env.PRIM;
-//	m_env.PRMODECONT.AC = 1;
 
 	m_env.Reset();
 
@@ -313,45 +309,36 @@ void GSState::ResetHandlers()
 	m_fpGIFRegHandlers[GIF_A_D_REG_LABEL] = &GSState::GIFRegHandlerNull;
 }
 
-bool GSState::isinterlaced()
-{
-	return !!m_regs->SMODE2.INT;
-}
+#define ISINTERLACED() !!m_regs->SMODE2.INT
 
 GSVideoMode GSState::GetVideoMode()
 {
 	// TODO: Get confirmation of videomode from SYSCALL ? not necessary but would be nice.
 	// Other videomodes can't be detected on the plugin side without the help of the data from core
 	// You can only identify a limited number of video modes based on the info from CRTC registers.
-
-	GSVideoMode videomode = GSVideoMode::Unknown;
-	u8 Colorburst = m_regs->SMODE1.CMOD; // Subcarrier frequency
-	u8 PLL_Divider = m_regs->SMODE1.LC; // Phased lock loop divider
+	u8 Colorburst         = m_regs->SMODE1.CMOD; // Subcarrier frequency
+	u8 PLL_Divider        = m_regs->SMODE1.LC; // Phased lock loop divider
+	bool is_interlaced    = ISINTERLACED();
 
 	switch (Colorburst)
 	{
-	case 0:
-		if (isinterlaced() && PLL_Divider == 22)
-			videomode = GSVideoMode::HDTV_1080I;
-
-		else if (!isinterlaced() && PLL_Divider == 22)
-			videomode = GSVideoMode::HDTV_720P;
-
-		else if (!isinterlaced() && PLL_Divider == 32)
-			videomode = GSVideoMode::SDTV_480P; // TODO: 576P will also be reported as 480P, find some way to differeniate.
-
-		else
-			videomode = GSVideoMode::VESA;
-		break;
-
-	case 2:
-		videomode = GSVideoMode::NTSC; break;
-
-	case 3:
-		videomode = GSVideoMode::PAL; break;
+		case 0:
+			if (is_interlaced && PLL_Divider == 22)
+				return GSVideoMode::HDTV_1080I;
+			else if (!is_interlaced && PLL_Divider == 22)
+				return GSVideoMode::HDTV_720P;
+			else if (!is_interlaced && PLL_Divider == 32)
+				return GSVideoMode::SDTV_480P; // TODO: 576P will also be reported as 480P, find some way to differeniate.
+			return GSVideoMode::VESA;
+		case 2:
+			return GSVideoMode::NTSC;
+		case 3:
+			return GSVideoMode::PAL;
+		default:
+			break;
 	}
 
-	return videomode;
+	return GSVideoMode::Unknown;
 }
 
 // There are some cases where the PS2 seems to saturate the output circuit size when the developer requests for a higher
@@ -372,13 +359,11 @@ void GSState::SaturateOutputSize(GSVector4i& r)
 	//  Limit games to standard NTSC resolutions. games with 512X512 (PAL resolution) on NTSC video mode produces black border on the bottom.
 	//  512 X 448 is the resolution generally used by NTSC, saturating the height value seems to get rid of the black borders.
 	//  Though it's quite a bad hack as it affects binaries which are patched to run on a non-native video mode.
-	const bool interlaced_field = m_regs->SMODE2.INT && !m_regs->SMODE2.FFMD;
-	const bool single_frame_output = m_regs->SMODE2.INT && m_regs->SMODE2.FFMD && (m_regs->PMODE.EN1 ^ m_regs->PMODE.EN2);
+	const bool interlaced_field        = m_regs->SMODE2.INT && !m_regs->SMODE2.FFMD;
+	const bool single_frame_output     = m_regs->SMODE2.INT &&  m_regs->SMODE2.FFMD && (m_regs->PMODE.EN1 ^ m_regs->PMODE.EN2);
 	const bool unsupported_output_size = r.height() > 448 && r.width() < 640;
 	if (m_NTSC_Saturation && videomode == GSVideoMode::NTSC && (interlaced_field || single_frame_output) && unsupported_output_size)
-	{
 		r.bottom = r.top + 448;
-	}
 }
 
 GSVector4i GSState::GetDisplayRect(int i)
@@ -391,27 +376,27 @@ GSVector4i GSState::GetDisplayRect(int i)
 	{
 		if (m_regs->PMODE.EN1 & m_regs->PMODE.EN2)
 		{
-			GSVector4i r[2] = { GetDisplayRect(0), GetDisplayRect(1) };
+			GSVector4i r[2]        = { GetDisplayRect(0), GetDisplayRect(1) };
 			GSVector4i r_intersect = r[0].rintersect(r[1]);
-			GSVector4i r_union = r[0].runion_ordered(r[1]);
+			GSVector4i r_union     = r[0].runion_ordered(r[1]);
 
 			// If the conditions for passing the merged rectangle is unsatisfied, then
 			// pass the rectangle with the bigger size.
-			bool can_be_merged = !r_intersect.width() || !r_intersect.height() || r_intersect.xyxy().eq(r_union.xyxy());
+			bool can_be_merged     = !r_intersect.width() || !r_intersect.height() || r_intersect.xyxy().eq(r_union.xyxy());
 			return (can_be_merged) ? r_union : r[r[1].rarea() > r[0].rarea()];
 		}
 		i = m_regs->PMODE.EN2;
 	}
 
 	GSVector2i magnification (m_regs->DISP[i].DISPLAY.MAGH + 1, m_regs->DISP[i].DISPLAY.MAGV + 1);
-	int width = (m_regs->DISP[i].DISPLAY.DW + 1) / magnification.x;
-	int height = (m_regs->DISP[i].DISPLAY.DH + 1) / magnification.y;
+	int width        = (m_regs->DISP[i].DISPLAY.DW + 1) / magnification.x;
+	int height       = (m_regs->DISP[i].DISPLAY.DH + 1) / magnification.y;
 
 	// Set up the display rectangle based on the values obtained from DISPLAY registers
 	GSVector4i rectangle;
-	rectangle.left = m_regs->DISP[i].DISPLAY.DX / magnification.x;
-	rectangle.top = m_regs->DISP[i].DISPLAY.DY / magnification.y;
-	rectangle.right = rectangle.left + width;
+	rectangle.left   = m_regs->DISP[i].DISPLAY.DX / magnification.x;
+	rectangle.top    = m_regs->DISP[i].DISPLAY.DY / magnification.y;
+	rectangle.right  = rectangle.left + width;
 	rectangle.bottom = rectangle.top + height;
 
 	SaturateOutputSize(rectangle);
@@ -420,22 +405,17 @@ GSVector4i GSState::GetDisplayRect(int i)
 
 GSVector4i GSState::GetFrameRect(int i)
 {
-	// If no specific context is requested then pass the merged rectangle as return value
-	if (i == -1)
-		return GetFrameRect(0).runion(GetFrameRect(1));
-
 	GSVector4i rectangle = GetDisplayRect(i);
+	int w                = rectangle.width();
+	int h                = rectangle.height();
 
-	int w = rectangle.width();
-	int h = rectangle.height();
-
-	if (isinterlaced() && m_regs->SMODE2.FFMD && h > 1)
+	if (ISINTERLACED() && m_regs->SMODE2.FFMD && h > 1)
 		h >>= 1;
 
-	rectangle.left = m_regs->DISP[i].DISPFB.DBX;
-	rectangle.top = m_regs->DISP[i].DISPFB.DBY;
-	rectangle.right = rectangle.left + w;
-	rectangle.bottom = rectangle.top + h;
+	rectangle.left       = m_regs->DISP[i].DISPFB.DBX;
+	rectangle.top        = m_regs->DISP[i].DISPFB.DBY;
+	rectangle.right      = rectangle.left + w;
+	rectangle.bottom     = rectangle.top + h;
 
 	return rectangle;
 }
@@ -443,54 +423,45 @@ GSVector4i GSState::GetFrameRect(int i)
 int GSState::GetFramebufferHeight()
 {
 	// Framebuffer height is 11 bits max according to GS user manual
-	const int height_limit = (1 << 11);
-	const GSVector4i output[2] = { GetFrameRect(0), GetFrameRect(1) };
+	const int height_limit         = (1 << 11);
+	const GSVector4i output[2]     = { GetFrameRect(0), GetFrameRect(1) };
 	const GSVector4i merged_output = output[0].runion(output[1]);
 
-	int max_height = std::max(output[0].height(), output[1].height());
+	int max_height                 = std::max(output[0].height(), output[1].height());
 	// DBY isn't an offset to the frame memory but rather an offset to read output circuit inside
 	// the frame memory, hence the top offset should also be calculated for the total height of the
 	// frame memory. Also we need to wrap the value only when we're dealing with values with range of the
 	// frame memory (offset + read output circuit height, IOW bottom of merged_output)
-	int frame_memory_height = std::max(max_height, merged_output.bottom % height_limit);
-	return frame_memory_height;
+	return std::max(max_height, merged_output.bottom % height_limit);
 }
 
 bool GSState::IsEnabled(int i)
 {
-	ASSERT(i >= 0 && i < 2);
-
 	if ((i == 0 && m_regs->PMODE.EN1) || (i == 1 && m_regs->PMODE.EN2))
-	{
 		return m_regs->DISP[i].DISPLAY.DW && m_regs->DISP[i].DISPLAY.DH;
-	}
-
 	return false;
 }
 
 float GSState::GetTvRefreshRate()
 {
-	float vertical_frequency = 0;
 	GSVideoMode videomode = GetVideoMode();
-
 	//TODO: Check vertical frequencies for VESA video modes, old ones were untested.
 
 	switch (videomode)
 	{
-	case GSVideoMode::NTSC: case GSVideoMode::SDTV_480P:
-		vertical_frequency = (60 / 1.001f); break;
-
-	case GSVideoMode::PAL:
-		vertical_frequency = 50; break;
-
-	case GSVideoMode::HDTV_720P: case GSVideoMode::HDTV_1080I:
-		vertical_frequency = 60; break;
-
-	default:
-		ASSERT(videomode != GSVideoMode::Unknown);
+		case GSVideoMode::NTSC:
+		case GSVideoMode::SDTV_480P:
+			return (60 / 1.001f);
+		case GSVideoMode::PAL:
+			return 50;
+		case GSVideoMode::HDTV_720P:
+		case GSVideoMode::HDTV_1080I:
+			return 60;
+		default:
+			break;
 	}
 
-	return vertical_frequency;
+	return 0;
 }
 
 // GIFPackedRegHandler*
@@ -1198,7 +1169,11 @@ template<int i> void GSState::GIFRegHandlerZBUF(const GIFReg* RESTRICT r)
 void GSState::GIFRegHandlerBITBLTBUF(const GIFReg* RESTRICT r)
 {
 	if(r->BITBLTBUF != m_env.BITBLTBUF)
-		FlushWrite();
+	{
+		const int len = m_tr.end - m_tr.start;
+		if (len > 0)
+			FlushWrite(len);
+	}
 
 	m_env.BITBLTBUF = (GSVector4i)r->BITBLTBUF;
 
@@ -1212,7 +1187,11 @@ void GSState::GIFRegHandlerBITBLTBUF(const GIFReg* RESTRICT r)
 void GSState::GIFRegHandlerTRXPOS(const GIFReg* RESTRICT r)
 {
 	if(r->TRXPOS != m_env.TRXPOS)
-		FlushWrite();
+	{
+		const int len = m_tr.end - m_tr.start;
+		if (len > 0)
+			FlushWrite(len);
+	}
 
 	m_env.TRXPOS = (GSVector4i)r->TRXPOS;
 }
@@ -1220,7 +1199,11 @@ void GSState::GIFRegHandlerTRXPOS(const GIFReg* RESTRICT r)
 void GSState::GIFRegHandlerTRXREG(const GIFReg* RESTRICT r)
 {
 	if(r->TRXREG != m_env.TRXREG)
-		FlushWrite();
+	{
+		const int len = m_tr.end - m_tr.start;
+		if (len > 0)
+			FlushWrite(len);
+	}
 
 	m_env.TRXREG = (GSVector4i)r->TRXREG;
 }
@@ -1233,19 +1216,19 @@ void GSState::GIFRegHandlerTRXDIR(const GIFReg* RESTRICT r)
 
 	switch(m_env.TRXDIR.XDIR)
 	{
-	case 0: // host -> local
-		m_tr.Init(m_env.TRXPOS.DSAX, m_env.TRXPOS.DSAY, m_env.BITBLTBUF);
-		break;
-	case 1: // local -> host
-		m_tr.Init(m_env.TRXPOS.SSAX, m_env.TRXPOS.SSAY, m_env.BITBLTBUF);
-		break;
-	case 2: // local -> local
-		Move();
-		break;
-	case 3: // 3 prohibited, behavior unknown
-		break;
-	default:
-                break;
+		case 0: // host -> local
+			m_tr.Init(m_env.TRXPOS.DSAX, m_env.TRXPOS.DSAY, m_env.BITBLTBUF);
+			break;
+		case 1: // local -> host
+			m_tr.Init(m_env.TRXPOS.SSAX, m_env.TRXPOS.SSAY, m_env.BITBLTBUF);
+			break;
+		case 2: // local -> local
+			Move();
+			break;
+		case 3: // 3 prohibited, behavior unknown
+			// fall-through
+		default:
+			break;
 	}
 }
 
@@ -1253,30 +1236,26 @@ void GSState::GIFRegHandlerHWREG(const GIFReg* RESTRICT r)
 {
 	// don't bother if not host -> local
 	// real hw ignores
-	if (m_env.TRXDIR.XDIR != 0)
-		return;
-
-	Write((u8*)r, 8); // haunting ground
+	if (m_env.TRXDIR.XDIR == 0)
+		Write((u8*)r, 8); // Haunting Ground
 }
 
 void GSState::Flush()
 {
-	FlushWrite();
-
-	FlushPrim();
+	const int len = m_tr.end - m_tr.start;
+	if (len > 0)
+		FlushWrite(len);
+	if(m_index.tail > 0)
+		FlushPrim();
 }
 
-void GSState::FlushWrite()
+void GSState::FlushWrite(const int len)
 {
-	const int len = m_tr.end - m_tr.start;
-
-	if(len <= 0) return;
-
 	GSVector4i r;
 
-	r.left = m_env.TRXPOS.DSAX;
-	r.top = m_env.TRXPOS.DSAY;
-	r.right = r.left + m_env.TRXREG.RRW;
+	r.left   = m_env.TRXPOS.DSAX;
+	r.top    = m_env.TRXPOS.DSAY;
+	r.right  = r.left + m_env.TRXREG.RRW;
 	r.bottom = r.top + m_env.TRXREG.RRH;
 
 	InvalidateVideoMem(m_env.BITBLTBUF, r);
@@ -1290,26 +1269,24 @@ void GSState::FlushWrite()
 
 void GSState::FlushPrim()
 {
-	if(m_index.tail > 0)
+	// Some games (Harley Davidson/Virtua Fighter) do dirty trick with multiple contexts cluts
+	// In doubt, always reload the clut before a draw.
+	// Note: perf impact is likely slow enough as WriteTest will likely be false.
+	if (m_clut_load_before_draw)
+		if (m_mem.m_clut.WriteTest(m_context->TEX0, m_env.TEXCLUT))
+			m_mem.m_clut.Write(m_context->TEX0, m_env.TEXCLUT);
+
+	GSVertex buff[2];
+
+	size_t head = m_vertex.head;
+	size_t tail = m_vertex.tail;
+	size_t next = m_vertex.next;
+	size_t unused = 0;
+
+	if(tail > head)
 	{
-		// Some games (Harley Davidson/Virtua Fighter) do dirty trick with multiple contexts cluts
-		// In doubt, always reload the clut before a draw.
-		// Note: perf impact is likely slow enough as WriteTest will likely be false.
-		if (m_clut_load_before_draw)
-			if (m_mem.m_clut.WriteTest(m_context->TEX0, m_env.TEXCLUT))
-				m_mem.m_clut.Write(m_context->TEX0, m_env.TEXCLUT);
-
-		GSVertex buff[2];
-
-		size_t head = m_vertex.head;
-		size_t tail = m_vertex.tail;
-		size_t next = m_vertex.next;
-		size_t unused = 0;
-
-		if(tail > head)
+		switch(PRIM->PRIM)
 		{
-			switch(PRIM->PRIM)
-			{
 			case GS_POINTLIST:
 				ASSERT(0);
 				break;
@@ -1329,45 +1306,44 @@ void GSState::FlushPrim()
 				break;
 			default:
 				__assume(0);
-			}
-
-			ASSERT((int)unused < GSUtil::GetVertexCount(PRIM->PRIM));
 		}
 
-		if(GSLocalMemory::m_psm[m_context->FRAME.PSM].fmt < 3 && GSLocalMemory::m_psm[m_context->ZBUF.PSM].fmt < 3)
-		{
-			m_vt.Update(m_vertex.buff, m_index.buff, m_vertex.tail, m_index.tail, GSUtil::GetPrimClass(PRIM->PRIM));
+		ASSERT((int)unused < GSUtil::GetVertexCount(PRIM->PRIM));
+	}
 
-			m_context->SaveReg();
+	if(GSLocalMemory::m_psm[m_context->FRAME.PSM].fmt < 3 && GSLocalMemory::m_psm[m_context->ZBUF.PSM].fmt < 3)
+	{
+		m_vt.Update(m_vertex.buff, m_index.buff, m_vertex.tail, m_index.tail, GSUtil::GetPrimClass(PRIM->PRIM));
 
-			try {
-				Draw();
-			} catch (GSDXRecoverableError&) {
-				// could be an unsupported draw call
-			} catch (const std::bad_alloc& e) {
-				// Texture Out Of Memory
-				PurgePool();
-			}
+		m_context->SaveReg();
 
-			m_context->RestoreReg();
+		try {
+			Draw();
+		} catch (GSDXRecoverableError&) {
+			// could be an unsupported draw call
+		} catch (const std::bad_alloc& e) {
+			// Texture Out Of Memory
+			PurgePool();
 		}
 
-		m_index.tail = 0;
+		m_context->RestoreReg();
+	}
 
-		m_vertex.head = 0;
+	m_index.tail = 0;
 
-		if(unused > 0)
-		{
-			memcpy(m_vertex.buff, buff, sizeof(GSVertex) * unused);
+	m_vertex.head = 0;
 
-			m_vertex.tail = unused;
-			m_vertex.next = next > head ? next - head : 0;
-		}
-		else
-		{
-			m_vertex.tail = 0;
-			m_vertex.next = 0;
-		}
+	if(unused > 0)
+	{
+		memcpy(m_vertex.buff, buff, sizeof(GSVertex) * unused);
+
+		m_vertex.tail = unused;
+		m_vertex.next = next > head ? next - head : 0;
+	}
+	else
+	{
+		m_vertex.tail = 0;
+		m_vertex.next = 0;
 	}
 }
 
@@ -1407,7 +1383,8 @@ void GSState::Write(const u8* mem, int len)
 		return;
 
 	if(PRIM->TME && (blit.DBP == m_context->TEX0.TBP0 || blit.DBP == m_context->TEX0.CBP)) // TODO: hmmmm
-		FlushPrim();
+		if(m_index.tail > 0)
+			FlushPrim();
 
 	if(m_tr.end == 0 && len >= m_tr.total)
 	{
@@ -1433,7 +1410,11 @@ void GSState::Write(const u8* mem, int len)
 		m_tr.end += len;
 
 		if(m_tr.end >= m_tr.total)
-			FlushWrite();
+		{
+			const int len = m_tr.end - m_tr.start;
+			if (len > 0)
+				FlushWrite(len);
+		}
 	}
 
 	m_mem.m_clut.Invalidate();
@@ -1441,12 +1422,10 @@ void GSState::Write(const u8* mem, int len)
 
 void GSState::InitReadFIFO(u8* mem, int len)
 {
-	if(len <= 0) return;
-
-	const int sx = m_env.TRXPOS.SSAX;
-	const int sy = m_env.TRXPOS.SSAY;
-	const int w = m_env.TRXREG.RRW;
-	const int h = m_env.TRXREG.RRH;
+	const int sx  = m_env.TRXPOS.SSAX;
+	const int sy  = m_env.TRXPOS.SSAY;
+	const int w   = m_env.TRXREG.RRW;
+	const int h   = m_env.TRXREG.RRH;
 	const u16 bpp = GSLocalMemory::m_psm[m_env.BITBLTBUF.SPSM].trbpp;
 
 	if(!m_tr.Update(w, h, bpp, len))
@@ -1843,21 +1822,13 @@ template<int index> void GSState::Transfer(const u8* mem, u32 size)
 
 				break;
 
-			case GIF_FLG_IMAGE2: // hmmm // Fall through here fixes a crash in Wallace and Gromit Project Zoo
+			case GIF_FLG_IMAGE2:
+				// hmmm // Fall through here fixes a crash in Wallace and Gromit Project Zoo
 				// and according to Pseudonym we shouldn't even land in this code. So hmm indeed. (rama)
-				
-				/*ASSERT(0);
-
-				path.nloop = 0;
-
-				break;*/
-
 			case GIF_FLG_IMAGE:
 
 				{
 					int len = (int)std::min(size, path.nloop);
-
-					//ASSERT(!(len&3));
 
 					switch(m_env.TRXDIR.XDIR)
 					{
@@ -1889,9 +1860,7 @@ template<int index> void GSState::Transfer(const u8* mem, u32 size)
 		if(index == 0)
 		{
 			if(path.tag.EOP && path.nloop == 0)
-			{
 				break;
-			}
 		}
 	}
 
@@ -2117,19 +2086,16 @@ int GSState::Defrost(const GSFreezeData* fd)
 
 void GSState::SetGameCRC(u32 crc, int options)
 {
-	m_crc = crc;
+	m_crc     = crc;
 	m_options = options;
-	m_game = CRC::Lookup(m_crc_hack_level != CRCHackLevel::None ? crc : 0);
+	m_game    = CRC::Lookup(m_crc_hack_level != CRCHackLevel::None ? crc : 0);
 	SetupCrcHack();
 
-	// Until we find a solution that work for all games.
+	// Until we find a solution that works for all games.
 	// (if  a solution does exist)
-	if (m_game.title == CRC::HarleyDavidson) {
+	if (m_game.title == CRC::HarleyDavidson)
 		m_clut_load_before_draw = true;
-	}
 }
-
-//
 
 void GSState::UpdateContext()
 {
@@ -2166,31 +2132,28 @@ void GSState::UpdateVertexKick()
 
 void GSState::GrowVertexBuffer()
 {
-	int maxcount = std::max<int>(m_vertex.maxcount * 3 / 2, 10000);
-
+	int maxcount     = std::max<int>(m_vertex.maxcount * 3 / 2, 10000);
 	GSVertex* vertex = (GSVertex*)_aligned_malloc(sizeof(GSVertex) * maxcount, 32);
-	u32* index = (u32*)_aligned_malloc(sizeof(u32) * maxcount * 3, 32); // worst case is slightly less than vertex number * 3
+	u32* index       = (u32*)_aligned_malloc(sizeof(u32) * maxcount * 3, 32); // worst case is slightly less than vertex number * 3
 
-	if(vertex == NULL || index == NULL)
+	if(!vertex || !index)
 		throw GSDXError();
 
-	if(m_vertex.buff != NULL)
+	if (m_vertex.buff)
 	{
 		memcpy(vertex, m_vertex.buff, sizeof(GSVertex) * m_vertex.tail);
-
 		_aligned_free(m_vertex.buff);
 	}
 
-	if(m_index.buff != NULL)
+	if (m_index.buff)
 	{
 		memcpy(index, m_index.buff, sizeof(u32) * m_index.tail);
-		
 		_aligned_free(m_index.buff);
 	}
 
-	m_vertex.buff = vertex;
+	m_vertex.buff     = vertex;
 	m_vertex.maxcount = maxcount - 3; // -3 to have some space at the end of the buffer before DrawingKick can grow it
-	m_index.buff = index;
+	m_index.buff      = index;
 }
 
 template<u32 prim, bool auto_flush>
@@ -2241,73 +2204,70 @@ __forceinline void GSState::VertexKick(u32 skip)
 	size_t m = tail - head;
 
 	if(m < n)
-	{
 		return;
-	}
 
 	if(skip == 0 && (prim != GS_TRIANGLEFAN || m <= 4)) // m_vertex.xy only knows about the last 4 vertices, head could be far behind for fan
 	{
-		GSVector4i v0, v1, v2, v3, pmin, pmax;
-
-		v0 = GSVector4i::loadl(&m_vertex.xy[(xy_tail + 1) & 3]); // T-3
-		v1 = GSVector4i::loadl(&m_vertex.xy[(xy_tail + 2) & 3]); // T-2
-		v2 = GSVector4i::loadl(&m_vertex.xy[(xy_tail + 3) & 3]); // T-1
-		v3 = GSVector4i::loadl(&m_vertex.xy[(xy_tail - m) & 3]); // H
+		GSVector4i pmin, pmax;
+		GSVector4i v0 = GSVector4i::loadl(&m_vertex.xy[(xy_tail + 1) & 3]); // T-3
+		GSVector4i v1 = GSVector4i::loadl(&m_vertex.xy[(xy_tail + 2) & 3]); // T-2
+		GSVector4i v2 = GSVector4i::loadl(&m_vertex.xy[(xy_tail + 3) & 3]); // T-1
+		GSVector4i v3 = GSVector4i::loadl(&m_vertex.xy[(xy_tail - m) & 3]); // H
 
 		switch(prim)
 		{
-		case GS_POINTLIST:
-			pmin = v2;
-			pmax = v2;
-			break;
-		case GS_LINELIST:
-		case GS_LINESTRIP:
-		case GS_SPRITE:
-			pmin = v2.min_i16(v1);
-			pmax = v2.max_i16(v1);
-			break;
-		case GS_TRIANGLELIST:
-		case GS_TRIANGLESTRIP:
-			pmin = v2.min_i16(v1.min_i16(v0));
-			pmax = v2.max_i16(v1.max_i16(v0));
-			break;
-		case GS_TRIANGLEFAN:
-			pmin = v2.min_i16(v1.min_i16(v3));
-			pmax = v2.max_i16(v1.max_i16(v3));
-			break;
-		default:
-			break;
+			case GS_POINTLIST:
+				pmin = v2;
+				pmax = v2;
+				break;
+			case GS_LINELIST:
+			case GS_LINESTRIP:
+			case GS_SPRITE:
+				pmin = v2.min_i16(v1);
+				pmax = v2.max_i16(v1);
+				break;
+			case GS_TRIANGLELIST:
+			case GS_TRIANGLESTRIP:
+				pmin = v2.min_i16(v1.min_i16(v0));
+				pmax = v2.max_i16(v1.max_i16(v0));
+				break;
+			case GS_TRIANGLEFAN:
+				pmin = v2.min_i16(v1.min_i16(v3));
+				pmax = v2.max_i16(v1.max_i16(v3));
+				break;
+			default:
+				break;
 		}
 
 		GSVector4i test = pmax.lt16(m_scissor) | pmin.gt16(m_scissor.zwzwl()); 
 		
 		switch(prim)
 		{
-		case GS_TRIANGLELIST:
-		case GS_TRIANGLESTRIP:
-		case GS_TRIANGLEFAN:
-		case GS_SPRITE:
-			// FIXME: GREG I don't understand the purpose of the m_nativeres check
-			// It impacts badly the number of draw call in the HW renderer.
-			test |= m_nativeres ? pmin.eq16(pmax).zwzwl() : pmin.eq16(pmax);
-			break;
-		default:
-			break;
+			case GS_TRIANGLELIST:
+			case GS_TRIANGLESTRIP:
+			case GS_TRIANGLEFAN:
+			case GS_SPRITE:
+				// FIXME: GREG I don't understand the purpose of the m_nativeres check
+				// It impacts badly the number of draw call in the HW renderer.
+				test |= m_nativeres ? pmin.eq16(pmax).zwzwl() : pmin.eq16(pmax);
+				break;
+			default:
+				break;
 		}
 
 		switch(prim)
 		{
-		case GS_TRIANGLELIST:
-		case GS_TRIANGLESTRIP:
-			// TODO: any way to do a 16-bit integer cross product?
-			// cross product is zero most of the time because either of the vertices are the same
-			test = (test | v0 == v1) | (v1 == v2 | v0 == v2); 
-			break;
-		case GS_TRIANGLEFAN:
-			test = (test | v3 == v1) | (v1 == v2 | v3 == v2); 
-			break;
-		default:
-			break;
+			case GS_TRIANGLELIST:
+			case GS_TRIANGLESTRIP:
+				// TODO: any way to do a 16-bit integer cross product?
+				// cross product is zero most of the time because either of the vertices are the same
+				test = (test | v0 == v1) | (v1 == v2 | v0 == v2); 
+				break;
+			case GS_TRIANGLEFAN:
+				test = (test | v3 == v1) | (v1 == v2 | v3 == v2); 
+				break;
+			default:
+				break;
 		}
 		
 		skip |= test.mask() & 15;
@@ -2317,22 +2277,22 @@ __forceinline void GSState::VertexKick(u32 skip)
 	{
 		switch(prim)
 		{
-		case GS_POINTLIST:
-		case GS_LINELIST:
-		case GS_TRIANGLELIST:
-		case GS_SPRITE:
-		case GS_INVALID: 
-			m_vertex.tail = head; // no need to check or grow the buffer length
-			break;
-		case GS_LINESTRIP:
-		case GS_TRIANGLESTRIP:
-			m_vertex.head = head + 1;
-			// fall through
-		case GS_TRIANGLEFAN:
-			if(tail >= m_vertex.maxcount) GrowVertexBuffer(); // in case too many vertices were skipped
-			break;
-		default: 
-			__assume(0);
+			case GS_POINTLIST:
+			case GS_LINELIST:
+			case GS_TRIANGLELIST:
+			case GS_SPRITE:
+			case GS_INVALID: 
+				m_vertex.tail = head; // no need to check or grow the buffer length
+				break;
+			case GS_LINESTRIP:
+			case GS_TRIANGLESTRIP:
+				m_vertex.head = head + 1;
+				// fall through
+			case GS_TRIANGLEFAN:
+				if(tail >= m_vertex.maxcount) GrowVertexBuffer(); // in case too many vertices were skipped
+				break;
+			default: 
+				__assume(0);
 		}
 
 		return;
@@ -2344,81 +2304,82 @@ __forceinline void GSState::VertexKick(u32 skip)
 
 	switch(prim)
 	{
-	case GS_POINTLIST:
-		buff[0] = head + 0;
-		m_vertex.head = head + 1;
-		m_vertex.next = head + 1;
-		m_index.tail += 1;
-		break;
-	case GS_LINELIST:
-		buff[0] = head + 0;
-		buff[1] = head + 1;
-		m_vertex.head = head + 2;
-		m_vertex.next = head + 2;
-		m_index.tail += 2;
-		break;
-	case GS_LINESTRIP:
-		if(next < head) 
-		{
-			m_vertex.buff[next + 0] = m_vertex.buff[head + 0];
-			m_vertex.buff[next + 1] = m_vertex.buff[head + 1];
-			head = next; 
-			m_vertex.tail = next + 2;
-		}
-		buff[0] = head + 0;
-		buff[1] = head + 1;
-		m_vertex.head = head + 1;
-		m_vertex.next = head + 2;
-		m_index.tail += 2;
-		break;
-	case GS_TRIANGLELIST:
-		buff[0] = head + 0;
-		buff[1] = head + 1;
-		buff[2] = head + 2;
-		m_vertex.head = head + 3;
-		m_vertex.next = head + 3;
-		m_index.tail += 3;
-		break;
-	case GS_TRIANGLESTRIP:
-		if(next < head) 
-		{
-			m_vertex.buff[next + 0] = m_vertex.buff[head + 0];
-			m_vertex.buff[next + 1] = m_vertex.buff[head + 1];
-			m_vertex.buff[next + 2] = m_vertex.buff[head + 2];
-			head = next; 
-			m_vertex.tail = next + 3;
-		}
-		buff[0] = head + 0;
-		buff[1] = head + 1;
-		buff[2] = head + 2;
-		m_vertex.head = head + 1;
-		m_vertex.next = head + 3;
-		m_index.tail += 3;
-		break;
-	case GS_TRIANGLEFAN:
-		// TODO: remove gaps, next == head && head < tail - 3 || next > head && next < tail - 2 (very rare)
-		buff[0] = head + 0;
-		buff[1] = tail - 2;
-		buff[2] = tail - 1;
-		m_vertex.next = tail;
-		m_index.tail += 3;
-		break;
-	case GS_SPRITE:	
-		buff[0] = head + 0;
-		buff[1] = head + 1;
-		m_vertex.head = head + 2;
-		m_vertex.next = head + 2;
-		m_index.tail += 2;
-		break;
-	case GS_INVALID:
-		m_vertex.tail = head;
-		break;
-	default:
-		__assume(0);
+		case GS_POINTLIST:
+			buff[0] = head + 0;
+			m_vertex.head = head + 1;
+			m_vertex.next = head + 1;
+			m_index.tail += 1;
+			break;
+		case GS_LINELIST:
+			buff[0] = head + 0;
+			buff[1] = head + 1;
+			m_vertex.head = head + 2;
+			m_vertex.next = head + 2;
+			m_index.tail += 2;
+			break;
+		case GS_LINESTRIP:
+			if(next < head) 
+			{
+				m_vertex.buff[next + 0] = m_vertex.buff[head + 0];
+				m_vertex.buff[next + 1] = m_vertex.buff[head + 1];
+				head = next; 
+				m_vertex.tail = next + 2;
+			}
+			buff[0] = head + 0;
+			buff[1] = head + 1;
+			m_vertex.head = head + 1;
+			m_vertex.next = head + 2;
+			m_index.tail += 2;
+			break;
+		case GS_TRIANGLELIST:
+			buff[0] = head + 0;
+			buff[1] = head + 1;
+			buff[2] = head + 2;
+			m_vertex.head = head + 3;
+			m_vertex.next = head + 3;
+			m_index.tail += 3;
+			break;
+		case GS_TRIANGLESTRIP:
+			if(next < head) 
+			{
+				m_vertex.buff[next + 0] = m_vertex.buff[head + 0];
+				m_vertex.buff[next + 1] = m_vertex.buff[head + 1];
+				m_vertex.buff[next + 2] = m_vertex.buff[head + 2];
+				head = next; 
+				m_vertex.tail = next + 3;
+			}
+			buff[0] = head + 0;
+			buff[1] = head + 1;
+			buff[2] = head + 2;
+			m_vertex.head = head + 1;
+			m_vertex.next = head + 3;
+			m_index.tail += 3;
+			break;
+		case GS_TRIANGLEFAN:
+			// TODO: remove gaps, next == head && head < tail - 3 || next > head && next < tail - 2 (very rare)
+			buff[0] = head + 0;
+			buff[1] = tail - 2;
+			buff[2] = tail - 1;
+			m_vertex.next = tail;
+			m_index.tail += 3;
+			break;
+		case GS_SPRITE:	
+			buff[0] = head + 0;
+			buff[1] = head + 1;
+			m_vertex.head = head + 2;
+			m_vertex.next = head + 2;
+			m_index.tail += 2;
+			break;
+		case GS_INVALID:
+			m_vertex.tail = head;
+			break;
+		default:
+			__assume(0);
 	}
 
 	if (auto_flush && PRIM->TME && (m_context->FRAME.Block() == m_context->TEX0.TBP0))
-		FlushPrim();
+		if(m_index.tail > 0)
+			FlushPrim();
 }
 
 void GSState::GetTextureMinMax(GSVector4i& r, const GIFRegTEX0& TEX0, const GIFRegCLAMP& CLAMP, bool linear)
@@ -2512,12 +2473,6 @@ void GSState::GetTextureMinMax(GSVector4i& r, const GIFRegTEX0& TEX0, const GIFR
 		switch(wms)
 		{
 		case CLAMP_REPEAT:
-			// This commented code cannot be used directly because it needs uv before the intersection
-			/*if (uv_.x >> tw == uv_.z >> tw)
-			{
-				vr.x = std::max(vr.x, (uv_.x & ((1 << tw) - 1)));
-				vr.z = std::min(vr.z, (uv_.z & ((1 << tw) - 1)) + 1);
-			}*/
 			if(mask & 0x000f) {if(vr.x < u.x) vr.x = u.x; if(vr.z > u.z + 1) vr.z = u.z + 1;}
 			break;
 		case CLAMP_CLAMP:
@@ -2539,11 +2494,6 @@ void GSState::GetTextureMinMax(GSVector4i& r, const GIFRegTEX0& TEX0, const GIFR
 		switch(wmt)
 		{
 		case CLAMP_REPEAT:
-			/*if (uv_.y >> th == uv_.w >> th)
-			{
-				vr.y = max(vr.y, (uv_.y & ((1 << th) - 1)));
-				vr.w = min(vr.w, (uv_.w & ((1 << th) - 1)) + 1);
-			}*/
 			if(mask & 0xf000) {if(vr.y < v.y) vr.y = v.y; if(vr.w > v.w + 1) vr.w = v.w + 1;}
 			break;
 		case CLAMP_CLAMP:
@@ -2586,9 +2536,7 @@ void GSState::GetTextureMinMax(GSVector4i& r, const GIFRegTEX0& TEX0, const GIFR
 void GSState::GetAlphaMinMax()
 {
 	if(m_vt.m_alpha.valid)
-	{
 		return;
-	}
 
 	const GSDrawingEnvironment& env = m_env;
 	const GSDrawingContext* context = m_context;
@@ -2658,95 +2606,91 @@ bool GSState::TryAlphaTest(u32& fm, u32& zm)
 
 	// Alpha test can only control the write of some channels. If channels are already masked
 	// the alpha test is therefore a nop.
-	switch (m_context->TEST.AFAIL) {
+	switch (m_context->TEST.AFAIL)
+	{
 		case AFAIL_KEEP:
 			break;
 
 		case AFAIL_FB_ONLY:
 			if (zm == 0xFFFFFFFF)
 				return true;
-
 			break;
-
 		case AFAIL_ZB_ONLY:
 			if (fm == 0xFFFFFFFF)
 				return true;
-
 			break;
 
 		case AFAIL_RGB_ONLY:
 			if (zm == 0xFFFFFFFF && ((fm & 0xFF000000) == 0xFF000000 || GSLocalMemory::m_psm[m_context->FRAME.PSM].fmt == 1))
 				return true;
+			break;
 	}
 
-	bool pass = true;
-
+	// Shortcut to avoid GetAlphaMinMax below
 	if(m_context->TEST.ATST == ATST_NEVER)
-	{
-		pass = false; // Shortcut to avoid GetAlphaMinMax below
-	}
-	else
+		goto is_false;
+
 	{
 		GetAlphaMinMax();
 
 		int amin = m_vt.m_alpha.min;
 		int amax = m_vt.m_alpha.max;
-
 		int aref = m_context->TEST.AREF;
 
 		switch(m_context->TEST.ATST)
 		{
-		case ATST_NEVER:
-			pass = false;
-			break;
-		case ATST_ALWAYS:
-			pass = true;
-			break;
-		case ATST_LESS:
-			if(amax < aref) pass = true;
-			else if(amin >= aref) pass = false;
-			else return false;
-			break;
-		case ATST_LEQUAL:
-			if(amax <= aref) pass = true;
-			else if(amin > aref) pass = false;
-			else return false;
-			break;
-		case ATST_EQUAL:
-			if(amin == aref && amax == aref) pass = true;
-			else if(amin > aref || amax < aref) pass = false;
-			else return false;
-			break;
-		case ATST_GEQUAL:
-			if(amin >= aref) pass = true;
-			else if(amax < aref) pass = false;
-			else return false;
-			break;
-		case ATST_GREATER:
-			if(amin > aref) pass = true;
-			else if(amax <= aref) pass = false;
-			else return false;
-			break;
-		case ATST_NOTEQUAL:
-			if(amin == aref && amax == aref) pass = false;
-			else if(amin > aref || amax < aref) pass = true;
-			else return false;
-			break;
-		default:
-			__assume(0);
+			case ATST_NEVER:
+				goto is_false;
+			case ATST_ALWAYS:
+				return true;
+			case ATST_LESS:
+				if(amax < aref) return true;
+				else if(amin >= aref) goto is_false;
+				return false;
+			case ATST_LEQUAL:
+				if(amax <= aref) return true;
+				else if(amin > aref) goto is_false;
+				return false;
+			case ATST_EQUAL:
+				if(amin == aref && amax == aref) return true;
+				else if(amin > aref || amax < aref) goto is_false;
+				return false;
+			case ATST_GEQUAL:
+				if(amin >= aref) return true;
+				else if(amax < aref) goto is_false;
+				return false;
+			case ATST_GREATER:
+				if(amin > aref) return true;
+				else if(amax <= aref) goto is_false;
+				return false;
+			case ATST_NOTEQUAL:
+				if(amin == aref && amax == aref) goto is_false;
+				else if(amin > aref || amax < aref) return true;
+				return false;
+			default:
+				__assume(0);
+				return true;
 		}
 	}
 
-	if(!pass)
+is_false:
+	switch(m_context->TEST.AFAIL)
 	{
-		switch(m_context->TEST.AFAIL)
-		{
-		case AFAIL_KEEP: fm = zm = 0xffffffff; break;
-		case AFAIL_FB_ONLY: zm = 0xffffffff; break;
-		case AFAIL_ZB_ONLY: fm = 0xffffffff; break;
-		case AFAIL_RGB_ONLY: fm |= 0xff000000; zm = 0xffffffff; break;
-		default: __assume(0);
-		}
+		case AFAIL_KEEP:
+			fm = zm = 0xffffffff;
+			break;
+		case AFAIL_FB_ONLY:
+			zm = 0xffffffff;
+			break;
+		case AFAIL_ZB_ONLY:
+			fm = 0xffffffff;
+			break;
+		case AFAIL_RGB_ONLY:
+			fm |= 0xff000000;
+			zm  = 0xffffffff;
+			break;
+		default:
+			__assume(0);
 	}
 
 	return true;

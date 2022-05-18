@@ -44,12 +44,11 @@ void* GSCodeBuffer::GetBuffer(size_t size)
 {
 	size = (size + 15) & ~15;
 
-	if(m_ptr == NULL || m_pos + size > m_blocksize)
+	if (!m_ptr || m_pos + size > m_blocksize)
 	{
 		m_ptr = (u8*)vmalloc(m_blocksize, true);
 		m_pos = 0;
 		m_buffers.push_back(m_ptr);
-		return &m_ptr[0];
 	}
 
 	return &m_ptr[m_pos];

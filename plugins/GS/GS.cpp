@@ -317,7 +317,8 @@ EXPORT_C GSreadFIFO(u8* mem)
 
 EXPORT_C GSinitReadFIFO2(u8* mem, u32 size)
 {
-	s_gs->InitReadFIFO(mem, size);
+	if (size > 0)
+		s_gs->InitReadFIFO(mem, size);
 }
 
 EXPORT_C GSreadFIFO2(u8* mem, u32 size)

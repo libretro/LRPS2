@@ -226,18 +226,17 @@ public:
 	int GetFramebufferHeight();
 	void SaturateOutputSize(GSVector4i& r);
 	GSVector4i GetDisplayRect(int i = -1);
-	GSVector4i GetFrameRect(int i = -1);
+	GSVector4i GetFrameRect(int i);
 	GSVideoMode GetVideoMode();
 
 	bool IsEnabled(int i);
-	bool isinterlaced();
 
 	float GetTvRefreshRate();
 
 	virtual void Reset();
 	void Flush();
 	void FlushPrim();
-	void FlushWrite();
+	void FlushWrite(const int len);
 	virtual void Draw() = 0;
 	virtual void PurgePool() = 0;
 	virtual void InvalidateVideoMem(const GIFRegBITBLTBUF& BITBLTBUF, const GSVector4i& r) {}

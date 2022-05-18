@@ -422,7 +422,7 @@ GSTexture* GSRendererHW::GetFeedbackOutput()
 	TEX0.TBW = m_regs->EXTBUF.EXBW;
 	TEX0.PSM = m_regs->DISP[m_regs->EXTBUF.FBIN & 1].DISPFB.PSM;
 
-	GSTextureCache::Target* rt = m_tc->LookupTarget(TEX0, m_width, m_height, /*GetFrameRect(i).bottom*/0);
+	GSTextureCache::Target* rt = m_tc->LookupTarget(TEX0, m_width, m_height, 0);
 
 	GSTexture* t = rt->m_texture;
 
