@@ -2699,14 +2699,9 @@ is_false:
 bool GSState::IsOpaque()
 {
 	if(PRIM->AA1)
-	{
 		return false;
-	}
-
 	if(!PRIM->ABE)
-	{
 		return true;
-	}
 
 	const GSDrawingContext* context = m_context;
 
@@ -2724,14 +2719,10 @@ bool GSState::IsOpaque()
 		else if(context->ALPHA.C == 1)
 		{
 			if(context->FRAME.PSM == PSM_PSMCT24 || context->FRAME.PSM == PSM_PSMZ24)
-			{
 				amin = amax = 0x80;
-			}
 		}
 		else if(context->ALPHA.C == 2)
-		{
 			amin = amax = context->ALPHA.FIX;
-		}
 	}
 
 	return context->ALPHA.IsOpaque(amin, amax);
@@ -2742,17 +2733,11 @@ bool GSState::IsMipMapDraw()
 	return m_context->TEX1.MXL > 0 && m_context->TEX1.MMIN >= 2 && m_context->TEX1.MMIN <= 5 && m_vt.m_lod.y > 0;
 }
 
-bool GSState::IsMipMapActive()
-{
-	return m_mipmap && IsMipMapDraw();
-}
-
 GIFRegTEX0 GSState::GetTex0Layer(u32 lod)
 {
 	// Shortcut
-	if (lod == 0) {
+	if (lod == 0)
 		return m_context->TEX0;
-	}
 
 	GIFRegTEX0 TEX0 = m_context->TEX0;
 

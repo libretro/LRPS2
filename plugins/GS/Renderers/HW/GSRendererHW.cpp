@@ -1093,7 +1093,8 @@ void GSRendererHW::Draw()
 		return;
 
 	// Fix TEX0 size
-	if(PRIM->TME && !IsMipMapActive())
+	bool is_mipmap_active = m_mipmap && IsMipMapDraw();
+	if(PRIM->TME && !is_mipmap_active)
 		m_context->ComputeFixedTEX0(m_vt.m_min.t.xyxy(m_vt.m_max.t));
 
 	// skip alpha test if possible
@@ -1185,7 +1186,7 @@ void GSRendererHW::Draw()
 		m_lod = GSVector2i(0, 0);
 
 		// Code from the SW renderer
-		if (IsMipMapActive()) {
+		if (m_mipmap && IsMipMapDraw()) {
 			const int interpolation = (context->TEX1.MMIN & 1) + 1; // 1: round, 2: tri
 
 			int k = (m_context->TEX1.K + 8) >> 4;
@@ -1242,7 +1243,7 @@ void GSRendererHW::Draw()
 			}
 		}
 		else
-			TEX0 = GetTex0Layer(0);
+			TEX0 = m_context->TEX0;
 
 		m_context->offset.tex = m_mem.GetOffset(TEX0.TBP0, TEX0.TBW, TEX0.PSM);
 
@@ -1253,7 +1254,7 @@ void GSRendererHW::Draw()
 		m_src = tex_psm.depth ? m_tc->LookupDepthSource(TEX0, env.TEXA, r) : m_tc->LookupSource(TEX0, env.TEXA, r);
 
 		// Round 2
-		if (IsMipMapActive() && m_mipmap == 2 && !tex_psm.depth) {
+		if (m_mipmap && IsMipMapDraw() && m_mipmap == 2 && !tex_psm.depth) {
 			// Upload remaining texture layers
 			const GSVector4 tmin = m_vt.m_min.t;
 			const GSVector4 tmax = m_vt.m_max.t;

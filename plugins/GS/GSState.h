@@ -199,7 +199,6 @@ protected:
 	bool TryAlphaTest(u32& fm, u32& zm);
 	bool IsOpaque();
 	bool IsMipMapDraw();
-	bool IsMipMapActive();
 	GIFRegTEX0 GetTex0Layer(u32 lod);
 
 public:
