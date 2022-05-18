@@ -23,6 +23,7 @@
 #include "GS.h"
 #include "GSUtil.h"
 #include "options_tools.h"
+#include "../../pcsx2/GifTypes.h"
 
 GSState::GSState()
 	: m_version(6)
