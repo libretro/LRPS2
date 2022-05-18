@@ -916,7 +916,7 @@ void GSRendererOGL::DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Sour
 	m_prim_overlap = PrimitiveOverlap();
 
 	// Detect framebuffer read that will need special handling
-	if ((m_context->FRAME.Block() == m_context->TEX0.TBP0) && PRIM->TME && m_sw_blending) {
+	if ((GIFREG_FRAME_BLOCK(m_context->FRAME) == m_context->TEX0.TBP0) && PRIM->TME && m_sw_blending) {
 		if ((m_context->FRAME.FBMSK == 0x00FFFFFF) && (m_vt.m_primclass == GS_TRIANGLE_CLASS)) {
 			// This pattern is used by several games to emulate a stencil (shadow)
 			// Ratchet & Clank, Jak do alpha integer multiplication (tfx) which is mostly equivalent to +1/-1
@@ -1317,5 +1317,5 @@ bool GSRendererOGL::IsDummyTexture() const
 {
 	// Texture is actually the frame buffer. Stencil emulation to compute shadow (Jak series/tri-ace game)
 	// Will hit the "m_ps_sel.tex_is_fb = 1" path in the draw
-	return (m_context->FRAME.Block() == m_context->TEX0.TBP0) && PRIM->TME && m_sw_blending && m_vt.m_primclass == GS_TRIANGLE_CLASS && (m_context->FRAME.FBMSK == 0x00FFFFFF);
+	return (GIFREG_FRAME_BLOCK(m_context->FRAME) == m_context->TEX0.TBP0) && PRIM->TME && m_sw_blending && m_vt.m_primclass == GS_TRIANGLE_CLASS && (m_context->FRAME.FBMSK == 0x00FFFFFF);
 }

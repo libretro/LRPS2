@@ -583,8 +583,9 @@ REG64_(GIFReg, FRAME)
 	u32 _PAD3:2;
 	u32 FBMSK;
 REG_END2
-	u32 Block() const {return FBP << 5;}
 REG_END2
+
+#define GIFREG_FRAME_BLOCK(x) ((x).FBP << 5)
 
 REG64_(GIFReg, HWREG)
 	u32 DATA_LOWER;
@@ -868,8 +869,9 @@ REG64_(GIFReg, ZBUF)
 	u32 ZMSK:1;
 	u32 _PAD3:31;
 REG_END2
-	u32 Block() const {return ZBP << 5;}
 REG_END2
+
+#define GIFREG_ZBUF_BLOCK(x) ((x).ZBP << 5)
 
 REG64_SET(GIFReg)
 	GIFRegALPHA			ALPHA;
@@ -1045,7 +1047,7 @@ struct alignas(32) GIFPath
 
 		nreg = (b & 0xf0000000) ? (b >> 28) : 16; // src->NREG
 		regs = v.upl8(v >> 4) & GSVector4i::x0f(nreg);
-		reg = 0;
+		reg  = 0;
 
 		type = TYPE_UNKNOWN;
 
@@ -1072,12 +1074,12 @@ struct alignas(32) GIFPath
 				case 7: break;
 				case 8: break;
 				case 9:
-					if(regs.U32[0] == 0x02040102 && regs.U32[1] == 0x01020401 && regs.U32[2] == 0x00000004) {type = TYPE_STQRGBAXYZF2; nreg = 3; nloop *= 3;} // ffx
+					if(regs.U32[0] == 0x02040102 && regs.U32[1] == 0x01020401 && regs.U32[2] == 0x00000004) {type = TYPE_STQRGBAXYZF2; nreg = 3; nloop *= 3;} // FFX
 					break;
 				case 10: break;
 				case 11: break;
 				case 12:
-					if(regs.U32[0] == 0x02040102 && regs.U32[1] == 0x01020401 && regs.U32[2] == 0x04010204) {type = TYPE_STQRGBAXYZF2; nreg = 3; nloop *= 4;} // dq8 (not many, mostly 040102)
+					if(regs.U32[0] == 0x02040102 && regs.U32[1] == 0x01020401 && regs.U32[2] == 0x04010204) {type = TYPE_STQRGBAXYZF2; nreg = 3; nloop *= 4;} // DQ8 (not many, mostly 040102)
 					break;
 				case 13: break;
 				case 14: break;

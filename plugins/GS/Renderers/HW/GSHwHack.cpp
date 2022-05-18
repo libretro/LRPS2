@@ -1074,7 +1074,7 @@ bool GSState::IsBadFrame()
 {
 	GSFrameInfo fi;
 
-	fi.FBP   = m_context->FRAME.Block();
+	fi.FBP   = GIFREG_FRAME_BLOCK(m_context->FRAME);
 	fi.FPSM  = m_context->FRAME.PSM;
 	fi.FBMSK = m_context->FRAME.FBMSK;
 	fi.TME   = PRIM->TME;

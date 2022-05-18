@@ -370,7 +370,7 @@ void GSRendererSW::Queue(std::shared_ptr<GSRasterizerData>& item)
 	{
 		m_tc->InvalidatePages(sd->m_fb_pages, sd->m_fpsm);
 
-		m_mem.m_clut.Invalidate(m_context->FRAME.Block());
+		m_mem.m_clut.Invalidate(GIFREG_FRAME_BLOCK(m_context->FRAME));
 	}
 
 	if(sd->global.sel.zwrite)

@@ -806,8 +806,8 @@ void GSRendererHW::SwSpriteRender()
 		bitbltbuf.SPSM = m_context->TEX0.PSM;
 	}
 
-	bitbltbuf.DBP = m_context->FRAME.Block();
-	bitbltbuf.DBW = m_context->FRAME.FBW;
+	bitbltbuf.DBP  = GIFREG_FRAME_BLOCK(m_context->FRAME);
+	bitbltbuf.DBW  = m_context->FRAME.FBW;
 	bitbltbuf.DPSM = m_context->FRAME.PSM;
 
 	ASSERT(m_r.x == 0 && m_r.y == 0);  // No rendering region offset
@@ -1143,7 +1143,7 @@ void GSRendererHW::Draw()
 		m_channel_shuffle = draw_sprite_tex && (m_context->TEX0.PSM == PSM_PSMT8) && single_page;
 		if (m_channel_shuffle)
 			return;
-	} else if (draw_sprite_tex && m_context->FRAME.Block() == m_context->TEX0.TBP0) {
+	} else if (draw_sprite_tex && GIFREG_FRAME_BLOCK(m_context->FRAME) == m_context->TEX0.TBP0) {
 		// Special post-processing effect
 		if ((m_context->TEX0.PSM == PSM_PSMT8) && single_page)
 			m_channel_shuffle = true;
@@ -1155,9 +1155,9 @@ void GSRendererHW::Draw()
 
 	GIFRegTEX0 TEX0;
 
-	TEX0.TBP0 = context->FRAME.Block();
-	TEX0.TBW = context->FRAME.FBW;
-	TEX0.PSM = context->FRAME.PSM;
+	TEX0.TBP0 = GIFREG_FRAME_BLOCK(context->FRAME);
+	TEX0.TBW  = context->FRAME.FBW;
+	TEX0.PSM  = context->FRAME.PSM;
 
 	GSTextureCache::Target* rt = NULL;
 	GSTexture* rt_tex = NULL;
@@ -1166,9 +1166,9 @@ void GSRendererHW::Draw()
 		rt_tex = rt->m_texture;
 	}
 
-	TEX0.TBP0 = context->ZBUF.Block();
-	TEX0.TBW = context->FRAME.FBW;
-	TEX0.PSM = context->ZBUF.PSM;
+	TEX0.TBP0 = GIFREG_ZBUF_BLOCK(context->ZBUF);
+	TEX0.TBW  = context->FRAME.FBW;
+	TEX0.PSM  = context->ZBUF.PSM;
 
 	GSTextureCache::Target* ds = NULL;
 	GSTexture* ds_tex = NULL;
@@ -1302,7 +1302,7 @@ void GSRendererHW::Draw()
 				// In this case, the address of the framebuffer and texture are the same. 
 				// The game will take RG => BA and then the BA => RG of next pixels. 
 				// However, only RG => BA needs to be emulated because RG isn't used.
-				m_context->FRAME.Block() == m_context->TEX0.TBP0 ||
+				GIFREG_FRAME_BLOCK(m_context->FRAME) == m_context->TEX0.TBP0 ||
 				// DMC3, Onimusha 3 rely on this behavior.
 				// They do fullscreen rectangle with scissor, then shift by 8 pixels, not done with recursion.
 				// So we check if it's a TS effect by checking the scissor.
@@ -1412,7 +1412,7 @@ void GSRendererHW::Draw()
 
 		m_tc->InvalidateVideoMem(context->offset.fb, m_r, false);
 
-		m_tc->InvalidateVideoMemType(GSTextureCache::DepthStencil, context->FRAME.Block());
+		m_tc->InvalidateVideoMemType(GSTextureCache::DepthStencil, GIFREG_FRAME_BLOCK(context->FRAME));
 	}
 
 	if(zm != 0xffffffff && ds)
@@ -1422,7 +1422,7 @@ void GSRendererHW::Draw()
 
 		m_tc->InvalidateVideoMem(context->offset.zb, m_r, false);
 
-		m_tc->InvalidateVideoMemType(GSTextureCache::RenderTarget, context->ZBUF.Block());
+		m_tc->InvalidateVideoMemType(GSTextureCache::RenderTarget, GIFREG_ZBUF_BLOCK(context->ZBUF));
 	}
 
 	//
@@ -1614,8 +1614,8 @@ bool GSRendererHW::OI_BlitFMV(GSTextureCache::Target* _rt, GSTextureCache::Sourc
 		sRect.w = m_vt.m_max.t.y / th;
 
 		// Compute the Bottom of texture rectangle
-		ASSERT(m_context->TEX0.TBP0 > m_context->FRAME.Block());
-		const int offset = (m_context->TEX0.TBP0 - m_context->FRAME.Block()) / m_context->TEX0.TBW;
+		ASSERT(m_context->TEX0.TBP0 > GIFREG_FRAME_BLOCK(m_context->FRAME));
+		const int offset = (m_context->TEX0.TBP0 - GIFREG_FRAME_BLOCK(m_context->FRAME)) / m_context->TEX0.TBW;
 		GSVector4i r_texture(r_draw);
 		r_texture.y -= offset;
 		r_texture.w -= offset;
@@ -1664,7 +1664,7 @@ bool GSRendererHW::OI_BigMuthaTruckers(GSTexture* rt, GSTexture* ds, GSTextureCa
 	GIFRegTEX0 Frame;
 	Frame.TBW = m_context->FRAME.FBW;
 	Frame.TBP0 = m_context->FRAME.FBP;
-	Frame.TBP0 = m_context->FRAME.Block();
+	Frame.TBP0 = GIFREG_FRAME_BLOCK(m_context->FRAME);
 
 	if (PRIM->TME && Frame.TBW == 10 && Texture.TBW == 10 && Frame.TBP0 == 0x00a00 && Texture.PSM == PSM_PSMT8H && (m_r.y == 256 || m_r.y == 224))
 	{
@@ -1778,8 +1778,8 @@ bool GSRendererHW::OI_FFXII(GSTexture* rt, GSTexture* ds, GSTextureCache::Source
 
 bool GSRendererHW::OI_FFX(GSTexture* rt, GSTexture* ds, GSTextureCache::Source* t)
 {
-	const u32 FBP = m_context->FRAME.Block();
-	const u32 ZBP = m_context->ZBUF.Block();
+	const u32 FBP = GIFREG_FRAME_BLOCK(m_context->FRAME);
+	const u32 ZBP = GIFREG_ZBUF_BLOCK(m_context->ZBUF);
 	const u32 TBP = m_context->TEX0.TBP0;
 
 	if((FBP == 0x00d00 || FBP == 0x00000) && ZBP == 0x02100 && PRIM->TME && TBP == 0x01a00 && m_context->TEX0.PSM == PSM_PSMCT16S)
@@ -1822,8 +1822,8 @@ bool GSRendererHW::OI_RozenMaidenGebetGarden(GSTexture* rt, GSTexture* ds, GSTex
 {
 	if(!PRIM->TME)
 	{
-		const u32 FBP = m_context->FRAME.Block();
-		const u32 ZBP = m_context->ZBUF.Block();
+		const u32 FBP = GIFREG_FRAME_BLOCK(m_context->FRAME);
+		const u32 ZBP = GIFREG_ZBUF_BLOCK(m_context->ZBUF);
 
 		if(FBP == 0x008c0 && ZBP == 0x01a40)
 		{
@@ -1843,7 +1843,7 @@ bool GSRendererHW::OI_RozenMaidenGebetGarden(GSTexture* rt, GSTexture* ds, GSTex
 
 			return false;
 		}
-		else if(FBP == 0x00000 && m_context->ZBUF.Block() == 0x01180)
+		else if(FBP == 0x00000 && GIFREG_ZBUF_BLOCK(m_context->ZBUF) == 0x01180)
 		{
 			// z buffer clear, frame buffer now points to the z buffer (how can they be so clever?)
 
@@ -1877,10 +1877,10 @@ bool GSRendererHW::OI_SonicUnleashed(GSTexture* rt, GSTexture* ds, GSTextureCach
 	const GIFRegTEX0 Texture = m_context->TEX0;
 
 	GIFRegTEX0 Frame;
-	Frame.TBW = m_context->FRAME.FBW;
+	Frame.TBW  = m_context->FRAME.FBW;
 	Frame.TBP0 = m_context->FRAME.FBP;
-	Frame.TBP0 = m_context->FRAME.Block();
-	Frame.PSM = m_context->FRAME.PSM;
+	Frame.TBP0 = GIFREG_FRAME_BLOCK(m_context->FRAME);
+	Frame.PSM  = m_context->FRAME.PSM;
 
 	if ((!PRIM->TME) || (GSLocalMemory::m_psm[Texture.PSM].bpp != 16) || (GSLocalMemory::m_psm[Frame.PSM].bpp != 16))
 		return true;
@@ -1902,7 +1902,7 @@ bool GSRendererHW::OI_SonicUnleashed(GSTexture* rt, GSTexture* ds, GSTextureCach
 
 bool GSRendererHW::OI_StarWarsForceUnleashed(GSTexture* rt, GSTexture* ds, GSTextureCache::Source* t)
 {
-	const u32 FBP = m_context->FRAME.Block();
+	const u32 FBP  = GIFREG_FRAME_BLOCK(m_context->FRAME);
 	const u32 FPSM = m_context->FRAME.PSM;
 
 	if(PRIM->TME)
@@ -1922,7 +1922,7 @@ bool GSRendererHW::OI_PointListPalette(GSTexture* rt, GSTexture* ds, GSTextureCa
 {
 	if(m_vt.m_primclass == GS_POINT_CLASS && !PRIM->TME)
 	{
-		u32 FBP = m_context->FRAME.Block();
+		u32 FBP = GIFREG_FRAME_BLOCK(m_context->FRAME);
 		u32 FBW = m_context->FRAME.FBW;
 
 		if(FBP >= 0x03f40 && (FBP & 0x1f) == 0)
@@ -1999,7 +1999,7 @@ bool GSRendererHW::OI_SuperManReturns(GSTexture* rt, GSTexture* ds, GSTextureCac
 		rt->Commit(); // Don't bother to save few MB for a single game
 	m_dev->ClearRenderTarget(rt, GSVector4(m_vt.m_min.c));
 
-	m_tc->InvalidateVideoMemType(GSTextureCache::DepthStencil, ctx->FRAME.Block());
+	m_tc->InvalidateVideoMemType(GSTextureCache::DepthStencil, GIFREG_FRAME_BLOCK(ctx->FRAME));
 
 	return false;
 }
@@ -2055,7 +2055,7 @@ void GSRendererHW::OO_MajokkoALaMode2()
 {
 	// palette readback
 
-	const u32 FBP = m_context->FRAME.Block();
+	const u32 FBP = GIFREG_FRAME_BLOCK(m_context->FRAME);
 
 	if(!PRIM->TME && FBP == 0x03f40)
 	{
@@ -2075,7 +2075,7 @@ bool GSRendererHW::CU_MajokkoALaMode2()
 {
 	// palette should stay 16 x 16
 
-	const u32 FBP = m_context->FRAME.Block();
+	const u32 FBP = GIFREG_FRAME_BLOCK(m_context->FRAME);
 
 	return FBP != 0x03f40;
 }
@@ -2084,7 +2084,7 @@ bool GSRendererHW::CU_TalesOfAbyss()
 {
 	// full image blur and brightening
 
-	const u32 FBP = m_context->FRAME.Block();
+	const u32 FBP = GIFREG_FRAME_BLOCK(m_context->FRAME);
 
 	return FBP != 0x036e0 && FBP != 0x03560 && FBP != 0x038e0;
 }

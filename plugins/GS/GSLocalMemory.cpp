@@ -527,11 +527,11 @@ GSOffset* GSLocalMemory::GetOffset(u32 bp, u32 bw, u32 psm)
 
 GSPixelOffset* GSLocalMemory::GetPixelOffset(const GIFRegFRAME& FRAME, const GIFRegZBUF& ZBUF)
 {
-	u32 fbp = FRAME.Block();
-	u32 zbp = ZBUF.Block();
+	u32 fbp  = GIFREG_FRAME_BLOCK(FRAME);
+	u32 zbp  = GIFREG_ZBUF_BLOCK(ZBUF);
 	u32 fpsm = FRAME.PSM;
 	u32 zpsm = ZBUF.PSM;
-	u32 bw = FRAME.FBW;
+	u32 bw   = FRAME.FBW;
 
 	ASSERT(m_psm[fpsm].trbpp > 8 || m_psm[zpsm].trbpp > 8);
 
@@ -583,11 +583,11 @@ GSPixelOffset* GSLocalMemory::GetPixelOffset(const GIFRegFRAME& FRAME, const GIF
 
 GSPixelOffset4* GSLocalMemory::GetPixelOffset4(const GIFRegFRAME& FRAME, const GIFRegZBUF& ZBUF)
 {
-	u32 fbp = FRAME.Block();
-	u32 zbp = ZBUF.Block();
+	u32 fbp  = GIFREG_FRAME_BLOCK(FRAME);
+	u32 zbp  = GIFREG_ZBUF_BLOCK(ZBUF);
 	u32 fpsm = FRAME.PSM;
 	u32 zpsm = ZBUF.PSM;
-	u32 bw = FRAME.FBW;
+	u32 bw   = FRAME.FBW;
 
 	ASSERT(m_psm[fpsm].trbpp > 8 || m_psm[zpsm].trbpp > 8);
 

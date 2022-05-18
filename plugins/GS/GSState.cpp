@@ -184,8 +184,8 @@ void GSState::Reset()
 	{
 		m_env.CTXT[i].UpdateScissor();
 
-		m_env.CTXT[i].offset.fb = m_mem.GetOffset(m_env.CTXT[i].FRAME.Block(), m_env.CTXT[i].FRAME.FBW, m_env.CTXT[i].FRAME.PSM);
-		m_env.CTXT[i].offset.zb = m_mem.GetOffset(m_env.CTXT[i].ZBUF.Block(), m_env.CTXT[i].FRAME.FBW, m_env.CTXT[i].ZBUF.PSM);
+		m_env.CTXT[i].offset.fb = m_mem.GetOffset(GIFREG_FRAME_BLOCK(m_env.CTXT[i].FRAME), m_env.CTXT[i].FRAME.FBW, m_env.CTXT[i].FRAME.PSM);
+		m_env.CTXT[i].offset.zb = m_mem.GetOffset(GIFREG_ZBUF_BLOCK(m_env.CTXT[i].ZBUF), m_env.CTXT[i].FRAME.FBW, m_env.CTXT[i].ZBUF.PSM);
 		m_env.CTXT[i].offset.tex = m_mem.GetOffset(m_env.CTXT[i].TEX0.TBP0, m_env.CTXT[i].TEX0.TBW, m_env.CTXT[i].TEX0.PSM);
 		m_env.CTXT[i].offset.fzb = m_mem.GetPixelOffset(m_env.CTXT[i].FRAME, m_env.CTXT[i].ZBUF);
 		m_env.CTXT[i].offset.fzb4 = m_mem.GetPixelOffset4(m_env.CTXT[i].FRAME, m_env.CTXT[i].ZBUF);
@@ -1109,8 +1109,8 @@ template<int i> void GSState::GIFRegHandlerFRAME(const GIFReg* RESTRICT r)
 
 	if((m_env.CTXT[i].FRAME.U32[0] ^ r->FRAME.U32[0]) & 0x3f3f01ff) // FBP FBW PSM
 	{
-		m_env.CTXT[i].offset.fb = m_mem.GetOffset(r->FRAME.Block(), r->FRAME.FBW, r->FRAME.PSM);
-		m_env.CTXT[i].offset.zb = m_mem.GetOffset(m_env.CTXT[i].ZBUF.Block(), r->FRAME.FBW, m_env.CTXT[i].ZBUF.PSM);
+		m_env.CTXT[i].offset.fb = m_mem.GetOffset(GIFREG_FRAME_BLOCK(r->FRAME), r->FRAME.FBW, r->FRAME.PSM);
+		m_env.CTXT[i].offset.zb = m_mem.GetOffset(GIFREG_ZBUF_BLOCK(m_env.CTXT[i].ZBUF), r->FRAME.FBW, m_env.CTXT[i].ZBUF.PSM);
 		m_env.CTXT[i].offset.fzb = m_mem.GetPixelOffset(r->FRAME, m_env.CTXT[i].ZBUF);
 		m_env.CTXT[i].offset.fzb4 = m_mem.GetPixelOffset4(r->FRAME, m_env.CTXT[i].ZBUF);
 	}
@@ -1159,7 +1159,7 @@ template<int i> void GSState::GIFRegHandlerZBUF(const GIFReg* RESTRICT r)
 
 	if((m_env.CTXT[i].ZBUF.U32[0] ^ ZBUF.U32[0]) & 0x3f0001ff) // ZBP PSM
 	{
-		m_env.CTXT[i].offset.zb = m_mem.GetOffset(ZBUF.Block(), m_env.CTXT[i].FRAME.FBW, ZBUF.PSM);
+		m_env.CTXT[i].offset.zb = m_mem.GetOffset(GIFREG_ZBUF_BLOCK(ZBUF), m_env.CTXT[i].FRAME.FBW, ZBUF.PSM);
 		m_env.CTXT[i].offset.fzb = m_mem.GetPixelOffset(m_env.CTXT[i].FRAME, ZBUF);
 		m_env.CTXT[i].offset.fzb4 = m_mem.GetPixelOffset4(m_env.CTXT[i].FRAME, ZBUF);
 	}
@@ -2073,8 +2073,8 @@ int GSState::Defrost(const GSFreezeData* fd)
 	{
 		m_env.CTXT[i].UpdateScissor();
 
-		m_env.CTXT[i].offset.fb = m_mem.GetOffset(m_env.CTXT[i].FRAME.Block(), m_env.CTXT[i].FRAME.FBW, m_env.CTXT[i].FRAME.PSM);
-		m_env.CTXT[i].offset.zb = m_mem.GetOffset(m_env.CTXT[i].ZBUF.Block(), m_env.CTXT[i].FRAME.FBW, m_env.CTXT[i].ZBUF.PSM);
+		m_env.CTXT[i].offset.fb = m_mem.GetOffset(GIFREG_FRAME_BLOCK(m_env.CTXT[i].FRAME), m_env.CTXT[i].FRAME.FBW, m_env.CTXT[i].FRAME.PSM);
+		m_env.CTXT[i].offset.zb = m_mem.GetOffset(GIFREG_ZBUF_BLOCK(m_env.CTXT[i].ZBUF), m_env.CTXT[i].FRAME.FBW, m_env.CTXT[i].ZBUF.PSM);
 		m_env.CTXT[i].offset.tex = m_mem.GetOffset(m_env.CTXT[i].TEX0.TBP0, m_env.CTXT[i].TEX0.TBW, m_env.CTXT[i].TEX0.PSM);
 		m_env.CTXT[i].offset.fzb = m_mem.GetPixelOffset(m_env.CTXT[i].FRAME, m_env.CTXT[i].ZBUF);
 		m_env.CTXT[i].offset.fzb4 = m_mem.GetPixelOffset4(m_env.CTXT[i].FRAME, m_env.CTXT[i].ZBUF);
@@ -2378,7 +2378,7 @@ __forceinline void GSState::VertexKick(u32 skip)
 			__assume(0);
 	}
 
-	if (auto_flush && PRIM->TME && (m_context->FRAME.Block() == m_context->TEX0.TBP0))
+	if (auto_flush && PRIM->TME && (GIFREG_FRAME_BLOCK(m_context->FRAME) == m_context->TEX0.TBP0))
 		if(m_index.tail > 0)
 			FlushPrim();
 }
