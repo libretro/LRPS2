@@ -106,8 +106,6 @@ union tGIF_CTRL
 		u32 reserved2 : 28;
 	};
 	u32 _u32;
-
-	tGIF_CTRL(u32 val) { _u32 = val; }
 };
 
 union tGIF_MODE
@@ -119,8 +117,6 @@ union tGIF_MODE
 		u32 reserved2 : 29;
 	};
 	u32 _u32;
-
-	tGIF_MODE(u32 val) { _u32 = val; }
 };
 
 union tGIF_STAT
@@ -143,8 +139,6 @@ union tGIF_STAT
 		u32 reserved3 : 3;	// ...
 	};
 	u32 _u32;
-
-	tGIF_STAT(u32 val) { _u32 = val; }
 };
 
 union tGIF_TAG0
@@ -155,9 +149,6 @@ union tGIF_TAG0
 		u32 TAG : 16;
 	};
 	u32 _u32;
-
-	tGIF_TAG0(u32 val) { _u32 = val; }
-
 };
 
 union tGIF_TAG1
@@ -170,9 +161,6 @@ union tGIF_TAG1
 		u32 NREG : 4;
 	};
 	u32 _u32;
-
-	tGIF_TAG1(u32 val) { _u32 = val; }
-
 };
 
 union tGIF_CNT
@@ -186,9 +174,6 @@ union tGIF_CNT
 
 	};
 	u32 _u32;
-
-	tGIF_CNT(u32 val) { _u32 = val; }
-
 };
 
 union tGIF_P3CNT
@@ -198,9 +183,6 @@ union tGIF_P3CNT
 		u32 reserved1 : 17;
 	};
 	u32 _u32;
-
-	tGIF_P3CNT(u32 val) { _u32 = val; }
-
 };
 
 union tGIF_P3TAG
@@ -211,8 +193,6 @@ union tGIF_P3TAG
 		u32 reserved1 : 16;
 	};
 	u32 _u32;
-
-	tGIF_P3TAG(u32 val) { _u32 = val; }
 };
 
 struct GIFregisters
