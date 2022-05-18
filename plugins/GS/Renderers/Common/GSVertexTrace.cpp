@@ -93,8 +93,8 @@ void GSVertexTrace::Update(const void* vertex, const u32* index, int v_count, in
 	{
 		const GIFRegTEX1& TEX1 = m_state->m_context->TEX1;
 
-		m_filter.mmag = TEX1.IsMagLinear();
-		m_filter.mmin = TEX1.IsMinLinear();
+		m_filter.mmag = TEX1.MMAG;
+		m_filter.mmin = TEX1.MMIN == 1 || (TEX1.MMIN & 4);
 
 		if(TEX1.MXL == 0) // MXL == 0 => MMIN ignored, tested it on ps2
 			m_filter.linear = m_filter.mmag;

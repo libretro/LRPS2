@@ -766,8 +766,6 @@ REG64_(GIFReg, TEX1)
 	s32  K:12; // 1:7:4
 	u32 _PAD4:20;
 REG_END2
-	bool IsMinLinear() const {return (MMIN == 1) || (MMIN & 4);}
-	bool IsMagLinear() const {return MMAG;}
 REG_END2
 
 REG64_(GIFReg, TEX2)
@@ -1179,8 +1177,6 @@ struct GSPrivRegSet
 
 enum {FREEZE_LOAD=0, FREEZE_SAVE=1, FREEZE_SIZE=2};
 struct GSFreezeData {int size; u8* data;};
-
-enum stateType {ST_WRITE, ST_TRANSFER, ST_VSYNC};
 
 enum class GSVideoMode : u8
 {
