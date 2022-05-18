@@ -51,17 +51,9 @@ void SetIrqCall(int core)
 	has_to_call_irq = true;
 }
 
-#define GETMEMPTR(addr) ((_spu2mem) + (addr))
-
 __forceinline s16* GetMemPtr(u32 addr)
 {
 	return GETMEMPTR(addr);
-}
-
-__forceinline s16 spu2M_Read(u32 addr)
-{
-        u32 _addr = addr & 0xfffff;
-	return *GETMEMPTR(_addr);
 }
 
 // writes a signed value to the SPU2 ram
@@ -93,7 +85,6 @@ V_Core::~V_Core() throw()
 
 void V_Core::Init(int index)
 {
-	//memset(this, 0, sizeof(V_Core));
 	// Explicitly initializing variables instead.
 	Mute = false;
 	DMABits = 0;
@@ -115,7 +106,6 @@ void V_Core::Init(int index)
 	KeyOn = 0;
 
 	psxSoundDataTransferControl = 0;
-	psxSPUSTAT = 0;
 
 	const int c = Index = index;
 
@@ -159,7 +149,7 @@ void V_Core::Init(int index)
 	IRQA = 0x800;
 	IRQEnable = false; // PS2 confirmed
 
-	for (uint v = 0; v < NumVoices; ++v)
+	for (uint v = 0; v < NUM_VOICES; ++v)
 	{
 		VoiceGates[v].DryL = -1;
 		VoiceGates[v].DryR = -1;
@@ -319,7 +309,7 @@ __forceinline void TimeUpdate(u32 cClocks)
 
 				Cores[0].MADR = Cores[0].TADR;
 				Cores[0].DMAICounter = 0;
-            spu2DMA4Irq();
+				spu2DMA4Irq();
 			}
 			else
 			{
@@ -338,7 +328,7 @@ __forceinline void TimeUpdate(u32 cClocks)
 
 				Cores[1].MADR = Cores[1].TADR;
 				Cores[1].DMAICounter = 0;
-            spu2DMA7Irq();
+				spu2DMA7Irq();
 			}
 			else
 				Cores[1].MADR += TickInterval << 1;
@@ -352,50 +342,13 @@ __forceinline void TimeUpdate(u32 cClocks)
 	}
 }
 
-__forceinline void UpdateSpdifMode()
-{
-	if (Spdif.Out & 0x4) // use 24/32bit PCM data streaming
-	{
-		PlayMode = 8;
-		return;
-	}
-
-	if (Spdif.Out & SPDIF_OUT_BYPASS)
-	{
-		PlayMode = 2;
-		if (!(Spdif.Mode & SPDIF_MODE_BYPASS_BITSTREAM))
-			PlayMode = 4; //bitstream bypass
-	}
-	else
-	{
-		PlayMode = 0; //normal processing
-		if (Spdif.Out & SPDIF_OUT_PCM)
-			PlayMode = 1;
-	}
-}
-
 // Converts an SPU2 register volume write into a 32 bit SPU2 volume.  The value is extended
 // properly into the lower 16 bits of the value to provide a full spectrum of volumes.
-static s32 GetVol32(u16 src)
-{
-	return (((s32)src) << 16) | ((src << 1) & 0xffff);
-}
+#define GETVOL32(src) ((s32)((((s32)src) << 16) | ((src << 1) & 0xffff)))
 
-void V_VolumeSlide::RegSet(u16 src)
-{
-	Value = GetVol32(src);
-}
+#define MAP_SPU1TO2(addr) (addr * 4 + (addr >= 0x200 ? 0xc0000 : 0))
 
-static u32 map_spu1to2(u32 addr)
-{
-	return addr * 4 + (addr >= 0x200 ? 0xc0000 : 0);
-}
-
-static u32 map_spu2to1(u32 addr)
-{
-	// if (addr >= 0x800 && addr < 0xc0000) oh dear
-	return (addr - (addr >= 0xc0000 ? 0xc0000 : 0)) / 4;
-}
+#define MAP_SPU2TO1(addr) ((addr - (addr >= 0xc0000 ? 0xc0000 : 0)) / 4)
 
 void V_Core::WriteRegPS1(u32 mem, u16 value)
 {
@@ -426,9 +379,9 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 					// Constant Volume mode (no slides or envelopes)
 					// Volumes range from 0x3fff to 0x7fff, with 0x4000 serving as
 					// the "sign" bit, so a simple bitwise extension will do the trick:
-
-					thisvol.RegSet(value << 1);
-					thisvol.Mode = 0;
+					u16 src = value << 1;
+					thisvol.Value     = GETVOL32(src);
+					thisvol.Mode      = 0;
 					thisvol.Increment = 0;
 				}
 				break;
@@ -437,7 +390,7 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 				Voices[voice].Pitch = value;
 				break;
 			case 0x6:
-				Voices[voice].StartA = map_spu1to2(value);
+				Voices[voice].StartA = MAP_SPU1TO2(value);
 				break;
 
 			case 0x8: // ADSR1 (Envelope)
@@ -452,7 +405,7 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 				Voices[voice].ADSR.Value = value * 0x10001U;
 				break;
 			case 0xe:
-				Voices[voice].LoopStartA = map_spu1to2(value);
+				Voices[voice].LoopStartA = MAP_SPU1TO2(value);
 				break;
 
 				jNO_DEFAULT;
@@ -463,21 +416,21 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 		switch (reg)
 		{
 			case 0x1d80: //         Mainvolume left
-				MasterVol.Left.Mode = 0;
-				MasterVol.Left.RegSet(value);
+				MasterVol.Left.Mode  = 0;
+				MasterVol.Left.Value = GETVOL32(value);
 				break;
 
 			case 0x1d82: //         Mainvolume right
-				MasterVol.Right.Mode = 0;
-				MasterVol.Right.RegSet(value);
+				MasterVol.Right.Mode  = 0;
+				MasterVol.Right.Value = GETVOL32(value);
 				break;
 
 			case 0x1d84: //         Reverberation depth left
-				FxVol.Left = GetVol32(value);
+				FxVol.Left  = GETVOL32(value);
 				break;
 
 			case 0x1d86: //         Reverberation depth right
-				FxVol.Right = GetVol32(value);
+				FxVol.Right = GETVOL32(value);
 				break;
 
 			case 0x1d88: //         Voice ON  (0-15)
@@ -543,7 +496,7 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 
 			case 0x1da2: //         Reverb work area start
 			{
-				EffectsStartA = map_spu1to2(value);
+				EffectsStartA = MAP_SPU1TO2(value);
 				//EffectsEndA = 0xFFFFF; // fixed EndA in psx mode
 				Cores[0].RevBuffers.NeedsUpdated = true;
 				ReverbX = 0;
@@ -551,11 +504,11 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 			break;
 
 			case 0x1da4:
-				IRQA = map_spu1to2(value);
+				IRQA = MAP_SPU1TO2(value);
 				break;
 
 			case 0x1da6:
-				TSA = map_spu1to2(value);
+				TSA = MAP_SPU1TO2(value);
 				break;
 
 			case 0x1da8: // Spu Write to Memory
@@ -730,7 +683,7 @@ u16 V_Core::ReadRegPS1(u32 mem)
 				value = Voices[voice].Pitch;
 				break;
 			case 0x6:
-				value = map_spu2to1(Voices[voice].StartA);
+				value = MAP_SPU2TO1(Voices[voice].StartA);
 				break;
 			case 0x8:
 				value = Voices[voice].ADSR.regADSR1;
@@ -742,7 +695,7 @@ u16 V_Core::ReadRegPS1(u32 mem)
 				value = Voices[voice].ADSR.Value >> 16; // no clue
 				break;
 			case 0xe:
-				value = map_spu2to1(Voices[voice].LoopStartA);
+				value = MAP_SPU2TO1(Voices[voice].LoopStartA);
 				break;
 
 				jNO_DEFAULT;
@@ -806,13 +759,13 @@ u16 V_Core::ReadRegPS1(u32 mem)
 				value = Regs.ENDX >> 16;
 				break;
 			case 0x1da2:
-				value = map_spu2to1(EffectsStartA);
+				value = MAP_SPU2TO1(EffectsStartA);
 				break;
 			case 0x1da4:
-				value = map_spu2to1(IRQA);
+				value = MAP_SPU2TO1(IRQA);
 				break;
 			case 0x1da6:
-				value = map_spu2to1(TSA);
+				value = MAP_SPU2TO1(TSA);
 				break;
 			case 0x1da8:
 				value = DmaRead();
@@ -878,9 +831,9 @@ static void __fastcall RegWrite_VoiceParams(u16 value)
 				// Constant Volume mode (no slides or envelopes)
 				// Volumes range from 0x3fff to 0x7fff, with 0x4000 serving as
 				// the "sign" bit, so a simple bitwise extension will do the trick:
-
-				thisvol.RegSet(value << 1);
-				thisvol.Mode = 0;
+				u16 src = value << 1;
+				thisvol.Value     = GETVOL32(src);
+				thisvol.Mode      = 0;
 				thisvol.Increment = 0;
 			}
 		}
@@ -958,6 +911,38 @@ static void __fastcall RegWrite_VoiceAddr(u16 value)
 			thisvoice.NextA = (thisvoice.NextA & 0x0F0000) | (value & 0xFFF8) | 1;
 			thisvoice.SCurrent = 28;
 			break;
+	}
+}
+
+static void StartVoices(int core, u32 value)
+{
+	Cores[core].KeyOn     |= value;
+	Cores[core].Regs.ENDX &= ~value;
+
+	for (u8 vc = 0; vc < NUM_VOICES; vc++)
+	{
+		if (!((value >> vc) & 1))
+			continue;
+
+		if ((Cycles - Cores[core].Voices[vc].PlayCycle) < 2)
+			continue;
+
+		Cores[core].Voices[vc].Start();
+		Cores[core].KeyOn &= ~(1 << vc);
+	}
+}
+
+static void StopVoices(int core, u32 value)
+{
+	for (u8 vc = 0; vc < NUM_VOICES; vc++)
+	{
+		if (!((value >> vc) & 1))
+			continue;
+
+		if (Cycles - Cores[core].Voices[vc].PlayCycle < 2)
+			continue;
+
+		Cores[core].Voices[vc].ADSR.Releasing = true;
 	}
 }
 
@@ -1132,23 +1117,39 @@ static void __fastcall RegWrite_Core(u16 value)
 		break;
 
 		case (REG_S_KON + 2):
-			StartVoices(core, ((u32)value) << 16);
-			spu2regs[omem >> 1 | core * 0x200] = value;
+		        {
+				u32 val = ((u32)value) << 16;
+				if (val != 0)
+					StartVoices(core, val);
+				spu2regs[omem >> 1 | core * 0x200] = value;
+		        }
 			break;
 
 		case REG_S_KON:
-			StartVoices(core, ((u32)value));
-			spu2regs[omem >> 1 | core * 0x200] = value;
+			{
+				u32 val = ((u32)value);
+				if (val != 0)
+					StartVoices(core, val);
+				spu2regs[omem >> 1 | core * 0x200] = value;
+			}
 			break;
 
 		case (REG_S_KOFF + 2):
-			StopVoices(core, ((u32)value) << 16);
-			spu2regs[omem >> 1 | core * 0x200] = value;
+			{
+				u32 val = ((u32)value) << 16;
+				if (val != 0)
+					StopVoices(core, val);
+				spu2regs[omem >> 1 | core * 0x200] = value;
+			}
 			break;
 
 		case REG_S_KOFF:
-			StopVoices(core, ((u32)value));
-			spu2regs[omem >> 1 | core * 0x200] = value;
+			{
+				u32 val = ((u32)value);
+				if (val != 0)
+					StopVoices(core, val);
+				spu2regs[omem >> 1 | core * 0x200] = value;
+			}
 			break;
 
 		case REG_S_ENDX:
@@ -1275,9 +1276,9 @@ static void __fastcall RegWrite_CoreExt(u16 value)
 				// Constant Volume mode (no slides or envelopes)
 				// Volumes range from 0x3fff to 0x7fff, with 0x4000 serving as
 				// the "sign" bit, so a simple bitwise extension will do the trick:
-
-				thisvol.Value = GetVol32(value << 1);
-				thisvol.Mode = 0;
+				u16 src = value << 1;
+				thisvol.Value     = GETVOL32(src);
+				thisvol.Mode      = 0;
 				thisvol.Increment = 0;
 			}
 			thisvol.Reg_VOL = value;
@@ -1285,27 +1286,27 @@ static void __fastcall RegWrite_CoreExt(u16 value)
 		break;
 
 		case REG_P_EVOLL:
-			thiscore.FxVol.Left = GetVol32(value);
+			thiscore.FxVol.Left = GETVOL32(value);
 			break;
 
 		case REG_P_EVOLR:
-			thiscore.FxVol.Right = GetVol32(value);
+			thiscore.FxVol.Right = GETVOL32(value);
 			break;
 
 		case REG_P_AVOLL:
-			thiscore.ExtVol.Left = GetVol32(value);
+			thiscore.ExtVol.Left = GETVOL32(value);
 			break;
 
 		case REG_P_AVOLR:
-			thiscore.ExtVol.Right = GetVol32(value);
+			thiscore.ExtVol.Right = GETVOL32(value);
 			break;
 
 		case REG_P_BVOLL:
-			thiscore.InpVol.Left = GetVol32(value);
+			thiscore.InpVol.Left = GETVOL32(value);
 			break;
 
 		case REG_P_BVOLR:
-			thiscore.InpVol.Right = GetVol32(value);
+			thiscore.InpVol.Right = GETVOL32(value);
 			break;
 
 			// MVOLX has been confirmed to not be allowed to be written to, so cases have been added as a no-op.
@@ -1344,7 +1345,24 @@ template <int addr>
 static void __fastcall RegWrite_SPDIF(u16 value)
 {
 	*(regtable[addr >> 1]) = value;
-	UpdateSpdifMode();
+	if (Spdif.Out & 0x4) // use 24/32bit PCM data streaming
+	{
+		PlayMode = 8;
+		return;
+	}
+
+	if (Spdif.Out & SPDIF_OUT_BYPASS)
+	{
+		PlayMode = 2;
+		if (!(Spdif.Mode & SPDIF_MODE_BYPASS_BITSTREAM))
+			PlayMode = 4; //bitstream bypass
+	}
+	else
+	{
+		PlayMode = 0; //normal processing
+		if (Spdif.Out & SPDIF_OUT_PCM)
+			PlayMode = 1;
+	}
 }
 
 template <int addr>
@@ -1630,43 +1648,3 @@ void SPU2_FastWrite(u32 rmem, u16 value)
 }
 
 
-void StartVoices(int core, u32 value)
-{
-	// Optimization: Games like to write zero to the KeyOn reg a lot, so shortcut
-	// this loop if value is zero.
-
-	if (value == 0)
-		return;
-
-	Cores[core].KeyOn |= value;
-	Cores[core].Regs.ENDX &= ~value;
-
-
-	for (u8 vc = 0; vc < V_Core::NumVoices; vc++)
-	{
-		if (!((value >> vc) & 1))
-			continue;
-
-		if ((Cycles - Cores[core].Voices[vc].PlayCycle) < 2)
-			continue;
-
-		Cores[core].Voices[vc].Start();
-		Cores[core].KeyOn &= ~(1 << vc);
-	}
-}
-
-void StopVoices(int core, u32 value)
-{
-	if (value == 0)
-		return;
-	for (u8 vc = 0; vc < V_Core::NumVoices; vc++)
-	{
-		if (!((value >> vc) & 1))
-			continue;
-
-		if (Cycles - Cores[core].Voices[vc].PlayCycle < 2)
-			continue;
-
-		Cores[core].Voices[vc].ADSR.Releasing = true;
-	}
-}

@@ -26,8 +26,11 @@
 #define spu2Rs16(mmem) (*(s16*)((s8*)spu2regs + ((mmem)&0x1fff)))
 #define spu2Ru16(mmem) (*(u16*)((s8*)spu2regs + ((mmem)&0x1fff)))
 
+extern s16* spu2regs;
+extern s16* _spu2mem;
+#define GETMEMPTR(addr) ((_spu2mem) + (addr))
+
 extern s16* GetMemPtr(u32 addr);
-extern s16 spu2M_Read(u32 addr);
 extern void spu2M_Write(u32 addr, s16 value);
 
 struct V_VolumeLR
@@ -64,9 +67,7 @@ public:
 		, Mode(0)
 	{
 	}
-
 	void Update();
-	void RegSet(u16 src); // used to set the volume from a register source (16 bit signed)
 };
 
 struct V_VolumeSlideLR
@@ -333,16 +334,16 @@ struct VoiceMixSet
 	}
 };
 
+#define NUM_VOICES 24
+
 struct V_Core
 {
-	static const uint NumVoices = 24;
-
 	u32 Index; // Core index identifier.
 
 	// Voice Gates -- These are SSE-related values, and must always be
 	// first to ensure 16 byte alignment
 
-	V_VoiceGates VoiceGates[NumVoices];
+	V_VoiceGates VoiceGates[NUM_VOICES];
 	V_CoreGates DryGate;
 	V_CoreGates WetGate;
 
@@ -351,7 +352,7 @@ struct V_Core
 	V_VolumeLR InpVol;         // Volume for Sound Data Input
 	V_VolumeLR FxVol;          // Volume for Output from Effects
 
-	V_Voice Voices[NumVoices];
+	V_Voice Voices[NUM_VOICES];
 
 	u32 IRQA; // Interrupt Address
 	u32 TSA;  // DMA Transfer Start Address
@@ -405,12 +406,6 @@ struct V_Core
 
 	// psxmode caches
 	u16 psxSoundDataTransferControl;
-	u16 psxSPUSTAT;
-
-	// HACK -- This is a temp buffer which is (or isn't?) used to circumvent some memory
-	// corruption that originates elsewhere in the plugin. >_<  The actual ADMA buffer
-	// is an area mapped to SPU2 main memory.
-	//s16				ADMATempBuffer[0x1000];
 
 	// ----------------------------------------------------------------------------------
 	//  V_Core Methods
@@ -448,22 +443,10 @@ struct V_Core
 	// --------------------------------------------------------------------------
 	//  DMA Section
 	// --------------------------------------------------------------------------
-
-	// Returns the index of the DMA channel (4 for Core 0, or 7 for Core 1)
-	int GetDmaIndex() const
-	{
-		return (Index == 0) ? 4 : 7;
-	}
-
-	// returns either '4' or '7'
-	char GetDmaIndexChar() const
-	{
-		return 0x30 + GetDmaIndex();
-	}
-
 	__forceinline u16 DmaRead()
 	{
-		const u16 ret = (u16)spu2M_Read(TSA);
+		u32 _addr     = TSA & 0xfffff;
+		const u16 ret = (u16)*GETMEMPTR(_addr);
 		++TSA;
 		TSA &= 0xfffff;
 		return ret;
@@ -495,16 +478,10 @@ extern s16 InputPos;
 // SPU Mixing Cycles ("Ticks mixed" counter)
 extern u32 Cycles;
 
-extern s16* spu2regs;
-extern s16* _spu2mem;
 extern int PlayMode;
 
 extern void SetIrqCall(int core);
-extern void StartVoices(int core, u32 value);
-extern void StopVoices(int core, u32 value);
 extern void InitADSR();
-extern void CalculateADSR(V_Voice& vc);
-extern void UpdateSpdifMode();
 
 namespace SPU2Savestate
 {
@@ -522,7 +499,7 @@ namespace SPU2Savestate
 // The SPU2 has a dynamic memory range which is used for several internal operations, such as
 // registers, CORE 1/2 mixing, AutoDMAs, and some other fancy stuff.  We exclude this range
 // from the cache here:
-static const s32 SPU2_DYN_MEMLINE = 0x2800;
+#define SPU2_DYN_MEMLINE 0x2800
 
 // 8 short words per encoded PCM block. (as stored in SPU2 ram)
 static const int pcm_WordsPerBlock = 8;
