@@ -27,6 +27,7 @@
 #include "../../GSUtil.h"
 #include "options_tools.h"
 #include "../Common/fxaa_shader.h"
+#include "../Common/GSRenderer.h"
 #include <libretro.h>
 
 extern retro_video_refresh_t video_cb;
@@ -1837,7 +1838,7 @@ GSTexture* GSDeviceOGL::FetchSurface(int type, int w, int h, int format)
 }
 
 // forward declaration
-GSVector2i GSgetInternalResolution();
+extern GSRenderer* s_gs;
 
 bool GSDeviceOGL::Create()
 {
@@ -2081,12 +2082,9 @@ bool GSDeviceOGL::Reset(int w, int h)
 	return true;
 }
 
-// forward declaration
-GSVector2i GSgetInternalResolution();
-
 void GSDeviceOGL::Flip()
 {
-	video_cb(RETRO_HW_FRAME_BUFFER_VALID, GSgetInternalResolution().x, GSgetInternalResolution().y, 0);
+	video_cb(RETRO_HW_FRAME_BUFFER_VALID, s_gs->GetInternalResolution().x, s_gs->GetInternalResolution().y, 0);
 }
 
 void GSDeviceOGL::DrawPrimitive()

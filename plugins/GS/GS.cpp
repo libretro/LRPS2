@@ -35,15 +35,10 @@
 #include "options_tools.h"
 
 static bool is_d3d                  = false;
-static GSRenderer* s_gs             = NULL;
-static u8* s_basemem             = NULL;
+GSRenderer* s_gs                    = NULL;
+static u8* s_basemem                = NULL;
 
 GSdxApp theApp;
-
-GSVector2i GSgetInternalResolution()
-{
-	return s_gs->GetInternalResolution();
-}
 
 GSVector4i GSClientRect(void)
 {
@@ -54,13 +49,11 @@ GSVector4i GSClientRect(void)
      		// D3D right now - setting orig_w/orig_h to any value other than
  		// 640, 480 seems to cause issues on various games, 
 		// like 007 Nightfire
-		//unsigned orig_w = GSgetInternalResolution().x / option_upscale_mult;
-		//unsigned orig_h = GSgetInternalResolution().y / option_upscale_mult;
 		unsigned orig_w = 640, orig_h = 480;
 		return GSVector4i(0, 0, orig_w * option_upscale_mult, orig_h * option_upscale_mult);
 	}
 #endif
-	GSVector2i internal_res = GSgetInternalResolution();
+	GSVector2i internal_res = s_gs->GetInternalResolution();
         return GSVector4i(0, 0, internal_res.x, internal_res.y);
 }
 
@@ -69,9 +62,7 @@ EXPORT_C GSsetBaseMem(u8* mem)
 	s_basemem = mem;
 
 	if(s_gs)
-	{
 		s_gs->SetRegsMem(s_basemem);
-	}
 }
 
 EXPORT_C_(int) GSinit()
@@ -300,30 +291,15 @@ EXPORT_C GSgifSoftReset(u32 mask)
 	s_gs->SoftReset(mask);
 }
 
-EXPORT_C GSwriteCSR(u32 csr)
+EXPORT_C GSreadFIFO2(u8* mem, u32 size)
 {
-	s_gs->WriteCSR(csr);
-}
-
-EXPORT_C GSinitReadFIFO(u8* mem)
-{
-	s_gs->InitReadFIFO(mem, 1);
-}
-
-EXPORT_C GSreadFIFO(u8* mem)
-{
-	s_gs->ReadFIFO(mem, 1);
+	s_gs->ReadFIFO(mem, size);
 }
 
 EXPORT_C GSinitReadFIFO2(u8* mem, u32 size)
 {
 	if (size > 0)
 		s_gs->InitReadFIFO(mem, size);
-}
-
-EXPORT_C GSreadFIFO2(u8* mem, u32 size)
-{
-	s_gs->ReadFIFO(mem, size);
 }
 
 EXPORT_C GSgifTransfer(const u8* mem, u32 size)

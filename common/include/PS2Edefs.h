@@ -94,8 +94,6 @@ void CALLBACK GSgifTransfer1(u32 *pMem, u32 addr);
 void CALLBACK GSgifTransfer2(u32 *pMem, u32 size);
 void CALLBACK GSgifTransfer3(u32 *pMem, u32 size);
 void CALLBACK GSgifSoftReset(u32 mask);
-void CALLBACK GSreadFIFO(u64 *mem);
-void CALLBACK GSinitReadFIFO(u64 *mem);
 void CALLBACK GSreadFIFO2(u8 *mem, int qwc);
 void CALLBACK GSinitReadFIFO2(u64 *mem, int qwc);
 
@@ -108,7 +106,6 @@ void CALLBACK GSsetGameCRC(int crc, int gameoptions);
 void CALLBACK GSsetFrameSkip(int frameskip);
 
 void CALLBACK GSreset();
-void CALLBACK GSwriteCSR(u32 value);
 s32 CALLBACK GSfreeze(int mode, freezeData *data);
 
 #ifdef __cplusplus

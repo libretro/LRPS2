@@ -372,7 +372,7 @@ void SysMtgsThread::ExecuteTaskInThread()
 						break;
 
 						case GS_RINGTYPE_INIT_READ_FIFO1:
-							GSinitReadFIFO( (u64*)tag.pointer);
+							GSinitReadFIFO2( (u64*)tag.pointer, 1);
 						break;
 
 						case GS_RINGTYPE_INIT_READ_FIFO2:

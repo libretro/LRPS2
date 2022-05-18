@@ -78,9 +78,6 @@ bool GSDevice::Reset(int w, int h)
         return true;
 }
 
-// forward declaration
-GSVector2i GSgetInternalResolution();
-
 void GSDevice::Present(const GSVector4i& r, int shader)
 {
 	GSVector4i cr = GSClientRect();
