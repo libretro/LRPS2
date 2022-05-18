@@ -123,7 +123,6 @@ set(GSdxHeaders
     Renderers/Common/GSRenderer.h
     Renderers/Common/GSTexture.h
     Renderers/Common/GSVertex.h
-    Renderers/Common/GSVertexList.h
     Renderers/Common/GSVertexTrace.h
     Renderers/Null/GSDeviceNull.h
     Renderers/Null/GSRendererNull.h

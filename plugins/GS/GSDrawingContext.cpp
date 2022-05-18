@@ -54,26 +54,20 @@ static int findmax(int tl, int br, int limit, int wm, int minuv, int maxuv)
 static int reduce(int uv, int size)
 {
 	while(size > 3 && (1 << (size - 1)) >= uv + 1)
-	{
 		size--;
-	}
-
 	return size;
 }
 
 static int extend(int uv, int size)
 {
 	while(size < 10 && (1 << size) < uv + 1)
-	{
 		size++;
-	}
-
 	return size;
 }
 
 GIFRegTEX0 GSDrawingContext::GetSizeFixedTEX0(const GSVector4& st, bool linear, bool mipmap)
 {
-	if(mipmap) return TEX0; // no mipmaping allowed
+	if(mipmap) return TEX0; // no mipmapping allowed
 
 	// find the optimal value for TW/TH by analyzing vertex trace and clamping values, extending only for region modes where uv may be outside
 
@@ -91,30 +85,24 @@ GIFRegTEX0 GSDrawingContext::GetSizeFixedTEX0(const GSVector4& st, bool linear, 
 	GSVector4 uvf = st;
 
 	if(linear)
-	{
 		uvf += GSVector4(-0.5f, 0.5f).xxyy();
-	}
 
 	GSVector4i uv = GSVector4i(uvf.floor());
 
 	uv.x = findmax(uv.x, uv.z, (1 << tw) - 1, wms, minu, maxu);
 	uv.y = findmax(uv.y, uv.w, (1 << th) - 1, wmt, minv, maxv);
 
-	if(tw + th >= 19) // smaller sizes aren't worth, they just create multiple entries in the textue cache and the saved memory is less
+	if(tw + th >= 19) // smaller sizes aren't worth, they just create multiple entries in the texture cache and the saved memory is less
 	{
 		tw = reduce(uv.x, tw);
 		th = reduce(uv.y, th);
 	}
 
 	if(wms == CLAMP_REGION_CLAMP || wms == CLAMP_REGION_REPEAT)
-	{
 		tw = extend(uv.x, tw);
-	}
 
 	if(wmt == CLAMP_REGION_CLAMP || wmt == CLAMP_REGION_REPEAT)
-	{
 		th = extend(uv.y, th);
-	}
 
 	GIFRegTEX0 res = TEX0;
 

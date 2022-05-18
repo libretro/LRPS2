@@ -74,7 +74,8 @@ void GSVertexTrace::Update(const void* vertex, const u32* index, int v_count, in
 	// Potential float overflow detected. Better uses the slower division instead
 	// Note: If Q is too big, 1/Q will end up as 0. 1e30 is a random number
 	// that feel big enough.
-	if (!fst && !m_accurate_stq && m_min.t.z > 1e30) {
+	if (!fst && !m_accurate_stq && m_min.t.z > 1e30)
+	{
 		m_accurate_stq = true;
 		(this->*m_fmm[m_accurate_stq][color][fst][tme][iip][primclass])(vertex, index, i_count);
 	}
@@ -84,9 +85,9 @@ void GSVertexTrace::Update(const void* vertex, const u32* index, int v_count, in
 	m_alpha.valid = false;
 
 	// I'm not sure of the cost. In doubt let's do it only when depth is enabled
-	if(m_state->m_context->TEST.ZTE == 1 && m_state->m_context->TEST.ZTST > ZTST_ALWAYS) {
-		CorrectDepthTrace(vertex, v_count);
-	}
+	if(m_state->m_context->TEST.ZTE == 1 && m_state->m_context->TEST.ZTST > ZTST_ALWAYS)
+		if (m_eq.z != 0)
+			CorrectDepthTrace(vertex, v_count);
 
 	if(m_state->PRIM->TME)
 	{
@@ -96,9 +97,7 @@ void GSVertexTrace::Update(const void* vertex, const u32* index, int v_count, in
 		m_filter.mmin = TEX1.IsMinLinear();
 
 		if(TEX1.MXL == 0) // MXL == 0 => MMIN ignored, tested it on ps2
-		{
 			m_filter.linear = m_filter.mmag;
-		}
 		else
 		{
 			float K = (float)TEX1.K / 16;
@@ -118,17 +117,11 @@ void GSVertexTrace::Update(const void* vertex, const u32* index, int v_count, in
 			}
 
 			if(m_lod.y <= 0)
-			{
 				m_filter.linear = m_filter.mmag;
-			}
 			else if(m_lod.x > 0)
-			{
 				m_filter.linear = m_filter.mmin;
-			}
 			else
-			{
 				m_filter.linear = m_filter.mmag | m_filter.mmin;
-			}
 		}
 
 		switch (m_force_filter)
@@ -163,16 +156,15 @@ void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 
 	switch(primclass)
 	{
-	case GS_POINT_CLASS:
-		n = 1;
-		break;
-	case GS_LINE_CLASS:
-	case GS_SPRITE_CLASS:
-		n = 2;
-		break;
-	case GS_TRIANGLE_CLASS:
-		n = 3;
-		break;
+		case GS_LINE_CLASS:
+		case GS_SPRITE_CLASS:
+			n = 2;
+			break;
+		case GS_TRIANGLE_CLASS:
+			n = 3;
+			break;
+		case GS_POINT_CLASS:
+			break;
 	}
 
 	GSVector4 tmin  = s_minmax.xxxx();
@@ -180,17 +172,17 @@ void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 	GSVector4i cmin = GSVector4i::xffffffff();
 	GSVector4i cmax = GSVector4i::zero();
 
-	#if _M_SSE >= 0x401
+#if _M_SSE >= 0x401
 
 	GSVector4i pmin = GSVector4i::xffffffff();
 	GSVector4i pmax = GSVector4i::zero();
 
-	#else
+#else
 
 	GSVector4 pmin = s_minmax.xxxx();
 	GSVector4 pmax = s_minmax.yyyy();
-	
-	#endif
+
+#endif
 
 	const GSVertex* RESTRICT v = (GSVertex*)vertex;
 
@@ -238,21 +230,21 @@ void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 			GSVector4i xy = xyzf.upl16();
 			GSVector4i z = xyzf.yyyy();
 
-			#if _M_SSE >= 0x401
+#if _M_SSE >= 0x401
 
 			GSVector4i p = xy.blend16<0xf0>(z.uph32(xyzf));
 
 			pmin = pmin.min_u32(p);
 			pmax = pmax.max_u32(p);
 
-			#else
+#else
 
 			GSVector4 p = GSVector4(xy.upl64(z.srl32(1).upl32(xyzf.wwww())));
 
 			pmin = pmin.min(p);
 			pmax = pmax.max(p);
 
-			#endif
+#endif
 		}
 		else if(primclass == GS_LINE_CLASS)
 		{
@@ -319,7 +311,7 @@ void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 			GSVector4i xy1 = xyzf1.upl16();
 			GSVector4i z1 = xyzf1.yyyy();
 
-			#if _M_SSE >= 0x401
+#if _M_SSE >= 0x401
 
 			GSVector4i p0 = xy0.blend16<0xf0>(z0.uph32(xyzf0));
 			GSVector4i p1 = xy1.blend16<0xf0>(z1.uph32(xyzf1));
@@ -327,7 +319,7 @@ void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 			pmin = pmin.min_u32(p0.min_u32(p1));
 			pmax = pmax.max_u32(p0.max_u32(p1));
 
-			#else
+#else
 
 			GSVector4 p0 = GSVector4(xy0.upl64(z0.srl32(1).upl32(xyzf0.wwww())));
 			GSVector4 p1 = GSVector4(xy1.upl64(z1.srl32(1).upl32(xyzf1.wwww())));
@@ -335,7 +327,7 @@ void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 			pmin = pmin.min(p0.min(p1));
 			pmax = pmax.max(p0.max(p1));
 
-			#endif
+#endif
 		}
 		else if(primclass == GS_TRIANGLE_CLASS)
 		{
@@ -411,7 +403,7 @@ void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 			GSVector4i xy2 = xyzf2.upl16();
 			GSVector4i z2 = xyzf2.yyyy();
 
-			#if _M_SSE >= 0x401
+#if _M_SSE >= 0x401
 
 			GSVector4i p0 = xy0.blend16<0xf0>(z0.uph32(xyzf0));
 			GSVector4i p1 = xy1.blend16<0xf0>(z1.uph32(xyzf1));
@@ -420,7 +412,7 @@ void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 			pmin = pmin.min_u32(p2).min_u32(p0.min_u32(p1));
 			pmax = pmax.max_u32(p2).max_u32(p0.max_u32(p1));
 
-			#else
+#else
 
 			GSVector4 p0 = GSVector4(xy0.upl64(z0.srl32(1).upl32(xyzf0.wwww())));
 			GSVector4 p1 = GSVector4(xy1.upl64(z1.srl32(1).upl32(xyzf1.wwww())));
@@ -429,7 +421,7 @@ void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 			pmin = pmin.min(p2).min(p0.min(p1));
 			pmax = pmax.max(p2).max(p0.max(p1));
 
-			#endif
+#endif
 		}
 		else if(primclass == GS_SPRITE_CLASS)
 		{
@@ -496,7 +488,7 @@ void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 			GSVector4i xy1 = xyzf1.upl16();
 			GSVector4i z1 = xyzf1.yyyy();
 
-			#if _M_SSE >= 0x401
+#if _M_SSE >= 0x401
 
 			GSVector4i p0 = xy0.blend16<0xf0>(z0.uph32(xyzf1));
 			GSVector4i p1 = xy1.blend16<0xf0>(z1.uph32(xyzf1));
@@ -504,7 +496,7 @@ void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 			pmin = pmin.min_u32(p0.min_u32(p1));
 			pmax = pmax.max_u32(p0.max_u32(p1));
 
-			#else
+#else
 
 			GSVector4 p0 = GSVector4(xy0.upl64(z0.srl32(1).upl32(xyzf1.wwww())));
 			GSVector4 p1 = GSVector4(xy1.upl64(z1.srl32(1).upl32(xyzf1.wwww())));
@@ -512,7 +504,7 @@ void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 			pmin = pmin.min(p0.min(p1));
 			pmax = pmax.max(p0.max(p1));
 
-			#endif
+#endif
 		}
 	}
 
@@ -521,12 +513,12 @@ void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 	// be true if depth isn't constant but close enough. It also imply that
 	// pmin.z & 1 == 0 and pax.z & 1 == 0
 
-	#if _M_SSE >= 0x401
+#if _M_SSE >= 0x401
 
 	pmin = pmin.blend16<0x30>(pmin.srl32(1));
 	pmax = pmax.blend16<0x30>(pmax.srl32(1));
 
-	#endif
+#endif
 
 	GSVector4 o(context->XYOFFSET);
 	GSVector4 s(1.0f / 16, 1.0f / 16, 2.0f, 1.0f);
@@ -537,13 +529,9 @@ void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 	if(tme)
 	{
 		if(fst)
-		{
 			s = GSVector4(1.0f / 16, 1.0f).xxyy();
-		}
 		else
-		{
 			s = GSVector4(1 << context->TEX0.TW, 1 << context->TEX0.TH, 1, 1);
-		}
 
 		m_min.t = tmin * s;
 		m_max.t = tmax * s;
@@ -568,37 +556,32 @@ void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 
 void GSVertexTrace::CorrectDepthTrace(const void* vertex, int count)
 {
-	if (m_eq.z == 0)
-		return;
-
 	// FindMinMax isn't accurate for the depth value. Lsb bit is always 0.
 	// The code below will check that depth value is really constant
 	// and will update m_min/m_max/m_eq accordingly
 	//
-	// Really impact Xenosaga3
+	// Really impacts Xenosaga3
 	//
 	// Hopefully function is barely called so AVX/SSE will be useless here
-
-
 	const GSVertex* RESTRICT v = (GSVertex*)vertex;
 	u32 z = v[0].XYZ.Z;
 
 	// ought to check only 1/2 for sprite
-	if (z & 1) {
+	if (z & 1)
+	{
 		// Check that first bit is always 1
-		for (int i = 0; i < count; i++) {
+		for (int i = 0; i < count; i++)
 			z &= v[i].XYZ.Z;
-		}
-	} else {
+	}
+	else
+	{
 		// Check that first bit is always 0
-		for (int i = 0; i < count; i++) {
+		for (int i = 0; i < count; i++)
 			z |= v[i].XYZ.Z;
-		}
 	}
 
-	if (z == v[0].XYZ.Z) {
+	if (z == v[0].XYZ.Z)
 		m_eq.z = 1;
-	} else {
+	else
 		m_eq.z = 0;
-	}
 }

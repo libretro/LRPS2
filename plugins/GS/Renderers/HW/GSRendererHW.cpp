@@ -302,7 +302,7 @@ void GSRendererHW::SetGameCRC(u32 crc, int options)
 			case CRC::HarryPotterATHBP:
 			case CRC::HarryPotterATPOA:
 			case CRC::HarryPotterOOTP:
-         case CRC::ICO:
+			case CRC::ICO:
 			case CRC::Jak1:
 			case CRC::Jak3:
 			case CRC::LegacyOfKainDefiance:
@@ -352,9 +352,6 @@ GSVector2i GSRendererHW::GetCustomResolution()
 
 void GSRendererHW::Reset()
 {
-	// TODO: GSreset can come from the main thread too => crash
-	// m_tc->RemoveAll();
-
 	m_reset = true;
 
 	GSRenderer::Reset();
@@ -641,7 +638,7 @@ GSVector4 GSRendererHW::RealignTargetTextureCoordinate(const GSTextureCache::Sou
 
 	const GSVertex* v             = &m_vertex.buff[0];
 	const GSVector2& scale  = tex->m_texture->GetScale();
-	const bool  linear            = m_vt.IsRealLinear();
+	const bool  linear            = m_vt.m_filter.linear;
 	const int t_position          = v[0].U;
 	GSVector4 half_offset(0.0f);
 
@@ -1250,8 +1247,8 @@ void GSRendererHW::Draw()
 		m_context->offset.tex = m_mem.GetOffset(TEX0.TBP0, TEX0.TBW, TEX0.PSM);
 
 		GSVector4i r;
-
-		GetTextureMinMax(r, TEX0, MIP_CLAMP, m_vt.IsLinear());
+		bool is_linear = m_vt.m_filter.opt_linear;
+		GetTextureMinMax(r, TEX0, MIP_CLAMP, is_linear);
 
 		m_src = tex_psm.depth ? m_tc->LookupDepthSource(TEX0, env.TEXA, r) : m_tc->LookupSource(TEX0, env.TEXA, r);
 
@@ -1274,7 +1271,7 @@ void GSRendererHW::Draw()
 				m_vt.m_min.t *= 0.5f;
 				m_vt.m_max.t *= 0.5f;
 
-				GetTextureMinMax(r, MIP_TEX0, MIP_CLAMP, m_vt.IsLinear());
+				GetTextureMinMax(r, MIP_TEX0, MIP_CLAMP, is_linear);
 
 				m_src->UpdateLayer(MIP_TEX0, r, layer - m_lod.x);
 			}
@@ -1359,7 +1356,8 @@ void GSRendererHW::Draw()
 		GSVertex* v = &m_vertex.buff[0];
 
 		// Hack to avoid vertical black line in various games (ace combat/tekken)
-		if (m_userhacks_align_sprite_X) {
+		if (m_userhacks_align_sprite_X)
+		{
 			// Note for performance reason I do the check only once on the first
 			// primitive
 			const int win_position = v[1].XYZ.X - context->XYOFFSET.OFX;
@@ -1370,7 +1368,8 @@ void GSRendererHW::Draw()
 				// Normaly vertex are aligned on full pixels and texture in half
 				// pixels. Let's extend the coverage of an half-pixel to avoid
 				// hole after upscaling
-				for(size_t i = 0; i < count; i += 2) {
+				for(size_t i = 0; i < count; i += 2)
+				{
 					v[i+1].XYZ.X += 8;
 					// I really don't know if it is a good idea. Neither what to do for !PRIM->FST
 					if (unaligned_texture)
@@ -1380,15 +1379,16 @@ void GSRendererHW::Draw()
 		}
 
 		// Noting to do if no texture is sampled
-		if (PRIM->FST && draw_sprite_tex) {
-			if ((m_userhacks_round_sprite_offset > 1) || (m_userhacks_round_sprite_offset == 1 && !m_vt.IsLinear())) {
-				if (m_vt.IsLinear())
+		if (PRIM->FST && draw_sprite_tex)
+		{
+			bool is_linear = m_vt.m_filter.opt_linear;
+			if ((m_userhacks_round_sprite_offset > 1) || (m_userhacks_round_sprite_offset == 1 && !is_linear))
+			{
+				if (is_linear)
 					RoundSpriteOffset<true>();
 				else
 					RoundSpriteOffset<false>();
 			}
-		} else {
-			; // vertical line in Yakuza (note check m_userhacks_align_sprite_X behavior)
 		}
 	}
 

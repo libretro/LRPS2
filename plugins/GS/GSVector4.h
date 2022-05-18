@@ -85,12 +85,6 @@ public:
 		m = _mm_cvtepi32_ps(_mm_unpacklo_epi32(_mm_cvtsi32_si128(x), _mm_cvtsi32_si128(y)));
 	}
 
-	//Not currently used, just causes a compiler warning
-	/*__forceinline GSVector4(const GSVector4& v)
-	{
-		m = v.m;
-	}*/
-
 	__forceinline explicit GSVector4(const GSVector2& v)
 	{
 		m = _mm_castsi128_ps(_mm_loadl_epi64((__m128i*)&v));

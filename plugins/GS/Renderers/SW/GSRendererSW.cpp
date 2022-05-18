@@ -735,7 +735,7 @@ bool GSRendererSW::GetScanlineGlobalData(SharedData* data)
 			gd.sel.tfx = context->TEX0.TFX;
 			gd.sel.tcc = context->TEX0.TCC;
 			gd.sel.fst = PRIM->FST;
-			gd.sel.ltf = m_vt.IsLinear();
+			gd.sel.ltf = m_vt.m_filter.opt_linear;
 
 			if(GSLocalMemory::m_psm[context->TEX0.PSM].pal > 0)
 			{
@@ -758,7 +758,7 @@ bool GSRendererSW::GetScanlineGlobalData(SharedData* data)
 
 			bool mipmap = IsMipMapActive();
 
-			GIFRegTEX0 TEX0 = m_context->GetSizeFixedTEX0(m_vt.m_min.t.xyxy(m_vt.m_max.t), m_vt.IsLinear(), mipmap);
+			GIFRegTEX0 TEX0 = m_context->GetSizeFixedTEX0(m_vt.m_min.t.xyxy(m_vt.m_max.t), m_vt.m_filter.opt_linear, mipmap);
 
 			GSVector4i r;
 

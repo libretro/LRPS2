@@ -585,7 +585,7 @@ void GSRendererOGL::EmulateTextureSampler(const GSTextureCache::Source* tex)
 	const bool shader_emulated_sampler = tex->m_palette || cpsm.fmt != 0 || complex_wms_wmt || psm.depth;
 	const bool trilinear_manual = need_mipmap && m_mipmap == 2;
 
-	bool bilinear = m_vt.IsLinear();
+	bool bilinear = m_vt.m_filter.opt_linear;
 	int trilinear = 0;
 	bool trilinear_auto = false;
 	switch (UserHacks_tri_filter)
@@ -611,10 +611,6 @@ void GSRendererOGL::EmulateTextureSampler(const GSTextureCache::Source* tex)
 	m_ps_sel.wms = (wms & 2) ? wms : 0;
 	m_ps_sel.wmt = (wmt & 2) ? wmt : 0;
 
-	// Depth + bilinear filtering isn't done yet (And I'm not sure we need it anyway but a game will prove me wrong)
-	// So of course, GTA set the linear mode, but sampling is done at texel center so it is equivalent to nearest sampling
-	ASSERT(!(psm.depth && m_vt.IsLinear()));
-
 	// Performance note:
 	// 1/ Don't set 0 as it is the default value
 	// 2/ Only keep aem when it is useful (avoid useless shader permutation)
@@ -638,7 +634,7 @@ void GSRendererOGL::EmulateTextureSampler(const GSTextureCache::Source* tex)
 		ps_cb.TA_Af.y = ta.y;
 
 		// The purpose of texture shuffle is to move color channel. Extra interpolation is likely a bad idea.
-		bilinear &= m_vt.IsLinear();
+		bilinear &= m_vt.m_filter.opt_linear;
 
 		vs_cb.TextureOffset = RealignTargetTextureCoordinate(tex);
 
@@ -672,7 +668,7 @@ void GSRendererOGL::EmulateTextureSampler(const GSTextureCache::Source* tex)
 			// Alpha channel of the RT is reinterpreted as an index. Star
 			// Ocean 3 uses it to emulate a stencil buffer.  It is a very
 			// bad idea to force bilinear filtering on it.
-			bilinear &= m_vt.IsLinear();
+			bilinear &= m_vt.m_filter.opt_linear;
 		}
 
 		// Depth format
@@ -682,14 +678,14 @@ void GSRendererOGL::EmulateTextureSampler(const GSTextureCache::Source* tex)
 			m_vs_sel.int_fst = !PRIM->FST; // select float/int coordinate
 
 			// Don't force interpolation on depth format
-			bilinear &= m_vt.IsLinear();
+			bilinear &= m_vt.m_filter.opt_linear;
 		} else if (psm.depth) {
 			// Use Integral scaling
 			m_ps_sel.depth_fmt = 3;
 			m_vs_sel.int_fst = !PRIM->FST; // select float/int coordinate
 
 			// Don't force interpolation on depth format
-			bilinear &= m_vt.IsLinear();
+			bilinear &= m_vt.m_filter.opt_linear;
 		}
 
 		vs_cb.TextureOffset = RealignTargetTextureCoordinate(tex);

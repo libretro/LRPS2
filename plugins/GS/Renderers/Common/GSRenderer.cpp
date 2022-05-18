@@ -35,11 +35,6 @@ GSRenderer::GSRenderer()
 
 GSRenderer::~GSRenderer()
 {
-	/*if(m_dev)
-	{
-		m_dev->Reset(1, 1, GSDevice::Windowed);
-	}*/
-
 	delete m_dev;
 }
 
@@ -104,7 +99,7 @@ bool GSRenderer::Merge(int field)
 
 	if(samesrc /*&& m_regs->PMODE.SLBG == 0 && m_regs->PMODE.MMOD == 1 && m_regs->PMODE.ALP == 0x80*/)
 	{
-		// persona 4:
+		// Persona 4:
 		//
 		// fr[0] = 0 0 640 448
 		// fr[1] = 0 1 640 448
@@ -113,7 +108,7 @@ bool GSRenderer::Merge(int field)
 		//
 		// second image shifted up by 1 pixel and blended over itself
 		//
-		// god of war:
+		// God of War:
 		//
 		// fr[0] = 0 1 512 448
 		// fr[1] = 0 0 512 448
@@ -128,7 +123,7 @@ bool GSRenderer::Merge(int field)
 		int topDiff = fr[0].top - fr[1].top;
 		if (dr[0].eq(dr[1]) && (fr[0].eq(fr[1] + GSVector4i(0, topDiff, 0, topDiff)) || fr[1].eq(fr[0] + GSVector4i(0, topDiff, 0, topDiff))))
 		{
-			// dq5:
+			// Dragon Quest 5:
 			//
 			// fr[0] = 0 1 512 445
 			// fr[1] = 0 0 512 444
@@ -185,28 +180,20 @@ bool GSRenderer::Merge(int field)
 		// Time Crisis 2/3 uses two side by side images when in split screen mode.
 		// Though ignore cases where baseline and display rectangle offsets only differ by 1 pixel, causes blurring and wrong resolution output on FFXII
 		if(display_diff.x > 2)
-		{
 			off.x = tex[i]->GetScale().x * display_diff.x;
-		}
 		// If the DX offset is too small then consider the status of frame memory offsets, prevents blurring on Tenchu: Fatal Shadows, Worms 3D
 		else if(display_diff.x != frame_diff.x)
-		{
 			off.x = tex[i]->GetScale().x * frame_diff.x;
-		}
 
 		if(display_diff.y >= 4) // Shouldn't this be >= 2?
 		{
 			off.y = tex[i]->GetScale().y * display_diff.y;
 
 			if(m_regs->SMODE2.INT && m_regs->SMODE2.FFMD)
-			{
 				off.y /= 2;
-			}
 		}
 		else if(display_diff.y != frame_diff.y)
-		{
 			off.y = tex[i]->GetScale().y * frame_diff.y;
-		}
 
 		dst[i] = GSVector4(off).xyxy() + scale * GSVector4(r.rsize());
 
@@ -217,21 +204,16 @@ bool GSRenderer::Merge(int field)
 	ds = fs;
 
 	if(m_regs->SMODE2.INT && m_regs->SMODE2.FFMD)
-	{
 		ds.y *= 2;
-	}
 	m_real_size = ds;
 
 	bool slbg = m_regs->PMODE.SLBG;
 
 	if(tex[0] || tex[1])
 	{
+		// the two outputs are identical, skip drawing one of them (the one that is alpha blended)
 		if(tex[0] == tex[1] && !slbg && (src[0] == src[1] & dst[0] == dst[1]).alltrue())
-		{
-			// the two outputs are identical, skip drawing one of them (the one that is alpha blended)
-
 			tex[0] = NULL;
-		}
 
 		GSVector4 c = GSVector4((int)m_regs->BGCOLOR.R, (int)m_regs->BGCOLOR.G, (int)m_regs->BGCOLOR.B, (int)m_regs->PMODE.ALP) / 255;
 

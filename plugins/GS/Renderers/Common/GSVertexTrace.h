@@ -80,8 +80,5 @@ public:
 
 	void Update(const void* vertex, const u32* index, int v_count, int i_count, GS_PRIM_CLASS primclass);
 
-	bool IsLinear() const {return m_filter.opt_linear;}
-	bool IsRealLinear() const {return m_filter.linear;}
-
 	void CorrectDepthTrace(const void* vertex, int count);
 };
