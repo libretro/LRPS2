@@ -58,9 +58,6 @@ struct FixedInt
     FixedInt<Precision> &SetWhole(s32 wholepart);
     FixedInt<Precision> &SetFraction(u32 fracpart);
 
-    wxString ToString() const;
-    wxString ToString(int fracDigits) const;
-
     double ToDouble() const;
     float ToFloat() const;
     int ToIntTruncated() const;

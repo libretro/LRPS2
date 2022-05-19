@@ -172,10 +172,7 @@ static int _LoadPatchFiles(const wxDirName& folderName, wxString& fileSpec, cons
 	numberFoundPatchFiles = 0;
 
 	if (!folderName.Exists())
-	{
-		log_cb(RETRO_LOG_WARN, "The %s folder ('%s') is inaccessible. Skipping...\n", WX_STR(friendlyName), WX_STR(folderName.ToString()));
 		return 0;
-	}
 	wxDir dir(folderName.ToString());
 
 	int before = Patch.size();
@@ -268,24 +265,9 @@ int LoadNointerlacingPatchesFromDatabase(std::string gameCRC)
 // Note: does not reset previously loaded patches (use ForgetLoadedPatches() for that)
 int LoadPatchesFromDir(wxString name, const wxDirName& folderName, const wxString& friendlyName)
 {
-	int loaded = 0;
 	int numberFoundPatchFiles;
-
 	wxString filespec = name + L"*.pnach";
-	loaded += _LoadPatchFiles(folderName, filespec, friendlyName, numberFoundPatchFiles);
-
-	// This comment _might_ be buggy. This function (LoadPatchesFromDir) loads from an explicit folder.
-	// This folder can be cheats or cheats_ws at either the default location or a custom one.
-	// This check only tests the default cheats folder, so the message it produces is possibly misleading.
-	if (folderName.ToString().IsSameAs(PathDefs::GetCheats().ToString()) && numberFoundPatchFiles == 0) 
-	{
-		wxString pathName = Path::Combine(folderName, name.MakeUpper() + L".pnach");
-		log_cb(RETRO_LOG_INFO, 
-		"Not found %s file: %s\n",
-		WX_STR(friendlyName), WX_STR(pathName));
-	}
-
-	return loaded;
+	return _LoadPatchFiles(folderName, filespec, friendlyName, numberFoundPatchFiles);
 }
 
 static u32 StrToU32(const wxString& str, int base = 10)
@@ -322,9 +304,6 @@ namespace PatchFunc
 		PatchPieces(const wxString& param)
 		{
 			SplitString(m_pieces, param, L",");
-			if (m_pieces.Count() < 5)
-				log_cb(RETRO_LOG_ERROR,
-				"Expected 5 data parameters; only found %d\n", m_pieces.Count());
 		}
 
 		const wxString& PlaceToPatch() const { return m_pieces[0]; }
@@ -354,10 +333,7 @@ namespace PatchFunc
 			iPatch.placetopatch = StrToU32(pieces.PlaceToPatch(), 10);
 
 			if (iPatch.placetopatch >= _PPT_END_MARKER)
-			{
-				log_cb(RETRO_LOG_ERROR, "Invalid 'place' value '%s' (0 - once on startup, 1: continuously)\n", WX_STR(pieces.PlaceToPatch()));
 				goto error;
-			}
 
 			iPatch.cpu = (patch_cpu_type)PatchTableExecute(pieces.CpuType(), cpuCore);
 			iPatch.addr = StrToU32(pieces.MemAddr(), 16);
