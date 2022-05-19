@@ -3953,8 +3953,7 @@ inline wxUniChar wxCStrData::operator*() const
 {
     if ( m_str->empty() )
         return wxUniChar(wxT('\0'));
-    else
-        return (*m_str)[m_offset];
+    return (*m_str)[m_offset];
 }
 
 inline wxUniChar wxCStrData::operator[](size_t n) const
@@ -4036,20 +4035,5 @@ void wxStringIteratorNode::clear()
     m_str = NULL;
 }
 #endif // wxUSE_UNICODE_UTF8
-
-// ----------------------------------------------------------------------------
-// Checks on wxString characters
-// ----------------------------------------------------------------------------
-
-template<bool (T)(const wxUniChar& c)>
-    inline bool wxStringCheck(const wxString& val)
-    {
-        for ( wxString::const_iterator i = val.begin();
-              i != val.end();
-              ++i )
-            if (T(*i) == 0)
-                return false;
-        return true;
-    }
 
 #endif  // _WX_WXSTRING_H_

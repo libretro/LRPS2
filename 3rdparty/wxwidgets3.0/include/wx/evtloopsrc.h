@@ -24,8 +24,6 @@
 
 #if wxUSE_EVENTLOOP_SOURCE
 
-#define wxTRACE_EVT_SOURCE "EventSource"
-
 // handler used to process events on event loop sources
 class wxEventLoopSourceHandler
 {

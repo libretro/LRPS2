@@ -151,10 +151,6 @@
 
 #include "wx/version.h"
 
-/*  ============================================================================ */
-/*  non portable C++ features */
-/*  ============================================================================ */
-
 /*  ---------------------------------------------------------------------------- */
 /*  compiler defects workarounds */
 /*  ---------------------------------------------------------------------------- */
@@ -3005,9 +3001,6 @@ typedef int             (__stdcall *WXFARPROC)();
 #endif /* __WINDOWS__ */
 #endif /* __cplusplus */
 
-
-/*  include the feature test macros */
-#include "wx/features.h"
 
 /*  --------------------------------------------------------------------------- */
 /*  macros to define a class without copy ctor nor assignment operator */
