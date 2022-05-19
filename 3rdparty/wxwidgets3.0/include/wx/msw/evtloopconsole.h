@@ -18,11 +18,6 @@ public:
 
     // implement base class pure virtuals
     virtual bool Pending() const;
-
-protected:
-    // get the next message from queue and return true or return false if we
-    // got WM_QUIT or an error occurred
-    bool GetNextMessage(WXMSG *msg);
 };
 
 #if wxUSE_CONSOLE_EVENTLOOP

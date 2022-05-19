@@ -33,7 +33,6 @@
 
 #include "wx/msw/private.h"
 #include "wx/msw/missing.h"
-#include "wx/msw/seh.h"
 
 // must have this symbol defined to get _beginthread/_endthread declarations
 #ifndef _MT
@@ -476,9 +475,6 @@ THREAD_RETVAL THREAD_CALLCONV wxThreadInternal::WinThreadStart(void *param)
 
     wxThread * const thread = (wxThread *)param;
 
-    // each thread has its own SEH translator so install our own a.s.a.p.
-    DisableAutomaticSETranslator();
-
     // NB: Notice that we can't use wxCriticalSectionLocker in this function as
     //     we use SEH and it's incompatible with C++ object dtors.
 
@@ -488,16 +484,10 @@ THREAD_RETVAL THREAD_CALLCONV wxThreadInternal::WinThreadStart(void *param)
     const bool hasExited = thread->m_internal->GetState() == STATE_EXITED;
     thread->m_critsect.Leave();
 
-    // run the thread function itself inside a SEH try/except block
-    wxSEH_TRY
-    {
-        if ( hasExited )
-            DoThreadOnExit(thread);
-        else
-            rc = DoThreadStart(thread);
-    }
-    wxSEH_HANDLE(THREAD_ERROR_EXIT)
-
+    if ( hasExited )
+	    DoThreadOnExit(thread);
+    else
+	    rc = DoThreadStart(thread);
 
     // save IsDetached because thread object can be deleted by joinable
     // threads after state is changed to STATE_EXITED.
