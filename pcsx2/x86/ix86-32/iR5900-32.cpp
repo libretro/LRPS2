@@ -27,8 +27,6 @@
 #include "vtlb.h"
 
 #include "System/SysThreads.h"
-#include "GS.h"
-#include "CDVD/CDVD.h"
 #include "Elfheader.h"
 
 #include "Patch.h"
@@ -36,10 +34,6 @@
 #if !PCSX2_SEH
 #include "Utilities/FastJmp.h"
 #endif
-
-
-#include "Utilities/MemsetFast.inl"
-
 
 using namespace x86Emitter;
 using namespace R5900;
@@ -50,7 +44,7 @@ static u32 maxrecmem = 0;
 static __aligned16 uptr recLUT[_64kb];
 static __aligned16 u32 hwLUT[_64kb];
 
-static __fi u32 HWADDR(u32 mem) { return hwLUT[mem >> 16] + mem; }
+#define HWADDR(mem) (hwLUT[(mem) >> 16] + (mem))
 
 static u32 s_nBlockCycles = 0; // cycles of current block recompiling
 
@@ -100,10 +94,21 @@ static EEINST* s_psaveInstInfo = NULL;
 
 static u32 s_savenBlockCycles = 0;
 
-static int *s_pCode;
+static __aligned16 u16 manual_page[Ps2MemSize::MainRam >> 12];
+static __aligned16 u8 manual_counter[Ps2MemSize::MainRam >> 12];
 
-static void iBranchTest(u32 newpc = 0xffffffff);
-static void ClearRecLUT(BASEBLOCK* base, int count);
+static std::atomic<bool> eeRecIsReset(false);
+static std::atomic<bool> eeRecNeedsReset(false);
+static bool eeCpuExecuting = false;
+static bool g_resetEeScalingStats = false;
+static int g_patchesNeedRedo = 0;
+
+/* Forward declarations */
+// defined at AppCoreThread.cpp but unclean and should not be public. We're the only
+// consumers of it, so it's declared only here.
+void LoadAllPatchesAndStuff(const Pcsx2Config&);
+static void __fastcall recRecompile( const u32 startpc );
+static void recClear(u32 addr, u32 size);
 
 void _eeFlushAllUnused(void)
 {
@@ -118,7 +123,8 @@ void _eeFlushAllUnused(void)
 		else if( (g_pCurInstInfo[0].regs[i]&EEINST_USED) )
 			continue;
 
-		if( i < 32 && GPR_IS_CONST1(i) ) _flushConstReg(i);
+		if( i < 32 && GPR_IS_CONST1(i) )
+			_flushConstReg(i);
 		else
 			_deleteGPRtoXMMreg(i, 1);
 	}
@@ -193,11 +199,15 @@ void eeSignExtendTo(int gpr, bool onlyupper)
 static int _flushXMMunused(void)
 {
 	u32 i;
-	for (i=0; i<iREGCNT_XMM; i++) {
-		if (!xmmregs[i].inuse || xmmregs[i].needed || !(xmmregs[i].mode&MODE_WRITE) ) continue;
+	for (i=0; i<iREGCNT_XMM; i++)
+	{
+		if (!xmmregs[i].inuse || xmmregs[i].needed || !(xmmregs[i].mode&MODE_WRITE) )
+			continue;
 
-		if (xmmregs[i].type == XMMTYPE_GPRREG ) {
-			if( !_recIsRegWritten(g_pCurInstInfo+1, (s_nEndBlock-pc)/4, XMMTYPE_GPRREG, xmmregs[i].reg) ) {
+		if (xmmregs[i].type == XMMTYPE_GPRREG )
+		{
+			if( !_recIsRegWritten(g_pCurInstInfo+1, (s_nEndBlock-pc)/4, XMMTYPE_GPRREG, xmmregs[i].reg) )
+			{
 				_freeXMMreg(i);
 				xmmregs[i].inuse = 1;
 				return 1;
@@ -215,7 +225,7 @@ u32* recGetImm64(u32 hi, u32 lo)
 {
 	static u32 *imm64_cache[509];
 	int cacheidx = lo % (sizeof imm64_cache / sizeof *imm64_cache);
-	u32 *imm64 = imm64_cache[cacheidx]; // returned pointer
+	u32 *imm64   = imm64_cache[cacheidx]; // returned pointer
 	if (imm64 && imm64[0] == lo && imm64[1] == hi)
 		return imm64;
 
@@ -234,7 +244,7 @@ u32* recGetImm64(u32 hi, u32 lo)
 
 // Use this to call into interpreter functions that require an immediate branchtest
 // to be done afterward (anything that throws an exception or enables interrupts, etc).
-void recBranchCall( void (*func)() )
+void recBranchCall( void (*func)(void) )
 {
 	// In order to make sure a branch test is performed, the nextBranchCycle is set
 	// to the current cpu cycle.
@@ -246,7 +256,7 @@ void recBranchCall( void (*func)() )
 	g_branch = 2;
 }
 
-void recCall( void (*func)() )
+void recCall( void (*func)(void) )
 {
 	iFlushCall(FLUSH_INTERPRETER);
 	xFastCall((void*)func);
@@ -256,14 +266,7 @@ void recCall( void (*func)() )
 //  R5900 Dispatchers
 // =====================================================================================================
 
-static void __fastcall recRecompile( const u32 startpc );
-static void __fastcall dyna_block_discard(u32 start,u32 sz);
-static void __fastcall dyna_page_reset(u32 start,u32 sz);
-
-// Recompiled code buffer for EE recompiler dispatchers!
-static u8 __pagealigned eeRecDispatchers[__pagesize];
-
-typedef void DynGenFunc();
+typedef void DynGenFunc(void);
 
 static DynGenFunc* DispatcherEvent		= NULL;
 static DynGenFunc* DispatcherReg		= NULL;
@@ -274,7 +277,84 @@ static DynGenFunc* ExitRecompiledCode	= NULL;
 static DynGenFunc* DispatchBlockDiscard = NULL;
 static DynGenFunc* DispatchPageReset    = NULL;
 
-static u32 scaleblockcycles_calculation(void);
+// Note: scaleblockcycles() scales s_nBlockCycles respective to the EECycleRate value for manipulating the cycles of current block recompiling.
+// s_nBlockCycles is 3 bit fixed point.  Divide by 8 when done!
+// Scaling blocks under 40 cycles seems to produce countless problem, so let's try to avoid them.
+
+#define DEFAULT_SCALED_BLOCKS() (s_nBlockCycles >> 3)
+
+static u32 scaleblockcycles_calculation(void)
+{
+	bool lowcycles   = (s_nBlockCycles <= 40);
+	s8 cyclerate     = EmuConfig.Speedhacks.EECycleRate;
+	u32 scale_cycles = 0;
+
+	if (cyclerate == 0 || lowcycles || cyclerate < -99 || cyclerate > 3)
+		scale_cycles = DEFAULT_SCALED_BLOCKS();
+
+	else if (cyclerate > 1)
+		scale_cycles = s_nBlockCycles >> (2 + cyclerate);
+
+	else if (cyclerate == 1)
+		scale_cycles = DEFAULT_SCALED_BLOCKS() / 1.3f; // Adds a mild 30% increase in clockspeed for value 1.
+
+	else if (cyclerate == -1)  // the mildest value which is also used by the "balanced" preset.
+		// These values were manually tuned to yield mild speedup with high compatibility
+		scale_cycles = (s_nBlockCycles <= 80 || s_nBlockCycles > 168 ? 5 : 7) * s_nBlockCycles / 32;
+
+	else
+		scale_cycles = ((5 + (-2 * (cyclerate + 1))) * s_nBlockCycles) >> 5;
+
+	// Ensure block cycle count is never less than 1.
+	return (scale_cycles < 1) ? 1 : scale_cycles;
+}
+
+
+// called when jumping to variable pc address
+static DynGenFunc* _DynGen_DispatcherReg(void)
+{
+	u8* retval = xGetPtr();		// fallthrough target, can't align it!
+
+	// C equivalent:
+	// u32 addr = cpuRegs.pc;
+	// void(**base)() = (void(**)())recLUT[addr >> 16];
+	// base[addr >> 2]();
+	xMOV( eax, ptr[&cpuRegs.pc] );
+	xMOV( ebx, eax );
+	xSHR( eax, 16 );
+	xMOV( rcx, ptrNative[xComplexAddress(rcx, recLUT, rax*wordsize)] );
+	xJMP( ptrNative[rbx*(wordsize/4) + rcx] );
+
+	return (DynGenFunc*)retval;
+}
+
+static DynGenFunc* _DynGen_DispatcherEvent(void)
+{
+	u8* retval = xGetPtr();
+
+	xFastCall((void*)_cpuEventTest_Shared );
+
+	return (DynGenFunc*)retval;
+}
+
+static DynGenFunc* _DynGen_EnterRecompiledCode(void)
+{
+	u8* retval = xGetAlignedCallTarget();
+
+	{
+		// Properly scope the frame prologue/epilogue
+		xScopedStackFrame frame(false);
+
+		xJMP((void*)DispatcherReg);
+
+		// Save an exit point
+		ExitRecompiledCode = (DynGenFunc*)xGetPtr();
+	}
+
+	xRET();
+
+	return (DynGenFunc*)retval;
+}
 
 // The address for all cleared blocks.  It recompiles the current pc and then
 // dispatches to the recompiled block address.
@@ -304,58 +384,22 @@ static DynGenFunc* _DynGen_JITCompileInBlock(void)
 	return (DynGenFunc*)retval;
 }
 
-// called when jumping to variable pc address
-static DynGenFunc* _DynGen_DispatcherReg(void)
-{
-	u8* retval = xGetPtr();		// fallthrough target, can't align it!
-
-	// C equivalent:
-	// u32 addr = cpuRegs.pc;
-	// void(**base)() = (void(**)())recLUT[addr >> 16];
-	// base[addr >> 2]();
-	xMOV( eax, ptr[&cpuRegs.pc] );
-	xMOV( ebx, eax );
-	xSHR( eax, 16 );
-	xMOV( rcx, ptrNative[xComplexAddress(rcx, recLUT, rax*wordsize)] );
-	xJMP( ptrNative[rbx*(wordsize/4) + rcx] );
-
-	return (DynGenFunc*)retval;
-}
-
-static DynGenFunc* _DynGen_DispatcherEvent(void)
-{
-	u8* retval = xGetPtr();
-
-	xFastCall((void*)_cpuEventTest_Shared );
-
-	return (DynGenFunc*)retval;
-}
-
-static DynGenFunc* _DynGen_EnterRecompiledCode()
-{
-	u8* retval = xGetAlignedCallTarget();
-
-	{
-		// Properly scope the frame prologue/epilogue
-		xScopedStackFrame frame(false);
-
-		xJMP((void*)DispatcherReg);
-
-		// Save an exit point
-		ExitRecompiledCode = (DynGenFunc*)xGetPtr();
-	}
-
-	xRET();
-
-	return (DynGenFunc*)retval;
-}
-
 static DynGenFunc* _DynGen_DispatchBlockDiscard(void)
 {
 	u8* retval = xGetPtr();
-	xFastCall((void*)dyna_block_discard);
+	xFastCall((void*)recClear);
 	xJMP((void*)ExitRecompiledCode);
 	return (DynGenFunc*)retval;
+}
+
+// called when a page under manual protection has been run enough times to be a candidate
+// for being reset under the faster vtlb write protection.  All blocks in the page are cleared
+// and the block is re-assigned for write protection.
+static void __fastcall dyna_page_reset(u32 start,u32 sz)
+{
+	recClear(start & ~0xfffUL, 0x400);
+	manual_counter[start >> 12]++;
+	mmap_MarkCountedRamPage( start );
 }
 
 static DynGenFunc* _DynGen_DispatchPageReset()
@@ -368,6 +412,8 @@ static DynGenFunc* _DynGen_DispatchPageReset()
 
 static void _DynGen_Dispatchers(void)
 {
+	// Recompiled code buffer for EE recompiler dispatchers!
+	static u8 __pagealigned eeRecDispatchers[__pagesize];
 	// In case init gets called multiple times:
 	HostSys::MemProtectStatic( eeRecDispatchers, PageAccess_ReadWrite() );
 
@@ -390,45 +436,6 @@ static void _DynGen_Dispatchers(void)
 	HostSys::MemProtectStatic( eeRecDispatchers, PageAccess_ExecOnly() );
 
 	recBlocks.SetJITCompile( JITCompile );
-}
-
-static __ri void ClearRecLUT(BASEBLOCK* base, int memsize)
-{
-	for (int i = 0; i < memsize/(int)sizeof(uptr); i++)
-		base[i].SetFnptr((uptr)JITCompile);
-}
-
-static void recThrowHardwareDeficiency( const wxChar* extFail )
-{
-	throw Exception::HardwareDeficiency()
-		.SetDiagMsg(pxsFmt( L"R5900-32 recompiler init failed: %s is not available.", extFail))
-		.SetUserMsg(pxsFmt(L"%s Extensions not found.  The R5900-32 recompiler requires a host CPU with SSE2 extensions.", extFail ));
-}
-
-static void recReserveCache(void)
-{
-	if (!recMem) recMem = new RecompiledCodeReserve(L"R5900-32 Recompiler Cache", _16mb);
-
-	while (!recMem->IsOk())
-	{
-		if (recMem->Reserve(GetVmMemory().MainMemory(), HostMemoryMap::EErecOffset, m_ConfiguredCacheReserve * _1mb) != NULL) break;
-
-		// If it failed, then try again (if possible):
-		if (m_ConfiguredCacheReserve < 16) break;
-		m_ConfiguredCacheReserve /= 2;
-	}
-
-	recMem->ThrowIfNotOk();
-}
-
-static void recReserve(void)
-{
-	// Hardware Requirements Check...
-
-	if ( !x86caps.hasStreamingSIMD2Extensions )
-		recThrowHardwareDeficiency( L"SSE2" );
-
-	recReserveCache();
 }
 
 static void recAlloc(void)
@@ -481,36 +488,25 @@ static void recAlloc(void)
 		recLUT_SetPage(recLUT, hwLUT, recROM2, 0xa000, i, i - 0x1e40);
 	}
 
-    if( recConstBuf == NULL )
+	if( !recConstBuf )
 		recConstBuf = (u32*) _aligned_malloc( RECCONSTBUF_SIZE * sizeof(*recConstBuf), 16 );
 
-	if( recConstBuf == NULL )
+	if( !recConstBuf )
 		throw Exception::OutOfMemory( L"R5900-32 SIMD Constants Buffer" );
 
-	if( s_pInstCache == NULL )
+	if( !s_pInstCache )
 	{
 		s_nInstCacheSize = 128;
 		s_pInstCache = (EEINST*)malloc( sizeof(EEINST) * s_nInstCacheSize );
 	}
 
-	if( s_pInstCache == NULL )
+	if( !s_pInstCache )
 		throw Exception::OutOfMemory( L"R5900-32 InstCache" );
 
 	// No errors.. Proceed with initialization:
-
 	_DynGen_Dispatchers();
 }
 
-static __aligned16 u16 manual_page[Ps2MemSize::MainRam >> 12];
-static __aligned16 u8 manual_counter[Ps2MemSize::MainRam >> 12];
-
-static std::atomic<bool> eeRecIsReset(false);
-static std::atomic<bool> eeRecNeedsReset(false);
-static bool eeCpuExecuting = false;
-static bool g_resetEeScalingStats = false;
-static int g_patchesNeedRedo = 0;
-
-////////////////////////////////////////////////////
 static void recResetRaw(void)
 {
 	recAlloc();
@@ -519,7 +515,12 @@ static void recResetRaw(void)
 	eeRecNeedsReset = false;
 
 	recMem->Reset();
-	ClearRecLUT((BASEBLOCK*)recLutReserve_RAM, recLutSize);
+	{
+		BASEBLOCK *base = (BASEBLOCK*)recLutReserve_RAM;
+		int memsize     = recLutSize;
+		for (int i = 0; i < memsize/(int)sizeof(uptr); i++)
+			base[i].SetFnptr((uptr)JITCompile);
+	}
 	memset(recRAMCopy, 0, Ps2MemSize::MainRam);
 
 	maxrecmem = 0;
@@ -542,347 +543,78 @@ static void recResetRaw(void)
 	g_patchesNeedRedo = 1;
 }
 
-static void recShutdown(void)
+static void memory_protect_recompiled_code(u32 startpc, u32 size)
 {
-	safe_delete( recMem );
-	safe_aligned_free( recRAMCopy );
-	safe_aligned_free( recLutReserve_RAM );
+	u32 inpage_ptr = HWADDR(startpc);
+	u32 inpage_sz  = size*4;
 
-	recBlocks.Reset();
+	// The kernel context register is stored @ 0x800010C0-0x80001300
+	// The EENULL thread context register is stored @ 0x81000-....
+	bool contains_thread_stack = ((startpc >> 12) == 0x81) || ((startpc >> 12) == 0x80001);
 
-	recRAM = recROM = recROM1 = recROM2 = NULL;
+	// note: blocks are guaranteed to reside within the confines of a single page.
+	const vtlb_ProtectionMode PageType = contains_thread_stack ? ProtMode_Manual : mmap_GetRamPageInfo( inpage_ptr );
 
-	safe_aligned_free( recConstBuf );
-	safe_free( s_pInstCache );
-	s_nInstCacheSize = 0;
-}
-
-static void recResetEE(void)
-{
-	if (eeCpuExecuting)
+	switch (PageType)
 	{
-		eeRecNeedsReset = true;
-		return;
-	}
-
-	recResetRaw();
-}
-
-static void recStep(void)
-{
-}
-
-#if !PCSX2_SEH
-#	define SETJMP_CODE(x)  x
-	static fastjmp_buf m_SetJmp_StateCheck;
-	static std::unique_ptr<BaseR5900Exception> m_cpuException;
-	static ScopedExcept m_Exception;
-#else
-#	define SETJMP_CODE(x)
-#endif
-
-static void recExitExecution(void)
-{
-#if PCSX2_SEH
-	throw Exception::ExitCpuExecute();
-#else
-	// Without SEH we'll need to hop to a safehouse point outside the scope of recompiled
-	// code.  C++ exceptions can't cross the mighty chasm in the stackframe that the recompiler
-	// creates.  However, the longjump is slow so we only want to do one when absolutely
-	// necessary:
-
-	fastjmp_jmp(&m_SetJmp_StateCheck, 1 );
-#endif
-}
-
-static void recCheckExecutionState(void)
-{
-	if( SETJMP_CODE(m_cpuException || m_Exception ||) eeRecIsReset || GetCoreThread().HasPendingStateChangeRequest() )
-	{
-		recExitExecution();
-	}
-}
-
-static void recExecute(void)
-{
-	// Implementation Notes:
-	// [TODO] fix this comment to explain various code entry/exit points, when I'm not so tired!
-
-#if PCSX2_SEH
-	eeRecIsReset   = false;
-	eeCpuExecuting = true;
-
-	try {
-		EnterRecompiledCode();
-	}
-	catch( Exception::ExitCpuExecute& )
-	{
-	}
-
-#else
-
-	int oldstate;
-	m_cpuException	= NULL;
-	m_Exception		= NULL;
-
-	// setjmp will save the register context and will return 0
-	// A call to longjmp will restore the context (included the eip/rip)
-	// but will return the longjmp 2nd parameter (here 1)
-	if( !fastjmp_set(&m_SetJmp_StateCheck ) )
-	{
-		eeRecIsReset = false;
-		eeCpuExecuting = true;
-
-		// Important! Most of the console logging and such has cancel points in it.  This is great
-		// in Windows, where SEH lets us safely kill a thread from anywhere we want.  This is bad
-		// in Linux, which cannot have a C++ exception cross the recompiler.  Hence the changing
-		// of the cancelstate here!
-
-		pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, &oldstate );
-		EnterRecompiledCode();
-
-		// Generally unreachable code here ...
-	}
-	else
-	{
-		pthread_setcancelstate( PTHREAD_CANCEL_ENABLE, &oldstate );
-	}
-
-	eeCpuExecuting = false;
-
-	if(m_cpuException)	m_cpuException->Rethrow();
-	if(m_Exception)		m_Exception->Rethrow();
-#endif
-
-}
-
-////////////////////////////////////////////////////
-void R5900::Dynarec::OpcodeImpl::recSYSCALL(void)
-{
-
-	recCall(R5900::Interpreter::OpcodeImpl::SYSCALL);
-
-	xCMP(ptr32[&cpuRegs.pc], pc);
-	j8Ptr[0] = JE8(0);
-	xADD(ptr32[&cpuRegs.cycle], scaleblockcycles_calculation());
-	// Note: technically the address is 0x8000_0180 (or 0x180)
-	// (if CPU is booted)
-	xJMP( (void*)DispatcherReg );
-	x86SetJ8(j8Ptr[0]);
-}
-
-////////////////////////////////////////////////////
-void R5900::Dynarec::OpcodeImpl::recBREAK(void)
-{
-
-	recCall(R5900::Interpreter::OpcodeImpl::BREAK);
-
-	xCMP(ptr32[&cpuRegs.pc], pc);
-	j8Ptr[0] = JE8(0);
-	xADD(ptr32[&cpuRegs.cycle], scaleblockcycles_calculation());
-	xJMP( (void*)DispatcherEvent );
-	x86SetJ8(j8Ptr[0]);
-}
-
-// Size is in dwords (4 bytes)
-static void recClear(u32 addr, u32 size)
-{
-	if ((addr) >= maxrecmem || !(recLUT[(addr) >> 16] + (addr & ~0xFFFFUL)))
-		return;
-	addr = HWADDR(addr);
-
-	int blockidx = recBlocks.LastIndex(addr + size * 4 - 4);
-
-	if (blockidx == -1)
-		return;
-
-	u32 lowerextent = (u32)-1, upperextent = 0, ceiling = (u32)-1;
-
-	BASEBLOCKEX* pexblock = recBlocks[blockidx + 1];
-	if (pexblock)
-		ceiling = pexblock->startpc;
-
-	int toRemoveLast = blockidx;
-
-	while (pexblock = recBlocks[blockidx]) {
-		u32 blockstart = pexblock->startpc;
-		u32 blockend = pexblock->startpc + pexblock->size * 4;
-		BASEBLOCK* pblock = PC_GETBLOCK(blockstart);
-
-		if (pblock == s_pCurBlock) {
-			if(toRemoveLast != blockidx) {
-				recBlocks.Remove((blockidx + 1), toRemoveLast);
-			}
-			toRemoveLast = --blockidx;
-			continue;
-		}
-
-		if (blockend <= addr) {
-			lowerextent = std::max(lowerextent, blockend);
+		case ProtMode_NotRequired:
 			break;
-		}
 
-		lowerextent = std::min(lowerextent, blockstart);
-		upperextent = std::max(upperextent, blockend);
-		// This might end up inside a block that doesn't contain the clearing range,
-		// so set it to recompile now.  This will become JITCompile if we clear it.
-		pblock->SetFnptr((uptr)JITCompileInBlock);
+		case ProtMode_None:
+		case ProtMode_Write:
+			mmap_MarkCountedRamPage( inpage_ptr );
+			manual_page[inpage_ptr >> 12] = 0;
+			break;
 
-		blockidx--;
+		case ProtMode_Manual:
+			xMOV( arg1regd, inpage_ptr );
+			xMOV( arg2regd, inpage_sz / 4 );
+
+			u32 lpc = inpage_ptr;
+			u32 stg = inpage_sz;
+
+			while(stg>0)
+			{
+				xCMP( ptr32[PSM(lpc)], *(u32*)PSM(lpc) );
+				xJNE(DispatchBlockDiscard);
+
+				stg -= 4;
+				lpc += 4;
+			}
+
+			// Tweakpoint!  3 is a 'magic' number representing the number of times a counted block
+			// is re-protected before the recompiler gives up and sets it up as an uncounted (permanent)
+			// manual block.  Higher thresholds result in more recompilations for blocks that share code
+			// and data on the same page.  Side effects of a lower threshold: over extended gameplay
+			// with several map changes, a game's overall performance could degrade.
+
+			// (ideally, perhaps, manual_counter should be reset to 0 every few minutes?)
+
+			if (!contains_thread_stack && manual_counter[inpage_ptr >> 12] <= 3)
+			{
+				// Counted blocks add a weighted (by block size) value into manual_page each time they're
+				// run.  If the block gets run a lot, it resets and re-protects itself in the hope
+				// that whatever forced it to be manually-checked before was a 1-time deal.
+
+				// Counted blocks have a secondary threshold check in manual_counter, which forces a block
+				// to 'uncounted' mode if it's recompiled several times.  This protects against excessive
+				// recompilation of blocks that reside on the same codepage as data.
+
+				// fixme? Currently this algo is kinda dumb and results in the forced recompilation of a
+				// lot of blocks before it decides to mark a 'busy' page as uncounted.  There might be
+				// be a more clever approach that could streamline this process, by doing a first-pass
+				// test using the vtlb memory protection (without recompilation!) to reprotect a counted
+				// block.  But unless a new algo is relatively simple in implementation, it's probably
+				// not worth the effort (tests show that we have lots of recompiler memory to spare, and
+				// that the current amount of recompilation is fairly cheap).
+
+				xADD(ptr16[&manual_page[inpage_ptr >> 12]], size);
+				xJC(DispatchPageReset);
+
+				// note: clearcnt is measured per-page, not per-block!
+			}
+			break;
 	}
-
-	if(toRemoveLast != blockidx)
-		recBlocks.Remove((blockidx + 1), toRemoveLast);
-
-	upperextent = std::min(upperextent, ceiling);
-
-	if (upperextent > lowerextent)
-		ClearRecLUT(PC_GETBLOCK(lowerextent), upperextent - lowerextent);
-}
-
-void SetBranchReg( u32 reg )
-{
-	g_branch = 1;
-
-	if( reg != 0xffffffff )
-	{
-		_allocX86reg(calleeSavedReg2d, X86TYPE_PCWRITEBACK, 0, MODE_WRITE);
-		_eeMoveGPRtoR(calleeSavedReg2d, reg);
-
-		if (EmuConfig.Gamefixes.GoemonTlbHack) {
-			xMOV(ecx, calleeSavedReg2d);
-			vtlb_DynV2P();
-			xMOV(calleeSavedReg2d, eax);
-		}
-
-		recompileNextInstruction(1);
-
-		if( x86regs[calleeSavedReg2d.GetId()].inuse ) {
-			pxAssert( x86regs[calleeSavedReg2d.GetId()].type == X86TYPE_PCWRITEBACK );
-			xMOV(ptr[&cpuRegs.pc], calleeSavedReg2d);
-			x86regs[calleeSavedReg2d.GetId()].inuse = 0;
-		}
-		else {
-			xMOV(eax, ptr[&g_recWriteback]);
-			xMOV(ptr[&cpuRegs.pc], eax);
-		}
-	}
-
-	iFlushCall(FLUSH_EVERYTHING);
-
-	iBranchTest();
-}
-
-void SetBranchImm( u32 imm )
-{
-	g_branch = 1;
-
-	pxAssert( imm );
-
-	// end the current block
-	iFlushCall(FLUSH_EVERYTHING);
-	xMOV(ptr32[&cpuRegs.pc], imm);
-	iBranchTest(imm);
-}
-
-void SaveBranchState(void)
-{
-	s_savenBlockCycles = s_nBlockCycles;
-	memcpy(s_saveConstRegs, g_cpuConstRegs, sizeof(g_cpuConstRegs));
-	s_saveHasConstReg = g_cpuHasConstReg;
-	s_saveFlushedConstReg = g_cpuFlushedConstReg;
-	s_psaveInstInfo = g_pCurInstInfo;
-
-	memcpy(s_saveXMMregs, xmmregs, sizeof(xmmregs));
-}
-
-void LoadBranchState(void)
-{
-	s_nBlockCycles = s_savenBlockCycles;
-
-	memcpy(g_cpuConstRegs, s_saveConstRegs, sizeof(g_cpuConstRegs));
-	g_cpuHasConstReg = s_saveHasConstReg;
-	g_cpuFlushedConstReg = s_saveFlushedConstReg;
-	g_pCurInstInfo = s_psaveInstInfo;
-
-	memcpy(xmmregs, s_saveXMMregs, sizeof(xmmregs));
-}
-
-void iFlushCall(int flushtype)
-{
-	// Free registers that are not saved across function calls (x86-32 ABI):
-	_freeX86reg(eax);
-	_freeX86reg(ecx);
-	_freeX86reg(edx);
-
-	if ((flushtype & FLUSH_PC) && !g_cpuFlushedPC) {
-		xMOV(ptr32[&cpuRegs.pc], pc);
-		g_cpuFlushedPC = true;
-	}
-
-	if ((flushtype & FLUSH_CODE) && !g_cpuFlushedCode) {
-		xMOV(ptr32[&cpuRegs.code], cpuRegs.code);
-		g_cpuFlushedCode = true;
-	}
-
-	if ((flushtype == FLUSH_CAUSE) && !g_maySignalException) {
-		if (g_recompilingDelaySlot)
-			xOR(ptr32[&cpuRegs.CP0.n.Cause], 1 << 31); // BD
-		g_maySignalException = true;
-	}
-
-	if( flushtype & FLUSH_FREE_XMM )
-		_freeXMMregs();
-	else if( flushtype & FLUSH_FLUSH_XMM)
-		_flushXMMregs();
-
-	if( flushtype & FLUSH_CACHED_REGS )
-		_flushConstRegs();
-}
-
-// Note: scaleblockcycles() scales s_nBlockCycles respective to the EECycleRate value for manipulating the cycles of current block recompiling.
-// s_nBlockCycles is 3 bit fixed point.  Divide by 8 when done!
-// Scaling blocks under 40 cycles seems to produce countless problem, so let's try to avoid them.
-
-#define DEFAULT_SCALED_BLOCKS() (s_nBlockCycles >> 3)
-
-static u32 scaleblockcycles_calculation(void)
-{
-	bool lowcycles   = (s_nBlockCycles <= 40);
-	s8 cyclerate     = EmuConfig.Speedhacks.EECycleRate;
-	u32 scale_cycles = 0;
-
-	if (cyclerate == 0 || lowcycles || cyclerate < -99 || cyclerate > 3)
-		scale_cycles = DEFAULT_SCALED_BLOCKS();
-
-	else if (cyclerate > 1)
-		scale_cycles = s_nBlockCycles >> (2 + cyclerate);
-
-	else if (cyclerate == 1)
-		scale_cycles = DEFAULT_SCALED_BLOCKS() / 1.3f; // Adds a mild 30% increase in clockspeed for value 1.
-
-	else if (cyclerate == -1)  // the mildest value which is also used by the "balanced" preset.
-		// These values were manually tuned to yield mild speedup with high compatibility
-		scale_cycles = (s_nBlockCycles <= 80 || s_nBlockCycles > 168 ? 5 : 7) * s_nBlockCycles / 32;
-
-	else
-		scale_cycles = ((5 + (-2 * (cyclerate + 1))) * s_nBlockCycles) >> 5;
-
-	// Ensure block cycle count is never less than 1.
-	return (scale_cycles < 1) ? 1 : scale_cycles;
-}
-
-u32 scaleblockcycles_clear(void)
-{
-	u32 scaled   = scaleblockcycles_calculation();
-	s8 cyclerate = g_Conf->EmuOptions.Speedhacks.EECycleRate;
-
-	if (cyclerate > 1)
-		s_nBlockCycles &= (0x1 << (cyclerate + 2)) - 1;
-	else
-		s_nBlockCycles &= 0x7;
-
-	return scaled;
 }
 
 // Generates dynarec code for Event tests followed by a block dispatch (branch).
@@ -928,197 +660,6 @@ static void iBranchTest(u32 newpc)
 	}
 }
 
-void recompileNextInstruction(int delayslot)
-{
-	u32 i;
-	int count;
-
-	s_pCode = (int *)PSM( pc );
-	pxAssert(s_pCode);
-
-	// acts as a tag for delimiting recompiled instructions when viewing x86 disasm.
-
-	cpuRegs.code = *(int *)s_pCode;
-
-	if (!delayslot) {
-		pc += 4;
-		g_cpuFlushedPC = false;
-		g_cpuFlushedCode = false;
-	} else {
-		// increment after recompiling so that pc points to the branch during recompilation
-		g_recompilingDelaySlot = true;
-	}
-
-	g_pCurInstInfo++;
-
-	for(i = 0; i < iREGCNT_XMM; ++i) {
-		if( xmmregs[i].inuse ) {
-			count = _recIsRegWritten(g_pCurInstInfo, (s_nEndBlock-pc)/4 + 1, xmmregs[i].type, xmmregs[i].reg);
-			if( count > 0 ) xmmregs[i].counter = 1000-count;
-			else xmmregs[i].counter = 0;
-		}
-	}
-
-	const OPCODE& opcode = GetCurrentInstruction();
-
-	// if this instruction is a jump or a branch, exit right away
-	if( delayslot ) {
-		bool check_branch_delay = false;
-		switch(_Opcode_) {
-			case 1:
-				switch(_Rt_) {
-					case 0: case 1: case 2: case 3: case 0x10: case 0x11: case 0x12: case 0x13:
-						check_branch_delay = true;
-				}
-				break;
-
-			case 2: case 3: case 4: case 5: case 6: case 7: case 0x14: case 0x15: case 0x16: case 0x17:
-				check_branch_delay = true;
-		}
-		// Check for branch in delay slot, new code by FlatOut.
-		// Gregory tested this in 2017 using the ps2autotests suite and remarked "So far we return 1 (even with this PR), and the HW 2.
-		// Original PR and discussion at https://github.com/PCSX2/pcsx2/pull/1783 so we don't forget this information.
-		if (check_branch_delay) {
-			_clearNeededX86regs();
-			_clearNeededXMMregs();
-			pc += 4;
-			g_cpuFlushedPC = false;
-			g_cpuFlushedCode = false;
-			if (g_maySignalException)
-				xAND(ptr32[&cpuRegs.CP0.n.Cause], ~(1 << 31)); // BD
-
-			g_recompilingDelaySlot = false;
-			return;
-		}
-	}
-	// Check for NOP
-	if (cpuRegs.code == 0x00000000) {
-		// Note: Tests on a ps2 suggested more like 5 cycles for a NOP. But there's many factors in this..
-		s_nBlockCycles +=9 * (2 - ((cpuRegs.CP0.n.Config >> 18) & 0x1));
-	}
-	else {
-		//If the COP0 DIE bit is disabled, cycles should be doubled.
-		s_nBlockCycles += opcode.cycles * (2 - ((cpuRegs.CP0.n.Config >> 18) & 0x1));
-		try {
-			opcode.recompile();
-		} catch (Exception::FailedToAllocateRegister&) {
-			// Fall back to the interpreter
-			recCall(opcode.interpret);
-		}
-	}
-
-	if (!delayslot && (_getNumXMMwrite() > 2)) _flushXMMunused();
-
-	_clearNeededX86regs();
-	_clearNeededXMMregs();
-
-	if (delayslot) {
-		pc += 4;
-		g_cpuFlushedPC = false;
-		g_cpuFlushedCode = false;
-		if (g_maySignalException)
-			xAND(ptr32[&cpuRegs.CP0.n.Cause], ~(1 << 31)); // BD
-		g_recompilingDelaySlot = false;
-	}
-
-	g_maySignalException = false;
-
-	if (!delayslot && (xGetPtr() - recPtr > 0x1000) )
-		s_nEndBlock = pc;
-}
-
-// Called when a block under manual protection fails it's pre-execution integrity check.
-// (meaning the actual code area has been modified -- ie dynamic modules being loaded or,
-//  less likely, self-modifying code)
-static void __fastcall dyna_block_discard(u32 start,u32 sz)
-{
-	recClear(start, sz);
-}
-
-// called when a page under manual protection has been run enough times to be a candidate
-// for being reset under the faster vtlb write protection.  All blocks in the page are cleared
-// and the block is re-assigned for write protection.
-static void __fastcall dyna_page_reset(u32 start,u32 sz)
-{
-	recClear(start & ~0xfffUL, 0x400);
-	manual_counter[start >> 12]++;
-	mmap_MarkCountedRamPage( start );
-}
-
-static void memory_protect_recompiled_code(u32 startpc, u32 size)
-{
-	u32 inpage_ptr = HWADDR(startpc);
-	u32 inpage_sz  = size*4;
-
-	// The kernel context register is stored @ 0x800010C0-0x80001300
-	// The EENULL thread context register is stored @ 0x81000-....
-	bool contains_thread_stack = ((startpc >> 12) == 0x81) || ((startpc >> 12) == 0x80001);
-
-	// note: blocks are guaranteed to reside within the confines of a single page.
-	const vtlb_ProtectionMode PageType = contains_thread_stack ? ProtMode_Manual : mmap_GetRamPageInfo( inpage_ptr );
-
-    switch (PageType)
-    {
-        case ProtMode_NotRequired:
-            break;
-
-		case ProtMode_None:
-        case ProtMode_Write:
-			mmap_MarkCountedRamPage( inpage_ptr );
-			manual_page[inpage_ptr >> 12] = 0;
-			break;
-
-        case ProtMode_Manual:
-			xMOV( arg1regd, inpage_ptr );
-			xMOV( arg2regd, inpage_sz / 4 );
-			//xMOV( eax, startpc );		// uncomment this to access startpc (as eax) in dyna_block_discard
-
-			u32 lpc = inpage_ptr;
-			u32 stg = inpage_sz;
-
-			while(stg>0)
-			{
-				xCMP( ptr32[PSM(lpc)], *(u32*)PSM(lpc) );
-				xJNE(DispatchBlockDiscard);
-
-				stg -= 4;
-				lpc += 4;
-			}
-
-			// Tweakpoint!  3 is a 'magic' number representing the number of times a counted block
-			// is re-protected before the recompiler gives up and sets it up as an uncounted (permanent)
-			// manual block.  Higher thresholds result in more recompilations for blocks that share code
-			// and data on the same page.  Side effects of a lower threshold: over extended gameplay
-			// with several map changes, a game's overall performance could degrade.
-
-			// (ideally, perhaps, manual_counter should be reset to 0 every few minutes?)
-
-			if (!contains_thread_stack && manual_counter[inpage_ptr >> 12] <= 3)
-			{
-				// Counted blocks add a weighted (by block size) value into manual_page each time they're
-				// run.  If the block gets run a lot, it resets and re-protects itself in the hope
-				// that whatever forced it to be manually-checked before was a 1-time deal.
-
-				// Counted blocks have a secondary threshold check in manual_counter, which forces a block
-				// to 'uncounted' mode if it's recompiled several times.  This protects against excessive
-				// recompilation of blocks that reside on the same codepage as data.
-
-				// fixme? Currently this algo is kinda dumb and results in the forced recompilation of a
-				// lot of blocks before it decides to mark a 'busy' page as uncounted.  There might be
-				// be a more clever approach that could streamline this process, by doing a first-pass
-				// test using the vtlb memory protection (without recompilation!) to reprotect a counted
-				// block.  But unless a new algo is relatively simple in implementation, it's probably
-				// not worth the effort (tests show that we have lots of recompiler memory to spare, and
-				// that the current amount of recompilation is fairly cheap).
-
-				xADD(ptr16[&manual_page[inpage_ptr >> 12]], size);
-				xJC(DispatchPageReset);
-
-				// note: clearcnt is measured per-page, not per-block!
-			}
-            break;
-	}
-}
 
 // Skip MPEG Game-Fix
 static bool skipMPEG_By_Pattern(u32 sPC)
@@ -1136,17 +677,13 @@ static bool skipMPEG_By_Pattern(u32 sPC)
 		xMOV(ptr32[&cpuRegs.GPR.n.v0.UL[1]], 0);
 		xMOV(eax, ptr32[&cpuRegs.GPR.n.ra.UL[0]]);
 		xMOV(ptr32[&cpuRegs.pc], eax);
-		iBranchTest();
+		iBranchTest(0xffffffff);
 		g_branch = 1;
 		pc = s_nEndBlock;
 		return 1;
 	}
 	return 0;
 }
-
-// defined at AppCoreThread.cpp but unclean and should not be public. We're the only
-// consumers of it, so it's declared only here.
-void LoadAllPatchesAndStuff(const Pcsx2Config&);
 
 static void doPlace0Patches(void)
 {
@@ -1223,31 +760,34 @@ static void __fastcall recRecompile( const u32 startpc )
 		xFastCall((void*)eeloadHook2);
 
 	// this is the only way patches get applied, doesn't depend on a hack
-	if (g_GameLoading && HWADDR(startpc) == ElfEntry) {
-		log_cb(RETRO_LOG_DEBUG, "Elf entry point @ 0x%08x about to get recompiled. Load patches first.\n", startpc);
+	if (g_GameLoading && HWADDR(startpc) == ElfEntry)
+	{
 		xFastCall((void*)eeGameStarting);
-
 		// Apply patch as soon as possible. Normally it is done in
 		// eeGameStarting but first block is already compiled.
 		doPlace0Patches();
 	}
 
-	g_branch = 0;
+	g_branch         = 0;
 
 	// reset recomp state variables
-	s_nBlockCycles = 0;
-	pc = startpc;
+	s_nBlockCycles   = 0;
+	pc               = startpc;
 	g_cpuHasConstReg = g_cpuFlushedConstReg = 1;
 	pxAssert( g_cpuConstRegs[0].UD[0] == 0 );
 
 	_initX86regs();
 	_initXMMregs();
 
-	if (EmuConfig.Gamefixes.GoemonTlbHack) {
-		if (pc == 0x33ad48 || pc == 0x35060c) {
+	if (EmuConfig.Gamefixes.GoemonTlbHack)
+	{
+		if (pc == 0x33ad48 || pc == 0x35060c)
+		{
 			// 0x33ad48 and 0x35060c are the return address of the function (0x356250) that populate the TLB cache
 			xFastCall((void*)GoemonPreloadTlb);
-		} else if (pc == 0x3563b8) {
+		}
+		else if (pc == 0x3563b8)
+		{
 			// Game will unmap some virtual addresses. If a constant address were hardcoded in the block, we would be in a bad situation.
 			eeRecNeedsReset = true;
 			// 0x3563b8 is the start address of the function that invalidate entry in TLB cache
@@ -1256,9 +796,9 @@ static void __fastcall recRecompile( const u32 startpc )
 	}
 
 	// go until the next branch
-	i = startpc;
+	i           = startpc;
 	s_nEndBlock = 0xffffffff;
-	s_branchTo = -1;
+	s_branchTo  = -1;
 
 	while(1) {
 		BASEBLOCK* pblock = PC_GETBLOCK(i);
@@ -1454,17 +994,17 @@ StartRecomp:
 		usecop2 = 0;
 		g_pCurInstInfo = s_pInstCache;
 
-		for(i = startpc; i < s_nEndBlock; i += 4) {
+		for(i = startpc; i < s_nEndBlock; i += 4)
+		{
 			g_pCurInstInfo++;
 			cpuRegs.code = *(u32*)PSM(i);
 
 			// cop2 //
 			if( g_pCurInstInfo->info & EEINSTINFO_COP2 ) {
 
-				if( !usecop2 ) {
-					// init
+				// init
+				if(!usecop2)
 					usecop2 = 1;
-				}
 
 				VU0.code = cpuRegs.code;
 				continue;
@@ -1473,16 +1013,13 @@ StartRecomp:
 		// This *is* important because g_pCurInstInfo is checked a bit later on and
 		// if it's not equal to s_pInstCache it handles recompilation differently.
 		// ... but the empty if() conditional inside the for loop is still amusing. >_<
-		if( usecop2 ) {
+		if( usecop2 )
+		{
 			// add necessary mac writebacks
 			g_pCurInstInfo = s_pInstCache;
 
-			for(i = startpc; i < s_nEndBlock-4; i += 4) {
+			for(i = startpc; i < s_nEndBlock-4; i += 4)
 				g_pCurInstInfo++;
-
-				if( g_pCurInstInfo->info & EEINSTINFO_COP2 ) {
-				}
-			}
 		}
 	}
 
@@ -1492,12 +1029,12 @@ StartRecomp:
 	// Skip Recompilation if sceMpegIsEnd Pattern detected
 	bool doRecompilation = !skipMPEG_By_Pattern(startpc);
 
-	if (doRecompilation) {
+	if (doRecompilation)
+	{
 		// Finally: Generate x86 recompiled code!
 		g_pCurInstInfo = s_pInstCache;
-		while (!g_branch && pc < s_nEndBlock) {
+		while (!g_branch && pc < s_nEndBlock)
 			recompileNextInstruction(0);		// For the love of recursion, batman!
-		}
 	}
 
 	pxAssert( (pc-startpc)>>2 <= 0xffff );
@@ -1505,9 +1042,7 @@ StartRecomp:
 
 	if (HWADDR(pc) <= Ps2MemSize::MainRam) {
 		BASEBLOCKEX *oldBlock;
-		int i;
-
-		i = recBlocks.LastIndex(HWADDR(pc) - 4);
+		int i = recBlocks.LastIndex(HWADDR(pc) - 4);
 		while (oldBlock = recBlocks[i--]) {
 			if (oldBlock == s_pCurBlockEx)
 				continue;
@@ -1548,7 +1083,7 @@ StartRecomp:
 		// for actual branching instructions.
 
 		iFlushCall(FLUSH_EVERYTHING);
-		iBranchTest();
+		iBranchTest(0xffffffff);
 	}
 	else
 	{
@@ -1589,6 +1124,446 @@ StartRecomp:
 
 	s_pCurBlock = NULL;
 	s_pCurBlockEx = NULL;
+}
+
+// Size is in dwords (4 bytes)
+static void recClear(u32 addr, u32 size)
+{
+	int blockidx;
+	if ((addr) >= maxrecmem || !(recLUT[(addr) >> 16] + (addr & ~0xFFFFUL)))
+		return;
+	addr = HWADDR(addr);
+
+	if ((blockidx = recBlocks.LastIndex(addr + size * 4 - 4)) == -1)
+		return;
+
+	u32 lowerextent = (u32)-1, upperextent = 0, ceiling = (u32)-1;
+
+	BASEBLOCKEX* pexblock = recBlocks[blockidx + 1];
+	if (pexblock)
+		ceiling = pexblock->startpc;
+
+	int toRemoveLast = blockidx;
+
+	while (pexblock = recBlocks[blockidx])
+	{
+		u32 blockstart    = pexblock->startpc;
+		u32 blockend      = pexblock->startpc + pexblock->size * 4;
+		BASEBLOCK* pblock = PC_GETBLOCK(blockstart);
+
+		if (pblock == s_pCurBlock)
+		{
+			if(toRemoveLast != blockidx)
+				recBlocks.Remove((blockidx + 1), toRemoveLast);
+			toRemoveLast = --blockidx;
+			continue;
+		}
+
+		if (blockend <= addr) {
+			lowerextent = std::max(lowerextent, blockend);
+			break;
+		}
+
+		lowerextent = std::min(lowerextent, blockstart);
+		upperextent = std::max(upperextent, blockend);
+		// This might end up inside a block that doesn't contain the clearing range,
+		// so set it to recompile now.  This will become JITCompile if we clear it.
+		pblock->SetFnptr((uptr)JITCompileInBlock);
+
+		blockidx--;
+	}
+
+	if(toRemoveLast != blockidx)
+		recBlocks.Remove((blockidx + 1), toRemoveLast);
+
+	upperextent = std::min(upperextent, ceiling);
+
+	if (upperextent > lowerextent)
+	{
+		BASEBLOCK *base = (BASEBLOCK*)PC_GETBLOCK(lowerextent);
+		int memsize     = upperextent - lowerextent;
+		for (int i = 0; i < memsize/(int)sizeof(uptr); i++)
+			base[i].SetFnptr((uptr)JITCompile);
+	}
+}
+
+static void recReserveCache(void)
+{
+	if (!recMem) recMem = new RecompiledCodeReserve(L"R5900-32 Recompiler Cache", _16mb);
+
+	while (!recMem->IsOk())
+	{
+		if (recMem->Reserve(GetVmMemory().MainMemory(), HostMemoryMap::EErecOffset, m_ConfiguredCacheReserve * _1mb) != NULL) break;
+
+		// If it failed, then try again (if possible):
+		if (m_ConfiguredCacheReserve < 16) break;
+		m_ConfiguredCacheReserve /= 2;
+	}
+
+	recMem->ThrowIfNotOk();
+}
+
+static void recReserve(void)
+{
+	// Hardware Requirements Check...
+
+        /* TODO/FIXME - add SSE2 requirement check,
+           and if not there, exit gracefully instead
+           of doing an exception throw */
+
+	recReserveCache();
+}
+
+static void recShutdown(void)
+{
+	safe_delete( recMem );
+	safe_aligned_free( recRAMCopy );
+	safe_aligned_free( recLutReserve_RAM );
+
+	recBlocks.Reset();
+
+	recRAM = recROM = recROM1 = recROM2 = NULL;
+
+	safe_aligned_free( recConstBuf );
+	safe_free( s_pInstCache );
+	s_nInstCacheSize = 0;
+}
+
+static void recResetEE(void)
+{
+	if (eeCpuExecuting)
+	{
+		eeRecNeedsReset = true;
+		return;
+	}
+
+	recResetRaw();
+}
+
+static void recStep(void)
+{
+}
+
+#if !PCSX2_SEH
+#	define SETJMP_CODE(x)  x
+	static fastjmp_buf m_SetJmp_StateCheck;
+	static std::unique_ptr<BaseR5900Exception> m_cpuException;
+	static ScopedExcept m_Exception;
+#else
+#	define SETJMP_CODE(x)
+#endif
+
+static void recExitExecution(void)
+{
+#if PCSX2_SEH
+	throw Exception::ExitCpuExecute();
+#else
+	// Without SEH we'll need to hop to a safehouse point outside the scope of recompiled
+	// code.  C++ exceptions can't cross the mighty chasm in the stackframe that the recompiler
+	// creates.  However, the longjump is slow so we only want to do one when absolutely
+	// necessary:
+
+	fastjmp_jmp(&m_SetJmp_StateCheck, 1 );
+#endif
+}
+
+static void recCheckExecutionState(void)
+{
+	if( SETJMP_CODE(m_cpuException || m_Exception ||) eeRecIsReset || GetCoreThread().HasPendingStateChangeRequest() )
+	{
+		recExitExecution();
+	}
+}
+
+static void recExecute(void)
+{
+	// Implementation Notes:
+	// [TODO] fix this comment to explain various code entry/exit points, when I'm not so tired!
+
+#if PCSX2_SEH
+	eeRecIsReset   = false;
+	eeCpuExecuting = true;
+
+	try {
+		EnterRecompiledCode();
+	}
+	catch( Exception::ExitCpuExecute& )
+	{
+	}
+
+#else
+
+	int oldstate;
+	m_cpuException	= NULL;
+	m_Exception		= NULL;
+
+	// setjmp will save the register context and will return 0
+	// A call to longjmp will restore the context (included the eip/rip)
+	// but will return the longjmp 2nd parameter (here 1)
+	if( !fastjmp_set(&m_SetJmp_StateCheck ) )
+	{
+		eeRecIsReset = false;
+		eeCpuExecuting = true;
+
+		// Important! Most of the console logging and such has cancel points in it.  This is great
+		// in Windows, where SEH lets us safely kill a thread from anywhere we want.  This is bad
+		// in Linux, which cannot have a C++ exception cross the recompiler.  Hence the changing
+		// of the cancelstate here!
+
+		pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, &oldstate );
+		EnterRecompiledCode();
+
+		// Generally unreachable code here ...
+	}
+	else
+	{
+		pthread_setcancelstate( PTHREAD_CANCEL_ENABLE, &oldstate );
+	}
+
+	eeCpuExecuting = false;
+
+	if(m_cpuException)	m_cpuException->Rethrow();
+	if(m_Exception)		m_Exception->Rethrow();
+#endif
+
+}
+
+////////////////////////////////////////////////////
+void R5900::Dynarec::OpcodeImpl::recSYSCALL(void)
+{
+	recCall(R5900::Interpreter::OpcodeImpl::SYSCALL);
+
+	xCMP(ptr32[&cpuRegs.pc], pc);
+	j8Ptr[0] = JE8(0);
+	xADD(ptr32[&cpuRegs.cycle], scaleblockcycles_calculation());
+	// Note: technically the address is 0x8000_0180 (or 0x180)
+	// (if CPU is booted)
+	xJMP( (void*)DispatcherReg );
+	x86SetJ8(j8Ptr[0]);
+}
+
+////////////////////////////////////////////////////
+void R5900::Dynarec::OpcodeImpl::recBREAK(void)
+{
+	recCall(R5900::Interpreter::OpcodeImpl::BREAK);
+
+	xCMP(ptr32[&cpuRegs.pc], pc);
+	j8Ptr[0] = JE8(0);
+	xADD(ptr32[&cpuRegs.cycle], scaleblockcycles_calculation());
+	xJMP( (void*)DispatcherEvent );
+	x86SetJ8(j8Ptr[0]);
+}
+
+void SetBranchReg( u32 reg )
+{
+	g_branch = 1;
+
+	if( reg != 0xffffffff )
+	{
+		_allocX86reg(calleeSavedReg2d, X86TYPE_PCWRITEBACK, 0, MODE_WRITE);
+		_eeMoveGPRtoR(calleeSavedReg2d, reg);
+
+		if (EmuConfig.Gamefixes.GoemonTlbHack) {
+			xMOV(ecx, calleeSavedReg2d);
+			vtlb_DynV2P();
+			xMOV(calleeSavedReg2d, eax);
+		}
+
+		recompileNextInstruction(1);
+
+		if( x86regs[calleeSavedReg2d.GetId()].inuse ) {
+			pxAssert( x86regs[calleeSavedReg2d.GetId()].type == X86TYPE_PCWRITEBACK );
+			xMOV(ptr[&cpuRegs.pc], calleeSavedReg2d);
+			x86regs[calleeSavedReg2d.GetId()].inuse = 0;
+		}
+		else {
+			xMOV(eax, ptr[&g_recWriteback]);
+			xMOV(ptr[&cpuRegs.pc], eax);
+		}
+	}
+
+	iFlushCall(FLUSH_EVERYTHING);
+
+	iBranchTest(0xffffffff);
+}
+
+void SetBranchImm( u32 imm )
+{
+	g_branch = 1;
+
+	pxAssert( imm );
+
+	// end the current block
+	iFlushCall(FLUSH_EVERYTHING);
+	xMOV(ptr32[&cpuRegs.pc], imm);
+	iBranchTest(imm);
+}
+
+void SaveBranchState(void)
+{
+	s_savenBlockCycles = s_nBlockCycles;
+	memcpy(s_saveConstRegs, g_cpuConstRegs, sizeof(g_cpuConstRegs));
+	s_saveHasConstReg = g_cpuHasConstReg;
+	s_saveFlushedConstReg = g_cpuFlushedConstReg;
+	s_psaveInstInfo = g_pCurInstInfo;
+
+	memcpy(s_saveXMMregs, xmmregs, sizeof(xmmregs));
+}
+
+void LoadBranchState(void)
+{
+	s_nBlockCycles       = s_savenBlockCycles;
+
+	memcpy(g_cpuConstRegs, s_saveConstRegs, sizeof(g_cpuConstRegs));
+	g_cpuHasConstReg     = s_saveHasConstReg;
+	g_cpuFlushedConstReg = s_saveFlushedConstReg;
+	g_pCurInstInfo       = s_psaveInstInfo;
+
+	memcpy(xmmregs, s_saveXMMregs, sizeof(xmmregs));
+}
+
+void iFlushCall(int flushtype)
+{
+	// Free registers that are not saved across function calls (x86-32 ABI):
+	_freeX86reg(eax);
+	_freeX86reg(ecx);
+	_freeX86reg(edx);
+
+	if ((flushtype & FLUSH_PC) && !g_cpuFlushedPC) {
+		xMOV(ptr32[&cpuRegs.pc], pc);
+		g_cpuFlushedPC = true;
+	}
+
+	if ((flushtype & FLUSH_CODE) && !g_cpuFlushedCode) {
+		xMOV(ptr32[&cpuRegs.code], cpuRegs.code);
+		g_cpuFlushedCode = true;
+	}
+
+	if ((flushtype == FLUSH_CAUSE) && !g_maySignalException) {
+		if (g_recompilingDelaySlot)
+			xOR(ptr32[&cpuRegs.CP0.n.Cause], 1 << 31); // BD
+		g_maySignalException = true;
+	}
+
+	if( flushtype & FLUSH_FREE_XMM )
+		_freeXMMregs();
+	else if( flushtype & FLUSH_FLUSH_XMM)
+		_flushXMMregs();
+
+	if( flushtype & FLUSH_CACHED_REGS )
+		_flushConstRegs();
+}
+
+u32 scaleblockcycles_clear(void)
+{
+	u32 scaled   = scaleblockcycles_calculation();
+	s8 cyclerate = g_Conf->EmuOptions.Speedhacks.EECycleRate;
+
+	if (cyclerate > 1)
+		s_nBlockCycles &= (0x1 << (cyclerate + 2)) - 1;
+	else
+		s_nBlockCycles &= 0x7;
+
+	return scaled;
+}
+
+void recompileNextInstruction(int delayslot)
+{
+	u32 i;
+	int count;
+	static int *s_pCode;
+	s_pCode = (int *)PSM( pc );
+
+	// acts as a tag for delimiting recompiled instructions when viewing x86 disasm.
+
+	cpuRegs.code = *(int *)s_pCode;
+
+	if (!delayslot) {
+		pc += 4;
+		g_cpuFlushedPC = false;
+		g_cpuFlushedCode = false;
+	} else {
+		// increment after recompiling so that pc points to the branch during recompilation
+		g_recompilingDelaySlot = true;
+	}
+
+	g_pCurInstInfo++;
+
+	for(i = 0; i < iREGCNT_XMM; ++i) {
+		if( xmmregs[i].inuse ) {
+			count = _recIsRegWritten(g_pCurInstInfo, (s_nEndBlock-pc)/4 + 1, xmmregs[i].type, xmmregs[i].reg);
+			if( count > 0 ) xmmregs[i].counter = 1000-count;
+			else xmmregs[i].counter = 0;
+		}
+	}
+
+	const OPCODE& opcode = GetCurrentInstruction();
+
+	// if this instruction is a jump or a branch, exit right away
+	if( delayslot ) {
+		bool check_branch_delay = false;
+		switch(_Opcode_) {
+			case 1:
+				switch(_Rt_) {
+					case 0: case 1: case 2: case 3: case 0x10: case 0x11: case 0x12: case 0x13:
+						check_branch_delay = true;
+				}
+				break;
+
+			case 2: case 3: case 4: case 5: case 6: case 7: case 0x14: case 0x15: case 0x16: case 0x17:
+				check_branch_delay = true;
+		}
+		// Check for branch in delay slot, new code by FlatOut.
+		// Gregory tested this in 2017 using the ps2autotests suite and remarked "So far we return 1 (even with this PR), and the HW 2.
+		// Original PR and discussion at https://github.com/PCSX2/pcsx2/pull/1783 so we don't forget this information.
+		if (check_branch_delay) {
+			_clearNeededX86regs();
+			_clearNeededXMMregs();
+			pc += 4;
+			g_cpuFlushedPC = false;
+			g_cpuFlushedCode = false;
+			if (g_maySignalException)
+				xAND(ptr32[&cpuRegs.CP0.n.Cause], ~(1 << 31)); // BD
+
+			g_recompilingDelaySlot = false;
+			return;
+		}
+	}
+	// Check for NOP
+	if (cpuRegs.code == 0x00000000) {
+		// Note: Tests on a ps2 suggested more like 5 cycles for a NOP. But there's many factors in this..
+		s_nBlockCycles +=9 * (2 - ((cpuRegs.CP0.n.Config >> 18) & 0x1));
+	}
+	else {
+		//If the COP0 DIE bit is disabled, cycles should be doubled.
+		s_nBlockCycles += opcode.cycles * (2 - ((cpuRegs.CP0.n.Config >> 18) & 0x1));
+		try {
+			opcode.recompile();
+		} catch (Exception::FailedToAllocateRegister&) {
+			// Fall back to the interpreter
+			recCall(opcode.interpret);
+		}
+	}
+
+	if (!delayslot && (_getNumXMMwrite() > 2))
+		_flushXMMunused();
+
+	_clearNeededX86regs();
+	_clearNeededXMMregs();
+
+	if (delayslot) {
+		pc += 4;
+		g_cpuFlushedPC = false;
+		g_cpuFlushedCode = false;
+		if (g_maySignalException)
+			xAND(ptr32[&cpuRegs.CP0.n.Cause], ~(1 << 31)); // BD
+		g_recompilingDelaySlot = false;
+	}
+
+	g_maySignalException = false;
+
+	if (!delayslot && (xGetPtr() - recPtr > 0x1000) )
+		s_nEndBlock = pc;
 }
 
 // The only *safe* way to throw exceptions from the context of recompiled code.
