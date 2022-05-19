@@ -120,18 +120,13 @@ void *HostSys::Mmap(uptr base, size_t size)
 
 void HostSys::Munmap(uptr base, size_t size)
 {
-    if (!base)
-        return;
-    VirtualFree((void *)base, 0, MEM_RELEASE);
+    if (base)
+	    VirtualFree((void *)base, 0, MEM_RELEASE);
 }
 
 void HostSys::MemProtect(void *baseaddr, size_t size, const PageProtectionMode &mode)
 {
     DWORD OldProtect; // enjoy my uselessness, yo!
-    if (!VirtualProtect(baseaddr, size, ConvertToWinApi(mode), &OldProtect))
-    {
-       log_cb(RETRO_LOG_ERROR,
-             "VirtualProtect failed @ 0x%08X -> 0x%08X  (mode=%s)\n",
-             baseaddr, (uptr)baseaddr + size, mode.ToString().c_str());
-    }
+    /* TODO/FIXME - some other way to signify failure */
+    if (!VirtualProtect(baseaddr, size, ConvertToWinApi(mode), &OldProtect)) { }
 }

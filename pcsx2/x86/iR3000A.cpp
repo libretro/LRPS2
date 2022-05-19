@@ -508,7 +508,7 @@ static void recReserveCache(void)
 {
 	if (!recMem) recMem = new RecompiledCodeReserve(_8mb);
 
-	while (!recMem->IsOk())
+	while (!recMem->GetPtr())
 	{
 		if (recMem->Reserve(GetVmMemory().MainMemory(), HostMemoryMap::IOPrecOffset, m_ConfiguredCacheReserve * _1mb) != NULL) break;
 

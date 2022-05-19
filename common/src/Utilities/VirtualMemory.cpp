@@ -292,12 +292,6 @@ bool VirtualMemoryReserve::Commit()
     return HostSys::MmapCommitPtr(m_baseptr, m_pages_reserved * __pagesize, m_prot_mode);
 }
 
-void VirtualMemoryReserve::AllowModification()
-{
-    m_allow_writes = true;
-    HostSys::MemProtect(m_baseptr, m_pages_commited * __pagesize, m_prot_mode);
-}
-
 void VirtualMemoryReserve::ForbidModification()
 {
     m_allow_writes = false;
@@ -339,28 +333,6 @@ bool VirtualMemoryReserve::TryResize(uint newsize)
 
     m_pages_reserved = newPages;
     return true;
-}
-
-// --------------------------------------------------------------------------------------
-//  PageProtectionMode  (implementations)
-// --------------------------------------------------------------------------------------
-wxString PageProtectionMode::ToString() const
-{
-    wxString modeStr;
-
-    if (m_read)
-        modeStr += L"Read";
-    if (m_write)
-        modeStr += L"Write";
-    if (m_exec)
-        modeStr += L"Exec";
-
-    if (modeStr.IsEmpty())
-        return L"NoAccess";
-    if (modeStr.Length() <= 5)
-        modeStr += L"Only";
-
-    return modeStr;
 }
 
 // --------------------------------------------------------------------------------------

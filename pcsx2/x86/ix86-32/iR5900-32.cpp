@@ -1191,7 +1191,7 @@ static void recReserveCache(void)
 {
 	if (!recMem) recMem = new RecompiledCodeReserve(_16mb);
 
-	while (!recMem->IsOk())
+	while (!recMem->GetPtr())
 	{
 		if (recMem->Reserve(GetVmMemory().MainMemory(), HostMemoryMap::EErecOffset, m_ConfiguredCacheReserve * _1mb) != NULL) break;
 

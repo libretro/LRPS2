@@ -152,8 +152,6 @@ public:
     bool CanWrite() const { return m_write; }
     bool CanExecute() const { return m_exec && m_read; }
     bool IsNone() const { return !m_read && !m_write; }
-
-    wxString ToString() const;
 };
 
 static __fi PageProtectionMode PageAccess_None()

@@ -216,11 +216,7 @@ public:
     virtual bool Commit();
 
     virtual void ForbidModification();
-    virtual void AllowModification();
 
-    bool IsOk() const { return m_baseptr != NULL; }
-    uptr GetReserveSizeInBytes() const { return m_pages_reserved * __pagesize; }
-    uptr GetReserveSizeInPages() const { return m_pages_reserved; }
     uint GetCommittedPageCount() const { return m_pages_commited; }
     uint GetCommittedBytes() const { return m_pages_commited * __pagesize; }
 

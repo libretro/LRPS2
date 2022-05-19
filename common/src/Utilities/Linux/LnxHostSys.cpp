@@ -167,8 +167,6 @@ void HostSys::Munmap(uptr base, size_t size)
 
 void HostSys::MemProtect(void *baseaddr, size_t size, const PageProtectionMode &mode)
 {
-    if (!_memprotect(baseaddr, size, mode))
-	log_cb(RETRO_LOG_ERROR,
-            "mprotect failed @ 0x%08X -> 0x%08X  (mode=%s)\n",
-                               baseaddr, (uptr)baseaddr + size, WX_STR(mode.ToString()));
+	/* TODO/FIXME - some other way to signify failure */
+    if (!_memprotect(baseaddr, size, mode)) { }
 }
