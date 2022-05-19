@@ -90,11 +90,11 @@ VirtualMemoryManager::VirtualMemoryManager(uptr base, size_t size, uptr upper_bo
     {
 	    SafeSysMunmap(m_baseptr, reserved_bytes);
 
-	    if (base) {
-		    // Let's try again at an OS-picked memory area, and then hope it meets needed
-		    // boundschecking criteria below.
+	    // Let's try again at an OS-picked memory area, 
+            // and then hope it meets needed
+	    // boundschecking criteria below.
+	    if (base)
 		    m_baseptr = (uptr)HostSys::MmapReserve(0, reserved_bytes);
-	    }
     }
 
     bool fulfillsRequirements = true;
@@ -102,9 +102,8 @@ VirtualMemoryManager::VirtualMemoryManager(uptr base, size_t size, uptr upper_bo
         fulfillsRequirements = false;
     if ((upper_bounds != 0) && ((m_baseptr + reserved_bytes) > upper_bounds))
         fulfillsRequirements = false;
-    if (!fulfillsRequirements) {
+    if (!fulfillsRequirements)
         SafeSysMunmap(m_baseptr, reserved_bytes);
-    }
 
     if (!m_baseptr) return;
 
@@ -139,15 +138,15 @@ static bool VMMMarkPagesAsInUse(std::atomic<bool> *begin, std::atomic<bool> *end
 void *VirtualMemoryManager::Alloc(uptr offsetLocation, size_t size) const
 {
     size = pageAlign(size);
-    if (!pxAssertDev(offsetLocation % __pagesize == 0, "(VirtualMemoryManager) alloc at unaligned offsetLocation"))
+    if (!pxAssertDev(offsetLocation % __pagesize == 0))
         return nullptr;
-    if (!pxAssertDev(size + offsetLocation <= m_pages_reserved * __pagesize, "(VirtualMemoryManager) alloc outside reserved area"))
+    if (!pxAssertDev(size + offsetLocation <= m_pages_reserved * __pagesize))
         return nullptr;
     if (m_baseptr == 0)
         return nullptr;
     auto puStart = &m_pageuse[offsetLocation / __pagesize];
     auto puEnd = &m_pageuse[(offsetLocation+size) / __pagesize];
-    if (!pxAssertDev(VMMMarkPagesAsInUse(puStart, puEnd), "(VirtualMemoryManager) allocation requests overlapped"))
+    if (!pxAssertDev(VMMMarkPagesAsInUse(puStart, puEnd)))
         return nullptr;
     return (void *)(m_baseptr + offsetLocation);
 }
@@ -155,22 +154,21 @@ void *VirtualMemoryManager::Alloc(uptr offsetLocation, size_t size) const
 void VirtualMemoryManager::Free(void *address, size_t size) const
 {
     uptr offsetLocation = (uptr)address - m_baseptr;
-    if (!pxAssertDev(offsetLocation % __pagesize == 0, "(VirtualMemoryManager) free at unaligned address")) {
+    if (!pxAssertDev(offsetLocation % __pagesize == 0))
+    {
         uptr newLoc = pageAlign(offsetLocation);
         size -= (offsetLocation - newLoc);
         offsetLocation = newLoc;
     }
-    if (!pxAssertDev(size % __pagesize == 0, "(VirtualMemoryManager) free with unaligned size"))
+    if (!pxAssertDev(size % __pagesize == 0))
         size -= size % __pagesize;
-    if (!pxAssertDev(size + offsetLocation <= m_pages_reserved * __pagesize, "(VirtualMemoryManager) free outside reserved area"))
+    if (!pxAssertDev(size + offsetLocation <= m_pages_reserved * __pagesize))
         return;
     auto puStart = &m_pageuse[offsetLocation / __pagesize];
     auto puEnd = &m_pageuse[(offsetLocation+size) / __pagesize];
     for (; puStart < puEnd; puStart++) {
         bool expected = true;
-        if (!puStart->compare_exchange_strong(expected, false, std::memory_order_relaxed)) {
-            pxAssertDev(0, "(VirtaulMemoryManager) double-free");
-        }
+        if (!puStart->compare_exchange_strong(expected, false, std::memory_order_relaxed)) { }
     }
 }
 
@@ -181,7 +179,7 @@ VirtualMemoryBumpAllocator::VirtualMemoryBumpAllocator(VirtualMemoryManagerPtr a
     : m_allocator(std::move(allocator)), m_baseptr((uptr)m_allocator->Alloc(offsetLocation, size)), m_endptr(m_baseptr + size)
 {
     if (m_baseptr.load() == 0)
-        pxAssertDev(0, "(VirtualMemoryBumpAllocator) tried to construct from bad VirtualMemoryManager");
+        pxAssertDev(0);
 }
 
 void *VirtualMemoryBumpAllocator::Alloc(size_t size)
@@ -193,7 +191,7 @@ void *VirtualMemoryBumpAllocator::Alloc(size_t size)
 
     uptr out = m_baseptr.fetch_add(reservedSize, std::memory_order_relaxed);
 
-    if (!pxAssertDev(out - reservedSize + size <= m_endptr, "(VirtualMemoryBumpAllocator) ran out of memory"))
+    if (!pxAssertDev(out - reservedSize + size <= m_endptr))
         return nullptr;
 
     return (void *)out;
@@ -237,7 +235,7 @@ size_t VirtualMemoryReserve::GetSize(size_t requestedSize)
 //
 void *VirtualMemoryReserve::Assign(VirtualMemoryManagerPtr allocator, void * baseptr, size_t size)
 {
-    if (!pxAssertDev(m_baseptr == NULL, "(VirtualMemoryReserve) Invalid object state; object has already been reserved."))
+    if (!pxAssertDev(m_baseptr == NULL))
         return m_baseptr;
 
     if (!size)

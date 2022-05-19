@@ -231,9 +231,7 @@ protected:
 				return i; // Reg is not needed and was a temp reg
 			}
 		}
-		int x = findFreeRegRec(0);
-		pxAssertDev( x >= 0, "microVU register allocation failure!" );
-		return x;
+		return findFreeRegRec(0);
 	}
 
 public:
@@ -244,9 +242,8 @@ public:
 
 	// Fully resets the regalloc by clearing all cached data
 	void reset() {
-		for(int i = 0; i < xmmTotal; i++) {
+		for(int i = 0; i < xmmTotal; i++)
 			clearReg(i);
-		}
 		counter = 0;
 	}
 

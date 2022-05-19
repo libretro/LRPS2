@@ -23,10 +23,6 @@
 #endif
 #endif
 
-#ifndef wxNullChar
-#define wxNullChar ((wxChar *)NULL)
-#endif
-
 // --------------------------------------------------------------------------------------
 //  DiagnosticOrigin
 // --------------------------------------------------------------------------------------
@@ -59,20 +55,8 @@ struct DiagnosticOrigin
 // ATL's Assertion/Assumption macros.  the best of all worlds!
 
 // --------------------------------------------------------------------------------------
-//  pxAssume / pxAssumeDev / pxFail / pxFailDev
+//  pxFail / pxFailDev
 // --------------------------------------------------------------------------------------
-// Assumptions are hints to the compiler that the condition will always be true,
-// the condition should never fail under any circumstance in release builds
-// or else you might get incorrect compiler generated code.
-//
-// Performance: All assumption/fail  types optimize into __assume()/likely() directives in
-// Release builds (non-dev varieties optimize as such in Devel builds as well).
-// __assume(0) is a special form of __assume() which tells the compiler that the code path
-// is not reachable and will cause undefined results if it is reachable...
-//
-// Having pxFail and pxFailDev translate into __assume statements is very dangerous, since
-// it can lead to the compiler optimizing out code and leading to crashes in dev/release
-// builds. To have code optimized, explicitly use pxAssume(false) or pxAssumeDev(false,msg);
 
 #define pxDiagSpot DiagnosticOrigin()
 #define pxAssertSpot(cond) DiagnosticOrigin()
@@ -82,35 +66,13 @@ struct DiagnosticOrigin
 // (especially with LTCG) are highly suspect.  But when troubleshooting crashes that only
 // rear ugly heads in optimized builds, this is one of the few tools we have.
 
-#define pxAssertRel(cond, msg) ((likely(cond)) || (pxOnAssert(pxAssertSpot(cond), msg), false))
-#define pxAssumeRel(cond, msg) ((void)((!likely(cond)) && (pxOnAssert(pxAssertSpot(cond), msg), false)))
+#define pxAssertRel(cond, msg) ((likely(cond)) || (pxOnAssert(pxAssertSpot(cond)), false))
+#define pxAssumeRel(cond, msg) ((void)((!likely(cond)) && (pxOnAssert(pxAssertSpot(cond)), false)))
 
 // Release Builds just use __assume as an optimization, and return the conditional
 // as a result (which is optimized to nil if unused).
 
-#define pxAssertMsg(cond, msg) (likely(cond))
-#define pxAssertDev(cond, msg) (likely(cond))
+#define pxAssertMsg(cond) (likely(cond))
+#define pxAssertDev(cond) (likely(cond))
 
-#define pxAssumeMsg(cond, msg) (__assume(cond))
-#define pxAssumeDev(cond, msg) (__assume(cond))
-
-#define pxAssert(cond) pxAssertMsg(cond, wxNullChar)
-#define pxAssume(cond) pxAssumeMsg(cond, wxNullChar)
-
-// --------------------------------------------------------------------------------------
-// jNO_DEFAULT -- disables the default case in a switch, which improves switch optimization
-// under MSVC.
-// --------------------------------------------------------------------------------------
-// How it Works: pxAssumeDev turns into an __assume(0) under msvc compilers, which when specified
-// in the 'default:' case of a switch tells the compiler that the case is unreachable, so
-// that it will not generate any code, LUTs, or conditionals to handle it.
-//
-// * In debug/devel builds the default case will cause an assertion.
-//
-#ifndef jNO_DEFAULT
-#define jNO_DEFAULT                                                                                   \
-    default: {                                                                                        \
-        pxAssumeDev(0, "Incorrect usage of jNO_DEFAULT detected (default case is not unreachable!)"); \
-        break;                                                                                        \
-    }
-#endif
+#define pxAssert(cond) pxAssertMsg(cond)

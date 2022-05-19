@@ -24,10 +24,6 @@
 #include "MTVU.h"
 #include "Elfheader.h"
 
-
-// Uncomment this to enable profiling of the GS RingBufferCopy function.
-//#define PCSX2_GSRING_SAMPLING_STATS
-
 using namespace Threading;
 
 // =====================================================================================================
@@ -85,7 +81,7 @@ void SysMtgsThread::OnResumeReady()
 
 void SysMtgsThread::ResetGS()
 {
-	pxAssertDev( !IsOpen() || (m_ReadPos == m_WritePos), "Must close or terminate the GS thread prior to gsReset." );
+	pxAssertDev( !IsOpen() || (m_ReadPos == m_WritePos));
 
 	// MTGS Reset process:
 	//  * clear the ringbuffer.
@@ -310,77 +306,77 @@ void SysMtgsThread::ExecuteTaskInThread()
 					switch( tag.command )
 					{
 						case GS_RINGTYPE_VSYNC:
-						{
-							const int qsize = tag.data[0];
-							ringposinc += qsize;
+							{
+								const int qsize = tag.data[0];
+								ringposinc += qsize;
 
-							// Mail in the important GS registers.
-							// This seemingly obtuse system is needed in order to handle cases where the vsync data wraps
-							// around the edge of the ringbuffer.  If not for that I'd just use a struct. >_<
+								// Mail in the important GS registers.
+								// This seemingly obtuse system is needed in order to handle cases where the vsync data wraps
+								// around the edge of the ringbuffer.  If not for that I'd just use a struct. >_<
 
-							uint datapos = (local_ReadPos+1) & RingBufferMask;
-							MemCopy_WrappedSrc( RingBuffer.m_Ring, datapos, RingBufferSize, (u128*)RingBuffer.Regs, 0xf );
+								uint datapos = (local_ReadPos+1) & RingBufferMask;
+								MemCopy_WrappedSrc( RingBuffer.m_Ring, datapos, RingBufferSize, (u128*)RingBuffer.Regs, 0xf );
 
-							u32* remainder = (u32*)&RingBuffer[datapos];
-							((u32&)RingBuffer.Regs[0x1000])				= remainder[0];
-							((u32&)RingBuffer.Regs[0x1010])				= remainder[1];
-							((GSRegSIGBLID&)RingBuffer.Regs[0x1080])	= (GSRegSIGBLID&)remainder[2];
+								u32* remainder = (u32*)&RingBuffer[datapos];
+								((u32&)RingBuffer.Regs[0x1000])				= remainder[0];
+								((u32&)RingBuffer.Regs[0x1010])				= remainder[1];
+								((GSRegSIGBLID&)RingBuffer.Regs[0x1080])	= (GSRegSIGBLID&)remainder[2];
 
-							// CSR & 0x2000; is the pageflip id.
-							GSvsync(((u32&)RingBuffer.Regs[0x1000]) & 0x2000);
-							gsFrameSkip();
+								// CSR & 0x2000; is the pageflip id.
+								GSvsync(((u32&)RingBuffer.Regs[0x1000]) & 0x2000);
+								gsFrameSkip();
 
-							m_QueuedFrameCount.fetch_sub(1);
-							if (m_VsyncSignalListener.exchange(false))
-								m_sem_Vsync.Post();
+								m_QueuedFrameCount.fetch_sub(1);
+								if (m_VsyncSignalListener.exchange(false))
+									m_sem_Vsync.Post();
 
-							// Do not StateCheckInThread() here
-							// Otherwise we could pause while there's still data in the queue
-							// Which could make the MTVU thread wait forever for it to empty
-						}
-						break;
+								// Do not StateCheckInThread() here
+								// Otherwise we could pause while there's still data in the queue
+								// Which could make the MTVU thread wait forever for it to empty
+							}
+							break;
 
 						case GS_RINGTYPE_FRAMESKIP:
 							_gs_ResetFrameskip();
-						break;
+							break;
 
 						case GS_RINGTYPE_FREEZE:
-						{
-							MTGS_FreezeData* data = (MTGS_FreezeData*)tag.pointer;
-							int mode = tag.data[0];
-							data->retval = GSfreeze( mode, data->fdata );
-						}
-						break;
+							{
+								MTGS_FreezeData* data = (MTGS_FreezeData*)tag.pointer;
+								int mode = tag.data[0];
+								data->retval = GSfreeze( mode, data->fdata );
+							}
+							break;
 
 						case GS_RINGTYPE_RESET:
 							GSreset();
-						break;
+							break;
 
 						case GS_RINGTYPE_SOFTRESET:
-						{
-							int mask = tag.data[0];
-							GSgifSoftReset( mask );
-						}
-						break;
+							{
+								int mask = tag.data[0];
+								GSgifSoftReset( mask );
+							}
+							break;
 
 						case GS_RINGTYPE_MODECHANGE:
 							// [TODO] some frameskip sync logic might be needed here!
-						break;
+							break;
 
 						case GS_RINGTYPE_CRC:
 							GSsetGameCRC( tag.data[0], 0 );
-						break;
+							break;
 
 						case GS_RINGTYPE_INIT_READ_FIFO1:
 							GSinitReadFIFO2( (u64*)tag.pointer, 1);
-						break;
+							break;
 
 						case GS_RINGTYPE_INIT_READ_FIFO2:
 							GSinitReadFIFO2( (u64*)tag.pointer, tag.data[0]);
-						break;
+							break;
 
-						// Optimized performance in non-Dev builds.
-						jNO_DEFAULT;
+						default:
+							break;
 					}
 				}
 			}
@@ -489,10 +485,10 @@ void SysMtgsThread::OnCleanupInThread()
 // If isMTVU, then this implies this function is being called from the MTVU thread...
 void SysMtgsThread::WaitGS(bool syncRegs, bool weakWait, bool isMTVU)
 {
-	pxAssertDev( !IsSelf(), "This method is only allowed from threads *not* named MTGS." );
+	pxAssertDev( !IsSelf());
 
 	if( m_ExecMode == ExecMode_NoThreadYet || !IsRunning() ) return;
-	if( !pxAssertDev( IsOpen(), "MTGS Warning!  WaitGS issued on a closed thread." ) ) return;
+	if( !pxAssertDev( IsOpen()) ) return;
 
 	Gif_Path&   path = gifUnit.gifPath[GIF_PATH_1];
 	u32 startP1Packs = weakWait ? path.mtvu.gsPackQueue.size() : 0;
@@ -610,10 +606,8 @@ void SysMtgsThread::GenericStall( uint size )
 
 		if( somedone > 0x80 )
 		{
-			pxAssertDev( m_SignalRingEnable == 0, "MTGS Thread Synchronization Error" );
+			pxAssertDev( m_SignalRingEnable == 0);
 			m_SignalRingPosition.store(somedone, std::memory_order_release);
-
-			//log_cb(RETRO_LOG_DEBUG, "(EEcore Sleep) PrepDataPacker \tringpos=0x%06x, writepos=0x%06x, signalpos=0x%06x\n", readpos, writepos, m_SignalRingPosition );
 
 			while(true) {
 				m_SignalRingEnable.store(true, std::memory_order_release);
@@ -630,11 +624,10 @@ void SysMtgsThread::GenericStall( uint size )
 				if (freeroom > size) break;
 			}
 
-			pxAssertDev( m_SignalRingPosition <= 0, "MTGS Thread Synchronization Error" );
+			pxAssertDev( m_SignalRingPosition <= 0);
 		}
 		else
 		{
-			//log_cb(RETRO_LOG_DEBUG, "(EEcore Spin) PrepDataPacket!\n" );
 			SetEvent();
 			while(true) {
 				SpinWait();
@@ -748,15 +741,7 @@ void SysMtgsThread::WaitForOpen()
 		RethrowException();
 
 		if( !m_sem_OpenDone.Wait( wxTimeSpan(0, 0, 12, 0) ) )
-		{
 			RethrowException();
-
-			// Not opened yet, and no exceptions.  Weird?  You decide!
-			// [TODO] : implement a user confirmation to cancel the action and exit the
-			//   emulator forcefully, or to continue waiting on the GS.
-
-			log_cb(RETRO_LOG_ERROR,"The MTGS thread has become unresponsive while waiting for the GS plugin to open.\n");
-		}
 	}
 
 	RethrowException();
@@ -764,7 +749,7 @@ void SysMtgsThread::WaitForOpen()
 
 void SysMtgsThread::Freeze( int mode, MTGS_FreezeData& data )
 {
-	pxAssertDev(!IsSelf(), "This method is only allowed from threads *not* named MTGS.");
+	pxAssertDev(!IsSelf());
 	SendPointerPacket( GS_RINGTYPE_FREEZE, mode, &data );
 	// make sure MTGS is processing the packet we send it
 	Resume();

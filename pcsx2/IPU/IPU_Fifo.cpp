@@ -105,7 +105,7 @@ int IPU_Fifo_Input::read(void *value)
 
 int IPU_Fifo_Output::write(const u32 *value, uint size)
 {
-	pxAssertMsg(size>0, "Invalid size==0 when calling IPU_Fifo_Output::write");
+	pxAssertMsg(size>0);
 
 	uint origsize = size;
 	/*do {*/
@@ -151,7 +151,7 @@ void IPU_Fifo_Output::read(void *value, uint size)
 
 void __fastcall ReadFIFO_IPUout(mem128_t* out)
 {
-	if (!pxAssertDev( ipuRegs.ctrl.OFC > 0, "Attempted read from IPUout's FIFO, but the FIFO is empty!" )) return;
+	if (!pxAssertDev( ipuRegs.ctrl.OFC > 0)) return;
 	ipu_fifo.out.read(out, 1);
 
 	// Games should always check the fifo before reading from it -- so if the FIFO has no data

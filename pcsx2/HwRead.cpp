@@ -37,8 +37,6 @@ template< uint page > void __fastcall _hwRead128(u32 mem, mem128_t* result );
 template< uint page, bool intcstathack >
 mem32_t __fastcall _hwRead32(u32 mem)
 {
-	pxAssume( (mem & 0x03) == 0 );
-
 	switch( page )
 	{
 		case 0x00:	return rcntRead32<0x00>( mem );
@@ -210,8 +208,6 @@ mem8_t __fastcall hwRead8(u32 mem)
 template< uint page >
 mem16_t __fastcall _hwRead16(u32 mem)
 {
-	pxAssume( (mem & 0x01) == 0 );
-
 	u32 ret32 = _hwRead32<page, false>(mem & ~0x03);
 	return ((u16*)&ret32)[(mem>>1) & 0x01];
 }
@@ -225,8 +221,6 @@ mem16_t __fastcall hwRead16(u32 mem)
 
 mem16_t __fastcall hwRead16_page_0F_INTC_HACK(u32 mem)
 {
-	pxAssume( (mem & 0x01) == 0 );
-
 	u32 ret32 = _hwRead32<0x0f, true>(mem & ~0x03);
 	u16 ret16 = ((u16*)&ret32)[(mem>>1) & 0x01];
 
@@ -236,8 +230,6 @@ mem16_t __fastcall hwRead16_page_0F_INTC_HACK(u32 mem)
 template< uint page >
 static void _hwRead64(u32 mem, mem64_t* result )
 {
-	pxAssume( (mem & 0x07) == 0 );
-
 	switch (page)
 	{
 		case 0x02:
@@ -290,8 +282,6 @@ void __fastcall hwRead64(u32 mem, mem64_t* result )
 template< uint page >
 void __fastcall _hwRead128(u32 mem, mem128_t* result )
 {
-	pxAssume( (mem & 0x0f) == 0 );
-
 	// FIFOs are the only "legal" 128 bit registers, so we Handle them first.
 	// All other registers fall back on the 64-bit handler (and from there
 	// all non-IPU reads fall back to the 32-bit handler).

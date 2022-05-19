@@ -34,9 +34,6 @@ using namespace Internal;
 //
 mem8_t __fastcall iopHwRead8_Page1( u32 addr )
 {
-	// all addresses are assumed to be prefixed with 0x1f801xxx:
-	pxAssume( (addr >> 12) == 0x1f801 );
-
 	u32 masked_addr = addr & 0x0fff;
 
 	mem8_t ret;		// using a return var can be helpful in debugging.
@@ -78,49 +75,24 @@ mem8_t __fastcall iopHwRead8_Page1( u32 addr )
 //
 mem8_t __fastcall iopHwRead8_Page3( u32 addr )
 {
-	// all addresses are assumed to be prefixed with 0x1f803xxx:
-	pxAssume( (addr >> 12) == 0x1f803 );
-
-	mem8_t ret;
-	if( addr == 0x1f803100 )	// PS/EE/IOP conf related
-		//ret = 0x10; // Dram 2M
-		ret = 0xFF; //all high bus is the corect default state for CEX PS2!
-	else
-		ret = psxHu8( addr );
-
-	return ret;
+	if( addr == 0x1f803100 ) // PS/EE/IOP conf related
+		return 0xFF; //all high bus is the corect default state for CEX PS2!
+	return psxHu8( addr );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
 mem8_t __fastcall iopHwRead8_Page8( u32 addr )
 {
-	// all addresses are assumed to be prefixed with 0x1f808xxx:
-	pxAssume( (addr >> 12) == 0x1f808 );
-
-	mem8_t ret;
-
 	if( addr == HW_SIO2_FIFO )
-		ret = sio2_fifoOut();//sio2 serial data feed/fifo_out
-	else
-		ret = psxHu8( addr );
-
-	return ret;
+		return sio2_fifoOut();//sio2 serial data feed/fifo_out
+	return psxHu8( addr );
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 //
 template< typename T >
 static __fi T _HwRead_16or32_Page1( u32 addr )
 {
-	// all addresses are assumed to be prefixed with 0x1f801xxx:
-	pxAssume( (addr >> 12) == 0x1f801 );
-
-	// all addresses should be aligned to the data operand size:
-	pxAssume(
-		( sizeof(T) == 2 && (addr & 1) == 0 ) ||
-		( sizeof(T) == 4 && (addr & 3) == 0 )
-	);
-
 	u32 masked_addr = pgmsk( addr );
 	T ret = 0;
 
@@ -338,22 +310,14 @@ mem16_t __fastcall iopHwRead16_Page1( u32 addr )
 //
 mem16_t __fastcall iopHwRead16_Page3( u32 addr )
 {
-	// all addresses are assumed to be prefixed with 0x1f803xxx:
-	pxAssume( (addr >> 12) == 0x1f803 );
-
-	mem16_t ret = psxHu16(addr);
-	return ret;
+	return psxHu16(addr);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
 mem16_t __fastcall iopHwRead16_Page8( u32 addr )
 {
-	// all addresses are assumed to be prefixed with 0x1f808xxx:
-	pxAssume( (addr >> 12) == 0x1f808 );
-
-	mem16_t ret = psxHu16(addr);
-	return ret;
+	return psxHu16(addr);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -367,19 +331,13 @@ mem32_t __fastcall iopHwRead32_Page1( u32 addr )
 //
 mem32_t __fastcall iopHwRead32_Page3( u32 addr )
 {
-	// all addresses are assumed to be prefixed with 0x1f803xxx:
-	pxAssume( (addr >> 12) == 0x1f803 );
-	const mem32_t ret = psxHu32(addr);
-	return ret;
+	return psxHu32(addr);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
 mem32_t __fastcall iopHwRead32_Page8( u32 addr )
 {
-	// all addresses are assumed to be prefixed with 0x1f808xxx:
-	pxAssume( (addr >> 12) == 0x1f808 );
-
 	u32 masked_addr = addr & 0x0fff;
 	mem32_t ret;
 

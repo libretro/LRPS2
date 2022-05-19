@@ -96,7 +96,6 @@ void DoFmvSwitch(bool on)
 
 void AppApplySettings()
 {
-	AffinityAssert_AllowFrom_MainUI();
 	CoreThread.Pause();
 
 	// Ensure existence of necessary documents folders.

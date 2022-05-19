@@ -752,7 +752,8 @@ __fi bool mpeg2sliceIDEC(void)
 					}
 					break;
 
-				jNO_DEFAULT;
+				default:
+					break;
 				}
 
 				// Send The MacroBlock via DmaIpuFrom
@@ -840,7 +841,8 @@ __fi bool mpeg2sliceIDEC(void)
 				}
 				break;
 
-			jNO_DEFAULT;
+			default:
+				break;
 			}
 
 			ipu_cmd.pos[1] = 0;
@@ -884,7 +886,8 @@ finish_idec:
 #endif
 		break;
 
-	jNO_DEFAULT;
+	default:
+		break;
 	}
 
 	return true;
@@ -998,7 +1001,8 @@ __fi bool mpeg2_slice(void)
 				}
 				break;
 
-			jNO_DEFAULT;
+			default:
+				break;
 			}
 
 			// Copy macroblock8 to macroblock16 - without sign extension.
@@ -1103,7 +1107,8 @@ __fi bool mpeg2_slice(void)
 					}
 					break;
 
-				jNO_DEFAULT;
+				default:
+					break;
 				}
 			}
 		}

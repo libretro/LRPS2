@@ -119,8 +119,6 @@ __fi u32 ipuRead32(u32 mem)
 
 		ipucase(IPU_BP): // IPU_BP
 		{
-			pxAssume(g_BP.FP <= 2);
-			
 			ipuRegs.ipubp  = g_BP.BP & 0x7f;
 			ipuRegs.ipubp |= g_BP.IFC << 8;
 			ipuRegs.ipubp |= g_BP.FP << 16;
@@ -266,24 +264,24 @@ static void ipuBCLR(u32 val)
 static __ri void ipuIDEC(tIPU_CMD_IDEC idec)
 {
 	//from IPU_CTRL
-	ipuRegs.ctrl.PCT = I_TYPE; //Intra DECoding;)
+	ipuRegs.ctrl.PCT 		= I_TYPE; //Intra DECoding;)
 
-	decoder.coding_type			= ipuRegs.ctrl.PCT;
-	decoder.mpeg1				= ipuRegs.ctrl.MP1;
+	decoder.coding_type		= ipuRegs.ctrl.PCT;
+	decoder.mpeg1			= ipuRegs.ctrl.MP1;
 	decoder.q_scale_type		= ipuRegs.ctrl.QST;
 	decoder.intra_vlc_format	= ipuRegs.ctrl.IVF;
-	decoder.scantype			= ipuRegs.ctrl.AS;
+	decoder.scantype		= ipuRegs.ctrl.AS;
 	decoder.intra_dc_precision	= ipuRegs.ctrl.IDP;
 
-//from IDEC value
+	//from IDEC value
 	decoder.quantizer_scale		= idec.QSC;
-	decoder.frame_pred_frame_dct= !idec.DTD;
-	decoder.sgn = idec.SGN;
-	decoder.dte = idec.DTE;
-	decoder.ofm = idec.OFM;
+	decoder.frame_pred_frame_dct    = !idec.DTD;
+	decoder.sgn 			= idec.SGN;
+	decoder.dte 			= idec.DTE;
+	decoder.ofm 			= idec.OFM;
 
 	//other stuff
-	decoder.dcr = 1; // resets DC prediction value
+	decoder.dcr 			= 1; // resets DC prediction value
 }
 
 static __ri void ipuBDEC(tIPU_CMD_BDEC bdec)
@@ -343,7 +341,8 @@ static __fi bool ipuVDEC(u32 val)
 					ipuRegs.cmd.DATA = get_dmv();
 					break;
 
-				jNO_DEFAULT
+				default:
+					break;
 			}
 
 			// HACK ATTACK!  This code OR's the MPEG decoder's bitstream position into the upper
@@ -369,7 +368,8 @@ static __fi bool ipuVDEC(u32 val)
 			ipuRegs.top = BigEndian(ipuRegs.top);
 			return true;
 
-		jNO_DEFAULT
+		default:
+			break;
 	}
 
 	return false;
@@ -517,9 +517,7 @@ __fi void ipu_csc(macroblock_8& mb8, macroblock_rgb32& rgb32, int sgn)
 	if (sgn)
 	{
 		for (i = 0; i < 16*16; i++, p += 4)
-		{
 			*(u32*)p ^= 0x808080;
-		}
 	}
 }
 
@@ -598,9 +596,7 @@ u8 getBits64(u8 *address, bool advance)
 		*(u64*)address = ((~mask & *(u64*)(readpos + 1)) >> (8 - shift)) | (((mask) & *(u64*)readpos) << shift);
 	}
 	else
-	{
 		*(u64*)address = *(u64*)readpos;
-	}
 
 	if (advance) g_BP.Advance(64);
 
@@ -646,9 +642,7 @@ __fi u8 getBits16(u8 *address, bool advance)
 		*(u16*)address = ((~mask & *(u16*)(readpos + 1)) >> (8 - shift)) | (((mask) & *(u16*)readpos) << shift);
 	}
 	else
-	{
 		*(u16*)address = *(u16*)readpos;
-	}
 
 	if (advance) g_BP.Advance(16);
 
@@ -667,9 +661,7 @@ u8 getBits8(u8 *address, bool advance)
 		*(u8*)address = (((~mask) & readpos[1]) >> (8 - shift)) | (((mask) & *readpos) << shift);
 	}
 	else
-	{
 		*(u8*)address = *(u8*)readpos;
-	}
 
 	if (advance) g_BP.Advance(8);
 
@@ -741,12 +733,11 @@ __fi void IPUCMD_WRITE(u32 val)
 		case SCE_IPU_PACK:
 			break;
 
-		jNO_DEFAULT;
-			}
+		default:
+			break;
+	}
 
 	ipuRegs.ctrl.BUSY = 1;
-
-	//if(!ipu1ch.chcr.STR) hwIntcIrq(INTC_IPU);
 }
 
 __noinline void IPUWorker()
@@ -758,7 +749,7 @@ __noinline void IPUWorker()
 		// These are unreachable (BUSY will always be 0 for them)
 		//case SCE_IPU_BCLR:
 		//case SCE_IPU_SETTH:
-			//break;
+		//break;
 
 		case SCE_IPU_IDEC:
 			if (!mpeg2sliceIDEC()) return;
@@ -812,11 +803,11 @@ __noinline void IPUWorker()
 			if (!ipuPACK(ipu_cmd.current)) return;
 			break;
 
-		jNO_DEFAULT
-			}
+		default:
+			break;
+	}
 
 	// success
 	ipuRegs.ctrl.BUSY = 0;
-	//ipu_cmd.current = 0xffffffff;
 	hwIntcIrq(INTC_IPU);
 }

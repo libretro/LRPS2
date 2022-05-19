@@ -39,8 +39,6 @@ void InitADSR() // INIT ADSR
 
 bool V_ADSR::Calculate()
 {
-	pxAssume(Phase != 0);
-
 	if (Releasing && (Phase < 5))
 		Phase = 5;
 
@@ -157,7 +155,8 @@ bool V_ADSR::Calculate()
 			Value = 0;
 			break;
 
-			jNO_DEFAULT
+		default:
+			break;
 	}
 
 	// returns true if the voice is active, or false if it's stopping.

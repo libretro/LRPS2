@@ -143,8 +143,8 @@ bool MultipartFileReader::Open(const wxString& fileName)
 
 uint MultipartFileReader::GetFirstPart(uint lsn)
 {
-	pxAssertMsg(lsn < GetBlockCount(),	"Invalid lsn passed into MultipartFileReader::GetFirstPart.");
-	pxAssertMsg(m_numparts, "Invalid object state; multi-part iso file needs at least one part!");
+	pxAssertMsg(lsn < GetBlockCount());
+	pxAssertMsg(m_numparts);
 
 	for (uint i = 0; i < m_numparts; ++i)
 	{

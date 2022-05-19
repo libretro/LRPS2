@@ -130,8 +130,6 @@ bool GSClut::WriteTest(const GIFRegTEX0& TEX0, const GIFRegTEXCLUT& TEXCLUT)
 
 	switch (TEX0.CLD)
 	{
-		case 0:
-			return false;
 		case 1:
 			break;
 		case 2:
@@ -150,12 +148,12 @@ bool GSClut::WriteTest(const GIFRegTEX0& TEX0, const GIFRegTEXCLUT& TEXCLUT)
 				return false;
 			m_CBP[1] = TEX0.CBP;
 			break;
-		case 6:
-			return false; // ffx2 menu
-		case 7:
-			return false; // ford mustang racing // Bouken Jidai Katsugeki Goemon
+		case 0:
+		case 6: // FFX-2 menu
+		case 7: // ford mustang racing // Bouken Jidai Katsugeki Goemon
+			return false; 
 		default:
-			__assume(0);
+			break;
 	}
 
 	// CLUT only reloads if PSM is a valid index type, avoid unnecessary flushes

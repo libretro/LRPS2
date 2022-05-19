@@ -183,7 +183,6 @@ void SysCoreThread::OnResumeReady()
 // the context of a reset/restart.
 void SysCoreThread::SetElfOverride(const wxString& elf)
 {
-	//pxAssertDev( !m_hasValidMachine, "Thread synchronization error while assigning ELF override." );
 	m_elf_override = elf;
 
 
@@ -218,7 +217,7 @@ void SysCoreThread::ApplySettings(const Pcsx2Config& src)
 	if (src == EmuConfig)
 		return;
 
-	if (!pxAssertDev(IsPaused() | IsSelf(), "CoreThread is not paused; settings cannot be applied."))
+	if (!pxAssertDev(IsPaused() | IsSelf()))
 		return;
 
 	m_resetRecompilers = (src.Cpu != EmuConfig.Cpu) || (src.Gamefixes != EmuConfig.Gamefixes) || (src.Speedhacks != EmuConfig.Speedhacks);
@@ -229,7 +228,7 @@ void SysCoreThread::ApplySettings(const Pcsx2Config& src)
 
 void SysCoreThread::UploadStateCopy(const VmStateBuffer& copy)
 {
-	if (!pxAssertDev(IsPaused(), "CoreThread is not paused; new VM state cannot be uploaded."))
+	if (!pxAssertDev(IsPaused()))
 		return;
 
 	memLoadingState loadme(copy);

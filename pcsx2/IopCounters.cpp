@@ -320,7 +320,7 @@ static void _psxCheckStartGate(int i)
 	_rcntSet(i);
 }
 
-static void _psxCheckEndGate(int i)
+void _psxCheckEndGate(int i)
 {
 	if (!(psxCounters[i].mode & IOPCNT_ENABLE_GATE))
 		return; //Ignore Gate
@@ -389,46 +389,26 @@ void psxCheckStartGate16(int i)
 	_psxCheckStartGate(i);
 }
 
-void psxCheckEndGate16(int i)
-{
-	pxAssert(i < 3);
-	_psxCheckEndGate(i);
-}
-
-static void psxCheckStartGate32(int i)
-{
-	// 32 bit gate is called for gate 3 only.  Ever.
-	pxAssert(i == 3);
-	_psxCheckStartGate(i);
-}
-
-static void psxCheckEndGate32(int i)
-{
-	pxAssert(i == 3);
-	_psxCheckEndGate(i);
-}
-
-
-void psxVBlankStart()
+void psxVBlankStart(void)
 {
 	cdvdVsync();
 	iopIntcIrq(0);
 	if (psxvblankgate & (1 << 1))
 		psxCheckStartGate16(1);
 	if (psxvblankgate & (1 << 3))
-		psxCheckStartGate32(3);
+		_psxCheckStartGate(3);
 }
 
-void psxVBlankEnd()
+void psxVBlankEnd(void)
 {
 	iopIntcIrq(11);
 	if (psxvblankgate & (1 << 1))
-		psxCheckEndGate16(1);
+		_psxCheckEndGate(1);
 	if (psxvblankgate & (1 << 3))
-		psxCheckEndGate32(3);
+		_psxCheckEndGate(3);
 }
 
-void psxRcntUpdate()
+void psxRcntUpdate(void)
 {
 	int i;
 	//u32 change = 0;
@@ -590,7 +570,6 @@ __fi void psxRcntWmode16(int index, u32 value)
 {
 	int irqmode = 0;
 
-	pxAssume(index >= 0 && index < 3);
 	psxCounter& counter = psxCounters[index];
 
 	counter.mode = value;
@@ -610,13 +589,12 @@ __fi void psxRcntWmode16(int index, u32 value)
 			case 0x200:
 				psxCounters[2].rate = 8;
 				break;
-				jNO_DEFAULT;
+			default:
+				break;
 		}
 
 		if ((counter.mode & 0x7) == 0x7 || (counter.mode & 0x7) == 0x1)
-		{
 			counter.mode |= IOPCNT_STOPPED;
-		}
 	}
 	else
 	{
@@ -658,20 +636,16 @@ __fi void psxRcntWmode16(int index, u32 value)
 __fi void psxRcntWmode32(int index, u32 value)
 {
 	int irqmode = 0;
-	pxAssume(index >= 3 && index < 6);
 	psxCounter& counter = psxCounters[index];
 
 	counter.mode = value;
 	counter.mode |= 0x0400; //IRQ enable
 
 	if (value & (1 << 4))
-	{
 		irqmode += 1;
-	}
 	if (value & (1 << 5))
-	{
 		irqmode += 2;
-	}
+
 	if (index == 3)
 	{
 		// Counter 3 has the HBlank as an alternate source.
@@ -738,10 +712,8 @@ void psxRcntWtarget32(int index, u32 value)
 	pxAssert(index >= 3 && index < 6);
 
 	psxCounters[index].target = value;
-	if (!(psxCounters[index].mode & 0x80))
-	{                                      //Toggle mode
+	if (!(psxCounters[index].mode & 0x80)) // Toggle mode
 		psxCounters[index].mode |= 0x0400; // Interrupt flag set low
-	}
 	// protect the target from an early arrival.
 	// if the target is behind the current count, then set the target overflow
 	// flag, so that the target won't be active until after the next overflow.

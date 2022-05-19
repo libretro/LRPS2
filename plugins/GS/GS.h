@@ -1061,32 +1061,32 @@ struct alignas(32) GIFPath
 			{
 				switch(nreg)
 				{
-				case 1: break;
-				case 2: break;
-				case 3:
-					if(regs.U32[0] == 0x00040102) type = TYPE_STQRGBAXYZF2; // many games, TODO: formats mixed with NOPs (xeno2: 040f010f02, 04010f020f, mgs3: 04010f0f02, 0401020f0f, 04010f020f)
-					if(regs.U32[0] == 0x00050102) type = TYPE_STQRGBAXYZ2; // GoW (has other crazy formats, like ...030503050103)
-					// TODO: common types with UV instead
-					break;
-				case 4: break;
-				case 5: break;
-				case 6: break;
-				case 7: break;
-				case 8: break;
-				case 9:
-					if(regs.U32[0] == 0x02040102 && regs.U32[1] == 0x01020401 && regs.U32[2] == 0x00000004) {type = TYPE_STQRGBAXYZF2; nreg = 3; nloop *= 3;} // FFX
-					break;
-				case 10: break;
-				case 11: break;
-				case 12:
-					if(regs.U32[0] == 0x02040102 && regs.U32[1] == 0x01020401 && regs.U32[2] == 0x04010204) {type = TYPE_STQRGBAXYZF2; nreg = 3; nloop *= 4;} // DQ8 (not many, mostly 040102)
-					break;
-				case 13: break;
-				case 14: break;
-				case 15: break;
-				case 16: break;
-				default:
-					__assume(0);
+					case 3:
+						if(regs.U32[0] == 0x00040102) type = TYPE_STQRGBAXYZF2; // many games, TODO: formats mixed with NOPs (xeno2: 040f010f02, 04010f020f, mgs3: 04010f0f02, 0401020f0f, 04010f020f)
+						if(regs.U32[0] == 0x00050102) type = TYPE_STQRGBAXYZ2; // GoW (has other crazy formats, like ...030503050103)
+						// TODO: common types with UV instead
+						break;
+					case 9:
+						if(regs.U32[0] == 0x02040102 && regs.U32[1] == 0x01020401 && regs.U32[2] == 0x00000004) {type = TYPE_STQRGBAXYZF2; nreg = 3; nloop *= 3;} // FFX
+						break;
+					case 12:
+						if(regs.U32[0] == 0x02040102 && regs.U32[1] == 0x01020401 && regs.U32[2] == 0x04010204) {type = TYPE_STQRGBAXYZF2; nreg = 3; nloop *= 4;} // DQ8 (not many, mostly 040102)
+						break;
+					case 1:
+					case 2:
+					case 4:
+					case 5:
+					case 6:
+					case 7:
+					case 8:
+					case 10:
+					case 11:
+					case 13:
+					case 14:
+					case 15:
+					case 16:
+					default:
+						break;
 				}
 			}
 		}

@@ -601,8 +601,6 @@ xAddressVoid &xAddressVoid::Add(const xAddressReg &src)
         Base = src;
     else if (Index.IsEmpty())
         Index = src;
-    else
-        pxAssumeDev(false, L"x86Emitter: address modifiers cannot have more than two index registers."); // oops, only 2 regs allowed per ModRm!
 
     return *this;
 }
@@ -613,15 +611,14 @@ xAddressVoid &xAddressVoid::Add(const xAddressVoid &src)
     Add(src.Displacement);
 
     // If the factor is 1, we can just treat index like a base register also.
-    if (src.Factor == 1) {
+    if (src.Factor == 1)
         Add(src.Index);
-    } else if (Index.IsEmpty()) {
+    else if (Index.IsEmpty()) {
         Index = src.Index;
         Factor = src.Factor;
-    } else if (Index == src.Index) {
+    }
+    else if (Index == src.Index)
         Factor += src.Factor;
-    } else
-        pxAssumeDev(false, L"x86Emitter: address modifiers cannot have more than two index registers."); // oops, only 2 regs allowed per ModRm!
 
     return *this;
 }
@@ -669,7 +666,7 @@ xIndirectVoid::xIndirectVoid(xAddressReg base, xAddressReg index, int scale, spt
 // but it's too much trouble for code that isn't performance critical anyway.
 // And, with luck, maybe VC10 will optimize it better and make it a non-issue. :D
 //
-void xIndirectVoid::Reduce()
+void xIndirectVoid::Reduce(void)
 {
     if (Index.IsStackPointer()) {
         // esp cannot be encoded as the index, so move it to the Base, if possible.
@@ -716,11 +713,7 @@ void xIndirectVoid::Reduce()
             break;
 
         case 6: // invalid!
-            pxAssumeDev(false, "x86 asm cannot scale a register by 6.");
-            break;
-
         case 7: // so invalid!
-            pxAssumeDev(false, "x86 asm cannot scale a register by 7.");
             break;
 
         case 8:
@@ -730,8 +723,8 @@ void xIndirectVoid::Reduce()
             Base = Index;
             Scale = 3;
             break;
-
-            jNO_DEFAULT
+	default:
+	    break;
     }
 }
 

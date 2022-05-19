@@ -123,28 +123,29 @@ namespace vtlb_private
 					xMOVSX( eax, ptr8[arg1reg] );
 				else
 					xMOVZX( eax, ptr8[arg1reg] );
-			break;
+				break;
 
 			case 16:
 				if( sign )
 					xMOVSX( eax, ptr16[arg1reg] );
 				else
 					xMOVZX( eax, ptr16[arg1reg] );
-			break;
+				break;
 
 			case 32:
 				xMOV( eax, ptr[arg1reg] );
-			break;
+				break;
 
 			case 64:
 				iMOV64_Smart( ptr[arg2reg], ptr[arg1reg] );
-			break;
+				break;
 
 			case 128:
 				iMOV128_SSE( ptr[arg2reg], ptr[arg1reg] );
-			break;
+				break;
 
-			jNO_DEFAULT
+			default:
+				break;
 		}
 	}
 
@@ -222,7 +223,8 @@ static void DynGen_IndirectDispatch( int mode, int bits, bool sign = false )
 		case 32:	szidx=2;	break;
 		case 64:	szidx=3;	break;
 		case 128:	szidx=4;	break;
-		jNO_DEFAULT;
+		default:
+				break;
 	}
 	xJS( GetIndirectDispatcherPtr( mode, szidx, sign ) );
 }
@@ -304,10 +306,10 @@ static void vtlb_SetWriteback(u32 *writeback)
 	uptr val = (uptr)xGetPtr();
 	if (wordsize == 8)
 	{
-		pxAssertMsg(*((u8*)writeback - 2) == 0x8d, "Expected codegen to be an LEA");
+		pxAssertMsg(*((u8*)writeback - 2) == 0x8d);
 		val -= ((uptr)writeback + 4);
 	}
-	pxAssertMsg((sptr)val == (s32)val, "Writeback too far away!");
+	pxAssertMsg((sptr)val == (s32)val);
 	*writeback = val;
 }
 
@@ -315,8 +317,6 @@ static void vtlb_SetWriteback(u32 *writeback)
 //                            Dynarec Load Implementations
 void vtlb_DynGenRead64(u32 bits)
 {
-	pxAssume( bits == 64 || bits == 128 );
-
 	u32* writeback = DynGen_PrepRegs();
 
 	DynGen_IndirectDispatch( 0, bits );
@@ -331,8 +331,6 @@ void vtlb_DynGenRead64(u32 bits)
 //   Returns read value in eax.
 void vtlb_DynGenRead32(u32 bits, bool sign)
 {
-	pxAssume( bits <= 32 );
-
 	u32* writeback = DynGen_PrepRegs();
 
 	DynGen_IndirectDispatch( 0, bits, sign && bits < 32 );
@@ -354,13 +352,14 @@ void vtlb_DynGenRead64_Const( u32 bits, u32 addr_const )
 		{
 			case 64:
 				iMOV64_Smart( ptr[arg2reg], ptr[(void*)ppf] );
-			break;
+				break;
 
 			case 128:
 				iMOV128_SSE( ptr[arg2reg], ptr[(void*)ppf] );
-			break;
+				break;
 
-			jNO_DEFAULT
+			default:
+				break;
 		}
 	}
 	else
@@ -536,7 +535,7 @@ void vtlb_DynGenWrite_Const( u32 bits, u32 addr_const )
 //   ecx - virtual address
 //   Returns physical address in eax.
 //   Clobbers edx
-void vtlb_DynV2P()
+void vtlb_DynV2P(void)
 {
 	xMOV(eax, ecx);
 	xAND(ecx, VTLB_PAGE_MASK); // vaddr & VTLB_PAGE_MASK

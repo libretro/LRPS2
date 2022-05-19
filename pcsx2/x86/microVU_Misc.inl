@@ -270,14 +270,12 @@ public:
 
 static inline u32 branchAddrN(const mV)
 {
-	pxAssumeDev(islowerOP, "MicroVU: Expected Lower OP code for valid branch addr.");
 	return ((((iPC + 4) + (_Imm11_ * 2)) & mVU.progMemMask) * 4);
 }
 
 
 static inline u32 branchAddr(const mV)
 {
-	pxAssumeDev(islowerOP, "MicroVU: Expected Lower OP code for valid branch addr.");
 	return ((((iPC + 2) + (_Imm11_ * 2)) & mVU.progMemMask) * 4);
 }
 

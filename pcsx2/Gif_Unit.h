@@ -119,11 +119,12 @@ struct Gif_Tag
 			cycles = len << 2; // Image Mode takes 4 ee-cycles
 			tag.FLG = GIF_FLG_IMAGE;
 			break;
-			jNO_DEFAULT;
+		default:
+			break;
 		}
 	}
 
-	__ri void analyzeTag()
+	__ri void analyzeTag(void)
 	{
 #if _M_SSE >= 0x200
 		// zero out bits for registers which shouldn't be tested

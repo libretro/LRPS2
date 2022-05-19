@@ -27,9 +27,6 @@
 
 #undef Yield // release the burden of windows.h global namespace spam.
 
-#define AffinityAssert_AllowFrom_MainUI() \
-    pxAssertMsg(wxThread::IsMain(), "Thread affinity violation: Call allowed from main thread only.")
-
 // --------------------------------------------------------------------------------------
 //  PCSX2_THREAD_LOCAL - Defines platform/operating system support for Thread Local Storage
 // --------------------------------------------------------------------------------------

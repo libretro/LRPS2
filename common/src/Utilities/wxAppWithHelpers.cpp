@@ -184,14 +184,11 @@ bool wxAppWithHelpers::ProcessEvent(wxEvent &evt)
     // isn't really designed for it (some events return data to the caller via the event
     // struct, and posting the event would require a temporary clone, where changes would
     // be lost).
-
-    AffinityAssert_AllowFrom_MainUI();
     return _parent::ProcessEvent(evt);
 }
 
 bool wxAppWithHelpers::ProcessEvent(wxEvent *evt)
 {
-    AffinityAssert_AllowFrom_MainUI();
     std::unique_ptr<wxEvent> deleteMe(evt);
     return _parent::ProcessEvent(*deleteMe);
 }

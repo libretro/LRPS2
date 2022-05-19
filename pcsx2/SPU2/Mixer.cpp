@@ -238,13 +238,11 @@ static __forceinline void GetNextDataDummy(V_Core& thiscore, uint voiceidx)
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
 
-static s32 __forceinline GetNoiseValues()
+static s32 __forceinline GetNoiseValues(void)
 {
 	static u16 lfsr = 0xC0FEu;
-
 	u16 bit = lfsr ^ (lfsr << 3) ^ (lfsr << 4) ^ (lfsr << 5);
 	lfsr = (lfsr << 1) | (bit >> 15);
-
 	return (s16)lfsr;
 }
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -305,8 +303,6 @@ static __forceinline void CalculateADSR(V_Core& thiscore, uint voiceidx)
 
 	if (!vc.ADSR.Calculate())
 		vc.Stop();
-
-	pxAssume(vc.ADSR.Value >= 0); // ADSR should never be negative...
 }
 
 /*
@@ -416,32 +412,11 @@ static __forceinline s32 GetVoiceValues(V_Core& thiscore, uint voiceidx)
 		case 4:
 			return CatmullRomInterpolate(vc.PV4, vc.PV3, vc.PV2, vc.PV1, mu);
 
-			jNO_DEFAULT;
+		default:
+			break;
 	}
 
 	return 0; // technically unreachable!
-}
-
-// Noise values need to be mixed without going through interpolation, since it
-// can wreak havoc on the noise (causing muffling or popping).  Not that this noise
-// generator is accurate in its own right.. but eh, ah well :)
-static __forceinline s32 GetNoiseValues(V_Core& thiscore, uint voiceidx)
-{
-	// V_Voice &vc(thiscore.Voices[voiceidx]);
-
-	s32 retval = GetNoiseValues();
-
-	/*while(vc.SP>=4096)
-	{
-		retval = GetNoiseValues();
-		vc.SP-=4096;
-	}*/
-
-	// GetNoiseValues can't set the phase zero on us unexpectedly
-	// like GetVoiceValues can.  Better assert just in case though..
-	// pxAssume(vc.ADSR.Phase != 0);
-
-	return retval;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -469,10 +444,6 @@ static __forceinline StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 	V_Core& thiscore(Cores[coreidx]);
 	V_Voice& vc(thiscore.Voices[voiceidx]);
 
-	// If this assertion fails, it mans SCurrent is being corrupted somewhere, or is not initialized
-	// properly.  Invalid values in SCurrent will cause errant IRQs and corrupted audio.
-	pxAssertMsg((vc.SCurrent <= 28) && (vc.SCurrent != 0), "Current sample should always range from 1->28");
-
 	// Most games don't use much volume slide effects.  So only call the UpdateVolume
 	// methods when needed by checking the flag outside the method here...
 	// (Note: Ys 6 : Ark of Nephistm uses these effects)
@@ -491,7 +462,7 @@ static __forceinline StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 	if (vc.ADSR.Phase > 0)
 	{
 		if (vc.Noise)
-			Value = GetNoiseValues(thiscore, voiceidx);
+			Value = GetNoiseValues();
 		else
 		{
 			// Optimization : Forceinline'd Templated Dispatch Table.  Any halfwit compiler will
@@ -515,7 +486,8 @@ static __forceinline StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 					Value = GetVoiceValues<4>(thiscore, voiceidx);
 					break;
 
-					jNO_DEFAULT;
+				default:
+					break;
 			}
 		}
 

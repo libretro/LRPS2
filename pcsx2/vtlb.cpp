@@ -94,11 +94,10 @@ DataType __fastcall vtlb_memRead(u32 addr)
 			return vmv.assumeHandler<16, false>()(paddr);
 		case 32:
 			return vmv.assumeHandler<32, false>()(paddr);
-
-		jNO_DEFAULT;
+		default:
+			break;
 	}
-
-	return 0;		// technically unreachable, but suppresses warnings.
+	return 0;
 }
 
 void __fastcall vtlb_memRead64(u32 mem, mem64_t *out)
@@ -106,9 +105,7 @@ void __fastcall vtlb_memRead64(u32 mem, mem64_t *out)
 	auto vmv = vtlbdata.vmap[mem>>VTLB_PAGE_BITS];
 
 	if (!vmv.isHandler(mem))
-	{
 		*out = *(mem64_t*)vmv.assumePtr(mem);
-	}
 	else
 	{
 		//has to: translate, find function, call function
@@ -121,9 +118,7 @@ void __fastcall vtlb_memRead128(u32 mem, mem128_t *out)
 	auto vmv = vtlbdata.vmap[mem>>VTLB_PAGE_BITS];
 
 	if (!vmv.isHandler(mem))
-	{
 		CopyQWC(out,(void*)vmv.assumePtr(mem));
-	}
 	else
 	{
 		//has to: translate, find function, call function
@@ -136,19 +131,14 @@ template< typename DataType >
 void __fastcall vtlb_memWrite(u32 addr, DataType data)
 {
 	static const uint DataSize = sizeof(DataType) * 8;
-
+	u32 paddr;
 	auto vmv = vtlbdata.vmap[addr>>VTLB_PAGE_BITS];
 
 	if (!vmv.isHandler(addr))
-	{		
 		*reinterpret_cast<DataType*>(vmv.assumePtr(addr))=data;
-	}
-	else
-	{
-		//has to: translate, find function, call function
-		u32 paddr = vmv.assumeHandlerGetPAddr(addr);
-		return vmv.assumeHandler<sizeof(DataType)*8, true>()(paddr, data);
-	}
+	//has to: translate, find function, call function
+	paddr = vmv.assumeHandlerGetPAddr(addr);
+	return vmv.assumeHandler<sizeof(DataType)*8, true>()(paddr, data);
 }
 
 void __fastcall vtlb_memWrite64(u32 mem, const mem64_t* value)
@@ -156,9 +146,7 @@ void __fastcall vtlb_memWrite64(u32 mem, const mem64_t* value)
 	auto vmv = vtlbdata.vmap[mem>>VTLB_PAGE_BITS];
 
 	if (!vmv.isHandler(mem))
-	{		
 		*(mem64_t*)vmv.assumePtr(mem) = *value;
-	}
 	else
 	{
 		//has to: translate, find function, call function
@@ -172,9 +160,7 @@ void __fastcall vtlb_memWrite128(u32 mem, const mem128_t *value)
 	auto vmv = vtlbdata.vmap[mem>>VTLB_PAGE_BITS];
 
 	if (!vmv.isHandler(mem))
-	{
 		CopyQWC((void*)vmv.assumePtr(mem), value);
-	}
 	else
 	{
 		//has to: translate, find function, call function

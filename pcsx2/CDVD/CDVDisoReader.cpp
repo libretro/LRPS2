@@ -35,7 +35,7 @@ static int pmode, cdtype;
 static s32 layer1start = -1;
 static bool layer1searched = false;
 
-void CALLBACK ISOclose()
+void CALLBACK ISOclose(void)
 {
 	iso.Close();
 }
@@ -117,9 +117,7 @@ s32 CALLBACK ISOgetTN(cdvdTN* Buffer)
 s32 CALLBACK ISOgetTD(u8 Track, cdvdTD* Buffer)
 {
 	if (Track == 0)
-	{
 		Buffer->lsn = iso.GetBlockCount();
-	}
 	else
 	{
 		Buffer->type = CDVD_MODE1_TRACK;
@@ -136,7 +134,7 @@ static bool testForPrimaryVolumeDescriptor(const std::array<u8, CD_FRAMESIZE_RAW
 	return std::equal(identifier.begin(), identifier.end(), buffer.begin() + iso.GetBlockOffset());
 }
 
-static void FindLayer1Start()
+static void FindLayer1Start(void)
 {
 	if (layer1searched)
 		return;
@@ -196,7 +194,7 @@ s32 CALLBACK ISOgetDualInfo(s32* dualType, u32* _layer1start)
 	return 0;
 }
 
-s32 CALLBACK ISOgetDiskType()
+s32 CALLBACK ISOgetDiskType(void)
 {
 	return cdtype;
 }
@@ -331,11 +329,6 @@ s32 CALLBACK ISOreadSector(u8* tempbuffer, u32 lsn, int mode)
 
 	switch (mode)
 	{
-			//case CDVD_MODE_2352:
-			// Unreachable due to shortcut above.
-			//	pxAssume(false);
-			//	break;
-
 		case CDVD_MODE_2340:
 			pbuffer += 12;
 			psize = 2340;
@@ -349,7 +342,8 @@ s32 CALLBACK ISOreadSector(u8* tempbuffer, u32 lsn, int mode)
 			psize = 2048;
 			break;
 
-			jNO_DEFAULT
+		default:
+			break;
 	}
 
 	memcpy(tempbuffer, pbuffer, psize);
@@ -376,27 +370,21 @@ s32 CALLBACK ISOgetBuffer(u8* buffer)
 	return iso.FinishRead3(buffer, pmode);
 }
 
-//u8* CALLBACK ISOgetBuffer()
-//{
-//	iso.FinishRead();
-//	return pbuffer;
-//}
-
-s32 CALLBACK ISOgetTrayStatus()
+s32 CALLBACK ISOgetTrayStatus(void)
 {
 	return CDVD_TRAY_CLOSE;
 }
 
-s32 CALLBACK ISOctrlTrayOpen()
+s32 CALLBACK ISOctrlTrayOpen(void)
 {
 	return 0;
 }
-s32 CALLBACK ISOctrlTrayClose()
+s32 CALLBACK ISOctrlTrayClose(void)
 {
 	return 0;
 }
 
-s32 CALLBACK ISOdummyS32()
+s32 CALLBACK ISOdummyS32(void)
 {
 	return 0;
 }

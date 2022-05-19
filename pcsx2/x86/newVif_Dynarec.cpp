@@ -211,8 +211,6 @@ void VifUnpackSSE_Dynarec::CompileRoutine() {
 	doMode		         = (upkNum == 0xf) ? 0     : doMode;		// V4_5 has no mode feature.
 	UnpkNoOfIterations       = 0;
 
-	pxAssume(vCL == 0);
-
 	// Value passed determines # of col regs we need to load
 	SetMasks(isFill ? blockSize : cycleSize);
 

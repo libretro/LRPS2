@@ -25,7 +25,7 @@
 
 wxFileName wxDirName::Combine(const wxFileName &right) const
 {
-    pxAssertMsg(IsDir(), L"Warning: Malformed directory name detected during wxDirName concatenation.");
+    pxAssertMsg(IsDir());
     if (right.IsAbsolute())
         return right;
 
@@ -40,7 +40,7 @@ wxFileName wxDirName::Combine(const wxFileName &right) const
 
 wxDirName wxDirName::Combine(const wxDirName &right) const
 {
-    pxAssertMsg(IsDir() && right.IsDir(), L"Warning: Malformed directory name detected during wDirName concatenation.");
+    pxAssertMsg(IsDir() && right.IsDir());
 
     wxDirName result(right);
     result.Normalize(wxPATH_NORM_ENV_VARS | wxPATH_NORM_DOTS | wxPATH_NORM_ABSOLUTE, GetPath());
@@ -49,7 +49,7 @@ wxDirName wxDirName::Combine(const wxDirName &right) const
 
 wxDirName &wxDirName::Normalize(int flags, const wxString &cwd)
 {
-    pxAssertMsg(IsDir(), L"Warning: Malformed directory name detected during wDirName normalization.");
+    pxAssertMsg(IsDir());
     if (!wxFileName::Normalize(flags, cwd))
         throw Exception::ParseError().SetDiagMsg(L"wxDirName::Normalize operation failed.");
     return *this;
@@ -57,7 +57,7 @@ wxDirName &wxDirName::Normalize(int flags, const wxString &cwd)
 
 wxDirName &wxDirName::MakeRelativeTo(const wxString &pathBase)
 {
-    pxAssertMsg(IsDir(), L"Warning: Malformed directory name detected during wDirName normalization.");
+    pxAssertMsg(IsDir());
     if (!wxFileName::MakeRelativeTo(pathBase))
         throw Exception::ParseError().SetDiagMsg(L"wxDirName::MakeRelativeTo operation failed.");
     return *this;
@@ -65,7 +65,7 @@ wxDirName &wxDirName::MakeRelativeTo(const wxString &pathBase)
 
 wxDirName &wxDirName::MakeAbsolute(const wxString &cwd)
 {
-    pxAssertMsg(IsDir(), L"Warning: Malformed directory name detected during wDirName normalization.");
+    pxAssertMsg(IsDir());
     if (!wxFileName::MakeAbsolute(cwd))
         throw Exception::ParseError().SetDiagMsg(L"wxDirName::MakeAbsolute operation failed.");
     return *this;
@@ -107,11 +107,10 @@ bool Path::IsRelative(const wxString &path)
 // Returns -1 if the file does not exist.
 s64 Path::GetFileSize(const wxString &path)
 {
-    if (!wxFile::Exists(path.c_str()))
-        return -1;
-    return (s64)wxFileName::GetSize(path).GetValue();
+    if (wxFile::Exists(path.c_str()))
+	    return (s64)wxFileName::GetSize(path).GetValue();
+    return -1;
 }
-
 
 wxString Path::Normalize(const wxString &src)
 {

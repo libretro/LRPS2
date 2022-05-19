@@ -1304,9 +1304,8 @@ void GSState::FlushPrim()
 				if(tail - 1 > head) {buff[1] = m_vertex.buff[tail - 1]; unused = 2;}
 				break;
 			case GS_INVALID:
-				break;
 			default:
-				__assume(0);
+				break;
 		}
 
 		ASSERT((int)unused < GSUtil::GetVertexCount(PRIM->PRIM));
@@ -1782,8 +1781,7 @@ template<int index> void GSState::Transfer(const u8* mem, u32 size)
 						break;
 
 					default:
-
-						__assume(0);
+						break;
 					}
 
 					path.nloop = 0;
@@ -1854,7 +1852,7 @@ template<int index> void GSState::Transfer(const u8* mem, u32 size)
 					break;
 				}
 			default:
-				__assume(0);
+				break;
 			}
 		}
 
@@ -2293,7 +2291,7 @@ __forceinline void GSState::VertexKick(u32 skip)
 				if(tail >= m_vertex.maxcount) GrowVertexBuffer(); // in case too many vertices were skipped
 				break;
 			default: 
-				__assume(0);
+				break;
 		}
 
 		return;
@@ -2375,7 +2373,7 @@ __forceinline void GSState::VertexKick(u32 skip)
 			m_vertex.tail = head;
 			break;
 		default:
-			__assume(0);
+			break;
 	}
 
 	if (auto_flush && PRIM->TME && (GIFREG_FRAME_BLOCK(m_context->FRAME) == m_context->TEX0.TBP0))
@@ -2407,38 +2405,34 @@ void GSState::GetTextureMinMax(GSVector4i& r, const GIFRegTEX0& TEX0, const GIFR
 
 	switch(wms)
 	{
-	case CLAMP_REPEAT:
-		break;
-	case CLAMP_CLAMP:
-		break;
-	case CLAMP_REGION_CLAMP:
-		if(vr.x < minu) vr.x = minu;
-		if(vr.z > maxu + 1) vr.z = maxu + 1;
-		break;
-	case CLAMP_REGION_REPEAT:
-		vr.x = maxu;
-		vr.z = vr.x + (minu + 1);
-		break;
-	default:
-		__assume(0);
+		case CLAMP_REGION_CLAMP:
+			if(vr.x < minu) vr.x = minu;
+			if(vr.z > maxu + 1) vr.z = maxu + 1;
+			break;
+		case CLAMP_REGION_REPEAT:
+			vr.x = maxu;
+			vr.z = vr.x + (minu + 1);
+			break;
+		case CLAMP_REPEAT:
+		case CLAMP_CLAMP:
+		default:
+			break;
 	}
 
 	switch(wmt)
 	{
-	case CLAMP_REPEAT:
-		break;
-	case CLAMP_CLAMP:
-		break;
-	case CLAMP_REGION_CLAMP:
-		if(vr.y < minv) vr.y = minv;
-		if(vr.w > maxv + 1) vr.w = maxv + 1;
-		break;
-	case CLAMP_REGION_REPEAT:
-		vr.y = maxv;
-		vr.w = vr.y + (minv + 1);
-		break;
-	default:
-		__assume(0);
+		case CLAMP_REGION_CLAMP:
+			if(vr.y < minv) vr.y = minv;
+			if(vr.w > maxv + 1) vr.w = maxv + 1;
+			break;
+		case CLAMP_REGION_REPEAT:
+			vr.y = maxv;
+			vr.w = vr.y + (minv + 1);
+			break;
+		case CLAMP_REPEAT:
+		case CLAMP_CLAMP:
+		default:
+			break;
 	}
 
 	if(wms != CLAMP_REGION_REPEAT || wmt != CLAMP_REGION_REPEAT)
@@ -2446,9 +2440,7 @@ void GSState::GetTextureMinMax(GSVector4i& r, const GIFRegTEX0& TEX0, const GIFR
 		GSVector4 st = m_vt.m_min.t.xyxy(m_vt.m_max.t);
 
 		if(linear)
-		{
 			st += GSVector4(-0.5f, 0.5f).xxyy();
-		}
 
 		GSVector4i uv = GSVector4i(st.floor());
 
@@ -2473,44 +2465,42 @@ void GSState::GetTextureMinMax(GSVector4i& r, const GIFRegTEX0& TEX0, const GIFR
 
 		switch(wms)
 		{
-		case CLAMP_REPEAT:
-			if(mask & 0x000f) {if(vr.x < u.x) vr.x = u.x; if(vr.z > u.z + 1) vr.z = u.z + 1;}
-			break;
-		case CLAMP_CLAMP:
-		case CLAMP_REGION_CLAMP:
-			if(vr.x > uv.z) vr.z = vr.x + 1;
-			else if(vr.z < uv.x) vr.x = vr.z - 1;
-			else
-			{
-				if(vr.x < uv.x) vr.x = uv.x;
-				if(vr.z > uv.z + 1) vr.z = uv.z + 1;
-			}
-			break;
-		case CLAMP_REGION_REPEAT:
-			break;
-		default:
-			__assume(0);
+			case CLAMP_REPEAT:
+				if(mask & 0x000f) {if(vr.x < u.x) vr.x = u.x; if(vr.z > u.z + 1) vr.z = u.z + 1;}
+				break;
+			case CLAMP_CLAMP:
+			case CLAMP_REGION_CLAMP:
+				if(vr.x > uv.z) vr.z = vr.x + 1;
+				else if(vr.z < uv.x) vr.x = vr.z - 1;
+				else
+				{
+					if(vr.x < uv.x) vr.x = uv.x;
+					if(vr.z > uv.z + 1) vr.z = uv.z + 1;
+				}
+				break;
+			case CLAMP_REGION_REPEAT:
+			default:
+				break;
 		}
 
 		switch(wmt)
 		{
-		case CLAMP_REPEAT:
-			if(mask & 0xf000) {if(vr.y < v.y) vr.y = v.y; if(vr.w > v.w + 1) vr.w = v.w + 1;}
-			break;
-		case CLAMP_CLAMP:
-		case CLAMP_REGION_CLAMP:
-			if(vr.y > uv.w) vr.w = vr.y + 1;
-			else if(vr.w < uv.y) vr.y = vr.w - 1;
-			else
-			{
-				if(vr.y < uv.y) vr.y = uv.y;
-				if(vr.w > uv.w + 1) vr.w = uv.w + 1;
-			}
-			break;
-		case CLAMP_REGION_REPEAT:
-			break;
-		default:
-			__assume(0);
+			case CLAMP_REPEAT:
+				if(mask & 0xf000) {if(vr.y < v.y) vr.y = v.y; if(vr.w > v.w + 1) vr.w = v.w + 1;}
+				break;
+			case CLAMP_CLAMP:
+			case CLAMP_REGION_CLAMP:
+				if(vr.y > uv.w) vr.w = vr.y + 1;
+				else if(vr.w < uv.y) vr.y = vr.w - 1;
+				else
+				{
+					if(vr.y < uv.y) vr.y = uv.y;
+					if(vr.w > uv.w + 1) vr.w = uv.w + 1;
+				}
+				break;
+			case CLAMP_REGION_REPEAT:
+			default:
+				break;
 		}
 	}
 
@@ -2548,49 +2538,49 @@ void GSState::GetAlphaMinMax()
 	{
 		switch(GSLocalMemory::m_psm[context->TEX0.PSM].fmt)
 		{
-		case 0:
-			a.y = 0;
-			a.w = 0xff;
-			break;
-		case 1:
-			a.y = env.TEXA.AEM ? 0 : env.TEXA.TA0;
-			a.w = env.TEXA.TA0;
-			break;
-		case 2:
-			a.y = env.TEXA.AEM ? 0 : std::min(env.TEXA.TA0, env.TEXA.TA1);
-			a.w = std::max(env.TEXA.TA0, env.TEXA.TA1);
-			break;
-		case 3:
-			m_mem.m_clut.GetAlphaMinMax32(a.y, a.w);
-			break;
-		default:
-			__assume(0);
+			case 0:
+				a.y = 0;
+				a.w = 0xff;
+				break;
+			case 1:
+				a.y = env.TEXA.AEM ? 0 : env.TEXA.TA0;
+				a.w = env.TEXA.TA0;
+				break;
+			case 2:
+				a.y = env.TEXA.AEM ? 0 : std::min(env.TEXA.TA0, env.TEXA.TA1);
+				a.w = std::max(env.TEXA.TA0, env.TEXA.TA1);
+				break;
+			case 3:
+				m_mem.m_clut.GetAlphaMinMax32(a.y, a.w);
+				break;
+			default:
+				break;
 		}
 
 		switch(context->TEX0.TFX)
 		{
-		case TFX_MODULATE:
-			a.x = (a.x * a.y) >> 7;
-			a.z = (a.z * a.w) >> 7;
-			if(a.x > 0xff) a.x = 0xff;
-			if(a.z > 0xff) a.z = 0xff;
-			break;
-		case TFX_DECAL:
-			a.x = a.y;
-			a.z = a.w;
-			break;
-		case TFX_HIGHLIGHT:
-			a.x = a.x + a.y;
-			a.z = a.z + a.w;
-			if(a.x > 0xff) a.x = 0xff;
-			if(a.z > 0xff) a.z = 0xff;
-			break;
-		case TFX_HIGHLIGHT2:
-			a.x = a.y;
-			a.z = a.w;
-			break;
-		default:
-			__assume(0);
+			case TFX_MODULATE:
+				a.x = (a.x * a.y) >> 7;
+				a.z = (a.z * a.w) >> 7;
+				if(a.x > 0xff) a.x = 0xff;
+				if(a.z > 0xff) a.z = 0xff;
+				break;
+			case TFX_DECAL:
+				a.x = a.y;
+				a.z = a.w;
+				break;
+			case TFX_HIGHLIGHT:
+				a.x = a.x + a.y;
+				a.z = a.z + a.w;
+				if(a.x > 0xff) a.x = 0xff;
+				if(a.z > 0xff) a.z = 0xff;
+				break;
+			case TFX_HIGHLIGHT2:
+				a.x = a.y;
+				a.z = a.w;
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -2669,7 +2659,6 @@ bool GSState::TryAlphaTest(u32& fm, u32& zm)
 				else if(amin > aref || amax < aref) return true;
 				return false;
 			default:
-				__assume(0);
 				return true;
 		}
 	}
@@ -2691,7 +2680,7 @@ is_false:
 			zm  = 0xffffffff;
 			break;
 		default:
-			__assume(0);
+			break;
 	}
 
 	return true;

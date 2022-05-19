@@ -97,8 +97,6 @@ __aligned16 u32 dummyValue[4];
 //
 void recLoad64( u32 bits, bool sign )
 {
-	pxAssume( bits == 64 || bits == 128 );
-
 	// Load arg2 with the destination.
 	// 64/128 bit modes load the result directly into the cpuRegs.GPR struct.
 
@@ -139,8 +137,6 @@ void recLoad64( u32 bits, bool sign )
 //
 void recLoad32( u32 bits, bool sign )
 {
-	pxAssume( bits <= 32 );
-
 	// 8/16/32 bit modes return the loaded value in EAX.
 
 	if (GPR_IS_CONST1(_Rs_))

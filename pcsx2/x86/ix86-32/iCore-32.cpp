@@ -80,7 +80,8 @@ static uptr _x86GetAddr(int type, int reg)
 		case X86TYPE_VUJUMP:
 			return (uptr)&g_recWriteback;
 
-		jNO_DEFAULT;
+		default:
+			break;
 	}
 
 	return 0;

@@ -62,22 +62,16 @@ __fi void* _XMMGetAddr(int type, int reg, VURegs *VU)
 	switch (type) {
 		case XMMTYPE_VFREG:
 			return (void*)VU_VFx_ADDR(reg);
-
 		case XMMTYPE_ACC:
 			return (void*)VU_ACCx_ADDR;
-
 		case XMMTYPE_GPRREG:
-			if( reg < 32 )
-				pxAssert( !(g_cpuHasConstReg & (1<<reg)) || (g_cpuFlushedConstReg & (1<<reg)) );
 			return &cpuRegs.GPR.r[reg].UL[0];
-
 		case XMMTYPE_FPREG:
 			return &fpuRegs.fpr[reg];
-
 		case XMMTYPE_FPACC:
 			return &fpuRegs.ACC.f;
-
-		jNO_DEFAULT
+		default:
+			break;
 	}
 
 	return NULL;
@@ -418,10 +412,6 @@ void _clearNeededXMMregs(void)
 				xmmregs[i].mode |= MODE_READ;
 			xmmregs[i].needed = 0;
 		}
-
-		if( xmmregs[i].inuse ) {
-			pxAssert( xmmregs[i].type != XMMTYPE_TEMP );
-		}
 	}
 }
 
@@ -443,9 +433,6 @@ void _deleteGPRtoXMMreg(int reg, int flush)
 				case 1:
 				case 2:
 					if( xmmregs[i].mode & MODE_WRITE ) {
-						pxAssert( reg != 0 );
-
-						//pxAssert( g_xmmtypes[i] == XMMT_INT );
 						xMOVDQA(ptr[&cpuRegs.GPR.r[reg].UL[0]], xRegisterSSE(i));
 
 						// get rid of MODE_WRITE since don't want to flush again
@@ -590,7 +577,6 @@ void _freeXMMreg(u32 xmmreg)
 		break;
 
 		case XMMTYPE_GPRREG:
-			pxAssert( xmmregs[xmmreg].reg != 0 );
 			xMOVDQA(ptr[&cpuRegs.GPR.r[xmmregs[xmmreg].reg].UL[0]], xRegisterSSE(xmmreg));
 			break;
 
@@ -698,33 +684,28 @@ int _signExtendXMMtoM(uptr to, x86SSERegType from, int candestroy)
 		xMOVD(ptr[(void*)(to+4)], xRegisterSSE(from));
 		return 1;
 	}
+
+	// can't destroy and type is int
+	if( _hasFreeXMMreg() ) {
+		xmmregs[from].needed = 1;
+		t0reg = _allocTempXMMreg(XMMT_INT, -1);
+		xMOVDQA(xRegisterSSE(t0reg), xRegisterSSE(from));
+		xPSRA.D(xRegisterSSE(from), 31);
+		xMOVD(ptr[(void*)(to)], xRegisterSSE(t0reg));
+		xMOVD(ptr[(void*)(to+4)], xRegisterSSE(from));
+
+		// swap xmm regs.. don't ask
+		xmmregs[t0reg] = xmmregs[from];
+		xmmregs[from].inuse = 0;
+	}
 	else {
-		// can't destroy and type is int
-		pxAssert( g_xmmtypes[from] == XMMT_INT );
-
-
-		if( _hasFreeXMMreg() ) {
-			xmmregs[from].needed = 1;
-			t0reg = _allocTempXMMreg(XMMT_INT, -1);
-			xMOVDQA(xRegisterSSE(t0reg), xRegisterSSE(from));
-			xPSRA.D(xRegisterSSE(from), 31);
-			xMOVD(ptr[(void*)(to)], xRegisterSSE(t0reg));
-			xMOVD(ptr[(void*)(to+4)], xRegisterSSE(from));
-
-			// swap xmm regs.. don't ask
-			xmmregs[t0reg] = xmmregs[from];
-			xmmregs[from].inuse = 0;
-		}
-		else {
-			xMOVD(ptr[(void*)(to+4)], xRegisterSSE(from));
-			xMOVD(ptr[(void*)(to)], xRegisterSSE(from));
-			xSAR(ptr32[(u32*)(to+4)], 31);
-		}
-
-		return 0;
+		xMOVD(ptr[(void*)(to+4)], xRegisterSSE(from));
+		xMOVD(ptr[(void*)(to)], xRegisterSSE(from));
+		xSAR(ptr32[(u32*)(to+4)], 31);
 	}
 
-	pxAssume( false );
+	return 0;
+
 }
 
 // Seem related to the mix between XMM/x86 in order to avoid a couple of move
@@ -780,7 +761,8 @@ u32 _recIsRegWritten(EEINST* pinst, int size, u8 xmmtype, u8 reg)
 void _recFillRegister(EEINST& pinst, int type, int reg, int write)
 {
 	u32 i = 0;
-	if (write ) {
+	if (write )
+	{
 		for(i = 0; i < ArraySize(pinst.writeType); ++i) {
 			if( pinst.writeType[i] == XMMTYPE_TEMP ) {
 				pinst.writeType[i] = type;
@@ -788,9 +770,9 @@ void _recFillRegister(EEINST& pinst, int type, int reg, int write)
 				return;
 			}
 		}
-		pxAssume( false );
 	}
-	else {
+	else
+	{
 		for(i = 0; i < ArraySize(pinst.readType); ++i) {
 			if( pinst.readType[i] == XMMTYPE_TEMP ) {
 				pinst.readType[i] = type;
@@ -798,6 +780,5 @@ void _recFillRegister(EEINST& pinst, int type, int reg, int write)
 				return;
 			}
 		}
-		pxAssume( false );
 	}
 }

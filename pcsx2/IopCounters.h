@@ -44,5 +44,6 @@ extern void psxVBlankStart();
 extern void psxVBlankEnd();
 extern void psxCheckStartGate16(int i);
 extern void psxCheckEndGate16(int i);
+void _psxCheckEndGate(int i);
 
 #endif /* __PSXCOUNTERS_H__ */

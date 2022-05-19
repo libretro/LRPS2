@@ -927,7 +927,7 @@ bool GSRendererSW::GetScanlineGlobalData(SharedData* data)
 				gd.t.mask.U32[0] = 0xffffffff;
 				break;
 			default:
-				__assume(0);
+				break;
 			}
 
 			switch(context->CLAMP.WMT)
@@ -953,7 +953,7 @@ bool GSRendererSW::GetScanlineGlobalData(SharedData* data)
 				gd.t.mask.U32[2] = 0xffffffff;
 				break;
 			default:
-				__assume(0);
+				break;
 			}
 
 			gd.t.min = gd.t.min.xxxxlh();

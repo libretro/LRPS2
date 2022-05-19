@@ -53,8 +53,6 @@ static StaticMutex total_key_lock(tkl_destructed);
 
 static void make_curthread_key(const pxThread *thr)
 {
-    pxAssumeDev(!tkl_destructed, "total_key_lock is destroyed; program is shutting down; cannot create new thread key.");
-
     ScopedLock lock(total_key_lock);
     if (total_key_count++ != 0)
         return;
@@ -513,7 +511,7 @@ void Threading::pxThread::OnCleanupInThread()
 // callback function
 void *Threading::pxThread::_internal_callback(void *itsme)
 {
-    if (!pxAssertDev(itsme != NULL, wxNullChar))
+    if (!pxAssertDev(itsme != NULL))
         return NULL;
 
     internal_callback_helper(itsme);
@@ -544,11 +542,11 @@ wxString Exception::BaseThreadError::FormatDiagnosticMessage() const
 
 pxThread &Exception::BaseThreadError::Thread()
 {
-    pxAssertDev(m_thread != NULL, "NULL thread object on ThreadError exception.");
+    pxAssertDev(m_thread != NULL);
     return *m_thread;
 }
 const pxThread &Exception::BaseThreadError::Thread() const
 {
-    pxAssertDev(m_thread != NULL, "NULL thread object on ThreadError exception.");
+    pxAssertDev(m_thread != NULL);
     return *m_thread;
 }

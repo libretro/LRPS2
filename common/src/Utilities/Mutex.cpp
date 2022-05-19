@@ -89,7 +89,7 @@ static wxTimeSpan def_detach_timeout(0, 0, 6, 0);
 
 void Threading::Mutex::Detach()
 {
-    if (EBUSY != pthread_mutex_destroy(&m_mutex))
+    if (pthread_mutex_destroy(&m_mutex) != EBUSY)
         return;
 
     if (IsRecursive()) {
@@ -100,8 +100,7 @@ void Threading::Mutex::Detach()
 
         Release();
         Release(); // in case of double recursion.
-        int result = pthread_mutex_destroy(&m_mutex);
-        if (pxAssertDev(result != EBUSY, "Detachment of a recursively-locked mutex (self-locked!)."))
+        if (pxAssertDev(pthread_mutex_destroy(&m_mutex) != EBUSY))
             return;
     }
 

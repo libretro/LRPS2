@@ -34,13 +34,14 @@ void Pcsx2Config::SpeedhackOptions::Set(SpeedhackId id, bool enabled)
 	EnumAssert(id);
 	switch (id)
 	{
-	case Speedhack_mvuFlag:
-		vuFlagHack = enabled;
-		break;
-	case Speedhack_InstantVU1:
-		vu1Instant = enabled;
-		break;
-		jNO_DEFAULT;
+		case Speedhack_mvuFlag:
+			vuFlagHack = enabled;
+			break;
+		case Speedhack_InstantVU1:
+			vu1Instant = enabled;
+			break;
+		default:
+			break;
 	}
 }
 
@@ -233,7 +234,8 @@ void Pcsx2Config::GamefixOptions::Set( GamefixId id, bool enabled )
 		case Fix_GoemonTlbMiss: GoemonTlbHack		= enabled;  break;
 		case Fix_Ibit:  IbitHack        = enabled;  break;
 		case Fix_VUKickstart:	VUKickstartHack	= enabled; break;
-		jNO_DEFAULT;
+		default:
+					break;
 	}
 }
 
@@ -259,7 +261,8 @@ bool Pcsx2Config::GamefixOptions::Get( GamefixId id ) const
 		case Fix_GoemonTlbMiss: return GoemonTlbHack;
 		case Fix_Ibit:  return IbitHack;
 		case Fix_VUKickstart:	return VUKickstartHack;
-		jNO_DEFAULT;
+		default:
+					break;
 	}
 	return false;		// unreachable, but we still need to suppress warnings >_<
 }

@@ -26,8 +26,7 @@ static const uint iREGCNT_GPR = 8;
 
 enum XMMSSEType {
     XMMT_INT = 0, // integer (sse2 only)
-    XMMT_FPS = 1, // floating point
-                  //XMMT_FPD = 3, // double
+    XMMT_FPS = 1 // floating point
 };
 
 // --------------------------------------------------------------------------------------
@@ -209,21 +208,22 @@ public:
         return _operandSize;
     }
 
-    bool Is8BitOp() const { return GetOperandSize() == 1; }
-    u8 GetPrefix16() const { return GetOperandSize() == 2 ? 0x66 : 0; }
+    bool Is8BitOp() const { return _operandSize == 1; }
+    u8 GetPrefix16() const { return _operandSize == 2 ? 0x66 : 0; }
     void prefix16() const
     {
-        if (GetOperandSize() == 2)
+        if (_operandSize == 2)
             xWrite8(0x66);
     }
 
     int GetImmSize() const {
-        switch (GetOperandSize()) {
+        switch (_operandSize) {
             case 1: return 1;
             case 2: return 2;
             case 4: return 4;
             case 8: return 4; // Only mov's take 64-bit immediates
-                jNO_DEFAULT
+	    default:
+		    break;
         }
         return 0;
     }
@@ -240,8 +240,8 @@ public:
             case 4:
                 xWrite32(imm);
                 break;
-
-                jNO_DEFAULT
+	    default:
+		break;
         }
     }
 };
@@ -288,13 +288,13 @@ public:
     bool IsAccumulator() const { return Id == 0; }
 
     // IsSIMD: returns true if the register is a valid XMM register.
-    bool IsSIMD() const { return GetOperandSize() == 16; }
+    bool IsSIMD() const { return _operandSize == 16; }
 
 // IsWide: return true if the register is 64 bits (requires a wide op on the rex prefix)
 #ifdef __M_X86_64
     bool IsWide() const
     {
-        return GetOperandSize() == 8;
+        return _operandSize == 8;
     }
 #else
     bool IsWide() const
@@ -303,7 +303,7 @@ public:
     } // no 64 bits GPR
 #endif
     // return true if the register is a valid YMM register
-    bool IsWideSIMD() const { return GetOperandSize() == 32; }
+    bool IsWideSIMD() const { return _operandSize == 32; }
 
     // Diagnostics -- returns a string representation of this register.  Return string
     // is a valid non-null string for any Id, valid or invalid.  No assertions are generated.
@@ -331,20 +331,20 @@ public:
     /// Checks if mapping the ID directly would be a good idea
     bool canMapIDTo(int otherSize) const
     {
-	if ((otherSize == 1) == (GetOperandSize() == 1))
+	if ((otherSize == 1) == (_operandSize == 1))
             return true;
         return isIDSameInAllSizes();
     }
 
     /// Get a non-wide version of the register (for use with e.g. mov, where `mov eax, 3` and `mov rax, 3` are functionally identical but `mov eax, 3` is shorter)
-    xRegisterInt GetNonWide() const
+    xRegisterInt GetNonWide(void) const
     {
-        return GetOperandSize() == 8 ? xRegisterInt(4, Id) : *this;
+        return _operandSize == 8 ? xRegisterInt(4, Id) : *this;
     }
 
     xRegisterInt MatchSizeTo(xRegisterInt other) const;
 
-    bool operator==(const xRegisterInt &src) const { return Id == src.Id && (GetOperandSize() == src.GetOperandSize()); }
+    bool operator==(const xRegisterInt &src) const { return Id == src.Id && (_operandSize == src._operandSize); }
     bool operator!=(const xRegisterInt &src) const { return !operator==(src); }
 };
 
@@ -865,7 +865,7 @@ public:
     bool IsMem() const { return true; }
     bool IsReg() const { return false; }
     bool IsExtended() const { return false; } // Non sense but ease template
-    bool IsWide() const { return GetOperandSize() == 8; }
+    bool IsWide() const { return _operandSize == 8; }
 
     operator xAddressVoid()
     {

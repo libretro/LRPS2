@@ -88,7 +88,7 @@ void GSRendererDX11::SetupIA(const float& sx, const float& sy)
 		break;
 
 	default:
-		__assume(0);
+		break;
 	}
 
 	void* ptr = NULL;
@@ -1087,7 +1087,7 @@ void GSRendererDX11::DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Sou
 			case AFAIL_FB_ONLY: z = false; break; // rgba
 			case AFAIL_ZB_ONLY: r = g = b = a = false; break; // z
 			case AFAIL_RGB_ONLY: z = a = false; break; // rgb
-			default: __assume(0);
+			default: break;
 		}
 
 		// Depth test should be disabled when depth writes are masked and similarly, Alpha test must be disabled

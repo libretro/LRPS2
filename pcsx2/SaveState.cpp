@@ -83,29 +83,21 @@ void SaveStateBase::Init( SafeArray<u8>* memblock )
 
 void SaveStateBase::PrepBlock( int size )
 {
-	pxAssertDev( m_memory, "Savestate memory/buffer pointer is null!" );
+	pxAssertDev( m_memory);
 
 	const int end = m_idx+size;
 	if( IsSaving() )
 		m_memory->MakeRoomFor( end );
-	else
-	{
-		if( m_memory->GetSizeInBytes() < end )
-			log_cb(RETRO_LOG_ERROR, "SaveStateLoadError\n");
-	}
 }
 
 void SaveStateBase::FreezeTag( const char* src )
 {
 	const uint allowedlen = sizeof( m_tagspace )-1;
-	pxAssertDev( strlen(src) < allowedlen, pxsFmt( L"Tag name exceeds the allowed length of %d chars.", allowedlen) );
+	pxAssertDev( strlen(src) < allowedlen);
 
 	memzero( m_tagspace );
 	strcpy( m_tagspace, src );
 	Freeze( m_tagspace );
-
-	if( strcmp( m_tagspace, src ) != 0 )
-		log_cb(RETRO_LOG_ERROR, "Savestate data corruption detected while reading tag: %s\n", src);
 }
 
 SaveStateBase& SaveStateBase::FreezeBios()
@@ -127,16 +119,6 @@ SaveStateBase& SaveStateBase::FreezeBios()
 	Freeze( bioscheck );
 	Freeze( biosdesc );
 
-	if (bioscheck != BiosChecksum)
-	{
-		log_cb(RETRO_LOG_ERROR, "Warning: BIOS Version Mismatch, savestate may be unstable!\n" );
-		log_cb(RETRO_LOG_ERROR,
-			"Current BIOS:   %ls (crc=0x%08x)\nSavestate BIOS: %s (crc=0x%08x)\n",
-			BiosDescription.wx_str(), BiosChecksum,
-			biosdesc, bioscheck
-		);
-	}
-	
 	return *this;
 }
 
@@ -267,7 +249,7 @@ void memSavingState::FreezeMem( void* data, int size )
 
 void memSavingState::MakeRoomForData()
 {
-	pxAssertDev( m_memory, "Savestate memory/buffer pointer is null!" );
+	pxAssertDev( m_memory);
 
 	m_memory->ChunkSize = ReallocThreshold;
 	m_memory->MakeRoomFor( m_idx + MemoryBaseAllocSize );

@@ -217,7 +217,6 @@ void SPU2write(u32 rmem, u16 value)
 
 s32 SPU2freeze(int mode, freezeData* data)
 {
-	pxAssume(data != nullptr);
 	if (!data)
 		return -1;
 
@@ -226,8 +225,6 @@ s32 SPU2freeze(int mode, freezeData* data)
 		data->size = SPU2Savestate::SizeIt();
 		return 0;
 	}
-
-	pxAssume(mode == FREEZE_LOAD || mode == FREEZE_SAVE);
 
 	if (data->data == nullptr)
 		return -1;
@@ -240,8 +237,8 @@ s32 SPU2freeze(int mode, freezeData* data)
 			return SPU2Savestate::ThawIt(spud);
 		case FREEZE_SAVE:
 			return SPU2Savestate::FreezeIt(spud);
-
-			jNO_DEFAULT;
+		default:
+			break;
 	}
 
 	// technically unreachable, but kills a warning:

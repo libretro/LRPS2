@@ -35,9 +35,7 @@ void SysThreadBase::Start()
 
 	Sleep( 1 );
 
-	pxAssertDev( (m_ExecMode == ExecMode_Closing) || (m_ExecMode == ExecMode_Closed),
-		"Unexpected thread status during SysThread startup."
-	);
+	pxAssertDev( (m_ExecMode == ExecMode_Closing) || (m_ExecMode == ExecMode_Closed));
 
 	m_sem_event.Post();
 }
@@ -45,7 +43,7 @@ void SysThreadBase::Start()
 
 void SysThreadBase::OnStart()
 {
-	if( !pxAssertDev( m_ExecMode == ExecMode_NoThreadYet, "SysSustainableThread:Start(): Invalid execution mode" ) ) return;
+	if( !pxAssertDev( m_ExecMode == ExecMode_NoThreadYet) ) return;
 
 	m_sem_Resume.Reset();
 	m_sem_ChangingExecMode.Reset();
@@ -77,7 +75,7 @@ void SysThreadBase::OnStart()
 //
 void SysThreadBase::Suspend( bool isBlocking )
 {
-	if (!pxAssertDev(!IsSelf(),"Suspend/Resume are not allowed from this thread.")) return;
+	if (!pxAssertDev(!IsSelf())) return;
 	if (!IsRunning()) return;
 
 	// shortcut ExecMode check to avoid deadlocking on redundant calls to Suspend issued
@@ -112,7 +110,7 @@ void SysThreadBase::Suspend( bool isBlocking )
 			break;
 		}
 
-		pxAssertDev( m_ExecMode == ExecMode_Closing, "ExecMode should be nothing other than Closing..." );
+		pxAssertDev( m_ExecMode == ExecMode_Closing);
 		m_sem_event.Post();
 	}
 
@@ -141,7 +139,7 @@ void SysThreadBase::Pause()
 		if( m_ExecMode == ExecMode_Opened )
 			m_ExecMode = ExecMode_Pausing;
 
-		pxAssertDev( m_ExecMode == ExecMode_Pausing, "ExecMode should be nothing other than Pausing..." );
+		pxAssertDev( m_ExecMode == ExecMode_Pausing);
 
 		OnPause();
 		m_sem_event.Post();
@@ -205,8 +203,7 @@ void SysThreadBase::Resume()
 		break;
 	}
 
-	pxAssertDev( (m_ExecMode == ExecMode_Closed) || (m_ExecMode == ExecMode_Paused),
-		"SysThreadBase is not in a closed/paused state?  wtf!" );
+	pxAssertDev( (m_ExecMode == ExecMode_Closed) || (m_ExecMode == ExecMode_Paused));
 
 	OnResumeReady();
 	m_ExecMode = ExecMode_Opened;
@@ -253,21 +250,21 @@ bool SysThreadBase::StateCheckInThread()
 			// Other cases don't need TestCancel() because its built into the various
 			// threading wait/signal actions.
 			TestCancel();
-		return false;
+			return false;
 
-		// -------------------------------------
+			// -------------------------------------
 		case ExecMode_Pausing:
-		{
-			OnPauseInThread();
-			m_ExecMode = ExecMode_Paused;
-			m_RunningLock.Release();
-		}
-		// fallthrough...
+			{
+				OnPauseInThread();
+				m_ExecMode = ExecMode_Paused;
+				m_RunningLock.Release();
+			}
+			// fallthrough...
 
 		case ExecMode_Paused:
 			while( m_ExecMode == ExecMode_Paused )
 				m_sem_Resume.WaitWithoutYield();
-		
+
 			m_RunningLock.Acquire();
 			if( m_ExecMode != ExecMode_Closing )
 			{
@@ -275,17 +272,17 @@ bool SysThreadBase::StateCheckInThread()
 				break;
 			}
 			m_sem_ChangingExecMode.Post();
-			
-		// fallthrough if we're switching to closing state...
 
-		// -------------------------------------
+			// fallthrough if we're switching to closing state...
+
+			// -------------------------------------
 		case ExecMode_Closing:
-		{
-			OnSuspendInThread();
-			m_ExecMode = ExecMode_Closed;
-			m_RunningLock.Release();
-		}
-		// Fall through
+			{
+				OnSuspendInThread();
+				m_ExecMode = ExecMode_Closed;
+				m_RunningLock.Release();
+			}
+			// Fall through
 
 		case ExecMode_Closed:
 			while( m_ExecMode == ExecMode_Closed )
@@ -293,9 +290,10 @@ bool SysThreadBase::StateCheckInThread()
 
 			m_RunningLock.Acquire();
 			OnResumeInThread( true );
-		break;
+			break;
 
-		jNO_DEFAULT;
+		default:
+			break;
 	}
 	
 	return true;

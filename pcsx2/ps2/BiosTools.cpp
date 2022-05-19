@@ -173,7 +173,6 @@ static void LoadBiosVersion( pxInputStream& fp, u32& version, wxString& descript
 template< size_t _size >
 static void ChecksumIt( u32& result, const u8 (&srcdata)[_size] )
 {
-	pxAssume( (_size & 3) == 0 );
 	for( size_t i=0; i<_size/4; ++i )
 		result ^= ((u32*)srcdata)[i];
 }
@@ -210,9 +209,6 @@ static void LoadExtraRom( const char *ext, u8 (&dest)[_size] )
 
 		wxFile fp( Bios1 );
 		fp.Read( dest, std::min<s64>( _size, filesize ) );
-
-		// Checksum for ROM1, ROM2, EROM?  Rama says no, Gigaherz says yes.  I'm not sure either way.  --air
-		//ChecksumIt( BiosChecksum, dest );
 	}
 	catch (Exception::BadStream& ex)
 	{
@@ -258,7 +254,7 @@ static void LoadIrx( const wxString& filename, u8* dest )
 //
 void LoadBIOS(void)
 {
-	pxAssertDev( eeMem->ROM != NULL, "PS2 system memory has not been initialized yet." );
+	pxAssertDev( eeMem->ROM != NULL);
 
 	try
 	{
@@ -286,8 +282,6 @@ void LoadBIOS(void)
 
 		pxInputStream memfp( Bios, new wxMemoryInputStream( eeMem->ROM, sizeof(eeMem->ROM) ) );
 		LoadBiosVersion( memfp, BiosVersion, BiosDescription, biosZone );
-
-		//injectIRX("host.irx");	//not fully tested; still buggy
 
 		LoadExtraRom( "rom1", eeMem->ROM1 );
 		LoadExtraRom( "rom2", eeMem->ROM2 );

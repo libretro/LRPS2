@@ -161,8 +161,7 @@ struct decoder_t {
 	template< typename T >
 	void SetOutputTo( T& obj )
 	{
-		uint mb_offset = ((uptr)&obj - (uptr)&mb8);
-		pxAssume( (mb_offset & 15) == 0 );
+		uint mb_offset  = ((uptr)&obj - (uptr)&mb8);
 		ipu0_idx	= mb_offset / 16;
 		ipu0_data	= sizeof(obj)/16;
 	}
@@ -174,7 +173,7 @@ struct decoder_t {
 	
 	void AdvanceIpuDataBy(uint amt)
 	{
-		pxAssertMsg(ipu0_data>=amt, "IPU FIFO Overflow on advance!" );
+		pxAssertMsg(ipu0_data>=amt);
 		ipu0_idx  += amt;
 		ipu0_data -= amt;
 	}

@@ -21,8 +21,6 @@
 
 bool Pcsx2App::DetectCpuAndUserMode(void)
 {
-	AffinityAssert_AllowFrom_MainUI();
-	
 #ifdef _M_X86
 	x86caps.Identify();
 	x86caps.SIMD_EstablishMXCSRmask();
@@ -79,8 +77,6 @@ bool Pcsx2App::OnInit(void)
 // OnExit() must use CleanupOnExit instead.
 void Pcsx2App::CleanupRestartable(void)
 {
-	AffinityAssert_AllowFrom_MainUI();
-
 	CoreThread.Cancel();
 }
 
@@ -90,8 +86,6 @@ void Pcsx2App::CleanupRestartable(void)
 // to be friendly to the OnExit scenario (no message pump).
 void Pcsx2App::CleanupOnExit(void)
 {
-	AffinityAssert_AllowFrom_MainUI();
-
 	try
 	{
 		CleanupRestartable();

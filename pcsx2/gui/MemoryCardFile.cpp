@@ -198,7 +198,8 @@ uint FileMcd_GetMtapPort(uint slot)
 		case 7:
 			return 1;
 
-			jNO_DEFAULT
+		default:
+			break;
 	}
 
 	return 0; // technically unreachable.
@@ -210,11 +211,6 @@ uint FileMcd_GetMtapSlot(uint slot)
 {
 	switch (slot)
 	{
-		case 0:
-		case 1:
-			//pxFailDev("Invalid parameter in call to GetMtapSlot -- specified slot is one of the base slots, not a Multitap slot.");
-			break;
-
 		case 2:
 		case 3:
 		case 4:
@@ -223,8 +219,10 @@ uint FileMcd_GetMtapSlot(uint slot)
 		case 6:
 		case 7:
 			return slot - 4;
-
-			jNO_DEFAULT
+		case 0:
+		case 1:
+		default:
+			break;
 	}
 
 	return 0; // technically unreachable.

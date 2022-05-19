@@ -31,15 +31,13 @@ SysFakeThread::SysFakeThread() :
 
 void SysFakeThread::Start()
 {
-//	Sleep( 1 );
 	m_running = true;
-//	m_sem_event.Post();
 	OnStart();
 }
 
 void SysFakeThread::OnStart()
 {
-	if( !pxAssertDev( m_ExecMode == ExecMode_NoThreadYet, "SysFakeThread:Start(): Invalid execution mode" ) ) return;
+	if( !pxAssertDev( m_ExecMode == ExecMode_NoThreadYet) ) return;
 
 	m_sem_Resume.Reset();
 	m_sem_ChangingExecMode.Reset();
@@ -48,7 +46,6 @@ void SysFakeThread::OnStart()
 	m_RunningLock.RecreateIfLocked();
 	m_sem_event.Reset();
 	m_ExecMode = ExecMode_Closed;
-//	StateCheckInThread();
 }
 
 // Suspends emulation and closes the emulation state (including plugins) at the next PS2 vsync,
@@ -72,7 +69,7 @@ void SysFakeThread::OnStart()
 //
 void SysFakeThread::Suspend( bool isBlocking )
 {
-	if (!pxAssertDev(!IsSelf(),"Suspend/Resume are not allowed from this thread.")) return;
+	if (!pxAssertDev(!IsSelf())) return;
 	if (!IsRunning()) return;
 
 	// shortcut ExecMode check to avoid deadlocking on redundant calls to Suspend issued
@@ -107,7 +104,7 @@ void SysFakeThread::Suspend( bool isBlocking )
 			break;
 		}
 
-		pxAssertDev( m_ExecMode == ExecMode_Closing, "ExecMode should be nothing other than Closing..." );
+		pxAssertDev( m_ExecMode == ExecMode_Closing);
 		m_sem_event.Post();
 	}
 
@@ -136,7 +133,7 @@ void SysFakeThread::Pause()
 		if( m_ExecMode == ExecMode_Opened )
 			m_ExecMode = ExecMode_Pausing;
 
-		pxAssertDev( m_ExecMode == ExecMode_Pausing, "ExecMode should be nothing other than Pausing..." );
+		pxAssertDev( m_ExecMode == ExecMode_Pausing);
 
 		OnPause();
 		m_sem_event.Post();
@@ -198,8 +195,7 @@ void SysFakeThread::Resume()
 		break;
 	}
 
-	pxAssertDev( (m_ExecMode == ExecMode_Closed) || (m_ExecMode == ExecMode_Paused),
-		"SysFakeThread is not in a closed/paused state?  wtf!" );
+	pxAssertDev( (m_ExecMode == ExecMode_Closed) || (m_ExecMode == ExecMode_Paused));
 
 	OnResumeReady();
 	m_ExecMode = ExecMode_Opened;
@@ -246,19 +242,19 @@ bool SysFakeThread::StateCheckInThread()
 		case ExecMode_Opened:
 			return false;
 
-		// -------------------------------------
+			// -------------------------------------
 		case ExecMode_Pausing:
-		{
-			OnPauseInThread();
-			m_ExecMode = ExecMode_Paused;
-			m_RunningLock.Release();
-		}
-		// fallthrough...
+			{
+				OnPauseInThread();
+				m_ExecMode = ExecMode_Paused;
+				m_RunningLock.Release();
+			}
+			// fallthrough...
 
 		case ExecMode_Paused:
 			while( m_ExecMode == ExecMode_Paused )
 				m_sem_Resume.WaitWithoutYield();
-		
+
 			m_RunningLock.Acquire();
 			if( m_ExecMode != ExecMode_Closing )
 			{
@@ -266,17 +262,17 @@ bool SysFakeThread::StateCheckInThread()
 				break;
 			}
 			m_sem_ChangingExecMode.Post();
-			
-		// fallthrough if we're switching to closing state...
 
-		// -------------------------------------
+			// fallthrough if we're switching to closing state...
+
+			// -------------------------------------
 		case ExecMode_Closing:
-		{
-			OnSuspendInThread();
-			m_ExecMode = ExecMode_Closed;
-			m_RunningLock.Release();
-		}
-		// Fall through
+			{
+				OnSuspendInThread();
+				m_ExecMode = ExecMode_Closed;
+				m_RunningLock.Release();
+			}
+			// Fall through
 
 		case ExecMode_Closed:
 			while( m_ExecMode == ExecMode_Closed )
@@ -284,9 +280,10 @@ bool SysFakeThread::StateCheckInThread()
 
 			m_RunningLock.Acquire();
 			OnResumeInThread( true );
-		break;
+			break;
 
-		jNO_DEFAULT;
+		default:
+			break;
 	}
 	
 	return true;

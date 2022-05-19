@@ -59,13 +59,6 @@ static int diskTypeCached = -1;
 int lastReadSize;
 u32 lastLSN; // needed for block dumping
 
-// Assertion check for CDVD != NULL (in devel and debug builds), because its handier than
-// relying on DEP exceptions -- and a little more reliable too.
-static void CheckNullCDVD(void)
-{
-	pxAssertDev(CDVD != NULL, "Invalid CDVD object state (null pointer exception)");
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////
 // Disk Type detection stuff (from cdvdGigaherz)
 //
@@ -301,7 +294,7 @@ CDVD_SourceType CDVDsys_GetSourceType()
 
 void CDVDsys_ChangeSource(CDVD_SourceType type)
 {
-	if (CDVD != NULL)
+	if (CDVD)
 		DoCDVDclose();
 
 	switch (m_CurrentSourceType = type)
@@ -318,14 +311,13 @@ void CDVDsys_ChangeSource(CDVD_SourceType type)
 			CDVD = &CDVDapi_NoDisc;
 			break;
 
-			jNO_DEFAULT;
+		default:
+			break;
 	}
 }
 
-bool DoCDVDopen()
+bool DoCDVDopen(void)
 {
-	CheckNullCDVD();
-
 	// the new disk callback is set on Init also, but just in case the plugin clears it for
 	// some reason on close, we re-send here:
 	CDVD->newDiskCB(cdvdNewDiskCB);
@@ -352,11 +344,9 @@ bool DoCDVDopen()
 	return true;
 }
 
-void DoCDVDclose()
+void DoCDVDclose(void)
 {
-	CheckNullCDVD();
-
-	if (CDVD->close != NULL)
+	if (CDVD->close)
 		CDVD->close();
 
 	DoCDVDresetDiskTypeCache();
@@ -364,14 +354,11 @@ void DoCDVDclose()
 
 s32 DoCDVDreadSector(u8* buffer, u32 lsn, int mode)
 {
-	CheckNullCDVD();
 	return CDVD->readSector(buffer, lsn, mode);
 }
 
 s32 DoCDVDreadTrack(u32 lsn, int mode)
 {
-	CheckNullCDVD();
-
 	// TEMP: until all the plugins use the new CDVDgetBuffer style
 	// TODO: The CDVD api only uses the new getBuffer style. Why is this temp?
 	// lastReadSize is needed for block dumps
@@ -391,26 +378,23 @@ s32 DoCDVDreadTrack(u32 lsn, int mode)
 			break;
 	}
 
-	//log_cb(RETRO_LOG_DEBUG, "CDVD readTrack(lsn=%d,mode=%d)\n",params lsn, lastReadSize);
 	lastLSN = lsn;
 	return CDVD->readTrack(lsn, mode);
 }
 
 s32 DoCDVDgetBuffer(u8* buffer)
 {
-	CheckNullCDVD();
 	return CDVD->getBuffer(buffer);
 }
 
-s32 DoCDVDdetectDiskType()
+s32 DoCDVDdetectDiskType(void)
 {
-	CheckNullCDVD();
 	if (diskTypeCached < 0)
 		DetectDiskType();
 	return diskTypeCached;
 }
 
-void DoCDVDresetDiskTypeCache()
+void DoCDVDresetDiskTypeCache(void)
 {
 	diskTypeCached = -1;
 }
@@ -419,14 +403,12 @@ void DoCDVDresetDiskTypeCache()
 //
 // CDVD null interface for Run BIOS menu
 
-
-
 s32 CALLBACK NODISCopen(const char* pTitle)
 {
 	return 0;
 }
 
-void CALLBACK NODISCclose()
+void CALLBACK NODISCclose(void)
 {
 }
 
@@ -465,17 +447,17 @@ s32 CALLBACK NODISCgetDiskType()
 	return CDVD_TYPE_NODISC;
 }
 
-s32 CALLBACK NODISCgetTrayStatus()
+s32 CALLBACK NODISCgetTrayStatus(void)
 {
 	return CDVD_TRAY_CLOSE;
 }
 
-s32 CALLBACK NODISCdummyS32()
+s32 CALLBACK NODISCdummyS32(void)
 {
 	return 0;
 }
 
-void CALLBACK NODISCnewDiskCB(void (* /* callback */)())
+void CALLBACK NODISCnewDiskCB(void (* /* callback */)(void))
 {
 }
 

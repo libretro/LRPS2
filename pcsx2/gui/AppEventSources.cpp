@@ -39,15 +39,25 @@ void IEventListener_CoreThread::DispatchEvent( const CoreThreadStatus& status )
 {
 	switch( status )
 	{
-		case CoreThread_Indeterminate: break;
-
-		case CoreThread_Started:	CoreThread_OnStarted();			break;
-		case CoreThread_Resumed:	CoreThread_OnResumed();			break;
-		case CoreThread_Suspended:	CoreThread_OnSuspended();		break;
-		case CoreThread_Reset:		CoreThread_OnReset();			break;
-		case CoreThread_Stopped:	CoreThread_OnStopped();			break;
-		
-		jNO_DEFAULT;
+		case CoreThread_Indeterminate:
+			break;
+		case CoreThread_Started:
+			CoreThread_OnStarted();
+			break;
+		case CoreThread_Resumed:
+			CoreThread_OnResumed();
+			break;
+		case CoreThread_Suspended:
+			CoreThread_OnSuspended();
+			break;
+		case CoreThread_Reset:
+			CoreThread_OnReset();
+			break;
+		case CoreThread_Stopped:
+			CoreThread_OnStopped();
+			break;
+		default:
+			break;
 	}
 }
 
@@ -63,7 +73,6 @@ EventListener_AppStatus::~EventListener_AppStatus()
 
 void Pcsx2App::DispatchEvent( AppEventType evt )
 {
-	if( !AffinityAssert_AllowFrom_MainUI() ) return;
 	m_evtsrc_AppStatus.Dispatch( AppEventInfo( evt ) );
 }
 
@@ -77,13 +86,11 @@ void Pcsx2App::DispatchEvent( CoreThreadStatus evt )
 
 void Pcsx2App::DispatchUiSettingsEvent()
 {
-	if( !AffinityAssert_AllowFrom_MainUI() ) return;
 	m_evtsrc_AppStatus.Dispatch( AppSettingsEventInfo(AppStatus_UiSettingsLoaded ) );
 }
 
 void Pcsx2App::DispatchVmSettingsEvent()
 {
-	if( !AffinityAssert_AllowFrom_MainUI() ) return;
 	m_evtsrc_AppStatus.Dispatch( AppSettingsEventInfo(AppStatus_VmSettingsLoaded ) );
 }
 

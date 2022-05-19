@@ -42,15 +42,7 @@ static const char* nameFromType(int type)
 int InputIsoFile::ReadSync(u8* dst, uint lsn)
 {
 	if (lsn >= m_blocks)
-	{
-		FastFormatUnicode msg;
-		msg.Write("isoFile error: Block index is past the end of file! (%u >= %u).", lsn, m_blocks);
-
-		pxAssertDev(false, msg);
-		log_cb(RETRO_LOG_ERROR, "%s\n", msg.c_str());
 		return -1;
-	}
-
 	return m_reader->ReadSync(dst + m_blockofs, lsn, 1);
 }
 

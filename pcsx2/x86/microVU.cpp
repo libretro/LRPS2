@@ -132,12 +132,6 @@ _mVUt __fi void* mVUsearchProg(u32 startPC, uptr pState)
 static u8 __pagealigned vu0_RecDispatchers[mVUdispCacheSize];
 static u8 __pagealigned vu1_RecDispatchers[mVUdispCacheSize];
 
-static __fi void mVUthrowHardwareDeficiency(const wxChar* extFail, int vuIndex) {
-	throw Exception::HardwareDeficiency()
-		.SetDiagMsg(pxsFmt(L"microVU%d recompiler init failed: %s is not available.", vuIndex, extFail))
-		.SetUserMsg(pxsFmt(L"%s Extensions not found.  microVU requires a host CPU with SSE2 extensions.", extFail));
-}
-
 static void mVUreserveCache(microVU& mVU)
 {
 	mVU.cache_reserve = new RecompiledCodeReserve(_16mb);
@@ -152,8 +146,8 @@ static void mVUreserveCache(microVU& mVU)
 // Only run this once per VU! ;)
 void mVUinit(microVU& mVU, uint vuIndex) {
 
-	if(!x86caps.hasStreamingSIMD2Extensions) mVUthrowHardwareDeficiency( L"SSE2", vuIndex );
-
+	/* TODO/FIXME - implement different way of checking hardware
+	   SSE2 requirements without throwing exception */
 	memzero(mVU.prog);
 
 	if(x86caps.hasStreamingSIMD4Extensions)
@@ -294,11 +288,11 @@ void recMicroVU1::Shutdown() noexcept {
 }
 
 void recMicroVU0::Reset() {
-	if(!pxAssertDev(m_Reserved, "MicroVU0 CPU Provider has not been reserved prior to reset!")) return;
+	if(!pxAssertDev(m_Reserved)) return;
 	mVUreset(microVU0, true);
 }
 void recMicroVU1::Reset() {
-	if(!pxAssertDev(m_Reserved, "MicroVU1 CPU Provider has not been reserved prior to reset!")) return;
+	if(!pxAssertDev(m_Reserved)) return;
 	vu1Thread.WaitVU();
 	mVUreset(microVU1, true);
 }

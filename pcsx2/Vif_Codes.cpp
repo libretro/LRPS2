@@ -456,8 +456,6 @@ template<int idx> static __fi int _vifCode_STColRow(const u32* data, u32* pmem2)
 	vifStruct& vifX = GetVifX;
 
 	int ret = std::min(4 - vifX.tag.addr, vifX.vifpacketsize);
-	pxAssume(vifX.tag.addr < 4);
-	pxAssume(ret > 0);
 
 	switch (ret) {
 		case 4: 
@@ -472,7 +470,8 @@ template<int idx> static __fi int _vifCode_STColRow(const u32* data, u32* pmem2)
 		case 1: 
 			pmem2[0] = data[0];
 			break;
-		jNO_DEFAULT
+		default:
+			break;
 	}
 
 	vifX.tag.addr += ret;

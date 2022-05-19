@@ -352,8 +352,6 @@ __forceinline void TimeUpdate(u32 cClocks)
 
 void V_Core::WriteRegPS1(u32 mem, u16 value)
 {
-	pxAssume(Index == 0); // Valid on Core 0 only!
-
 	u32 reg = mem & 0xffff;
 
 	if ((reg >= 0x1c00) && (reg < 0x1d80))
@@ -408,7 +406,8 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 				Voices[voice].LoopStartA = MAP_SPU1TO2(value);
 				break;
 
-				jNO_DEFAULT;
+			default:
+				break;
 		}
 	}
 
@@ -654,8 +653,6 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 
 u16 V_Core::ReadRegPS1(u32 mem)
 {
-	pxAssume(Index == 0); // Valid on Core 0 only!
-
 	u16 value = spu2Ru16(mem);
 
 	u32 reg = mem & 0xffff;
@@ -698,7 +695,8 @@ u16 V_Core::ReadRegPS1(u32 mem)
 				value = MAP_SPU2TO1(Voices[voice].LoopStartA);
 				break;
 
-				jNO_DEFAULT;
+			default:
+				break;
 		}
 	}
 	else
@@ -817,27 +815,27 @@ static void __fastcall RegWrite_VoiceParams(u16 value)
 	{
 		case 0: //VOLL (Volume L)
 		case 1: //VOLR (Volume R)
-		{
-			V_VolumeSlide& thisvol = (param == 0) ? thisvoice.Volume.Left : thisvoice.Volume.Right;
-			thisvol.Reg_VOL = value;
+			{
+				V_VolumeSlide& thisvol = (param == 0) ? thisvoice.Volume.Left : thisvoice.Volume.Right;
+				thisvol.Reg_VOL = value;
 
-			if (value & 0x8000) // +Lin/-Lin/+Exp/-Exp
-			{
-				thisvol.Mode = (value & 0xF000) >> 12;
-				thisvol.Increment = (value & 0x7F);
+				if (value & 0x8000) // +Lin/-Lin/+Exp/-Exp
+				{
+					thisvol.Mode = (value & 0xF000) >> 12;
+					thisvol.Increment = (value & 0x7F);
+				}
+				else
+				{
+					// Constant Volume mode (no slides or envelopes)
+					// Volumes range from 0x3fff to 0x7fff, with 0x4000 serving as
+					// the "sign" bit, so a simple bitwise extension will do the trick:
+					u16 src = value << 1;
+					thisvol.Value     = GETVOL32(src);
+					thisvol.Mode      = 0;
+					thisvol.Increment = 0;
+				}
 			}
-			else
-			{
-				// Constant Volume mode (no slides or envelopes)
-				// Volumes range from 0x3fff to 0x7fff, with 0x4000 serving as
-				// the "sign" bit, so a simple bitwise extension will do the trick:
-				u16 src = value << 1;
-				thisvol.Value     = GETVOL32(src);
-				thisvol.Mode      = 0;
-				thisvol.Increment = 0;
-			}
-		}
-		break;
+			break;
 
 		case 2:
 			thisvoice.Pitch = value;
@@ -861,7 +859,8 @@ static void __fastcall RegWrite_VoiceParams(u16 value)
 		case 7:
 			break;
 
-			jNO_DEFAULT;
+		default:
+			break;
 	}
 }
 

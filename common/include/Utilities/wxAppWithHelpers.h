@@ -43,32 +43,29 @@ public:
     void DeleteObject(BaseDeletableObject &obj);
     void DeleteObject(BaseDeletableObject *obj)
     {
-        if (obj == NULL)
-            return;
-        DeleteObject(*obj);
+        if (obj)
+		DeleteObject(*obj);
     }
 
     void DeleteThread(Threading::pxThread &obj);
     void DeleteThread(Threading::pxThread *obj)
     {
-        if (obj == NULL)
-            return;
-        DeleteThread(*obj);
+        if (obj)
+		DeleteThread(*obj);
     }
 
-    void PostCommand(void *clientData, int evtType, int intParam = 0, long longParam = 0, const wxString &stringParam = wxEmptyString);
-    void PostCommand(int evtType, int intParam = 0, long longParam = 0, const wxString &stringParam = wxEmptyString);
+    void PostCommand(void *clientData, int evtType, int intParam = 0, long longParam = 0);
+    void PostCommand(int evtType, int intParam = 0, long longParam = 0);
 
     bool Rpc_TryInvoke(FnType_Void *method);
     bool Rpc_TryInvokeAsync(FnType_Void *method);
 
-    sptr ProcessCommand(void *clientData, int evtType, int intParam = 0, long longParam = 0, const wxString &stringParam = wxEmptyString);
-    sptr ProcessCommand(int evtType, int intParam = 0, long longParam = 0, const wxString &stringParam = wxEmptyString);
+    sptr ProcessCommand(void *clientData, int evtType, int intParam = 0, long longParam = 0);
+    sptr ProcessCommand(int evtType, int intParam = 0, long longParam = 0);
 
     void PostAction(const pxActionEvent &evt);
 
     bool OnInit();
-    //int  OnExit();
 
     void PostEvent(const wxEvent &evt);
     bool ProcessEvent(wxEvent &evt);

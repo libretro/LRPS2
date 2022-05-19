@@ -624,9 +624,6 @@ void eeMemoryReserve::Reset()
 	// resets of the system hardware would only clear vtlb mappings, but since the
 	// rest of the emu is not really set up to support a "soft" reset of that sort
 	// we opt for the hard/safe version.
-
-	pxAssume( eeMem );
-
 	vtlb_Init();
 
 	null_handler = vtlb_RegisterHandler(nullRead8, nullRead16, nullRead32, nullRead64, nullRead128,
