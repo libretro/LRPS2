@@ -34,7 +34,6 @@ public:
     static const int DefaultChunkSize = 0x1000 * sizeof(T);
 
 public:
-    wxString Name; // user-assigned block name
     int ChunkSize;
 
 protected:
@@ -42,7 +41,7 @@ protected:
     int m_size; // size of the allocation of memory
 
 protected:
-    SafeArray(const wxChar *name, T *allocated_mem, int initSize);
+    SafeArray(T *allocated_mem, int initSize);
     virtual T *_virtual_realloc(int newsize);
 
     // A safe array index fetcher.  Asserts if the index is out of bounds (dev and debug
@@ -52,8 +51,8 @@ protected:
 public:
     virtual ~SafeArray();
 
-    explicit SafeArray(const wxChar *name = L"Unnamed");
-    explicit SafeArray(int initialSize, const wxChar *name = L"Unnamed");
+    explicit SafeArray();
+    explicit SafeArray(int initialSize);
 
     void ExactAlloc(int newsize);
     void MakeRoomFor(int newsize)
@@ -106,11 +105,11 @@ public:
 
     virtual ~SafeAlignedArray();
 
-    explicit SafeAlignedArray(const wxChar *name = L"Unnamed")
-        : SafeArray<T>::SafeArray(name)
+    explicit SafeAlignedArray()
+        : SafeArray<T>::SafeArray()
     {
     }
 
-    explicit SafeAlignedArray(int initialSize, const wxChar *name = L"Unnamed");
+    explicit SafeAlignedArray(int initialSize);
     virtual SafeAlignedArray<T, Alignment> *Clone() const;
 };

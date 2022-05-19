@@ -22,16 +22,14 @@
 // Throws:
 //   Exception::OutOfMemory if the allocated_mem pointer is NULL.
 template <typename T>
-SafeArray<T>::SafeArray(const wxChar *name, T *allocated_mem, int initSize)
-    : Name(name)
+SafeArray<T>::SafeArray(T *allocated_mem, int initSize)
 {
     ChunkSize = DefaultChunkSize;
-    m_ptr = allocated_mem;
-    m_size = initSize;
+    m_ptr     = allocated_mem;
+    m_size    = initSize;
 
-    if (m_ptr == NULL)
-        throw Exception::OutOfMemory(name)
-            .SetDiagMsg(wxsFormat(L"Called from 'SafeArray::ctor' [size=%d]", initSize));
+    /* TODO/FIXME - do a safer way to handle failure instead of 
+     * throwing exceptions */
 }
 
 template <typename T>
@@ -49,25 +47,25 @@ SafeArray<T>::~SafeArray()
 }
 
 template <typename T>
-SafeArray<T>::SafeArray(const wxChar *name)
-    : Name(name)
+SafeArray<T>::SafeArray(void)
 {
     ChunkSize = DefaultChunkSize;
-    m_ptr = NULL;
-    m_size = 0;
+    m_ptr     = NULL;
+    m_size    = 0;
 }
 
 template <typename T>
-SafeArray<T>::SafeArray(int initialSize, const wxChar *name)
-    : Name(name)
+SafeArray<T>::SafeArray(int initialSize)
 {
     ChunkSize = DefaultChunkSize;
-    m_ptr = (initialSize == 0) ? NULL : (T *)malloc(initialSize * sizeof(T));
-    m_size = initialSize;
+    m_ptr     = (initialSize == 0) ? NULL : (T *)malloc(initialSize * sizeof(T));
+    m_size    = initialSize;
 
-    if ((initialSize != 0) && (m_ptr == NULL))
-        throw Exception::OutOfMemory(name)
-            .SetDiagMsg(wxsFormat(L"Called from 'SafeArray::ctor' [size=%d]", initialSize));
+    /* TODO/FIXME - do a safer way to handle failure instead of 
+     * throwing exceptions */
+#if 0
+    if ((initialSize != 0) && (m_ptr == NULL)) { }
+#endif
 }
 
 template <typename T>
@@ -84,11 +82,9 @@ void SafeArray<T>::ExactAlloc(int newsize)
     if (newsize == m_size)
         return;
 
-    m_ptr = _virtual_realloc(newsize);
-    if (m_ptr == NULL)
-        throw Exception::OutOfMemory(Name)
-            .SetDiagMsg(wxsFormat(L"Called from 'SafeArray::ExactAlloc' [oldsize=%d] [newsize=%d]", m_size, newsize));
-
+    /* TODO/FIXME - do a safer way to handle failure instead of 
+     * throwing exceptions */
+    m_ptr  = _virtual_realloc(newsize);
     m_size = newsize;
 }
 
@@ -124,9 +120,8 @@ SafeAlignedArray<T, Alignment>::~SafeAlignedArray()
 }
 
 template <typename T, uint Alignment>
-SafeAlignedArray<T, Alignment>::SafeAlignedArray(int initialSize, const wxChar *name)
+SafeAlignedArray<T, Alignment>::SafeAlignedArray(int initialSize)
     : SafeArray<T>::SafeArray(
-          name,
           (T *)_aligned_malloc(initialSize * sizeof(T), Alignment),
           initialSize)
 {

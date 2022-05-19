@@ -27,7 +27,7 @@ wxString LastELF;
 
 // All of ElfObjects functions.
 ElfObject::ElfObject(const wxString& srcfile, IsoFile& isofile)
-	: data( wxULongLong(isofile.getLength()).GetLo(), L"ELF headers" )
+	: data( wxULongLong(isofile.getLength()).GetLo())
 	, proghead( NULL )
 	, secthead( NULL )
 	, filename( srcfile )
@@ -40,7 +40,7 @@ ElfObject::ElfObject(const wxString& srcfile, IsoFile& isofile)
 }
 
 ElfObject::ElfObject( const wxString& srcfile, uint hdrsize )
-	: data( wxULongLong(hdrsize).GetLo(), L"ELF headers" )
+	: data( wxULongLong(hdrsize).GetLo() )
 	, proghead( NULL )
 	, secthead( NULL )
 	, filename( srcfile )
