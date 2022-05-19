@@ -81,10 +81,7 @@ bool HostSys::MmapCommitPtr(void *base, size_t size, const PageProtectionMode &m
 
     const DWORD errcode = GetLastError();
     if (errcode == ERROR_COMMITMENT_MINIMUM)
-    {
-       log_cb(RETRO_LOG_WARN, "(MmapCommit) Received windows error %u {Virtual Memory Minimum Too Low}.\n", ERROR_COMMITMENT_MINIMUM);
        Sleep(1000); // Cut windows some time to rework its memory...
-    }
     else if (errcode != ERROR_NOT_ENOUGH_MEMORY && errcode != ERROR_OUTOFMEMORY)
         return false;
 
@@ -125,7 +122,6 @@ void HostSys::Munmap(uptr base, size_t size)
 {
     if (!base)
         return;
-    //VirtualFree((void*)base, size, MEM_DECOMMIT);
     VirtualFree((void *)base, 0, MEM_RELEASE);
 }
 

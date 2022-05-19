@@ -104,8 +104,6 @@ class VirtualMemoryManager
 {
     DeclareNoncopyableObject(VirtualMemoryManager);
 
-    wxString m_name;
-
     uptr m_baseptr;
 
     // An array to track page usage (to trigger asserts if things try to overlap)
@@ -116,9 +114,9 @@ class VirtualMemoryManager
 
 public:
     // If upper_bounds is nonzero and the OS fails to allocate memory that is below it,
-    // calls to IsOk() will return false and Alloc() will always return null pointers
+    // Alloc() will always return null pointers
     // strict indicates that the allocation should quietly fail if the memory can't be mapped at `base`
-    VirtualMemoryManager(const wxString &name, uptr base, size_t size, uptr upper_bounds = 0, bool strict = false);
+    VirtualMemoryManager(uptr base, size_t size, uptr upper_bounds = 0, bool strict = false);
     ~VirtualMemoryManager();
 
     void *GetBase() const { return (void *)m_baseptr; }
@@ -132,10 +130,6 @@ public:
     }
 
     void Free(void *address, size_t size) const;
-
-    // Was this VirtualMemoryManager successfully able to get its memory mapping?
-    // (If not, calls to Alloc will return null pointers)
-    bool IsOk() const { return m_baseptr != 0; }
 };
 
 typedef std::shared_ptr<const VirtualMemoryManager> VirtualMemoryManagerPtr;
@@ -162,8 +156,6 @@ class VirtualMemoryReserve
     DeclareNoncopyableObject(VirtualMemoryReserve);
 
 protected:
-    wxString m_name;
-
     // Where the memory came from (so we can return it)
     VirtualMemoryManagerPtr m_allocator;
 
@@ -195,7 +187,7 @@ protected:
     virtual size_t GetSize(size_t requestedSize);
 
 public:
-    VirtualMemoryReserve(const wxString &name, size_t size = 0);
+    VirtualMemoryReserve(size_t size = 0);
     virtual ~VirtualMemoryReserve()
     {
         Release();
@@ -227,8 +219,6 @@ public:
     virtual void AllowModification();
 
     bool IsOk() const { return m_baseptr != NULL; }
-    const wxString& GetName() const { return m_name; }
-
     uptr GetReserveSizeInBytes() const { return m_pages_reserved * __pagesize; }
     uptr GetReserveSizeInPages() const { return m_pages_reserved; }
     uint GetCommittedPageCount() const { return m_pages_commited; }

@@ -28,7 +28,7 @@ class RecompiledCodeReserve : public VirtualMemoryReserve
 	typedef VirtualMemoryReserve _parent;
 
 public:
-	RecompiledCodeReserve( const wxString& name=wxEmptyString, uint defCommit = 0 );
+	RecompiledCodeReserve(uint defCommit = 0 );
 	virtual ~RecompiledCodeReserve();
 
 	virtual void* Assign( VirtualMemoryManagerPtr allocator, void *baseptr, size_t size ) override;

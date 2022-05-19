@@ -318,8 +318,8 @@ static void __fastcall vtlbDefaultPhyWrite128(u32 addr,const mem128_t* data){}
 // Note: All handlers persist across calls to vtlb_Reset(), but are wiped/invalidated by calls to vtlb_Init()
 //
 __ri void vtlb_ReassignHandler( vtlbHandler rv,
-							   vtlbMemR8FP* r8,vtlbMemR16FP* r16,vtlbMemR32FP* r32,vtlbMemR64FP* r64,vtlbMemR128FP* r128,
-							   vtlbMemW8FP* w8,vtlbMemW16FP* w16,vtlbMemW32FP* w32,vtlbMemW64FP* w64,vtlbMemW128FP* w128 )
+		vtlbMemR8FP* r8,vtlbMemR16FP* r16,vtlbMemR32FP* r32,vtlbMemR64FP* r64,vtlbMemR128FP* r128,
+		vtlbMemW8FP* w8,vtlbMemW16FP* w16,vtlbMemW32FP* w32,vtlbMemW64FP* w64,vtlbMemW128FP* w128 )
 {
 	vtlbdata.RWFT[0][0][rv] = (void*)((r8!=0)   ? r8	: vtlbDefaultPhyRead8);
 	vtlbdata.RWFT[1][0][rv] = (void*)((r16!=0)  ? r16	: vtlbDefaultPhyRead16);
@@ -556,9 +556,7 @@ void vtlb_Core_Alloc(void)
 		bool okay = HostSys::MmapCommitPtr(vmap, VMAP_SIZE, PageProtectionMode().Read().Write());
 		if (okay)
 			vtlbdata.vmap = vmap;
-		else
-			throw Exception::OutOfMemory( L"VTLB Virtual Address Translation LUT" )
-				.SetDiagMsg(pxsFmt("(%u megs)", VTLB_VMAP_ITEMS * sizeof(*vtlbdata.vmap) / _1mb));
+		/* TODO/FIXME - find something else other than exception throwing */
 	}
 }
 
@@ -602,31 +600,23 @@ void vtlb_Core_Free(void)
 // --------------------------------------------------------------------------------------
 //  VtlbMemoryReserve  (implementations)
 // --------------------------------------------------------------------------------------
-VtlbMemoryReserve::VtlbMemoryReserve( const wxString& name, size_t size )
-	: m_reserve( name, size )
+VtlbMemoryReserve::VtlbMemoryReserve( size_t size )
+	: m_reserve( size )
 {
 	m_reserve.SetPageAccessOnCommit( PageAccess_ReadWrite() );
 }
 
 void VtlbMemoryReserve::Reserve( VirtualMemoryManagerPtr allocator, sptr offset )
 {
-	if (!m_reserve.Reserve( std::move(allocator), offset ))
-	{
-		throw Exception::OutOfMemory( m_reserve.GetName() )
-			.SetDiagMsg(L"Vtlb memory could not be reserved.")
-			.SetUserMsg(L"Your system is too low on virtual resources for PCSX2 to run. This can be caused by having a small or disabled swapfile, or by other programs that are hogging resources.");
-	}
+	/* TODO/FIXME - some other way of reporting failure other than exception throwing */
+	if (!m_reserve.Reserve( std::move(allocator), offset )) { }
 }
 
 void VtlbMemoryReserve::Commit(void)
 {
-	if (IsCommitted()) return;
-	if (!m_reserve.Commit())
-	{
-		throw Exception::OutOfMemory( m_reserve.GetName() )
-			.SetDiagMsg(L"Vtlb memory could not be committed.")
-			.SetUserMsg(L"Your system is too low on virtual resources for PCSX2 to run. This can be caused by having a small or disabled swapfile, or by other programs that are hogging resources.");
-	}
+	/* TODO/FIXME - some other way of reporting failure other than exception throwing */
+	if (!IsCommitted())
+		if (!m_reserve.Commit()) { }
 }
 
 void VtlbMemoryReserve::Reset(void)

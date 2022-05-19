@@ -1189,7 +1189,7 @@ static void recClear(u32 addr, u32 size)
 
 static void recReserveCache(void)
 {
-	if (!recMem) recMem = new RecompiledCodeReserve(L"R5900-32 Recompiler Cache", _16mb);
+	if (!recMem) recMem = new RecompiledCodeReserve(_16mb);
 
 	while (!recMem->IsOk())
 	{

@@ -597,14 +597,13 @@ void memBindConditionalHandlers()
 //  eeMemoryReserve  (implementations)
 // --------------------------------------------------------------------------------------
 eeMemoryReserve::eeMemoryReserve()
-	: _parent( L"EE Main Memory", sizeof(*eeMem) )
+	: _parent( sizeof(*eeMem) )
 {
 }
 
 void eeMemoryReserve::Reserve(VirtualMemoryManagerPtr allocator)
 {
 	_parent::Reserve(std::move(allocator), HostMemoryMap::EEmemOffset);
-	//_parent::Reserve(EmuConfig.HostMap.IOP);
 }
 
 void eeMemoryReserve::Commit()

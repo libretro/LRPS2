@@ -76,8 +76,8 @@ static size_t pageAlign(size_t size)
 //  VirtualMemoryManager  (implementations)
 // --------------------------------------------------------------------------------------
 
-VirtualMemoryManager::VirtualMemoryManager(const wxString &name, uptr base, size_t size, uptr upper_bounds, bool strict)
-    : m_name(name), m_baseptr(0), m_pageuse(nullptr), m_pages_reserved(0)
+VirtualMemoryManager::VirtualMemoryManager(uptr base, size_t size, uptr upper_bounds, bool strict)
+    : m_baseptr(0), m_pageuse(nullptr), m_pages_reserved(0)
 {
     if (!size) return;
 
@@ -202,8 +202,7 @@ void *VirtualMemoryBumpAllocator::Alloc(size_t size)
 // --------------------------------------------------------------------------------------
 //  VirtualMemoryReserve  (implementations)
 // --------------------------------------------------------------------------------------
-VirtualMemoryReserve::VirtualMemoryReserve(const wxString &name, size_t size)
-    : m_name(name)
+VirtualMemoryReserve::VirtualMemoryReserve(size_t size)
 {
     m_defsize = size;
 

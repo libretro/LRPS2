@@ -49,8 +49,8 @@ void SetCPUState(SSE_MXCSR sseMXCSR, SSE_MXCSR sseVUMXCSR)
 // Constructor!
 // Parameters:
 //   name - a nice long name that accurately describes the contents of this reserve.
-RecompiledCodeReserve::RecompiledCodeReserve( const wxString& name, uint defCommit )
-	: VirtualMemoryReserve( name, defCommit )
+RecompiledCodeReserve::RecompiledCodeReserve( uint defCommit )
+	: VirtualMemoryReserve( defCommit )
 {
 	m_prot_mode		= PageAccess_Any();
 }
@@ -83,12 +83,6 @@ bool RecompiledCodeReserve::Commit()
 // This error message is shared by R5900, R3000, and microVU recompilers.
 void RecompiledCodeReserve::ThrowIfNotOk() const
 {
-	if (IsOk()) return;
-
-	throw Exception::OutOfMemory(m_name)
-		.SetDiagMsg(pxsFmt( L"Recompiled code cache could not be mapped." ))
-		.SetUserMsg( L"This recompiler was unable to reserve contiguous memory required for internal caches.  This error can be caused by low virtual memory resources, such as a small or disabled swapfile, or by another program that is hogging a lot of memory."
-		);
 }
 
 void SysOutOfMemory_EmergencyResponse(uptr blocksize)
@@ -204,11 +198,6 @@ public:
 	virtual ~CpuInitializerSet() = default;
 };
 
-
-namespace HostMemoryMap {
-	// For debuggers
-}
-
 /// Attempts to find a spot near static variables for the main memory
 static VirtualMemoryManagerPtr makeMainMemoryManager() {
 	// Everything looks nicer when the start of all the sections is a nice round looking number.
@@ -225,12 +214,12 @@ static VirtualMemoryManagerPtr makeMainMemoryManager() {
 		// VTLB will throw a fit if we try to put EE main memory here
 		if ((sptr)base < 0 || (sptr)(base + HostMemoryMap::Size - 1) < 0)
 			continue;
-		auto mgr = std::make_shared<VirtualMemoryManager>("Main Memory Manager", base, HostMemoryMap::Size, /*upper_bounds=*/0, /*strict=*/true);
-		if (mgr->IsOk())
+		auto mgr = std::make_shared<VirtualMemoryManager>(base, HostMemoryMap::Size, 0, true);
+		if (mgr->GetBase() != 0)
 			return mgr;
 	}
 
-	return std::make_shared<VirtualMemoryManager>("Main Memory Manager", 0, HostMemoryMap::Size);
+	return std::make_shared<VirtualMemoryManager>(0, HostMemoryMap::Size);
 }
 
 // --------------------------------------------------------------------------------------

@@ -31,14 +31,13 @@ static void recReset(int idx) {
 
 void dVifReserve(int idx) {
 	if(!nVif[idx].recReserve)
-		nVif[idx].recReserve = new RecompiledCodeReserve(pxsFmt(L"VIF%u Unpack Recompiler Cache", idx), _8mb);
+		nVif[idx].recReserve = new RecompiledCodeReserve(_8mb);
 
 	auto offset = idx ? HostMemoryMap::VIF1recOffset : HostMemoryMap::VIF0recOffset;
 	nVif[idx].recReserve->Reserve(GetVmMemory().MainMemory(), offset, 8 * _1mb);
 }
 
 void dVifReset(int idx) {
-	//pxAssertDev(nVif[idx].recReserve, "Dynamic VIF recompiler reserve must be created prior to VIF use or reset!");
 	recReset(idx);
 }
 

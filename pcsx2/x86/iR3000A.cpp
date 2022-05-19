@@ -506,7 +506,7 @@ static const uint m_recBlockAllocSize =
 
 static void recReserveCache(void)
 {
-	if (!recMem) recMem = new RecompiledCodeReserve(L"R3000A Recompiler Cache", _8mb);
+	if (!recMem) recMem = new RecompiledCodeReserve(_8mb);
 
 	while (!recMem->IsOk())
 	{

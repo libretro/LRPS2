@@ -140,7 +140,7 @@ static __fi void mVUthrowHardwareDeficiency(const wxChar* extFail, int vuIndex) 
 
 static void mVUreserveCache(microVU& mVU)
 {
-	mVU.cache_reserve = new RecompiledCodeReserve(pxsFmt("Micro VU%u Recompiler Cache", mVU.index), _16mb);
+	mVU.cache_reserve = new RecompiledCodeReserve(_16mb);
 	
 	mVU.cache = mVU.index ?
 		(u8*)mVU.cache_reserve->Reserve(GetVmMemory().MainMemory(), HostMemoryMap::mVU1recOffset, mVU.cacheSize * _1mb):
