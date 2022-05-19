@@ -50,28 +50,6 @@ void SplitString(wxArrayString &dest, const wxString &src, const wxString &delim
 
 
 // --------------------------------------------------------------------------------------
-//  ToString helpers for wxString!
-// --------------------------------------------------------------------------------------
-
-// Converts a wxPoint into a comma-delimited string!
-wxString ToString(const wxPoint &src, const wxString &separator)
-{
-    return wxString() << src.x << separator << src.y;
-}
-
-wxString ToString(const wxSize &src, const wxString &separator)
-{
-    return wxString() << src.GetWidth() << separator << src.GetHeight();
-}
-
-// Converts a wxRect into a comma-delimited string!
-// Example: 32,64,128,5
-wxString ToString(const wxRect &src, const wxString &separator)
-{
-    return ToString(src.GetLeftTop(), separator) << separator << ToString(src.GetSize(), separator);
-}
-
-// --------------------------------------------------------------------------------------
 //  Parse helpers for wxString!
 // --------------------------------------------------------------------------------------
 
