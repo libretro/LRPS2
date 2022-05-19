@@ -42,8 +42,6 @@ IsoFile::IsoFile(SectorSource& reader, const IsoFileDescriptor& fileEntry)
 
 void IsoFile::Init()
 {
-	//pxAssertDev( fileEntry.IsFile(), "IsoFile Error: Filename points to a directory." );
-
 	currentSectorNumber = fileEntry.lba;
 	currentOffset = 0;
 	sectorOffset = 0;
@@ -79,7 +77,6 @@ u32 IsoFile::seek(s64 offset, wxSeekMode ref_position)
 	switch (ref_position)
 	{
 		case wxFromStart:
-			pxAssertDev(offset >= 0 && offset <= (s64)ULONG_MAX, "Invalid seek position from start.");
 			return seek(offset);
 
 		case wxFromCurrent:

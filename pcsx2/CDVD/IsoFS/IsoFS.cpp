@@ -28,21 +28,6 @@
 //u8		volID[5];		// "CD001"
 
 
-wxString IsoDirectory::FStype_ToString() const
-{
-	switch (m_fstype)
-	{
-		case FStype_ISO9660:
-			return L"ISO9660";
-			break;
-		case FStype_Joliet:
-			return L"Joliet";
-			break;
-	}
-
-	return wxsFormat(L"Unrecognized Code (0x%x)", m_fstype);
-}
-
 // Used to load the Root directory from an image
 IsoDirectory::IsoDirectory(SectorSource& r)
 	: internalReader(r)
@@ -104,13 +89,6 @@ IsoDirectory::IsoDirectory(SectorSource& r)
 		++i;
 	}
 
-	if (!isValid)
-		throw Exception::FileNotFound(L"IsoFileSystem") // FIXME: Should report the name of the ISO here...
-			.SetDiagMsg(L"IsoFS could not find the root directory on the ISO image.");
-
-#ifndef NDEBUG
-	log_cb(RETRO_LOG_DEBUG, "(IsoFS) Filesystem is %s", FStype_ToString().c_str());
-#endif
 	Init(rootDirEntry);
 }
 

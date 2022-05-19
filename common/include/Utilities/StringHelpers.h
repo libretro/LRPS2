@@ -65,10 +65,6 @@ public:
 
 extern void SplitString(wxArrayString &dest, const wxString &src, const wxString &delims, wxStringTokenizerMode mode = wxTOKEN_RET_EMPTY_ALL);
 
-extern wxString ToString(const wxPoint &src, const wxString &separator = L",");
-extern wxString ToString(const wxSize &src, const wxString &separator = L",");
-extern wxString ToString(const wxRect &src, const wxString &separator = L",");
-
 // --------------------------------------------------------------------------------------
 //  ParsedAssignmentString
 // --------------------------------------------------------------------------------------
@@ -136,7 +132,6 @@ public:
     operator const char *() const { return m_dest.GetPtr(); }
 
     const wxString GetString() const;
-    //operator wxString() const;
 
     FastFormatAscii &operator+=(const wxString &s)
     {

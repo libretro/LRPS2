@@ -33,7 +33,6 @@ public:
 	IsoDirectory(SectorSource& r, IsoFileDescriptor directoryEntry);
 	virtual ~IsoDirectory() = default;
 
-	wxString FStype_ToString() const;
 	SectorSource& GetReader() const { return internalReader; }
 
 	bool Exists(const wxString& filePath) const;
