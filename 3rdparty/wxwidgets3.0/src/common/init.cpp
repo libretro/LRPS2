@@ -31,7 +31,6 @@
 
 #if defined(__WINDOWS__)
     #include "wx/msw/private.h"
-    #include "wx/msw/msvcrt.h"
 #endif
 
 #if wxUSE_UNICODE && defined(__WXOSX__)

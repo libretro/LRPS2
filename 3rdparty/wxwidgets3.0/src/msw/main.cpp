@@ -28,7 +28,6 @@
 #include "wx/scopeguard.h"
 
 #include "wx/msw/private.h"
-#include "wx/msw/seh.h"
 
 // defined in common/init.cpp
 extern int wxEntryReal(int& argc, wxChar **argv);
