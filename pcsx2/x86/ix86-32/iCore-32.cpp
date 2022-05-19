@@ -24,10 +24,6 @@
 
 using namespace x86Emitter;
 
-// yay sloppy crap needed until we can remove dependency on this hippopotamic
-// landmass of shared code. (air)
-extern u32 g_psxConstRegs[32];
-
 // X86 caching
 static int g_x86checknext;
 

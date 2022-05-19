@@ -35,8 +35,8 @@ extern void  dVifReserve (int idx);
 extern void  dVifReset   (int idx);
 extern void  dVifClose   (int idx);
 extern void  dVifRelease (int idx);
-extern void  VifUnpackSSE_Init();
-extern void  VifUnpackSSE_Destroy();
+extern void  VifUnpackSSE_Init(void);
+extern void  VifUnpackSSE_Destroy(void);
 
 _vifT extern void  dVifUnpack  (const u8* data, bool isFill);
 
@@ -70,9 +70,7 @@ struct nVifStruct {
 	nVifStruct() = default;
 };
 
-extern void closeNewVif(int idx);
 extern void resetNewVif(int idx);
-extern void releaseNewVif(int idx);
 
 extern __aligned16 nVifStruct nVif[2];
 extern __aligned16 nVifCall nVifUpk[(2*2*16)*4]; // ([USN][Masking][Unpack Type]) [curCycle]

@@ -309,9 +309,6 @@ void SysMainMemory::DecommitAll()
 	m_iop.Decommit();
 	m_vu.Decommit();
 
-	closeNewVif(0);
-	closeNewVif(1);
-
 	vtlb_Core_Free();
 }
 
@@ -320,11 +317,9 @@ void SysMainMemory::ReleaseAll()
 	DecommitAll();
 
 	log_cb(RETRO_LOG_INFO, "Releasing host memory maps for virtual systems...\n" );
-
-	vtlb_Core_Free();		// Just to be sure... (calling order could result in it getting missed during Decommit).
-
-	releaseNewVif(0);
-	releaseNewVif(1);
+	// Just to be sure... (calling order could result 
+	// in it getting missed during Decommit).
+	vtlb_Core_Free();
 
 	m_ee.Decommit();
 	m_iop.Decommit();

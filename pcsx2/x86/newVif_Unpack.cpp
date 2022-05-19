@@ -83,25 +83,16 @@ void resetNewVif(int idx)
 	dVifReset(idx);
 }
 
-void closeNewVif(int idx) {
-}
-
-void releaseNewVif(int idx) {
-}
-
-static __fi u8* getVUptr(uint idx, int offset) {
-	return (u8*)(vuRegs[idx].Mem + ( offset & (idx ? 0x3ff0 : 0xff0) ));
-}
-
+#define GETVUPTR(idx, offset) (u8*)(vuRegs[(idx)].Mem + ( (offset) & ((idx) ? 0x3ff0 : 0xff0) ))
 
 _vifT int nVifUnpack(const u8* data) {
-	nVifStruct&   v       = nVif[idx];
-	vifStruct&    vif     = GetVifX;
-	VIFregisters& vifRegs = vifXRegs;
+	nVifStruct&   v           = nVif[idx];
+	vifStruct&    vif         = GetVifX;
+	VIFregisters& vifRegs     = vifXRegs;
 
-	const uint wl     = vifRegs.cycle.wl ? vifRegs.cycle.wl : 256;
-	const uint ret    = std::min(vif.vifpacketsize, vif.tag.size);
-	const bool isFill = (vifRegs.cycle.cl < wl);
+	const uint wl             = vifRegs.cycle.wl ? vifRegs.cycle.wl : 256;
+	const uint ret            = std::min(vif.vifpacketsize, vif.tag.size);
+	const bool isFill         = (vifRegs.cycle.cl < wl);
 	s32		   size   = ret << 2;
 	
 	if (ret == vif.tag.size) { // Full Transfer
@@ -138,10 +129,10 @@ _vifT int nVifUnpack(const u8* data) {
 		// to read back from it mid-transfer.  Since so few games actually use partial transfers
 		// of VIF unpacks, this code should not be any bottleneck.
 
-		if (!isFill) {
+		if (!isFill)
 			vifRegs.num -= (size / vSize);
-		}
-		else {
+		else
+		{
 			int dataSize = (size / vSize);
 			vifRegs.num = vifRegs.num - (((dataSize / vifRegs.cycle.cl) * (vifRegs.cycle.wl - vifRegs.cycle.cl)) + dataSize);
 		}
@@ -205,15 +196,16 @@ static void setMasks(const vifStruct& vif, const VIFregisters& v) {
 
 // size - size of the packet fragment incoming from DMAC.
 template< int idx, bool doMode, bool isFill >
-__ri void __fastcall _nVifUnpackLoop(const u8* data) {
-
+__ri void __fastcall _nVifUnpackLoop(const u8* data)
+{
 	vifStruct&    vif     = MTVU_VifX;
 	VIFregisters& vifRegs = MTVU_VifXRegs;
 
 	// skipSize used for skipping writes only
 	const int skipSize  = (vifRegs.cycle.cl - vifRegs.cycle.wl) * 16;
 
-	if (!doMode && (vif.cmd & 0x10)) setMasks(vif, vifRegs);
+	if (!doMode && (vif.cmd & 0x10))
+		setMasks(vif, vifRegs);
 
 	const int	usn		= !!vif.usn;
 	const int	upkNum	= vif.cmd & 0x1f;
@@ -224,11 +216,12 @@ __ri void __fastcall _nVifUnpackLoop(const u8* data) {
 	pxAssume (vif.cl == 0);
 
 	do {
-		u8* dest = getVUptr(idx, vif.tag.addr);
+		u8* dest = GETVUPTR(idx, vif.tag.addr);
 
 		if (doMode)
 			ft(dest, data);
-		else {
+		else
+		{
 			uint cl3 = std::min(vif.cl, 3);
 			fnbase[cl3](dest, data);
 		}
@@ -238,14 +231,17 @@ __ri void __fastcall _nVifUnpackLoop(const u8* data) {
 		++vif.cl;
 
 		if (isFill) {
-			if (vif.cl <= vifRegs.cycle.cl)			data += vSize;
-			else if (vif.cl == vifRegs.cycle.wl)	vif.cl = 0;
+			if (vif.cl <= vifRegs.cycle.cl)
+				data += vSize;
+			else if (vif.cl == vifRegs.cycle.wl)
+				vif.cl = 0;
 		}
 		else
 		{
 			data += vSize;
 
-			if (vif.cl >= vifRegs.cycle.wl) {
+			if (vif.cl >= vifRegs.cycle.wl)
+			{
 				vif.tag.addr += skipSize;
 				vif.cl = 0;
 			}
@@ -253,8 +249,7 @@ __ri void __fastcall _nVifUnpackLoop(const u8* data) {
 	} while (vifRegs.num);
 }
 
-__fi void _nVifUnpack(int idx, const u8* data, uint mode, bool isFill) {
-
+__fi void _nVifUnpack(int idx, const u8* data, uint mode, bool isFill)
+{
 	UnpackLoopTable[idx][!!mode][isFill]( data );
 }
-
