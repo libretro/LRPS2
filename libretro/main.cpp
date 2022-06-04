@@ -883,7 +883,7 @@ void retro_run(void)
 		EmuConfig.GS.FramesToDraw = option_value(INT_PCSX2_OPT_FRAMES_TO_DRAW, KeyOptionInt::return_type);
 		EmuConfig.GS.FramesToSkip = option_value(INT_PCSX2_OPT_FRAMES_TO_SKIP, KeyOptionInt::return_type);
 		EmuConfig.GS.VsyncQueueSize = option_value(INT_PCSX2_OPT_VSYNC_MTGS_QUEUE, KeyOptionInt::return_type);
-		//GSUpdateOptions();
+		GSUpdateOptions();
 		Input::RumbleEnabled(
 			option_value(BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE, KeyOptionBool::return_type),
 			option_value(INT_PCSX2_OPT_GAMEPAD_RUMBLE_FORCE, KeyOptionInt::return_type)
