@@ -463,6 +463,7 @@ bool GSDevice11::SetFeatureLevel(D3D_FEATURE_LEVEL level, bool compat_mode)
 		m_shader.cs = "cs_5_0";
 		break;
 	default:
+		ASSERT(0);
 		return false;
 	}
 
@@ -550,7 +551,7 @@ bool GSDevice11::Create()
 	memset(&bd, 0, sizeof(bd));
 
 	bd.ByteWidth = sizeof(MergeConstantBuffer);
-	bd.Usage     = D3D11_USAGE_DEFAULT;
+	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
 	hr = m_dev->CreateBuffer(&bd, NULL, &m_merge.cb);
@@ -683,24 +684,24 @@ bool GSDevice11::Create()
 
 bool GSDevice11::Reset(int w, int h)
 {
-	D3D11_SUBRESOURCE_DATA srsc;
 	if(!__super::Reset(w, h))
 		return false;
 	D3D11_TEXTURE2D_DESC desc{};
-	desc.Width              = w;
-	desc.Height             = h;
-	desc.MipLevels          = 1;
-	desc.ArraySize          = 1;
-	desc.Format             = DXGI_FORMAT_R8G8B8A8_UNORM;
-	desc.SampleDesc.Count   = 1;
+	desc.Width = w;
+	desc.Height = h;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
-	desc.Usage              = D3D11_USAGE_DEFAULT;
-	desc.BindFlags          = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	desc.CPUAccessFlags     = 0;
-	desc.MiscFlags          = 0;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	desc.CPUAccessFlags = 0;
+	desc.MiscFlags = 0;
 
-	srsc.pSysMem          = malloc(w*h*4);
-	srsc.SysMemPitch      = w * 4;
+	D3D11_SUBRESOURCE_DATA srsc = {};
+	srsc.pSysMem  = malloc(w*h*4);
+	srsc.SysMemPitch = w * 4;
 	srsc.SysMemSlicePitch = w * h * 4;
 	memset((void*)srsc.pSysMem, 0xFF, w*h*3);
 
@@ -923,7 +924,9 @@ GSTexture* GSDevice11::CopyOffscreen(GSTexture* src, const GSVector4& sRect, int
 	GSTexture* dst = NULL;
 
 	if(format == 0)
+	{
 		format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	}
 
 	ASSERT(format == DXGI_FORMAT_R8G8B8A8_UNORM || format == DXGI_FORMAT_R16_UINT || format == DXGI_FORMAT_R32_UINT);
 
@@ -948,22 +951,19 @@ GSTexture* GSDevice11::CopyOffscreen(GSTexture* src, const GSVector4& sRect, int
 
 void GSDevice11::CopyRect(GSTexture* sTex, GSTexture* dTex, const GSVector4i& r)
 {
-	D3D11_BOX box;
 	if (!sTex || !dTex)
+	{
+		ASSERT(0);
 		return;
+	}
 
-	box.left   = (UINT)r.left;
-	box.top    = (UINT)r.top;
-	box.front  = 0U;
-	box.right  = (UINT)r.right;
-	box.bottom = (UINT)r.bottom;
-	box.back   = 1U;
+	D3D11_BOX box = { (UINT)r.left, (UINT)r.top, 0U, (UINT)r.right, (UINT)r.bottom, 1U };
 
-	// DX API isn't happy if we pass a box for depth copy
+	// DX api isn't happy if we pass a box for depth copy
 	// It complains that depth/multisample must be a full copy
 	// and asks us to use a NULL for the box
 	bool depth = (sTex->GetType() == GSTexture::DepthStencil);
-	auto pBox  = depth ? nullptr : &box;
+	auto pBox = depth ? nullptr : &box;
 
 	m_ctx->CopySubresourceRegion(*(GSTexture11*)dTex, 0, 0, 0, 0, *(GSTexture11*)sTex, 0, pBox);
 }
@@ -971,7 +971,10 @@ void GSDevice11::CopyRect(GSTexture* sTex, GSTexture* dTex, const GSVector4i& r)
 void GSDevice11::CloneTexture(GSTexture* src, GSTexture** dest)
 {
 	if (!src || !(src->GetType() == GSTexture::DepthStencil || src->GetType() == GSTexture::RenderTarget))
+	{
+		ASSERT(0);
 		return;
+	}
 
 	int w = src->GetWidth();
 	int h = src->GetHeight();
@@ -1016,7 +1019,10 @@ void GSDevice11::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture*
 void GSDevice11::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture* dTex, const GSVector4& dRect, ID3D11PixelShader* ps, ID3D11Buffer* ps_cb, ID3D11BlendState* bs , bool linear)
 {
 	if(!sTex || !dTex)
+	{
+		ASSERT(0);
 		return;
+	}
 
 	bool draw_in_depth = (ps == m_convert.ps[ShaderConvert_RGBA8_TO_FLOAT32] || ps == m_convert.ps[ShaderConvert_RGBA8_TO_FLOAT24] ||
 		ps == m_convert.ps[ShaderConvert_RGBA8_TO_FLOAT16] || ps == m_convert.ps[ShaderConvert_RGB5A1_TO_FLOAT16]);
@@ -1216,7 +1222,7 @@ bool GSDevice11::IAMapVertexBuffer(void** vertex, size_t stride, size_t count)
 		m_vertex.limit = std::max<int>(count * 3 / 2, 11000);
 	}
 
-	if (!m_vb)
+	if(m_vb == NULL)
 	{
 		D3D11_BUFFER_DESC bd;
 
@@ -1289,7 +1295,7 @@ void GSDevice11::IASetIndexBuffer(const void* index, size_t count)
 		m_index.limit = std::max<int>(count * 3 / 2, 11000);
 	}
 
-	if(!m_ib)
+	if(m_ib == NULL)
 	{
 		D3D11_BUFFER_DESC bd;
 
@@ -1606,10 +1612,11 @@ void GSDevice11::CreateShader(const std::vector<char>& source, const char* fn, I
 void GSDevice11::CompileShader(const std::vector<char>& source, const char* fn, ID3DInclude *include, const char* entry, D3D_SHADER_MACRO* macro, ID3DBlob** shader, std::string shader_model)
 {
 	CComPtr<ID3DBlob> error;
-#ifdef _DEBUG
-	UINT flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_AVOID_FLOW_CONTROL;
-#else
+
 	UINT flags = 0;
+
+#ifdef _DEBUG
+	flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_AVOID_FLOW_CONTROL;
 #endif
 
 	const HRESULT hr = D3DCompile(
@@ -1648,7 +1655,6 @@ u16 GSDevice11::ConvertBlendEnum(u16 generic)
 	case OP_ADD          : return D3D11_BLEND_OP_ADD;
 	case OP_SUBTRACT     : return D3D11_BLEND_OP_SUBTRACT;
 	case OP_REV_SUBTRACT : return D3D11_BLEND_OP_REV_SUBTRACT;
-	default              : ASSERT(0); break;
+	default              : ASSERT(0); return 0;
 	}
-	return 0;
 }
