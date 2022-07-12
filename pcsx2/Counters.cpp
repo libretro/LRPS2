@@ -53,6 +53,12 @@ static bool IsAnalogVideoMode(void)
 	return (gsVideoMode == GS_VideoMode::PAL || gsVideoMode == GS_VideoMode::NTSC || gsVideoMode == GS_VideoMode::DVD_NTSC || gsVideoMode == GS_VideoMode::DVD_PAL);
 }
 
+static bool IsProgressiveVideoMode(void)
+{
+	return (gsVideoMode == GS_VideoMode::VESA || gsVideoMode == GS_VideoMode::SDTV_480P || gsVideoMode == GS_VideoMode::SDTV_576P || gsVideoMode == GS_VideoMode::HDTV_720P || gsVideoMode == GS_VideoMode::HDTV_1080P);
+}
+
+
 // Updates the state of the nextCounter value (if needed) to serve
 // any pending events for the given counter.
 // Call this method after any modifications to the state of a counter.
@@ -524,7 +530,10 @@ __fi void rcntUpdate_vSync(void)
 			/* GSVSync Begin */
 			// CSR is swapped and GS vBlank IRQ is triggered roughly 3.5 hblanks after VSync Start
 			// Swap field
-			CSRreg._u32 ^= 0x2000;
+			if (IsProgressiveVideoMode())
+                           CSRreg._u32 |= 0x2000;
+			else
+			    CSRreg._u32 ^= 0x2000;
 
 			if (!CSRreg.VSINT)
 			{
