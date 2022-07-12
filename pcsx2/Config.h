@@ -154,10 +154,6 @@ struct Pcsx2Config
 	{
 		int		VsyncQueueSize;
 
-		bool		FrameSkipEnable;
-		int		FramesToDraw;	// number of consecutive frames (fields) to render
-		int		FramesToSkip;	// number of consecutive frames (fields) to skip
-
 		Fixed100	FramerateNTSC;
 		Fixed100	FrameratePAL;
 
@@ -167,14 +163,8 @@ struct Pcsx2Config
 		{
 			return
 				OpEqu( VsyncQueueSize )			&&
-				
-				OpEqu( FrameSkipEnable )		&&
-
 				OpEqu( FramerateNTSC )			&&
-				OpEqu( FrameratePAL )			&&
-
-				OpEqu( FramesToDraw )			&&
-				OpEqu( FramesToSkip );
+				OpEqu( FrameratePAL );
 		}
 
 		bool operator !=( const GSOptions& right ) const

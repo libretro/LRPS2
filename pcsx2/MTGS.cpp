@@ -93,7 +93,6 @@ void SysMtgsThread::ResetGS()
 	m_VsyncSignalListener = 0;
 
 	SendSimplePacket( GS_RINGTYPE_RESET, 0, 0, 0 );
-	SendSimplePacket( GS_RINGTYPE_FRAMESKIP, 0, 0, 0 );
 	SetEvent();
 }
 
@@ -324,7 +323,6 @@ void SysMtgsThread::ExecuteTaskInThread()
 
 								// CSR & 0x2000; is the pageflip id.
 								GSvsync(((u32&)RingBuffer.Regs[0x1000]) & 0x2000);
-								gsFrameSkip();
 
 								m_QueuedFrameCount.fetch_sub(1);
 								if (m_VsyncSignalListener.exchange(false))
@@ -334,10 +332,6 @@ void SysMtgsThread::ExecuteTaskInThread()
 								// Otherwise we could pause while there's still data in the queue
 								// Which could make the MTVU thread wait forever for it to empty
 							}
-							break;
-
-						case GS_RINGTYPE_FRAMESKIP:
-							_gs_ResetFrameskip();
 							break;
 
 						case GS_RINGTYPE_FREEZE:

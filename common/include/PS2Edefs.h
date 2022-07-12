@@ -102,9 +102,6 @@ void CALLBACK GSinitReadFIFO2(u64 *mem, int qwc);
 void CALLBACK GSsetBaseMem(void *);
 void CALLBACK GSsetGameCRC(int crc, int gameoptions);
 
-// controls frame skipping in the GS, if this routine isn't present, frame skipping won't be done
-void CALLBACK GSsetFrameSkip(int frameskip);
-
 void CALLBACK GSreset();
 s32 CALLBACK GSfreeze(int mode, freezeData *data);
 

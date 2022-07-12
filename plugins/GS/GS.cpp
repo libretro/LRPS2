@@ -347,11 +347,6 @@ EXPORT_C GSsetGameCRC(u32 crc, int options)
 	s_gs->SetGameCRC(crc, options);
 }
 
-EXPORT_C GSsetFrameSkip(int frameskip)
-{
-	s_gs->SetFrameSkip(frameskip);
-}
-
 std::string format(const char* fmt, ...)
 {
 	int size;

@@ -382,9 +382,6 @@ void retro_init(void)
 		g_Conf->EmuOptions.EnableNointerlacingPatches = (option_value(INT_PCSX2_OPT_DEINTERLACING_MODE, KeyOptionInt::return_type) == -1);
 		g_Conf->EmuOptions.Enable60fpsPatches = (option_value(BOOL_PCSX2_OPT_ENABLE_60FPS_PATCHES, KeyOptionBool::return_type));
 		g_Conf->EmuOptions.EnableWideScreenPatches = option_value(BOOL_PCSX2_OPT_ENABLE_WIDESCREEN_PATCHES, KeyOptionBool::return_type);
-		g_Conf->EmuOptions.GS.FrameSkipEnable = option_value(BOOL_PCSX2_OPT_FRAMESKIP, KeyOptionBool::return_type);
-		g_Conf->EmuOptions.GS.FramesToDraw = option_value(INT_PCSX2_OPT_FRAMES_TO_DRAW, KeyOptionInt::return_type);
-		g_Conf->EmuOptions.GS.FramesToSkip = option_value(INT_PCSX2_OPT_FRAMES_TO_SKIP, KeyOptionInt::return_type);
 		g_Conf->EmuOptions.GS.VsyncQueueSize = option_value(INT_PCSX2_OPT_VSYNC_MTGS_QUEUE, KeyOptionInt::return_type);
 		g_Conf->EmuOptions.EnableCheats = option_value(BOOL_PCSX2_OPT_ENABLE_CHEATS, KeyOptionBool::return_type);
 
@@ -817,9 +814,6 @@ bool retro_load_game(const struct retro_game_info* game)
 		pcsx2->SysExecute(g_Conf->CdvdSource);
 	}
 
-	g_Conf->EmuOptions.GS.FramesToDraw = 1;
-	//	g_Conf->CurrentGameArgs = "";
-
 	Input::Init();
 	Input::RumbleEnabled(
 			option_value(BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE, KeyOptionBool::return_type),
@@ -879,9 +873,6 @@ void retro_run(void)
 	if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
 	{
 		log_cb(RETRO_LOG_INFO, "Options Change detected...\n");
-		EmuConfig.GS.FrameSkipEnable = option_value(BOOL_PCSX2_OPT_FRAMESKIP, KeyOptionBool::return_type);
-		EmuConfig.GS.FramesToDraw = option_value(INT_PCSX2_OPT_FRAMES_TO_DRAW, KeyOptionInt::return_type);
-		EmuConfig.GS.FramesToSkip = option_value(INT_PCSX2_OPT_FRAMES_TO_SKIP, KeyOptionInt::return_type);
 		EmuConfig.GS.VsyncQueueSize = option_value(INT_PCSX2_OPT_VSYNC_MTGS_QUEUE, KeyOptionInt::return_type);
 		GSUpdateOptions();
 		Input::RumbleEnabled(

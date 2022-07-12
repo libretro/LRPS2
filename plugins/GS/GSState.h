@@ -211,7 +211,6 @@ public:
 	u32 m_crc;
 	CRC::Game m_game;
 	int m_options;
-	int m_frameskip;
 	bool m_NTSC_Saturation;
 	bool m_nativeres;
 	int m_mipmap;
@@ -253,7 +252,6 @@ public:
 	int Freeze(GSFreezeData* fd, bool sizeonly);
 	int Defrost(const GSFreezeData* fd);
 	virtual void SetGameCRC(u32 crc, int options);
-	void SetFrameSkip(int skip);
 	void SetRegsMem(u8* basemem);
 };
 

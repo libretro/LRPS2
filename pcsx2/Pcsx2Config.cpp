@@ -140,12 +140,7 @@ void Pcsx2Config::CpuOptions::ApplySanityCheck()
 // Default GSOptions
 Pcsx2Config::GSOptions::GSOptions()
 {
-	FrameSkipEnable			= false;
-
 	VsyncQueueSize			= 2;
-
-	FramesToDraw			= 2;
-	FramesToSkip			= 2;
 
 	FramerateNTSC			= 59.94;
 	FrameratePAL			= 50.0;

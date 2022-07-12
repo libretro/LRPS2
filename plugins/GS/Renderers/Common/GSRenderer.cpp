@@ -257,8 +257,7 @@ void GSRenderer::VSync(int field)
 	m_dev->AgePool();
 
 	// present
-	if (!m_frameskip)
-	   m_dev->Present(GSClientRect(), 0);
+	m_dev->Present(GSClientRect(), 0);
 }
 
 void GSRenderer::PurgePool()
