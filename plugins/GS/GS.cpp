@@ -387,27 +387,26 @@ static u8* s_Next[8];
 void* fifo_alloc(size_t size, size_t repeat)
 {
 	if (repeat >= countof(s_Next))
-		return vmalloc(size * repeat, false); // Fallback to default vmalloc
-
-	s_fh = CreateFileMapping(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, size, nullptr);
-	DWORD errorID = ::GetLastError();
-	if (s_fh == NULL)
-		return vmalloc(size * repeat, false); // Fallback to default vmalloc
+		return nullptr;
+	if (!(s_fh = CreateFileMapping(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, size, nullptr)))
+		return nullptr;
 
 	int mmap_segment_failed = 0;
 	void* fifo = MapViewOfFile(s_fh, FILE_MAP_ALL_ACCESS, 0, 0, size);
 	for (size_t i = 1; i < repeat; i++) {
 		void* base = (u8*)fifo + size * i;
 		s_Next[i] = (u8*)MapViewOfFileEx(s_fh, FILE_MAP_ALL_ACCESS, 0, 0, size, base);
-		errorID = ::GetLastError();
-		if (s_Next[i] != base) {
+		if (s_Next[i] != base)
+		{
 			mmap_segment_failed++;
 			if (mmap_segment_failed > 4)
 			{
 				fifo_free(fifo, size, repeat);
-				return vmalloc(size * repeat, false); // Fallback to default vmalloc
+				return nullptr;
 			}
-			do {
+
+			do
+			{
 				UnmapViewOfFile(s_Next[i]);
 				s_Next[i] = 0;
 			} while (--i > 0);
