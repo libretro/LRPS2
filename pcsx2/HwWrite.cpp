@@ -85,9 +85,9 @@ void __fastcall _hwWrite32( u32 mem, u32 value )
 					if (!vifWrite32<0>(mem, value)) return;
 				}
 			}
-			else iswitch(mem)
+			else switch(mem)
 			{
-				icase(GIF_CTRL)
+				case(GIF_CTRL):
 				{
 					// Not exactly sure what RST needs to do
 					gifRegs.ctrl._u32 = value & 9;
@@ -99,7 +99,7 @@ void __fastcall _hwWrite32( u32 mem, u32 value )
 					return;
 				}
 
-				icase(GIF_MODE)
+				case(GIF_MODE):
 				{
 					gifRegs.mode._u32 = value;
 					//Need to kickstart the GIF if the M3R mask comes off
@@ -237,21 +237,20 @@ void __fastcall hwWrite32( u32 mem, u32 value )
 template< uint page >
 void __fastcall _hwWrite8(u32 mem, u8 value)
 {
-	iswitch (mem)
-	icase(SIO_TXFIFO)
+	if (mem == SIO_TXFIFO)
 	{
-		static bool iggy_newline = false;
+		static bool included_newline = false;
 		static char sio_buffer[1024];
 		static int sio_count;
 
 		if (value == '\r')
 		{
-			iggy_newline = true;
+			included_newline = true;
 			sio_buffer[sio_count++] = '\n';
 		}
-		else if (!iggy_newline || (value != '\n'))
+		else if (!included_newline || (value != '\n'))
 		{
-			iggy_newline = false;
+			included_newline = false;
 			sio_buffer[sio_count++] = value;
 		}
 

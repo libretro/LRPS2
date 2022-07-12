@@ -236,7 +236,7 @@ template< uint page >
 __fi u32 dmacRead32( u32 mem )
 {
 	// Fixme: OPH hack. Toggle the flag on GIF_STAT access. (rama)
-	if (IsPageFor(mem) && (mem == GIF_STAT) && CHECK_OPHFLAGHACK)
+        if ((CHECK_OPHFLAGHACK) && (page << 12) == (mem & (0xf << 12)) && (mem == GIF_STAT))
 	{
 		static unsigned counter = 1;
 		if (++counter == 8)
@@ -253,166 +253,166 @@ __fi u32 dmacRead32( u32 mem )
 template< uint page >
 __fi bool dmacWrite32( u32 mem, mem32_t& value )
 {
-	iswitch(mem) {
-		icase(D0_CHCR) // dma0 - vif0
+	switch(mem) {
+		case(D0_CHCR): // dma0 - vif0
 		{
 			/* VIF0dma EXECUTE */
 			DmaExec(dmaVIF0, mem, value);
 			return false;
 		}
 
-		icase(D0_QWC) // dma0 - vif0
+		case(D0_QWC): // dma0 - vif0
 		{
 			psHu32(mem) = (u16)value;
 			return false;
 		}
 
-		icase(D1_CHCR) // dma1 - vif1 - chcr
+		case(D1_CHCR): // dma1 - vif1 - chcr
 		{
 			/* VIF1dma EXECUTE */
 			DmaExec(dmaVIF1, mem, value);
 			return false;
 		}
 
-		icase(D1_QWC) // dma1 - vif1
+		case(D1_QWC): // dma1 - vif1
 		{
 			psHu32(mem) = (u16)value;
 			return false;
 		}
 
-		icase(D2_CHCR) // dma2 - gif
+		case(D2_CHCR): // dma2 - gif
 		{
 			/* GIFdma EXECUTE */
 			DmaExec(dmaGIF, mem, value);
 			return false;
 		}
 
-		icase(D2_QWC) // dma2 - gif
+		case(D2_QWC): // dma2 - gif
 		{
 			psHu32(mem) = (u16)value;
 			return false;
 		}
 
-		icase(D3_CHCR) // dma3 - fromIPU
+		case(D3_CHCR): // dma3 - fromIPU
 		{
 			/* IPU0dma EXECUTE */
 			DmaExec(dmaIPU0, mem, value);
 			return false;
 		}
 
-		icase(D3_QWC) // dma3 - fromIPU
+		case(D3_QWC): // dma3 - fromIPU
 		{
 			psHu32(mem) = (u16)value;
 			return false;
 		}
 
-		icase(D4_CHCR) // dma4 - toIPU
+		case(D4_CHCR): // dma4 - toIPU
 		{
 			/* IPU1dma EXECUTE */
 			DmaExec(dmaIPU1, mem, value);
 			return false;
 		}
 
-		icase(D4_QWC) // dma4 - toIPU
+		case(D4_QWC): // dma4 - toIPU
 		{
 			psHu32(mem) = (u16)value;
 			return false;
 		}
 
-		icase(D5_CHCR) // dma5 - sif0
+		case(D5_CHCR): // dma5 - sif0
 		{
 			/* SIF0dma EXECUTE */
 			DmaExec(dmaSIF0, mem, value);
 			return false;
 		}
 
-		icase(D5_QWC) // dma5 - sif0
+		case(D5_QWC): // dma5 - sif0
 		{
 			psHu32(mem) = (u16)value;
 			return false;
 		}
 
-		icase(D6_CHCR) // dma6 - sif1
+		case(D6_CHCR): // dma6 - sif1
 		{
 			/* SIF1dma EXECUTE */
 			DmaExec(dmaSIF1, mem, value);
 			return false;
 		}
 
-		icase(D6_QWC) // dma6 - sif1
+		case(D6_QWC): // dma6 - sif1
 		{
 			psHu32(mem) = (u16)value;
 			return false;
 		}
 
-		icase(D7_CHCR) // dma7 - sif2
+		case(D7_CHCR): // dma7 - sif2
 		{
 			/* SIF2dma EXECUTE */
 			DmaExec(dmaSIF2, mem, value);
 			return false;
 		}
 
-		icase(D7_QWC) // dma7 - sif2
+		case(D7_QWC): // dma7 - sif2
 		{
 			psHu32(mem) = (u16)value;
 			return false;
 		}
 
-		icase(D8_CHCR) // dma8 - fromSPR
+		case(D8_CHCR): // dma8 - fromSPR
 		{
 			/* SPR0dma EXECUTE */
 			DmaExec(dmaSPR0, mem, value);
 			return false;
 		}
 
-		icase(D8_QWC) // dma8 - fromSPR
+		case(D8_QWC): // dma8 - fromSPR
 		{
 			psHu32(mem) = (u16)value;
 			return false;
 		}
 
-		icase(fromSPR_MADR)
+		case(fromSPR_MADR):
 		{
 			// SPR bit is fixed at 0 for this channel
 			psHu32(mem) = value & 0x7FFFFFFF;
 			return false;
 		}
 
-		icase(toSPR_MADR)
+		case(toSPR_MADR):
 		{
 			// SPR bit is fixed at 0 for this channel
 			psHu32(mem) = value & 0x7FFFFFFF;
 			return false;
 		}
 
-		icase(fromSPR_SADR)
+		case(fromSPR_SADR):
 		{
 			// Address must be QW aligned and fit in the 16K range of SPR
 			psHu32(mem) = value & 0x3FF0;
 			return false;
 		}
 
-		icase(toSPR_SADR)
+		case(toSPR_SADR):
 		{
 			// Address must be QW aligned and fit in the 16K range of SPR
 			psHu32(mem) = value & 0x3FF0;
 			return false;
 		}
 
-		icase(D9_CHCR) // dma9 - toSPR
+		case(D9_CHCR): // dma9 - toSPR
 		{
 			/* SPR1dma EXECUTE (toSPR) */
 			DmaExec(dmaSPR1, mem, value);
 			return false;
 		}
 
-		icase(D9_QWC) // dma9 - toSPR
+		case(D9_QWC): // dma9 - toSPR
 		{
 			psHu32(mem) = (u16)value;
 			return false;
 		}
 
-		icase(DMAC_CTRL)
+		case(DMAC_CTRL):
 		{
 			u32 oldvalue = psHu32(mem);
 
@@ -429,10 +429,9 @@ __fi bool dmacWrite32( u32 mem, mem32_t& value )
 
 		//Midway are a bunch of idiots, writing to E100 (reserved) instead of E010
 		//Which causes a CPCOND0 to fail.
-		icase(DMAC_FAKESTAT)
+		case(DMAC_FAKESTAT):
+		case(DMAC_STAT):
 		{
-			/* Midways own DMAC_STAT Write 32bit */
-
 			// lower 16 bits: clear on 1
 			// upper 16 bits: reverse on 1
 
@@ -443,21 +442,7 @@ __fi bool dmacWrite32( u32 mem, mem32_t& value )
 			return false;
 		}
 
-		icase(DMAC_STAT)
-		{
-			/* DMAC_STAT Write 32bit */
-
-			// lower 16 bits: clear on 1
-			// upper 16 bits: reverse on 1
-
-			psHu16(0xe010) &= ~(value & 0xffff);
-			psHu16(0xe012) ^= (u16)(value >> 16);
-
-			cpuTestDMACInts();
-			return false;
-		}
-
-		icase(DMAC_ENABLEW)
+		case(DMAC_ENABLEW):
 		{
 			/* DMAC_ENABLEW Write 32bit */
 			oldvalue = psHu8(DMAC_ENABLEW + 2);
