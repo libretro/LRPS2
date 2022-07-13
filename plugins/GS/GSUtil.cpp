@@ -23,10 +23,6 @@
 
 #include "GSUtil.h"
 
-#ifdef _WIN32
-#include "Renderers/DX11/GSDevice11.h"
-#endif
-
 static class GSUtilMaps
 {
 public:

@@ -2079,44 +2079,6 @@ void GSLocalMemory::ReadTextureBlock4HHP(u32 bp, u8* dst, int dstpitch, const GI
 	GSBlock::ReadBlock4HHP(BlockPtr(bp), dst, dstpitch);
 }
 
-//
-
-#include "Renderers/SW/GSTextureSW.h"
-
-void GSLocalMemory::SaveBMP(const std::string& fn, u32 bp, u32 bw, u32 psm, int w, int h)
-{
-	int pitch = w * 4;
-	int size = pitch * h;
-	void* bits = _aligned_malloc(size, 32);
-
-	GIFRegTEX0 TEX0;
-
-	TEX0.TBP0 = bp;
-	TEX0.TBW = bw;
-	TEX0.PSM = psm;
-
-	readPixel rp = m_psm[psm].rp;
-
-	u8* p = (u8*)bits;
-
-	for(int j = 0; j < h; j++, p += pitch)
-	{
-		for(int i = 0; i < w; i++)
-		{
-			((u32*)p)[i] = (this->*rp)(i, j, TEX0.TBP0, TEX0.TBW);
-		}
-	}
-
-	GSTextureSW t(GSTexture::Offscreen, w, h);
-
-	if(t.Update(GSVector4i(0, 0, w, h), bits, pitch))
-	{
-		t.Save(fn);
-	}
-
-	_aligned_free(bits);
-}
-
 // GSOffset
 
 GSOffset::GSOffset(u32 _bp, u32 _bw, u32 _psm)

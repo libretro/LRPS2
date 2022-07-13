@@ -114,7 +114,7 @@ EXPORT_C GSclose()
 	s_gs->m_dev = NULL;
 }
 
-static int _GSopen(const char* title, GSRendererType renderer, int threads = -1)
+static int _GSopen(GSRendererType renderer, int threads)
 {
 	GSDevice* dev = NULL;
 
@@ -158,28 +158,22 @@ static int _GSopen(const char* title, GSRendererType renderer, int threads = -1)
 			break;
 	}
 
-	std::string renderer_name;
-
 	switch (renderer)
 	{
 		default:
 #ifdef _WIN32
 		case GSRendererType::DX1011_HW:
 			dev = new GSDevice11();
-			renderer_name = "Direct3D 11";
 			break;
 #endif
 		case GSRendererType::OGL_HW:
 			dev = new GSDeviceOGL();
-			renderer_name = "OpenGL";
 			break;
 		case GSRendererType::OGL_SW:
 			dev = new GSDeviceOGL();
-			renderer_name = "Software";
 			break;
 		case GSRendererType::Null:
 			dev = new GSDeviceNull();
-			renderer_name = "Null";
 			break;
 	}
 
@@ -226,7 +220,7 @@ static int _GSopen(const char* title, GSRendererType renderer, int threads = -1)
 	return 0;
 }
 
-void GSUpdateOptions()
+void GSUpdateOptions(void)
 {
 	s_gs->UpdateRendererOptions();
 }
@@ -278,7 +272,7 @@ EXPORT_C_(int) GSopen2(u32 flags)
 	}
 	stored_toggle_state = toggle_state;
 
-	return _GSopen("", current_renderer);
+	return _GSopen(current_renderer, -1);
 }
 
 EXPORT_C GSreset()
