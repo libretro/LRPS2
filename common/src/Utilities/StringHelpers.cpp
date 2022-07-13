@@ -30,11 +30,6 @@ __fi wxString fromUTF8(const char *src)
     return wxString(src, wxMBConvUTF8());
 }
 
-__fi wxString fromAscii(const char *src)
-{
-    return wxString::FromAscii(src);
-}
-
 // Splits a string into parts and adds the parts into the given SafeList.
 // This list is not cleared, so concatenating many splits into a single large list is
 // the 'default' behavior, unless you manually clear the SafeList prior to subsequent calls.

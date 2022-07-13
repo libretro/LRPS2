@@ -164,8 +164,6 @@ static const s64 _1gb = _1mb * 1024;
 static const s64 _4gb = _1gb * 4;
 
 extern wxString fromUTF8(const char *src);
-extern wxString fromAscii(const char *src);
-
 
 #include "Utilities/Assertions.h"
 #include "Utilities/Exceptions.h"
