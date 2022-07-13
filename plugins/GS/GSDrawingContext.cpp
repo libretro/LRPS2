@@ -25,30 +25,30 @@
 static int findmax(int tl, int br, int limit, int wm, int minuv, int maxuv)
 {
 	// return max possible texcoord
+        switch (wm)
+        {
+		case CLAMP_REPEAT:
+			if(tl < 0)
+				return limit; // wrap around
+                        // fall-through */
+		case CLAMP_CLAMP:
+			if (br > limit)
+				return limit;
+			break;
+		case CLAMP_REGION_CLAMP:
+			{
+				int uv = br;
+				if(uv < minuv) uv = minuv;
+				if(uv > maxuv) uv = maxuv;
+				return uv;
+			}
+		case CLAMP_REGION_REPEAT:
+			if(tl < 0)
+				return minuv | maxuv; // wrap around, just use (any & mask) | fix
+			return std::min(br, minuv) | maxuv; // (any & mask) cannot be larger than mask, select br if that is smaller (not br & mask because there might be a larger value between tl and br when &'ed with the mask)
+        }
 
-	int uv = br;
-
-	if(wm == CLAMP_CLAMP)
-	{
-		if(uv > limit) uv = limit;
-	}
-	else if(wm == CLAMP_REPEAT)
-	{
-		if(tl < 0) uv = limit; // wrap around
-		else if(uv > limit) uv = limit;
-	}
-	else if(wm == CLAMP_REGION_CLAMP)
-	{
-		if(uv < minuv) uv = minuv;
-		if(uv > maxuv) uv = maxuv;
-	}
-	else if(wm == CLAMP_REGION_REPEAT)
-	{
-		if(tl < 0) uv = minuv | maxuv; // wrap around, just use (any & mask) | fix
-		else uv = std::min(uv, minuv) | maxuv; // (any & mask) cannot be larger than mask, select br if that is smaller (not br & mask because there might be a larger value between tl and br when &'ed with the mask)
-	}
-
-	return uv;
+	return br;
 }
 
 static int reduce(int uv, int size)
@@ -116,33 +116,33 @@ void GSDrawingContext::ComputeFixedTEX0(const GSVector4& st)
 {
 	// It is quite complex to handle rescaling so this function is less stricter than GetSizeFixedTEX0,
 	// therefore we remove the reduce optimization and we don't handle bilinear filtering which might create wrong interpolation at the border.
-
-	int tw = TEX0.TW;
-	int th = TEX0.TH;
-
-	int wms = (int)CLAMP.WMS;
-	int wmt = (int)CLAMP.WMT;
-
-	int minu = (int)CLAMP.MINU;
-	int minv = (int)CLAMP.MINV;
-	int maxu = (int)CLAMP.MAXU;
-	int maxv = (int)CLAMP.MAXV;
-
+	int wms       = (int)CLAMP.WMS;
+	int wmt       = (int)CLAMP.WMT;
 	GSVector4i uv = GSVector4i(st.floor());
 
-	uv.x = findmax(uv.x, uv.z, (1 << TEX0.TW) - 1, wms, minu, maxu);
-	uv.y = findmax(uv.y, uv.w, (1 << TEX0.TH) - 1, wmt, minv, maxv);
-
 	if (wms == CLAMP_REGION_CLAMP || wms == CLAMP_REGION_REPEAT)
-		tw = extend(uv.x, tw);
+	{
+		int tw   = TEX0.TW;
+		int minu = (int)CLAMP.MINU;
+		int maxu = (int)CLAMP.MAXU;
+		uv.x     = findmax(uv.x, uv.z, (1 << TEX0.TW) - 1, wms, minu, maxu);
+		if ((tw = extend(uv.x, tw)) != (int)TEX0.TW)
+		{
+			m_fixed_tex0 = true;
+			TEX0.TW      = tw;
+		}
+	}
 
 	if (wmt == CLAMP_REGION_CLAMP || wmt == CLAMP_REGION_REPEAT)
-		th = extend(uv.y, th);
-
-	if ((tw != (int)TEX0.TW) || (th != (int)TEX0.TH))
 	{
-		m_fixed_tex0 = true;
-		TEX0.TW = tw;
-		TEX0.TH = th;
+		int th   = TEX0.TH;
+		int minv = (int)CLAMP.MINV;
+		int maxv = (int)CLAMP.MAXV;
+		uv.y     = findmax(uv.y, uv.w, (1 << TEX0.TH) - 1, wmt, minv, maxv);
+		if (((th = extend(uv.y, th)) != (int)TEX0.TH))
+		{
+			m_fixed_tex0 = true;
+			TEX0.TH = th;
+		}
 	}
 }
