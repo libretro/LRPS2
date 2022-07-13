@@ -107,8 +107,6 @@ public:
     virtual void Cancel(bool isBlocking = true);
     virtual bool Cancel(const wxTimeSpan &timeout);
     virtual bool Detach();
-    virtual void Block();
-    virtual bool Block(const wxTimeSpan &timeout);
     virtual void RethrowException() const;
 
     void WaitOnSelf(Semaphore &mutex) const;
@@ -121,7 +119,6 @@ public:
     bool HasPendingException() const { return !!m_except; }
 
     wxString GetName() const;
-    void SetName(const wxString &newname);
 
 protected:
     // Extending classes should always implement your own OnStart(), which is called by
@@ -148,7 +145,6 @@ protected:
     // ----------------------------------------------------------------------------
     // Section of methods for internal use only.
     bool _basecancel();
-    void _selfRunningTest(const wxChar *name) const;
     void _internal_execute();
     void _try_virtual_invoke(void (pxThread::*method)());
     void _ThreadCleanup();

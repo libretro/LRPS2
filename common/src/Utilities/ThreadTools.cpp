@@ -203,9 +203,8 @@ bool Threading::pxThread::_basecancel()
     if (!m_running)
         return false;
 
-    if (m_detached) {
+    if (m_detached)
         return false;
-    }
 
     pthread_cancel(m_thread);
     return true;
@@ -257,29 +256,6 @@ bool Threading::pxThread::Cancel(const wxTimeSpan &timespan)
     return true;
 }
 
-
-// Blocks execution of the calling thread until this thread completes its task.  The
-// caller should make sure to signal the thread to exit, or else blocking may deadlock the
-// calling thread.  Classes which extend pxThread should override this method
-// and signal any necessary thread exit variables prior to blocking.
-//
-// Returns the return code of the thread.
-// This method is roughly the equivalent of pthread_join().
-//
-// Exceptions raised by the blocking thread will be re-thrown into the main thread.
-//
-void Threading::pxThread::Block()
-{
-    AffinityAssert_DisallowFromSelf(pxDiagSpot);
-    WaitOnSelf(m_mtx_InThread);
-}
-
-bool Threading::pxThread::Block(const wxTimeSpan &timeout)
-{
-    AffinityAssert_DisallowFromSelf(pxDiagSpot);
-    return WaitOnSelf(m_mtx_InThread, timeout);
-}
-
 bool Threading::pxThread::IsSelf() const
 {
     // Detached threads may have their pthread handles recycled as newer threads, causing
@@ -306,12 +282,6 @@ void Threading::pxThread::RethrowException() const
         ptr->Rethrow();
 }
 
-void Threading::pxThread::_selfRunningTest(const wxChar *name) const
-{
-    if (HasPendingException())
-        RethrowException();
-}
-
 // This helper function is a deadlock-safe method of waiting on a semaphore in a pxThread.  If the
 // thread is terminated or canceled by another thread or a nested action prior to the semaphore being
 // posted, this function will detect that and throw a CancelEvent exception is thrown.
@@ -331,7 +301,8 @@ void Threading::pxThread::WaitOnSelf(Semaphore &sem) const
     while (true) {
         if (sem.WaitWithoutYield(wxTimeSpan(0, 0, 0, 333)))
             return;
-        _selfRunningTest(L"semaphore");
+	if (HasPendingException())
+		RethrowException();
     }
 }
 
@@ -356,7 +327,8 @@ void Threading::pxThread::WaitOnSelf(Mutex &mutex) const
     while (true) {
         if (mutex.WaitWithoutYield(wxTimeSpan(0, 0, 0, 333)))
             return;
-        _selfRunningTest(L"mutex");
+	if (HasPendingException())
+		RethrowException();
     }
 }
 
@@ -373,7 +345,8 @@ bool Threading::pxThread::WaitOnSelf(Semaphore &sem, const wxTimeSpan &timeout) 
         const wxTimeSpan interval((SelfWaitInterval < runningout) ? SelfWaitInterval : runningout);
         if (sem.WaitWithoutYield(interval))
             return true;
-        _selfRunningTest(L"semaphore");
+	if (HasPendingException())
+		RethrowException();
         runningout -= interval;
     }
     return false;
@@ -390,7 +363,8 @@ bool Threading::pxThread::WaitOnSelf(Mutex &mutex, const wxTimeSpan &timeout) co
         const wxTimeSpan interval((SelfWaitInterval < runningout) ? SelfWaitInterval : runningout);
         if (mutex.WaitWithoutYield(interval))
             return true;
-        _selfRunningTest(L"mutex");
+	if (HasPendingException())
+		RethrowException();
         runningout -= interval;
     }
     return false;
@@ -452,12 +426,6 @@ wxString Threading::pxThread::GetName() const
 {
     ScopedLock lock(m_mtx_ThreadName);
     return m_name;
-}
-
-void Threading::pxThread::SetName(const wxString &newname)
-{
-    ScopedLock lock(m_mtx_ThreadName);
-    m_name = newname;
 }
 
 // This override is called by PeristentThread when the thread is first created, prior to

@@ -128,7 +128,6 @@ class ElfObject
 		void initElfHeaders();
 		void readIso(IsoFile& file);
 		void readFile();
-		void checkElfSize(s64 elfsize);
 
 	public:
 		bool isCdvd;

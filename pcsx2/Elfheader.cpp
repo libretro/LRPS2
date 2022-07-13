@@ -34,7 +34,6 @@ ElfObject::ElfObject(const wxString& srcfile, IsoFile& isofile)
 	, header( *(ELF_HEADER*)data.GetPtr() )
 {
 	isCdvd = true;
-	checkElfSize(data.GetSizeInBytes());
 	readIso(isofile);
 	initElfHeaders();
 }
@@ -47,7 +46,6 @@ ElfObject::ElfObject( const wxString& srcfile, uint hdrsize )
 	, header( *(ELF_HEADER*)data.GetPtr() )
 {
 	isCdvd = false;
-	checkElfSize(data.GetSizeInBytes());
 	readFile();
 	initElfHeaders();
 }
@@ -111,20 +109,6 @@ static wxString GetMsg_InvalidELF()
 		"Cannot load ELF binary image.  The file may be corrupt or incomplete." + 
 		wxString(L"\n\n") +
 		"If loading from an ISO image, this error may be caused by an unsupported ISO image type or a bug in PCSX2 ISO image support.";
-}
-
-
-void ElfObject::checkElfSize(s64 elfsize)
-{
-	const wxChar* diagMsg = NULL;
-	if		(elfsize > 0xfffffff)	diagMsg = L"Illegal ELF file size over 2GB!";
-	else if	(elfsize == -1)			diagMsg = L"ELF file does not exist!";
-	else if	(elfsize == 0)			diagMsg = L"Unexpected end of ELF file.";
-
-	if (diagMsg)
-		throw Exception::BadStream(filename)
-			.SetDiagMsg(diagMsg)
-			.SetUserMsg(GetMsg_InvalidELF());
 }
 
 u32 ElfObject::getCRC()
