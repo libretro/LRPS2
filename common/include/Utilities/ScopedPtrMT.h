@@ -32,8 +32,6 @@ protected:
     Threading::Mutex m_mtx;
 
 public:
-    typedef T element_type;
-
     wxEXPLICIT ScopedPtrMT(T *ptr = nullptr)
     {
         m_ptr = ptr;
@@ -47,12 +45,6 @@ public:
         if (ptr != doh)
             delete doh;
         return *this;
-    }
-
-    ScopedPtrMT &Delete() noexcept
-    {
-        ScopedLock lock(m_mtx);
-        _Delete_unlocked();
     }
 
     // Removes the pointer from scoped management, but does not delete!

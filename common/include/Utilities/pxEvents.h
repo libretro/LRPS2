@@ -26,24 +26,17 @@ class SynchronousActionState
     DeclareNoncopyableObject(SynchronousActionState);
 
 protected:
-    bool m_posted;
     Threading::Semaphore m_sema;
 
 public:
-    sptr return_value;
 
     SynchronousActionState()
     {
-        m_posted = false;
-        return_value = 0;
     }
 
     virtual ~SynchronousActionState() = default;
 
     int WaitForResult();
-    void PostResult(int res);
-    void ClearResult();
-    void PostResult();
 };
 
 
@@ -69,6 +62,5 @@ public:
     explicit pxActionEvent(SynchronousActionState &sema, int msgtype = pxEvt_InvokeAction);
     pxActionEvent(const pxActionEvent &src);
 
-    void SetSyncState(SynchronousActionState *obj) { m_state = obj; }
     void SetSyncState(SynchronousActionState &obj) { m_state = &obj; }
 };

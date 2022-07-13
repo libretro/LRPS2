@@ -27,26 +27,7 @@ wxDEFINE_EVENT(pxEvt_InvokeAction, pxActionEvent);
 int SynchronousActionState::WaitForResult()
 {
     m_sema.WaitNoCancel();
-    return return_value;
-}
-
-void SynchronousActionState::PostResult(int res)
-{
-    return_value = res;
-    PostResult();
-}
-
-void SynchronousActionState::ClearResult()
-{
-    m_posted = false;
-}
-
-void SynchronousActionState::PostResult()
-{
-    if (m_posted)
-        return;
-    m_posted = true;
-    m_sema.Post();
+    return 0;
 }
 
 // --------------------------------------------------------------------------------------

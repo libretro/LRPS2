@@ -21,8 +21,6 @@ template <class T>
 class wxSharedPtr
 {
 public:
-    typedef T element_type;
-
     wxEXPLICIT wxSharedPtr( T* ptr = NULL )
         : m_ref(NULL)
     {

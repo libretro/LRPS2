@@ -22,8 +22,6 @@ template <class T>
 class wxScopedArray
 {
 public:
-    typedef T element_type;
-
     wxEXPLICIT wxScopedArray(T * array = NULL) : m_array(array) { }
 
     ~wxScopedArray() { delete [] m_array; }

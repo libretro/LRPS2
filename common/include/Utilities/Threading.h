@@ -39,12 +39,6 @@
 #define PCSX2_THREAD_LOCAL 1
 #endif
 
-#if PCSX2_THREAD_LOCAL
-#define DeclareTls(x) thread_local x
-#else
-#define DeclareTls(x) x
-#endif
-
 class wxTimeSpan;
 
 namespace Threading

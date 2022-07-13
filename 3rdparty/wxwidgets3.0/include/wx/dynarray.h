@@ -611,46 +611,6 @@ private:                                                                 \
     _WX_DEFINE_SORTED_TYPEARRAY_2(_wxArray##name, name, base, = cmpfunc,     \
                                 class expmode, SCMPFUNC##name)
 
-// ----------------------------------------------------------------------------
-// WX_DECLARE_OBJARRAY(T, name): this macro generates a new array class
-// named "name" which owns the objects of type T it contains, i.e. it will
-// delete them when it is destroyed.
-//
-// An element is of type T*, but arguments of type T& are taken (see below!)
-// and T& is returned.
-//
-// Don't use this for simple types such as "int" or "long"!
-//
-// Note on Add/Insert functions:
-//  1) function(T*) gives the object to the array, i.e. it will delete the
-//     object when it's removed or in the array's dtor
-//  2) function(T&) will create a copy of the object and work with it
-//
-// Also:
-//  1) Remove() will delete the object after removing it from the array
-//  2) Detach() just removes the object from the array (returning pointer to it)
-//
-// NB1: Base type T should have an accessible copy ctor if Add(T&) is used
-// NB2: Never ever cast a array to it's base type: as dtor is not virtual
-//      and so you risk having at least the memory leaks and probably worse
-//
-// Some functions of this class are not inline, so it takes some space to
-// define new class from this template even if you don't use it - which is not
-// the case for the simple (non-object) array classes
-//
-// To use an objarray class you must
-//      #include "dynarray.h"
-//      WX_DECLARE_OBJARRAY(element_type, list_class_name)
-//      #include "arrimpl.cpp"
-//      WX_DEFINE_OBJARRAY(list_class_name) // name must be the same as above!
-//
-// This is necessary because at the moment of DEFINE_OBJARRAY class parsing the
-// element_type must be fully defined (i.e. forward declaration is not
-// enough), while WX_DECLARE_OBJARRAY may be done anywhere. The separation of
-// two allows to break cicrcular dependencies with classes which have member
-// variables of objarray type.
-// ----------------------------------------------------------------------------
-
 #define WX_DECLARE_OBJARRAY(T, name)                        \
     WX_DECLARE_USER_EXPORTED_OBJARRAY(T, name, wxARRAY_DEFAULT_EXPORT)
 

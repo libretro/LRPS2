@@ -38,8 +38,6 @@ template <class T>
 class wxScopedPtr
 {
 public:
-    typedef T element_type;
-
     wxEXPLICIT wxScopedPtr(T * ptr = NULL) : m_ptr(ptr) { }
 
     ~wxScopedPtr() { wxCHECKED_DELETE(m_ptr); }
