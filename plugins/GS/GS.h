@@ -1092,16 +1092,6 @@ struct alignas(32) GIFPath
 		}
 	}
 
-	__forceinline u8 GetReg() const
-	{
-		return regs.U8[reg];
-	}
-
-	__forceinline u8 GetReg(u32 index) const
-	{
-		return regs.U8[index];
-	}
-
 	__forceinline bool StepReg()
 	{
 		if(++reg == nreg)

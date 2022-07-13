@@ -1688,7 +1688,7 @@ template<int index> void GSState::Transfer(const u8* mem, u32 size)
 				{
 					do
 					{
-						(this->*m_fpGIFPackedRegHandlers[path.GetReg()])((GIFPackedReg*)mem);
+						(this->*m_fpGIFPackedRegHandlers[path.regs.U8[path.reg]])((GIFPackedReg*)mem);
 
 						mem += sizeof(GIFPackedReg);
 						size--;
@@ -1713,7 +1713,7 @@ template<int index> void GSState::Transfer(const u8* mem, u32 size)
 
 							do
 							{
-								(this->*m_fpGIFPackedRegHandlers[path.GetReg(reg++)])((GIFPackedReg*)mem);
+								(this->*m_fpGIFPackedRegHandlers[path.regs.U8[reg++]])((GIFPackedReg*)mem);
 
 								mem += sizeof(GIFPackedReg);
 
@@ -1762,7 +1762,7 @@ template<int index> void GSState::Transfer(const u8* mem, u32 size)
 				{
 					do
 					{
-						(this->*m_fpGIFPackedRegHandlers[path.GetReg()])((GIFPackedReg*)mem);
+						(this->*m_fpGIFPackedRegHandlers[path.regs.U8[path.reg]])((GIFPackedReg*)mem);
 
 						mem += sizeof(GIFPackedReg);
 						size--;
@@ -1780,7 +1780,7 @@ template<int index> void GSState::Transfer(const u8* mem, u32 size)
 
 				do
 				{
-					(this->*m_fpGIFRegHandlers[path.GetReg() & 0x7F])((GIFReg*)mem);
+					(this->*m_fpGIFRegHandlers[path.regs.U8[path.reg] & 0x7F])((GIFReg*)mem);
 
 					mem += sizeof(GIFReg);
 					size--;
