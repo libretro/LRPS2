@@ -151,6 +151,9 @@ void CTC2(void)
 		case REG_TPC:      // read-only
 		case REG_VPU_STAT: // read-only
 			break;
+		case REG_R:
+			VU0.VI[REG_R].UL = ((cpuRegs.GPR.r[_Rt_].UL[0] & 0x7FFFFF) | 0x3F800000);
+			break;
 		case REG_FBRST:
 			VU0.VI[REG_FBRST].UL = cpuRegs.GPR.r[_Rt_].UL[0] & 0x0C0C;
 			if (cpuRegs.GPR.r[_Rt_].UL[0] & 0x2) { // VU0 Reset
