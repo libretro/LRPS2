@@ -294,7 +294,6 @@ public:
 	void ResetGS();
 
 	void PrepDataPacket( MTGS_RingCommand cmd, u32 size );
-	void PrepDataPacket( GIF_PATH pathidx, u32 size );
 	void SendDataPacket();
 	void SendGameCRC( u32 crc );
 	void WaitForOpen();
@@ -304,11 +303,8 @@ public:
 	void SendSimplePacket( MTGS_RingCommand type, int data0, int data1, int data2 );
 	void SendPointerPacket( MTGS_RingCommand type, u32 data0, void* data1 );
 
-	u8* GetDataPacketPtr() const;
 	void SetEvent();
 	void PostVsyncStart();
-
-	bool IsOpened() const { return m_Opened; }
 
 	void ExecuteTaskInThread();
 	void FinishTaskInThread();

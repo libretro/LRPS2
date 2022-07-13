@@ -115,7 +115,7 @@ void SysMtgsThread::PostVsyncStart()
 	PrepDataPacket(GS_RINGTYPE_VSYNC, packsize);
 	MemCopy_WrappedDest( (u128*)PS2MEM_GS, RingBuffer.m_Ring, m_packet_writepos, RingBufferSize, 0xf );
 
-	u32* remainder = (u32*)GetDataPacketPtr();
+	u32* remainder = (u32*)(u8*)&RingBuffer[m_packet_writepos & RingBufferMask];
 	remainder[0] = GSCSRr;
 	remainder[1] = GSIMR._u32;
 	(GSRegSIGBLID&)remainder[2] = GSSIGLBLID;
@@ -141,7 +141,6 @@ void SysMtgsThread::PostVsyncStart()
 		return;
 
 	m_VsyncSignalListener.store(true, std::memory_order_release);
-	//log_cb(RETRO_LOG_DEBUG, "(EEcore Sleep) Vsync\t\tringpos=0x%06x, writepos=0x%06x\n", m_ReadPos.load(), m_WritePos.load() );
 
 	// We will wait a vsync event from the MTGS ring. If the ring is already purged, the event will never come !
 	// To avoid this potential deadlock, ring must be wake up after m_VsyncSignalListener
@@ -184,6 +183,7 @@ void SysMtgsThread::OpenGS()
 	GSsetGameCRC( ElfCRC, 0 );
 }
 
+#ifndef __LIBRETRO__
 class RingBufferLock {
 	ScopedLock     m_lock1;
 	ScopedLock     m_lock2;
@@ -217,25 +217,17 @@ class RingBufferLock {
 		m_lock2.Release();
 	}
 };
+#endif
 
 void SysMtgsThread::ExecuteTaskInThread()
 {
-#ifdef __LIBRETRO__
-	pxAssert(IsSelf());
-#endif
-
-	// Threading info: run in MTGS thread
-	// m_ReadPos is only update by the MTGS thread so it is safe to load it with a relaxed atomic
-
 #ifndef __LIBRETRO__
 	RingBufferLock busy (*this);
 #endif
-
-//	OpenGS();
-	while(true) {
-#ifndef __LIBRETRO__
-		busy.Release();
-#endif
+	// Threading info: run in MTGS thread
+	// m_ReadPos is only update by the MTGS thread so it is safe to load it with a relaxed atomic
+        for (;;)
+	{
 #ifdef __LIBRETRO__
 		while (wxTheApp->HasPendingEvents())
 			wxTheApp->ProcessPendingEvents();
@@ -245,15 +237,15 @@ void SysMtgsThread::ExecuteTaskInThread()
 			while (wxTheApp->HasPendingEvents())
 				wxTheApp->ProcessPendingEvents();
 		}
+		StateCheckInThread();
 #else
+		busy.Release();
 		// Performance note: Both of these perform cancellation tests, but pthread_testcancel
 		// is very optimized (only 1 instruction test in most cases), so no point in trying
 		// to avoid it.
 
 		m_sem_event.WaitWithoutYield();
-#endif
 		StateCheckInThread();
-#ifndef __LIBRETRO__
 		busy.Acquire();
 #endif
 
@@ -261,9 +253,6 @@ void SysMtgsThread::ExecuteTaskInThread()
 		// ever be modified by this thread.
 		while( m_ReadPos.load(std::memory_order_relaxed) != m_WritePos.load(std::memory_order_acquire))
 		{
-//			while (wxTheApp->HasPendingEvents())
-//				wxTheApp->ProcessPendingEvents();
-
 			const unsigned int local_ReadPos = m_ReadPos.load(std::memory_order_relaxed);
 
 			pxAssert( local_ReadPos < RingBufferSize );
@@ -353,10 +342,6 @@ void SysMtgsThread::ExecuteTaskInThread()
 							}
 							break;
 
-						case GS_RINGTYPE_MODECHANGE:
-							// [TODO] some frameskip sync logic might be needed here!
-							break;
-
 						case GS_RINGTYPE_CRC:
 							GSsetGameCRC( tag.data[0], 0 );
 							break;
@@ -369,6 +354,8 @@ void SysMtgsThread::ExecuteTaskInThread()
 							GSinitReadFIFO2( (u64*)tag.pointer, tag.data[0]);
 							break;
 
+						case GS_RINGTYPE_MODECHANGE:
+							// [TODO] some frameskip sync logic might be needed here!
 						default:
 							break;
 					}
@@ -398,7 +385,6 @@ void SysMtgsThread::ExecuteTaskInThread()
 #endif
 				if( m_SignalRingEnable.exchange(false) )
 				{
-					//log_cb(RETRO_LOG_WARN, "(MTGS Thread) Dangling RingSignal on empty buffer!  signalpos=0x%06x\n", m_SignalRingPosition.exchange(0) ) );
 					m_SignalRingPosition.store(0, std::memory_order_release);
 					m_sem_OnRingReset.Post();
 				}
@@ -417,15 +403,12 @@ void SysMtgsThread::ExecuteTaskInThread()
 		// parallel to this handler aren't accidentally blocked.
 		if( m_SignalRingEnable.exchange(false) )
 		{
-			//log_cb(RETRO_LOG_WARN, "(MTGS Thread) Dangling RingSignal on empty buffer!  signalpos=0x%06x\n", m_SignalRingPosition.exchange(0) ) );
 			m_SignalRingPosition.store(0, std::memory_order_release);
 			m_sem_OnRingReset.Post();
 		}
 
 		if (m_VsyncSignalListener.exchange(false))
 			m_sem_Vsync.Post();
-
-		//log_cb(RETRO_LOG_WARN, "(MTGS Thread) Nothing to do!  ringpos=0x%06x\n", m_ReadPos );
 	}
 }
 
@@ -433,7 +416,6 @@ void SysMtgsThread::FinishTaskInThread()
 {
 	if( m_SignalRingEnable.exchange(false) )
 	{
-		//log_cb(RETRO_LOG_WARN, "(MTGS Thread) Dangling RingSignal on empty buffer!  signalpos=0x%06x\n", m_SignalRingPosition.exchange(0) ) );
 		m_SignalRingPosition.store(0, std::memory_order_release);
 		m_sem_OnRingReset.Post();
 	}
@@ -526,11 +508,6 @@ void SysMtgsThread::SetEvent()
 	m_CopyDataTally = 0;
 }
 
-u8* SysMtgsThread::GetDataPacketPtr() const
-{
-	return (u8*)&RingBuffer[m_packet_writepos & RingBufferMask];
-}
-
 // Closes the data packet send command, and initiates the gs thread (if needed).
 void SysMtgsThread::SendDataPacket()
 {
@@ -603,12 +580,11 @@ void SysMtgsThread::GenericStall( uint size )
 			pxAssertDev( m_SignalRingEnable == 0);
 			m_SignalRingPosition.store(somedone, std::memory_order_release);
 
-			while(true) {
+                        for (;;) {
 				m_SignalRingEnable.store(true, std::memory_order_release);
 				SetEvent();
 				m_sem_OnRingReset.WaitWithoutYield();
 				readpos = m_ReadPos.load(std::memory_order_acquire);
-				//log_cb(RETRO_LOG_DEBUG, "(EEcore Awake) Report!\tringpos=0x%06x\n", readpos );
 
 				if (writepos < readpos)
 					freeroom = readpos - writepos;
@@ -623,7 +599,7 @@ void SysMtgsThread::GenericStall( uint size )
 		else
 		{
 			SetEvent();
-			while(true) {
+                        for (;;) {
 				SpinWait();
 				readpos = m_ReadPos.load(std::memory_order_acquire);
 
@@ -649,22 +625,10 @@ void SysMtgsThread::PrepDataPacket( MTGS_RingCommand cmd, u32 size )
 	const unsigned int local_WritePos = m_WritePos.load(std::memory_order_relaxed);
 
 	PacketTagType& tag = (PacketTagType&)RingBuffer[local_WritePos];
-	tag.command = cmd;
-	tag.data[0] = m_packet_size;
-	m_packet_startpos = local_WritePos;
-	m_packet_writepos = (local_WritePos + 1) & RingBufferMask;
-}
-
-// Returns the amount of giftag data processed (in simd128 values).
-// Return value is used by VU1's XGKICK instruction to wrap the data
-// around VU memory instead of having buffer overflow...
-// Parameters:
-//  size - size of the packet data, in smd128's
-void SysMtgsThread::PrepDataPacket( GIF_PATH pathidx, u32 size )
-{
-	//m_PacketLocker.Acquire();
-
-	PrepDataPacket( (MTGS_RingCommand)pathidx, size );
+	tag.command        = cmd;
+	tag.data[0]        = m_packet_size;
+	m_packet_startpos  = local_WritePos;
+	m_packet_writepos  = (local_WritePos + 1) & RingBufferMask;
 }
 
 __fi void SysMtgsThread::_FinishSimplePacket()
@@ -678,8 +642,6 @@ __fi void SysMtgsThread::_FinishSimplePacket()
 
 void SysMtgsThread::SendSimplePacket( MTGS_RingCommand type, int data0, int data1, int data2 )
 {
-	//ScopedLock locker( m_PacketLocker );
-
 	GenericStall(1);
 	PacketTagType& tag = (PacketTagType&)RingBuffer[m_WritePos.load(std::memory_order_relaxed)];
 
@@ -703,8 +665,6 @@ void SysMtgsThread::SendSimpleGSPacket(MTGS_RingCommand type, u32 offset, u32 si
 
 void SysMtgsThread::SendPointerPacket( MTGS_RingCommand type, u32 data0, void* data1 )
 {
-	//ScopedLock locker( m_PacketLocker );
-
 	GenericStall(1);
 	PacketTagType& tag = (PacketTagType&)RingBuffer[m_WritePos.load(std::memory_order_relaxed)];
 
