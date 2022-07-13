@@ -381,10 +381,6 @@ public:
         // is this filename absolute?
     bool IsAbsolute(wxPathFormat format = wxPATH_NATIVE) const;
 
-        // is this filename relative?
-    bool IsRelative(wxPathFormat format = wxPATH_NATIVE) const
-        { return !IsAbsolute(format); }
-
     // Information about path format
 
     // get the string separating the volume from the path for this format,

@@ -98,12 +98,6 @@ bool wxDirName::Mkdir()
 //  Path namespace (wxFileName helpers)
 // ---------------------------------------------------------------------------------
 
-
-bool Path::IsRelative(const wxString &path)
-{
-    return wxDirName(path).IsRelative();
-}
-
 // Returns -1 if the file does not exist.
 s64 Path::GetFileSize(const wxString &path)
 {

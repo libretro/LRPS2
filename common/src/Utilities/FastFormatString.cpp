@@ -185,24 +185,6 @@ bool FastFormatUnicode::IsEmpty() const
     return ((wxChar &)m_dest[0]) == 0;
 }
 
-FastFormatUnicode &FastFormatUnicode::ToUpper()
-{
-    wxChar *ch = (wxChar *)m_dest.GetPtr();
-    for (uint i = 0; i < m_Length; ++i, ++ch)
-        *ch = (wxChar)wxToupper(*ch);
-
-    return *this;
-}
-
-FastFormatUnicode &FastFormatUnicode::ToLower()
-{
-    wxChar *ch = (wxChar *)m_dest.GetPtr();
-    for (uint i = 0; i < m_Length; ++i, ++ch)
-        *ch = (wxChar)wxTolower(*ch);
-
-    return *this;
-}
-
 FastFormatUnicode &FastFormatUnicode::operator+=(const char *psz)
 {
     Write(L"%s", WX_STR(fromUTF8(psz)));
@@ -256,11 +238,6 @@ FastFormatAscii::FastFormatAscii()
 void FastFormatAscii::Clear()
 {
     m_dest.GetPtr()[0] = 0;
-}
-
-const wxString FastFormatAscii::GetString() const
-{
-    return fromAscii(m_dest.GetPtr());
 }
 
 FastFormatAscii &FastFormatAscii::WriteV(const char *fmt, va_list argptr)

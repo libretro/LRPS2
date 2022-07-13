@@ -70,7 +70,6 @@ public:
     bool Exists() const { return DirExists(); }
     bool FileExists() const { return wxFileName::FileExists(); }
     bool IsOk() const { return wxFileName::IsOk(); }
-    bool IsRelative() const { return wxFileName::IsRelative(); }
     bool IsAbsolute() const { return wxFileName::IsAbsolute(); }
 
     bool SameAs(const wxDirName &filepath) const
@@ -147,7 +146,6 @@ public:
 //
 namespace Path
 {
-extern bool IsRelative(const wxString &path);
 extern s64 GetFileSize(const wxString &path);
 
 extern wxString Normalize(const wxString &srcpath);

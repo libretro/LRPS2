@@ -44,18 +44,10 @@ public:
 
     size_t Length()
     {
-        if (-1 == m_length)
+        if (m_length == -1)
             m_length = strlen(m_result);
         return m_length;
     }
-
-    void Convert(const wxString &src)
-    {
-        m_result = src.ToUTF8();
-        m_length = -1;
-    }
-
-    const char *data() const { return m_result; }
 
     operator const char *() const
     {
@@ -131,8 +123,6 @@ public:
     const char *c_str() const { return m_dest.GetPtr(); }
     operator const char *() const { return m_dest.GetPtr(); }
 
-    const wxString GetString() const;
-
     FastFormatAscii &operator+=(const wxString &s)
     {
         Write("%s", WX_STR(s));
@@ -174,9 +164,6 @@ public:
     void Clear();
     bool IsEmpty() const;
     uint Length() const { return m_Length; }
-
-    FastFormatUnicode &ToUpper();
-    FastFormatUnicode &ToLower();
 
     const wxChar *c_str() const { return (const wxChar *)m_dest.GetPtr(); }
     operator const wxChar *() const { return (const wxChar *)m_dest.GetPtr(); }
