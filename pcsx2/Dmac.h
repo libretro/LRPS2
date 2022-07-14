@@ -172,7 +172,6 @@ struct DMACh {
 	void unsafeTransfer(tDMA_TAG* ptag);
 	tDMA_TAG *getAddr(u32 addr, u32 num, bool write);
 	tDMA_TAG *DMAtransfer(u32 addr, u32 num);
-	tDMA_TAG dma_tag();
 };
 
 enum INTCIrqs
@@ -234,15 +233,12 @@ union tDMAC_QUEUE
 	    u16 SIF1 : 1;
 	    u16 SIF2 : 1;
 	    u16 SPR0 : 1;
-        u16 SPR1 : 1;
+	    u16 SPR1 : 1;
 	    u16 SIS  : 1;
 	    u16 MEIS : 1;
 	    u16 BEIS : 1;
 	};
 	u16 _u16;
-
-	tDMAC_QUEUE(u16 val) { _u16 = val; }
-	bool empty() const { return (_u16 == 0); }
 };
 
 // Believe it or not, making this const can generate compiler warnings in gcc.

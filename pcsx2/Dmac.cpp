@@ -67,11 +67,6 @@ tDMA_TAG *DMACh::DMAtransfer(u32 addr, u32 num)
 	return NULL;
 }
 
-tDMA_TAG DMACh::dma_tag()
-{
-	return chcr.tag();
-}
-
 // Note: Dma addresses are guaranteed to be aligned to 16 bytes (128 bits)
 __fi tDMA_TAG* SPRdmaGetAddr(u32 addr, bool write)
 {
@@ -152,10 +147,10 @@ static bool QuickDmaExec( void (*func)(), u32 mem)
 }
 
 
-static tDMAC_QUEUE QueuedDMA(0);
+static tDMAC_QUEUE QueuedDMA = {0};
 static u32 oldvalue = 0;
 
-static void StartQueuedDMA()
+static void StartQueuedDMA(void)
 {
 	if (QueuedDMA.VIF0) { QueuedDMA.VIF0 = !QuickDmaExec(dmaVIF0, D0_CHCR); }
 	if (QueuedDMA.VIF1) { QueuedDMA.VIF1 = !QuickDmaExec(dmaVIF1, D1_CHCR); }
@@ -172,7 +167,7 @@ static void StartQueuedDMA()
 static __ri void DmaExec( void (*func)(), u32 mem, u32 value )
 {
 	DMACh& reg = (DMACh&)psHu32(mem);
-    tDMA_CHCR chcr(value);
+	tDMA_CHCR chcr(value);
 
 	//It's invalid for the hardware to write a DMA while it is active, not without Suspending the DMAC
 	if (reg.chcr.STR)
@@ -422,7 +417,7 @@ __fi bool dmacWrite32( u32 mem, mem32_t& value )
 			//Check for DMAS that were started while the DMAC was disabled
 			if (((oldvalue & 0x1) == 0) && ((value & 0x1) == 1))
 			{
-				if (!QueuedDMA.empty()) StartQueuedDMA();
+				if (!(QueuedDMA._u16 == 0)) StartQueuedDMA();
 			}
 			return false;
 		}
@@ -450,7 +445,7 @@ __fi bool dmacWrite32( u32 mem, mem32_t& value )
 			psHu32(DMAC_ENABLER) = value;
 			if (((oldvalue & 0x1) == 1) && (((value >> 16) & 0x1) == 0))
 			{
-				if (!QueuedDMA.empty()) StartQueuedDMA();
+				if (!(QueuedDMA._u16 == 0)) StartQueuedDMA();
 			}
 			return false;
 		}
