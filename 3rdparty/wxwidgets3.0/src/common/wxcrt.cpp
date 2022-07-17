@@ -196,50 +196,9 @@ static int vwprintf(const wchar_t *format, va_list argptr)
 
 #endif // wxNEED_WPRINTF
 
-#ifdef wxNEED_VSWSCANF
-static int vswscanf(const wchar_t *ws, const wchar_t *format, va_list argptr)
-{
-    return wxCRT_VsscanfA(static_cast<const char*>(wxConvLibc.cWC2MB(ws)),
-        wxConvLibc.cWC2MB(format), argptr);
-}
-#endif
-
 // ----------------------------------------------------------------------------
-// wxPrintf(), wxScanf() and relatives
+// wxScanf() and relatives
 // ----------------------------------------------------------------------------
-
-// FIXME-UTF8: do format conversion using (modified) wxFormatConverter in
-//             template wrappers, not here; note that it will needed to
-//             translate all forms of string specifiers to %(l)s for wxPrintf(),
-//             but it only should do what it did in 2.8 for wxScanf()!
-
-#ifndef wxCRT_PrintfW
-int wxCRT_PrintfW( const wchar_t *format, ... )
-{
-    va_list argptr;
-    va_start(argptr, format);
-
-    int ret = vwprintf( format, argptr );
-
-    va_end(argptr);
-
-    return ret;
-}
-#endif
-
-#ifndef wxCRT_FprintfW
-int wxCRT_FprintfW( FILE *stream, const wchar_t *format, ... )
-{
-    va_list argptr;
-    va_start( argptr, format );
-
-    int ret = vfwprintf( stream, format, argptr );
-
-    va_end(argptr);
-
-    return ret;
-}
-#endif
 
 #ifndef wxCRT_VfprintfW
 int wxCRT_VfprintfW( FILE *stream, const wchar_t *format, va_list argptr )
@@ -262,50 +221,6 @@ int wxCRT_VsprintfW( wchar_t *str, const wchar_t *format, va_list argptr )
     return vswprintf(str, INT_MAX / 4, format, argptr);
 }
 #endif
-
-#ifndef wxCRT_ScanfW
-int wxCRT_ScanfW(const wchar_t *format, ...)
-{
-    va_list argptr;
-    va_start(argptr, format);
-    int ret = vwscanf(format, argptr);
-    va_end(argptr);
-
-    return ret;
-}
-#endif
-
-#ifndef wxCRT_SscanfW
-int wxCRT_SscanfW(const wchar_t *str, const wchar_t *format, ...)
-{
-    va_list argptr;
-    va_start(argptr, format);
-    int ret = vswscanf(str, format, argptr);
-    va_end(argptr);
-
-    return ret;
-}
-#endif
-
-#ifndef wxCRT_FscanfW
-int wxCRT_FscanfW(FILE *stream, const wchar_t *format, ...)
-{
-    va_list argptr;
-    va_start(argptr, format);
-    int ret = vfwscanf(stream, format, argptr);
-    va_end(argptr);
-
-    return ret;
-}
-#endif
-
-#ifndef wxCRT_VsscanfW
-int wxCRT_VsscanfW(const wchar_t *str, const wchar_t *format, va_list argptr)
-{
-   return vswscanf(str, format, argptr);
-}
-#endif
-
 
 // ----------------------------------------------------------------------------
 // wrappers to printf and scanf function families
@@ -971,39 +886,3 @@ char *strdup(const char *s)
     return dest ;
 }
 #endif // wxNEED_STRDUP
-
-// ============================================================================
-// wx wrappers for CRT functions
-// ============================================================================
-
-#if wxUSE_UNICODE_WCHAR
-    #define CALL_ANSI_OR_UNICODE(return_kw, callA, callW)  return_kw callW
-#elif wxUSE_UNICODE_UTF8 && !wxUSE_UTF8_LOCALE_ONLY
-    #define CALL_ANSI_OR_UNICODE(return_kw, callA, callW) \
-            return_kw wxLocaleIsUtf8 ? callA : callW
-#else // ANSI or UTF8 only
-    #define CALL_ANSI_OR_UNICODE(return_kw, callA, callW)  return_kw callA
-#endif
-
-// ----------------------------------------------------------------------------
-// wxScanf() and friends
-// ----------------------------------------------------------------------------
-
-#ifdef HAVE_VSSCANF // __VISUALC__ see wx/crt.h
-int wxVsscanf(const char *str, const char *format, va_list ap)
-    { return wxCRT_VsscanfA(str, format, ap); }
-int wxVsscanf(const wchar_t *str, const wchar_t *format, va_list ap)
-    { return wxCRT_VsscanfW(str, format, ap); }
-int wxVsscanf(const wxCharBuffer& str, const char *format, va_list ap)
-    { return wxCRT_VsscanfA(static_cast<const char*>(str), format, ap); }
-int wxVsscanf(const wxWCharBuffer& str, const wchar_t *format, va_list ap)
-    { return wxCRT_VsscanfW(str, format, ap); }
-int wxVsscanf(const wxString& str, const char *format, va_list ap)
-    { return wxCRT_VsscanfA(static_cast<const char*>(str.mb_str()), format, ap); }
-int wxVsscanf(const wxString& str, const wchar_t *format, va_list ap)
-    { return wxCRT_VsscanfW(str.wc_str(), format, ap); }
-int wxVsscanf(const wxCStrData& str, const char *format, va_list ap)
-    { return wxCRT_VsscanfA(static_cast<const char*>(str.AsCharBuf()), format, ap); }
-int wxVsscanf(const wxCStrData& str, const wchar_t *format, va_list ap)
-    { return wxCRT_VsscanfW(str.AsWCharBuf(), format, ap); }
-#endif // HAVE_NO_VSSCANF

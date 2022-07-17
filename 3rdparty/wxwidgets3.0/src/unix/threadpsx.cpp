@@ -306,8 +306,6 @@ wxMutexError wxMutexInternal::Lock(unsigned long ms)
 
 wxMutexError wxMutexInternal::HandleLockResult(int err)
 {
-    // wxPrintf( "err %d\n", err );
-
     switch ( err )
     {
         case EDEADLK:
