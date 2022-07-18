@@ -231,11 +231,6 @@ WXDLLIMPEXP_BASE void *calloc( size_t num, size_t size );
 /* #else -- use wxWidgets implementation */
 #endif
 
-#ifdef HAVE_STRTOK_R
-    #define  wxCRT_StrtokA(str, sep, last)    strtok_r(str, sep, last)
-#endif
-/* FIXME-UTF8: detect and use wcstok() if available for wxCRT_StrtokW */
-
 /* these are extern "C" because they are used by regex lib: */
 #ifdef __cplusplus
 extern "C" {
@@ -352,14 +347,6 @@ WXDLLIMPEXP_BASE int wxCRT_StrnicmpA(const char *psz1, const char *psz2, size_t 
 
 #ifndef wxCRT_StrnicmpW
 WXDLLIMPEXP_BASE int wxCRT_StrnicmpW(const wchar_t *psz1, const wchar_t *psz2, size_t len);
-#endif
-
-#ifndef wxCRT_StrtokA
-WXDLLIMPEXP_BASE char *wxCRT_StrtokA(char *psz, const char *delim, char **save_ptr);
-#endif
-
-#ifndef wxCRT_StrtokW
-WXDLLIMPEXP_BASE wchar_t *wxCRT_StrtokW(wchar_t *psz, const wchar_t *delim, wchar_t **save_ptr);
 #endif
 
 /* supply strtoll and strtoull, if needed */

@@ -731,51 +731,6 @@ wxULongLong_t wxCRT_StrtoullW(const wchar_t* nptr, wchar_t** endptr, int base)
 #endif // wxLongLong_t
 
 // ----------------------------------------------------------------------------
-// strtok() functions
-// ----------------------------------------------------------------------------
-
-template<typename T>
-static T *wxCRT_DoStrtok(T *psz, const T *delim, T **save_ptr)
-{
-    if (!psz)
-    {
-        psz = *save_ptr;
-        if ( !psz )
-            return NULL;
-    }
-
-    psz += wxStrspn(psz, delim);
-    if (!*psz)
-    {
-        *save_ptr = NULL;
-        return NULL;
-    }
-
-    T *ret = psz;
-    psz = wxStrpbrk(psz, delim);
-    if (!psz)
-    {
-        *save_ptr = NULL;
-    }
-    else
-    {
-        *psz = wxT('\0');
-        *save_ptr = psz + 1;
-    }
-
-    return ret;
-}
-
-#ifndef wxCRT_StrtokA
-char *wxCRT_StrtokA(char *psz, const char *delim, char **save_ptr)
-    { return wxCRT_DoStrtok(psz, delim, save_ptr); }
-#endif
-#ifndef wxCRT_StrtokW
-wchar_t *wxCRT_StrtokW(wchar_t *psz, const wchar_t *delim, wchar_t **save_ptr)
-    { return wxCRT_DoStrtok(psz, delim, save_ptr); }
-#endif
-
-// ----------------------------------------------------------------------------
 // missing C RTL functions
 // ----------------------------------------------------------------------------
 

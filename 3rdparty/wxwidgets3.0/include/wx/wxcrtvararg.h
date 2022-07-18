@@ -183,7 +183,6 @@
     #define wxUSE_WXVSNPRINTF (wxUSE_WXVSNPRINTFA && wxUSE_WXVSNPRINTFW)
 #endif
 
-#define wxCRT_VfprintfA      vfprintf
 #define wxCRT_VsprintfA      vsprintf
 
 /*
@@ -205,11 +204,8 @@
         we don't have them at all or because they don't have the semantics we
         need
      */
-    int wxCRT_VfprintfW( FILE *stream, const wchar_t *format, va_list ap );
     int wxCRT_VsprintfW( wchar_t *str, const wchar_t *format, va_list ap );
 #else /* !wxNEED_WPRINTF */
-    #define wxCRT_VfprintfW     vfwprintf
-
     #if defined(__WINDOWS__) && !defined(HAVE_VSWPRINTF)
         // only non-standard vswprintf() without buffer size argument can be used here
         #define  wxCRT_VsprintfW     vswprintf
