@@ -418,46 +418,6 @@ WXDLLIMPEXP_BASE wchar_t *wxCRT_StrtokW(wchar_t *psz, const wchar_t *delim, wcha
 
 #endif /* wxMBFILES/!wxMBFILES */
 
-#define wxCRT_PutsA       puts
-#define wxCRT_FputsA      fputs
-#define wxCRT_FgetsA      fgets
-#define wxCRT_FputcA      fputc
-#define wxCRT_FgetcA      fgetc
-#define wxCRT_UngetcA     ungetc
-
-#ifdef wxHAVE_TCHAR_SUPPORT
-    #define wxCRT_PutsW   _putws
-    #define wxCRT_FputsW  fputws
-    #define wxCRT_FputcW  fputwc
-#endif
-#ifdef HAVE_FPUTWS
-    #define wxCRT_FputsW  fputws
-#endif
-#ifdef HAVE_PUTWS
-    #define wxCRT_PutsW   putws
-#endif
-#ifdef HAVE_FPUTWC
-    #define wxCRT_FputcW  fputwc
-#endif
-#define wxCRT_FgetsW  fgetws
-
-#ifndef wxCRT_PutsW
-WXDLLIMPEXP_BASE int wxCRT_PutsW(const wchar_t *ws);
-#endif
-
-#ifndef wxCRT_FputsW
-WXDLLIMPEXP_BASE int wxCRT_FputsW(const wchar_t *ch, FILE *stream);
-#endif
-
-#ifndef wxCRT_FputcW
-WXDLLIMPEXP_BASE int wxCRT_FputcW(wchar_t wc, FILE *stream);
-#endif
-
-#define wxCRT_PerrorA   perror
-#ifdef wxHAVE_TCHAR_SUPPORT
-    #define wxCRT_PerrorW _wperror
-#endif
-
 /* -------------------------------------------------------------------------
                                   stdlib.h
    ------------------------------------------------------------------------- */

@@ -184,7 +184,6 @@
 #endif
 
 #define wxCRT_VfprintfA      vfprintf
-#define wxCRT_VprintfA       vprintf
 #define wxCRT_VsprintfA      vsprintf
 
 /*
@@ -207,11 +206,9 @@
         need
      */
     int wxCRT_VfprintfW( FILE *stream, const wchar_t *format, va_list ap );
-    int wxCRT_VprintfW( const wchar_t *format, va_list ap );
     int wxCRT_VsprintfW( wchar_t *str, const wchar_t *format, va_list ap );
 #else /* !wxNEED_WPRINTF */
     #define wxCRT_VfprintfW     vfwprintf
-    #define wxCRT_VprintfW      vwprintf
 
     #if defined(__WINDOWS__) && !defined(HAVE_VSWPRINTF)
         // only non-standard vswprintf() without buffer size argument can be used here
@@ -222,43 +219,6 @@
 // ----------------------------------------------------------------------------
 // user-friendly wrappers to CRT functions
 // ----------------------------------------------------------------------------
-// va_list versions of printf functions simply forward to the respective
-// CRT function; note that they assume that va_list was created using
-// wxArgNormalizer<T>!
-#if wxUSE_UNICODE_UTF8
-    #if wxUSE_UTF8_LOCALE_ONLY
-        #define WX_VARARG_VFOO_IMPL(args, implW, implA)              \
-            return implA args
-    #else
-        #define WX_VARARG_VFOO_IMPL(args, implW, implA)              \
-            if ( wxLocaleIsUtf8 ) return implA args;                 \
-            else return implW args
-    #endif
-#elif wxUSE_UNICODE_WCHAR
-    #define WX_VARARG_VFOO_IMPL(args, implW, implA)                  \
-        return implW args
-#else // ANSI
-    #define WX_VARARG_VFOO_IMPL(args, implW, implA)                  \
-        return implA args
-#endif
-
-inline int
-wxVprintf(const wxString& format, va_list ap)
-{
-    WX_VARARG_VFOO_IMPL((wxFormatString(format), ap),
-                        wxCRT_VprintfW, wxCRT_VprintfA);
-}
-
-inline int
-wxVfprintf(FILE *f, const wxString& format, va_list ap)
-{
-    WX_VARARG_VFOO_IMPL((f, wxFormatString(format), ap),
-                        wxCRT_VfprintfW, wxCRT_VfprintfA);
-}
-
-#undef WX_VARARG_VFOO_IMPL
-
-
 // wxSprintf() and friends have to be implemented in two forms, one for
 // writing to char* buffer and one for writing to wchar_t*:
 
