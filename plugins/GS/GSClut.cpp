@@ -632,7 +632,7 @@ bool GSClut::WriteState::IsDirty(const GIFRegTEX0& TEX0, const GIFRegTEXCLUT& TE
 
 	bool is_dirty = dirty;
 
-	if ((this->TEX0.U64 ^ TEX0.U64) & mask)
+	if (((this->TEX0.U64 ^ TEX0.U64) & mask) || (GSLocalMemory::m_psm[this->TEX0.PSM].bpp != GSLocalMemory::m_psm[TEX0.PSM].bpp))
 		is_dirty |= true;
 	else if (TEX0.CSM == 1 && (TEXCLUT.U32[0] ^ this->TEXCLUT.U32[0]))
 		is_dirty |= true;
@@ -652,7 +652,7 @@ bool GSClut::ReadState::IsDirty(const GIFRegTEX0& TEX0)
 
 	bool is_dirty = dirty;
 
-	if ((this->TEX0.U64 ^ TEX0.U64) & mask)
+	if (((this->TEX0.U64 ^ TEX0.U64) & mask) || (GSLocalMemory::m_psm[this->TEX0.PSM].bpp != GSLocalMemory::m_psm[TEX0.PSM].bpp))
 		is_dirty |= true;
 
 	if (!is_dirty)
@@ -669,7 +669,7 @@ bool GSClut::ReadState::IsDirty(const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA)
 
 	bool is_dirty = dirty;
 
-	if ((this->TEX0.U64 ^ TEX0.U64) & tex0_mask)
+	if (((this->TEX0.U64 ^ TEX0.U64) & tex0_mask) || (GSLocalMemory::m_psm[this->TEX0.PSM].bpp != GSLocalMemory::m_psm[TEX0.PSM].bpp))
 		is_dirty |= true;
 	else // Just to optimise the checks.
 	{
