@@ -65,7 +65,8 @@ static __ri bool _vuFMACflush(VURegs * VU) {
 		}
 	}
 
-	cycle = VU->fmac[startpos].sCycle + VU->fmac[startpos].Cycle;
+	u32 lastmac, lastclip, laststatus;
+	lastmac = lastclip = laststatus = 9999;
 
 	for (int i=0; i<8; i++)
 	{
@@ -78,15 +79,33 @@ static __ri bool _vuFMACflush(VURegs * VU) {
 
 			VU->fmac[currentpipe].enable = 0;
 
+
 			if (VU->fmac[currentpipe].flagreg & (1 << REG_STATUS_FLAG))
-				VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0x3F) | (VU->fmac[currentpipe].statusflag & 0xFC0);
+			{
+				if ((VU->cycle - VU->fmac[currentpipe].sCycle) < laststatus)
+				{
+					VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0x3F) | (VU->fmac[currentpipe].statusflag & 0xFC0);
+					laststatus = (VU->cycle - VU->fmac[currentpipe].sCycle);
+				}
+			}
 			else if (VU->fmac[currentpipe].flagreg & (1 << REG_CLIP_FLAG))
-				VU->VI[REG_CLIP_FLAG].UL = VU->fmac[currentpipe].clipflag;
+			{
+				if ((VU->cycle - VU->fmac[currentpipe].sCycle) < lastclip)
+				{
+					VU->VI[REG_CLIP_FLAG].UL = VU->fmac[currentpipe].clipflag;
+					lastclip = (VU->cycle - VU->fmac[currentpipe].sCycle);
+				}
+			}
 			else
 			{
-				// FMAC only affectx Z/S/I/O
-				VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0xFF0) | (VU->fmac[currentpipe].statusflag & 0x3CF);
-				VU->VI[REG_MAC_FLAG].UL = VU->fmac[currentpipe].macflag;
+				if ((VU->cycle - VU->fmac[currentpipe].sCycle) < lastmac)
+				{
+					// FMAC only affects Z/S/I/O
+					VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0xFF0) | (VU->fmac[currentpipe].statusflag & 0x3CF);
+					VU->VI[REG_MAC_FLAG].UL = VU->fmac[currentpipe].macflag;
+					lastmac = (VU->cycle - VU->fmac[currentpipe].sCycle);
+				}
+
 			}
 
 			didflush = true;
