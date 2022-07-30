@@ -78,20 +78,17 @@ static __ri bool _vuFMACflush(VURegs * VU) {
 
 			VU->fmac[currentpipe].enable = 0;
 
-			if ((VU->fmac[currentpipe].sCycle + VU->fmac[currentpipe].Cycle) >= cycle)
+			if (VU->fmac[currentpipe].flagreg & (1 << REG_STATUS_FLAG))
+				VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0x3F) | (VU->fmac[currentpipe].statusflag & 0xFC0);
+			else if (VU->fmac[currentpipe].flagreg & (1 << REG_CLIP_FLAG))
+				VU->VI[REG_CLIP_FLAG].UL = VU->fmac[currentpipe].clipflag;
+			else
 			{
-				if (VU->fmac[currentpipe].flagreg & (1 << REG_STATUS_FLAG))
-					VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0x3F) | (VU->fmac[currentpipe].statusflag & 0xFC0);
-				else if (VU->fmac[currentpipe].flagreg & (1 << REG_CLIP_FLAG))
-					VU->VI[REG_CLIP_FLAG].UL = VU->fmac[currentpipe].clipflag;
-				else
-				{
-					// FMAC only affectx Z/S/I/O
-					VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0xFF0) | (VU->fmac[currentpipe].statusflag & 0x3CF);
-					VU->VI[REG_MAC_FLAG].UL = VU->fmac[currentpipe].macflag;
-
-				}
+				// FMAC only affectx Z/S/I/O
+				VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0xFF0) | (VU->fmac[currentpipe].statusflag & 0x3CF);
+				VU->VI[REG_MAC_FLAG].UL = VU->fmac[currentpipe].macflag;
 			}
+
 			didflush = true;
 		}
 	}
@@ -2137,8 +2134,7 @@ static __ri void _vuERLENG(VURegs * VU)
 	float p = vuDouble(VU->VF[_Fs_].i.x) * vuDouble(VU->VF[_Fs_].i.x) + vuDouble(VU->VF[_Fs_].i.y) * vuDouble(VU->VF[_Fs_].i.y) + vuDouble(VU->VF[_Fs_].i.z) * vuDouble(VU->VF[_Fs_].i.z);
 	if (p >= 0)
 	{
-		p = sqrt(p);
-		if (p != 0)
+		if ((p = sqrt(p)) != 0)
 			p = 1.0f / p;
 	}
 	VU->p.F = p;
