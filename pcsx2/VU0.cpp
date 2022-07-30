@@ -64,7 +64,7 @@ __fi void _vu0run(bool breakOnMbit, bool addCycles) {
 		return;
 	}
 
-	u32 startcycle = VU0.cycle;
+	u32 startcycle = cpuRegs.cycle;
 	u32 runCycles  = 0x7fffffff;
 
 	do { // Run VU until it finishes or M-Bit
@@ -76,7 +76,6 @@ __fi void _vu0run(bool breakOnMbit, bool addCycles) {
 	if (addCycles)
 	{
 		cpuRegs.cycle += (VU0.cycle - startcycle);
-		VU0.cycle = cpuRegs.cycle;
 	}
 }
 

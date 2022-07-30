@@ -20,6 +20,7 @@
 #include "MTVU.h"
 
 // Executes a Block based on EE delta time
+#if 1
 void BaseVUmicroCPU::ExecuteBlock(bool startUp) {
 	const u32& stat	= VU0.VI[REG_VPU_STAT].UL;
 	const int  test = m_Idx ? 0x100 : 1;
@@ -81,6 +82,68 @@ void BaseVUmicroCPU::ExecuteBlock(bool startUp) {
 			Execute(delta);	// Execute the time since the last call
 	}
 }
+#else
+/* Should work correctly with Crash Twinsanity? */
+void BaseVUmicroCPU::ExecuteBlock(bool startUp)
+{
+	const u32& stat = VU0.VI[REG_VPU_STAT].UL;
+	const int test = m_Idx ? 0x100 : 1;
+	const int s = EmuConfig.Gamefixes.VUKickstartHack ? 16 : 0; // Kick Start Cycles (Jak needs at least 4 due to writing values after they're read
+
+	if (m_Idx && THREAD_VU1)
+	{
+		vu1Thread.Get_GSChanges();
+		return;
+	}
+
+	if (!(stat & test))
+		return;
+
+	if (startUp && s) // Start Executing a microprogram (When kickstarted)
+	{
+		Execute(s); // Kick start VU
+
+		// I don't like doing this, but Crash Twinsanity seems to be upset without it
+		if (stat & test)
+		{
+			if (m_Idx)
+			        cpuRegs.cycle = VU1.cycle;
+			else
+				cpuRegs.cycle = VU0.cycle;
+
+			cpuSetNextEventDelta(s);
+		}
+	}
+	else // Continue Executing
+	{
+		u32 cycle = m_Idx ? VU1.cycle : VU0.cycle;
+		s32 delta = (s32)(u32)(cpuRegs.cycle - cycle);
+		s32 nextblockcycles = m_Idx ? VU1.nextBlockCycles : VU0.nextBlockCycles;
+
+		if (EmuConfig.Gamefixes.VUKickstartHack)
+		{
+			if (delta > 0)  // When kickstarting we just need 1 cycle for run ahead
+			Execute(delta);
+		}
+		else
+		{
+			if (delta >= nextblockcycles) // When running behind, make sure we have enough cycles passed for the block to run
+				Execute(delta);
+		}
+
+		if (stat & test)
+		{
+			// Queue up next required time to run a block
+			nextblockcycles = m_Idx ? VU1.nextBlockCycles : VU0.nextBlockCycles;
+			cycle           = m_Idx ? VU1.cycle : VU0.cycle;
+			nextblockcycles = EmuConfig.Gamefixes.VUKickstartHack ? (cycle - cpuRegs.cycle) : nextblockcycles;
+
+			if(nextblockcycles)
+				cpuSetNextEventDelta(nextblockcycles);
+		}
+	}
+}
+#endif
 
 // This function is called by VU0 Macro (COP2) after transferring some
 // EE data to VU0's registers. We want to run VU0 Micro right after this

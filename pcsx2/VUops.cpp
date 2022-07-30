@@ -250,7 +250,6 @@ void _vuFlushAll(VURegs* VU)
 
 __fi void _vuTestPipes(VURegs * VU) {
 	bool flushed;
-	u32 startcycle = VU->cycle;
 	do {
 		flushed = false;
 		flushed |= _vuFMACflush(VU);
