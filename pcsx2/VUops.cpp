@@ -101,13 +101,29 @@ static __ri bool _vuFMACflush(VURegs * VU) {
 				if ((VU->cycle - VU->fmac[currentpipe].sCycle) < lastmac)
 				{
 					// FMAC only affects Z/S/I/O
-					VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0xFF0) | (VU->fmac[currentpipe].statusflag & 0x3CF);
+					VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0xFF0) | ((VU->fmac[currentpipe].statusflag & 0xF) | ((VU->fmac[currentpipe].statusflag & 0xF) << 6));
 					VU->VI[REG_MAC_FLAG].UL = VU->fmac[currentpipe].macflag;
 					lastmac = (VU->cycle - VU->fmac[currentpipe].sCycle);
 				}
 
 			}
 
+			didflush = true;
+		}
+	}
+	return didflush;
+}
+
+static __ri bool _vuIALUflush(VURegs* VU) {
+	bool didflush = false;
+
+	for (int i = 0; i < 8; i++) {
+		int currentpipe = i;
+
+		if (VU->ialu[currentpipe].enable == 0) continue;
+
+		if ((VU->cycle - VU->ialu[currentpipe].sCycle) >= VU->ialu[currentpipe].Cycle) {
+			VU->ialu[currentpipe].enable = 0;
 			didflush = true;
 		}
 	}
@@ -218,18 +234,29 @@ void _vuFlushAll(VURegs* VU)
 			}
 		}
 
-		VU->cycle++;
+		for (i = 0; i < 8; i++) {
+			int currentpipe = i;
 
+			if (VU->ialu[currentpipe].enable == 0) continue;
+			nRepeat = 1;
+			if ((VU->cycle - VU->ialu[currentpipe].sCycle) >= VU->ialu[currentpipe].Cycle) {
+				VU->ialu[currentpipe].enable = 0;
+			}
+		}
+
+		VU->cycle++;
 	} while(nRepeat);
 }
 
 __fi void _vuTestPipes(VURegs * VU) {
 	bool flushed;
+	u32 startcycle = VU->cycle;
 	do {
 		flushed = false;
 		flushed |= _vuFMACflush(VU);
 		flushed |= _vuFDIVflush(VU);
 		flushed |= _vuEFUflush(VU);
+		flushed |= _vuIALUflush(VU);
 	} while (flushed == true);
 }
 
@@ -333,6 +360,30 @@ static __fi void _vuAddFMACStalls(VURegs * VU, _VURegsNum *VUregsn) {
 	_vuFMACAdd(VU, VUregsn);
 }
 
+static __ri void __fastcall _vuIALUAdd(VURegs* VU, _VURegsNum* VUregsn) {
+	int i;
+
+	if (VUregsn->cycles == 0)
+		return;
+	//If it's an FMAC which doesn't modify FMAC flags, just exit, no need to queue
+	/* find a free fmac pipe */
+	for (i = 0; i < 8; i++) {
+		if (VU->ialu[i].enable == 1) continue;
+		break;
+	}
+
+	if (i < 8) {
+		VU->ialu[i].enable = 1;
+		VU->ialu[i].sCycle = VU->cycle;
+		VU->ialu[i].Cycle = VUregsn->cycles;
+		VU->ialu[i].reg = VUregsn->VIwrite;
+	}
+}
+
+static __fi void _vuAddIALUStalls(VURegs* VU, _VURegsNum* VUregsn) {
+	_vuIALUAdd(VU, VUregsn);
+}
+
 static __fi void _vuTestFDIVStalls(VURegs * VU, _VURegsNum *VUregsn) {
 	_vuTestFMACStalls(VU, VUregsn);
 	_vuFlushFDIV(VU);
@@ -362,11 +413,30 @@ __fi void _vuTestUpperStalls(VURegs * VU, _VURegsNum *VUregsn) {
 	}
 }
 
+static __fi void _vuTestALUStalls(VURegs* VU, _VURegsNum* VUregsn) {
+	int i;
+
+	for (i = 0; i < 8; i++) {
+		if (VU->ialu[i].enable == 0) continue;
+		if ((VU->cycle - VU->ialu[i].sCycle) >= VU->ialu[i].Cycle) continue;
+		if (VU->ialu[i].reg & VUregsn->VIread) // Read and written VI regs share the same register
+			break;
+	}
+
+	if (i == 8) return;
+
+	u32 newCycle = VU->ialu[i].Cycle + VU->ialu[i].sCycle;
+
+	if (newCycle > VU->cycle)
+		VU->cycle = newCycle;
+}
+
 __fi void _vuTestLowerStalls(VURegs * VU, _VURegsNum *VUregsn) {
 	switch (VUregsn->pipe) {
 		case VUPIPE_FMAC: _vuTestFMACStalls(VU, VUregsn); break;
 		case VUPIPE_FDIV: _vuTestFDIVStalls(VU, VUregsn); break;
 		case VUPIPE_EFU:  _vuTestEFUStalls(VU, VUregsn); break;
+		case VUPIPE_BRANCH: _vuTestALUStalls(VU, VUregsn); break;
 	}
 }
 
@@ -381,6 +451,7 @@ __fi void _vuAddLowerStalls(VURegs * VU, _VURegsNum *VUregsn) {
 		case VUPIPE_FMAC: _vuAddFMACStalls(VU, VUregsn); break;
 		case VUPIPE_FDIV: _vuAddFDIVStalls(VU, VUregsn); break;
 		case VUPIPE_EFU:  _vuAddEFUStalls(VU, VUregsn); break;
+		case VUPIPE_IALU:  _vuAddIALUStalls(VU, VUregsn); break;
 	}
 }
 
@@ -1798,8 +1869,6 @@ static __ri void _vuILW(VURegs * VU)
 	u16 addr = ((imm + VU->VI[_Is_].SS[0]) * 16);
 	u16* ptr = (u16*)GET_VU_MEM(VU, addr);
 
-	_vuBackupVI(VU, _It_);
-
 	if (_X) VU->VI[_It_].US[0] = ptr[0];
 	if (_Y) VU->VI[_It_].US[0] = ptr[2];
 	if (_Z) VU->VI[_It_].US[0] = ptr[4];
@@ -1821,8 +1890,6 @@ static __ri void _vuILWR(VURegs * VU) {
 
 	u32 addr = (VU->VI[_Is_].US[0] * 16);
 	u16* ptr = (u16*)GET_VU_MEM(VU, addr);
-
-	_vuBackupVI(VU, _It_);
 
 	if (_X) VU->VI[_It_].US[0] = ptr[0];
 	if (_Y) VU->VI[_It_].US[0] = ptr[2];
