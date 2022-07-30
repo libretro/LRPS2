@@ -46,91 +46,53 @@ u32 laststall = 0;
 
 static __aligned16 VECTOR RDzero;
 
-static __ri bool _vuFMACflush(VURegs * VU) {
+static __ri bool _vuFMACflush(VURegs * VU)
+{
 	bool didflush = false;
-	int startpos = 0;
-	u32 cycle = 9999;
 
-	for (int startpipe = 0; startpipe < 8; startpipe++)
+	for (int i = VU->fmacreadpos; VU->fmaccount > 0; i = (i + 1) & 3)
 	{
-		if (VU->fmac[startpipe].enable == 0) continue;
+		if ((VU->cycle - VU->fmac[i].sCycle) < VU->fmac[i].Cycle)
+			return didflush;
 
-		if ((VU->fmac[startpipe].sCycle + VU->fmac[startpipe].Cycle) <= VU->cycle)
-		{
-			if ((VU->cycle - (VU->fmac[startpipe].sCycle + VU->fmac[startpipe].Cycle)) < cycle)
-			{
-				cycle = (s32)(VU->cycle - (VU->fmac[startpipe].sCycle + VU->fmac[startpipe].Cycle));
-				startpos = startpipe;
-			}
-		}
+		// Clip flags (Affected by CLIP instruction)
+		if (VU->fmac[i].flagreg & (1 << REG_CLIP_FLAG))
+			VU->VI[REG_CLIP_FLAG].UL = VU->fmac[i].clipflag;
+
+		// Normal FMAC instructoins only affectx Z/S/I/O, D/I are modified only by FDIV instructions
+		// Sticky flags (Affected by FSSET)
+		if (VU->fmac[i].flagreg & (1 << REG_STATUS_FLAG))
+			VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0x30) | (VU->fmac[i].statusflag & 0xFC0) | (VU->fmac[i].statusflag & 0xF);
+		else
+			VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0xFF0) | (VU->fmac[i].statusflag & 0xF) | ((VU->fmac[i].statusflag & 0xF) << 6);
+		VU->VI[REG_MAC_FLAG].UL = VU->fmac[i].macflag;
+
+		VU->fmacreadpos = ++VU->fmacreadpos & 3;
+		VU->fmaccount--;
+
+		didflush = true;
 	}
 
-	u32 lastmac, lastclip, laststatus;
-	lastmac = lastclip = laststatus = 9999;
+	return didflush;
+}
 
-	for (int i=0; i<8; i++)
+static __ri bool _vuIALUflush(VURegs* VU)
+{
+	bool didflush = false;
+
+	for (int i = VU->ialureadpos; VU->ialucount > 0; i = (i + 1) & 3)
 	{
-		int currentpipe = (i + startpos) % 8;
+		if ((VU->cycle - VU->ialu[i].sCycle) < VU->ialu[i].Cycle) return didflush;
 
-		if (VU->fmac[currentpipe].enable == 0) continue;
-
-		if ((VU->cycle - VU->fmac[currentpipe].sCycle) >= VU->fmac[currentpipe].Cycle) {
-			
-
-			VU->fmac[currentpipe].enable = 0;
-
-
-			if (VU->fmac[currentpipe].flagreg & (1 << REG_STATUS_FLAG))
-			{
-				if ((VU->cycle - VU->fmac[currentpipe].sCycle) < laststatus)
-				{
-					VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0x3F) | (VU->fmac[currentpipe].statusflag & 0xFC0);
-					laststatus = (VU->cycle - VU->fmac[currentpipe].sCycle);
-				}
-			}
-			else if (VU->fmac[currentpipe].flagreg & (1 << REG_CLIP_FLAG))
-			{
-				if ((VU->cycle - VU->fmac[currentpipe].sCycle) < lastclip)
-				{
-					VU->VI[REG_CLIP_FLAG].UL = VU->fmac[currentpipe].clipflag;
-					lastclip = (VU->cycle - VU->fmac[currentpipe].sCycle);
-				}
-			}
-			else
-			{
-				if ((VU->cycle - VU->fmac[currentpipe].sCycle) < lastmac)
-				{
-					// FMAC only affects Z/S/I/O
-					VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0xFF0) | ((VU->fmac[currentpipe].statusflag & 0xF) | ((VU->fmac[currentpipe].statusflag & 0xF) << 6));
-					VU->VI[REG_MAC_FLAG].UL = VU->fmac[currentpipe].macflag;
-					lastmac = (VU->cycle - VU->fmac[currentpipe].sCycle);
-				}
-
-			}
-
-			didflush = true;
-		}
+		VU->ialureadpos = ++VU->ialureadpos & 3;
+		VU->ialucount--;
+		didflush = true;
 	}
 	return didflush;
 }
 
-static __ri bool _vuIALUflush(VURegs* VU) {
-	bool didflush = false;
-
-	for (int i = 0; i < 8; i++) {
-		int currentpipe = i;
-
-		if (VU->ialu[currentpipe].enable == 0) continue;
-
-		if ((VU->cycle - VU->ialu[currentpipe].sCycle) >= VU->ialu[currentpipe].Cycle) {
-			VU->ialu[currentpipe].enable = 0;
-			didflush = true;
-		}
-	}
-	return didflush;
-}
-
-static __ri bool _vuFDIVflush(VURegs * VU) {
+static __ri bool _vuFDIVflush(VURegs * VU)
+{
 	if (VU->fdiv.enable != 0)
 	{
 		if ((VU->cycle - VU->fdiv.sCycle) >= VU->fdiv.Cycle)
@@ -148,7 +110,8 @@ static __ri bool _vuFDIVflush(VURegs * VU) {
 	return false;
 }
 
-static __ri bool _vuEFUflush(VURegs * VU) {
+static __ri bool _vuEFUflush(VURegs * VU)
+{
 	if (VU->efu.enable != 0)
 	{
 		if ((VU->cycle - VU->efu.sCycle) >= VU->efu.Cycle)
@@ -166,91 +129,64 @@ static __ri bool _vuEFUflush(VURegs * VU) {
 // called at end of program
 void _vuFlushAll(VURegs* VU)
 {
-	int nRepeat = 1, i;
+	int i = 0;
 
-	u32 startpos = 0;
-	s32 cycle = 9999;
-
-	// Calculate lowest active FMAC pipe
-	for (int startpipe = 0; startpipe < 8; startpipe++)
+	if (VU->fdiv.enable)
 	{
-		if (VU->fmac[startpipe].enable == 0) continue;
+		VU->fdiv.enable = 0;
+		VU->VI[REG_Q].UL = VU->fdiv.reg.UL;
+		VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0xFCF) | (VU->fdiv.statusflag & 0xC30);
 
-		if ((VU->fmac[startpipe].sCycle + VU->fmac[startpipe].Cycle) <= VU->cycle)
-		{
-			if ((VU->cycle - (VU->fmac[startpipe].sCycle + VU->fmac[startpipe].Cycle)) < cycle)
-			{
-				cycle = (s32)(VU->cycle - (VU->fmac[startpipe].sCycle + VU->fmac[startpipe].Cycle));
-				startpos = startpipe;
-			}
-		}
+		if ((VU->cycle - VU->fdiv.sCycle) < VU->fdiv.Cycle)
+			VU->cycle = VU->fdiv.sCycle + VU->fdiv.Cycle;
 	}
 
-	do {
-		nRepeat = 0;
+	if (VU->efu.enable)
+	{
+		VU->efu.enable = 0;
+		VU->VI[REG_P].UL = VU->efu.reg.UL;
 
-		for (i=0; i<8; i++) {
-			int currentpipe = (i + startpos) % 8;
+		if ((VU->cycle - VU->efu.sCycle) < VU->efu.Cycle)
+			VU->cycle = VU->efu.sCycle + VU->efu.Cycle;
+	}
 
-			if (VU->fmac[currentpipe].enable == 0) continue;
+	for (i=VU->fmacreadpos; VU->fmaccount > 0; i = (i + 1) & 3)
+	{
+		// Clip flags (Affected by CLIP instruction)
+		if (VU->fmac[i].flagreg & (1 << REG_CLIP_FLAG))
+			VU->VI[REG_CLIP_FLAG].UL = VU->fmac[i].clipflag;
 
-			nRepeat = 1;
+		// Normal FMAC instructoins only affectx Z/S/I/O, D/I are modified only by FDIV instructions
+		// Sticky flags (Affected by FSSET)
+		if (VU->fmac[i].flagreg & (1 << REG_STATUS_FLAG))
+			VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0x30) | (VU->fmac[i].statusflag & 0xFC0) | (VU->fmac[i].statusflag & 0xF);
+		else
+			VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0xFF0) | (VU->fmac[i].statusflag & 0xF) | ((VU->fmac[i].statusflag & 0xF) << 6);
+		VU->VI[REG_MAC_FLAG].UL = VU->fmac[i].macflag;
 
-			if ((VU->cycle - VU->fmac[currentpipe].sCycle) >= VU->fmac[currentpipe].Cycle)
-			{
-				VU->fmac[currentpipe].enable = 0;
-				if (VU->fmac[currentpipe].flagreg & (1 << REG_STATUS_FLAG))
-					VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0x3F) | (VU->fmac[currentpipe].statusflag & 0xFC0);
-				else if (VU->fmac[currentpipe].flagreg & (1 << REG_CLIP_FLAG))
-					VU->VI[REG_CLIP_FLAG].UL = VU->fmac[currentpipe].clipflag;
-				else
-				{
-					// FMAC only affectx Z/S/I/O
-					VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0xFF0) | (VU->fmac[currentpipe].statusflag & 0x3CF);
-					VU->VI[REG_MAC_FLAG].UL = VU->fmac[currentpipe].macflag;
-				}
-			}
-		}
+		VU->fmacreadpos = ++VU->fmacreadpos & 3;
 
-		if (VU->fdiv.enable )
-		{
-			nRepeat = 1;
+		if((VU->cycle - VU->fmac[i].sCycle) < VU->fmac[i].Cycle)
+			VU->cycle = VU->fmac[i].sCycle + VU->fmac[i].Cycle;
 
-			if ((VU->cycle - VU->fdiv.sCycle) >= VU->fdiv.Cycle)
-			{
-				VU->fdiv.enable            = 0;
-				VU->VI[REG_Q].UL           = VU->fdiv.reg.UL;
-				VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0xFCF) | (VU->fdiv.statusflag & 0xC30);
-			}
-		}
+		VU->fmaccount--;
+	}
 
-		if (VU->efu.enable)
-		{
-			nRepeat = 1;
+	for (i = VU->ialureadpos; VU->ialucount > 0; i = (i + 1) & 3)
+	{
+		VU->ialureadpos = ++VU->ialureadpos & 3;
 
-			if ((VU->cycle - VU->efu.sCycle) >= VU->efu.Cycle) {
-				VU->efu.enable   = 0;
-				VU->VI[REG_P].UL = VU->efu.reg.UL;
-			}
-		}
+		if ((VU->cycle - VU->ialu[i].sCycle) < VU->ialu[i].Cycle)
+			VU->cycle = VU->ialu[i].sCycle + VU->ialu[i].Cycle;
 
-		for (i = 0; i < 8; i++) {
-			int currentpipe = i;
-
-			if (VU->ialu[currentpipe].enable == 0) continue;
-			nRepeat = 1;
-			if ((VU->cycle - VU->ialu[currentpipe].sCycle) >= VU->ialu[currentpipe].Cycle) {
-				VU->ialu[currentpipe].enable = 0;
-			}
-		}
-
-		VU->cycle++;
-	} while(nRepeat);
+		VU->ialucount--;
+	}
 }
 
 __fi void _vuTestPipes(VURegs * VU) {
 	bool flushed;
-	do {
+	do
+	{
 		flushed = false;
 		flushed |= _vuFMACflush(VU);
 		flushed |= _vuFDIVflush(VU);
@@ -259,66 +195,41 @@ __fi void _vuTestPipes(VURegs * VU) {
 	} while (flushed == true);
 }
 
-static void __fastcall _vuFMACTestStall(VURegs * VU, int reg, int xyzw) {
-	int i;
+static void __fastcall _vuFMACTestStall(VURegs * VU, int reg, int xyzw)
+{
+	u32 i = 0;
 
-	for (i=0; i<8; i++) {
-		if (VU->fmac[i].enable == 0) continue;
-		if ((VU->cycle - VU->fmac[i].sCycle) >= VU->fmac[i].Cycle) continue;
-		if (VU->fmac[i].reg == reg &&
-			VU->fmac[i].xyzw & xyzw) break;
-	}
-
-	if (i == 8) return;
-
-	u32 newCycle = VU->fmac[i].Cycle + VU->fmac[i].sCycle;
-
-	if(newCycle > VU->cycle)
-		VU->cycle = newCycle;
-}
-
-u32 regcycle = 0;
-
-static __ri void __fastcall _vuFMACAdd(VURegs * VU, _VURegsNum* VUregsn) {
-	int i;
-
-	/* If it's an FMAC which doesn't modify FMAC flags, just exit, 
-         * no need to queue.
-	 * Find a free FMAC pipe */
-	for (i=0; i<8; i++) {
-		if (VU->fmac[i].enable == 1) continue;
-		break;
-	}
-
-	if (i < 8)
+	for (int currentpipe = VU->fmacreadpos; i < VU->fmaccount; currentpipe = (currentpipe + 1) & 3, i++)
 	{
-		VU->fmac[i].enable     = 1;
-		VU->fmac[i].sCycle     = VU->cycle;
-		VU->fmac[i].Cycle      = 4;
-		VU->fmac[i].reg        = VUregsn->VFwrite;
-		VU->fmac[i].xyzw       = VUregsn->VFwxyzw;
-		VU->fmac[i].macflag    = VU->macflag;
-		VU->fmac[i].statusflag = VU->statusflag;
-		VU->fmac[i].clipflag   = VU->clipflag;
+		//Check if enough cycles have passed for this fmac position
+		if ((VU->cycle - VU->fmac[currentpipe].sCycle) >= VU->fmac[currentpipe].Cycle) continue;
+
+		// Check if the regs match
+		if ((VU->fmac[currentpipe].regupper == reg &&
+					VU->fmac[currentpipe].xyzwupper & xyzw)
+				|| (VU->fmac[currentpipe].reglower == reg &&
+					VU->fmac[currentpipe].xyzwlower & xyzw))
+		{
+			u32 newCycle = VU->fmac[currentpipe].Cycle + VU->fmac[currentpipe].sCycle;
+			if (newCycle > VU->cycle)
+				VU->cycle = newCycle;
+		}
 	}
 }
 
-static __ri void __fastcall _vuFDIVAdd(VURegs * VU, int cycles) {
-	VU->fdiv.enable = 1;
-	VU->fdiv.sCycle = VU->cycle;
-	VU->fdiv.Cycle  = cycles;
-	VU->fdiv.reg.F  = VU->q.F;
-	VU->fdiv.statusflag = VU->statusflag;
+static __fi void _vuTestFMACStalls(VURegs* VU, _VURegsNum* VUregsn)
+{
+	if (VUregsn->VFread0)
+		_vuFMACTestStall(VU, VUregsn->VFread0, VUregsn->VFr0xyzw);
+
+	if (VUregsn->VFread1)
+		_vuFMACTestStall(VU, VUregsn->VFread1, VUregsn->VFr1xyzw);
 }
 
-static __ri void __fastcall _vuEFUAdd(VURegs * VU, int cycles) {
-	VU->efu.enable = 1;
-	VU->efu.sCycle = VU->cycle;
-	VU->efu.Cycle  = cycles;
-	VU->efu.reg.F  = VU->p.F;
-}
+static __fi void _vuTestFDIVStalls(VURegs * VU, _VURegsNum *VUregsn)
+{
+	_vuTestFMACStalls(VU, VUregsn);
 
-static __ri void __fastcall _vuFlushFDIV(VURegs * VU) {
 	if (VU->fdiv.enable != 0)
 	{
 		u32 newCycle      = VU->fdiv.Cycle + VU->fdiv.sCycle;
@@ -327,14 +238,18 @@ static __ri void __fastcall _vuFlushFDIV(VURegs * VU) {
 	}
 }
 
-static __ri void __fastcall _vuFlushEFU(VURegs * VU, bool isWait = false)
+static __ri void __fastcall _vuFlushEFU(VURegs * VU, _VURegsNum* VUregsn)
 {
+	_vuTestFMACStalls(VU, VUregsn);
+
 	if (VU->efu.enable == 0)
 		return;
 
-	if (isWait)
+	if (VUregsn->cycles == 0) // WAITP
 	{
-		VU->cycle = VU->efu.Cycle - 1;
+		u32 newCycle = VU->efu.sCycle + VU->efu.Cycle - 1;
+		if (newCycle > VU->cycle)
+			VU->cycle = newCycle;
 		VU->efu.sCycle = VU->cycle;
 		VU->efu.Cycle = 1;
 	}
@@ -346,92 +261,58 @@ static __ri void __fastcall _vuFlushEFU(VURegs * VU, bool isWait = false)
 	}
 }
 
-static __fi void _vuTestFMACStalls(VURegs * VU, _VURegsNum *VUregsn) {
-	if (VUregsn->VFread0) {
-		_vuFMACTestStall(VU, VUregsn->VFread0, VUregsn->VFr0xyzw);
-	}
-	if (VUregsn->VFread1) {
-		_vuFMACTestStall(VU, VUregsn->VFread1, VUregsn->VFr1xyzw);
-	}
-}
+static __fi void _vuTestEFUStalls(VURegs* VU, _VURegsNum* VUregsn)
+{
+	_vuTestFMACStalls(VU, VUregsn);
 
-static __fi void _vuAddFMACStalls(VURegs * VU, _VURegsNum *VUregsn) {
-	_vuFMACAdd(VU, VUregsn);
-}
-
-static __ri void __fastcall _vuIALUAdd(VURegs* VU, _VURegsNum* VUregsn) {
-	int i;
-
-	if (VUregsn->cycles == 0)
+	if (VU->efu.enable == 0)
 		return;
-	//If it's an FMAC which doesn't modify FMAC flags, just exit, no need to queue
-	/* find a free fmac pipe */
-	for (i = 0; i < 8; i++) {
-		if (VU->ialu[i].enable == 1) continue;
-		break;
+
+	if (VUregsn->cycles == 0) // WAITP
+	{
+		u32 newCycle = VU->efu.sCycle + VU->efu.Cycle - 1;
+		if (newCycle > VU->cycle)
+			VU->cycle = newCycle;
+		VU->efu.sCycle = VU->cycle;
+		VU->efu.Cycle = 1;
 	}
-
-	if (i < 8) {
-		VU->ialu[i].enable = 1;
-		VU->ialu[i].sCycle = VU->cycle;
-		VU->ialu[i].Cycle = VUregsn->cycles;
-		VU->ialu[i].reg = VUregsn->VIwrite;
-	}
-}
-
-static __fi void _vuAddIALUStalls(VURegs* VU, _VURegsNum* VUregsn) {
-	_vuIALUAdd(VU, VUregsn);
-}
-
-static __fi void _vuTestFDIVStalls(VURegs * VU, _VURegsNum *VUregsn) {
-	_vuTestFMACStalls(VU, VUregsn);
-	_vuFlushFDIV(VU);
-}
-
-static __fi void _vuAddFDIVStalls(VURegs * VU, _VURegsNum *VUregsn) {
-	if (VUregsn->VIwrite & (1 << REG_Q)) {
-		_vuFDIVAdd(VU, VUregsn->cycles);
+	else
+	{
+		u32 newCycle = (VU->efu.Cycle + VU->efu.sCycle);
+		if (newCycle > VU->cycle)
+			VU->cycle = newCycle;
 	}
 }
 
+static __fi void _vuTestALUStalls(VURegs* VU, _VURegsNum* VUregsn)
+{
+	u32 i = 0;
 
-static __fi void _vuTestEFUStalls(VURegs * VU, _VURegsNum *VUregsn) {
-	_vuTestFMACStalls(VU, VUregsn);
-	_vuFlushEFU(VU, VUregsn->cycles == 0);
-}
+	for (int currentpipe = VU->ialureadpos; i < VU->ialucount; currentpipe = (currentpipe + 1) & 3, i++)
+	{
+		if ((VU->cycle - VU->ialu[currentpipe].sCycle) >= VU->ialu[currentpipe].Cycle) continue;
 
-static __fi void _vuAddEFUStalls(VURegs * VU, _VURegsNum *VUregsn) {
-	if (VUregsn->VIwrite & (1 << REG_P)) {
-		_vuEFUAdd(VU, VUregsn->cycles);
+		if (VU->ialu[currentpipe].reg & VUregsn->VIread) // Read and written VI regs share the same register
+		{
+			u32 newCycle = VU->ialu[currentpipe].Cycle + VU->ialu[currentpipe].sCycle;
+
+			if (newCycle > VU->cycle)
+				VU->cycle = newCycle;
+		}
 	}
 }
 
-__fi void _vuTestUpperStalls(VURegs * VU, _VURegsNum *VUregsn) {
+__fi void _vuTestUpperStalls(VURegs* VU, _VURegsNum* VUregsn)
+{
 	switch (VUregsn->pipe) {
-		case VUPIPE_FMAC: _vuTestFMACStalls(VU, VUregsn); break;
+	case VUPIPE_FMAC: _vuTestFMACStalls(VU, VUregsn); break;
 	}
 }
 
-static __fi void _vuTestALUStalls(VURegs* VU, _VURegsNum* VUregsn) {
-	int i;
-
-	for (i = 0; i < 8; i++) {
-		if (VU->ialu[i].enable == 0) continue;
-		if ((VU->cycle - VU->ialu[i].sCycle) >= VU->ialu[i].Cycle) continue;
-		if (VU->ialu[i].reg & VUregsn->VIread) // Read and written VI regs share the same register
-			break;
-	}
-
-	if (i == 8) return;
-
-	u32 newCycle = VU->ialu[i].Cycle + VU->ialu[i].sCycle;
-
-	if (newCycle > VU->cycle)
-		VU->cycle = newCycle;
-}
-
-__fi void _vuTestLowerStalls(VURegs * VU, _VURegsNum *VUregsn) {
-	switch (VUregsn->pipe) {
+__fi void _vuTestLowerStalls(VURegs* VU, _VURegsNum* VUregsn)
+{
+	switch (VUregsn->pipe)
+	{
 		case VUPIPE_FMAC: _vuTestFMACStalls(VU, VUregsn); break;
 		case VUPIPE_FDIV: _vuTestFDIVStalls(VU, VUregsn); break;
 		case VUPIPE_EFU:  _vuTestEFUStalls(VU, VUregsn); break;
@@ -439,18 +320,109 @@ __fi void _vuTestLowerStalls(VURegs * VU, _VURegsNum *VUregsn) {
 	}
 }
 
+__fi void _vuClearFMAC(VURegs* VU)
+{
+	int i = VU->fmacwritepos;
+	VU->fmac[i].regupper =0;
+	VU->fmac[i].xyzwupper = 0;
+	VU->fmac[i].flagreg = 0;
+	VU->fmac[i].reglower = 0;
+	VU->fmac[i].xyzwlower = 0;
+	VU->fmac[i].macflag = 0;
+	VU->fmac[i].statusflag = 0;
+	VU->fmac[i].clipflag = 0;
+
+	VU->fmaccount++;
+}
+
+static __ri void __fastcall _vuAddFMACStalls(VURegs* VU, _VURegsNum* VUregsn, bool isUpper)
+{
+	int i = VU->fmacwritepos;
+
+	VU->fmac[i].sCycle = VU->cycle;
+	VU->fmac[i].Cycle = 4;
+
+	if (isUpper)
+	{
+		VU->fmac[i].regupper = VUregsn->VFwrite;
+		VU->fmac[i].xyzwupper = VUregsn->VFwxyzw;
+		VU->fmac[i].flagreg = VUregsn->VIwrite;
+	}
+	else
+	{
+		VU->fmac[i].reglower = VUregsn->VFwrite;
+		VU->fmac[i].xyzwlower = VUregsn->VFwxyzw;
+		VU->fmac[i].flagreg |= VUregsn->VIwrite;
+	}
+
+	VU->fmac[i].macflag    = VU->macflag;
+	VU->fmac[i].statusflag = VU->statusflag;
+	VU->fmac[i].clipflag   = VU->clipflag;
+}
+
+static __ri void __fastcall _vuFDIVAdd(VURegs* VU, int cycles)
+{
+	VU->fdiv.enable = 1;
+	VU->fdiv.sCycle = VU->cycle;
+	VU->fdiv.Cycle = cycles;
+	VU->fdiv.reg.F = VU->q.F;
+	VU->fdiv.statusflag = VU->statusflag;
+}
+
+static __ri void __fastcall _vuEFUAdd(VURegs* VU, int cycles)
+{
+	VU->efu.enable = 1;
+	VU->efu.sCycle = VU->cycle;
+	VU->efu.Cycle = cycles;
+	VU->efu.reg.F = VU->p.F;
+}
+
+static __ri void __fastcall _vuIALUAdd(VURegs* VU, _VURegsNum* VUregsn)
+{
+	if (VUregsn->cycles == 0)
+		return;
+
+	int i = VU->ialuwritepos;
+
+	VU->ialu[i].sCycle = VU->cycle;
+	VU->ialu[i].Cycle = VUregsn->cycles;
+	VU->ialu[i].reg = VUregsn->VIwrite;
+
+	VU->ialuwritepos = ++VU->ialuwritepos & 3;
+	VU->ialucount++;
+}
+
+static __fi void _vuAddIALUStalls(VURegs* VU, _VURegsNum* VUregsn)
+{
+	_vuIALUAdd(VU, VUregsn);
+}
+
+static __fi void _vuAddFDIVStalls(VURegs * VU, _VURegsNum *VUregsn)
+{
+	if (VUregsn->VIwrite & (1 << REG_Q))
+		_vuFDIVAdd(VU, VUregsn->cycles);
+}
+
+static __fi void _vuAddEFUStalls(VURegs * VU, _VURegsNum *VUregsn)
+{
+	if (VUregsn->VIwrite & (1 << REG_P))
+		_vuEFUAdd(VU, VUregsn->cycles);
+}
+
 __fi void _vuAddUpperStalls(VURegs * VU, _VURegsNum *VUregsn) {
 	switch (VUregsn->pipe) {
-		case VUPIPE_FMAC: _vuAddFMACStalls(VU, VUregsn); break;
+		case VUPIPE_FMAC: _vuAddFMACStalls(VU, VUregsn, true); break;
 	}
 }
 
-__fi void _vuAddLowerStalls(VURegs * VU, _VURegsNum *VUregsn) {
-	switch (VUregsn->pipe) {
-		case VUPIPE_FMAC: _vuAddFMACStalls(VU, VUregsn); break;
+__fi void _vuAddLowerStalls(VURegs * VU, _VURegsNum *VUregsn)
+{
+	switch (VUregsn->pipe)
+	{
+		case VUPIPE_FMAC: _vuAddFMACStalls(VU, VUregsn, false); break;
 		case VUPIPE_FDIV: _vuAddFDIVStalls(VU, VUregsn); break;
 		case VUPIPE_EFU:  _vuAddEFUStalls(VU, VUregsn); break;
-		case VUPIPE_IALU:  _vuAddIALUStalls(VU, VUregsn); break;
+		case VUPIPE_IALU: _vuAddIALUStalls(VU, VUregsn); break;
 	}
 }
 
@@ -2785,7 +2757,17 @@ VUREGS_IDISIT(IOR);
 VUREGS_IDISIT(ISUB);
 VUREGS_ITIS(ISUBIU);
 
-VUREGS_FTFS(MOVE);
+static __ri void _vuRegsMOVE(const VURegs* VU, _VURegsNum* VUregsn) {
+	VUregsn->pipe = _Ft_ == 0 ? VUPIPE_NONE : VUPIPE_FMAC;
+	VUregsn->VFwrite = _Ft_;
+	VUregsn->VFwxyzw = _XYZW;
+	VUregsn->VFread0 = _Fs_;
+	VUregsn->VFr0xyzw = _XYZW;
+	VUregsn->VFread1 = 0;
+	VUregsn->VFr1xyzw = 0;
+	VUregsn->VIwrite = 0;
+	VUregsn->VIread = (_Ft_ ? GET_VF0_FLAG(_Fs_) : 0);
+}
 
 static __ri void _vuRegsMFIR(const VURegs* VU, _VURegsNum *VUregsn) {
 	VUregsn->pipe = VUPIPE_FMAC;
