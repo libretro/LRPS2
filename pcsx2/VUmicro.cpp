@@ -15,6 +15,7 @@
 
 #include "PrecompiledHeader.h"
 #include "Common.h"
+#include "Gif_Unit.h"
 #include "VUmicro.h"
 #include "MTVU.h"
 
@@ -29,12 +30,47 @@ void BaseVUmicroCPU::ExecuteBlock(bool startUp) {
 		vu1Thread.Get_GSChanges();
 	}
 
-	if (!(stat & test)) return;
+	if (!(stat & test))
+	{
+		if (m_Idx == 1)
+		{
+			if (VU1.xgkickenable && (cpuRegs.cycle - VU1.xgkicklastcycle) >= 2)
+			{
+				if (VU1.xgkicksizeremaining == 0)
+				{
+					u32 size = gifUnit.GetGSPacketSize(GIF_PATH_1, VU1.Mem, VU1.xgkickaddr);
+					VU1.xgkicksizeremaining = size & 0xFFFF;
+					VU1.xgkickendpacket = size >> 31;
+				}
+				u32 transfersize = std::min(VU1.xgkicksizeremaining / 0x10, (cpuRegs.cycle - VU1.xgkicklastcycle) / 2);
+				if (transfersize)
+				{
+					if ((transfersize * 0x10) > VU1.xgkicksizeremaining)
+						gifUnit.gifPath[GIF_PATH_1].CopyGSPacketData(&VU1.Mem[VU1.xgkickaddr], transfersize * 0x10, true);
+					else
+						gifUnit.TransferGSPacketData(GIF_TRANS_XGKICK, &VU1.Mem[VU1.xgkickaddr], transfersize * 0x10, true);
 
-	if (startUp && s) {  // Start Executing a microprogram
-		Execute(s); // Kick start VU
+					VU1.xgkickaddr = (VU1.xgkickaddr + (transfersize * 0x10)) & 0x3FFF;
+					VU1.xgkicksizeremaining -= (transfersize * 0x10);
+					VU1.xgkickdiff = 0x4000 - VU1.xgkickaddr;
+					VU1.xgkicklastcycle += std::max(transfersize * 2, 2U);
+
+					if (VU1.xgkicksizeremaining || !VU1.xgkickendpacket)
+						VU1.xgkickenable = 1;
+					else
+						VU1.xgkickenable = 0;
+				}
+				else
+					VU1.xgkickenable = 1;
+			}
+		}
+		return;
 	}
-	else { // Continue Executing
+
+	if (startUp && s)  // Start Executing a microprogram
+		Execute(s); // Kick start VU
+	else               // Continue Executing
+	{ 
 		u32 cycle = m_Idx ? VU1.cycle : VU0.cycle;
 		s32 delta = (s32)(u32)(cpuRegs.cycle - cycle);
 		s32 nextblockcycles = m_Idx ? VU1.nextBlockCycles : VU0.nextBlockCycles;

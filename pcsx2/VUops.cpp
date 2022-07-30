@@ -46,40 +46,89 @@ u32 laststall = 0;
 
 static __aligned16 VECTOR RDzero;
 
-static __ri void _vuFMACflush(VURegs * VU) {
-	int i;
+static __ri bool _vuFMACflush(VURegs * VU) {
+	bool didflush = false;
+	int startpos = 0;
+	u32 cycle = 9999;
 
-	for (i=0; i<8; i++) {
-		if (VU->fmac[i].enable == 0) continue;
+	for (int startpipe = 0; startpipe < 8; startpipe++)
+	{
+		if (VU->fmac[startpipe].enable == 0) continue;
 
-		if ((VU->cycle - VU->fmac[i].sCycle) >= VU->fmac[i].Cycle) {
-			VU->fmac[i].enable         = 0;
-			VU->VI[REG_MAC_FLAG].UL    = VU->fmac[i].macflag;
-			VU->VI[REG_STATUS_FLAG].UL = VU->fmac[i].statusflag;
-			VU->VI[REG_CLIP_FLAG].UL   = VU->fmac[i].clipflag;
+		if ((VU->fmac[startpipe].sCycle + VU->fmac[startpipe].Cycle) <= VU->cycle)
+		{
+			if ((VU->cycle - (VU->fmac[startpipe].sCycle + VU->fmac[startpipe].Cycle)) < cycle)
+			{
+				cycle = (s32)(VU->cycle - (VU->fmac[startpipe].sCycle + VU->fmac[startpipe].Cycle));
+				startpos = startpipe;
+			}
 		}
 	}
+
+	cycle = VU->fmac[startpos].sCycle + VU->fmac[startpos].Cycle;
+
+	for (int i=0; i<8; i++)
+	{
+		int currentpipe = (i + startpos) % 8;
+
+		if (VU->fmac[currentpipe].enable == 0) continue;
+
+		if ((VU->cycle - VU->fmac[currentpipe].sCycle) >= VU->fmac[currentpipe].Cycle) {
+			
+
+			VU->fmac[currentpipe].enable = 0;
+
+			if ((VU->fmac[currentpipe].sCycle + VU->fmac[currentpipe].Cycle) >= cycle)
+			{
+				if (VU->fmac[currentpipe].flagreg & (1 << REG_STATUS_FLAG))
+					VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0x3F) | (VU->fmac[currentpipe].statusflag & 0xFC0);
+				else if (VU->fmac[currentpipe].flagreg & (1 << REG_CLIP_FLAG))
+					VU->VI[REG_CLIP_FLAG].UL = VU->fmac[currentpipe].clipflag;
+				else
+				{
+					// FMAC only affectx Z/S/I/O
+					VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0xFF0) | (VU->fmac[currentpipe].statusflag & 0x3CF);
+					VU->VI[REG_MAC_FLAG].UL = VU->fmac[currentpipe].macflag;
+
+				}
+			}
+			didflush = true;
+		}
+	}
+	return didflush;
 }
 
-static __ri void _vuFDIVflush(VURegs * VU) {
-	if (VU->fdiv.enable == 0) return;
+static __ri bool _vuFDIVflush(VURegs * VU) {
+	if (VU->fdiv.enable != 0)
+	{
+		if ((VU->cycle - VU->fdiv.sCycle) >= VU->fdiv.Cycle)
+		{
+			/* Flushing FDIV pipe */
+			VU->fdiv.enable            = 0;
+			VU->VI[REG_Q].UL           = VU->fdiv.reg.UL;
+			// FDIV only affects D/I
+			VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0xFCF) | (VU->fdiv.statusflag & 0xC30);
 
-	if ((VU->cycle - VU->fdiv.sCycle) >= VU->fdiv.Cycle) {
-		/* Flushing FDIV pipe */
-		VU->fdiv.enable            = 0;
-		VU->VI[REG_Q].UL           = VU->fdiv.reg.UL;
-		VU->VI[REG_STATUS_FLAG].UL = VU->fdiv.statusflag;
+			return true;
+		}
 	}
+
+	return false;
 }
 
-static __ri void _vuEFUflush(VURegs * VU) {
-	if (VU->efu.enable == 0) return;
+static __ri bool _vuEFUflush(VURegs * VU) {
+	if (VU->efu.enable != 0)
+	{
+		if ((VU->cycle - VU->efu.sCycle) >= VU->efu.Cycle)
+		{
+			/* Flushing EFU pipe */
+			VU->efu.enable   = 0;
+			VU->VI[REG_P].UL = VU->efu.reg.UL;
 
-	if ((VU->cycle - VU->efu.sCycle) >= VU->efu.Cycle) {
-		/* Flushing EFU pipe */
-		VU->efu.enable   = 0;
-		VU->VI[REG_P].UL = VU->efu.reg.UL;
+			return true;
+		}
 	}
+	return false;
 }
 
 // called at end of program
@@ -87,35 +136,64 @@ void _vuFlushAll(VURegs* VU)
 {
 	int nRepeat = 1, i;
 
+	u32 startpos = 0;
+	s32 cycle = 9999;
+
+	// Calculate lowest active FMAC pipe
+	for (int startpipe = 0; startpipe < 8; startpipe++)
+	{
+		if (VU->fmac[startpipe].enable == 0) continue;
+
+		if ((VU->fmac[startpipe].sCycle + VU->fmac[startpipe].Cycle) <= VU->cycle)
+		{
+			if ((VU->cycle - (VU->fmac[startpipe].sCycle + VU->fmac[startpipe].Cycle)) < cycle)
+			{
+				cycle = (s32)(VU->cycle - (VU->fmac[startpipe].sCycle + VU->fmac[startpipe].Cycle));
+				startpos = startpipe;
+			}
+		}
+	}
+
 	do {
 		nRepeat = 0;
 
 		for (i=0; i<8; i++) {
-			if (VU->fmac[i].enable == 0) continue;
+			int currentpipe = (i + startpos) % 8;
+
+			if (VU->fmac[currentpipe].enable == 0) continue;
 
 			nRepeat = 1;
 
-			if ((VU->cycle - VU->fmac[i].sCycle) >= VU->fmac[i].Cycle) {
-				VU->fmac[i].enable         = 0;
-				VU->VI[REG_MAC_FLAG].UL    = VU->fmac[i].macflag;
-				VU->VI[REG_STATUS_FLAG].UL = VU->fmac[i].statusflag;
-				VU->VI[REG_CLIP_FLAG].UL   = VU->fmac[i].clipflag;
+			if ((VU->cycle - VU->fmac[currentpipe].sCycle) >= VU->fmac[currentpipe].Cycle)
+			{
+				VU->fmac[currentpipe].enable = 0;
+				if (VU->fmac[currentpipe].flagreg & (1 << REG_STATUS_FLAG))
+					VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0x3F) | (VU->fmac[currentpipe].statusflag & 0xFC0);
+				else if (VU->fmac[currentpipe].flagreg & (1 << REG_CLIP_FLAG))
+					VU->VI[REG_CLIP_FLAG].UL = VU->fmac[currentpipe].clipflag;
+				else
+				{
+					// FMAC only affectx Z/S/I/O
+					VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0xFF0) | (VU->fmac[currentpipe].statusflag & 0x3CF);
+					VU->VI[REG_MAC_FLAG].UL = VU->fmac[currentpipe].macflag;
+				}
 			}
 		}
 
-		if (VU->fdiv.enable ) {
-
+		if (VU->fdiv.enable )
+		{
 			nRepeat = 1;
 
-			if ((VU->cycle - VU->fdiv.sCycle) >= VU->fdiv.Cycle) {
+			if ((VU->cycle - VU->fdiv.sCycle) >= VU->fdiv.Cycle)
+			{
 				VU->fdiv.enable            = 0;
 				VU->VI[REG_Q].UL           = VU->fdiv.reg.UL;
-				VU->VI[REG_STATUS_FLAG].UL = VU->fdiv.statusflag;
+				VU->VI[REG_STATUS_FLAG].UL = (VU->VI[REG_STATUS_FLAG].UL & 0xFCF) | (VU->fdiv.statusflag & 0xC30);
 			}
 		}
 
-		if (VU->efu.enable) {
-
+		if (VU->efu.enable)
+		{
 			nRepeat = 1;
 
 			if ((VU->cycle - VU->efu.sCycle) >= VU->efu.Cycle) {
@@ -130,9 +208,13 @@ void _vuFlushAll(VURegs* VU)
 }
 
 __fi void _vuTestPipes(VURegs * VU) {
-	_vuFMACflush(VU);
-	_vuFDIVflush(VU);
-	_vuEFUflush(VU);
+	bool flushed;
+	do {
+		flushed = false;
+		flushed |= _vuFMACflush(VU);
+		flushed |= _vuFDIVflush(VU);
+		flushed |= _vuEFUflush(VU);
+	} while (flushed == true);
 }
 
 static void __fastcall _vuFMACTestStall(VURegs * VU, int reg, int xyzw) {
@@ -140,40 +222,42 @@ static void __fastcall _vuFMACTestStall(VURegs * VU, int reg, int xyzw) {
 
 	for (i=0; i<8; i++) {
 		if (VU->fmac[i].enable == 0) continue;
+		if ((VU->cycle - VU->fmac[i].sCycle) >= VU->fmac[i].Cycle) continue;
 		if (VU->fmac[i].reg == reg &&
 			VU->fmac[i].xyzw & xyzw) break;
 	}
 
 	if (i == 8) return;
 
-	VU->fmac[i].enable = 0;
-	VU->VI[REG_MAC_FLAG].UL = VU->fmac[i].macflag;
-	VU->VI[REG_STATUS_FLAG].UL = VU->fmac[i].statusflag;
-	VU->VI[REG_CLIP_FLAG].UL = VU->fmac[i].clipflag;
-	u32 newCycle = VU->fmac[i].Cycle + VU->fmac[i].sCycle + 1; // HACK: add 1 delay (fixes segaclassics bad geom)
+	u32 newCycle = VU->fmac[i].Cycle + VU->fmac[i].sCycle;
 
-	VU->cycle = newCycle;
-	_vuTestPipes(VU);
+	if(newCycle > VU->cycle)
+		VU->cycle = newCycle;
 }
 
-static __ri void __fastcall _vuFMACAdd(VURegs * VU, int reg, int xyzw) {
+u32 regcycle = 0;
+
+static __ri void __fastcall _vuFMACAdd(VURegs * VU, _VURegsNum* VUregsn) {
 	int i;
 
-	/* find a free fmac pipe */
+	/* If it's an FMAC which doesn't modify FMAC flags, just exit, 
+         * no need to queue.
+	 * Find a free FMAC pipe */
 	for (i=0; i<8; i++) {
 		if (VU->fmac[i].enable == 1) continue;
 		break;
 	}
 
-	if (i < 8) {
-		VU->fmac[i].enable = 1;
-		VU->fmac[i].sCycle = VU->cycle;
-		VU->fmac[i].Cycle = 3;
-		VU->fmac[i].reg = reg;
-		VU->fmac[i].xyzw = xyzw;
-		VU->fmac[i].macflag = VU->macflag;
+	if (i < 8)
+	{
+		VU->fmac[i].enable     = 1;
+		VU->fmac[i].sCycle     = VU->cycle;
+		VU->fmac[i].Cycle      = 4;
+		VU->fmac[i].reg        = VUregsn->VFwrite;
+		VU->fmac[i].xyzw       = VUregsn->VFwxyzw;
+		VU->fmac[i].macflag    = VU->macflag;
 		VU->fmac[i].statusflag = VU->statusflag;
-		VU->fmac[i].clipflag = VU->clipflag;
+		VU->fmac[i].clipflag   = VU->clipflag;
 	}
 }
 
@@ -193,24 +277,31 @@ static __ri void __fastcall _vuEFUAdd(VURegs * VU, int cycles) {
 }
 
 static __ri void __fastcall _vuFlushFDIV(VURegs * VU) {
-	if (VU->fdiv.enable == 0)
-		return;
-
-	u32 newCycle    = VU->fdiv.Cycle + VU->fdiv.sCycle;
-	VU->fdiv.enable = 0;
-	VU->cycle       = newCycle;
-
-	VU->VI[REG_Q].UL = VU->fdiv.reg.UL;
-	VU->VI[REG_STATUS_FLAG].UL = VU->fdiv.statusflag;
+	if (VU->fdiv.enable != 0)
+	{
+		u32 newCycle      = VU->fdiv.Cycle + VU->fdiv.sCycle;
+		if (newCycle > VU->cycle)
+			VU->cycle = newCycle;
+	}
 }
 
-static __ri void __fastcall _vuFlushEFU(VURegs * VU) {
+static __ri void __fastcall _vuFlushEFU(VURegs * VU, bool isWait = false)
+{
 	if (VU->efu.enable == 0)
 		return;
 
-	VU->efu.enable = 0;
-	VU->cycle = VU->efu.Cycle + VU->efu.sCycle;
-	VU->VI[REG_P].UL = VU->efu.reg.UL;
+	if (isWait)
+	{
+		VU->cycle = VU->efu.Cycle - 1;
+		VU->efu.sCycle = VU->cycle;
+		VU->efu.Cycle = 1;
+	}
+	else
+	{
+		u32 newCycle = (VU->efu.Cycle + VU->efu.sCycle);
+		if (newCycle > VU->cycle)
+			VU->cycle = newCycle;
+	}
 }
 
 static __fi void _vuTestFMACStalls(VURegs * VU, _VURegsNum *VUregsn) {
@@ -223,18 +314,11 @@ static __fi void _vuTestFMACStalls(VURegs * VU, _VURegsNum *VUregsn) {
 }
 
 static __fi void _vuAddFMACStalls(VURegs * VU, _VURegsNum *VUregsn) {
-	if (VUregsn->VFwrite) {
-		_vuFMACAdd(VU, VUregsn->VFwrite, VUregsn->VFwxyzw);
-	} else
-	if (VUregsn->VIwrite & (1 << REG_CLIP_FLAG)) {
-		_vuFMACAdd(VU, -REG_CLIP_FLAG, 0);
-	} else {
-		_vuFMACAdd(VU, 0, 0);
-	}
+	_vuFMACAdd(VU, VUregsn);
 }
 
 static __fi void _vuTestFDIVStalls(VURegs * VU, _VURegsNum *VUregsn) {
-//	_vuTestFMACStalls(VURegs * VU, _VURegsNum *VUregsn);
+	_vuTestFMACStalls(VU, VUregsn);
 	_vuFlushFDIV(VU);
 }
 
@@ -246,8 +330,8 @@ static __fi void _vuAddFDIVStalls(VURegs * VU, _VURegsNum *VUregsn) {
 
 
 static __fi void _vuTestEFUStalls(VURegs * VU, _VURegsNum *VUregsn) {
-//	_vuTestFMACStalls(VURegs * VU, _VURegsNum *VUregsn);
-	_vuFlushEFU(VU);
+	_vuTestFMACStalls(VU, VUregsn);
+	_vuFlushEFU(VU, VUregsn->cycles == 0);
 }
 
 static __fi void _vuAddEFUStalls(VURegs * VU, _VURegsNum *VUregsn) {
@@ -282,6 +366,22 @@ __fi void _vuAddLowerStalls(VURegs * VU, _VURegsNum *VUregsn) {
 		case VUPIPE_FDIV: _vuAddFDIVStalls(VU, VUregsn); break;
 		case VUPIPE_EFU:  _vuAddEFUStalls(VU, VUregsn); break;
 	}
+}
+
+static __fi void _vuBackupVI(VURegs* VU, int reg)
+{
+#ifdef VI_BACKUP
+	if (VU->VIBackupCycles && reg == VU->VIRegNumber)
+	{
+		//On repeat writes we need to remember the value from before the chain
+		VU->VIBackupCycles = 2;
+		return;
+	}
+
+	VU->VIBackupCycles = 2;
+	VU->VIRegNumber = reg;
+	VU->VIOldValue = VU->VI[reg].US[0];
+#endif
 }
 
 
@@ -1233,7 +1333,6 @@ static __fi void _vuMINI(VURegs * VU) {
 	if (_Fd_ == 0)
 		return;
 
-	/* ft is bc */
 	if (_X) VU->VF[_Fd_].i.x = fp_min(VU->VF[_Fs_].i.x, VU->VF[_Ft_].i.x);
 	if (_Y) VU->VF[_Fd_].i.y = fp_min(VU->VF[_Fs_].i.y, VU->VF[_Ft_].i.y);
 	if (_Z) VU->VF[_Fd_].i.z = fp_min(VU->VF[_Fs_].i.z, VU->VF[_Ft_].i.z);
@@ -1244,7 +1343,6 @@ static __fi void _vuMINIi(VURegs * VU) {
 	if (_Fd_ == 0)
 		return;
 
-	/* ft is bc */
 	if (_X) VU->VF[_Fd_].i.x = fp_min(VU->VF[_Fs_].i.x, VU->VI[REG_I].UL);
 	if (_Y) VU->VF[_Fd_].i.y = fp_min(VU->VF[_Fs_].i.y, VU->VI[REG_I].UL);
 	if (_Z) VU->VF[_Fd_].i.z = fp_min(VU->VF[_Fs_].i.z, VU->VI[REG_I].UL);
@@ -1395,7 +1493,6 @@ static __fi void _vuITOF15(VURegs * VU) {
 	if (_W) VU->VF[_Ft_].f.w = int15_to_float(VU->VF[_Fs_].SL[3]);
 }
 
-/* Different type of clipping by presaving w. asadr */
 static __fi void _vuCLIP(VURegs * VU) {
 	float value = fabs(vuDouble(VU->VF[_Ft_].i.w));
 
@@ -1498,11 +1595,7 @@ static __fi void _vuIADDI(VURegs * VU)
 	imm = ((imm & 0x10 ? 0xfff0 : 0) | (imm & 0xf));
 	if(_It_ == 0) return;
 
-#ifdef VI_BACKUP
-	VU->VIBackupCycles = 2;
-	VU->VIRegNumber = _It_;
-	VU->VIOldValue = VU->VI[_It_].US[0];
-#endif
+	_vuBackupVI(VU, _It_);
 
 	VU->VI[_It_].SS[0] = VU->VI[_Is_].SS[0] + imm;
 }
@@ -1510,11 +1603,7 @@ static __fi void _vuIADDI(VURegs * VU)
 static __fi void _vuIADDIU(VURegs * VU) {
 	if(_It_ == 0) return;
 
-#ifdef VI_BACKUP
-	VU->VIBackupCycles = 2;
-	VU->VIRegNumber = _It_;
-	VU->VIOldValue = VU->VI[_It_].US[0];
-#endif
+	_vuBackupVI(VU, _It_);
 
 	VU->VI[_It_].SS[0] = VU->VI[_Is_].SS[0] + (((VU->code >> 10) & 0x7800) | (VU->code & 0x7ff));
 }
@@ -1522,11 +1611,7 @@ static __fi void _vuIADDIU(VURegs * VU) {
 static __fi void _vuIADD(VURegs * VU) {
 	if(_Id_ == 0) return;
 
-#ifdef VI_BACKUP
-	VU->VIBackupCycles = 2;
-	VU->VIRegNumber = _It_;
-	VU->VIOldValue = VU->VI[_Id_].US[0];
-#endif
+	_vuBackupVI(VU, _It_);
 
 	VU->VI[_Id_].SS[0] = VU->VI[_Is_].SS[0] + VU->VI[_It_].SS[0];
 }
@@ -1534,11 +1619,7 @@ static __fi void _vuIADD(VURegs * VU) {
 static __fi void _vuIAND(VURegs * VU) {
 	if(_Id_ == 0) return;
 
-#ifdef VI_BACKUP
-	VU->VIBackupCycles = 2;
-	VU->VIRegNumber = _It_;
-	VU->VIOldValue = VU->VI[_Id_].US[0];
-#endif
+	_vuBackupVI(VU, _It_);
 
 	VU->VI[_Id_].US[0] = VU->VI[_Is_].US[0] & VU->VI[_It_].US[0];
 }
@@ -1546,32 +1627,20 @@ static __fi void _vuIAND(VURegs * VU) {
 static __fi void _vuIOR(VURegs * VU) {
 	if(_Id_ == 0) return;
 
-#ifdef VI_BACKUP
-	VU->VIBackupCycles = 2;
-	VU->VIRegNumber = _It_;
-	VU->VIOldValue = VU->VI[_Id_].US[0];
-#endif
+	_vuBackupVI(VU, _Id_);
 
 	VU->VI[_Id_].US[0] = VU->VI[_Is_].US[0] | VU->VI[_It_].US[0];
 }
 
 static __fi void _vuISUB(VURegs * VU) {
 	if(_Id_ == 0) return;
-#ifdef VI_BACKUP
-	VU->VIBackupCycles = 2;
-	VU->VIRegNumber = _It_;
-	VU->VIOldValue = VU->VI[_Id_].US[0];
-#endif
+	_vuBackupVI(VU, _Id_);
 	VU->VI[_Id_].SS[0] = VU->VI[_Is_].SS[0] - VU->VI[_It_].SS[0];
 }
 
 static __fi void _vuISUBIU(VURegs * VU) {
 	if(_It_ == 0) return;
-#ifdef VI_BACKUP
-	VU->VIBackupCycles = 2;
-	VU->VIRegNumber = _It_;
-	VU->VIOldValue = VU->VI[_It_].US[0];
-#endif
+	_vuBackupVI(VU, _Id_);
 	VU->VI[_It_].SS[0] = VU->VI[_Is_].SS[0] - (((VU->code >> 10) & 0x7800) | (VU->code & 0x7ff));
 }
 
@@ -1593,14 +1662,9 @@ static __fi void _vuMFIR(VURegs * VU) {
 	if (_W) VU->VF[_Ft_].SL[3] = (s32)VU->VI[_Is_].SS[0];
 }
 
-// Big bug!!! mov from fs to ft not ft to fs. asadr
 static __fi void _vuMTIR(VURegs * VU) {
 	if(_It_ == 0) return;
-#ifdef VI_BACKUP
-	VU->VIBackupCycles = 2;
-	VU->VIRegNumber = _It_;
-	VU->VIOldValue = VU->VI[_It_].US[0];
-#endif
+	_vuBackupVI(VU, _Id_);
 	VU->VI[_It_].US[0] =  *(u16*)&VU->VF[_Fs_].F[_Fsf_];
 }
 
@@ -1643,6 +1707,7 @@ static __ri void _vuLQ(VURegs * VU) {
 }
 
 static __ri void _vuLQD( VURegs * VU ) {
+	_vuBackupVI(VU, _Is_);
 	if (_Is_ != 0) VU->VI[_Is_].US[0]--;
 	if (_Ft_ == 0) return;
 
@@ -1655,6 +1720,7 @@ static __ri void _vuLQD( VURegs * VU ) {
 }
 
 static __ri void _vuLQI(VURegs * VU) {
+	_vuBackupVI(VU, _Is_);
 	if (_Ft_) {
 		u32 addr = (VU->VI[_Is_].US[0] * 16);
 		u32* ptr = (u32*)GET_VU_MEM(VU, addr);
@@ -1678,6 +1744,7 @@ static __ri void _vuSQ(VURegs * VU)
 }
 
 static __ri void _vuSQD(VURegs * VU) {
+	_vuBackupVI(VU, _It_);
 	if(_Ft_ != 0) VU->VI[_It_].US[0]--;
 	u32 addr = (VU->VI[_It_].US[0] * 16);
 	u32* ptr = (u32*)GET_VU_MEM(VU, addr);
@@ -1688,6 +1755,7 @@ static __ri void _vuSQD(VURegs * VU) {
 }
 
 static __ri void _vuSQI(VURegs * VU) {
+	_vuBackupVI(VU, _It_);
 	u32 addr = (VU->VI[_It_].US[0] * 16);
 	u32* ptr = (u32*)GET_VU_MEM(VU, addr);
 	if (_X) ptr[0] = VU->VF[_Fs_].UL[0];
@@ -1705,11 +1773,7 @@ static __ri void _vuILW(VURegs * VU)
 	u16 addr = ((imm + VU->VI[_Is_].SS[0]) * 16);
 	u16* ptr = (u16*)GET_VU_MEM(VU, addr);
 
-#ifdef VI_BACKUP
-	VU->VIBackupCycles = 2;
-	VU->VIRegNumber = _It_;
-	VU->VIOldValue = VU->VI[_It_].US[0];
-#endif
+	_vuBackupVI(VU, _It_);
 
 	if (_X) VU->VI[_It_].US[0] = ptr[0];
 	if (_Y) VU->VI[_It_].US[0] = ptr[2];
@@ -1733,11 +1797,7 @@ static __ri void _vuILWR(VURegs * VU) {
 	u32 addr = (VU->VI[_Is_].US[0] * 16);
 	u16* ptr = (u16*)GET_VU_MEM(VU, addr);
 
-#ifdef VI_BACKUP
-	VU->VIBackupCycles = 2;
-	VU->VIRegNumber = _It_;
-	VU->VIOldValue = VU->VI[_It_].US[0];
-#endif
+	_vuBackupVI(VU, _It_);
 
 	if (_X) VU->VI[_It_].US[0] = ptr[0];
 	if (_Y) VU->VI[_It_].US[0] = ptr[2];
@@ -1833,7 +1893,7 @@ static __ri void _vuFSOR(VURegs * VU) {
 
 static __ri void _vuFSSET(VURegs * VU) {
 	u16 imm = (((VU->code >> 21 ) & 0x1) << 11) | (VU->code & 0x7FF);
-	VU->statusflag = (imm & 0xFC0) | (VU->VI[REG_STATUS_FLAG].US[0] & 0x3F);
+	VU->statusflag = (imm & 0xFC0) | (VU->statusflag & 0x3F);
 }
 
 static __ri void _vuFMAND(VURegs * VU) {
@@ -1870,7 +1930,6 @@ static __fi void _vuFCOR(VURegs * VU) {
 
 static __fi void _vuFCSET(VURegs * VU) {
 	VU->clipflag = (u32) (VU->code & 0xFFFFFF);
-	VU->VI[REG_CLIP_FLAG].UL = (u32) (VU->code & 0xFFFFFF);
 }
 
 static __fi void _vuFCGET(VURegs * VU) {
@@ -2161,21 +2220,51 @@ static __ri void _vuXITOP(VURegs * VU)
 		VU->VI[_It_].US[0] = VU->GetVifRegs().itop;
 }
 
+static void _vuXGKICKFlush(VURegs* VU)
+{
+	while (!VU->xgkickendpacket || VU->xgkicksizeremaining > 0)
+	{
+		if (VU->xgkicksizeremaining == 0)
+		{
+			u32 size = gifUnit.GetGSPacketSize(GIF_PATH_1, VU->Mem, VU->xgkickaddr);
+			VU->xgkicksizeremaining = size & 0xFFFF;
+			VU->xgkickendpacket = size >> 31;
+			VU->xgkickdiff = 0x4000 - VU->xgkickaddr;
+		}
+
+		if (VU->xgkicksizeremaining > VU->xgkickdiff) {
+			gifUnit.gifPath[GIF_PATH_1].CopyGSPacketData(&VU->Mem[VU->xgkickaddr], VU->xgkickdiff, true);
+			gifUnit.TransferGSPacketData(GIF_TRANS_XGKICK, &VU->Mem[0], VU->xgkicksizeremaining - VU->xgkickdiff, true);
+		}
+		else {
+			gifUnit.TransferGSPacketData(GIF_TRANS_XGKICK, &VU->Mem[VU->xgkickaddr], VU->xgkicksizeremaining, true);
+		}
+
+		VU->xgkickaddr = (VU->xgkickaddr + VU->xgkicksizeremaining) & 0x3fff;
+
+		if (VU0.VI[REG_VPU_STAT].UL & 0x100)
+			VU->cycle += VU->xgkicksizeremaining / 2;
+
+		VU->xgkicksizeremaining = 0;
+	}
+	VU->xgkickenable = 0;
+	_vuTestPipes(VU);
+}
+
 static __ri void _vuXGKICK(VURegs * VU)
 {
-	// flush all pipelines first (in the right order)
-	_vuFlushAll(VU);
+	if (VU->xgkickenable)
+		_vuXGKICKFlush(VU);
+
 	u32 addr = (VU->VI[_Is_].US[0] & 0x3ff) * 16;
 	u32 diff = 0x4000 - addr;
-	u32 size = gifUnit.GetGSPacketSize(GIF_PATH_1, VU->Mem, addr);
 
-	if (size > diff)
-	{
-		gifUnit.gifPath[GIF_PATH_1].CopyGSPacketData(  &VU->Mem[addr],  diff,true);
-		gifUnit.TransferGSPacketData(GIF_TRANS_XGKICK, &VU->Mem[0],size-diff,true);
-	}
-	else
-		gifUnit.TransferGSPacketData(GIF_TRANS_XGKICK, &VU->Mem[addr], size, true);
+	VU->xgkickenable        = 1;
+	VU->xgkickaddr          = addr;
+	VU->xgkickdiff          = diff;
+	VU->xgkicksizeremaining = 0;
+	VU->xgkickendpacket     = 0;
+	VU->xgkicklastcycle     = VU->cycle;
 }
 
 static __ri void _vuXTOP(VURegs * VU) {
@@ -2394,18 +2483,6 @@ VUREGS_ACCFSFTw(SUBAw, 0);
 
 #define VUREGS_FDFSFTxyzw_MUL(OP, ACC, xyzw) \
 static __ri void _vuRegs##OP(const VURegs* VU, _VURegsNum *VUregsn) { \
-	if( _Ft_ == 0 && (xyzw) > 1 && _XYZW == 0xf ) { /* resetting to 0 */ \
-		VUregsn->pipe = VUPIPE_FMAC; \
-		VUregsn->VFwrite = (ACC)?0:_Fd_; \
-		VUregsn->VFwxyzw = _XYZW; \
-		VUregsn->VFread0 = 0; \
-		VUregsn->VFr0xyzw= _XYZW; \
-		VUregsn->VFread1 = 0; \
-		VUregsn->VFr1xyzw= xyzw; \
-		VUregsn->VIwrite = ((ACC)?(1 << REG_ACC_FLAG) : 0); \
-		VUregsn->VIread  = ((ACC)&&(_XYZW!=15))?(1 << REG_ACC_FLAG) : 0; \
-	} \
-	else { \
 		VUregsn->pipe = VUPIPE_FMAC; \
 		VUregsn->VFwrite = (ACC)?0:_Fd_; \
 		VUregsn->VFwxyzw = _XYZW; \
@@ -2415,7 +2492,6 @@ static __ri void _vuRegs##OP(const VURegs* VU, _VURegsNum *VUregsn) { \
 		VUregsn->VFr1xyzw= xyzw; \
 		VUregsn->VIwrite = ((ACC)?(1 << REG_ACC_FLAG) : 0); \
 		VUregsn->VIread  = GET_VF0_FLAG(_Fs_)|(((ACC)&&(_XYZW!=15))?(1 << REG_ACC_FLAG) : 0); \
-	} \
 }
 
 VUREGS_FDFSFT(MUL, 0);
@@ -2500,19 +2576,15 @@ VUREGS_FDFSFTw(MAXw_, 0);
 
 static __ri void _vuRegsMAXx(const VURegs* VU, _VURegsNum *VUregsn) {
 	_vuRegsMAXx_(VU, VUregsn);
-	if( _Fs_ == 0 && _Ft_ == 0 ) VUregsn->VIread &= ~(1 << REG_VF0_FLAG);
 }
 static __ri void _vuRegsMAXy(const VURegs* VU, _VURegsNum *VUregsn) {
 	_vuRegsMAXy_(VU, VUregsn);
-	if( _Fs_ == 0 && _Ft_ == 0 ) VUregsn->VIread &= ~(1 << REG_VF0_FLAG);
 }
 static __ri void _vuRegsMAXz(const VURegs* VU, _VURegsNum *VUregsn) {
 	_vuRegsMAXz_(VU, VUregsn);
-	if( _Fs_ == 0 && _Ft_ == 0 ) VUregsn->VIread &= ~(1 << REG_VF0_FLAG);
 }
 static __ri void _vuRegsMAXw(const VURegs* VU, _VURegsNum *VUregsn) {
 	_vuRegsMAXw_(VU, VUregsn);
-	if( _Fs_ == 0 && _Ft_ == 0 ) VUregsn->VIread &= ~(1 << REG_VF0_FLAG);
 }
 
 VUREGS_FDFSFT(MINI, 0);
@@ -2588,7 +2660,7 @@ static __ri void _vuRegsDIV(const VURegs* VU, _VURegsNum *VUregsn) {
 	VUregsn->VFr1xyzw= 1 << (3-_Ftf_);
     VUregsn->VIwrite = 1 << REG_Q;
     VUregsn->VIread  = GET_VF0_FLAG(_Fs_)|GET_VF0_FLAG(_Ft_);
-	VUregsn->cycles  = 6;
+	VUregsn->cycles  = 7;
 }
 
 static __ri void _vuRegsSQRT(const VURegs* VU, _VURegsNum *VUregsn) {
@@ -2600,7 +2672,7 @@ static __ri void _vuRegsSQRT(const VURegs* VU, _VURegsNum *VUregsn) {
 	VUregsn->VFr1xyzw = 1 << (3-_Ftf_);
     VUregsn->VIwrite = 1 << REG_Q;
     VUregsn->VIread  = GET_VF0_FLAG(_Ft_);
-	VUregsn->cycles  = 6;
+	VUregsn->cycles  = 7;
 }
 
 static __ri void _vuRegsRSQRT(const VURegs* VU, _VURegsNum *VUregsn) {
@@ -2612,7 +2684,7 @@ static __ri void _vuRegsRSQRT(const VURegs* VU, _VURegsNum *VUregsn) {
 	VUregsn->VFr1xyzw= 1 << (3-_Ftf_);
     VUregsn->VIwrite = 1 << REG_Q;
     VUregsn->VIread  = GET_VF0_FLAG(_Fs_)|GET_VF0_FLAG(_Ft_);
-	VUregsn->cycles  = 12;
+	VUregsn->cycles  = 13;
 }
 
 VUREGS_ITIS(IADDI);
@@ -2650,7 +2722,7 @@ static __ri void _vuRegsMR32(const VURegs* VU, _VURegsNum *VUregsn) {
 	VUregsn->VFwrite = _Ft_;
 	VUregsn->VFwxyzw = _XYZW;
 	VUregsn->VFread0 = _Fs_;
-	VUregsn->VFr0xyzw= (_XYZW >> 1) | ((_XYZW << 3) & 0xf);  //rotate
+	VUregsn->VFr0xyzw= (_XYZW >> 1) | ((_XYZW << 3) & 0x8);  //rotate
 	VUregsn->VFread1 = 0;
 	VUregsn->VFr1xyzw = 0xff;
 	VUregsn->VIwrite = 0;
@@ -2724,7 +2796,7 @@ static __ri void _vuRegsILW(const VURegs* VU, _VURegsNum *VUregsn) {
 	VUregsn->VFread1 = 0;
     VUregsn->VIwrite = 1 << _It_;
     VUregsn->VIread  = 1 << _Is_;
-	VUregsn->cycles  = 3;
+	VUregsn->cycles  = 4;
 }
 
 static __ri void _vuRegsISW(const VURegs* VU, _VURegsNum *VUregsn) {
@@ -2743,7 +2815,7 @@ static __ri void _vuRegsILWR(const VURegs* VU, _VURegsNum *VUregsn) {
 	VUregsn->VFread1 = 0;
     VUregsn->VIwrite = (1 << _It_);
     VUregsn->VIread  = (1 << _Is_);
-	VUregsn->cycles  = 3;
+	VUregsn->cycles  = 4;
 }
 
 static __ri void _vuRegsISWR(const VURegs* VU, _VURegsNum *VUregsn) {
@@ -3019,21 +3091,22 @@ static __ri void _vuRegsWAITP(const VURegs* VU, _VURegsNum *VUregsn) {
     VUregsn->VFread1 = 0;
     VUregsn->VIwrite = 0;
     VUregsn->VIread  = 0;
+    VUregsn->cycles = 0;
 }
 
-VUREGS_PFS_xyzw(ESADD, 10);
-VUREGS_PFS_xyzw(ERSADD, 17);
-VUREGS_PFS_xyzw(ELENG, 17);
-VUREGS_PFS_xyzw(ERLENG, 23);
-VUREGS_PFS_xyzw(EATANxy, 53);
-VUREGS_PFS_xyzw(EATANxz, 53);
-VUREGS_PFS_xyzw(ESUM, 11);
-VUREGS_PFS_fsf(ERCPR, 11);
-VUREGS_PFS_fsf(ESQRT, 11);
-VUREGS_PFS_fsf(ERSQRT, 17);
-VUREGS_PFS_fsf(ESIN, 28);
-VUREGS_PFS_fsf(EATAN, 53);
-VUREGS_PFS_fsf(EEXP, 43);
+VUREGS_PFS_xyzw(ESADD, 11);
+VUREGS_PFS_xyzw(ERSADD, 18);
+VUREGS_PFS_xyzw(ELENG, 18);
+VUREGS_PFS_xyzw(ERLENG, 24);
+VUREGS_PFS_xyzw(EATANxy, 54);
+VUREGS_PFS_xyzw(EATANxz, 54);
+VUREGS_PFS_xyzw(ESUM, 12);
+VUREGS_PFS_fsf(ERCPR, 12);
+VUREGS_PFS_fsf(ESQRT, 12);
+VUREGS_PFS_fsf(ERSQRT, 18);
+VUREGS_PFS_fsf(ESIN, 29);
+VUREGS_PFS_fsf(EATAN, 54);
+VUREGS_PFS_fsf(EEXP, 44);
 
 static __ri void _vuRegsXITOP(const VURegs* VU, _VURegsNum *VUregsn) {
 	VUregsn->pipe = VUPIPE_IALU;
@@ -3042,7 +3115,7 @@ static __ri void _vuRegsXITOP(const VURegs* VU, _VURegsNum *VUregsn) {
     VUregsn->VFread1 = 0;
     VUregsn->VIwrite = 1 << _It_;
     VUregsn->VIread  = 0;
-	VUregsn->cycles  = 0;
+    VUregsn->cycles  = 0;
 }
 
 static __ri void _vuRegsXGKICK(const VURegs* VU, _VURegsNum *VUregsn) {

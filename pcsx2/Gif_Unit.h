@@ -536,6 +536,8 @@ struct Gif_Unit
 				return 0; // Bios does this... (Fixed if you delay vu1's xgkick by 103 vu cycles)
 			if (curSize >= size)
 				return size;
+			if(!EmuConfig.Cpu.Recompiler.EnableVU1 && pathIdx == GIF_PATH_1)
+				return curSize | ((u32)gifTag.tag.EOP << 31);
 			if (gifTag.tag.EOP)
 				return curSize;
 		}
