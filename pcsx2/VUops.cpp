@@ -1437,40 +1437,49 @@ static __fi void _vuOPMSUB(VURegs * VU) {
 static __fi void _vuNOP(VURegs * VU) {
 }
 
+static __fi s32 float_to_int(float value)
+{
+	if (value >= 2147483647.0)
+		return 2147483647LL;
+	if (value <= -2147483648.0)
+		return -2147483648LL;
+	return value;
+}
+
 static __fi void _vuFTOI0(VURegs * VU) {
 	if (_Ft_ == 0) return;
 
-	if (_X) VU->VF[_Ft_].SL[0] = (s32)vuDouble(VU->VF[_Fs_].i.x);
-	if (_Y) VU->VF[_Ft_].SL[1] = (s32)vuDouble(VU->VF[_Fs_].i.y);
-	if (_Z) VU->VF[_Ft_].SL[2] = (s32)vuDouble(VU->VF[_Fs_].i.z);
-	if (_W) VU->VF[_Ft_].SL[3] = (s32)vuDouble(VU->VF[_Fs_].i.w);
+	if (_X) VU->VF[_Ft_].SL[0] = float_to_int(vuDouble(VU->VF[_Fs_].i.x));
+	if (_Y) VU->VF[_Ft_].SL[1] = float_to_int(vuDouble(VU->VF[_Fs_].i.y));
+	if (_Z) VU->VF[_Ft_].SL[2] = float_to_int(vuDouble(VU->VF[_Fs_].i.z));
+	if (_W) VU->VF[_Ft_].SL[3] = float_to_int(vuDouble(VU->VF[_Fs_].i.w));
 }
 
 static __fi void _vuFTOI4(VURegs * VU) {
 	if (_Ft_ == 0) return;
 
-	if (_X) VU->VF[_Ft_].SL[0] = float_to_int4(vuDouble(VU->VF[_Fs_].i.x));
-	if (_Y) VU->VF[_Ft_].SL[1] = float_to_int4(vuDouble(VU->VF[_Fs_].i.y));
-	if (_Z) VU->VF[_Ft_].SL[2] = float_to_int4(vuDouble(VU->VF[_Fs_].i.z));
-	if (_W) VU->VF[_Ft_].SL[3] = float_to_int4(vuDouble(VU->VF[_Fs_].i.w));
+	if (_X) VU->VF[_Ft_].SL[0] = float_to_int(float_to_int4(vuDouble(VU->VF[_Fs_].i.x)));
+	if (_Y) VU->VF[_Ft_].SL[1] = float_to_int(float_to_int4(vuDouble(VU->VF[_Fs_].i.y)));
+	if (_Z) VU->VF[_Ft_].SL[2] = float_to_int(float_to_int4(vuDouble(VU->VF[_Fs_].i.z)));
+	if (_W) VU->VF[_Ft_].SL[3] = float_to_int(float_to_int4(vuDouble(VU->VF[_Fs_].i.w)));
 }
 
 static __fi void _vuFTOI12(VURegs * VU) {
 	if (_Ft_ == 0) return;
 
-	if (_X) VU->VF[_Ft_].SL[0] = float_to_int12(vuDouble(VU->VF[_Fs_].i.x));
-	if (_Y) VU->VF[_Ft_].SL[1] = float_to_int12(vuDouble(VU->VF[_Fs_].i.y));
-	if (_Z) VU->VF[_Ft_].SL[2] = float_to_int12(vuDouble(VU->VF[_Fs_].i.z));
-	if (_W) VU->VF[_Ft_].SL[3] = float_to_int12(vuDouble(VU->VF[_Fs_].i.w));
+	if (_X) VU->VF[_Ft_].SL[0] = float_to_int(float_to_int12(vuDouble(VU->VF[_Fs_].i.x)));
+	if (_Y) VU->VF[_Ft_].SL[1] = float_to_int(float_to_int12(vuDouble(VU->VF[_Fs_].i.y)));
+	if (_Z) VU->VF[_Ft_].SL[2] = float_to_int(float_to_int12(vuDouble(VU->VF[_Fs_].i.z)));
+	if (_W) VU->VF[_Ft_].SL[3] = float_to_int(float_to_int12(vuDouble(VU->VF[_Fs_].i.w)));
 }
 
 static __fi void _vuFTOI15(VURegs * VU) {
 	if (_Ft_ == 0) return;
 
-	if (_X) VU->VF[_Ft_].SL[0] = float_to_int15(vuDouble(VU->VF[_Fs_].i.x));
-	if (_Y) VU->VF[_Ft_].SL[1] = float_to_int15(vuDouble(VU->VF[_Fs_].i.y));
-	if (_Z) VU->VF[_Ft_].SL[2] = float_to_int15(vuDouble(VU->VF[_Fs_].i.z));
-	if (_W) VU->VF[_Ft_].SL[3] = float_to_int15(vuDouble(VU->VF[_Fs_].i.w));
+	if (_X) VU->VF[_Ft_].SL[0] = float_to_int(float_to_int15(vuDouble(VU->VF[_Fs_].i.x)));
+	if (_Y) VU->VF[_Ft_].SL[1] = float_to_int(float_to_int15(vuDouble(VU->VF[_Fs_].i.y)));
+	if (_Z) VU->VF[_Ft_].SL[2] = float_to_int(float_to_int15(vuDouble(VU->VF[_Fs_].i.z)));
+	if (_W) VU->VF[_Ft_].SL[3] = float_to_int(float_to_int15(vuDouble(VU->VF[_Fs_].i.w)));
 }
 
 static __fi void _vuITOF0(VURegs * VU) {
