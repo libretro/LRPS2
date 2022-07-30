@@ -185,6 +185,8 @@ static void _vu1Exec(VURegs* VU)
 				VU->xgkickenable = 0;
 		}
 		u32 transfersize = std::min(VU->xgkicksizeremaining / 0x10, (VU1.cycle - VU->xgkicklastcycle) / 2);
+		transfersize = std::min(transfersize, VU->xgkickdiff / 0x10);
+
 		if (transfersize)
 		{
 			if ((transfersize * 0x10) > VU->xgkicksizeremaining)

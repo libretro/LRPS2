@@ -43,6 +43,8 @@ void BaseVUmicroCPU::ExecuteBlock(bool startUp) {
 					VU1.xgkickendpacket = size >> 31;
 				}
 				u32 transfersize = std::min(VU1.xgkicksizeremaining / 0x10, (cpuRegs.cycle - VU1.xgkicklastcycle) / 2);
+				transfersize = std::min(transfersize, VU1.xgkickdiff / 0x10);
+
 				if (transfersize)
 				{
 					if ((transfersize * 0x10) > VU1.xgkicksizeremaining)
