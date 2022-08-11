@@ -965,5 +965,6 @@ wxString GetExecutablePath()
 {
 	const char* system = nullptr;
 	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
-	return Path::Combine(system);
+	return (system);
+	//return Path::Combine(system, "pcsx2/PCSX2");
 }
