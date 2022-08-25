@@ -264,7 +264,7 @@ void retro_init(void)
 
 	// get the BIOS available and fill the option
 
-	bios_dir = Path::Combine(system);
+	bios_dir = (system);
 
 	wxArrayString bios_list;
 	wxDir::GetAllFiles(bios_dir.GetFullPath(), &bios_list, L"*.*", wxDIR_FILES);
