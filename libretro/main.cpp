@@ -264,7 +264,7 @@ void retro_init(void)
 
 	// get the BIOS available and fill the option
 
-	bios_dir = (system);
+	bios_dir = Path::Combine(system, "pcsx2/bios");
 
 	wxArrayString bios_list;
 	wxDir::GetAllFiles(bios_dir.GetFullPath(), &bios_list, L"*.*", wxDIR_FILES);
@@ -965,6 +965,5 @@ wxString GetExecutablePath()
 {
 	const char* system = nullptr;
 	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
-	return (system);
-	//return Path::Combine(system, "pcsx2/PCSX2");
+	return Path::Combine(system, "pcsx2/PCSX2");
 }
