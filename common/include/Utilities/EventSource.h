@@ -31,8 +31,6 @@ public:
     typedef typename ListenerList::iterator ListenerIterator;
 
 protected:
-    typedef typename ListenerList::const_iterator ConstIterator;
-
     ListenerList m_listeners;
 
     // This is a cached copy of the listener list used to handle standard dispatching, which
