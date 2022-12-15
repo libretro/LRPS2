@@ -742,23 +742,22 @@ void processPgpuDma()
 
 u32 psxDma2GpuR(u32 addr)
 {
-    u32 data = 0;
     addr &= 0x1FFFFFFF;
-    if (addr == PGPU_DMA_MADR) {
-        data = pgpuDmaMadr;
-    } else if (addr == PGPU_DMA_BCR) {
-        data = pgpuDmaBcr;
-    } else if (addr == PGPU_DMA_CHCR) {
+    if (addr == PGPU_DMA_MADR)
+        return pgpuDmaMadr;
+    else if (addr == PGPU_DMA_BCR)
+        return pgpuDmaBcr;
+    else if (addr == PGPU_DMA_CHCR) {
         if ((PgpuDmaLlAct != 1) && (PgpuDmaNrActToGpu != 1) && (PgpuDmaNrActToIop != 1))
             pgpuDmaChcr &= ~0x01000000;
-        data = pgpuDmaChcr;
+        return pgpuDmaChcr;
         //When using the memory for registers, rather than the local variables (see the definition of pgpuDmaChcr),
         //bit 0x01000000 gets set again, very soon after transfer ended(by the game) and then when the game pools it to detect dma completion,
         //it times-out. the above condition works around that... but that is an indicator that st. is wrong. -how could the game reset it so soon?
         //maybe it just writes to it twice...? or maybe it comes as a high 16-bit write... - todo: find the writer.
     } else if (addr == PGPU_DMA_TADR)
-        data = pgpuDmaTadr;
-    return data;
+        return pgpuDmaTadr;
+    return 0;
 }
 
 void psxDma2GpuW(u32 addr, u32 data)
@@ -776,8 +775,7 @@ void psxDma2GpuW(u32 addr, u32 data)
         pgpuDmaTadr = data;
 }
 
-
-
+#if 0
 //#########################################################################################################
 //Other debug & test code, not directly relatedto the PGIF:
 
@@ -785,16 +783,10 @@ void psxDma2GpuW(u32 addr, u32 data)
 //debug print from IOP:
 
 //BIOS POST
-void ps12PostOut(u32 mem, u8 value)
-{
-}
+static void ps12PostOut(u32 mem, u8 value) { }
+static void psDuartW(u32 mem, u8 value) { }
 
-
-void psDuartW(u32 mem, u8 value)
-{
-}
-
-u8 psExp2R8(u32 mem)
+static u8 psExp2R8(u32 mem)
 {
     if ((mem & 0x1FFFFFFF) == 0x1F802000)
         return 0x18;
@@ -802,14 +794,14 @@ u8 psExp2R8(u32 mem)
 }
 
 //0x80051080
-u32 getIntTmrKReg(u32 mem, u32 data)
+static u32 getIntTmrKReg(u32 mem, u32 data)
 {
     if (PGifCtrlReg != 0)
         return 0x7FFFFFFF;
     return data;
 }
 
-void HPCoS_print(u32 mem, u32 data)
+static void HPCoS_print(u32 mem, u32 data)
 {
     int i;
     if ((mem & 0x1FFFFFFF) == 0x1103A0) {
@@ -823,7 +815,7 @@ void HPCoS_print(u32 mem, u32 data)
     }
 }
 
-void dma6_OTClear()
+static void dma6_OTClear(void)
 {
     if ((psxHu(0x1f8010e8) & 0x01000000) == 0)
         return;
@@ -844,3 +836,4 @@ void dma6_OTClear()
 }
 
 //NOTE: use iopPhysMem(madr) for getting the physical (local) address of IOP RAM stuff.  ... does this account for the complete 16MB range?
+#endif

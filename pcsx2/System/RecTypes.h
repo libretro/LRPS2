@@ -42,7 +42,4 @@ public:
 
 	operator u8*()				{ return (u8*)m_baseptr; }
 	operator const u8*() const	{ return (u8*)m_baseptr; }
-
-protected:
-	void ResetProcessReserves() const;
 };

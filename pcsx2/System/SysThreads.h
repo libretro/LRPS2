@@ -351,12 +351,6 @@ protected:
 	void _StateCheckThrows();
 };
 
-
-struct SysStateUnlockedParams
-{
-	SysStateUnlockedParams() {}
-};
-
 // GetCoreThread() is a required external implementation. This function is *NOT*
 // provided by the PCSX2 core library.  It provides an interface for the linking User
 // Interface apps or DLLs to reference their own instance of SysCoreThread (also allowing

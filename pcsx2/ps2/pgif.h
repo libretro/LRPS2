@@ -28,13 +28,3 @@ extern void PGIFrQword(u32 addr, void *);
 
 extern u32 psxDma2GpuR(u32 addr);
 extern void psxDma2GpuW(u32 addr, u32 data);
-
-
-extern void ps12PostOut(u32 mem, u8 value);
-extern void psDuartW(u32 mem, u8 value);
-extern u8 psExp2R8(u32 mem);
-extern void kernelTTYFileDescrWrite(u32 mem, u32 data);
-extern u32 getIntTmrKReg(u32 mem, u32 data);
-extern void testInt(void);
-extern void HPCoS_print(u32 mem, u32 data);
-extern void dma6_OTClear(void);
