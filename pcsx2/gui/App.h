@@ -29,11 +29,6 @@
 typedef void FnType_OnThreadComplete(const wxCommandEvent& evt);
 typedef void (Pcsx2App::*FnPtr_Pcsx2App)();
 
-// This is used when the GS plugin is handling its own window.  Messages from the PAD
-// are piped through to an app-level message handler, which dispatches them through
-// the universal Accelerator table.
-static const int pxID_PadHandler_Keydown = 8030;
-
 // -------------------------------------------------------------------------------------------
 //  pxAppResources
 // -------------------------------------------------------------------------------------------
@@ -52,9 +47,7 @@ public:
 class CommandlineOverrides
 {
 public:
-	AppConfig::FilenameOptions	Filenames;
 	wxDirName		SettingsFolder;
-	wxFileName		VmSettingsFile;
 
 	bool			DisableSpeedhacks;
 

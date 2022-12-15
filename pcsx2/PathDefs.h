@@ -72,8 +72,6 @@ namespace PathDefs
 
 namespace FilenameDefs
 {
-	extern wxFileName GetUiConfig();
-	extern wxFileName GetVmConfig();
 	extern const wxFileName& Memcard( uint port, uint slot );
 };
 

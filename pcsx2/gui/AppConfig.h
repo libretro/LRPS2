@@ -20,9 +20,7 @@
 #include "CDVD/CDVDaccess.h"
 #include <memory>
 
-extern wxDirName		SettingsFolder;				// dictates where the settings folder comes from, *if* UseDefaultSettingsFolder is FALSE.
-
-extern wxDirName GetSettingsFolder();
+extern wxDirName		SettingsFolder;				// dictates where the settings folder comes from.
 
 extern wxDirName GetCheatsFolder();
 extern wxDirName GetCheatsWsFolder();

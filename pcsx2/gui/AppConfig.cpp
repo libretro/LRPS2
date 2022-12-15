@@ -22,9 +22,6 @@
 
 #include "options_tools.h"
 
-bool					UseDefaultSettingsFolder = true;
-
-
 wxDirName				CustomDocumentsFolder;
 wxDirName				SettingsFolder;
 
@@ -168,16 +165,6 @@ const wxDirName& AppConfig::FolderOptions::operator[]( FoldersEnum_t folderidx )
 // --------------------------------------------------------------------------------------
 namespace FilenameDefs
 {
-	wxFileName GetUiConfig()
-	{
-		return wxFileName(L"PCSX2_ui.ini");
-	}
-
-	wxFileName GetVmConfig()
-	{
-		return wxFileName(L"PCSX2_vm.ini");
-	}
-
 	const wxFileName& Memcard( uint port, uint slot )
 	{
 		static const wxFileName retval[2][4] =
@@ -214,14 +201,6 @@ wxDirName GetCheatsFolder()
 wxDirName GetCheatsWsFolder()
 {
 	return GetResolvedFolder(FolderId_CheatsWS);
-}
-
-wxDirName GetSettingsFolder()
-{
-	if( wxGetApp().Overrides.SettingsFolder.IsOk() )
-		return wxGetApp().Overrides.SettingsFolder;
-
-	return UseDefaultSettingsFolder ? PathDefs::GetSettings() : SettingsFolder;
 }
 
 wxString AppConfig::FullpathToBios() const { return Path::Combine(Folders.Bios, BaseFilenames.Bios); }
