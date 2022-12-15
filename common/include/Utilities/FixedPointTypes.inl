@@ -66,12 +66,6 @@ FixedInt<Precision> &FixedInt<Precision>::operator-=(const FixedInt<Precision> &
     return SetRaw(Raw - right.Raw);
 }
 
-template <int Precision>
-FixedInt<Precision> &FixedInt<Precision>::ConfineTo(const FixedInt<Precision> &low, const FixedInt<Precision> &high)
-{
-    return SetRaw(std::min(std::max(Raw, low.Raw), high.Raw));
-}
-
 // Uses 64 bit internally to avoid overflows.  For more precise/optimized 32 bit math
 // you'll need to use the Raw values directly.
 template <int Precision>
@@ -108,31 +102,6 @@ FixedInt<Precision> &FixedInt<Precision>::operator/=(const FixedInt<Precision> &
     return SetRaw((s32)(divres / right.Raw));
 }
 
-// returns TRUE if the value overflows the legal integer range of this container.
-template <int Precision>
-bool FixedInt<Precision>::OverflowCheck(int signedval)
-{
-    return (signedval >= (INT_MAX / Precision));
-}
-
-// returns TRUE if the value overflows the legal integer range of this container.
-template <int Precision>
-bool FixedInt<Precision>::OverflowCheck(double signedval)
-{
-    return (signedval >= (INT_MAX / Precision));
-}
-
-template <int Precision>
-int FixedInt<Precision>::GetWhole() const
-{
-    return Raw / Precision;
-}
-template <int Precision>
-int FixedInt<Precision>::GetFraction() const
-{
-    return Raw % Precision;
-}
-
 template <int Precision>
 FixedInt<Precision> &FixedInt<Precision>::SetRaw(s32 rawsrc)
 {
@@ -141,94 +110,7 @@ FixedInt<Precision> &FixedInt<Precision>::SetRaw(s32 rawsrc)
 }
 
 template <int Precision>
-FixedInt<Precision> &FixedInt<Precision>::Round()
-{
-    Raw = ToIntRounded();
-    return *this;
-}
-
-template <int Precision>
-FixedInt<Precision> &FixedInt<Precision>::SetWhole(s32 wholepart)
-{
-    pxAssert(wholepart < (INT_MAX / Precision));
-    Raw = GetFraction() + (wholepart * Precision);
-    return *this;
-}
-
-template <int Precision>
-FixedInt<Precision> &FixedInt<Precision>::SetFraction(u32 fracpart)
-{
-    Raw = (GetWhole() * Precision) + fracpart;
-    return *this;
-}
-
-template <int Precision>
-double FixedInt<Precision>::ToDouble() const
-{
-    return ((double)Raw / (double)Precision);
-}
-
-template <int Precision>
-float FixedInt<Precision>::ToFloat() const
-{
-    return ((float)Raw / (float)Precision);
-}
-
-template <int Precision>
-int FixedInt<Precision>::ToIntTruncated() const
-{
-    return Raw / Precision;
-}
-
-template <int Precision>
 int FixedInt<Precision>::ToIntRounded() const
 {
     return (Raw + (Precision / 2)) / Precision;
-}
-
-template <int Precision>
-bool FixedInt<Precision>::TryFromString(FixedInt<Precision> &dest, const wxString &parseFrom)
-{
-    long whole = 0, frac = 0;
-    const wxString beforeFirst(parseFrom.BeforeFirst(L'.'));
-    const wxString afterFirst(parseFrom.AfterFirst(L'.').Mid(0, 5));
-    bool success = true;
-
-    if (!beforeFirst.IsEmpty())
-        success = success && beforeFirst.ToLong(&whole);
-
-    if (!afterFirst.IsEmpty())
-        success = success && afterFirst.ToLong(&frac);
-
-    if (!success)
-        return false;
-
-    dest.SetWhole(whole);
-
-    if (afterFirst.Length() != 0 && frac != 0) {
-        int fracPower = (int)pow(10.0, (int)afterFirst.Length());
-        dest.SetFraction((frac * Precision) / fracPower);
-    }
-    return true;
-}
-
-template <int Precision>
-FixedInt<Precision> FixedInt<Precision>::FromString(const wxString &parseFrom, const FixedInt<Precision> &defval)
-{
-    FixedInt<Precision> dest;
-    if (!TryFromString(dest, parseFrom))
-        return defval;
-    return dest;
-}
-
-// This version of FromString throws a ParseError exception if the conversion fails.
-template <int Precision>
-FixedInt<Precision> FixedInt<Precision>::FromString(const wxString parseFrom)
-{
-    FixedInt<Precision> dest;
-    if (!TryFromString(dest, parseFrom))
-        throw Exception::ParseError()
-            .SetDiagMsg(wxsFormat(L"Parse error on FixedInt<%d>::FromString", Precision));
-
-    return dest;
 }

@@ -40,33 +40,14 @@ struct FixedInt
     FixedInt<Precision> &operator+=(const FixedInt<Precision> &right);
     FixedInt<Precision> &operator-=(const FixedInt<Precision> &right);
 
-    FixedInt<Precision> &ConfineTo(const FixedInt<Precision> &low, const FixedInt<Precision> &high);
-
     FixedInt<Precision> operator*(const FixedInt<Precision> &right) const;
     FixedInt<Precision> operator/(const FixedInt<Precision> &right) const;
     FixedInt<Precision> &operator*=(const FixedInt<Precision> &right);
     FixedInt<Precision> &operator/=(const FixedInt<Precision> &right);
 
-    static bool OverflowCheck(int signedval);
-    static bool OverflowCheck(double signedval);
-
-    int GetWhole() const;
-    int GetFraction() const;
-
     FixedInt<Precision> &SetRaw(s32 rawsrc);
-    FixedInt<Precision> &Round();
-    FixedInt<Precision> &SetWhole(s32 wholepart);
-    FixedInt<Precision> &SetFraction(u32 fracpart);
 
-    double ToDouble() const;
-    float ToFloat() const;
-    int ToIntTruncated() const;
     int ToIntRounded() const;
-
-    static bool TryFromString(FixedInt<Precision> &dest, const wxString &parseFrom);
-    static FixedInt<Precision> FromString(const wxString &parseFrom, const FixedInt<Precision> &defval);
-    static FixedInt<Precision> FromString(const wxString parseFrom);
 };
 
-typedef FixedInt<256> Fixed256;
 typedef FixedInt<100> Fixed100;
