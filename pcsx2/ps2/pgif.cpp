@@ -102,8 +102,6 @@ All the PS1 GPU info comes from psx-spx: http://problemkaputt.de/psx-spx.htm
 #define DMA_LINKED_LIST 	0x00000400
 #define DMA_LL_END_CODE 	0x00FFFFFF
 
-
-
 //Local variables for emulation:
 
 static u32 PGpuStatReg    = 0;  //Read-only to IOP
@@ -139,12 +137,6 @@ static u32 dntPrt            = 0;
 static u32 nrWordsN          = 0;  //total number of words in Normal DMA
 static u32 crWordN           = 0;   //current word number in Normal DMA
 static u32 addrNdma          = 0;
-
-void fillFifoOnDrain(void);
-
-void drainPgpuDmaLl(void);
-void drainPgpuDmaNrToGpu(void);
-void drainPgpuDmaNrToIop(void);
 
 //Generic FIFO-related:
 struct ringBuf_t
@@ -184,9 +176,7 @@ static void ringBufClear(struct ringBuf_t *rb)
     rb->head  = 0;
     rb->tail  = 0;
     rb->count = 0;
-    return;
 }
-
 
 //Ring buffers definition and initialization:
 //Command (GP1) FIFO, size= 0x8 words:
@@ -248,7 +238,7 @@ void pgifInit(void)
 }
 
 //Basically resetting the PS1 GPU.
-void pgifReset(void)
+static void pgifReset(void)
 {
     ringBufClear(&pgifDatRbC);
     ringBufClear(&pgifCmdRbC);
@@ -266,24 +256,22 @@ void pgifReset(void)
 
 //Interrupt-related (IOP, EE and DMA):
 
-void triggerPgifInt(int subCause)
+static void triggerPgifInt(int subCause)
 {
     hwIntcIrq(15);
     cpuSetEvent();
     return;
 }
 
-void getIrqCmd(u32 data)
-{
-}
+static void getIrqCmd(u32 data) { }
 
-void ackGpuIrq(void)
+static void ackGpuIrq(void)
 {  //Acknowledge for the IOP GPU interrupt.
     //This is a "null"-function in PS1DRV... maybe because hardware takes care of it... but does any software use it?
     PGpuStatReg &= ~PGPU_STAT_IRQ1;
 }
 
-void pgpuDmaIntr(int trigDma)
+static void pgpuDmaIntr(int trigDma)
 {  //For the IOP GPU DMA channel.
 //trigDma: 1=normal,ToGPU; 2=normal,FromGPU, 3=LinkedList
 
@@ -294,10 +282,8 @@ void pgpuDmaIntr(int trigDma)
         psxDmaInterrupt(2);
 }
 
-
 //Pass-through & intercepting functions:
-
-u32 immRespHndl(u32 cmd, u32 data)
+static u32 immRespHndl(u32 cmd, u32 data)
 {  //Handles the GP1(10h) command, that requires immediate responce.
     //The data argument is the old data of the register (shouldn't be critical what it contains).
     //Descriptions here are taken directly from psx-spx.
@@ -321,7 +307,122 @@ u32 immRespHndl(u32 cmd, u32 data)
     return data;
 }
 
-void ckhCmdSetPgif(u32 cmd)
+static void drainPgpuDmaLl(void)
+{
+    u32 data = 0;
+    if (PgpuDmaLlAct == 0)
+        return;  //process only on transfer active
+
+    //Some games (Breath of Fire 3 US) set-up linked-list DMA, but don't immediatelly have the list correctly set-up,
+    //so the result is that this function loops indefinitely, because of some links pointing back to themselves, forming a loop.
+    //The solution is to only start DMA once the GP1(04h) - DMA Direction / Data Request command has been set to the value 0x2 (CPU->GPU DMA)
+    //This func will be caled by this command as well.
+    //if ((PGpuStatReg & 0x60000000) != 0x40000000) return;
+
+    if (pgifDatRbC.count >= ((pgifDatRbC.size) - PGIF_DAT_RB_LEAVE_FREE))
+        return;  //buffer full - needs to be drained first.
+
+    if ((nextAddr == 0x000C8000) || (nextAddr == 0x0) || (nextAddr == 0x3))
+        dntPrt++;
+
+    if (wCnt >= wordNr) {  //Reached end of sequence, or the beginning of a new one
+        //if ((nextAddr == DMA_LL_END_CODE) || (nextAddr == 0x00000000)) { //complete
+        //why does BoF3 US get to a link pointing to address 0??
+        if (nextAddr == DMA_LL_END_CODE) {
+            dntPrt = 0;
+            PgpuDmaLlAct = 0;
+            pgpuDmaMadr = 0x00FFFFFF;
+            //pgpuDmaMadr = nextAddr; //The END_CODE should go in the MADR reg.
+            //But instead copy the whole header code, each time one is encuntered - makes a bit more sense.
+            pgpuDmaChcr &= ~DMA_TRIGGER;     //DMA is no longer active (in transfer)
+            pgpuDmaChcr &= ~DMA_START_BUSY;  //Transfer completed => clear busy flag
+            pgpuDmaIntr(3);
+        } else {
+            data = iopMemRead32(nextAddr);
+            pgpuDmaMadr = data;  //Copy the header word in MADR.
+            //It is unknown whether the whole word should go here, but because this is a "Memory ADdress Register", leave only the address.
+            pgpuDmaMadr &= 0x00FFFFFF;     // correct or not?
+            pgpuDmaTrAddr = nextAddr + 4;  //start of data section of packet
+            wCnt = 0;
+            wordNr = (data >> 24) & 0xFF;  // Current length of packet and future address of header word.
+            nextAddr = data & 0x00FFFFFF;
+        }
+    } else {
+        //if (wCnt < wordNr) {
+        data = iopMemRead32(pgpuDmaTrAddr);  //0; //psxHu32(pgpuDmaTrAddr); //Get the word of the packet from IOP RAM.
+        ringBufPut(&pgifDatRbC, &data);
+        pgpuDmaTrAddr += 4;
+        wCnt++;
+    }
+}
+
+static void drainPgpuDmaNrToGpu(void)
+{
+    u32 data = 0;
+
+    if (PgpuDmaNrActToGpu == 0)
+        return;  //process only on transfer active
+    if (pgifDatRbC.count >= ((pgifDatRbC.size) - PGIF_DAT_RB_LEAVE_FREE))
+        return;  //buffer full - needs to be drained first.
+
+    if (crWordN < nrWordsN) {
+        data = iopMemRead32(addrNdma);  //Get the word of the packet from IOP RAM.
+        ringBufPut(&pgifDatRbC, &data);
+        addrNdma += 4;
+        crWordN++;
+        //The following two are common to all DMA channels, and in future, some global hanler may be used... or not.
+        //pgpuDmaMadr += 4; //It is unclear if this should be done exactly so...
+        pgpuDmaMadr = 4 + pgpuDmaMadr;
+        if ((crWordN % (pgpuDmaBcr & 0xFFFF)) == 0)  //Because this is actually the "next word number", it can be compared to the size of the block. //End of block reached.
+            if (pgpuDmaBcr >= 0x10000)
+                pgpuDmaBcr = pgpuDmaBcr - 0x10000;  //pgpuDmaBcr -= 0x10000;
+                                                    //This is very inoptimized...
+    }
+    if (crWordN >= nrWordsN) {  //Reached end of sequence = complete
+        PgpuDmaNrActToGpu = 0;
+        pgpuDmaChcr &= ~DMA_TRIGGER;     //DMA is no longer active (in transfer)
+        pgpuDmaChcr &= ~DMA_START_BUSY;  //Transfer completed => clear busy flag
+        pgpuDmaIntr(1);
+    }
+}
+
+static void drainPgpuDmaNrToIop(void)
+{
+    u32 data;
+    if (PgpuDmaNrActToIop == 0)
+        return;
+    if (pgifDatRbC.count <= 0)
+        return;
+    /*	if (crWordN >= nrWordsN) {
+		PgpuDmaNrActToIop = 0;
+		pgpuDmaChcr &= ~DMA_TRIGGER; //DMA is no longer active (in transfer)
+		pgpuDmaChcr &= ~DMA_START_BUSY; //Transfer completed => clear busy flag
+		psxDmaInterrupt(2);
+	} else { */
+    if (crWordN < nrWordsN) {  //This is not the best way, but... is there another?
+        ringBufGet(&pgifDatRbC, &data);
+        iopMemWrite32(addrNdma, data);
+        pgpuDmaMadr = 4 + pgpuDmaMadr;  //addrNdma += 4;
+        crWordN++;
+        //The following two are common to all DMA channels, and in future, some global hanler may be used... or not.
+        pgpuDmaMadr += 4;                            //It is unclear if this should be done exactly so...
+        if ((crWordN % (pgpuDmaBcr & 0xFFFF)) == 0)  //Because this is actually the "next word number", it can be compared to the size of the block. //End of block reached.
+            if (pgpuDmaBcr >= 0x10000)
+                pgpuDmaBcr = pgpuDmaBcr - 0x10000;  // pgpuDmaBcr -= 0x10000;
+                                                    //This is very unoptimized... better use separate block counter.
+    }
+    if (crWordN >= nrWordsN) {
+        PgpuDmaNrActToIop = 0;
+        pgpuDmaChcr &= ~DMA_TRIGGER;     //DMA is no longer active (in transfer)
+        pgpuDmaChcr &= ~DMA_START_BUSY;  //Transfer completed => clear busy flag
+        pgpuDmaIntr(2);
+    }
+
+    if (pgifDatRbC.count > 0)
+        drainPgpuDmaNrToIop();
+}
+
+static void ckhCmdSetPgif(u32 cmd)
 {  //Check GP1() command and configure PGIF accordingly.
     //Maybe all below are hanled by PS1DRV and this functions is only wasting time and memory and cusing errors...but that doesn't seem to be the case.
     u32 cmdNr = ((cmd >> 24) & 0xFF) & 0x3F;  //Higher commands are known to mirror lower commands.
@@ -354,7 +455,7 @@ void ckhCmdSetPgif(u32 cmd)
     }
 }
 
-u32 getUpdPgpuStatReg(void)
+static u32 getUpdPgpuStatReg(void)
 {
     //The code below is not necessary! ... but not always...why?
     //Does PS1DRV does set bit 27 - reverse direction (VRAM->CPU) in some conditions... but not always...TODO: Find why.
@@ -401,17 +502,17 @@ u32 getUpdPgpuStatReg(void)
 }
 
 //This returns "correct" element-in-FIFO count, even if extremely large buffer is used.
-int getDatRbC_Count(void)
+static int getDatRbC_Count(void)
 {
     return std::min(pgifDatRbC.count, 0x1F);
 }
 
-void setPgifCtrlReg(u32 data)
+static void setPgifCtrlReg(u32 data)
 {
     PGifCtrlReg = (data & (~PGIF_CTRL_RO_MASK)) | (PGifCtrlReg & PGIF_CTRL_RO_MASK);
 }
 
-u32 getUpdPgifCtrlReg(void)
+static u32 getUpdPgifCtrlReg(void)
 {
     PGifCtrlReg &= 0xFFFFE0FF;
     if (pgifCmdRbC.count == 0)  //fake that DATA FIFO is empty, so that PS1DRV processes any commands on the GP1() register first.
@@ -428,8 +529,7 @@ u32 getUpdPgifCtrlReg(void)
     return PGifCtrlReg;
 }
 
-
-void cmdRingBufGet(u32 *data)
+static void cmdRingBufGet(u32 *data)
 {  //Used by PGIF/PS1DRV.
     ringBufGet(&pgifCmdRbC, data);
 #if CMD_INTERCEPT_AT_RD == 1
@@ -437,7 +537,7 @@ void cmdRingBufGet(u32 *data)
 #endif
 }
 
-void datRingBufGet(u32 *data)
+static void datRingBufGet(u32 *data)
 {  //
     if (pgifDatRbC.count > 0) {
         ringBufGet(&pgifDatRbC, data);
@@ -480,6 +580,32 @@ u32 psxGPUr(int addr)
         data = getUpdPgpuStatReg();
     return data;
 }
+
+//This function is used as a global FIFO-DMA-fill function and both Linked-list normal DMA call it,
+//regardless which DMA mode runs.
+static void fillFifoOnDrain(void)
+{
+    if ((getUpdPgifCtrlReg() & 0x8) == 0)
+        return;  //Skip filing FIFO with elements, if PS1DRV hasn't set this bit.
+    //Maybe it could be cleared once FIFO has data?
+    //This bit could be an enabler for the DREQ (EE->IOP for SIF2=PGIF) line. The FIFO is filled only when this is set
+    //and the IOP acknowledges it.
+    drainPgpuDmaLl();
+    drainPgpuDmaNrToGpu();
+    //This is done here in a loop, rather than recursively in each function, because a very large buffer causes stack oveflow.
+    while ((pgifDatRbC.count < ((pgifDatRbC.size) - PGIF_DAT_RB_LEAVE_FREE)) && ((PgpuDmaNrActToGpu != 0) || (PgpuDmaLlAct != 0))) {
+        drainPgpuDmaLl();
+        drainPgpuDmaNrToGpu();
+    }
+    //Flags' names: PgpuDmaLlAct is for linked-list, PgpuDmaNrActToGpu is for normal IOP->GPU
+    if ((PgpuDmaLlAct == 1) || (PgpuDmaNrActToGpu == 1))
+        if (PgpuDmaNrActToIop != 1)
+            PGifCtrlReg &= ~0x8;
+    //Clear bit as DMA will be run - normally it should be cleared only once the current request finishes, but the IOP won't notice anything anyway.
+    //WARNING: Check if GPU->IOP DMA uses this flag, and if it does (it would make sense for it to use it as well),
+    //then only clear it here if the mode is not GPU->IOP.
+}
+
 
 //PGIF registers I/O handlers:
 
@@ -562,151 +688,9 @@ void PGIFwQword(u32 addr, void *dat)
 }
 
 
-
 //DMA-emulating functions:
 
-//This function is used as a global FIFO-DMA-fill function and both Linked-list normal DMA call it,
-//regardless which DMA mode runs.
-void fillFifoOnDrain()
-{
-    if ((getUpdPgifCtrlReg() & 0x8) == 0)
-        return;  //Skip filing FIFO with elements, if PS1DRV hasn't set this bit.
-    //Maybe it could be cleared once FIFO has data?
-    //This bit could be an enabler for the DREQ (EE->IOP for SIF2=PGIF) line. The FIFO is filled only when this is set
-    //and the IOP acknowledges it.
-    drainPgpuDmaLl();
-    drainPgpuDmaNrToGpu();
-    //This is done here in a loop, rather than recursively in each function, because a very large buffer causes stack oveflow.
-    while ((pgifDatRbC.count < ((pgifDatRbC.size) - PGIF_DAT_RB_LEAVE_FREE)) && ((PgpuDmaNrActToGpu != 0) || (PgpuDmaLlAct != 0))) {
-        drainPgpuDmaLl();
-        drainPgpuDmaNrToGpu();
-    }
-    //Flags' names: PgpuDmaLlAct is for linked-list, PgpuDmaNrActToGpu is for normal IOP->GPU
-    if ((PgpuDmaLlAct == 1) || (PgpuDmaNrActToGpu == 1))
-        if (PgpuDmaNrActToIop != 1)
-            PGifCtrlReg &= ~0x8;
-    //Clear bit as DMA will be run - normally it should be cleared only once the current request finishes, but the IOP won't notice anything anyway.
-    //WARNING: Check if GPU->IOP DMA uses this flag, and if it does (it would make sense for it to use it as well),
-    //then only clear it here if the mode is not GPU->IOP.
-}
-
-void drainPgpuDmaLl()
-{
-    u32 data = 0;
-    if (PgpuDmaLlAct == 0)
-        return;  //process only on transfer active
-
-    //Some games (Breath of Fire 3 US) set-up linked-list DMA, but don't immediatelly have the list correctly set-up,
-    //so the result is that this function loops indefinitely, because of some links pointing back to themselves, forming a loop.
-    //The solution is to only start DMA once the GP1(04h) - DMA Direction / Data Request command has been set to the value 0x2 (CPU->GPU DMA)
-    //This func will be caled by this command as well.
-    //if ((PGpuStatReg & 0x60000000) != 0x40000000) return;
-
-    if (pgifDatRbC.count >= ((pgifDatRbC.size) - PGIF_DAT_RB_LEAVE_FREE))
-        return;  //buffer full - needs to be drained first.
-
-    if ((nextAddr == 0x000C8000) || (nextAddr == 0x0) || (nextAddr == 0x3))
-        dntPrt++;
-
-    if (wCnt >= wordNr) {  //Reached end of sequence, or the beginning of a new one
-        //if ((nextAddr == DMA_LL_END_CODE) || (nextAddr == 0x00000000)) { //complete
-        //why does BoF3 US get to a link pointing to address 0??
-        if (nextAddr == DMA_LL_END_CODE) {
-            dntPrt = 0;
-            PgpuDmaLlAct = 0;
-            pgpuDmaMadr = 0x00FFFFFF;
-            //pgpuDmaMadr = nextAddr; //The END_CODE should go in the MADR reg.
-            //But instead copy the whole header code, each time one is encuntered - makes a bit more sense.
-            pgpuDmaChcr &= ~DMA_TRIGGER;     //DMA is no longer active (in transfer)
-            pgpuDmaChcr &= ~DMA_START_BUSY;  //Transfer completed => clear busy flag
-            pgpuDmaIntr(3);
-        } else {
-            data = iopMemRead32(nextAddr);
-            pgpuDmaMadr = data;  //Copy the header word in MADR.
-            //It is unknown whether the whole word should go here, but because this is a "Memory ADdress Register", leave only the address.
-            pgpuDmaMadr &= 0x00FFFFFF;     // correct or not?
-            pgpuDmaTrAddr = nextAddr + 4;  //start of data section of packet
-            wCnt = 0;
-            wordNr = (data >> 24) & 0xFF;  // Current length of packet and future address of header word.
-            nextAddr = data & 0x00FFFFFF;
-        }
-    } else {
-        //if (wCnt < wordNr) {
-        data = iopMemRead32(pgpuDmaTrAddr);  //0; //psxHu32(pgpuDmaTrAddr); //Get the word of the packet from IOP RAM.
-        ringBufPut(&pgifDatRbC, &data);
-        pgpuDmaTrAddr += 4;
-        wCnt++;
-    }
-}
-
-void drainPgpuDmaNrToGpu()
-{
-    u32 data = 0;
-
-    if (PgpuDmaNrActToGpu == 0)
-        return;  //process only on transfer active
-    if (pgifDatRbC.count >= ((pgifDatRbC.size) - PGIF_DAT_RB_LEAVE_FREE))
-        return;  //buffer full - needs to be drained first.
-
-    if (crWordN < nrWordsN) {
-        data = iopMemRead32(addrNdma);  //Get the word of the packet from IOP RAM.
-        ringBufPut(&pgifDatRbC, &data);
-        addrNdma += 4;
-        crWordN++;
-        //The following two are common to all DMA channels, and in future, some global hanler may be used... or not.
-        //pgpuDmaMadr += 4; //It is unclear if this should be done exactly so...
-        pgpuDmaMadr = 4 + pgpuDmaMadr;
-        if ((crWordN % (pgpuDmaBcr & 0xFFFF)) == 0)  //Because this is actually the "next word number", it can be compared to the size of the block. //End of block reached.
-            if (pgpuDmaBcr >= 0x10000)
-                pgpuDmaBcr = pgpuDmaBcr - 0x10000;  //pgpuDmaBcr -= 0x10000;
-                                                    //This is very inoptimized...
-    }
-    if (crWordN >= nrWordsN) {  //Reached end of sequence = complete
-        PgpuDmaNrActToGpu = 0;
-        pgpuDmaChcr &= ~DMA_TRIGGER;     //DMA is no longer active (in transfer)
-        pgpuDmaChcr &= ~DMA_START_BUSY;  //Transfer completed => clear busy flag
-        pgpuDmaIntr(1);
-    }
-}
-
-void drainPgpuDmaNrToIop()
-{
-    u32 data;
-    if (PgpuDmaNrActToIop == 0)
-        return;
-    if (pgifDatRbC.count <= 0)
-        return;
-    /*	if (crWordN >= nrWordsN) {
-		PgpuDmaNrActToIop = 0;
-		pgpuDmaChcr &= ~DMA_TRIGGER; //DMA is no longer active (in transfer)
-		pgpuDmaChcr &= ~DMA_START_BUSY; //Transfer completed => clear busy flag
-		psxDmaInterrupt(2);
-	} else { */
-    if (crWordN < nrWordsN) {  //This is not the best way, but... is there another?
-        ringBufGet(&pgifDatRbC, &data);
-        iopMemWrite32(addrNdma, data);
-        pgpuDmaMadr = 4 + pgpuDmaMadr;  //addrNdma += 4;
-        crWordN++;
-        //The following two are common to all DMA channels, and in future, some global hanler may be used... or not.
-        pgpuDmaMadr += 4;                            //It is unclear if this should be done exactly so...
-        if ((crWordN % (pgpuDmaBcr & 0xFFFF)) == 0)  //Because this is actually the "next word number", it can be compared to the size of the block. //End of block reached.
-            if (pgpuDmaBcr >= 0x10000)
-                pgpuDmaBcr = pgpuDmaBcr - 0x10000;  // pgpuDmaBcr -= 0x10000;
-                                                    //This is very unoptimized... better use separate block counter.
-    }
-    if (crWordN >= nrWordsN) {
-        PgpuDmaNrActToIop = 0;
-        pgpuDmaChcr &= ~DMA_TRIGGER;     //DMA is no longer active (in transfer)
-        pgpuDmaChcr &= ~DMA_START_BUSY;  //Transfer completed => clear busy flag
-        pgpuDmaIntr(2);
-    }
-
-    if (pgifDatRbC.count > 0)
-        drainPgpuDmaNrToIop();
-}
-
-
-void processPgpuDma()
+static void processPgpuDma(void)
 {  //For normal mode & linked list.
     if ((pgpuDmaChcr & DMA_START_BUSY) == 0)
         return;                  //not really neessary in this case.
@@ -736,7 +720,6 @@ void processPgpuDma()
         drainPgpuDmaNrToIop();
     }
 }
-
 
 //DMA registers I/O:
 
