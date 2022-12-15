@@ -28,8 +28,6 @@ extern void ipu1Interrupt(void);
 
 extern void dmaIPU0(void);
 extern void dmaIPU1(void);
-extern void IPU0dma(void);
-extern void IPU1dma(void);
 
 extern void ipuDmaReset(void);
 extern IPUStatus IPU1Status;

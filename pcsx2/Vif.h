@@ -234,9 +234,8 @@ static VIFregisters& vif1Regs = (VIFregisters&)eeHw[0x3C00];
 
 #define VifStallEnable(vif) (vif.chcr.STR);
 
-extern void dmaVIF0();
-extern void dmaVIF1();
-extern void mfifoVIF1transfer();
+extern void dmaVIF0(void);
+extern void dmaVIF1(void);
 extern bool VIF0transfer(u32 *data, int size, bool TTE=0);
 extern bool VIF1transfer(u32 *data, int size, bool TTE=0);
-extern void vifMFIFOInterrupt();
+extern void vifMFIFOInterrupt(void);

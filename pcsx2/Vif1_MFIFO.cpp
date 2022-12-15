@@ -39,7 +39,7 @@ static u32 QWCinVIFMFIFO(u32 DrainADDR, u32 qwc)
 	return ((spr0ch.madr - dmacRegs.rbor.ADDR) + (limit - DrainADDR)) >> 4;
 }
 
-static __fi bool mfifoVIF1rbTransfer(void)
+static bool mfifoVIF1rbTransfer(void)
 {
 	u32 msize    = dmacRegs.rbor.ADDR + dmacRegs.rbsr.RMSK + 16;
 	u32 mfifoqwc = std::min(QWCinVIFMFIFO(vif1ch.madr, vif1ch.qwc), vif1ch.qwc);
@@ -94,7 +94,7 @@ static __fi bool mfifoVIF1rbTransfer(void)
 	return ret;
 }
 
-static __fi void mfifo_VIF1chain(void)
+static void mfifo_VIF1chain(void)
 {
 	/* Is QWC = 0? if so there is nothing to transfer */
 	if ((vif1ch.qwc == 0))
@@ -136,7 +136,7 @@ static __fi void mfifo_VIF1chain(void)
 	}
 }
 
-void mfifoVifMaskMem(int id)
+static void mfifoVifMaskMem(int id)
 {
 	switch (id)
 	{
@@ -157,7 +157,7 @@ void mfifoVifMaskMem(int id)
 	}
 }
 
-void mfifoVIF1transfer(void)
+static void mfifoVIF1transfer(void)
 {
 	tDMA_TAG *ptag;
 

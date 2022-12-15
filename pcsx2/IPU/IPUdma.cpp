@@ -57,7 +57,7 @@ static __fi int IPU1chain(void)
 	return totalqwc;
 }
 
-void IPU1dma()
+static void IPU1dma(void)
 {
 	int ipu1cycles = 0;
 	int totalqwc = 0;
@@ -119,7 +119,7 @@ void IPU1dma()
 	IPUProcessInterrupt();
 }
 
-void IPU0dma(void)
+static void IPU0dma(void)
 {
 	if(!ipuRegs.ctrl.OFC) 
 	{
