@@ -775,9 +775,6 @@
     <ClCompile Include="..\..\gui\DriveList.cpp">
       <Filter>AppHost</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\IPC.cpp">
-      <Filter>System</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\FW.cpp">
       <Filter>System\Ps2\Iop\FW</Filter>
     </ClCompile>
@@ -1274,9 +1271,6 @@
     </ClInclude>
     <ClInclude Include="..\..\gui\DriveList.h">
       <Filter>AppHost\Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\IPC.h">
-      <Filter>System\Include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\FW.h">
       <Filter>System\Ps2\Iop\FW</Filter>

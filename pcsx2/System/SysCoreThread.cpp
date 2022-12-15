@@ -26,7 +26,6 @@
 #include "Patch.h"
 #include "SysThreads.h"
 #include "MTVU.h"
-#include "IPC.h"
 #include "FW.h"
 #include "PAD/PAD.h"
 #include "SPU2/spu2.h"
@@ -294,15 +293,6 @@ void SysCoreThread::GameStartingInThread()
 	symbolMap.UpdateActiveSymbols();
 
 	ApplyLoadedPatches(PPT_ONCE_ON_LOAD);
-#ifndef __LIBRETRO__
-	if (EmuConfig.EnableIPC && m_IpcState == OFF)
-	{
-		m_IpcState = ON;
-		m_socketIpc = std::make_unique<SocketIPC>(this);
-	}
-	if (m_IpcState == ON && m_socketIpc->m_end)
-		m_socketIpc->Start();
-#endif
 }
 
 bool SysCoreThread::StateCheckInThread()

@@ -197,7 +197,6 @@
     <ClCompile Include="..\..\Gif_Logger.cpp" />
     <ClCompile Include="..\..\Gif_Unit.cpp" />
     <ClCompile Include="..\..\IopGte.cpp" />
-    <ClCompile Include="..\..\IPC.cpp" />
     <ClCompile Include="..\..\FW.cpp" />
     <ClCompile Include="..\..\SPU2\DplIIdecoder.cpp" />
     <ClCompile Include="..\..\SPU2\debug.cpp" />
@@ -418,7 +417,6 @@
     <ClInclude Include="..\..\Gif_Unit.h" />
     <ClInclude Include="..\..\gui\AppGameDatabase.h" />
     <ClInclude Include="..\..\IopGte.h" />
-    <ClInclude Include="..\..\IPC.h" />
     <ClInclude Include="..\..\FW.h" />
     <ClInclude Include="..\..\SPU2\Config.h" />
     <ClInclude Include="..\..\SPU2\Global.h" />
