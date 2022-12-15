@@ -67,6 +67,32 @@ static const u8 memcard_psx[] = {0x5A, 0x5D, 0x5C, 0x5D, 0x04, 0x00, 0x00, 0x80}
 //Selects slot 1 or 2
 #define SLOT_NR 0x2000
 
+static inline void DEVICE_PLUGGED(void)
+{
+	sio.ret = 0xFF;
+	sio2.packet.recvVal1 = 0x01100;
+	memset8<0xFF>(sio.buf);
+}
+
+static inline void DEVICE_UNPLUGGED(void)
+{
+	sio.ret = 0x00;
+	sio2.packet.recvVal1 = 0x1D100;
+	memset8<0x00>(sio.buf);
+}
+
+static inline void SIO_STAT_READY(void)
+{
+	sio.StatReg &= ~TX_EMPTY;	// Now the Buffer is not empty
+	sio.StatReg |= RX_RDY;		// Transfer is Ready
+}
+
+static inline void SIO_STAT_EMPTY(void)
+{
+	sio.StatReg &= ~RX_RDY;		// Receive is not Ready now?
+	sio.StatReg |= TX_EMPTY;	// Buffer is Empty
+}
+
 
 //allow timeout also for the mcd manager panel
 static void SetForceMcdEjectTimeoutNow( uint port, uint slot )
@@ -123,7 +149,7 @@ static bool isR3000ATest = false;
 // Check the active game's type, and fire the matching interrupt.
 // The 3rd bit of the HW_IFCG register lets us know if PSX mode is active. 1 = PSX, 0 = PS2
 // Note that the R3000A's call to interrupts only calls the PS2 based (lack of) delays.
-__fi void sioInterrupt(void)
+static void sioInterrupt(void)
 {
 	if ((psxHu32(HW_ICFG) & (1 << 3)) && !isR3000ATest)
 	{
@@ -809,7 +835,6 @@ void inline sioWriteInfraRed(u8 data)
 	siomode = SIO_DUMMY;
 	sioInterrupt();
 }
-
 
 static void sioWrite8inl(u8 data)
 {

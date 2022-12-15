@@ -118,7 +118,6 @@ extern void sioInit(void);
 extern u8 sioRead8(void);
 extern void sioWrite8(u8 value);
 extern void sioWriteCtrl16(u16 value);
-extern void sioInterrupt(void);
 extern void sioInterruptR(void);
 extern void sioStatRead(void);
 extern void sioSetGameSerial(const wxString& serial);

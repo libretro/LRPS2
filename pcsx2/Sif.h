@@ -98,16 +98,6 @@ struct sifFifo
 	}
 };
 
-struct old_sif_structure
-{
-	sifFifo fifo; // Used in both.
-	s32 chain; // Not used.
-	s32 end; // Only used for EE.
-	s32 tagMode; // No longer used.
-	s32 counter; // Used to keep track of how much is left in IOP.
-	struct sifData data; // Only used in IOP.
-};
-
 struct sif_ee
 {
 	bool end; // Only used for EE.

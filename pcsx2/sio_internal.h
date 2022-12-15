@@ -41,32 +41,6 @@ static const int
 	RTS =			0x0020,
 	SIO_RESET =		0x0040;
 
-void inline SIO_STAT_READY()
-{
-	sio.StatReg &= ~TX_EMPTY;	// Now the Buffer is not empty
-	sio.StatReg |= RX_RDY;		// Transfer is Ready
-}
-
-void inline SIO_STAT_EMPTY()
-{
-	sio.StatReg &= ~RX_RDY;		// Receive is not Ready now?
-	sio.StatReg |= TX_EMPTY;	// Buffer is Empty
-}
-
-void inline DEVICE_PLUGGED()
-{
-	sio.ret = 0xFF;
-	sio2.packet.recvVal1 = 0x01100;
-	memset8<0xFF>(sio.buf);
-}
-
-void inline DEVICE_UNPLUGGED()
-{
-	sio.ret = 0x00;
-	sio2.packet.recvVal1 = 0x1D100;
-	memset8<0x00>(sio.buf);
-}
-
 enum SIO_MODE
 {
 	SIO_START = 0,

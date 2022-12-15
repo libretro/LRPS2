@@ -20,10 +20,10 @@
 #include "VUmicro.h"
 #include "MTVU.h"
 
-static bool spr0finished = false;
-static bool spr1finished = false;
-static bool spr0lastqwc = false;
-static bool spr1lastqwc = false;
+static bool spr0finished    = false;
+static bool spr1finished    = false;
+static bool spr0lastqwc     = false;
+static bool spr1lastqwc     = false;
 static u32 mfifotransferred = 0;
 
 static void TestClearVUs(u32 madr, u32 qwc, bool isWrite)
@@ -54,9 +54,8 @@ static void memcpy_to_spr(u32 dst, u8* src, size_t size)
 
 		src += end;
 		memcpy(&psSu128(0)  , src, size - end);
-	} else {
+	} else
 		memcpy(&psSu128(dst), src, size);
-	}
 }
 
 static void memcpy_from_spr(u8* dst, u32 src, size_t size)
@@ -69,12 +68,11 @@ static void memcpy_from_spr(u8* dst, u32 src, size_t size)
 
 		dst += end;
 		memcpy(dst, &psSu128(0)  , size - end);
-	} else {
+	} else
 		memcpy(dst, &psSu128(src), size);
-	}
 }
 
-int  _SPR0chain()
+static int  _SPR0chain(void)
 {
 	tDMA_TAG *pMem;
 	int partialqwc = 0;
@@ -129,21 +127,19 @@ int  _SPR0chain()
 	if (spr0ch.qwc == 0 && dmacRegs.ctrl.STS == STS_fromSPR)
 	{
 		if (spr0ch.chcr.MOD == NORMAL_MODE || ((spr0ch.chcr.TAG >> 28) & 0x7) == TAG_CNTS)
-		{
 			dmacRegs.stadr.ADDR = spr0ch.madr; // Copy MADR to DMAC_STADR stall addr register
-		}
 	}
 
 	return (partialqwc); // Bus is 1/2 the ee speed
 }
 
-__fi void SPR0chain()
+static void SPR0chain(void)
 {
 	int cycles = _SPR0chain() * BIAS;
 	CPU_INT(DMAC_FROM_SPR, cycles);
 }
 
-void _SPR0interleave()
+static void _SPR0interleave(void)
 {
 	int qwc = spr0ch.qwc;
 	int sqwc = dmacRegs.sqwc.SQWC;
@@ -180,13 +176,11 @@ void _SPR0interleave()
 		spr0ch.madr += (sqwc + spr0ch.qwc) * 16;
 	}
 	if (dmacRegs.ctrl.STS == STS_fromSPR)
-	{
 		dmacRegs.stadr.ADDR = spr0ch.madr; // Copy MADR to DMAC_STADR stall addr register
-	}
 	spr0ch.qwc = 0;
 }
 
-static __fi void _dmaSPR0()
+static __fi void _dmaSPR0(void)
 {
 	// Transfer Dn_QWC from SPR to Dn_MADR
 	switch(spr0ch.chcr.MOD)
@@ -256,9 +250,8 @@ static __fi void _dmaSPR0()
 	}
 }
 
-void SPRFROMinterrupt()
+void SPRFROMinterrupt(void)
 {
-
 	if (!spr0finished || spr0ch.qwc > 0)
 	{
 		_dmaSPR0();
@@ -309,7 +302,7 @@ void dmaSPR0(void)   // fromSPR
 	SPRFROMinterrupt();
 }
 
-__fi static void SPR1transfer(const void* data, int qwc)
+static void SPR1transfer(const void* data, int qwc)
 {
 	if ((spr1ch.madr >= 0x11000000) && (spr1ch.madr < 0x11010000))
 	{
@@ -321,9 +314,7 @@ __fi static void SPR1transfer(const void* data, int qwc)
 	spr1ch.sadr &= 0x3FFF; // Limited to 16K
 }
 
-
-
-int  _SPR1chain()
+static int _SPR1chain(void)
 {
 	tDMA_TAG *pMem;
 
@@ -345,7 +336,7 @@ int  _SPR1chain()
 	return (partialqwc);
 }
 
-__fi void SPR1chain()
+static void SPR1chain(void)
 {
 	int cycles = 0;
 	if(!CHECK_IPUWAITHACK)
@@ -360,7 +351,7 @@ __fi void SPR1chain()
 	}
 }
 
-void _SPR1interleave()
+static void _SPR1interleave(void)
 {
 	int qwc = spr1ch.qwc;
 	int sqwc = dmacRegs.sqwc.SQWC;
@@ -383,7 +374,7 @@ void _SPR1interleave()
 	spr1ch.qwc = 0;
 }
 
-void _dmaSPR1()   // toSPR work function
+void _dmaSPR1(void)   // toSPR work function
 {
 	switch(spr1ch.chcr.MOD)
 	{
@@ -450,15 +441,13 @@ void dmaSPR1(void)   // toSPR
 	if(spr1ch.chcr.MOD == CHAIN_MODE && spr1ch.qwc > 0)
 	{
 		if ((spr1ch.chcr.tag().ID == TAG_END) || (spr1ch.chcr.tag().ID == TAG_REFE) || (spr1ch.chcr.tag().IRQ && spr1ch.chcr.TIE))
-		{
 			spr1finished = true;
-		}
 	}
 
 	SPRTOinterrupt();
 }
 
-void SPRTOinterrupt()
+void SPRTOinterrupt(void)
 {
 	if (!spr1finished || spr1ch.qwc > 0)
 	{
