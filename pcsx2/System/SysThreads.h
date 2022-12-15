@@ -347,8 +347,6 @@ protected:
 	virtual void ExecuteTaskInThread();
 	virtual void DoCpuReset();
 	virtual void DoCpuExecute();
-	
-	void _StateCheckThrows();
 };
 
 // GetCoreThread() is a required external implementation. This function is *NOT*
