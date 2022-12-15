@@ -18,6 +18,9 @@
 #include "MTVU.h"
 #include "newVif.h"
 #include "Gif_Unit.h"
+#ifdef _WIN32
+#include <windows.h> /* for GetExceptionInformation */
+#endif
 
 __aligned16 VU_Thread vu1Thread(CpuVU1, VU1);
 
