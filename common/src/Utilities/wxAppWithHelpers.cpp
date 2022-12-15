@@ -129,25 +129,6 @@ bool wxAppWithHelpers::Rpc_TryInvoke(FnType_Void *method)
    return true;
 }
 
-// Invokes the specified void method, or posts the method to the main thread if the calling
-// thread is not Main.  Action is non-blocking (asynchronous).  For blocking method execution,
-// use AppRpc_TryInvoke.
-//
-// This function works something like setjmp/longjmp, in that the return value indicates if the
-// function actually executed the specified method or not.
-//
-// Returns:
-//   FALSE if the method was not posted to the main thread (meaning this IS the main thread!)
-//   TRUE if the method was posted.
-//
-bool wxAppWithHelpers::Rpc_TryInvokeAsync(FnType_Void *method)
-{
-   if (wxThread::IsMain())
-      return false;
-   PostEvent(pxRpcEvent(method));
-   return true;
-}
-
 void wxAppWithHelpers::PostEvent(const wxEvent &evt)
 {
     // Const Cast is OK!

@@ -54,11 +54,7 @@ public:
 		DeleteThread(*obj);
     }
 
-    void PostCommand(void *clientData, int evtType, int intParam = 0, long longParam = 0);
-    void PostCommand(int evtType, int intParam = 0, long longParam = 0);
-
     bool Rpc_TryInvoke(FnType_Void *method);
-    bool Rpc_TryInvokeAsync(FnType_Void *method);
 
     sptr ProcessCommand(void *clientData, int evtType, int intParam = 0, long longParam = 0);
     sptr ProcessCommand(int evtType, int intParam = 0, long longParam = 0);
