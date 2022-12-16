@@ -47,14 +47,12 @@ void COP2_SPECIAL2(void) {
 	Int_COP2SPECIAL2PrintTable[(cpuRegs.code & 0x3) | ((cpuRegs.code >> 4) & 0x7c)]();
 }
 
-void COP2_Unknown(void)
-{
-}
+void COP2_Unknown(void) { }
 
 //****************************************************************************
 
-__fi void _vu0run(bool breakOnMbit, bool addCycles) {
-
+static __fi void _vu0run(bool breakOnMbit, bool addCycles)
+{
 	if (!(VU0.VI[REG_VPU_STAT].UL & 1)) return;
 
 	//VU0 is ahead of the EE and M-Bit is already encountered, so no need to wait for it, just catch up the EE
