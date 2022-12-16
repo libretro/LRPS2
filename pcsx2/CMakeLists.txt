@@ -282,7 +282,6 @@ set(pcsx2DebugToolsHeaders
 		)
 	# gui headers
 	set(pcsx2GuiHeaders
-		gui/AppCommon.h
 		gui/AppConfig.h
 		gui/AppCoreThread.h
 		gui/AppEventListeners.h

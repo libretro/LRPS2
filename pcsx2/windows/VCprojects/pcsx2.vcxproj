@@ -549,7 +549,6 @@
     <ClInclude Include="..\..\CDVD\IsoFS\SectorSource.h" />
     <ClInclude Include="..\resource.h" />
     <ClInclude Include="..\..\gui\App.h" />
-    <ClInclude Include="..\..\gui\AppCommon.h" />
     <ClInclude Include="..\..\gui\AppConfig.h" />
     <ClInclude Include="..\..\gui\AppCoreThread.h" />
     <ClInclude Include="..\..\gui\AppEventListeners.h" />

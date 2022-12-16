@@ -1134,9 +1134,6 @@
     <ClInclude Include="..\..\gui\App.h">
       <Filter>AppHost\Include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\gui\AppCommon.h">
-      <Filter>AppHost\Include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\gui\AppConfig.h">
       <Filter>AppHost\Include</Filter>
     </ClInclude>

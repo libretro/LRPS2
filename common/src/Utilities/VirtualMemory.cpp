@@ -30,9 +30,8 @@ Threading::Mutex PageFault_Mutex;
 
 void pxInstallSignalHandler()
 {
-    if (!Source_PageFault) {
+    if (!Source_PageFault)
         Source_PageFault = new SrcType_PageFault();
-    }
 
     _platform_InstallSignalHandler();
 

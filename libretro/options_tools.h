@@ -5,8 +5,7 @@
 
 extern retro_environment_t environ_cb;
 extern retro_log_printf_t log_cb;
-extern void GSUpdateOptions();
-extern void ResetContentStuffs();
+
 extern int option_upscale_mult;
 extern int option_pad_left_deadzone;
 extern int option_pad_right_deadzone;
@@ -23,7 +22,6 @@ extern bool hack_fast_invalidation;
 extern std::string sel_bios_path;
 extern std::string retroarch_system_path;
 
-
 /*
  * Options tools
  * The aim is to provide the access to core options through the call of the same function
@@ -32,7 +30,6 @@ extern std::string retroarch_system_path;
  * The KeyOption enum types are used only as a trick to select the needed overloaded function.
  * 
  */
-
 
 enum class KeyOptionBool
 {
@@ -47,9 +44,7 @@ enum class KeyOptionInt
 enum class KeyOptionString
 {
 	return_type,
-
 };
-
 
 static bool option_value(const char* const_option, KeyOptionBool return_type) {
 	struct retro_variable var = { 0 };
@@ -65,7 +60,6 @@ static bool option_value(const char* const_option, KeyOptionBool return_type) {
 	return false;
 }
 
-
 static int option_value(const char* const_option, KeyOptionInt return_type) {
 	struct retro_variable var = { 0 };
 	var.key = const_option;
@@ -75,8 +69,8 @@ static int option_value(const char* const_option, KeyOptionInt return_type) {
 	return 0;
 }
 
-
-static const char* option_value(const char* const_option, KeyOptionString return_type) {
+static const char* option_value(const char* const_option, KeyOptionString return_type)
+{
 	struct retro_variable var = { 0 };
 	var.key = const_option;
 	if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var))
@@ -84,3 +78,7 @@ static const char* option_value(const char* const_option, KeyOptionString return
 	log_cb(RETRO_LOG_ERROR, "Error while getting option: %s\n", var.key);
 	return NULL;
 }
+
+extern void GSUpdateOptions(void);
+extern void ResetContentStuffs(void);
+

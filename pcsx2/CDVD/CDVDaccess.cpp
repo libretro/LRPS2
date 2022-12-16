@@ -17,15 +17,8 @@
 #include "PrecompiledHeader.h"
 #include "IopCommon.h"
 
-#define ENABLE_TIMESTAMPS
-
-#ifdef _WIN32
-#include <wx/msw/wrapwin.h>
-#endif
-
 #include <ctype.h>
 #include <time.h>
-#include <wx/datetime.h>
 #include <exception>
 #include <memory>
 
@@ -34,7 +27,6 @@
 #include "IsoFileFormats.h"
 
 #include "DebugTools/SymbolMap.h"
-#include "AppConfig.h"
 
 CDVD_API* CDVD = NULL;
 
@@ -56,8 +48,8 @@ const wxChar* CDVD_SourceLabels[] =
 static int diskTypeCached = -1;
 
 // used to bridge the gap between the old getBuffer api and the new getBuffer2 api.
-int lastReadSize;
-u32 lastLSN; // needed for block dumping
+static int lastReadSize;
+static u32 lastLSN; // needed for block dumping
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Disk Type detection stuff (from cdvdGigaherz)
@@ -230,7 +222,7 @@ static int FindDiskType(int mType)
 	return iCDType;
 }
 
-static void DetectDiskType()
+static void DetectDiskType(void)
 {
 	if (CDVD->getTrayStatus() == CDVD_TRAY_OPEN)
 	{

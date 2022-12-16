@@ -17,7 +17,7 @@
 #include "Common.h"
 
 #include <list>
-#include <wx/wx.h>
+#include <wx/app.h>
 
 #include "GS.h"
 #include "Gif_Unit.h"

@@ -6,7 +6,6 @@
 #undef Yield
 #endif
 
-#include "AppCommon.h"
 #include "App.h"
 
 #include <cstdint>

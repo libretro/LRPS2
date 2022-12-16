@@ -17,14 +17,12 @@
 #include "Common.h"
 #include "BiosTools.h"
 
-#include "Utilities/pxStreams.h"
-#include "wx/ffile.h"
-
-
-// FIXME: Temporary hack until we remove dependence on Pcsx2App.
-#include "AppConfig.h"
 #include <wx/mstream.h>
 #include <wx/wfstream.h>
+
+#include "Utilities/pxStreams.h"
+// FIXME: Temporary hack until we remove dependence on Pcsx2App.
+#include "AppConfig.h"
 
 #define DIRENTRY_SIZE 16
 

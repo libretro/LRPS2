@@ -20,8 +20,9 @@
 #include <wx/apptrait.h>
 #include <memory>
 
-#include "AppCommon.h"
+#include "AppConfig.h"
 #include "AppCoreThread.h"
+#include "AppEventListeners.h"
 
 #include "System.h"
 #include "System/SysThreads.h"

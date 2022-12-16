@@ -13,7 +13,6 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "wx/wx.h"
 #include "PrecompiledHeader.h"
 #include "Common.h"
 #include "IopCommon.h"

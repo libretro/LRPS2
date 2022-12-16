@@ -17,7 +17,6 @@
 #include "Path.h"
 
 #include <wx/file.h>
-#include <wx/utils.h>
 
 // ---------------------------------------------------------------------------------
 //  wxDirName (implementations)

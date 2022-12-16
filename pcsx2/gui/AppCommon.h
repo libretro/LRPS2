@@ -15,9 +15,4 @@
 
 #pragma once
 
-#include "Utilities/SafeArray.h"
-#include "Utilities/EventSource.h"
-#include "Utilities/PersistentThread.h"
-#include "AppForwardDefs.h"
-#include "AppConfig.h"
 #include "AppEventListeners.h"
