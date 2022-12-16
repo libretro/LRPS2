@@ -90,11 +90,7 @@ void SaveStateBase::ipuFreeze()
 
 __fi u32 ipuRead32(u32 mem)
 {
-	// Note: It's assumed that mem's input value is always in the 0x10002000 page
-	// of memory (if not, it's probably bad code).
-
-	pxAssert((mem & ~0xff) == 0x10002000);
-	mem &= 0xff;	// ipu repeats every 0x100
+	mem &= 0xff;	// IPU repeats every 0x100
 
 	IPUProcessInterrupt();
 
@@ -134,11 +130,7 @@ __fi u32 ipuRead32(u32 mem)
 
 __fi u64 ipuRead64(u32 mem)
 {
-	// Note: It's assumed that mem's input value is always in the 0x10002000 page
-	// of memory (if not, it's probably bad code).
-
-	pxAssert((mem & ~0xff) == 0x10002000);
-	mem &= 0xff;	// ipu repeats every 0x100
+	mem &= 0xff;	// IPU repeats every 0x100
 
 	IPUProcessInterrupt();
 
@@ -194,10 +186,6 @@ void ipuSoftReset(void)
 
 __fi bool ipuWrite32(u32 mem, u32 value)
 {
-	// Note: It's assumed that mem's input value is always in the 0x10002000 page
-	// of memory (if not, it's probably bad code).
-
-	pxAssert((mem & ~0xfff) == 0x10002000);
 	mem &= 0xfff;
 
 	switch (mem)
@@ -224,10 +212,6 @@ __fi bool ipuWrite32(u32 mem, u32 value)
 // writeback itself.
 __fi bool ipuWrite64(u32 mem, u64 value)
 {
-	// Note: It's assumed that mem's input value is always in the 0x10002000 page
-	// of memory (if not, it's probably bad code).
-
-	pxAssert((mem & ~0xfff) == 0x10002000);
 	mem &= 0xfff;
 
 	switch (mem)
@@ -742,8 +726,6 @@ __fi void IPUCMD_WRITE(u32 val)
 
 __noinline void IPUWorker()
 {
-	pxAssert(ipuRegs.ctrl.BUSY);
-
 	switch (ipu_cmd.CMD)
 	{
 		// These are unreachable (BUSY will always be 0 for them)

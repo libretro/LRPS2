@@ -81,8 +81,6 @@ void SysMtgsThread::OnResumeReady()
 
 void SysMtgsThread::ResetGS()
 {
-	pxAssertDev( !IsOpen() || (m_ReadPos == m_WritePos));
-
 	// MTGS Reset process:
 	//  * clear the ringbuffer.
 	//  * Signal a reset.
@@ -254,9 +252,6 @@ void SysMtgsThread::ExecuteTaskInThread()
 		while( m_ReadPos.load(std::memory_order_relaxed) != m_WritePos.load(std::memory_order_acquire))
 		{
 			const unsigned int local_ReadPos = m_ReadPos.load(std::memory_order_relaxed);
-
-			pxAssert( local_ReadPos < RingBufferSize );
-
 			const PacketTagType& tag = (PacketTagType&)RingBuffer[local_ReadPos];
 			u32 ringposinc = 1;
 
@@ -461,10 +456,8 @@ void SysMtgsThread::OnCleanupInThread()
 // If isMTVU, then this implies this function is being called from the MTVU thread...
 void SysMtgsThread::WaitGS(bool syncRegs, bool weakWait, bool isMTVU)
 {
-	pxAssertDev( !IsSelf());
-
 	if( m_ExecMode == ExecMode_NoThreadYet || !IsRunning() ) return;
-	if( !pxAssertDev( IsOpen()) ) return;
+	if( !(IsOpen()) ) return;
 
 	Gif_Path&   path = gifUnit.gifPath[GIF_PATH_1];
 	u32 startP1Packs = weakWait ? path.mtvu.gsPackQueue.size() : 0;
@@ -511,13 +504,7 @@ void SysMtgsThread::SetEvent()
 // Closes the data packet send command, and initiates the gs thread (if needed).
 void SysMtgsThread::SendDataPacket()
 {
-	// make sure a previous copy block has been started somewhere.
-	pxAssert( m_packet_size != 0 );
-
 	uint actualSize = ((m_packet_writepos - m_packet_startpos) & RingBufferMask)-1;
-	pxAssert( actualSize <= m_packet_size );
-	pxAssert( m_packet_writepos < RingBufferSize );
-
 	PacketTagType& tag = (PacketTagType&)RingBuffer[m_packet_startpos];
 	tag.data[0] = actualSize;
 
@@ -541,11 +528,7 @@ void SysMtgsThread::GenericStall( uint size )
 	// except for calls to RingbufferRestert() -- handled below.
 	const uint writepos = m_WritePos.load(std::memory_order_relaxed);
 
-	// Sanity checks! (within the confines of our ringbuffer please!)
-	pxAssert( size < RingBufferSize );
-	pxAssert( writepos < RingBufferSize );
-
-	// generic gs wait/stall.
+	// generic GS wait/stall.
 	// if the writepos is past the readpos then we're safe.
 	// But if not then we need to make sure the readpos is outside the scope of
 	// the block about to be written (writepos + size)
@@ -577,7 +560,6 @@ void SysMtgsThread::GenericStall( uint size )
 
 		if( somedone > 0x80 )
 		{
-			pxAssertDev( m_SignalRingEnable == 0);
 			m_SignalRingPosition.store(somedone, std::memory_order_release);
 
                         for (;;) {
@@ -593,8 +575,6 @@ void SysMtgsThread::GenericStall( uint size )
 
 				if (freeroom > size) break;
 			}
-
-			pxAssertDev( m_SignalRingPosition <= 0);
 		}
 		else
 		{
@@ -634,7 +614,6 @@ void SysMtgsThread::PrepDataPacket( MTGS_RingCommand cmd, u32 size )
 __fi void SysMtgsThread::_FinishSimplePacket()
 {
 	uint future_writepos = (m_WritePos.load(std::memory_order_relaxed) +1) & RingBufferMask;
-	pxAssert( future_writepos != m_ReadPos.load(std::memory_order_acquire) );
 	m_WritePos.store(future_writepos, std::memory_order_release);
 
 	++m_CopyDataTally;
@@ -703,7 +682,6 @@ void SysMtgsThread::WaitForOpen()
 
 void SysMtgsThread::Freeze( int mode, MTGS_FreezeData& data )
 {
-	pxAssertDev(!IsSelf());
 	SendPointerPacket( GS_RINGTYPE_FREEZE, mode, &data );
 	// make sure MTGS is processing the packet we send it
 	Resume();

@@ -23,10 +23,10 @@
 // Flag Allocators
 //------------------------------------------------------------------
 
+/* fInst always has to be lower than 4 */
 __fi static const x32& getFlagReg(uint fInst)
 {
 	static const x32* const gprFlags[4] = { &gprF0, &gprF1, &gprF2, &gprF3 };
-	pxAssert(fInst < 4);
 	return *gprFlags[fInst];
 }
 

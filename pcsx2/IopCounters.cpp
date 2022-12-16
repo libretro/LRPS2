@@ -353,10 +353,9 @@ void _psxCheckEndGate(int i)
 	_rcntSet(i);
 }
 
+/* i always has to be lower than 3 */
 void psxCheckStartGate16(int i)
 {
-	pxAssert(i < 3);
-
 	if (i == 0) // hSync counting...
 	{
 		// AlternateSource/scanline counters for Gates 1 and 3.
@@ -508,11 +507,10 @@ void psxRcntUpdate(void)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
+/* index always has to be lower than 3 */
 void psxRcntWcount16(int index, u16 value)
 {
 	u32 change;
-
-	pxAssert(index < 3);
 
 	if (psxCounters[index].rate != PSXHBLANK)
 	{
@@ -537,11 +535,11 @@ void psxRcntWcount16(int index, u16 value)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
+
+/* index always has to be greater than or equal to 3 but lower than 6 */
 void psxRcntWcount32(int index, u32 value)
 {
 	u32 change;
-
-	pxAssert(index >= 3 && index < 6);
 
 	if (psxCounters[index].rate != PSXHBLANK)
 	{
@@ -692,9 +690,9 @@ __fi void psxRcntWmode32(int index, u32 value)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
+/* index always has to be lower than 3 */
 void psxRcntWtarget16(int index, u32 value)
 {
-	pxAssert(index < 3);
 	psxCounters[index].target = value & 0xffff;
 
 	// protect the target from an early arrival.
@@ -707,10 +705,9 @@ void psxRcntWtarget16(int index, u32 value)
 	_rcntSet(index);
 }
 
+/* index always has to be greater than or equal to 3 but lower than 6 */
 void psxRcntWtarget32(int index, u32 value)
 {
-	pxAssert(index >= 3 && index < 6);
-
 	psxCounters[index].target = value;
 	if (!(psxCounters[index].mode & 0x80)) // Toggle mode
 		psxCounters[index].mode |= 0x0400; // Interrupt flag set low
@@ -724,11 +721,10 @@ void psxRcntWtarget32(int index, u32 value)
 	_rcntSet(index);
 }
 
+/* index always has to be lower than 3 */
 u16 psxRcntRcount16(int index)
 {
 	u32 retval = (u32)psxCounters[index].count;
-
-	pxAssert(index < 3);
 
 	// Don't count HBLANK timers
 	// Don't count stopped gates either.
@@ -743,11 +739,10 @@ u16 psxRcntRcount16(int index)
 	return (u16)retval;
 }
 
+/* index always has to be greater than or eqaul to 3 but lower than 6 */
 u32 psxRcntRcount32(int index)
 {
 	u32 retval = (u32)psxCounters[index].count;
-
-	pxAssert(index >= 3 && index < 6);
 
 	if (!(psxCounters[index].mode & IOPCNT_STOPPED) &&
 		(psxCounters[index].rate != PSXHBLANK))

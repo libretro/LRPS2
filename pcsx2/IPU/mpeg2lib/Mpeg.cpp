@@ -770,8 +770,6 @@ __fi bool mpeg2sliceIDEC(void)
 
 			case 2:
 			{
-				pxAssert(decoder.ipu0_data > 0);
-
 				uint read = ipu_fifo.out.write((u32*)decoder.GetIpuDataPtr(), decoder.ipu0_data);
 				decoder.AdvanceIpuDataBy(read);
 
@@ -1122,8 +1120,6 @@ __fi bool mpeg2_slice(void)
 
 	case 3:
 	{
-		pxAssert(decoder.ipu0_data > 0);
-
 		uint read = ipu_fifo.out.write((u32*)decoder.GetIpuDataPtr(), decoder.ipu0_data);
 		decoder.AdvanceIpuDataBy(read);
 

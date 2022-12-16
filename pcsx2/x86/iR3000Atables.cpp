@@ -303,7 +303,7 @@ void rpsxLogicalOp(int info, int op)
 			case 1: xOR(ptr32[&psxRegs.GPR.r[_Rd_]], ecx); break;
 			case 2: xXOR(ptr32[&psxRegs.GPR.r[_Rd_]], ecx); break;
 			case 3: xOR(ptr32[&psxRegs.GPR.r[_Rd_]], ecx); break;
-			default: pxAssert(0);
+			default: break;
 		}
 
 		if( op == 3 )
@@ -317,7 +317,7 @@ void rpsxLogicalOp(int info, int op)
 			case 1: xOR(ecx, ptr32[&psxRegs.GPR.r[_Rt_]]); break;
 			case 2: xXOR(ecx, ptr32[&psxRegs.GPR.r[_Rt_]]); break;
 			case 3: xOR(ecx, ptr32[&psxRegs.GPR.r[_Rt_]]); break;
-			default: pxAssert(0);
+			default: break;
 		}
 
 		if( op == 3 )
@@ -977,7 +977,6 @@ void rpsxJALR()
 	psxRecompileNextInstruction(1);
 
 	if( x86regs[calleeSavedReg2d.GetId()].inuse ) {
-		pxAssert( x86regs[calleeSavedReg2d.GetId()].type == X86TYPE_PCWRITEBACK );
 		xMOV(ptr32[&psxRegs.pc], calleeSavedReg2d);
 		x86regs[calleeSavedReg2d.GetId()].inuse = 0;
 

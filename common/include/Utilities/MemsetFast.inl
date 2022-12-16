@@ -22,8 +22,6 @@ __noinline void memset_sse_a(void *dest, const size_t size)
 {
     const uint MZFqwc = size / 16;
 
-    pxAssert((size & 0xf) == 0);
-
     __m128 srcreg;
 
     if (data != 0) {

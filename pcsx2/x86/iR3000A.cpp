@@ -675,7 +675,6 @@ static __fi u32 psxRecClearMem(u32 pc)
 
 	u32 lowerextent = pc, upperextent = pc + 4;
 	int blockidx = recBlocks.Index(pc);
-	pxAssert(blockidx != -1);
 
 	while (BASEBLOCKEX* pexblock = recBlocks[blockidx - 1]) {
 		if (pexblock->startpc + pexblock->size * 4 <= lowerextent)
@@ -726,7 +725,6 @@ void psxSetBranchReg(u32 reg)
 		psxRecompileNextInstruction(1);
 
 		if( x86regs[calleeSavedReg2d.GetId()].inuse ) {
-			pxAssert( x86regs[calleeSavedReg2d.GetId()].type == X86TYPE_PCWRITEBACK );
 			xMOV(ptr32[&psxRegs.pc], calleeSavedReg2d);
 			x86regs[calleeSavedReg2d.GetId()].inuse = 0;
 		}
@@ -745,7 +743,6 @@ void psxSetBranchReg(u32 reg)
 void psxSetBranchImm( u32 imm )
 {
 	psxbranch = 1;
-	pxAssert( imm );
 
 	// end the current block
 	xMOV(ptr32[&psxRegs.pc], imm );
@@ -887,8 +884,6 @@ static void __fastcall iopRecRecompile( const u32 startpc )
 		}
 	}
 
-	pxAssert( startpc );
-
 	// if recPtr reached the mem limit reset whole mem
 	if (recPtr >= (recMem->GetPtrEnd() - _64kb)) {
 		recResetIOP();
@@ -899,9 +894,6 @@ static void __fastcall iopRecRecompile( const u32 startpc )
 	recPtr = x86Ptr;
 
 	s_pCurBlock = PSX_GETBLOCK(startpc);
-
-	pxAssert(s_pCurBlock->GetFnptr() == (uptr)iopJITCompile
-		|| s_pCurBlock->GetFnptr() == (uptr)iopJITCompileInBlock);
 
 	s_pCurBlockEx = recBlocks.Get(HWADDR(startpc));
 
@@ -1009,7 +1001,6 @@ StartRecomp:
 			free(s_pInstCache);
 			s_nInstCacheSize = (s_nEndBlock-startpc)/4+10;
 			s_pInstCache = (EEINST*)malloc(sizeof(EEINST)*s_nInstCacheSize);
-			pxAssert( s_pInstCache != NULL );
 		}
 
 		pcur = s_pInstCache + (s_nEndBlock-startpc)/4;
@@ -1029,7 +1020,6 @@ StartRecomp:
 		psxRecompileNextInstruction(0);
 	}
 
-	pxAssert( (psxpc-startpc)>>2 <= 0xffff );
 	s_pCurBlockEx->size = (psxpc-startpc)>>2;
 
 	for(i = 1; i < (u32)s_pCurBlockEx->size; ++i) {
@@ -1048,15 +1038,13 @@ StartRecomp:
 		JMP32((uptr)iopDispatcherReg - ( (uptr)x86Ptr + 5 ));
 	}
 	else {
-		if( psxbranch ) pxAssert( !willbranch3 );
-		else
+		if( !psxbranch )
 		{
 			xADD(ptr32[&psxRegs.cycle], psxScaleBlockCycles() );
 			xSUB(ptr32[&iopCycleEE], psxScaleBlockCycles()*8 );
 		}
 
 		if (willbranch3 || !psxbranch) {
-			pxAssert( psxpc == s_nEndBlock );
 			_psxFlushCall(FLUSH_EVERYTHING);
 			xMOV(ptr32[&psxRegs.pc], psxpc);
 			recBlocks.Link(HWADDR(s_nEndBlock), xJcc32() );
@@ -1064,14 +1052,9 @@ StartRecomp:
 		}
 	}
 
-	pxAssert( xGetPtr() < recMem->GetPtrEnd() );
-
-	pxAssert(xGetPtr() - recPtr < _64kb);
 	s_pCurBlockEx->x86size = xGetPtr() - recPtr;
 
 	recPtr = xGetPtr();
-
-	pxAssert( (g_psxHasConstReg&g_psxFlushedConstReg) == g_psxHasConstReg );
 
 	s_pCurBlock = NULL;
 	s_pCurBlockEx = NULL;

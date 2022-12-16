@@ -143,9 +143,6 @@ bool MultipartFileReader::Open(const wxString& fileName)
 
 uint MultipartFileReader::GetFirstPart(uint lsn)
 {
-	pxAssertMsg(lsn < GetBlockCount());
-	pxAssertMsg(m_numparts);
-
 	for (uint i = 0; i < m_numparts; ++i)
 	{
 		if (lsn < m_parts[i].end)

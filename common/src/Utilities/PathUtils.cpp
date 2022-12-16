@@ -25,7 +25,6 @@
 
 wxFileName wxDirName::Combine(const wxFileName &right) const
 {
-    pxAssertMsg(IsDir());
     if (right.IsAbsolute())
         return right;
 
@@ -40,8 +39,6 @@ wxFileName wxDirName::Combine(const wxFileName &right) const
 
 wxDirName wxDirName::Combine(const wxDirName &right) const
 {
-    pxAssertMsg(IsDir() && right.IsDir());
-
     wxDirName result(right);
     result.Normalize(wxPATH_NORM_ENV_VARS | wxPATH_NORM_DOTS | wxPATH_NORM_ABSOLUTE, GetPath());
     return result;
@@ -49,7 +46,6 @@ wxDirName wxDirName::Combine(const wxDirName &right) const
 
 wxDirName &wxDirName::Normalize(int flags, const wxString &cwd)
 {
-    pxAssertMsg(IsDir());
     if (!wxFileName::Normalize(flags, cwd))
         throw Exception::ParseError().SetDiagMsg(L"wxDirName::Normalize operation failed.");
     return *this;
@@ -57,7 +53,6 @@ wxDirName &wxDirName::Normalize(int flags, const wxString &cwd)
 
 wxDirName &wxDirName::MakeRelativeTo(const wxString &pathBase)
 {
-    pxAssertMsg(IsDir());
     if (!wxFileName::MakeRelativeTo(pathBase))
         throw Exception::ParseError().SetDiagMsg(L"wxDirName::MakeRelativeTo operation failed.");
     return *this;
@@ -65,7 +60,6 @@ wxDirName &wxDirName::MakeRelativeTo(const wxString &pathBase)
 
 wxDirName &wxDirName::MakeAbsolute(const wxString &cwd)
 {
-    pxAssertMsg(IsDir());
     if (!wxFileName::MakeAbsolute(cwd))
         throw Exception::ParseError().SetDiagMsg(L"wxDirName::MakeAbsolute operation failed.");
     return *this;

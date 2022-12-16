@@ -47,8 +47,6 @@ s32 __fastcall SPU2Savestate::FreezeIt(DataBlock& spud)
 	spud.spu2id = SAVE_ID;
 	spud.version = SAVE_VERSION;
 
-	pxAssertMsg(spu2regs && _spu2mem);
-
 	if (spu2regs != nullptr)
 		memcpy(spud.unkregs, spu2regs, sizeof(spud.unkregs));
 	if (_spu2mem != nullptr)
@@ -86,8 +84,6 @@ s32 __fastcall SPU2Savestate::ThawIt(DataBlock& spud)
 	}
 	else
 	{
-		pxAssertMsg(spu2regs && _spu2mem);
-
 		// base stuff
 		if (spu2regs)
 			memcpy(spu2regs, spud.unkregs, sizeof(spud.unkregs));

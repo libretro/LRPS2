@@ -858,10 +858,6 @@ __fi void cdvdReadInterrupt()
 		}
 
 		cdvd.Reading = false;
-
-		// Any other value besides 0 should be considered invalid here (wtf is that wacky
-		// plugin trying to do?)
-		pxAssert(cdvd.RErr == 0);
 	}
 
 	if (cdvd.nSectors > 0)
@@ -874,7 +870,6 @@ __fi void cdvdReadInterrupt()
 			// An arbitrary delay of some number of cycles probably makes more sense here,
 			// but for now it's based on the cdvd.ReadTime value. -- air
 
-			pxAssert((int)cdvd.ReadTime > 0);
 			CDVDREAD_INT(cdvd.ReadTime / 4);
 			return;
 		}

@@ -85,8 +85,6 @@ bool BlockdumpFileReader::Open(const wxString& fileName)
 	wxFileOffset flen = m_file->GetLength();
 	static const wxFileOffset datalen = flen - BlockDumpHeaderSize;
 
-	pxAssert((datalen % (m_blocksize + 4)) == 0);
-
 	m_dtablesize = datalen / (m_blocksize + 4);
 	m_dtable = std::unique_ptr<u32[]>(new u32[m_dtablesize]);
 

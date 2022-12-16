@@ -305,11 +305,7 @@ static void vtlb_SetWriteback(u32 *writeback)
 {
 	uptr val = (uptr)xGetPtr();
 	if (wordsize == 8)
-	{
-		pxAssertMsg(*((u8*)writeback - 2) == 0x8d);
 		val -= ((uptr)writeback + 4);
-	}
-	pxAssertMsg((sptr)val == (s32)val);
 	*writeback = val;
 }
 

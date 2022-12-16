@@ -173,7 +173,6 @@ struct decoder_t {
 	
 	void AdvanceIpuDataBy(uint amt)
 	{
-		pxAssertMsg(ipu0_data>=amt);
 		ipu0_idx  += amt;
 		ipu0_data -= amt;
 	}

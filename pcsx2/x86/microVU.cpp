@@ -288,11 +288,11 @@ void recMicroVU1::Shutdown() noexcept {
 }
 
 void recMicroVU0::Reset() {
-	if(!pxAssertDev(m_Reserved)) return;
+	if(!m_Reserved) return;
 	mVUreset(microVU0, true);
 }
 void recMicroVU1::Reset() {
-	if(!pxAssertDev(m_Reserved)) return;
+	if(!m_Reserved) return;
 	vu1Thread.WaitVU();
 	mVUreset(microVU1, true);
 }
@@ -303,8 +303,6 @@ void recMicroVU0::SetStartPC(u32 startPC)
 }
 
 void recMicroVU0::Execute(u32 cycles) {
-	pxAssert(m_Reserved); // please allocate me first! :|
-
 	VU0.flags &= ~VUFLAG_MFLAGSET;
 
 	if(!(VU0.VI[REG_VPU_STAT].UL & 1)) return;
@@ -325,8 +323,6 @@ void recMicroVU1::SetStartPC(u32 startPC)
 }
 
 void recMicroVU1::Execute(u32 cycles) {
-	pxAssert(m_Reserved); // please allocate me first! :|
-
 	if (!THREAD_VU1) {
 		if(!(VU0.VI[REG_VPU_STAT].UL & 0x100)) return;
 	}
@@ -341,11 +337,9 @@ void recMicroVU1::Execute(u32 cycles) {
 }
 
 void recMicroVU0::Clear(u32 addr, u32 size) {
-	pxAssert(m_Reserved); // please allocate me first! :|
 	mVUclear(microVU0, addr, size);
 }
 void recMicroVU1::Clear(u32 addr, u32 size) {
-	pxAssert(m_Reserved); // please allocate me first! :|
 	mVUclear(microVU1, addr, size);
 }
 
@@ -368,8 +362,6 @@ void recMicroVU1::SetCacheReserve(uint reserveInMegs) const {
 }
 
 void recMicroVU1::ResumeXGkick() {
-	pxAssert(m_Reserved); // please allocate me first! :|
-
 	if(!(VU0.VI[REG_VPU_STAT].UL & 0x100)) return;
 	((mVUrecCallXG)microVU1.startFunctXG)();
 }

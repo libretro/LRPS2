@@ -31,7 +31,6 @@ const __fi wxChar* EnumToString(SpeedhackId id)
 
 void Pcsx2Config::SpeedhackOptions::Set(SpeedhackId id, bool enabled)
 {
-	EnumAssert(id);
 	switch (id)
 	{
 		case Speedhack_mvuFlag:
@@ -209,7 +208,6 @@ void Pcsx2Config::GamefixOptions::Set( const wxString& list, bool enabled )
 
 void Pcsx2Config::GamefixOptions::Set( GamefixId id, bool enabled )
 {
-	EnumAssert( id );
 	switch(id)
 	{
 		case Fix_VuAddSub:		VuAddSubHack		= enabled;	break;
@@ -236,7 +234,6 @@ void Pcsx2Config::GamefixOptions::Set( GamefixId id, bool enabled )
 
 bool Pcsx2Config::GamefixOptions::Get( GamefixId id ) const
 {
-	EnumAssert( id );
 	switch(id)
 	{
 		case Fix_VuAddSub:		return VuAddSubHack;
@@ -273,9 +270,9 @@ Pcsx2Config::Pcsx2Config()
 }
 
 
+/* port should always be lower than 2 */
 bool Pcsx2Config::MultitapEnabled( uint port ) const
 {
-	pxAssert( port < 2 );
 	return (port==0) ? MultitapPort0_Enabled : MultitapPort1_Enabled;
 }
 

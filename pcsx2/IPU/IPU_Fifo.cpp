@@ -93,7 +93,6 @@ int IPU_Fifo_Input::read(void *value)
 		}
 
 		if (g_BP.IFC == 0) return 0;
-		pxAssert(g_BP.IFC > 0);
 	}
 
 	CopyQWC(value, &data[readpos]);
@@ -105,8 +104,6 @@ int IPU_Fifo_Input::read(void *value)
 
 int IPU_Fifo_Output::write(const u32 *value, uint size)
 {
-	pxAssertMsg(size>0);
-
 	uint origsize = size;
 	/*do {*/
 		//IPU0dma();
@@ -131,7 +128,6 @@ int IPU_Fifo_Output::write(const u32 *value, uint size)
 
 void IPU_Fifo_Output::read(void *value, uint size)
 {
-	pxAssert(ipuRegs.ctrl.OFC >= size);
 	ipuRegs.ctrl.OFC -= size;
 	
 	// Zeroing the read data is not needed, since the ringbuffer design will never read back
@@ -151,7 +147,7 @@ void IPU_Fifo_Output::read(void *value, uint size)
 
 void __fastcall ReadFIFO_IPUout(mem128_t* out)
 {
-	if (!pxAssertDev( ipuRegs.ctrl.OFC > 0)) return;
+	if (!( ipuRegs.ctrl.OFC > 0)) return;
 	ipu_fifo.out.read(out, 1);
 
 	// Games should always check the fifo before reading from it -- so if the FIFO has no data

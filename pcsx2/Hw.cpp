@@ -119,10 +119,6 @@ void FireMFIFOEmpty(void)
 // Write 'size' bytes to memory address 'addr' from 'data'.
 __ri bool hwMFIFOWrite(u32 addr, const u128* data, uint qwc)
 {
-	// all FIFO addresses should always be QWC-aligned.
-	pxAssert((dmacRegs.rbor.ADDR & 15) == 0);
-	pxAssert((addr & 15) == 0);
-
 	// DMAC Address resolution:  FIFO can be placed anywhere in the *physical* memory map
 	// for the PS2.  Its probably a serious error for a PS2 app to have the buffer cross
 	// valid/invalid page areas of ram, so realistically we only need to test the base address

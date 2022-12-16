@@ -20,12 +20,6 @@
 #include "AppCommon.h"
 #include "SaveState.h"
 
-#define AffinityAssert_AllowFrom_CoreThread() \
-	pxAssertMsg( GetCoreThread().IsSelf(), "Thread affinity violation: Call allowed from SysCoreThread only." )
-
-#define AffinityAssert_DisallowFrom_CoreThread() \
-	pxAssertMsg( !GetCoreThread().IsSelf(), "Thread affinity violation: Call is *not* allowed from SysCoreThread." )
-
 // --------------------------------------------------------------------------------------
 //  AppCoreThread class
 // --------------------------------------------------------------------------------------

@@ -414,7 +414,7 @@ void FileMemoryCard::GetSizeInfo(uint slot, McdSizeInfo& outways)
 	outways.EraseBlockSizeInSectors = 16; // 0x0010
 	outways.Xor = 18;                     // 0x12, XOR 02 00 00 10
 
-	if (pxAssert(m_file[slot].IsOpened()))
+	if (m_file[slot].IsOpened())
 		outways.McdSizeInSectors = m_file[slot].Length() / (outways.SectorSize + outways.EraseBlockSizeInSectors);
 	else
 		outways.McdSizeInSectors = 0x4000;

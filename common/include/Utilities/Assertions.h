@@ -72,7 +72,4 @@ struct DiagnosticOrigin
 // Release Builds just use __assume as an optimization, and return the conditional
 // as a result (which is optimized to nil if unused).
 
-#define pxAssertMsg(cond) (likely(cond))
 #define pxAssertDev(cond) (likely(cond))
-
-#define pxAssert(cond) pxAssertMsg(cond)

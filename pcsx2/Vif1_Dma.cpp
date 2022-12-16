@@ -53,18 +53,6 @@ void vif1TransferToMemory(void)
 	// stuff from the GS.  The *only* way to handle this case safely is to flush the GS
 	// completely and execute the transfer there-after.
 	const u32   size = std::min(vif1.GSLastDownloadSize, (u32)vif1ch.qwc);
-	//const u128* pMemEnd  = vif1.GSLastDownloadSize + pMem;
-
-	if (size) {
-		// Checking if any crazy game does a partial
-		// gs primitive and then does a gs download...
-		Gif_Path& p1 = gifUnit.gifPath[GIF_PATH_1];
-		Gif_Path& p2 = gifUnit.gifPath[GIF_PATH_2];
-		Gif_Path& p3 = gifUnit.gifPath[GIF_PATH_3];
-		pxAssert(p1.isDone() || !p1.gifTag.isValid);
-		pxAssert(p2.isDone() || !p2.gifTag.isValid);
-		pxAssert(p3.isDone() || !p3.gifTag.isValid);
-	}
 
 	GetMTGS().WaitGS();
 	GetMTGS().SendPointerPacket(GS_RINGTYPE_INIT_READ_FIFO2, size, pMem);

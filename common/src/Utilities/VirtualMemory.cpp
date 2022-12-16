@@ -44,7 +44,6 @@ void pxInstallSignalHandler()
 // --------------------------------------------------------------------------------------
 EventListener_PageFault::EventListener_PageFault()
 {
-    pxAssert(Source_PageFault);
     Source_PageFault->Add(*this);
 }
 
@@ -125,7 +124,6 @@ static bool VMMMarkPagesAsInUse(std::atomic<bool> *begin, std::atomic<bool> *end
                 if (!current->compare_exchange_strong(expected, false, std::memory_order_relaxed)) {
                     // In the time we were doing this, someone set one of the things we just set to true back to false
                     // This should never happen, but if it does we'll just stop and hope nothing bad happens
-                    pxAssert(0);
                     return false;
                 }
             }
@@ -138,15 +136,15 @@ static bool VMMMarkPagesAsInUse(std::atomic<bool> *begin, std::atomic<bool> *end
 void *VirtualMemoryManager::Alloc(uptr offsetLocation, size_t size) const
 {
     size = pageAlign(size);
-    if (!pxAssertDev(offsetLocation % __pagesize == 0))
+    if (!(offsetLocation % __pagesize == 0))
         return nullptr;
-    if (!pxAssertDev(size + offsetLocation <= m_pages_reserved * __pagesize))
+    if (!(size + offsetLocation <= m_pages_reserved * __pagesize))
         return nullptr;
     if (m_baseptr == 0)
         return nullptr;
     auto puStart = &m_pageuse[offsetLocation / __pagesize];
     auto puEnd = &m_pageuse[(offsetLocation+size) / __pagesize];
-    if (!pxAssertDev(VMMMarkPagesAsInUse(puStart, puEnd)))
+    if (!(VMMMarkPagesAsInUse(puStart, puEnd)))
         return nullptr;
     return (void *)(m_baseptr + offsetLocation);
 }
@@ -154,15 +152,15 @@ void *VirtualMemoryManager::Alloc(uptr offsetLocation, size_t size) const
 void VirtualMemoryManager::Free(void *address, size_t size) const
 {
     uptr offsetLocation = (uptr)address - m_baseptr;
-    if (!pxAssertDev(offsetLocation % __pagesize == 0))
+    if (!(offsetLocation % __pagesize == 0))
     {
         uptr newLoc = pageAlign(offsetLocation);
         size -= (offsetLocation - newLoc);
         offsetLocation = newLoc;
     }
-    if (!pxAssertDev(size % __pagesize == 0))
+    if (!(size % __pagesize == 0))
         size -= size % __pagesize;
-    if (!pxAssertDev(size + offsetLocation <= m_pages_reserved * __pagesize))
+    if (!(size + offsetLocation <= m_pages_reserved * __pagesize))
         return;
     auto puStart = &m_pageuse[offsetLocation / __pagesize];
     auto puEnd = &m_pageuse[(offsetLocation+size) / __pagesize];
@@ -178,8 +176,7 @@ void VirtualMemoryManager::Free(void *address, size_t size) const
 VirtualMemoryBumpAllocator::VirtualMemoryBumpAllocator(VirtualMemoryManagerPtr allocator, uptr offsetLocation, size_t size)
     : m_allocator(std::move(allocator)), m_baseptr((uptr)m_allocator->Alloc(offsetLocation, size)), m_endptr(m_baseptr + size)
 {
-    if (m_baseptr.load() == 0)
-        pxAssertDev(0);
+    m_baseptr.load();
 }
 
 void *VirtualMemoryBumpAllocator::Alloc(size_t size)
@@ -191,7 +188,7 @@ void *VirtualMemoryBumpAllocator::Alloc(size_t size)
 
     uptr out = m_baseptr.fetch_add(reservedSize, std::memory_order_relaxed);
 
-    if (!pxAssertDev(out - reservedSize + size <= m_endptr))
+    if (!(out - reservedSize + size <= m_endptr))
         return nullptr;
 
     return (void *)out;
@@ -235,7 +232,7 @@ size_t VirtualMemoryReserve::GetSize(size_t requestedSize)
 //
 void *VirtualMemoryReserve::Assign(VirtualMemoryManagerPtr allocator, void * baseptr, size_t size)
 {
-    if (!pxAssertDev(m_baseptr == NULL))
+    if (m_baseptr)
         return m_baseptr;
 
     if (!size)
@@ -283,7 +280,7 @@ bool VirtualMemoryReserve::Commit()
 {
     if (!m_pages_reserved)
         return false;
-    if (!pxAssert(!m_pages_commited))
+    if (!(!m_pages_commited))
         return true;
 
     m_pages_commited = m_pages_reserved;

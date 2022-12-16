@@ -153,8 +153,6 @@ const IsoFileDescriptor& IsoDirectory::GetEntry(const wxString& fileName) const
 
 IsoFileDescriptor IsoDirectory::FindFile(const wxString& filePath) const
 {
-	pxAssert(!filePath.IsEmpty());
-
 	// wxWidgets DOS-style parser should work fine for ISO 9660 path names.  Only practical difference
 	// is case sensitivity, and that won't matter for path splitting.
 	wxFileName parts(filePath, wxPATH_DOS);

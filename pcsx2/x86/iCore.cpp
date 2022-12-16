@@ -489,8 +489,6 @@ void _deleteFPtoXMMreg(int reg, int flush)
 // Step 2: clear 'inuse' field
 void _freeXMMreg(u32 xmmreg)
 {
-	pxAssert( xmmreg < iREGCNT_XMM );
-
 	if (!xmmregs[xmmreg].inuse) return;
 
 	if (xmmregs[xmmreg].mode & MODE_WRITE) {
@@ -648,9 +646,6 @@ void _flushXMMregs(void)
 	for (i=0; (uint)i<iREGCNT_XMM; i++) {
 		if (xmmregs[i].inuse == 0) continue;
 
-		pxAssert( xmmregs[i].type != XMMTYPE_TEMP );
-		pxAssert( xmmregs[i].mode & (MODE_READ|MODE_WRITE) );
-
 		_freeXMMreg(i);
 		xmmregs[i].inuse = 1;
 		xmmregs[i].mode &= ~MODE_WRITE;
@@ -665,8 +660,6 @@ void _freeXMMregs(void)
 
 	for (i=0; (uint)i<iREGCNT_XMM; i++) {
 		if (xmmregs[i].inuse == 0) continue;
-
-		pxAssert( xmmregs[i].type != XMMTYPE_TEMP );
 
 		_freeXMMreg(i);
 	}

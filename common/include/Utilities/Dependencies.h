@@ -39,7 +39,6 @@
 //
 // The macro also defines utility functions for bounds checking enumerations:
 //   EnumIsValid(value);   // returns TRUE if the enum value is between FIRST and COUNT.
-//   EnumAssert(value);
 //
 // It also defines a *prototype* for converting the enumeration to a string.  Note that this
 // method is not implemented!  You must implement it yourself if you want to use it:
@@ -77,11 +76,6 @@
     {                                                                                                                \
         return ((int)id >= enumName##_FIRST) && ((int)id < enumName##_COUNT);                                        \
     }                                                                                                                \
-    static __fi void EnumAssert(enumName id)                                                                         \
-    {                                                                                                                \
-        pxAssert(EnumIsValid(id));                                                                                   \
-    }                                                                                                                \
-                                                                                                                     \
     extern const wxChar *EnumToString(enumName id)
 
 class pxEnumEnd_t

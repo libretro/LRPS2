@@ -100,7 +100,7 @@ void Threading::Mutex::Detach()
 
         Release();
         Release(); // in case of double recursion.
-        if (pxAssertDev(pthread_mutex_destroy(&m_mutex) != EBUSY))
+        if (pthread_mutex_destroy(&m_mutex) != EBUSY)
             return;
     }
 
@@ -267,8 +267,6 @@ void Threading::ScopedLock::AssignAndLock(const Mutex &locker)
 
 void Threading::ScopedLock::AssignAndLock(const Mutex *locker)
 {
-    pxAssert(!m_IsLocked); // if we're already locked, changing the lock is bad mojo.
-
     m_lock = const_cast<Mutex *>(locker);
     if (!m_lock)
         return;

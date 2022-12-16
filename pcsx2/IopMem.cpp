@@ -52,8 +52,6 @@ void iopMemoryReserve::Reset()
 {
 	_parent::Reset();
 
-	pxAssert( iopMem );
-
 	if (!psxMemWLUT)
 	{
 		psxMemWLUT = (uptr*)_aligned_malloc(0x2000 * sizeof(uptr) * 2, 16);
