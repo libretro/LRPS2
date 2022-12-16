@@ -176,7 +176,6 @@ void VirtualMemoryManager::Free(void *address, size_t size) const
 VirtualMemoryBumpAllocator::VirtualMemoryBumpAllocator(VirtualMemoryManagerPtr allocator, uptr offsetLocation, size_t size)
     : m_allocator(std::move(allocator)), m_baseptr((uptr)m_allocator->Alloc(offsetLocation, size)), m_endptr(m_baseptr + size)
 {
-    m_baseptr.load();
 }
 
 void *VirtualMemoryBumpAllocator::Alloc(size_t size)
