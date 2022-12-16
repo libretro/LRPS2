@@ -24,10 +24,6 @@ template class SafeArray<char>;
 template class SafeArray<wchar_t>;
 template class SafeArray<u8>;
 
-template class SafeAlignedArray<char, 16>;
-template class SafeAlignedArray<wchar_t, 16>;
-template class SafeAlignedArray<u8, 16>;
-
 // Sanity check: truncate strings if they exceed 512k in length.  Anything like that
 // is either a bug or really horrible code that needs to be stopped before it causes
 // system deadlock.

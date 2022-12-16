@@ -15,10 +15,6 @@
 
 #pragma once
 
-// Microsoft Windows only macro, useful for freeing out COM objects:
-#define safe_release(ptr) \
-    ((void)((((ptr) != NULL) && ((ptr)->Release(), !!0)), (ptr) = NULL))
-
 // --------------------------------------------------------------------------------------
 //  SafeArray
 // --------------------------------------------------------------------------------------
@@ -83,33 +79,4 @@ public:
     const T &operator[](int idx) const { return *_getPtr((uint)idx); }
 
     virtual SafeArray<T> *Clone() const;
-};
-
-// --------------------------------------------------------------------------------------
-//  SafeAlignedArray<T>
-// --------------------------------------------------------------------------------------
-// Handy little class for allocating a resizable memory block, complete with
-// exception-based error handling and automatic cleanup.
-// This one supports aligned data allocations too!
-
-template <typename T, uint Alignment>
-class SafeAlignedArray : public SafeArray<T>
-{
-    typedef SafeArray<T> _parent;
-
-protected:
-    T *_virtual_realloc(int newsize);
-
-public:
-    using _parent::operator[];
-
-    virtual ~SafeAlignedArray();
-
-    explicit SafeAlignedArray()
-        : SafeArray<T>::SafeArray()
-    {
-    }
-
-    explicit SafeAlignedArray(int initialSize);
-    virtual SafeAlignedArray<T, Alignment> *Clone() const;
 };
