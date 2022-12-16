@@ -199,7 +199,9 @@ static void LoadExtraRom( const char *ext, u8 (&dest)[_size] )
 		if( (filesize=Path::GetFileSize( Bios1 ) ) <= 0 )
 		{
 			// Try the name properly extensioned next (name.rom1)
-			Bios1 = Path::ReplaceExtension( Bios, ext );
+			wxFileName jojo(Bios);
+			jojo.SetExt(ext);
+			Bios1 = jojo.GetFullPath();
 			if( (filesize=Path::GetFileSize( Bios1 ) ) <= 0 )
 			{
 				log_cb(RETRO_LOG_INFO, "BIOS %s module not found, skipping...\n", ext );

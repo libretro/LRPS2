@@ -137,15 +137,6 @@ wxString Path::Combine(const wxString &srcPath, const wxDirName &srcFile)
     return (wxDirName(srcPath) + srcFile).ToString();
 }
 
-// Replaces the extension of the file with the one given.
-// This function works for path names as well as file names.
-wxString Path::ReplaceExtension(const wxString &src, const wxString &ext)
-{
-    wxFileName jojo(src);
-    jojo.SetExt(ext);
-    return jojo.GetFullPath();
-}
-
 wxString Path::GetFilename(const wxString &src)
 {
     return wxFileName(src).GetFullName();

@@ -155,6 +155,5 @@ extern wxString MakeAbsolute(const wxString &srcpath);
 extern wxString Combine(const wxString &srcPath, const wxString &srcFile);
 extern wxString Combine(const wxDirName &srcPath, const wxFileName &srcFile);
 extern wxString Combine(const wxString &srcPath, const wxDirName &srcFile);
-extern wxString ReplaceExtension(const wxString &src, const wxString &ext);
 extern wxString GetFilename(const wxString &src);
 }
