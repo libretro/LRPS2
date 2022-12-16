@@ -441,10 +441,6 @@ set(pcsx2SystemHeaders
 	System/RecTypes.h
 	System/SysThreads.h)
 
-# Utilities sources
-set(pcsx2UtilitiesSources
-	Utilities/FileUtils.cpp)
-
 # Windows sources
 set(pcsx2WindowsSources
 	CDVD/Windows/DriveUtility.cpp
@@ -548,7 +544,6 @@ set(pcsx2x86Headers
 		${pcsx2ps2Headers}
 		${pcsx2SystemSources}
 		${pcsx2SystemHeaders}
-		${pcsx2UtilitiesSources}
 		${pcsx2x86Sources}
 		${pcsx2x86Headers})
 
