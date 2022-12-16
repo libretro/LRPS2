@@ -144,7 +144,7 @@ int LoadPatchesFromGamesDB(const wxString& crc, const GameDatabaseSchema::GameEn
 	return Patch.size();
 }
 
-void inifile_processString(const wxString& inStr)
+static void inifile_processString(const wxString& inStr)
 {
 	wxString str(inStr);
 	inifile_trim(str);
@@ -154,12 +154,10 @@ void inifile_processString(const wxString& inStr)
 
 // This routine receives a file from inifile_read, trims it,
 // Then sends the command to be parsed.
-void inifile_process(wxTextFile& f1)
+static void inifile_process(wxTextFile& f1)
 {
 	for (uint i = 0; i < f1.GetLineCount(); i++)
-	{
 		inifile_processString(f1[i]);
-	}
 }
 
 void ForgetLoadedPatches()
