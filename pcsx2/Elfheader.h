@@ -140,13 +140,7 @@ class ElfObject
 		ElfObject(const wxString& srcfile, IsoFile& isofile);
 		ElfObject( const wxString& srcfile, uint hdrsize );
 
-		void loadProgramHeaders();
-		void loadSectionHeaders();
 		void loadHeaders();
-
-		bool hasProgramHeaders();
-		bool hasSectionHeaders();
-		bool hasHeaders();
 
 		std::pair<u32,u32> getTextRange();
 		u32 getCRC();

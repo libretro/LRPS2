@@ -14,9 +14,7 @@
  */
 
 #include "PrecompiledHeader.h"
-#include "Common.h"
 
-#include "GS.h"			// for sending game crc to mtgs
 #include "Elfheader.h"
 #include "DebugTools/SymbolMap.h"
 
@@ -65,10 +63,6 @@ void ElfObject::initElfHeaders()
 	}
 }
 
-bool ElfObject::hasProgramHeaders() { return (proghead != NULL); }
-bool ElfObject::hasSectionHeaders() { return (secthead != NULL); }
-bool ElfObject::hasHeaders() { return (hasProgramHeaders() && hasSectionHeaders()); }
-
 std::pair<u32,u32> ElfObject::getTextRange()
 {
 	for (int i = 0; i < header.e_phnum; i++)
@@ -83,10 +77,11 @@ std::pair<u32,u32> ElfObject::getTextRange()
 	return std::make_pair(0,0);
 }
 
-void ElfObject::readIso(IsoFile& file)
+void ElfObject::readIso(IsoFile& isofile)
 {
-	int rsize = file.read(data.GetPtr(), data.GetSizeInBytes());
-	if (rsize < data.GetSizeInBytes()) throw Exception::EndOfStream(filename);
+	int rsize = isofile.read(data.GetPtr(), data.GetSizeInBytes());
+	if (rsize < data.GetSizeInBytes())
+		throw Exception::EndOfStream(filename);
 }
 
 void ElfObject::readFile()
@@ -103,14 +98,6 @@ void ElfObject::readFile()
 	if (rsize < data.GetSizeInBytes()) throw Exception::EndOfStream(filename);
 }
 
-static wxString GetMsg_InvalidELF()
-{
-	return
-		"Cannot load ELF binary image.  The file may be corrupt or incomplete." + 
-		wxString(L"\n\n") +
-		"If loading from an ISO image, this error may be caused by an unsupported ISO image type or a bug in PCSX2 ISO image support.";
-}
-
 u32 ElfObject::getCRC()
 {
 	u32 CRC = 0;
@@ -122,11 +109,7 @@ u32 ElfObject::getCRC()
 	return CRC;
 }
 
-void ElfObject::loadProgramHeaders()
-{
-}
-
-void ElfObject::loadSectionHeaders()
+void ElfObject::loadHeaders()
 {
 	if (secthead == NULL || header.e_shoff > (u32)data.GetLength()) return;
 
@@ -147,26 +130,15 @@ void ElfObject::loadSectionHeaders()
 
 	if ((i_st >= 0) && (i_dt >= 0))
 	{
-		const char * SymNames;
-		Elf32_Sym * eS;
-
-		SymNames = (char*)data.GetPtr(secthead[i_dt].sh_offset);
-		eS = (Elf32_Sym*)data.GetPtr(secthead[i_st].sh_offset);
+		const char *SymNames = (char*)data.GetPtr(secthead[i_dt].sh_offset);
+		Elf32_Sym *eS = (Elf32_Sym*)data.GetPtr(secthead[i_st].sh_offset);
 		log_cb(RETRO_LOG_INFO, "found %d symbols\n", secthead[i_st].sh_size / sizeof(Elf32_Sym));
 
 		for(uint i = 1; i < (secthead[i_st].sh_size / sizeof(Elf32_Sym)); i++) {
 			if ((eS[i].st_value != 0) && (ELF32_ST_TYPE(eS[i].st_info) == 2))
-			{
 				symbolMap.AddLabel(&SymNames[eS[i].st_name],eS[i].st_value);
-			}
 		}
 	}
-}
-
-void ElfObject::loadHeaders()
-{
-	loadProgramHeaders();
-	loadSectionHeaders();
 }
 
 // return value:
