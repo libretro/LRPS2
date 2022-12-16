@@ -52,7 +52,7 @@ static std::atomic<bool> cdvd_is_open;
 const u32 CacheSize = 1U << CACHE_SIZE;
 SectorInfo Cache[CacheSize];
 
-u32 cdvdSectorHash(u32 lsn)
+static u32 cdvdSectorHash(u32 lsn)
 {
 	u32 t = 0;
 
@@ -69,7 +69,7 @@ u32 cdvdSectorHash(u32 lsn)
 	return t & m;
 }
 
-void cdvdCacheUpdate(u32 lsn, u8* data)
+static void cdvdCacheUpdate(u32 lsn, u8* data)
 {
 	std::lock_guard<std::mutex> guard(s_cache_lock);
 	u32 entry = cdvdSectorHash(lsn);
@@ -78,7 +78,7 @@ void cdvdCacheUpdate(u32 lsn, u8* data)
 	Cache[entry].lsn = lsn;
 }
 
-bool cdvdCacheCheck(u32 lsn)
+static bool cdvdCacheCheck(u32 lsn)
 {
 	std::lock_guard<std::mutex> guard(s_cache_lock);
 	u32 entry = cdvdSectorHash(lsn);
@@ -86,7 +86,7 @@ bool cdvdCacheCheck(u32 lsn)
 	return Cache[entry].lsn == lsn;
 }
 
-bool cdvdCacheFetch(u32 lsn, u8* data)
+static bool cdvdCacheFetch(u32 lsn, u8* data)
 {
 	std::lock_guard<std::mutex> guard(s_cache_lock);
 	u32 entry = cdvdSectorHash(lsn);
@@ -99,14 +99,14 @@ bool cdvdCacheFetch(u32 lsn, u8* data)
 	return false;
 }
 
-void cdvdCacheReset(void)
+static void cdvdCacheReset(void)
 {
 	std::lock_guard<std::mutex> guard(s_cache_lock);
 	for (u32 i = 0; i < CacheSize; i++)
 		Cache[i].lsn = std::numeric_limits<u32>::max();
 }
 
-bool cdvdReadBlockOfSectors(u32 sector, u8* data)
+static bool cdvdReadBlockOfSectors(u32 sector, u8* data)
 {
 	u32 count = std::min(sectors_per_read, src->GetSectorCount() - sector);
 	const s32 media = src->GetMediaType();
@@ -129,14 +129,14 @@ bool cdvdReadBlockOfSectors(u32 sector, u8* data)
 	return false;
 }
 
-void cdvdCallNewDiscCB(void)
+static void cdvdCallNewDiscCB(void)
 {
 	weAreInNewDiskCB = true;
 	newDiscCB();
 	weAreInNewDiskCB = false;
 }
 
-bool cdvdUpdateDiscStatus(void)
+static bool cdvdUpdateDiscStatus(void)
 {
 	bool ready = src->DiscReady();
 
@@ -171,7 +171,7 @@ bool cdvdUpdateDiscStatus(void)
 	return !ready;
 }
 
-void cdvdThread(void)
+static void cdvdThread(void)
 {
 	u8 buffer[2352 * sectors_per_read];
 	u32 prefetches_left = 0;
@@ -251,7 +251,7 @@ void cdvdThread(void)
 	}
 }
 
-bool cdvdStartThread()
+bool cdvdStartThread(void)
 {
 	if (cdvd_is_open == false)
 	{
@@ -272,7 +272,7 @@ bool cdvdStartThread()
 	return true;
 }
 
-void cdvdStopThread()
+void cdvdStopThread(void)
 {
 	cdvd_is_open = false;
 	s_notify_cv.notify_one();

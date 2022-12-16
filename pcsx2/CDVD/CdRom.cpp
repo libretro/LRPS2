@@ -15,7 +15,6 @@
 
 
 #include "PrecompiledHeader.h"
-#include "IopCommon.h"
 
 #include "CdRom.h"
 #include "CDVD.h"
@@ -62,24 +61,12 @@ enum cdrom_registers
 	/* don't set 255, it's reserved */
 };
 
-const char* CmdName[0x100] = {
-	"CdlSync", "CdlNop", "CdlSetloc", "CdlPlay",
-	"CdlForward", "CdlBackward", "CdlReadN", "CdlStandby",
-	"CdlStop", "CdlPause", "CdlInit", "CdlMute",
-	"CdlDemute", "CdlSetfilter", "CdlSetmode", "CdlGetmode",
-	"CdlGetlocL", "CdlGetlocP", "Cdl18", "CdlGetTN",
-	"CdlGetTD", "CdlSeekL", "CdlSeekP", NULL,
-	NULL, "CdlTest", "CdlID", "CdlReadS",
-	"CdlReset", NULL, "CDlReadToc", NULL};
-
 cdrStruct cdr;
-s32 LoadCdBios;
+static s32 LoadCdBios;
 
-u8 Test04[] = {0};
-u8 Test05[] = {0};
-u8 Test20[] = {0x98, 0x06, 0x10, 0xC3};
-u8 Test22[] = {0x66, 0x6F, 0x72, 0x20, 0x45, 0x75, 0x72, 0x6F};
-u8 Test23[] = {0x43, 0x58, 0x44, 0x32, 0x39, 0x34, 0x30, 0x51};
+static u8 Test20[] = {0x98, 0x06, 0x10, 0xC3};
+static u8 Test22[] = {0x66, 0x6F, 0x72, 0x20, 0x45, 0x75, 0x72, 0x6F};
+static u8 Test23[] = {0x43, 0x58, 0x44, 0x32, 0x39, 0x34, 0x30, 0x51};
 
 //backported from PCSXR
 // cdr.Stat:
@@ -119,15 +106,22 @@ u8 Test23[] = {0x43, 0x58, 0x44, 0x32, 0x39, 0x34, 0x30, 0x51};
 // 1x = 75 sectors per second
 // PSXCLK = 1 sec in the ps
 // so (PSXCLK / 75) / BIAS = cdr read time (linuzappz)
-u32 cdReadTime; // = ((PSXCLK / 75) / BIAS);
+static u32 cdReadTime; // = ((PSXCLK / 75) / BIAS);
 
 #define CDR_INT(eCycle) PSX_INT(IopEvt_Cdrom, eCycle)
 #define CDREAD_INT(eCycle) PSX_INT(IopEvt_CdromRead, eCycle)
 
-const uint shortSectorSeekReadDelay = 1000; // delay for reads/seeks that may or may not have a seek action preceeding it
-uint sectorSeekReadDelay = 0x800;           // for calculated seek delays
+static const uint shortSectorSeekReadDelay = 1000; // delay for reads/seeks that may or may not have a seek action preceeding it
+static uint sectorSeekReadDelay = 0x800;           // for calculated seek delays
 
-static void AddIrqQueue(u8 irq, u32 ecycle);
+static void AddIrqQueue(u8 irq, u32 ecycle)
+{
+	cdr.Irq = irq;
+	if (cdr.Stat)
+		cdr.eCycle = ecycle;
+	else
+		CDR_INT(ecycle);
+}
 
 static __fi void StartReading(u32 type)
 {
@@ -138,7 +132,7 @@ static __fi void StartReading(u32 type)
 	sectorSeekReadDelay = shortSectorSeekReadDelay;
 }
 
-static __fi void StopReading()
+static __fi void StopReading(void)
 {
 	if (cdr.Reading)
 	{
@@ -147,7 +141,7 @@ static __fi void StopReading()
 	}
 }
 
-static __fi void StopCdda()
+static __fi void StopCdda(void)
 {
 	if (cdr.Play)
 	{
@@ -163,7 +157,7 @@ static __fi void SetResultSize(u8 size)
 	cdr.ResultReady = 1;
 }
 
-static void ReadTrack()
+static void ReadTrack(void)
 {
 	cdr.Prev[0] = itob(cdr.SetSector[0]);
 	cdr.Prev[1] = itob(cdr.SetSector[1]);
@@ -172,20 +166,7 @@ static void ReadTrack()
 	cdr.RErr = DoCDVDreadTrack(msf_to_lsn(cdr.SetSector), CDVD_MODE_2340);
 }
 
-static void AddIrqQueue(u8 irq, u32 ecycle)
-{
-	cdr.Irq = irq;
-	if (cdr.Stat)
-	{
-		cdr.eCycle = ecycle;
-	}
-	else
-	{
-		CDR_INT(ecycle);
-	}
-}
-
-void cdrInterrupt()
+void cdrInterrupt(void)
 {
 	cdvdTD trackInfo;
 	int i;
@@ -531,9 +512,8 @@ void cdrInterrupt()
 		psxHu32(0x1070) |= 0x4;
 }
 
-void cdrReadInterrupt()
+void cdrReadInterrupt(void)
 {
-
 	if (!cdr.Reading)
 		return;
 
@@ -646,11 +626,9 @@ void cdrWrite0(u8 rt)
 	}
 }
 
-void setPsxSpeed()
+void setPsxSpeed(void)
 {
-	//Console.Warning(L"SPEED: %dX", speed);
 	cdReadTime = ((PSXCLK / 75) / BIAS) * 2;
-	//Console.Warning(L"cdReadTime: %d", unsigned(cdReadTime));
 }
 
 u8 cdrRead1(void)
@@ -899,7 +877,6 @@ u8 cdrRead2(void)
 
 void cdrWrite2(u8 rt)
 {
-
 	if (cdr.Ctrl & 0x1)
 	{
 		switch (rt)

@@ -23,7 +23,6 @@
 #include "PrecompiledHeader.h"
 
 #include "IsoFileFormats.h"
-#include "AsyncFileReader.h"
 
 #include <cstring>
 #include <array>
@@ -35,12 +34,12 @@ static int pmode, cdtype;
 static s32 layer1start = -1;
 static bool layer1searched = false;
 
-void CALLBACK ISOclose(void)
+static void CALLBACK ISOclose(void)
 {
 	iso.Close();
 }
 
-s32 CALLBACK ISOopen(const char* pTitle)
+static s32 CALLBACK ISOopen(const char* pTitle)
 {
 	ISOclose(); // just in case
 
@@ -82,7 +81,7 @@ s32 CALLBACK ISOopen(const char* pTitle)
 	return 0;
 }
 
-s32 CALLBACK ISOreadSubQ(u32 lsn, cdvdSubQ* subq)
+static s32 CALLBACK ISOreadSubQ(u32 lsn, cdvdSubQ* subq)
 {
 	// fake it
 	u8 min, sec, frm;
@@ -106,7 +105,7 @@ s32 CALLBACK ISOreadSubQ(u32 lsn, cdvdSubQ* subq)
 	return 0;
 }
 
-s32 CALLBACK ISOgetTN(cdvdTN* Buffer)
+static s32 CALLBACK ISOgetTN(cdvdTN* Buffer)
 {
 	Buffer->strack = 1;
 	Buffer->etrack = 1;
@@ -114,7 +113,7 @@ s32 CALLBACK ISOgetTN(cdvdTN* Buffer)
 	return 0;
 }
 
-s32 CALLBACK ISOgetTD(u8 Track, cdvdTD* Buffer)
+static s32 CALLBACK ISOgetTD(u8 Track, cdvdTD* Buffer)
 {
 	if (Track == 0)
 		Buffer->lsn = iso.GetBlockCount();
@@ -177,7 +176,7 @@ static void FindLayer1Start(void)
 }
 
 // Should return 0 if no error occurred, or -1 if layer detection FAILED.
-s32 CALLBACK ISOgetDualInfo(s32* dualType, u32* _layer1start)
+static s32 CALLBACK ISOgetDualInfo(s32* dualType, u32* _layer1start)
 {
 	FindLayer1Start();
 
@@ -194,12 +193,12 @@ s32 CALLBACK ISOgetDualInfo(s32* dualType, u32* _layer1start)
 	return 0;
 }
 
-s32 CALLBACK ISOgetDiskType(void)
+static s32 CALLBACK ISOgetDiskType(void)
 {
 	return cdtype;
 }
 
-s32 CALLBACK ISOgetTOC(void* toc)
+static s32 CALLBACK ISOgetTOC(void* toc)
 {
 	u8 type     = ISOgetDiskType();
 	u8* tocBuff = (u8*)toc;
@@ -304,7 +303,7 @@ s32 CALLBACK ISOgetTOC(void* toc)
 	return 0;
 }
 
-s32 CALLBACK ISOreadSector(u8* tempbuffer, u32 lsn, int mode)
+static s32 CALLBACK ISOreadSector(u8* tempbuffer, u32 lsn, int mode)
 {
 	static u8 cdbuffer[CD_FRAMESIZE_RAW] = {0};
 
@@ -351,7 +350,7 @@ s32 CALLBACK ISOreadSector(u8* tempbuffer, u32 lsn, int mode)
 	return 0;
 }
 
-s32 CALLBACK ISOreadTrack(u32 lsn, int mode)
+static s32 CALLBACK ISOreadTrack(u32 lsn, int mode)
 {
 	int _lsn = lsn;
 
@@ -365,31 +364,32 @@ s32 CALLBACK ISOreadTrack(u32 lsn, int mode)
 	return 0;
 }
 
-s32 CALLBACK ISOgetBuffer(u8* buffer)
+static s32 CALLBACK ISOgetBuffer(u8* buffer)
 {
 	return iso.FinishRead3(buffer, pmode);
 }
 
-s32 CALLBACK ISOgetTrayStatus(void)
+static s32 CALLBACK ISOgetTrayStatus(void)
 {
 	return CDVD_TRAY_CLOSE;
 }
 
-s32 CALLBACK ISOctrlTrayOpen(void)
-{
-	return 0;
-}
-s32 CALLBACK ISOctrlTrayClose(void)
+static s32 CALLBACK ISOctrlTrayOpen(void)
 {
 	return 0;
 }
 
-s32 CALLBACK ISOdummyS32(void)
+static s32 CALLBACK ISOctrlTrayClose(void)
 {
 	return 0;
 }
 
-void CALLBACK ISOnewDiskCB(void (* /* callback */)())
+static s32 CALLBACK ISOdummyS32(void)
+{
+	return 0;
+}
+
+static void CALLBACK ISOnewDiskCB(void (* /* callback */)())
 {
 }
 

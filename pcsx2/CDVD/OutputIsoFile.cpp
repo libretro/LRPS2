@@ -16,12 +16,11 @@
 
 #include <wx/wfstream.h>
 #include "PrecompiledHeader.h"
-#include "IopCommon.h"
 #include "IsoFileFormats.h"
 
 #include <errno.h>
 
-void pxStream_OpenCheck(const wxStreamBase& stream, const wxString& fname, const wxString& mode)
+static void pxStream_OpenCheck(const wxStreamBase& stream, const wxString& fname, const wxString& mode)
 {
 	if (stream.IsOk())
 		return;

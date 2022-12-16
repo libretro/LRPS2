@@ -121,8 +121,7 @@ extern u32 g_last_sector_block_lsn;
 
 ///////////////////////////////////////////////////////////////////////////////
 // keepAliveThread throws a read event regularly to prevent drive spin down  //
-
-void keepAliveThread()
+static void keepAliveThread(void)
 {
 	u8 throwaway[2352];
 
@@ -138,9 +137,9 @@ void keepAliveThread()
 	}
 }
 
-bool StartKeepAliveThread()
+static bool StartKeepAliveThread(void)
 {
-	if (s_keepalive_is_open == false)
+	if (!s_keepalive_is_open)
 	{
 		s_keepalive_is_open = true;
 		try
@@ -156,7 +155,7 @@ bool StartKeepAliveThread()
 	return s_keepalive_is_open;
 }
 
-void StopKeepAliveThread()
+static void StopKeepAliveThread(void)
 {
 	if (!s_keepalive_thread.joinable())
 		return;
@@ -195,7 +194,7 @@ s32 CALLBACK DISCopen(const char* pTitle)
 	return cdvdRefreshData();
 }
 
-void CALLBACK DISCclose()
+void CALLBACK DISCclose(void)
 {
 	StopKeepAliveThread();
 	cdvdStopThread();
@@ -450,23 +449,23 @@ s32 CALLBACK DISCgetTOC(void* toc)
 	return 0;
 }
 
-s32 CALLBACK DISCgetDiskType()
+s32 CALLBACK DISCgetDiskType(void)
 {
 	return curDiskType;
 }
 
-s32 CALLBACK DISCgetTrayStatus()
+s32 CALLBACK DISCgetTrayStatus(void)
 {
 	return curTrayStatus;
 }
 
-s32 CALLBACK DISCctrlTrayOpen()
+s32 CALLBACK DISCctrlTrayOpen(void)
 {
 	curTrayStatus = CDVD_TRAY_OPEN;
 	return 0;
 }
 
-s32 CALLBACK DISCctrlTrayClose()
+s32 CALLBACK DISCctrlTrayClose(void)
 {
 	curTrayStatus = CDVD_TRAY_CLOSE;
 	return 0;
