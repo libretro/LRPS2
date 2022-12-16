@@ -813,8 +813,8 @@ bool retro_load_game(const struct retro_game_info* game)
 		pcsx2->SysExecute(g_Conf->CdvdSource);
 	}
 
-	Input::Init();
-	Input::RumbleEnabled(
+	Input_Init();
+	Input_RumbleEnabled(
 			option_value(BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE, KeyOptionBool::return_type),
 			option_value(INT_PCSX2_OPT_GAMEPAD_RUMBLE_FORCE, KeyOptionInt::return_type)
 			);
@@ -874,7 +874,7 @@ void retro_run(void)
 		log_cb(RETRO_LOG_INFO, "Options Change detected...\n");
 		EmuConfig.GS.VsyncQueueSize = option_value(INT_PCSX2_OPT_VSYNC_MTGS_QUEUE, KeyOptionInt::return_type);
 		GSUpdateOptions();
-		Input::RumbleEnabled(
+		Input_RumbleEnabled(
 			option_value(BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE, KeyOptionBool::return_type),
 			option_value(INT_PCSX2_OPT_GAMEPAD_RUMBLE_FORCE, KeyOptionInt::return_type)
 		);
@@ -883,7 +883,7 @@ void retro_run(void)
 
 	}
 
-	Input::Update();
+	Input_Update();
 
 	RETRO_PERFORMANCE_INIT(pcsx2_run);
 	RETRO_PERFORMANCE_START(pcsx2_run);

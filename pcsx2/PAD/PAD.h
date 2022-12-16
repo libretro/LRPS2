@@ -188,11 +188,4 @@ struct PadPluginFreezeData
     QueryInfo query;
 };
 
-extern QueryInfo query;
-extern Pad pads[2][4];
-extern int slots[2];
-
-extern u8 pad_start_poll(u8 pad);
-extern u8 pad_poll(u8 value);
-
 #endif

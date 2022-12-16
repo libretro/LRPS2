@@ -41,10 +41,6 @@
 
 #include "options_tools.h" 
 
-#define PAD_REVISION 2
-#define PAD_BUILD 0 // increase that with each version
-#define PAD_SAVE_STATE_VERSION ((PAD_REVISION << 8) | (PAD_BUILD << 0))
-
 #define MAX_ANALOG_VALUE 32766
 
 typedef struct
@@ -104,101 +100,6 @@ static struct retro_input_descriptor desc[] = {
 	{0},
 };
 
-#define RUMBLE_MAX 0xFFFF
-
-bool rumble_enabled   = true;
-uint16_t rumble_level = 0x0;
-
-namespace Input
-{
-
-void Init()
-{
-	environ_cb(RETRO_ENVIRONMENT_GET_RUMBLE_INTERFACE, &rumble);
-	static const struct retro_controller_description ds2_desc[] = {
-		{"DualShock 2", RETRO_DEVICE_JOYPAD},
-	};
-
-	static const struct retro_controller_info ports[] = {
-		{ds2_desc, sizeof(ds2_desc) / sizeof(*ds2_desc)},
-		{ds2_desc, sizeof(ds2_desc) / sizeof(*ds2_desc)},
-		{},
-	};
-
-	environ_cb(RETRO_ENVIRONMENT_SET_CONTROLLER_INFO, (void*)ports);
-	//	environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
-}
-
-void Shutdown()
-{
-}
-
-void Update()
-{
-	poll_cb();
-	Pad::rumble_all();
-}
-
-void RumbleEnabled(bool enabled, int percent)
-{
-	rumble_enabled = enabled;
-	setRumbleLevel(percent);
-}
-
-void setRumbleLevel(int percent)
-{
-	if (percent > 100)
-		percent = 100;
-	else if (percent < 0)
-		percent = 0;
-
-	rumble_level = RUMBLE_MAX * percent / 100;
-}
-
-
-} // namespace Input
-
-void retro_set_input_poll(retro_input_poll_t cb)
-{
-	poll_cb = cb;
-}
-
-void retro_set_input_state(retro_input_state_t cb)
-{
-	input_cb = cb;
-}
-
-void retro_set_controller_port_device(unsigned port, unsigned device)
-{
-	environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
-}
-
-void PADupdate(int pad)
-{
-}
-
-static void GamePad_DoRumble(unsigned type, unsigned pad)
-{
-	if (!rumble_enabled)
-		return;
-
-	if (pad >= GAMEPAD_NUMBER)
-		return;
-
-	if (type == 0)
-		rumble.set_rumble_state(pad, RETRO_RUMBLE_WEAK, rumble_level);
-	else if (type == 1)
-		rumble.set_rumble_state(pad, RETRO_RUMBLE_STRONG, rumble_level);
-	else if (type == 2)
-		rumble.set_rumble_state(pad, RETRO_RUMBLE_WEAK, 0x0);
-	else
-		rumble.set_rumble_state(pad, RETRO_RUMBLE_STRONG, 0x0);
-}
-
-void PADconfigure()
-{
-}
-
 static int keymap[] =
 {
 	RETRO_DEVICE_ID_JOYPAD_L2,     // PAD_L2
@@ -218,6 +119,50 @@ static int keymap[] =
 	RETRO_DEVICE_ID_JOYPAD_DOWN,   // PAD_DOWN
 	RETRO_DEVICE_ID_JOYPAD_LEFT,   // PAD_LEFT
 };
+
+#define RUMBLE_MAX 0xFFFF
+
+static bool rumble_enabled   = true;
+static uint16_t rumble_level = 0x0;
+
+//////////////////////////////////////////////////////////////////////
+// Pad implementation
+//////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////
+// State Management
+/////////////////////////////////////
+
+// Typical packet response on the bus
+static const u8 ConfigExit[7] = {0x5A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+static const u8 noclue[7] = {0x5A, 0x00, 0x00, 0x02, 0x00, 0x00, 0x5A};
+static const u8 setMode[7] = {0x5A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+static const u8 queryModelDS2[7] = {0x5A, 0x03, 0x02, 0x00, 0x02, 0x01, 0x00};
+static const u8 queryModelDS1[7] = {0x5A, 0x01, 0x02, 0x00, 0x02, 0x01, 0x00};
+static const u8 queryComb[7] = {0x5A, 0x00, 0x00, 0x02, 0x00, 0x01, 0x00};
+static const u8 queryMode[7] = {0x5A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+static const u8 setNativeMode[7] = {0x5A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x5A};
+
+static u8 queryMaskMode[7] = {0x5A, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x5A};
+
+static const u8 queryAct[2][7] = {
+    {0x5A, 0x00, 0x00, 0x01, 0x02, 0x00, 0x0A},
+    {0x5A, 0x00, 0x00, 0x01, 0x01, 0x01, 0x14}};
+
+static QueryInfo query;
+static Pad pads[2][4];
+static int slots[2] = {0, 0};
+
+static inline bool IsDualshock2(void)
+{
+// FIXME
+#if 0
+	return config.padConfigs[query.port][query.slot].type == Dualshock2Pad ||
+			(config.padConfigs[query.port][query.slot].type == GuitarPad && config.GH2);
+#else
+    return true;
+#endif
+}
 
 static int ApplyDeadZoneX(int val_x, int val_y, float deadzone_percent) 
 {
@@ -304,299 +249,55 @@ static u8 key_status_get(u32 pad, u32 index)
 	return 0x80 + (val >> 8);
 }
 
-s32 PADinit(u32 flags)
+void Input_Init(void)
 {
-    Pad::reset_all();
+	environ_cb(RETRO_ENVIRONMENT_GET_RUMBLE_INTERFACE, &rumble);
+	static const struct retro_controller_description ds2_desc[] = {
+		{"DualShock 2", RETRO_DEVICE_JOYPAD},
+	};
 
-    query.reset();
+	static const struct retro_controller_info ports[] = {
+		{ds2_desc, sizeof(ds2_desc) / sizeof(*ds2_desc)},
+		{ds2_desc, sizeof(ds2_desc) / sizeof(*ds2_desc)},
+		{},
+	};
 
-    for (int port = 0; port < 2; port++)
-       slots[port] = 0;
-
-    return 0;
+	environ_cb(RETRO_ENVIRONMENT_SET_CONTROLLER_INFO, (void*)ports);
+	//	environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
 }
 
-void PADshutdown()
-{
-}
-
-s32 PADopen()
-{
-    return 0;
-}
-
-void PADclose()
+void Input_Shutdown(void)
 {
 }
 
-u32 PADquery()
+void Input_Update(void)
 {
-    return 3; // both
+	poll_cb();
+	Pad::rumble_all();
 }
 
-s32 PADsetSlot(u8 port, u8 slot)
+static void setRumbleLevel(int percent)
 {
-    port--;
-    slot--;
-    if (port > 1 || slot > 3)
-        return 0;
-    // Even if no pad there, record the slot, as it is the active slot regardless.
-    slots[port] = slot;
+	if (percent > 100)
+		percent = 100;
+	else if (percent < 0)
+		percent = 0;
 
-    return 1;
+	rumble_level = RUMBLE_MAX * percent / 100;
 }
 
-s32 PADqueryMtap(u8 port)
+void Input_RumbleEnabled(bool enabled, int percent)
 {
-   return 0;
+	rumble_enabled = enabled;
+	setRumbleLevel(percent);
 }
 
-s32 PADfreeze(int mode, freezeData *data)
-{
-    if (!data)
-        return -1;
-
-    if (mode == FREEZE_SIZE)
-	    data->size = sizeof(PadPluginFreezeData);
-    else if (mode == FREEZE_LOAD)
-    {
-	    PadPluginFreezeData *pdata = (PadPluginFreezeData *)(data->data);
-
-	    Pad::stop_vibrate_all();
-
-	    if (data->size != sizeof(PadPluginFreezeData) ||
-			    strncmp(pdata->format, "OnePad", sizeof(pdata->format)))
-		    return 0;
-
-	    query = pdata->query;
-	    if (pdata->query.slot < 4) {
-		    query = pdata->query;
-	    }
-
-	    // Tales of the Abyss - pad fix
-	    // - restore data for both ports
-	    for (int port = 0; port < 2; port++)
-	    {
-		    for (int slot = 0; slot < 4; slot++)
-		    {
-			    u8 mode = pdata->padData[port][slot].mode;
-
-			    if (
-					    mode != MODE_DIGITAL 
-					    && mode != MODE_ANALOG 
-					    && mode != MODE_DS2_NATIVE)
-				    break;
-
-			    memcpy(&pads[port][slot], &pdata->padData[port][slot], sizeof(PadFreezeData));
-		    }
-
-		    if (pdata->slot[port] < 4)
-			    slots[port] = pdata->slot[port];
-	    }
-
-    }
-    else if (mode == FREEZE_SAVE)
-    {
-	    if (data->size != sizeof(PadPluginFreezeData))
-		    return 0;
-
-	    PadPluginFreezeData *pdata = (PadPluginFreezeData *)(data->data);
-
-	    // Tales of the Abyss - pad fix
-	    // - PCSX2 only saves port0 (save #1), then port1 (save #2)
-
-	    memset(pdata, 0, data->size);
-	    strncpy(pdata->format, "OnePad", sizeof(pdata->format));
-	    pdata->query = query;
-
-	    for (int port = 0; port < 2; port++)
-	    {
-		    for (int slot = 0; slot < 4; slot++)
-			    pdata->padData[port][slot] = pads[port][slot];
-
-		    pdata->slot[port] = slots[port];
-	    }
-
-    }
-    else
-        return -1;
-
-    return 0;
-}
-
-u8 PADstartPoll(int pad)
-{
-    return pad_start_poll(pad);
-}
-
-u8 PADpoll(u8 value)
-{
-    return pad_poll(value);
-}
-
-// PADkeyEvent is called every vsync (return NULL if no event)
-keyEvent *PADkeyEvent()
-{
-    return NULL;
-}
-
-void PADWriteEvent(keyEvent &evt)
-{
-}
-
-/////////////////////////////////////
-// State Management
-/////////////////////////////////////
-
-// Typical packet response on the bus
-static const u8 ConfigExit[7] = {0x5A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-static const u8 noclue[7] = {0x5A, 0x00, 0x00, 0x02, 0x00, 0x00, 0x5A};
-static const u8 setMode[7] = {0x5A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-static const u8 queryModelDS2[7] = {0x5A, 0x03, 0x02, 0x00, 0x02, 0x01, 0x00};
-static const u8 queryModelDS1[7] = {0x5A, 0x01, 0x02, 0x00, 0x02, 0x01, 0x00};
-static const u8 queryComb[7] = {0x5A, 0x00, 0x00, 0x02, 0x00, 0x01, 0x00};
-static const u8 queryMode[7] = {0x5A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-static const u8 setNativeMode[7] = {0x5A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x5A};
-
-static u8 queryMaskMode[7] = {0x5A, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x5A};
-
-static const u8 queryAct[2][7] = {
-    {0x5A, 0x00, 0x00, 0x01, 0x02, 0x00, 0x0A},
-    {0x5A, 0x00, 0x00, 0x01, 0x01, 0x01, 0x14}};
-
-QueryInfo query;
-Pad pads[2][4];
-int slots[2] = {0, 0};
-
-//////////////////////////////////////////////////////////////////////
-// QueryInfo implementation
-//////////////////////////////////////////////////////////////////////
-
-void QueryInfo::reset()
-{
-    port = 0;
-    slot = 0;
-    lastByte = 1;
-    currentCommand = 0;
-    numBytes = 0;
-    queryDone = 1;
-    memset(response, 0xF3, sizeof(response));
-}
-
-u8 QueryInfo::start_poll(int _port)
-{
-    if (port > 1) {
-        reset();
-        return 0;
-    }
-
-    queryDone = 0;
-    port = _port;
-    slot = slots[port];
-    numBytes = 2;
-    lastByte = 0;
-
-    return 0xFF;
-}
-
-//////////////////////////////////////////////////////////////////////
-// Pad implementation
-//////////////////////////////////////////////////////////////////////
-
-void Pad::set_mode(int _mode)
-{
-    mode = _mode;
-}
-
-void Pad::set_vibrate(int motor, u8 val)
-{
-    nextVibrate[motor] = val;
-}
-
-void Pad::reset_vibrate()
-{
-    set_vibrate(0, 0);
-    set_vibrate(1, 0);
-    memset(vibrate, 0xFF, sizeof(vibrate));
-    vibrate[0] = 0x5A;
-}
-
-void Pad::reset()
-{
-    memset(this, 0, sizeof(PadFreezeData));
-
-    set_mode(MODE_DIGITAL);
-    umask[0] = umask[1] = 0xFF;
-
-    // Sets up vibrate variable.
-    reset_vibrate();
-}
-
-void Pad::rumble(unsigned port)
-{
-    for (unsigned motor = 0; motor < 2; motor++) {
-        // TODO:  Probably be better to send all of these at once.
-        if (nextVibrate[motor] | currentVibrate[motor]) {
-            currentVibrate[motor] = nextVibrate[motor];
-
-            if (currentVibrate[motor])
-              GamePad_DoRumble(motor, port);
-            else
-              // Stop rumble
-              GamePad_DoRumble(motor+2, port);
-        }
-    }
-}
-
-void Pad::stop_vibrate_all()
-{
-#if 0
-	for (int i=0; i<8; i++) {
-		SetVibrate(i&1, i>>1, 0, 0);
-		SetVibrate(i&1, i>>1, 1, 0);
-	}
-#endif
-    // FIXME equivalent ?
-    for (int port = 0; port < 2; port++)
-        for (int slot = 0; slot < 4; slot++)
-            pads[port][slot].reset_vibrate();
-}
-
-void Pad::reset_all()
-{
-    for (int port = 0; port < 2; port++)
-        for (int slot = 0; slot < 4; slot++)
-            pads[port][slot].reset();
-}
-
-void Pad::rumble_all()
-{
-    for (unsigned port = 0; port < 2; port++)
-        for (unsigned slot = 0; slot < 4; slot++)
-            pads[port][slot].rumble(port);
-}
-
-//////////////////////////////////////////////////////////////////////
-// Pad implementation
-//////////////////////////////////////////////////////////////////////
-
-inline bool IsDualshock2()
-{
-// FIXME
-#if 0
-	return config.padConfigs[query.port][query.slot].type == Dualshock2Pad ||
-			(config.padConfigs[query.port][query.slot].type == GuitarPad && config.GH2);
-#else
-    return true;
-#endif
-}
-
-u8 pad_start_poll(u8 pad)
+static u8 pad_start_poll(u8 pad)
 {
     return query.start_poll(pad - 1);
 }
 
-u8 pad_poll(u8 value)
+static u8 pad_poll(u8 value)
 {
     if (query.lastByte + 1 >= query.numBytes)
         return 0;
@@ -886,3 +587,280 @@ u8 pad_poll(u8 value)
         return query.response[query.lastByte];
     }
 }
+
+
+void retro_set_input_poll(retro_input_poll_t cb)
+{
+	poll_cb = cb;
+}
+
+void retro_set_input_state(retro_input_state_t cb)
+{
+	input_cb = cb;
+}
+
+void retro_set_controller_port_device(unsigned port, unsigned device)
+{
+	environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
+}
+
+void PADupdate(int pad) { }
+
+static void GamePad_DoRumble(unsigned type, unsigned pad)
+{
+	if (!rumble_enabled)
+		return;
+
+	if (pad >= GAMEPAD_NUMBER)
+		return;
+
+	if (type == 0)
+		rumble.set_rumble_state(pad, RETRO_RUMBLE_WEAK, rumble_level);
+	else if (type == 1)
+		rumble.set_rumble_state(pad, RETRO_RUMBLE_STRONG, rumble_level);
+	else if (type == 2)
+		rumble.set_rumble_state(pad, RETRO_RUMBLE_WEAK, 0x0);
+	else
+		rumble.set_rumble_state(pad, RETRO_RUMBLE_STRONG, 0x0);
+}
+
+void PADconfigure(void) { }
+
+s32 PADinit(u32 flags)
+{
+    Pad::reset_all();
+
+    query.reset();
+
+    for (int port = 0; port < 2; port++)
+       slots[port] = 0;
+
+    return 0;
+}
+
+void PADshutdown(void)
+{
+}
+
+s32 PADopen(void)
+{
+    return 0;
+}
+
+void PADclose(void)
+{
+}
+
+u32 PADquery(void)
+{
+    return 3; // both
+}
+
+s32 PADsetSlot(u8 port, u8 slot)
+{
+    port--;
+    slot--;
+    if (port > 1 || slot > 3)
+        return 0;
+    // Even if no pad there, record the slot, as it is the active slot regardless.
+    slots[port] = slot;
+
+    return 1;
+}
+
+s32 PADqueryMtap(u8 port)
+{
+   return 0;
+}
+
+s32 PADfreeze(int mode, freezeData *data)
+{
+    if (!data)
+        return -1;
+
+    if (mode == FREEZE_SIZE)
+	    data->size = sizeof(PadPluginFreezeData);
+    else if (mode == FREEZE_LOAD)
+    {
+	    PadPluginFreezeData *pdata = (PadPluginFreezeData *)(data->data);
+
+	    Pad::stop_vibrate_all();
+
+	    if (data->size != sizeof(PadPluginFreezeData) ||
+			    strncmp(pdata->format, "OnePad", sizeof(pdata->format)))
+		    return 0;
+
+	    query = pdata->query;
+	    if (pdata->query.slot < 4) {
+		    query = pdata->query;
+	    }
+
+	    // Tales of the Abyss - pad fix
+	    // - restore data for both ports
+	    for (int port = 0; port < 2; port++)
+	    {
+		    for (int slot = 0; slot < 4; slot++)
+		    {
+			    u8 mode = pdata->padData[port][slot].mode;
+
+			    if (
+					    mode != MODE_DIGITAL 
+					    && mode != MODE_ANALOG 
+					    && mode != MODE_DS2_NATIVE)
+				    break;
+
+			    memcpy(&pads[port][slot], &pdata->padData[port][slot], sizeof(PadFreezeData));
+		    }
+
+		    if (pdata->slot[port] < 4)
+			    slots[port] = pdata->slot[port];
+	    }
+
+    }
+    else if (mode == FREEZE_SAVE)
+    {
+	    if (data->size != sizeof(PadPluginFreezeData))
+		    return 0;
+
+	    PadPluginFreezeData *pdata = (PadPluginFreezeData *)(data->data);
+
+	    // Tales of the Abyss - pad fix
+	    // - PCSX2 only saves port0 (save #1), then port1 (save #2)
+
+	    memset(pdata, 0, data->size);
+	    strncpy(pdata->format, "OnePad", sizeof(pdata->format));
+	    pdata->query = query;
+
+	    for (int port = 0; port < 2; port++)
+	    {
+		    for (int slot = 0; slot < 4; slot++)
+			    pdata->padData[port][slot] = pads[port][slot];
+
+		    pdata->slot[port] = slots[port];
+	    }
+
+    }
+    else
+        return -1;
+
+    return 0;
+}
+
+u8 PADstartPoll(int pad)
+{
+    return pad_start_poll(pad);
+}
+
+u8 PADpoll(u8 value)
+{
+    return pad_poll(value);
+}
+
+//////////////////////////////////////////////////////////////////////
+// QueryInfo implementation
+//////////////////////////////////////////////////////////////////////
+
+void QueryInfo::reset()
+{
+    port = 0;
+    slot = 0;
+    lastByte = 1;
+    currentCommand = 0;
+    numBytes = 0;
+    queryDone = 1;
+    memset(response, 0xF3, sizeof(response));
+}
+
+u8 QueryInfo::start_poll(int _port)
+{
+    if (port > 1) {
+        reset();
+        return 0;
+    }
+
+    queryDone = 0;
+    port = _port;
+    slot = slots[port];
+    numBytes = 2;
+    lastByte = 0;
+
+    return 0xFF;
+}
+
+//////////////////////////////////////////////////////////////////////
+// Pad implementation
+//////////////////////////////////////////////////////////////////////
+
+void Pad::set_mode(int _mode)
+{
+    mode = _mode;
+}
+
+void Pad::set_vibrate(int motor, u8 val)
+{
+    nextVibrate[motor] = val;
+}
+
+void Pad::reset_vibrate()
+{
+    set_vibrate(0, 0);
+    set_vibrate(1, 0);
+    memset(vibrate, 0xFF, sizeof(vibrate));
+    vibrate[0] = 0x5A;
+}
+
+void Pad::reset()
+{
+    memset(this, 0, sizeof(PadFreezeData));
+
+    set_mode(MODE_DIGITAL);
+    umask[0] = umask[1] = 0xFF;
+
+    // Sets up vibrate variable.
+    reset_vibrate();
+}
+
+void Pad::rumble(unsigned port)
+{
+    for (unsigned motor = 0; motor < 2; motor++) {
+        // TODO:  Probably be better to send all of these at once.
+        if (nextVibrate[motor] | currentVibrate[motor]) {
+            currentVibrate[motor] = nextVibrate[motor];
+
+            if (currentVibrate[motor])
+              GamePad_DoRumble(motor, port);
+            else
+              // Stop rumble
+              GamePad_DoRumble(motor+2, port);
+        }
+    }
+}
+
+void Pad::stop_vibrate_all()
+{
+#if 0
+	for (int i=0; i<8; i++) {
+		SetVibrate(i&1, i>>1, 0, 0);
+		SetVibrate(i&1, i>>1, 1, 0);
+	}
+#endif
+    // FIXME equivalent ?
+    for (int port = 0; port < 2; port++)
+        for (int slot = 0; slot < 4; slot++)
+            pads[port][slot].reset_vibrate();
+}
+
+void Pad::reset_all()
+{
+    for (int port = 0; port < 2; port++)
+        for (int slot = 0; slot < 4; slot++)
+            pads[port][slot].reset();
+}
+
+void Pad::rumble_all()
+{
+    for (unsigned port = 0; port < 2; port++)
+        for (unsigned slot = 0; slot < 4; slot++)
+            pads[port][slot].rumble(port);
+}
+
