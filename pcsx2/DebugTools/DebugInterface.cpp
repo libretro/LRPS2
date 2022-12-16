@@ -14,18 +14,17 @@
  */
 
 #include "PrecompiledHeader.h"
-#include "wx/wx.h"
+#include <wx/wx.h>
 
 #include "DebugInterface.h"
-#include "Memory.h"
-#include "R5900.h"
-#include "Debug.h"
-#include "../VU.h"
-#include "Counters.h"
-
-#include "../R3000A.h"
-#include "../IopMem.h"
 #include "SymbolMap.h"
+
+#include "../Counters.h"
+#include "../Memory.h"
+#include "../VU.h"
+#include "../R3000A.h"
+#include "../R5900.h"
+#include "../IopMem.h"
 
 R5900DebugInterface r5900Debug;
 
@@ -37,7 +36,6 @@ u32 R5900DebugInterface::read8(u32 address)
 {
 	if (!isValidAddress(address))
 		return -1;
-
 	return memRead8(address);
 }
 
@@ -45,7 +43,6 @@ u32 R5900DebugInterface::read16(u32 address)
 {
 	if (!isValidAddress(address) || address % 2)
 		return -1;
-
 	return memRead16(address);
 }
 
@@ -53,7 +50,6 @@ u32 R5900DebugInterface::read32(u32 address)
 {
 	if (!isValidAddress(address) || address % 4)
 		return -1;
-
 	return memRead32(address);
 }
 
@@ -94,114 +90,6 @@ void R5900DebugInterface::write32(u32 address, u32 value)
 		return;
 
 	memWrite32(address,value);
-}
-
-
-const char* R5900DebugInterface::getRegisterName(int cat, int num)
-{
-	switch (cat)
-	{
-	case EECAT_GPR:
-		switch (num)
-		{
-		case 32:	// pc
-			return "pc";
-		case 33:	// hi
-			return "hi";
-		case 34:	// lo
-			return "lo";
-		default:
-			return R5900::GPR_REG[num];
-		}
-	case EECAT_CP0:
-		return R5900::COP0_REG[num];
-	case EECAT_FPR:
-		return R5900::COP1_REG_FP[num];
-	case EECAT_FCR:
-		return R5900::COP1_REG_FCR[num];
-	case EECAT_VU0F:
-		switch (num)
-		{
-		case 32:	// ACC
-			return "ACC";
-		default:
-			return R5900::COP2_REG_FP[num];
-		}
-	case EECAT_VU0I:
-		return R5900::COP2_REG_CTL[num];
-	default:
-		break;
-	}
-
-	return "Invalid";
-}
-
-u128 R5900DebugInterface::getRegister(int cat, int num)
-{
-	u128 result;
-	switch (cat)
-	{
-	case EECAT_GPR:
-		switch (num)
-		{
-		case 32:	// pc
-			result = u128::From32(cpuRegs.pc);
-			break;
-		case 33:	// hi
-			result = cpuRegs.HI.UQ;
-			break;
-		case 34:	// lo
-			result = cpuRegs.LO.UQ;
-			break;
-		default:
-			result = cpuRegs.GPR.r[num].UQ;
-			break;
-		}
-		break;
-	case EECAT_CP0:
-		result = u128::From32(cpuRegs.CP0.r[num]);
-		break;
-	case EECAT_FPR:
-		result = u128::From32(fpuRegs.fpr[num].UL);
-		break;
-	case EECAT_FCR:
-		result = u128::From32(fpuRegs.fprc[num]);
-		break;
-	case EECAT_VU0F:
-		switch (num)
-		{
-		case 32:	// ACC
-			result = VU0.ACC.UQ;
-			break;
-		default:
-			result = VU0.VF[num].UQ;
-			break;
-		}
-		break;
-	case EECAT_VU0I:
-		result = u128::From32(VU0.VI[num].UL);
-		break;
-	default:
-		result = u128::From32(0);
-		break;
-	}
-
-	return result;
-}
-
-u128 R5900DebugInterface::getHI()
-{
-	return cpuRegs.HI.UQ;
-}
-
-u128 R5900DebugInterface::getLO()
-{
-	return cpuRegs.LO.UQ;
-}
-
-u32 R5900DebugInterface::getPC()
-{
-	return cpuRegs.pc;
 }
 
 bool R5900DebugInterface::isValidAddress(u32 addr)

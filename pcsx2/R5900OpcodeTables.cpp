@@ -46,8 +46,7 @@ namespace R5900
 			flags, \
 			NULL, \
 			::R5900::Interpreter::OpcodeImpl::name, \
-			::R5900::Dynarec::OpcodeImpl::rec##name, \
-			::R5900::OpcodeDisasm::name \
+			::R5900::Dynarec::OpcodeImpl::rec##name \
 		}
 
 #	define MakeOpcodeM( name, cycles, flags ) \
@@ -57,8 +56,7 @@ namespace R5900
 			flags, \
 			NULL, \
 			::R5900::Interpreter::OpcodeImpl::MMI::name, \
-			::R5900::Dynarec::OpcodeImpl::MMI::rec##name, \
-			::R5900::OpcodeDisasm::name \
+			::R5900::Dynarec::OpcodeImpl::MMI::rec##name \
 		}
 
 #	define MakeOpcode0( name, cycles, flags ) \
@@ -68,8 +66,7 @@ namespace R5900
 			flags, \
 			NULL, \
 			::R5900::Interpreter::OpcodeImpl::COP0::name, \
-			::R5900::Dynarec::OpcodeImpl::COP0::rec##name, \
-			::R5900::OpcodeDisasm::name \
+			::R5900::Dynarec::OpcodeImpl::COP0::rec##name \
 		}
 
 	#	define MakeOpcode1( name, cycles, flags ) \
@@ -79,8 +76,7 @@ namespace R5900
 			flags, \
 			NULL, \
 			::R5900::Interpreter::OpcodeImpl::COP1::name, \
-			::R5900::Dynarec::OpcodeImpl::COP1::rec##name, \
-			::R5900::OpcodeDisasm::name \
+			::R5900::Dynarec::OpcodeImpl::COP1::rec##name \
 		}
 
 	#	define MakeOpcodeClass( name ) \
@@ -89,7 +85,6 @@ namespace R5900
 			0, \
 			0, \
 			R5900::Opcodes::Class_##name, \
-			NULL, \
 			NULL, \
 			NULL \
 		}

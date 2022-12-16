@@ -15,10 +15,10 @@
 
 #include "PrecompiledHeader.h"
 #include "MIPSAnalyst.h"
-#include "Debug.h"
 #include "DebugInterface.h"
 #include "SymbolMap.h"
 #include "DebugInterface.h"
+#include "../Memory.h"
 #include "../R5900.h"
 #include "../R5900OpcodeTables.h"
 

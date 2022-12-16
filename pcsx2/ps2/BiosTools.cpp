@@ -23,8 +23,8 @@
 
 // FIXME: Temporary hack until we remove dependence on Pcsx2App.
 #include "AppConfig.h"
-#include "wx/mstream.h"
-#include "wx/wfstream.h"
+#include <wx/mstream.h>
+#include <wx/wfstream.h>
 
 #define DIRENTRY_SIZE 16
 

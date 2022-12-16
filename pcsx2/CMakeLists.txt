@@ -261,7 +261,6 @@ set(pcsx2DebugToolsSources
 	DebugTools/DebugInterface.cpp
 	DebugTools/MIPSAnalyst.cpp
 	DebugTools/SymbolMap.cpp
-	DebugTools/DisR5900asm.cpp
 	)
 
 # DebugTools headers
@@ -269,8 +268,6 @@ set(pcsx2DebugToolsHeaders
 	DebugTools/DebugInterface.h
 	DebugTools/MIPSAnalyst.h
 	DebugTools/SymbolMap.h
-	DebugTools/Debug.h
-	DebugTools/DisASM.h
 	)
 
 	# gui sources

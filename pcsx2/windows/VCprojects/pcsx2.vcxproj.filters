@@ -1083,18 +1083,6 @@
     <ClInclude Include="..\..\GS.h">
       <Filter>System\Ps2\GS</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\DebugTools\Debug.h">
-      <Filter>System\Ps2\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\DebugTools\DisASM.h">
-      <Filter>System\Ps2\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\DebugTools\DisVUmicro.h">
-      <Filter>System\Ps2\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\DebugTools\DisVUops.h">
-      <Filter>System\Ps2\Debug</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\x86\BaseblockEx.h">
       <Filter>System\Ps2\Include</Filter>
     </ClInclude>

@@ -33,12 +33,6 @@ public:
 	virtual void write32(u32 address, u32 value) = 0;
 
 	// register stuff
-	virtual const char* getRegisterName(int cat, int num) = 0;
-	virtual u128 getRegister(int cat, int num) = 0;
-	virtual u128 getHI() = 0;
-	virtual u128 getLO() = 0;
-	virtual u32 getPC() = 0;
-	
 	virtual bool isValidAddress(u32 address) = 0;
 };
 
@@ -54,12 +48,6 @@ public:
 	virtual void write32(u32 address, u32 value);
 
 	// register stuff
-	virtual const char* getRegisterName(int cat, int num);
-	virtual u128 getRegister(int cat, int num);
-	virtual u128 getHI();
-	virtual u128 getLO();
-	virtual u32 getPC();
-
 	virtual bool isValidAddress(u32 address);
 };
 
