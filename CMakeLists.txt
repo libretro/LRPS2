@@ -41,15 +41,7 @@ get_git_version_info()
 write_svnrev_h()
 set(CMAKE_BUILD_PO FALSE)
 if (LIBRETRO)
-    set(BUILD_REPLAY_LOADERS FALSE)
     add_definitions(-D__LIBRETRO__ -DDISABLE_RECORDING -DwxUSE_GUI=0)
-endif()
-
-if(NOT NO_TRANSLATION)
-# make the translation
-if(EXISTS "${CMAKE_SOURCE_DIR}/locales")
-    add_subdirectory(locales)
-endif()
 endif()
 
 add_subdirectory(3rdparty/wxwidgets3.0)
@@ -68,37 +60,4 @@ endif()
 # make plugins
 if(EXISTS "${CMAKE_SOURCE_DIR}/plugins")
     add_subdirectory(plugins)
-endif()
-
-#-------------------------------------------------------------------------------
-
-# Install some files to ease package creation
-if(PACKAGE_MODE)
-    if(NOT DISABLE_CHEATS_ZIP)
-        INSTALL(FILES     "${CMAKE_SOURCE_DIR}/bin/cheats_ws.zip" DESTINATION "${GAMEINDEX_DIR}")
-    endif()
-    INSTALL(FILES     "${CMAKE_SOURCE_DIR}/bin/GameIndex.dbf" DESTINATION "${GAMEINDEX_DIR}")
-
-    # set categories depending on system/distribution in pcsx2.desktop
-    if(openSUSE)
-        set(PCSX2_MENU_CATEGORIES "System;Emulator;")
-    else()
-        set(PCSX2_MENU_CATEGORIES "Game;Emulator;")
-    endif()
-    configure_file("${CMAKE_SOURCE_DIR}/linux_various/PCSX2.desktop.in" "${CMAKE_BINARY_DIR}/linux_various/PCSX2.desktop" @ONLY)
-
-    INSTALL(FILES "${CMAKE_BINARY_DIR}/linux_various/PCSX2.desktop" DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
-    INSTALL(FILES "${CMAKE_SOURCE_DIR}/linux_various/PCSX2.xpm"     DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pixmaps")
-    INSTALL(FILES "${CMAKE_SOURCE_DIR}/bin/docs/PCSX2_FAQ.pdf"      DESTINATION "${DOC_DIR}")
-    INSTALL(FILES "${CMAKE_SOURCE_DIR}/bin/docs/Configuration_Guide.pdf"   DESTINATION "${DOC_DIR}")
-    INSTALL(FILES "${CMAKE_SOURCE_DIR}/bin/docs/PCSX2.1"            DESTINATION "${MAN_DIR}/man1")
-    if(NOT DISABLE_PCSX2_WRAPPER)
-        INSTALL(FILES "${CMAKE_SOURCE_DIR}/linux_various/PCSX2-linux.sh"          DESTINATION "${BIN_DIR}")
-    endif()
-
-else()
-    if(NOT DISABLE_PCSX2_WRAPPER)
-        # special case to avoid having linux files in windows
-        INSTALL(FILES "${CMAKE_SOURCE_DIR}/linux_various/PCSX2-linux.sh"          DESTINATION "${CMAKE_SOURCE_DIR}/bin")
-    endif()
 endif()

@@ -8,11 +8,7 @@ set(msg_dep_spu2x       "")
 set(msg_dep_dev         "check these libraries -> gtk2, pcap, libxml2")
 
 macro(print_dep str dep)
-    if (PACKAGE_MODE)
-        message(FATAL_ERROR "${str}:${dep}")
-    else()
         message(STATUS "${str}:${dep}")
-    endif()
 endmacro(print_dep)
 
 #-------------------------------------------------------------------------------

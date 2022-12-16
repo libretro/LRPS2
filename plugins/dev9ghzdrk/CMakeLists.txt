@@ -121,9 +121,3 @@ else()
 endif()
 
 target_compile_features(${Output} PRIVATE cxx_std_17)
-
-#if(PACKAGE_MODE)
-#    install(FILES Linux/dev9ghzdrk.ui DESTINATION bin )
-#else()
-#    install(FILES Linux/dev9ghzdrk.ui DESTINATION ${CMAKE_SOURCE_DIR}/bin )
-#endif()

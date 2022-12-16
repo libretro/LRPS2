@@ -39,11 +39,6 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 	endif()
 endif()
 
-if(XDG_STD)
-    set(GSdxFinalFlags ${GSdxFinalFlags} -DXDG_STD)
-endif()
-
-
 set(GSdxSources
     GS.cpp
     GSBlock.cpp

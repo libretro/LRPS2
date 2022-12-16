@@ -20,57 +20,12 @@
 #-------------------------------------------------------------------------------
 # Misc option
 #-------------------------------------------------------------------------------
-option(DISABLE_BUILD_DATE "Disable including the binary compile date")
-option(ENABLE_TESTS "Enables building the unit tests" OFF)
 option(LIBRETRO "Enables building the libretro core" ON)
-set(DISABLE_BUILD_DATE ON)
-
-if(DISABLE_BUILD_DATE OR openSUSE)
-    message(STATUS "Disabling the inclusion of the binary compile date.")
-    add_definitions(-DDISABLE_BUILD_DATE)
-endif()
-
-#-------------------------------------------------------------------------------
-# Graphical option
-#-------------------------------------------------------------------------------
-option(REBUILD_SHADER "Rebuild GLSL/CG shader (developer option)")
-option(BUILD_REPLAY_LOADERS "Build GS replayer to ease testing (developer option)")
 
 #-------------------------------------------------------------------------------
 # Path and lib option
 #-------------------------------------------------------------------------------
-option(PACKAGE_MODE "Use this option to ease packaging of PCSX2 (developer/distribution option)")
 option(DISABLE_CHEATS_ZIP "Disable including the cheats_ws.zip file")
-option(DISABLE_PCSX2_WRAPPER "Disable including the PCSX2-linux.sh file")
-option(XDG_STD "Use XDG standard path instead of the standard PCSX2 path")
-option(EXTRA_PLUGINS "Build various 'extra' plugins")
-option(PORTAUDIO_API "Build portaudio support on spu2x" ON)
-option(SDL2_API "Use SDL2 on spu2x and onepad (wxWidget mustn't be built with SDL1.2 support" ON)
-
-if(PACKAGE_MODE)
-    if(NOT DEFINED PLUGIN_DIR)
-        set(PLUGIN_DIR "${CMAKE_INSTALL_PREFIX}/lib/games/PCSX2")
-    endif()
-
-    if(NOT DEFINED GAMEINDEX_DIR)
-        set(GAMEINDEX_DIR "${CMAKE_INSTALL_PREFIX}/share/games/PCSX2")
-    endif()
-
-    if(NOT DEFINED BIN_DIR)
-        set(BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin")
-    endif()
-
-    if(NOT DEFINED DOC_DIR)
-        set(DOC_DIR "${CMAKE_INSTALL_PREFIX}/share/doc/PCSX2")
-    endif()
-
-    if(NOT DEFINED MAN_DIR)
-        set(MAN_DIR "${CMAKE_INSTALL_PREFIX}/share/man")
-    endif()
-
-    # Compile all source codes with those defines
-    add_definitions(-DPLUGIN_DIR_COMPILATION=${PLUGIN_DIR} -DGAMEINDEX_DIR_COMPILATION=${GAMEINDEX_DIR} -DDOC_DIR_COMPILATION=${DOC_DIR})
-endif()
 
 if(APPLE)
     option(OSX_USE_DEFAULT_SEARCH_PATH "Don't prioritize system library paths" OFF)
@@ -242,15 +197,6 @@ endif()
 
 if(MSVC)
    set(ARCH_FLAG)
-   #   add_compile_options(/permissive-)
-   #   add_compile_options(/Zc:inline)
-   #   add_compile_options(/Zc:throwingNew)
-   #   add_compile_options(/volatile:iso)
-   #string(APPEND CMAKE_EXE_LINKER_FLAGS " /NXCOMPAT")
-#   add_compile_options(/EHsc)
-#   add_definitions(-DPCSX2_DEVBUILD -DPCSX2_DEBUG -D_DEBUG)
-#   add_definitions(-DNDEBUG -DPCSX2_DEVBUILD -D_DEVEL)
-#   add_definitions(-DNDEBUG -DPCSX2_DEVBUILD)
    add_definitions(-DNDEBUG)
 
    add_compile_options(/EHa)
@@ -389,11 +335,7 @@ endif()
 
 if(NOT DEFINED OPTIMIZATION_FLAG)
     if (CMAKE_BUILD_TYPE STREQUAL Debug)
-#        if (USE_GCC)
-#            set(OPTIMIZATION_FLAG -Og)
-#        else()
             set(OPTIMIZATION_FLAG -O0)
-#        endif()
     else()
         set(OPTIMIZATION_FLAG -O2)
     endif()
