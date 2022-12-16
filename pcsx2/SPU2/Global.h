@@ -24,7 +24,7 @@ struct StereoOutFloat;
 
 struct V_Core;
 
-#include "PrecompiledHeader.h"
+#include "../PrecompiledHeader.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Override Win32 min/max macros with the STL's type safe and macro
@@ -48,6 +48,5 @@ static __forceinline T GetClamped(T src, T min, T max)
 #include "defs.h"
 #include "regs.h"
 
-#include "Config.h"
 #include "Mixer.h"
 #include "SndOut.h"

@@ -215,7 +215,6 @@ set(pcsx2CDVDHeaders
 
 # SPU2 headers
 set(pcsx2SPU2Headers
-   SPU2/Config.h
    SPU2/defs.h
    SPU2/Dma.h
    SPU2/Global.h
