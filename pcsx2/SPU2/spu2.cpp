@@ -18,8 +18,8 @@
 #include "spu2.h"
 #include "Dma.h"
 #include "R3000A.h"
+#include <wx/stream.h>
 #include "Utilities/pxStreams.h"
-#include "AppCoreThread.h"
 
 extern retro_audio_sample_t sample_cb;
 

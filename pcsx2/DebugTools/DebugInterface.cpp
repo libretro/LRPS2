@@ -19,7 +19,6 @@
 #include "DebugInterface.h"
 #include "Memory.h"
 #include "R5900.h"
-#include "AppCoreThread.h"
 #include "Debug.h"
 #include "../VU.h"
 #include "Counters.h"
@@ -28,13 +27,7 @@
 #include "../IopMem.h"
 #include "SymbolMap.h"
 
-extern AppCoreThread CoreThread;
-
 R5900DebugInterface r5900Debug;
-
-#ifdef _WIN32
-#define strcasecmp stricmp
-#endif
 
 //
 // R5900DebugInterface

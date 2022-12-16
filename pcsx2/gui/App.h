@@ -190,12 +190,6 @@ public:
 protected:
 	bool AppRpc_TryInvoke( FnPtr_Pcsx2App method );
 	bool AppRpc_TryInvokeAsync( FnPtr_Pcsx2App method );
-protected:
-	// ----------------------------------------------------------------------------
-	//      Override wx default exception handling behavior
-	// ----------------------------------------------------------------------------
-	// Just rethrow unhandled exceptions to cause immediate debugger fail.
-	void OnUnhandledException() { throw; }
 };
 
 
