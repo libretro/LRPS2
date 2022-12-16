@@ -40,9 +40,7 @@ include(SelectPcsx2Plugins)
 get_git_version_info()
 write_svnrev_h()
 set(CMAKE_BUILD_PO FALSE)
-if (LIBRETRO)
-    add_definitions(-D__LIBRETRO__ -DDISABLE_RECORDING -DwxUSE_GUI=0)
-endif()
+add_definitions(-D__LIBRETRO__)
 
 add_subdirectory(3rdparty/wxwidgets3.0)
 
@@ -53,9 +51,7 @@ if(common_libs)
 endif()
 
 # make pcsx2
-if(EXISTS "${CMAKE_SOURCE_DIR}/pcsx2" AND pcsx2_core)
-    add_subdirectory(pcsx2)
-endif()
+add_subdirectory(pcsx2)
 
 # make plugins
 if(EXISTS "${CMAKE_SOURCE_DIR}/plugins")
