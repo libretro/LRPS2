@@ -19,7 +19,6 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION OFF)
 endif()
 
-include(FindPkgConfig)
 include(GNUInstallDirs)
 
 # Detect processor type.

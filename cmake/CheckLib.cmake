@@ -1,5 +1,3 @@
-include(FindPkgConfig OPTIONAL)
-
 macro(_internal_message msg)
 	message("${msg}")
 endmacro()

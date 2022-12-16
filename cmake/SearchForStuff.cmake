@@ -6,7 +6,6 @@ if (Linux)
     find_package(PCAP)
     find_package(LibXml2)
 endif()
-find_package(Gettext) # translation tool
 if(EXISTS ${PROJECT_SOURCE_DIR}/.git)
     find_package(Git)
 endif()
