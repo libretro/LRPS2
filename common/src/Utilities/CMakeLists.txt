@@ -60,7 +60,6 @@ set(UtilitiesHeaders
 	../../include/Utilities/Threading.h
 	../../include/Utilities/wxAppWithHelpers.h
 	PrecompiledHeader.h
-	ThreadingInternal.h
 )
 
 if(APPLE)

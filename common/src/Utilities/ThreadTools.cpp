@@ -20,8 +20,9 @@
 #include <signal.h> // for pthread_kill, which is in pthread.h on w32-pthreads
 #endif
 
+#include <wx/datetime.h>
+
 #include "PersistentThread.h"
-#include "ThreadingInternal.h"
 #include "EventSource.inl"
 
 using namespace Threading;

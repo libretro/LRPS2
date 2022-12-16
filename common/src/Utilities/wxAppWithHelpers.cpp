@@ -16,7 +16,6 @@
 #include "PrecompiledHeader.h"
 #include "wxAppWithHelpers.h"
 
-#include "ThreadingInternal.h"
 #include "PersistentThread.h"
 wxDEFINE_EVENT(pxEvt_InvokeAction, pxActionEvent);
 

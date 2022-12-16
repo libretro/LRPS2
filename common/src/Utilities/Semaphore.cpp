@@ -17,7 +17,7 @@
 #include "PrecompiledHeader.h"
 
 #include "Threading.h"
-#include "ThreadingInternal.h"
+#include <wx/datetime.h>
 
 // --------------------------------------------------------------------------------------
 //  Semaphore Implementations
