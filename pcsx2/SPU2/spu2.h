@@ -17,12 +17,12 @@
 
 #include "SaveState.h"
 
-s32 SPU2init();
-s32 SPU2reset();
-s32 SPU2ps1reset();
-s32 SPU2open();
-void SPU2close();
-void SPU2shutdown();
+s32 SPU2init(void);
+s32 SPU2reset(void);
+s32 SPU2ps1reset(void);
+s32 SPU2open(void);
+void SPU2close(void);
+void SPU2shutdown(void);
 void SPU2write(u32 mem, u16 value);
 u16 SPU2read(u32 mem);
 
@@ -30,15 +30,13 @@ void SPU2async(u32 cycles);
 s32 SPU2freeze(int mode, freezeData* data);
 void SPU2DoFreezeIn(pxInputStream& infp);
 void SPU2DoFreezeOut(void* dest);
-void SPU2configure();
-
 
 u32 SPU2ReadMemAddr(int core);
 void SPU2WriteMemAddr(int core, u32 value);
 void SPU2readDMA4Mem(u16* pMem, u32 size);
 void SPU2writeDMA4Mem(u16* pMem, u32 size);
-void SPU2interruptDMA4();
-void SPU2interruptDMA7();
+void SPU2interruptDMA4(void);
+void SPU2interruptDMA7(void);
 void SPU2readDMA7Mem(u16* pMem, u32 size);
 void SPU2writeDMA7Mem(u16* pMem, u32 size);
 

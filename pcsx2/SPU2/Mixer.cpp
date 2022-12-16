@@ -508,7 +508,6 @@ static __forceinline StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 	{
 		while (vc.SP >= 0)
 			GetNextDataDummy(thiscore, voiceidx); // Dummy is enough
-
 	}
 
 	// Write-back of raw voice data (post ADSR applied)
@@ -611,8 +610,8 @@ StereoOut32 V_Core::Mix(const VoiceMixSet& inVoices, const StereoOut32& Input, c
 	return TD + ApplyVolume(RV, FxVol);
 }
 
-// Gcc does not want to inline it when lto is enabled because some functions growth too much.
-// The function is big enought to see any speed impact. -- Gregory
+// Gcc does not want to inline it when lto is enabled because some functions grow too much.
+// The function is big enough to see any speed impact. -- Gregory
 #ifndef __POSIX__
 __forceinline
 #endif

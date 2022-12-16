@@ -64,7 +64,7 @@ struct StereoOut32
 	}
 };
 
-extern void Mix();
+extern void Mix(void);
 extern s32 clamp_mix(s32 x, u8 bitshift = 0);
 
 extern StereoOut32 clamp_mix(const StereoOut32& sample, u8 bitshift = 0);

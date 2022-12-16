@@ -54,13 +54,13 @@ void SPU2writeDMA4Mem(u16* pMem, u32 size) // size now in 16bit units
 	Cores[0].DoDMAwrite(pMem, size);
 }
 
-void SPU2interruptDMA4()
+void SPU2interruptDMA4(void)
 {
 	Cores[0].Regs.STATX |= 0x80;
 	//Cores[0].Regs.ATTR &= ~0x30;
 }
 
-void SPU2interruptDMA7()
+void SPU2interruptDMA7(void)
 {
 	Cores[1].Regs.STATX |= 0x80;
 	//Cores[1].Regs.ATTR &= ~0x30;
@@ -80,7 +80,7 @@ void SPU2writeDMA7Mem(u16* pMem, u32 size)
 	Cores[1].DoDMAwrite(pMem, size);
 }
 
-s32 SPU2reset()
+s32 SPU2reset(void)
 {
 	if (SampleRate != 48000)
 	{
@@ -104,7 +104,7 @@ s32 SPU2reset()
 	return 0;
 }
 
-s32 SPU2ps1reset()
+s32 SPU2ps1reset(void)
 {
 	if (SampleRate != 44100)
 	{
@@ -116,7 +116,7 @@ s32 SPU2ps1reset()
 	return 0;
 }
 
-s32 SPU2init()
+s32 SPU2init(void)
 {
 	assert(regtable[0x400] == nullptr);
 
@@ -155,18 +155,16 @@ s32 SPU2init()
 	return 0;
 }
 
-s32 SPU2open()
+s32 SPU2open(void)
 {
 	lClocks  = psxRegs.cycle;
 
 	return 0;
 }
 
-void SPU2close()
-{
-}
+void SPU2close(void) { }
 
-void SPU2shutdown()
+void SPU2shutdown(void)
 {
 	SPU2close();
 
