@@ -24,6 +24,7 @@
 #include "AppCoreThread.h"
 #include "AppEventListeners.h"
 
+#include "Plugins.h"
 #include "System.h"
 #include "System/SysThreads.h"
 

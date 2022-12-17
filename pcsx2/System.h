@@ -19,7 +19,6 @@
 
 #include "Utilities/SafeArray.h"
 #include "Utilities/Threading.h"		// to use threading stuff, include the Threading namespace in your file.
-#include "Plugins.h"
 
 #include "vtlb.h"
 
@@ -159,7 +158,6 @@ extern SysCpuProviderPack& GetCpuProviders();
 extern void SysClearExecutionCache();	// clears recompiled execution caches!
 extern void SysOutOfMemory_EmergencyResponse(uptr blocksize);
 
-extern u8 *SysMmapEx(uptr base, u32 size, uptr bounds, const char *caller="Unnamed");
 extern void NTFS_CompressFile( const wxString& file, bool compressStatus=true );
 
 extern wxString SysGetBiosDiscID();
@@ -184,15 +182,6 @@ extern SysMainMemory& GetVmMemory();
 #	else
 #		define PCSX2_SEH	0
 #	endif
-#endif
-
-// special macro which disables inlining on functions that require their own function stackframe.
-// This is due to how Win32 handles structured exception handling.  Linux uses signals instead
-// of SEH, and so these functions can be inlined.
-#ifdef _WIN32
-#	define __unique_stackframe __noinline
-#else
-#	define __unique_stackframe
 #endif
 
 extern void SetCPUState(SSE_MXCSR sseMXCSR, SSE_MXCSR sseVUMXCSR);

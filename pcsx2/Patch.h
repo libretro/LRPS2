@@ -36,7 +36,6 @@
 
 
 #include "Pcsx2Defs.h"
-#include "SysForwardDefs.h"
 #include "AppGameDatabase.h"
 
 enum patch_cpu_type {
@@ -122,8 +121,3 @@ extern void ForgetLoadedPatches();
 
 // Patch loading is verbose only once after the crc changes, this makes it think that the crc changed.
 extern void PatchesVerboseReset();
-
-// The following prototypes seem unused in PCSX2, but maybe part of the cheats browser?
-// regardless, they don't seem to have an implementation anywhere.
-// extern int  AddPatch(int Mode, int Place, int Address, int Size, u64 data);
-// extern void ResetPatch(void);

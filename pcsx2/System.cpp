@@ -14,9 +14,7 @@
  */
 
 #include "PrecompiledHeader.h"
-#include "Common.h"
 #include "IopCommon.h"
-#include "VUmicro.h"
 #include "newVif.h"
 #include "MTVU.h"
 #include "x86emitter/x86_intrin.h"
@@ -25,13 +23,10 @@
 
 #include "System/RecTypes.h"
 
-#include "Utilities/MemsetFast.inl"
-
 SSE_MXCSR g_sseMXCSR	= { DEFAULT_sseMXCSR };
 SSE_MXCSR g_sseVUMXCSR	= { DEFAULT_sseVUMXCSR };
 
 // SetCPUState -- for assignment of SSE roundmodes and clampmodes.
-//
 void SetCPUState(SSE_MXCSR sseMXCSR, SSE_MXCSR sseVUMXCSR)
 {
 	g_sseMXCSR	= sseMXCSR.ApplyReserveMask();
@@ -54,9 +49,7 @@ RecompiledCodeReserve::RecompiledCodeReserve( uint defCommit )
 	m_prot_mode		= PageAccess_Any();
 }
 
-RecompiledCodeReserve::~RecompiledCodeReserve()
-{
-}
+RecompiledCodeReserve::~RecompiledCodeReserve() { }
 
 void* RecompiledCodeReserve::Assign( VirtualMemoryManagerPtr allocator, void *baseptr, size_t size )
 {
@@ -117,8 +110,6 @@ void SysOutOfMemory_EmergencyResponse(uptr blocksize)
 	}
 }
 
-
-#include "svnrev.h"
 
 Pcsx2Config EmuConfig;
 
@@ -198,7 +189,8 @@ public:
 };
 
 /// Attempts to find a spot near static variables for the main memory
-static VirtualMemoryManagerPtr makeMainMemoryManager() {
+static VirtualMemoryManagerPtr makeMainMemoryManager(void)
+{
 	// Everything looks nicer when the start of all the sections is a nice round looking number.
 	// Also reduces the variation in the address due to small changes in code.
 	// Breaks ASLR but so does anything else that tries to make addresses constant for our debugging pleasure
@@ -408,7 +400,7 @@ void SysCpuProviderPack::ApplyConfig() const
 // bad things happening (recompilers will slow down for a brief moment since rec code blocks
 // are dumped).
 // Use this method to reset the recs when important global pointers like the MTGS are re-assigned.
-void SysClearExecutionCache()
+void SysClearExecutionCache(void)
 {
 	GetCpuProviders().ApplyConfig();
 
@@ -424,30 +416,6 @@ void SysClearExecutionCache()
 
 	dVifReset(0);
 	dVifReset(1);
-}
-
-// Maps a block of memory for use as a recompiled code buffer, and ensures that the
-// allocation is below a certain memory address (specified in "bounds" parameter).
-// The allocated block has code execution privileges.
-// Returns NULL on allocation failure.
-u8* SysMmapEx(uptr base, u32 size, uptr bounds, const char *caller)
-{
-	u8* Mem = (u8*)HostSys::Mmap( base, size );
-
-	if( (Mem == NULL) || (bounds != 0 && (((uptr)Mem + size) > bounds)) )
-	{
-		if( base )
-		{
-			// Let's try again at an OS-picked memory area, and then hope it meets needed
-			// boundschecking criteria below.
-			SafeSysMunmap( Mem, size );
-			Mem = (u8*)HostSys::Mmap( 0, size );
-		}
-
-		if( (bounds != 0) && (((uptr)Mem + size) > bounds) )
-			SafeSysMunmap( Mem, size );
-	}
-	return Mem;
 }
 
 wxString SysGetBiosDiscID(void)
