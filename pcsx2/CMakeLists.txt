@@ -165,7 +165,6 @@ set(pcsx2CDVDSources
 	CDVD/CDVDisoReader.cpp
 	CDVD/CDVDdiscThread.cpp
 	CDVD/InputIsoFile.cpp
-	CDVD/OutputIsoFile.cpp
 	CDVD/ChunksCache.cpp
 	CDVD/CompressedFileReader.cpp
 	CDVD/ChdFileReader.cpp
