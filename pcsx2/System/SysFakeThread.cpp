@@ -37,7 +37,7 @@ void SysFakeThread::Start()
 
 void SysFakeThread::OnStart()
 {
-	if( !pxAssertDev( m_ExecMode == ExecMode_NoThreadYet) ) return;
+	if( m_ExecMode != ExecMode_NoThreadYet) return;
 
 	m_sem_Resume.Reset();
 	m_sem_ChangingExecMode.Reset();
@@ -69,7 +69,7 @@ void SysFakeThread::OnStart()
 //
 void SysFakeThread::Suspend( bool isBlocking )
 {
-	if (!pxAssertDev(!IsSelf())) return;
+	if (IsSelf()) return;
 	if (!IsRunning()) return;
 
 	// shortcut ExecMode check to avoid deadlocking on redundant calls to Suspend issued
@@ -104,7 +104,6 @@ void SysFakeThread::Suspend( bool isBlocking )
 			break;
 		}
 
-		pxAssertDev( m_ExecMode == ExecMode_Closing);
 		m_sem_event.Post();
 	}
 
@@ -132,8 +131,6 @@ void SysFakeThread::Pause()
 
 		if( m_ExecMode == ExecMode_Opened )
 			m_ExecMode = ExecMode_Pausing;
-
-		pxAssertDev( m_ExecMode == ExecMode_Pausing);
 
 		OnPause();
 		m_sem_event.Post();
@@ -194,8 +191,6 @@ void SysFakeThread::Resume()
 		case ExecMode_Closed:
 		break;
 	}
-
-	pxAssertDev( (m_ExecMode == ExecMode_Closed) || (m_ExecMode == ExecMode_Paused));
 
 	OnResumeReady();
 	m_ExecMode = ExecMode_Opened;

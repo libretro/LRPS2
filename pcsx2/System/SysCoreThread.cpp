@@ -216,7 +216,7 @@ void SysCoreThread::ApplySettings(const Pcsx2Config& src)
 	if (src == EmuConfig)
 		return;
 
-	if (!pxAssertDev(IsPaused() | IsSelf()))
+	if (!(IsPaused() | IsSelf()))
 		return;
 
 	m_resetRecompilers = (src.Cpu != EmuConfig.Cpu) || (src.Gamefixes != EmuConfig.Gamefixes) || (src.Speedhacks != EmuConfig.Speedhacks);
@@ -227,7 +227,7 @@ void SysCoreThread::ApplySettings(const Pcsx2Config& src)
 
 void SysCoreThread::UploadStateCopy(const VmStateBuffer& copy)
 {
-	if (!pxAssertDev(IsPaused()))
+	if (!(IsPaused()))
 		return;
 
 	memLoadingState loadme(copy);

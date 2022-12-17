@@ -68,8 +68,3 @@ struct DiagnosticOrigin
 
 #define pxAssertRel(cond, msg) ((likely(cond)) || (pxOnAssert(pxAssertSpot(cond)), false))
 #define pxAssumeRel(cond, msg) ((void)((!likely(cond)) && (pxOnAssert(pxAssertSpot(cond)), false)))
-
-// Release Builds just use __assume as an optimization, and return the conditional
-// as a result (which is optimized to nil if unused).
-
-#define pxAssertDev(cond) (likely(cond))

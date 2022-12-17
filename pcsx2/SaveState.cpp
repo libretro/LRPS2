@@ -83,8 +83,6 @@ void SaveStateBase::Init( SafeArray<u8>* memblock )
 
 void SaveStateBase::PrepBlock( int size )
 {
-	pxAssertDev( m_memory);
-
 	const int end = m_idx+size;
 	if( IsSaving() )
 		m_memory->MakeRoomFor( end );
@@ -93,7 +91,6 @@ void SaveStateBase::PrepBlock( int size )
 void SaveStateBase::FreezeTag( const char* src )
 {
 	const uint allowedlen = sizeof( m_tagspace )-1;
-	pxAssertDev( strlen(src) < allowedlen);
 
 	memzero( m_tagspace );
 	strcpy( m_tagspace, src );
@@ -249,8 +246,6 @@ void memSavingState::FreezeMem( void* data, int size )
 
 void memSavingState::MakeRoomForData()
 {
-	pxAssertDev( m_memory);
-
 	m_memory->ChunkSize = ReallocThreshold;
 	m_memory->MakeRoomFor( m_idx + MemoryBaseAllocSize );
 }

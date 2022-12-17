@@ -480,11 +480,9 @@ void Threading::pxThread::OnCleanupInThread()
 // callback function
 void *Threading::pxThread::_internal_callback(void *itsme)
 {
-    if (!pxAssertDev(itsme != NULL))
-        return NULL;
-
-    internal_callback_helper(itsme);
-    return nullptr;
+    if (itsme)
+        internal_callback_helper(itsme);
+    return NULL;
 }
 
 // __try is used in pthread_cleanup_push when CLEANUP_SEH is used as the cleanup model.
@@ -511,11 +509,9 @@ wxString Exception::BaseThreadError::FormatDiagnosticMessage() const
 
 pxThread &Exception::BaseThreadError::Thread()
 {
-    pxAssertDev(m_thread != NULL);
     return *m_thread;
 }
 const pxThread &Exception::BaseThreadError::Thread() const
 {
-    pxAssertDev(m_thread != NULL);
     return *m_thread;
 }

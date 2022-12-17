@@ -254,8 +254,6 @@ static void LoadIrx( const wxString& filename, u8* dest )
 //
 void LoadBIOS(void)
 {
-	pxAssertDev( eeMem->ROM != NULL);
-
 	try
 	{
 		wxString Bios( g_Conf->FullpathToBios() );
