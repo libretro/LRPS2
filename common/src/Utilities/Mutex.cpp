@@ -13,11 +13,13 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <wx/datetime.h>
 
-#include "PrecompiledHeader.h"
+#include "Dependencies.h"
 
 #include "Threading.h"
-#include <wx/datetime.h>
+
+#include "../../libretro/retro_messager.h"
 
 namespace Threading
 {

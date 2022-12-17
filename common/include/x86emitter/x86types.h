@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include "Pcsx2Types.h"
+
 #ifdef __M_X86_64
 static const uint iREGCNT_XMM = 16;
 static const uint iREGCNT_GPR = 16;
@@ -36,7 +38,7 @@ enum XMMSSEType {
 // To enable the multithreaded emitter, either set the below define to 1, or set the define
 // as a project option.  The multithreaded emitter relies on native compiler support for
 // TLS -- Macs are crap out of luck there (for now).
-
+#include "Utilities/Dependencies.h"
 #include "Utilities/Threading.h"
 
 #ifndef x86EMIT_MULTITHREADED
@@ -77,7 +79,7 @@ extern const char *xGetRegName(int regid, int operandSize);
 //------------------------------------------------------------------
 // templated version of is_s8 is required, so that u16's get correct sign extension treatment.
 template <typename T>
-static __fi bool is_s8(T imm)
+static __forceinline bool is_s8(T imm)
 {
     return (s8)imm == (typename std::make_signed<T>::type)imm;
 }
@@ -115,11 +117,11 @@ static const bool AlwaysUseMovaps = false;
 //
 // In the case of (Reg, Imm) forms, the inlining is up to the discreation of the compiler.
 //
-// Note: I *intentionally* use __fi directly for most single-line class members,
+// Note: I *intentionally* use __forceinline directly for most single-line class members,
 // when needed.  There's no point in using __emitline in these cases since the debugger
 // can't trace into single-line functions anyway.
 //
-#define __emitinline __fi
+#define __emitinline __forceinline
 
 // ModRM 'mod' field enumeration.   Provided mostly for reference:
 enum ModRm_ModField {
@@ -697,15 +699,15 @@ public:
     xAddressVoid &Add(const xAddressReg &src);
     xAddressVoid &Add(const xAddressVoid &src);
 
-    __fi xAddressVoid operator+(const xAddressReg &right) const { return xAddressVoid(*this).Add(right); }
-    __fi xAddressVoid operator+(const xAddressVoid &right) const { return xAddressVoid(*this).Add(right); }
-    __fi xAddressVoid operator+(sptr imm) const { return xAddressVoid(*this).Add(imm); }
-    __fi xAddressVoid operator-(sptr imm) const { return xAddressVoid(*this).Add(-imm); }
-    __fi xAddressVoid operator+(const void *addr) const { return xAddressVoid(*this).Add((uptr)addr); }
+    __forceinline xAddressVoid operator+(const xAddressReg &right) const { return xAddressVoid(*this).Add(right); }
+    __forceinline xAddressVoid operator+(const xAddressVoid &right) const { return xAddressVoid(*this).Add(right); }
+    __forceinline xAddressVoid operator+(sptr imm) const { return xAddressVoid(*this).Add(imm); }
+    __forceinline xAddressVoid operator-(sptr imm) const { return xAddressVoid(*this).Add(-imm); }
+    __forceinline xAddressVoid operator+(const void *addr) const { return xAddressVoid(*this).Add((uptr)addr); }
 
-    __fi void operator+=(const xAddressReg &right) { Add(right); }
-    __fi void operator+=(sptr imm) { Add(imm); }
-    __fi void operator-=(sptr imm) { Add(-imm); }
+    __forceinline void operator+=(const xAddressReg &right) { Add(right); }
+    __forceinline void operator+=(sptr imm) { Add(imm); }
+    __forceinline void operator-=(sptr imm) { Add(-imm); }
 };
 
 // --------------------------------------------------------------------------------------
@@ -760,13 +762,13 @@ public:
         return *this;
     }
 
-    __fi xAddressInfo<BaseType> operator+(const xAddressReg &right) const { return xAddressInfo(*this).Add(right); }
-    __fi xAddressInfo<BaseType> operator+(const xAddressInfo<BaseType> &right) const { return xAddressInfo(*this).Add(right); }
-    __fi xAddressInfo<BaseType> operator+(sptr imm) const { return xAddressInfo(*this).Add(imm); }
-    __fi xAddressInfo<BaseType> operator-(sptr imm) const { return xAddressInfo(*this).Add(-imm); }
-    __fi xAddressInfo<BaseType> operator+(const void *addr) const { return xAddressInfo(*this).Add((uptr)addr); }
+    __forceinline xAddressInfo<BaseType> operator+(const xAddressReg &right) const { return xAddressInfo(*this).Add(right); }
+    __forceinline xAddressInfo<BaseType> operator+(const xAddressInfo<BaseType> &right) const { return xAddressInfo(*this).Add(right); }
+    __forceinline xAddressInfo<BaseType> operator+(sptr imm) const { return xAddressInfo(*this).Add(imm); }
+    __forceinline xAddressInfo<BaseType> operator-(sptr imm) const { return xAddressInfo(*this).Add(-imm); }
+    __forceinline xAddressInfo<BaseType> operator+(const void *addr) const { return xAddressInfo(*this).Add((uptr)addr); }
 
-    __fi void operator+=(const xAddressInfo<BaseType> &right) { Add(right); }
+    __forceinline void operator+=(const xAddressInfo<BaseType> &right) { Add(right); }
 };
 
 typedef xAddressInfo<u128> xAddress128;
@@ -775,25 +777,25 @@ typedef xAddressInfo<u32> xAddress32;
 typedef xAddressInfo<u16> xAddress16;
 typedef xAddressInfo<u8> xAddress8;
 
-static __fi xAddressVoid operator+(const void *addr, const xAddressVoid &right)
+static __forceinline xAddressVoid operator+(const void *addr, const xAddressVoid &right)
 {
     return right + addr;
 }
 
-static __fi xAddressVoid operator+(sptr addr, const xAddressVoid &right)
+static __forceinline xAddressVoid operator+(sptr addr, const xAddressVoid &right)
 {
     return right + addr;
 }
 
 template <typename OperandType>
-static __fi xAddressInfo<OperandType> operator+(const void *addr, const xAddressInfo<OperandType> &right)
+static __forceinline xAddressInfo<OperandType> operator+(const void *addr, const xAddressInfo<OperandType> &right)
 {
     //return xAddressInfo<OperandType>( (sptr)addr ).Add( reg );
     return right + addr;
 }
 
 template <typename OperandType>
-static __fi xAddressInfo<OperandType> operator+(sptr addr, const xAddressInfo<OperandType> &right)
+static __forceinline xAddressInfo<OperandType> operator+(sptr addr, const xAddressInfo<OperandType> &right)
 {
     return right + addr;
 }
@@ -872,8 +874,8 @@ public:
         return xAddressVoid(Base, Index, Scale, Displacement);
     }
 
-    __fi xIndirectVoid operator+(const sptr imm) const { return xIndirectVoid(*this).Add(imm); }
-    __fi xIndirectVoid operator-(const sptr imm) const { return xIndirectVoid(*this).Add(-imm); }
+    __forceinline xIndirectVoid operator+(const sptr imm) const { return xIndirectVoid(*this).Add(imm); }
+    __forceinline xIndirectVoid operator-(const sptr imm) const { return xIndirectVoid(*this).Add(-imm); }
 
 protected:
     void Reduce();
@@ -911,8 +913,8 @@ public:
         return *this;
     }
 
-    __fi xIndirect<OperandType> operator+(const sptr imm) const { return xIndirect(*this).Add(imm); }
-    __fi xIndirect<OperandType> operator-(const sptr imm) const { return xIndirect(*this).Add(-imm); }
+    __forceinline xIndirect<OperandType> operator+(const sptr imm) const { return xIndirect(*this).Add(imm); }
+    __forceinline xIndirect<OperandType> operator-(const sptr imm) const { return xIndirect(*this).Add(-imm); }
 
     bool operator==(const xIndirect<OperandType> &src) const
     {
@@ -1112,12 +1114,12 @@ public:
     }
 };
 
-static __fi xAddressVoid operator+(const void *addr, const xAddressReg &reg)
+static __forceinline xAddressVoid operator+(const void *addr, const xAddressReg &reg)
 {
     return reg + (sptr)addr;
 }
 
-static __fi xAddressVoid operator+(sptr addr, const xAddressReg &reg)
+static __forceinline xAddressVoid operator+(sptr addr, const xAddressReg &reg)
 {
     return reg + (sptr)addr;
 }

@@ -13,13 +13,13 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
-
-#include "Threading.h"
-
 #if defined(__UNIX__)
 #include <signal.h>
 #endif
+
+#include "Dependencies.h"
+
+#include "Threading.h"
 
 // for lack of a better place...
 Fnptr_OutOfMemory pxDoOutOfMemory = NULL;

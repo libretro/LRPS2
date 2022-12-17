@@ -13,8 +13,9 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
-#include <wx/gdicmn.h> // for wxPoint/wxRect stuff
+#include "Dependencies.h"
+
+#include "General.h"
 
 __fi wxString fromUTF8(const char *src)
 {

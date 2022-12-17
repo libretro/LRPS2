@@ -28,7 +28,6 @@
  *		sudonim(1@gmail.com)
  */
 
-#include "PrecompiledHeader.h"
 #include "internal.h"
 #include "tools.h"
 

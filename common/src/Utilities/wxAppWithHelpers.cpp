@@ -13,10 +13,12 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
+#include "Dependencies.h"
+
+#include "General.h"
+#include "PersistentThread.h"
 #include "wxAppWithHelpers.h"
 
-#include "PersistentThread.h"
 wxDEFINE_EVENT(pxEvt_InvokeAction, pxActionEvent);
 
 // --------------------------------------------------------------------------------------

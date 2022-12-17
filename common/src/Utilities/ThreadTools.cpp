@@ -13,17 +13,18 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "PrecompiledHeader.h"
-
 #ifdef __linux__
 #include <signal.h> // for pthread_kill, which is in pthread.h on w32-pthreads
 #endif
 
 #include <wx/datetime.h>
 
+#include "Dependencies.h"
+
 #include "PersistentThread.h"
 #include "EventSource.inl"
+
+#include "../../libretro/retro_messager.h"
 
 using namespace Threading;
 

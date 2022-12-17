@@ -16,7 +16,13 @@
 // This module contains implementations of _aligned_malloc for platforms that don't have
 // it built into their CRT/libc.
 
-#include "PrecompiledHeader.h"
+#include "Dependencies.h"
+
+#include "Assertions.h"
+#include "MemcpyFast.h"
+#include "Exceptions.h"
+#include "SafeArray.h"
+#include "General.h"
 
 void *__fastcall _aligned_malloc(size_t size, size_t align)
 {

@@ -13,7 +13,8 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
+#include "Utilities/Dependencies.h"
+#include "Utilities/General.h"
 #include "Utilities/RedtapeWindows.h"
 #include "PageFaultSource.h"
 

@@ -13,15 +13,19 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
-#include "PageFaultSource.h"
-
 #ifndef __WXMSW__
 #include <wx/thread.h>
 #endif
 
+#include "Dependencies.h"
+
+#include "General.h"
+
+#include "PageFaultSource.h"
+
 #include "EventSource.inl"
-#include "MemsetFast.inl"
+
+#include "../../libretro/retro_messager.h"
 
 template class EventSource<IEventListener_PageFault>;
 

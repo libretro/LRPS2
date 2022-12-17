@@ -25,7 +25,6 @@
 // ix86 legacy emitter functions
 //------------------------------------------------------------------
 
-#include "PrecompiledHeader.h"
 #include "legacy_internal.h"
 
 emitterT void ModRM(uint mod, uint reg, uint rm)

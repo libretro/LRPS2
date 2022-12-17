@@ -13,9 +13,8 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
+#include "Utilities/Dependencies.h"
 #include "RedtapeWindows.h"
-#include "x86emitter/tools.h"
 #include "PersistentThread.h"
 
 #ifndef __WXMSW__
@@ -24,14 +23,14 @@
 
 #else
 
-__fi void Threading::Sleep(int ms)
+__forceinline void Threading::Sleep(int ms)
 {
     ::Sleep(ms);
 }
 
 // For use in spin/wait loops,  Acts as a hint to Intel CPUs and should, in theory
 // improve performance and reduce cpu power consumption.
-__fi void Threading::SpinWait()
+__forceinline void Threading::SpinWait()
 {
     _mm_pause();
 }

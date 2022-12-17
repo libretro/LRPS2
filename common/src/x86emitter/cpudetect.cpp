@@ -13,7 +13,8 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
+#include "Utilities/Dependencies.h"
+#include "Utilities/MemcpyFast.h"
 #include "Utilities/RedtapeWindows.h"
 #include "x86emitter/tools.h"
 #include "internal.h"

@@ -23,7 +23,6 @@ set(x86emitterSources
 	legacy.cpp
 	legacy_sse.cpp
 	movs.cpp
-	PrecompiledHeader.cpp
 	simd.cpp
 	x86emitter.cpp)
 
@@ -53,7 +52,6 @@ set(x86emitterHeaders
 	../../include/x86emitter/tools.h
 	../../include/x86emitter/x86emitter.h
 	../../include/x86emitter/x86types.h
-	PrecompiledHeader.h
 	)
 
 set(x86emitterFinalSources
@@ -68,5 +66,5 @@ set(x86emitterFinalLibs
 add_pcsx2_lib(${Output} "${x86emitterFinalSources}" "${x86emitterFinalLibs}" "${x86emitterFinalFlags}")
 
 #if(COMMAND target_precompile_headers)
-#	target_precompile_headers(${Output} PRIVATE PrecompiledHeader.h)
+#	target_precompile_headers(${Output} PRIVATE)
 #endif()

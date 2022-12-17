@@ -13,7 +13,8 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
+#include "Dependencies.h"
+
 #include "pxStreams.h"
 
 #include <wx/stream.h>

@@ -68,7 +68,7 @@ static void SysPageFaultSignalFilter(int signal, siginfo_t *siginfo, void *)
     raise(SIGKILL);
 }
 
-void _platform_InstallSignalHandler()
+void _platform_InstallSignalHandler(void)
 {
     struct sigaction sa;
 

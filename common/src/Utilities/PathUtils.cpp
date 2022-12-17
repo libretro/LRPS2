@@ -13,10 +13,11 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
-#include "Path.h"
-
 #include <wx/file.h>
+
+#include "Dependencies.h"
+
+#include "Path.h"
 
 // ---------------------------------------------------------------------------------
 //  wxDirName (implementations)
