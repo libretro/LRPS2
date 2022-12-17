@@ -111,7 +111,6 @@ void Threading::Semaphore::WaitNoCancel()
 {
     int oldstate;
     pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &oldstate);
-    //WaitWithoutYield();
     Wait();
     pthread_setcancelstate(oldstate, NULL);
 }
@@ -120,7 +119,6 @@ void Threading::Semaphore::WaitNoCancel(const wxTimeSpan &timeout)
 {
     int oldstate;
     pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &oldstate);
-    //WaitWithoutYield( timeout );
     Wait(timeout);
     pthread_setcancelstate(oldstate, NULL);
 }

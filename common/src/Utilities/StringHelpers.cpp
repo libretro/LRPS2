@@ -49,7 +49,7 @@ void SplitString(wxArrayString &dest, const wxString &src, const wxString &delim
 // --------------------------------------------------------------------------------------
 
 // returns TRUE if the parse is valid, or FALSE if it's a comment.
-bool pxParseAssignmentString(const wxString &src, wxString &ldest, wxString &rdest)
+static bool pxParseAssignmentString(const wxString &src, wxString &ldest, wxString &rdest)
 {
     if (src.StartsWith(L"--") || src.StartsWith(L"//") || src.StartsWith(L";"))
         return false;

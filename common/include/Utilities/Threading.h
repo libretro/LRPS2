@@ -164,7 +164,6 @@ public:
     void Release();
 
     void AcquireWithoutYield();
-    bool AcquireWithoutYield(const wxTimeSpan &timeout);
 
     void Wait();
     bool Wait(const wxTimeSpan &timeout);

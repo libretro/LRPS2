@@ -27,7 +27,7 @@ template class SafeArray<u8>;
 // Sanity check: truncate strings if they exceed 512k in length.  Anything like that
 // is either a bug or really horrible code that needs to be stopped before it causes
 // system deadlock.
-static const int MaxFormattedStringLength = 0x80000;
+#define MAX_FORMATTED_STRING_LENGTH 0x80000
 
 static
 #ifndef __linux__
@@ -37,7 +37,8 @@ static
     format_that_ascii_mess(CharBufferType &buffer, uint writepos, const char *fmt, va_list argptr)
 {
     va_list args;
-    while (true) {
+    while (true)
+    {
         int size = buffer.GetLength();
 
         va_copy(args, argptr);
@@ -49,7 +50,7 @@ static
         // always do it manually
         buffer[size - 1] = '\0';
 
-        if (size >= MaxFormattedStringLength)
+        if (size >= MAX_FORMATTED_STRING_LENGTH)
             break;
 
         // vsnprintf() may return either -1 (traditional Unix behavior) or the
@@ -63,7 +64,7 @@ static
         if (len < size)
             break;
         buffer.Resize(len + 128);
-    };
+    }
 
     // performing an assertion or log of a truncated string is unsafe, so let's not; even
     // though it'd be kinda nice if we did.
@@ -90,7 +91,7 @@ static
         // always do it manually
         ((wxChar *)buffer.GetPtr())[size - 1] = L'\0';
 
-        if (size >= MaxFormattedStringLength)
+        if (size >= MAX_FORMATTED_STRING_LENGTH)
             return size - 1;
 
         // vsnprintf() may return either -1 (traditional Unix behavior) or the
@@ -250,7 +251,6 @@ FastFormatAscii &FastFormatAscii::Write(const char *fmt, ...)
     va_end(list);
     return *this;
 }
-
 
 bool FastFormatAscii::IsEmpty() const
 {

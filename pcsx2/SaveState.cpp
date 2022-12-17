@@ -59,9 +59,6 @@ wxString SaveStateBase::GetFilename( int slot )
 
 	return (g_Conf->Folders.Savestates +
 		pxsFmt( L"%s (%08X).%02d.p2s", WX_STR(serialName), ElfCRC, slot )).GetFullPath();
-
-	//return (g_Conf->Folders.Savestates +
-	//	pxsFmt( L"%08X.%03d", ElfCRC, slot )).GetFullPath();
 }
 
 SaveStateBase::SaveStateBase( SafeArray<u8>& memblock )

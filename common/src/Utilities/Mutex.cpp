@@ -163,13 +163,6 @@ void Threading::Mutex::AcquireWithoutYield()
     pthread_mutex_lock(&m_mutex);
 }
 
-bool Threading::Mutex::AcquireWithoutYield(const wxTimeSpan &timeout)
-{
-    wxDateTime megafail(wxDateTime::UNow() + timeout);
-    const timespec fail = {megafail.GetTicks(), megafail.GetMillisecond() * 1000000};
-    return xpthread_mutex_timedlock(&m_mutex, &fail) == 0;
-}
-
 void Threading::Mutex::Release()
 {
     pthread_mutex_unlock(&m_mutex);
@@ -222,7 +215,8 @@ void Threading::Mutex::WaitWithoutYield()
 //
 bool Threading::Mutex::Wait(const wxTimeSpan &timeout)
 {
-    if (Acquire(timeout)) {
+    if (Acquire(timeout))
+    {
         Release();
         return true;
     }
@@ -231,7 +225,10 @@ bool Threading::Mutex::Wait(const wxTimeSpan &timeout)
 
 bool Threading::Mutex::WaitWithoutYield(const wxTimeSpan &timeout)
 {
-    if (AcquireWithoutYield(timeout)) {
+    wxDateTime megafail(wxDateTime::UNow() + timeout);
+    const timespec fail = {megafail.GetTicks(), megafail.GetMillisecond() * 1000000};
+    if (xpthread_mutex_timedlock(&m_mutex, &fail) == 0)
+    {
         Release();
         return true;
     }

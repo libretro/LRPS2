@@ -28,7 +28,7 @@ template class EventSource<IEventListener_PageFault>;
 SrcType_PageFault *Source_PageFault = NULL;
 Threading::Mutex PageFault_Mutex;
 
-void pxInstallSignalHandler()
+void pxInstallSignalHandler(void)
 {
     if (!Source_PageFault)
         Source_PageFault = new SrcType_PageFault();
@@ -147,9 +147,9 @@ void *VirtualMemoryManager::Alloc(uptr offsetLocation, size_t size) const
         return nullptr;
     auto puStart = &m_pageuse[offsetLocation / __pagesize];
     auto puEnd = &m_pageuse[(offsetLocation+size) / __pagesize];
-    if (!(VMMMarkPagesAsInUse(puStart, puEnd)))
-        return nullptr;
-    return (void *)(m_baseptr + offsetLocation);
+    if (VMMMarkPagesAsInUse(puStart, puEnd))
+        return (void *)(m_baseptr + offsetLocation);
+    return nullptr;
 }
 
 void VirtualMemoryManager::Free(void *address, size_t size) const
@@ -201,14 +201,14 @@ void *VirtualMemoryBumpAllocator::Alloc(size_t size)
 // --------------------------------------------------------------------------------------
 VirtualMemoryReserve::VirtualMemoryReserve(size_t size)
 {
-    m_defsize = size;
+    m_defsize        = size;
 
-    m_allocator = nullptr;
+    m_allocator      = nullptr;
     m_pages_commited = 0;
     m_pages_reserved = 0;
-    m_baseptr = nullptr;
-    m_prot_mode = PageAccess_None();
-    m_allow_writes = true;
+    m_baseptr        = nullptr;
+    m_prot_mode      = PageAccess_None();
+    m_allow_writes   = true;
 }
 
 VirtualMemoryReserve &VirtualMemoryReserve::SetPageAccessOnCommit(const PageProtectionMode &mode)
@@ -219,9 +219,9 @@ VirtualMemoryReserve &VirtualMemoryReserve::SetPageAccessOnCommit(const PageProt
 
 size_t VirtualMemoryReserve::GetSize(size_t requestedSize)
 {
-    if (!requestedSize)
-        return pageAlign(m_defsize);
-    return pageAlign(requestedSize);
+    if (requestedSize)
+        return pageAlign(requestedSize);
+    return pageAlign(m_defsize);
 }
 
 // Notes:
@@ -240,23 +240,22 @@ void *VirtualMemoryReserve::Assign(VirtualMemoryManagerPtr allocator, void * bas
     if (!size)
         return nullptr;
 
-    m_allocator = std::move(allocator);
+    m_allocator         = std::move(allocator);
 
-    m_baseptr = baseptr;
+    m_baseptr           = baseptr;
 
     uptr reserved_bytes = pageAlign(size);
-    m_pages_reserved = reserved_bytes / __pagesize;
+    m_pages_reserved    = reserved_bytes / __pagesize;
 
-    if (!m_baseptr)
-        return nullptr;
-    return m_baseptr;
+    if (m_baseptr)
+        return m_baseptr;
+    return nullptr;
 }
 
 void VirtualMemoryReserve::ReprotectCommittedBlocks(const PageProtectionMode &newmode)
 {
-    if (!m_pages_commited)
-        return;
-    HostSys::MemProtect(m_baseptr, m_pages_commited * __pagesize, newmode);
+    if (m_pages_commited)
+        HostSys::MemProtect(m_baseptr, m_pages_commited * __pagesize, newmode);
 }
 
 // Clears all committed blocks, restoring the allocation to a reserve only.
