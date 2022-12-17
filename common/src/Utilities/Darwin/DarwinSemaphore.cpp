@@ -202,14 +202,6 @@ void Threading::Semaphore::WaitNoCancel()
     pthread_setcancelstate(oldstate, NULL);
 }
 
-void Threading::Semaphore::WaitNoCancel(const wxTimeSpan &timeout)
-{
-    int oldstate;
-    pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &oldstate);
-    Wait(timeout);
-    pthread_setcancelstate(oldstate, NULL);
-}
-
 int Threading::Semaphore::Count()
 {
     return __atomic_load_n(&m_counter, __ATOMIC_SEQ_CST);

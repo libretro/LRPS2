@@ -137,7 +137,6 @@ public:
     void WaitWithoutYield();
     bool WaitWithoutYield(const wxTimeSpan &timeout);
     void WaitNoCancel();
-    void WaitNoCancel(const wxTimeSpan &timeout);
     bool TryWait();
     int Count();
 
