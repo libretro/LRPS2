@@ -65,36 +65,20 @@ public:
     wxString ToString() const { return GetPath(); }
 
     // ------------------------------------------------------------------------
-    bool IsWritable() const { return IsDirWritable(); }
-    bool IsReadable() const { return IsDirReadable(); }
     bool Exists() const { return DirExists(); }
-    bool FileExists() const { return wxFileName::FileExists(); }
-    bool IsOk() const { return wxFileName::IsOk(); }
-    bool IsAbsolute() const { return wxFileName::IsAbsolute(); }
-
-    bool SameAs(const wxDirName &filepath) const
-    {
-        return wxFileName::SameAs(filepath);
-    }
-
-    // Returns the number of sub folders in this directory path
-    size_t GetCount() const { return GetDirCount(); }
 
     // ------------------------------------------------------------------------
     wxFileName Combine(const wxFileName &right) const;
     wxDirName Combine(const wxDirName &right) const;
 
     // removes the lastmost directory from the path
-    void RemoveLast() { wxFileName::RemoveDir(GetCount() - 1); }
+    void RemoveLast() { wxFileName::RemoveDir(GetDirCount() - 1); }
 
     wxDirName &Normalize(int flags = wxPATH_NORM_ALL, const wxString &cwd = wxEmptyString);
     wxDirName &MakeRelativeTo(const wxString &pathBase = wxEmptyString);
     wxDirName &MakeAbsolute(const wxString &cwd = wxEmptyString);
 
     // ------------------------------------------------------------------------
-
-    void AssignCwd(const wxString &volume = wxEmptyString) { wxFileName::AssignCwd(volume); }
-    bool SetCwd() { return wxFileName::SetCwd(); }
 
     // wxWidgets is missing the const qualifier for this one!  Shame!
     void Rmdir();
@@ -132,9 +116,6 @@ public:
     // compare with a filename string interpreted as a native file name
     bool operator==(const wxString &filename) const { return SameAs(wxDirName(filename)); }
     bool operator!=(const wxString &filename) const { return !SameAs(wxDirName(filename)); }
-
-    const wxFileName &GetFilename() const { return *this; }
-    wxFileName &GetFilename() { return *this; }
 };
 
 // --------------------------------------------------------------------------------------
