@@ -199,10 +199,6 @@ void *MmapReservePtr(void *base, size_t size);
 bool MmapCommitPtr(void *base, size_t size, const PageProtectionMode &mode);
 void MmapResetPtr(void *base, size_t size);
 
-// Maps a block of memory for use as a recompiled code buffer.
-// Returns NULL on allocation failure.
-extern void *Mmap(uptr base, size_t size);
-
 // Unmaps a block allocated by SysMmap
 extern void Munmap(uptr base, size_t size);
 
@@ -216,7 +212,3 @@ void MemProtectStatic(u8 (&arr)[size], const PageProtectionMode &mode)
     MemProtect(arr, size, mode);
 }
 }
-
-// Safe version of Munmap -- NULLs the pointer variable immediately after free'ing it.
-#define SafeSysMunmap(ptr, size) \
-    ((void)(HostSys::Munmap((uptr)(ptr), size), (ptr) = NULL))

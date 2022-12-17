@@ -47,7 +47,7 @@ long __stdcall SysPageFaultExceptionFilter(EXCEPTION_POINTERS *eps)
     }
 }
 
-void _platform_InstallSignalHandler()
+void _platform_InstallSignalHandler(void)
 {
 #ifdef _WIN64 // We don't handle SEH properly on Win64 so use a vectored exception handler instead
     AddVectoredExceptionHandler(true, SysPageFaultExceptionFilter);
@@ -96,7 +96,6 @@ void HostSys::MmapResetPtr(void *base, size_t size)
     VirtualFree(base, size, MEM_DECOMMIT);
 }
 
-
 void *HostSys::MmapReserve(uptr base, size_t size)
 {
     return MmapReservePtr((void *)base, size);
@@ -110,12 +109,6 @@ bool HostSys::MmapCommit(uptr base, size_t size, const PageProtectionMode &mode)
 void HostSys::MmapReset(uptr base, size_t size)
 {
     MmapResetPtr((void *)base, size);
-}
-
-
-void *HostSys::Mmap(uptr base, size_t size)
-{
-    return VirtualAlloc((void *)base, size, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 }
 
 void HostSys::Munmap(uptr base, size_t size)

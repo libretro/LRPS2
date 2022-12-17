@@ -23,10 +23,6 @@
 #include <pthread_np.h>
 #endif
 
-// We wont need this until we actually have this more then just stubbed out, so I'm commenting this out
-// to remove an unneeded dependency.
-//#include "x86emitter/tools.h"
-
 #if !defined(__unix__)
 
 #pragma message("LnxThreads.cpp should only be compiled by projects or makefiles targeted at Linux/BSD distros.")

@@ -74,6 +74,10 @@ static size_t pageAlign(size_t size)
 //  VirtualMemoryManager  (implementations)
 // --------------------------------------------------------------------------------------
 
+// Safe version of Munmap -- NULLs the pointer variable immediately after free'ing it.
+#define SafeSysMunmap(ptr, size) \
+    ((void)(HostSys::Munmap((uptr)(ptr), size), (ptr) = NULL))
+
 VirtualMemoryManager::VirtualMemoryManager(uptr base, size_t size, uptr upper_bounds, bool strict)
     : m_baseptr(0), m_pageuse(nullptr), m_pages_reserved(0)
 {

@@ -17,11 +17,8 @@
 #include "../PrecompiledHeader.h"
 #include "PageFaultSource.h"
 
-#include <wx/thread.h>
-
 #include <sys/mman.h>
 #include <signal.h>
-#include <errno.h>
 #include <unistd.h>
 
 // Apple uses the MAP_ANON define instead of MAP_ANONYMOUS, but they mean
@@ -29,8 +26,6 @@
 #if defined(__APPLE__) && !defined(MAP_ANONYMOUS)
 #define MAP_ANONYMOUS MAP_ANON
 #endif
-
-extern void SignalExit(int sig);
 
 static const uptr m_pagemask = getpagesize() - 1;
 
@@ -151,12 +146,6 @@ bool HostSys::MmapCommit(uptr base, size_t size, const PageProtectionMode &mode)
 void HostSys::MmapReset(uptr base, size_t size)
 {
     MmapResetPtr((void *)base, size);
-}
-
-void *HostSys::Mmap(uptr base, size_t size)
-{
-    // MAP_ANONYMOUS - means we have no associated file handle (or device).
-    return mmap((void *)base, size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 }
 
 void HostSys::Munmap(uptr base, size_t size)
