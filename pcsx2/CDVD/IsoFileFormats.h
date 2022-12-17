@@ -79,7 +79,6 @@ public:
 		return m_filename;
 	}
 
-	bool Test(const wxString& srcfile);
 	bool Open(const wxString& srcfile, bool testOnly = false);
 	void Close();
 	bool Detect(bool readType = true);

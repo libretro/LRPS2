@@ -30,7 +30,7 @@
 struct CsoHeader;
 typedef struct z_stream_s z_stream;
 
-static const uint CSO_CHUNKCACHE_SIZE_MB = 200;
+#define CSO_CHUNKCACHE_SIZE_MB 200
 
 class CsoFileReader : public AsyncFileReader
 {

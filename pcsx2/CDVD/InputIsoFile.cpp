@@ -58,21 +58,15 @@ void InputIsoFile::BeginRead2(uint lsn)
 		return;
 	}
 
+	// Already buffered
 	if (lsn >= m_read_lsn && lsn < (m_read_lsn + m_read_count))
-	{
-		// Already buffered
 		return;
-	}
 
 	m_read_lsn = lsn;
 	m_read_count = 1;
 
 	if (ReadUnit > 1)
-	{
-		//m_read_lsn   = lsn - (lsn % ReadUnit);
-
 		m_read_count = std::min(ReadUnit, m_blocks - m_read_lsn);
-	}
 
 	m_reader->BeginRead(m_readbuffer, m_read_lsn, m_read_count);
 	m_read_inprogress = true;
@@ -177,21 +171,6 @@ void InputIsoFile::_init()
 	m_current_lsn = -1;
 	m_read_lsn = -1;
 	m_reader = NULL;
-}
-
-// Tests the specified filename to see if it is a supported ISO type.  This function typically
-// executes faster than IsoFile::Open since it does not do the following:
-//  * check for multi-part ISOs.  I tests for header info in the main/root ISO only.
-//  * load blockdump indexes.
-//
-// Note that this is a member method, and that it will clobber any existing ISO state.
-// (assertions are generated in debug mode if the object state is not already closed).
-bool InputIsoFile::Test(const wxString& srcfile)
-{
-	Close();
-	m_filename = srcfile;
-
-	return Open(srcfile, true);
 }
 
 bool InputIsoFile::Open(const wxString& srcfile, bool testOnly)

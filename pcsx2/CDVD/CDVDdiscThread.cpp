@@ -49,8 +49,8 @@ static std::atomic<bool> cdvd_is_open;
 //bits: 12 would use 1<<12 entries, or 4096*16 sectors ~ 128MB
 #define CACHE_SIZE 12
 
-const u32 CacheSize = 1U << CACHE_SIZE;
-SectorInfo Cache[CacheSize];
+static const u32 CacheSize = 1U << CACHE_SIZE;
+static SectorInfo Cache[CacheSize];
 
 static u32 cdvdSectorHash(u32 lsn)
 {

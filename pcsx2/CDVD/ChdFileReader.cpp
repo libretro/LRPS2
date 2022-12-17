@@ -5,12 +5,10 @@
 
 #include <wx/dir.h>
 
-
 bool ChdFileReader::CanHandle(const wxString &fileName)
 {
-    if (!wxFileName::FileExists(fileName) || !fileName.Lower().EndsWith(L".chd")) {
+    if (!wxFileName::FileExists(fileName) || !fileName.Lower().EndsWith(L".chd"))
         return false;
-    }
     return true;
 }
 
