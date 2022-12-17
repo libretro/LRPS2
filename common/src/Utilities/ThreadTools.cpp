@@ -112,18 +112,6 @@ Threading::pxThread::~pxThread()
     DESTRUCTOR_CATCHALL
 }
 
-bool Threading::pxThread::AffinityAssert_AllowFromSelf(const DiagnosticOrigin &origin) const
-{
-    return IsSelf();
-}
-
-bool Threading::pxThread::AffinityAssert_DisallowFromSelf(const DiagnosticOrigin &origin) const
-{
-    if (!IsSelf())
-        return true;
-    return false;
-}
-
 void Threading::pxThread::FrankenMutex(Mutex &mutex)
 {
     if (mutex.RecreateIfLocked()) {
@@ -192,8 +180,6 @@ void Threading::pxThread::Start()
 // This function should not be called from the owner thread.
 bool Threading::pxThread::Detach()
 {
-    AffinityAssert_DisallowFromSelf(pxDiagSpot);
-
     if (m_detached.exchange(true))
         return false;
     pthread_detach(m_thread);
@@ -228,8 +214,6 @@ bool Threading::pxThread::_basecancel()
 //
 void Threading::pxThread::Cancel(bool isBlocking)
 {
-    AffinityAssert_DisallowFromSelf(pxDiagSpot);
-
     // Prevent simultaneous startup and cancel, necessary to avoid
     ScopedLock startlock(m_mtx_start);
 
@@ -244,8 +228,6 @@ void Threading::pxThread::Cancel(bool isBlocking)
 
 bool Threading::pxThread::Cancel(const wxTimeSpan &timespan)
 {
-    AffinityAssert_DisallowFromSelf(pxDiagSpot);
-
     // Prevent simultaneous startup and cancel:
     ScopedLock startlock(m_mtx_start);
 
@@ -297,7 +279,7 @@ void Threading::pxThread::RethrowException() const
 //
 void Threading::pxThread::WaitOnSelf(Semaphore &sem) const
 {
-    if (!AffinityAssert_DisallowFromSelf(pxDiagSpot))
+    if (IsSelf())
         return;
 
     while (true) {
@@ -323,7 +305,7 @@ void Threading::pxThread::WaitOnSelf(Semaphore &sem) const
 //
 void Threading::pxThread::WaitOnSelf(Mutex &mutex) const
 {
-    if (!AffinityAssert_DisallowFromSelf(pxDiagSpot))
+    if (IsSelf())
         return;
 
     while (true) {
@@ -338,7 +320,7 @@ static const wxTimeSpan SelfWaitInterval(0, 0, 0, 333);
 
 bool Threading::pxThread::WaitOnSelf(Semaphore &sem, const wxTimeSpan &timeout) const
 {
-    if (!AffinityAssert_DisallowFromSelf(pxDiagSpot))
+    if (IsSelf())
         return true;
 
     wxTimeSpan runningout(timeout);
@@ -356,7 +338,7 @@ bool Threading::pxThread::WaitOnSelf(Semaphore &sem, const wxTimeSpan &timeout) 
 
 bool Threading::pxThread::WaitOnSelf(Mutex &mutex, const wxTimeSpan &timeout) const
 {
-    if (!AffinityAssert_DisallowFromSelf(pxDiagSpot))
+    if (IsSelf())
         return true;
 
     wxTimeSpan runningout(timeout);
@@ -378,7 +360,6 @@ bool Threading::pxThread::WaitOnSelf(Mutex &mutex, const wxTimeSpan &timeout) co
 // and cleanup, or use the DoThreadCleanup() override to perform resource cleanup).
 void Threading::pxThread::TestCancel() const
 {
-    AffinityAssert_AllowFromSelf(pxDiagSpot);
     pthread_testcancel();
 }
 
@@ -415,7 +396,6 @@ void Threading::pxThread::_try_virtual_invoke(void (pxThread::*method)())
 // OnCleanupInThread() to extend cleanup functionality.
 void Threading::pxThread::_ThreadCleanup()
 {
-    AffinityAssert_AllowFromSelf(pxDiagSpot);
     _try_virtual_invoke(&pxThread::OnCleanupInThread);
     m_mtx_InThread.Release();
 

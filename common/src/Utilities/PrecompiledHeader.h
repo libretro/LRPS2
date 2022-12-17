@@ -20,7 +20,6 @@
 
 #include "Dependencies.h"
 
-#include "Assertions.h"
 #include "MemcpyFast.h"
 #include "Exceptions.h"
 #include "SafeArray.h"

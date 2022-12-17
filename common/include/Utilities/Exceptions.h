@@ -15,7 +15,6 @@
 
 #pragma once
 
-#include "Assertions.h"
 #include "StringHelpers.h"
 #include <memory>
 
@@ -55,7 +54,11 @@ void pxTrap(void);
         /* Unreachable code */                                                     \
     }
 
-#define DESTRUCTOR_CATCHALL __DESTRUCTOR_CATCHALL(__pxFUNCTION__)
+#if defined(__GNUG__)
+#define DESTRUCTOR_CATCHALL __DESTRUCTOR_CATCHALL(__PRETTY_FUNCTION__)
+#else
+#define DESTRUCTOR_CATCHALL __DESTRUCTOR_CATCHALL(__FUNCTION__)
+#endif
 
 namespace Exception
 {

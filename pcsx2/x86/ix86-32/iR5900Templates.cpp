@@ -350,8 +350,6 @@ void eeRecompileCode2(R5900FNPTR constcode, R5900FNPTR_INFO noconstcode)
 // rt op rs
 void eeRecompileCode3(R5900FNPTR constcode, R5900FNPTR_INFO multicode)
 {
-	//pxFail( "Unfinished code reached." );
-
 	// for now, don't support xmm
 	_deleteEEreg(_Rs_, 0);
 	_deleteEEreg(_Rt_, 1);
@@ -453,8 +451,6 @@ void eeRecompileCodeConst2(R5900FNPTR constcode, R5900FNPTR_INFO noconstcode)
 // rd = rt MULT rs  (SPECIAL)
 void eeRecompileCodeConstSPECIAL(R5900FNPTR constcode, R5900FNPTR_INFO multicode, int MULT)
 {
-	//pxFail( "Unfinished code reached." );
-
 	// for now, don't support xmm
 	if( MULT ) {
 		_deleteGPRtoXMMreg(_Rd_, 0);

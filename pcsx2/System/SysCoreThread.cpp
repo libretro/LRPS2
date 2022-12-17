@@ -281,7 +281,6 @@ void SysCoreThread::_reset_stuff_as_needed()
 
 void SysCoreThread::DoCpuReset()
 {
-	AffinityAssert_AllowFromSelf(pxDiagSpot);
 	cpuReset();
 }
 

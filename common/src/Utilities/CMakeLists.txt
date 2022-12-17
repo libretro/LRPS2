@@ -38,7 +38,6 @@ set(UtilitiesFinalFlags ${CommonFlags})
 
 # variable with all headers of this library
 set(UtilitiesHeaders
-	../../include/Utilities/Assertions.h
 	../../include/Utilities/boost_spsc_queue.hpp
 	../../include/Utilities/Dependencies.h
 	../../include/Utilities/EventSource.h

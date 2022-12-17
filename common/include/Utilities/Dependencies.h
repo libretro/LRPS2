@@ -159,6 +159,5 @@ static const s64 _4gb = _1gb * 4;
 
 extern wxString fromUTF8(const char *src);
 
-#include "Utilities/Assertions.h"
 #include "Utilities/Exceptions.h"
 #include "Utilities/ScopedAlloc.h"

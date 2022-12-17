@@ -139,9 +139,6 @@ protected:
 
     void FrankenMutex(Mutex &mutex);
 
-    bool AffinityAssert_AllowFromSelf(const DiagnosticOrigin &origin) const;
-    bool AffinityAssert_DisallowFromSelf(const DiagnosticOrigin &origin) const;
-
     // ----------------------------------------------------------------------------
     // Section of methods for internal use only.
     bool _basecancel();

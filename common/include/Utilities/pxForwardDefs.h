@@ -28,10 +28,6 @@ class wxInputStream;
 class wxFileInputStream;
 class wxFFileInputStream;
 
-class wxPoint;
-class wxRect;
-class wxSize;
-
 class pxInputStream;
 
 namespace Threading

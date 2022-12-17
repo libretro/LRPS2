@@ -228,7 +228,6 @@ BaseException *Exception::FromErrno(const wxString &streamname, int errcode)
     switch (errcode)
     {
 	    case EINVAL:
-		    //pxFailDev(L"Invalid argument");
 		    return &(new Exception::BadStream(streamname))->SetDiagMsg(L"Invalid argument? (likely caused by an unforgivable programmer error!)");
 
 	    case EACCES: // Access denied!
