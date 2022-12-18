@@ -241,17 +241,6 @@ bool InputIsoFile::Open(const wxString& srcfile, bool testOnly)
 
 	m_blocks = m_reader->GetBlockCount();
 
-	log_cb(RETRO_LOG_INFO, "isoFile open ok: %s\n", WX_STR(m_filename));
-
-	log_cb(RETRO_LOG_INFO, "Image type  = %s\n", nameFromType(m_type));
-#ifndef NDEBUG
-	//log_cb(RETRO_LOG_INFO, "Fileparts   = %u\n", m_numparts); // Pointless print, it's 1 unless it says otherwise above
-	log_cb(RETRO_LOG_DEBUG, "blocks      = %u\n", m_blocks);
-	log_cb(RETRO_LOG_DEBUG, "offset      = %d\n", m_offset);
-	log_cb(RETRO_LOG_DEBUG, "blocksize   = %u\n", m_blocksize);
-	log_cb(RETRO_LOG_DEBUG, "blockoffset = %d\n", m_blockofs);
-#endif
-
 	return true;
 }
 

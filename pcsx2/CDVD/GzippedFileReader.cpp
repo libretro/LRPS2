@@ -99,16 +99,6 @@ static void WriteIndexToFile(Access* index, const wxString filename)
 
 	outfile.write((char*)index->list, sizeof(Point) * index->have);
 	outfile.close();
-
-	// Verify
-	if (fsize(filename) != (s64)GZIP_ID_LEN + sizeof(Access) + sizeof(Point) * index->have)
-	{
-		log_cb(RETRO_LOG_WARN, "Warning: Can't write index file to disk: '%s'\n", WX_STR(filename));
-	}
-	else
-	{
-		log_cb(RETRO_LOG_INFO, "OK: Gzip quick access index file saved to disk: '%s'\n", WX_STR(filename));
-	}
 }
 
 static wxString INDEX_TEMPLATE_KEY(L"$(f)");
@@ -155,10 +145,8 @@ wxString GetExecutablePath();
 
 static wxString iso2indexname(const wxString& isoname)
 {
-	//testTemplate(isoname);
 	wxDirName appRoot = // TODO: have only one of this in PCSX2. Right now have few...
 		(wxDirName)(wxFileName(GetExecutablePath()).GetPath());
-	//TestTemplate(appRoot, isoname, false);
 	return ApplyTemplate(L"gzip index", appRoot, g_Conf->GzipIsoIndexTemplate, isoname, false);
 }
 
@@ -288,15 +276,6 @@ bool GzippedFileReader::OkIndex()
 	if (wxFileName::FileExists(indexfile) && (m_pIndex = ReadIndexFromFile(indexfile)))
 	{
 		log_cb(RETRO_LOG_INFO, "OK: Gzip quick access index read from disk: '%s'\n", WX_STR(indexfile));
-#ifndef NDEBUG
-		if (m_pIndex->span != GZFILE_SPAN_DEFAULT)
-		{
-			log_cb(RETRO_LOG_WARN, "Note: This index has %1.1f MB intervals, while the current default for new indexes is %1.1f MB.\n",
-							(float)m_pIndex->span / 1024 / 1024, (float)GZFILE_SPAN_DEFAULT / 1024 / 1024);
-			log_cb(RETRO_LOG_WARN, "It will work fine, but if you want to generate a new index with default intervals, delete this index file.\n");
-			log_cb(RETRO_LOG_WARN, "(smaller intervals mean bigger index file and quicker but more frequent decompressions)\n");
-		}
-#endif
 		InitZstates();
 		return true;
 	}
@@ -362,12 +341,7 @@ int GzippedFileReader::ReadSync(void* pBuffer, uint sector, uint count)
 {
 	PX_off_t offset = (s64)sector * m_blocksize + m_dataoffset;
 	int bytesToRead = count * m_blocksize;
-	int res = _ReadSync(pBuffer, offset, bytesToRead);
-#ifndef NDEBUG
-	if (res < 0)
-		log_cb(RETRO_LOG_ERROR, "Error: iso-gzip read unsuccessful.\n");
-#endif
-	return res;
+	return _ReadSync(pBuffer, offset, bytesToRead);
 }
 
 // If we have a valid and adequate zstate for this span, use it, else, use the index
@@ -465,16 +439,6 @@ int GzippedFileReader::_ReadSync(void* pBuffer, PX_off_t offset, uint bytesToRea
 		}
 		free(extracted);
 	}
-
-	int duration = NOW() - s;
-#ifndef NDEBUG
-	if (duration > 10)
-		log_cb(RETRO_LOG_INFO, "gunzip: chunk #%5d-%2d : %1.2f MB - %d ms\n",
-						(int)(offset / 4 / 1024 / 1024),
-						(int)(offset % (4 * 1024 * 1024) / GZFILE_READ_CHUNK_SIZE),
-						(float)size / 1024 / 1024,
-						duration);
-#endif
 
 	return copied;
 }

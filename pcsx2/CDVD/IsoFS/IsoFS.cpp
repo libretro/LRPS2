@@ -48,24 +48,15 @@ IsoDirectory::IsoDirectory(SectorSource& r)
 			switch (sector[0])
 			{
 				case 0:
-#ifndef NDEBUG
-					log_cb(RETRO_LOG_DEBUG, "(IsoFS) Block 0x%x: Boot partition info.\n", i);
-#endif
 					break;
 
 				case 1:
-#ifndef NDEBUG
-					log_cb(RETRO_LOG_DEBUG, "(IsoFS) Block 0x%x: Primary partition info.\n", i);
-#endif
 					rootDirEntry.Load(sector + 156, 38);
 					isValid = true;
 					break;
 
 				case 2:
 					// Probably means Joliet (long filenames support), which PCSX2 doesn't care about.
-#ifndef NDEBUG
-					log_cb(RETRO_LOG_DEBUG, "(IsoFS) Block 0x%x: Extended partition info.\n", i);
-#endif
 					m_fstype = FStype_Joliet;
 					break;
 

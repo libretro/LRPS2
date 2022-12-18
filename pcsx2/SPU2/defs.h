@@ -19,6 +19,12 @@
 #include "SndOut.h"
 #include "Global.h"
 
+#ifdef __GNUC__
+#ifndef __forceinline
+#define __forceinline __inline__ __attribute__((always_inline,unused))
+#endif
+#endif
+
 // --------------------------------------------------------------------------------------
 //  SPU2 Memory Indexers
 // --------------------------------------------------------------------------------------
@@ -517,9 +523,3 @@ struct PcmCacheEntry
 };
 
 extern PcmCacheEntry* pcm_cache_data;
-
-#ifdef __GNUC__
-#ifndef __forceinline
-#define __forceinline __inline__ __attribute__((always_inline,unused))
-#endif
-#endif
