@@ -60,22 +60,13 @@ static __forceinline s32 MulShr32(s32 srcval, s32 mulval)
 	return (s64)srcval * mulval >> 32;
 }
 
-__forceinline s32 clamp_mix(s32 x, u8 bitshift)
+s32 clamp_mix(s32 x, u8 bitshift)
 {
 	return GetClamped(x, -(0x8000 << bitshift), 0x7fff << bitshift);
 }
 
-#if _MSC_VER
-__forceinline
-// Without the keyword static, gcc compilation fails on the inlining...
-// Unfortunately the function is also used in Reverb.cpp. In order to keep the code
-// clean we just disable it.
-// We will need link-time code generation / Whole Program optimization to do a clean
-// inline. Gcc 4.5 has the experimental options -flto, -fwhopr and -fwhole-program to
-// do it but it still experimental...
-#endif
-	StereoOut32
-	clamp_mix(const StereoOut32& sample, u8 bitshift)
+StereoOut32
+clamp_mix(const StereoOut32& sample, u8 bitshift)
 {
 	// We should clampify between -0x8000 and 0x7fff, however some audio output
 	// modules or sound drivers could (will :p) overshoot with that. So giving it a small safety.
@@ -623,13 +614,7 @@ StereoOut32 V_Core::Mix(const VoiceMixSet& inVoices, const StereoOut32& Input, c
 	return TD + ApplyVolume(RV, FxVol);
 }
 
-// Gcc does not want to inline it when lto is enabled because some functions grow too much.
-// The function is big enough to see any speed impact. -- Gregory
-#ifndef __POSIX__
-__forceinline
-#endif
-	void
-	Mix()
+void SPU2_Mix(void)
 {
 	// Note: Playmode 4 is SPDIF, which overrides other inputs.
 	StereoOut32 InputData[2] =
@@ -653,9 +638,7 @@ __forceinline
 	if ((PlayMode & 4) || (Cores[0].Mute != 0))
 		Ext = StereoOut32(0, 0);
 	else
-	{
 		Ext = clamp_mix(ApplyVolume(Ext, Cores[0].MasterVol));
-	}
 
 	// Commit Core 0 output to ram before mixing Core 1:
 	spu2M_WriteFast(0x800 + OutPos, Ext.Left);

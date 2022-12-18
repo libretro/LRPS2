@@ -335,7 +335,7 @@ __forceinline void TimeUpdate(u32 cClocks)
 		lClocks += TickInterval;
 		Cycles++;
 
-		Mix();
+		SPU2_Mix();
 	}
 }
 
