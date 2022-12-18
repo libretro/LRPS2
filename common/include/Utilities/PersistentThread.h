@@ -16,7 +16,6 @@
 #pragma once
 
 #include "Threading.h"
-#include "ScopedPtrMT.h"
 #include "EventSource.h"
 
 namespace Threading
@@ -92,10 +91,6 @@ protected:
     std::atomic<bool> m_detached; // a boolean value which indicates if the m_thread handle is valid
     std::atomic<bool> m_running;  // set true by Start(), and set false by Cancel(), Block(), etc.
 
-    // exception handle, set non-NULL if the thread terminated with an exception
-    // Use RethrowException() to re-throw the exception using its original exception type.
-    ScopedPtrMT<BaseException> m_except;
-
     EventSource<EventListener_Thread> m_evtsrc_OnDelete;
 
 
@@ -107,7 +102,6 @@ public:
     virtual void Cancel(bool isBlocking = true);
     virtual bool Cancel(const wxTimeSpan &timeout);
     virtual bool Detach();
-    virtual void RethrowException() const;
 
     void WaitOnSelf(Semaphore &mutex) const;
     void WaitOnSelf(Mutex &mutex) const;
@@ -116,7 +110,6 @@ public:
 
     bool IsRunning() const;
     bool IsSelf() const;
-    bool HasPendingException() const { return !!m_except; }
 
     wxString GetName() const;
 

@@ -137,8 +137,6 @@ void Threading::pxThread::Start()
     Detach(); // clean up previous thread handle, if one exists.
     OnStart();
 
-    m_except = NULL;
-
     if (pthread_create(&m_thread, NULL, _internal_callback, this) != 0)
         throw Exception::ThreadCreationError(this).SetDiagMsg(L"Thread creation error: " + wxString(std::strerror(errno)));
 
@@ -152,9 +150,8 @@ void Threading::pxThread::Start()
             throw Exception::ThreadCreationError(this).SetDiagMsg(L"Thread creation error: %s thread never posted startup semaphore.");
     }
 #else
-    if (!m_sem_startup.WaitWithoutYield(wxTimeSpan(0, 0, 3, 0))) {
-        RethrowException();
-
+    if (!m_sem_startup.WaitWithoutYield(wxTimeSpan(0, 0, 3, 0)))
+    {
         // And if the thread threw nothing of its own:
         throw Exception::ThreadCreationError(this).SetDiagMsg(L"Thread creation error: %s thread never posted startup semaphore.");
     }
@@ -252,20 +249,6 @@ bool Threading::pxThread::IsRunning() const
     return m_running;
 }
 
-// Throws an exception if the thread encountered one.  Uses the BaseException's Rethrow() method,
-// which ensures the exception type remains consistent.  Debuggable stacktraces will be lost, since
-// the thread will have allowed itself to terminate properly.
-void Threading::pxThread::RethrowException() const
-{
-    // Thread safety note: always detach the m_except pointer.  If we checked it for NULL, the
-    // pointer might still be invalid after detachment, so might as well just detach and check
-    // after.
-
-    ScopedExcept ptr(const_cast<pxThread *>(this)->m_except.DetachPtr());
-    if (ptr)
-        ptr->Rethrow();
-}
-
 // This helper function is a deadlock-safe method of waiting on a semaphore in a pxThread.  If the
 // thread is terminated or canceled by another thread or a nested action prior to the semaphore being
 // posted, this function will detect that and throw a CancelEvent exception is thrown.
@@ -282,11 +265,10 @@ void Threading::pxThread::WaitOnSelf(Semaphore &sem) const
     if (IsSelf())
         return;
 
-    while (true) {
+    for (;;)
+    {
         if (sem.WaitWithoutYield(wxTimeSpan(0, 0, 0, 333)))
             return;
-	if (HasPendingException())
-		RethrowException();
     }
 }
 
@@ -308,11 +290,9 @@ void Threading::pxThread::WaitOnSelf(Mutex &mutex) const
     if (IsSelf())
         return;
 
-    while (true) {
+    for (;;) {
         if (mutex.WaitWithoutYield(wxTimeSpan(0, 0, 0, 333)))
             return;
-	if (HasPendingException())
-		RethrowException();
     }
 }
 
@@ -329,8 +309,6 @@ bool Threading::pxThread::WaitOnSelf(Semaphore &sem, const wxTimeSpan &timeout) 
         const wxTimeSpan interval((SelfWaitInterval < runningout) ? SelfWaitInterval : runningout);
         if (sem.WaitWithoutYield(interval))
             return true;
-	if (HasPendingException())
-		RethrowException();
         runningout -= interval;
     }
     return false;
@@ -347,8 +325,6 @@ bool Threading::pxThread::WaitOnSelf(Mutex &mutex, const wxTimeSpan &timeout) co
         const wxTimeSpan interval((SelfWaitInterval < runningout) ? SelfWaitInterval : runningout);
         if (mutex.WaitWithoutYield(interval))
             return true;
-	if (HasPendingException())
-		RethrowException();
         runningout -= interval;
     }
     return false;
@@ -373,23 +349,13 @@ void Threading::pxThread::_try_virtual_invoke(void (pxThread::*method)())
     // ----------------------------------------------------------------------------
     // Neat repackaging for STL Runtime errors...
     //
-    catch (std::runtime_error &ex) {
-        m_except = new Exception::RuntimeError(ex, WX_STR(GetName()));
-    }
-
+    catch (std::runtime_error &ex) { }
     // ----------------------------------------------------------------------------
     catch (Exception::RuntimeError &ex) {
-        BaseException *woot = ex.Clone();
-        woot->DiagMsg() += pxsFmt(L"(thread:%s)", WX_STR(GetName()));
-        m_except = woot;
     }
     // BaseException --  same deal as LogicErrors.
     //
-    catch (BaseException &ex) {
-        BaseException *woot = ex.Clone();
-        woot->DiagMsg() += pxsFmt(L"(thread:%s)", WX_STR(GetName()));
-        m_except = woot;
-    }
+    catch (BaseException &ex) { }
 }
 
 // invoked internally when canceling or exiting the thread.  Extending classes should implement

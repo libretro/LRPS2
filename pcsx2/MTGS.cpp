@@ -467,11 +467,9 @@ void SysMtgsThread::WaitGS(bool syncRegs, bool weakWait, bool isMTVU)
 
 	if (isMTVU || m_ReadPos.load(std::memory_order_relaxed) != m_WritePos.load(std::memory_order_relaxed)) {
 		SetEvent();
-		RethrowException();
 		for(;;) {
 			if (weakWait) m_mtx_RingBufferBusy2.Wait();
 			else          m_mtx_RingBufferBusy .Wait();
-			RethrowException();
 			if(!isMTVU && m_ReadPos.load(std::memory_order_relaxed) == m_WritePos.load(std::memory_order_relaxed)) break;
 			u32 curP1Packs = weakWait ? path.mtvu.gsPackQueue.size() : 0;
 			if (weakWait && ((startP1Packs-curP1Packs) || !curP1Packs)) break;
@@ -670,14 +668,7 @@ void SysMtgsThread::WaitForOpen()
 	// GS plugin can be very stubborned, especially in debug mode builds).
 
 	if( !m_sem_OpenDone.Wait( wxTimeSpan(0, 0, 2, 0) ) )
-	{
-		RethrowException();
-
-		if( !m_sem_OpenDone.Wait( wxTimeSpan(0, 0, 12, 0) ) )
-			RethrowException();
-	}
-
-	RethrowException();
+		m_sem_OpenDone.Wait( wxTimeSpan(0, 0, 12, 0) );
 }
 
 void SysMtgsThread::Freeze( int mode, MTGS_FreezeData& data )

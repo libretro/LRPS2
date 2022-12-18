@@ -247,9 +247,6 @@ public:
 	virtual void Resume();
 	virtual void Pause();
 	virtual void Cancel(bool isBlocking = true) { m_running = false; }
-	virtual void RethrowException() const {}
-
-	bool HasPendingException() const { return false; }
 
 protected:
 	virtual void OnStart();

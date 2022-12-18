@@ -241,7 +241,7 @@ void SysCoreThread::UploadStateCopy(const VmStateBuffer& copy)
 // --------------------------------------------------------------------------------------
 bool SysCoreThread::HasPendingStateChangeRequest() const
 {
-	return !m_hasActiveMachine || GetMTGS().HasPendingException() || _parent::HasPendingStateChangeRequest();
+	return !m_hasActiveMachine || _parent::HasPendingStateChangeRequest();
 }
 
 void SysCoreThread::_reset_stuff_as_needed()
@@ -296,7 +296,6 @@ void SysCoreThread::GameStartingInThread()
 
 bool SysCoreThread::StateCheckInThread()
 {
-	GetMTGS().RethrowException();
 	return _parent::StateCheckInThread() && (_reset_stuff_as_needed(), true);
 }
 

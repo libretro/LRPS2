@@ -54,7 +54,6 @@ set(UtilitiesHeaders
 	../../include/Utilities/RedtapeWindows.h
 	../../include/Utilities/SafeArray.h
 	../../include/Utilities/ScopedAlloc.h
-	../../include/Utilities/ScopedPtrMT.h
 	../../include/Utilities/StringHelpers.h
 	../../include/Utilities/Threading.h
 	../../include/Utilities/wxAppWithHelpers.h
