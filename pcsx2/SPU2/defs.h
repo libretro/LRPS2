@@ -517,3 +517,9 @@ struct PcmCacheEntry
 };
 
 extern PcmCacheEntry* pcm_cache_data;
+
+#ifdef __GNUC__
+#ifndef __forceinline
+#define __forceinline __inline__ __attribute__((always_inline,unused))
+#endif
+#endif
