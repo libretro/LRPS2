@@ -100,15 +100,6 @@ static bool _memprotect(void *baseaddr, size_t size, const PageProtectionMode &m
     return (mprotect(baseaddr, size, lnxmode) == 0);
 }
 
-void *HostSys::MmapReservePtr(void *base, size_t size)
-{
-    // On linux a reserve-without-commit is performed by using mmap on a read-only
-    // or anonymous source, with PROT_NONE (no-access) permission.  Since the mapping
-    // is completely inaccessible, the OS will simply reserve it and will not put it
-    // against the commit table.
-    return mmap(base, size, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-}
-
 bool HostSys::MmapCommitPtr(void *base, size_t size, const PageProtectionMode &mode)
 {
     // In linux, reserved memory is automatically committed when its permissions are
@@ -135,17 +126,11 @@ void HostSys::MmapResetPtr(void *base, size_t size)
 
 void *HostSys::MmapReserve(uptr base, size_t size)
 {
-    return MmapReservePtr((void *)base, size);
-}
-
-bool HostSys::MmapCommit(uptr base, size_t size, const PageProtectionMode &mode)
-{
-    return MmapCommitPtr((void *)base, size, mode);
-}
-
-void HostSys::MmapReset(uptr base, size_t size)
-{
-    MmapResetPtr((void *)base, size);
+    // On linux a reserve-without-commit is performed by using mmap on a read-only
+    // or anonymous source, with PROT_NONE (no-access) permission.  Since the mapping
+    // is completely inaccessible, the OS will simply reserve it and will not put it
+    // against the commit table.
+    return mmap((void*)base, size, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 }
 
 void HostSys::Munmap(uptr base, size_t size)

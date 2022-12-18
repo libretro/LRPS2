@@ -154,32 +154,27 @@ public:
     bool IsNone() const { return !m_read && !m_write; }
 };
 
-static __fi PageProtectionMode PageAccess_None()
+static __fi PageProtectionMode PageAccess_None(void)
 {
     return PageProtectionMode();
 }
 
-static __fi PageProtectionMode PageAccess_ReadOnly()
+static __fi PageProtectionMode PageAccess_ReadOnly(void)
 {
     return PageProtectionMode().Read();
 }
 
-static __fi PageProtectionMode PageAccess_WriteOnly()
-{
-    return PageProtectionMode().Write();
-}
-
-static __fi PageProtectionMode PageAccess_ReadWrite()
+static __fi PageProtectionMode PageAccess_ReadWrite(void)
 {
     return PageAccess_ReadOnly().Write();
 }
 
-static __fi PageProtectionMode PageAccess_ExecOnly()
+static __fi PageProtectionMode PageAccess_ExecOnly(void)
 {
     return PageAccess_ReadOnly().Execute();
 }
 
-static __fi PageProtectionMode PageAccess_Any()
+static __fi PageProtectionMode PageAccess_Any(void)
 {
     return PageProtectionMode().All();
 }
@@ -192,10 +187,7 @@ static __fi PageProtectionMode PageAccess_Any()
 namespace HostSys
 {
 void *MmapReserve(uptr base, size_t size);
-bool MmapCommit(uptr base, size_t size, const PageProtectionMode &mode);
-void MmapReset(uptr base, size_t size);
 
-void *MmapReservePtr(void *base, size_t size);
 bool MmapCommitPtr(void *base, size_t size, const PageProtectionMode &mode);
 void MmapResetPtr(void *base, size_t size);
 
@@ -211,4 +203,5 @@ void MemProtectStatic(u8 (&arr)[size], const PageProtectionMode &mode)
 {
     MemProtect(arr, size, mode);
 }
+
 }

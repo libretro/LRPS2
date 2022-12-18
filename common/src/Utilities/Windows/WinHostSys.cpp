@@ -69,11 +69,6 @@ static DWORD ConvertToWinApi(const PageProtectionMode &mode)
     return PAGE_NOACCESS;
 }
 
-void *HostSys::MmapReservePtr(void *base, size_t size)
-{
-    return VirtualAlloc(base, size, MEM_RESERVE, PAGE_NOACCESS);
-}
-
 bool HostSys::MmapCommitPtr(void *base, size_t size, const PageProtectionMode &mode)
 {
     void *result = VirtualAlloc(base, size, MEM_COMMIT, ConvertToWinApi(mode));
@@ -99,17 +94,7 @@ void HostSys::MmapResetPtr(void *base, size_t size)
 
 void *HostSys::MmapReserve(uptr base, size_t size)
 {
-    return MmapReservePtr((void *)base, size);
-}
-
-bool HostSys::MmapCommit(uptr base, size_t size, const PageProtectionMode &mode)
-{
-    return MmapCommitPtr((void *)base, size, mode);
-}
-
-void HostSys::MmapReset(uptr base, size_t size)
-{
-    MmapResetPtr((void *)base, size);
+    return VirtualAlloc((void*)base, size, MEM_RESERVE, PAGE_NOACCESS);
 }
 
 void HostSys::Munmap(uptr base, size_t size)
