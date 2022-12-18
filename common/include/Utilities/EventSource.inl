@@ -58,9 +58,7 @@ __fi void EventSource<ListenerType>::_DispatchRaw(ListenerIterator iter, const L
         try {
             (*iter)->DispatchEvent(evtparams);
         } catch (Exception::RuntimeError &ex) {
-		log_cb(RETRO_LOG_ERROR, "Ignoring runtime error thrown from event listener: %s\n", ex.FormatDiagnosticMessage().c_str());
         } catch (BaseException &ex) {
-            log_cb(RETRO_LOG_ERROR, "Ignoring non-runtime BaseException thrown from event listener: %s\n", ex.FormatDiagnosticMessage().c_str());
         }
         ++iter;
     }
