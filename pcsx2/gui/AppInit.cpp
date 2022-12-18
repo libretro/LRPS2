@@ -98,8 +98,7 @@ void Pcsx2App::CleanupOnExit(void)
 		// that we just don't care about by now, and just want to "get 'er done!" so
 		// we can exit the app. ;)
 
-		log_cb(RETRO_LOG_ERROR, "Runtime exception handled during CleanupOnExit:\n" );
-		log_cb(RETRO_LOG_ERROR, ex.FormatDiagnosticMessage() );
+		log_cb(RETRO_LOG_ERROR, "Runtime exception handled during CleanupOnExit.\n" );
 	}
 
 	// Notice: deleting the plugin manager (unloading plugins) here causes Lilypad to crash,

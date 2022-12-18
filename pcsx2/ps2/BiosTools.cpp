@@ -217,7 +217,6 @@ static void LoadExtraRom( const char *ext, u8 (&dest)[_size] )
 		// still work fine.
 
 		log_cb(RETRO_LOG_WARN, "BIOS Warning: %s could not be read (permission denied?)\n", ext);
-		log_cb(RETRO_LOG_INFO, "Details: %s\n", WX_STR(ex.FormatDiagnosticMessage()));
 		log_cb(RETRO_LOG_INFO, "File size: %llu\n", filesize);
 	}
 }
@@ -238,7 +237,6 @@ static void LoadIrx( const wxString& filename, u8* dest )
 	catch (Exception::BadStream& ex)
 	{
 		log_cb(RETRO_LOG_WARN, "IRX Warning: %s could not be read\n", WX_STR(filename));
-		log_cb(RETRO_LOG_INFO, "Details: %s\n", WX_STR(ex.FormatDiagnosticMessage()));
 	}
 }
 

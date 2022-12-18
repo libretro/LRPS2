@@ -44,7 +44,6 @@ class wxTimeSpan;
 namespace Threading
 {
 class pxThread;
-class RwMutex;
 }
 
 namespace Exception
@@ -76,8 +75,6 @@ public:
         m_message_diag = L"An unspecified thread-related error occurred (thread=%s)";
     }
 
-    virtual wxString FormatDiagnosticMessage() const;
-
     Threading::pxThread &Thread();
     const Threading::pxThread &Thread() const;
 };
@@ -90,13 +87,11 @@ public:
     explicit ThreadCreationError(Threading::pxThread *_thread)
     {
         m_thread = _thread;
-        SetBothMsgs(L"Thread creation failure.  An unspecified error occurred while trying to create the %s thread.");
     }
 
     explicit ThreadCreationError(Threading::pxThread &_thread)
     {
         m_thread = &_thread;
-        SetBothMsgs(L"Thread creation failure.  An unspecified error occurred while trying to create the %s thread.");
     }
 };
 }

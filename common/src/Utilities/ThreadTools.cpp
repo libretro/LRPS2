@@ -448,12 +448,6 @@ void Threading::pxThread::internal_callback_helper(void *itsme)
 //  BaseThreadError
 // --------------------------------------------------------------------------------------
 
-wxString Exception::BaseThreadError::FormatDiagnosticMessage() const
-{
-    wxString null_str(L"Null Thread Object");
-    return pxsFmt(m_message_diag, (m_thread == NULL) ? WX_STR(null_str) : WX_STR(m_thread->GetName()));
-}
-
 pxThread &Exception::BaseThreadError::Thread()
 {
     return *m_thread;

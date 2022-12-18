@@ -58,7 +58,6 @@ static s32 CALLBACK ISOopen(const char* pTitle)
 	}
 	catch (BaseException& ex)
 	{
-		log_cb(RETRO_LOG_ERROR, "%s\n", ex.FormatDiagnosticMessage());
 		return -1;
 	}
 

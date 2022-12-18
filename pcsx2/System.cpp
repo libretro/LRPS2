@@ -149,7 +149,7 @@ CpuInitializer< CpuType >::CpuInitializer()
 	}
 	catch( Exception::RuntimeError& ex )
 	{
-		log_cb(RETRO_LOG_ERROR, "CPU provider error:\n\t%s\n", ex.FormatDiagnosticMessage().c_str() );
+		log_cb(RETRO_LOG_ERROR, "CPU provider error.\n");
 		MyCpu = nullptr;
 		ExThrown = ScopedExcept(ex.Clone());
 	}
@@ -324,7 +324,7 @@ SysCpuProviderPack::SysCpuProviderPack()
 	catch( Exception::RuntimeError& ex )
 	{
 		m_RecExceptionEE = ScopedExcept(ex.Clone());
-		log_cb(RETRO_LOG_ERROR, "EE Recompiler Reservation Failed:\n%s\n", ex.FormatDiagnosticMessage().c_str() );
+		log_cb(RETRO_LOG_ERROR, "EE Recompiler Reservation Failed.\n");
 		recCpu.Shutdown();
 	}
 
@@ -334,7 +334,7 @@ SysCpuProviderPack::SysCpuProviderPack()
 	catch( Exception::RuntimeError& ex )
 	{
 		m_RecExceptionIOP = ScopedExcept(ex.Clone());
-		log_cb(RETRO_LOG_ERROR, "IOP Recompiler Reservation Failed:\n%s\n", ex.FormatDiagnosticMessage().c_str() );
+		log_cb(RETRO_LOG_ERROR, "IOP Recompiler Reservation Failed.\n");
 		psxRec.Shutdown();
 	}
 

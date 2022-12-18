@@ -46,12 +46,6 @@ void pxTrap(void)
 //  BaseException  (implementations)
 // --------------------------------------------------------------------------------------
 
-BaseException &BaseException::SetBothMsgs(const wxChar *msg_diag)
-{
-    m_message_user = wxString(msg_diag);
-    return SetDiagMsg(msg_diag);
-}
-
 BaseException &BaseException::SetDiagMsg(const wxString &msg_diag)
 {
     m_message_diag = msg_diag;
@@ -62,11 +56,6 @@ BaseException &BaseException::SetUserMsg(const wxString &msg_user)
 {
     m_message_user = msg_user;
     return *this;
-}
-
-wxString BaseException::FormatDiagnosticMessage() const
-{
-    return m_message_diag;
 }
 
 // --------------------------------------------------------------------------------------
@@ -98,19 +87,6 @@ Exception::OutOfMemory::OutOfMemory(const wxString &allocdesc)
     AllocDescription = allocdesc;
 }
 
-wxString Exception::OutOfMemory::FormatDiagnosticMessage() const
-{
-    FastFormatUnicode retmsg;
-    retmsg.Write(L"Out of memory");
-    if (!AllocDescription.IsEmpty())
-        retmsg.Write(L" while allocating '%s'", WX_STR(AllocDescription));
-
-    if (!m_message_diag.IsEmpty())
-        retmsg.Write(L":\n%s", WX_STR(m_message_diag));
-
-    return retmsg;
-}
-
 // --------------------------------------------------------------------------------------
 //  Exception::VirtualMemoryMapConflict   (implementations)
 // --------------------------------------------------------------------------------------
@@ -118,103 +94,6 @@ Exception::VirtualMemoryMapConflict::VirtualMemoryMapConflict(const wxString &al
 {
     AllocDescription = allocdesc;
     m_message_user = "Virtual memory mapping failure!  Your system may have conflicting device drivers, services, or may simply have insufficient memory or resources to meet PCSX2's lofty needs.";
-}
-
-wxString Exception::VirtualMemoryMapConflict::FormatDiagnosticMessage() const
-{
-    FastFormatUnicode retmsg;
-    retmsg.Write(L"Virtual memory map failed");
-    if (!AllocDescription.IsEmpty())
-        retmsg.Write(L" while reserving '%s'", WX_STR(AllocDescription));
-
-    if (!m_message_diag.IsEmpty())
-        retmsg.Write(L":\n%s", WX_STR(m_message_diag));
-
-    return retmsg;
-}
-
-// ------------------------------------------------------------------------
-wxString Exception::CancelEvent::FormatDiagnosticMessage() const
-{
-    return L"Action canceled: " + m_message_diag;
-}
-
-// --------------------------------------------------------------------------------------
-//  Exception::BadStream  (implementations)
-// --------------------------------------------------------------------------------------
-wxString Exception::BadStream::FormatDiagnosticMessage() const
-{
-    FastFormatUnicode retval;
-    _formatDiagMsg(retval);
-    return retval;
-}
-
-void Exception::BadStream::_formatDiagMsg(FastFormatUnicode &dest) const
-{
-    dest.Write(L"Path: ");
-    if (!StreamName.IsEmpty())
-        dest.Write(L"%s", WX_STR(StreamName));
-    else
-        dest.Write(L"[Unnamed or unknown]");
-
-    if (!m_message_diag.IsEmpty())
-        dest.Write(L"\n%s", WX_STR(m_message_diag));
-}
-
-void Exception::BadStream::_formatUserMsg(FastFormatUnicode &dest) const
-{
-    dest.Write("Path: ");
-    if (!StreamName.IsEmpty())
-        dest.Write(L"%s", WX_STR(StreamName));
-    else
-        dest.Write("[Unnamed or unknown]");
-
-    if (!m_message_user.IsEmpty())
-        dest.Write(L"\n%s", WX_STR(m_message_user));
-}
-
-// --------------------------------------------------------------------------------------
-//  Exception::CannotCreateStream  (implementations)
-// --------------------------------------------------------------------------------------
-wxString Exception::CannotCreateStream::FormatDiagnosticMessage() const
-{
-    FastFormatUnicode retval;
-    retval.Write("File could not be created.");
-    _formatDiagMsg(retval);
-    return retval;
-}
-
-// --------------------------------------------------------------------------------------
-//  Exception::FileNotFound  (implementations)
-// --------------------------------------------------------------------------------------
-wxString Exception::FileNotFound::FormatDiagnosticMessage() const
-{
-    FastFormatUnicode retval;
-    retval.Write("File not found.\n");
-    _formatDiagMsg(retval);
-    return retval;
-}
-
-// --------------------------------------------------------------------------------------
-//  Exception::AccessDenied  (implementations)
-// --------------------------------------------------------------------------------------
-wxString Exception::AccessDenied::FormatDiagnosticMessage() const
-{
-    FastFormatUnicode retval;
-    retval.Write("Permission denied to file.\n");
-    _formatDiagMsg(retval);
-    return retval;
-}
-
-// --------------------------------------------------------------------------------------
-//  Exception::EndOfStream  (implementations)
-// --------------------------------------------------------------------------------------
-wxString Exception::EndOfStream::FormatDiagnosticMessage() const
-{
-    FastFormatUnicode retval;
-    retval.Write("Unexpected end of file or stream.\n");
-    _formatDiagMsg(retval);
-    return retval;
 }
 
 // --------------------------------------------------------------------------------------

@@ -35,7 +35,6 @@ void pxTrap(void);
     {                                                                              \
         try {                                                                      \
             log_cb(RETRO_LOG_ERROR, "Unhandled BaseException in %s (ignored!):\n", funcname);  \
-            log_cb(RETRO_LOG_ERROR, "%s\n", ex.FormatDiagnosticMessage());                           \
         } catch (...) {                                                            \
             fprintf(stderr, "ERROR: (out of memory?)\n");                          \
         }                                                                          \
@@ -96,13 +95,8 @@ public:
     wxString &DiagMsg() { return m_message_diag; }
     wxString &UserMsg() { return m_message_user; }
 
-    BaseException &SetBothMsgs(const wxChar *msg_diag);
     BaseException &SetDiagMsg(const wxString &msg_diag);
     BaseException &SetUserMsg(const wxString &msg_user);
-
-    // Returns a message suitable for diagnostic / logging purposes.
-    // This message is always in English, and includes a full stack trace.
-    virtual wxString FormatDiagnosticMessage() const;
 
     virtual void Rethrow() const = 0;
     virtual BaseException *Clone() const = 0;
@@ -156,11 +150,6 @@ public:                                              \
 
 #define DEFINE_EXCEPTION_MESSAGES(classname)        \
 public:                                             \
-    classname &SetBothMsgs(const wxChar *msg_diag)  \
-    {                                               \
-        BaseException::SetBothMsgs(msg_diag);       \
-        return *this;                               \
-    }                                               \
     classname &SetDiagMsg(const wxString &msg_diag) \
     {                                               \
         m_message_diag = msg_diag;                  \
@@ -214,8 +203,6 @@ public:
         m_message_diag = logmsg;
         // overridden message formatters only use the diagnostic version...
     }
-
-    virtual wxString FormatDiagnosticMessage() const;
 };
 
 // ---------------------------------------------------------------------------------------
@@ -237,8 +224,6 @@ public:
 
 public:
     OutOfMemory(const wxString &allocdesc);
-
-    virtual wxString FormatDiagnosticMessage() const;
 };
 
 class ParseError : public RuntimeError
@@ -259,8 +244,6 @@ class VirtualMemoryMapConflict : public OutOfMemory
     DEFINE_RUNTIME_EXCEPTION(VirtualMemoryMapConflict, OutOfMemory, wxEmptyString)
 
     VirtualMemoryMapConflict(const wxString &allocdesc);
-
-    virtual wxString FormatDiagnosticMessage() const;
 };
 
 class HardwareDeficiency : public RuntimeError
@@ -304,12 +287,6 @@ class BadStream : public RuntimeError
 
 public:
     wxString StreamName; // name of the stream (if applicable)
-
-    virtual wxString FormatDiagnosticMessage() const;
-
-protected:
-    void _formatDiagMsg(FastFormatUnicode &dest) const;
-    void _formatUserMsg(FastFormatUnicode &dest) const;
 };
 
 // A generic exception for odd-ball stream creation errors.
@@ -317,8 +294,6 @@ protected:
 class CannotCreateStream : public BadStream
 {
     DEFINE_STREAM_EXCEPTION(CannotCreateStream, BadStream)
-
-    virtual wxString FormatDiagnosticMessage() const;
 };
 
 // Exception thrown when an attempt to open a non-existent file is made.
@@ -328,16 +303,12 @@ class FileNotFound : public CannotCreateStream
 {
 public:
     DEFINE_STREAM_EXCEPTION(FileNotFound, CannotCreateStream)
-
-    virtual wxString FormatDiagnosticMessage() const;
 };
 
 class AccessDenied : public CannotCreateStream
 {
 public:
     DEFINE_STREAM_EXCEPTION(AccessDenied, CannotCreateStream)
-
-    virtual wxString FormatDiagnosticMessage() const;
 };
 
 // EndOfStream can be used either as an error, or used just as a shortcut for manual
@@ -347,8 +318,6 @@ class EndOfStream : public BadStream
 {
 public:
     DEFINE_STREAM_EXCEPTION(EndOfStream, BadStream)
-
-    virtual wxString FormatDiagnosticMessage() const;
 };
 }
 

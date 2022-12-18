@@ -202,7 +202,6 @@ int GetPS2ElfName( wxString& name )
 	}
 	catch (Exception::BadStream& ex)
 	{
-		log_cb(RETRO_LOG_ERROR, ex.FormatDiagnosticMessage().c_str());
 		return 0;		// ISO error
 	}
 
