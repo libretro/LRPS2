@@ -13,9 +13,8 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
 #include "Global.h"
-#include "spu2.h" // hopefully temporary, until I resolve lClocks depdendency
+#include "spu2.h" // hopefully temporary, until I resolve lClocks dependency
 
 namespace SPU2Savestate
 {

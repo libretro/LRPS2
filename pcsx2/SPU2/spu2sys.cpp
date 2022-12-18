@@ -20,7 +20,6 @@
 // Contents should be cross-platform compatible whenever possible.
 
 
-#include "PrecompiledHeader.h"
 #include "Global.h"
 #include "Dma.h"
 #include "IopDma.h"
@@ -39,7 +38,7 @@ u32 Cycles;
 
 int PlayMode;
 
-bool has_to_call_irq = false;
+static bool has_to_call_irq = false;
 
 void SetIrqCall(int core)
 {
@@ -312,9 +311,7 @@ __forceinline void TimeUpdate(u32 cClocks)
 				spu2DMA4Irq();
 			}
 			else
-			{
 				Cores[0].MADR += TickInterval << 1;
-			}
 		}
 
 		//Update DMA7 interrupt delay counter
@@ -464,13 +461,11 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 				break;
 
 			case 0x1d98: //         1F801D98h - Voice 0..23 Reverb mode aka Echo On (EON) (R/W)
-				//Regs.VMIXEL = value & 0xFFFF;
 				SPU2_FastWrite(REG_S_VMIXEL, value);
 				SPU2_FastWrite(REG_S_VMIXER, value);
 				break;
 
 			case 0x1d9a: //         1F801D98h + 2 - Voice 0..23 Reverb mode aka Echo On (EON) (R/W)
-				//Regs.VMIXEL = value << 16;
 				SPU2_FastWrite(REG_S_VMIXEL + 2, value);
 				SPU2_FastWrite(REG_S_VMIXER + 2, value);
 				break;
@@ -496,7 +491,6 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 			case 0x1da2: //         Reverb work area start
 			{
 				EffectsStartA = MAP_SPU1TO2(value);
-				//EffectsEndA = 0xFFFFF; // fixed EndA in psx mode
 				Cores[0].RevBuffers.NeedsUpdated = true;
 				ReverbX = 0;
 			}
@@ -665,14 +659,10 @@ u16 V_Core::ReadRegPS1(u32 mem)
 		switch (vval)
 		{
 			case 0x0: //VOLL (Volume L)
-				//value=Voices[voice].VolumeL.Mode;
-				//value=Voices[voice].VolumeL.Value;
 				value = Voices[voice].Volume.Left.Reg_VOL;
 				break;
 
 			case 0x2: //VOLR (Volume R)
-				//value=Voices[voice].VolumeR.Mode;
-				//value=Voices[voice].VolumeR.Value;
 				value = Voices[voice].Volume.Right.Reg_VOL;
 				break;
 
@@ -748,7 +738,7 @@ u16 V_Core::ReadRegPS1(u32 mem)
 			case 0x1d9a:
 				value = Regs.VMIXEL >> 16;
 				break;
-				/*case 0x1d9c: value = Regs.VMIXL&0xFFFF;  break;*/ // this is wrong?
+			/*case 0x1d9c: value = Regs.VMIXL&0xFFFF;  break;*/ // this is wrong?
 			/*case 0x1d9e: value = Regs.VMIXL >> 16;   break;*/
 			case 0x1d9c:
 				value = Regs.ENDX & 0xFFFF;
@@ -806,8 +796,8 @@ static __forceinline u16 GetLoWord(u32& src)
 template <int CoreIdx, int VoiceIdx, int param>
 static void __fastcall RegWrite_VoiceParams(u16 value)
 {
-	const int core = CoreIdx;
-	const int voice = VoiceIdx;
+	const int core     = CoreIdx;
+	const int voice    = VoiceIdx;
 
 	V_Voice& thisvoice = Cores[core].Voices[voice];
 
@@ -1640,10 +1630,7 @@ static RegWriteHandler* const tbl_reg_writes[0x401] =
 		nullptr // should be at 0x400!  (we assert check it on startup)
 };
 
-
 void SPU2_FastWrite(u32 rmem, u16 value)
 {
 	tbl_reg_writes[(rmem & 0x7ff) / 2](value);
 }
-
-

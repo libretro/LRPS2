@@ -15,9 +15,7 @@
 
 #pragma once
 
-#ifndef u32
-typedef unsigned int u32;
-#endif
+#include <stdint.h>
 
 /*
    Preamble    cell-order         cell-order
@@ -67,13 +65,13 @@ Preamble W: Marks a word containing data for channel B.
 
 typedef struct _subframe
 {
-	u32 preamble : 4;
-	u32 aux_data : 4;
-	u32 snd_data : 20;
-	u32 validity : 1;
-	u32 subcode : 1;
-	u32 chstatus : 1;
-	u32 parity : 1;
+	uint32_t preamble : 4;
+	uint32_t aux_data : 4;
+	uint32_t snd_data : 20;
+	uint32_t validity : 1;
+	uint32_t subcode : 1;
+	uint32_t chstatus : 1;
+	uint32_t parity : 1;
 } subframe;
 
 /*

@@ -15,7 +15,6 @@
 
 #pragma once
 
-
 #define NOMINMAX
 
 struct StereoOut16;
@@ -24,26 +23,7 @@ struct StereoOutFloat;
 
 struct V_Core;
 
-#include "../PrecompiledHeader.h"
-
-//////////////////////////////////////////////////////////////////////////
-// Override Win32 min/max macros with the STL's type safe and macro
-// free varieties (much safer!)
-
-#undef min
-#undef max
-
-template <typename T>
-static __forceinline void Clampify(T& src, T min, T max)
-{
-	src = std::min(std::max(src, min), max);
-}
-
-template <typename T>
-static __forceinline T GetClamped(T src, T min, T max)
-{
-	return std::min(std::max(src, min), max);
-}
+#include "Pcsx2Types.h"
 
 #include "defs.h"
 #include "regs.h"

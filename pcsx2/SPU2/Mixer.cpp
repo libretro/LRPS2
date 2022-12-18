@@ -13,7 +13,10 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
+#include <algorithm>
+
+#include <libretro.h>
+
 #include "Global.h"
 
 /* Forward declaration */
@@ -27,6 +30,17 @@ static const s32 tbl_XA_Factor[16][2] =
 		{98, -55},
 		{122, -60}};
 
+template <typename T>
+static __forceinline void Clampify(T& src, T min, T max)
+{
+	src = std::min(std::max(src, min), max);
+}
+
+template <typename T>
+static __forceinline T GetClamped(T src, T min, T max)
+{
+	return std::min(std::max(src, min), max);
+}
 
 // Performs a 64-bit multiplication between two values and returns the
 // high 32 bits as a result (discarding the fractional 32 bits).
@@ -48,7 +62,6 @@ static __forceinline s32 MulShr32(s32 srcval, s32 mulval)
 
 __forceinline s32 clamp_mix(s32 x, u8 bitshift)
 {
-	assert(bitshift <= 15);
 	return GetClamped(x, -(0x8000 << bitshift), 0x7fff << bitshift);
 }
 

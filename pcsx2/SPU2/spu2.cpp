@@ -13,13 +13,14 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
+#include <wx/stream.h>
+
+#include "Utilities/pxStreams.h"
+
 #include "Global.h"
 #include "spu2.h"
 #include "Dma.h"
 #include "R3000A.h"
-#include <wx/stream.h>
-#include "Utilities/pxStreams.h"
 
 extern retro_audio_sample_t sample_cb;
 
@@ -57,13 +58,11 @@ void SPU2writeDMA4Mem(u16* pMem, u32 size) // size now in 16bit units
 void SPU2interruptDMA4(void)
 {
 	Cores[0].Regs.STATX |= 0x80;
-	//Cores[0].Regs.ATTR &= ~0x30;
 }
 
 void SPU2interruptDMA7(void)
 {
 	Cores[1].Regs.STATX |= 0x80;
-	//Cores[1].Regs.ATTR &= ~0x30;
 }
 
 void SPU2readDMA7Mem(u16* pMem, u32 size)

@@ -13,15 +13,16 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <algorithm>
+
 #include "Global.h"
 
-static const s32 ADSR_MAX_VOL = 0x7fffffff;
+#define ADSR_MAX_VOL 0x7fffffff
 
 static const int InvExpOffsets[] = {0, 4, 6, 8, 9, 10, 11, 12};
 static u32 PsxRates[160];
 
-
-void InitADSR() // INIT ADSR
+void InitADSR(void)
 {
 	for (int i = 0; i < (32 + 128); i++)
 	{
