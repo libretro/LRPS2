@@ -14,7 +14,6 @@
  */
 
 #include "Global.h"
-#include "Dma.h"
 
 #include "spu2.h" // temporary until I resolve cyclePtr/TimeUpdate dependencies.
 
@@ -67,21 +66,10 @@ void V_Core::StartADMAWrite(u16* pMem, u32 sz)
 		InputDataLeft = size;
 		if (AdmaInProgress == 0)
 		{
-#ifdef PCM24_S1_INTERLEAVE
-			if ((Index == 1) && ((PlayMode & 8) == 8))
-			{
-				AutoDMAReadBuffer(Index, 1);
-			}
-			else
-			{
-				AutoDMAReadBuffer(Index, 0);
-			}
-#else
 			if (((PlayMode & 4) == 4) && (Index == 0))
 				Cores[0].InputPosRead = 0;
 
 			AutoDMAReadBuffer(0);
-#endif
 			// Klonoa 2
 			if (size == 512)
 				DMAICounter = size;

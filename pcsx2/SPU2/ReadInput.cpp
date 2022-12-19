@@ -31,18 +31,6 @@
 StereoOut32 V_Core::ReadInput_HiFi()
 {
 	InputPosRead &= ~1;
-	//
-	//#ifdef PCM24_S1_INTERLEAVE
-	//	StereoOut32 retval(
-	//		*((s32*)(ADMATempBuffer+(InputPosRead<<1))),
-	//		*((s32*)(ADMATempBuffer+(InputPosRead<<1)+2))
-	//	);
-	//#else
-	//	StereoOut32 retval(
-	//		(s32&)(ADMATempBuffer[InputPosRead]),
-	//		(s32&)(ADMATempBuffer[InputPosRead+0x200])
-	//	);
-	//#endif
 
 	StereoOut32 retval(
 		(s32&)(*GetMemPtr(0x2000 + (Index << 10) + InputPosRead)),
@@ -68,11 +56,7 @@ StereoOut32 V_Core::ReadInput_HiFi()
 		AdmaInProgress = 0;
 		if (InputDataLeft >= 0x200)
 		{
-#ifdef PCM24_S1_INTERLEAVE
-			AutoDMAReadBuffer(1);
-#else
 			AutoDMAReadBuffer(0);
-#endif
 			AdmaInProgress = 1;
 
 			TSA = (Index << 10) + InputPosRead;

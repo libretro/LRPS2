@@ -44,5 +44,3 @@ extern u32 lClocks;
 
 extern void TimeUpdate(u32 cClocks);
 extern void SPU2_FastWrite(u32 rmem, u16 value);
-
-//#define PCM24_S1_INTERLEAVE
