@@ -215,13 +215,11 @@ set(pcsx2CDVDHeaders
 # SPU2 headers
 set(pcsx2SPU2Headers
    SPU2/defs.h
-   SPU2/Dma.h
    SPU2/Global.h
    SPU2/Mixer.h
    SPU2/spu2.h
    SPU2/regs.h
    SPU2/SndOut.h
-   SPU2/spdif.h
 )
 
 # PAD sources
