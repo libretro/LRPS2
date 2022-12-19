@@ -19,7 +19,6 @@
 
 #include "Global.h"
 #include "spu2.h"
-#include "Dma.h"
 #include "R3000A.h"
 
 extern retro_audio_sample_t sample_cb;

@@ -106,9 +106,6 @@ public:
 		return m_ExecMode >= ExecMode_Closing;
 	}
 
-	ExecutionMode GetExecutionMode() const { return m_ExecMode.load(); }
-	Mutex& ExecutionModeMutex() { return m_ExecModeMutex; }
-
 	virtual void Suspend( bool isBlocking = true );
 	virtual void Resume();
 	virtual void Pause();
@@ -239,9 +236,6 @@ public:
 	{
 		return m_ExecMode >= ExecMode_Closing;
 	}
-
-	ExecutionMode GetExecutionMode() const { return m_ExecMode.load(); }
-	Mutex& ExecutionModeMutex() { return m_ExecModeMutex; }
 
 	virtual void Suspend( bool isBlocking = true );
 	virtual void Resume();
