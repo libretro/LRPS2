@@ -136,7 +136,7 @@ void MapTLB(int i)
 
 		for (addr=saddr; addr<eaddr; addr++) {
 			if ((addr & mask) == ((tlb[i].VPN2 >> 12) & mask)) { //match
-				memSetPageAddr(addr << 12, tlb[i].PFN0 + ((addr - saddr) << 12));
+				vtlb_VMap(addr << 12, tlb[i].PFN0 + ((addr - saddr) << 12), 0x1000);
 				Cpu->Clear(addr << 12, 0x400);
 			}
 		}
@@ -149,7 +149,7 @@ void MapTLB(int i)
 
 		for (addr=saddr; addr<eaddr; addr++) {
 			if ((addr & mask) == ((tlb[i].VPN2 >> 12) & mask)) { //match
-				memSetPageAddr(addr << 12, tlb[i].PFN1 + ((addr - saddr) << 12));
+				vtbl_VMap(addr << 12, tlb[i].PFN1 + ((addr - saddr) << 12), 0x1000);
 				Cpu->Clear(addr << 12, 0x400);
 			}
 		}
@@ -174,7 +174,7 @@ void UnmapTLB(int i)
 		eaddr = saddr + tlb[i].Mask + 1;
 		for (addr=saddr; addr<eaddr; addr++) {
 			if ((addr & mask) == ((tlb[i].VPN2 >> 12) & mask)) { //match
-				memClearPageAddr(addr << 12);
+				vtlb_VMapUnmap(addr << 12, 0x1000);
 				Cpu->Clear(addr << 12, 0x400);
 			}
 		}
@@ -186,7 +186,7 @@ void UnmapTLB(int i)
 		eaddr = saddr + tlb[i].Mask + 1;
 		for (addr=saddr; addr<eaddr; addr++) {
 			if ((addr & mask) == ((tlb[i].VPN2 >> 12) & mask)) { //match
-				memClearPageAddr(addr << 12);
+				vtlb_VMapUnmap(addr << 12, 0x1000);
 				Cpu->Clear(addr << 12, 0x400);
 			}
 		}
