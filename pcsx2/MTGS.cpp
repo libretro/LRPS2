@@ -515,8 +515,6 @@ void SysMtgsThread::SendDataPacket()
 	}
 
 	m_packet_size = 0;
-
-	//m_PacketLocker.Release();
 }
 
 void SysMtgsThread::GenericStall( uint size )
