@@ -20,8 +20,8 @@
 #include "DEV9/DEV9.h"
 #include "SPU2/spu2.h"
 
-uptr *psxMemWLUT = NULL;
-const uptr *psxMemRLUT = NULL;
+static uptr *psxMemWLUT       = NULL;
+static const uptr *psxMemRLUT = NULL;
 
 IopVM_MemoryAllocMess* iopMem = NULL;
 
@@ -76,35 +76,22 @@ void iopMemoryReserve::Reset()
 	// A few single-page allocations for things we store in special locations.
 	psxMemWLUT[0x2000 + 0x1f00] = (uptr)iopMem->P;
 	psxMemWLUT[0x2000 + 0x1f80] = (uptr)iopHw;
-	//psxMemWLUT[0x1bf80] = (uptr)iopHw;
 
 	psxMemWLUT[0x1f00] = (uptr)iopMem->P;
 	psxMemWLUT[0x1f80] = (uptr)iopHw;
-	//psxMemWLUT[0xbf80] = (uptr)iopHw;
 
 	// Read-only memory areas, so don't map WLUT for these...
 	for (int i=0; i<0x0040; i++)
-	{
 		psxMemWLUT[i + 0x2000 + 0x1fc0] = (uptr)&eeMem->ROM[i << 16];
-	}
 
 	for (int i=0; i<0x0004; i++)
-	{
 		psxMemWLUT[i + 0x2000 + 0x1e00] = (uptr)&eeMem->ROM1[i << 16];
-	}
 
 	for (int i = 0; i < 0x0008; i++) 
-	{
 		psxMemWLUT[i + 0x2000 + 0x1e40] = (uptr)&eeMem->ROM2[i << 16];
-	}
 
 	// sif!! (which is read only? (air))
 	psxMemWLUT[0x2000 + 0x1d00] = (uptr)iopMem->Sif;
-	//psxMemWLUT[0x1bd00] = (uptr)iopMem->Sif;
-
-	// this one looks like an old hack for some special write-only memory area,
-	// but leaving it in for reference (air)
-	//for (i=0; i<0x0008; i++) psxMemWLUT[i + 0xbfc0] = (uptr)&psR[i << 16];
 }
 
 void iopMemoryReserve::Decommit()
@@ -113,7 +100,7 @@ void iopMemoryReserve::Decommit()
 
 	safe_aligned_free(psxMemWLUT);
 	psxMemRLUT = NULL;
-	iopMem = NULL;
+	iopMem     = NULL;
 }
 
 
