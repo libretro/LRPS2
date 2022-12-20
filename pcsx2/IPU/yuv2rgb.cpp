@@ -17,8 +17,6 @@
 // IPU-correct yuv conversions by Pseudonym
 // SSE2 Implementation by Pseudonym
 
-#include "PrecompiledHeader.h"
-
 #include "Common.h"
 #include "IPU.h"
 #include "yuv2rgb.h"
@@ -48,7 +46,7 @@
 #endif
 #endif
 
-__ri void yuv2rgb()
+__ri void yuv2rgb(void)
 {
 #if _M_SSE >= 0x200
 	// Suikoden Tactics FMV speed results: Reference - ~72fps, SSE2 - ~120fps

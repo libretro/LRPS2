@@ -13,8 +13,12 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
+#include <limits.h>
+
 #include "Common.h"
+#include "AppConfig.h"
+
+#include "Utilities/MemsetFast.inl"
 
 #include "IPU.h"
 #include "IPUdma.h"
@@ -24,17 +28,11 @@
 #include "Vif.h"
 #include "Gif.h"
 #include "Vif_Dma.h"
-#include <limits.h>
-#include "AppConfig.h"
-
-#include "Utilities/MemsetFast.inl"
 
 // the BP doesn't advance and returns -1 if there is no data to be read
 __aligned16 tIPU_cmd ipu_cmd;
 __aligned16 tIPU_BP g_BP;
 __aligned16 decoder_t decoder;
-
-void IPUWorker();
 
 // Quantization matrix
 static rgb16_t vqclut[16];			//clut conversion table
@@ -50,241 +48,6 @@ void tIPU_cmd::clear(void)
 {
 	memzero_sse_a(*this);
 	current = 0xffffffff;
-}
-
-__fi void IPUProcessInterrupt(void)
-{
-	if (ipuRegs.ctrl.BUSY) // && (g_BP.FP || g_BP.IFC || (ipu1ch.chcr.STR && ipu1ch.qwc > 0)))
-		IPUWorker();
-}
-
-/////////////////////////////////////////////////////////
-// Register accesses (run on EE thread)
-
-void ipuReset(void)
-{
-	memzero(ipuRegs);
-	memzero(g_BP);
-	memzero(decoder);
-
-	decoder.picture_structure = FRAME_PICTURE;      //default: progressive...my guess:P
-
-	ipu_fifo.init();
-	ipu_cmd.clear();
-	ipuDmaReset();
-}
-
-void SaveStateBase::ipuFreeze()
-{
-	// Get a report of the status of the ipu variables when saving and loading savestates.
-	FreezeTag("IPU");
-	Freeze(ipu_fifo);
-
-	Freeze(g_BP);
-	Freeze(vqclut);
-	Freeze(s_thresh);
-	Freeze(coded_block_pattern);
-	Freeze(decoder);
-	Freeze(ipu_cmd);
-}
-
-__fi u32 ipuRead32(u32 mem)
-{
-	mem &= 0xff;	// IPU repeats every 0x100
-
-	IPUProcessInterrupt();
-
-	switch (mem)
-	{
-		ipucase(IPU_CMD) : // IPU_CMD
-		{
-			if (ipu_cmd.CMD != SCE_IPU_FDEC && ipu_cmd.CMD != SCE_IPU_VDEC)
-			{
-				if (getBits32((u8*)&ipuRegs.cmd.DATA, 0))
-					ipuRegs.cmd.DATA = BigEndian(ipuRegs.cmd.DATA);
-			}
-			return ipuRegs.cmd.DATA;
-		}
-
-		ipucase(IPU_CTRL): // IPU_CTRL
-		{
-			ipuRegs.ctrl.IFC = g_BP.IFC;
-			ipuRegs.ctrl.CBP = coded_block_pattern;
-			return ipuRegs.ctrl._u32;
-		}
-
-		ipucase(IPU_BP): // IPU_BP
-		{
-			ipuRegs.ipubp  = g_BP.BP & 0x7f;
-			ipuRegs.ipubp |= g_BP.IFC << 8;
-			ipuRegs.ipubp |= g_BP.FP << 16;
-			return ipuRegs.ipubp;
-		}
-
-		default:
-		break;
-	}
-
-	return psHu32(IPU_CMD + mem);
-}
-
-__fi u64 ipuRead64(u32 mem)
-{
-	mem &= 0xff;	// IPU repeats every 0x100
-
-	IPUProcessInterrupt();
-
-	switch (mem)
-	{
-		ipucase(IPU_CMD): // IPU_CMD
-		{
-			if (ipu_cmd.CMD != SCE_IPU_FDEC && ipu_cmd.CMD != SCE_IPU_VDEC)
-			{
-				if (getBits32((u8*)&ipuRegs.cmd.DATA, 0))
-					ipuRegs.cmd.DATA = BigEndian(ipuRegs.cmd.DATA);
-			}
-
-			return ipuRegs.cmd._u64;
-		}
-
-		ipucase(IPU_CTRL):
-			break;
-
-		ipucase(IPU_BP):
-			break;
-
-		ipucase(IPU_TOP): // IPU_TOP
-			break;
-
-		default:
-			break;
-	}
-	return psHu64(IPU_CMD + mem);
-}
-
-void ipuSoftReset(void)
-{
-	if (ipu1ch.chcr.STR && g_BP.IFC < 8 && IPU1Status.DataRequested)
-		ipu1Interrupt();
-
-	if (!ipu1ch.chcr.STR)
-		psHu32(DMAC_STAT) &= ~(1 << DMAC_TO_IPU);
-
-	ipu_fifo.clear();
-	memzero(g_BP);
-
-	coded_block_pattern = 0;
-
-	ipuRegs.ctrl._u32 &= 0x7F33F00;
-	ipuRegs.top = 0;
-	ipu_cmd.clear();
-	ipuRegs.cmd.BUSY = 0;
-	ipuRegs.cmd.DATA = 0; // required for Enthusia - Professional Racing after fix, or will freeze at start of next video.
-
-	hwIntcIrq(INTC_IPU); // required for FightBox
-}
-
-__fi bool ipuWrite32(u32 mem, u32 value)
-{
-	mem &= 0xfff;
-
-	switch (mem)
-	{
-		ipucase(IPU_CMD): // IPU_CMD
-			IPUCMD_WRITE(value);
-			IPUProcessInterrupt();
-			return false;
-
-		ipucase(IPU_CTRL): // IPU_CTRL
-            // CTRL = the first 16 bits of ctrl [0x8000ffff], + value for the next 16 bits,
-            // minus the reserved bits. (18-19; 27-29) [0x47f30000]
-			ipuRegs.ctrl.write(value);
-			if (ipuRegs.ctrl.IDP == 3)
-				ipuRegs.ctrl.IDP = 1;
-
-			if (ipuRegs.ctrl.RST) ipuSoftReset(); // RESET
-			return false;
-	}
-	return true;
-}
-
-// returns FALSE when the writeback is handled, TRUE if the caller should do the
-// writeback itself.
-__fi bool ipuWrite64(u32 mem, u64 value)
-{
-	mem &= 0xfff;
-
-	switch (mem)
-	{
-		ipucase(IPU_CMD):
-			IPUCMD_WRITE((u32)value);
-			IPUProcessInterrupt();
-		return false;
-	}
-
-	return true;
-}
-
-
-//////////////////////////////////////////////////////
-// IPU Commands (exec on worker thread only)
-
-static void ipuBCLR(u32 val)
-{
-	if (ipu1ch.chcr.STR && g_BP.IFC < 8 && IPU1Status.DataRequested)
-		ipu1Interrupt();
-
-	if(!ipu1ch.chcr.STR)
-		psHu32(DMAC_STAT) &= ~(1 << DMAC_TO_IPU);
-
-	ipu_fifo.in.clear();
-
-	memzero(g_BP);
-	g_BP.BP = val & 0x7F;
-
-	ipuRegs.cmd.BUSY = 0;
-}
-
-static __ri void ipuIDEC(tIPU_CMD_IDEC idec)
-{
-	//from IPU_CTRL
-	ipuRegs.ctrl.PCT 		= I_TYPE; //Intra DECoding;)
-
-	decoder.coding_type		= ipuRegs.ctrl.PCT;
-	decoder.mpeg1			= ipuRegs.ctrl.MP1;
-	decoder.q_scale_type		= ipuRegs.ctrl.QST;
-	decoder.intra_vlc_format	= ipuRegs.ctrl.IVF;
-	decoder.scantype		= ipuRegs.ctrl.AS;
-	decoder.intra_dc_precision	= ipuRegs.ctrl.IDP;
-
-	//from IDEC value
-	decoder.quantizer_scale		= idec.QSC;
-	decoder.frame_pred_frame_dct    = !idec.DTD;
-	decoder.sgn 			= idec.SGN;
-	decoder.dte 			= idec.DTE;
-	decoder.ofm 			= idec.OFM;
-
-	//other stuff
-	decoder.dcr 			= 1; // resets DC prediction value
-}
-
-static __ri void ipuBDEC(tIPU_CMD_BDEC bdec)
-{
-	decoder.coding_type			= I_TYPE;
-	decoder.mpeg1				= ipuRegs.ctrl.MP1;
-	decoder.q_scale_type		= ipuRegs.ctrl.QST;
-	decoder.intra_vlc_format	= ipuRegs.ctrl.IVF;
-	decoder.scantype			= ipuRegs.ctrl.AS;
-	decoder.intra_dc_precision	= ipuRegs.ctrl.IDP;
-
-	//from BDEC value
-	decoder.quantizer_scale		= decoder.q_scale_type ? non_linear_quantizer_scale [bdec.QSC] : bdec.QSC << 1;
-	decoder.macroblock_modes	= bdec.DT ? DCT_TYPE_INTERLACED : 0;
-	decoder.dcr					= bdec.DCR;
-	decoder.macroblock_modes	|= bdec.MBI ? MACROBLOCK_INTRA : MACROBLOCK_PATTERN;
-
-	memzero_sse_a(decoder.mb8);
-	memzero_sse_a(decoder.mb16);
 }
 
 static __fi bool ipuVDEC(u32 val)
@@ -369,6 +132,29 @@ static __ri bool ipuFDEC(u32 val)
 	return true;
 }
 
+// whenever reading fractions of bytes. The low bits always come from the next byte
+// while the high bits come from the current byte
+static u8 getBits64(u8 *address, bool advance)
+{
+	if (!g_BP.FillBuffer(64)) return 0;
+
+	const u8* readpos = &g_BP.internal_qwc[0]._u8[g_BP.BP/8];
+
+	if (uint shift = (g_BP.BP & 7))
+	{
+		u64 mask = (0xff >> shift);
+		mask = mask | (mask << 8) | (mask << 16) | (mask << 24) | (mask << 32) | (mask << 40) | (mask << 48) | (mask << 56);
+
+		*(u64*)address = ((~mask & *(u64*)(readpos + 1)) >> (8 - shift)) | (((mask) & *(u64*)readpos) << shift);
+	}
+	else
+		*(u64*)address = *(u64*)readpos;
+
+	if (advance) g_BP.Advance(64);
+
+	return 1;
+}
+
 static bool ipuSETIQ(u32 val)
 {
 	if ((val >> 27) & 1)
@@ -434,6 +220,36 @@ static __ri bool ipuCSC(tIPU_CMD_CSC csc)
 	return true;
 }
 
+static __fi void ipu_vq(macroblock_rgb16& rgb16, u8* indx4)
+{
+	const auto closest_index = [&](int i, int j) {
+		u8 index = 0;
+		int min_distance = std::numeric_limits<int>::max();
+		for (u8 k = 0; k < 16; ++k)
+		{
+			const int dr = rgb16.c[i][j].r - vqclut[k].r;
+			const int dg = rgb16.c[i][j].g - vqclut[k].g;
+			const int db = rgb16.c[i][j].b - vqclut[k].b;
+			const int distance = dr * dr + dg * dg + db * db;
+
+			// XXX: If two distances are the same which index is used?
+			if (min_distance > distance)
+			{
+				index = k;
+				min_distance = distance;
+			}
+		}
+
+		return index;
+	};
+
+	for (int i = 0; i < 16; ++i)
+		for (int j = 0; j < 8; ++j)
+			indx4[i * 8 + j] = closest_index(i, 2 * j + 1) << 4 | closest_index(i, 2 * j);
+}
+
+
+
 static __ri bool ipuPACK(tIPU_CMD_CSC csc)
 {
 	for (;ipu_cmd.index < (int)csc.MBC; ipu_cmd.index++)
@@ -462,6 +278,296 @@ static __ri bool ipuPACK(tIPU_CMD_CSC csc)
 	}
 
 	return TRUE;
+}
+
+
+static __noinline void IPUWorker(void)
+{
+	switch (ipu_cmd.CMD)
+	{
+		// These are unreachable (BUSY will always be 0 for them)
+		//case SCE_IPU_BCLR:
+		//case SCE_IPU_SETTH:
+		//break;
+
+		case SCE_IPU_IDEC:
+			if (!mpeg2sliceIDEC()) return;
+
+			ipuRegs.topbusy = 0;
+			ipuRegs.cmd.BUSY = 0;
+
+			break;
+
+		case SCE_IPU_BDEC:
+			if (!mpeg2_slice()) return;
+
+			ipuRegs.topbusy = 0;
+			ipuRegs.cmd.BUSY = 0;
+
+			break;
+
+		case SCE_IPU_VDEC:
+			if (!ipuVDEC(ipu_cmd.current)) return;
+
+			ipuRegs.topbusy = 0;
+			ipuRegs.cmd.BUSY = 0;
+			break;
+
+		case SCE_IPU_FDEC:
+			if (!ipuFDEC(ipu_cmd.current)) return;
+
+			ipuRegs.topbusy = 0;
+			ipuRegs.cmd.BUSY = 0;
+			break;
+
+		case SCE_IPU_SETIQ:
+			if (!ipuSETIQ(ipu_cmd.current)) return;
+			break;
+
+		case SCE_IPU_SETVQ:
+			if (!ipuSETVQ(ipu_cmd.current)) return;
+			break;
+
+		case SCE_IPU_CSC:
+			if (!ipuCSC(ipu_cmd.current)) return;
+			break;
+
+		case SCE_IPU_PACK:
+			if (!ipuPACK(ipu_cmd.current)) return;
+			break;
+
+		default:
+			break;
+	}
+
+	// success
+	ipuRegs.ctrl.BUSY = 0;
+	hwIntcIrq(INTC_IPU);
+}
+
+__fi void IPUProcessInterrupt(void)
+{
+	if (ipuRegs.ctrl.BUSY)
+		IPUWorker();
+}
+
+/////////////////////////////////////////////////////////
+// Register accesses (run on EE thread)
+
+void ipuReset(void)
+{
+	memzero(ipuRegs);
+	memzero(g_BP);
+	memzero(decoder);
+
+	decoder.picture_structure = FRAME_PICTURE;      //default: progressive...my guess:P
+
+	ipu_fifo.init();
+	ipu_cmd.clear();
+	ipuDmaReset();
+}
+
+void SaveStateBase::ipuFreeze()
+{
+	// Get a report of the status of the ipu variables when saving and loading savestates.
+	FreezeTag("IPU");
+	Freeze(ipu_fifo);
+
+	Freeze(g_BP);
+	Freeze(vqclut);
+	Freeze(s_thresh);
+	Freeze(coded_block_pattern);
+	Freeze(decoder);
+	Freeze(ipu_cmd);
+}
+
+__fi u32 ipuRead32(u32 mem)
+{
+	mem &= 0xff;	// IPU repeats every 0x100
+
+	IPUProcessInterrupt();
+
+	switch (mem)
+	{
+		case IPU_CMD:
+		{
+			if (ipu_cmd.CMD != SCE_IPU_FDEC && ipu_cmd.CMD != SCE_IPU_VDEC)
+			{
+				if (getBits32((u8*)&ipuRegs.cmd.DATA, 0))
+					ipuRegs.cmd.DATA = BigEndian(ipuRegs.cmd.DATA);
+			}
+			return ipuRegs.cmd.DATA;
+		}
+
+		case IPU_CTRL:
+			ipuRegs.ctrl.IFC = g_BP.IFC;
+			ipuRegs.ctrl.CBP = coded_block_pattern;
+			return ipuRegs.ctrl._u32;
+
+		case IPU_BP:
+			ipuRegs.ipubp  = g_BP.BP & 0x7f;
+			ipuRegs.ipubp |= g_BP.IFC << 8;
+			ipuRegs.ipubp |= g_BP.FP << 16;
+			return ipuRegs.ipubp;
+
+		default:
+		break;
+	}
+
+	return psHu32(IPU_CMD + mem);
+}
+
+__fi u64 ipuRead64(u32 mem)
+{
+	mem &= 0xff;	// IPU repeats every 0x100
+
+	IPUProcessInterrupt();
+
+	switch (mem)
+	{
+		case IPU_CMD:
+		{
+			if (ipu_cmd.CMD != SCE_IPU_FDEC && ipu_cmd.CMD != SCE_IPU_VDEC)
+			{
+				if (getBits32((u8*)&ipuRegs.cmd.DATA, 0))
+					ipuRegs.cmd.DATA = BigEndian(ipuRegs.cmd.DATA);
+			}
+
+			return ipuRegs.cmd._u64;
+		}
+
+		case IPU_CTRL:
+		case IPU_BP:
+		case IPU_TOP:
+		default:
+			break;
+	}
+	return psHu64(IPU_CMD + mem);
+}
+
+void ipuSoftReset(void)
+{
+	if (ipu1ch.chcr.STR && g_BP.IFC < 8 && IPU1Status.DataRequested)
+		ipu1Interrupt();
+
+	if (!ipu1ch.chcr.STR)
+		psHu32(DMAC_STAT) &= ~(1 << DMAC_TO_IPU);
+
+	ipu_fifo.clear();
+	memzero(g_BP);
+
+	coded_block_pattern = 0;
+
+	ipuRegs.ctrl._u32 &= 0x7F33F00;
+	ipuRegs.top = 0;
+	ipu_cmd.clear();
+	ipuRegs.cmd.BUSY = 0;
+	ipuRegs.cmd.DATA = 0; // required for Enthusia - Professional Racing after fix, or will freeze at start of next video.
+
+	hwIntcIrq(INTC_IPU); // required for FightBox
+}
+
+__fi bool ipuWrite32(u32 mem, u32 value)
+{
+	mem &= 0xfff;
+
+	switch (mem)
+	{
+		case IPU_CMD:
+			IPUCMD_WRITE(value);
+			IPUProcessInterrupt();
+			return false;
+
+		case IPU_CTRL:
+            // CTRL = the first 16 bits of ctrl [0x8000ffff], + value for the next 16 bits,
+            // minus the reserved bits. (18-19; 27-29) [0x47f30000]
+			ipuRegs.ctrl.write(value);
+			if (ipuRegs.ctrl.IDP == 3)
+				ipuRegs.ctrl.IDP = 1;
+
+			if (ipuRegs.ctrl.RST) ipuSoftReset(); // RESET
+			return false;
+	}
+	return true;
+}
+
+// returns FALSE when the writeback is handled, TRUE if the caller should do the
+// writeback itself.
+__fi bool ipuWrite64(u32 mem, u64 value)
+{
+	mem &= 0xfff;
+
+	switch (mem)
+	{
+		case IPU_CMD:
+			IPUCMD_WRITE((u32)value);
+			IPUProcessInterrupt();
+			return false;
+	}
+
+	return true;
+}
+
+
+//////////////////////////////////////////////////////
+// IPU Commands (exec on worker thread only)
+
+static void ipuBCLR(u32 val)
+{
+	if (ipu1ch.chcr.STR && g_BP.IFC < 8 && IPU1Status.DataRequested)
+		ipu1Interrupt();
+
+	if(!ipu1ch.chcr.STR)
+		psHu32(DMAC_STAT) &= ~(1 << DMAC_TO_IPU);
+
+	ipu_fifo.in.clear();
+
+	memzero(g_BP);
+	g_BP.BP = val & 0x7F;
+
+	ipuRegs.cmd.BUSY = 0;
+}
+
+static __ri void ipuIDEC(tIPU_CMD_IDEC idec)
+{
+	//from IPU_CTRL
+	ipuRegs.ctrl.PCT 		= I_TYPE; //Intra DECoding;)
+
+	decoder.coding_type		= ipuRegs.ctrl.PCT;
+	decoder.mpeg1			= ipuRegs.ctrl.MP1;
+	decoder.q_scale_type		= ipuRegs.ctrl.QST;
+	decoder.intra_vlc_format	= ipuRegs.ctrl.IVF;
+	decoder.scantype		= ipuRegs.ctrl.AS;
+	decoder.intra_dc_precision	= ipuRegs.ctrl.IDP;
+
+	//from IDEC value
+	decoder.quantizer_scale		= idec.QSC;
+	decoder.frame_pred_frame_dct    = !idec.DTD;
+	decoder.sgn 			= idec.SGN;
+	decoder.dte 			= idec.DTE;
+	decoder.ofm 			= idec.OFM;
+
+	//other stuff
+	decoder.dcr 			= 1; // resets DC prediction value
+}
+
+static __ri void ipuBDEC(tIPU_CMD_BDEC bdec)
+{
+	decoder.coding_type			= I_TYPE;
+	decoder.mpeg1				= ipuRegs.ctrl.MP1;
+	decoder.q_scale_type		= ipuRegs.ctrl.QST;
+	decoder.intra_vlc_format	= ipuRegs.ctrl.IVF;
+	decoder.scantype			= ipuRegs.ctrl.AS;
+	decoder.intra_dc_precision	= ipuRegs.ctrl.IDP;
+
+	//from BDEC value
+	decoder.quantizer_scale		= decoder.q_scale_type ? non_linear_quantizer_scale [bdec.QSC] : bdec.QSC << 1;
+	decoder.macroblock_modes	= bdec.DT ? DCT_TYPE_INTERLACED : 0;
+	decoder.dcr					= bdec.DCR;
+	decoder.macroblock_modes	|= bdec.MBI ? MACROBLOCK_INTRA : MACROBLOCK_PATTERN;
+
+	memzero_sse_a(decoder.mb8);
+	memzero_sse_a(decoder.mb16);
 }
 
 static void ipuSETTH(u32 val)
@@ -505,35 +611,6 @@ __fi void ipu_csc(macroblock_8& mb8, macroblock_rgb32& rgb32, int sgn)
 	}
 }
 
-__fi void ipu_vq(macroblock_rgb16& rgb16, u8* indx4)
-{
-	const auto closest_index = [&](int i, int j) {
-		u8 index = 0;
-		int min_distance = std::numeric_limits<int>::max();
-		for (u8 k = 0; k < 16; ++k)
-		{
-			const int dr = rgb16.c[i][j].r - vqclut[k].r;
-			const int dg = rgb16.c[i][j].g - vqclut[k].g;
-			const int db = rgb16.c[i][j].b - vqclut[k].b;
-			const int distance = dr * dr + dg * dg + db * db;
-
-			// XXX: If two distances are the same which index is used?
-			if (min_distance > distance)
-			{
-				index = k;
-				min_distance = distance;
-			}
-		}
-
-		return index;
-	};
-
-	for (int i = 0; i < 16; ++i)
-		for (int j = 0; j < 8; ++j)
-			indx4[i * 8 + j] = closest_index(i, 2 * j + 1) << 4 | closest_index(i, 2 * j);
-}
-
-
 // --------------------------------------------------------------------------------------
 //  Buffer reader
 // --------------------------------------------------------------------------------------
@@ -541,9 +618,8 @@ __fi void ipu_vq(macroblock_rgb16& rgb16, u8* indx4)
 __ri u32 UBITS(uint bits)
 {
 	uint readpos8 = g_BP.BP/8;
-
-	uint result = BigEndian(*(u32*)( (u8*)g_BP.internal_qwc + readpos8 ));
-	uint bp7 = (g_BP.BP & 7);
+	uint result   = BigEndian(*(u32*)( (u8*)g_BP.internal_qwc + readpos8 ));
+	uint bp7      = (g_BP.BP & 7);
 	result <<= bp7;
 	result >>= (32 - bits);
 
@@ -555,36 +631,12 @@ __ri s32 SBITS(uint bits)
 	// Read an unaligned 32 bit value and then shift the bits up and then back down.
 
 	uint readpos8 = g_BP.BP/8;
-
-	int result = BigEndian(*(s32*)( (s8*)g_BP.internal_qwc + readpos8 ));
-	uint bp7 = (g_BP.BP & 7);
+	int result    = BigEndian(*(s32*)( (s8*)g_BP.internal_qwc + readpos8 ));
+	uint bp7      = (g_BP.BP & 7);
 	result <<= bp7;
 	result >>= (32 - bits);
 
 	return result;
-}
-
-// whenever reading fractions of bytes. The low bits always come from the next byte
-// while the high bits come from the current byte
-u8 getBits64(u8 *address, bool advance)
-{
-	if (!g_BP.FillBuffer(64)) return 0;
-
-	const u8* readpos = &g_BP.internal_qwc[0]._u8[g_BP.BP/8];
-
-	if (uint shift = (g_BP.BP & 7))
-	{
-		u64 mask = (0xff >> shift);
-		mask = mask | (mask << 8) | (mask << 16) | (mask << 24) | (mask << 32) | (mask << 40) | (mask << 48) | (mask << 56);
-
-		*(u64*)address = ((~mask & *(u64*)(readpos + 1)) >> (8 - shift)) | (((mask) & *(u64*)readpos) << shift);
-	}
-	else
-		*(u64*)address = *(u64*)readpos;
-
-	if (advance) g_BP.Advance(64);
-
-	return 1;
 }
 
 // whenever reading fractions of bytes. The low bits always come from the next byte
@@ -603,32 +655,10 @@ __fi u8 getBits32(u8 *address, bool advance)
 		*(u32*)address = ((~mask & *(u32*)(readpos + 1)) >> (8 - shift)) | (((mask) & *(u32*)readpos) << shift);
 	}
 	else
-	{
 		// Bit position-aligned -- no masking/shifting necessary
 		*(u32*)address = *(u32*)readpos;
-	}
 
 	if (advance) g_BP.Advance(32);
-
-	return 1;
-}
-
-__fi u8 getBits16(u8 *address, bool advance)
-{
-	if (!g_BP.FillBuffer(16)) return 0;
-
-	const u8* readpos = &g_BP.internal_qwc[0]._u8[g_BP.BP/8];
-
-	if (uint shift = (g_BP.BP & 7))
-	{
-		uint mask = (0xff >> shift);
-		mask = mask | (mask << 8);
-		*(u16*)address = ((~mask & *(u16*)(readpos + 1)) >> (8 - shift)) | (((mask) & *(u16*)readpos) << shift);
-	}
-	else
-		*(u16*)address = *(u16*)readpos;
-
-	if (advance) g_BP.Advance(16);
 
 	return 1;
 }
@@ -709,87 +739,11 @@ __fi void IPUCMD_WRITE(u32 val)
 			break;
 
 		case SCE_IPU_SETVQ:
-			break;
-
 		case SCE_IPU_CSC:
-			break;
-
 		case SCE_IPU_PACK:
-			break;
-
 		default:
 			break;
 	}
 
 	ipuRegs.ctrl.BUSY = 1;
-}
-
-__noinline void IPUWorker()
-{
-	switch (ipu_cmd.CMD)
-	{
-		// These are unreachable (BUSY will always be 0 for them)
-		//case SCE_IPU_BCLR:
-		//case SCE_IPU_SETTH:
-		//break;
-
-		case SCE_IPU_IDEC:
-			if (!mpeg2sliceIDEC()) return;
-
-			//ipuRegs.ctrl.OFC = 0;
-			ipuRegs.topbusy = 0;
-			ipuRegs.cmd.BUSY = 0;
-
-			// CHECK!: IPU0dma remains when IDEC is done, so we need to clear it
-			// Check Mana Khemia 1 "off campus" to trigger a GUST IDEC messup.
-			// This hackfixes it :/
-			//if (ipu0ch.qwc > 0 && ipu0ch.chcr.STR) ipu0Interrupt();
-			break;
-
-		case SCE_IPU_BDEC:
-			if (!mpeg2_slice()) return;
-
-			ipuRegs.topbusy = 0;
-			ipuRegs.cmd.BUSY = 0;
-
-			//if (ipuRegs.ctrl.SCD || ipuRegs.ctrl.ECD) hwIntcIrq(INTC_IPU);
-			break;
-
-		case SCE_IPU_VDEC:
-			if (!ipuVDEC(ipu_cmd.current)) return;
-
-			ipuRegs.topbusy = 0;
-			ipuRegs.cmd.BUSY = 0;
-			break;
-
-		case SCE_IPU_FDEC:
-			if (!ipuFDEC(ipu_cmd.current)) return;
-
-			ipuRegs.topbusy = 0;
-			ipuRegs.cmd.BUSY = 0;
-			break;
-
-		case SCE_IPU_SETIQ:
-			if (!ipuSETIQ(ipu_cmd.current)) return;
-			break;
-
-		case SCE_IPU_SETVQ:
-			if (!ipuSETVQ(ipu_cmd.current)) return;
-			break;
-
-		case SCE_IPU_CSC:
-			if (!ipuCSC(ipu_cmd.current)) return;
-			break;
-
-		case SCE_IPU_PACK:
-			if (!ipuPACK(ipu_cmd.current)) return;
-			break;
-
-		default:
-			break;
-	}
-
-	// success
-	ipuRegs.ctrl.BUSY = 0;
-	hwIntcIrq(INTC_IPU);
 }
