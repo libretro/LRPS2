@@ -149,7 +149,7 @@ void MapTLB(int i)
 
 		for (addr=saddr; addr<eaddr; addr++) {
 			if ((addr & mask) == ((tlb[i].VPN2 >> 12) & mask)) { //match
-				vtbl_VMap(addr << 12, tlb[i].PFN1 + ((addr - saddr) << 12), 0x1000);
+				vtlb_VMap(addr << 12, tlb[i].PFN1 + ((addr - saddr) << 12), 0x1000);
 				Cpu->Clear(addr << 12, 0x400);
 			}
 		}
