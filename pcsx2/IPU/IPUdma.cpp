@@ -19,6 +19,8 @@
 #include "IPU/IPUdma.h"
 #include "mpeg2lib/Mpeg.h"
 
+#define IPU_INT_TO( cycles )  if(!(cpuRegs.interrupt & (1<<4))) CPU_INT( DMAC_TO_IPU, cycles )
+
 IPUStatus IPU1Status;
 
 void ipuDmaReset(void)

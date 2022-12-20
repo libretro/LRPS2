@@ -17,17 +17,9 @@
 
 #include "IPU_Fifo.h"
 
-#define ipumsk( src ) ( (src) & 0xff )
-#define ipucase( src ) case ipumsk(src)
-
-#define IPU_INT_TO( cycles )  if(!(cpuRegs.interrupt & (1<<4))) CPU_INT( DMAC_TO_IPU, cycles )
 #define IPU_INT_FROM( cycles )  CPU_INT( DMAC_FROM_IPU, cycles )
 
-#define IPU_FORCEINLINE __fi
-
-//
 // Bitfield Structures
-//
 
 union tIPU_CMD
 {
@@ -37,11 +29,6 @@ union tIPU_CMD
 		u32 BUSY;
 	};
 	u64 _u64;
-
-	void SetBusy(bool busy = true)
-	{
-		BUSY = busy ? 0x80000000 : 0;
-	}
 };
 
 union tIPU_CTRL {
@@ -66,8 +53,8 @@ union tIPU_CTRL {
 
 	tIPU_CTRL( u32 val ) { _u32 = val; }
 
-    // CTRL = the first 16 bits of ctrl [0x8000ffff], + value for the next 16 bits,
-    // minus the reserved bits. (18-19; 27-29) [0x47f30000]
+	// CTRL = the first 16 bits of ctrl [0x8000ffff], + value for the next 16 bits,
+	// minus the reserved bits. (18-19; 27-29) [0x47f30000]
 	void write(u32 value) { _u32 = (value & 0x47f30000) | (_u32 & 0x8000ffff); }
 };
 
@@ -255,20 +242,14 @@ static IPUregisters& ipuRegs = (IPUregisters&)eeHw[0x2000];
 extern __aligned16 tIPU_cmd ipu_cmd;
 extern int coded_block_pattern;
 
-extern void ipuReset();
+extern void ipuReset(void);
 
 extern u32 ipuRead32(u32 mem);
 extern u64 ipuRead64(u32 mem);
 extern bool ipuWrite32(u32 mem,u32 value);
 extern bool ipuWrite64(u32 mem,u64 value);
 
-extern void IPUCMD_WRITE(u32 val);
-extern void ipuSoftReset();
-extern void IPUProcessInterrupt();
+extern void IPUProcessInterrupt(void);
 
-extern u8 getBits128(u8 *address, bool advance);
-extern u8 getBits64(u8 *address, bool advance);
 extern u8 getBits32(u8 *address, bool advance);
-extern u8 getBits16(u8 *address, bool advance);
-extern u8 getBits8(u8 *address, bool advance);
 
