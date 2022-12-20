@@ -234,10 +234,17 @@ SysMainMemory::SysMainMemory()
 
 SysMainMemory::~SysMainMemory()
 {
-	try {
-		ReleaseAll();
-	}
-	DESTRUCTOR_CATCHALL
+	DecommitAll();
+
+	// Just to be sure... (calling order could result 
+	// in it getting missed during Decommit).
+	vtlb_Core_Free();
+
+	m_ee.Decommit();
+	m_iop.Decommit();
+	m_vu.Decommit();
+
+	safe_delete(Source_PageFault);
 }
 
 void SysMainMemory::ReserveAll()
@@ -288,23 +295,6 @@ void SysMainMemory::DecommitAll()
 
 	vtlb_Core_Free();
 }
-
-void SysMainMemory::ReleaseAll()
-{
-	DecommitAll();
-
-	log_cb(RETRO_LOG_INFO, "Releasing host memory maps for virtual systems...\n" );
-	// Just to be sure... (calling order could result 
-	// in it getting missed during Decommit).
-	vtlb_Core_Free();
-
-	m_ee.Decommit();
-	m_iop.Decommit();
-	m_vu.Decommit();
-
-	safe_delete(Source_PageFault);
-}
-
 
 // --------------------------------------------------------------------------------------
 //  SysCpuProviderPack  (implementations)

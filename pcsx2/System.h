@@ -102,7 +102,6 @@ public:
 	virtual void CommitAll();
 	virtual void ResetAll();
 	virtual void DecommitAll();
-	virtual void ReleaseAll();
 };
 
 // --------------------------------------------------------------------------------------

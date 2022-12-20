@@ -98,7 +98,7 @@ static void _Cancel()
 	GetCoreThread().Cancel();
 }
 
-void AppCoreThread::Cancel(bool isBlocking)
+void AppCoreThread::Cancel()
 {
 	_parent::Cancel(wxTimeSpan(0, 0, 4, 0));
 }
@@ -118,7 +118,7 @@ static void _Suspend()
 	GetCoreThread().Suspend(true);
 }
 
-void AppCoreThread::Suspend(bool isBlocking)
+void AppCoreThread::Suspend()
 {
 	if (IsClosed())
 		return;
