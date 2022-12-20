@@ -26,6 +26,8 @@
 //	have been forced to inline since it won't bloat the program and gets rid of
 //	some call overhead.
 
+#include "PrecompiledHeader.h"
+
 #include "Common.h"
 #include "IPU/IPU.h"
 #include "Mpeg.h"
@@ -47,7 +49,7 @@ const int non_linear_quantizer_scale [] =
 	into 1st slot is copied to the 2nd slot. Which will later be copied
 	back to the 1st slot when 128bits have been read.
 */
-static const DCTtab * tab;
+const DCTtab * tab;
 static int mbaCount = 0;
 
 int bitstream_init(void)

@@ -13,6 +13,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "PrecompiledHeader.h"
 #include "Common.h"
 #include "IPU.h"
 #include "IPU/IPUdma.h"
@@ -104,19 +105,22 @@ int IPU_Fifo_Input::read(void *value)
 int IPU_Fifo_Output::write(const u32 *value, uint size)
 {
 	uint origsize = size;
+	/*do {*/
+		//IPU0dma();
 	
-	uint transsize = std::min(size, 8 - (uint)ipuRegs.ctrl.OFC);
-	if(!transsize) return 0;
+		uint transsize = std::min(size, 8 - (uint)ipuRegs.ctrl.OFC);
+		if(!transsize) return 0;
 
-	ipuRegs.ctrl.OFC += transsize;
-	size -= transsize;
-	while (transsize > 0)
-	{
-		CopyQWC(&data[writepos], value);
-		writepos = (writepos + 4) & 31;
-		value += 4;
-		--transsize;
-	}
+		ipuRegs.ctrl.OFC += transsize;
+		size -= transsize;
+		while (transsize > 0)
+		{
+			CopyQWC(&data[writepos], value);
+			writepos = (writepos + 4) & 31;
+			value += 4;
+			--transsize;
+		}
+	/*} while(true);*/
 	if (ipu0ch.chcr.STR)
 		IPU_INT_FROM(64);
 	return origsize - size;
@@ -129,9 +133,11 @@ void IPU_Fifo_Output::read(void *value, uint size)
 	// Zeroing the read data is not needed, since the ringbuffer design will never read back
 	// the zero'd data anyway. --air
 
+	//__m128 zeroreg = _mm_setzero_ps();
 	while (size > 0)
 	{
 		CopyQWC(value, &data[readpos]);
+		//_mm_store_ps((float*)&data[readpos], zeroreg);
 
 		readpos = (readpos + 4) & 31;
 		value = (u128*)value + 1;

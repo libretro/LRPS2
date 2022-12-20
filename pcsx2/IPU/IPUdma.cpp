@@ -13,12 +13,11 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "PrecompiledHeader.h"
 #include "Common.h"
 #include "IPU.h"
 #include "IPU/IPUdma.h"
 #include "mpeg2lib/Mpeg.h"
-
-#define IPU_INT_TO( cycles )  if(!(cpuRegs.interrupt & (1<<4))) CPU_INT( DMAC_TO_IPU, cycles )
 
 IPUStatus IPU1Status;
 
@@ -110,7 +109,7 @@ static void IPU1dma(void)
 		IPU1Status.DataRequested = false;
 
 		if (!(IPU1Status.DMAFinished && !IPU1Status.InProgress))
-			cpuRegs.eCycle[4] = 0x9999; /* IPU_INT_TO(2048); */
+			cpuRegs.eCycle[4] = 0x9999;//IPU_INT_TO(2048);
 		else
 		{
 			IPU_INT_TO(totalqwc*BIAS);

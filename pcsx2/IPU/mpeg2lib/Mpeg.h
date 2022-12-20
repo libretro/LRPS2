@@ -186,23 +186,26 @@ struct mpeg2_scan_pack
 	mpeg2_scan_pack();
 };
 
-extern int bitstream_init(void);
+extern int bitstream_init ();
 extern u32 UBITS(uint bits);
 extern s32 SBITS(uint bits);
 
 extern void mpeg2_idct_copy(s16 * block, u8* dest, int stride);
 extern void mpeg2_idct_add(int last, s16 * block, s16* dest, int stride);
 
-extern bool mpeg2sliceIDEC(void);
-extern bool mpeg2_slice(void);
+extern bool mpeg2sliceIDEC();
+extern bool mpeg2_slice();
 extern int get_macroblock_address_increment();
-extern int get_macroblock_modes(void);
+extern int get_macroblock_modes();
 
 extern int get_motion_delta(const int f_code);
-extern int get_dmv(void);
+extern int get_dmv();
 
 extern void ipu_csc(macroblock_8& mb8, macroblock_rgb32& rgb32, int sgn);
 extern void ipu_dither(const macroblock_rgb32& rgb32, macroblock_rgb16& rgb16, int dte);
+extern void ipu_vq(macroblock_rgb16& rgb16, u8* indx4);
+
+extern int slice (u8 * buffer);
 
 #ifdef _MSC_VER
 #define BigEndian(in) _byteswap_ulong(in)
@@ -218,3 +221,4 @@ extern const int non_linear_quantizer_scale[];
 
 extern __aligned16 tIPU_BP g_BP;
 extern __aligned16 decoder_t decoder;
+
