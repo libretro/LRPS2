@@ -515,14 +515,14 @@ bool GSDevice11::Create()
 
 	{
 		std::vector<char> shader(convert_shader_raw, convert_shader_raw + sizeof(convert_shader_raw)/sizeof(*convert_shader_raw));
-		CreateShader(shader, "convert.fx", nullptr, "vs_main", sm_model.GetPtr(), &m_convert.vs, il_convert, countof(il_convert), &m_convert.il);
+		CreateShader(shader, "convert.fx", nullptr, "vs_main", sm_model.GetPtr(), &m_convert.vs, il_convert, ARRAY_SIZE(il_convert), &m_convert.il);
 
 		ShaderMacro sm_convert(m_shader.model);
 		sm_convert.AddMacro("PS_SCALE_FACTOR", std::max(1, m_upscale_multiplier));
 
 		D3D_SHADER_MACRO* sm_convert_ptr = sm_convert.GetPtr();
 
-		for(size_t i = 0; i < countof(m_convert.ps); i++)
+		for(size_t i = 0; i < ARRAY_SIZE(m_convert.ps); i++)
 		{
 			char str[32];
 			snprintf(str, sizeof(str), "ps_main%d", i);
@@ -558,7 +558,7 @@ bool GSDevice11::Create()
 
 	{
 		std::vector<char> shader(merge_shader_raw, merge_shader_raw + sizeof(merge_shader_raw)/sizeof(*merge_shader_raw));
-		for(size_t i = 0; i < countof(m_merge.ps); i++)
+		for(size_t i = 0; i < ARRAY_SIZE(m_merge.ps); i++)
 		{
 			char str[32];
 			snprintf(str, sizeof(str), "ps_main%d", i);
@@ -591,7 +591,7 @@ bool GSDevice11::Create()
 
 	{
 		std::vector<char> shader(interlace_shader_raw, interlace_shader_raw + sizeof(interlace_shader_raw)/sizeof(*interlace_shader_raw));
-		for(size_t i = 0; i < countof(m_interlace.ps); i++)
+		for(size_t i = 0; i < ARRAY_SIZE(m_interlace.ps); i++)
 		{
 			char str[32];
 			snprintf(str, sizeof(str), "ps_main%d", i);
@@ -744,7 +744,7 @@ void GSDevice11::Flip()
 	m_ctx->PSSetShader(m_state.ps, NULL, 0);
 	m_ctx->PSSetConstantBuffers(0, 1, &m_state.ps_cb);
 	m_ctx->PSSetShaderResources(0, m_state.ps_sr_views.size(), m_state.ps_sr_views.data());
-	m_ctx->PSSetSamplers(0, countof(m_state.ps_ss), m_state.ps_ss);
+	m_ctx->PSSetSamplers(0, ARRAY_SIZE(m_state.ps_ss), m_state.ps_ss);
 	m_ctx->OMSetDepthStencilState(m_state.dss, m_state.sref);
 	float BlendFactor[] = {m_state.bf, m_state.bf, m_state.bf, 0};
 	m_ctx->OMSetBlendState(m_state.bs, BlendFactor, 0xffffffff);
@@ -1063,7 +1063,7 @@ void GSDevice11::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture*
 
 
 
-	IASetVertexBuffer(vertices, sizeof(vertices[0]), countof(vertices));
+	IASetVertexBuffer(vertices, sizeof(vertices[0]), ARRAY_SIZE(vertices));
 	IASetInputLayout(m_convert.il);
 	IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
@@ -1458,7 +1458,7 @@ void GSDevice11::PSSetShader(ID3D11PixelShader* ps, ID3D11Buffer* ps_cb)
 void GSDevice11::PSUpdateShaderState()
 {
 	m_ctx->PSSetShaderResources(0, m_state.ps_sr_views.size(), m_state.ps_sr_views.data());
-	m_ctx->PSSetSamplers(0, countof(m_state.ps_ss), m_state.ps_ss);
+	m_ctx->PSSetSamplers(0, ARRAY_SIZE(m_state.ps_ss), m_state.ps_ss);
 }
 
 void GSDevice11::OMSetDepthStencilState(ID3D11DepthStencilState* dss, u8 sref)

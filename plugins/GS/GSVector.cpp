@@ -68,10 +68,10 @@ void GSVector4i::InitVectors()
 		GSVector4i(0x0f0f0f0f, 0x0f0f0f0f, 0x0f0f0f0f, 0x0f0f0f0f),
 	};
 
-	for (size_t n = 0; n < countof(xff); ++n)
+	for (size_t n = 0; n < ARRAY_SIZE(xff); ++n)
 		m_xff[n] = xff[n];
 
-	for (size_t n = 0; n < countof(x0f); ++n)
+	for (size_t n = 0; n < ARRAY_SIZE(x0f); ++n)
 		m_x0f[n] = x0f[n];
 }
 
@@ -205,10 +205,10 @@ void GSVector8i::InitVectors()
 		GSVector8i(0x0f0f0f0f, 0x0f0f0f0f, 0x0f0f0f0f, 0x0f0f0f0f, 0x0f0f0f0f, 0x0f0f0f0f, 0x0f0f0f0f, 0x0f0f0f0f),
 	};
 
-	for (size_t n = 0; n < countof(xff); ++n)
+	for (size_t n = 0; n < ARRAY_SIZE(xff); ++n)
 		m_xff[n] = xff[n];
 
-	for (size_t n = 0; n < countof(x0f); ++n)
+	for (size_t n = 0; n < ARRAY_SIZE(x0f); ++n)
 		m_x0f[n] = x0f[n];
 }
 #endif

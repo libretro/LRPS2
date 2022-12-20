@@ -1119,7 +1119,7 @@ void GSDevice11::SetupVS(VSSelector sel, const VSConstantBuffer* cb)
 		GSVertexShader11 vs;
 
 		std::vector<char> shader(tfx_shader_raw, tfx_shader_raw + sizeof(tfx_shader_raw)/sizeof(*tfx_shader_raw));
-		CreateShader(shader, "tfx.fx", nullptr, "vs_main", sm.GetPtr(), &vs.vs, layout, countof(layout), &vs.il);
+		CreateShader(shader, "tfx.fx", nullptr, "vs_main", sm.GetPtr(), &vs.vs, layout, ARRAY_SIZE(layout), &vs.il);
 
 		m_vs[sel] = vs;
 

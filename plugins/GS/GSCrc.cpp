@@ -578,7 +578,7 @@ CRC::Game CRC::Lookup(u32 crc)
 	{
 		std::string exclusions = theApp.GetConfigS("CrcHacksExclusions");
 		int crcDups = 0;
-		for(size_t i = 0; i < countof(m_games); i++)
+		for(size_t i = 0; i < ARRAY_SIZE(m_games); i++)
 		{
 			if( !IsCrcExcluded( exclusions, m_games[i].crc ) ){
 				if(m_map[m_games[i].crc])

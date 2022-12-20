@@ -375,7 +375,7 @@ static u8* s_Next[8];
 
 void* fifo_alloc(size_t size, size_t repeat)
 {
-	if (repeat >= countof(s_Next))
+	if (repeat >= ARRAY_SIZE(s_Next))
 		return nullptr;
 	if (!(s_fh = CreateFileMapping(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, size, nullptr)))
 		return nullptr;
@@ -418,8 +418,10 @@ void fifo_free(void* ptr, size_t size, size_t repeat)
 
 	UnmapViewOfFile(ptr);
 
-	for (size_t i = 1; i < countof(s_Next); i++) {
-		if (s_Next[i] != 0) {
+	for (size_t i = 1; i < ARRAY_SIZE(s_Next); i++)
+	{
+		if (s_Next[i] != 0)
+		{
 			UnmapViewOfFile(s_Next[i]);
 			s_Next[i] = 0;
 		}

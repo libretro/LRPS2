@@ -50,12 +50,10 @@ GSRendererSW::GSRendererSW(int threads)
 
 	m_output = (u8*)_aligned_malloc(1024 * 1024 * sizeof(u32), 32);
 
-	for (u32 i = 0; i < countof(m_fzb_pages); i++) {
+	for (u32 i = 0; i < ARRAY_SIZE(m_fzb_pages); i++)
 		m_fzb_pages[i] = 0;
-	}
-	for (u32 i = 0; i < countof(m_tex_pages); i++) {
+	for (u32 i = 0; i < ARRAY_SIZE(m_tex_pages); i++)
 		m_tex_pages[i] = 0;
-	}
 
 	#define InitCVB2(P, Q) \
 		m_cvb[P][0][0][Q] = &GSRendererSW::ConvertVertexBuffer<P, 0, 0, Q>; \
@@ -84,10 +82,8 @@ GSRendererSW::~GSRendererSW()
 {
 	delete m_tc;
 
-	for(size_t i = 0; i < countof(m_texture); i++)
-	{
+	for(size_t i = 0; i < ARRAY_SIZE(m_texture); i++)
 		delete m_texture[i];
-	}
 
 	delete m_rl;
 
@@ -112,7 +108,7 @@ void GSRendererSW::VSync(int field)
 
 void GSRendererSW::ResetDevice()
 {
-	for(size_t i = 0; i < countof(m_texture); i++)
+	for(size_t i = 0; i < ARRAY_SIZE(m_texture); i++)
 	{
 		delete m_texture[i];
 

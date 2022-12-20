@@ -307,8 +307,10 @@ struct GSScanlineConstantData : public GSAlignedClass<32>
 			1.0f
 		};
 
-		for (size_t n = 0; n < countof(log2_coef); ++n) {
-			for (size_t i = 0; i < 4; ++i) {
+		for (size_t n = 0; n < ARRAY_SIZE(log2_coef); ++n)
+		{
+			for (size_t i = 0; i < 4; ++i)
+			{
 				m_log2_coef_128b[n][i] = log2_coef[n];
 				m_log2_coef_256b[n][i] = log2_coef[n];
 				m_log2_coef_256b[n][i+4] = log2_coef[n];

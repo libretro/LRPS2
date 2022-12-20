@@ -57,9 +57,8 @@ namespace PboPool {
 		m_map    = (char*)glMapBufferRange(GL_PIXEL_UNPACK_BUFFER, 0, m_pbo_size, map_flags);
 		m_offset = 0;
 
-		for (size_t i = 0; i < countof(m_fence); i++) {
+		for (size_t i = 0; i < ARRAY_SIZE(m_fence); i++)
 			m_fence[i] = 0;
-		}
 
 		UnbindPbo();
 	}
@@ -92,9 +91,8 @@ namespace PboPool {
 		m_map    = NULL;
 		m_offset = 0;
 
-		for (size_t i = 0; i < countof(m_fence); i++) {
+		for (size_t i = 0; i < ARRAY_SIZE(m_fence); i++)
 			glDeleteSync(m_fence[i]);
-		}
 
 		glDeleteBuffers(1, &m_buffer);
 	}
@@ -108,9 +106,8 @@ namespace PboPool {
 		u32 segment_next    = (m_offset + m_size) / m_seg_size;
 
 		if (segment_current != segment_next) {
-			if (segment_next >= countof(m_fence)) {
+			if (segment_next >= ARRAY_SIZE(m_fence))
 				segment_next = 0;
-			}
 			// Align current transfer on the start of the segment
 			m_offset = m_seg_size * segment_next;
 
@@ -315,7 +312,7 @@ GSTextureOGL::~GSTextureOGL()
 		GLState::rt = 0;
 	if (m_texture_id == GLState::ds)
 		GLState::ds = 0;
-	for (size_t i = 0; i < countof(GLState::tex_unit); i++) {
+	for (size_t i = 0; i < ARRAY_SIZE(GLState::tex_unit); i++) {
 		if (m_texture_id == GLState::tex_unit[i])
 			GLState::tex_unit[i] = 0;
 	}

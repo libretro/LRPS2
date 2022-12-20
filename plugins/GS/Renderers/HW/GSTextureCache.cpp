@@ -1860,7 +1860,7 @@ void GSTextureCache::SourceMap::Add(Source* s, const GIFRegTEX0& TEX0, GSOffset*
 	}
 
 	// The source pointer will be stored/duplicated in all m_map[array of pages]
-	for(size_t i = 0; i < countof(m_pages); i++)
+	for(size_t i = 0; i < ARRAY_SIZE(m_pages); i++)
 	{
 		if(u32 p = s->m_pages_as_bit[i])
 		{
@@ -1888,7 +1888,7 @@ void GSTextureCache::SourceMap::RemoveAll()
 
 	m_surfaces.clear();
 
-	for(size_t i = 0; i < countof(m_map); i++)
+	for(size_t i = 0; i < ARRAY_SIZE(m_map); i++)
 	{
 		m_map[i].clear();
 	}
@@ -1905,7 +1905,7 @@ void GSTextureCache::SourceMap::RemoveAt(Source* s)
 	}
 	else
 	{
-		for(size_t i = 0; i < countof(m_pages); i++)
+		for(size_t i = 0; i < ARRAY_SIZE(m_pages); i++)
 		{
 			if(u32 p = s->m_pages_as_bit[i])
 			{
