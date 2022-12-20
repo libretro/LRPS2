@@ -622,15 +622,15 @@ bool retro_load_game(const struct retro_game_info* game)
 
 	ResetContentStuffs();
 
-	const char* selected_bios = sel_bios_path.c_str();
-	if (selected_bios == NULL)
+	if (sel_bios_path.empty())
 	{
 		log_cb(RETRO_LOG_ERROR, "Could not find any valid PS2 Bios File in %s\n", (const char*)bios_dir.GetFullPath());
 		return false;
 	}
-	else
-		log_cb(RETRO_LOG_INFO, "Loading selected BIOS:  %s\n", selected_bios);
-
+		
+	const char* selected_bios = sel_bios_path.c_str();
+	
+	log_cb(RETRO_LOG_INFO, "Loading selected BIOS:  %s\n", selected_bios);
 
 	// we check if nvm file exists, if not it means that it's a new bios.
 	// in this case whe bypass the fastboot option, forcing to enter the bios first run setup
