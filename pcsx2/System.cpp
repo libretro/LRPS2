@@ -122,17 +122,7 @@ public:
 
 	CpuInitializer();
 	virtual ~CpuInitializer();
-
-	bool IsAvailable() const
-	{
-		return !!MyCpu;
-	}
-
-	CpuType* GetPtr() { return MyCpu.get(); }
-	const CpuType* GetPtr() const { return MyCpu.get(); }
-
-	operator CpuType*() { return GetPtr(); }
-	operator const CpuType*() const { return GetPtr(); }
+	operator CpuType*() { return MyCpu.get(); }
 };
 
 // --------------------------------------------------------------------------------------
@@ -215,22 +205,7 @@ static VirtualMemoryManagerPtr makeMainMemoryManager(void)
 // --------------------------------------------------------------------------------------
 SysMainMemory::SysMainMemory()
 	: m_mainMemory(makeMainMemoryManager())
-	, m_bumpAllocator(m_mainMemory, HostMemoryMap::bumpAllocatorOffset, HostMemoryMap::Size - HostMemoryMap::bumpAllocatorOffset)
-{
-#if 0
-	uptr base    = (uptr)MainMemory()->GetBase();
-	uptr EEmem   = base + HostMemoryMap::EEmemOffset;
-	uptr IOPmem  = base + HostMemoryMap::IOPmemOffset;
-	uptr VUmem   = base + HostMemoryMap::VUmemOffset;
-	uptr EErec   = base + HostMemoryMap::EErecOffset;
-	uptr IOPrec  = base + HostMemoryMap::IOPrecOffset;
-	uptr VIF0rec = base + HostMemoryMap::VIF0recOffset;
-	uptr VIF1rec = base + HostMemoryMap::VIF1recOffset;
-	uptr mVU0rec = base + HostMemoryMap::mVU0recOffset;
-	uptr mVU1rec = base + HostMemoryMap::mVU1recOffset;
-	uptr bumpAllocator = base + HostMemoryMap::bumpAllocatorOffset;
-#endif
-}
+	, m_bumpAllocator(m_mainMemory, HostMemoryMap::bumpAllocatorOffset, HostMemoryMap::Size - HostMemoryMap::bumpAllocatorOffset) { }
 
 SysMainMemory::~SysMainMemory()
 {
@@ -331,12 +306,12 @@ SysCpuProviderPack::SysCpuProviderPack()
 	dVifReserve(1);
 }
 
-bool SysCpuProviderPack::IsRecAvailable_MicroVU0() const { return CpuProviders->microVU0.IsAvailable(); }
-bool SysCpuProviderPack::IsRecAvailable_MicroVU1() const { return CpuProviders->microVU1.IsAvailable(); }
+bool SysCpuProviderPack::IsRecAvailable_MicroVU0() const { return !!CpuProviders->microVU0.MyCpu; }
+bool SysCpuProviderPack::IsRecAvailable_MicroVU1() const { return !!CpuProviders->microVU1.MyCpu; }
 BaseException* SysCpuProviderPack::GetException_MicroVU0() const { return CpuProviders->microVU0.ExThrown.get(); }
 BaseException* SysCpuProviderPack::GetException_MicroVU1() const { return CpuProviders->microVU1.ExThrown.get(); }
 
-void SysCpuProviderPack::CleanupMess() noexcept
+SysCpuProviderPack::~SysCpuProviderPack()
 {
 	try
 	{
@@ -347,11 +322,6 @@ void SysCpuProviderPack::CleanupMess() noexcept
 		dVifRelease(1);
 	}
 	DESTRUCTOR_CATCHALL
-}
-
-SysCpuProviderPack::~SysCpuProviderPack()
-{
-	CleanupMess();
 }
 
 bool SysCpuProviderPack::HadSomeFailures( const Pcsx2Config::RecompilerOptions& recOpts ) const

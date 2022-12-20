@@ -112,9 +112,6 @@ class SysAllocVM
 public:
 	SysAllocVM();
 	virtual ~SysAllocVM();
-
-protected:
-	void CleanupMess() noexcept;
 };
 
 // --------------------------------------------------------------------------------------
@@ -146,9 +143,6 @@ public:
 	bool IsRecAvailable_MicroVU1() const;
 	BaseException* GetException_MicroVU0() const;
 	BaseException* GetException_MicroVU1() const;
-
-protected:
-	void CleanupMess() noexcept;
 };
 
 // GetCpuProviders - this function is not implemented by PCSX2 core -- it must be
