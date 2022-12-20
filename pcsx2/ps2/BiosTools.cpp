@@ -162,12 +162,6 @@ static void LoadBiosVersion( pxInputStream& fp, u32& version, wxString& descript
 	}
 }
 
-static void LoadBiosVersion( pxInputStream& fp, u32& version, wxString& description )
-{
-	wxString zoneStr;
-	LoadBiosVersion( fp,version, description, zoneStr );
-}
-
 template< size_t _size >
 static void ChecksumIt( u32& result, const u8 (&srcdata)[_size] )
 {
@@ -316,7 +310,8 @@ bool IsBIOS(const wxString& filename, wxString& description)
 
 	try {
 		u32 version;
-		LoadBiosVersion( inway, version, description );
+		wxString zoneStr;
+		LoadBiosVersion( inway, version, description, zoneStr );
 		return true;
 	} catch( Exception::BadStream& ) { }
 
