@@ -270,7 +270,7 @@ void retro_init(void)
 	for (wxString bios_file : bios_list)
 	{
 			wxString description;
-			if (IsBIOSlite(bios_file, description)) {
+			if (IsBIOS(bios_file, description)) {
 				std::string log_bios = (std::string)description;
 				wxFileName f;
 				f.Assign(bios_file);
