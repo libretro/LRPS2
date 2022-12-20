@@ -16,15 +16,12 @@
 #include "PrecompiledHeader.h"
 #include "Common.h"
 
-#include <list>
 #include <wx/app.h>
 
 #include "GS.h"
 #include "Gif_Unit.h"
 #include "MTVU.h"
 #include "Elfheader.h"
-
-using namespace Threading;
 
 // =====================================================================================================
 //  MTGS Threaded Class Implementation
@@ -33,13 +30,8 @@ using namespace Threading;
 __aligned(32) MTGS_BufferedData RingBuffer;
 extern bool renderswitch;
 
-
 SysMtgsThread::SysMtgsThread() :
-#ifdef __LIBRETRO__
 	SysFakeThread()
-#else
-	SysThreadBase()
-#endif
 {
 	m_name = L"MTGS";
 
@@ -50,16 +42,16 @@ void SysMtgsThread::OnStart()
 {
 	m_Opened		= false;
 
-	m_ReadPos			= 0;
-	m_WritePos			= 0;
-	m_RingBufferIsBusy  = false;
+	m_ReadPos		= 0;
+	m_WritePos		= 0;
+	m_RingBufferIsBusy      = false;
 	m_packet_size		= 0;
 	m_packet_writepos	= 0;
 
-	m_QueuedFrameCount    = 0;
-	m_VsyncSignalListener = false;
-	m_SignalRingEnable    = false;
-	m_SignalRingPosition  = 0;
+	m_QueuedFrameCount      = 0;
+	m_VsyncSignalListener   = false;
+	m_SignalRingEnable      = false;
+	m_SignalRingPosition    = 0;
 
 	m_CopyDataTally		= 0;
 
@@ -96,9 +88,9 @@ void SysMtgsThread::ResetGS()
 
 struct RingCmdPacket_Vsync
 {
-	u8				regset1[0x0f0];
-	u32				csr;
-	u32				imr;
+	u8		regset1[0x0f0];
+	u32		csr;
+	u32		imr;
 	GSRegSIGBLID	siglblid;
 };
 
@@ -164,9 +156,7 @@ union PacketTagType
 
 void SysMtgsThread::OpenGS()
 {
-#ifdef __LIBRETRO__
 	m_thread = pthread_self();
-#endif
 
 	if( m_Opened ) return;
 
@@ -181,52 +171,12 @@ void SysMtgsThread::OpenGS()
 	GSsetGameCRC( ElfCRC, 0 );
 }
 
-#ifndef __LIBRETRO__
-class RingBufferLock {
-	ScopedLock     m_lock1;
-	ScopedLock     m_lock2;
-	SysMtgsThread& m_mtgs;
-
-	public:
-
-	RingBufferLock(SysMtgsThread& mtgs)
-		: m_lock1(mtgs.m_mtx_RingBufferBusy),
-		  m_lock2(mtgs.m_mtx_RingBufferBusy2),
-		  m_mtgs(mtgs) {
-		m_mtgs.m_RingBufferIsBusy.store(true, std::memory_order_relaxed);
-	}
-	virtual ~RingBufferLock() {
-		m_mtgs.m_RingBufferIsBusy.store(false, std::memory_order_relaxed);
-	}
-	void Acquire() {
-		m_lock1.Acquire();
-		m_lock2.Acquire();
-		m_mtgs.m_RingBufferIsBusy.store(true, std::memory_order_relaxed);
-	}
-	void Release() {
-		m_mtgs.m_RingBufferIsBusy.store(false, std::memory_order_relaxed);
-		m_lock2.Release();
-		m_lock1.Release();
-	}
-	void PartialAcquire() {
-		m_lock2.Acquire();
-	}
-	void PartialRelease() {
-		m_lock2.Release();
-	}
-};
-#endif
-
 void SysMtgsThread::ExecuteTaskInThread()
 {
-#ifndef __LIBRETRO__
-	RingBufferLock busy (*this);
-#endif
 	// Threading info: run in MTGS thread
 	// m_ReadPos is only update by the MTGS thread so it is safe to load it with a relaxed atomic
         for (;;)
 	{
-#ifdef __LIBRETRO__
 		while (wxTheApp->HasPendingEvents())
 			wxTheApp->ProcessPendingEvents();
 
@@ -236,16 +186,6 @@ void SysMtgsThread::ExecuteTaskInThread()
 				wxTheApp->ProcessPendingEvents();
 		}
 		StateCheckInThread();
-#else
-		busy.Release();
-		// Performance note: Both of these perform cancellation tests, but pthread_testcancel
-		// is very optimized (only 1 instruction test in most cases), so no point in trying
-		// to avoid it.
-
-		m_sem_event.WaitWithoutYield();
-		StateCheckInThread();
-		busy.Acquire();
-#endif
 
 		// note: m_ReadPos is intentionally not volatile, because it should only
 		// ever be modified by this thread.
@@ -268,14 +208,8 @@ void SysMtgsThread::ExecuteTaskInThread()
 
 				case GS_RINGTYPE_MTVU_GSPACKET: {
 					vu1Thread.KickStart(true);
-#ifndef __LIBRETRO__
-					busy.PartialRelease();
-#endif
 					// Wait for MTVU to complete vu1 program
 					vu1Thread.semaXGkick.WaitWithoutYield();
-#ifndef __LIBRETRO__
-					busy.PartialAcquire();
-#endif
 					Gif_Path& path   = gifUnit.gifPath[GIF_PATH_1];
 					GS_Packet gsPack = path.GetGSPacketMTVU(); // Get vu1 program's xgkick packet(s)
 					if (gsPack.size) GSgifTransfer((u32*)&path.buffer[gsPack.offset], gsPack.size/16);
@@ -372,12 +306,8 @@ void SysMtgsThread::ExecuteTaskInThread()
 					continue;
 				}
 			}
-#ifdef __LIBRETRO__
 			if(tag.command == GS_RINGTYPE_VSYNC)
 			{
-#ifndef __LIBRETRO__
-				busy.Release();
-#endif
 				if( m_SignalRingEnable.exchange(false) )
 				{
 					m_SignalRingPosition.store(0, std::memory_order_release);
@@ -385,12 +315,7 @@ void SysMtgsThread::ExecuteTaskInThread()
 				}
 				return;
 			}
-#endif
 		}
-
-#ifndef __LIBRETRO__
-		busy.Release();
-#endif
 
 		// Safety valve in case standard signals fail for some reason -- this ensures the EEcore
 		// won't sleep the eternity, even if SignalRingPosition didn't reach 0 for some reason.
@@ -423,9 +348,7 @@ void SysMtgsThread::CloseGS()
 	if( !m_Opened ) return;
 	m_Opened = false;
 	GSclose();
-#ifdef __LIBRETRO__
 	m_thread = {};
-#endif
 }
 
 void SysMtgsThread::OnSuspendInThread()
@@ -451,7 +374,7 @@ void SysMtgsThread::OnCleanupInThread()
 }
 
 // Waits for the GS to empty out the entire ring buffer contents.
-// If syncRegs, then writes pcsx2's gs regs to MTGS's internal copy
+// If syncRegs, then writes PCSX2's GS regs to MTGS's internal copy
 // If weakWait, then this function is allowed to exit after MTGS finished a path1 packet
 // If isMTVU, then this implies this function is being called from the MTVU thread...
 void SysMtgsThread::WaitGS(bool syncRegs, bool weakWait, bool isMTVU)
