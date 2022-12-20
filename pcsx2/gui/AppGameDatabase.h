@@ -23,15 +23,7 @@ class AppGameDatabase : public YamlGameDatabaseImpl
 {
 public:
 	AppGameDatabase() {}
-	virtual ~AppGameDatabase()
-	{
-		try
-		{
-			log_cb(RETRO_LOG_INFO, "(GameDB) Unloading...\n");
-		}
-		DESTRUCTOR_CATCHALL
-	}
-
+	virtual ~AppGameDatabase() { }
 	AppGameDatabase& Load();
 };
 

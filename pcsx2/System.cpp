@@ -164,11 +164,8 @@ CpuInitializer< CpuType >::CpuInitializer()
 template< typename CpuType >
 CpuInitializer< CpuType >::~CpuInitializer()
 {
-	try {
-		if (MyCpu)
-			MyCpu->Shutdown();
-	}
-	DESTRUCTOR_CATCHALL
+	if (MyCpu)
+		MyCpu->Shutdown();
 }
 
 // --------------------------------------------------------------------------------------
