@@ -15,16 +15,6 @@
 
 #pragma once
 
-// Useful enums for some of the fields.
-enum pce_values
-{
-	PCE_NOTHING = 0,
-	PCE_RESERVED,
-	PCE_DISABLED,
-	PCE_ENABLED
-};
-
-
 enum tag_id
 {
 	TAG_CNTS = 0,
@@ -96,6 +86,7 @@ union tDMA_TAG {
 
 	tDMA_TAG(u32 val) { _u32 = val; }
 };
+
 #define DMA_TAG(value) ((tDMA_TAG)(value))
 
 union tDMA_CHCR {
@@ -117,8 +108,6 @@ union tDMA_CHCR {
 	void set(u32 value) { _u32 = value; }
 	tDMA_TAG tag() { return (tDMA_TAG)_u32; }
 };
-
-#define CHCR(value) ((tDMA_CHCR)(value))
 
 union tDMA_SADR {
 	struct {
@@ -240,27 +229,6 @@ union tDMAC_QUEUE
 	};
 	u16 _u16;
 };
-
-// Believe it or not, making this const can generate compiler warnings in gcc.
-static __fi int ChannelNumber(u32 addr)
-{
-    switch (addr)
-    {
-        case D0_CHCR: return 0;
-        case D1_CHCR: return 1;
-        case D2_CHCR: return 2;
-        case D3_CHCR: return 3;
-        case D4_CHCR: return 4;
-        case D5_CHCR: return 5;
-        case D6_CHCR: return 6;
-        case D7_CHCR: return 7;
-        case D8_CHCR: return 8;
-        case D9_CHCR: return 9;
-		default:
-		      break;
-    }
-    return 51; // some value
-}
 
 union tDMAC_CTRL {
 	struct {
@@ -407,8 +375,6 @@ struct INTCregisters
 	tINTC_MASK  mask;
 	u32 _padding2[3];
 };
-
-#define intcRegs ((INTCregisters*)(eeHw+0xF000))
 
 static DMACregisters& dmacRegs	= (DMACregisters&)eeHw[0xE000];
 

@@ -164,6 +164,27 @@ static void StartQueuedDMA(void)
 	if (QueuedDMA.SPR1) { QueuedDMA.SPR1 = !QuickDmaExec(dmaSPR1, D9_CHCR); }
 }
 
+// Believe it or not, making this const can generate compiler warnings in gcc.
+static __fi int ChannelNumber(u32 addr)
+{
+    switch (addr)
+    {
+        case D0_CHCR: return 0;
+        case D1_CHCR: return 1;
+        case D2_CHCR: return 2;
+        case D3_CHCR: return 3;
+        case D4_CHCR: return 4;
+        case D5_CHCR: return 5;
+        case D6_CHCR: return 6;
+        case D7_CHCR: return 7;
+        case D8_CHCR: return 8;
+        case D9_CHCR: return 9;
+		default:
+		      break;
+    }
+    return 51; // some value
+}
+
 static __ri void DmaExec( void (*func)(), u32 mem, u32 value )
 {
 	DMACh& reg = (DMACh&)psHu32(mem);
