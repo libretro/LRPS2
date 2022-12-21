@@ -461,7 +461,7 @@ void retro_get_system_info(retro_system_info* info)
 	info->library_version = version;
 #endif
 
-	info->library_name = "pcsx2 (alpha)";
+	info->library_name = "LRPS2 (alpha)";
 	info->valid_extensions = "elf|iso|ciso|chd|cso|cue|bin|m3u";
 	info->need_fullpath = true;
 	info->block_extract = true;
