@@ -168,8 +168,6 @@ extern SysMainMemory& GetVmMemory();
 // In addition, we don't currently set up SEH properly on Windows x64 so disable it there too
 //
 
-//#define PCSX2_SEH		0		// use this to force disable SEH on win32, to test setjmp functionality.
-
 #ifndef PCSX2_SEH
 #	if defined(_WIN32) && !defined(__GNUC__) && !defined(_WIN64)
 #		define PCSX2_SEH	1
