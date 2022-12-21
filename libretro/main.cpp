@@ -433,10 +433,13 @@ void retro_deinit(void)
 	and it gets stuck waiting for a mutex that will never unlock */
 	vu1Thread.WaitVU();
 	//vu1Thread.Cancel();
-
-	pcsx2->CleanupOnExit();
-	pcsx2->OnExit();
-
+	
+	if (pcsx2 != nullptr)
+	{
+		pcsx2->CleanupOnExit();
+		pcsx2->OnExit();
+	}
+	
 	bios_files.clear();
 	custom_memcard_list_slot1.clear();
 	custom_memcard_list_slot2.clear();
