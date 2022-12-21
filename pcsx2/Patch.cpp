@@ -301,7 +301,12 @@ namespace PatchFunc
 
 		PatchPieces(const wxString& param)
 		{
-			SplitString(m_pieces, param, L",");
+			// Splits a string into parts and adds the parts into the given SafeList.
+			// This list is not cleared, so concatenating many splits into a single large list is
+			// the 'default' behavior, unless you manually clear the SafeList prior to subsequent calls.
+			wxStringTokenizer parts(param, L",", wxTOKEN_RET_EMPTY_ALL);
+			while (parts.HasMoreTokens())
+				m_pieces.Add(parts.GetNextToken());
 		}
 
 		const wxString& PlaceToPatch() const { return m_pieces[0]; }
@@ -317,23 +322,17 @@ namespace PatchFunc
 		// format them into more detailed cmd+data+error printouts.  If we want to add user-friendly
 		// (translated) messages for display in a popup window then we'll have to upgrade the
 		// exception a little bit.
-
-		// print the actual patch lines only in verbose mode (even in devel)
-#ifndef NDEBUG
-		log_cb(RETRO_LOG_DEBUG, "%s %s\n",  WX_STR(cmd), WX_STR(param));
-#endif
-
 		{
 			PatchPieces pieces(param);
 
-			IniPatch iPatch = {0};
-			iPatch.enabled = 0;
+			IniPatch iPatch     = {0};
+			iPatch.enabled      = 0;
 			iPatch.placetopatch = StrToU32(pieces.PlaceToPatch(), 10);
 
 			if (iPatch.placetopatch >= _PPT_END_MARKER)
 				goto error;
 
-			iPatch.cpu = (patch_cpu_type)PatchTableExecute(pieces.CpuType(), cpuCore);
+			iPatch.cpu  = (patch_cpu_type)PatchTableExecute(pieces.CpuType(), cpuCore);
 			iPatch.addr = StrToU32(pieces.MemAddr(), 16);
 			iPatch.type = (patch_data_type)PatchTableExecute(pieces.OperandSize(), dataType);
 			iPatch.data = StrToU64(pieces.WriteValue(), 16);
