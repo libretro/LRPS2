@@ -123,7 +123,6 @@ namespace R5900
 
 		MakeOpcodeClass( SPECIAL );
 		MakeOpcodeClass( REGIMM );
-		//MakeOpcodeClass( COP2 );
 		MakeOpcodeClass( MMI );
 		MakeOpcodeClass( MMI0 );
 		MakeOpcodeClass( MMI2 );
@@ -636,12 +635,6 @@ namespace R5900
 		const OPCODE& Class_COP1_BC1(u32 op) { return tbl_COP1_BC1[(op >> 16) & 0x1F]; }
 		const OPCODE& Class_COP1_S(u32 op) { return tbl_COP1_S[op & 0x3F]; }
 		const OPCODE& Class_COP1_W(u32 op) { return tbl_COP1_W[op & 0x3F]; }
-
-		// These are for future use when the COP2 tables are completed.
-		//const OPCODE& Class_COP2() { return tbl_COP2[_Rs_]; }
-		//const OPCODE& Class_COP2_BC2() { return tbl_COP2_BC2[_Rt_]; }
-		//const OPCODE& Class_COP2_SPECIAL() { return tbl_COP2_SPECIAL[_Funct_]; }
-		//const OPCODE& Class_COP2_SPECIAL2() { return tbl_COP2_SPECIAL2[(cpuRegs.code & 0x3) | ((cpuRegs.code >> 4) & 0x7c)]; }
 	}
 }	// end namespace R5900
 

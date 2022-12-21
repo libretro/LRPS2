@@ -539,18 +539,6 @@ template<int vunum> static void __fc vuDataWrite128(u32 addr, const mem128_t* da
 	CopyQWC(&vu->Mem[addr], data);
 }
 
-
-void memSetPageAddr(u32 vaddr, u32 paddr)
-{
-	vtlb_VMap(vaddr,paddr,0x1000);
-
-}
-
-void memClearPageAddr(u32 vaddr)
-{
-	vtlb_VMapUnmap(vaddr,0x1000); // -> whut ?
-}
-
 ///////////////////////////////////////////////////////////////////////////
 // PS2 Memory Init / Reset / Shutdown
 
@@ -565,8 +553,7 @@ static mmap_PageFaultHandler* mmap_faultHandler = NULL;
 EEVM_MemoryAllocMess* eeMem = NULL;
 __pagealigned u8 eeHw[Ps2MemSize::Hardware];
 
-
-void memBindConditionalHandlers()
+void memBindConditionalHandlers(void)
 {
 	if( hw_by_page[0xf] == 0xFFFFFFFF ) return;
 
@@ -775,7 +762,6 @@ struct vtlb_PageProtectionInfo
 };
 
 static __aligned16 vtlb_PageProtectionInfo m_PageProtectInfo[Ps2MemSize::MainRam >> 12];
-
 
 // returns:
 //  ProtMode_NotRequired - unchecked block (resides in ROM, thus is integrity is constant)

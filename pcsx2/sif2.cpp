@@ -28,15 +28,6 @@ static __fi void Sif2Init(void)
 	sif2.iop.cycles = 0;
 }
 
-__fi bool WriteFifoSingleWord(void)
-{
-	// There's some data ready to transfer into the fifo..
-	
-	sif2.fifo.write((u32*)&psxHu32(HW_PS1_GPU_DATA), 1);
-	if (sif2.fifo.size > 0) psxHu32(0x1000f300) &= ~0x4000000;
-	return true;
-}
-
 __fi bool ReadFifoSingleWord(void)
 {
 	u32 ptag[4];
@@ -49,24 +40,22 @@ __fi bool ReadFifoSingleWord(void)
 }
 
 // Write from FIFO to EE.
-static __fi bool WriteFifoToEE(void)
+static __fi void WriteFifoToEE(void)
 {
 	const int readSize = std::min((s32)sif2dma.qwc, sif2.fifo.size >> 2);
 	tDMA_TAG *ptag     = sif2dma.getAddr(sif2dma.madr, DMAC_SIF2, true);
 	if (!ptag)
-		return false;
+		return;
 
 	sif2.fifo.read((u32*)ptag, readSize << 2);
 
 	sif2dma.madr += readSize << 4;
 	sif2.ee.cycles += readSize;	// fixme : BIAS is factored in above
 	sif2dma.qwc -= readSize;
-	
-	return true;
 }
 
 // Write IOP to FIFO.
-static __fi bool WriteIOPtoFifo(void)
+static __fi void WriteIOPtoFifo(void)
 {
 	// There's some data ready to transfer into the FIFO..
 	const int writeSize = std::min(sif2.iop.counter, sif2.fifo.sif_free());
@@ -79,11 +68,10 @@ static __fi bool WriteIOPtoFifo(void)
 	sif2.iop.counter -= writeSize;
 	if (sif2.iop.counter == 0) hw_dma2.madr = sif2data & 0xffffff;
 	if (sif2.fifo.size > 0) psxHu32(0x1000f300) &= ~0x4000000;
-	return true;
 }
 
 // Read Fifo into an ee tag, transfer it to sif2dma, and process it.
-static __fi bool ProcessEETag(void)
+static __fi void ProcessEETag(void)
 {
 	static __aligned16 u32 tag[4];
 	tDMA_TAG& ptag(*(tDMA_TAG*)tag);
@@ -106,11 +94,10 @@ static __fi bool ProcessEETag(void)
 			sif2.ee.end = true;
 			break;
 	}
-	return true;
 }
 
-// Read Fifo into an iop tag, and transfer it to hw_dma9. And presumably process it.
-static __fi bool ProcessIOPTag(void)
+// Read FIFO into an iop tag, and transfer it to hw_dma9. And presumably process it.
+static __fi void ProcessIOPTag(void)
 {
 	// Process DMA tag at hw_dma9.tadr
 	
@@ -123,8 +110,6 @@ static __fi bool ProcessIOPTag(void)
 	
 	sif2.iop.counter =  (HW_DMA2_BCR_H16 * HW_DMA2_BCR_L16); //makes it do more stuff?? //sif2words;
 	sif2.iop.end     = true;
-
-	return true;
 }
 
 // Stop transferring EE, and signal an interrupt.

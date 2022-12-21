@@ -1077,9 +1077,6 @@
     <ClInclude Include="..\..\Ipu\mpeg2lib\Mpeg.h">
       <Filter>System\Ps2\IPU\mpeg2lib</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Ipu\mpeg2lib\Vlc.h">
-      <Filter>System\Ps2\IPU\mpeg2lib</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\GS.h">
       <Filter>System\Ps2\GS</Filter>
     </ClInclude>

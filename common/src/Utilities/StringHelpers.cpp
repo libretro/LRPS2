@@ -31,20 +31,6 @@ __fi wxString fromUTF8(const char *src)
     return wxString(src, wxMBConvUTF8());
 }
 
-// Splits a string into parts and adds the parts into the given SafeList.
-// This list is not cleared, so concatenating many splits into a single large list is
-// the 'default' behavior, unless you manually clear the SafeList prior to subsequent calls.
-//
-// Note: wxWidgets 2.9 / 3.0 has a wxSplit function, but we're using 2.8 so I had to make
-// my own.
-void SplitString(wxArrayString &dest, const wxString &src, const wxString &delims, wxStringTokenizerMode mode)
-{
-    wxStringTokenizer parts(src, delims, mode);
-    while (parts.HasMoreTokens())
-        dest.Add(parts.GetNextToken());
-}
-
-
 // --------------------------------------------------------------------------------------
 //  Parse helpers for wxString!
 // --------------------------------------------------------------------------------------

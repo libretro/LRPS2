@@ -162,12 +162,6 @@ static void LoadBiosVersion( pxInputStream& fp, u32& version, wxString& descript
 	}
 }
 
-static void LoadBiosVersion( pxInputStream& fp, u32& version, wxString& description )
-{
-	wxString zoneStr;
-	LoadBiosVersion( fp,version, description, zoneStr );
-}
-
 template< size_t _size >
 static void ChecksumIt( u32& result, const u8 (&srcdata)[_size] )
 {
@@ -308,7 +302,6 @@ void LoadBIOS(void)
 
 bool IsBIOS(const wxString& filename, wxString& description)
 {
-	wxFileName Bios( g_Conf->Folders.Bios + filename );
 	pxInputStream inway( filename, new wxFFileInputStream( filename ) );
 
 	if (!inway.IsOk()) return false;
@@ -317,28 +310,10 @@ bool IsBIOS(const wxString& filename, wxString& description)
 
 	try {
 		u32 version;
-		LoadBiosVersion( inway, version, description );
+		wxString zoneStr;
+		LoadBiosVersion( inway, version, description, zoneStr );
 		return true;
 	} catch( Exception::BadStream& ) { }
-
-	return false;	// fail quietly
-}
-
-
-bool IsBIOSlite(const wxString& filename, wxString& description)
-{
-	pxInputStream inway(filename, new wxFFileInputStream(filename));
-
-	if (!inway.IsOk()) return false;
-	// FPS2BIOS is smaller and of variable size
-	//if (inway.Length() < 512*1024) return false;
-
-	try {
-		u32 version;
-		LoadBiosVersion(inway, version, description);
-		return true;
-	}
-	catch (Exception::BadStream&) {}
 
 	return false;	// fail quietly
 }

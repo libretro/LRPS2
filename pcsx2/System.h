@@ -102,7 +102,6 @@ public:
 	virtual void CommitAll();
 	virtual void ResetAll();
 	virtual void DecommitAll();
-	virtual void ReleaseAll();
 };
 
 // --------------------------------------------------------------------------------------
@@ -113,9 +112,6 @@ class SysAllocVM
 public:
 	SysAllocVM();
 	virtual ~SysAllocVM();
-
-protected:
-	void CleanupMess() noexcept;
 };
 
 // --------------------------------------------------------------------------------------
@@ -147,9 +143,6 @@ public:
 	bool IsRecAvailable_MicroVU1() const;
 	BaseException* GetException_MicroVU0() const;
 	BaseException* GetException_MicroVU1() const;
-
-protected:
-	void CleanupMess() noexcept;
 };
 
 // GetCpuProviders - this function is not implemented by PCSX2 core -- it must be
@@ -174,8 +167,6 @@ extern SysMainMemory& GetVmMemory();
 // need to use setjmp/longjmp instead to exit recompiled code.
 // In addition, we don't currently set up SEH properly on Windows x64 so disable it there too
 //
-
-//#define PCSX2_SEH		0		// use this to force disable SEH on win32, to test setjmp functionality.
 
 #ifndef PCSX2_SEH
 #	if defined(_WIN32) && !defined(__GNUC__) && !defined(_WIN64)

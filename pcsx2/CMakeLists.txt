@@ -383,7 +383,6 @@ set(pcsx2IPUHeaders
 	IPU/IPU_Fifo.h
 	IPU/IPU.h
 	IPU/mpeg2lib/Mpeg.h
-	IPU/mpeg2lib/Vlc.h
 	IPU/yuv2rgb.h
 	)
 

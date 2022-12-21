@@ -29,13 +29,13 @@ static __fi void Sif0Init(void)
 }
 
 // Write from Fifo to EE.
-static __fi bool WriteFifoToEE(void)
+static __fi void WriteFifoToEE(void)
 {
 	const int readSize = std::min((s32)sif0ch.qwc, sif0.fifo.size >> 2);
 
 	tDMA_TAG *ptag = sif0ch.getAddr(sif0ch.madr, DMAC_SIF0, true);
 	if (!ptag)
-		return false;
+		return;
 
 	sif0.fifo.read((u32*)ptag, readSize << 2);
 
@@ -48,12 +48,10 @@ static __fi bool WriteFifoToEE(void)
 		if ((sif0ch.chcr.MOD == NORMAL_MODE) || ((sif0ch.chcr.TAG >> 28) & 0x7) == TAG_CNTS)
 			dmacRegs.stadr.ADDR = sif0ch.madr;
 	}
-
-	return true;
 }
 
 // Write IOP to Fifo.
-static __fi bool WriteIOPtoFifo(void)
+static __fi void WriteIOPtoFifo(void)
 {
 	// There's some data ready to transfer into the fifo..
 	const int writeSize = std::min(sif0.iop.counter, sif0.fifo.sif_free());
@@ -70,11 +68,10 @@ static __fi bool WriteIOPtoFifo(void)
 		sif0.fifo.writeJunk(sif0.iop.writeJunk);
 		sif0.iop.writeJunk = 0;
 	}
-	return true;
 }
 
 // Read Fifo into an ee tag, transfer it to sif0ch, and process it.
-static __fi bool ProcessEETag(void)
+static __fi void ProcessEETag(void)
 {
 	static __aligned16 u32 tag[4];
 	tDMA_TAG& ptag(*(tDMA_TAG*)tag);
@@ -100,11 +97,10 @@ static __fi bool ProcessEETag(void)
 			sif0.ee.end = true;
 			break;
 	}
-	return true;
 }
 
-// Read Fifo into an iop tag, and transfer it to hw_dma9. And presumably process it.
-static __fi bool ProcessIOPTag(void)
+// Read FIFO into an iop tag, and transfer it to hw_dma9. And presumably process it.
+static __fi void ProcessIOPTag(void)
 {
 	// Process DMA tag at hw_dma9.tadr
 	sif0.iop.data = *(sifData *)iopPhysMem(hw_dma9.tadr);
@@ -125,8 +121,6 @@ static __fi bool ProcessIOPTag(void)
 	sif0.iop.writeJunk = (sif0.iop.counter & 0x3) ? (4 - sif0.iop.counter & 0x3) : 0;
 	// IOP tags have an IRQ bit and an End of Transfer bit:
 	if (sif0tag.IRQ  || (sif0tag.ID & 4)) sif0.iop.end = true;
-
-	return true;
 }
 
 // Stop transferring EE, and signal an interrupt.

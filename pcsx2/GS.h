@@ -242,15 +242,9 @@ struct MTGS_FreezeData
 // --------------------------------------------------------------------------------------
 //  SysMtgsThread
 // --------------------------------------------------------------------------------------
-#ifdef __LIBRETRO__
 class SysMtgsThread : public SysFakeThread
 {
 	typedef SysFakeThread _parent;
-#else
-class SysMtgsThread : public SysThreadBase
-{
-	typedef SysThreadBase _parent;
-#endif
 
 public:
 	// note: when m_ReadPos == m_WritePos, the fifo is empty

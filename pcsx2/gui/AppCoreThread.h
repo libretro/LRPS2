@@ -36,11 +36,11 @@ public:
 
 	void ResetCdvd() { m_resetCdvd = true; }
 
-	virtual void Suspend( bool isBlocking=false );
+	virtual void Suspend();
 	virtual void Resume();
 	virtual void Reset();
 	virtual void ResetQuick();
-	virtual void Cancel( bool isBlocking=true );
+	virtual void Cancel();
 	virtual bool StateCheckInThread();
 	virtual void ChangeCdvdSource();
 

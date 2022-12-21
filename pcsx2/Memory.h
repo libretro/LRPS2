@@ -106,10 +106,7 @@ static __fi void ZeroQWC( u128& dest )
 #define psSu64(mem)		(*(u64 *)&eeMem->Scratch[(mem) & 0x3fff])
 #define psSu128(mem)	(*(u128*)&eeMem->Scratch[(mem) & 0x3fff])
 
-
-extern void memSetPageAddr(u32 vaddr, u32 paddr);
-extern void memClearPageAddr(u32 vaddr);
-extern void memBindConditionalHandlers();
+extern void memBindConditionalHandlers(void);
 
 enum vtlb_ProtectionMode
 {

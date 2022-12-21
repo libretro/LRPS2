@@ -19,7 +19,6 @@
 // Disable some pointless warnings...
 #ifdef _MSC_VER
 #	pragma warning(disable:4250) //'class' inherits 'method' via dominance
-#	pragma warning(disable:4996) //ignore the stricmp deprecated warning
 #endif
 
 #include "Utilities/Dependencies.h"
@@ -47,10 +46,8 @@
 // ... and include some ANSI/POSIX C libs that are useful too, just for good measure.
 // (these compile lightning fast with or without PCH, but they never change so
 // might as well add them here)
-
+#include <stdint.h>
 #include <stddef.h>
-#include <sys/stat.h>
-#include <pthread.h>
 
 #include "../libretro/retro_messager.h"
 
@@ -80,20 +77,5 @@ typedef int BOOL;
 
 typedef void FnType_Void();
 typedef FnType_Void* Fnptr_Void;
-
-// --------------------------------------------------------------------------------------
-//  Compiler/OS specific macros and defines 
-// --------------------------------------------------------------------------------------
-
-#if defined(_MSC_VER)
-
-#	define strnicmp _strnicmp
-#	define stricmp _stricmp
-
-#else	// must be GCC or Clang
-
-#include <sys/types.h>
-
-#endif
 
 #endif

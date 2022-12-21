@@ -49,7 +49,7 @@ bool g_SkipBiosHack; // set at boot if the skip bios hack is on, reset before th
 bool g_GameStarted; // set when we reach the game's entry point or earlier if the entry point cannot be determined
 bool g_GameLoading; // EELOAD has been called to load the game
 
-static const uint eeWaitCycles = 3072;
+#define EE_WAIT_CYCLES 3072
 
 bool eeEventTestIsActive = false;
 
@@ -60,8 +60,8 @@ but in fast boot mode, the block we use can fit at least 16 argv pointers (varie
 The second EELOAD call during full boot has three built-in arguments ("EELOAD rom0:PS2LOGO <ELF>"),
 meaning that only the first 13 game arguments supplied by the user can be added on and passed through.
 In fast boot mode, 15 arguments can fit because the only call to EELOAD is "<ELF> <<args>>". */
-const int kMaxArgs = 16;
-uptr g_argPtrs[kMaxArgs];
+#define K_MAX_ARGS 16
+static uptr g_argPtrs[K_MAX_ARGS];
 
 extern SysMainMemory& GetVmMemory(void);
 
@@ -119,7 +119,7 @@ void cpuReset(void)
 
 __ri void cpuException(u32 code, u32 bd)
 {
-	bool errLevel2, checkStatus;
+	bool checkStatus;
 	u32 offset = 0;
 
 	cpuRegs.branch = 0;		// Tells the interpreter that an exception occurred during a branch.
@@ -128,7 +128,6 @@ __ri void cpuException(u32 code, u32 bd)
 	if(cpuRegs.CP0.n.Status.b.ERL == 0)
 	{
 		//Error Level 0-1
-		errLevel2 = FALSE;
 		checkStatus = (cpuRegs.CP0.n.Status.b.BEV == 0); //  for TLB/general exceptions
 
 		if (((code & 0x7C) >= 0x8) && ((code & 0x7C) <= 0xC))
@@ -141,7 +140,6 @@ __ri void cpuException(u32 code, u32 bd)
 	else
 	{
 		//Error Level 2
-		errLevel2 = TRUE;
 		checkStatus = (cpuRegs.CP0.n.Status.b.DEV == 0); // for perf/debug exceptions
 
 		if ((code & 0x38000) <= 0x8000 )
@@ -322,7 +320,7 @@ u32 g_nextEventCycle = 0;
 __fi void _cpuEventTest_Shared(void)
 {
 	eeEventTestIsActive = true;
-	g_nextEventCycle = cpuRegs.cycle + eeWaitCycles;
+	g_nextEventCycle = cpuRegs.cycle + EE_WAIT_CYCLES;
 
 	// ---- INTC / DMAC (CPU-level Exceptions) -----------------
 	// Done first because exceptions raised during event tests need to be postponed a few
@@ -527,7 +525,7 @@ static int ParseArgumentString(u32 arg_block)
 			memset(PSM(arg_block + i), 0, 1);
 		else if (wasSpace) // then we're at a new arg
 		{
-			if (argc < kMaxArgs)
+			if (argc < K_MAX_ARGS)
 			{
 				g_argPtrs[argc] = arg_block + i;
 				argc++;
@@ -654,11 +652,4 @@ void __fastcall eeloadHook2(void)
 	// Save argc and argv as incoming arguments for EELOAD function which calls ExecPS2()
 	cpuRegs.GPR.n.a0.SD[0] = argc;
 	cpuRegs.GPR.n.a1.UD[0] = block_start;
-}
-
-inline bool isBranchOrJump(u32 addr)
-{
-	u32 op = memRead32(addr);
-	const R5900::OPCODE& opcode = R5900::GetInstruction(op);
-	return (opcode.flags & IS_BRANCH) != 0;
 }

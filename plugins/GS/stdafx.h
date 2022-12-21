@@ -78,7 +78,6 @@
 
     #ifdef __GNUC__
         #define __forceinline __inline__ __attribute__((always_inline,unused))
-        #define __assume(c) do { if (!(c)) __builtin_unreachable(); } while(0)
 
         // GCC removes the variable as dead code and generates some warnings.
         // Stack is automatically realigned due to SSE/AVX operations
@@ -94,7 +93,9 @@
 
 #endif
 
-#define countof(a) (sizeof(a) / sizeof(a[0]))
+#ifndef ARRAY_SIZE
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
+#endif
 
 #ifndef RESTRICT
 

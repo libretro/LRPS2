@@ -111,7 +111,7 @@ GSState::GSState()
 	m_sssize += sizeof(m_tr.x);
 	m_sssize += sizeof(m_tr.y);
 	m_sssize += m_mem.m_vmsize;
-	m_sssize += (sizeof(m_path[0].tag) + sizeof(m_path[0].reg)) * countof(m_path);
+	m_sssize += (sizeof(m_path[0].tag) + sizeof(m_path[0].reg)) * ARRAY_SIZE(m_path);
 	m_sssize += sizeof(m_q);
 
 	PRIM = &m_env.PRIM;
@@ -139,7 +139,7 @@ void GSState::SetRegsMem(u8* basemem)
 void GSState::Reset()
 {
 	// BIOS logo not shown cut in half after reset, missing graphics in GoW after first FMV
-	memset(&m_path[0], 0, sizeof(m_path[0]) * countof(m_path));
+	memset(&m_path[0], 0, sizeof(m_path[0]) * ARRAY_SIZE(m_path));
 	memset(&m_v, 0, sizeof(m_v));
 
 	m_env.Reset();
@@ -173,10 +173,8 @@ void GSState::Reset()
 
 void GSState::ResetHandlers()
 {
-	for(size_t i = 0; i < countof(m_fpGIFPackedRegHandlers); i++)
-	{
+	for(size_t i = 0; i < ARRAY_SIZE(m_fpGIFPackedRegHandlers); i++)
 		m_fpGIFPackedRegHandlers[i] = &GSState::GIFPackedRegHandlerNull;
-	}
 
 	m_fpGIFPackedRegHandlers[GIF_REG_PRIM] = (GIFPackedRegHandler)(GIFRegHandler)&GSState::GIFRegHandlerPRIM;
 	m_fpGIFPackedRegHandlers[GIF_REG_RGBA] = &GSState::GIFPackedRegHandlerRGBA;
@@ -222,10 +220,8 @@ void GSState::ResetHandlers()
 		SetHandlerXYZ(GS_INVALID, false);
 	}
 
-	for(size_t i = 0; i < countof(m_fpGIFRegHandlers); i++)
-	{
+	for(size_t i = 0; i < ARRAY_SIZE(m_fpGIFRegHandlers); i++)
 		m_fpGIFRegHandlers[i] = &GSState::GIFRegHandlerNull;
-	}
 
 	m_fpGIFRegHandlers[GIF_A_D_REG_PRIM] = &GSState::GIFRegHandlerPRIM;
 	m_fpGIFRegHandlers[GIF_A_D_REG_RGBAQ] = &GSState::GIFRegHandlerRGBAQ;
@@ -1920,16 +1916,14 @@ int GSState::Freeze(GSFreezeData* fd, bool sizeonly)
 	WriteState(data, &m_tr.y);
 	WriteState(data, m_mem.m_vm8, m_mem.m_vmsize);
 
-	for(size_t i = 0; i < countof(m_path); i++)
+	for(size_t i = 0; i < ARRAY_SIZE(m_path); i++)
 	{
 		m_path[i].tag.NREG = m_path[i].nreg;
 		m_path[i].tag.NLOOP = m_path[i].nloop;
 		m_path[i].tag.REGS = 0;
 
-		for(size_t j = 0; j < countof(m_path[i].regs.U8); j++)
-		{
+		for(size_t j = 0; j < ARRAY_SIZE(m_path[i].regs.U8); j++)
 			m_path[i].tag.U32[2 + (j >> 3)] |= m_path[i].regs.U8[j] << ((j & 7) << 2);
-		}
 
 		WriteState(data, &m_path[i].tag);
 		WriteState(data, &m_path[i].reg);
@@ -2021,7 +2015,7 @@ int GSState::Defrost(const GSFreezeData* fd)
 
 	m_tr.total = 0; // TODO: restore transfer state
 
-	for(size_t i = 0; i < countof(m_path); i++)
+	for(size_t i = 0; i < ARRAY_SIZE(m_path); i++)
 	{
 		ReadState(&m_path[i].tag, data);
 		ReadState(&m_path[i].reg, data);

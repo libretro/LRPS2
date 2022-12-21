@@ -1762,9 +1762,10 @@ GSDeviceOGL::~GSDeviceOGL()
 
 	m_ps.clear();
 
-	glDeleteSamplers(countof(m_ps_ss), m_ps_ss);
+	glDeleteSamplers(ARRAY_SIZE(m_ps_ss), m_ps_ss);
 
-	for (u32 key = 0; key < countof(m_om_dss); key++) delete m_om_dss[key];
+	for (u32 key = 0; key < ARRAY_SIZE(m_om_dss); key++)
+		delete m_om_dss[key];
 
 	PboPool::Destroy();
 
@@ -1887,7 +1888,7 @@ bool GSDeviceOGL::Create()
 	// Pre Generate the different sampler object
 	// ****************************************************************
 	{
-		for (u32 key = 0; key < countof(m_ps_ss); key++)
+		for (u32 key = 0; key < ARRAY_SIZE(m_ps_ss); key++)
 			m_ps_ss[key] = CreateSampler(PSSamplerSelector(key));
 	}
 
@@ -1909,7 +1910,7 @@ bool GSDeviceOGL::Create()
 		vs = m_shader->Compile("convert.glsl", "vs_main", GL_VERTEX_SHADER, convert_shader.data());
 
 		m_convert.vs = vs;
-		for(size_t i = 0; i < countof(m_convert.ps); i++) {
+		for(size_t i = 0; i < ARRAY_SIZE(m_convert.ps); i++) {
 			ps = m_shader->Compile("convert.glsl", format("ps_main%d", i), GL_FRAGMENT_SHADER, convert_shader.data());
 			std::string pretty_name = "Convert pipe " + std::to_string(i);
 			m_convert.ps[i] = m_shader->LinkPipeline(pretty_name, vs, 0, ps);
@@ -1936,7 +1937,7 @@ bool GSDeviceOGL::Create()
 
 		std::vector<char> merge_shader(merge_glsl_shader_raw, merge_glsl_shader_raw + sizeof(merge_glsl_shader_raw)/sizeof(*merge_glsl_shader_raw));
 
-		for(size_t i = 0; i < countof(m_merge_obj.ps); i++) {
+		for(size_t i = 0; i < ARRAY_SIZE(m_merge_obj.ps); i++) {
 			ps = m_shader->Compile("merge.glsl", format("ps_main%d", i), GL_FRAGMENT_SHADER, merge_shader.data());
 			std::string pretty_name = "Merge pipe " + std::to_string(i);
 			m_merge_obj.ps[i] = m_shader->LinkPipeline(pretty_name, vs, 0, ps);
@@ -1951,7 +1952,7 @@ bool GSDeviceOGL::Create()
 
 		std::vector<char> interlace_shader(interlace_glsl_shader_raw, interlace_glsl_shader_raw + sizeof(interlace_glsl_shader_raw)/sizeof(*interlace_glsl_shader_raw));
 
-		for(size_t i = 0; i < countof(m_interlace.ps); i++) {
+		for(size_t i = 0; i < ARRAY_SIZE(m_interlace.ps); i++) {
 			ps = m_shader->Compile("interlace.glsl", format("ps_main%d", i), GL_FRAGMENT_SHADER, interlace_shader.data());
 			std::string pretty_name = "Interlace pipe " + std::to_string(i);
 			m_interlace.ps[i] = m_shader->LinkPipeline(pretty_name, vs, 0, ps);
@@ -2054,16 +2055,15 @@ void GSDeviceOGL::CreateTextureFX()
 	m_gs[2] = CompileGS(GSSelector(2));
 	m_gs[4] = CompileGS(GSSelector(4));
 
-	for (u32 key = 0; key < countof(m_vs); key++)
+	for (u32 key = 0; key < ARRAY_SIZE(m_vs); key++)
 		m_vs[key] = CompileVS(VSSelector(key));
 
 	// Enable all bits for stencil operations. Technically 1 bit is
 	// enough but buffer is polluted with noise. Clear will be limited
 	// to the mask.
 	glStencilMask(0xFF);
-	for (u32 key = 0; key < countof(m_om_dss); key++) {
+	for (u32 key = 0; key < ARRAY_SIZE(m_om_dss); key++)
 		m_om_dss[key] = CreateDepthStencil(OMDepthStencilSelector(key));
-	}
 
 	// Help to debug FS in apitrace
 	m_apitrace = CompilePS(PSSelector());
@@ -2729,9 +2729,9 @@ void GSDeviceOGL::IASetPrimitiveTopology(GLenum topology)
 
 void GSDeviceOGL::PSSetShaderResource(int i, GSTexture* sr)
 {
-	ASSERT(i < (int)countof(GLState::tex_unit));
 	// Note: Nvidia debugger doesn't support the id 0 (ie the NULL texture)
-	if (sr) {
+	if (sr)
+	{
 		GLuint id = static_cast<GSTextureOGL*>(sr)->GetID();
 		if (GLState::tex_unit[i] != id) {
 			GLState::tex_unit[i] = id;
