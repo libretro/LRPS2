@@ -14,7 +14,6 @@
  */
 
 
-#include "PrecompiledHeader.h"
 #include "Common.h"
 #include "Cache.h"
 #include "vtlb.h"
@@ -167,27 +166,27 @@ static void writeCache(u32 mem, Int value)
 	*reinterpret_cast<Int*>(&line.data.bytes[aligned & 0x3f]) = value;
 }
 
-void writeCache8(u32 mem, u8 value)
+static void writeCache8(u32 mem, u8 value)
 {
 	writeCache<u8>(mem, value);
 }
 
-void writeCache16(u32 mem, u16 value)
+static void writeCache16(u32 mem, u16 value)
 {
 	writeCache<u16>(mem, value);
 }
 
-void writeCache32(u32 mem, u32 value)
+static void writeCache32(u32 mem, u32 value)
 {
 	writeCache<u32>(mem, value);
 }
 
-void writeCache64(u32 mem, const u64 value)
+static void writeCache64(u32 mem, const u64 value)
 {
 	writeCache<u64>(mem, value);
 }
 
-void writeCache128(u32 mem, const mem128_t* value)
+static void writeCache128(u32 mem, const mem128_t* value)
 {
 	int way        = 0;
 	const int idx  = getFreeCache(mem, &way);
@@ -207,23 +206,22 @@ static Int readCache(u32 mem)
 	return *reinterpret_cast<Int*>(&line.data.bytes[aligned & 0x3f]);
 }
 
-
-u8 readCache8(u32 mem)
+static u8 readCache8(u32 mem)
 {
 	return readCache<u8>(mem);
 }
 
-u16 readCache16(u32 mem)
+static u16 readCache16(u32 mem)
 {
 	return readCache<u16>(mem);
 }
 
-u32 readCache32(u32 mem)
+static u32 readCache32(u32 mem)
 {
 	return readCache<u32>(mem);
 }
 
-u64 readCache64(u32 mem)
+static u64 readCache64(u32 mem)
 {
 	return readCache<u64>(mem);
 }

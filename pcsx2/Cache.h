@@ -19,14 +19,5 @@
 #include "Common.h"
 
 void resetCache(void);
-void writeCache8(u32 mem, u8 value);
-void writeCache16(u32 mem, u16 value);
-void writeCache32(u32 mem, u32 value);
-void writeCache64(u32 mem, const u64 value);
-void writeCache128(u32 mem, const mem128_t* value);
-u8 readCache8(u32 mem);
-u16 readCache16(u32 mem);
-u32 readCache32(u32 mem);
-u64 readCache64(u32 mem);
 
 #endif /* __CACHE_H__ */
