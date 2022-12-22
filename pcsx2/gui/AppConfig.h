@@ -56,7 +56,6 @@ public:
 
 		const wxDirName& operator[]( FoldersEnum_t folderidx ) const;
 		wxDirName& operator[]( FoldersEnum_t folderidx );
-		bool IsDefault( FoldersEnum_t folderidx ) const;
 	};
 
 	// ------------------------------------------------------------------------
