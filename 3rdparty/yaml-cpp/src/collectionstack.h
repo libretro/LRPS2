@@ -7,7 +7,6 @@
 #pragma once
 #endif
 
-#include <cassert>
 #include <stack>
 
 namespace YAML {
@@ -28,8 +27,6 @@ class CollectionStack {
     collectionStack.push(type);
   }
   void PopCollectionType(CollectionType::value type) {
-    assert(type == GetCurCollectionType());
-    (void)type;
     collectionStack.pop();
   }
 

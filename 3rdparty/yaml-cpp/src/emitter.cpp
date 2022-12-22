@@ -294,7 +294,6 @@ void Emitter::PrepareNode(EmitterNodeType::value child) {
       break;
     case EmitterNodeType::Property:
     case EmitterNodeType::Scalar:
-      assert(false);
       break;
   }
 }
@@ -351,7 +350,6 @@ void Emitter::FlowSeqPrepareNode(EmitterNodeType::value child) {
       break;
     case EmitterNodeType::BlockSeq:
     case EmitterNodeType::BlockMap:
-      assert(false);
       break;
   }
 }
@@ -433,7 +431,6 @@ void Emitter::FlowMapPrepareLongKey(EmitterNodeType::value child) {
       break;
     case EmitterNodeType::BlockSeq:
     case EmitterNodeType::BlockMap:
-      assert(false);
       break;
   }
 }
@@ -461,7 +458,6 @@ void Emitter::FlowMapPrepareLongKeyValue(EmitterNodeType::value child) {
       break;
     case EmitterNodeType::BlockSeq:
     case EmitterNodeType::BlockMap:
-      assert(false);
       break;
   }
 }
@@ -492,7 +488,6 @@ void Emitter::FlowMapPrepareSimpleKey(EmitterNodeType::value child) {
       break;
     case EmitterNodeType::BlockSeq:
     case EmitterNodeType::BlockMap:
-      assert(false);
       break;
   }
 }
@@ -523,7 +518,6 @@ void Emitter::FlowMapPrepareSimpleKeyValue(EmitterNodeType::value child) {
       break;
     case EmitterNodeType::BlockSeq:
     case EmitterNodeType::BlockMap:
-      assert(false);
       break;
   }
 }
@@ -693,7 +687,7 @@ void Emitter::PrepareIntegralStream(std::stringstream& stream) const {
       stream << std::oct;
       break;
     default:
-      assert(false);
+      break;
   }
 }
 

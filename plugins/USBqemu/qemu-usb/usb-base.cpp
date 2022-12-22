@@ -24,9 +24,6 @@
  * THE SOFTWARE.
  */
 #include "USBinternal.h"
-//#include "usb.h"
-
-#include <assert.h>
 
 void usb_attach(USBPort *port, USBDevice *dev)
 {
@@ -42,7 +39,6 @@ void usb_attach(USBPort *port, USBDevice *dev)
     } else {
         /* detach */
         dev = port->dev;
-        assert(dev);
         port->ops->detach(port);
         usb_send_msg(dev, USB_MSG_DETACH);
         dev->port = NULL;
@@ -304,7 +300,6 @@ void usb_send_msg(USBDevice *dev, int msg)
     p.pid = msg;
     ret = usb_handle_packet(dev, &p);
     /* This _must_ be synchronous */
-    assert(ret != USB_RET_ASYNC);
 }
 
 /* Hand over a packet to a device for processing.  Return value
@@ -314,7 +309,6 @@ int usb_handle_packet(USBDevice *dev, USBPacket *p)
 {
     int ret;
 
-    assert(p->owner == NULL);
     ret = dev->info->handle_packet(dev, p);
     if (ret == USB_RET_ASYNC) {
         if (p->owner == NULL) {
@@ -335,7 +329,6 @@ int usb_handle_packet(USBDevice *dev, USBPacket *p)
 void usb_packet_complete(USBDevice *dev, USBPacket *p)
 {
     /* Note: p->owner != dev is possible in case dev is a hub */
-    assert(p->owner != NULL);
     dev->port->ops->complete(dev->port, p);
     p->owner = NULL;
 }
@@ -345,7 +338,6 @@ void usb_packet_complete(USBDevice *dev, USBPacket *p)
    completed.  */
 void usb_cancel_packet(USBPacket * p)
 {
-    assert(p->owner != NULL);
     p->owner->info->cancel_packet(p->owner, p);
     p->owner = NULL;
 }

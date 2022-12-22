@@ -28,9 +28,6 @@ SingleDocParser::~SingleDocParser() = default;
 // . Handles the next document
 // . Throws a ParserException on error.
 void SingleDocParser::HandleDocument(EventHandler& eventHandler) {
-  assert(!m_scanner.empty());  // guaranteed that there are tokens
-  assert(!m_curAnchor);
-
   eventHandler.OnDocumentStart(m_scanner.peek().mark);
 
   // eat doc start

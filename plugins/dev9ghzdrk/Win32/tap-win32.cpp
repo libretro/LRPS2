@@ -439,7 +439,6 @@ static tun_buffer_t* get_buffer_from_free_list(tap_win32_overlapped_t* const ove
     WaitForSingleObject(overlapped->free_list_semaphore, INFINITE);
     EnterCriticalSection(&overlapped->free_list_cs);
     buffer = overlapped->free_list;
-//    assert(buffer != NULL);
     overlapped->free_list = buffer->next;
     LeaveCriticalSection(&overlapped->free_list_cs);
     buffer->next = NULL;

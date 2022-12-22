@@ -61,20 +61,15 @@ void EmitterState::SetTag() { m_hasTag = true; }
 void EmitterState::SetNonContent() { m_hasNonContent = true; }
 
 void EmitterState::SetLongKey() {
-  assert(!m_groups.empty());
-  if (m_groups.empty()) {
+  if (m_groups.empty())
     return;
-  }
 
-  assert(m_groups.back()->type == GroupType::Map);
   m_groups.back()->longKey = true;
 }
 
 void EmitterState::ForceFlow() {
-  assert(!m_groups.empty());
-  if (m_groups.empty()) {
+  if (m_groups.empty())
     return;
-  }
 
   m_groups.back()->flowType = FlowType::Flow;
 }
@@ -108,7 +103,6 @@ EmitterNodeType::value EmitterState::NextGroupType(
   return EmitterNodeType::FlowMap;
 
   // can't happen
-  assert(false);
   return EmitterNodeType::NoType;
 }
 
@@ -182,7 +176,6 @@ void EmitterState::EndedGroup(GroupType::value type) {
 
   // reset old settings
   std::size_t lastIndent = (m_groups.empty() ? 0 : m_groups.back()->indent);
-  assert(m_curIndent >= lastIndent);
   m_curIndent -= lastIndent;
 
   // some global settings that we changed may have been overridden

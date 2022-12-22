@@ -14,7 +14,6 @@
  */
 
 #include <cstdio>
-#include <cassert> // assert
 
 #include <pthread.h> // pthread_setcancelstate()
 
@@ -55,8 +54,7 @@ static void MACH_CHECK(kern_return_t mach_retval)
             pthread_testcancel(); // Unlike sem_wait, mach semaphore ops aren't cancellation points
             // fallthrough
         default:
-            fprintf(stderr, "mach error: %s", mach_error_string(mach_retval));
-            assert(mach_retval == KERN_SUCCESS);
+	    break;
     }
 }
 

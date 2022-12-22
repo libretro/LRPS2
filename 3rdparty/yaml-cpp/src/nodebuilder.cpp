@@ -1,5 +1,3 @@
-#include <cassert>
-
 #include "nodebuilder.h"
 #include "yaml-cpp/node/detail/node.h"
 #include "yaml-cpp/node/impl.h"
@@ -72,7 +70,6 @@ void NodeBuilder::OnMapStart(const Mark& mark, const std::string& tag,
 }
 
 void NodeBuilder::OnMapEnd() {
-  assert(m_mapDepth > 0);
   m_mapDepth--;
   Pop();
 }
@@ -96,7 +93,6 @@ void NodeBuilder::Push(detail::node& node) {
 }
 
 void NodeBuilder::Pop() {
-  assert(!m_stack.empty());
   if (m_stack.size() == 1) {
     m_pRoot = m_stack[0];
     m_stack.pop_back();
@@ -111,24 +107,19 @@ void NodeBuilder::Pop() {
   if (collection.type() == NodeType::Sequence) {
     collection.push_back(node, m_pMemory);
   } else if (collection.type() == NodeType::Map) {
-    assert(!m_keys.empty());
     PushedKey& key = m_keys.back();
     if (key.second) {
       collection.insert(*key.first, node, m_pMemory);
       m_keys.pop_back();
-    } else {
+    } else
       key.second = true;
-    }
-  } else {
-    assert(false);
+  } else
     m_stack.clear();
-  }
 }
 
 void NodeBuilder::RegisterAnchor(anchor_t anchor, detail::node& node) {
-  if (anchor) {
-    assert(anchor == m_anchors.size());
+  if (anchor)
     m_anchors.push_back(&node);
-  }
 }
+
 }  // namespace YAML

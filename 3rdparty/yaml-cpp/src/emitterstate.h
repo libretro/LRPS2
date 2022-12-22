@@ -11,7 +11,6 @@
 #include "yaml-cpp/emitterdef.h"
 #include "yaml-cpp/emittermanip.h"
 
-#include <cassert>
 #include <memory>
 #include <stack>
 #include <stdexcept>
@@ -181,7 +180,6 @@ class EmitterState {
       }
 
       // can't get here
-      assert(false);
       return EmitterNodeType::NoType;
     }
   };
@@ -208,7 +206,7 @@ void EmitterState::_Set(Setting<T>& fmt, T value, FmtScope::value scope) {
       // it restores to the value here, and not the previous one
       break;
     default:
-      assert(false);
+      break;
   }
 }
 }  // namespace YAML

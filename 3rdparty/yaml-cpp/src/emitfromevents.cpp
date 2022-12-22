@@ -1,4 +1,3 @@
-#include <cassert>
 #include <sstream>
 
 #include "yaml-cpp/emitfromevents.h"
@@ -67,7 +66,6 @@ void EmitFromEvents::OnSequenceStart(const Mark&, const std::string& tag,
 
 void EmitFromEvents::OnSequenceEnd() {
   m_emitter << EndSeq;
-  assert(m_stateStack.top() == State::WaitingForSequenceEntry);
   m_stateStack.pop();
 }
 
@@ -93,7 +91,6 @@ void EmitFromEvents::OnMapStart(const Mark&, const std::string& tag,
 
 void EmitFromEvents::OnMapEnd() {
   m_emitter << EndMap;
-  assert(m_stateStack.top() == State::WaitingForKey);
   m_stateStack.pop();
 }
 

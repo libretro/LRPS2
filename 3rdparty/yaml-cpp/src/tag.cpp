@@ -1,4 +1,3 @@
-#include <cassert>
 #include <stdexcept>
 
 #include "directives.h"  // IWYU pragma: keep
@@ -23,9 +22,8 @@ Tag::Tag(const Token& token)
       value = token.params[0];
       break;
     case NON_SPECIFIC:
-      break;
     default:
-      assert(false);
+      break;
   }
 }
 
@@ -43,7 +41,7 @@ const std::string Tag::Translate(const Directives& directives) {
       // TODO:
       return "!";
     default:
-      assert(false);
+      break;
   }
   throw std::runtime_error("yaml-cpp: internal error, bad tag type");
 }

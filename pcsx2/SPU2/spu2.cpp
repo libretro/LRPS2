@@ -116,8 +116,6 @@ s32 SPU2ps1reset(void)
 
 s32 SPU2init(void)
 {
-	assert(regtable[0x400] == nullptr);
-
 	srand((unsigned)time(nullptr));
 
 	spu2regs = (s16*)malloc(0x010000);

@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <cassert>
 #include <iterator>
 #include <sstream>
 
@@ -66,7 +65,6 @@ void node_data::set_type(NodeType::value type) {
       reset_map();
       break;
     case NodeType::Undefined:
-      assert(false);
       break;
   }
 }
@@ -299,14 +297,11 @@ void node_data::convert_to_map(const shared_memory_holder& pMemory) {
     case NodeType::Map:
       break;
     case NodeType::Scalar:
-      assert(false);
       break;
   }
 }
 
 void node_data::convert_sequence_to_map(const shared_memory_holder& pMemory) {
-  assert(m_type == NodeType::Sequence);
-
   reset_map();
   for (std::size_t i = 0; i < m_sequence.size(); i++) {
     std::stringstream stream;

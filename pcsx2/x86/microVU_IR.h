@@ -62,8 +62,6 @@ union __aligned16 microRegInfo {
 	u32  full32[160/sizeof(u32)];
 };
 
-static_assert(sizeof(microRegInfo) == 160, "microRegInfo was not 160 bytes");
-
 struct microProgram;
 struct microJumpCache {
 	microJumpCache() : prog(NULL), x86ptrStart(NULL) {}

@@ -142,7 +142,6 @@ emitterT u8 *JMP8(u8 to)
 /* jmp rel32 */
 emitterT u32 *JMP32(uptr to)
 {
-    assert((sptr)to <= 0x7fffffff && (sptr)to >= -0x7fffffff);
     xWrite8(0xE9);
     xWrite32(to);
     return (u32 *)(x86Ptr - 4);
