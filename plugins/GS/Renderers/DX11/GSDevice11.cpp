@@ -463,7 +463,6 @@ bool GSDevice11::SetFeatureLevel(D3D_FEATURE_LEVEL level, bool compat_mode)
 		m_shader.cs = "cs_5_0";
 		break;
 	default:
-		ASSERT(0);
 		return false;
 	}
 
@@ -808,8 +807,6 @@ void GSDevice11::DrawIndexedPrimitive()
 
 void GSDevice11::DrawIndexedPrimitive(int offset, int count)
 {
-	ASSERT(offset + count <= (int)m_index.count);
-
 	BeforeDraw();
 
 	m_ctx->DrawIndexed(count, m_index.start + offset, m_vertex.start);
@@ -924,11 +921,7 @@ GSTexture* GSDevice11::CopyOffscreen(GSTexture* src, const GSVector4& sRect, int
 	GSTexture* dst = NULL;
 
 	if(format == 0)
-	{
 		format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	}
-
-	ASSERT(format == DXGI_FORMAT_R8G8B8A8_UNORM || format == DXGI_FORMAT_R16_UINT || format == DXGI_FORMAT_R32_UINT);
 
 	if(GSTexture* rt = CreateRenderTarget(w, h, format))
 	{
@@ -939,9 +932,7 @@ GSTexture* GSDevice11::CopyOffscreen(GSTexture* src, const GSVector4& sRect, int
 		dst = CreateOffscreen(w, h, format);
 
 		if(dst)
-		{
 			m_ctx->CopyResource(*(GSTexture11*)dst, *(GSTexture11*)rt);
-		}
 
 		Recycle(rt);
 	}
@@ -952,10 +943,7 @@ GSTexture* GSDevice11::CopyOffscreen(GSTexture* src, const GSVector4& sRect, int
 void GSDevice11::CopyRect(GSTexture* sTex, GSTexture* dTex, const GSVector4i& r)
 {
 	if (!sTex || !dTex)
-	{
-		ASSERT(0);
 		return;
-	}
 
 	D3D11_BOX box = { (UINT)r.left, (UINT)r.top, 0U, (UINT)r.right, (UINT)r.bottom, 1U };
 
@@ -971,10 +959,7 @@ void GSDevice11::CopyRect(GSTexture* sTex, GSTexture* dTex, const GSVector4i& r)
 void GSDevice11::CloneTexture(GSTexture* src, GSTexture** dest)
 {
 	if (!src || !(src->GetType() == GSTexture::DepthStencil || src->GetType() == GSTexture::RenderTarget))
-	{
-		ASSERT(0);
 		return;
-	}
 
 	int w = src->GetWidth();
 	int h = src->GetHeight();
@@ -1019,10 +1004,7 @@ void GSDevice11::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture*
 void GSDevice11::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture* dTex, const GSVector4& dRect, ID3D11PixelShader* ps, ID3D11Buffer* ps_cb, ID3D11BlendState* bs , bool linear)
 {
 	if(!sTex || !dTex)
-	{
-		ASSERT(0);
 		return;
-	}
 
 	bool draw_in_depth = (ps == m_convert.ps[ShaderConvert_RGBA8_TO_FLOAT32] || ps == m_convert.ps[ShaderConvert_RGBA8_TO_FLOAT24] ||
 		ps == m_convert.ps[ShaderConvert_RGBA8_TO_FLOAT16] || ps == m_convert.ps[ShaderConvert_RGB5A1_TO_FLOAT16]);
@@ -1211,8 +1193,6 @@ void GSDevice11::IASetVertexBuffer(const void* vertex, size_t stride, size_t cou
 
 bool GSDevice11::IAMapVertexBuffer(void** vertex, size_t stride, size_t count)
 {
-	ASSERT(m_vertex.count == 0);
-
 	if(count * stride > m_vertex.limit * m_vertex.stride)
 	{
 		m_vb_old = m_vb;
@@ -1284,8 +1264,6 @@ void GSDevice11::IASetVertexBuffer(ID3D11Buffer* vb, size_t stride)
 
 void GSDevice11::IASetIndexBuffer(const void* index, size_t count)
 {
-	ASSERT(m_index.count == 0);
-
 	if(count > m_index.limit)
 	{
 		m_ib_old = m_ib;
@@ -1419,8 +1397,6 @@ void GSDevice11::PSSetShaderResource(int i, GSTexture* sr)
 
 void GSDevice11::PSSetShaderResourceView(int i, ID3D11ShaderResourceView* srv, GSTexture* sr)
 {
-	ASSERT(i < (int)m_state.ps_sr_views.size());
-
 	if(m_state.ps_sr_views[i] != srv)
 	{
 		m_state.ps_sr_views[i] = srv;
@@ -1655,6 +1631,8 @@ u16 GSDevice11::ConvertBlendEnum(u16 generic)
 	case OP_ADD          : return D3D11_BLEND_OP_ADD;
 	case OP_SUBTRACT     : return D3D11_BLEND_OP_SUBTRACT;
 	case OP_REV_SUBTRACT : return D3D11_BLEND_OP_REV_SUBTRACT;
-	default              : ASSERT(0); return 0;
+	default              : break;
 	}
+
+	return 0;
 }

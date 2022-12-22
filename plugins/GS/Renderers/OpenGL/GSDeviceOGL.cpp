@@ -1870,7 +1870,6 @@ bool GSDeviceOGL::Create()
 	// Vertex buffer state
 	// ****************************************************************
 	{
-		static_assert(sizeof(GSVertexPT1) == sizeof(GSVertex), "wrong GSVertex size");
 		std::vector<GSInputLayoutOGL> il_convert = {
 			{0, 2 , GL_FLOAT          , GL_FALSE , sizeof(GSVertexPT1) , (const GLvoid*)(0) }  ,
 			{1, 2 , GL_FLOAT          , GL_FALSE , sizeof(GSVertexPT1) , (const GLvoid*)(16) } ,
@@ -2395,9 +2394,6 @@ GSTexture* GSDeviceOGL::CopyOffscreen(GSTexture* src, const GSVector4& sRect, in
 	if (format == 0)
 		format = GL_RGBA8;
 
-	ASSERT(src);
-	ASSERT(format == GL_RGBA8 || format == GL_R16UI || format == GL_R32UI);
-
 	GSTexture* dst = CreateOffscreen(w, h, format);
 
 	GSVector4 dRect(0, 0, w, h);
@@ -2414,7 +2410,6 @@ GSTexture* GSDeviceOGL::CopyOffscreen(GSTexture* src, const GSVector4& sRect, in
 // Copy a sub part of texture (same as below but force a conversion)
 void GSDeviceOGL::CopyRectConv(GSTexture* sTex, GSTexture* dTex, const GSVector4i& r, bool at_origin)
 {
-	ASSERT(sTex && dTex);
 	if (!(sTex && dTex))
 		return;
 
@@ -2437,7 +2432,6 @@ void GSDeviceOGL::CopyRectConv(GSTexture* sTex, GSTexture* dTex, const GSVector4
 // Copy a sub part of a texture into another
 void GSDeviceOGL::CopyRect(GSTexture* sTex, GSTexture* dTex, const GSVector4i& r)
 {
-	ASSERT(sTex && dTex);
 	if (!(sTex && dTex))
 		return;
 
@@ -2446,7 +2440,6 @@ void GSDeviceOGL::CopyRect(GSTexture* sTex, GSTexture* dTex, const GSVector4i& r
 
 	dTex->CommitRegion(GSVector2i(r.z, r.w));
 
-	ASSERT(GLExtension::Has("GL_ARB_copy_image") && glCopyImageSubData);
 	glCopyImageSubData( sid, GL_TEXTURE_2D,
 			0, r.x, r.y, 0,
 			did, GL_TEXTURE_2D,
@@ -2962,6 +2955,7 @@ u16 GSDeviceOGL::ConvertBlendEnum(u16 generic)
 	case OP_ADD          : return GL_FUNC_ADD;
 	case OP_SUBTRACT     : return GL_FUNC_SUBTRACT;
 	case OP_REV_SUBTRACT : return GL_FUNC_REVERSE_SUBTRACT;
-	default              : ASSERT(0); return 0;
+	default              : break;
 	}
+	return 0;
 }

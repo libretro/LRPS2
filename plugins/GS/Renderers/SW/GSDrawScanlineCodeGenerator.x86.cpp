@@ -2908,9 +2908,6 @@ void GSDrawScanlineCodeGenerator::ReadTexel_SSE(int pixels, int mip_offset)
 	// xmm4 = c01
 	// xmm1 = c10
 	// xmm5 = c11
-
-	ASSERT(pixels == 1 || pixels == 4);
-
 	mip_offset *= sizeof(void*);
 
 	const GSVector4i* lod_i = m_sel.lcm ? &m_local.gd->lod.i : &m_local.temp.lod.i;
@@ -3118,9 +3115,6 @@ void GSDrawScanlineCodeGenerator::ReadTexel_SSE(int pixels, int mip_offset)
 void GSDrawScanlineCodeGenerator::ReadTexel_SSE(const Xmm& dst, const Xmm& addr, u8 i)
 {
 	const Address& src = m_sel.tlu ? ptr[edx + eax * 4] : ptr[ebx + eax * 4];
-
-	ASSERT(i == 0 || m_cpu.has(util::Cpu::tSSE41));
-
 	if(i == 0) movd(eax, addr);
 	else pextrd(eax, addr, i);
 

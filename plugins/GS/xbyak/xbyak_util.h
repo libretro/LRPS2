@@ -567,7 +567,6 @@ private:
 	}
 	int getRegIdx(int& pos) const
 	{
-		assert(pos < 14);
 		using namespace Xbyak;
 		const int *tbl = getOrderTbl();
 		int r = tbl[pos++];

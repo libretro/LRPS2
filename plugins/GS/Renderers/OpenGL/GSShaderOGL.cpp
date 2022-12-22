@@ -285,7 +285,7 @@ std::string GSShaderOGL::GenGlslHeader(const std::string& entry, GLenum type, co
 		case GL_FRAGMENT_SHADER:
 			header += "#define FRAGMENT_SHADER 1\n";
 			break;
-		default: ASSERT(0);
+		default: break;
 	}
 
 	// Select the entry point ie the main function
@@ -298,8 +298,6 @@ std::string GSShaderOGL::GenGlslHeader(const std::string& entry, GLenum type, co
 
 GLuint GSShaderOGL::Compile(const std::string& glsl_file, const std::string& entry, GLenum type, const char* glsl_h_code, const std::string& macro_sel)
 {
-	ASSERT(glsl_h_code != NULL);
-
 	GLuint program = 0;
 
 	// Note it is better to separate header and source file to have the good line number
@@ -323,8 +321,6 @@ GLuint GSShaderOGL::Compile(const std::string& glsl_file, const std::string& ent
 // Same as above but for not-separated build
 GLuint GSShaderOGL::CompileShader(const std::string& glsl_file, const std::string& entry, GLenum type, const char* glsl_h_code, const std::string& macro_sel)
 {
-	ASSERT(glsl_h_code != NULL);
-
 	GLuint shader = 0;
 
 	// Note it is better to separate header and source file to have the good line number

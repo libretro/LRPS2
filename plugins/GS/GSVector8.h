@@ -410,8 +410,6 @@ public:
 	{
 		// TODO: use blendps when src == dst
 
-		ASSERT(src < 4 && dst < 4); // not cross lane like extract32()
-
 		switch(dst)
 		{
 			case 0:
@@ -463,22 +461,16 @@ public:
 
 	template<int i> __forceinline int extract32() const
 	{
-		ASSERT(i < 8);
-
 		return extract<i / 4>().template extract32<i & 3>();
 	}
 
 	template<int i> __forceinline GSVector8 insert(__m128 m) const
 	{
-		ASSERT(i < 2);
-
 		return GSVector8(_mm256_insertf128_ps(this->m, m, i));
 	}
 
 	template<int i> __forceinline GSVector4 extract() const
 	{
-		ASSERT(i < 2);
-
 		if(i == 0) return GSVector4(_mm256_castps256_ps128(m));
 
 		return GSVector4(_mm256_extractf128_ps(m, i));

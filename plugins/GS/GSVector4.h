@@ -223,16 +223,10 @@ public:
 		b = a + b - b;
 
 		if((mode & 7) == (Round_NegInf & 7))
-		{
 			return b - ((a < b) & m_one);
-		}
 
 		if((mode & 7) == (Round_PosInf & 7))
-		{
 			return b + ((a > b) & m_one);
-		}
-
-		ASSERT((mode & 7) == (Round_NearestInt & 7)); // other modes aren't implemented
 
 		return b;
 

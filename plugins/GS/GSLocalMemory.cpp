@@ -32,11 +32,7 @@
 #include "GSLocalMemory.h"
 #include "GS.h"
 
-#define ASSERT_BLOCK(r, w, h) \
-	ASSERT((r).width() >= (w) && (r).height() >= (h) && !((r).left & ((w) - 1)) && !((r).top & ((h) - 1)) && !((r).right & ((w) - 1)) && !((r).bottom & ((h) - 1))); \
-
 #define FOREACH_BLOCK_START(r, w, h, bpp) \
-	ASSERT_BLOCK(r, w, h); \
 	GSVector4i _r = (r) >> 3; \
 	u8* _dst = dst - _r.left * (bpp); \
 	int _offset = dstpitch * (h); \
@@ -506,8 +502,6 @@ GSPixelOffset* GSLocalMemory::GetPixelOffset(const GIFRegFRAME& FRAME, const GIF
 	u32 zpsm = ZBUF.PSM;
 	u32 bw   = FRAME.FBW;
 
-	ASSERT(m_psm[fpsm].trbpp > 8 || m_psm[zpsm].trbpp > 8);
-
 	// "(psm & 0x0f) ^ ((psm & 0xf0) >> 2)" creates 4 bit unique identifiers for render target formats (only)
 
 	u32 fpsm_hash = (fpsm & 0x0f) ^ ((fpsm & 0x30) >> 2);
@@ -561,8 +555,6 @@ GSPixelOffset4* GSLocalMemory::GetPixelOffset4(const GIFRegFRAME& FRAME, const G
 	u32 fpsm = FRAME.PSM;
 	u32 zpsm = ZBUF.PSM;
 	u32 bw   = FRAME.FBW;
-
-	ASSERT(m_psm[fpsm].trbpp > 8 || m_psm[zpsm].trbpp > 8);
 
 	// "(psm & 0x0f) ^ ((psm & 0xf0) >> 2)" creates 4 bit unique identifiers for render target formats (only)
 
@@ -1513,17 +1505,12 @@ void GSLocalMemory::ReadImageX(int& tx, int& ty, u8* dst, int len, GIFRegBITBLTB
 			for(int ex8 = ex - 8; len >= 8 && x <= ex8; len -= 8, x += 8, pd += 8)
 			{
 				int off = offset[x];
-
 				GSVector4i::store<false>(&pd[0], GSVector4i::load(&ps[off + 0], &ps[off + 4]));
 				GSVector4i::store<false>(&pd[4], GSVector4i::load(&ps[off + 8], &ps[off + 12]));
-
-				for(int i = 0; i < 8; i++) ASSERT(pd[i] == ps[offset[x + i]]);
 			}
 
 			for(; len > 0 && x < ex; len--, x++, pd++)
-			{
 				*pd = ps[offset[x]];
-			}
 
 			if(x == ex) {x = sx; y++;}
 		}
@@ -1736,7 +1723,6 @@ void GSLocalMemory::ReadTextureGPU24(const GSOffset* RESTRICT off, const GSVecto
 	FOREACH_BLOCK_END
 
 	// Convert packed RGB scanline to 32 bits RGBA
-	ASSERT(dstpitch >= r.width() * 4);
 	for(int y = r.top; y < r.bottom; y ++) {
 		u8* line = dst + y * dstpitch;
 
@@ -2147,8 +2133,6 @@ u32* GSOffset::GetPages(const GSVector4i& rect, u32* pages, GSVector4i* bbox)
 
 	*p++ = (u32)EOP;
 
-	ASSERT(p - pages <= limit);
-
 	return pages;
 }
 
@@ -2177,8 +2161,6 @@ u32* GSOffset::GetPagesAsBits(const GIFRegTEX0& TEX0)
 
 void* GSOffset::GetPagesAsBits(const GSVector4i& rect, void* pages)
 {
-	ASSERT(pages != nullptr);
-
 	((GSVector4i*)pages)[0] = GSVector4i::zero();
 	((GSVector4i*)pages)[1] = GSVector4i::zero();
 	((GSVector4i*)pages)[2] = GSVector4i::zero();

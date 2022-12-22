@@ -125,7 +125,6 @@ public:
 		GLsizei buffer_size = UBO_BUFFER_SIZE;
 		glBufferStorage(GL_UNIFORM_BUFFER, buffer_size, NULL, create_flags);
 		m_buffer_ptr = (u8*) glMapBufferRange(GL_UNIFORM_BUFFER, 0, buffer_size, map_flags);
-		ASSERT(m_buffer_ptr);
 	}
 
 	void attach()

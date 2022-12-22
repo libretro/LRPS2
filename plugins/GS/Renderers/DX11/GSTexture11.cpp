@@ -26,8 +26,6 @@
 GSTexture11::GSTexture11(ID3D11Texture2D* texture)
 	: m_texture(texture), m_layer(0)
 {
-	ASSERT(m_texture);
-
 	m_texture->GetDevice(&m_dev);
 	m_texture->GetDesc(&m_desc);
 
@@ -130,12 +128,8 @@ GSTexture11::operator ID3D11ShaderResourceView*()
 
 GSTexture11::operator ID3D11RenderTargetView*()
 {
-	ASSERT(m_dev);
-
 	if(!m_rtv && m_dev && m_texture)
-	{
 		m_dev->CreateRenderTargetView(m_texture, NULL, &m_rtv);
-	}
 
 	return m_rtv;
 }

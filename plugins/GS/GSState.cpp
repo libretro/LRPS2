@@ -131,8 +131,6 @@ GSState::~GSState()
 
 void GSState::SetRegsMem(u8* basemem)
 {
-	ASSERT(basemem);
-
 	m_regs = (GSPrivRegSet*)basemem;
 }
 
@@ -437,7 +435,6 @@ float GSState::GetTvRefreshRate()
 
 void GSState::GIFPackedRegHandlerNull(const GIFPackedReg* RESTRICT r)
 {
-	// ASSERT(0);
 }
 
 void GSState::GIFPackedRegHandlerRGBA(const GIFPackedReg* RESTRICT r)
@@ -533,8 +530,6 @@ void GSState::GIFPackedRegHandlerNOP(const GIFPackedReg* RESTRICT r)
 template<u32 prim, bool auto_flush>
 void GSState::GIFPackedRegHandlerSTQRGBAXYZF2(const GIFPackedReg* RESTRICT r, u32 size)
 {
-	ASSERT(size > 0 && size % 3 == 0);
-
 	const GIFPackedReg* RESTRICT r_end = r + size;
 
 	while(r < r_end)
@@ -564,8 +559,6 @@ void GSState::GIFPackedRegHandlerSTQRGBAXYZF2(const GIFPackedReg* RESTRICT r, u3
 template<u32 prim, bool auto_flush>
 void GSState::GIFPackedRegHandlerSTQRGBAXYZ2(const GIFPackedReg* RESTRICT r, u32 size)
 {
-	ASSERT(size > 0 && size % 3 == 0);
-
 	const GIFPackedReg* RESTRICT r_end = r + size;
 
 	while(r < r_end)
@@ -597,7 +590,6 @@ void GSState::GIFPackedRegHandlerNOP(const GIFPackedReg* RESTRICT r, u32 size)
 
 void GSState::GIFRegHandlerNull(const GIFReg* RESTRICT r)
 {
-	// ASSERT(0);
 }
 
 __forceinline void GSState::ApplyPRIM(u32 prim)
@@ -616,8 +608,6 @@ __forceinline void GSState::ApplyPRIM(u32 prim)
 	UpdateContext();
 
 	UpdateVertexKick();
-
-	ASSERT(m_index.tail == 0 || m_index.buff[m_index.tail - 1] + 1 == m_vertex.next);
 
 	if(m_index.tail == 0)
 	{
@@ -803,11 +793,7 @@ template<int i> void GSState::GIFRegHandlerTEX0(const GIFReg* RESTRICT r)
 	TEX0.TH = th;
 
 	if((TEX0.TBW & 1) && (TEX0.PSM == PSM_PSMT8 || TEX0.PSM == PSM_PSMT4))
-	{
-		ASSERT(TEX0.TBW == 1); // TODO // Bouken Jidai Katsugeki Goemon
-
 		TEX0.TBW &= ~1; // GS User 2.6
-	}
 
 	ApplyTEX0<i>(TEX0);
 
@@ -1257,7 +1243,6 @@ void GSState::FlushPrim()
 		switch(PRIM->PRIM)
 		{
 			case GS_POINTLIST:
-				ASSERT(0);
 				break;
 			case GS_LINELIST:
 			case GS_LINESTRIP:
@@ -1275,8 +1260,6 @@ void GSState::FlushPrim()
 			default:
 				break;
 		}
-
-		ASSERT((int)unused < GSUtil::GetVertexCount(PRIM->PRIM));
 	}
 
 	if(GSLocalMemory::m_psm[m_context->FRAME.PSM].fmt < 3 && GSLocalMemory::m_psm[m_context->ZBUF.PSM].fmt < 3)
@@ -1661,8 +1644,6 @@ template<int index> void GSState::Transfer(const u8* mem, u32 size)
 			if(path.nloop > 0) // eeuser 7.2.2. GIFtag: "... when NLOOP is 0, the GIF does not output anything, and values other than the EOP field are disregarded."
 			{
 				m_q = 1.0f;
-
-				// ASSERT(!(path.tag.PRE && path.tag.FLG == GIF_FLG_REGLIST)); // kingdom hearts
 
 				if(path.tag.PRE && path.tag.FLG == GIF_FLG_PACKED)
 				{
@@ -2122,8 +2103,6 @@ void GSState::GrowVertexBuffer()
 template<u32 prim, bool auto_flush>
 __forceinline void GSState::VertexKick(u32 skip)
 {
-	ASSERT(m_vertex.tail < m_vertex.maxcount + 3);
-
 	size_t head = m_vertex.head;
 	size_t tail = m_vertex.tail;
 	size_t next = m_vertex.next;

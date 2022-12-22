@@ -219,7 +219,7 @@ GSTextureOGL::GSTextureOGL(int type, int w, int h, int format, GLuint fbo_read, 
 			m_int_format    = 0;
 			m_int_type      = 0;
 			m_int_shift     = 0;
-			ASSERT(0);
+			break;
 	}
 
 	switch (m_type) {
@@ -271,7 +271,7 @@ GSTextureOGL::GSTextureOGL(int type, int w, int h, int format, GLuint fbo_read, 
 			break;
 
 		default:
-			ASSERT(0);
+			break;
 	}
 
 	// Create a gl object (texture isn't allocated here)
@@ -337,8 +337,6 @@ void GSTextureOGL::Clear(const void* data, const GSVector4i& area)
 
 bool GSTextureOGL::Update(const GSVector4i& r, const void* data, int pitch, int layer)
 {
-	ASSERT(m_type != GSTexture::DepthStencil && m_type != GSTexture::Offscreen);
-
 	if (layer >= m_max_layer)
 		return true;
 
@@ -385,9 +383,6 @@ bool GSTextureOGL::Map(GSMap& m, const GSVector4i* _r, int layer)
 		return false;
 
 	GSVector4i r = _r ? *_r : GSVector4i(0, 0, m_size.x, m_size.y);
-	// Will need some investigation
-	ASSERT(r.width()  != 0);
-	ASSERT(r.height() != 0);
 
 	u32 row_byte = r.width() << m_int_shift;
 	m.pitch = row_byte;

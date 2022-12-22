@@ -428,14 +428,10 @@ GSTexture* GSRendererHW::GetFeedbackOutput()
 
 void GSRendererHW::Lines2Sprites()
 {
-	ASSERT(m_vt.m_primclass == GS_SPRITE_CLASS);
-
 	// each sprite converted to quad needs twice the space
 
 	while (m_vertex.tail * 2 > m_vertex.maxcount)
-	{
 		GrowVertexBuffer();
-	}
 
 	// assume vertices are tightly packed and sequentially indexed (it should be the case)
 
@@ -768,32 +764,6 @@ float GSRendererHW::alpha1(int L, int X0, int X1)
 
 void GSRendererHW::SwSpriteRender()
 {
-	// Supported drawing attributes
-	ASSERT(PRIM->PRIM == GS_TRIANGLESTRIP || PRIM->PRIM == GS_SPRITE);
-	ASSERT(!PRIM->FGE);  // No FOG
-	ASSERT(!PRIM->AA1);  // No antialiasing
-	ASSERT(!PRIM->FIX);  // Normal fragment value control
-
-	ASSERT(!m_env.DTHE.DTHE); // No dithering
-
-	ASSERT(!m_context->TEST.ATE);  // No alpha test
-	ASSERT(!m_context->TEST.DATE);  // No destination alpha test
-	ASSERT(!m_context->DepthRead() && !m_context->DepthWrite());  // No depth handling
-
-	ASSERT(!m_context->TEX0.CSM);  // No CLUT usage
-
-	ASSERT(!m_env.PABE.PABE);  // No PABE
-
-	// PSMCT32 pixel format
-	ASSERT(!PRIM->TME || (PRIM->TME && m_context->TEX0.PSM == PSM_PSMCT32));
-	ASSERT(m_context->FRAME.PSM == PSM_PSMCT32);
-
-	// No rasterization required
-	ASSERT(PRIM->PRIM == GS_SPRITE
-		|| ((PRIM->IIP || m_vt.m_eq.rgba == 0xffff)
-			&& m_vt.m_eq.z == 0x1
-			&& (!PRIM->TME || PRIM->FST || m_vt.m_eq.q == 0x1)));  // Check Q equality only if texturing enabled and STQ coords used
-
 	const bool texture_mapping_enabled = PRIM->TME;
 
 	// Setup registers for SW rendering
@@ -809,11 +779,6 @@ void GSRendererHW::SwSpriteRender()
 	bitbltbuf.DBP  = GIFREG_FRAME_BLOCK(m_context->FRAME);
 	bitbltbuf.DBW  = m_context->FRAME.FBW;
 	bitbltbuf.DPSM = m_context->FRAME.PSM;
-
-	ASSERT(m_r.x == 0 && m_r.y == 0);  // No rendering region offset
-	ASSERT(!PRIM->TME || (abs(m_vt.m_min.t.x) <= SSR_UV_TOLERANCE && abs(m_vt.m_min.t.y) <= SSR_UV_TOLERANCE));  // No input texture offset, if any
-	ASSERT(!PRIM->TME || (abs(m_vt.m_max.t.x - m_r.z) <= SSR_UV_TOLERANCE && abs(m_vt.m_max.t.y - m_r.w) <= SSR_UV_TOLERANCE));  // No input texture min/mag, if any
-	ASSERT(!PRIM->TME || (m_vt.m_max.t.x <= (1 << m_context->TEX0.TW) && m_vt.m_max.t.y <= (1 << m_context->TEX0.TH)));  // No texture UV wrap, if any
 
 	GIFRegTRXPOS trxpos = {};
 
@@ -868,19 +833,15 @@ void GSRendererHW::SwSpriteRender()
 		const u32* RESTRICT s = texture_mapping_enabled ? &m_mem.m_vm32[spo->pixel.row[sy]] : nullptr;
 		u32* RESTRICT d = &m_mem.m_vm32[dpo->pixel.row[dy]];
 
-		ASSERT(w % 2 == 0);
-
 		for (int x = 0; x < w; x += 2)
 		{
 			GSVector4i sc;
 			if (texture_mapping_enabled)
 			{
 				// Read 2 source pixel colors
-				ASSERT((scol[x] + 1) == scol[x + 1]);  // Source pixel pair is adjacent in memory
 				sc = GSVector4i::loadl(&s[scol[x]]).u8to16();  // 0x00AA00BB00GG00RR00aa00bb00gg00rr
 
 				// Apply TFX
-				ASSERT(tex0_tfx == 0 || tex0_tfx == 1);
 				if (tex0_tfx == 0)
 					sc = sc.mul16l(vc).srl16(7).clamp8();  // clamp((sc * vc) >> 7, 0, 255), srl16 is ok because 16 bit values are unsigned
 
@@ -898,17 +859,11 @@ void GSRendererHW::SwSpriteRender()
 			if (alpha_blending_enabled || fb_mask_enabled)
 			{
 				// Read 2 destination pixel colors
-				ASSERT((dcol[x] + 1) == dcol[x + 1]);  // Destination pixel pair is adjacent in memory
 				dc0 = GSVector4i::loadl(&d[dcol[x]]).u8to16();  // 0x00AA00BB00GG00RR00aa00bb00gg00rr
 			}
 
 			if (alpha_blending_enabled)
 			{
-				// Blending
-				ASSERT(m_context->ALPHA.A == 0);
-				ASSERT(alpha_b == 1 || alpha_b == 2);
-				ASSERT(m_context->ALPHA.D == 1);
-
 				// Flag C
 				GSVector4i sc_alpha_vec;
 
@@ -944,7 +899,6 @@ void GSRendererHW::SwSpriteRender()
 				dc = dc.sll16(8).srl16(8);  // Mask, lower 8 bits enabled per channel
 
 			// No Alpha Correction
-			ASSERT(m_context->FBA.FBA == 0);
 			dc = dc.blend(sc, a_mask);
 			// dc alpha channels valid
 
@@ -954,7 +908,6 @@ void GSRendererHW::SwSpriteRender()
 
 			// Store 2 pixel colors
 			dc = dc.pu16(GSVector4i::zero());  // 0x0000000000000000AABBGGRRaabbggrr
-			ASSERT((dcol[x] + 1) == dcol[x + 1]);  // Destination pixel pair is adjacent in memory
 			GSVector4i::storel(&d[dcol[x]], dc);
 		}
 	}
@@ -1198,12 +1151,8 @@ void GSRendererHW::Draw()
 				lcm = 1; // constant lod
 			}
 
-			if (PRIM->FST) {
-				ASSERT(lcm == 1);
-				ASSERT(((m_vt.m_min.t.uph(m_vt.m_max.t) == GSVector4::zero()).mask() & 3) == 3); // ratchet and clank (menu)
-
+			if (PRIM->FST)
 				lcm = 1;
-			}
 
 			if (lcm == 1) {
 				m_lod.x = std::max<int>(k, 0);
@@ -1308,9 +1257,6 @@ void GSRendererHW::Draw()
 				// So we check if it's a TS effect by checking the scissor.
 				((m_context->SCISSOR.SCAX1 - m_context->SCISSOR.SCAX0) < 32);
 		}
-
-		// Texture shuffle is not yet supported with strange clamp mode
-		ASSERT(!m_texture_shuffle || (context->CLAMP.WMS < 3 && context->CLAMP.WMT < 3));
 
 		if (m_src->m_target && m_context->TEX0.PSM == PSM_PSMT8 && single_page && draw_sprite_tex)
 			m_channel_shuffle = true;
@@ -1477,11 +1423,8 @@ void GSRendererHW::Hacks::SetGameCRC(const CRC::Game& game)
 	m_oo = m_oo_map[hash];
 	m_cu = m_cu_map[hash];
 
-	if (game.flags & CRC::PointListPalette) {
-		ASSERT(m_oi == NULL);
-
+	if (game.flags & CRC::PointListPalette)
 		m_oi = &GSRendererHW::OI_PointListPalette;
-	}
 }
 
 // Trick to do a fast clear on the GS
@@ -1531,13 +1474,11 @@ void GSRendererHW::OI_DoubleHalfClear(GSTexture* rt, GSTexture* ds)
 			const GSVector4i commitRect = ComputeBoundingBox(t->GetScale(), t->GetSize());
 			t->CommitRegion(GSVector2i(commitRect.z, 2 * commitRect.w));
 
-			if (clear_depth) {
+			if (clear_depth)
 				// Only pure clear are supported for depth
-				ASSERT(color == 0);
 				m_dev->ClearDepth(t);
-			} else {
+			else
 				m_dev->ClearRenderTarget(t, color);
-			}
 		}
 	}
 }
@@ -1614,7 +1555,6 @@ bool GSRendererHW::OI_BlitFMV(GSTextureCache::Target* _rt, GSTextureCache::Sourc
 		sRect.w = m_vt.m_max.t.y / th;
 
 		// Compute the Bottom of texture rectangle
-		ASSERT(m_context->TEX0.TBP0 > GIFREG_FRAME_BLOCK(m_context->FRAME));
 		const int offset = (m_context->TEX0.TBP0 - GIFREG_FRAME_BLOCK(m_context->FRAME)) / m_context->TEX0.TBW;
 		GSVector4i r_texture(r_draw);
 		r_texture.y -= offset;
@@ -1967,10 +1907,6 @@ bool GSRendererHW::OI_PointListPalette(GSTexture* rt, GSTexture* ds, GSTextureCa
 
 				return false;
 			}
-			else
-			{
-				ASSERT(0);
-			}
 		}
 	}
 
@@ -1988,11 +1924,6 @@ bool GSRendererHW::OI_SuperManReturns(GSTexture* rt, GSTexture* ds, GSTextureCac
 
 	if (!(ctx->FRAME.FBP == ctx->ZBUF.ZBP && !PRIM->TME && !ctx->ZBUF.ZMSK && !ctx->FRAME.FBMSK && m_vt.m_eq.rgba == 0xFFFF))
 		return true;
-
-	// Please kill those crazy devs!
-	ASSERT(m_vertex.next == 2);
-	ASSERT(m_vt.m_primclass == GS_SPRITE_CLASS);
-	ASSERT((v->RGBAQ.A << 24 | v->RGBAQ.B << 16 | v->RGBAQ.G << 8 | v->RGBAQ.R) == (int)v->XYZ.Z);
 
 	// Do a direct write
 	if(rt)

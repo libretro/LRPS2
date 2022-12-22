@@ -43,7 +43,6 @@
 	#endif
 #endif
 
-#include <assert.h>
 #include <list>
 #include <string>
 #include <algorithm>
@@ -300,7 +299,6 @@ public:
 		, bit_(bit)
 		, zero_(0), mask_(0), rounding_(0)
 	{
-		assert((bit_ & (bit_ - 1)) == 0); // bit must be power of two
 	}
 	Kind getKind() const { return static_cast<Kind>(kind_); }
 	int getIdx() const { return idx_ & (EXT8BIT - 1); }
@@ -515,7 +513,7 @@ public:
 	enum {
 		es, cs, ss, ds, fs, gs
 	};
-	explicit Segment(int idx) : idx_(idx) { assert(0 <= idx_ && idx_ < 6); }
+	explicit Segment(int idx) : idx_(idx) { }
 	int getIdx() const { return idx_; }
 };
 #endif
@@ -737,12 +735,10 @@ public:
 	*/
 	void rewrite(size_t offset, uint64_t disp, size_t size)
 	{
-		assert(offset < maxSize_);
 		if (size != 1 && size != 2 && size != 4 && size != 8) throw Error(ERR_BAD_PARAMETER);
 		uint8_t *const data = top_ + offset;
-		for (size_t i = 0; i < size; i++) {
+		for (size_t i = 0; i < size; i++)
 			data[i] = static_cast<uint8_t>(disp >> (i * 8));
-		}
 	}
 	void save(size_t offset, size_t val, int size, inner::LabelMode mode)
 	{
@@ -2066,7 +2062,7 @@ public:
 		case Segment::fs: db(0x0F); db(0xA0); break;
 		case Segment::gs: db(0x0F); db(0xA8); break;
 		default:
-			assert(0);
+			break;
 		}
 	}
 	void pop(const Segment& seg)
@@ -2079,7 +2075,7 @@ public:
 		case Segment::fs: db(0x0F); db(0xA1); break;
 		case Segment::gs: db(0x0F); db(0xA9); break;
 		default:
-			assert(0);
+			break;
 		}
 	}
 	void putSeg(const Segment& seg)
@@ -2092,7 +2088,7 @@ public:
 		case Segment::fs: db(0x64); break;
 		case Segment::gs: db(0x65); break;
 		default:
-			assert(0);
+			break;
 		}
 	}
 	void mov(const Operand& op, const Segment& seg)

@@ -429,15 +429,12 @@ void GSRendererSW::UsePages(const u32* pages, const int type)
 	for(const u32* p = pages; *p != GSOffset::EOP; p++) {
 		switch (type) {
 			case 0:
-				ASSERT((m_fzb_pages[*p] & 0xFFFF) < USHRT_MAX);
 				m_fzb_pages[*p] += 1;
 				break;
 			case 1:
-				ASSERT((m_fzb_pages[*p] >> 16) < USHRT_MAX);
 				m_fzb_pages[*p] += 0x10000;
 				break;
 			case 2:
-				ASSERT(m_tex_pages[*p] < USHRT_MAX);
 				m_tex_pages[*p] += 1;
 				break;
 			default:break;
@@ -450,15 +447,12 @@ void GSRendererSW::ReleasePages(const u32* pages, const int type)
 	for(const u32* p = pages; *p != GSOffset::EOP; p++) {
 		switch (type) {
 			case 0:
-				ASSERT((m_fzb_pages[*p] & 0xFFFF) > 0);
 				m_fzb_pages[*p] -= 1;
 				break;
 			case 1:
-				ASSERT((m_fzb_pages[*p] >> 16) > 0);
 				m_fzb_pages[*p] -= 0x10000;
 				break;
 			case 2:
-				ASSERT(m_tex_pages[*p] > 0);
 				m_tex_pages[*p] -= 1;
 				break;
 			default:break;
@@ -763,7 +757,7 @@ bool GSRendererSW::GetScanlineGlobalData(SharedData* data)
 
 			GSTextureCacheSW::Texture* t = m_tc->Lookup(TEX0, env.TEXA);
 
-			if(t == NULL) {ASSERT(0); return false;}
+			if(!t) return false;
 
 			data->SetSource(t, r, 0);
 
@@ -808,12 +802,7 @@ bool GSRendererSW::GetScanlineGlobalData(SharedData* data)
 				}
 
 				if(gd.sel.fst)
-				{
-					ASSERT(gd.sel.lcm == 1);
-					ASSERT(((m_vt.m_min.t.uph(m_vt.m_max.t) == GSVector4::zero()).mask() & 3) == 3); // ratchet and clank (menu)
-
 					gd.sel.lcm = 1;
-				}
 
 				if(gd.sel.lcm)
 				{
@@ -857,7 +846,7 @@ bool GSRendererSW::GetScanlineGlobalData(SharedData* data)
 
 					GSTextureCacheSW::Texture* t = m_tc->Lookup(MIP_TEX0, env.TEXA, gd.sel.tw + 3);
 
-					if(t == NULL) {ASSERT(0); return false;}
+					if(t == NULL) return false;
 
 					GSVector4i r;
 
@@ -1196,8 +1185,6 @@ void GSRendererSW::SharedData::ReleasePages()
 
 void GSRendererSW::SharedData::SetSource(GSTextureCacheSW::Texture* t, const GSVector4i& r, int level)
 {
-	ASSERT(m_tex[level].t == NULL);
-
 	m_tex[level].t = t;
 	m_tex[level].r = r;
 
@@ -1209,13 +1196,9 @@ void GSRendererSW::SharedData::UpdateSource()
 	for(size_t i = 0; m_tex[i].t != NULL; i++)
 	{
 		if(m_tex[i].t->Update(m_tex[i].r))
-		{
 			global.tex[i] = m_tex[i].t->m_buff;
-		}
 		else
-		{
 			/* Out of memory, texturing temporarily disabled */
 			global.sel.tfx = TFX_NONE;
-		}
 	}
 }

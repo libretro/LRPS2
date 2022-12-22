@@ -211,15 +211,11 @@ public:
 
 	static u32 BlockNumber8(int x, int y, u32 bp, u32 bw)
 	{
-		// ASSERT((bw & 1) == 0); // allowed for mipmap levels
-
 		return bp + ((y >> 1) & ~0x1f) * (bw >> 1) + ((x >> 2) & ~0x1f) + blockTable8[(y >> 4) & 3][(x >> 4) & 7];
 	}
 
 	static u32 BlockNumber4(int x, int y, u32 bp, u32 bw)
 	{
-		// ASSERT((bw & 1) == 0); // allowed for mipmap levels
-
 		return bp + ((y >> 2) & ~0x1f) * (bw >> 1) + ((x >> 2) & ~0x1f) + blockTable4[(y >> 4) & 7][(x >> 5) & 3];
 	}
 
@@ -349,8 +345,6 @@ public:
 
 	static __forceinline u32 PixelAddress8(int x, int y, u32 bp, u32 bw)
 	{
-		// ASSERT((bw & 1) == 0); // allowed for mipmap levels
-
 		u32 page = ((bp >> 5) + (y >> 6) * (bw >> 1) + (x >> 7)) % MAX_PAGES;
 		u32 word = (page << 13) + pageOffset8[bp & 0x1f][y & 0x3f][x & 0x7f];
 
@@ -359,8 +353,6 @@ public:
 
 	static __forceinline u32 PixelAddress4(int x, int y, u32 bp, u32 bw)
 	{
-		// ASSERT((bw & 1) == 0); // allowed for mipmap levels
-
 		u32 page = ((bp >> 5) + (y >> 7) * (bw >> 1) + (x >> 7)) % MAX_PAGES;
 		u32 word = (page << 14) + pageOffset4[bp & 0x1f][y & 0x7f][x & 0x7f];
 

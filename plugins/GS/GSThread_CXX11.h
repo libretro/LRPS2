@@ -110,8 +110,6 @@ public:
 		std::unique_lock<std::mutex> l(m_wait_lock);
 		while (!IsEmpty())
 			m_empty.wait(l);
-
-		assert(IsEmpty());
 	}
 
 	void operator() (T& item) {

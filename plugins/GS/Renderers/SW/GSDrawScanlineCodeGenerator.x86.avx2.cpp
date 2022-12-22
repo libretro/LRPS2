@@ -2870,8 +2870,6 @@ void GSDrawScanlineCodeGenerator::ReadTexel(int pixels, int mip_offset)
 	// ymm1 = c10
 	// ymm5 = c11
 
-	ASSERT(pixels == 1 || pixels == 4);
-
 	mip_offset *= sizeof(void*);
 
 	const GSVector8i* lod_i = m_sel.lcm ? &m_local.gd->lod.i : &m_local.temp.lod.i;
@@ -2955,8 +2953,6 @@ void GSDrawScanlineCodeGenerator::ReadTexel(int pixels, int mip_offset)
 
 void GSDrawScanlineCodeGenerator::ReadTexel(const Ymm& dst, const Ymm& addr, uint8_t i)
 {
-	ASSERT(i < 4);
-
 	const Address& src = m_sel.tlu ? ptr[edx + eax * 4] : ptr[ebx + eax * 4];
 
 	if(i == 0) vmovd(eax, Xmm(addr.getIdx()));

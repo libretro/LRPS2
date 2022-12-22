@@ -102,7 +102,7 @@ void GSTextureCache11::Read(Target* t, const GSVector4i& r)
 					break;
 
 				default:
-					ASSERT(0);
+					break;
 			}
 
 			offscreen->Unmap();

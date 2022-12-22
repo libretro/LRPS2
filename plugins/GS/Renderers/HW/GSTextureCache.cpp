@@ -113,8 +113,8 @@ GSTextureCache::Source* GSTextureCache::LookupDepthSource(const GIFRegTEX0& TEX0
 	for(auto t : m_dst[DepthStencil]) {
 		if(t->m_used && t->m_dirty.empty() && GSUtil::HasSharedBits(bp, psm, t->m_TEX0.TBP0, t->m_TEX0.PSM))
 		{
-			ASSERT(GSLocalMemory::m_psm[t->m_TEX0.PSM].depth);
-			if (t->m_age == 0) {
+			if (t->m_age == 0)
+			{
 				// Perfect Match
 				dst = t;
 				break;
@@ -131,7 +131,6 @@ GSTextureCache::Source* GSTextureCache::LookupDepthSource(const GIFRegTEX0& TEX0
 			// FIXME: do I need to allow m_age == 1 as a potential match (as DepthStencil) ???
 			if(!t->m_age && t->m_used && t->m_dirty.empty() && GSUtil::HasSharedBits(bp, psm, t->m_TEX0.TBP0, t->m_TEX0.PSM))
 			{
-				ASSERT(GSLocalMemory::m_psm[t->m_TEX0.PSM].depth);
 				dst = t;
 				break;
 			}
@@ -178,8 +177,6 @@ GSTextureCache::Source* GSTextureCache::LookupDepthSource(const GIFRegTEX0& TEX0
 			// Rendering is nicer (less garbage) if we skip the draw call.
 			throw GSDXRecoverableError();
 		}
-
-		//ASSERT(0);
 	}
 
 	return src;
@@ -1190,8 +1187,6 @@ GSTextureCache::Source* GSTextureCache::CreateSource(const GIFRegTEX0& TEX0, con
 
 			//// sfex3 uses this trick (bw: 10 -> 5, wraps the right side below the left)
 
-			//ASSERT(dst->m_TEX0.TBW > TEX0.TBW); // otherwise scale.x need to be reduced to make the larger texture fit (TODO)
-
 			//src->m_texture = m_renderer->m_dev->CreateRenderTarget(dstsize.x, dstsize.y, false);
 
 			//GSVector4 size = GSVector4(dstsize).xyxy();
@@ -1349,8 +1344,6 @@ GSTextureCache::Source* GSTextureCache::CreateSource(const GIFRegTEX0& TEX0, con
 
 		if( src->m_texture )
 			src->m_texture->SetScale(scale);
-		else
-			ASSERT(0);
 
 		// Offset hack. Can be enabled via GSdx options.
 		// The offset will be used in Draw().
@@ -1398,8 +1391,6 @@ GSTextureCache::Source* GSTextureCache::CreateSource(const GIFRegTEX0& TEX0, con
 		}
 	}
 
-	ASSERT(src->m_texture);
-
 	m_src.Add(src, TEX0, m_renderer->m_context->offset.tex);
 
 	return src;
@@ -1407,8 +1398,6 @@ GSTextureCache::Source* GSTextureCache::CreateSource(const GIFRegTEX0& TEX0, con
 
 GSTextureCache::Target* GSTextureCache::CreateTarget(const GIFRegTEX0& TEX0, int w, int h, int type)
 {
-	ASSERT(type == RenderTarget || type == DepthStencil);
-
 	Target* t = new Target(m_renderer, TEX0, m_temp, m_can_convert_depth);
 
 	// FIXME: initial data should be unswizzled from local mem in Update() if dirty
@@ -1987,10 +1976,7 @@ void GSTextureCache::Palette::InitializeTexture() {
 //    is using addition in combination with logical XOR operator; The addition constants are large prime numbers, which may help in achieving what intended.
 std::size_t GSTextureCache::PaletteKeyHash::operator()(const PaletteKey &key) const {
 	u16 pal = key.pal;
-	const u32* clut = key.clut;
-
-	ASSERT((pal & 15) == 0);
-
+	const u32* clut  = key.clut;
 	size_t clut_hash = 3831179159;
 	for (u16 i = 0; i < pal; i += 16) {
 		clut_hash = (clut_hash + 1488000301) ^ (clut[i     ] +   33644011);
@@ -2037,8 +2023,6 @@ GSTextureCache::PaletteMap::PaletteMap(const GSRenderer* renderer)
 }
 
 std::shared_ptr<GSTextureCache::Palette> GSTextureCache::PaletteMap::LookupPalette(u16 pal, bool need_gs_texture) {
-	ASSERT(pal == 16 || pal == 256);
-
 	// Choose which hash map search into:
 	//    pal == 16  : index 0
 	//    pal == 256 : index 1

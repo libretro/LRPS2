@@ -114,9 +114,6 @@ void GSDrawScanline::EndDraw(u64 frame, int actual, int total)
 
 void GSDrawScanline::DrawRect(const GSVector4i& r, const GSVertexSW& v)
 {
-	ASSERT(r.y >= 0);
-	ASSERT(r.w >= 0);
-
 	// FIXME: sometimes the frame and z buffer may overlap, the outcome is undefined
 
 	u32 m;
@@ -230,8 +227,6 @@ void GSDrawScanline::DrawRectT(const int* RESTRICT row, const int* RESTRICT col,
 
 	color = color.andnot(mask);
 	c = c & (~m);
-
-	if(masked) ASSERT(mask.U32[0] != 0);
 
 	GSVector4i br = r.ralign<Align_Inside>(GSVector2i(8 * 4 / sizeof(T), 8));
 

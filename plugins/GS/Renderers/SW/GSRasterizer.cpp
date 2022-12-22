@@ -73,24 +73,18 @@ GSRasterizer::~GSRasterizer()
 
 bool GSRasterizer::IsOneOfMyScanlines(int top) const
 {
-	ASSERT(top >= 0 && top < 2048);
-
 	return m_scanline[top >> m_thread_height] != 0;
 }
 
 bool GSRasterizer::IsOneOfMyScanlines(int top, int bottom) const
 {
-	ASSERT(top >= 0 && top < 2048 && bottom >= 0 && bottom < 2048);
-
 	top = top >> m_thread_height;
 	bottom = (bottom + (1 << m_thread_height) - 1) >> m_thread_height;
 
 	while(top < bottom)
 	{
 		if(m_scanline[top++])
-		{
 			return true;
-		}
 	}
 
 	return false;
@@ -522,9 +516,6 @@ void GSRasterizer::DrawTriangle(const GSVertexSW* vertex, const u32* index)
 
 void GSRasterizer::DrawTriangleSection(int top, int bottom, GSVertexSW2& edge, const GSVertexSW2& dedge, const GSVertexSW2& dscan, const GSVector4& p0)
 {
-	ASSERT(top < bottom);
-	ASSERT(edge.p.x <= edge.p.y);
-
 	GSVertexSW* RESTRICT e = &m_edge.buff[m_edge.count];
 
 	GSVector4 scissor = m_fscissor_x;
@@ -711,9 +702,6 @@ void GSRasterizer::DrawTriangle(const GSVertexSW* vertex, const u32* index)
 
 void GSRasterizer::DrawTriangleSection(int top, int bottom, GSVertexSW& edge, const GSVertexSW& dedge, const GSVertexSW& dscan, const GSVector4& p0)
 {
-	ASSERT(top < bottom);
-	ASSERT(edge.p.x <= edge.p.y);
-
 	GSVertexSW* RESTRICT e = &m_edge.buff[m_edge.count];
 
 	GSVector4 scissor = m_fscissor_x;
@@ -1108,10 +1096,6 @@ void GSRasterizer::DrawScanline(int pixels, int left, int top, const GSVertexSW&
 {
 	m_pixels.actual += pixels;
 	m_pixels.total += ((left + pixels + (PIXELS_PER_LOOP - 1)) & ~(PIXELS_PER_LOOP - 1)) - (left & (PIXELS_PER_LOOP - 1));
-	//m_pixels.total += ((left + pixels + (PIXELS_PER_LOOP - 1)) & ~(PIXELS_PER_LOOP - 1)) - left;
-
-	ASSERT(m_pixels.actual <= m_pixels.total);
-
 	m_ds->DrawScanline(pixels, left, top, scan);
 }
 
@@ -1120,12 +1104,8 @@ void GSRasterizer::DrawEdge(int pixels, int left, int top, const GSVertexSW& sca
 	m_pixels.actual += 1;
 	m_pixels.total += PIXELS_PER_LOOP - 1;
 
-	ASSERT(m_pixels.actual <= m_pixels.total);
-
 	m_ds->DrawEdge(pixels, left, top, scan);
 }
-
-//
 
 GSRasterizerList::GSRasterizerList(int threads)
 {
@@ -1153,8 +1133,6 @@ GSRasterizerList::~GSRasterizerList()
 void GSRasterizerList::Queue(const std::shared_ptr<GSRasterizerData>& data)
 {
 	GSVector4i r = data->bbox.rintersect(data->scissor);
-
-	ASSERT(r.top >= 0 && r.top < 2048 && r.bottom >= 0 && r.bottom < 2048);
 
 	int top = r.top >> m_thread_height;
 	int bottom = std::min<int>((r.bottom + (1 << m_thread_height) - 1) >> m_thread_height, top + m_workers.size());

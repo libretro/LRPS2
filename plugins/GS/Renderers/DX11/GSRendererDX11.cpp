@@ -400,7 +400,6 @@ void GSRendererDX11::EmulateChannelShuffle(GSTexture** rt, const GSTextureCache:
 				// Note: potentially we could also check the value of the clut
 				switch (m_context->FRAME.FBMSK >> 24)
 				{
-					case 0xFF: ASSERT(0);      break;
 					case 0xFE: blue_shift = 1; break;
 					case 0xFC: blue_shift = 2; break;
 					case 0xF8: blue_shift = 3; break;
@@ -408,7 +407,8 @@ void GSRendererDX11::EmulateChannelShuffle(GSTexture** rt, const GSTextureCache:
 					case 0xE0: blue_shift = 5; break;
 					case 0xC0: blue_shift = 6; break;
 					case 0x80: blue_shift = 7; break;
-					default:   ASSERT(0);      break;
+					case 0xFF:
+					default:                   break;
 				}
 
 				const int green_shift = 8 - blue_shift;
@@ -549,14 +549,8 @@ void GSRendererDX11::EmulateBlending()
 			// Remove the addition/substraction from the SW blending
 			m_ps_sel.blend_d = 2;
 		}
-		else
-		{
-			// Disable HW blending
+		else /* Disable HW blending */
 			m_om_bsel.abe = 0;
-
-			// Only BLEND_NO_REC should hit this code path for now
-			ASSERT(blend_non_recursive);
-		}
 
 		// Require the fix alpha vlaue
 		if (ALPHA.C == 2)
@@ -605,7 +599,6 @@ void GSRendererDX11::EmulateTextureSampler(const GSTextureCache::Source* tex)
 		// Force a 32 bits access (normally shuffle is done on 16 bits)
 		// m_ps_sel.fmt = 0; // removed as an optimization
 		m_ps_sel.aem = m_env.TEXA.AEM;
-		ASSERT(tex->m_target);
 
 		// Require a float conversion if the texure is a depth otherwise uses Integral scaling
 		if (psm.depth)
@@ -742,9 +735,6 @@ void GSRendererDX11::EmulateTextureSampler(const GSTextureCache::Source* tex)
 		// Use invalid size to denormalize ST coordinate
 		ps_cb.WH.x = (float)(1 << m_context->stack.TEX0.TW);
 		ps_cb.WH.y = (float)(1 << m_context->stack.TEX0.TH);
-
-		// We can't handle m_target with invalid_tex0 atm due to upscaling
-		ASSERT(!tex->m_target);
 	}
 
 	// Only enable clamping in CLAMP mode. REGION_CLAMP will be done manually in the shader
@@ -782,7 +772,6 @@ void GSRendererDX11::DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Sou
 	ResetStates();
 	vs_cb.Texture_Scale_Offset = GSVector4(0.0f);
 
-	ASSERT(m_dev != NULL);
 	GSDevice11* dev = (GSDevice11*)m_dev;
 
 	// HLE implementation of the channel selection effect
@@ -1058,8 +1047,6 @@ void GSRendererDX11::DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Sou
 
 	if (ate_second_pass)
 	{
-		ASSERT(!m_env.PABE.PABE);
-
 		if (ate_RGBA_then_Z | ate_RGB_then_ZA)
 		{
 			// Enable ATE as first pass to update the depth

@@ -40,9 +40,6 @@ GSRenderer::~GSRenderer()
 
 bool GSRenderer::CreateDevice(GSDevice* dev)
 {
-	ASSERT(dev);
-	ASSERT(!m_dev);
-
 	if(!dev->Create())
 		return false;
 

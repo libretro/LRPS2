@@ -305,7 +305,7 @@ void GSDevice::FXAA()
 
 bool GSDevice::ResizeTexture(GSTexture** t, int type, int w, int h)
 {
-	if(t == NULL) {ASSERT(0); return false;}
+	if(t == NULL) return false;
 
 	GSTexture* t2 = *t;
 

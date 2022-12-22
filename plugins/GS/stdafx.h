@@ -55,7 +55,6 @@
 #include <ctime>
 #include <climits>
 #include <cstring>
-#include <cassert>
 
 #include <array>
 #include <memory>
@@ -115,8 +114,6 @@
 
 #endif
 
-#define ASSERT assert
-
 #ifdef _M_AMD64
 	// Yeah let use mips naming ;)
 	#ifdef _WIN64
@@ -161,35 +158,6 @@
 #if !defined(_M_SSE) && (!defined(_WIN32) || defined(_M_AMD64) || defined(_M_IX86_FP) && _M_IX86_FP >= 2)
 
 	#define _M_SSE 0x200
-
-#endif
-
-#if _M_SSE >= 0x200
-
-	#include <xmmintrin.h>
-	#include <emmintrin.h>
-
-	#ifndef _MM_DENORMALS_ARE_ZERO
-	#define _MM_DENORMALS_ARE_ZERO 0x0040
-	#endif
-
-	#define MXCSR (_MM_DENORMALS_ARE_ZERO | _MM_MASK_MASK | _MM_ROUND_NEAREST | _MM_FLUSH_ZERO_ON)
-
-	#define _MM_TRANSPOSE4_SI128(row0, row1, row2, row3) \
-	{ \
-		__m128 tmp0 = _mm_shuffle_ps(_mm_castsi128_ps(row0), _mm_castsi128_ps(row1), 0x44); \
-		__m128 tmp2 = _mm_shuffle_ps(_mm_castsi128_ps(row0), _mm_castsi128_ps(row1), 0xEE); \
-		__m128 tmp1 = _mm_shuffle_ps(_mm_castsi128_ps(row2), _mm_castsi128_ps(row3), 0x44); \
-		__m128 tmp3 = _mm_shuffle_ps(_mm_castsi128_ps(row2), _mm_castsi128_ps(row3), 0xEE); \
-		(row0) = _mm_castps_si128(_mm_shuffle_ps(tmp0, tmp1, 0x88)); \
-		(row1) = _mm_castps_si128(_mm_shuffle_ps(tmp0, tmp1, 0xDD)); \
-		(row2) = _mm_castps_si128(_mm_shuffle_ps(tmp2, tmp3, 0x88)); \
-		(row3) = _mm_castps_si128(_mm_shuffle_ps(tmp2, tmp3, 0xDD)); \
-	}
-
-#else
-
-#error TODO: GSVector4 and GSRasterizer needs SSE2
 
 #endif
 

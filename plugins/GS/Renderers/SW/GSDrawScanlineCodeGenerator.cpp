@@ -140,7 +140,6 @@ void GSDrawScanlineCodeGenerator::clamp16(const Xmm& a, const Xmm& temp)
 #if _M_SSE >= 0x501
 		// Greg: why ?
 		if(m_cpu.has(util::Cpu::tAVX2)) {
-			ASSERT(a.isYMM());
 			vpermq(Ymm(a.getIdx()), Ymm(a.getIdx()), _MM_SHUFFLE(3, 1, 2, 0)); // this sucks
 		}
 #endif

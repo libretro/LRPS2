@@ -44,7 +44,7 @@ public:
 	GSTexture();
 	virtual ~GSTexture() {}
 
-	virtual operator bool() {ASSERT(0); return false;}
+	virtual operator bool() {return false;}
 
 	virtual bool Update(const GSVector4i& r, const void* data, int pitch, int layer = 0) = 0;
 	virtual bool Map(GSMap& m, const GSVector4i* r = NULL, int layer = 0) = 0;

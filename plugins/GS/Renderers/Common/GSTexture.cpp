@@ -70,9 +70,6 @@ void GSTexture::Uncommit()
 
 void GSTexture::SetGpuPageSize(const GSVector2i& page_size)
 {
-	ASSERT(std::bitset<32>(page_size.x + 1).count() == 1);
-	ASSERT(std::bitset<32>(page_size.y + 1).count() == 1);
-
 	m_gpu_page_size = page_size;
 }
 
