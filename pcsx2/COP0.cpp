@@ -14,7 +14,6 @@
  */
 
 
-#include "PrecompiledHeader.h"
 #include "Common.h"
 #include "COP0.h"
 
@@ -26,7 +25,6 @@ void __fastcall WriteCP0Status(u32 value)
 	cpuRegs.CP0.n.Status.val = value;
 	cpuSetNextEventDelta(4);
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Performance Counters Update Stuff!
@@ -193,7 +191,7 @@ void UnmapTLB(int i)
 	}
 }
 
-void WriteTLB(int i)
+static void WriteTLB(int i)
 {
 	tlb[i].PageMask = cpuRegs.CP0.n.PageMask;
 	tlb[i].EntryHi = cpuRegs.CP0.n.EntryHi;
