@@ -375,7 +375,7 @@ set(pcsx2IPUSources
 	IPU/IPUdma.cpp
 	IPU/mpeg2lib/Idct.cpp
 	IPU/mpeg2lib/Mpeg.cpp
-	IPU/yuv2rgb.cpp)
+	)
 
 # IPU headers
 set(pcsx2IPUHeaders
@@ -383,7 +383,6 @@ set(pcsx2IPUHeaders
 	IPU/IPU_Fifo.h
 	IPU/IPU.h
 	IPU/mpeg2lib/Mpeg.h
-	IPU/yuv2rgb.h
 	)
 
 # Linux sources

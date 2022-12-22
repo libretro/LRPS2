@@ -158,35 +158,6 @@ const wxDirName& AppConfig::FolderOptions::operator[]( FoldersEnum_t folderidx )
 	return const_cast<FolderOptions*>( this )->operator[]( folderidx );
 }
 
-
-
-// --------------------------------------------------------------------------------------
-//  Default Filenames
-// --------------------------------------------------------------------------------------
-namespace FilenameDefs
-{
-	const wxFileName& Memcard( uint port, uint slot )
-	{
-		static const wxFileName retval[2][4] =
-		{
-			{
-				wxFileName( L"Mcd001.ps2" ),
-				wxFileName( L"Mcd003.ps2" ),
-				wxFileName( L"Mcd005.ps2" ),
-				wxFileName( L"Mcd007.ps2" ),
-			},
-			{
-				wxFileName( L"Mcd002.ps2" ),
-				wxFileName( L"Mcd004.ps2" ),
-				wxFileName( L"Mcd006.ps2" ),
-				wxFileName( L"Mcd008.ps2" ),
-			}
-		};
-
-		return retval[port][slot];
-	}
-};
-
 static wxDirName GetResolvedFolder(FoldersEnum_t id)
 {
 	return  PathDefs::Get(id);

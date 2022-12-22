@@ -56,8 +56,6 @@ namespace PathDefs
 	extern wxDirName GetCheats();
 	extern wxDirName GetCheatsWS();
 
-	extern wxDirName Get( FoldersEnum_t folderidx );
-
 	// Base folder names used to extend out the documents/approot folder base into a complete
 	// path.  These are typically for internal AppConfig use only, barring a few special cases.
 	namespace Base
@@ -69,9 +67,3 @@ namespace PathDefs
 		extern const wxDirName& CheatsWS();
 	}
 }
-
-namespace FilenameDefs
-{
-	extern const wxFileName& Memcard( uint port, uint slot );
-};
-

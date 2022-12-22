@@ -18,7 +18,6 @@
 
 #include "IPU.h"
 #include "IPUdma.h"
-#include "yuv2rgb.h"
 #include "mpeg2lib/Mpeg.h"
 
 #if !defined(_M_SSE)
