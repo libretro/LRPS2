@@ -129,8 +129,10 @@ Pcsx2App::Pcsx2App(void)
 
 Pcsx2App::~Pcsx2App(void)
 {
-	try {
-		vu1Thread.Cancel();
+	try
+	{
+		vu1Thread.Cancel(wxTimeSpan(0, 0, 5, 0));	// Quick fix to kill lingering processes that end up waiting here forever
+		//vu1Thread.Cancel();
 	}
 	DESTRUCTOR_CATCHALL
 }
