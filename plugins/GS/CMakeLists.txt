@@ -91,7 +91,6 @@ set(GSdxSources
     )
 
 set(GSdxHeaders
-    config.h
     GSAlignedClass.h
     GSBlock.h
     GSClut.h

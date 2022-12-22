@@ -23,8 +23,6 @@
 
 #include "Pcsx2Types.h"
 
-#include "../../config.h"
-
 struct GSInputLayoutOGL {
 	GLint   location;
 	GLint   size;
