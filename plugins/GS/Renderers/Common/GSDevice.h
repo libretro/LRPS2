@@ -23,6 +23,8 @@
 
 #include "Pcsx2Types.h"
 
+#include <array>
+
 #include "GSFastList.h"
 #include "GSTexture.h"
 #include "GSVertex.h"
@@ -49,7 +51,6 @@ enum ShaderConvert
 	ShaderConvert_RGB5A1_TO_FLOAT16,
 	ShaderConvert_RGBA_TO_8I = 17,
 	ShaderConvert_YUV,
-	ShaderConvert_OSD,
 	ShaderConvert_Count
 };
 
@@ -61,7 +62,7 @@ enum ChannelFetch
 	ChannelFetch_BLUE  = 3,
 	ChannelFetch_ALPHA = 4,
 	ChannelFetch_RGB   = 5,
-	ChannelFetch_GXBY  = 6,
+	ChannelFetch_GXBY  = 6
 };
 
 #pragma pack(push, 1)
