@@ -28,14 +28,8 @@ class BaseR5900Exception : public Exception::Ps2Generic
 {
 	DEFINE_EXCEPTION_COPYTORS(BaseR5900Exception, Exception::Ps2Generic)
 
-public:
-	cpuRegisters cpuState;
-
 protected:
-	void Init()
-	{
-		cpuState = cpuRegs;
-	}
+	void Init() { }
 };
 
 namespace R5900Exception
@@ -67,52 +61,6 @@ namespace R5900Exception
 		AddressError( u32 ps2addr, bool onWrite )
 		{
 			BaseAddressError::Init( ps2addr, onWrite);
-		}
-	};
-
-	class TLBMiss : public BaseAddressError
-	{
-		DEFINE_EXCEPTION_COPYTORS(TLBMiss, BaseAddressError)
-
-	public:
-		TLBMiss( u32 ps2addr, bool onWrite )
-		{
-			BaseAddressError::Init( ps2addr, onWrite);
-		}
-	};
-
-	class BusError : public BaseAddressError
-	{
-		DEFINE_EXCEPTION_COPYTORS(BusError, BaseAddressError)
-
-	public:
-		BusError( u32 ps2addr, bool onWrite )
-		{
-			BaseAddressError::Init( ps2addr, onWrite);
-		}
-	};
-
-	class Trap : public BaseR5900Exception
-	{
-		DEFINE_EXCEPTION_COPYTORS(Trap, BaseR5900Exception)
-
-	public:
-		u16 TrapCode;
-
-	public:
-		// Generates a trap for immediate-style Trap opcodes
-		Trap()
-		{
-			_parent::Init();
-			TrapCode = 0;
-		}
-
-		// Generates a trap for register-style Trap instructions, which contain an
-		// error code in the opcode
-		explicit Trap( u16 trapcode )
-		{
-			_parent::Init(),
-			TrapCode = trapcode;
 		}
 	};
 }

@@ -35,8 +35,6 @@
 #include "Patch.h"
 #include "GameDatabase.h"
 
-#include "R5900OpcodeTables.h"
-
 s32 EEsCycle;		// used to sync the IOP to the EE
 u32 EEoCycle;
 
@@ -69,7 +67,7 @@ void cpuReset(void)
 {
 	vu1Thread.WaitVU();
 	if (GetMTGS().IsOpen())
-		GetMTGS().WaitGS();		// GS better be done processing before we reset the EE, just in case.
+		GetMTGS().WaitGS(); // GS better be done processing before we reset the EE, just in case.
 
 	GetVmMemory().ResetAll();
 
@@ -77,9 +75,9 @@ void cpuReset(void)
 	memzero(fpuRegs);
 	memzero(tlb);
 
-	cpuRegs.pc				= 0xbfc00000; //set pc reg to stack
-	cpuRegs.CP0.n.Config	= 0x440;
-	cpuRegs.CP0.n.Status.val= 0x70400004; //0x10900000 <-- wrong; // COP0 enabled | BEV = 1 | TS = 1
+	cpuRegs.pc			= 0xbfc00000; //set pc reg to stack
+	cpuRegs.CP0.n.Config		= 0x440;
+	cpuRegs.CP0.n.Status.val	= 0x70400004; //0x10900000 <-- wrong; // COP0 enabled | BEV = 1 | TS = 1
 	cpuRegs.CP0.n.PRid		= 0x00002e20; // PRevID = Revision ID, same as R5900
 	fpuRegs.fprc[0]			= 0x00002e30; // fpu Revision..
 	fpuRegs.fprc[31]		= 0x01000001; // fpu Status/Control
@@ -452,7 +450,7 @@ __fi void cpuTestDMACInts(void)
 	}
 }
 
-__fi void cpuTestTIMRInts(void)
+static __fi void cpuTestTIMRInts(void)
 {
 	if ((cpuRegs.CP0.n.Status.val & 0x10007) == 0x10001) {
 		// Perfs are updated when read by games (COP0's MFC0/MTC0 instructions), so we need

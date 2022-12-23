@@ -448,7 +448,6 @@ extern void _cpuEventTest_Shared();		// for internal use by the Dynarecs and Int
 
 extern void cpuTestINTCInts();
 extern void cpuTestDMACInts();
-extern void cpuTestTIMRInts();
 
 ////////////////////////////////////////////////////////////////////
 // Exception Codes
