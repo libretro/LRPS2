@@ -23,7 +23,6 @@
 
 #include <unordered_map>
 #include <vector>
-#include <array>
 
 #include "Pcsx2Types.h"
 
