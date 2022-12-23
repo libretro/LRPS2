@@ -229,8 +229,6 @@ public:
 
 	bool IsEnabled(int i);
 
-	float GetTvRefreshRate();
-
 	virtual void Reset();
 	void Flush();
 	void FlushPrim();
@@ -246,7 +244,6 @@ public:
 	void InitReadFIFO(u8* mem, int len);
 
 	void SoftReset(u32 mask);
-	void WriteCSR(u32 csr) {m_regs->CSR.U32[1] = csr;}
 	void ReadFIFO(u8* mem, int size);
 	template<int index> void Transfer(const u8* mem, u32 size);
 	int Freeze(GSFreezeData* fd, bool sizeonly);

@@ -409,28 +409,6 @@ bool GSState::IsEnabled(int i)
 	return false;
 }
 
-float GSState::GetTvRefreshRate()
-{
-	GSVideoMode videomode = GetVideoMode();
-	//TODO: Check vertical frequencies for VESA video modes, old ones were untested.
-
-	switch (videomode)
-	{
-		case GSVideoMode::NTSC:
-		case GSVideoMode::SDTV_480P:
-			return (60 / 1.001f);
-		case GSVideoMode::PAL:
-			return 50;
-		case GSVideoMode::HDTV_720P:
-		case GSVideoMode::HDTV_1080I:
-			return 60;
-		default:
-			break;
-	}
-
-	return 0;
-}
-
 // GIFPackedRegHandler*
 
 void GSState::GIFPackedRegHandlerNull(const GIFPackedReg* RESTRICT r)

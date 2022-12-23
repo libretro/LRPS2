@@ -102,7 +102,6 @@ set(GSdxHeaders
     GSLocalMemory.h
     GSState.h
     GSTables.h
-    GSThread_CXX11.h
     GSUtil.h
     GSVector.h
     GSVector4.h

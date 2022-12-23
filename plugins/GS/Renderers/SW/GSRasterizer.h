@@ -21,12 +21,106 @@
 
 #pragma once
 
+#include <thread>
+#include <functional>
+#include <condition_variable>
+#include <mutex>
+
 #include "Pcsx2Types.h"
 
 #include "../../GS.h"
 #include "GSVertexSW.h"
 #include "../../GSAlignedClass.h"
-#include "../../GSThread_CXX11.h"
+
+#include "Utilities/boost_spsc_queue.hpp"
+
+template<class T, int CAPACITY> class GSJobQueue final
+{
+private:
+	std::thread m_thread;
+	std::function<void(T&)> m_func;
+	bool m_exit;
+	ringbuffer_base<T, CAPACITY> m_queue;
+
+	std::mutex m_lock;
+	std::mutex m_wait_lock;
+	std::condition_variable m_empty;
+	std::condition_variable m_notempty;
+
+	void ThreadProc() {
+		std::unique_lock<std::mutex> l(m_lock);
+
+		while (true) {
+
+			while (m_queue.empty()) {
+				if (m_exit)
+					return;
+
+				m_notempty.wait(l);
+			}
+
+			l.unlock();
+
+			while (m_queue.consume_one(*this))
+				;
+
+			{
+				std::lock_guard<std::mutex> wait_guard(m_wait_lock);
+			}
+			m_empty.notify_one();
+
+			l.lock();
+		}
+	}
+
+public:
+	GSJobQueue(std::function<void(T&)> func) :
+		m_func(func),
+		m_exit(false)
+	{
+		m_thread = std::thread(&GSJobQueue::ThreadProc, this);
+	}
+
+	~GSJobQueue()
+	{
+		{
+			std::lock_guard<std::mutex> l(m_lock);
+			m_exit = true;
+		}
+		m_notempty.notify_one();
+
+		m_thread.join();
+	}
+
+	bool IsEmpty()
+	{
+		return m_queue.empty();
+	}
+
+	void Push(const T& item) {
+		while(!m_queue.push(item))
+			std::this_thread::yield();
+
+		{
+			std::lock_guard<std::mutex> l(m_lock);
+		}
+		m_notempty.notify_one();
+	}
+
+	void Wait()
+	{
+		if (IsEmpty())
+			return;
+
+		std::unique_lock<std::mutex> l(m_wait_lock);
+		while (!IsEmpty())
+			m_empty.wait(l);
+	}
+
+	void operator() (T& item) {
+		m_func(item);
+	}
+};
 
 class alignas(32) GSRasterizerData : public GSAlignedClass<32>
 {
