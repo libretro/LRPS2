@@ -35,15 +35,6 @@
  * common return values (for ie. GSinit):
 	 0 - success
 	-1 - error
-
- * reserved keys:
-	F1 to F10 are reserved for the emulator
-
- * plugins should NOT change the current
-   working directory.
-   (on win32, add flag OFN_NOCHANGEDIR for
-    GetOpenFileName)
-
 */
 
 #include "Pcsx2Defs.h"
@@ -83,26 +74,26 @@ extern "C" {
 
 // basic funcs
 
-s32 CALLBACK GSinit();
+s32 CALLBACK GSinit(void);
 s32 CALLBACK GSopen2(u32 flags);
-void CALLBACK GSclose();
-void CALLBACK GSshutdown();
+void CALLBACK GSclose(void);
+void CALLBACK GSshutdown(void);
 
 void CALLBACK GSvsync(int field);
-void CALLBACK GSgifTransfer(const u32 *pMem, u32 addr);
-void CALLBACK GSgifTransfer1(u32 *pMem, u32 addr);
-void CALLBACK GSgifTransfer2(u32 *pMem, u32 size);
-void CALLBACK GSgifTransfer3(u32 *pMem, u32 size);
+void CALLBACK GSgifTransfer(const u8 *pMem, u32 addr);
+void CALLBACK GSgifTransfer1(u8 *pMem, u32 addr);
+void CALLBACK GSgifTransfer2(u8 *pMem, u32 size);
+void CALLBACK GSgifTransfer3(u8 *pMem, u32 size);
 void CALLBACK GSgifSoftReset(u32 mask);
 void CALLBACK GSreadFIFO2(u8 *mem, int qwc);
-void CALLBACK GSinitReadFIFO2(u64 *mem, int qwc);
+void CALLBACK GSinitReadFIFO2(u8 *mem, int qwc);
 
 // extended funcs
 
-void CALLBACK GSsetBaseMem(void *);
+void CALLBACK GSsetBaseMem(u8 *);
 void CALLBACK GSsetGameCRC(int crc, int gameoptions);
 
-void CALLBACK GSreset();
+void CALLBACK GSreset(void);
 s32 CALLBACK GSfreeze(int mode, freezeData *data);
 
 #ifdef __cplusplus

@@ -201,7 +201,7 @@ void SysMtgsThread::ExecuteTaskInThread()
 					Gif_Path& path   = gifUnit.gifPath[tag.data[2]];
 					u32       offset = tag.data[0];
 					u32       size   = tag.data[1];
-					if (offset != ~0u) GSgifTransfer((u32*)&path.buffer[offset], size/16);
+					if (offset != ~0u) GSgifTransfer((u8*)&path.buffer[offset], size/16);
 					path.readAmount.fetch_sub(size, std::memory_order_acq_rel);
 					break;
 				}
@@ -212,7 +212,7 @@ void SysMtgsThread::ExecuteTaskInThread()
 					vu1Thread.semaXGkick.WaitWithoutYield();
 					Gif_Path& path   = gifUnit.gifPath[GIF_PATH_1];
 					GS_Packet gsPack = path.GetGSPacketMTVU(); // Get vu1 program's xgkick packet(s)
-					if (gsPack.size) GSgifTransfer((u32*)&path.buffer[gsPack.offset], gsPack.size/16);
+					if (gsPack.size) GSgifTransfer((u8*)&path.buffer[gsPack.offset], gsPack.size/16);
 					path.readAmount.fetch_sub(gsPack.size + gsPack.readAmount, std::memory_order_acq_rel);
 					path.mtvu.gsPackQueue.pop(); // Should be done last, for proper Gif_MTGS_Wait()
 					break;
@@ -276,11 +276,11 @@ void SysMtgsThread::ExecuteTaskInThread()
 							break;
 
 						case GS_RINGTYPE_INIT_READ_FIFO1:
-							GSinitReadFIFO2( (u64*)tag.pointer, 1);
+							GSinitReadFIFO2( (u8*)tag.pointer, 1);
 							break;
 
 						case GS_RINGTYPE_INIT_READ_FIFO2:
-							GSinitReadFIFO2( (u64*)tag.pointer, tag.data[0]);
+							GSinitReadFIFO2( (u8*)tag.pointer, tag.data[0]);
 							break;
 
 						case GS_RINGTYPE_MODECHANGE:
