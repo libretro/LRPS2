@@ -117,7 +117,4 @@ extern void ApplyLoadedPatches(patch_place_type place);
 
 // Empties the patches store ("unload" the patches) but doesn't touch the emulation memory.
 // Following ApplyLoadedPatches calls will do nothing until some LoadPatchesFrom* are invoked.
-extern void ForgetLoadedPatches();
-
-// Patch loading is verbose only once after the crc changes, this makes it think that the crc changed.
-extern void PatchesVerboseReset();
+extern void ForgetLoadedPatches(void);

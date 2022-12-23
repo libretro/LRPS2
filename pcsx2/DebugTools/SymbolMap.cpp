@@ -24,7 +24,9 @@ SymbolMap symbolMap;
 #define strcasecmp stricmp
 #endif
 
+#ifndef ARRAY_SIZE
 #define ARRAY_SIZE(x) (sizeof((x))/sizeof(*(x)))
+#endif
 
 void SymbolMap::Clear() {
 	std::lock_guard<std::recursive_mutex> guard(m_lock);

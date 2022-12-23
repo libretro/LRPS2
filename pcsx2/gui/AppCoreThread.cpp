@@ -93,11 +93,6 @@ AppCoreThread::~AppCoreThread()
 	DESTRUCTOR_CATCHALL
 }
 
-static void _Cancel()
-{
-	GetCoreThread().Cancel();
-}
-
 void AppCoreThread::Cancel()
 {
 	_parent::Cancel(wxTimeSpan(0, 0, 4, 0));
@@ -113,11 +108,6 @@ void AppCoreThread::ResetQuick()
 	_parent::ResetQuick();
 }
 
-static void _Suspend()
-{
-	GetCoreThread().Suspend(true);
-}
-
 void AppCoreThread::Suspend()
 {
 	if (IsClosed())
@@ -130,17 +120,6 @@ void AppCoreThread::Resume()
 	_parent::Resume();
 }
 
-void AppCoreThread::ChangeCdvdSource()
-{
-	CDVD_SourceType cdvdsrc(g_Conf->CdvdSource);
-	if (cdvdsrc == CDVDsys_GetSourceType())
-		return;
-
-	// Fast change of the CDVD source only -- a Pause will suffice.
-	CDVDsys_ChangeSource(cdvdsrc);
-	// TODO: Add a listener for CDVDsource changes?  Or should we bother?
-}
-
 void Pcsx2App::SysApplySettings()
 {
 	if (AppRpc_TryInvoke(&Pcsx2App::SysApplySettings))
@@ -149,9 +128,7 @@ void Pcsx2App::SysApplySettings()
 
 	CDVD_SourceType cdvdsrc(g_Conf->CdvdSource);
 	if (cdvdsrc != CDVDsys_GetSourceType() || (cdvdsrc == CDVD_SourceType::Iso && (CDVDsys_GetFile(cdvdsrc) != g_Conf->CurrentIso)))
-	{
 		CoreThread.ResetCdvd();
-	}
 
 	CDVDsys_SetFile(CDVD_SourceType::Iso, g_Conf->CurrentIso);
 }
@@ -263,20 +240,15 @@ static int loadGameSettings(Pcsx2Config& dest, const GameDatabaseSchema::GameEnt
 #define _UNKNOWN_GAME_KEY (L"_UNKNOWN_GAME_KEY")
 static wxString curGameKey = _UNKNOWN_GAME_KEY;
 
-void PatchesVerboseReset()
-{
-	curGameKey = _UNKNOWN_GAME_KEY;
-}
-
 // fixup = src + command line overrides + game overrides (according to elfCRC).
 // While at it, also [re]loads the relevant patches (but doesn't apply them),
 // updates the console title, and, for good measures, does some (static) sio stuff.
 // Oh, and updates curGameKey. I think that's it.
 // It doesn't require that the emulation is paused, and console writes/title should
 // be thread safe, but it's best if things don't move around much while it runs.
-static Threading::Mutex mtx__ApplySettings;
 static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 {
+	static Threading::Mutex mtx__ApplySettings;
 	Threading::ScopedLock lock(mtx__ApplySettings);
 	// 'fixup' is the EmuConfig we're going to upload to the emulator, which very well may
 	// differ from the user-configured EmuConfig settings.  So we make a copy here and then
@@ -474,7 +446,7 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 void LoadAllPatchesAndStuff(const Pcsx2Config& cfg)
 {
 	Pcsx2Config dummy;
-	PatchesVerboseReset();
+	curGameKey = _UNKNOWN_GAME_KEY;
 	_ApplySettings(cfg, dummy);
 }
 
@@ -586,9 +558,7 @@ void AppCoreThread::DoCpuExecute()
 			// the game is probably running miserably.
 
 			m_except_threshold = 0;
-			//Suspend();
 
-			// [TODO] Issue error dialog to the user here...
 			log_cb(RETRO_LOG_ERROR, "Too many execution errors.  VM execution has been suspended!\n");
 
 			// Hack: this keeps the EE thread from 

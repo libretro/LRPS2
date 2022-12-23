@@ -42,7 +42,6 @@ public:
 	virtual void ResetQuick();
 	virtual void Cancel();
 	virtual bool StateCheckInThread();
-	virtual void ChangeCdvdSource();
 
 	virtual void ApplySettings( const Pcsx2Config& src );
 	virtual void UploadStateCopy( const VmStateBuffer& copy );
