@@ -45,7 +45,6 @@
 // stdc
 
 #include <cstddef>
-#include <cstdio>
 #include <cstdarg>
 #include <cstdlib>
 #include <cmath>

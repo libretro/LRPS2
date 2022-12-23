@@ -19,7 +19,6 @@
  *
  */
 
-#include "stdafx.h"
 #include "GSClut.h"
 #include "GSLocalMemory.h"
 
