@@ -30,13 +30,8 @@
 
 #include "Pcsx2Types.h"
 
-#include "x86emitter/x86_intrin.h"
-
-// Renamed ARRAYSIZE to ArraySize -- looks nice and gets rid of Windows.h conflicts (air)
-// Notes: I'd have used ARRAY_SIZE instead but ran into cross-platform lib conflicts with
-// that as well.  >_<
-#ifndef ArraySize
-#define ArraySize(x) (sizeof(x) / sizeof((x)[0]))
+#ifndef ARRAY_SIZE
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #endif
 
 // --------------------------------------------------------------------------------------

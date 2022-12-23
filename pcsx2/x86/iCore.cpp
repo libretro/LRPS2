@@ -740,7 +740,7 @@ u32 _recIsRegWritten(EEINST* pinst, int size, u8 xmmtype, u8 reg)
 	u32  i, inst = 1;
 
 	while(size-- > 0) {
-		for(i = 0; i < ArraySize(pinst->writeType); ++i) {
+		for(i = 0; i < ARRAY_SIZE(pinst->writeType); ++i) {
 			if ((pinst->writeType[i] == xmmtype) && (pinst->writeReg[i] == reg))
 				return inst;
 		}
@@ -756,7 +756,7 @@ void _recFillRegister(EEINST& pinst, int type, int reg, int write)
 	u32 i = 0;
 	if (write )
 	{
-		for(i = 0; i < ArraySize(pinst.writeType); ++i) {
+		for(i = 0; i < ARRAY_SIZE(pinst.writeType); ++i) {
 			if( pinst.writeType[i] == XMMTYPE_TEMP ) {
 				pinst.writeType[i] = type;
 				pinst.writeReg[i] = reg;
@@ -766,7 +766,7 @@ void _recFillRegister(EEINST& pinst, int type, int reg, int write)
 	}
 	else
 	{
-		for(i = 0; i < ArraySize(pinst.readType); ++i) {
+		for(i = 0; i < ARRAY_SIZE(pinst.readType); ++i) {
 			if( pinst.readType[i] == XMMTYPE_TEMP ) {
 				pinst.readType[i] = type;
 				pinst.readReg[i] = reg;
