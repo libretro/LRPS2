@@ -15,6 +15,7 @@
 
 
 #include "PrecompiledHeader.h"
+#include "Utilities/MemcpyFast.h"
 #include "Common.h"
 
 #include <float.h>

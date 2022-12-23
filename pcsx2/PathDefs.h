@@ -16,6 +16,7 @@
 #pragma once
 
 #include "PrecompiledHeader.h"
+#include "Utilities/Path.h"
 
 enum FoldersEnum_t
 {

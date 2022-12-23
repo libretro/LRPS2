@@ -1,8 +1,11 @@
-#include <wx/ffile.h>
-#include "retro_messager.h"
 #include <sys/types.h>
-#include <stdio.h>
 #include <string.h>
+
+#include <wx/ffile.h>
+
+#include "Utilities/MemcpyFast.h"
+
+#include "retro_messager.h"
 
 #define MC2_MBSIZE 1081344 // Size of a single megabyte of card data
 
@@ -19,12 +22,9 @@ namespace MemCardRetro
 	// returns false if an error occurred (either permission denied or disk full)
 	bool Create(const wxString& mcdFile, uint sizeInMB)
 	{
-
 		//uint sizeInMB = 8;
 		u8 m_effeffs[528 * 16];
 		memset8<0xff>(m_effeffs);
-
-		log_cb(RETRO_LOG_INFO, "(FileMcd) Creating new %uMB memory card: %s\n", sizeInMB, WX_STR(mcdFile));
 
 		wxFFile fp(mcdFile, L"wb");
 		if (!fp.IsOpened()) return false;
@@ -42,7 +42,7 @@ namespace MemCardRetro
 		if (!memcard_file.FileExists())
 		{
 			MemCardRetro::Create(memcard_file.GetFullPath(), sizeInMB);
-			std::string msg = "Memory card created: ";
+			std::string msg  = "Memory card created: ";
 			std::string name = memcard_file.GetName().ToStdString();
 			msg.append(name);
 			RetroMessager::Notification(msg.c_str());

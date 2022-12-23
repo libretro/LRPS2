@@ -34,14 +34,9 @@
 //////////////////////////////////////////////////////////////////////////////////////////
 // Include the STL junk that's actually handy.
 
-#include <stdexcept>
-#include <vector>
-#include <list>
-#include <stack>
 #include <cstring>		// string.h under c++
 #include <cstdio>		// stdio.h under c++
 #include <cstdlib>
-#include <cinttypes>	// Printf format
 
 // ... and include some ANSI/POSIX C libs that are useful too, just for good measure.
 // (these compile lightning fast with or without PCH, but they never change so
@@ -67,9 +62,6 @@ typedef int BOOL;
 
 #include "Pcsx2Defs.h"
 
-#include "Utilities/FixedPointTypes.h"
-#include "Utilities/Path.h"
-#include "Utilities/MemcpyFast.h"
 #include "Utilities/General.h"
 #include "x86emitter/tools.h"
 

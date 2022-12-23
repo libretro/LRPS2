@@ -15,6 +15,7 @@
 
 
 #include "PrecompiledHeader.h"
+#include "Utilities/MemcpyFast.h"
 
 #include "System.h"
 #include "iR5900.h"

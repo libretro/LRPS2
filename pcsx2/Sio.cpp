@@ -14,6 +14,7 @@
  */
 
 #include "PrecompiledHeader.h"
+#include "Utilities/MemcpyFast.h"
 #include "IopCommon.h"
 
 #include "Common.h"

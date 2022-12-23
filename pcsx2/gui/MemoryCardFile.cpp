@@ -15,6 +15,7 @@
 
 #include "PrecompiledHeader.h"
 #include "Utilities/SafeArray.inl"
+#include "Utilities/MemcpyFast.h"
 
 #include "MemoryCardFile.h"
 

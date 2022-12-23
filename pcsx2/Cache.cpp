@@ -15,6 +15,7 @@
 
 
 #include "Common.h"
+#include "Utilities/MemcpyFast.h"
 #include "Cache.h"
 #include "vtlb.h"
 

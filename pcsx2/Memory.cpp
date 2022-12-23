@@ -35,6 +35,7 @@ BIOS
 */
 
 #include "PrecompiledHeader.h"
+#include "Utilities/MemcpyFast.h"
 
 #include "IopCommon.h"
 #include "GS.h"

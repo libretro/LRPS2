@@ -16,6 +16,7 @@
 #pragma once
 
 #include "PrecompiledHeader.h"
+#include "Utilities/FixedPointTypes.h"
 #include "x86emitter/tools.h"
 
 enum GamefixId

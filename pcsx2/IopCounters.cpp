@@ -19,6 +19,7 @@
 // The EventText function will pick it up.
 
 #include "PrecompiledHeader.h"
+#include "Utilities/MemcpyFast.h"
 #include "IopCommon.h"
 #include "DEV9/DEV9.h"
 #include "SPU2/spu2.h"
