@@ -16,7 +16,6 @@
 #ifndef PS2EEXT_H_INCLUDED
 #define PS2EEXT_H_INCLUDED
 
-#include <stdio.h>
 #include <string>
 #include <cstdarg>
 
@@ -47,8 +46,5 @@
 #include <commctrl.h>
 #endif
 #endif
-
-#include <vector>
-#include <cstdio>
 
 #endif // PS2EEXT_H_INCLUDED

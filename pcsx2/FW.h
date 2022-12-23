@@ -15,8 +15,6 @@
 
 #pragma once
 
-#include <stdio.h>
-
 s32 FWopen(void);
 void FWclose(void);
 void PHYWrite(void);

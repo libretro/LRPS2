@@ -36,7 +36,7 @@
 #endif
 
 #include <string>
-#include <cstdio>
+#include <stdint.h>
 
 #ifdef __x86_64__
 #define _M_AMD64

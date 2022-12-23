@@ -16,7 +16,7 @@
 #ifndef __R3000A_H__
 #define __R3000A_H__
 
-#include <stdio.h>
+#include <stdint.h>
 
 union GPRRegs {
 	struct {
@@ -173,7 +173,6 @@ extern u32 EEoCycle;
 extern s32 psxNextCounter;
 extern u32 psxNextsCounter;
 extern bool iopEventAction;
-extern bool iopEventTestIsActive;
 
 // Branching status used when throwing exceptions.
 extern bool iopIsDelaySlot;
@@ -183,14 +182,14 @@ extern bool iopIsDelaySlot;
 // --------------------------------------------------------------------------------------
 
 struct R3000Acpu {
-	void (*Reserve)();
-	void (*Reset)();
-	void (*Execute)();
+	void (*Reserve)(void);
+	void (*Reset)(void);
+	void (*Execute)(void);
 	s32 (*ExecuteBlock)( s32 eeCycles );		// executes the given number of EE cycles.
 	void (*Clear)(u32 Addr, u32 Size);
-	void (*Shutdown)();
+	void (*Shutdown)(void);
 	
-	uint (*GetCacheReserve)();
+	uint (*GetCacheReserve)(void);
 	void (*SetCacheReserve)( uint reserveInMegs );
 };
 
@@ -198,19 +197,19 @@ extern R3000Acpu *psxCpu;
 extern R3000Acpu psxInt;
 extern R3000Acpu psxRec;
 
-extern void psxReset();
+extern void psxReset(void);
 extern void __fastcall psxException(u32 code, u32 step);
-extern void iopEventTest();
+extern void iopEventTest(void);
 
 // Subsets
-extern void (*psxBSC[64])();
-extern void (*psxSPC[64])();
-extern void (*psxREG[32])();
-extern void (*psxCP0[32])();
-extern void (*psxCP2[64])();
-extern void (*psxCP2BSC[32])();
+extern void (*psxBSC[64])(void);
+extern void (*psxSPC[64])(void);
+extern void (*psxREG[32])(void);
+extern void (*psxCP0[32])(void);
+extern void (*psxCP2[64])(void);
+extern void (*psxCP2BSC[32])(void);
 
-extern void psxBiosReset();
-extern bool __fastcall psxBiosCall();
+extern void psxBiosReset(void);
+extern bool __fastcall psxBiosCall(void);
 
 #endif /* __R3000A_H__ */

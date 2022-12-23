@@ -24,13 +24,8 @@
 
 #define GAMEPAD_NUMBER 2 // numbers of gamepad
 
-#include <stdio.h>
-#include <assert.h>
 #include <string.h>
 
-#include <array>
-#include <vector>
-#include <map>
 #include <string>
 #include <memory>
 
@@ -90,14 +85,14 @@ enum gamePadValues {
 
 extern keyEvent event;
 
-s32 PADopen();
-void PADclose();
+s32 PADopen(void);
+void PADclose(void);
 void PADsetMode(int pad, int mode);
 u8 PADstartPoll(int pad);
 s32 PADinit(u32 flags);
 u8 PADpoll(u8 value);
 s32 PADsetSlot(u8 port, u8 slot);
-void PADshutdown();
+void PADshutdown(void);
 
 #define MODE_DIGITAL 0x41
 #define MODE_ANALOG 0x73

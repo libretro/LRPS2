@@ -46,11 +46,11 @@ s32 iopCycleEE = -1;
 // is true, even if it's already running ahead a bit.
 bool iopEventAction = false;
 
-bool iopEventTestIsActive = false;
+static bool iopEventTestIsActive = false;
 
 __aligned16 psxRegisters psxRegs;
 
-void psxReset()
+void psxReset(void)
 {
 	memzero(psxRegs);
 
@@ -68,9 +68,7 @@ void psxReset()
 	psxBiosReset();
 }
 
-void psxShutdown() {
-	//psxCpu->Shutdown();
-}
+void psxShutdown(void) { }
 
 void __fastcall psxException(u32 code, u32 bd)
 {
@@ -94,16 +92,7 @@ void __fastcall psxException(u32 code, u32 bd)
 
 	// Set the Status
 	psxRegs.CP0.n.Status = (psxRegs.CP0.n.Status &~0x3f) |
-						  ((psxRegs.CP0.n.Status & 0xf) << 2);
-
-	/*if ((((PSXMu32(psxRegs.CP0.n.EPC) >> 24) & 0xfe) == 0x4a)) {
-		// "hokuto no ken" / "Crash Bandicot 2" ... fix
-		PSXMu32(psxRegs.CP0.n.EPC)&= ~0x02000000;
-	}*/
-
-	/*if (psxRegs.CP0.n.Cause == 0x400 && (!(psxHu32(0x1450) & 0x8))) {
-		hwIntcIrq(INTC_SBUS);
-	}*/
+		((psxRegs.CP0.n.Status & 0xf) << 2);
 }
 
 __fi void psxSetNextBranch( u32 startCycle, s32 delta )
@@ -160,7 +149,7 @@ static __fi void IopTestEvent( IopEventId n, void (*callback)() )
 		psxSetNextBranch( psxRegs.sCycle[n], psxRegs.eCycle[n] );
 }
 
-static __fi void _psxTestInterrupts()
+static __fi void _psxTestInterrupts(void)
 {
 	IopTestEvent(IopEvt_SIF0,		sif0Interrupt);	// SIF0
 	IopTestEvent(IopEvt_SIF1,		sif1Interrupt);	// SIF1
@@ -186,7 +175,7 @@ static __fi void _psxTestInterrupts()
 	}
 }
 
-__ri void iopEventTest()
+__ri void iopEventTest(void)
 {
 	if( psxTestCycle( psxNextsCounter, psxNextCounter ) )
 	{
@@ -218,7 +207,7 @@ __ri void iopEventTest()
 	}
 }
 
-void iopTestIntc()
+void iopTestIntc(void)
 {
 	if( psxHu32(0x1078) == 0 ) return;
 	if( (psxHu32(0x1070) & psxHu32(0x1074)) == 0 ) return;
@@ -237,4 +226,3 @@ void iopTestIntc()
 	else if( !iopEventTestIsActive )
 		psxSetNextBranchDelta( 2 );
 }
-

@@ -20,7 +20,6 @@
 
 #include "PrecompiledHeader.h"
 
-#include <stdio.h>
 #include <string.h>
 
 #include "IopCommon.h"

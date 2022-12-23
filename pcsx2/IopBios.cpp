@@ -18,6 +18,7 @@
 #include "IopCommon.h"
 #include "R5900.h" // for g_GameStarted
 
+#include <cstdio>
 #include <ctype.h>
 #include <string.h>
 

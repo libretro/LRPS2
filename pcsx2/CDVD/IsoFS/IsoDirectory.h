@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include <vector>
+
 enum IsoFS_Type
 {
 	FStype_ISO9660 = 1,

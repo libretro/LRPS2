@@ -13,6 +13,7 @@
 #include <libretro_core_options.h>
 #include <string>
 #include <thread>
+#include <vector>
 #include <wx/textfile.h>
 #include <wx/dir.h>
 #include <wx/evtloop.h>

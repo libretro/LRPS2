@@ -16,8 +16,6 @@
 #ifndef __USB_H__
 #define __USB_H__
 
-#include <stdio.h>
-
 #define USBdefs
 #include "PS2Edefs.h"
 #include "PS2Eext.h"

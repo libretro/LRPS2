@@ -35,7 +35,6 @@
 // Include the STL junk that's actually handy.
 
 #include <cstring>		// string.h under c++
-#include <cstdio>		// stdio.h under c++
 #include <cstdlib>
 
 // ... and include some ANSI/POSIX C libs that are useful too, just for good measure.

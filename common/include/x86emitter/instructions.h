@@ -30,6 +30,8 @@
 
 #pragma once
 
+#include <vector>
+
 namespace x86Emitter
 {
 extern void xStoreReg(const xRegisterSSE &src);

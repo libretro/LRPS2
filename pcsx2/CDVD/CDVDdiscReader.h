@@ -26,6 +26,7 @@
 
 #include <mutex>
 #include <array>
+#include <vector>
 
 struct track
 {

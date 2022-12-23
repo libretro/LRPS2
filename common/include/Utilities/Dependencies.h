@@ -126,10 +126,7 @@ private:                                    \
 
 #include <stdexcept>
 #include <cstring> // string.h under c++
-#include <cstdio>  // stdio.h under c++
 #include <cstdlib>
-#include <vector>
-#include <list>
 #include <algorithm>
 #include <memory>
 #include <atomic>
