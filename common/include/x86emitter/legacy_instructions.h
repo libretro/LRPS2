@@ -146,8 +146,6 @@ ATTR_DEP extern u32 *JS32(u32 to);
 // FPU instructions
 //******************
 
-// fld m32 to fpu reg stack
-ATTR_DEP extern void FLD32(u32 from);
 // fld st(i)
 ATTR_DEP extern void FLD(int st);
 // fld1 (push +1.0f on the stack)

@@ -15,17 +15,6 @@
 
 #include "legacy_internal.h"
 
-//------------------------------------------------------------------
-// FPU instructions
-//------------------------------------------------------------------
-/* fld m32 to fpu reg stack */
-emitterT void FLD32(u32 from)
-{
-    xWrite8(0xD9);
-    ModRM(0, 0x0, DISP32);
-    xWrite32(MEMADDR(from, 4));
-}
-
 // fld st(i)
 emitterT void FLD(int st) { xWrite16(0xc0d9 + (st << 8)); }
 emitterT void FLD1() { xWrite16(0xe8d9); }

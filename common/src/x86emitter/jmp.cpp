@@ -49,7 +49,7 @@ const xImpl_JmpCall xCALL = {false};
 
 
 template <typename Reg1, typename Reg2>
-void prepareRegsForFastcall(const Reg1 &a1, const Reg2 &a2) {
+static void prepareRegsForFastcall(const Reg1 &a1, const Reg2 &a2) {
     if (a1.IsEmpty()) return;
 
     // Make sure we don't mess up if someone tries to fastcall with a1 in arg2reg and a2 in arg1reg
@@ -148,7 +148,7 @@ __emitinline s32 *xJcc32(JccComparisonType comparison, s32 displacement)
 // Emits a 32 bit jump, and returns a pointer to the 8 bit displacement.
 // (displacements should be assigned relative to the end of the jump instruction,
 // or in other words *(retval+1) )
-__emitinline s8 *xJcc8(JccComparisonType comparison, s8 displacement)
+static __emitinline s8 *xJcc8(JccComparisonType comparison, s8 displacement)
 {
     xWrite8((comparison == Jcc_Unconditional) ? 0xeb : (0x70 | comparison));
     xWrite<s8>(displacement);

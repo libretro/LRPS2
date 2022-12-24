@@ -965,27 +965,15 @@ __fi void xPUSH(xRegister32or64 from) {
     xWrite8(0x50 | (from->Id & 7));
 }
 
-// pushes the EFLAGS register onto the stack
-__fi void xPUSHFD() { xWrite8(0x9C); }
-// pops the EFLAGS register from the stack
-__fi void xPOPFD() { xWrite8(0x9D); }
-
-
 //////////////////////////////////////////////////////////////////////////////////////////
 //
 
 __fi void xLEAVE() { xWrite8(0xC9); }
 __fi void xRET() { xWrite8(0xC3); }
-__fi void xCBW() { xWrite16(0x9866); }
-__fi void xCWD() { xWrite8(0x98); }
 __fi void xCDQ() { xWrite8(0x99); }
 __fi void xCWDE() { xWrite8(0x98); }
 
 __fi void xLAHF() { xWrite8(0x9f); }
-__fi void xSAHF() { xWrite8(0x9e); }
-
-__fi void xSTC() { xWrite8(0xF9); }
-__fi void xCLC() { xWrite8(0xF8); }
 
 // NOP 1-byte
 __fi void xNOP() { xWrite8(0x90); }
@@ -998,14 +986,6 @@ __fi void xINT(u8 imm)
         xWrite8(0xcd);
         xWrite8(imm);
     }
-}
-
-__fi void xINTO() { xWrite8(0xce); }
-
-__emitinline void xBSWAP(const xRegister32or64 &to)
-{
-    xWrite8(0x0F);
-    xWrite8(0xC8 | to->Id);
 }
 
 static __aligned16 u64 xmm_data[iREGCNT_XMM * 2];

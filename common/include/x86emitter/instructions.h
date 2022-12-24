@@ -122,16 +122,10 @@ extern const xImpl_Set xSETA, xSETAE,
     xSETS, xSETNS,
     xSETPE, xSETPO;
 
-// ------------------------------------------------------------------------
-// BMI extra instruction requires BMI1/BMI2
-extern const xImplBMI_RVM xMULX, xPDEP, xPEXT, xANDN_S; // Warning xANDN is already used by SSE
-
 //////////////////////////////////////////////////////////////////////////////////////////
 // Miscellaneous Instructions
 // These are all defined inline or in ix86.cpp.
 //
-
-extern void xBSWAP(const xRegister32or64 &to);
 
 // ----- Lea Instructions (Load Effective Address) -----
 // Note: alternate (void*) forms of these instructions are not provided since those
@@ -156,32 +150,20 @@ extern void xPOP(xRegister32or64 from);
 extern void xPUSH(u32 imm);
 extern void xPUSH(xRegister32or64 from);
 
-// pushes the EFLAGS register onto the stack
-extern void xPUSHFD();
-// pops the EFLAGS register from the stack
-extern void xPOPFD();
-
 // ----- Miscellaneous Instructions  -----
 // Various Instructions with no parameter and no special encoding logic.
 
 extern void xLEAVE();
 extern void xRET();
-extern void xCBW();
-extern void xCWD();
 extern void xCDQ();
 extern void xCWDE();
 
 extern void xLAHF();
-extern void xSAHF();
-
-extern void xSTC();
-extern void xCLC();
 
 // NOP 1-byte
 extern void xNOP();
 
 extern void xINT(u8 imm);
-extern void xINTO();
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Helper object to handle the various functions ABI
@@ -221,7 +203,6 @@ void xLoadFarAddr(const xAddressReg& dst, void *addr);
 // JMP / Jcc Instructions!
 
 extern void xJcc(JccComparisonType comparison, const void *target);
-extern s8 *xJcc8(JccComparisonType comparison = Jcc_Unconditional, s8 displacement = 0);
 extern s32 *xJcc32(JccComparisonType comparison = Jcc_Unconditional, s32 displacement = 0);
 
 // ------------------------------------------------------------------------
@@ -231,16 +212,6 @@ extern s32 *xJcc32(JccComparisonType comparison = Jcc_Unconditional, s32 displac
 // the target (efficient!)
 //
 
-template <typename T>
-__fi void xJE(T *func)
-{
-    xJcc(Jcc_Equal, (void *)(uptr)func);
-}
-template <typename T>
-__fi void xJZ(T *func)
-{
-    xJcc(Jcc_Zero, (void *)(uptr)func);
-}
 template <typename T>
 __fi void xJNE(T *func)
 {
@@ -253,45 +224,14 @@ __fi void xJNZ(T *func)
 }
 
 template <typename T>
-__fi void xJO(T *func)
-{
-    xJcc(Jcc_Overflow, (void *)(uptr)func);
-}
-template <typename T>
-__fi void xJNO(T *func)
-{
-    xJcc(Jcc_NotOverflow, (void *)(uptr)func);
-}
-template <typename T>
 __fi void xJC(T *func)
 {
     xJcc(Jcc_Carry, (void *)(uptr)func);
 }
 template <typename T>
-__fi void xJNC(T *func)
-{
-    xJcc(Jcc_NotCarry, (void *)(uptr)func);
-}
-template <typename T>
 __fi void xJS(T *func)
 {
     xJcc(Jcc_Signed, (void *)(uptr)func);
-}
-template <typename T>
-__fi void xJNS(T *func)
-{
-    xJcc(Jcc_Unsigned, (void *)(uptr)func);
-}
-
-template <typename T>
-__fi void xJPE(T *func)
-{
-    xJcc(Jcc_ParityEven, (void *)(uptr)func);
-}
-template <typename T>
-__fi void xJPO(T *func)
-{
-    xJcc(Jcc_ParityOdd, (void *)(uptr)func);
 }
 
 template <typename T>
@@ -303,37 +243,6 @@ template <typename T>
 __fi void xJLE(T *func)
 {
     xJcc(Jcc_LessOrEqual, (void *)(uptr)func);
-}
-template <typename T>
-__fi void xJG(T *func)
-{
-    xJcc(Jcc_Greater, (void *)(uptr)func);
-}
-template <typename T>
-__fi void xJGE(T *func)
-{
-    xJcc(Jcc_GreaterOrEqual, (void *)(uptr)func);
-}
-
-template <typename T>
-__fi void xJB(T *func)
-{
-    xJcc(Jcc_Below, (void *)(uptr)func);
-}
-template <typename T>
-__fi void xJBE(T *func)
-{
-    xJcc(Jcc_BelowOrEqual, (void *)(uptr)func);
-}
-template <typename T>
-__fi void xJA(T *func)
-{
-    xJcc(Jcc_Above, (void *)(uptr)func);
-}
-template <typename T>
-__fi void xJAE(T *func)
-{
-    xJcc(Jcc_AboveOrEqual, (void *)(uptr)func);
 }
 
 // ------------------------------------------------------------------------
@@ -433,11 +342,7 @@ typedef xForwardJPO<s32> xForwardJPO32;
 
 // ------------------------------------------------------------------------
 
-extern void xEMMS();
-extern void xSTMXCSR(const xIndirect32 &dest);
 extern void xLDMXCSR(const xIndirect32 &src);
-extern void xFXSAVE(const xIndirectVoid &dest);
-extern void xFXRSTOR(const xIndirectVoid &src);
 
 extern void xMOVDZX(const xRegisterSSE &to, const xRegister32or64 &from);
 extern void xMOVDZX(const xRegisterSSE &to, const xIndirectVoid &src);
@@ -466,10 +371,6 @@ extern void xMOVNTPS(const xIndirectVoid &to, const xRegisterSSE &from);
 
 extern void xMOVMSKPS(const xRegister32 &to, const xRegisterSSE &from);
 extern void xMOVMSKPD(const xRegister32 &to, const xRegisterSSE &from);
-
-extern void xMASKMOV(const xRegisterSSE &to, const xRegisterSSE &from);
-extern void xPMOVMSKB(const xRegister32or64 &to, const xRegisterSSE &from);
-extern void xPALIGNR(const xRegisterSSE &to, const xRegisterSSE &from, u8 imm8);
 
 // ------------------------------------------------------------------------
 
@@ -599,6 +500,4 @@ extern const xImplSimd_PShuffle xPSHUF;
 extern const SimdImpl_PUnpack xPUNPCK;
 extern const xImplSimd_Unpack xUNPCK;
 extern const SimdImpl_Pack xPACK;
-extern const xImplSimd_PInsert xPINSR;
-extern const SimdImpl_PExtract xPEXTR;
 }
