@@ -53,7 +53,6 @@
 // Defines the memory page size for the target platform at compilation.  All supported platforms
 // (which means Intel only right now) have a 4k granularity.
 #define PCSX2_PAGESIZE 0x1000
-static const int __pagesize = PCSX2_PAGESIZE;
 
 // --------------------------------------------------------------------------------------
 //  Microsoft Visual Studio

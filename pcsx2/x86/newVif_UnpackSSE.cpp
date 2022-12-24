@@ -30,7 +30,6 @@ static const __aligned16 u32 SSEXYZWMask[4][4] =
 	{0x00000000, 0xffffffff, 0xffffffff, 0xffffffff}
 };
 
-//static __pagealigned u8 nVifUpkExec[__pagesize*4];
 static RecompiledCodeReserve* nVifUpkExec = NULL;
 
 // Merges xmm vectors without modifying source reg

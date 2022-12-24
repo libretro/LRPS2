@@ -98,7 +98,7 @@ static void iopClearRecLUT(BASEBLOCK* base, int count);
 static void __fastcall iopRecRecompile( const u32 startpc );
 
 // Recompiled code buffer for EE recompiler dispatchers!
-static u8 __pagealigned iopRecDispatchers[__pagesize];
+static u8 __pagealigned iopRecDispatchers[PCSX2_PAGESIZE];
 
 typedef void DynGenFunc(void);
 
@@ -184,7 +184,7 @@ static void _DynGen_Dispatchers(void)
 	HostSys::MemProtectStatic( iopRecDispatchers, PageAccess_ReadWrite() );
 
 	// clear the buffer to 0xcc (easier debugging).
-	memset( iopRecDispatchers, 0xcc, __pagesize);
+	memset( iopRecDispatchers, 0xcc, PCSX2_PAGESIZE);
 
 	xSetPtr( iopRecDispatchers );
 

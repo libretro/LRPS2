@@ -144,7 +144,7 @@ struct microProgManager {
 	microRegInfo		lpState;			// Pipeline state from where program left off (useful for continuing execution)
 };
 
-static const uint mVUdispCacheSize	= __pagesize; // Dispatcher Cache Size (in bytes)
+static const uint mVUdispCacheSize	= PCSX2_PAGESIZE; // Dispatcher Cache Size (in bytes)
 static const uint mVUcacheSafeZone	= 3;		  // Safe-Zone for program recompilation (in megabytes)
 static const uint mVUcacheReserve = 64; // mVU0, mVU1 Reserve Cache Size (in megabytes)
 

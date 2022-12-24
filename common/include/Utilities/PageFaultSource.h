@@ -219,12 +219,12 @@ public:
     virtual void ForbidModification();
 
     uint GetCommittedPageCount() const { return m_pages_commited; }
-    uint GetCommittedBytes() const { return m_pages_commited * __pagesize; }
+    uint GetCommittedBytes() const { return m_pages_commited * PCSX2_PAGESIZE; }
 
     u8 *GetPtr() { return (u8 *)m_baseptr; }
     const u8 *GetPtr() const { return (u8 *)m_baseptr; }
-    u8 *GetPtrEnd() { return (u8 *)m_baseptr + (m_pages_reserved * __pagesize); }
-    const u8 *GetPtrEnd() const { return (u8 *)m_baseptr + (m_pages_reserved * __pagesize); }
+    u8 *GetPtrEnd() { return (u8 *)m_baseptr + (m_pages_reserved * PCSX2_PAGESIZE); }
+    const u8 *GetPtrEnd() const { return (u8 *)m_baseptr + (m_pages_reserved * PCSX2_PAGESIZE); }
 
     VirtualMemoryReserve &SetPageAccessOnCommit(const PageProtectionMode &mode);
 

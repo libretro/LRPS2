@@ -415,12 +415,12 @@ static DynGenFunc* _DynGen_DispatchPageReset()
 static void _DynGen_Dispatchers(void)
 {
 	// Recompiled code buffer for EE recompiler dispatchers!
-	static u8 __pagealigned eeRecDispatchers[__pagesize];
+	static u8 __pagealigned eeRecDispatchers[PCSX2_PAGESIZE];
 	// In case init gets called multiple times:
 	HostSys::MemProtectStatic( eeRecDispatchers, PageAccess_ReadWrite() );
 
 	// clear the buffer to 0xcc (easier debugging).
-	memset( eeRecDispatchers, 0xcc, __pagesize);
+	memset( eeRecDispatchers, 0xcc, PCSX2_PAGESIZE);
 
 	xSetPtr( eeRecDispatchers );
 

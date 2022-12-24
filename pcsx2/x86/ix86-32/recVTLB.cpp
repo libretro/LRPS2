@@ -187,7 +187,7 @@ namespace vtlb_private
 // If it were smaller than a page we'd end up allowing execution rights on some
 // other vars additionally (bad!).
 //
-static __pagealigned u8 m_IndirectDispatchers[__pagesize];
+static __pagealigned u8 m_IndirectDispatchers[PCSX2_PAGESIZE];
 
 // ------------------------------------------------------------------------
 // mode        - 0 for read, 1 for write!
@@ -281,7 +281,7 @@ void vtlb_dynarec_init()
 	HostSys::MemProtectStatic( m_IndirectDispatchers, PageAccess_ReadWrite() );
 
 	// clear the buffer to 0xcc (easier debugging).
-	memset( m_IndirectDispatchers, 0xcc, __pagesize);
+	memset( m_IndirectDispatchers, 0xcc, PCSX2_PAGESIZE);
 
 	for( int mode=0; mode<2; ++mode )
 	{

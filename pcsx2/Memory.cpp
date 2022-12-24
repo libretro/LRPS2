@@ -800,7 +800,7 @@ void mmap_MarkCountedRamPage( u32 paddr )
 		return;		// skip town if we're already protected.
 
 	m_PageProtectInfo[rampage].Mode = ProtMode_Write;
-	HostSys::MemProtect( &eeMem->Main[rampage<<12], __pagesize, PageAccess_ReadOnly() );
+	HostSys::MemProtect( &eeMem->Main[rampage<<12], PCSX2_PAGESIZE, PageAccess_ReadOnly() );
 }
 
 // offset - offset of address relative to psM.
@@ -809,7 +809,7 @@ void mmap_MarkCountedRamPage( u32 paddr )
 static __fi void mmap_ClearCpuBlock( uint offset )
 {
 	int rampage = offset >> 12;
-	HostSys::MemProtect( &eeMem->Main[rampage<<12], __pagesize, PageAccess_ReadWrite() );
+	HostSys::MemProtect( &eeMem->Main[rampage<<12], PCSX2_PAGESIZE, PageAccess_ReadWrite() );
 	m_PageProtectInfo[rampage].Mode = ProtMode_Manual;
 	Cpu->Clear( m_PageProtectInfo[rampage].ReverseRamMap, 0x400 );
 }

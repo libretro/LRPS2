@@ -71,7 +71,7 @@ void SrcType_PageFault::_DispatchRaw(ListenerIterator iter, const ListenerIterat
 
 static size_t pageAlign(size_t size)
 {
-    return (size + __pagesize - 1) / __pagesize * __pagesize;
+    return (size + PCSX2_PAGESIZE - 1) / PCSX2_PAGESIZE * PCSX2_PAGESIZE;
 }
 
 // --------------------------------------------------------------------------------------
@@ -88,7 +88,7 @@ VirtualMemoryManager::VirtualMemoryManager(uptr base, size_t size, uptr upper_bo
     if (!size) return;
 
     uptr reserved_bytes = pageAlign(size);
-    m_pages_reserved = reserved_bytes / __pagesize;
+    m_pages_reserved = reserved_bytes / PCSX2_PAGESIZE;
 
     m_baseptr = (uptr)HostSys::MmapReserve(base, reserved_bytes);
 
@@ -119,7 +119,7 @@ VirtualMemoryManager::VirtualMemoryManager(uptr base, size_t size, uptr upper_bo
 VirtualMemoryManager::~VirtualMemoryManager()
 {
     if (m_pageuse) delete[] m_pageuse;
-    if (m_baseptr) HostSys::Munmap(m_baseptr, m_pages_reserved * __pagesize);
+    if (m_baseptr) HostSys::Munmap(m_baseptr, m_pages_reserved * PCSX2_PAGESIZE);
 }
 
 static bool VMMMarkPagesAsInUse(std::atomic<bool> *begin, std::atomic<bool> *end) {
@@ -143,14 +143,14 @@ static bool VMMMarkPagesAsInUse(std::atomic<bool> *begin, std::atomic<bool> *end
 void *VirtualMemoryManager::Alloc(uptr offsetLocation, size_t size) const
 {
     size = pageAlign(size);
-    if (!(offsetLocation % __pagesize == 0))
+    if (!(offsetLocation % PCSX2_PAGESIZE == 0))
         return nullptr;
-    if (!(size + offsetLocation <= m_pages_reserved * __pagesize))
+    if (!(size + offsetLocation <= m_pages_reserved * PCSX2_PAGESIZE))
         return nullptr;
     if (m_baseptr == 0)
         return nullptr;
-    auto puStart = &m_pageuse[offsetLocation / __pagesize];
-    auto puEnd = &m_pageuse[(offsetLocation+size) / __pagesize];
+    auto puStart = &m_pageuse[offsetLocation / PCSX2_PAGESIZE];
+    auto puEnd = &m_pageuse[(offsetLocation+size) / PCSX2_PAGESIZE];
     if (VMMMarkPagesAsInUse(puStart, puEnd))
         return (void *)(m_baseptr + offsetLocation);
     return nullptr;
@@ -159,18 +159,18 @@ void *VirtualMemoryManager::Alloc(uptr offsetLocation, size_t size) const
 void VirtualMemoryManager::Free(void *address, size_t size) const
 {
     uptr offsetLocation = (uptr)address - m_baseptr;
-    if (!(offsetLocation % __pagesize == 0))
+    if (!(offsetLocation % PCSX2_PAGESIZE == 0))
     {
         uptr newLoc = pageAlign(offsetLocation);
         size -= (offsetLocation - newLoc);
         offsetLocation = newLoc;
     }
-    if (!(size % __pagesize == 0))
-        size -= size % __pagesize;
-    if (!(size + offsetLocation <= m_pages_reserved * __pagesize))
+    if (!(size % PCSX2_PAGESIZE == 0))
+        size -= size % PCSX2_PAGESIZE;
+    if (!(size + offsetLocation <= m_pages_reserved * PCSX2_PAGESIZE))
         return;
-    auto puStart = &m_pageuse[offsetLocation / __pagesize];
-    auto puEnd = &m_pageuse[(offsetLocation+size) / __pagesize];
+    auto puStart = &m_pageuse[offsetLocation      / PCSX2_PAGESIZE];
+    auto puEnd = &m_pageuse[(offsetLocation+size) / PCSX2_PAGESIZE];
     for (; puStart < puEnd; puStart++) {
         bool expected = true;
         if (!puStart->compare_exchange_strong(expected, false, std::memory_order_relaxed)) { }
@@ -249,7 +249,7 @@ void *VirtualMemoryReserve::Assign(VirtualMemoryManagerPtr allocator, void * bas
     m_baseptr           = baseptr;
 
     uptr reserved_bytes = pageAlign(size);
-    m_pages_reserved    = reserved_bytes / __pagesize;
+    m_pages_reserved    = reserved_bytes / PCSX2_PAGESIZE;
 
     if (m_baseptr)
         return m_baseptr;
@@ -259,7 +259,7 @@ void *VirtualMemoryReserve::Assign(VirtualMemoryManagerPtr allocator, void * bas
 void VirtualMemoryReserve::ReprotectCommittedBlocks(const PageProtectionMode &newmode)
 {
     if (m_pages_commited)
-        HostSys::MemProtect(m_baseptr, m_pages_commited * __pagesize, newmode);
+        HostSys::MemProtect(m_baseptr, m_pages_commited * PCSX2_PAGESIZE, newmode);
 }
 
 // Clears all committed blocks, restoring the allocation to a reserve only.
@@ -269,7 +269,7 @@ void VirtualMemoryReserve::Reset()
         return;
 
     ReprotectCommittedBlocks(PageAccess_None());
-    HostSys::MmapResetPtr(m_baseptr, m_pages_commited * __pagesize);
+    HostSys::MmapResetPtr(m_baseptr, m_pages_commited * PCSX2_PAGESIZE);
     m_pages_commited = 0;
 }
 
@@ -277,7 +277,7 @@ void VirtualMemoryReserve::Release()
 {
     if (!m_baseptr) return;
     Reset();
-    m_allocator->Free(m_baseptr, m_pages_reserved * __pagesize);
+    m_allocator->Free(m_baseptr, m_pages_reserved * PCSX2_PAGESIZE);
     m_baseptr = nullptr;
 }
 
@@ -289,13 +289,13 @@ bool VirtualMemoryReserve::Commit()
         return true;
 
     m_pages_commited = m_pages_reserved;
-    return HostSys::MmapCommitPtr(m_baseptr, m_pages_reserved * __pagesize, m_prot_mode);
+    return HostSys::MmapCommitPtr(m_baseptr, m_pages_reserved * PCSX2_PAGESIZE, m_prot_mode);
 }
 
 void VirtualMemoryReserve::ForbidModification()
 {
     m_allow_writes = false;
-    HostSys::MemProtect(m_baseptr, m_pages_commited * __pagesize, PageProtectionMode(m_prot_mode).Write(false));
+    HostSys::MemProtect(m_baseptr, m_pages_commited * PCSX2_PAGESIZE, PageProtectionMode(m_prot_mode).Write(false));
 }
 
 
@@ -310,12 +310,12 @@ void VirtualMemoryReserve::ForbidModification()
 //  newsize - new size of the reserved buffer, in bytes.
 bool VirtualMemoryReserve::TryResize(uint newsize)
 {
-    uint newPages = pageAlign(newsize) / __pagesize;
+    uint newPages = pageAlign(newsize) / PCSX2_PAGESIZE;
 
     if (newPages > m_pages_reserved)
     {
 	    uint toReservePages = newPages - m_pages_reserved;
-	    uint toReserveBytes = toReservePages * __pagesize;
+	    uint toReserveBytes = toReservePages * PCSX2_PAGESIZE;
 
 	    if (!m_allocator->AllocAtAddress(GetPtrEnd(), toReserveBytes))
 		    return false;
@@ -326,7 +326,7 @@ bool VirtualMemoryReserve::TryResize(uint newsize)
 		    return false;
 
 	    uint toRemovePages = m_pages_reserved - newPages;
-	    uint toRemoveBytes = toRemovePages * __pagesize;
+	    uint toRemoveBytes = toRemovePages * PCSX2_PAGESIZE;
 
 	    m_allocator->Free(GetPtrEnd() - toRemoveBytes, toRemoveBytes);
     }
