@@ -106,7 +106,7 @@ namespace Threading
 // which are found in WinThreads.cpp and LnxThreads.cpp
 
 // For use in spin/wait loops.
-extern void SpinWait();
+extern void SpinWait(void);
 
 // sleeps the current thread for the given number of milliseconds.
 extern void Sleep(int ms);
@@ -131,7 +131,6 @@ public:
 
     bool WaitWithoutYield(const wxTimeSpan &timeout);
     void WaitNoCancel();
-    bool TryWait();
     int Count();
 
     void Wait();

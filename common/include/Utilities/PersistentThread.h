@@ -86,7 +86,6 @@ protected:
     Semaphore m_sem_startup;    // startup sync tool
     Mutex m_mtx_InThread;       // used for canceling and closing threads in a deadlock-safe manner
     MutexRecursive m_mtx_start; // used to lock the Start() code from starting simultaneous threads accidentally.
-    Mutex m_mtx_ThreadName;
 
     std::atomic<bool> m_detached; // a boolean value which indicates if the m_thread handle is valid
     std::atomic<bool> m_running;  // set true by Start(), and set false by Cancel(), Block(), etc.
@@ -125,8 +124,6 @@ protected:
     virtual void ExecuteTaskInThread() = 0;
 
     void TestCancel() const;
-
-    void FrankenMutex(Mutex &mutex);
 
     // ----------------------------------------------------------------------------
     // Section of methods for internal use only.

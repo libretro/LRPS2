@@ -117,10 +117,9 @@ bool Threading::Semaphore::WaitWithoutYield(const wxTimeSpan &timeout)
     kern_return_t kr = KERN_ABORTED;
     for (u64 now = mach_absolute_time(), deadline = now + delta;
          kr == KERN_ABORTED; now = mach_absolute_time()) {
-        if (now > deadline) {
-            // timed out by definition
+        // timed out by definition
+        if (now > deadline)
             return false;
-        }
 
         u64 timeleft = deadline - now;
         ts.tv_sec = timeleft / kOneBillion;
@@ -136,9 +135,8 @@ bool Threading::Semaphore::WaitWithoutYield(const wxTimeSpan &timeout)
         kr = semaphore_timedwait(m_sema, ts);
     }
 
-    if (kr == KERN_OPERATION_TIMED_OUT) {
+    if (kr == KERN_OPERATION_TIMED_OUT)
         return false;
-    }
 
     // while it's entirely possible to have KERN_FAILURE here, we should
     // probably assert so we can study and correct the actual error here
@@ -170,13 +168,6 @@ void Threading::Semaphore::Wait()
 bool Threading::Semaphore::Wait(const wxTimeSpan &timeout)
 {
     return WaitWithoutYield(timeout);
-}
-
-bool Threading::Semaphore::TryWait()
-{
-    int counter = __atomic_load_n(&m_counter, __ATOMIC_RELAXED);
-    while (counter > 0 && !__atomic_compare_exchange_n(&m_counter, &counter, counter - 1, true, __ATOMIC_ACQUIRE, __ATOMIC_RELAXED));
-    return counter > 0;
 }
 
 // Performs an uncancellable wait on a semaphore; restoring the thread's previous cancel state

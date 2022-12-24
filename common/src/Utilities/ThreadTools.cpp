@@ -108,12 +108,6 @@ Threading::pxThread::~pxThread()
     DESTRUCTOR_CATCHALL
 }
 
-void Threading::pxThread::FrankenMutex(Mutex &mutex)
-{
-    mutex.Acquire();
-    mutex.Release();
-}
-
 static void _pt_callback_cleanup(void *handle)
 {
     ((pxThread *)handle)->_ThreadCleanup();
@@ -353,7 +347,8 @@ void Threading::pxThread::_internal_execute()
 // running thread has been canceled or detached.
 void Threading::pxThread::OnStart()
 {
-    FrankenMutex(m_mtx_InThread);
+    m_mtx_InThread.Acquire();
+    m_mtx_InThread.Release();
     m_sem_event.Reset();
     m_sem_startup.Reset();
 }

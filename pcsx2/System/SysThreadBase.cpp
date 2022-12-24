@@ -45,8 +45,10 @@ void SysThreadBase::OnStart()
 	m_sem_Resume.Reset();
 	m_sem_ChangingExecMode.Reset();
 
-	FrankenMutex( m_ExecModeMutex );
-	FrankenMutex( m_RunningLock );
+	m_ExecModeMutex.Acquire();
+	m_ExecModeMutex.Release();
+	m_RunningLock.Acquire();
+	m_RunningLock.Release();
 
 	_parent::OnStart();
 }
