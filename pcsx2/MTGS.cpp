@@ -61,7 +61,7 @@ void SysMtgsThread::OnStart()
 SysMtgsThread::~SysMtgsThread()
 {
 	try {
-		_parent::Cancel(true);
+		_parent::Cancel();
 	}
 	DESTRUCTOR_CATCHALL
 }

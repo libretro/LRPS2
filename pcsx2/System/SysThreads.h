@@ -240,7 +240,7 @@ public:
 	virtual void Suspend();
 	virtual void Resume();
 	virtual void Pause();
-	virtual void Cancel(bool isBlocking) { m_running = false; }
+	virtual void Cancel() { m_running = false; }
 
 protected:
 	virtual void OnStart();
@@ -312,7 +312,7 @@ public:
 	virtual void OnResumeReady();
 	virtual void Reset();
 	virtual void ResetQuick();
-	virtual void Cancel( bool isBlocking );
+	virtual void Cancel( );
 	virtual bool Cancel( const wxTimeSpan& timeout );
 
 	virtual bool StateCheckInThread();

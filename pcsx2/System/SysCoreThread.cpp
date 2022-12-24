@@ -100,7 +100,7 @@ static void modules_init(void)
 
 static void modules_shutdown(void)
 {
-	GetMTGS().Cancel(true);	// cancel it for speedier shutdown!
+	GetMTGS().Cancel();	// cancel it for speedier shutdown!
 	GSshutdown();
 	SPU2shutdown();
 	PADshutdown();
@@ -127,12 +127,12 @@ SysCoreThread::~SysCoreThread()
 {
 	try
 	{
-		SysCoreThread::Cancel(true);
+		SysCoreThread::Cancel();
 	}
 	DESTRUCTOR_CATCHALL
 }
 
-void SysCoreThread::Cancel(bool isBlocking)
+void SysCoreThread::Cancel()
 {
 	m_hasActiveMachine = false;
 	R3000A::ioman::reset();
