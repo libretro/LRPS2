@@ -47,7 +47,7 @@ static void modules_close(void)
 	else
 	{
 		log_cb(RETRO_LOG_INFO, "Closing GS\n");
-		GetMTGS().Suspend();
+		GetMTGS().Suspend(true);
 	}
 	DoCDVDclose();
 	FWclose();
@@ -100,7 +100,7 @@ static void modules_init(void)
 
 static void modules_shutdown(void)
 {
-	GetMTGS().Cancel();	// cancel it for speedier shutdown!
+	GetMTGS().Cancel(true);	// cancel it for speedier shutdown!
 	GSshutdown();
 	SPU2shutdown();
 	PADshutdown();
@@ -127,7 +127,7 @@ SysCoreThread::~SysCoreThread()
 {
 	try
 	{
-		SysCoreThread::Cancel();
+		SysCoreThread::Cancel(true);
 	}
 	DESTRUCTOR_CATCHALL
 }
@@ -192,7 +192,7 @@ void SysCoreThread::SetElfOverride(const wxString& elf)
 // or cpu providers (recompilers).
 void SysCoreThread::ResetQuick()
 {
-	Suspend();
+	Suspend(true);
 
 	m_resetVirtualMachine = true;
 	m_hasActiveMachine = false;
@@ -316,7 +316,7 @@ void SysCoreThread::ExecuteTaskInThread()
 
 	PCSX2_PAGEFAULT_PROTECT
 	{
-		while (true)
+		for (;;)
 		{
 			StateCheckInThread();
 			DoCpuExecute();
@@ -334,7 +334,6 @@ void SysCoreThread::OnResumeInThread(bool isSuspended)
 {
 	modules_open(isSuspended);
 }
-
 
 // Invoked by the pthread_exit or pthread_cancel.
 void SysCoreThread::OnCleanupInThread()

@@ -106,7 +106,7 @@ public:
 		return m_ExecMode >= ExecMode_Closing;
 	}
 
-	virtual void Suspend( bool isBlocking = true );
+	virtual void Suspend(bool isBlocking);
 	virtual void Resume();
 	virtual void Pause();
 
@@ -237,10 +237,10 @@ public:
 		return m_ExecMode >= ExecMode_Closing;
 	}
 
-	virtual void Suspend( bool isBlocking = true );
+	virtual void Suspend( bool isBlocking );
 	virtual void Resume();
 	virtual void Pause();
-	virtual void Cancel(bool isBlocking = true) { m_running = false; }
+	virtual void Cancel(bool isBlocking) { m_running = false; }
 
 protected:
 	virtual void OnStart();
@@ -312,7 +312,7 @@ public:
 	virtual void OnResumeReady();
 	virtual void Reset();
 	virtual void ResetQuick();
-	virtual void Cancel( bool isBlocking=true );
+	virtual void Cancel( bool isBlocking );
 	virtual bool Cancel( const wxTimeSpan& timeout );
 
 	virtual bool StateCheckInThread();

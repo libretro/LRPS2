@@ -88,7 +88,7 @@ AppCoreThread::~AppCoreThread()
 {
 	try
 	{
-		_parent::Cancel(); // use parent's, skips thread affinity check.
+		_parent::Cancel(true); // use parent's, skips thread affinity check.
 	}
 	DESTRUCTOR_CATCHALL
 }
