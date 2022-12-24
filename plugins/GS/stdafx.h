@@ -29,10 +29,9 @@
 
 #define _WIN32_WINNT 0x0600
 
-#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
+#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
 
 #include <windows.h>
-#include <atlcomcli.h>
 #endif
 
 #include <string>
@@ -47,13 +46,9 @@
 #include <cstddef>
 #include <cstdarg>
 #include <cstdlib>
-#include <cmath>
 #include <cfloat>
-#include <ctime>
-#include <climits>
 #include <cstring>
 
-#include <array>
 #include <memory>
 
 #ifdef _MSC_VER
@@ -74,16 +69,12 @@
 
     #ifdef __GNUC__
         #define __forceinline __inline__ __attribute__((always_inline,unused))
-
         // GCC removes the variable as dead code and generates some warnings.
         // Stack is automatically realigned due to SSE/AVX operations
         #define ALIGN_STACK(n) (void)0;
-
     #else
-
         // TODO Check clang behavior
         #define ALIGN_STACK(n) alignas(n) int dummy__;
-
     #endif
 
 
@@ -94,21 +85,13 @@
 #endif
 
 #ifndef RESTRICT
-
     #if defined(_MSC_VER)
-
         #define RESTRICT __restrict
-
     #elif defined(__GNUC__)
-
         #define RESTRICT __restrict__
-
     #else
-
         #define RESTRICT
-
     #endif
-
 #endif
 
 #ifdef _M_AMD64
@@ -130,10 +113,9 @@
 	#endif
 #endif
 
-// sse
+// SSE
 #if defined(__GNUC__)
-
-// Convert gcc see define into GSdx (windows) define
+// Convert GCC see define into GSdx define
 #if defined(__AVX2__)
 	#if defined(__x86_64__)
 		#define _M_SSE 0x500 // TODO
@@ -149,31 +131,22 @@
 #elif defined(__SSE2__)
 	#define _M_SSE 0x200
 #endif
-
 #endif
 
 #if !defined(_M_SSE) && (!defined(_WIN32) || defined(_M_AMD64) || defined(_M_IX86_FP) && _M_IX86_FP >= 2)
-
 	#define _M_SSE 0x200
-
 #endif
 
 #if _M_SSE >= 0x301
-
 	#include <tmmintrin.h>
-
 #endif
 
 #if _M_SSE >= 0x401
-
 	#include <smmintrin.h>
-
 #endif
 
 #if _M_SSE >= 0x500
-
 	#include <immintrin.h>
-
 #endif
 
 #undef min
@@ -191,9 +164,7 @@
 
 	#endif
 
-	static inline void _aligned_free(void* p) {
-		free(p);
-	}
+	static inline void _aligned_free(void* p) { free(p); }
 
 	// http://svn.reactos.org/svn/reactos/trunk/reactos/include/crt/mingw32/intrin_x86.h?view=markup
 

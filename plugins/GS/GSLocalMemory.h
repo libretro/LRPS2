@@ -22,6 +22,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <array>
 #include <vector>
 
 #include "Pcsx2Types.h"

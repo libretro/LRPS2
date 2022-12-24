@@ -23,6 +23,8 @@
 
 #include "Pcsx2Types.h"
 
+#include <array>
+
 #include "GSFastList.h"
 #include "GSTexture.h"
 #include "GSVertex.h"

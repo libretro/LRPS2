@@ -22,6 +22,7 @@
 #pragma once
 
 #include <d3d11_1.h>
+#include <atlcomcli.h>
 
 #include "../Common/GSTexture.h"
 
