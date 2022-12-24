@@ -60,7 +60,7 @@ static void make_curthread_key(const pxThread *thr)
     if (total_key_count++ != 0)
         return;
 
-    if (0 != pthread_key_create(&curthread_key, NULL))
+    if (pthread_key_create(&curthread_key, NULL) != 0)
         curthread_key = 0;
 }
 
@@ -217,7 +217,14 @@ void Threading::pxThread::Cancel()
 
     pthread_cancel(m_thread);
 
-    WaitOnSelf(m_mtx_InThread);
+    if (!IsSelf())
+    {
+	    for (;;)
+	    {
+		    if (m_mtx_InThread.WaitWithoutYield(wxTimeSpan(0, 0, 0, 333)))
+			    break;
+	    }
+    }
     if (!m_detached.exchange(true))
 	    pthread_detach(m_thread);
 }
@@ -267,19 +274,6 @@ bool Threading::pxThread::IsRunning() const
 //   error while the calling thread is blocking (which also means the persistent thread has
 //   terminated).
 //
-void Threading::pxThread::WaitOnSelf(Mutex &mutex) const
-{
-    if (IsSelf())
-        return;
-
-    for (;;)
-    {
-        if (mutex.WaitWithoutYield(wxTimeSpan(0, 0, 0, 333)))
-            return;
-    }
-}
-
-
 bool Threading::pxThread::WaitOnSelf(Mutex &mutex, const wxTimeSpan &timeout) const
 {
     static const wxTimeSpan SelfWaitInterval(0, 0, 0, 333);
@@ -288,7 +282,8 @@ bool Threading::pxThread::WaitOnSelf(Mutex &mutex, const wxTimeSpan &timeout) co
 
     wxTimeSpan runningout(timeout);
 
-    while (runningout.GetMilliseconds() > 0) {
+    while (runningout.GetMilliseconds() > 0)
+    {
         const wxTimeSpan interval((SelfWaitInterval < runningout) ? SelfWaitInterval : runningout);
         if (mutex.WaitWithoutYield(interval))
             return true;
@@ -337,7 +332,7 @@ void Threading::pxThread::_ThreadCleanup()
 void Threading::pxThread::OnStartInThread()
 {
     m_detached = false;
-    m_running = true;
+    m_running  = true;
 }
 
 void Threading::pxThread::_internal_execute()
