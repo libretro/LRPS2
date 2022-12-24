@@ -108,6 +108,8 @@ public:
 
     bool IsRunning() const;
     bool IsSelf() const;
+    void _ThreadCleanup();
+    void _internal_execute();
 
 protected:
     // Extending classes should always implement your own OnStart(), which is called by
@@ -130,13 +132,6 @@ protected:
 
     // ----------------------------------------------------------------------------
     // Section of methods for internal use only.
-    bool _basecancel();
-    void _internal_execute();
     void _try_virtual_invoke(void (pxThread::*method)());
-    void _ThreadCleanup();
-
-    static void *_internal_callback(void *func);
-    static void internal_callback_helper(void *func);
-    static void _pt_callback_cleanup(void *handle);
 };
 }

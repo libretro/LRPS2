@@ -78,12 +78,6 @@ static void unmake_curthread_key(void)
     curthread_key = 0;
 }
 
-void Threading::pxThread::_pt_callback_cleanup(void *handle)
-{
-    ((pxThread *)handle)->_ThreadCleanup();
-}
-
-
 Threading::pxThread::pxThread(const wxString &name)
     : m_name(name)
     , m_thread()
@@ -116,6 +110,32 @@ void Threading::pxThread::FrankenMutex(Mutex &mutex)
 {
     mutex.Acquire();
     mutex.Release();
+}
+
+static void _pt_callback_cleanup(void *handle)
+{
+    ((pxThread *)handle)->_ThreadCleanup();
+}
+
+// __try is used in pthread_cleanup_push when CLEANUP_SEH is used as the cleanup model.
+// That can't be used in a function that has objects that require unwinding (compile
+// error C2712), so move it into a separate function.
+static void internal_callback_helper(void *itsme)
+{
+    pxThread &owner = *static_cast<pxThread *>(itsme);
+
+    pthread_cleanup_push(_pt_callback_cleanup, itsme);
+    owner._internal_execute();
+    pthread_cleanup_pop(true);
+}
+
+// passed into pthread_create, and is used to dispatch the thread's object oriented
+// callback function
+static void *_internal_callback(void *itsme)
+{
+    if (itsme)
+        internal_callback_helper(itsme);
+    return NULL;
 }
 
 // Main entry point for starting or e-starting a persistent thread.  This function performs necessary
@@ -180,18 +200,6 @@ bool Threading::pxThread::Detach()
     return true;
 }
 
-bool Threading::pxThread::_basecancel()
-{
-    if (!m_running)
-        return false;
-
-    if (m_detached)
-        return false;
-
-    pthread_cancel(m_thread);
-    return true;
-}
-
 // Remarks:
 //   Provision of non-blocking Cancel() is probably academic, since destroying a pxThread
 //   object performs a blocking Cancel regardless of if you explicitly do a non-blocking Cancel()
@@ -208,8 +216,13 @@ void Threading::pxThread::Cancel()
     // Prevent simultaneous startup and cancel, necessary to avoid
     ScopedLock startlock(m_mtx_start);
 
-    if (!_basecancel())
+    if (!m_running)
         return;
+
+    if (m_detached)
+        return;
+
+    pthread_cancel(m_thread);
 
     WaitOnSelf(m_mtx_InThread);
     Detach();
@@ -220,8 +233,13 @@ bool Threading::pxThread::Cancel(const wxTimeSpan &timespan)
     // Prevent simultaneous startup and cancel:
     ScopedLock startlock(m_mtx_start);
 
-    if (!_basecancel())
+    if (!m_running)
         return true;
+
+    if (m_detached)
+        return true;
+
+    pthread_cancel(m_thread);
 
     if (!WaitOnSelf(m_mtx_InThread, timespan))
         return false;
@@ -259,7 +277,8 @@ void Threading::pxThread::WaitOnSelf(Mutex &mutex) const
     if (IsSelf())
         return;
 
-    for (;;) {
+    for (;;)
+    {
         if (mutex.WaitWithoutYield(wxTimeSpan(0, 0, 0, 333)))
             return;
     }
@@ -295,19 +314,9 @@ void Threading::pxThread::TestCancel() const
 // Executes the virtual member method
 void Threading::pxThread::_try_virtual_invoke(void (pxThread::*method)())
 {
-    try {
-        (this->*method)();
-    }
-
-    // ----------------------------------------------------------------------------
-    // Neat repackaging for STL Runtime errors...
-    //
+    try { (this->*method)(); }
     catch (std::runtime_error &ex) { }
-    // ----------------------------------------------------------------------------
-    catch (Exception::RuntimeError &ex) {
-    }
-    // BaseException --  same deal as LogicErrors.
-    //
+    catch (Exception::RuntimeError &ex) { }
     catch (BaseException &ex) { }
 }
 
@@ -368,27 +377,6 @@ void Threading::pxThread::OnCleanupInThread()
 
     unmake_curthread_key();
     m_evtsrc_OnDelete.Dispatch(0);
-}
-
-// passed into pthread_create, and is used to dispatch the thread's object oriented
-// callback function
-void *Threading::pxThread::_internal_callback(void *itsme)
-{
-    if (itsme)
-        internal_callback_helper(itsme);
-    return NULL;
-}
-
-// __try is used in pthread_cleanup_push when CLEANUP_SEH is used as the cleanup model.
-// That can't be used in a function that has objects that require unwinding (compile
-// error C2712), so move it into a separate function.
-void Threading::pxThread::internal_callback_helper(void *itsme)
-{
-    pxThread &owner = *static_cast<pxThread *>(itsme);
-
-    pthread_cleanup_push(_pt_callback_cleanup, itsme);
-    owner._internal_execute();
-    pthread_cleanup_pop(true);
 }
 
 // --------------------------------------------------------------------------------------
