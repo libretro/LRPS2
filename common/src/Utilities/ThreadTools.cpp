@@ -200,13 +200,10 @@ bool Threading::pxThread::_basecancel()
 //
 // This function should not be called from the owner thread.
 //
-// Parameters:
-//   isBlocking - indicates if the Cancel action should block for thread completion or not.
-//
 // Exceptions raised by the blocking thread will be re-thrown into the main thread.  If isBlocking
 // is false then no exceptions will occur.
 //
-void Threading::pxThread::Cancel(bool isBlocking)
+void Threading::pxThread::Cancel()
 {
     // Prevent simultaneous startup and cancel, necessary to avoid
     ScopedLock startlock(m_mtx_start);
@@ -214,10 +211,8 @@ void Threading::pxThread::Cancel(bool isBlocking)
     if (!_basecancel())
         return;
 
-    if (isBlocking) {
-        WaitOnSelf(m_mtx_InThread);
-        Detach();
-    }
+    WaitOnSelf(m_mtx_InThread);
+    Detach();
 }
 
 bool Threading::pxThread::Cancel(const wxTimeSpan &timespan)

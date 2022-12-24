@@ -99,7 +99,7 @@ public:
     pxThread(const wxString &name = L"pxThread");
 
     virtual void Start();
-    virtual void Cancel(bool isBlocking = true);
+    virtual void Cancel();
     virtual bool Cancel(const wxTimeSpan &timeout);
     virtual bool Detach();
 
