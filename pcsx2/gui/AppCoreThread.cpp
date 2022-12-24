@@ -112,7 +112,7 @@ void AppCoreThread::Suspend()
 {
 	if (IsClosed())
 		return;
-	_parent::Suspend(true);
+	_parent::Suspend();
 }
 
 void AppCoreThread::Resume()

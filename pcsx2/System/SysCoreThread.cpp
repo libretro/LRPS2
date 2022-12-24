@@ -47,7 +47,7 @@ static void modules_close(void)
 	else
 	{
 		log_cb(RETRO_LOG_INFO, "Closing GS\n");
-		GetMTGS().Suspend(true);
+		GetMTGS().Suspend();
 	}
 	DoCDVDclose();
 	FWclose();
@@ -192,7 +192,7 @@ void SysCoreThread::SetElfOverride(const wxString& elf)
 // or cpu providers (recompilers).
 void SysCoreThread::ResetQuick()
 {
-	Suspend(true);
+	Suspend();
 
 	m_resetVirtualMachine = true;
 	m_hasActiveMachine = false;

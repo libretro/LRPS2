@@ -70,7 +70,7 @@ void SysThreadBase::OnStart()
 //      Suspension must cancel itself forcefully or risk crashing whatever other action is
 //      in progress.
 //
-void SysThreadBase::Suspend( bool isBlocking )
+void SysThreadBase::Suspend()
 {
 	if (IsSelf()) return;
 	if (!IsRunning()) return;
@@ -91,9 +91,6 @@ void SysThreadBase::Suspend( bool isBlocking )
 
 			case ExecMode_Pausing:
 			case ExecMode_Paused:
-				if( !isBlocking )
-					throw Exception::CancelEvent( L"Cannot suspend in non-blocking fashion: Another thread is pausing the VM state." );
-	
 				m_ExecMode = ExecMode_Closing;
 				m_sem_Resume.Post();
 				m_sem_ChangingExecMode.Wait();
@@ -110,11 +107,8 @@ void SysThreadBase::Suspend( bool isBlocking )
 		m_sem_event.Post();
 	}
 
-	if( isBlocking )
-	{
-		m_RunningLock.Acquire();
-		m_RunningLock.Release();
-	}
+	m_RunningLock.Acquire();
+	m_RunningLock.Release();
 }
 
 // Returns:

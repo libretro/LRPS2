@@ -106,7 +106,7 @@ public:
 		return m_ExecMode >= ExecMode_Closing;
 	}
 
-	virtual void Suspend(bool isBlocking);
+	virtual void Suspend();
 	virtual void Resume();
 	virtual void Pause();
 
@@ -237,7 +237,7 @@ public:
 		return m_ExecMode >= ExecMode_Closing;
 	}
 
-	virtual void Suspend( bool isBlocking );
+	virtual void Suspend();
 	virtual void Resume();
 	virtual void Pause();
 	virtual void Cancel(bool isBlocking) { m_running = false; }
