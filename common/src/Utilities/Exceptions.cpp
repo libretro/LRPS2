@@ -24,24 +24,6 @@
 // for lack of a better place...
 Fnptr_OutOfMemory pxDoOutOfMemory = NULL;
 
-// Because wxTrap isn't available on Linux builds of wxWidgets (non-Debug, typically)
-void pxTrap(void)
-{
-#if defined(__WXMSW__)
-    __debugbreak();
-#elif defined(__WXMAC__) && !defined(__DARWIN__)
-#if __powerc
-    Debugger();
-#else
-    SysBreak();
-#endif
-#elif defined(__UNIX__)
-    raise(SIGTRAP);
-#else
-// TODO
-#endif // Win/Unix
-}
-
 // --------------------------------------------------------------------------------------
 //  BaseException  (implementations)
 // --------------------------------------------------------------------------------------
@@ -84,16 +66,6 @@ Exception::RuntimeError::RuntimeError(const std::exception &ex, const wxString &
 // --------------------------------------------------------------------------------------
 Exception::OutOfMemory::OutOfMemory(const wxString &allocdesc)
 {
-    AllocDescription = allocdesc;
-}
-
-// --------------------------------------------------------------------------------------
-//  Exception::VirtualMemoryMapConflict   (implementations)
-// --------------------------------------------------------------------------------------
-Exception::VirtualMemoryMapConflict::VirtualMemoryMapConflict(const wxString &allocdesc)
-{
-    AllocDescription = allocdesc;
-    m_message_user = "Virtual memory mapping failure!  Your system may have conflicting device drivers, services, or may simply have insufficient memory or resources to meet PCSX2's lofty needs.";
 }
 
 // --------------------------------------------------------------------------------------

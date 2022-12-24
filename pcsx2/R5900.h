@@ -297,7 +297,6 @@ struct R5900cpu
 	//   be inactive.  No locking is necessary.
 	//
 	// Exception Throws:
-	//   HardwareDeficiency - The host machine's hardware does not support this CPU provider.
 	//   OutOfMemory - Not enough memory, or the memory areas required were already
 	//                 reserved.
 	void (*Reserve)();

@@ -63,8 +63,7 @@ static void SysPageFaultSignalFilter(int signal, siginfo_t *siginfo, void *)
 
     // Bad mojo!  Completely invalid address.
     // Instigate a trap if we're in a debugger, and if not then do a SIGKILL.
-
-    pxTrap();
+    raise(SIGTRAP);
     raise(SIGKILL);
 }
 

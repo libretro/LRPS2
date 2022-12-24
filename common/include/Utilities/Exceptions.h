@@ -18,9 +18,6 @@
 #include "StringHelpers.h"
 #include <memory>
 
-// Because wxTrap isn't available on Linux builds of wxWidgets (non-Debug, typically)
-void pxTrap(void);
-
 // --------------------------------------------------------------------------------------
 //  DESTRUCTOR_CATCHALL - safe destructor helper
 // --------------------------------------------------------------------------------------
@@ -88,9 +85,6 @@ protected:
 
 public:
     virtual ~BaseException() = default;
-
-    const wxString &DiagMsg() const { return m_message_diag; }
-    const wxString &UserMsg() const { return m_message_user; }
 
     wxString &DiagMsg() { return m_message_diag; }
     wxString &UserMsg() { return m_message_user; }
@@ -218,10 +212,6 @@ public:
 class OutOfMemory : public RuntimeError
 {
     DEFINE_RUNTIME_EXCEPTION(OutOfMemory, RuntimeError, wxEmptyString)
-
-public:
-    wxString AllocDescription;
-
 public:
     OutOfMemory(const wxString &allocdesc);
 };
@@ -229,27 +219,6 @@ public:
 class ParseError : public RuntimeError
 {
     DEFINE_RUNTIME_EXCEPTION(ParseError, RuntimeError, "Parse error");
-};
-
-// ---------------------------------------------------------------------------------------
-// Hardware/OS Exceptions:
-//   HardwareDeficiency / VirtualMemoryMapConflict
-// ---------------------------------------------------------------------------------------
-
-// This exception is a specific type of OutOfMemory error that isn't "really" an out of
-// memory error.  More likely it's caused by a plugin or driver reserving a range of memory
-// we'd really like to have access to.
-class VirtualMemoryMapConflict : public OutOfMemory
-{
-    DEFINE_RUNTIME_EXCEPTION(VirtualMemoryMapConflict, OutOfMemory, wxEmptyString)
-
-    VirtualMemoryMapConflict(const wxString &allocdesc);
-};
-
-class HardwareDeficiency : public RuntimeError
-{
-public:
-    DEFINE_RUNTIME_EXCEPTION(HardwareDeficiency, RuntimeError, "Your machine's hardware is incapable of running PCSX2.  Sorry dood.");
 };
 
 // ---------------------------------------------------------------------------------------

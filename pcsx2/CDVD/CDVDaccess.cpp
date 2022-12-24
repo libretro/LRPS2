@@ -329,9 +329,7 @@ bool DoCDVDopen(void)
 			(char*)NULL);
 
 	if (ret == -1)
-		return false; // error! (handled by caller)
-	//if( ret == 1 )	throw Exception::CancelEvent(L"User canceled the CDVD plugin's open dialog."); <--- TODO_CDVD is this still needed?
-
+		return false;
 	int cdtype = DoCDVDdetectDiskType();
 	return true;
 }
