@@ -22,6 +22,8 @@
 #include <windows.h> /* for GetExceptionInformation */
 #endif
 
+#include <utility>
+
 __aligned16 VU_Thread vu1Thread(CpuVU1, VU1);
 
 // Use this when reading read_pos from ee thread

@@ -16,6 +16,8 @@
 #include "PrecompiledHeader.h"
 #include "Common.h"
 
+#include <utility>
+
 #include <wx/app.h>
 
 #include "GS.h"

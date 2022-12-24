@@ -31,6 +31,8 @@
 
 #include "Patch.h"
 
+#include <utility>
+
 #if !PCSX2_SEH
 #include "Utilities/FastJmp.h"
 #endif

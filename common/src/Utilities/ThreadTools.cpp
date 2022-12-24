@@ -16,6 +16,7 @@
 #ifdef __linux__
 #include <signal.h> // for pthread_kill, which is in pthread.h on w32-pthreads
 #endif
+#include <utility>
 
 #include <wx/datetime.h>
 
@@ -101,7 +102,8 @@ Threading::pxThread::~pxThread()
             m_mtx_InThread.Release();
         }
         Threading::Sleep(1);
-        Detach();
+	if (!m_detached.exchange(true))
+		pthread_detach(m_thread);
     }
     DESTRUCTOR_CATCHALL
 }
@@ -151,7 +153,9 @@ void Threading::pxThread::Start()
     if (m_running)
         return;
 
-    Detach(); // clean up previous thread handle, if one exists.
+    // clean up previous thread handle, if one exists.
+    if (!m_detached.exchange(true))
+	    pthread_detach(m_thread);
     OnStart();
 
     if (pthread_create(&m_thread, NULL, _internal_callback, this) != 0)
@@ -189,17 +193,6 @@ void Threading::pxThread::Start()
     // possible to safely block against a running thread)
 }
 
-// Returns: TRUE if the detachment was performed, or FALSE if the thread was
-// already detached or isn't running at all.
-// This function should not be called from the owner thread.
-bool Threading::pxThread::Detach()
-{
-    if (m_detached.exchange(true))
-        return false;
-    pthread_detach(m_thread);
-    return true;
-}
-
 // Remarks:
 //   Provision of non-blocking Cancel() is probably academic, since destroying a pxThread
 //   object performs a blocking Cancel regardless of if you explicitly do a non-blocking Cancel()
@@ -225,7 +218,8 @@ void Threading::pxThread::Cancel()
     pthread_cancel(m_thread);
 
     WaitOnSelf(m_mtx_InThread);
-    Detach();
+    if (!m_detached.exchange(true))
+	    pthread_detach(m_thread);
 }
 
 bool Threading::pxThread::Cancel(const wxTimeSpan &timespan)
@@ -243,7 +237,8 @@ bool Threading::pxThread::Cancel(const wxTimeSpan &timespan)
 
     if (!WaitOnSelf(m_mtx_InThread, timespan))
         return false;
-    Detach();
+    if (!m_detached.exchange(true))
+	    pthread_detach(m_thread);
     return true;
 }
 

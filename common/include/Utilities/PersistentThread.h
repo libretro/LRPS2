@@ -101,7 +101,6 @@ public:
     virtual void Start();
     virtual void Cancel();
     virtual bool Cancel(const wxTimeSpan &timeout);
-    virtual bool Detach();
 
     void WaitOnSelf(Mutex &mutex) const;
     bool WaitOnSelf(Mutex &mutex, const wxTimeSpan &timeout) const;

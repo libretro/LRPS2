@@ -18,6 +18,8 @@
 #include "PrecompiledHeader.h"
 #include "microVU.h"
 
+#include <utility>
+
 //------------------------------------------------------------------
 // Micro VU - Private Functions
 //------------------------------------------------------------------
