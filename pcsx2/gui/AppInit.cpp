@@ -112,7 +112,8 @@ void Pcsx2App::CleanupOnExit(void)
 
 void Pcsx2App::CleanupResources(void)
 {
-	m_mtx_LoadingGameDB.Wait();
+	m_mtx_LoadingGameDB.Acquire();
+	m_mtx_LoadingGameDB.Release();
 	ScopedLock lock(m_mtx_Resources);
 	m_Resources = NULL;
 }

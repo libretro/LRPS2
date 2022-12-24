@@ -310,7 +310,7 @@ void SysCoreThread::DoCpuExecute()
 
 void SysCoreThread::ExecuteTaskInThread()
 {
-	m_sem_event.WaitWithoutYield();
+	m_sem_event.Wait();
 
 	m_mxcsr_saved.bitmask = _mm_getcsr();
 

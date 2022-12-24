@@ -87,8 +87,6 @@ Threading::Mutex::Mutex()
     pthread_mutex_init(&m_mutex, NULL);
 }
 
-static wxTimeSpan def_detach_timeout(0, 0, 6, 0);
-
 void Threading::Mutex::Detach()
 {
     if (pthread_mutex_destroy(&m_mutex) != EBUSY)
@@ -106,8 +104,9 @@ void Threading::Mutex::Detach()
             return;
     }
 
-    if (Wait(def_detach_timeout))
-        pthread_mutex_destroy(&m_mutex);
+    Acquire();
+    Release();
+    pthread_mutex_destroy(&m_mutex);
 }
 
 Threading::Mutex::~Mutex()
@@ -137,34 +136,6 @@ Threading::MutexRecursive::~MutexRecursive()
         pthread_mutexattr_destroy(&_attr_recursive);
 }
 
-// Returns:
-//   true if the mutex had to be recreated due to lock contention, or false if the mutex is safely
-//   unlocked.
-bool Threading::Mutex::RecreateIfLocked()
-{
-    if (!Wait(def_detach_timeout))
-    {
-	    // This is a bit hackish, which is technically unsafe, but can be useful for allowing
-	    // the application to survive unexpected or inconvenient failures, where a mutex is deadlocked by
-	    // a rogue thread.  This allows us to Recreate the mutex and let the deadlocked one ponder
-	    // the deeper meanings of the universe for eternity.
-	    Detach();
-	    pthread_mutex_init(&m_mutex, NULL);
-	    return true;
-    }
-    return false;
-}
-
-
-// This is a direct blocking action -- very fast, very efficient, and generally very dangerous
-// if used from the main GUI thread, since it typically results in an unresponsive program.
-// Call this method directly only if you know the code in question will be run from threads
-// other than the main thread.
-void Threading::Mutex::AcquireWithoutYield()
-{
-    pthread_mutex_lock(&m_mutex);
-}
-
 void Threading::Mutex::Release()
 {
     pthread_mutex_unlock(&m_mutex);
@@ -175,54 +146,9 @@ bool Threading::Mutex::TryAcquire()
     return EBUSY != pthread_mutex_trylock(&m_mutex);
 }
 
-// This is a wxApp-safe rendition of AcquireWithoutYield, which makes sure to execute pending app events
-// and messages *if* the lock is performed from the main GUI thread.
-//
 void Threading::Mutex::Acquire()
 {
     pthread_mutex_lock(&m_mutex);
-}
-
-bool Threading::Mutex::Acquire(const wxTimeSpan &timeout)
-{
-    AcquireWithoutYield();
-    return true;
-}
-
-// Performs a wait on a locked mutex, or returns instantly if the mutex is unlocked.
-// Typically this action is used to determine if a thread is currently performing some
-// specific task, and to block until the task is finished (PersistentThread uses it to
-// determine if the thread is running or completed, for example).
-//
-// Implemented internally as a simple Acquire/Release pair.
-//
-void Threading::Mutex::Wait()
-{
-    Acquire();
-    Release();
-}
-
-void Threading::Mutex::WaitWithoutYield()
-{
-    AcquireWithoutYield();
-    Release();
-}
-
-// Performs a wait on a locked mutex, or returns instantly if the mutex is unlocked.
-// (Implemented internally as a simple Acquire/Release pair.)
-//
-// Returns:
-//   true if the mutex was freed and is in an unlocked state; or false if the wait timed out
-//   and the mutex is still locked by another thread.
-//
-bool Threading::Mutex::Wait(const wxTimeSpan &timeout)
-{
-    if (Acquire(timeout))
-    {
-        Release();
-        return true;
-    }
-    return false;
 }
 
 bool Threading::Mutex::WaitWithoutYield(const wxTimeSpan &timeout)

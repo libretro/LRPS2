@@ -59,12 +59,11 @@ static void make_curthread_key(const pxThread *thr)
     if (total_key_count++ != 0)
         return;
 
-    if (0 != pthread_key_create(&curthread_key, NULL)) {
+    if (0 != pthread_key_create(&curthread_key, NULL))
         curthread_key = 0;
-    }
 }
 
-static void unmake_curthread_key()
+static void unmake_curthread_key(void)
 {
     ScopedLock lock;
     if (!tkl_destructed)
@@ -104,7 +103,8 @@ Threading::pxThread::~pxThread()
 {
     try {
         if (m_running) {
-            m_mtx_InThread.Wait();
+            m_mtx_InThread.Acquire();
+            m_mtx_InThread.Release();
         }
         Threading::Sleep(1);
         Detach();
@@ -114,10 +114,8 @@ Threading::pxThread::~pxThread()
 
 void Threading::pxThread::FrankenMutex(Mutex &mutex)
 {
-    if (mutex.RecreateIfLocked()) {
-        // Our lock is bupkis, which means  the previous thread probably deadlocked.
-        // Let's create a new mutex lock to replace it.
-    }
+    mutex.Acquire();
+    mutex.Release();
 }
 
 // Main entry point for starting or e-starting a persistent thread.  This function performs necessary
@@ -130,9 +128,8 @@ void Threading::pxThread::Start()
 {
     // Prevents sudden parallel startup, and or parallel startup + cancel:
     ScopedLock startlock(m_mtx_start);
-    if (m_running) {
+    if (m_running)
         return;
-    }
 
     Detach(); // clean up previous thread handle, if one exists.
     OnStart();
@@ -249,29 +246,6 @@ bool Threading::pxThread::IsRunning() const
     return m_running;
 }
 
-// This helper function is a deadlock-safe method of waiting on a semaphore in a pxThread.  If the
-// thread is terminated or canceled by another thread or a nested action prior to the semaphore being
-// posted, this function will detect that and throw a CancelEvent exception is thrown.
-//
-// Note: Use of this function only applies to semaphores which are posted by the worker thread.  Calling
-// this function from the context of the thread itself is an error, and a dev assertion will be generated.
-//
-// Exceptions:
-//   This function will rethrow exceptions raised by the persistent thread, if it throws an error
-//   while the calling thread is blocking (which also means the persistent thread has terminated).
-//
-void Threading::pxThread::WaitOnSelf(Semaphore &sem) const
-{
-    if (IsSelf())
-        return;
-
-    for (;;)
-    {
-        if (sem.WaitWithoutYield(wxTimeSpan(0, 0, 0, 333)))
-            return;
-    }
-}
-
 // This helper function is a deadlock-safe method of waiting on a mutex in a pxThread.
 // If the thread is terminated or canceled by another thread or a nested action prior to the
 // mutex being unlocked, this function will detect that and a CancelEvent exception is thrown.
@@ -296,26 +270,10 @@ void Threading::pxThread::WaitOnSelf(Mutex &mutex) const
     }
 }
 
-static const wxTimeSpan SelfWaitInterval(0, 0, 0, 333);
-
-bool Threading::pxThread::WaitOnSelf(Semaphore &sem, const wxTimeSpan &timeout) const
-{
-    if (IsSelf())
-        return true;
-
-    wxTimeSpan runningout(timeout);
-
-    while (runningout.GetMilliseconds() > 0) {
-        const wxTimeSpan interval((SelfWaitInterval < runningout) ? SelfWaitInterval : runningout);
-        if (sem.WaitWithoutYield(interval))
-            return true;
-        runningout -= interval;
-    }
-    return false;
-}
 
 bool Threading::pxThread::WaitOnSelf(Mutex &mutex, const wxTimeSpan &timeout) const
 {
+    static const wxTimeSpan SelfWaitInterval(0, 0, 0, 333);
     if (IsSelf())
         return true;
 
@@ -368,12 +326,6 @@ void Threading::pxThread::_ThreadCleanup()
     // Must set m_running LAST, as thread destructors depend on this value (it is used
     // to avoid destruction of the thread until all internal data use has stopped.
     m_running = false;
-}
-
-wxString Threading::pxThread::GetName() const
-{
-    ScopedLock lock(m_mtx_ThreadName);
-    return m_name;
 }
 
 // This override is called by PeristentThread when the thread is first created, prior to

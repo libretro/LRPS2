@@ -57,11 +57,6 @@ void Threading::Semaphore::Post(int multiple)
 #endif
 }
 
-void Threading::Semaphore::WaitWithoutYield()
-{
-    sem_wait(&m_sema);
-}
-
 bool Threading::Semaphore::WaitWithoutYield(const wxTimeSpan &timeout)
 {
     wxDateTime megafail(wxDateTime::UNow() + timeout);
@@ -78,20 +73,6 @@ bool Threading::Semaphore::WaitWithoutYield(const wxTimeSpan &timeout)
 void Threading::Semaphore::Wait()
 {
     sem_wait(&m_sema);
-}
-
-// This is a wxApp-safe implementation of WaitWithoutYield, which makes sure and executes the App's
-// pending messages *if* the Wait is performed on the Main/GUI thread.  This ensures that
-// user input continues to be handled and that windows continue to repaint.  If the Wait is
-// called from another thread, no message pumping is performed.
-//
-// Returns:
-//   false if the wait timed out before the semaphore was signaled, or true if the signal was
-//   reached prior to timeout.
-//
-bool Threading::Semaphore::Wait(const wxTimeSpan &timeout)
-{
-    return WaitWithoutYield(timeout);
 }
 
 bool Threading::Semaphore::TryWait()

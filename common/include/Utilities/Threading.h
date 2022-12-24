@@ -129,14 +129,12 @@ public:
     void Post();
     void Post(int multiple);
 
-    void WaitWithoutYield();
     bool WaitWithoutYield(const wxTimeSpan &timeout);
     void WaitNoCancel();
     bool TryWait();
     int Count();
 
     void Wait();
-    bool Wait(const wxTimeSpan &timeout);
 };
 
 class Mutex
@@ -149,19 +147,12 @@ public:
     virtual ~Mutex();
     virtual bool IsRecursive() const { return false; }
 
-    bool RecreateIfLocked();
     void Detach();
 
     void Acquire();
-    bool Acquire(const wxTimeSpan &timeout);
     bool TryAcquire();
     void Release();
 
-    void AcquireWithoutYield();
-
-    void Wait();
-    bool Wait(const wxTimeSpan &timeout);
-    void WaitWithoutYield();
     bool WaitWithoutYield(const wxTimeSpan &timeout);
 
 protected:

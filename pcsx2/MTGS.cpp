@@ -209,7 +209,7 @@ void SysMtgsThread::ExecuteTaskInThread()
 				case GS_RINGTYPE_MTVU_GSPACKET: {
 					vu1Thread.KickStart(true);
 					// Wait for MTVU to complete vu1 program
-					vu1Thread.semaXGkick.WaitWithoutYield();
+					vu1Thread.semaXGkick.Wait();
 					Gif_Path& path   = gifUnit.gifPath[GIF_PATH_1];
 					GS_Packet gsPack = path.GetGSPacketMTVU(); // Get vu1 program's xgkick packet(s)
 					if (gsPack.size) GSgifTransfer((u8*)&path.buffer[gsPack.offset], gsPack.size/16);
@@ -391,8 +391,16 @@ void SysMtgsThread::WaitGS(bool syncRegs, bool weakWait, bool isMTVU)
 	if (isMTVU || m_ReadPos.load(std::memory_order_relaxed) != m_WritePos.load(std::memory_order_relaxed)) {
 		SetEvent();
 		for(;;) {
-			if (weakWait) m_mtx_RingBufferBusy2.Wait();
-			else          m_mtx_RingBufferBusy .Wait();
+			if (weakWait)
+			{
+				m_mtx_RingBufferBusy2.Acquire();
+				m_mtx_RingBufferBusy2.Release();
+			}
+			else
+			{
+				m_mtx_RingBufferBusy .Acquire();
+				m_mtx_RingBufferBusy .Release();
+			}
 			if(!isMTVU && m_ReadPos.load(std::memory_order_relaxed) == m_WritePos.load(std::memory_order_relaxed)) break;
 			u32 curP1Packs = weakWait ? path.mtvu.gsPackQueue.size() : 0;
 			if (weakWait && ((startP1Packs-curP1Packs) || !curP1Packs)) break;
@@ -484,7 +492,7 @@ void SysMtgsThread::GenericStall( uint size )
                         for (;;) {
 				m_SignalRingEnable.store(true, std::memory_order_release);
 				SetEvent();
-				m_sem_OnRingReset.WaitWithoutYield();
+				m_sem_OnRingReset.Wait();
 				readpos = m_ReadPos.load(std::memory_order_acquire);
 
 				if (writepos < readpos)
@@ -588,8 +596,8 @@ void SysMtgsThread::WaitForOpen()
 	// another 12 seconds if no errors occurred (this might seem long, but sometimes a
 	// GS plugin can be very stubborned, especially in debug mode builds).
 
-	if( !m_sem_OpenDone.Wait( wxTimeSpan(0, 0, 2, 0) ) )
-		m_sem_OpenDone.Wait( wxTimeSpan(0, 0, 12, 0) );
+	if( !m_sem_OpenDone.WaitWithoutYield( wxTimeSpan(0, 0, 2, 0) ) )
+		m_sem_OpenDone.WaitWithoutYield( wxTimeSpan(0, 0, 12, 0) );
 }
 
 void SysMtgsThread::Freeze( int mode, MTGS_FreezeData& data )

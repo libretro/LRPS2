@@ -111,7 +111,10 @@ void SysThreadBase::Suspend( bool isBlocking )
 	}
 
 	if( isBlocking )
-		m_RunningLock.Wait();
+	{
+		m_RunningLock.Acquire();
+		m_RunningLock.Release();
+	}
 }
 
 // Returns:
@@ -139,7 +142,8 @@ void SysThreadBase::Pause()
 		m_sem_event.Post();
 	}
 
-	m_RunningLock.Wait();
+	m_RunningLock.Acquire();
+	m_RunningLock.Release();
 }
 
 // Resumes the core execution state, or does nothing is the core is already running.  If
@@ -187,7 +191,8 @@ void SysThreadBase::Resume()
 			// we need to make sure and wait for the emuThread to enter a fully suspended
 			// state before continuing...
 
-			m_RunningLock.Wait();
+			m_RunningLock.Acquire();
+			m_RunningLock.Release();
 			if( !m_running ) return;
 			if( (m_ExecMode != ExecMode_Closed) && (m_ExecMode != ExecMode_Paused) ) return;
 		break;
@@ -255,7 +260,7 @@ bool SysThreadBase::StateCheckInThread()
 
 		case ExecMode_Paused:
 			while( m_ExecMode == ExecMode_Paused )
-				m_sem_Resume.WaitWithoutYield();
+				m_sem_Resume.Wait();
 
 			m_RunningLock.Acquire();
 			if( m_ExecMode != ExecMode_Closing )
@@ -278,7 +283,7 @@ bool SysThreadBase::StateCheckInThread()
 
 		case ExecMode_Closed:
 			while( m_ExecMode == ExecMode_Closed )
-				m_sem_Resume.WaitWithoutYield();
+				m_sem_Resume.Wait();
 
 			m_RunningLock.Acquire();
 			OnResumeInThread( true );

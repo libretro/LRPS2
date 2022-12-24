@@ -103,15 +103,11 @@ public:
     virtual bool Cancel(const wxTimeSpan &timeout);
     virtual bool Detach();
 
-    void WaitOnSelf(Semaphore &mutex) const;
     void WaitOnSelf(Mutex &mutex) const;
-    bool WaitOnSelf(Semaphore &mutex, const wxTimeSpan &timeout) const;
     bool WaitOnSelf(Mutex &mutex, const wxTimeSpan &timeout) const;
 
     bool IsRunning() const;
     bool IsSelf() const;
-
-    wxString GetName() const;
 
 protected:
     // Extending classes should always implement your own OnStart(), which is called by

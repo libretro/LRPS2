@@ -42,8 +42,10 @@ void SysFakeThread::OnStart()
 	m_sem_Resume.Reset();
 	m_sem_ChangingExecMode.Reset();
 
-	m_ExecModeMutex.RecreateIfLocked();
-	m_RunningLock.RecreateIfLocked();
+	m_ExecModeMutex.Acquire();
+	m_ExecModeMutex.Release();
+	m_RunningLock.Acquire();
+	m_RunningLock.Release();
 	m_sem_event.Reset();
 	m_ExecMode = ExecMode_Closed;
 }
@@ -108,7 +110,10 @@ void SysFakeThread::Suspend( bool isBlocking )
 	}
 
 	if( isBlocking )
-		m_RunningLock.Wait();
+	{
+		m_RunningLock.Acquire();
+		m_RunningLock.Release();
+	}
 }
 
 // Returns:
@@ -136,7 +141,8 @@ void SysFakeThread::Pause()
 		m_sem_event.Post();
 	}
 
-	m_RunningLock.Wait();
+	m_RunningLock.Acquire();
+	m_RunningLock.Release();
 }
 
 // Resumes the core execution state, or does nothing is the core is already running.  If
@@ -182,7 +188,8 @@ void SysFakeThread::Resume()
 			// we need to make sure and wait for the emuThread to enter a fully suspended
 			// state before continuing...
 
-			m_RunningLock.Wait();
+			m_RunningLock.Acquire();
+			m_RunningLock.Release();
 			if( !m_running ) return;
 			if( (m_ExecMode != ExecMode_Closed) && (m_ExecMode != ExecMode_Paused) ) return;
 		break;
@@ -206,8 +213,7 @@ void SysFakeThread::Resume()
 void SysFakeThread::OnStartInThread()
 {
 	m_RunningLock.Acquire();
-//	m_detached = false;
-	m_running = true;
+	m_running  = true;
 	m_ExecMode = ExecMode_Closing;
 }
 
@@ -248,7 +254,7 @@ bool SysFakeThread::StateCheckInThread()
 
 		case ExecMode_Paused:
 			while( m_ExecMode == ExecMode_Paused )
-				m_sem_Resume.WaitWithoutYield();
+				m_sem_Resume.Wait();
 
 			m_RunningLock.Acquire();
 			if( m_ExecMode != ExecMode_Closing )
@@ -271,7 +277,7 @@ bool SysFakeThread::StateCheckInThread()
 
 		case ExecMode_Closed:
 			while( m_ExecMode == ExecMode_Closed )
-				m_sem_Resume.WaitWithoutYield();
+				m_sem_Resume.Wait();
 
 			m_RunningLock.Acquire();
 			OnResumeInThread( true );
