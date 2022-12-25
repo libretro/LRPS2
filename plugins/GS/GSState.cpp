@@ -136,6 +136,8 @@ void GSState::SetRegsMem(u8* basemem)
 
 void GSState::Reset()
 {
+	Flush();
+
 	// BIOS logo not shown cut in half after reset, missing graphics in GoW after first FMV
 	memset(&m_path[0], 0, sizeof(m_path[0]) * ARRAY_SIZE(m_path));
 	memset(&m_v, 0, sizeof(m_v));
