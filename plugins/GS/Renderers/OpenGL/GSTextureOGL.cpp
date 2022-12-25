@@ -20,6 +20,7 @@
  */
 
 #include <limits.h>
+#include <cmath>
 
 #include "../../stdafx.h"
 
