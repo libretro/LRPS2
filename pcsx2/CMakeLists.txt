@@ -144,7 +144,6 @@ set(pcsx2Headers
 	Sio.h
 	sio_internal.h
 	SPR.h
-	SysForwardDefs.h
 	System.h
 	Vif_Dma.h
 	Vif.h
@@ -282,7 +281,6 @@ set(pcsx2DebugToolsHeaders
 		gui/AppConfig.h
 		gui/AppCoreThread.h
 		gui/AppEventListeners.h
-		gui/AppForwardDefs.h
 		gui/AppGameDatabase.h
 		gui/App.h
 		gui/MemoryCardFile.h

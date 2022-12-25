@@ -22,13 +22,15 @@
 
 #include "AppConfig.h"
 #include "AppCoreThread.h"
+#include "AppGameDatabase.h"
 #include "AppEventListeners.h"
 
 #include "Plugins.h"
 #include "System.h"
 #include "System/SysThreads.h"
 
-typedef void FnType_OnThreadComplete(const wxCommandEvent& evt);
+class Pcsx2App;
+
 typedef void (Pcsx2App::*FnPtr_Pcsx2App)();
 
 // -------------------------------------------------------------------------------------------
@@ -193,7 +195,6 @@ protected:
 	bool AppRpc_TryInvoke( FnPtr_Pcsx2App method );
 	bool AppRpc_TryInvokeAsync( FnPtr_Pcsx2App method );
 };
-
 
 wxDECLARE_APP(Pcsx2App);
 
