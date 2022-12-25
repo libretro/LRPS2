@@ -582,7 +582,7 @@ void recLQC2()
 
 	if (GPR_IS_CONST1(_Rs_))
 	{
-		int addr = g_cpuConstRegs[_Rs_].UL[0] + _Imm_;
+		const u32 addr = (g_cpuConstRegs[_Rs_].UL[0] + _Imm_) & ~0xFu;
 
 		vtlb_DynGenRead64_Const(128, addr);
 	}
@@ -591,6 +591,7 @@ void recLQC2()
 		_eeMoveGPRtoR(arg1regd, _Rs_);
 		if (_Imm_ != 0)
 			xADD(arg1regd, _Imm_);
+		xAND(arg1regd, ~0xF);
 
 		iFlushCall(FLUSH_FULLVTLB);
 
@@ -623,7 +624,7 @@ void recSQC2()
 
 	if (GPR_IS_CONST1(_Rs_))
 	{
-		int addr = g_cpuConstRegs[_Rs_].UL[0] + _Imm_;
+		const u32 addr = (g_cpuConstRegs[_Rs_].UL[0] + _Imm_) & ~0xFu;
 		vtlb_DynGenWrite_Const(128, addr);
 	}
 	else
@@ -631,6 +632,7 @@ void recSQC2()
 		_eeMoveGPRtoR(arg1regd, _Rs_);
 		if (_Imm_ != 0)
 			xADD(arg1regd, _Imm_);
+		xAND(arg1regd, ~0xF);
 
 		iFlushCall(FLUSH_FULLVTLB);
 
