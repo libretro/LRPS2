@@ -426,8 +426,6 @@ private:
 	int m_mipmap;
 	TriFiltering m_filter;
 
-	bool m_disable_hw_gl_draw;
-
 	// Place holder for the GLSL shader code (to avoid useless reload)
 	std::vector<char> m_shader_tfx_vgs;
 	std::vector<char> m_shader_tfx_fs;

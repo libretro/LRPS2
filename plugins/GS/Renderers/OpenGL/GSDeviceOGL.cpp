@@ -1721,8 +1721,6 @@ GSDeviceOGL::GSDeviceOGL()
 		m_filter = static_cast<TriFiltering>(theApp.GetConfigI("UserHacks_TriFilter"));
 //	else
 //		m_filter = TriFiltering::None;
-
-	m_disable_hw_gl_draw = theApp.GetConfigB("disable_hw_gl_draw");
 }
 
 GSDeviceOGL::~GSDeviceOGL()
@@ -2098,14 +2096,12 @@ void GSDeviceOGL::DrawPrimitive(int offset, int count)
 
 void GSDeviceOGL::DrawIndexedPrimitive()
 {
-	if (!m_disable_hw_gl_draw)
-		m_va->DrawIndexedPrimitive();
+	m_va->DrawIndexedPrimitive();
 }
 
 void GSDeviceOGL::DrawIndexedPrimitive(int offset, int count)
 {
-	if (!m_disable_hw_gl_draw)
-		m_va->DrawIndexedPrimitive(offset, count);
+	m_va->DrawIndexedPrimitive(offset, count);
 }
 
 void GSDeviceOGL::ClearRenderTarget(GSTexture* t, const GSVector4& c)
