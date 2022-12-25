@@ -492,11 +492,12 @@ bool GSDevice11::Create()
 	m_dev = d3d11->device;
 	m_ctx = d3d11->context;
 	D3D_FEATURE_LEVEL level = d3d11->featureLevel;
+	const bool support_feature_level_11_0 = (level >= D3D_FEATURE_LEVEL_11_0);
 	if(!SetFeatureLevel(level, true))
 		return false;
 
 	// Set maximum texture size limit based on supported feature level.
-	if (level >= D3D_FEATURE_LEVEL_11_0)
+	if (support_feature_level_11_0)
 		m_d3d_texsize = D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;
 	else
 		m_d3d_texsize = D3D10_REQ_TEXTURE2D_U_OR_V_DIMENSION;
