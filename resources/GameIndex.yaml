@@ -724,6 +724,8 @@ SCAJ-20146:
   name: "Shadow of the Colossus"
   region: "NTSC-Ch-E-J"
   compat: 5
+  speedHacks:
+    InstantVU1SpeedHack: 0 # Alleviates excessive VU load.
   memcardFilters:
     - "SCAJ-20146"
     - "SCAJ-20196"
@@ -899,6 +901,8 @@ SCAJ-20195:
 SCAJ-20196:
   name: "Shadow of the Colossus [PlayStation 2 The Best]"
   region: "NTSC-Ch"
+  speedHacks:
+    InstantVU1SpeedHack: 0 # Alleviates excessive VU load.
   memcardFilters:
     - "SCAJ-20146"
     - "SCAJ-20196"
@@ -907,6 +911,11 @@ SCAJ-20196:
     - "SCPS-19103"
     - "SCPS-19151"
     - "SCPS-55001"
+SCED-53962:
+  name: "Shadow of the Colossus [Demo]"
+  region: "PAL-M5"
+  speedHacks:
+    InstantVU1SpeedHack: 0 # Alleviates excessive VU load.
 SCAJ-20197:
   name: "Valkyrie Profile 2 - Silmeria [Ultimate Hits]"
   region: "NTSC-Unk"
@@ -2162,6 +2171,8 @@ SCES-53326:
   name: "Shadow of the Colossus"
   region: "PAL-E"
   compat: 5
+  speedHacks:
+    InstantVU1SpeedHack: 0 # Alleviates excessive VU load.
   memcardFilters:
     - "SCES-53326"
     - "SCES-50760"
@@ -3522,6 +3533,8 @@ SCPS-15097:
   name: "Wanda to Kyozou (Shadow of the Colossus)"
   region: "NTSC-J"
   compat: 5
+  speedHacks:
+    InstantVU1SpeedHack: 0 # Alleviates excessive VU load.
   memcardFilters:
     - "SCAJ-20146"
     - "SCAJ-20196"
@@ -3859,6 +3872,8 @@ SCPS-19319:
 SCPS-19320:
   name: "Wanda to Kyozou (Shadow of the Colossus) [PlayStation 2 The Best]"
   region: "NTSC-J"
+  speedHacks:
+    InstantVU1SpeedHack: 0 # Alleviates excessive VU load.
   memcardFilters:
     - "SCAJ-20146"
     - "SCAJ-20196"
@@ -5342,6 +5357,8 @@ SCUS-97472:
   name: "Shadow of the Colossus"
   region: "NTSC-U"
   compat: 5
+  speedHacks:
+    InstantVU1SpeedHack: 0 # Alleviates excessive VU load.
   memcardFilters:
     - "SCUS-97472"
     - "SCUS-97113"
@@ -5480,6 +5497,8 @@ SCUS-97504:
 SCUS-97505:
   name: "Shadow of the Colossus [Demo]"
   region: "NTSC-U"
+  speedHacks:
+    InstantVU1SpeedHack: 0 # Alleviates excessive VU load.
 SCUS-97506:
   name: "Gretzky NHL '06 [Demo]"
   region: "NTSC-U"
