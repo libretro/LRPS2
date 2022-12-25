@@ -967,14 +967,10 @@ bool GSRendererSW::GetScanlineGlobalData(SharedData* data)
 			gd.sel.ababcd = context->ALPHA.U32[0];
 
 			if(env.PABE.PABE)
-			{
 				gd.sel.pabe = 1;
-			}
 
-			if(m_aa1 && PRIM->AA1 && (primclass == GS_LINE_CLASS || primclass == GS_TRIANGLE_CLASS))
-			{
+			if(PRIM->AA1 && (primclass == GS_LINE_CLASS || primclass == GS_TRIANGLE_CLASS))
 				gd.sel.aa1 = 1;
-			}
 
 			gd.afix = GSVector4i((int)context->ALPHA.FIX << 7).xxzzlh();
 		}

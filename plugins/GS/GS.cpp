@@ -541,7 +541,6 @@ void GSdxApp::Init()
 	// D3D Blending option
 	m_current_configuration["accurate_blending_unit_d3d11"]               = "1";
 #endif
-	m_current_configuration["aa1"]                                        = "0";
 	m_current_configuration["accurate_date"]                              = "1";
 	m_current_configuration["accurate_blending_unit"]                     = "1";
 	m_current_configuration["AspectRatio"]                                = "1";

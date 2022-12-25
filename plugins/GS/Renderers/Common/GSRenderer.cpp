@@ -28,7 +28,6 @@ GSRenderer::GSRenderer()
 {
 	const unsigned int s_interlace_nb = 8;
 	m_interlace   = theApp.GetConfigI("interlace") % s_interlace_nb;
-	m_aa1         = theApp.GetConfigB("aa1");
 	m_fxaa        = theApp.GetConfigB("fxaa");
 	m_dithering   = theApp.GetConfigI("dithering_ps2"); // 0 off, 1 auto, 2 auto no scale
 }

@@ -31,7 +31,6 @@ class GSRenderer : public GSState
 protected:
 	int m_dithering;
 	int m_interlace;
-	bool m_aa1;
 	bool m_fxaa;
 	bool m_texture_shuffle;
 	GSVector2i m_real_size;
