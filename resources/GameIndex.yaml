@@ -2109,6 +2109,8 @@ SCES-53247:
   compat: 5
   gameFixes:
     - XGKickHack # Fixes SPS.
+  clampModes:
+    eeClampMode: 2 # Fixes rare bug causing player to respawn when starting the race or during certain car crashes.
 SCES-53285:
   name: "Ratchet - Gladiator"
   region: "PAL-M5"
