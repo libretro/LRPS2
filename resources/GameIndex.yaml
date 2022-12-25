@@ -5881,7 +5881,7 @@ SLAJ-25053:
   name: "Burnout 3 - Takedown"
   region: "NTSC-Unk"
   clampModes:
-    vuClampMode: 0  # Fixes buggy lighting on certain objects.
+    vuClampMode: 3  # Fixes buggy lighting in the garage.
 SLAJ-25055:
   name: "Def Jam - Fight for N.Y."
   region: "NTSC-Unk"
@@ -5910,7 +5910,7 @@ SLAJ-25066:
   name: "Burnout Revenge - Battle Racing Ignited"
   region: "NTSC-Unk"
   clampModes:
-    vuClampMode: 0  # Fixes buggy lighting on certain objects.
+    vuClampMode: 3  # Fixes buggy lighting in the garage.
   memcardFilters:
     - "SLAJ-25066"
     - "SLPM-66108"
@@ -5996,7 +5996,7 @@ SLAJ-25094:
   name: "Burnout Dominator"
   region: "NTSC-Unk"
   clampModes:
-    vuClampMode: 0  # Fixes buggy lighting on certain objects.
+    vuClampMode: 3  # Fixes buggy lighting in the garage.
 SLAJ-25095:
   name: "Medal of Honor - Vanguard"
   region: "NTSC-Unk"
@@ -6067,6 +6067,8 @@ SLED-52488:
 SLED-52597:
   name: "Burnout 3 - Takedown [Demo]"
   region: "PAL-E"
+  clampModes:
+    vuClampMode: 3 # Fixes buggy lighting in the garage.
 SLED-52875:
   name: "Sega Superstars [Demo]"
   region: "PAL-E"
@@ -6079,6 +6081,12 @@ SLED-53083:
 SLED-53109:
   name: "Juiced [Demo]"
   region: "PAL-M5"
+SLED-53512:
+  name: "Burnout Revenge [Demo]"
+  region: "PAL-E"
+  compat: 5
+  clampModes:
+    vuClampMode: 3 # Fixes buggy lighting in the garage.
 SLED-53673:
   name: "007 - From Russia with Love [Demo]"
   region: "PAL-E"
@@ -11098,12 +11106,12 @@ SLES-52584:
   region: "PAL-M4"
   compat: 5
   clampModes:
-    vuClampMode: 0  # Fixes buggy lighting on certain objects.
+    vuClampMode: 3  # Fixes buggy lighting in the garage.
 SLES-52585:
   name: "Burnout 3 - Takedown"
   region: "PAL-F-G-I"
   clampModes:
-    vuClampMode: 0  # Fixes buggy lighting on certain objects.
+    vuClampMode: 3  # Fixes buggy lighting in the garage.
 SLES-52587:
   name: "Army Men - Sarge's War"
   region: "PAL-M5"
@@ -12967,7 +12975,7 @@ SLES-53506:
   region: "PAL-M5"
   compat: 5
   clampModes:
-    vuClampMode: 0  # Fixes buggy lighting on certain objects.
+    vuClampMode: 3  # Fixes buggy lighting in the garage.
   memcardFilters:
     - "SLES-53506"
     - "SLES-53507"
@@ -15400,7 +15408,7 @@ SLES-54627:
   region: "PAL-M5"
   compat: 5
   clampModes:
-    vuClampMode: 0  # Fixes buggy lighting on certain objects.
+    vuClampMode: 3  # Fixes buggy lighting in the garage.
 SLES-54628:
   name: "Skate Attack [Promo]"
   region: "PAL-E"
@@ -15551,7 +15559,7 @@ SLES-54681:
   name: "Burnout Dominator"
   region: "PAL-E"
   clampModes:
-    vuClampMode: 0  # Fixes buggy lighting on certain objects.
+    vuClampMode: 3  # Fixes buggy lighting in the garage.
 SLES-54683:
   name: "Medal of Honor - Vanguard"
   region: "PAL-M9"
@@ -17952,6 +17960,11 @@ SLKA-25204:
 SLKA-25205:
   name: "Dragon Ball Z 3"
   region: "NTSC-K"
+SLKA-25206:
+  name: "Burnout 3 - Takedown"
+  region: "NTSC-K"
+  clampModes:
+    vuClampMode: 3 # Fixes buggy lighting in the garage.
 SLKA-25207:
   name: "Sakura Taisen V - Episode 0 - Samurai Girl of Wild"
   region: "NTSC-K"
@@ -18140,6 +18153,14 @@ SLKA-25301:
   memcardFilters:
     - "SLKA-25301"
     - "SLKA-25300"
+SLKA-25303:
+  name: "Matrix, The - Path of Neo"
+  region: "NTSC-K"
+SLKA-25304:
+  name: "Burnout Revenge"
+  region: "NTSC-K"
+  clampModes:
+    vuClampMode: 3 # Fixes buggy lighting in the garage.
 SLKA-25307:
   name: "Dragon Ball Z Sparking"
   region: "NTSC-K"
@@ -18322,6 +18343,11 @@ SLPM-20436:
   name: "Sakigake!! Otokojuku"
   region: "NTSC-J"
   compat: 5
+SLPM-55004:
+  name: "Burnout Revenge (EASY 1980)"
+  region: "NTSC-J"
+  clampModes:
+    vuClampMode: 3 # Fixes buggy lighting in the garage.
 SLPM-55005:
   name: "Mana Khemia 2: Ochita Gakuen to Renkinjutsushi Tachi"
   region: "NTSC-J"
@@ -18332,6 +18358,11 @@ SLPM-55008:
 SLPM-55033:
   name: "J. League Winning Eleven 2008 - Club Championship"
   region: "NTSC-J"
+SLPM-55036:
+  name: "Burnout Dominator (EASY 1980)"
+  region: "NTSC-J"
+  clampModes:
+    vuClampMode: 3 # Fixes buggy lighting in the garage.
 SLPM-55063:
   name: "Hakuouki - Shinsengumi Kitan [Limited Edition]"
   region: "NTSC-J"
@@ -18499,6 +18530,11 @@ SLPM-60172:
 SLPM-60207:
   name: "Rockman X7"
   region: "NTSC-J"
+SLPM-60246:
+  name: "Burnout 3 - Takedown [Trial]"
+  region: "NTSC-J"
+  clampModes:
+    vuClampMode: 3 # Fixes buggy lighting in the garage.
 SLPM-60251:
   name: "Devil May Cry 3 [Trial Version]"
   region: "NTSC-J"
@@ -22630,7 +22666,7 @@ SLPM-65719:
   name: "Burnout 3 - Takedown"
   region: "NTSC-J"
   clampModes:
-    vuClampMode: 0  # Fixes buggy lighting on certain objects.
+    vuClampMode: 3 # Fixes buggy lighting in the garage.
 SLPM-65720:
   name: "Shin Sangoku Musou 2 Mushouden [Koei the Best]"
   region: "NTSC-J"
@@ -23379,7 +23415,7 @@ SLPM-65958:
   name: "Burnout 3 - Takedown [EA Best Hits]"
   region: "NTSC-J"
   clampModes:
-    vuClampMode: 0  # Fixes buggy lighting on certain objects.
+    vuClampMode: 3 # Fixes buggy lighting in the garage.
 SLPM-65959:
   name: "Standard Daisenryoku - Shiwareta Shouri"
   region: "NTSC-J"
@@ -23832,7 +23868,7 @@ SLPM-66108:
   name: "Burnout Revenge"
   region: "NTSC-J"
   clampModes:
-    vuClampMode: 0  # Fixes buggy lighting on certain objects.
+    vuClampMode: 3 # Fixes buggy lighting in the garage.
   memcardFilters:
     - "SLAJ-25066"
     - "SLPM-66108"
@@ -25543,7 +25579,7 @@ SLPM-66652:
   name: "Burnout Revenge [EA Best Hits]"
   region: "NTSC-J"
   clampModes:
-    vuClampMode: 0  # Fixes buggy lighting on certain objects.
+    vuClampMode: 3 # Fixes buggy lighting in the garage.
   memcardFilters:
     - "SLAJ-25066"
     - "SLPM-66108"
@@ -25855,7 +25891,7 @@ SLPM-66739:
   name: "Burnout Dominator"
   region: "NTSC-J"
   clampModes:
-    vuClampMode: 0  # Fixes buggy lighting on certain objects.
+    vuClampMode: 3 # Fixes buggy lighting in the garage.
 SLPM-66740:
   name: "Sentou Kokka Kai - Legend [DX Pack]"
   region: "NTSC-J"
@@ -26499,7 +26535,7 @@ SLPM-66962:
   name: "Burnout 3 - Takedown [EA-SY! 1980]"
   region: "NTSC-J"
   clampModes:
-    vuClampMode: 0  # Fixes buggy lighting on certain objects.
+    vuClampMode: 3 # Fixes buggy lighting in the garage.
 SLPM-66963:
   name: "Medal of Honor - Frontline [EA-SY! 1980]"
   region: "NTSC-J"
@@ -35837,7 +35873,7 @@ SLUS-21050:
   region: "NTSC-U"
   compat: 5
   clampModes:
-    vuClampMode: 0  # Fixes buggy lighting on certain objects.
+    vuClampMode: 3 # Fixes buggy lighting in the garage.
 SLUS-21051:
   name: "FIFA 2005"
   region: "NTSC-U"
@@ -36650,7 +36686,7 @@ SLUS-21242:
   region: "NTSC-U"
   compat: 5
   clampModes:
-    vuClampMode: 0  # Fixes buggy lighting on certain objects.
+    vuClampMode: 3 # Fixes buggy lighting in the garage.
   memcardFilters: # Reads Burnout 3 and NFL 06 saves for unlockables.
     - "SLUS-21242"
     - "SLUS-21050"
@@ -38105,6 +38141,8 @@ SLUS-21596:
   name: "Burnout - Dominator"
   region: "NTSC-U"
   compat: 5
+  clampModes:
+    vuClampMode: 3 # Fixes buggy lighting in the garage.
 SLUS-21597:
   name: "Medal of Honor - Vanguard"
   region: "NTSC-U"
@@ -39977,7 +40015,7 @@ SLUS-29113:
   name: "Burnout 3 [Demo]"
   region: "NTSC-U"
   clampModes:
-    vuClampMode: 0  # Fixes buggy lighting on certain objects.
+    vuClampMode: 3 # Fixes buggy lighting in the garage.
 SLUS-29116:
   name: "WWE SmackDown! vs. RAW [Public Beta Vol.1.0]"
   region: "NTSC-U"
@@ -40055,7 +40093,7 @@ SLUS-29153:
   name: "Burnout Revenge [Demo]"
   region: "NTSC-U"
   clampModes:
-    vuClampMode: 0  # Fixes buggy lighting on certain objects.
+    vuClampMode: 3 # Fixes buggy lighting in the garage.
 SLUS-29154:
   name: "NHL '06 [Demo]"
   region: "NTSC-U"
