@@ -9565,6 +9565,8 @@ SLES-51797:
 SLES-51798:
   name: "NHL 2004"
   region: "PAL-M5"
+  clampModes:
+    vuClampMode: 3 # Fixes black void in ice.
 SLES-51799:
   name: "Soul Calibur II"
   region: "PAL-M5"
@@ -34458,6 +34460,8 @@ SLUS-20755:
 SLUS-20756:
   name: "NHL 2004"
   region: "NTSC-U"
+  clampModes:
+    vuClampMode: 3 # Fixes black void in ice.
 SLUS-20757:
   name: "Tiger Woods PGA Tour 2004"
   region: "NTSC-U"
