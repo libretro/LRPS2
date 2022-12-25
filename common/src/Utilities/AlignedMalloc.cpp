@@ -29,6 +29,11 @@ void *__fastcall _aligned_malloc(size_t size, size_t align)
     return aligned_alloc(align, size);
 #else
     void *result = 0;
+#ifdef __APPLE__
+	// MacOS has a bug where posix_memalign is ridiculously slow on unaligned sizes
+	// This especially bad on M1s for some reason
+	size = (size + align - 1) & ~(align - 1);
+#endif
     posix_memalign(&result, align, size);
     return result;
 #endif
