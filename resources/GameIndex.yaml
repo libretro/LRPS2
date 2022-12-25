@@ -12214,6 +12214,8 @@ SLES-53096:
 SLES-53098:
   name: "Conspiracy - Weapons of Mass Destruction"
   region: "PAL-M5"
+  gameFixes:
+    - XGKickHack # Fixes stretched/spikey textures
 SLES-53099:
   name: "Pilot Down - Behind Enemy Lines"
   region: "PAL-M5"
