@@ -157,8 +157,6 @@ public:
 
 	void Recycle(GSTexture* t);
 
-	enum {Windowed, Fullscreen, DontCare};
-
 	virtual bool Create();
 	virtual bool Reset(int w, int h);
 	virtual void Present(const GSVector4i& r, int shader);
