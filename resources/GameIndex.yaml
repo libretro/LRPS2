@@ -10784,6 +10784,8 @@ SLES-52445:
   name: "Silent Hill 4 - The Room"
   region: "PAL-M5"
   compat: 5
+  speedHacks:
+    mvuFlagSpeedHack: 0 # Fixes invisible wall in front of the door leading to East 3F in the 2nd visit of Apartment world preventing Eileen's Nurse Outfit.
 SLES-52446:
   name: "Mashed"
   region: "PAL-M5"
@@ -17862,6 +17864,8 @@ SLKA-25149:
   name: "Silent Hill 4 The Room"
   region: "NTSC-K"
   compat: 5
+  speedHacks:
+    mvuFlagSpeedHack: 0 # Fixes invisible wall in front of the door leading to East 3F in the 2nd visit of Apartment world preventing Eileen's Nurse Outfit.
 SLKA-25150:
   name: "Bujingai"
   region: "NTSC-K"
@@ -18401,6 +18405,11 @@ SLPM-55131:
 SLPM-55138:
   name: "Harukanaru Toki no Naka de - Yume no Ukihashi Special"
   region: "NTSC-J"
+SLPM-55140:
+  name: "Silent Hill 4 - The Room [Konami Dendou Selection]"
+  region: "NTSC-J"
+  speedHacks:
+    mvuFlagSpeedHack: 0 # Fixes invisible wall in front of the door leading to East 3F in the 2nd visit of Apartment world preventing Eileen's Nurse Outfit.
 SLPM-55147:
   name: "Suggoi! Arcana Heart 2"
   region: "NTSC-J"
@@ -22171,6 +22180,8 @@ SLPM-65574:
   name: "Silent Hill 4 - The Room"
   region: "NTSC-J"
   compat: 5
+  speedHacks:
+    mvuFlagSpeedHack: 0 # Fixes invisible wall in front of the door leading to East 3F in the 2nd visit of Apartment world preventing Eileen's Nurse Outfit.
 SLPM-65575:
   name: "Crimson Tears"
   region: "NTSC-J"
@@ -23601,6 +23612,8 @@ SLPM-66031:
 SLPM-66032:
   name: "Silent Hill 4 [Konami The Best]"
   region: "NTSC-J"
+  speedHacks:
+    mvuFlagSpeedHack: 0 # Fixes invisible wall in front of the door leading to East 3F in the 2nd visit of Apartment world preventing Eileen's Nurse Outfit.
 SLPM-66033:
   name: "Oz"
   region: "NTSC-J"
@@ -34980,6 +34993,8 @@ SLUS-20873:
   name: "Silent Hill 4 - The Room"
   region: "NTSC-U"
   compat: 5
+  speedHacks:
+    mvuFlagSpeedHack: 0 # Fixes invisible wall in front of the door leading to East 3F in the 2nd visit of Apartment world preventing Eileen's Nurse Outfit.
 SLUS-20874:
   name: "Dragon Ball Z - Sagas"
   region: "NTSC-U"
