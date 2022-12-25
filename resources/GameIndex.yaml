@@ -13732,6 +13732,8 @@ SLES-53805:
 SLES-53809:
   name: "K-1 Premium Dynamite!!"
   region: "PAL-E"
+  speedHacks:
+    InstantVU1SpeedHack: 0 # Fixes graphical issues.
 SLES-53810:
   name: "Sensible Soccer 2006"
   region: "PAL-M5"
@@ -19919,6 +19921,8 @@ SLPM-62580:
 SLPM-62581:
   name: "K-1 Premium 2004 - Fighting Dynamite!!"
   region: "NTSC-J"
+  speedHacks:
+    InstantVU1SpeedHack: 0 # Fixes graphical issues.
 SLPM-62582:
   name: "Slotter-Up Core 6"
   region: "NTSC-J"
@@ -21477,6 +21481,8 @@ SLPM-65335:
 SLPM-65336:
   name: "K-1 World Grand Prix - The Beast Attack!"
   region: "NTSC-J"
+  speedHacks:
+    InstantVU1SpeedHack: 0 # Fixes graphical issues.
 SLPM-65337:
   name: "Gegege no Kitaro - Ibun Youkaitan"
   region: "NTSC-J"
@@ -27829,6 +27835,8 @@ SLPS-20453:
   name: "Simple 2000 Series Ultimate Vol.29 - K-1 Premium 2005 Dynamite!!"
   region: "NTSC-J"
   compat: 5
+  speedHacks:
+    InstantVU1SpeedHack: 0 # Fixes graphical issues.
 SLPS-20454:
   name: "Simple 2000 Series Vol.93 - The Right Brain Drill"
   region: "NTSC-J"
@@ -29833,6 +29841,8 @@ SLPS-25577:
 SLPS-25578:
   name: "K-1 World Grand Prix 2005"
   region: "NTSC-J"
+  speedHacks:
+    InstantVU1SpeedHack: 0 # Fixes graphical issues.
 SLPS-25579:
   name: "Little Aid"
   region: "NTSC-J"
