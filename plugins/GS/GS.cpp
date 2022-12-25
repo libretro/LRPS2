@@ -582,10 +582,7 @@ void GSdxApp::Init()
 	m_default_configuration["override_GL_ARB_get_texture_sub_image"]      = "-1";
 #endif
 	m_current_configuration["paltex"]                                     = "0";
-	m_current_configuration["preload_frame_with_gs_data"]                 = "0";
 	m_current_configuration["Renderer"]                                   = std::to_string(static_cast<int>(GSRendererType::Default));
-	m_current_configuration["resx"]                                       = "1024";
-	m_current_configuration["resy"]                                       = "1024";
 	m_current_configuration["upscale_multiplier"]                         = "1";
 	m_current_configuration["UserHacks"]                                  = "0";
 	m_current_configuration["UserHacks_align_sprite_X"]                   = "0";

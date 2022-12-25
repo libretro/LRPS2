@@ -32,8 +32,6 @@ class GSRendererHW : public GSRenderer
 private:
 	int m_width;
 	int m_height;
-	int m_custom_width;
-	int m_custom_height;
 	bool m_reset;
 	int m_upscale_multiplier;
 	int m_userhacks_ts_half_bottom;
@@ -175,7 +173,6 @@ public:
 	void UpdateRendererOptions();
 	bool CanUpscale();
 	int GetUpscaleMultiplier();
-	GSVector2i GetCustomResolution();
 	void SetScaling();
 	void Lines2Sprites();
 	void ConvertSpriteTextureShuffle(bool& write_ba, bool& read_ba);

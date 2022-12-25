@@ -53,7 +53,6 @@ public:
 	virtual void VSync(int field);
 	virtual bool CanUpscale() {return false;}
 	virtual int GetUpscaleMultiplier() {return 1;}
-	virtual GSVector2i GetCustomResolution() {return GSVector2i(0,0);}
 	GSVector2i GetInternalResolution();
 
 	void PurgePool();

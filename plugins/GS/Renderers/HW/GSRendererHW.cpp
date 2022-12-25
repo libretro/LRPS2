@@ -32,8 +32,6 @@ const float GSRendererHW::SSR_UV_TOLERANCE = 1e-3f;
 GSRendererHW::GSRendererHW(GSTextureCache* tc)
 	: m_width(default_rt_size.x)
 	, m_height(default_rt_size.y)
-	, m_custom_width(1024)
-	, m_custom_height(1024)
 	, m_reset(false)
 	, m_userhacks_ts_half_bottom(-1)
 	, m_tc(tc)
@@ -96,14 +94,6 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 	m_userhacks_tcoffset_x	= theApp.GetConfigI("UserHacks_TCOffsetX") / -1000.0f;
 	m_userhacks_tcoffset_y	= theApp.GetConfigI("UserHacks_TCOffsetY") / -1000.0f;
 	m_userhacks_tcoffset	= m_userhacks_tcoffset_x < 0.0f || m_userhacks_tcoffset_y < 0.0f;
-
-
-	
-
-	if (!m_upscale_multiplier) { //Custom Resolution
-		m_custom_width = m_width = theApp.GetConfigI("resx");
-		m_custom_height = m_height = theApp.GetConfigI("resy");
-	}
 
 	if (m_upscale_multiplier == 1) { // hacks are only needed for upscaling issues.
 		m_userhacks_round_sprite_offset  = 0;
@@ -175,12 +165,6 @@ void GSRendererHW::UpdateRendererOptions()
 
 void GSRendererHW::SetScaling()
 {
-	if (!m_upscale_multiplier)
-	{
-		CustomResolutionScaling();
-		return;
-	}
-
 	const GSVector2i crtc_size(GetDisplayRect().width(), GetDisplayRect().height());
 
 	// Details of (potential) perf impact of a big framebuffer
@@ -226,49 +210,14 @@ void GSRendererHW::SetScaling()
 	const int upscaled_fb_h = fb_height * m_upscale_multiplier;
 	const bool good_rt_size = m_width >= upscaled_fb_w && m_height >= upscaled_fb_h;
 
-	// No need to resize for native/custom resolutions as default size will be enough for native and we manually get RT Buffer size for custom.
+	// No need to resize for native resolution as default size will be enough for native and we manually get RT Buffer size for custom.
 	// don't resize until the display rectangle and register states are stabilized.
-	if ( m_upscale_multiplier <= 1 || good_rt_size)
+	if ( m_upscale_multiplier == 1 || good_rt_size)
 		return;
 
 	m_tc->RemovePartial();
 	m_width = upscaled_fb_w;
 	m_height = upscaled_fb_h;
-}
-
-void GSRendererHW::CustomResolutionScaling()
-{
-	const int crtc_width = GetDisplayRect().width();
-	const int crtc_height = GetDisplayRect().height();
-	GSVector2 scaling_ratio;
-	scaling_ratio.x = std::ceil(static_cast<float>(m_custom_width) / crtc_width);
-	scaling_ratio.y = std::ceil(static_cast<float>(m_custom_height) / crtc_height);
-
-	// Avoid using a scissor value which is too high, developers can even leave the scissor to max (2047)
-	// at some cases when they don't want to limit the rendering size. Our assumption is that developers
-	// set the scissor to the actual data in the buffer. Let's use the scissoring value only at such cases
-	const int scissor_width = std::min(640, static_cast<int>(m_context->SCISSOR.SCAX1 - m_context->SCISSOR.SCAX0) + 1);
-	const int scissor_height = std::min(640, static_cast<int>(m_context->SCISSOR.SCAY1 - m_context->SCISSOR.SCAY0) + 1);
-
-	GSVector2i scissored_buffer_size;
-	//TODO: SCAX is not used yet, not sure if it's worth considering the horizontal scissor? dunno where it helps yet.
-	// the ICO testcase is there to show that vertical scissor is helpful on the double scan mode games.
-	scissored_buffer_size.x = std::max(crtc_width, scissor_width);
-	scissored_buffer_size.y = std::max(crtc_height, scissor_height);
-
-	// We also consider for potential scissor sizes which are around
-	// the size of the actual image data stored. (Helps ICO to properly scale to right size by help of the
-	// scissoring values) Display rectangle has a height of 256 but scissor has a height of 512 which seems to
-	// be the real buffer size. Not sure if the width one is needed, need to check it on some random data before enabling it.
-	// int framebuffer_width = static_cast<int>(std::round(scissored_buffer_size.x * scaling_ratio.x));
-	const int framebuffer_height  = static_cast<int>(std::round(scissored_buffer_size.y * scaling_ratio.y));
-
-	if (m_width >= m_custom_width && m_height >= framebuffer_height)
-		return;
-
-	m_tc->RemovePartial();
-	m_width = std::max(m_width, default_rt_size.x);
-	m_height = std::max(framebuffer_height, default_rt_size.y);
 }
 
 GSRendererHW::~GSRendererHW()
@@ -345,11 +294,6 @@ bool GSRendererHW::CanUpscale()
 int GSRendererHW::GetUpscaleMultiplier()
 {
 	return m_upscale_multiplier;
-}
-
-GSVector2i GSRendererHW::GetCustomResolution()
-{
-	return GSVector2i(m_custom_width, m_custom_height);
 }
 
 void GSRendererHW::Reset()
