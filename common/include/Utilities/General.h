@@ -37,18 +37,12 @@
     ;
 
 // --------------------------------------------------------------------------------------
-//  ICloneable / IDeletableObject
+//  ICloneable
 // --------------------------------------------------------------------------------------
 class ICloneable
 {
 public:
     virtual ICloneable *Clone() const = 0;
-};
-
-class IDeletableObject
-{
-public:
-    virtual ~IDeletableObject() = default;
 };
 
 // --------------------------------------------------------------------------------------
@@ -71,8 +65,7 @@ public:
 //   (sigh).  And, finally, it requires quite a bit of red tape to implement wxObjects because
 //   of the wx-custom runtime type information.  So I made my own.
 //
-class BaseDeletableObject : public virtual IDeletableObject
-{
+class BaseDeletableObject{
 public:
     BaseDeletableObject();
     virtual ~BaseDeletableObject();
