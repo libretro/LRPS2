@@ -270,16 +270,25 @@ template< uint page >
 __fi bool dmacWrite32( u32 mem, mem32_t& value )
 {
 	switch(mem) {
+		case(D0_QWC): // dma0 - vif0
+		case(D1_QWC): // dma1 - vif1
+		case(D2_QWC): // dma2 - gif
+		case(D3_QWC): // dma3 - fromIPU
+		case(D4_QWC): // dma4 - toIPU
+		case(D5_QWC): // dma5 - sif0
+		case(D6_QWC): // dma6 - sif1
+		case(D7_QWC): // dma7 - sif2
+		case(D8_QWC): // dma8 - fromSPR
+		case(D9_QWC): // dma9 - toSPR
+		{
+			psHu32(mem) = (u16)value;
+			return false;
+		}
+
 		case(D0_CHCR): // dma0 - vif0
 		{
 			/* VIF0dma EXECUTE */
 			DmaExec(dmaVIF0, mem, value);
-			return false;
-		}
-
-		case(D0_QWC): // dma0 - vif0
-		{
-			psHu32(mem) = (u16)value;
 			return false;
 		}
 
@@ -290,12 +299,6 @@ __fi bool dmacWrite32( u32 mem, mem32_t& value )
 			return false;
 		}
 
-		case(D1_QWC): // dma1 - vif1
-		{
-			psHu32(mem) = (u16)value;
-			return false;
-		}
-
 		case(D2_CHCR): // dma2 - gif
 		{
 			/* GIFdma EXECUTE */
@@ -303,22 +306,11 @@ __fi bool dmacWrite32( u32 mem, mem32_t& value )
 			return false;
 		}
 
-		case(D2_QWC): // dma2 - gif
-		{
-			psHu32(mem) = (u16)value;
-			return false;
-		}
 
 		case(D3_CHCR): // dma3 - fromIPU
 		{
 			/* IPU0dma EXECUTE */
 			DmaExec(dmaIPU0, mem, value);
-			return false;
-		}
-
-		case(D3_QWC): // dma3 - fromIPU
-		{
-			psHu32(mem) = (u16)value;
 			return false;
 		}
 
@@ -329,22 +321,11 @@ __fi bool dmacWrite32( u32 mem, mem32_t& value )
 			return false;
 		}
 
-		case(D4_QWC): // dma4 - toIPU
-		{
-			psHu32(mem) = (u16)value;
-			return false;
-		}
 
 		case(D5_CHCR): // dma5 - sif0
 		{
 			/* SIF0dma EXECUTE */
 			DmaExec(dmaSIF0, mem, value);
-			return false;
-		}
-
-		case(D5_QWC): // dma5 - sif0
-		{
-			psHu32(mem) = (u16)value;
 			return false;
 		}
 
@@ -355,11 +336,6 @@ __fi bool dmacWrite32( u32 mem, mem32_t& value )
 			return false;
 		}
 
-		case(D6_QWC): // dma6 - sif1
-		{
-			psHu32(mem) = (u16)value;
-			return false;
-		}
 
 		case(D7_CHCR): // dma7 - sif2
 		{
@@ -368,50 +344,11 @@ __fi bool dmacWrite32( u32 mem, mem32_t& value )
 			return false;
 		}
 
-		case(D7_QWC): // dma7 - sif2
-		{
-			psHu32(mem) = (u16)value;
-			return false;
-		}
 
 		case(D8_CHCR): // dma8 - fromSPR
 		{
 			/* SPR0dma EXECUTE */
 			DmaExec(dmaSPR0, mem, value);
-			return false;
-		}
-
-		case(D8_QWC): // dma8 - fromSPR
-		{
-			psHu32(mem) = (u16)value;
-			return false;
-		}
-
-		case(fromSPR_MADR):
-		{
-			// SPR bit is fixed at 0 for this channel
-			psHu32(mem) = value & 0x7FFFFFFF;
-			return false;
-		}
-
-		case(toSPR_MADR):
-		{
-			// SPR bit is fixed at 0 for this channel
-			psHu32(mem) = value & 0x7FFFFFFF;
-			return false;
-		}
-
-		case(fromSPR_SADR):
-		{
-			// Address must be QW aligned and fit in the 16K range of SPR
-			psHu32(mem) = value & 0x3FF0;
-			return false;
-		}
-
-		case(toSPR_SADR):
-		{
-			// Address must be QW aligned and fit in the 16K range of SPR
-			psHu32(mem) = value & 0x3FF0;
 			return false;
 		}
 
@@ -422,9 +359,20 @@ __fi bool dmacWrite32( u32 mem, mem32_t& value )
 			return false;
 		}
 
-		case(D9_QWC): // dma9 - toSPR
+
+		case(fromSPR_MADR):
+		case(toSPR_MADR):
 		{
-			psHu32(mem) = (u16)value;
+			// SPR bit is fixed at 0 for this channel
+			psHu32(mem) = value & 0x7FFFFFFF;
+			return false;
+		}
+
+		case(fromSPR_SADR):
+		case(toSPR_SADR):
+		{
+			// Address must be QW aligned and fit in the 16K range of SPR
+			psHu32(mem) = value & 0x3FF0;
 			return false;
 		}
 
