@@ -17,8 +17,7 @@
 
 #include "System.h"
 
-#include "Utilities/PersistentThread.h"
-
+#include "PersistentThread.h"
 
 using namespace Threading;
 

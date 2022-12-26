@@ -15,6 +15,14 @@
 
 #ifdef __linux__
 #include <signal.h> // for pthread_kill, which is in pthread.h on w32-pthreads
+#include <sys/prctl.h>
+#elif defined(__unix__)
+#include <pthread_np.h>
+#endif
+#ifdef _WIN32
+#include <direct.h>
+#else
+#include <unistd.h>
 #endif
 #include <utility>
 
@@ -363,6 +371,38 @@ void Threading::pxThread::OnCleanupInThread()
     unmake_curthread_key();
     m_evtsrc_OnDelete.Dispatch(0);
 }
+
+#ifdef _WIN32
+__forceinline void Threading::Sleep(int ms)
+{
+    ::Sleep(ms);
+}
+
+// For use in spin/wait loops,  Acts as a hint to Intel CPUs and should, in theory
+// improve performance and reduce cpu power consumption.
+__forceinline void Threading::SpinWait()
+{
+    _mm_pause();
+}
+#else
+// Note: assuming multicore is safer because it forces the interlocked routines to use
+// the LOCK prefix.  The prefix works on single core CPUs fine (but is slow), but not
+// having the LOCK prefix is very bad indeed.
+
+__forceinline void Threading::Sleep(int ms)
+{
+    usleep(1000 * ms);
+}
+
+// For use in spin/wait loops,  Acts as a hint to Intel CPUs and should, in theory
+// improve performance and reduce cpu power consumption.
+__forceinline void Threading::SpinWait()
+{
+    // If this doesn't compile you can just comment it out (it only serves as a
+    // performance hint and isn't required).
+    __asm__("pause");
+}
+#endif
 
 // --------------------------------------------------------------------------------------
 //  BaseThreadError

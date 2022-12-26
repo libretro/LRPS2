@@ -27,8 +27,6 @@ set(UtilitiesFinalFlags ${CommonFlags})
 		PrecompiledHeader.cpp
 		pxStreams.cpp
 		StringHelpers.cpp
-		ThreadTools.cpp
-      		wxAppWithHelpers.cpp
 		)
    if(NOT MSVC)
    set(UtilitiesSources ${UtilitiesSources}
@@ -56,25 +54,21 @@ set(UtilitiesHeaders
 	../../include/Utilities/ScopedAlloc.h
 	../../include/Utilities/StringHelpers.h
 	../../include/Utilities/Threading.h
-	../../include/Utilities/wxAppWithHelpers.h
 	PrecompiledHeader.h
 )
 
 if(APPLE)
 	LIST(APPEND UtilitiesSources
-		Darwin/DarwinThreads.cpp
 		Darwin/DarwinSemaphore.cpp
 	)
 elseif(Windows)
 	LIST(APPEND UtilitiesSources
-		Windows/WinThreads.cpp
 		Windows/WinHostSys.cpp
 		Semaphore.cpp
 	)
 
 else()
 	LIST(APPEND UtilitiesSources
-		Linux/LnxThreads.cpp
 		Semaphore.cpp
 	)
 endif()
@@ -108,8 +102,3 @@ endif()
 
 add_pcsx2_lib(${Output} "${UtilitiesFinalSources}" "${UtilitiesFinalLibs}" "${UtilitiesFinalFlags}")
 add_pcsx2_lib(${Output}_NO_TLS "${UtilitiesFinalSources}" "${UtilitiesFinalLibs}" "${UtilitiesFinalFlags} -DPCSX2_THREAD_LOCAL=0")
-
-#if(COMMAND target_precompile_headers)
-#	target_precompile_headers(${Output} PRIVATE PrecompiledHeader.h)
-#	target_precompile_headers(${Output}_NO_TLS PRIVATE PrecompiledHeader.h)
-#endif()

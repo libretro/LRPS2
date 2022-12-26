@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "Utilities/wxAppWithHelpers.h"
+#include "wxAppWithHelpers.h"
 
 #include <wx/apptrait.h>
 #include <memory>

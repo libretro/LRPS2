@@ -278,6 +278,8 @@ set(pcsx2DebugToolsHeaders
 		gui/SysCoreThread.cpp
 		gui/SysThreadBase.cpp
 		gui/SysFakeThread.cpp
+		gui/ThreadTools.cpp
+		gui/wxAppWithHelpers.cpp
 		)
 	# gui headers
 	set(pcsx2GuiHeaders
@@ -287,7 +289,9 @@ set(pcsx2DebugToolsHeaders
 		gui/AppGameDatabase.h
 		gui/App.h
 		gui/MemoryCardFile.h
+		gui/PersistentThread.h
 		gui/SysThreads.h
+		gui/wxAppWithHelpers.h
 		)
 
 set(db_res_src "${CMAKE_SOURCE_DIR}/resources")
