@@ -24,7 +24,7 @@
 #include "COP0.h"
 #include "MTVU.h"
 
-#include "System/SysThreads.h"
+#include "gui/SysThreads.h"
 #include "R5900Exceptions.h"
 
 #include "Hardware.h"

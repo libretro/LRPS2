@@ -14,7 +14,7 @@
  */
 
 #pragma once
-#include "System/SysThreads.h"
+#include "gui/SysThreads.h"
 #include "Vif.h"
 #include "Vif_Dma.h"
 #include "VUmicro.h"

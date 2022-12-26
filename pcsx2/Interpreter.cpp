@@ -19,7 +19,7 @@
 
 #include "R5900OpcodeTables.h"
 #include "R5900Exceptions.h"
-#include "System/SysThreads.h"
+#include "gui/SysThreads.h"
 
 #include "Elfheader.h"
 

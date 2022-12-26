@@ -26,7 +26,7 @@
 
 #include "vtlb.h"
 
-#include "System/SysThreads.h"
+#include "gui/SysThreads.h"
 #include "Elfheader.h"
 
 #include "Patch.h"

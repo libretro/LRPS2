@@ -275,6 +275,9 @@ set(pcsx2DebugToolsHeaders
 		gui/AppMain.cpp
 		gui/AppRes.cpp
 		gui/MemoryCardFile.cpp
+		gui/SysCoreThread.cpp
+		gui/SysThreadBase.cpp
+		gui/SysFakeThread.cpp
 		)
 	# gui headers
 	set(pcsx2GuiHeaders
@@ -284,6 +287,7 @@ set(pcsx2DebugToolsHeaders
 		gui/AppGameDatabase.h
 		gui/App.h
 		gui/MemoryCardFile.h
+		gui/SysThreads.h
 		)
 
 set(db_res_src "${CMAKE_SOURCE_DIR}/resources")
@@ -421,16 +425,10 @@ set(pcsx2ps2Headers
 	ps2/HwInternal.h
 	ps2/Iop/IopHw_Internal.h)
 
-# System sources
-set(pcsx2SystemSources
-	System/SysCoreThread.cpp
-	System/SysThreadBase.cpp
-	System/SysFakeThread.cpp)
-
 # System headers
 set(pcsx2SystemHeaders
 	System/RecTypes.h
-	System/SysThreads.h)
+	)
 
 # Windows sources
 set(pcsx2WindowsSources
@@ -533,7 +531,6 @@ set(pcsx2x86Headers
 		${pcsx2IPUHeaders}
 		${pcsx2ps2Sources}
 		${pcsx2ps2Headers}
-		${pcsx2SystemSources}
 		${pcsx2SystemHeaders}
 		${pcsx2x86Sources}
 		${pcsx2x86Headers})

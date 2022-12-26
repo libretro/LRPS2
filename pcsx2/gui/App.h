@@ -27,7 +27,7 @@
 
 #include "Plugins.h"
 #include "System.h"
-#include "System/SysThreads.h"
+#include "SysThreads.h"
 
 class Pcsx2App;
 

@@ -16,7 +16,7 @@
 #pragma once
 
 #include "Common.h"
-#include "System/SysThreads.h"
+#include "gui/SysThreads.h"
 #include "Gif.h"
 
 extern Fixed100 GetVerticalFrequency(void);

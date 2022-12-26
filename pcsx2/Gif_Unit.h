@@ -15,7 +15,7 @@
 
 #pragma once
 #include <deque>
-#include "System/SysThreads.h"
+#include "gui/SysThreads.h"
 #include "Utilities/MemcpyFast.h"
 #include "Gif.h"
 #include "Vif.h"
