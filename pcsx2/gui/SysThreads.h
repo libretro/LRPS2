@@ -96,11 +96,6 @@ public:
 	bool IsClosed() const { return !IsOpen(); }
 	bool IsPaused() const { return !IsRunning() || (m_ExecMode <= ExecMode_Paused); }
 
-	bool IsClosing() const
-	{
-		return !IsRunning() || (m_ExecMode <= ExecMode_Closed) || (m_ExecMode == ExecMode_Closing);
-	}
-
 	bool HasPendingStateChangeRequest() const
 	{
 		return m_ExecMode >= ExecMode_Closing;
@@ -193,15 +188,15 @@ protected:
 	MutexRecursive		m_ExecModeMutex;
 
 	// Used to wake up the thread from sleeping when it's in a suspended state.
-	Semaphore			m_sem_Resume;
+	Semaphore		m_sem_Resume;
 
 	// Used to synchronize inline changes from paused to suspended status.
-	Semaphore			m_sem_ChangingExecMode;
+	Semaphore		m_sem_ChangingExecMode;
 
 	// Locked whenever the thread is not in a suspended state (either closed or paused).
 	// Issue a Wait against this mutex for performing actions that require the thread
 	// to be suspended.
-	Mutex				m_RunningLock;
+	Mutex			m_RunningLock;
 
 	Semaphore m_sem_event;      // general wait event that's needed by most threads
 	std::atomic<bool> m_running;  // set true by Start(), and set false by Cancel(), Block(), etc.
@@ -226,11 +221,6 @@ public:
 
 	bool IsClosed() const { return !IsOpen(); }
 	bool IsPaused() const { return !IsRunning() || (m_ExecMode <= ExecMode_Paused); }
-
-	bool IsClosing() const
-	{
-		return !IsRunning() || (m_ExecMode <= ExecMode_Closed) || (m_ExecMode == ExecMode_Closing);
-	}
 
 	bool HasPendingStateChangeRequest() const
 	{
