@@ -13,9 +13,9 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
+#include "../PrecompiledHeader.h"
 #include "App.h"
-#include "MTVU.h" // for thread cancellation on shutdown
+#include "../MTVU.h" // for thread cancellation on shutdown
 
 #include <memory>
 

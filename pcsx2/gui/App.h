@@ -25,8 +25,8 @@
 #include "AppGameDatabase.h"
 #include "AppEventListeners.h"
 
-#include "Plugins.h"
-#include "System.h"
+#include "../Plugins.h"
+#include "../System.h"
 #include "SysThreads.h"
 
 class Pcsx2App;

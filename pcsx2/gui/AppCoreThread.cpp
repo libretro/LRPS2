@@ -19,14 +19,14 @@
 
 #include "Utilities/Threading.h"
 
-#include "ps2/BiosTools.h"
-#include "GS.h"
+#include "../ps2/BiosTools.h"
+#include "../GS.h"
 
-#include "CDVD/CDVD.h"
-#include "Elfheader.h"
-#include "Patch.h"
-#include "R5900Exceptions.h"
-#include "Sio.h"
+#include "../CDVD/CDVD.h"
+#include "../Elfheader.h"
+#include "../Patch.h"
+#include "../R5900Exceptions.h"
+#include "../Sio.h"
 
 #include "retro_messager.h"
 

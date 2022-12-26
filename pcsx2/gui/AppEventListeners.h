@@ -16,7 +16,6 @@
 #pragma once
 
 #include "Utilities/EventSource.h"
-#include "Utilities/pxEvents.h"
 
 enum CoreThreadStatus
 {

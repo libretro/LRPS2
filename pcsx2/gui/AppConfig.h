@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "PathDefs.h"
+#include "../PathDefs.h"
 #include "CDVD/CDVDaccess.h"
 #include <memory>
 

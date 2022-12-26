@@ -13,27 +13,25 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
-#include "Common.h"
-#include "gui/App.h"
-#include "IopBios.h"
-#include "IopDma.h"
-#include "R5900.h"
+#include "../PrecompiledHeader.h"
+#include "../Common.h"
+#include "App.h"
+#include "../IopBios.h"
+#include "../IopDma.h"
+#include "../R5900.h"
 
-#include "Counters.h"
-#include "GS.h"
-#include "Elfheader.h"
-#include "Patch.h"
+#include "../Counters.h"
+#include "../GS.h"
+#include "../Elfheader.h"
+#include "../Patch.h"
 #include "SysThreads.h"
-#include "MTVU.h"
-#include "FW.h"
-#include "PAD/PAD.h"
-#include "SPU2/spu2.h"
+#include "../MTVU.h"
+#include "../FW.h"
+#include "../PAD/PAD.h"
+#include "../SPU2/spu2.h"
 
 #include "../DebugTools/MIPSAnalyst.h"
 #include "../DebugTools/SymbolMap.h"
-
-#include "IopBios.h"
 
 DEV9handler dev9Handler;
 USBhandler usbHandler;

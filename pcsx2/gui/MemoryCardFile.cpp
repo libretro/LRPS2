@@ -14,18 +14,20 @@
  */
 
 #include "PrecompiledHeader.h"
+
+#include <wx/ffile.h>
+#include <map>
+
 #include "Utilities/SafeArray.inl"
 #include "Utilities/MemcpyFast.h"
 
 #include "MemoryCardFile.h"
 
-#include "System.h"
+#include "../System.h"
 #include "AppConfig.h"
 
 #include "svnrev.h"
 
-#include <wx/ffile.h>
-#include <map>
 #include  "options_tools.h"
 
 static const int MCD_SIZE = 1024 * 8 * 16; // Legacy PSX card default size

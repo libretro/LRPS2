@@ -13,9 +13,9 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
+#include "../PrecompiledHeader.h"
 
-#include "System.h"
+#include "../System.h"
 #include "SysThreads.h"
 
 // --------------------------------------------------------------------------------------

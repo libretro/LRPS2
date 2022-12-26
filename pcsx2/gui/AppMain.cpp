@@ -13,11 +13,11 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
+#include "../PrecompiledHeader.h"
 #include "App.h"
-#include "GS.h"
+#include "../GS.h"
 
-#include "ps2/BiosTools.h"
+#include "../ps2/BiosTools.h"
 #include "options_tools.h"
 
 
