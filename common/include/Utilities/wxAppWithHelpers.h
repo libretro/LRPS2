@@ -15,13 +15,9 @@
 
 #pragma once
 
-#include <wx/wx.h>
-
 #include "Threading.h"
 #include "pxEvents.h"
 #include "AppTrait.h"
-
-using namespace Threading;
 
 // --------------------------------------------------------------------------------------
 //  wxAppWithHelpers
@@ -55,9 +51,6 @@ public:
     }
 
     bool Rpc_TryInvoke(FnType_Void *method);
-
-    sptr ProcessCommand(void *clientData, int evtType, int intParam = 0, long longParam = 0);
-    sptr ProcessCommand(int evtType, int intParam = 0, long longParam = 0);
 
     void PostAction(const pxActionEvent &evt);
 
