@@ -30,12 +30,8 @@ enum CoreThreadStatus
 enum AppEventType
 {
 	AppStatus_UiSettingsLoaded,
-	AppStatus_UiSettingsSaved,
 	AppStatus_VmSettingsLoaded,
-	AppStatus_VmSettingsSaved,
-
-	AppStatus_SettingsApplied,
-	AppStatus_Exiting
+	AppStatus_SettingsApplied
 };
 
 struct AppEventInfo
@@ -106,7 +102,7 @@ class CoreThreadStatusEvent : public pxActionEvent
 	typedef pxActionEvent _parent;
 
 protected:
-	CoreThreadStatus		m_evt;
+	CoreThreadStatus	m_evt;
 
 public:
 	virtual ~CoreThreadStatusEvent() = default;
