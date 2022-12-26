@@ -15,13 +15,16 @@
 
 #pragma once
 
-#include "SysForwardDefs.h"
+#include <memory>
+
 #include "Config.h"
 
 #include "Utilities/SafeArray.h"
-#include "Utilities/Threading.h"		// to use threading stuff, include the Threading namespace in your file.
+#include "Utilities/Threading.h" // to use threading stuff, include the Threading namespace in your file.
 
 #include "vtlb.h"
+
+class CpuInitializerSet;
 
 typedef SafeArray<u8> VmStateBuffer;
 
@@ -102,16 +105,6 @@ public:
 	virtual void CommitAll();
 	virtual void ResetAll();
 	virtual void DecommitAll();
-};
-
-// --------------------------------------------------------------------------------------
-//  SysAllocVM
-// --------------------------------------------------------------------------------------
-class SysAllocVM
-{
-public:
-	SysAllocVM();
-	virtual ~SysAllocVM();
 };
 
 // --------------------------------------------------------------------------------------

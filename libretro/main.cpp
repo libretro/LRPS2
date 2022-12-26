@@ -29,8 +29,6 @@
 #include "ps2/BiosTools.h"
 #include "memcard_retro.h"
 
-
-
 #include "MTVU.h"
 
 #ifdef PERF_TEST
@@ -52,6 +50,10 @@ static struct retro_perf_callback perf_cb;
 #define RETRO_PERFORMANCE_START(name)
 #define RETRO_PERFORMANCE_STOP(name)
 #endif
+
+static const int PCSX2_VersionHi	= 1;
+static const int PCSX2_VersionMid	= 7;
+static const int PCSX2_VersionLo	= 0;
 
 static bool libretro_supports_option_categories = false;
 static bool init_failed = false;
