@@ -298,43 +298,6 @@ void VirtualMemoryReserve::ForbidModification()
     HostSys::MemProtect(m_baseptr, m_pages_commited * PCSX2_PAGESIZE, PageProtectionMode(m_prot_mode).Write(false));
 }
 
-
-// If growing the array, or if shrinking the array to some point that's still *greater* than the
-// committed memory range, then attempt a passive "on-the-fly" resize that maps/unmaps some portion
-// of the reserve.
-//
-// If the above conditions are not met, or if the map/unmap fails, this method returns false.
-// The caller will be responsible for manually resetting the reserve.
-//
-// Parameters:
-//  newsize - new size of the reserved buffer, in bytes.
-bool VirtualMemoryReserve::TryResize(uint newsize)
-{
-    uint newPages = pageAlign(newsize) / PCSX2_PAGESIZE;
-
-    if (newPages > m_pages_reserved)
-    {
-	    uint toReservePages = newPages - m_pages_reserved;
-	    uint toReserveBytes = toReservePages * PCSX2_PAGESIZE;
-
-	    if (!m_allocator->AllocAtAddress(GetPtrEnd(), toReserveBytes))
-		    return false;
-    }
-    else if (newPages < m_pages_reserved)
-    {
-	    if (m_pages_commited > newsize)
-		    return false;
-
-	    uint toRemovePages = m_pages_reserved - newPages;
-	    uint toRemoveBytes = toRemovePages * PCSX2_PAGESIZE;
-
-	    m_allocator->Free(GetPtrEnd() - toRemoveBytes, toRemoveBytes);
-    }
-
-    m_pages_reserved = newPages;
-    return true;
-}
-
 // --------------------------------------------------------------------------------------
 //  Common HostSys implementation
 // --------------------------------------------------------------------------------------

@@ -60,12 +60,6 @@ SafeArray<T>::SafeArray(int initialSize)
     ChunkSize = DefaultChunkSize;
     m_ptr     = (initialSize == 0) ? NULL : (T *)malloc(initialSize * sizeof(T));
     m_size    = initialSize;
-
-    /* TODO/FIXME - do a safer way to handle failure instead of 
-     * throwing exceptions */
-#if 0
-    if ((initialSize != 0) && (m_ptr == NULL)) { }
-#endif
 }
 
 template <typename T>

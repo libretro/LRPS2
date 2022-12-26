@@ -213,7 +213,6 @@ public:
 
     virtual void Reset();
     virtual void Release();
-    virtual bool TryResize(uint newsize);
     virtual bool Commit();
 
     virtual void ForbidModification();

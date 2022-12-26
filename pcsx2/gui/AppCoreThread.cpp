@@ -30,6 +30,23 @@
 
 #include "retro_messager.h"
 
+class RecursionGuard
+{
+public:
+    int &Counter;
+
+    RecursionGuard(int &counter)
+        : Counter(counter)
+    {
+        ++Counter;
+    }
+
+    virtual ~RecursionGuard()
+    {
+        --Counter;
+    }
+};
+
 /*
 * This bool variable is used to keep trace if the messages to the frontend about "cheat ws found" is already sent.
 * This is a side effect of a strange problem that at game boot the function _ApplySettings runs multiple time:
@@ -460,7 +477,7 @@ void AppCoreThread::ApplySettings(const Pcsx2Config& src)
 
 	static int localc = 0;
 	RecursionGuard guard(localc);
-	if (guard.IsReentrant())
+	if (guard.Counter > 1)
 		return;
 	if (fixup == EmuConfig)
 		return;

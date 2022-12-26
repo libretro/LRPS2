@@ -36,36 +36,6 @@
     }                \
     ;
 
-
-// ----------------------------------------------------------------------------------------
-//  RecursionGuard  -  Basic protection against function recursion
-// ----------------------------------------------------------------------------------------
-// Thread safety note: If used in a threaded environment, you shoud use a handle to a __threadlocal
-// storage variable (protects aaginst race conditions and, in *most* cases, is more desirable
-// behavior as well.
-//
-// Rationale: wxWidgets has its own wxRecursionGuard, but it has a sloppy implementation with
-// entirely unnecessary assertion checks.
-//
-class RecursionGuard
-{
-public:
-    int &Counter;
-
-    RecursionGuard(int &counter)
-        : Counter(counter)
-    {
-        ++Counter;
-    }
-
-    virtual ~RecursionGuard()
-    {
-        --Counter;
-    }
-
-    bool IsReentrant() const { return Counter > 1; }
-};
-
 // --------------------------------------------------------------------------------------
 //  ICloneable / IDeletableObject
 // --------------------------------------------------------------------------------------

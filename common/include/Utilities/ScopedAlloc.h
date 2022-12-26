@@ -31,9 +31,6 @@
     ((void)(free(ptr), !!0), (ptr) = NULL)
 //((void) (( ( (ptr) != NULL ) && (free( ptr ), !!0) ), (ptr) = NULL))
 
-#define safe_fclose(ptr) \
-    ((void)((((ptr) != NULL) && (fclose(ptr), !!0)), (ptr) = NULL))
-
 // Implementation note: all known implementations of _aligned_free check the pointer for
 // NULL status (our implementation under GCC, and microsoft's under MSVC), so no need to
 // do it here.
