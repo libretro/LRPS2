@@ -162,39 +162,7 @@ void Threading::pxThread::Start()
 	    pthread_detach(m_thread);
     OnStart();
 
-    if (pthread_create(&m_thread, NULL, _internal_callback, this) != 0)
-        throw Exception::ThreadCreationError(this).SetDiagMsg(L"Thread creation error: " + wxString(std::strerror(errno)));
-
-#ifdef ASAN_WORKAROUND
-    // Recent Asan + libc6 do pretty bad stuff on the thread init => https://gcc.gnu.org/bugzilla/show_bug.cgi?id=77982
-    //
-    // In our case, the semaphore was posted (counter is 1) but thread is still
-    // waiting...  So waits 100ms and checks the counter value manually
-    if (!m_sem_startup.WaitWithoutYield(wxTimeSpan(0, 0, 0, 100))) {
-        if (m_sem_startup.Count() == 0)
-            throw Exception::ThreadCreationError(this).SetDiagMsg(L"Thread creation error: %s thread never posted startup semaphore.");
-    }
-#else
-    if (!m_sem_startup.WaitWithoutYield(wxTimeSpan(0, 0, 3, 0)))
-    {
-        // And if the thread threw nothing of its own:
-        throw Exception::ThreadCreationError(this).SetDiagMsg(L"Thread creation error: %s thread never posted startup semaphore.");
-    }
-#endif
-
-    // Event Rationale (above): Performing this semaphore wait on the created thread is "slow" in the
-    // sense that it stalls the calling thread completely until the new thread is created
-    // (which may not always be desirable).  But too bad.  In order to safely use 'running' locks
-    // and detachment management, this *has* to be done.  By rule, starting new threads shouldn't
-    // be done very often anyway, hence the concept of Threadpooling for rapidly rotating tasks.
-    // (and indeed, this semaphore wait might, in fact, be very swift compared to other kernel
-    // overhead in starting threads).
-
-    // (this could also be done using operating system specific calls, since any threaded OS has
-    // functions that allow us to see if a thread is running or not, and to block against it even if
-    // it's been detached -- removing the need for m_mtx_InThread and the semaphore wait above.  But
-    // pthreads kinda lacks that stuff, since pthread_join() has no timeout option making it im-
-    // possible to safely block against a running thread)
+    pthread_create(&m_thread, NULL, _internal_callback, this);
 }
 
 // Remarks:
@@ -405,16 +373,3 @@ __forceinline void Threading::SpinWait()
     __asm__("pause");
 }
 #endif
-
-// --------------------------------------------------------------------------------------
-//  BaseThreadError
-// --------------------------------------------------------------------------------------
-
-pxThread &Exception::BaseThreadError::Thread()
-{
-    return *m_thread;
-}
-const pxThread &Exception::BaseThreadError::Thread() const
-{
-    return *m_thread;
-}

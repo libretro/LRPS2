@@ -46,57 +46,6 @@ namespace Threading
 class pxThread;
 }
 
-namespace Exception
-{
-class BaseThreadError : public RuntimeError
-{
-    DEFINE_EXCEPTION_COPYTORS(BaseThreadError, RuntimeError)
-    DEFINE_EXCEPTION_MESSAGES(BaseThreadError)
-
-public:
-    Threading::pxThread *m_thread;
-
-protected:
-    BaseThreadError()
-    {
-        m_thread = NULL;
-    }
-
-public:
-    explicit BaseThreadError(Threading::pxThread *_thread)
-    {
-        m_thread = _thread;
-        m_message_diag = L"An unspecified thread-related error occurred (thread=%s)";
-    }
-
-    explicit BaseThreadError(Threading::pxThread &_thread)
-    {
-        m_thread = &_thread;
-        m_message_diag = L"An unspecified thread-related error occurred (thread=%s)";
-    }
-
-    Threading::pxThread &Thread();
-    const Threading::pxThread &Thread() const;
-};
-
-class ThreadCreationError : public BaseThreadError
-{
-    DEFINE_EXCEPTION_COPYTORS(ThreadCreationError, BaseThreadError)
-
-public:
-    explicit ThreadCreationError(Threading::pxThread *_thread)
-    {
-        m_thread = _thread;
-    }
-
-    explicit ThreadCreationError(Threading::pxThread &_thread)
-    {
-        m_thread = &_thread;
-    }
-};
-}
-
-
 namespace Threading
 {
 // --------------------------------------------------------------------------------------

@@ -154,7 +154,6 @@ void SysThreadBase::Pause()
 // Exceptions:
 //   PluginInitError     - thrown if a plugin fails init (init is performed on the current thread
 //                         on the first time the thread is resumed from it's initial idle state)
-//   ThreadCreationError - Insufficient system resources to create thread.
 //
 void SysThreadBase::Resume()
 {
@@ -176,8 +175,6 @@ void SysThreadBase::Resume()
 		case ExecMode_NoThreadYet:
 		{
 			Start();
-			if( !m_running || (m_ExecMode == ExecMode_NoThreadYet) )
-				throw Exception::ThreadCreationError(this);
 			if( m_ExecMode == ExecMode_Opened ) return;
 		}
 		// fall through...
