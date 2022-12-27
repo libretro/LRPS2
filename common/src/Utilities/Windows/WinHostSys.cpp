@@ -55,7 +55,6 @@ void _platform_InstallSignalHandler(void)
 #endif
 }
 
-
 static DWORD ConvertToWinApi(const PageProtectionMode &mode)
 {
     bool can_write = mode.CanWrite();
@@ -105,7 +104,6 @@ void HostSys::Munmap(uptr base, size_t size)
 
 void HostSys::MemProtect(void *baseaddr, size_t size, const PageProtectionMode &mode)
 {
-    DWORD OldProtect; // enjoy my uselessness, yo!
-    /* TODO/FIXME - some other way to signify failure */
-    if (!VirtualProtect(baseaddr, size, ConvertToWinApi(mode), &OldProtect)) { }
+    DWORD OldProtect;
+    VirtualProtect(baseaddr, size, ConvertToWinApi(mode), &OldProtect);
 }

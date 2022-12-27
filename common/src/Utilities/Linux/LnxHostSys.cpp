@@ -82,9 +82,7 @@ void _platform_InstallSignalHandler(void)
 #endif
 }
 
-// returns FALSE if the mprotect call fails with an ENOMEM.
-// Raises assertions on other types of POSIX errors (since those typically reflect invalid object
-// or memory states).
+// returns false if the mprotect call fails with an ENOMEM.
 static bool _memprotect(void *baseaddr, size_t size, const PageProtectionMode &mode)
 {
     uint lnxmode = 0;
@@ -140,6 +138,5 @@ void HostSys::Munmap(uptr base, size_t size)
 
 void HostSys::MemProtect(void *baseaddr, size_t size, const PageProtectionMode &mode)
 {
-	/* TODO/FIXME - some other way to signify failure */
-    if (!_memprotect(baseaddr, size, mode)) { }
+    _memprotect(baseaddr, size, mode);
 }
