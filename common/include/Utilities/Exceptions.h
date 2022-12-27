@@ -52,9 +52,6 @@ namespace Exception
 // this class has only a trivial constructor, and must be manually initialized using
 // InitBaseEx() or by individual member assignments.  This is because C++ multiple inheritence
 // is, by design, a lot of fail, especially when class initializers are mixed in.
-//
-// [TODO] : Add an InnerException component, and Clone() facility.
-//
 class BaseException
 {
 protected:
@@ -69,9 +66,6 @@ public:
 
     BaseException &SetDiagMsg(const wxString &msg_diag);
     BaseException &SetUserMsg(const wxString &msg_user);
-
-    virtual void Rethrow() const = 0;
-    virtual BaseException *Clone() const = 0;
 };
 
 typedef std::unique_ptr<BaseException> ScopedExcept;
@@ -92,9 +86,6 @@ class Ps2Generic
 protected:
 public:
     virtual ~Ps2Generic() = default;
-
-    virtual void Rethrow() const = 0;
-    virtual Ps2Generic *Clone() const = 0;
 };
 
 // Some helper macros for defining the standard constructors of internationalized constructors
@@ -105,10 +96,6 @@ public:
 //     The text string will be passed through the translator, so if it's int he gettext database
 //     it will be optionally translated.
 //
-// BUGZ??  I'd rather use 'classname' on the Clone() prototype, but for some reason it generates
-// ambiguity errors on virtual inheritance (it really shouldn't!).  So I have to force it to the
-// BaseException base class.  Not sure if this is Stupid Standard Tricks or Stupid MSVC Tricks. --air
-//
 // (update: web searches indicate it's MSVC specific -- happens in 2008, not sure about 2010).
 //
 #define DEFINE_EXCEPTION_COPYTORS(classname, parent) \
@@ -116,9 +103,7 @@ private:                                             \
     typedef parent _parent;                          \
                                                      \
 public:                                              \
-    virtual ~classname() = default;                  \
-    virtual void Rethrow() const { throw * this; }   \
-    virtual classname *Clone() const { return new classname(*this); }
+    virtual ~classname() = default;                  
 
 #define DEFINE_EXCEPTION_MESSAGES(classname)        \
 public:                                             \
