@@ -118,7 +118,6 @@ class CpuInitializer
 {
 public:
 	std::unique_ptr<CpuType> MyCpu;
-	ScopedExcept ExThrown;
 
 	CpuInitializer();
 	virtual ~CpuInitializer();
@@ -137,18 +136,8 @@ CpuInitializer< CpuType >::CpuInitializer()
 		MyCpu = std::make_unique<CpuType>();
 		MyCpu->Reserve();
 	}
-	catch( Exception::RuntimeError& ex )
-	{
-		log_cb(RETRO_LOG_ERROR, "CPU provider error.\n");
-		MyCpu = nullptr;
-		ExThrown = ScopedExcept(ex.Clone());
-	}
-	catch( std::runtime_error& ex )
-	{
-		log_cb(RETRO_LOG_ERROR, "CPU provider error (STL Exception)\n\tDetails:%s\n", fromUTF8( ex.what() ).c_str() );
-		MyCpu = nullptr;
-		ExThrown = ScopedExcept(new Exception::RuntimeError(ex));
-	}
+	catch( Exception::RuntimeError& ex ) { MyCpu = nullptr; }
+	catch( std::runtime_error& ex )      { MyCpu = nullptr; }
 }
 
 template< typename CpuType >
@@ -280,36 +269,12 @@ SysCpuProviderPack::SysCpuProviderPack()
 
 	CpuProviders = std::make_unique<CpuInitializerSet>();
 
-	try {
-		recCpu.Reserve();
-	}
-	catch( Exception::RuntimeError& ex )
-	{
-		m_RecExceptionEE = ScopedExcept(ex.Clone());
-		log_cb(RETRO_LOG_ERROR, "EE Recompiler Reservation Failed.\n");
-		recCpu.Shutdown();
-	}
-
-	try {
-		psxRec.Reserve();
-	}
-	catch( Exception::RuntimeError& ex )
-	{
-		m_RecExceptionIOP = ScopedExcept(ex.Clone());
-		log_cb(RETRO_LOG_ERROR, "IOP Recompiler Reservation Failed.\n");
-		psxRec.Shutdown();
-	}
-
-	// hmm! : VU0 and VU1 pre-allocations should do sVU and mVU separately?  Sounds complicated. :(
+	recCpu.Reserve();
+	psxRec.Reserve();
 
 	dVifReserve(0);
 	dVifReserve(1);
 }
-
-bool SysCpuProviderPack::IsRecAvailable_MicroVU0() const { return !!CpuProviders->microVU0.MyCpu; }
-bool SysCpuProviderPack::IsRecAvailable_MicroVU1() const { return !!CpuProviders->microVU1.MyCpu; }
-BaseException* SysCpuProviderPack::GetException_MicroVU0() const { return CpuProviders->microVU0.ExThrown.get(); }
-BaseException* SysCpuProviderPack::GetException_MicroVU1() const { return CpuProviders->microVU1.ExThrown.get(); }
 
 SysCpuProviderPack::~SysCpuProviderPack()
 {
@@ -322,16 +287,6 @@ SysCpuProviderPack::~SysCpuProviderPack()
 		dVifRelease(1);
 	}
 	DESTRUCTOR_CATCHALL
-}
-
-bool SysCpuProviderPack::HadSomeFailures( const Pcsx2Config::RecompilerOptions& recOpts ) const
-{
-	return	(recOpts.EnableEE && !IsRecAvailable_EE()) ||
-			(recOpts.EnableIOP && !IsRecAvailable_IOP()) ||
-			(recOpts.EnableVU0 && !IsRecAvailable_MicroVU0()) ||
-			(recOpts.EnableVU1 && !IsRecAvailable_MicroVU1())
-			;
-
 }
 
 BaseVUmicroCPU* CpuVU0 = NULL;

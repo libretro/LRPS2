@@ -40,32 +40,7 @@ void Pcsx2App::AllocateCoreStuffs(void)
 	GetVmReserve().ReserveAll();
 
 	if( !m_CpuProviders )
-	{
-		// FIXME : Some or all of SysCpuProviderPack should be run from the SysExecutor thread,
-		// so that the thread is safely blocked from being able to start emulation.
-
 		m_CpuProviders = std::make_unique<SysCpuProviderPack>();
-
-		if( m_CpuProviders->HadSomeFailures( g_Conf->EmuOptions.Cpu.Recompiler ) )
-		{
-			// HadSomeFailures only returns 'true' if an *enabled* cpu type fails to init.  If
-			// the user already has all interps configured, for example, then no point in
-			// popping up this dialog.
-			Pcsx2Config::RecompilerOptions& recOps = g_Conf->EmuOptions.Cpu.Recompiler;
-			
-			if( m_CpuProviders->GetException_EE() )
-				recOps.EnableEE		= false;
-
-			if( m_CpuProviders->GetException_IOP() )
-				recOps.EnableIOP	= false;
-
-			if( m_CpuProviders->GetException_MicroVU0() )
-				recOps.EnableVU0	= false;
-
-			if( m_CpuProviders->GetException_MicroVU1() )
-				recOps.EnableVU1	= false;
-		}
-	}
 }
 
 bool Pcsx2App::OnInit(void)
