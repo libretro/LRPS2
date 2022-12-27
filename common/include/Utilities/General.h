@@ -37,32 +37,6 @@
     ;
 
 // --------------------------------------------------------------------------------------
-//  BaseDeletableObject
-// --------------------------------------------------------------------------------------
-// Oh the fruits and joys of multithreaded C++ coding conundrums!  This class provides a way
-// to be deleted from arbitraty threads, or to delete themselves (which is considered unsafe
-// in C++, though it does typically work).  It also gives objects a second recourse for
-// doing fully virtualized cleanup, something C++ also makes impossible because of how it
-// implements it's destructor hierarchy.
-//
-// Assertions:
-//   This class generates an assertion of the destructor is called from anything other than
-//   the main/gui thread.
-//
-// Rationale:
-//   wxWidgets provides a pending deletion feature, but it's specific to wxCore (not wxBase)
-//   which means it requires wxApp and all that, which is bad for plugins and the possibility
-//   of linking PCSX2 core against a non-WX gui in the future.  It's also not thread safe
-//   (sigh).  And, finally, it requires quite a bit of red tape to implement wxObjects because
-//   of the wx-custom runtime type information.  So I made my own.
-//
-class BaseDeletableObject{
-public:
-    BaseDeletableObject();
-    virtual ~BaseDeletableObject();
-};
-
-// --------------------------------------------------------------------------------------
 //  PageProtectionMode
 // --------------------------------------------------------------------------------------
 class PageProtectionMode

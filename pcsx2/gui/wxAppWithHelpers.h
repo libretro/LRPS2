@@ -19,6 +19,12 @@
 #include "pxEvents.h"
 #include "AppTrait.h"
 
+class BaseDeletableObject{
+public:
+    BaseDeletableObject();
+    virtual ~BaseDeletableObject();
+};
+
 // --------------------------------------------------------------------------------------
 //  wxAppWithHelpers
 // --------------------------------------------------------------------------------------
