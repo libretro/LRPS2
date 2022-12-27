@@ -211,17 +211,6 @@ protected:
     ScopedLock(const Mutex &locker, bool isTryLock);
 };
 
-class ScopedTryLock : public ScopedLock
-{
-public:
-    ScopedTryLock(const Mutex &locker)
-        : ScopedLock(locker, true)
-    {
-    }
-    virtual ~ScopedTryLock() = default;
-    bool Failed() const { return !m_IsLocked; }
-};
-
 // --------------------------------------------------------------------------------------
 //  ScopedLockBool
 // --------------------------------------------------------------------------------------

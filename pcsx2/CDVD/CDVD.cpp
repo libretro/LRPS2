@@ -312,8 +312,6 @@ s32 cdvdWriteConfig(const u8* config)
 	return 0;
 }
 
-static MutexRecursive Mutex_NewDiskCB;
-
 // Sets ElfCRC to the CRC of the game bound to the CDVD source.
 static __fi ElfObject* loadElf(const wxString filename)
 {
@@ -343,9 +341,6 @@ static __fi ElfObject* loadElf(const wxString filename)
 
 static __fi void _reloadElfInfo(wxString elfpath)
 {
-	// Now's a good time to reload the ELF info...
-	ScopedLock locker(Mutex_NewDiskCB);
-
 	if (elfpath == LastELF)
 		return;
 	LastELF = elfpath;
@@ -648,12 +643,8 @@ void SaveStateBase::cdvdFreeze()
 	}
 }
 
-void cdvdNewDiskCB()
+void cdvdNewDiskCB(void)
 {
-	ScopedTryLock lock(Mutex_NewDiskCB);
-	if (lock.Failed())
-		return;
-
 	DoCDVDresetDiskTypeCache();
 	cdvdDetectDisk();
 }
