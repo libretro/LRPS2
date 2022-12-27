@@ -15,19 +15,6 @@
 
 #pragma once
 
-namespace Exception
-{
-	class BiosLoadFailed : public BadStream
-	{
-		DEFINE_EXCEPTION_COPYTORS( BiosLoadFailed, FileNotFound )
-		DEFINE_EXCEPTION_MESSAGES( BiosLoadFailed )
-		DEFINE_STREAM_EXCEPTION_ACCESSORS( BiosLoadFailed )
-
-	public:
-		BiosLoadFailed( const wxString& streamName );
-	};
-}
-
 struct BiosDebugInformation
 {
 	u32 biosVersion;

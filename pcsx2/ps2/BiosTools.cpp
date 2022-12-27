@@ -57,14 +57,6 @@ const BiosDebugInformation biosVersions[] = {
 	{ 0x00000200, 0X9C7B59D3, 0x8001a640 },
 };
 
-// --------------------------------------------------------------------------------------
-//  Exception::BiosLoadFailed  (implementations)
-// --------------------------------------------------------------------------------------
-Exception::BiosLoadFailed::BiosLoadFailed( const wxString& filename )
-{
-	StreamName = filename;
-}
-
 // This method throws a BadStream exception if the bios information chould not be obtained.
 //  (indicating that the file is invalid, incomplete, corrupted, or plain naughty).
 static void LoadBiosVersion( pxInputStream& fp, u32& version, wxString& description, wxString& zoneStr )
@@ -292,11 +284,7 @@ void LoadBIOS(void)
 	}
 	catch (Exception::BadStream& ex)
 	{
-		// Rethrow as a Bios Load Failure, so that the user interface handling the exceptions
-		// can respond to it appropriately.
-		throw Exception::BiosLoadFailed( ex.StreamName )
-			.SetDiagMsg( ex.DiagMsg() )
-			.SetUserMsg( ex.UserMsg() );
+		// BIOS Load failure
 	}
 }
 

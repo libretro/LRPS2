@@ -67,8 +67,6 @@ public:
     BaseException &SetUserMsg(const wxString &msg_user);
 };
 
-typedef std::unique_ptr<BaseException> ScopedExcept;
-
 // --------------------------------------------------------------------------------------
 //  Ps2Generic Exception
 // --------------------------------------------------------------------------------------
@@ -133,9 +131,7 @@ class RuntimeError : public BaseException
     DEFINE_EXCEPTION_MESSAGES(RuntimeError)
 
 public:
-    bool IsSilent;
-
-    RuntimeError() { IsSilent = false; }
+    RuntimeError() { }
     RuntimeError(const std::runtime_error &ex, const wxString &prefix = wxEmptyString);
     RuntimeError(const std::exception &ex, const wxString &prefix = wxEmptyString);
 };
@@ -171,25 +167,12 @@ class ParseError : public RuntimeError
 //   Stream / BadStream / CannotCreateStream / FileNotFound / AccessDenied / EndOfStream
 // ---------------------------------------------------------------------------------------
 
-#define DEFINE_STREAM_EXCEPTION_ACCESSORS(classname)       \
-    virtual classname &SetStreamName(const wxString &name) \
-    {                                                      \
-        StreamName = name;                                 \
-        return *this;                                      \
-    }                                                      \
-    virtual classname &SetStreamName(const char *name)     \
-    {                                                      \
-        StreamName = fromUTF8(name);                       \
-        return *this;                                      \
-    }
-
 #define DEFINE_STREAM_EXCEPTION(classname, parent)             \
     DEFINE_RUNTIME_EXCEPTION(classname, parent, wxEmptyString) \
     classname(const wxString &filename)                        \
     {                                                          \
         StreamName = filename;                                 \
-    }                                                          \
-    DEFINE_STREAM_EXCEPTION_ACCESSORS(classname)
+    }
 
 // A generic base error class for bad streams -- corrupted data, sudden closures, loss of
 // connection, or anything else that would indicate a failure to open a stream or read the
@@ -236,4 +219,3 @@ public:
 }
 
 using Exception::BaseException;
-using Exception::ScopedExcept;
