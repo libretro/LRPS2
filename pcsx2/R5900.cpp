@@ -66,6 +66,7 @@ extern SysMainMemory& GetVmMemory(void);
 void cpuReset(void)
 {
 	vu1Thread.WaitVU();
+	vu1Thread.Reset();
 	if (GetMTGS().IsOpen())
 		GetMTGS().WaitGS(); // GS better be done processing before we reset the EE, just in case.
 
