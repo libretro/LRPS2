@@ -497,7 +497,9 @@ GSTextureCache::Target* GSTextureCache::LookupTarget(const GIFRegTEX0& TEX0, int
 			dst->m_32_bits_fmt = dst_match->m_32_bits_fmt;
 
 			int shader;
-			bool fmt_16_bits = (psm_s.bpp == 16 && GSLocalMemory::m_psm[dst_match->m_TEX0.PSM].bpp == 16);
+			// m_32_bits_fmt gets set on a shuffle or if the format isn't 16bit.
+			// In this case it needs to make sure it isn't part of a shuffle, where it needs to be interpreted as 32bits.
+			const bool fmt_16_bits = (psm_s.bpp == 16 && GSLocalMemory::m_psm[dst_match->m_TEX0.PSM].bpp == 16 && !dst->m_32_bits_fmt);
 			if (type == DepthStencil) {
 				shader = (fmt_16_bits) ? ShaderConvert_RGB5A1_TO_FLOAT16 : ShaderConvert_RGBA8_TO_FLOAT32 + psm_s.fmt;
 			} else {
