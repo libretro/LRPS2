@@ -144,8 +144,8 @@ static void mVUreserveCache(microVU& mVU)
 }
 
 // Only run this once per VU! ;)
-void mVUinit(microVU& mVU, uint vuIndex) {
-
+static void mVUinit(microVU& mVU, uint vuIndex)
+{
 	/* TODO/FIXME - implement different way of checking hardware
 	   SSE2 requirements without throwing exception */
 	memzero(mVU.prog);
@@ -232,8 +232,8 @@ void mVUreset(microVU& mVU, bool resetReserve) {
 }
 
 // Free Allocated Resources
-void mVUclose(microVU& mVU) {
-
+static void mVUclose(microVU& mVU)
+{
 	safe_delete  (mVU.cache_reserve);
 
 	// Delete Programs and Block Managers
@@ -248,7 +248,8 @@ void mVUclose(microVU& mVU) {
 }
 
 // Clears Block Data in specified range
-__fi void mVUclear(mV, u32 addr, u32 size) {
+static __fi void mVUclear(mV, u32 addr, u32 size)
+{
 	if(!mVU.prog.cleared) {
 		mVU.prog.cleared = 1;		// Next execution searches/creates a new microprogram
 		memzero(mVU.prog.lpState); // Clear pipeline state

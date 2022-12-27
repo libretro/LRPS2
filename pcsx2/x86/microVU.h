@@ -201,7 +201,6 @@ __aligned16 microVU microVU0;
 __aligned16 microVU microVU1;
 
 // Main Functions
-extern void  mVUclear(mV, u32, u32);
 extern void  mVUreset(microVU& mVU, bool resetReserve);
 extern void* mVUblockFetch(microVU& mVU, u32 startPC, uptr pState);
 _mVUt extern void* __fastcall mVUcompileJIT(u32 startPC, uptr ptr);
