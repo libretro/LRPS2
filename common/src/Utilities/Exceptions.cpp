@@ -62,13 +62,6 @@ Exception::RuntimeError::RuntimeError(const std::exception &ex, const wxString &
 }
 
 // --------------------------------------------------------------------------------------
-//  Exception::OutOfMemory   (implementations)
-// --------------------------------------------------------------------------------------
-Exception::OutOfMemory::OutOfMemory(const wxString &allocdesc)
-{
-}
-
-// --------------------------------------------------------------------------------------
 //  Exceptions from Errno (POSIX)
 // --------------------------------------------------------------------------------------
 

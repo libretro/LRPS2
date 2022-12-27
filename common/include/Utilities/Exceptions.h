@@ -25,30 +25,10 @@
 // disasterous nested exception throws during the unwinding process of an originating
 // exception.  Use this macro to dispose of these dangerous exceptions, and generate a
 // friendly error log in their wake.
-//
-// Note: Console can also fire an Exception::OutOfMemory
-#define __DESTRUCTOR_CATCHALL(funcname)                                            \
-    catch (BaseException & ex)                                                     \
-    {                                                                              \
-        try {                                                                      \
-            log_cb(RETRO_LOG_ERROR, "Unhandled BaseException in %s (ignored!):\n", funcname);  \
-        } catch (...) {                                                            \
-            fprintf(stderr, "ERROR: (out of memory?)\n");                          \
-        }                                                                          \
-    }                                                                              \
-    catch (std::exception & ex)                                                    \
-    {                                                                              \
-        try {                                                                      \
-            log_cb(RETRO_LOG_ERROR, "Unhandled std::exception in %s (ignored!):\n", funcname); \
-            log_cb(RETRO_LOG_ERROR, "%s\n", ex.what());                                              \
-        } catch (...) {                                                            \
-            fprintf(stderr, "ERROR: (out of memory?)\n");                          \
-        }                                                                          \
-    }                                                                              \
-    catch (...)                                                                    \
-    {                                                                              \
-        /* Unreachable code */                                                     \
-    }
+#define __DESTRUCTOR_CATCHALL(funcname) \
+    catch (BaseException & ex)  {} \
+    catch (std::exception & ex) {} \
+    catch (...) { }
 
 #if defined(__GNUG__)
 #define DESTRUCTOR_CATCHALL __DESTRUCTOR_CATCHALL(__PRETTY_FUNCTION__)
@@ -197,23 +177,6 @@ public:
         m_message_diag = logmsg;
         // overridden message formatters only use the diagnostic version...
     }
-};
-
-// ---------------------------------------------------------------------------------------
-//  OutOfMemory
-// ---------------------------------------------------------------------------------------
-// This exception has a custom-formatted Diagnostic string.  The parameter give when constructing
-// the exception is a block/alloc name, which is used as a formatting parameter in the diagnostic
-// output.  The default diagnostic message is "Out of memory exception, while allocating the %s."
-// where %s is filled in with the block name.
-//
-// The user string is not custom-formatted, and should contain *NO* %s tags.
-//
-class OutOfMemory : public RuntimeError
-{
-    DEFINE_RUNTIME_EXCEPTION(OutOfMemory, RuntimeError, wxEmptyString)
-public:
-    OutOfMemory(const wxString &allocdesc);
 };
 
 class ParseError : public RuntimeError

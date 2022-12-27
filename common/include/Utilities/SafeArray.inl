@@ -19,17 +19,12 @@
 
 // Internal constructor for use by derived classes.  This allows a derived class to
 // use its own memory allocation (with an aligned memory, for example).
-// Throws:
-//   Exception::OutOfMemory if the allocated_mem pointer is NULL.
 template <typename T>
 SafeArray<T>::SafeArray(T *allocated_mem, int initSize)
 {
     ChunkSize = DefaultChunkSize;
     m_ptr     = allocated_mem;
     m_size    = initSize;
-
-    /* TODO/FIXME - do a safer way to handle failure instead of 
-     * throwing exceptions */
 }
 
 template <typename T>

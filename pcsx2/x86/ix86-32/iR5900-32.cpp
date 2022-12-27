@@ -493,17 +493,11 @@ static void recAlloc(void)
 	if( !recConstBuf )
 		recConstBuf = (u32*) _aligned_malloc( RECCONSTBUF_SIZE * sizeof(*recConstBuf), 16 );
 
-	if( !recConstBuf )
-		throw Exception::OutOfMemory( L"R5900-32 SIMD Constants Buffer" );
-
 	if( !s_pInstCache )
 	{
 		s_nInstCacheSize = 128;
 		s_pInstCache = (EEINST*)malloc( sizeof(EEINST) * s_nInstCacheSize );
 	}
-
-	if( !s_pInstCache )
-		throw Exception::OutOfMemory( L"R5900-32 InstCache" );
 
 	// No errors.. Proceed with initialization:
 	_DynGen_Dispatchers();

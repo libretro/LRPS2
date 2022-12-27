@@ -534,10 +534,6 @@ static void recAlloc(void)
 
 	if( m_recBlockAlloc == NULL )
 		m_recBlockAlloc = (u8*)_aligned_malloc( m_recBlockAllocSize, 4096 );
-
-	if( m_recBlockAlloc == NULL )
-		throw Exception::OutOfMemory( L"R3000A BASEBLOCK lookup tables" );
-
 	u8* curpos = m_recBlockAlloc;
 	recRAM = (BASEBLOCK*)curpos; curpos += (Ps2MemSize::IopRam / 4) * sizeof(BASEBLOCK);
 	recROM = (BASEBLOCK*)curpos; curpos += (Ps2MemSize::Rom / 4) * sizeof(BASEBLOCK);
@@ -550,9 +546,6 @@ static void recAlloc(void)
 		s_nInstCacheSize = 128;
 		s_pInstCache = (EEINST*)malloc( sizeof(EEINST) * s_nInstCacheSize );
 	}
-
-	if( s_pInstCache == NULL )
-		throw Exception::OutOfMemory( L"R3000 InstCache." );
 
 	_DynGen_Dispatchers();
 }

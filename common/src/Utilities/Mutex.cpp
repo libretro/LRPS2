@@ -19,8 +19,6 @@
 
 #include "Threading.h"
 
-#include "../../libretro/retro_messager.h"
-
 namespace Threading
 {
 static std::atomic<int> _attr_refcount(0);
@@ -120,10 +118,9 @@ Threading::Mutex::~Mutex()
 Threading::MutexRecursive::MutexRecursive()
     : Mutex(false)
 {
-    if (++_attr_refcount == 1) {
-        if (0 != pthread_mutexattr_init(&_attr_recursive))
-            throw Exception::OutOfMemory(L"Recursive mutexing attributes");
-
+    if (++_attr_refcount == 1)
+    {
+        pthread_mutexattr_init(&_attr_recursive);
         pthread_mutexattr_settype(&_attr_recursive, PTHREAD_MUTEX_RECURSIVE);
     }
 
