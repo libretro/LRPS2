@@ -28,10 +28,6 @@
 #include "PrecompiledHeader.h"
 
 #include "Threading.h"
-#include "ThreadingInternal.h"
-
-#include "wxBaseTools.h"
-#include "wxGuiTools.h"
 
 // --------------------------------------------------------------------------------------
 //  Semaphore Implementation for Darwin/OSX
