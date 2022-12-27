@@ -131,7 +131,6 @@ CpuInitializer< CpuType >::CpuInitializer()
 		MyCpu = std::make_unique<CpuType>();
 		MyCpu->Reserve();
 	}
-	catch( Exception::RuntimeError& ex ) { MyCpu = nullptr; }
 	catch( std::runtime_error& ex )      { MyCpu = nullptr; }
 }
 

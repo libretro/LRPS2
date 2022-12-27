@@ -46,7 +46,6 @@ namespace Exception
 // catch clause can optionally modify them and then re-throw to a top-level handler.
 //
 // Note, this class is "abstract" which means you shouldn't use it directly like, ever.
-// Use Exception::RuntimeError instead for generic exceptions.
 //
 // Because exceptions are the (only!) really useful example of multiple inheritance,
 // this class has only a trivial constructor, and must be manually initialized using

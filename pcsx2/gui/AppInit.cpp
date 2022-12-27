@@ -66,23 +66,7 @@ void Pcsx2App::CleanupOnExit(void)
 		CleanupRestartable();
 		CleanupResources();
 	}
-	catch( Exception::CancelEvent& )		{ throw; }
-	catch( Exception::RuntimeError& ex )
-	{
-		// Handle runtime errors gracefully during shutdown.  Mostly these are things
-		// that we just don't care about by now, and just want to "get 'er done!" so
-		// we can exit the app. ;)
-
-		log_cb(RETRO_LOG_ERROR, "Runtime exception handled during CleanupOnExit.\n" );
-	}
-
-	// Notice: deleting the plugin manager (unloading plugins) here causes Lilypad to crash,
-	// likely due to some pending message in the queue that references lilypad procs.
-	// We don't need to unload plugins anyway tho -- shutdown is plenty safe enough for
-	// closing out all the windows.  So just leave it be and let the plugins get unloaded
-	// during the wxApp destructor. -- air
-	
-	// FIXME: performing a wxYield() here may fix that problem. -- air
+	catch( Exception::CancelEvent& ) { throw; }
 }
 
 void Pcsx2App::CleanupResources(void)

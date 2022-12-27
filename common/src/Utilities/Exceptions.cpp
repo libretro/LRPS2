@@ -39,24 +39,3 @@ BaseException &BaseException::SetUserMsg(const wxString &msg_user)
     m_message_user = msg_user;
     return *this;
 }
-
-// --------------------------------------------------------------------------------------
-//  Exception::RuntimeError   (implementations)
-// --------------------------------------------------------------------------------------
-Exception::RuntimeError::RuntimeError(const std::runtime_error &ex, const wxString &prefix)
-{
-    IsSilent = false;
-
-    SetDiagMsg(pxsFmt(L"STL Runtime Error%s: %s",
-                      (prefix.IsEmpty() ? L"" : pxsFmt(L" (%s)", WX_STR(prefix)).c_str()),
-                      WX_STR(fromUTF8(ex.what()))));
-}
-
-Exception::RuntimeError::RuntimeError(const std::exception &ex, const wxString &prefix)
-{
-    IsSilent = false;
-
-    SetDiagMsg(pxsFmt(L"STL Exception%s: %s",
-                      (prefix.IsEmpty() ? L"" : pxsFmt(L" (%s)", WX_STR(prefix)).c_str()),
-                      WX_STR(fromUTF8(ex.what()))));
-}

@@ -278,7 +278,6 @@ void Threading::pxThread::_try_virtual_invoke(void (pxThread::*method)())
 {
     try { (this->*method)(); }
     catch (std::runtime_error &ex) { }
-    catch (Exception::RuntimeError &ex) { }
     catch (BaseException &ex) { }
 }
 

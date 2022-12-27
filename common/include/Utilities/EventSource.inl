@@ -57,7 +57,6 @@ __fi void EventSource<ListenerType>::_DispatchRaw(ListenerIterator iter, const L
     while (iter != iend) {
         try {
             (*iter)->DispatchEvent(evtparams);
-        } catch (Exception::RuntimeError &ex) {
         } catch (BaseException &ex) {
         }
         ++iter;
