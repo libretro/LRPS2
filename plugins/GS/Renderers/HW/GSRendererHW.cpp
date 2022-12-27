@@ -1317,17 +1317,8 @@ void GSRendererHW::Draw()
 		m_tc->InvalidateVideoMemType(GSTextureCache::RenderTarget, GIFREG_ZBUF_BLOCK(context->ZBUF));
 	}
 
-	//
-
 	if(m_hacks.m_oo)
-	{
 		(this->*m_hacks.m_oo)();
-	}
-
-	#ifdef DISABLE_HW_TEXTURE_CACHE
-	if (rt)
-		m_tc->Read(rt, m_r);
-	#endif
 }
 
 // hacks

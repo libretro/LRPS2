@@ -230,11 +230,7 @@ GSTextureCache::Source* GSTextureCache::LookupSource(const GIFRegTEX0& TEX0, con
 	int x_offset = 0;
 	int y_offset = 0;
 
-#ifdef DISABLE_HW_TEXTURE_CACHE
-	if( 0 )
-#else
 	if(src == NULL)
-#endif
 	{
 		u32 bp = TEX0.TBP0;
 		u32 psm = TEX0.PSM;
