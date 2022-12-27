@@ -33,7 +33,7 @@ void SysThreadBase::Start()
 {
 	_parent::Start();
 
-	Sleep( 1 );
+	sleep( 1 );
 	m_sem_event.Post();
 }
 

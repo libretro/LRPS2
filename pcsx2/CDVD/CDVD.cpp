@@ -839,7 +839,7 @@ __fi void cdvdReadInterrupt()
 			while ((cdvd.RErr = DoCDVDgetBuffer(cdr.Transfer)), cdvd.RErr == -2)
 			{
 				// not finished yet ... block on the read until it finishes.
-				Threading::Sleep(0);
+				Threading::sleep(0);
 				Threading::SpinWait();
 			}
 		}

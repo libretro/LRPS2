@@ -534,7 +534,7 @@ void cdrReadInterrupt(void)
 		while ((cdr.RErr = DoCDVDgetBuffer(cdr.Transfer)), cdr.RErr == -2)
 		{
 			// not finished yet ... block on the read until it finishes.
-			Threading::Sleep(0);
+			Threading::sleep(0);
 			Threading::SpinWait();
 		}
 	}

@@ -109,7 +109,7 @@ namespace Threading
 extern void SpinWait(void);
 
 // sleeps the current thread for the given number of milliseconds.
-extern void Sleep(int ms);
+extern void sleep(int ms);
 
 class Semaphore
 {

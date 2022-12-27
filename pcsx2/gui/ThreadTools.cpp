@@ -21,6 +21,8 @@
 #endif
 #ifdef _WIN32
 #include <direct.h>
+#include <intrin.h>
+#include <windows.h>
 #else
 #include <unistd.h>
 #endif
@@ -109,7 +111,7 @@ Threading::pxThread::~pxThread()
             m_mtx_InThread.Acquire();
             m_mtx_InThread.Release();
         }
-        Threading::Sleep(1);
+        Threading::sleep(1);
 	if (!m_detached.exchange(true))
 		pthread_detach(m_thread);
     }
@@ -373,9 +375,9 @@ void Threading::pxThread::OnCleanupInThread()
 }
 
 #ifdef _WIN32
-__forceinline void Threading::Sleep(int ms)
+__forceinline void Threading::sleep(int ms)
 {
-    ::Sleep(ms);
+    Sleep(ms);
 }
 
 // For use in spin/wait loops,  Acts as a hint to Intel CPUs and should, in theory
@@ -389,7 +391,7 @@ __forceinline void Threading::SpinWait()
 // the LOCK prefix.  The prefix works on single core CPUs fine (but is slow), but not
 // having the LOCK prefix is very bad indeed.
 
-__forceinline void Threading::Sleep(int ms)
+__forceinline void Threading::sleep(int ms)
 {
     usleep(1000 * ms);
 }
