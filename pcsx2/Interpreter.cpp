@@ -418,18 +418,6 @@ static void intClear(u32 Addr, u32 Size)
 
 static void intShutdown(void) { }
 
-static void intThrowException( const BaseR5900Exception& ex )
-{
-	// No tricks needed; C++ stack unwnding should suffice for MSW and GCC alike.
-	ex.Rethrow();
-}
-
-static void intThrowException( const BaseException& ex )
-{
-	// No tricks needed; C++ stack unwnding should suffice for MSW and GCC alike.
-	ex.Rethrow();
-}
-
 static void intSetCacheReserve( uint reserveInMegs )
 {
 }
@@ -449,8 +437,6 @@ R5900cpu intCpu =
 	intExecute,
 
 	intCheckExecutionState,
-	intThrowException,
-	intThrowException,
 	intClear,
 
 	intGetCacheReserve,

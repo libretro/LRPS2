@@ -402,10 +402,7 @@ void cdvdReloadElfInfo(wxString elfoverride)
 		// Recognized and PS2 (BOOT2).  Good job, user.
 		_reloadElfInfo(elfpath);
 	}
-	catch (Exception::FileNotFound& e)
-	{
-		Cpu->ThrowException(e);
-	}
+	catch (Exception::FileNotFound& e) { }
 }
 
 static __fi s32 StrToS32(const wxString& str, int base = 10)
@@ -1968,9 +1965,7 @@ static void cdvdWrite16(u8 rt) // SCOMMAND
 	}
 	catch (Exception::CannotCreateStream&)
 	{
-		Cpu->ThrowException(Exception::RuntimeError()
-								.SetDiagMsg(L"Failed to read/write NVM/MEC file.")
-								.SetUserMsg(L"Failed to read/write NVM/MEC file. Check your BIOS setup/permission settings."));
+		/* Failed to read/write NVM/MEC file. Check your BIOS setup/permission settings. */
 	}
 }
 

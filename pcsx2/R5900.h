@@ -351,19 +351,6 @@ struct R5900cpu
 	//
 	void (*CheckExecutionState)();
 
-	// Safely throws host exceptions from executing code (either recompiled or interpreted).
-	// If this function is called outside the context of the CPU's code execution, then the
-	// given exception will be re-thrown automatically.
-	// 
-	// Exception Throws:
-	//   (SEH) Rethrows the given exception immediately.
-	//   (setjmp) Re-throws immediately if called from outside the context of dynamically
-	//      generated code (either non-executing contexts or interpreters).  Does not throw
-	//      otherwise.
-	//
-	void (*ThrowException)( const BaseException& ex );
-	void (*ThrowCpuException)( const BaseR5900Exception& ex );
-
 	// Manual recompiled code cache clear; typically useful to recompilers only.  Size is
 	// in MIPS words (32 bits).  Dev note: this callback is nearly obsolete, and might be
 	// better off replaced with some generic API callbacks from VTLB block protection.

@@ -1218,12 +1218,8 @@ static void recStep(void)
 }
 
 #if !PCSX2_SEH
-#	define SETJMP_CODE(x)  x
 	static fastjmp_buf m_SetJmp_StateCheck;
-	static std::unique_ptr<BaseR5900Exception> m_cpuException;
-	static ScopedExcept m_Exception;
 #else
-#	define SETJMP_CODE(x)
 #endif
 
 static void recExitExecution(void)
@@ -1242,10 +1238,8 @@ static void recExitExecution(void)
 
 static void recCheckExecutionState(void)
 {
-	if( SETJMP_CODE(m_cpuException || m_Exception ||) eeRecIsReset || GetCoreThread().HasPendingStateChangeRequest() )
-	{
+	if( eeRecIsReset || GetCoreThread().HasPendingStateChangeRequest() )
 		recExitExecution();
-	}
 }
 
 static void recExecute(void)
@@ -1267,8 +1261,6 @@ static void recExecute(void)
 #else
 
 	int oldstate;
-	m_cpuException	= NULL;
-	m_Exception		= NULL;
 
 	// setjmp will save the register context and will return 0
 	// A call to longjmp will restore the context (included the eip/rip)
@@ -1289,16 +1281,10 @@ static void recExecute(void)
 		// Generally unreachable code here ...
 	}
 	else
-	{
 		pthread_setcancelstate( PTHREAD_CANCEL_ENABLE, &oldstate );
-	}
 
 	eeCpuExecuting = false;
-
-	if(m_cpuException)	m_cpuException->Rethrow();
-	if(m_Exception)		m_Exception->Rethrow();
 #endif
-
 }
 
 ////////////////////////////////////////////////////
@@ -1546,31 +1532,6 @@ void recompileNextInstruction(int delayslot)
 		s_nEndBlock = pc;
 }
 
-// The only *safe* way to throw exceptions from the context of recompiled code.
-// The exception is cached and the recompiler is exited safely using either an
-// SEH unwind (MSW) or setjmp/longjmp (GCC).
-static void recThrowException( const BaseR5900Exception& ex )
-{
-#if PCSX2_SEH
-	ex.Rethrow();
-#else
-	if (!eeCpuExecuting) ex.Rethrow();
-	m_cpuException = std::unique_ptr<BaseR5900Exception>(ex.Clone());
-	recExitExecution();
-#endif
-}
-
-static void recThrowException( const BaseException& ex )
-{
-#if PCSX2_SEH
-	ex.Rethrow();
-#else
-	if (!eeCpuExecuting) ex.Rethrow();
-	m_Exception = ScopedExcept(ex.Clone());
-	recExitExecution();
-#endif
-}
-
 static void recSetCacheReserve( uint reserveInMegs )
 {
 	m_ConfiguredCacheReserve = reserveInMegs;
@@ -1591,8 +1552,6 @@ R5900cpu recCpu =
 	recExecute,
 
 	recCheckExecutionState,
-	recThrowException,
-	recThrowException,
 	recClear,
 
 	recGetCacheReserve,
