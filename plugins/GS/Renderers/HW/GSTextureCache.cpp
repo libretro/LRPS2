@@ -854,9 +854,8 @@ void GSTextureCache::InvalidateVideoMem(GSOffset* off, const GSVector4i& rect, b
 // Called each time you want to read from the GS memory
 void GSTextureCache::InvalidateLocalMem(GSOffset* off, const GSVector4i& r)
 {
-	u32 bp = off->bp;
-	u32 psm = off->psm;
-	//u32 bw = off->bw;
+	const u32 bp = off->bp;
+	const u32 psm = off->psm;
 
 	// No depth handling please.
 	if (psm == PSM_PSMZ32 || psm == PSM_PSMZ24 || psm == PSM_PSMZ16 || psm == PSM_PSMZ16S) {
