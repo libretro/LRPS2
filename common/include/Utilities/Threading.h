@@ -43,11 +43,6 @@ class wxTimeSpan;
 
 namespace Threading
 {
-class pxThread;
-}
-
-namespace Threading
-{
 // --------------------------------------------------------------------------------------
 //  Platform Specific External APIs
 // --------------------------------------------------------------------------------------
