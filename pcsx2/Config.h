@@ -54,13 +54,6 @@ enum SpeedhackId
 	SpeedhackId_COUNT
 };
 
-enum class VsyncMode
-{
-	Off,
-	On,
-	Adaptive,
-};
-
 // Template function for casting enumerations to their underlying type
 template <typename Enumeration>
 typename std::underlying_type<Enumeration>::type enum_cast(Enumeration E)
@@ -134,7 +127,6 @@ struct Pcsx2Config
 		BITFIELD_END
 
 		RecompilerOptions();
-		void ApplySanityCheck();
 
 		bool operator ==( const RecompilerOptions& right ) const
 		{
@@ -157,7 +149,6 @@ struct Pcsx2Config
 		SSE_MXCSR sseVUMXCSR;
 
 		CpuOptions();
-		void ApplySanityCheck();
 
 		bool operator ==( const CpuOptions& right ) const
 		{

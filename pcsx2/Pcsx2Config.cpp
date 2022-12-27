@@ -87,54 +87,11 @@ Pcsx2Config::RecompilerOptions::RecompilerOptions()
 	//fpuFullMode = false;
 }
 
-void Pcsx2Config::RecompilerOptions::ApplySanityCheck()
-{
-	bool fpuIsRight = true;
-
-	if( fpuExtraOverflow )
-		fpuIsRight = fpuOverflow;
-
-	if( fpuFullMode )
-		fpuIsRight = fpuOverflow && fpuExtraOverflow;
-
-	if( !fpuIsRight )
-	{
-		// Values are wonky; assume the defaults.
-		fpuOverflow		= RecompilerOptions().fpuOverflow;
-		fpuExtraOverflow= RecompilerOptions().fpuExtraOverflow;
-		fpuFullMode		= RecompilerOptions().fpuFullMode;
-	}
-
-	bool vuIsOk = true;
-
-	if( vuExtraOverflow ) vuIsOk = vuIsOk && vuOverflow;
-	if( vuSignOverflow ) vuIsOk = vuIsOk && vuExtraOverflow;
-
-	if( !vuIsOk )
-	{
-		// Values are wonky; assume the defaults.
-		vuOverflow		= RecompilerOptions().vuOverflow;
-		vuExtraOverflow	= RecompilerOptions().vuExtraOverflow;
-		vuSignOverflow	= RecompilerOptions().vuSignOverflow;
-		vuUnderflow		= RecompilerOptions().vuUnderflow;
-	}
-}
-
-
 Pcsx2Config::CpuOptions::CpuOptions()
 {
 	sseMXCSR.bitmask	= DEFAULT_sseMXCSR;
 	sseVUMXCSR.bitmask	= DEFAULT_sseVUMXCSR;
 }
-
-void Pcsx2Config::CpuOptions::ApplySanityCheck()
-{
-	sseMXCSR.ClearExceptionFlags().DisableExceptions();
-	sseVUMXCSR.ClearExceptionFlags().DisableExceptions();
-
-	Recompiler.ApplySanityCheck();
-}
-
 
 // Default GSOptions
 Pcsx2Config::GSOptions::GSOptions()

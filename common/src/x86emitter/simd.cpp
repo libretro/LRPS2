@@ -50,24 +50,6 @@ SSE_MXCSR &SSE_MXCSR::SetRoundMode(SSE_RoundMode mode)
     return *this;
 }
 
-SSE_MXCSR &SSE_MXCSR::ClearExceptionFlags()
-{
-    bitmask &= ~0x3f;
-    return *this;
-}
-
-SSE_MXCSR &SSE_MXCSR::EnableExceptions()
-{
-    bitmask &= ~(0x3f << 7);
-    return *this;
-}
-
-SSE_MXCSR &SSE_MXCSR::DisableExceptions()
-{
-    bitmask |= 0x3f << 7;
-    return *this;
-}
-
 // Applies the reserve bits mask for the current running cpu, as fetched from the CPU
 // during CPU init/detection.
 SSE_MXCSR &SSE_MXCSR::ApplyReserveMask()

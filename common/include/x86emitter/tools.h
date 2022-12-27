@@ -165,9 +165,6 @@ union SSE_MXCSR
 
     SSE_RoundMode GetRoundMode() const;
     SSE_MXCSR &SetRoundMode(SSE_RoundMode mode);
-    SSE_MXCSR &ClearExceptionFlags();
-    SSE_MXCSR &EnableExceptions();
-    SSE_MXCSR &DisableExceptions();
 
     SSE_MXCSR &ApplyReserveMask();
 
