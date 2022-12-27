@@ -423,8 +423,6 @@ void VifUnpackSSE_Init(void)
 	nVifUpkExec = new RecompiledCodeReserve(_64kb);
 	nVifUpkExec->Reserve(GetVmMemory().BumpAllocator(), _64kb);
 
-	nVifUpkExec->ThrowIfNotOk();
-
 	xSetPtr( *nVifUpkExec );
 
 	for (int a = 0; a < 2; a++) {

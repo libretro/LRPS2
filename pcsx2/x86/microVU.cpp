@@ -141,8 +141,6 @@ static void mVUreserveCache(microVU& mVU)
 	mVU.cache = mVU.index ?
 		(u8*)mVU.cache_reserve->Reserve(GetVmMemory().MainMemory(), HostMemoryMap::mVU1recOffset, mVU.cacheSize * _1mb):
 		(u8*)mVU.cache_reserve->Reserve(GetVmMemory().MainMemory(), HostMemoryMap::mVU0recOffset, mVU.cacheSize * _1mb);
-
-	mVU.cache_reserve->ThrowIfNotOk();
 }
 
 // Only run this once per VU! ;)

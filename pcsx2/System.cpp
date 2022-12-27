@@ -72,11 +72,6 @@ bool RecompiledCodeReserve::Commit()
    return _parent::Commit();
 }
 
-// This error message is shared by R5900, R3000, and microVU recompilers.
-void RecompiledCodeReserve::ThrowIfNotOk() const
-{
-}
-
 void SysOutOfMemory_EmergencyResponse(uptr blocksize)
 {
 	// An out of memory error occurred.  All we can try to do in response is reset the various

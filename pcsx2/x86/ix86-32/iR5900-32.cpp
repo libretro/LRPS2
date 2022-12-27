@@ -1174,8 +1174,6 @@ static void recReserveCache(void)
 		if (m_ConfiguredCacheReserve < 16) break;
 		m_ConfiguredCacheReserve /= 2;
 	}
-
-	recMem->ThrowIfNotOk();
 }
 
 static void recReserve(void)

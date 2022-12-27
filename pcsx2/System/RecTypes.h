@@ -35,8 +35,6 @@ public:
 	virtual void Reset() override;
 	virtual bool Commit() override;
 
-	void ThrowIfNotOk() const;
-
 	operator void*()				{ return m_baseptr; }
 	operator const void*() const	{ return m_baseptr; }
 
