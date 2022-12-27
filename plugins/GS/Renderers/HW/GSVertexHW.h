@@ -23,15 +23,3 @@
 
 #include "../../GS.h"
 #include "../../GSVector.h"
-
-#pragma pack(push, 1)
-
-struct alignas(32) GSVertexHW9
-{
-	GSVector4 t; 
-	GSVector4 p;
-
-	GSVertexHW9& operator = (GSVertexHW9& v) {t = v.t; p = v.p; return *this;}
-};
-
-#pragma pack(pop)
