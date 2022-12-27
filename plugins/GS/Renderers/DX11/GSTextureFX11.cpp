@@ -1187,7 +1187,7 @@ void GSDevice11::SetupPS(PSSelector sel, const PSConstantBuffer* cb, PSSamplerSe
 	{
 		ShaderMacro sm(m_shader.model);
 
-		sm.AddMacro("PS_SCALE_FACTOR", std::max(1, m_upscale_multiplier));
+		sm.AddMacro("PS_SCALE_FACTOR", m_upscale_multiplier);
 		sm.AddMacro("PS_FST", sel.fst);
 		sm.AddMacro("PS_WMS", sel.wms);
 		sm.AddMacro("PS_WMT", sel.wmt);

@@ -518,7 +518,7 @@ bool GSDevice11::Create()
 		CreateShader(shader, "convert.fx", nullptr, "vs_main", sm_model.GetPtr(), &m_convert.vs, il_convert, ARRAY_SIZE(il_convert), &m_convert.il);
 
 		ShaderMacro sm_convert(m_shader.model);
-		sm_convert.AddMacro("PS_SCALE_FACTOR", std::max(1, m_upscale_multiplier));
+		sm_convert.AddMacro("PS_SCALE_FACTOR", m_upscale_multiplier);
 
 		D3D_SHADER_MACRO* sm_convert_ptr = sm_convert.GetPtr();
 
