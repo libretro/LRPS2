@@ -166,27 +166,6 @@ bool Threading::Semaphore::Wait(const wxTimeSpan &timeout)
     return WaitWithoutYield(timeout);
 }
 
-// Performs an uncancellable wait on a semaphore; restoring the thread's previous cancel state
-// after the wait has completed.  Useful for situations where the semaphore itself is stored on
-// the stack and passed to another thread via GUI message or such, avoiding complications where
-// the thread might be canceled and the stack value becomes invalid.
-//
-// Performance note: this function has quite a bit more overhead compared to Semaphore::WaitWithoutYield(), so
-// consider manually specifying the thread as uncancellable and using WaitWithoutYield() instead if you need
-// to do a lot of no-cancel waits in a tight loop worker thread, for example.
-//
-// I'm unsure how to do this with pure Mach primitives, the docs in
-// osfmk/man seem a bit out of date so perhaps there's a possibility, but
-// since as far as I know Mach threads are 1-to-1 on BSD uthreads (and thus
-// POSIX threads), this should work. -- aktau
-void Threading::Semaphore::WaitNoCancel()
-{
-    int oldstate;
-    pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &oldstate);
-    Wait();
-    pthread_setcancelstate(oldstate, NULL);
-}
-
 int Threading::Semaphore::Count()
 {
     return __atomic_load_n(&m_counter, __ATOMIC_SEQ_CST);

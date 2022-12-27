@@ -139,8 +139,7 @@ void SysMtgsThread::PostVsyncStart()
 	// Note: potentially we can also miss the previous wake up if we optimize away the post just before the release of busy signal of the ring
 	// So let's ensure the ring doesn't sleep
 	m_sem_event.Post();
-
-	m_sem_Vsync.WaitNoCancel();
+	m_sem_Vsync.Wait();
 }
 
 union PacketTagType
