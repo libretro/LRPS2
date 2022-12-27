@@ -14,7 +14,7 @@
  */
 
 #pragma once
-#include <wx/wx.h>
+#include "wx/wx.h"
 
 typedef void FnType_Void();
 
