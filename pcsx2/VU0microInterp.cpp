@@ -19,6 +19,8 @@
 
 #include "VUmicro.h"
 
+#include <cfenv>
+
 extern void _vuFlushAll(VURegs* VU);
 
 static void _vu0ExecUpper(VURegs* VU, u32 *ptr)
@@ -70,23 +72,32 @@ static void _vu0Exec(VURegs* VU)
 
 	VU->code = ptr[1];
 	VU0regs_UPPER_OPCODE[VU->code & 0x3f](&uregs);
-#ifndef INT_VUSTALLHACK
+	lregs.cycles = 0;
+	u32 cyclesBeforeOp = VU0.cycle-1;
+
 	_vuTestUpperStalls(VU, &uregs);
-#endif
 
 	/* check upper flags */
-	if (ptr[1] & 0x80000000) { /* I flag */
+	if (ptr[1] & 0x80000000) /* I flag */
+	{
+		_vuTestPipes(VU);
+
+		if (VU->VIBackupCycles > 0)
+			VU->VIBackupCycles -= std::min((u8)(VU0.cycle - cyclesBeforeOp), VU->VIBackupCycles);
 		_vu0ExecUpper(VU, ptr);
 
 		VU->VI[REG_I].UL = ptr[0];
 		memset(&lregs, 0, sizeof(lregs));
-	} else {
+	}
+	else
+	{
 		VU->code = ptr[0];
 		VU0regs_LOWER_OPCODE[VU->code >> 25](&lregs);
-#ifndef INT_VUSTALLHACK
 		_vuTestLowerStalls(VU, &lregs);
-#endif
 
+		_vuTestPipes(VU);
+		if (VU->VIBackupCycles > 0)
+			VU->VIBackupCycles -= std::min((u8)(VU0.cycle - cyclesBeforeOp), VU->VIBackupCycles);
 		vfreg = 0;
 		vireg = 0;
 		if (uregs.VFwrite) {
@@ -127,15 +138,12 @@ static void _vu0Exec(VURegs* VU)
 				VU->VI[vireg] = _VIc;
 		}
 	}
+
+	if (uregs.pipe == VUPIPE_FMAC || lregs.pipe == VUPIPE_FMAC)
+		_vuClearFMAC(VU);
+
 	_vuAddUpperStalls(VU, &uregs);
-
-	if (!(ptr[1] & 0x80000000))
-		_vuAddLowerStalls(VU, &lregs);
-
-	_vuTestPipes(VU);
-
-	if(VU->VIBackupCycles > 0) 
-		VU->VIBackupCycles--;
+	_vuAddLowerStalls(VU, &lregs);
 
 	if (VU->branch > 0) {
 		if (VU->branch-- == 1) {
@@ -159,13 +167,17 @@ static void _vu0Exec(VURegs* VU)
 			vif0Regs.stat.VEW = false;
 		}
 	}
+
+	// Progress the write position of the FMAC pipeline by one place
+	if (uregs.pipe == VUPIPE_FMAC || lregs.pipe == VUPIPE_FMAC)
+		VU->fmacwritepos = ++VU->fmacwritepos & 3;
 }
 
 static void vu0Exec(VURegs* VU)
 {
 	VU0.VI[REG_TPC].UL &= VU0_PROGMASK;
-	_vu0Exec(VU);
 	VU->cycle++;
+	_vu0Exec(VU);
 }
 
 // --------------------------------------------------------------------------------------
@@ -176,6 +188,16 @@ InterpVU0::InterpVU0()
 	m_Idx = 0;
 }
 
+void InterpVU0::Reset()
+{
+	VU0.fmacwritepos = 0;
+	VU0.fmacreadpos = 0;
+	VU0.fmaccount = 0;
+	VU0.ialuwritepos = 0;
+	VU0.ialureadpos = 0;
+	VU0.ialucount = 0;
+}
+
 void InterpVU0::SetStartPC(u32 startPC)
 {
 	VU0.start_pc = startPC;
@@ -183,9 +205,13 @@ void InterpVU0::SetStartPC(u32 startPC)
 
 void InterpVU0::Execute(u32 cycles)
 {
+	const int originalRounding = fegetround();
+	fesetround(g_sseVUMXCSR.RoundingControl << 8);
+
 	VU0.VI[REG_TPC].UL <<= 3;
 	VU0.flags &= ~VUFLAG_MFLAGSET;
-	for (int i = (int)cycles; i > 0; i--) {
+	u32 startcycles = VU0.cycle;
+	while((VU0.cycle - startcycles) < cycles) {
 		if (!(VU0.VI[REG_VPU_STAT].UL & 0x1) || (VU0.flags & VUFLAG_MFLAGSET)) {
 			if (VU0.branch || VU0.ebit)
 				vu0Exec(&VU0); // run branch delay slot?
@@ -194,4 +220,6 @@ void InterpVU0::Execute(u32 cycles)
 		vu0Exec(&VU0);
 	}
 	VU0.VI[REG_TPC].UL >>= 3;
+
+	fesetround(originalRounding);
 }

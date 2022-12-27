@@ -43,7 +43,7 @@ static __ri u32 VU_MAC_UPDATE( int shift, VURegs * VU, float f )
 				VU->macflag = (VU->macflag&~(0x1000<<shift)) | (0x0101<<shift);
 				return s;
 			case 255:
-				VU->macflag = (VU->macflag&~(0x0100<<shift)) | (0x1000<<shift);
+				VU->macflag = (VU->macflag&~(0x0101<<shift)) | (0x1000<<shift);
 				return s|0x7f7fffff; /* max allowed */
 			default:
 				VU->macflag = (VU->macflag & ~(0x1101<<shift));
@@ -101,5 +101,6 @@ __ri void VU_STAT_UPDATE(VURegs * VU)
 	if (VU->macflag & 0x00F0) newflag |= 0x2;
 	if (VU->macflag & 0x0F00) newflag |= 0x4;
 	if (VU->macflag & 0xF000) newflag |= 0x8;
-	VU->statusflag = (VU->statusflag&0xc30)|newflag|((VU->statusflag&0xf)<<6);
+	// Save old sticky flags and D/I settings, everthing else is the new flags only
+	VU->statusflag = newflag;
 }

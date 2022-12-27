@@ -124,7 +124,7 @@ public:
 
 	void Reserve() { }
 	void Shutdown() noexcept { }
-	void Reset() { }
+	void Reset();
 
 	void SetStartPC(u32 startPC);
 	void Execute(u32 cycles);
