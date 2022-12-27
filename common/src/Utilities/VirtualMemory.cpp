@@ -13,10 +13,6 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __WXMSW__
-#include <wx/thread.h>
-#endif
-
 #include "Dependencies.h"
 
 #include "General.h"
@@ -24,8 +20,6 @@
 #include "PageFaultSource.h"
 
 #include "EventSource.inl"
-
-#include "../../libretro/retro_messager.h"
 
 template class EventSource<IEventListener_PageFault>;
 
@@ -131,7 +125,7 @@ static bool VMMMarkPagesAsInUse(std::atomic<bool> *begin, std::atomic<bool> *end
                 if (!current->compare_exchange_strong(expected, false, std::memory_order_relaxed)) {
                     // In the time we were doing this, someone set one of the things we just set to true back to false
                     // This should never happen, but if it does we'll just stop and hope nothing bad happens
-                    return false;
+		    break;
                 }
             }
             return false;
@@ -142,18 +136,18 @@ static bool VMMMarkPagesAsInUse(std::atomic<bool> *begin, std::atomic<bool> *end
 
 void *VirtualMemoryManager::Alloc(uptr offsetLocation, size_t size) const
 {
-    size = pageAlign(size);
     if (!(offsetLocation % PCSX2_PAGESIZE == 0))
-        return nullptr;
-    if (!(size + offsetLocation <= m_pages_reserved * PCSX2_PAGESIZE))
         return nullptr;
     if (m_baseptr == 0)
         return nullptr;
+    size = pageAlign(size);
+    if (!(size + offsetLocation <= m_pages_reserved * PCSX2_PAGESIZE))
+        return nullptr;
     auto puStart = &m_pageuse[offsetLocation / PCSX2_PAGESIZE];
-    auto puEnd = &m_pageuse[(offsetLocation+size) / PCSX2_PAGESIZE];
-    if (VMMMarkPagesAsInUse(puStart, puEnd))
-        return (void *)(m_baseptr + offsetLocation);
-    return nullptr;
+    auto puEnd   = &m_pageuse[(offsetLocation+size) / PCSX2_PAGESIZE];
+    if (!VMMMarkPagesAsInUse(puStart, puEnd))
+        return nullptr;
+    return (void *)(m_baseptr + offsetLocation);
 }
 
 void VirtualMemoryManager::Free(void *address, size_t size) const
@@ -170,7 +164,7 @@ void VirtualMemoryManager::Free(void *address, size_t size) const
     if (!(size + offsetLocation <= m_pages_reserved * PCSX2_PAGESIZE))
         return;
     auto puStart = &m_pageuse[offsetLocation      / PCSX2_PAGESIZE];
-    auto puEnd = &m_pageuse[(offsetLocation+size) / PCSX2_PAGESIZE];
+    auto puEnd   = &m_pageuse[(offsetLocation+size) / PCSX2_PAGESIZE];
     for (; puStart < puEnd; puStart++) {
         bool expected = true;
         if (!puStart->compare_exchange_strong(expected, false, std::memory_order_relaxed)) { }
@@ -212,7 +206,6 @@ VirtualMemoryReserve::VirtualMemoryReserve(size_t size)
     m_pages_reserved = 0;
     m_baseptr        = nullptr;
     m_prot_mode      = PageAccess_None();
-    m_allow_writes   = true;
 }
 
 VirtualMemoryReserve &VirtualMemoryReserve::SetPageAccessOnCommit(const PageProtectionMode &mode)
@@ -256,19 +249,13 @@ void *VirtualMemoryReserve::Assign(VirtualMemoryManagerPtr allocator, void * bas
     return nullptr;
 }
 
-void VirtualMemoryReserve::ReprotectCommittedBlocks(const PageProtectionMode &newmode)
-{
-    if (m_pages_commited)
-        HostSys::MemProtect(m_baseptr, m_pages_commited * PCSX2_PAGESIZE, newmode);
-}
-
 // Clears all committed blocks, restoring the allocation to a reserve only.
 void VirtualMemoryReserve::Reset()
 {
     if (!m_pages_commited)
         return;
 
-    ReprotectCommittedBlocks(PageAccess_None());
+    HostSys::MemProtect(m_baseptr, m_pages_commited * PCSX2_PAGESIZE, PageAccess_None());
     HostSys::MmapResetPtr(m_baseptr, m_pages_commited * PCSX2_PAGESIZE);
     m_pages_commited = 0;
 }
@@ -294,7 +281,6 @@ bool VirtualMemoryReserve::Commit()
 
 void VirtualMemoryReserve::ForbidModification()
 {
-    m_allow_writes = false;
     HostSys::MemProtect(m_baseptr, m_pages_commited * PCSX2_PAGESIZE, PageProtectionMode(m_prot_mode).Write(false));
 }
 

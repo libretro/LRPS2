@@ -177,12 +177,6 @@ protected:
     // Protection mode to be applied to committed blocks.
     PageProtectionMode m_prot_mode;
 
-    // Controls write access to the entire reserve.  When true (the default), the reserve
-    // operates normally.  When set to false, all committed blocks are re-protected with
-    // write disabled, and accesses to uncommitted blocks (read or write) will cause a GPF
-    // as well.
-    bool m_allow_writes;
-
     // Allows the implementation to decide how much memory it needs to allocate if someone requests the given size
     // Should translate requests of size 0 to m_defsize
     virtual size_t GetSize(size_t requestedSize);
@@ -242,9 +236,6 @@ public:
     {
         return *((u8 *)m_baseptr + idx);
     }
-
-protected:
-    virtual void ReprotectCommittedBlocks(const PageProtectionMode &newmode);
 };
 
 #ifdef __POSIX__
