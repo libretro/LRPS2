@@ -160,10 +160,8 @@ public:
 	virtual bool Create();
 	virtual bool Reset(int w, int h);
 	virtual void Present(const GSVector4i& r, int shader);
-	virtual void Present(GSTexture* sTex, GSTexture* dTex, const GSVector4& dRect, int shader = 0);
 	virtual void Flip() {  }
 
-	virtual void BeginScene() {}
 	virtual void EndScene();
 
 	virtual bool HasDepthSparse() { return false; }

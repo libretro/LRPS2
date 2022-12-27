@@ -100,15 +100,10 @@ void GSDevice::Present(const GSVector4i& r, int shader)
 			ShaderConvert_DIAGONAL_FILTER, ShaderConvert_TRIANGULAR_FILTER,
 			ShaderConvert_COMPLEX_FILTER}; // FIXME
 
-		Present(m_current, m_backbuffer, GSVector4(r), s_shader[shader]);
+		StretchRect(m_current, m_backbuffer, GSVector4(r), s_shader[shader], m_linear_present);
 	}
 
 	Flip();
-}
-
-void GSDevice::Present(GSTexture* sTex, GSTexture* dTex, const GSVector4& dRect, int shader)
-{
-	StretchRect(sTex, dTex, dRect, shader, m_linear_present);
 }
 
 GSTexture* GSDevice::FetchSurface(int type, int w, int h, int format)

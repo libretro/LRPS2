@@ -1010,8 +1010,6 @@ void GSDevice11::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture*
 	bool draw_in_depth = (ps == m_convert.ps[ShaderConvert_RGBA8_TO_FLOAT32] || ps == m_convert.ps[ShaderConvert_RGBA8_TO_FLOAT24] ||
 		ps == m_convert.ps[ShaderConvert_RGBA8_TO_FLOAT16] || ps == m_convert.ps[ShaderConvert_RGB5A1_TO_FLOAT16]);
 
-	BeginScene();
-
 	GSVector2i ds = dTex->GetSize();
 
 	// om
@@ -1141,9 +1139,6 @@ void GSDevice11::DoFXAA(GSTexture* sTex, GSTexture* dTex)
 void GSDevice11::SetupDATE(GSTexture* rt, GSTexture* ds, const GSVertexPT1* vertices, bool datm)
 {
 	// SFEX3 (after the capcom logo), VF4 (first menu fading in), FFXII shadows, Rumble Roses shadows, Persona 4 shadows
-
-	BeginScene();
-
 	ClearStencil(ds, 0);
 
 	// om

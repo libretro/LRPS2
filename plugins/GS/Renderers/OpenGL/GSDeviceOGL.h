@@ -534,7 +534,6 @@ public:
 
 	void SetupDATE(GSTexture* rt, GSTexture* ds, const GSVertexPT1* vertices, bool datm);
 
-	void BeginScene() final {}
 	void EndScene() final;
 
 	void IASetPrimitiveTopology(GLenum topology);

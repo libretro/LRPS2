@@ -2481,8 +2481,6 @@ void GSDeviceOGL::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture
 	// Init
 	// ************************************
 
-	BeginScene();
-
 	GSVector2i ds = dTex->GetSize();
 
 	m_shader->BindPipeline(ps);
@@ -2663,9 +2661,6 @@ void GSDeviceOGL::DoFXAA(GSTexture* sTex, GSTexture* dTex)
 void GSDeviceOGL::SetupDATE(GSTexture* rt, GSTexture* ds, const GSVertexPT1* vertices, bool datm)
 {
 	// sfex3 (after the capcom logo), vf4 (first menu fading in), ffxii shadows, rumble roses shadows, persona4 shadows
-
-	BeginScene();
-
 	ClearStencil(ds, 0);
 
 	m_shader->BindPipeline(m_convert.ps[datm ? ShaderConvert_DATM_1 : ShaderConvert_DATM_0]);

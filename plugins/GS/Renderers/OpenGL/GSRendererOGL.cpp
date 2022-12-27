@@ -1014,10 +1014,6 @@ void GSRendererOGL::DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Sour
 		}
 	}
 
-	//
-
-	dev->BeginScene();
-
 	// om
 
 	EmulateZbuffer(); // will update VS depth mask
