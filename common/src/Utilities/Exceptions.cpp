@@ -60,39 +60,3 @@ Exception::RuntimeError::RuntimeError(const std::exception &ex, const wxString &
                       (prefix.IsEmpty() ? L"" : pxsFmt(L" (%s)", WX_STR(prefix)).c_str()),
                       WX_STR(fromUTF8(ex.what()))));
 }
-
-// --------------------------------------------------------------------------------------
-//  Exceptions from Errno (POSIX)
-// --------------------------------------------------------------------------------------
-
-// Translates an Errno code into an exception.
-// Throws an exception based on the given error code (usually taken from ANSI C's errno)
-BaseException *Exception::FromErrno(const wxString &streamname, int errcode)
-{
-    switch (errcode)
-    {
-	    case EINVAL:
-		    return &(new Exception::BadStream(streamname))->SetDiagMsg(L"Invalid argument? (likely caused by an unforgivable programmer error!)");
-
-	    case EACCES: // Access denied!
-		    return new Exception::AccessDenied(streamname);
-
-	    case EMFILE:                                                                                     // Too many open files!
-		    return &(new Exception::CannotCreateStream(streamname))->SetDiagMsg(L"Too many open files"); // File handle allocation failure
-
-	    case EEXIST:
-		    return &(new Exception::CannotCreateStream(streamname))->SetDiagMsg(L"File already exists");
-
-	    case ENOENT: // File not found!
-		    return new Exception::FileNotFound(streamname);
-
-	    case EPIPE:
-		    return &(new Exception::BadStream(streamname))->SetDiagMsg(L"Broken pipe");
-
-	    case EBADF:
-		    return &(new Exception::BadStream(streamname))->SetDiagMsg(L"Bad file number");
-
-	    default:
-		    return &(new Exception::BadStream(streamname))->SetDiagMsg(pxsFmt(L"General file/stream error [errno: %d]", errcode));
-    }
-}

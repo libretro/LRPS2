@@ -75,14 +75,11 @@ wxFileOffset pxInputStream::Seek(wxFileOffset ofs, wxSeekMode mode)
 void pxInputStream::Read(void *dest, size_t size)
 {
     m_stream_in->Read(dest, size);
-    if (m_stream_in->GetLastError() == wxSTREAM_READ_ERROR) {
+    if (m_stream_in->GetLastError() == wxSTREAM_READ_ERROR)
+    {
         int err = errno;
         if (!err)
             throw Exception::BadStream(m_filename).SetDiagMsg(L"Cannot read from file (bad file handle?)");
-
-        ScopedExcept ex(Exception::FromErrno(m_filename, err));
-        ex->SetDiagMsg(L"cannot read from file: " + ex->DiagMsg());
-        ex->Rethrow();
     }
 
     // IMPORTANT!  The underlying file/source Eof() stuff is not really reliable, so we
