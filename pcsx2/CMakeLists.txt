@@ -436,7 +436,6 @@ set(pcsx2SystemHeaders
 set(pcsx2WindowsSources
 	CDVD/Windows/DriveUtility.cpp
 	CDVD/Windows/IOCtlSrc.cpp
-	windows/VCprojects/IopSif.cpp
 	windows/WinCompressNTFS.cpp
 	)
 
