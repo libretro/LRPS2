@@ -37,6 +37,7 @@
 static bool is_d3d                  = false;
 GSRenderer* s_gs                    = NULL;
 static GSRendererType m_current_renderer_type;
+static bool stored_toggle_state     = false;
 
 GSdxApp theApp;
 
@@ -87,15 +88,16 @@ EXPORT_C_(int) GSinit(void)
 	return 0;
 }
 
-EXPORT_C GSshutdown()
+EXPORT_C GSshutdown(void)
 {
 	delete s_gs;
-	s_gs = nullptr;
-
+	s_gs                    = nullptr;
 	m_current_renderer_type = GSRendererType::Undefined;
+	stored_toggle_state     = false;
+	is_d3d                  = false;
 }
 
-EXPORT_C GSclose()
+EXPORT_C GSclose(void)
 {
 	if(s_gs == NULL) return;
 
@@ -1057,7 +1059,6 @@ void GSUpdateOptions(void)
 
 EXPORT_C_(int) GSopen2(u32 flags, u8 *basemem)
 {
-	static bool stored_toggle_state = false;
 	const bool toggle_state = !!(flags & 4);
 
 	switch (hw_render.context_type)
