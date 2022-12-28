@@ -27,18 +27,17 @@
 
 FlatFileReader::FlatFileReader(bool shareWrite) : shareWrite(shareWrite)
 {
-	m_blocksize     = 2048;
+	m_blocksize        = 2048;
 #ifdef _WIN32
-	hOverlappedFile = INVALID_HANDLE_VALUE;
-	hEvent          = INVALID_HANDLE_VALUE;
-	asyncInProgress = false;
+	hOverlappedFile    = INVALID_HANDLE_VALUE;
+	hEvent             = INVALID_HANDLE_VALUE;
 #elif defined(__APPLE__) || defined(__unix__)
-	m_fd            = -1;
-	m_aio_context   = 0;
+	m_fd               = -1;
+#ifndef __APPLE__
+	m_aio_context      = 0;
 #endif
-#if defined(__APPLE__)
+#endif
 	m_read_in_progress = false;
-#endif
 }
 
 FlatFileReader::~FlatFileReader(void)
@@ -90,7 +89,6 @@ void FlatFileReader::BeginRead(void* pBuffer, uint sector, uint count)
 	asyncOperationContext.OffsetHigh = offset.HighPart;
 
 	ReadFile(hOverlappedFile, pBuffer, bytesToRead, NULL, &asyncOperationContext);
-	asyncInProgress = true;
 #elif defined(__APPLE__)
 	u64 offset         = sector * (u64)m_blocksize + m_dataoffset;
 	u32 bytesToRead    = count * m_blocksize;
@@ -99,7 +97,7 @@ void FlatFileReader::BeginRead(void* pBuffer, uint sector, uint count)
 	if (m_aiocb.aio_nbytes != bytesToRead)
 		m_aiocb.aio_nbytes = -1;
 #else
-	m_aiocb = {0};
+	m_aiocb            = {0};
 	m_aiocb.aio_fildes = m_fd;
 	m_aiocb.aio_offset = offset;
 	m_aiocb.aio_nbytes = bytesToRead;
@@ -108,7 +106,6 @@ void FlatFileReader::BeginRead(void* pBuffer, uint sector, uint count)
 	if (aio_read(&m_aiocb) != 0)
 		return;
 #endif
-	m_read_in_progress = true;
 #elif defined(__unix__)
 	struct iocb iocb;
 	u64 offset      = sector * (s64)m_blocksize + m_dataoffset;
@@ -117,6 +114,7 @@ void FlatFileReader::BeginRead(void* pBuffer, uint sector, uint count)
 	io_prep_pread(&iocb, m_fd, pBuffer, bytesToRead, offset);
 	io_submit(m_aio_context, 1, &iocbs);
 #endif
+	m_read_in_progress = true;
 }
 
 int FlatFileReader::ReadSync(void* pBuffer, uint sector, uint count)
@@ -132,11 +130,11 @@ int FlatFileReader::FinishRead(void)
 	DWORD bytes;
 	if(!GetOverlappedResult(hOverlappedFile, &asyncOperationContext, &bytes, TRUE))
 	{
-		asyncInProgress = false;
+		m_read_in_progress = false;
 		return -1;
 	}
 
-	asyncInProgress = false;
+	m_read_in_progress = false;
 	return bytes;
 #elif defined(__APPLE__)
 #if defined(DISABLE_AIO)
@@ -153,10 +151,10 @@ int FlatFileReader::FinishRead(void)
 	return aio_return(&m_aiocb) == -1? -1: 1;
 #endif
 #elif defined(__unix__)
+	struct io_event events[max_nr];
 	int min_nr = 1;
 	int max_nr = 1;
-	struct io_event events[max_nr];
-	int event = io_getevents(m_aio_context, min_nr, max_nr, events, NULL);
+	int event  = io_getevents(m_aio_context, min_nr, max_nr, events, NULL);
 	if (event < 1)
 		return -1;
 	return 1;
@@ -177,27 +175,25 @@ void FlatFileReader::CancelRead(void)
 
 void FlatFileReader::Close(void)
 {
-#ifdef _WIN32
-	if(asyncInProgress)
+#if defined(_WIN32) || defined(__APPLE__)
+	if (m_read_in_progress)
 		CancelRead();
+#endif
+#ifdef _WIN32
 	if(hOverlappedFile != INVALID_HANDLE_VALUE)
 		CloseHandle(hOverlappedFile);
 	if(hEvent != INVALID_HANDLE_VALUE)
 		CloseHandle(hEvent);
 	hOverlappedFile = INVALID_HANDLE_VALUE;
 	hEvent          = INVALID_HANDLE_VALUE;
-#elif defined(__APPLE__)
-	if (m_read_in_progress)
-		CancelRead();
+#elif defined(__APPLE__) || defined(__unix__)
 	if (m_fd != -1)
 		close(m_fd);
 	m_fd            = -1;
-#elif defined(__unix__)
-	if (m_fd != -1)
-		close(m_fd);
+#if !defined(__APPLE__)
 	io_destroy(m_aio_context);
-	m_fd            = -1;
 	m_aio_context   = 0;
+#endif
 #endif
 }
 

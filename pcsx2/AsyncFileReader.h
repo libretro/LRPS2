@@ -71,16 +71,14 @@ class FlatFileReader : public AsyncFileReader
 	OVERLAPPED asyncOperationContext;
 
 	HANDLE hEvent;
-
-	bool asyncInProgress;
 #elif defined(__linux__)
 	int m_fd; // FIXME don't know if overlap as an equivalent on linux
 	io_context_t m_aio_context;
 #elif defined(__POSIX__)
 	int m_fd; // TODO OSX don't know if overlap as an equivalent on OSX
 	struct aiocb m_aiocb;
-	bool m_read_in_progress;
 #endif
+	bool m_read_in_progress;
 
 	bool shareWrite;
 
