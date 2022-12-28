@@ -82,18 +82,6 @@ wxAppTraits* Pcsx2App::CreateTraits()
 //         Pcsx2App Event Handlers
 // ----------------------------------------------------------------------------
 
-extern bool renderswitch;
-
-void DoFmvSwitch(bool on)
-{
-	if (EmuConfig.Gamefixes.FMVinSoftwareHack)
-   {
-		CoreThread.Pause();
-		renderswitch = !renderswitch;
-		CoreThread.Resume();
-	}
-}
-
 void AppApplySettings()
 {
 	CoreThread.Pause();

@@ -30,7 +30,16 @@
 // =====================================================================================================
 
 __aligned(32) MTGS_BufferedData RingBuffer;
-extern bool renderswitch;
+
+static bool renderswitch = false;
+
+#if 0
+static void DoFmvSwitch(bool on)
+{
+	if (EmuConfig.Gamefixes.FMVinSoftwareHack)
+		renderswitch = !renderswitch;
+}
+#endif
 
 SysMtgsThread::SysMtgsThread() :
 	SysFakeThread()
