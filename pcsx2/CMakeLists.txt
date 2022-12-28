@@ -65,6 +65,7 @@ set(pcsx2Sources
 	MTGS.cpp
 	MTVU.cpp
 	MultipartFileReader.cpp
+	FlatFileReader.cpp
 	Patch.cpp
 	Patch_Memory.cpp
 	Pcsx2Config.cpp
@@ -395,19 +396,16 @@ set(pcsx2IPUHeaders
 set(pcsx2LinuxSources
 	CDVD/Linux/DriveUtility.cpp
 	CDVD/Linux/IOCtlSrc.cpp
-	Linux/LnxFlatFileReader.cpp
    )
 
 set(pcsx2OSXSources
 	CDVD/Linux/DriveUtility.cpp
 	CDVD/Linux/IOCtlSrc.cpp
-	Darwin/DarwinFlatFileReader.cpp
 	)
 
 set(pcsx2FreeBSDSources
 	CDVD/Linux/DriveUtility.cpp
 	CDVD/Linux/IOCtlSrc.cpp
-	Darwin/DarwinFlatFileReader.cpp
 	)
 
 # Linux headers
@@ -438,13 +436,9 @@ set(pcsx2SystemHeaders
 set(pcsx2WindowsSources
 	CDVD/Windows/DriveUtility.cpp
 	CDVD/Windows/IOCtlSrc.cpp
-	windows/FlatFileReaderWindows.cpp
 	windows/VCprojects/IopSif.cpp
 	windows/WinCompressNTFS.cpp
 	)
-# Windows headers
-set(pcsx2WindowsHeaders
-	windows/Win32.h)
 
 # x86 sources
 set(pcsx2x86Sources
@@ -556,7 +550,7 @@ endif()
 if(Windows)
 	set(Platform
 		${pcsx2WindowsSources}
-		${pcsx2WindowsHeaders})
+		)
 endif()
 
 # MacOSX
