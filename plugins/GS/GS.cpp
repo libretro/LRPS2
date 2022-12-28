@@ -37,6 +37,7 @@
 static bool is_d3d                  = false;
 GSRenderer* s_gs                    = NULL;
 static u8* s_basemem                = NULL;
+static GSRendererType m_current_renderer_type;
 
 GSdxApp theApp;
 
@@ -100,7 +101,7 @@ EXPORT_C GSshutdown()
 	delete s_gs;
 	s_gs = nullptr;
 
-	theApp.SetCurrentRendererType(GSRendererType::Undefined);
+	m_current_renderer_type = GSRendererType::Undefined;
 }
 
 EXPORT_C GSclose()
@@ -120,7 +121,7 @@ static int _GSopen(GSRendererType renderer, int threads)
 
 	is_d3d       = false;
 
-	if (theApp.GetCurrentRendererType() != renderer)
+	if (m_current_renderer_type != renderer)
 	{
 		// Emulator has made a render change request, which requires a completely
 		// new s_gs -- if the emu doesn't save/restore the GS state across this
@@ -130,7 +131,7 @@ static int _GSopen(GSRendererType renderer, int threads)
 
 		s_gs = NULL;
 
-		theApp.SetCurrentRendererType(renderer);
+		m_current_renderer_type = renderer;
 	}
 
 	switch (renderer)
@@ -234,45 +235,43 @@ EXPORT_C_(int) GSopen2(u32 flags)
 	switch (hw_render.context_type)
 	{
 		case RETRO_HW_CONTEXT_DIRECT3D:
-			theApp.SetCurrentRendererType(GSRendererType::DX1011_HW);
+			m_current_renderer_type = GSRendererType::DX1011_HW;
 			break;
 		case RETRO_HW_CONTEXT_NONE:
-			theApp.SetCurrentRendererType(GSRendererType::Null);
+			m_current_renderer_type = GSRendererType::Null;
 			break;
 		default:
 			if (! std::strcmp(option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type), "Software"))
-				theApp.SetCurrentRendererType(GSRendererType::OGL_SW);
+				m_current_renderer_type = GSRendererType::OGL_SW;
 			else
-				theApp.SetCurrentRendererType(GSRendererType::OGL_HW);
+				m_current_renderer_type = GSRendererType::OGL_HW;
 			break;
 	}
 	
-	auto current_renderer = theApp.GetCurrentRendererType();
-
-	if (current_renderer != GSRendererType::Undefined && stored_toggle_state != toggle_state)
+	if (m_current_renderer_type != GSRendererType::Undefined && stored_toggle_state != toggle_state)
 	{
 		// SW -> HW and HW -> SW (F9 Switch)
-		switch (current_renderer)
+		switch (m_current_renderer_type)
 		{
 			#ifdef _WIN32
 			case GSRendererType::DX1011_HW:
-				current_renderer = GSRendererType::OGL_SW;
+				m_current_renderer_type = GSRendererType::OGL_SW;
 				break;
 			#endif
 			case GSRendererType::OGL_SW:
-				current_renderer = GSRendererType::OGL_HW;
+				m_current_renderer_type = GSRendererType::OGL_HW;
 				break;
 			case GSRendererType::OGL_HW:
-				current_renderer = GSRendererType::OGL_SW;
+				m_current_renderer_type = GSRendererType::OGL_SW;
 				break;
 			default:
-				current_renderer = GSRendererType::OGL_SW;
+				m_current_renderer_type = GSRendererType::OGL_SW;
 				break;
 		}
 	}
 	stored_toggle_state = toggle_state;
 
-	return _GSopen(current_renderer, -1);
+	return _GSopen(m_current_renderer_type, -1);
 }
 
 EXPORT_C GSreset()
@@ -529,8 +528,8 @@ void GSdxApp::Init()
 	static bool is_initialised = false;
 	if (is_initialised)
 		return;
-	is_initialised = true;
 
+	is_initialised          = true;
 	m_current_renderer_type = GSRendererType::Undefined;
 
 	// Init configuration map with default values
@@ -636,12 +635,7 @@ void GSdxApp::SetConfig(const char* entry, int value)
 	SetConfig(entry, buff);
 }
 
-void GSdxApp::SetCurrentRendererType(GSRendererType type)
-{
-	m_current_renderer_type = type;
-}
-
-GSRendererType GSdxApp::GetCurrentRendererType() const
+GSRendererType GetCurrentRendererType(void)
 {
 	return m_current_renderer_type;
 }

@@ -261,7 +261,8 @@ namespace GLLoader {
 		}
 
 		// Only for HW renderer
-		if (theApp.GetCurrentRendererType() == GSRendererType::OGL_HW) {
+		if (GetCurrentRendererType() == GSRendererType::OGL_HW)
+		{
 			mandatory("GL_ARB_copy_image");
 			mandatory("GL_ARB_clip_control");
 		}

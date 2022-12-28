@@ -1224,7 +1224,6 @@ const GSVector2i default_rt_size(1280, 1024);
 class GSdxApp
 {
 	std::map< std::string, std::string > m_current_configuration;
-	GSRendererType m_current_renderer_type;
 
 public:
 	GSdxApp();
@@ -1239,11 +1238,9 @@ public:
 	int    GetConfigI(const char* entry);
 	bool   GetConfigB(const char* entry);
 	std::string GetConfigS(const char* entry);
-
-	void SetCurrentRendererType(GSRendererType type);
-	GSRendererType GetCurrentRendererType() const;
-
 };
+
+GSRendererType GetCurrentRendererType(void);
 
 struct GSDXError {};
 struct GSDXRecoverableError : GSDXError {};
