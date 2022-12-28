@@ -106,16 +106,14 @@ Threading::pxThread::pxThread(const wxString &name)
 // like marrying your sister, and then cheating on her with your daughter.
 Threading::pxThread::~pxThread()
 {
-    try {
-        if (m_running) {
-            m_mtx_InThread.Acquire();
-            m_mtx_InThread.Release();
-        }
-        Threading::sleep(1);
+	if (m_running)
+	{
+		m_mtx_InThread.Acquire();
+		m_mtx_InThread.Release();
+	}
+	Threading::sleep(1);
 	if (!m_detached.exchange(true))
 		pthread_detach(m_thread);
-    }
-    DESTRUCTOR_CATCHALL
 }
 
 static void _pt_callback_cleanup(void *handle)

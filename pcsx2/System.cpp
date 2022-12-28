@@ -272,15 +272,11 @@ SysCpuProviderPack::SysCpuProviderPack()
 
 SysCpuProviderPack::~SysCpuProviderPack()
 {
-	try
-	{
-		psxRec.Shutdown();
-		recCpu.Shutdown();
+	psxRec.Shutdown();
+	recCpu.Shutdown();
 
-		dVifRelease(0);
-		dVifRelease(1);
-	}
-	DESTRUCTOR_CATCHALL
+	dVifRelease(0);
+	dVifRelease(1);
 }
 
 BaseVUmicroCPU* CpuVU0 = NULL;

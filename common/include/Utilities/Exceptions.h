@@ -18,24 +18,6 @@
 #include "StringHelpers.h"
 #include <memory>
 
-// --------------------------------------------------------------------------------------
-//  DESTRUCTOR_CATCHALL - safe destructor helper
-// --------------------------------------------------------------------------------------
-// In C++ destructors *really* need to be "nothrow" garaunteed, otherwise you can have
-// disasterous nested exception throws during the unwinding process of an originating
-// exception.  Use this macro to dispose of these dangerous exceptions, and generate a
-// friendly error log in their wake.
-#define __DESTRUCTOR_CATCHALL(funcname) \
-    catch (BaseException & ex)  {} \
-    catch (std::exception & ex) {} \
-    catch (...) { }
-
-#if defined(__GNUG__)
-#define DESTRUCTOR_CATCHALL __DESTRUCTOR_CATCHALL(__PRETTY_FUNCTION__)
-#else
-#define DESTRUCTOR_CATCHALL __DESTRUCTOR_CATCHALL(__FUNCTION__)
-#endif
-
 namespace Exception
 {
 // --------------------------------------------------------------------------------------

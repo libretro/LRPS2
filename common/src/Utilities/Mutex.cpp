@@ -109,10 +109,7 @@ void Threading::Mutex::Detach()
 
 Threading::Mutex::~Mutex()
 {
-    try {
-        Mutex::Detach();
-    }
-    DESTRUCTOR_CATCHALL;
+	Mutex::Detach();
 }
 
 Threading::MutexRecursive::MutexRecursive()

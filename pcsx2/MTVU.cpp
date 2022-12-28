@@ -104,11 +104,7 @@ VU_Thread::VU_Thread(BaseVUmicroCPU*& _vuCPU, VURegs& _vuRegs)
 
 VU_Thread::~VU_Thread()
 {
-	try
-	{
-		pxThread::Cancel();
-	}
-	DESTRUCTOR_CATCHALL
+	pxThread::Cancel();
 }
 
 void VU_Thread::Reset(void)

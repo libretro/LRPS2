@@ -103,11 +103,8 @@ AppCoreThread::AppCoreThread()
 
 AppCoreThread::~AppCoreThread()
 {
-	try
-	{
-		_parent::Cancel(true); // use parent's, skips thread affinity check.
-	}
-	DESTRUCTOR_CATCHALL
+	m_resetCdvd = false;
+	_parent::Cancel(true); // use parent's, skips thread affinity check.
 }
 
 void AppCoreThread::Cancel()

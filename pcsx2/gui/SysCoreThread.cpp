@@ -123,11 +123,7 @@ SysCoreThread::SysCoreThread()
 
 SysCoreThread::~SysCoreThread()
 {
-	try
-	{
-		SysCoreThread::Cancel();
-	}
-	DESTRUCTOR_CATCHALL
+	SysCoreThread::Cancel();
 }
 
 void SysCoreThread::Cancel()
