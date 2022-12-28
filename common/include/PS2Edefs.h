@@ -75,7 +75,7 @@ extern "C" {
 // basic funcs
 
 s32 CALLBACK GSinit(void);
-s32 CALLBACK GSopen2(u32 flags);
+s32 CALLBACK GSopen2(u32 flags, u8* basemem);
 void CALLBACK GSclose(void);
 void CALLBACK GSshutdown(void);
 
@@ -89,8 +89,6 @@ void CALLBACK GSreadFIFO2(u8 *mem, int qwc);
 void CALLBACK GSinitReadFIFO2(u8 *mem, int qwc);
 
 // extended funcs
-
-void CALLBACK GSsetBaseMem(u8 *);
 void CALLBACK GSsetGameCRC(int crc, int gameoptions);
 
 void CALLBACK GSreset(void);

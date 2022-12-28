@@ -36,7 +36,6 @@
 
 static bool is_d3d                  = false;
 GSRenderer* s_gs                    = NULL;
-static u8* s_basemem                = NULL;
 static GSRendererType m_current_renderer_type;
 
 GSdxApp theApp;
@@ -58,15 +57,7 @@ GSVector4i GSClientRect(void)
         return GSVector4i(0, 0, internal_res.x, internal_res.y);
 }
 
-EXPORT_C GSsetBaseMem(u8* mem)
-{
-	s_basemem = mem;
-
-	if(s_gs)
-		s_gs->SetRegsMem(s_basemem);
-}
-
-EXPORT_C_(int) GSinit()
+EXPORT_C_(int) GSinit(void)
 {
 	// Vector instructions must be avoided when initialising GSdx since PCSX2
 	// can crash if the CPU does not support the instruction set.
@@ -115,7 +106,7 @@ EXPORT_C GSclose()
 	s_gs->m_dev = NULL;
 }
 
-static int _GSopen(GSRendererType renderer, int threads)
+static int _GSopen(GSRendererType renderer, int threads, u8 *basemem)
 {
 	GSDevice* dev = NULL;
 
@@ -210,7 +201,7 @@ static int _GSopen(GSRendererType renderer, int threads)
 			return -1;
 	}
 
-	s_gs->SetRegsMem(s_basemem);
+	s_gs->SetRegsMem(basemem);
 
 	if(!s_gs->CreateDevice(dev))
 	{
@@ -227,7 +218,7 @@ void GSUpdateOptions(void)
 }
 
 
-EXPORT_C_(int) GSopen2(u32 flags)
+EXPORT_C_(int) GSopen2(u32 flags, u8 *basemem)
 {
 	static bool stored_toggle_state = false;
 	const bool toggle_state = !!(flags & 4);
@@ -271,7 +262,7 @@ EXPORT_C_(int) GSopen2(u32 flags)
 	}
 	stored_toggle_state = toggle_state;
 
-	return _GSopen(m_current_renderer_type, -1);
+	return _GSopen(m_current_renderer_type, -1, basemem);
 }
 
 EXPORT_C GSreset()

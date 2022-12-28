@@ -162,9 +162,8 @@ void SysMtgsThread::OpenGS()
 	if( m_Opened ) return;
 
 	memcpy( RingBuffer.Regs, PS2MEM_GS, sizeof(PS2MEM_GS) );
-	GSsetBaseMem( RingBuffer.Regs );
 
-	GSopen2(1 | (renderswitch ? 4 : 0) );
+	GSopen2(1 | (renderswitch ? 4 : 0), RingBuffer.Regs );
 
 	m_Opened = true;
 	m_sem_OpenDone.Post();
