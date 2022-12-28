@@ -47,8 +47,6 @@
 #include <string>
 #include <algorithm>
 
-// #define XBYAK_DISABLE_AVX512
-
 #ifdef __GNUC__
 	#define XBYAK_GNUC_PREREQ(major, minor) ((__GNUC__) * 100 + (__GNUC_MINOR__) >= (major) * 100 + (minor))
 #else
