@@ -129,11 +129,6 @@ GSState::~GSState()
 	if(m_index.buff) _aligned_free(m_index.buff);
 }
 
-void GSState::SetRegsMem(u8* basemem)
-{
-	m_regs = (GSPrivRegSet*)basemem;
-}
-
 void GSState::Reset()
 {
 	Flush();

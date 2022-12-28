@@ -248,7 +248,9 @@ public:
 	template<int index> void Transfer(const u8* mem, u32 size);
 	int Freeze(GSFreezeData* fd, bool sizeonly);
 	int Defrost(const GSFreezeData* fd);
+
 	virtual void SetGameCRC(u32 crc, int options);
-	void SetRegsMem(u8* basemem);
+
+	void SetRegsMem(u8* basemem) { m_regs = reinterpret_cast<GSPrivRegSet*>(basemem); }
 };
 
