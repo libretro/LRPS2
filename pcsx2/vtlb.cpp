@@ -76,7 +76,7 @@ vtlb_private::VTLBVirtual::VTLBVirtual(VTLBPhysical phys, u32 paddr, u32 vaddr) 
 // See recVTLB.cpp for the dynarec versions.
 
 template< typename DataType >
-DataType __fastcall vtlb_memRead(u32 addr)
+DataType vtlb_memRead(u32 addr)
 {
 	static const uint DataSize = sizeof(DataType) * 8;
 	auto vmv = vtlbdata.vmap[addr>>VTLB_PAGE_BITS];
@@ -101,7 +101,7 @@ DataType __fastcall vtlb_memRead(u32 addr)
 	return 0;
 }
 
-void __fastcall vtlb_memRead64(u32 mem, mem64_t *out)
+void vtlb_memRead64(u32 mem, mem64_t *out)
 {
 	auto vmv = vtlbdata.vmap[mem>>VTLB_PAGE_BITS];
 
@@ -114,7 +114,7 @@ void __fastcall vtlb_memRead64(u32 mem, mem64_t *out)
 		vmv.assumeHandler<64, false>()(paddr, out);
 	}
 }
-void __fastcall vtlb_memRead128(u32 mem, mem128_t *out)
+void vtlb_memRead128(u32 mem, mem128_t *out)
 {
 	auto vmv = vtlbdata.vmap[mem>>VTLB_PAGE_BITS];
 
@@ -129,7 +129,7 @@ void __fastcall vtlb_memRead128(u32 mem, mem128_t *out)
 }
 
 template< typename DataType >
-void __fastcall vtlb_memWrite(u32 addr, DataType data)
+void vtlb_memWrite(u32 addr, DataType data)
 {
 	static const uint DataSize = sizeof(DataType) * 8;
 	u32 paddr;
@@ -142,7 +142,7 @@ void __fastcall vtlb_memWrite(u32 addr, DataType data)
 	return vmv.assumeHandler<sizeof(DataType)*8, true>()(paddr, data);
 }
 
-void __fastcall vtlb_memWrite64(u32 mem, const mem64_t* value)
+void vtlb_memWrite64(u32 mem, const mem64_t* value)
 {
 	auto vmv = vtlbdata.vmap[mem>>VTLB_PAGE_BITS];
 
@@ -156,7 +156,7 @@ void __fastcall vtlb_memWrite64(u32 mem, const mem64_t* value)
 	}
 }
 
-void __fastcall vtlb_memWrite128(u32 mem, const mem128_t *value)
+void vtlb_memWrite128(u32 mem, const mem128_t *value)
 {
 	auto vmv = vtlbdata.vmap[mem>>VTLB_PAGE_BITS];
 
@@ -188,7 +188,7 @@ template void vtlb_memWrite<mem32_t>(u32 mem, mem32_t data);
 // Important recompiler note: Mid-block Exception handling isn't reliable *yet* because
 // memory ops don't flush the PC prior to invoking the indirect handlers.
 
-void __fastcall GoemonPreloadTlb(void)
+void GoemonPreloadTlb(void)
 {
 	// 0x3d5580 is the address of the TLB cache table
 	GoemonTlb* tlb = (GoemonTlb*)&eeMem->Main[0x3d5580];
@@ -211,7 +211,7 @@ void __fastcall GoemonPreloadTlb(void)
 	}
 }
 
-void __fastcall GoemonUnloadTlb(u32 key)
+void GoemonUnloadTlb(u32 key)
 {
 	// 0x3d5580 is the address of the TLB cache table
 	GoemonTlb* tlb = (GoemonTlb*)&eeMem->Main[0x3d5580];
@@ -251,28 +251,28 @@ static __ri void vtlb_Miss(u32 addr,u32 mode)
 }
 
 template<typename OperandType, u32 saddr>
-OperandType __fastcall vtlbUnmappedVReadSm(u32 addr)					{ vtlb_Miss(addr|saddr,0); return 0; }
+OperandType vtlbUnmappedVReadSm(u32 addr)					{ vtlb_Miss(addr|saddr,0); return 0; }
 
 template<typename OperandType, u32 saddr>
-void __fastcall vtlbUnmappedVReadLg(u32 addr,OperandType* data)			{ vtlb_Miss(addr|saddr,0); }
+void vtlbUnmappedVReadLg(u32 addr,OperandType* data)			{ vtlb_Miss(addr|saddr,0); }
 
 template<typename OperandType, u32 saddr>
-void __fastcall vtlbUnmappedVWriteSm(u32 addr,OperandType data)			{ vtlb_Miss(addr|saddr,1); }
+void vtlbUnmappedVWriteSm(u32 addr,OperandType data)			{ vtlb_Miss(addr|saddr,1); }
 
 template<typename OperandType, u32 saddr>
-void __fastcall vtlbUnmappedVWriteLg(u32 addr,const OperandType* data)	{ vtlb_Miss(addr|saddr,1); }
+void vtlbUnmappedVWriteLg(u32 addr,const OperandType* data)	{ vtlb_Miss(addr|saddr,1); }
 
 template<typename OperandType, u32 saddr>
-OperandType __fastcall vtlbUnmappedPReadSm(u32 addr)					{ return 0; }
+OperandType vtlbUnmappedPReadSm(u32 addr)					{ return 0; }
 
 template<typename OperandType, u32 saddr>
-void __fastcall vtlbUnmappedPReadLg(u32 addr,OperandType* data)	{ }
+void vtlbUnmappedPReadLg(u32 addr,OperandType* data)	{ }
 
 template<typename OperandType, u32 saddr>
-void __fastcall vtlbUnmappedPWriteSm(u32 addr,OperandType data)	{ }
+void vtlbUnmappedPWriteSm(u32 addr,OperandType data)	{ }
 
 template<typename OperandType, u32 saddr>
-void __fastcall vtlbUnmappedPWriteLg(u32 addr,const OperandType* data) { }
+void vtlbUnmappedPWriteLg(u32 addr,const OperandType* data) { }
 
 // --------------------------------------------------------------------------------------
 //  VTLB mapping errors
@@ -281,16 +281,16 @@ void __fastcall vtlbUnmappedPWriteLg(u32 addr,const OperandType* data) { }
 // properly.  All addressable physical memory should be configured as TLBMiss or Bus Error.
 //
 
-static mem8_t __fastcall vtlbDefaultPhyRead8(u32 addr)	 { return 0; }
-static mem16_t __fastcall vtlbDefaultPhyRead16(u32 addr) { return 0; }
-static mem32_t __fastcall vtlbDefaultPhyRead32(u32 addr) { return 0; }
-static void __fastcall vtlbDefaultPhyRead64(u32 addr, mem64_t* dest) { }
-static void __fastcall vtlbDefaultPhyRead128(u32 addr, mem128_t* dest) { }
-static void __fastcall vtlbDefaultPhyWrite8(u32 addr, mem8_t data) { }
-static void __fastcall vtlbDefaultPhyWrite16(u32 addr, mem16_t data) { }
-static void __fastcall vtlbDefaultPhyWrite32(u32 addr, mem32_t data) { }
-static void __fastcall vtlbDefaultPhyWrite64(u32 addr,const mem64_t* data){}
-static void __fastcall vtlbDefaultPhyWrite128(u32 addr,const mem128_t* data){}
+static mem8_t vtlbDefaultPhyRead8(u32 addr)	 { return 0; }
+static mem16_t vtlbDefaultPhyRead16(u32 addr) { return 0; }
+static mem32_t vtlbDefaultPhyRead32(u32 addr) { return 0; }
+static void vtlbDefaultPhyRead64(u32 addr, mem64_t* dest) { }
+static void vtlbDefaultPhyRead128(u32 addr, mem128_t* dest) { }
+static void vtlbDefaultPhyWrite8(u32 addr, mem8_t data) { }
+static void vtlbDefaultPhyWrite16(u32 addr, mem16_t data) { }
+static void vtlbDefaultPhyWrite32(u32 addr, mem32_t data) { }
+static void vtlbDefaultPhyWrite64(u32 addr,const mem64_t* data){}
+static void vtlbDefaultPhyWrite128(u32 addr,const mem128_t* data){}
 
 // ===========================================================================================
 //  VTLB Public API -- Init/Term/RegisterHandler stuff 

@@ -20,7 +20,7 @@
 u32 s_iLastCOP0Cycle = 0;
 u32 s_iLastPERFCycle[2] = { 0, 0 };
 
-void __fastcall WriteCP0Status(u32 value)
+void WriteCP0Status(u32 value)
 {
 	cpuRegs.CP0.n.Status.val = value;
 	cpuSetNextEventDelta(4);

@@ -36,7 +36,7 @@
 // 0x6000 - 0x7000 : GS    (all registers map to 0x6000)
 // 0x7000 - 0x8000 : IPU   (registers map to 0x7000 and 0x7010, respectively)
 
-void __fastcall ReadFIFO_VIF1(mem128_t* out)
+void ReadFIFO_VIF1(mem128_t* out)
 {
 	ZeroQWC(out); // Clear first in case no data gets written...
 	if (vif1Regs.stat.FDR)
@@ -58,7 +58,7 @@ void __fastcall ReadFIFO_VIF1(mem128_t* out)
 //////////////////////////////////////////////////////////////////////////
 // WriteFIFO Pages
 //
-void __fastcall WriteFIFO_VIF0(const mem128_t *value)
+void WriteFIFO_VIF0(const mem128_t *value)
 {
 	vif0ch.qwc += 1;
 	bool ret = VIF0transfer((u32*)value, 4);
@@ -72,7 +72,7 @@ void __fastcall WriteFIFO_VIF0(const mem128_t *value)
 		vif0Regs.stat.VPS = VPS_IDLE;
 }
 
-void __fastcall WriteFIFO_VIF1(const mem128_t *value)
+void WriteFIFO_VIF1(const mem128_t *value)
 {
 	bool ret = VIF1transfer((u32*)value, 4);
 
@@ -95,7 +95,7 @@ void __fastcall WriteFIFO_VIF1(const mem128_t *value)
 	}
 }
 
-void __fastcall WriteFIFO_GIF(const mem128_t *value)
+void WriteFIFO_GIF(const mem128_t *value)
 {
 	if ((!gifUnit.CanDoPath3() || gif_fifo.fifoSize > 0))
 	{

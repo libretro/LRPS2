@@ -163,12 +163,12 @@ static const uint divD = 0x2080000;
 #define mF int recPass
 #define mX mVU, recPass
 
-typedef void __fastcall Fntype_mVUrecInst(microVU& mVU, int recPass);
+typedef void Fntype_mVUrecInst(microVU& mVU, int recPass);
 typedef Fntype_mVUrecInst* Fnptr_mVUrecInst;
 
 // Function/Template Stuff
 #define  mVUx (vuIndex ? microVU1 : microVU0)
-#define  mVUop(opName)	static void __fastcall opName (mP)
+#define  mVUop(opName)	static void opName (mP)
 #define _mVUt template<int vuIndex>
 
 // Define Passes
@@ -187,7 +187,7 @@ typedef Fntype_mVUrecInst* Fnptr_mVUrecInst;
 // Define mVUquickSearch
 //------------------------------------------------------------------
 extern __pagealigned u8 mVUsearchXMM[PCSX2_PAGESIZE];
-typedef u32 (__fastcall *mVUCall)(void*, void*);
+typedef u32 (*mVUCall)(void*, void*);
 #define mVUquickSearch(dest, src, size) ((((mVUCall)((void*)mVUsearchXMM))(dest, src)) == 0xf)
 #define mVUemitSearch() { mVUcustomSearch(); }
 //------------------------------------------------------------------

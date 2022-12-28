@@ -104,9 +104,6 @@
 // warnings when a static inlined function isn't used in the scope of a single file (which
 // happens *by design* like all the friggen time >_<)
 
-#ifndef __fastcall
-#define __fastcall __attribute__((fastcall))
-#endif
 #define _inline __inline__ __attribute__((unused))
 #ifdef NDEBUG
 #define __forceinline __attribute__((always_inline, unused))
@@ -138,6 +135,5 @@
 
 #define __ri __releaseinline
 #define __fi __forceinline
-#define __fc __fastcall
 
 #endif

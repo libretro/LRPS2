@@ -279,7 +279,7 @@ static inline u32 branchAddr(const mV)
 	return ((((iPC + 2) + (_Imm11_ * 2)) & mVU.progMemMask) * 4);
 }
 
-static void __fc mVUwaitMTVU(void)
+static void mVUwaitMTVU(void)
 {
 	vu1Thread.WaitVU();
 }

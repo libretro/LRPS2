@@ -46,7 +46,7 @@ void vu1Finish(bool add_cycles)
 		cpuRegs.cycle += VU1.cycle - vu1cycles;
 }
 
-void __fastcall vu1ExecMicro(u32 addr)
+void vu1ExecMicro(u32 addr)
 {
 	if (THREAD_VU1)
 	{

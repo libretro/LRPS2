@@ -109,7 +109,7 @@ static int g_patchesNeedRedo = 0;
 // defined at AppCoreThread.cpp but unclean and should not be public. We're the only
 // consumers of it, so it's declared only here.
 void LoadAllPatchesAndStuff(const Pcsx2Config&);
-static void __fastcall recRecompile( const u32 startpc );
+static void recRecompile( const u32 startpc );
 static void recClear(u32 addr, u32 size);
 
 void _eeFlushAllUnused(void)
@@ -397,7 +397,7 @@ static DynGenFunc* _DynGen_DispatchBlockDiscard(void)
 // called when a page under manual protection has been run enough times to be a candidate
 // for being reset under the faster vtlb write protection.  All blocks in the page are cleared
 // and the block is re-assigned for write protection.
-static void __fastcall dyna_page_reset(u32 start,u32 sz)
+static void dyna_page_reset(u32 start,u32 sz)
 {
 	recClear(start & ~0xfffUL, 0x400);
 	manual_counter[start >> 12]++;
@@ -687,7 +687,7 @@ static void doPlace0Patches(void)
     ApplyLoadedPatches(PPT_ONCE_ON_LOAD);
 }
 
-static void __fastcall recRecompile( const u32 startpc )
+static void recRecompile( const u32 startpc )
 {
 	u32 i = 0;
 	u32 willbranch3 = 0;

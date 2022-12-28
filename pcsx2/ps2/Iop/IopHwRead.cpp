@@ -32,7 +32,7 @@ using namespace Internal;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-mem8_t __fastcall iopHwRead8_Page1( u32 addr )
+mem8_t iopHwRead8_Page1( u32 addr )
 {
 	u32 masked_addr = addr & 0x0fff;
 
@@ -73,7 +73,7 @@ mem8_t __fastcall iopHwRead8_Page1( u32 addr )
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-mem8_t __fastcall iopHwRead8_Page3( u32 addr )
+mem8_t iopHwRead8_Page3( u32 addr )
 {
 	if( addr == 0x1f803100 ) // PS/EE/IOP conf related
 		return 0xFF; //all high bus is the corect default state for CEX PS2!
@@ -82,7 +82,7 @@ mem8_t __fastcall iopHwRead8_Page3( u32 addr )
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-mem8_t __fastcall iopHwRead8_Page8( u32 addr )
+mem8_t iopHwRead8_Page8( u32 addr )
 {
 	if( addr == HW_SIO2_FIFO )
 		return sio2_fifoOut();//sio2 serial data feed/fifo_out
@@ -301,42 +301,42 @@ static __fi T _HwRead_16or32_Page1( u32 addr )
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-mem16_t __fastcall iopHwRead16_Page1( u32 addr )
+mem16_t iopHwRead16_Page1( u32 addr )
 {
 	return _HwRead_16or32_Page1<mem16_t>( addr );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-mem16_t __fastcall iopHwRead16_Page3( u32 addr )
+mem16_t iopHwRead16_Page3( u32 addr )
 {
 	return psxHu16(addr);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-mem16_t __fastcall iopHwRead16_Page8( u32 addr )
+mem16_t iopHwRead16_Page8( u32 addr )
 {
 	return psxHu16(addr);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-mem32_t __fastcall iopHwRead32_Page1( u32 addr )
+mem32_t iopHwRead32_Page1( u32 addr )
 {
 	return _HwRead_16or32_Page1<mem32_t>( addr );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-mem32_t __fastcall iopHwRead32_Page3( u32 addr )
+mem32_t iopHwRead32_Page3( u32 addr )
 {
 	return psxHu32(addr);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-mem32_t __fastcall iopHwRead32_Page8( u32 addr )
+mem32_t iopHwRead32_Page8( u32 addr )
 {
 	u32 masked_addr = addr & 0x0fff;
 	mem32_t ret;

@@ -16,7 +16,7 @@
 #ifndef __COP0_H__
 #define __COP0_H__
 
-extern void __fastcall WriteCP0Status(u32 value);
+extern void WriteCP0Status(u32 value);
 extern void UnmapTLB(int i);
 extern void MapTLB(int i);
 

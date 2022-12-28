@@ -104,7 +104,7 @@ void iopMemoryReserve::Decommit()
 }
 
 
-u8 __fastcall iopMemRead8(u32 mem)
+u8 iopMemRead8(u32 mem)
 {
 	mem &= 0x1fffffff;
 	u32 t = mem >> 16;
@@ -141,7 +141,7 @@ u8 __fastcall iopMemRead8(u32 mem)
 	}
 }
 
-u16 __fastcall iopMemRead16(u32 mem)
+u16 iopMemRead16(u32 mem)
 {
 	mem &= 0x1fffffff;
 	u32 t = mem >> 16;
@@ -199,7 +199,7 @@ u16 __fastcall iopMemRead16(u32 mem)
 	}
 }
 
-u32 __fastcall iopMemRead32(u32 mem)
+u32 iopMemRead32(u32 mem)
 {
 	mem &= 0x1fffffff;
 	u32 t = mem >> 16;
@@ -262,7 +262,7 @@ u32 __fastcall iopMemRead32(u32 mem)
 	}
 }
 
-void __fastcall iopMemWrite8(u32 mem, u8 value)
+void iopMemWrite8(u32 mem, u8 value)
 {
 	mem &= 0x1fffffff;
 	u32 t = mem >> 16;
@@ -305,7 +305,7 @@ void __fastcall iopMemWrite8(u32 mem, u8 value)
 	}
 }
 
-void __fastcall iopMemWrite16(u32 mem, u16 value)
+void iopMemWrite16(u32 mem, u16 value)
 {
 	mem &= 0x1fffffff;
 	u32 t = mem >> 16;
@@ -371,7 +371,7 @@ void __fastcall iopMemWrite16(u32 mem, u16 value)
 	}
 }
 
-void __fastcall iopMemWrite32(u32 mem, u32 value)
+void iopMemWrite32(u32 mem, u32 value)
 {
 	mem &= 0x1fffffff;
 	u32 t = mem >> 16;

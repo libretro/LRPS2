@@ -198,7 +198,7 @@ extern R3000Acpu psxInt;
 extern R3000Acpu psxRec;
 
 extern void psxReset(void);
-extern void __fastcall psxException(u32 code, u32 step);
+extern void psxException(u32 code, u32 step);
 extern void iopEventTest(void);
 
 // Subsets
@@ -210,6 +210,6 @@ extern void (*psxCP2[64])(void);
 extern void (*psxCP2BSC[32])(void);
 
 extern void psxBiosReset(void);
-extern bool __fastcall psxBiosCall(void);
+extern bool psxBiosCall(void);
 
 #endif /* __R3000A_H__ */

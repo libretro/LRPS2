@@ -72,7 +72,7 @@ static __ri void writeXYZW(u32 offnum, u32 &dest, u32 data) {
 #define tParam idx,mode,doMask
 
 template < uint idx, uint mode, bool doMask, class T >
-static void __fastcall UNPACK_S(u32* dest, const T* src)
+static void UNPACK_S(u32* dest, const T* src)
 {
 	u32 data = *src;
 
@@ -86,7 +86,7 @@ static void __fastcall UNPACK_S(u32* dest, const T* src)
 // The PS2 console actually writes v1v0v1v0 for all V2 unpacks -- the second v1v0 pair
 // being officially "indeterminate" but some games very much depend on it.
 template < uint idx, uint mode, bool doMask, class T >
-static void __fastcall UNPACK_V2(u32* dest, const T* src)
+static void UNPACK_V2(u32* dest, const T* src)
 {
 	writeXYZW<tParam>(OFFSET_X, *(dest+0), *(src+0));
 	writeXYZW<tParam>(OFFSET_Y, *(dest+1), *(src+1));
@@ -98,7 +98,7 @@ static void __fastcall UNPACK_V2(u32* dest, const T* src)
 // during V3 unpacking end up being overwritten by the next unpack.  This is confirmed real
 // hardware behavior that games such as Ape Escape 3 depend on.
 template < uint idx, uint mode, bool doMask, class T >
-static void __fastcall UNPACK_V4(u32* dest, const T* src)
+static void UNPACK_V4(u32* dest, const T* src)
 {
 	writeXYZW<tParam>(OFFSET_X, *(dest+0), *(src+0));
 	writeXYZW<tParam>(OFFSET_Y, *(dest+1), *(src+1));
@@ -108,7 +108,7 @@ static void __fastcall UNPACK_V4(u32* dest, const T* src)
 
 // V4_5 unpacks do not support the MODE register, and act as mode==0 always.
 template< uint idx, bool doMask >
-static void __fastcall UNPACK_V4_5(u32 *dest, const u32* src)
+static void UNPACK_V4_5(u32 *dest, const u32* src)
 {
 	u32 data = *src;
 
@@ -127,9 +127,7 @@ static void __fastcall UNPACK_V4_5(u32 *dest, const u32* src)
 // disabled versions.  This is probably simpler and more efficient than bothering
 // to generate separate tables.
 //
-// The double-cast function pointer nonsense is to appease GCC, which gives some rather
-// cryptic error about being unable to deduce the type parameters (I think it's a bug
-// relating to __fastcall, which I recall having some other places as well).  It's fixed
+// It's fixed
 // by explicitly casting the function to itself prior to casting it to what we need it
 // to be cast as. --air
 //

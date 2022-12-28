@@ -33,13 +33,13 @@ using namespace R5900;
 #define HELPSWITCH(m) (((m)>>4) & 0xff)
 #define mcase(src) case HELPSWITCH(src)
 
-template< uint page > void __fastcall _hwWrite8(u32 mem, u8 value);
-template< uint page > void __fastcall _hwWrite16(u32 mem, u8 value);
-template< uint page > void __fastcall _hwWrite128(u32 mem, u8 value);
+template< uint page > void _hwWrite8(u32 mem, u8 value);
+template< uint page > void _hwWrite16(u32 mem, u8 value);
+template< uint page > void _hwWrite128(u32 mem, u8 value);
 
 
 template<uint page>
-void __fastcall _hwWrite32( u32 mem, u32 value )
+void _hwWrite32( u32 mem, u32 value )
 {
 	// Notes:
 	// All unknown registers on the EE are "reserved" as discarded writes and indeterminate
@@ -225,7 +225,7 @@ void __fastcall _hwWrite32( u32 mem, u32 value )
 }
 
 template<uint page>
-void __fastcall hwWrite32( u32 mem, u32 value )
+void hwWrite32( u32 mem, u32 value )
 {
 	_hwWrite32<page>( mem, value );
 }
@@ -235,7 +235,7 @@ void __fastcall hwWrite32( u32 mem, u32 value )
 // --------------------------------------------------------------------------------------
 
 template< uint page >
-void __fastcall _hwWrite8(u32 mem, u8 value)
+void _hwWrite8(u32 mem, u8 value)
 {
 	if (mem == SIO_TXFIFO)
 	{
@@ -279,13 +279,13 @@ void __fastcall _hwWrite8(u32 mem, u8 value)
 }
 
 template< uint page >
-void __fastcall hwWrite8(u32 mem, u8 value)
+void hwWrite8(u32 mem, u8 value)
 {
 	_hwWrite8<page>(mem, value);
 }
 
 template< uint page >
-void __fastcall _hwWrite16(u32 mem, u16 value)
+void _hwWrite16(u32 mem, u16 value)
 {
 	switch(mem & ~3)
 	{
@@ -304,13 +304,13 @@ void __fastcall _hwWrite16(u32 mem, u16 value)
 }
 
 template< uint page >
-void __fastcall hwWrite16(u32 mem, u16 value)
+void hwWrite16(u32 mem, u16 value)
 {
 	_hwWrite16<page>(mem, value);
 }
 
 template<uint page>
-void __fastcall _hwWrite64( u32 mem, const mem64_t* srcval )
+void _hwWrite64( u32 mem, const mem64_t* srcval )
 {
 	// * Only the IPU has true 64 bit registers.
 	// * FIFOs have 128 bit registers that are probably zero-fill.
@@ -344,13 +344,13 @@ void __fastcall _hwWrite64( u32 mem, const mem64_t* srcval )
 }
 
 template<uint page>
-void __fastcall hwWrite64( u32 mem, const mem64_t* srcval )
+void hwWrite64( u32 mem, const mem64_t* srcval )
 {
 	_hwWrite64<page>(mem, srcval);
 }
 
 template< uint page >
-void __fastcall _hwWrite128(u32 mem, const mem128_t* srcval)
+void _hwWrite128(u32 mem, const mem128_t* srcval)
 {
 	// FIFOs are the only "legal" 128 bit registers.  Handle them first.
 	// all other registers fall back on the 64-bit handler (and from there
@@ -402,17 +402,17 @@ void __fastcall _hwWrite128(u32 mem, const mem128_t* srcval)
 }
 
 template< uint page >
-void __fastcall hwWrite128(u32 mem, const mem128_t* srcval)
+void hwWrite128(u32 mem, const mem128_t* srcval)
 {
 	_hwWrite128<page>(mem, srcval);
 }
 
 #define InstantizeHwWrite(pageidx) \
-	template void __fastcall hwWrite8<pageidx>(u32 mem, mem8_t value); \
-	template void __fastcall hwWrite16<pageidx>(u32 mem, mem16_t value); \
-	template void __fastcall hwWrite32<pageidx>(u32 mem, mem32_t value); \
-	template void __fastcall hwWrite64<pageidx>(u32 mem, const mem64_t* srcval); \
-	template void __fastcall hwWrite128<pageidx>(u32 mem, const mem128_t* srcval);
+	template void hwWrite8<pageidx>(u32 mem, mem8_t value); \
+	template void hwWrite16<pageidx>(u32 mem, mem16_t value); \
+	template void hwWrite32<pageidx>(u32 mem, mem32_t value); \
+	template void hwWrite64<pageidx>(u32 mem, const mem64_t* srcval); \
+	template void hwWrite128<pageidx>(u32 mem, const mem128_t* srcval);
 
 InstantizeHwWrite(0x00);	InstantizeHwWrite(0x08);
 InstantizeHwWrite(0x01);	InstantizeHwWrite(0x09);

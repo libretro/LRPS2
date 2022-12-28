@@ -70,7 +70,7 @@ void psxReset(void)
 
 void psxShutdown(void) { }
 
-void __fastcall psxException(u32 code, u32 bd)
+void psxException(u32 code, u32 bd)
 {
 	// Set the Cause
 	psxRegs.CP0.n.Cause &= ~0x7f;

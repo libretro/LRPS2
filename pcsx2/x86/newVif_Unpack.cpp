@@ -58,9 +58,9 @@ __aligned16 const u8 nVifT[16] = {
 
 // ----------------------------------------------------------------------------
 template< int idx, bool doMode, bool isFill >
-__ri void __fastcall _nVifUnpackLoop(const u8* data);
+__ri void _nVifUnpackLoop(const u8* data);
 
-typedef void __fastcall FnType_VifUnpackLoop(const u8* data);
+typedef void FnType_VifUnpackLoop(const u8* data);
 typedef FnType_VifUnpackLoop* Fnptr_VifUnpackLoop;
 
 // Unpacks Until 'Num' is 0
@@ -197,7 +197,7 @@ static void setMasks(const vifStruct& vif, const VIFregisters& v) {
 
 // size - size of the packet fragment incoming from DMAC.
 template< int idx, bool doMode, bool isFill >
-__ri void __fastcall _nVifUnpackLoop(const u8* data)
+__ri void _nVifUnpackLoop(const u8* data)
 {
 	vifStruct&    vif     = MTVU_VifX;
 	VIFregisters& vifRegs = MTVU_VifXRegs;

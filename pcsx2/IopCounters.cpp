@@ -166,12 +166,12 @@ void psxRcntInit()
 	psxNextsCounter = psxRegs.cycle;
 }
 
-static bool __fastcall _rcntFireInterrupt(int i, bool isOverflow)
+static bool _rcntFireInterrupt(int i, bool isOverflow)
 {
 	bool ret;
 
-	if (psxCounters[i].mode & 0x400)
-	{ //IRQ fired
+	if (psxCounters[i].mode & 0x400) //IRQ fired
+	{
 		psxHu32(0x1070) |= psxCounters[i].interrupt;
 		iopTestIntc();
 		ret = true;
@@ -183,18 +183,14 @@ static bool __fastcall _rcntFireInterrupt(int i, bool isOverflow)
 			return ret;
 	}
 
-	if (psxCounters[i].mode & 0x80)
-	{                                 //Toggle mode
+	if (psxCounters[i].mode & 0x80) // Toggle mode
 		psxCounters[i].mode ^= 0x400; // Interrupt flag inverted
-	}
 	else
-	{
 		psxCounters[i].mode &= ~0x0400; // Interrupt flag set low
-	}
 
 	return ret;
 }
-static void __fastcall _rcntTestTarget(int i)
+static void _rcntTestTarget(int i)
 {
 	if (psxCounters[i].count < psxCounters[i].target)
 		return;

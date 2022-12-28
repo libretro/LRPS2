@@ -203,7 +203,7 @@ __aligned16 microVU microVU1;
 // Main Functions
 extern void  mVUreset(microVU& mVU, bool resetReserve);
 extern void* mVUblockFetch(microVU& mVU, u32 startPC, uptr pState);
-_mVUt extern void* __fastcall mVUcompileJIT(u32 startPC, uptr ptr);
+_mVUt extern void* mVUcompileJIT(u32 startPC, uptr ptr);
 
 // Prototypes for Linux
 mVUop(mVUopU);
@@ -214,7 +214,7 @@ extern void  mVUcacheProg (microVU& mVU, microProgram&  prog);
 _mVUt extern void* mVUsearchProg(u32 startPC, uptr pState);
 
 // recCall Function Pointer
-typedef void (__fastcall *mVUrecCall)(u32, u32);
+typedef void (*mVUrecCall)(u32, u32);
 typedef void (*mVUrecCallXG)(void);
 
 // Include all the *.inl files (microVU compiles as 1 Translation Unit)

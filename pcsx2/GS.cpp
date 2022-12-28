@@ -168,14 +168,14 @@ __fi void gsWrite32(u32 mem, u32 value)
 //////////////////////////////////////////////////////////////////////////
 // GS Write 64 bit
 
-void __fastcall gsWrite64_generic( u32 mem, const mem64_t* value )
+void gsWrite64_generic( u32 mem, const mem64_t* value )
 {
 	const u32* const srcval32 = (u32*)value;
 
 	*(u64*)PS2GS_BASE(mem) = *value;
 }
 
-void __fastcall gsWrite64_page_01( u32 mem, const mem64_t* value )
+void gsWrite64_page_01( u32 mem, const mem64_t* value )
 {
 	switch( mem )
 	{
@@ -221,7 +221,7 @@ void __fastcall gsWrite64_page_01( u32 mem, const mem64_t* value )
 //////////////////////////////////////////////////////////////////////////
 // GS Write 128 bit
 
-void __fastcall gsWrite128_page_01( u32 mem, const mem128_t* value )
+void gsWrite128_page_01( u32 mem, const mem128_t* value )
 {
 	switch( mem )
 	{
@@ -242,7 +242,7 @@ void __fastcall gsWrite128_page_01( u32 mem, const mem128_t* value )
 	gsWrite128_generic( mem, value );
 }
 
-void __fastcall gsWrite128_generic( u32 mem, const mem128_t* value )
+void gsWrite128_generic( u32 mem, const mem128_t* value )
 {
 	const u32* const srcval32 = (u32*)value;
 

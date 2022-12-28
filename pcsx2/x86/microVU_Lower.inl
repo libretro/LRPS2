@@ -1278,7 +1278,8 @@ mVUop(mVU_XITOP) {
 // XGkick
 //------------------------------------------------------------------
 
-void __fastcall mVU_XGKICK_(u32 addr) {
+void mVU_XGKICK_(u32 addr)
+{
 	addr = (addr & 0x3ff) * 16;
 	u32 diff = 0x4000 - addr;
 	u32 size = gifUnit.GetGSPacketSize(GIF_PATH_1, vuRegs[1].Mem, addr);
@@ -1292,7 +1293,8 @@ void __fastcall mVU_XGKICK_(u32 addr) {
 	}
 }
 
-static __fi void mVU_XGKICK_DELAY(mV) {
+static __fi void mVU_XGKICK_DELAY(mV)
+{
 	mVUbackupRegs(mVU);
 	xFastCall(mVU_XGKICK_, ptr32[&mVU.VIxgkick]);
 	mVUrestoreRegs(mVU);

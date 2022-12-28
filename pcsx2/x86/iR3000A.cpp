@@ -95,7 +95,7 @@ static void iopClearRecLUT(BASEBLOCK* base, int count);
 //  Dynamically Compiled Dispatchers - R3000A style
 // =====================================================================================================
 
-static void __fastcall iopRecRecompile( const u32 startpc );
+static void iopRecRecompile( const u32 startpc );
 
 // Recompiled code buffer for EE recompiler dispatchers!
 static u8 __pagealigned iopRecDispatchers[PCSX2_PAGESIZE];
@@ -862,7 +862,7 @@ void psxRecompileNextInstruction(int delayslot)
 	_clearNeededX86regs();
 }
 
-static void __fastcall iopRecRecompile( const u32 startpc )
+static void iopRecRecompile( const u32 startpc )
 {
 	u32 i;
 	u32 willbranch3 = 0;

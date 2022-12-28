@@ -41,9 +41,9 @@ static __fi void _generic_write( u32 addr, T val )
 	psxHu(addr) = val;
 }
 
-void __fastcall iopHwWrite8_generic( u32 addr, mem8_t val )		{ _generic_write<mem8_t>( addr, val ); }
-void __fastcall iopHwWrite16_generic( u32 addr, mem16_t val )	{ _generic_write<mem16_t>( addr, val ); }
-void __fastcall iopHwWrite32_generic( u32 addr, mem32_t val )	{ _generic_write<mem32_t>( addr, val ); }
+void iopHwWrite8_generic( u32 addr, mem8_t val )		{ _generic_write<mem8_t>( addr, val ); }
+void iopHwWrite16_generic( u32 addr, mem16_t val )	{ _generic_write<mem16_t>( addr, val ); }
+void iopHwWrite32_generic( u32 addr, mem32_t val )	{ _generic_write<mem32_t>( addr, val ); }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -56,15 +56,15 @@ static __fi T _generic_read( u32 addr )
 	return ret;
 }
 
-mem8_t __fastcall iopHwRead8_generic( u32 addr )	{ return _generic_read<mem8_t>( addr ); }
-mem16_t __fastcall iopHwRead16_generic( u32 addr )	{ return _generic_read<mem16_t>( addr ); }
-mem32_t __fastcall iopHwRead32_generic( u32 addr )	{ return _generic_read<mem32_t>( addr ); }
+mem8_t iopHwRead8_generic( u32 addr )	{ return _generic_read<mem8_t>( addr ); }
+mem16_t iopHwRead16_generic( u32 addr )	{ return _generic_read<mem16_t>( addr ); }
+mem32_t iopHwRead32_generic( u32 addr )	{ return _generic_read<mem32_t>( addr ); }
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
 // all addresses are assumed to be prefixed with 0x1f801xxx:
-void __fastcall iopHwWrite8_Page1( u32 addr, mem8_t val )
+void iopHwWrite8_Page1( u32 addr, mem8_t val )
 {
 	u32 masked_addr = pgmsk( addr );
 
@@ -100,13 +100,13 @@ void __fastcall iopHwWrite8_Page1( u32 addr, mem8_t val )
 }
 
 // all addresses are assumed to be prefixed with 0x1f803xxx:
-void __fastcall iopHwWrite8_Page3( u32 addr, mem8_t val )
+void iopHwWrite8_Page3( u32 addr, mem8_t val )
 {
 	psxHu8( addr ) = val;
 }
 
 // all addresses are assumed to be prefixed with 0x1f808xxx:
-void __fastcall iopHwWrite8_Page8( u32 addr, mem8_t val )
+void iopHwWrite8_Page8( u32 addr, mem8_t val )
 {
 	if( addr == HW_SIO2_DATAIN )	// sio2 serial data feed input
 		sio2_serialIn( val );
@@ -476,38 +476,38 @@ static __fi void _HwWrite_16or32_Page1( u32 addr, T val )
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-void __fastcall iopHwWrite16_Page1( u32 addr, mem16_t val )
+void iopHwWrite16_Page1( u32 addr, mem16_t val )
 {
 	_HwWrite_16or32_Page1<mem16_t>( addr, val );
 }
 
 // all addresses are assumed to be prefixed with 0x1f803xxx:
-void __fastcall iopHwWrite16_Page3( u32 addr, mem16_t val )
+void iopHwWrite16_Page3( u32 addr, mem16_t val )
 {
 	psxHu16(addr) = val;
 }
 
 // all addresses are assumed to be prefixed with 0x1f808xxx:
-void __fastcall iopHwWrite16_Page8( u32 addr, mem16_t val )
+void iopHwWrite16_Page8( u32 addr, mem16_t val )
 {
 	psxHu16(addr) = val;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-void __fastcall iopHwWrite32_Page1( u32 addr, mem32_t val )
+void iopHwWrite32_Page1( u32 addr, mem32_t val )
 {
 	_HwWrite_16or32_Page1<mem32_t >( addr, val );
 }
 
 // all addresses are assumed to be prefixed with 0x1f803xxx:
-void __fastcall iopHwWrite32_Page3( u32 addr, mem32_t val )
+void iopHwWrite32_Page3( u32 addr, mem32_t val )
 {
 	psxHu16(addr) = val;
 }
 
 // all addresses are assumed to be prefixed with 0x1f808xxx:
-void __fastcall iopHwWrite32_Page8( u32 addr, mem32_t val )
+void iopHwWrite32_Page8( u32 addr, mem32_t val )
 {
 	u32 masked_addr = addr & 0x0fff;
 

@@ -40,7 +40,7 @@ PUBLIC @fastjmp_jmp@8
   ret
 @fastjmp_set@4   ENDP
 
-; void __fastcall fastjmp_jmp(fastjmp_buf*, int)
+; void fastjmp_jmp(fastjmp_buf*, int)
 @fastjmp_jmp@8   PROC
   mov eax, edx                              ; return code
   mov edx, dword ptr [ecx + 0]

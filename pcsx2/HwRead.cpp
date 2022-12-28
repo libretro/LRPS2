@@ -32,10 +32,10 @@ static __fi void IntCHackCheck(void)
 	if( diff > 0 ) cpuRegs.cycle = g_nextEventCycle;
 }
 
-template< uint page > void __fastcall _hwRead128(u32 mem, mem128_t* result );
+template< uint page > void _hwRead128(u32 mem, mem128_t* result );
 
 template< uint page, bool intcstathack >
-mem32_t __fastcall _hwRead32(u32 mem)
+mem32_t _hwRead32(u32 mem)
 {
 	switch( page )
 	{
@@ -175,13 +175,13 @@ mem32_t __fastcall _hwRead32(u32 mem)
 }
 
 template< uint page >
-mem32_t __fastcall hwRead32(u32 mem)
+mem32_t hwRead32(u32 mem)
 {
 	mem32_t retval = _hwRead32<page,false>(mem);
 	return retval;
 }
 
-mem32_t __fastcall hwRead32_page_0F_INTC_HACK(u32 mem)
+mem32_t hwRead32_page_0F_INTC_HACK(u32 mem)
 {
 	mem32_t retval = _hwRead32<0x0f,true>(mem);
 	return retval;
@@ -192,34 +192,34 @@ mem32_t __fastcall hwRead32_page_0F_INTC_HACK(u32 mem)
 // --------------------------------------------------------------------------------------
 
 template< uint page >
-mem8_t __fastcall _hwRead8(u32 mem)
+mem8_t _hwRead8(u32 mem)
 {
 	u32 ret32 = _hwRead32<page, false>(mem & ~0x03);
 	return ((u8*)&ret32)[mem & 0x03];
 }
 
 template< uint page >
-mem8_t __fastcall hwRead8(u32 mem)
+mem8_t hwRead8(u32 mem)
 {
 	mem8_t ret8 = _hwRead8<page>(mem);
 	return ret8;
 }
 
 template< uint page >
-mem16_t __fastcall _hwRead16(u32 mem)
+mem16_t _hwRead16(u32 mem)
 {
 	u32 ret32 = _hwRead32<page, false>(mem & ~0x03);
 	return ((u16*)&ret32)[(mem>>1) & 0x01];
 }
 
 template< uint page >
-mem16_t __fastcall hwRead16(u32 mem)
+mem16_t hwRead16(u32 mem)
 {
 	u16 ret16 = _hwRead16<page>(mem);
 	return ret16;
 }
 
-mem16_t __fastcall hwRead16_page_0F_INTC_HACK(u32 mem)
+mem16_t hwRead16_page_0F_INTC_HACK(u32 mem)
 {
 	u32 ret32 = _hwRead32<0x0f, true>(mem & ~0x03);
 	u16 ret16 = ((u16*)&ret32)[(mem>>1) & 0x01];
@@ -274,13 +274,13 @@ static void _hwRead64(u32 mem, mem64_t* result )
 }
 
 template< uint page >
-void __fastcall hwRead64(u32 mem, mem64_t* result )
+void hwRead64(u32 mem, mem64_t* result )
 {
 	_hwRead64<page>( mem, result );
 }
 
 template< uint page >
-void __fastcall _hwRead128(u32 mem, mem128_t* result )
+void _hwRead128(u32 mem, mem128_t* result )
 {
 	// FIFOs are the only "legal" 128 bit registers, so we Handle them first.
 	// All other registers fall back on the 64-bit handler (and from there
@@ -341,18 +341,18 @@ void __fastcall _hwRead128(u32 mem, mem128_t* result )
 }
 
 template< uint page >
-void __fastcall hwRead128(u32 mem, mem128_t* result )
+void hwRead128(u32 mem, mem128_t* result )
 {
 	_hwRead128<page>( mem, result );
 }
 
 #define InstantizeHwRead(pageidx) \
-	template mem8_t __fastcall hwRead8<pageidx>(u32 mem); \
-	template mem16_t __fastcall hwRead16<pageidx>(u32 mem); \
-	template mem32_t __fastcall hwRead32<pageidx>(u32 mem); \
-	template void __fastcall hwRead64<pageidx>(u32 mem, mem64_t* result ); \
-	template void __fastcall hwRead128<pageidx>(u32 mem, mem128_t* result ); \
-	template mem32_t __fastcall _hwRead32<pageidx, false>(u32 mem);
+	template mem8_t hwRead8<pageidx>(u32 mem); \
+	template mem16_t hwRead16<pageidx>(u32 mem); \
+	template mem32_t hwRead32<pageidx>(u32 mem); \
+	template void hwRead64<pageidx>(u32 mem, mem64_t* result ); \
+	template void hwRead128<pageidx>(u32 mem, mem128_t* result ); \
+	template mem32_t _hwRead32<pageidx, false>(u32 mem);
 
 InstantizeHwRead(0x00);	InstantizeHwRead(0x08);
 InstantizeHwRead(0x01);	InstantizeHwRead(0x09);

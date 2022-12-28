@@ -34,7 +34,7 @@ void vu0ResetRegs(void)
 	vif0Regs.stat.VEW = false;
 }
 
-void __fastcall vu0ExecMicro(u32 addr)
+void vu0ExecMicro(u32 addr)
 {
 	/* vu0ExecMicro > Stalling for previous microprogram to finish */
 	if(VU0.VI[REG_VPU_STAT].UL & 0x1)

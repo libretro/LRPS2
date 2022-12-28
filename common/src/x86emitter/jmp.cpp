@@ -52,7 +52,7 @@ template <typename Reg1, typename Reg2>
 static void prepareRegsForFastcall(const Reg1 &a1, const Reg2 &a2) {
     if (a1.IsEmpty()) return;
 
-    // Make sure we don't mess up if someone tries to fastcall with a1 in arg2reg and a2 in arg1reg
+    // Make sure we don't mess up if someone tries to call with a1 in arg2reg and a2 in arg1reg
     if (a2.Id != arg1reg.Id) {
 	    xMOV(Reg1(arg1reg), a1);
         if (!a2.IsEmpty()) {

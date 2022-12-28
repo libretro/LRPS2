@@ -27,7 +27,7 @@ using namespace R3000A;
 // Dma8     in PsxSpd.c
 // Dma11/12 in PsxSio2.c
 
-static void __fastcall psxDmaGeneric(u32 madr, u32 bcr, u32 chcr, u32 spuCore)
+static void psxDmaGeneric(u32 madr, u32 bcr, u32 chcr, u32 spuCore)
 {
 	const char dmaNum = spuCore ? 7 : 4;
 	const int size    = (bcr >> 16) * (bcr & 0xFFFF);
