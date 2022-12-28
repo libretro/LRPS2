@@ -157,21 +157,6 @@ static int FindDiskType(int mType)
 		}
 	}
 
-	switch (iCDType)
-	{
-		case CDVD_TYPE_DETCTCD:
-			log_cb(RETRO_LOG_INFO, " * CDVD Disk Open: CD, %d tracks (%d to %d):\n", tn.etrack - tn.strack + 1, tn.strack, tn.etrack);
-			break;
-
-		case CDVD_TYPE_DETCTDVDS:
-			log_cb(RETRO_LOG_INFO, " * CDVD Disk Open: DVD, Single layer or unknown:\n");
-			break;
-
-		case CDVD_TYPE_DETCTDVDD:
-			log_cb(RETRO_LOG_INFO, " * CDVD Disk Open: DVD, Double layer:\n");
-			break;
-	}
-
 	audioTracks = dataTracks = 0;
 	for (int i = tn.strack; i <= tn.etrack; i++)
 	{
@@ -187,15 +172,9 @@ static int FindDiskType(int mType)
 		int tlength = td2.lsn - td.lsn;
 
 		if (td.type == CDVD_AUDIO_TRACK)
-		{
 			audioTracks++;
-			log_cb(RETRO_LOG_INFO, " * * Track %d: Audio (%d sectors)\n", i, tlength);
-		}
 		else
-		{
 			dataTracks++;
-			log_cb(RETRO_LOG_INFO, " * * Track %d: Data (Mode %d) (%d sectors)\n", i, ((td.type == CDVD_MODE1_TRACK) ? 1 : 2), tlength);
-		}
 	}
 
 	if (dataTracks > 0)

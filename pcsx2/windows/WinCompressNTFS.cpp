@@ -60,11 +60,7 @@ static bool StreamException_LogLastError( const wxString& streamname, const wxCh
 	{
 		StreamException_ThrowLastError( streamname, result );
 	}
-	catch( Exception::BadStream& ex )
-	{
-		log_cb(RETRO_LOG_ERROR, "%s\n", action);
-		return true;
-	}
+	catch( Exception::BadStream& ex ) { return true; }
 	return false;
 }
 

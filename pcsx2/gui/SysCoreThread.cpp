@@ -39,14 +39,9 @@ USBhandler usbHandler;
 static void modules_close(void)
 {
 	if( GetMTGS().IsSelf() )
-	{
 		GSclose();
-	}
 	else
-	{
-		log_cb(RETRO_LOG_INFO, "Closing GS\n");
 		GetMTGS().Suspend();
-	}
 	DoCDVDclose();
 	FWclose();
 	SPU2close();

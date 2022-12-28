@@ -66,20 +66,11 @@ bool CsoFileReader::ValidateHeader(const CsoHeader& hdr)
 		return false;
 	}
 	if (hdr.ver > 1)
-	{
-		log_cb(RETRO_LOG_ERROR, "Only CSOv1 files are supported.\n");
 		return false;
-	}
 	if ((hdr.frame_size & (hdr.frame_size - 1)) != 0)
-	{
-		log_cb(RETRO_LOG_ERROR, "CSO frame size must be a power of two.\n");
 		return false;
-	}
 	if (hdr.frame_size < 2048)
-	{
-		log_cb(RETRO_LOG_ERROR, "CSO frame size must be at least one sector.\n");
 		return false;
-	}
 
 	// All checks passed, this is a good CSO header.
 	return true;
@@ -111,16 +102,10 @@ bool CsoFileReader::ReadFileHeader()
 
 	PX_fseeko(m_src, m_dataoffset, SEEK_SET);
 	if (fread(&hdr, 1, sizeof(hdr), m_src) != sizeof(hdr))
-	{
-		log_cb(RETRO_LOG_ERROR, "Failed to read CSO file header.\n");
 		return false;
-	}
 
 	if (!ValidateHeader(hdr))
-	{
-		log_cb(RETRO_LOG_ERROR, "CSO has invalid header.\n");
 		return false;
-	}
 
 	m_frameSize = hdr.frame_size;
 	// Determine the translation from bytes to frame.
@@ -159,20 +144,14 @@ bool CsoFileReader::InitializeBuffers()
 	const u32 indexSize = numFrames + 1;
 	m_index = new u32[indexSize];
 	if (fread(m_index, sizeof(u32), indexSize, m_src) != indexSize)
-	{
-		log_cb(RETRO_LOG_ERROR, "Unable to read index data from CSO.\n");
 		return false;
-	}
 
 	m_z_stream = new z_stream;
 	m_z_stream->zalloc = Z_NULL;
 	m_z_stream->zfree = Z_NULL;
 	m_z_stream->opaque = Z_NULL;
 	if (inflateInit2(m_z_stream, -15) != Z_OK)
-	{
-		log_cb(RETRO_LOG_ERROR, "Unable to initialize zlib for CSO decompression.\n");
 		return false;
-	}
 
 	return true;
 }
@@ -288,10 +267,7 @@ int CsoFileReader::ReadFromFrame(u8* dest, u64 pos, int maxBytes)
 	{
 		// Just read directly, easy.
 		if (PX_fseeko(m_src, m_dataoffset + frameRawPos + offset, SEEK_SET) != 0)
-		{
-			log_cb(RETRO_LOG_ERROR, "Unable to seek to uncompressed CSO data.\n");
 			return 0;
-		}
 		return fread(dest, 1, bytes, m_src);
 	}
 	else
@@ -300,10 +276,7 @@ int CsoFileReader::ReadFromFrame(u8* dest, u64 pos, int maxBytes)
 		if (m_zlibBufferFrame != frame)
 		{
 			if (PX_fseeko(m_src, m_dataoffset + frameRawPos, SEEK_SET) != 0)
-			{
-				log_cb(RETRO_LOG_ERROR, "Unable to seek to compressed CSO data.\n");
 				return 0;
-			}
 			// This might be less bytes than frameRawSize in case of padding on the last frame.
 			// This is because the index positions must be aligned.
 			const u32 readRawBytes = fread(m_readBuffer, 1, frameRawSize, m_src);
@@ -329,16 +302,11 @@ bool CsoFileReader::DecompressFrame(u32 frame, u32 readBufferSize)
 
 	int status = inflate(m_z_stream, Z_FINISH);
 	bool success = status == Z_STREAM_END && m_z_stream->total_out == m_frameSize;
+	// Our buffer now contains this frame.
 	if (success)
-	{
-		// Our buffer now contains this frame.
 		m_zlibBufferFrame = frame;
-	}
 	else
-	{
-		log_cb(RETRO_LOG_ERROR, "Unable to decompress CSO frame using zlib.\n");
 		m_zlibBufferFrame = (u32)-1;
-	}
 
 	inflateReset(m_z_stream);
 	return success;

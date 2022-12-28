@@ -285,7 +285,6 @@ void FileMemoryCard::Open()
 			cont = true;
 		}
 
-		log_cb(RETRO_LOG_INFO, "McdSlot %u [File]: %s\n", slot, WX_STR(str));
 		if (cont)
 			continue;
 
@@ -390,8 +389,6 @@ bool FileMemoryCard::Seek(wxFFile& f, u32 adr)
 // returns FALSE if an error occurred (either permission denied or disk full)
 bool FileMemoryCard::Create(const wxString& mcdFile, uint sizeInMB)
 {
-	//int enc[16] = {0x77,0x7f,0x7f,0x77,0x7f,0x7f,0x77,0x7f,0x7f,0x77,0x7f,0x7f,0,0,0,0};
-
 	log_cb(RETRO_LOG_INFO, "(FileMcd) Creating new %uMB memory card: %s\n", sizeInMB, WX_STR(mcdFile));
 
 	wxFFile fp(mcdFile, L"wb");
@@ -434,9 +431,8 @@ bool FileMemoryCard::IsPSX(uint slot)
 s32 FileMemoryCard::Read(uint slot, u8* dest, u32 adr, int size)
 {
 	wxFFile& mcfp(m_file[slot]);
-	if (!mcfp.IsOpened())
+	if (!mcfp.IsOpened()) /* Ignoring attempted read from disabled slot */
 	{
-		log_cb(RETRO_LOG_ERROR, "(FileMcd) Ignoring attempted read from disabled slot.\n");
 		memset(dest, 0, size);
 		return 1;
 	}
@@ -449,11 +445,8 @@ s32 FileMemoryCard::Save(uint slot, const u8* src, u32 adr, int size)
 {
 	wxFFile& mcfp(m_file[slot]);
 
-	if (!mcfp.IsOpened())
-	{
-		log_cb(RETRO_LOG_ERROR, "(FileMcd) Ignoring attempted save/write to disabled slot.\n");
+	if (!mcfp.IsOpened()) /* Ignoring attempted save/write to disabled slot */
 		return 1;
-	}
 
 	if (m_ispsx[slot])
 	{
@@ -470,17 +463,10 @@ s32 FileMemoryCard::Save(uint slot, const u8* src, u32 adr, int size)
 
 
 		for (int i = 0; i < size; i++)
-		{
-			if ((m_currentdata[i] & src[i]) != src[i])
-				log_cb(RETRO_LOG_WARN, "(FileMcd) Warning: writing to uncleared data. (%d) [%08X]\n", slot, adr);
 			m_currentdata[i] &= src[i];
-		}
 
 		// Checksumness
 		{
-			if (adr == m_chkaddr)
-				log_cb(RETRO_LOG_WARN, "(FileMcd) Warning: checksum sector overwritten. (%d)\n", slot);
-
 			u64* pdata = (u64*)&m_currentdata[0];
 			u32 loops = size / 8;
 
@@ -495,19 +481,7 @@ s32 FileMemoryCard::Save(uint slot, const u8* src, u32 adr, int size)
 	int status = mcfp.Write(m_currentdata.GetPtr(), size);
 
 	if (status)
-	{
-		static auto last = std::chrono::time_point<std::chrono::system_clock>();
-
-		std::chrono::duration<float> elapsed = std::chrono::system_clock::now() - last;
-		if (elapsed > std::chrono::seconds(5))
-		{
-			wxString name, ext;
-			wxFileName::SplitPath(m_file[slot].GetName(), NULL, NULL, &name, &ext);
-			log_cb(RETRO_LOG_INFO, "Memory Card %s written.\n", (const char*)(name + "." + ext).c_str());
-			last = std::chrono::system_clock::now();
-		}
 		return 1;
-	}
 
 	return 0;
 }
@@ -516,11 +490,8 @@ s32 FileMemoryCard::EraseBlock(uint slot, u32 adr)
 {
 	wxFFile& mcfp(m_file[slot]);
 
-	if (!mcfp.IsOpened())
-	{
-		log_cb(RETRO_LOG_ERROR, "MemoryCard: Ignoring erase for disabled slot.\n");
+	if (!mcfp.IsOpened()) /* Ignoring erase for disabled slot */
 		return 1;
-	}
 
 	if (!Seek(mcfp, adr))
 		return 0;

@@ -236,9 +236,6 @@ void SysMainMemory::ResetAll()
 void SysMainMemory::DecommitAll()
 {
 	if (!m_ee.IsCommitted() && !m_iop.IsCommitted() && !m_vu.IsCommitted()) return;
-
-	log_cb(RETRO_LOG_INFO, "Decommitting host memory for virtual systems...\n" );
-
 	// On linux, the MTVU isn't empty and the thread still uses the m_ee/m_vu memory
 	vu1Thread.WaitVU();
 	// The EE thread must be stopped here command mustn't be send
@@ -259,8 +256,6 @@ void SysMainMemory::DecommitAll()
 // --------------------------------------------------------------------------------------
 SysCpuProviderPack::SysCpuProviderPack()
 {
-	log_cb(RETRO_LOG_INFO, "Reserving memory for recompilers...\n" );
-
 	CpuProviders = std::make_unique<CpuInitializerSet>();
 
 	recCpu.Reserve();

@@ -121,17 +121,8 @@ void MultipartFileReader::FindParts()
 
 		thispart->end = blocks;
 
-#ifndef NDEBUG
-		log_cb(RETRO_LOG_DEBUG, "\tblocks %u - %u in: %s\n",
-			thispart->start, thispart->end,
-			WX_STR(nameparts.GetFullPath())
-		);
-#endif
-
 		++m_numparts;
 	}
-
-	//log_cb(RETRO_LOG_DEBUG, "isoFile: multi-part ISO loaded (%u parts found)\n", m_numparts );
 }
 
 bool MultipartFileReader::Open(const wxString& fileName)

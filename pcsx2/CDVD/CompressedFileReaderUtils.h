@@ -34,11 +34,9 @@
 #ifdef _WIN32
 #define PX_fseeko _fseeki64
 #define PX_ftello _ftelli64
-#define PX_off_t s64 /* __int64 */
 #else
 #define PX_fseeko fseeko
 #define PX_ftello ftello
-#define PX_off_t off_t
 #endif
 
 /////////// End of complementary utilities for zlib_indexed.c //////////

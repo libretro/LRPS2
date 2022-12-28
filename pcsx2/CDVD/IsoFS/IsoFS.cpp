@@ -66,14 +66,12 @@ IsoDirectory::IsoDirectory(SectorSource& r)
 					break;
 
 				default:
-					log_cb(RETRO_LOG_ERROR, "(IsoFS) Unknown partition type ID=%d, encountered at block 0x%x\n", sector[0], i);
 					break;
 			}
 		}
 		else
 		{
 			sector[9] = 0;
-			log_cb(RETRO_LOG_ERROR, "(IsoFS) Invalid partition descriptor encountered at block 0x%x: '%s'\n", i, &sector[1]);
 			break; // if no valid root partition was found, an exception will be thrown below.
 		}
 

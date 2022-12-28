@@ -44,10 +44,7 @@ static s32 CALLBACK ISOopen(const char* pTitle)
 	ISOclose(); // just in case
 
 	if ((pTitle == NULL) || (pTitle[0] == 0))
-	{
-		log_cb(RETRO_LOG_ERROR, "CDVDiso Error: No filename specified.\n");
 		return -1;
-	}
 
 	// The current plugin API doesn't expect exceptions to propagate out of the API
 	// calls, so we need to catch them, log them, and return -1.
@@ -144,11 +141,7 @@ static void FindLayer1Start(void)
 	// The ISO9660 primary volume descriptor for layer 0 is located at sector 16
 	iso.ReadSync(buffer.data(), 16);
 	if (!testForPrimaryVolumeDescriptor(buffer))
-	{
-		log_cb(RETRO_LOG_ERROR,
-"isoFile: Invalid layer0 Primary Volume Descriptor\n");
 		return;
-	}
 
 	// The volume space size (sector count) is located at bytes 80-87 - 80-83
 	// is the little endian size, 84-87 is the big endian size.
@@ -165,12 +158,8 @@ static void FindLayer1Start(void)
 			return;
 
 		if (!testForPrimaryVolumeDescriptor(buffer))
-		{
-			log_cb(RETRO_LOG_ERROR, "isoFile: Invalid layer1 Primary Volume Descriptor\n");
 			return;
-		}
 		layer1start = blockresult;
-		log_cb(RETRO_LOG_INFO, "isoFile: second layer found at sector 0x%08x\n", layer1start);
 	}
 }
 

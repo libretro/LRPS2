@@ -132,8 +132,6 @@ void ElfObject::loadHeaders()
 	{
 		const char *SymNames = (char*)data.GetPtr(secthead[i_dt].sh_offset);
 		Elf32_Sym *eS = (Elf32_Sym*)data.GetPtr(secthead[i_st].sh_offset);
-		log_cb(RETRO_LOG_INFO, "found %d symbols\n", secthead[i_st].sh_size / sizeof(Elf32_Sym));
-
 		for(uint i = 1; i < (secthead[i_st].sh_size / sizeof(Elf32_Sym)); i++) {
 			if ((eS[i].st_value != 0) && (ELF32_ST_TYPE(eS[i].st_info) == 2))
 				symbolMap.AddLabel(&SymNames[eS[i].st_name],eS[i].st_value);
@@ -154,47 +152,36 @@ int GetPS2ElfName( wxString& name )
 		IsoFile file( isofs, L"SYSTEM.CNF;1");
 
 		int size = file.getLength();
-		if( size == 0 ) return 0;
+		if( size == 0 )
+			return 0;
 
 		while( !file.eof() )
 		{
 			const wxString original( fromUTF8(file.readLine().c_str()) );
 			const ParsedAssignmentString parts( original );
 
-			if( parts.lvalue.IsEmpty() && parts.rvalue.IsEmpty() ) continue;
-			if( parts.rvalue.IsEmpty() && file.getLength() != file.getSeekPos() )
-			{ // Some games have a character on the last line of the file, don't print the error in those cases.
-				log_cb(RETRO_LOG_WARN, "(SYSTEM.CNF) Unusual or malformed entry in SYSTEM.CNF ignored: %s\n", WX_STR(original) );
+			if( parts.lvalue.IsEmpty() &&
+				parts.rvalue.IsEmpty() )
 				continue;
-			}
+			/* Some games have a character on the last line of the file, don't print the error in those cases. Unusual or malformed entry in SYSTEM.CNF ignored */
+			if( parts.rvalue.IsEmpty() && 
+				file.getLength() != file.getSeekPos() )
+				continue;
 
-			if( parts.lvalue == L"BOOT2" )
+			if( parts.lvalue == L"BOOT2" ) /* Detected PS2 disc */
 			{
-				name = parts.rvalue;
-				log_cb(RETRO_LOG_INFO, "(SYSTEM.CNF) Detected PS2 Disc = %s\n", WX_STR(name));
+				name   = parts.rvalue;
 				retype = 2;
 			}
-			else if( parts.lvalue == L"BOOT" )
+			else if( parts.lvalue == L"BOOT" ) /* Detected PSX/PSone Disc */
 			{
-				name = parts.rvalue;
-				log_cb(RETRO_LOG_INFO, "(SYSTEM.CNF) Detected PSX/PSone Disc = %s\n", WX_STR(name));
+				name   = parts.rvalue;
 				retype = 1;
-			}
-			else if( parts.lvalue == L"VMODE" )
-			{
-				log_cb(RETRO_LOG_INFO, "(SYSTEM.CNF) Disc region type = %s\n", WX_STR(parts.rvalue) );
-			}
-			else if( parts.lvalue == L"VER" )
-			{
-				log_cb(RETRO_LOG_INFO, "(SYSTEM.CNF) Software version = %s\n", WX_STR(parts.rvalue) );
 			}
 		}
 
-		if( retype == 0 )
-		{
-			log_cb(RETRO_LOG_ERROR, "(GetElfName) Disc image is *not* a Playstation or PS2 game!\n");
+		if( retype == 0 ) /* Disc image is NOT a PS1 or PS2 game */
 			return 0;
-		}
 	}
 	catch( Exception::FileNotFound& )
 	{

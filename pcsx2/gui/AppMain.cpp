@@ -151,8 +151,6 @@ SysMainMemory& Pcsx2App::GetVmReserve()
 }
 void Pcsx2App::SysExecute( CDVD_SourceType cdvdsrc, const wxString& elf_override )
 {
-	log_cb(RETRO_LOG_DEBUG, "(SysExecute) received.\n");
-
 	CoreThread.ResetQuick();
 	CDVDsys_SetFile(CDVD_SourceType::Iso, g_Conf->CurrentIso );
 	CDVDsys_ChangeSource( cdvdsrc);

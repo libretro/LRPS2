@@ -69,11 +69,8 @@ bool BlockdumpFileReader::Open(const wxString& fileName)
 	m_file->Read(buf, 4);
 
 	if (strncmp(buf, "BDV2", 4) != 0)
-	{
 		return false;
-	}
 
-	//m_flags = ISOFLAGS_BLOCKDUMP_V2;
 	m_file->Read(&m_blocksize, sizeof(m_blocksize));
 	m_file->Read(&m_blocks, sizeof(m_blocks));
 	m_file->Read(&m_blockofs, sizeof(m_blockofs));
@@ -114,7 +111,6 @@ bool BlockdumpFileReader::Open(const wxString& fileName)
 int BlockdumpFileReader::ReadSync(void* pBuffer, uint lsn, uint count)
 {
 	u8* dst = (u8*)pBuffer;
-	//log_cb(RETRO_LOG_INFO, "_isoReadBlockD %u, blocksize=%u, blockofs=%u\n", lsn, iso->blocksize, iso->blockofs);
 
 	while (count > 0)
 	{
