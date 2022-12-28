@@ -88,11 +88,7 @@ namespace Xbyak { namespace util {
  * of AVX/SSEn
  *
  * So far, we don't need other ISA on i386 so I hacked the code to limit the
- * type to 32 bits. If we want to support AVX512 we might need to shuffle the
- * code a bit.
- *
- * Extra note: it would be waste to use AVX512 on 32 bits, registers are
- * limited to 8 instead of 32.
+ * type to 32 bits.
  */
 
 /**
@@ -167,7 +163,6 @@ public:
 #else
 		unsigned int eax, edx;
 		// xgetvb is not support on gcc 4.2
-//		__asm__ volatile("xgetbv" : "=a"(eax), "=d"(edx) : "c"(0));
 		__asm__ volatile(".byte 0x0f, 0x01, 0xd0" : "=a"(eax), "=d"(edx) : "c"(0));
 		return ((uint64_t)edx << 32) | eax;
 #endif
@@ -217,15 +212,6 @@ public:
 	static const Type tRTM = uint64_t(1) << 32; // xbegin, xend, xabort
 	static const Type tF16C = uint64_t(1) << 33; // vcvtph2ps, vcvtps2ph
 	static const Type tMOVBE = uint64_t(1) << 34; // mobve
-	static const Type tAVX512F = uint64_t(1) << 35;
-	static const Type tAVX512DQ = uint64_t(1) << 36;
-	static const Type tAVX512IFMA = uint64_t(1) << 37;
-	static const Type tAVX512PF = uint64_t(1) << 38;
-	static const Type tAVX512ER = uint64_t(1) << 39;
-	static const Type tAVX512CD = uint64_t(1) << 40;
-	static const Type tAVX512BW = uint64_t(1) << 41;
-	static const Type tAVX512VL = uint64_t(1) << 42;
-	static const Type tAVX512VBMI = uint64_t(1) << 43;
 #endif
 
 	Cpu()
@@ -277,23 +263,6 @@ public:
 			if ((bv & 6) == 6) {
 				if (data[2] & (1U << 28)) type_ |= tAVX;
 				if (data[2] & (1U << 12)) type_ |= tFMA;
-#ifdef XBYAK64
-				if (((bv >> 5) & 7) == 7) {
-					getCpuid(7, data);
-					if (data[1] & (1U << 16)) type_ |= tAVX512F;
-					if (type_ & tAVX512F) {
-						getCpuidEx(7, 0, data);
-						if (data[1] & (1U << 17)) type_ |= tAVX512DQ;
-						if (data[1] & (1U << 21)) type_ |= tAVX512IFMA;
-						if (data[1] & (1U << 26)) type_ |= tAVX512PF;
-						if (data[1] & (1U << 27)) type_ |= tAVX512ER;
-						if (data[1] & (1U << 28)) type_ |= tAVX512CD;
-						if (data[1] & (1U << 30)) type_ |= tAVX512BW;
-						if (data[1] & (1U << 31)) type_ |= tAVX512VL;
-						if (data[2] & (1U << 1)) type_ |= tAVX512VBMI;
-					}
-				}
-#endif
 			}
 		}
 		if (maxNum >= 7) {
