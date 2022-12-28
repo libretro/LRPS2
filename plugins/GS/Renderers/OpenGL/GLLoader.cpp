@@ -244,7 +244,6 @@ namespace GLLoader {
 		for (GLint i = 0; i < max_ext; i++) {
 			std::string ext{(const char*)glGetStringi(GL_EXTENSIONS, i)};
 			GLExtension::Set(ext);
-			//fprintf(stderr, "DEBUG ext: %s\n", ext.c_str());
 		}
 
 		// Mandatory for both renderer

@@ -96,11 +96,7 @@ class GSBufferOGL {
 
 	void* map(size_t count)
 	{
-		m_count = count;
-
-		if (m_count >= m_limit)
-			throw GSDXErrorGlVertexArrayTooSmall();
-
+		m_count       = count;
 		size_t offset = m_start * STRIDE;
 		size_t length = m_count * STRIDE;
 
