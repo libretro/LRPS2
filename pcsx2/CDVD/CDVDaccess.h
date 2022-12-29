@@ -153,8 +153,6 @@ extern CDVD_API CDVDapi_Iso;
 extern CDVD_API CDVDapi_Disc;
 extern CDVD_API CDVDapi_NoDisc;
 
-extern const wxChar* CDVD_SourceLabels[];
-
 extern void CDVDsys_ChangeSource(CDVD_SourceType type);
 extern void CDVDsys_SetFile(CDVD_SourceType srctype, const wxString& newfile);
 extern const wxString& CDVDsys_GetFile(CDVD_SourceType srctype);

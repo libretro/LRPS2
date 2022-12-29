@@ -17,14 +17,16 @@
 
 #define _PC_	// disables MIPS opcode macros.
 
-#include "IopCommon.h"
+#include "Common.h"
 #include "Patch.h"
+#include "IopMem.h"
 
-u32 SkipCount = 0, IterationCount = 0;
-u32 IterationIncrement = 0, ValueIncrement = 0;
-u32 PrevCheatType = 0, PrevCheatAddr = 0, LastType = 0;
+static u32 SkipCount = 0;
+static u32 IterationCount = 0;
+static u32 IterationIncrement = 0, ValueIncrement = 0;
+static u32 PrevCheatType = 0, PrevCheatAddr = 0, LastType = 0;
 
-void writeCheat()
+static void writeCheat(void)
 {
 	switch (LastType)
 	{
@@ -45,9 +47,7 @@ void writeCheat()
 void handle_extended_t(IniPatch *p)
 {
 	if (SkipCount > 0)
-	{
 		SkipCount--;
-	}
 	else switch (PrevCheatType)
 	{
 	case 0x3040: // vvvvvvvv 00000000 Inc

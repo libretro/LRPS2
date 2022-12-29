@@ -37,10 +37,11 @@ BIOS
 #include "PrecompiledHeader.h"
 #include "Utilities/MemcpyFast.h"
 
-#include "IopCommon.h"
+#include "IopHw.h"
 #include "GS.h"
 #include "VUmicro.h"
 #include "MTVU.h"
+#include "DEV9/DEV9.h"
 
 #include "ps2/HwInternal.h"
 #include "ps2/BiosTools.h"

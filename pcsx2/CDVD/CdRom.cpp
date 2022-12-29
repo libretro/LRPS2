@@ -15,10 +15,14 @@
 
 
 #include "PrecompiledHeader.h"
+#include "R3000A.h"
+#include "Common.h"
 #include "Utilities/MemcpyFast.h"
 
 #include "CdRom.h"
 #include "CDVD.h"
+#include "IopHw.h"
+#include "IopDma.h"
 
 //THIS ALL IS FOR THE CDROM REGISTERS HANDLING
 

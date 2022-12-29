@@ -16,7 +16,10 @@
 #include "PrecompiledHeader.h"
 #include "Utilities/FixedPointTypes.inl"
 #include "Utilities/MemcpyFast.h"
-#include "IopCommon.h"
+#include "R3000A.h"
+#include "Common.h"
+#include "IopHw.h"
+#include "IopDma.h"
 #include "AppConfig.h"
 
 #include <memory>

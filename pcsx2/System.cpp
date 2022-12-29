@@ -14,7 +14,8 @@
  */
 
 #include "PrecompiledHeader.h"
-#include "IopCommon.h"
+#include "Common.h"
+#include "R3000A.h"
 #include "newVif.h"
 #include "MTVU.h"
 #include "x86emitter/x86_intrin.h"
@@ -22,6 +23,8 @@
 #include "Elfheader.h"
 
 #include "System/RecTypes.h"
+
+#include "CDVD/CDVD.h"
 
 SSE_MXCSR g_sseMXCSR	= { DEFAULT_sseMXCSR };
 SSE_MXCSR g_sseVUMXCSR	= { DEFAULT_sseVUMXCSR };

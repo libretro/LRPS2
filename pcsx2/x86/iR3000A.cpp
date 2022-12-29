@@ -21,8 +21,12 @@
 #include "PrecompiledHeader.h"
 
 #include "iR3000A.h"
+#include "R3000A.h"
 #include "BaseblockEx.h"
 #include "System/RecTypes.h"
+#include "IopBios.h"
+#include "IopHw.h"
+#include "Common.h"
 
 #include <time.h>
 
@@ -30,7 +34,6 @@
 #include <sys/types.h>
 #endif
 
-#include "IopCommon.h"
 #include "iCore.h"
 
 #include "AppConfig.h"

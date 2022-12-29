@@ -17,8 +17,10 @@
 
 #define _PC_	// disables MIPS opcode macros.
 
-#include "IopCommon.h"
+#include "R3000A.h"
+#include "Common.h"
 #include "Sif.h"
+#include "IopHw.h"
 
 _sif sif1;
 
@@ -35,7 +37,6 @@ static __fi bool WriteEEtoFifo(void)
 {
 	// There's some data ready to transfer into the fifo..
 	const int writeSize = std::min((s32)sif1ch.qwc, sif1.fifo.sif_free() >> 2);
-
 	tDMA_TAG *ptag = sif1ch.getAddr(sif1ch.madr, DMAC_SIF1, false);
 	if (!ptag)
 		return false;

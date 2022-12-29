@@ -15,19 +15,24 @@
 
 
 #include "PrecompiledHeader.h"
-#include "IopCommon.h"
+#include "R3000A.h"
+#include "Common.h"
 
 #include "iR5900.h"
 #include "Sio.h"
 #include "Mdec.h"
+#include "IopSio2.h"
+#include "IopCounters.h"
+#include "IopHw.h"
+#include "IopDma.h"
+#include "CDVD/CdRom.h"
+#include "CDVD/CDVD.h"
 
 // NOTE: Any modifications to read/write fns should also go into their const counterparts
 // found in iPsxHw.cpp.
 
-void psxHwReset() {
-/*	if (Config.Sio) psxHu32(0x1070) |= 0x80;
-	if (Config.SpuIrq) psxHu32(0x1070) |= 0x200;*/
-
+void psxHwReset(void)
+{
 	memset(iopHw, 0, 0x10000);
 
 	mdecInit(); //initialize mdec decoder

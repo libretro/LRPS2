@@ -15,7 +15,6 @@
 
 
 #include "PrecompiledHeader.h"
-#include "IopCommon.h"
 
 #include <ctype.h>
 #include <time.h>
@@ -29,13 +28,6 @@
 #include "DebugTools/SymbolMap.h"
 
 CDVD_API* CDVD = NULL;
-
-const wxChar* CDVD_SourceLabels[] =
-	{
-		L"ISO",
-		L"Disc",
-		L"NoDisc",
-		NULL};
 
 // ----------------------------------------------------------------------------
 // diskTypeCached

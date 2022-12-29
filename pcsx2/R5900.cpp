@@ -32,6 +32,7 @@
 
 #include "Elfheader.h"
 #include "CDVD/CDVD.h"
+#include "USB/USB.h"
 #include "Patch.h"
 #include "GameDatabase.h"
 

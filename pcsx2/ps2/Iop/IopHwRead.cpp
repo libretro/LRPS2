@@ -18,13 +18,17 @@
 #include "IopHw_Internal.h"
 #include "Sif.h"
 #include "Sio.h"
-#include "CDVD/CdRom.h"
 #include "FW.h"
+#include "R3000A.h"
+#include "CDVD/CdRom.h"
 #include "DEV9/DEV9.h"
 #include "SPU2/spu2.h"
+#include "USB/USB.h"
 
 #include "ps2/pgif.h"
 #include "Mdec.h"
+#include "IopCounters.h"
+#include "IopSio2.h"
 
 namespace IopMemory
 {

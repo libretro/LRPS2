@@ -14,13 +14,15 @@
  */
 
 #include "PrecompiledHeader.h"
-#include "IopCommon.h"
+#include "Common.h"
 #include "DEV9/DEV9.h"
 #include "SPU2/spu2.h"
+#include "IopCounters.h"
+#include "IopHw.h"
+#include "IopDma.h"
+#include "R3000A.h"
 
 #include "Sif.h"
-
-using namespace R3000A;
 
 // Dma0/1   in Mdec.c
 // Dma3     in CdRom.c

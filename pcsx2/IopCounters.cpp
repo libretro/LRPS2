@@ -20,9 +20,14 @@
 
 #include "PrecompiledHeader.h"
 #include "Utilities/MemcpyFast.h"
-#include "IopCommon.h"
-#include "DEV9/DEV9.h"
+#include "R3000A.h"
+#include "Common.h"
 #include "SPU2/spu2.h"
+#include "DEV9/DEV9.h"
+#include "CDVD/CDVD.h"
+#include "IopHw.h"
+#include "IopDma.h"
+#include "IopCounters.h"
 
 #include <math.h>
 

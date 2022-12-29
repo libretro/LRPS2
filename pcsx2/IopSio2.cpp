@@ -16,10 +16,13 @@
 
 #include "PrecompiledHeader.h"
 #include "Utilities/MemcpyFast.h"
-#include "IopCommon.h"
+#include "Common.h"
 
 #include "Sio.h"
 #include "sio_internal.h"
+#include "IopSio2.h"
+#include "IopHw.h"
+#include "IopDma.h"
 
 sio2Struct sio2;
 

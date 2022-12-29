@@ -13,10 +13,12 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
-#include "IopCommon.h"
 #include <stdlib.h>
 #include <string>
+
+#include "PrecompiledHeader.h"
+#include "IopDma.h"
+#include "R3000A.h"
 
 #include "FW.h"
 

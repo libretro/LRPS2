@@ -15,6 +15,7 @@
 
 #include "PrecompiledHeader.h"
 #include "CDVDdiscReader.h"
+#include "CDVDaccess.h"
 
 #include <atomic>
 #include <condition_variable>

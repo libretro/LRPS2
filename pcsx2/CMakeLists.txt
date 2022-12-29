@@ -121,7 +121,6 @@ set(pcsx2Headers
 	Hardware.h
 	Hw.h
 	IopBios.h
-	IopCommon.h
 	IopCounters.h
 	IopDma.h
 	IopGte.h

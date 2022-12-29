@@ -19,7 +19,7 @@
 #include "Hardware.h"
 #include "newVif.h"
 #include "Gif_Unit.h"
-#include "IopCommon.h"
+#include "IopHw.h"
 #include "SPU2/spu2.h"
 
 using namespace R5900;

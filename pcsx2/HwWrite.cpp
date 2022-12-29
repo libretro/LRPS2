@@ -18,12 +18,16 @@
 #include "Common.h"
 #include "Hardware.h"
 #include "Gif_Unit.h"
-#include "IopCommon.h"
+#include "IopMem.h"
+
 #include "ps2/HwInternal.h"
 
 #include "ps2/pgif.h"
 #include "SPU2/spu2.h"
 #include "R3000A.h"
+
+#include "CDVD/CdRom.h"
+#include "CDVD/CDVD.h"
 
 using namespace R5900;
 
@@ -31,12 +35,10 @@ using namespace R5900;
 // This helps the compiler optimize the switch statement into a lookup table. :)
 
 #define HELPSWITCH(m) (((m)>>4) & 0xff)
-#define mcase(src) case HELPSWITCH(src)
 
 template< uint page > void _hwWrite8(u32 mem, u8 value);
 template< uint page > void _hwWrite16(u32 mem, u8 value);
 template< uint page > void _hwWrite128(u32 mem, u8 value);
-
 
 template<uint page>
 void _hwWrite32( u32 mem, u32 value )
@@ -130,17 +132,16 @@ void _hwWrite32( u32 mem, u32 value )
 		{
 			switch( HELPSWITCH(mem) )
 			{
-				mcase(INTC_STAT):
+				case HELPSWITCH(INTC_STAT):
 					psHu32(INTC_STAT) &= ~value;
-					//cpuTestINTCInts();
 				return;
 
-				mcase(INTC_MASK):
+				case HELPSWITCH(INTC_MASK):
 					psHu32(INTC_MASK) ^= (u16)value;
 					cpuTestINTCInts();
 				return;
 
-				mcase(SIO_TXFIFO):
+				case HELPSWITCH(SIO_TXFIFO):
 				{
 					u8* woot = (u8*)&value;
 					// [Ps2Confirm] What happens when we write 32 bit values to SIO_TXFIFO?
@@ -153,20 +154,20 @@ void _hwWrite32( u32 mem, u32 value )
 				}
 				return;
 
-				mcase(SBUS_F200):
+				case HELPSWITCH(SBUS_F200):
 					// Performs a standard psHu32 assignment (which is the default action anyway).
 					//psHu32(mem) = value;
 				break;
 
-				mcase(SBUS_F220):
+				case HELPSWITCH(SBUS_F220):
 					psHu32(mem) |= value;
 				return;
 
-				mcase(SBUS_F230):
+				case HELPSWITCH(SBUS_F230):
 					psHu32(mem) &= ~value;
 				return;
 
-				mcase(SBUS_F240) :
+				case HELPSWITCH(SBUS_F240) :
 					if (value & (1 << 19))
 					{
 						u32 cycle = psxRegs.cycle;
@@ -185,22 +186,22 @@ void _hwWrite32( u32 mem, u32 value )
 						psHu32(mem) |= 0x100;
 				return;
 
-				mcase(SBUS_F260):
+				case HELPSWITCH(SBUS_F260):
 					psHu32(mem) = value;
 				return;
 
-				mcase(MCH_RICM)://MCH_RICM: x:4|SA:12|x:5|SDEV:1|SOP:4|SBC:1|SDEV:5
+				case HELPSWITCH(MCH_RICM)://MCH_RICM: x:4|SA:12|x:5|SDEV:1|SOP:4|SBC:1|SDEV:5
 					if ((((value >> 16) & 0xFFF) == 0x21) && (((value >> 6) & 0xF) == 1) && (((psHu32(0xf440) >> 7) & 1) == 0))//INIT & SRP=0
 						rdram_sdevid = 0;	// if SIO repeater is cleared, reset sdevid
 					psHu32(mem) = value & ~0x80000000;	//kill the busy bit
 				return;
 
-				mcase(MCH_DRD):
+				case HELPSWITCH(MCH_DRD):
 					// Performs a standard psHu32 assignment (which is the default action anyway).
 					//psHu32(mem) = value;
 				break;
 
-				mcase(DMAC_ENABLEW):
+				case HELPSWITCH(DMAC_ENABLEW):
 					if (!dmacWrite32<0x0f>(DMAC_ENABLEW, value)) return;
 				break;
 
@@ -211,8 +212,8 @@ void _hwWrite32( u32 mem, u32 value )
 						return;
 					}
 
-				//mcase(SIO_ISR):
-				//mcase(0x1000f410):
+				//case HELPSWITCH(SIO_ISR):
+				//case HELPSWITCH(0x1000f410):
 				// Mystery Regs!  No one knows!?
 				// (unhandled so fall through to default)
 

@@ -18,12 +18,13 @@
 
 /*  This code was based on the FPSE v0.08 Mdec decoder*/
 
-#include "PrecompiledHeader.h"
-
 #include <string.h>
 
-#include "IopCommon.h"
+#include "PrecompiledHeader.h"
+
+#include "Common.h"
 #include "Mdec.h"
+#include "IopHw.h"
 
 struct {
 	u32 command;

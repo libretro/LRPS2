@@ -15,8 +15,13 @@
 
 
 #include "PrecompiledHeader.h"
-#include "IopCommon.h"
+#include "R3000A.h"
+#include "Common.h"
 #include "App.h" // For host irx injection hack
+#include "Config.h"
+
+#include "IopBios.h"
+#include "IopHw.h"
 
 using namespace R3000A;
 

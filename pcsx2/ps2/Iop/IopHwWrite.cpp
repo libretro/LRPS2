@@ -15,12 +15,17 @@
 
 #include "PrecompiledHeader.h"
 #include "IopHw_Internal.h"
+#include "IopDma.h"
+#include "IopSio2.h"
+#include "IopCounters.h"
 #include "Sif.h"
 #include "Sio.h"
 #include "FW.h"
+#include "R3000A.h"
 #include "CDVD/CdRom.h"
 #include "DEV9/DEV9.h"
 #include "SPU2/spu2.h"
+#include "USB/USB.h"
 
 #include "ps2/pgif.h"
 #include "Mdec.h"

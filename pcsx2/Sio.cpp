@@ -15,12 +15,15 @@
 
 #include "PrecompiledHeader.h"
 #include "Utilities/MemcpyFast.h"
-#include "IopCommon.h"
+#include "R3000A.h"
+#include "IopHw.h"
+#include "IopDma.h"
 
 #include "Common.h"
 #include "Sio.h"
 #include "sio_internal.h"
 #include "PAD/PAD.h"
+#include "IopSio2.h"
 
 _sio sio;
 static _mcd mcds[2][4];

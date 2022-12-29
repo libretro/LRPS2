@@ -14,7 +14,9 @@
  */
 
 #include "PrecompiledHeader.h"
+#include "CDVD.h"
 #include "CDVDdiscReader.h"
+#include "CDVDaccess.h"
 
 #include "AppConfig.h"
 
