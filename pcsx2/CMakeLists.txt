@@ -563,15 +563,11 @@ if(MSVC)
    set(pcsx2FinalLibs ${pcsx2FinalLibs} comctl32 ws2_32 shlwapi winmm rpcrt4)
 endif()
 
-#   add_link_options(-fuse-ld=gold)
-#   add_link_options(-Wl,--gc-sections,--print-symbol-counts,sym.log)
-
    add_library(${Output} SHARED
      ${CMAKE_SOURCE_DIR}/libretro/main.cpp
      ${pcsx2FinalSources}
     "../libretro/language_injector.cpp" "../libretro/retro_messager.cpp"  )
    include_directories(. ${CMAKE_SOURCE_DIR}/libretro)
-#   set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
    set_target_properties(pcsx2_libretro PROPERTIES PREFIX "")
 
    if(CMAKE_C_COMPILER_ID MATCHES "Clang")

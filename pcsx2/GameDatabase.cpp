@@ -31,6 +31,7 @@ static std::string strToLower(std::string str)
 static std::string join(const std::vector<std::string> & v, const std::string & delimiter = "/")
 {
 	std::string out;
+	/* TODO/FIXME - C++17 - downgrade this to C++11 */
 	if (auto i = v.begin(), e = v.end(); i != e) {
 		out += *i++;
 		for (; i != e; ++i) out.append(delimiter).append(*i);

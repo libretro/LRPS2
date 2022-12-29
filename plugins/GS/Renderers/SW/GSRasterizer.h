@@ -25,6 +25,7 @@
 #include <functional>
 #include <condition_variable>
 #include <mutex>
+#include <vector>
 
 #include "Pcsx2Types.h"
 
