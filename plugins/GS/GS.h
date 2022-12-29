@@ -137,10 +137,8 @@ enum class GSRendererType : int8_t
 {
 	Undefined = -1,
 	DX1011_HW = 3,
-	Null = 11,
-	OGL_HW,
+	OGL_HW = 12,
 	OGL_SW,
-
 #ifdef _WIN32
 	Default = Undefined
 #else

@@ -56,9 +56,6 @@ set(GSdxSources
     Renderers/Common/GSRenderer.cpp
     Renderers/Common/GSTexture.cpp
     Renderers/Common/GSVertexTrace.cpp
-    Renderers/Null/GSDeviceNull.cpp
-    Renderers/Null/GSRendererNull.cpp
-    Renderers/Null/GSTextureNull.cpp
     Renderers/HW/GSHwHack.cpp
     Renderers/HW/GSRendererHW.cpp
     Renderers/HW/GSTextureCache.cpp
@@ -117,9 +114,6 @@ set(GSdxHeaders
     Renderers/Common/GSTexture.h
     Renderers/Common/GSVertex.h
     Renderers/Common/GSVertexTrace.h
-    Renderers/Null/GSDeviceNull.h
-    Renderers/Null/GSRendererNull.h
-    Renderers/Null/GSTextureNull.h
     Renderers/HW/GSRendererHW.h
     Renderers/HW/GSTextureCache.h
     Renderers/HW/GSVertexHW.h

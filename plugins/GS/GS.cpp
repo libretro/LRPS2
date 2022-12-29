@@ -22,8 +22,6 @@
 #include "GS.h"
 #include "GSUtil.h"
 #include "Renderers/SW/GSRendererSW.h"
-#include "Renderers/Null/GSRendererNull.h"
-#include "Renderers/Null/GSDeviceNull.h"
 #include "Renderers/OpenGL/GSDeviceOGL.h"
 #include "Renderers/OpenGL/GSRendererOGL.h"
 
@@ -80,10 +78,10 @@ EXPORT_C_(int) GSinit(void)
 #endif
 	GSVertexTrace::InitVectors();
 
-	if (g_const == nullptr)
+	if (!g_const)
 		return -1;
-	else
-		g_const->Init();
+
+	g_const->Init();
 
 	return 0;
 }
@@ -1003,9 +1001,6 @@ GL_EXT_LOAD_OPT(glPolygonOffsetClamp);
 		case GSRendererType::OGL_SW:
 			dev = new GSDeviceOGL();
 			break;
-		case GSRendererType::Null:
-			dev = new GSDeviceNull();
-			break;
 	}
 
 	if (dev == NULL)
@@ -1031,9 +1026,6 @@ GL_EXT_LOAD_OPT(glPolygonOffsetClamp);
 				if(threads == -1)
 					threads = theApp.GetConfigI("extrathreads");
 				s_gs = new GSRendererSW(threads);
-				break;
-			case GSRendererType::Null:
-				s_gs = new GSRendererNull();
 				break;
 		}
 		if (s_gs == NULL)
@@ -1067,7 +1059,7 @@ EXPORT_C_(int) GSopen2(u32 flags, u8 *basemem)
 			m_current_renderer_type = GSRendererType::DX1011_HW;
 			break;
 		case RETRO_HW_CONTEXT_NONE:
-			m_current_renderer_type = GSRendererType::Null;
+			m_current_renderer_type = GSRendererType::OGL_SW;
 			break;
 		default:
 			if (! std::strcmp(option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type), "Software"))
