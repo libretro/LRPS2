@@ -16,6 +16,7 @@
 #pragma once
 
 #include "Pcsx2Types.h"
+#include <cstddef>
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Safe deallocation macros -- checks pointer validity (non-null) when needed, and sets
