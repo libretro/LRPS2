@@ -27,6 +27,7 @@ set(UtilitiesFinalFlags ${CommonFlags})
 		PrecompiledHeader.cpp
 		pxStreams.cpp
 		StringHelpers.cpp
+		Semaphore.cpp
 		)
    if(NOT MSVC)
    set(UtilitiesSources ${UtilitiesSources}
@@ -57,19 +58,9 @@ set(UtilitiesHeaders
 	PrecompiledHeader.h
 )
 
-if(APPLE)
-	LIST(APPEND UtilitiesSources
-		Darwin/DarwinSemaphore.cpp
-	)
-elseif(Windows)
+if(Windows)
 	LIST(APPEND UtilitiesSources
 		Windows/WinHostSys.cpp
-		Semaphore.cpp
-	)
-
-else()
-	LIST(APPEND UtilitiesSources
-		Semaphore.cpp
 	)
 endif()
 
