@@ -97,9 +97,6 @@ Pcsx2Config::CpuOptions::CpuOptions()
 Pcsx2Config::GSOptions::GSOptions()
 {
 	VsyncQueueSize			= 2;
-
-	FramerateNTSC			= 59.94;
-	FrameratePAL			= 50.0;
 }
 
 

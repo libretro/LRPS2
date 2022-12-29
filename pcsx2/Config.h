@@ -166,17 +166,11 @@ struct Pcsx2Config
 	{
 		int		VsyncQueueSize;
 
-		Fixed100	FramerateNTSC;
-		Fixed100	FrameratePAL;
-
 		GSOptions();
 
 		bool operator ==( const GSOptions& right ) const
 		{
-			return
-				OpEqu( VsyncQueueSize )			&&
-				OpEqu( FramerateNTSC )			&&
-				OpEqu( FrameratePAL );
+			return OpEqu( VsyncQueueSize );
 		}
 
 		bool operator !=( const GSOptions& right ) const

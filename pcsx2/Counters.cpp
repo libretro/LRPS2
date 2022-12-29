@@ -37,6 +37,46 @@
 
 #define EECNT_FUTURE_TARGET 0x10000000
 
+//------------------------------------------------------------------
+// SPEED HACKS!!! (1 is normal) (They have inverse affects, only set 1 at a time)
+//------------------------------------------------------------------
+#define HBLANK_COUNTER_SPEED	1 //Set to '3' to double the speed of games like KHII
+
+//------------------------------------------------------------------
+// NTSC Timing Information!!! (some scanline info is guessed)
+//------------------------------------------------------------------
+#define FRAMERATE_NTSC		29.97 // frames per second
+
+#define SCANLINES_TOTAL_NTSC	525 // total number of scanlines
+#define SCANLINES_VSYNC_NTSC	3   // scanlines that are used for syncing every half-frame
+#define SCANLINES_VRENDER_NTSC	240 // scanlines in a half-frame (because of interlacing)
+#define SCANLINES_VBLANK1_NTSC	19  // scanlines used for vblank1 (even interlace)
+#define SCANLINES_VBLANK2_NTSC	20  // scanlines used for vblank2 (odd interlace)
+
+//------------------------------------------------------------------
+// PAL Timing Information!!! (some scanline info is guessed)
+//------------------------------------------------------------------
+#define FRAMERATE_PAL		25.0// frames per second * 100 (25)
+
+#define SCANLINES_TOTAL_PAL	625 // total number of scanlines per frame
+#define SCANLINES_VSYNC_PAL	5   // scanlines that are used for syncing every half-frame
+#define SCANLINES_VRENDER_PAL	288 // scanlines in a half-frame (because of interlacing)
+#define SCANLINES_VBLANK1_PAL	19  // scanlines used for vblank1 (even interlace)
+#define SCANLINES_VBLANK2_PAL	20  // scanlines used for vblank2 (odd interlace)
+				   
+//------------------------------------------------------------------
+// vSync and hBlank Timing Modes
+//------------------------------------------------------------------
+#define MODE_VRENDER	0x0		//Set during the Render/Frame Scanlines
+#define MODE_VBLANK	0x1		//Set during the Blanking Scanlines
+#define MODE_GSBLANK	0x2		//Set during the Syncing Scanlines (Delayed GS CSR Swap)
+#define MODE_VSYNC	0x3		//Set during the Syncing Scanlines
+#define MODE_VBLANK1	0x0		//Set during the Blanking Scanlines (half-frame 1)
+#define MODE_VBLANK2	0x1		//Set during the Blanking Scanlines (half-frame 2)
+
+#define MODE_HRENDER	0x0		//Set for ~5/6 of 1 Scanline
+#define MODE_HBLANK	0x1		//Set for the remaining ~1/6 of 1 Scanline
+
 extern u8 psxhblankgate;
 static int gates = 0;
 
@@ -48,17 +88,6 @@ SyncCounter vsyncCounter;
 
 u32 nextsCounter;	// records the cpuRegs.cycle value of the last call to rcntUpdate()
 s32 nextCounter;	// delta from nextsCounter, in cycles, until the next rcntUpdate()
-
-static bool IsAnalogVideoMode(void)
-{
-	return (gsVideoMode == GS_VideoMode::PAL || gsVideoMode == GS_VideoMode::NTSC || gsVideoMode == GS_VideoMode::DVD_NTSC || gsVideoMode == GS_VideoMode::DVD_PAL);
-}
-
-static bool IsProgressiveVideoMode(void)
-{
-	return (gsVideoMode == GS_VideoMode::VESA || gsVideoMode == GS_VideoMode::SDTV_480P || gsVideoMode == GS_VideoMode::SDTV_576P || gsVideoMode == GS_VideoMode::HDTV_720P || gsVideoMode == GS_VideoMode::HDTV_1080P);
-}
-
 
 // Updates the state of the nextCounter value (if needed) to serve
 // any pending events for the given counter.
@@ -190,7 +219,7 @@ static void vSyncInfoCalc(vSyncTimingInfo* info, Fixed100 framesPerSecond, u32 s
 	const u64 Blank     = Scanline * (gsVideoMode == GS_VideoMode::NTSC ? 22 : 26);
 	const u64 Render    = HalfFrame - Blank;
 	const u64 GSBlank   = Scanline * 3.5; // GS VBlank/CSR Swap happens roughly 3.5 Scanlines after VBlank Start
-	bool is_ana_vmode   = IsAnalogVideoMode();
+	bool is_ana_vmode   = (gsVideoMode == GS_VideoMode::PAL || gsVideoMode == GS_VideoMode::NTSC || gsVideoMode == GS_VideoMode::DVD_NTSC || gsVideoMode == GS_VideoMode::DVD_PAL); /* Is analog video mode? */
 
 	// Important!  The hRender/hBlank timers should be 50/50 for best results.
 	//  (this appears to be what the real EE's timing crystal does anyway)
@@ -264,28 +293,31 @@ Fixed100 GetVerticalFrequency(void)
 	// https://web.archive.org/web/20200831051302/https://www.hdretrovision.com/240p/
 	switch (gsVideoMode)
 	{
-		case GS_VideoMode::Uninitialized: // SetGsCrt hasn't executed yet, give some temporary values.
-			return 60;
 		case GS_VideoMode::PAL:
 		case GS_VideoMode::DVD_PAL:
-			return gsIsInterlaced ? EmuConfig.GS.FrameratePAL : EmuConfig.GS.FrameratePAL - 0.24f;
+			return gsIsInterlaced ? 50.0 : 50.0 - 0.24f;
+
 		case GS_VideoMode::NTSC:
 		case GS_VideoMode::DVD_NTSC:
-			return gsIsInterlaced ? EmuConfig.GS.FramerateNTSC : EmuConfig.GS.FramerateNTSC - 0.11f;
+			if (!gsIsInterlaced)
+				return 59.94 - 0.11f;
+			/* fall-through */
 		case GS_VideoMode::SDTV_480P:
 			return 59.94;
+
 		case GS_VideoMode::HDTV_1080P:
 		case GS_VideoMode::HDTV_1080I:
 		case GS_VideoMode::HDTV_720P:
 		case GS_VideoMode::SDTV_576P:
 		case GS_VideoMode::VESA:
+		case GS_VideoMode::Uninitialized: // SetGsCrt hasn't executed yet, give some temporary values.
 			return 60;
 		default:
 			break;
 	}
 
 	// Pass NTSC vertical frequency value when unknown video mode is detected.
-	return FRAMERATE_NTSC * 2;
+	return 59.94;
 }
 
 void UpdateVSyncRate(void)
@@ -303,9 +335,6 @@ void UpdateVSyncRate(void)
 		//Set up scanlines and framerate based on video mode
 		switch (gsVideoMode)
 		{
-			case GS_VideoMode::Uninitialized: // SYSCALL instruction hasn't executed yet, give some temporary values.
-				scanlines = SCANLINES_TOTAL_NTSC;
-				break;
 
 			case GS_VideoMode::PAL:
 			case GS_VideoMode::DVD_PAL:
@@ -314,24 +343,20 @@ void UpdateVSyncRate(void)
 
 			case GS_VideoMode::NTSC:
 			case GS_VideoMode::DVD_NTSC:
-				scanlines = SCANLINES_TOTAL_NTSC;
-				break;
-
 			case GS_VideoMode::SDTV_480P:
 			case GS_VideoMode::SDTV_576P:
 			case GS_VideoMode::HDTV_1080P:
 			case GS_VideoMode::HDTV_1080I:
 			case GS_VideoMode::HDTV_720P:
 			case GS_VideoMode::VESA:
-				scanlines = SCANLINES_TOTAL_NTSC;
-				break;
-
+			case GS_VideoMode::Uninitialized: // SYSCALL instruction hasn't executed yet, give some temporary values.
 			case GS_VideoMode::Unknown:
 			default:
 				// Falls through to default when unidentified mode parameter of SetGsCrt is detected.
 				// For Release builds, keep using the NTSC timing values when unknown video mode is detected.
 				// Assert will be triggered for debug/dev builds.
 				scanlines = SCANLINES_TOTAL_NTSC;
+				break;
 		}
 
 		vSyncInfo.VideoMode = gsVideoMode;
@@ -482,16 +507,20 @@ __fi void rcntUpdate_hScanline(void)
 {
 	if( !cpuTestCycle( hsyncCounter.sCycle, hsyncCounter.CycleT ) ) return;
 
-	if (hsyncCounter.Mode & MODE_HBLANK) { //HBLANK Start
+	if (hsyncCounter.Mode & MODE_HBLANK)
+	{
+		//HBLANK Start
 		rcntStartGate(false, hsyncCounter.sCycle);
 		psxCheckStartGate16(0);
 
 		// Setup the hRender's start and end cycle information:
 		hsyncCounter.sCycle += vSyncInfo.hBlank;		// start  (absolute cycle value)
-		hsyncCounter.CycleT = vSyncInfo.hRender;		// endpoint (delta from start value)
-		hsyncCounter.Mode = MODE_HRENDER;
+		hsyncCounter.CycleT  = vSyncInfo.hRender;		// endpoint (delta from start value)
+		hsyncCounter.Mode    = MODE_HRENDER;
 	}
-	else { //HBLANK END / HRENDER Begin
+	else
+	{
+		//HBLANK END / HRENDER Begin
 		if (!CSRreg.HSINT)
 		{
 			CSRreg.HSINT = true;
@@ -505,13 +534,13 @@ __fi void rcntUpdate_hScanline(void)
 
 		// set up the hblank's start and end cycle information:
 		hsyncCounter.sCycle += vSyncInfo.hRender;	// start (absolute cycle value)
-		hsyncCounter.CycleT = vSyncInfo.hBlank;		// endpoint (delta from start value)
-		hsyncCounter.Mode = MODE_HBLANK;
+		hsyncCounter.CycleT  = vSyncInfo.hBlank;	// endpoint (delta from start value)
+		hsyncCounter.Mode    = MODE_HBLANK;
 
 	}
 }
 
-__fi void rcntUpdate_vSync(void)
+static __fi void rcntUpdate_vSync(void)
 {
 	switch (vsyncCounter.Mode)
 	{
@@ -531,10 +560,16 @@ __fi void rcntUpdate_vSync(void)
 			/* GSVSync Begin */
 			// CSR is swapped and GS vBlank IRQ is triggered roughly 3.5 hblanks after VSync Start
 			// Swap field
-			if (IsProgressiveVideoMode())
-                           CSRreg._u32 |= 0x2000;
+
+			/* Is progressive video mode? */
+			if (		   gsVideoMode == GS_VideoMode::VESA 
+					|| gsVideoMode == GS_VideoMode::SDTV_480P 
+					|| gsVideoMode == GS_VideoMode::SDTV_576P 
+					|| gsVideoMode == GS_VideoMode::HDTV_720P 
+					|| gsVideoMode == GS_VideoMode::HDTV_1080P)
+				CSRreg._u32  |= 0x2000;
 			else
-			    CSRreg._u32 ^= 0x2000;
+				CSRreg._u32  ^= 0x2000;
 
 			if (!CSRreg.VSINT)
 			{

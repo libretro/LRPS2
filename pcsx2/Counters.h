@@ -82,46 +82,6 @@ struct SyncCounter
 	s32 CycleT;
 };
 
-//------------------------------------------------------------------
-// SPEED HACKS!!! (1 is normal) (They have inverse affects, only set 1 at a time)
-//------------------------------------------------------------------
-#define HBLANK_COUNTER_SPEED	1 //Set to '3' to double the speed of games like KHII
-
-//------------------------------------------------------------------
-// NTSC Timing Information!!! (some scanline info is guessed)
-//------------------------------------------------------------------
-#define FRAMERATE_NTSC		29.97 // frames per second
-
-#define SCANLINES_TOTAL_NTSC	525 // total number of scanlines
-#define SCANLINES_VSYNC_NTSC	3   // scanlines that are used for syncing every half-frame
-#define SCANLINES_VRENDER_NTSC	240 // scanlines in a half-frame (because of interlacing)
-#define SCANLINES_VBLANK1_NTSC	19  // scanlines used for vblank1 (even interlace)
-#define SCANLINES_VBLANK2_NTSC	20  // scanlines used for vblank2 (odd interlace)
-
-//------------------------------------------------------------------
-// PAL Timing Information!!! (some scanline info is guessed)
-//------------------------------------------------------------------
-#define FRAMERATE_PAL		25.0// frames per second * 100 (25)
-
-#define SCANLINES_TOTAL_PAL	625 // total number of scanlines per frame
-#define SCANLINES_VSYNC_PAL	5   // scanlines that are used for syncing every half-frame
-#define SCANLINES_VRENDER_PAL	288 // scanlines in a half-frame (because of interlacing)
-#define SCANLINES_VBLANK1_PAL	19  // scanlines used for vblank1 (even interlace)
-#define SCANLINES_VBLANK2_PAL	20  // scanlines used for vblank2 (odd interlace)
-
-//------------------------------------------------------------------
-// vSync and hBlank Timing Modes
-//------------------------------------------------------------------
-#define MODE_VRENDER	0x0		//Set during the Render/Frame Scanlines
-#define MODE_VBLANK	0x1		//Set during the Blanking Scanlines
-#define MODE_GSBLANK	0x2		//Set during the Syncing Scanlines (Delayed GS CSR Swap)
-#define MODE_VSYNC	0x3		//Set during the Syncing Scanlines
-#define MODE_VBLANK1	0x0		//Set during the Blanking Scanlines (half-frame 1)
-#define MODE_VBLANK2	0x1		//Set during the Blanking Scanlines (half-frame 2)
-
-#define MODE_HRENDER	0x0		//Set for ~5/6 of 1 Scanline
-#define MODE_HBLANK	0x1		//Set for the remaining ~1/6 of 1 Scanline
-
 extern Counter counters[4];
 extern SyncCounter hsyncCounter;
 extern SyncCounter vsyncCounter;
