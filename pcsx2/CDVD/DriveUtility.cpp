@@ -1,5 +1,5 @@
 /*  PCSX2 - PS2 Emulator for PCs
- *  Copyright (C) 2002-2020  PCSX2 Dev Team
+ *  Copyright (C) 2002-2022  PCSX2 Dev Team
  *
  *  PCSX2 is free software: you can redistribute it and/or modify it under the terms
  *  of the GNU Lesser General Public License as published by the Free Software Found-
@@ -13,10 +13,17 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
-#include "../CDVDdiscReader.h"
+#include "../PrecompiledHeader.h"
+#include "CDVDdiscReader.h"
 
-std::vector<std::wstring> GetOpticalDriveList()
+#if defined(__unix__) || defined(__APPLE__)
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+#endif
+
+#if defined(_WIN32)
+std::vector<std::wstring> GetOpticalDriveList(void)
 {
 	DWORD size = GetLogicalDriveStrings(0, nullptr);
 	std::vector<wchar_t> drive_strings(size);
@@ -56,3 +63,21 @@ void GetValidDrive(std::wstring& drive)
 	drive.pop_back();
 	drive.insert(0, L"\\\\.\\");
 }
+#elif defined(__unix__) || defined(__APPLE__)
+std::vector<std::string> GetOpticalDriveList(void)
+{
+	return {};
+}
+
+void GetValidDrive(std::string& drive)
+{
+	if (!drive.empty())
+		drive.clear();
+	if (drive.empty())
+	{
+		auto drives = GetOpticalDriveList();
+		if (!drives.empty())
+			drive = drives.front();
+	}
+}
+#endif

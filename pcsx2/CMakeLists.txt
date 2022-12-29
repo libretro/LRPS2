@@ -158,6 +158,8 @@ set(pcsx2Headers
 set(pcsx2CDVDSources
 	CDVD/BlockdumpFileReader.cpp
 	CDVD/CdRom.cpp
+	CDVD/DriveUtility.cpp
+	CDVD/IOCtlSrc.cpp
 	CDVD/CDVDaccess.cpp
 	CDVD/CDVD.cpp
 	CDVD/CDVDdiscReader.cpp
@@ -391,26 +393,6 @@ set(pcsx2IPUHeaders
 	IPU/mpeg2lib/Mpeg.h
 	)
 
-# Linux sources
-set(pcsx2LinuxSources
-	CDVD/Linux/DriveUtility.cpp
-	CDVD/Linux/IOCtlSrc.cpp
-   )
-
-set(pcsx2OSXSources
-	CDVD/Linux/DriveUtility.cpp
-	CDVD/Linux/IOCtlSrc.cpp
-	)
-
-set(pcsx2FreeBSDSources
-	CDVD/Linux/DriveUtility.cpp
-	CDVD/Linux/IOCtlSrc.cpp
-	)
-
-# Linux headers
-set(pcsx2LinuxHeaders
-	)
-
 # ps2 sources
 set(pcsx2ps2Sources
 	ps2/BiosTools.cpp
@@ -433,8 +415,6 @@ set(pcsx2SystemHeaders
 
 # Windows sources
 set(pcsx2WindowsSources
-	CDVD/Windows/DriveUtility.cpp
-	CDVD/Windows/IOCtlSrc.cpp
 	windows/WinCompressNTFS.cpp
 	)
 
@@ -534,11 +514,6 @@ set(pcsx2x86Headers
 # platform sources
 # Linux
 if(Linux)
-	set(Platform
-		${pcsx2LinuxSources}
-		${pcsx2LinuxHeaders}
-		)
-		
 	set(Platform_Libs
 		${LIBUDEV_LIBRARIES}
 		)
@@ -549,19 +524,6 @@ if(Windows)
 	set(Platform
 		${pcsx2WindowsSources}
 		)
-endif()
-
-# MacOSX
-if(APPLE)
-	set(Platform
-		${pcsx2OSXSources}
-		${pcsx2LinuxHeaders})
-endif()
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD" OR ${CMAKE_SYSTEM_NAME} MATCHES "NetBSD")
-	set(Platform
-		${pcsx2FreeBSDSources}
-		${pcsx2LinuxHeaders})
 endif()
 
 set(pcsx2FinalSources
