@@ -161,9 +161,6 @@ public:
 	FileMemoryCard();
 	virtual ~FileMemoryCard() = default;
 
-	void Lock();
-	void Unlock();
-
 	void Open();
 	void Close();
 
@@ -186,31 +183,29 @@ protected:
 	}
 };
 
-uint FileMcd_GetMtapPort(uint slot)
+static uint FileMcd_GetMtapPort(uint slot)
 {
 	switch (slot)
 	{
-		case 0:
-		case 2:
-		case 3:
-		case 4:
-			return 0;
 		case 1:
 		case 5:
 		case 6:
 		case 7:
 			return 1;
-
+		case 0:
+		case 2:
+		case 3:
+		case 4:
 		default:
 			break;
 	}
 
-	return 0; // technically unreachable.
+	return 0;
 }
 
-// Returns the multitap slot number, range 1 to 3 (slot 0 refers to the standard
-// 1st and 2nd player slots).
-uint FileMcd_GetMtapSlot(uint slot)
+// Returns the multitap slot number, range 1 to 3 
+// (slot 0 refers to the standard 1st and 2nd player slots).
+static uint FileMcd_GetMtapSlot(uint slot)
 {
 	switch (slot)
 	{
@@ -240,8 +235,7 @@ wxString FileMcd_GetDefaultName(uint slot)
 {
 	if (FileMcd_IsMultitapSlot(slot))
 		return wxsFormat(L"Mcd-Multitap%u-Slot%02u.ps2", FileMcd_GetMtapPort(slot) + 1, FileMcd_GetMtapSlot(slot) + 1);
-	else
-		return wxsFormat(L"Mcd%03u.ps2", slot + 1);
+	return wxsFormat(L"Mcd%03u.ps2", slot + 1);
 }
 
 FileMemoryCard::FileMemoryCard()
@@ -378,10 +372,6 @@ bool FileMemoryCard::Seek(wxFFile& f, u32 adr)
 		offset = 64;
 	else if (size == MCD_SIZE + 3904)
 		offset = 3904;
-	else
-	{
-		// perform sanity checks here?
-	}
 
 	return f.Seek(adr + offset);
 }
@@ -478,9 +468,7 @@ s32 FileMemoryCard::Save(uint slot, const u8* src, u32 adr, int size)
 	if (!Seek(mcfp, adr))
 		return 0;
 
-	int status = mcfp.Write(m_currentdata.GetPtr(), size);
-
-	if (status)
+	if (mcfp.Write(m_currentdata.GetPtr(), size))
 		return 1;
 
 	return 0;
@@ -504,10 +492,9 @@ u64 FileMemoryCard::GetCRC(uint slot)
 	if (!mcfp.IsOpened())
 		return 0;
 
-	u64 retval = 0;
-
 	if (m_ispsx[slot])
 	{
+		u64 retval = 0;
 		if (!Seek(mcfp, 0))
 			return 0;
 
@@ -522,13 +509,10 @@ u64 FileMemoryCard::GetCRC(uint slot)
 			for (uint t = 0; t < ARRAY_SIZE(buffer); ++t)
 				retval ^= buffer[t];
 		}
-	}
-	else
-	{
-		retval = m_chksum[slot];
+		return retval;
 	}
 
-	return retval;
+	return m_chksum[slot];
 }
 
 // --------------------------------------------------------------------------------------
@@ -540,7 +524,7 @@ namespace Mcd
 	FileMemoryCard impl;       // class-based implementations we refer to when API is invoked
 }; // namespace Mcd
 
-uint FileMcd_ConvertToSlot(uint port, uint slot)
+static uint FileMcd_ConvertToSlot(uint port, uint slot)
 {
 	if (slot == 0)
 		return port;
@@ -549,12 +533,12 @@ uint FileMcd_ConvertToSlot(uint port, uint slot)
 	return slot + 4;     // multitap 2
 }
 
-void FileMcd_EmuOpen()
+void FileMcd_EmuOpen(void)
 {
 	Mcd::impl.Open();
 }
 
-void FileMcd_EmuClose()
+void FileMcd_EmuClose(void)
 {
 	Mcd::impl.Close();
 }

@@ -23,14 +23,11 @@ struct McdSizeInfo
 	u8 Xor; // Checksum of previous data
 };
 
-extern uint FileMcd_GetMtapPort(uint slot);
-extern uint FileMcd_GetMtapSlot(uint slot);
 extern bool FileMcd_IsMultitapSlot( uint slot );
 extern wxString FileMcd_GetDefaultName(uint slot);
 
-uint FileMcd_ConvertToSlot(uint port, uint slot);
-void FileMcd_EmuOpen();
-void FileMcd_EmuClose();
+void FileMcd_EmuOpen(void);
+void FileMcd_EmuClose(void);
 s32 FileMcd_IsPresent(uint port, uint slot);
 void FileMcd_GetSizeInfo(uint port, uint slot, McdSizeInfo* outways);
 bool FileMcd_IsPSX(uint port, uint slot);
