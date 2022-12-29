@@ -29,11 +29,8 @@ set(UtilitiesFinalFlags ${CommonFlags})
 		StringHelpers.cpp
 		Semaphore.cpp
 		AlignedMalloc.cpp
+		HostSys.cpp
 		)
-   if(NOT MSVC)
-   set(UtilitiesSources ${UtilitiesSources}
-      Linux/LnxHostSys.cpp)
-   endif()
 
 # variable with all headers of this library
 set(UtilitiesHeaders
@@ -57,12 +54,6 @@ set(UtilitiesHeaders
 	../../include/Utilities/Threading.h
 	PrecompiledHeader.h
 )
-
-if(Windows)
-	LIST(APPEND UtilitiesSources
-		Windows/WinHostSys.cpp
-	)
-endif()
 
 if(MSVC)
    enable_language(ASM_MASM)
