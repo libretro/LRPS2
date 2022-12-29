@@ -525,7 +525,7 @@ bool GSDevice11::Create()
 		for(size_t i = 0; i < ARRAY_SIZE(m_convert.ps); i++)
 		{
 			char str[32];
-			snprintf(str, sizeof(str), "ps_main%d", i);
+			snprintf(str, sizeof(str), "ps_main%d", (int)i);
 			CreateShader(shader, "convert.fx", nullptr, str, sm_convert_ptr, & m_convert.ps[i]);
 		}
 	}
@@ -561,7 +561,7 @@ bool GSDevice11::Create()
 		for(size_t i = 0; i < ARRAY_SIZE(m_merge.ps); i++)
 		{
 			char str[32];
-			snprintf(str, sizeof(str), "ps_main%d", i);
+			snprintf(str, sizeof(str), "ps_main%d", (int)i);
 			CreateShader(shader, "merge.fx", nullptr, str, sm_model.GetPtr(), &m_merge.ps[i]);
 		}
 	}
@@ -594,7 +594,7 @@ bool GSDevice11::Create()
 		for(size_t i = 0; i < ARRAY_SIZE(m_interlace.ps); i++)
 		{
 			char str[32];
-			snprintf(str, sizeof(str), "ps_main%d", i);
+			snprintf(str, sizeof(str), "ps_main%d", (int)i);
 			CreateShader(shader, "interlace.fx", nullptr, str, sm_model.GetPtr(), &m_interlace.ps[i]);
 		}
 	}
