@@ -151,9 +151,9 @@ int FlatFileReader::FinishRead(void)
 	return aio_return(&m_aiocb) == -1? -1: 1;
 #endif
 #elif defined(__unix__)
+	int max_nr = 1;
 	struct io_event events[max_nr];
 	int min_nr = 1;
-	int max_nr = 1;
 	int event  = io_getevents(m_aio_context, min_nr, max_nr, events, NULL);
 	if (event < 1)
 		return -1;
