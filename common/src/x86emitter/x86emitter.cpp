@@ -1000,33 +1000,20 @@ __emitinline void xRestoreReg(const xRegisterSSE &dest)
     xMOVDQA(dest, ptr[&xmm_data[dest.Id * 2]]);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Helper object to handle ABI frame
-#ifdef __M_X86_64
-
-// All x86-64 calling conventions ensure/require stack to be 16 bytes aligned
-// I couldn't find documentation on when, but compilers would indicate it's before the call: https://gcc.godbolt.org/z/KzTfsz
-#define ALIGN_STACK(v) xADD(rsp, v)
-
-#elif defined(__GNUC__)
-
-// GCC ensures/requires stack to be 16 bytes aligned before the call
-// Call will store 4 bytes. EDI/ESI/EBX will take another 12 bytes.
-// EBP will take 4 bytes if m_base_frame is enabled
-#define ALIGN_STACK(v) xADD(esp, v)
-
-#else
-
-#define ALIGN_STACK(v)
-
-#endif
-
 static void stackAlign(int offset, bool moveDown) {
     int needed = (16 - (offset % 16)) % 16;
-    if (moveDown) {
+    if (moveDown)
         needed = -needed;
-    }
-    ALIGN_STACK(needed);
+#if defined(__M_X86_64)
+    // All x86-64 calling conventions ensure/require stack to be 16 bytes aligned
+    // I couldn't find documentation on when, but compilers would indicate it's before the call: https://gcc.godbolt.org/z/KzTfsz
+    xADD(rsp, needed);
+#elif defined(__GNUC__)
+    // GCC ensures/requires stack to be 16 bytes aligned before the call
+    // Call will store 4 bytes. EDI/ESI/EBX will take another 12 bytes.
+    // EBP will take 4 bytes if m_base_frame is enabled
+    xADD(esp, needed);
+#endif
 }
 
 xScopedStackFrame::xScopedStackFrame(bool base_frame, bool save_base_pointer, int offset)
