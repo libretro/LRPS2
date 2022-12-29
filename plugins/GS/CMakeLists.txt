@@ -78,6 +78,7 @@ set(GSdxSources
     Renderers/SW/GSSetupPrimCodeGenerator.x86.avx2.cpp
     Renderers/SW/GSTextureCacheSW.cpp
     Renderers/SW/GSTextureSW.cpp
+    Renderers/SW/GSVertexSW.cpp
     Renderers/OpenGL/GLLoader.cpp
     Renderers/OpenGL/GLState.cpp
     Renderers/OpenGL/GSDeviceOGL.cpp
@@ -147,7 +148,6 @@ if(Windows)
         Renderers/DX11/GSTexture11.cpp
         Renderers/DX11/GSTextureCache11.cpp
         Renderers/DX11/GSTextureFX11.cpp
-        Renderers/SW/GSVertexSW.cpp
         )
 
     LIST(APPEND GSdxHeaders

@@ -39,7 +39,6 @@ include(SelectPcsx2Plugins)
 # Must be done after SearchForStuff
 get_git_version_info()
 write_svnrev_h()
-set(CMAKE_BUILD_PO FALSE)
 add_definitions(-D__LIBRETRO__)
 
 add_subdirectory(3rdparty/wxwidgets3.0)
