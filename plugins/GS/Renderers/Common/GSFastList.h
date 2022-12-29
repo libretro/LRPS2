@@ -23,6 +23,7 @@
 #pragma once
 
 #include "Pcsx2Types.h"
+#include "Utilities/ScopedAlloc.h"
 #include "stdafx.h"
 
 template <class T>

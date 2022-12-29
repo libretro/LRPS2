@@ -23,6 +23,7 @@
 #include "SafeArray.h"
 #include "General.h"
 
+#ifndef _MSC_VER
 void *AlignedMalloc(size_t size, size_t alignment)
 {
 #ifdef __MINGW32__
@@ -62,3 +63,4 @@ __fi void AlignedFree(void *p)
 	free(p);
 #endif
 }
+#endif

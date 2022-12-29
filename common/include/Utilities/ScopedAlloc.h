@@ -39,9 +39,15 @@
 #define safe_aligned_free(ptr) \
     ((void)(AlignedFree(ptr), (ptr) = NULL))
 
+#ifdef _MSC_VER
+#define AlignedMalloc(a, b) _aligned_malloc(a, b)
+#define AlignedFree(a) _aligned_free(a)
+#define pcsx2_aligned_realloc(a, b, c, d) _aligned_realloc(a, b, c)
+#else
 extern void *AlignedMalloc(size_t size, size_t align);
 extern void AlignedFree(void *pmem);
 extern void *pcsx2_aligned_realloc(void *handle, size_t new_size, size_t align, size_t old_size);
+#endif
 
 // --------------------------------------------------------------------------------------
 //  pxDoOutOfMemory
