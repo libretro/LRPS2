@@ -15,17 +15,15 @@
 
 #include "PrecompiledHeader.h"
 
+#include "Pcsx2Defs.h"
 #include "SymbolMap.h"
+
 #include <algorithm>
 
 SymbolMap symbolMap;
 
 #ifdef _WIN32
 #define strcasecmp stricmp
-#endif
-
-#ifndef ARRAY_SIZE
-#define ARRAY_SIZE(x) (sizeof((x))/sizeof(*(x)))
 #endif
 
 void SymbolMap::Clear() {
@@ -101,7 +99,7 @@ bool SymbolMap::LoadNocashSym(const char *filename) {
 
 bool SymbolMap::GetSymbolInfo(SymbolInfo *info, u32 address, SymbolType symmask) const {
 	u32 functionAddress = INVALID_ADDRESS;
-	u32 dataAddress = INVALID_ADDRESS;
+	u32 dataAddress     = INVALID_ADDRESS;
 
 	if (symmask & ST_FUNCTION)
 		functionAddress = GetFunctionStart(address);

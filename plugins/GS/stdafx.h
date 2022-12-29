@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "Pcsx2Defs.h"
+
 #ifdef _WIN32
 
 #define _WIN32_WINNT 0x0600
@@ -35,7 +37,6 @@
 #endif
 
 #include <string>
-#include <stdint.h>
 
 #ifdef __x86_64__
 #define _M_AMD64
@@ -71,12 +72,6 @@
         // TODO Check clang behavior
         #define ALIGN_STACK(n) alignas(n) int dummy__;
     #endif
-
-
-#endif
-
-#ifndef ARRAY_SIZE
-#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 #endif
 
 #ifndef RESTRICT
