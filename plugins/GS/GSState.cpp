@@ -1346,36 +1346,30 @@ void GSState::Write(const u8* mem, int len)
 	m_mem.m_clut.Invalidate();
 }
 
-void GSState::InitReadFIFO(u8* mem, int len)
+void GSState::InitAndReadFIFO(u8* mem, int len)
 {
-	const int sx  = m_env.TRXPOS.SSAX;
-	const int sy  = m_env.TRXPOS.SSAY;
 	const int w   = m_env.TRXREG.RRW;
 	const int h   = m_env.TRXREG.RRH;
+	const int sx  = m_env.TRXPOS.SSAX;
+	const int sy  = m_env.TRXPOS.SSAY;
 	const u16 bpp = GSLocalMemory::m_psm[m_env.BITBLTBUF.SPSM].trbpp;
 
-	if(!m_tr.Update(w, h, bpp, len))
-		return;
+	if(m_tr.Update(w, h, bpp, len))
+	{
+		if(m_tr.x == sx && m_tr.y == sy)
+			InvalidateLocalMem(m_env.BITBLTBUF, GSVector4i(sx, sy, sx + w, sy + h));
+	}
 
-	if(m_tr.x == sx && m_tr.y == sy)
-		InvalidateLocalMem(m_env.BITBLTBUF, GSVector4i(sx, sy, sx + w, sy + h));
-}
+	Flush();
 
-void GSState::Read(u8* mem, int len)
-{
-	if(len <= 0) return;
+	len *= 16;
+	if (len)
+	{
+		GSVector4i r(sx, sy, sx + w, sy + h);
 
-	int sx = m_env.TRXPOS.SSAX;
-	int sy = m_env.TRXPOS.SSAY;
-	int w = m_env.TRXREG.RRW;
-	int h = m_env.TRXREG.RRH;
-	GSVector4i r(sx, sy, sx + w, sy + h);
-	const u16 bpp = GSLocalMemory::m_psm[m_env.BITBLTBUF.SPSM].trbpp;
-
-	if(!m_tr.Update(w, h, bpp, len))
-		return;
-
-	m_mem.ReadImageX(m_tr.x, m_tr.y, mem, len, m_env.BITBLTBUF, m_env.TRXPOS, m_env.TRXREG);
+		if(m_tr.Update(w, h, bpp, len))
+			m_mem.ReadImageX(m_tr.x, m_tr.y, mem, len, m_env.BITBLTBUF, m_env.TRXPOS, m_env.TRXREG);
+	}
 }
 
 void GSState::Move()
@@ -1585,15 +1579,6 @@ void GSState::SoftReset(u32 mask)
 	m_env.TRXDIR.XDIR = 3; //-1 ; set it to invalid value
 
 	m_q = 1.0f;
-}
-
-void GSState::ReadFIFO(u8* mem, int size)
-{
-	Flush();
-
-	size *= 16;
-
-	Read(mem, size);
 }
 
 template void GSState::Transfer<0>(const u8* mem, u32 size);

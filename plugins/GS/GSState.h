@@ -240,11 +240,9 @@ public:
 
 	void Move();
 	void Write(const u8* mem, int len);
-	void Read(u8* mem, int len);
-	void InitReadFIFO(u8* mem, int len);
+	void InitAndReadFIFO(u8* mem, int len);
 
 	void SoftReset(u32 mask);
-	void ReadFIFO(u8* mem, int size);
 	template<int index> void Transfer(const u8* mem, u32 size);
 	int Freeze(GSFreezeData* fd, bool sizeonly);
 	int Defrost(const GSFreezeData* fd);
