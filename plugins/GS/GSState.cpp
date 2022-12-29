@@ -1292,7 +1292,7 @@ void GSState::Write(const u8* mem, int len)
 	 *
 	 * #Bug number 2. (darker screen)
 	 * The game will restore the previously saved buffer at position 0x0 to
-	 * 0x7F8.  Because of the extra RT pixels, GSdx will partialy invalidate
+	 * 0x7F8.  Because of the extra RT pixels, GS will partially invalidate
 	 * the texture located at 0x700. Next access will generate a cache miss
 	 *
 	 * The no-solution: instead to handle garbage (aka RT) at the end of the

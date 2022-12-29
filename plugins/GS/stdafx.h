@@ -110,7 +110,7 @@
 
 // SSE
 #if defined(__GNUC__)
-// Convert GCC see define into GSdx define
+// Convert GCC see define into GS define
 #if defined(__AVX2__)
 	#if defined(__x86_64__)
 		#define _M_SSE 0x500 // TODO

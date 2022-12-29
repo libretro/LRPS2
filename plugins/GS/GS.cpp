@@ -37,7 +37,7 @@ GSRenderer* s_gs                    = NULL;
 static GSRendererType m_current_renderer_type;
 static bool stored_toggle_state     = false;
 
-GSdxApp theApp;
+GSApp theApp;
 
 GSVector4i GSClientRect(void)
 {
@@ -58,7 +58,7 @@ GSVector4i GSClientRect(void)
 
 EXPORT_C_(int) GSinit(void)
 {
-	// Vector instructions must be avoided when initialising GSdx since PCSX2
+	// Vector instructions must be avoided when initialising GS since PCSX2
 	// can crash if the CPU does not support the instruction set.
 	// Initialise it here instead - it's not ideal since we have to strip the
 	// const type qualifier from all the affected variables.
@@ -1310,7 +1310,7 @@ void fifo_free(void* ptr, size_t size, size_t repeat)
 }
 #endif
 
-GSdxApp::GSdxApp()
+GSApp::GSApp()
 {
 	// Empty constructor causes an illegal instruction exception on an SSE4.2 machine on Windows.
 	// Non-empty doesn't, but raises a SIGILL signal when compiled against GCC 6.1.1.
@@ -1320,7 +1320,7 @@ GSdxApp::GSdxApp()
 #endif
 }
 
-void GSdxApp::Init()
+void GSApp::Init()
 {
 	static bool is_initialised = false;
 	if (is_initialised)
@@ -1401,29 +1401,29 @@ void GSdxApp::Init()
 }
 
 
-std::string GSdxApp::GetConfigS(const char* entry)
+std::string GSApp::GetConfigS(const char* entry)
 {
 	
 	return m_current_configuration[entry];
 }
 
-void GSdxApp::SetConfig(const char* entry, const char* value)
+void GSApp::SetConfig(const char* entry, const char* value)
 {
 	m_current_configuration[entry] = value;
 }
 
-int GSdxApp::GetConfigI(const char* entry)
+int GSApp::GetConfigI(const char* entry)
 {
 	return std::stoi(m_current_configuration[entry]);
 
 }
 
-bool GSdxApp::GetConfigB(const char* entry)
+bool GSApp::GetConfigB(const char* entry)
 {
 	return !!GetConfigI(entry);
 }
 
-void GSdxApp::SetConfig(const char* entry, int value)
+void GSApp::SetConfig(const char* entry, int value)
 {
 	char buff[32] = {0};
 

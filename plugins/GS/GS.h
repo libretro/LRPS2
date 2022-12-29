@@ -1219,12 +1219,12 @@ const GSVector2i default_rt_size(2048, 2048);
 const GSVector2i default_rt_size(1280, 1024);
 #endif
 
-class GSdxApp
+class GSApp
 {
 	std::map< std::string, std::string > m_current_configuration;
 
 public:
-	GSdxApp();
+	GSApp();
 
 	void Init();
 
@@ -1245,4 +1245,4 @@ struct GSDXRecoverableError : GSDXError {};
 
 GSVector4i GSClientRect(void);
 
-extern GSdxApp theApp;
+extern GSApp theApp;

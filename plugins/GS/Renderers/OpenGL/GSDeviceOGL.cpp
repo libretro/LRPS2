@@ -768,7 +768,7 @@ static const char tfx_fs_glsl_shader_raw[] =
 "{\n"
 "    vec4 c;\n"
 "\n"
-"    // Either GSdx will send a texture that contains a single channel\n"
+"    // Either GS will send a texture that contains a single channel\n"
 "    // in this case the red channel is remapped as alpha channel\n"
 "    //\n"
 "    // Or we have an old RT (ie RGBA8) that contains index (4/8) in the alpha channel\n"
@@ -2518,7 +2518,7 @@ void GSDeviceOGL::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture
 	// Flip y axis only when we render in the backbuffer
 	// By default everything is render in the wrong order (ie dx).
 	// 1/ consistency between several pass rendering (interlace)
-	// 2/ in case some GSdx code expect thing in dx order.
+	// 2/ in case some GS code expect thing in dx order.
 	// Only flipping the backbuffer is transparent (I hope)...
 	GSVector4 flip_sr = sRect;
 	if (static_cast<GSTextureOGL*>(dTex)->IsBackbuffer()) {

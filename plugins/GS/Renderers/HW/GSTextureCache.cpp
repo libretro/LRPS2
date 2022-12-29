@@ -1271,7 +1271,7 @@ GSTextureCache::Source* GSTextureCache::CreateSource(const GIFRegTEX0& TEX0, con
 		GSTexture* dTex = m_renderer->m_dev->CreateRenderTarget(w, h);
 		src->m_texture = dTex;
 
-		// GH: by default (m_paltex == 0) GSdx converts texture to the 32 bit format
+		// GH: by default (m_paltex == 0) GS converts texture to the 32 bit format
 		// However it is different here. We want to reuse a Render Target as a texture.
 		// Because the texture is already on the GPU, CPU can't convert it.
 		if (psm.pal > 0) {
@@ -1331,7 +1331,7 @@ GSTextureCache::Source* GSTextureCache::CreateSource(const GIFRegTEX0& TEX0, con
 		if( src->m_texture )
 			src->m_texture->SetScale(scale);
 
-		// Offset hack. Can be enabled via GSdx options.
+		// Offset hack. Can be enabled via GS options.
 		// The offset will be used in Draw().
 
 		float modx = 0.0f;

@@ -30,16 +30,16 @@ if(USE_ICC)
     set(CommonFlags "${CommonFlags} -restrict")
 endif()
 
-set(GSdxFinalFlags ${CommonFlags})
+set(GSFinalFlags ${CommonFlags})
 
 if(CMAKE_COMPILER_IS_GNUCXX)
 	# Newer version default to a correct ABI
 	if (${GCC_VERSION} VERSION_LESS "5.1")
-		set(GSdxFinalFlags ${GSdxFinalFlags} -fabi-version=6)
+		set(GSFinalFlags ${GSFinalFlags} -fabi-version=6)
 	endif()
 endif()
 
-set(GSdxSources
+set(GSSources
     GS.cpp
     GSBlock.cpp
     GSClut.cpp
@@ -88,7 +88,7 @@ set(GSdxSources
     Renderers/OpenGL/GSTextureOGL.cpp
     )
 
-set(GSdxHeaders
+set(GSHeaders
     GSAlignedClass.h
     GSBlock.h
     GSClut.h
@@ -142,7 +142,7 @@ set(GSdxHeaders
     )
 
 if(Windows)
-    LIST(APPEND GSdxSources
+    LIST(APPEND GSSources
         Renderers/DX11/GSDevice11.cpp
         Renderers/DX11/GSRendererDX11.cpp
         Renderers/DX11/GSTexture11.cpp
@@ -150,7 +150,7 @@ if(Windows)
         Renderers/DX11/GSTextureFX11.cpp
         )
 
-    LIST(APPEND GSdxHeaders
+    LIST(APPEND GSHeaders
         Renderers/DX11/GSDevice11.h
         Renderers/DX11/GSRendererDX11.h
         Renderers/DX11/GSTexture11.h
@@ -160,18 +160,18 @@ endif()
 
 include_directories(${CMAKE_SOURCE_DIR}/libretro)
 
-set(GSdxFinalSources
-    ${GSdxSources}
-    ${GSdxHeaders}
+set(GSFinalSources
+    ${GSSources}
+    ${GSHeaders}
 )
 
-set(GSdxFinalLibs
+set(GSFinalLibs
     ${OPENGL_LIBRARIES}
     ${LIBC_LIBRARIES}
 )
 
 if(MSVC)
-   set(GSdxFinalLibs ${GSdxFinalLibs} d3dcompiler d3d11 dxgi dxguid winmm strmiids opengl32 comsuppw comctl32)
+   set(GSFinalLibs ${GSFinalLibs} d3dcompiler d3d11 dxgi dxguid winmm strmiids opengl32 comsuppw comctl32)
 endif()
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -180,6 +180,6 @@ if(MSVC)
    add_definitions(/wd4456 /wd4458 /wd4996 /wd4995 /wd4324 /wd4100 /wd4101 /wd4201 /wd4556 /wd4127 /wd4512)
 endif()
 
-add_pcsx2_lib(${Output} "${GSdxFinalSources}" "${GSdxFinalLibs}" "${GSdxFinalFlags}")
+add_pcsx2_lib(${Output} "${GSFinalSources}" "${GSFinalLibs}" "${GSFinalFlags}")
 
 target_compile_features(${Output} PRIVATE cxx_std_11)
