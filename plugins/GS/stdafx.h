@@ -152,15 +152,8 @@
 	// http://svn.reactos.org/svn/reactos/trunk/reactos/include/crt/mingw32/intrin_x86.h?view=markup
 	__forceinline int _BitScanForward(unsigned long* const Index, const unsigned long Mask)
 	{
-#if defined(__GCC_ASM_FLAG_OUTPUTS__) && 0
-		// Need GCC6 to test the code validity
-		int flag;
-		__asm__("bsfl %k[Mask], %k[Index]" : [Index] "=r" (*Index), "=@ccz" (flag) : [Mask] "mr" (Mask));
-		return flag;
-#else
 		__asm__("bsfl %k[Mask], %k[Index]" : [Index] "=r" (*Index) : [Mask] "mr" (Mask) : "cc");
 		return Mask ? 1 : 0;
-#endif
 	}
 #endif
 
