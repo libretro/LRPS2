@@ -148,6 +148,17 @@ void SysMtgsThread::PostVsyncStart()
 	m_sem_Vsync.Wait();
 }
 
+void SysMtgsThread::InitAndReadFIFO(u8* mem, u32 qwc)
+{
+#if 0
+	/* TODO/FIXME - eventually add something close to this */
+	if (GSConfig.HWDisableReadbacks && GSConfig.UseHardwareRenderer())
+		return;
+#endif
+	SendPointerPacket(GS_RINGTYPE_INIT_AND_READ_FIFO, qwc, mem);
+	WaitGS(false, false, false);
+}
+
 union PacketTagType
 {
 	struct {
@@ -281,12 +292,8 @@ void SysMtgsThread::ExecuteTaskInThread()
 							GSsetGameCRC( tag.data[0], 0 );
 							break;
 
-						case GS_RINGTYPE_INIT_READ_FIFO1:
-							GSinitReadFIFO2( (u8*)tag.pointer, 1);
-							break;
-
-						case GS_RINGTYPE_INIT_READ_FIFO2:
-							GSinitReadFIFO2( (u8*)tag.pointer, tag.data[0]);
+						case GS_RINGTYPE_INIT_AND_READ_FIFO:
+							GSInitAndReadFIFO( (u8*)tag.pointer, tag.data[0]);
 							break;
 
 						case GS_RINGTYPE_MODECHANGE:

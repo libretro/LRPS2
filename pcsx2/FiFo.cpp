@@ -43,10 +43,7 @@ void ReadFIFO_VIF1(mem128_t* out)
 	{
 		if (vif1Regs.stat.FQC > 0)
 		{
-			GetMTGS().WaitGS();
-			GetMTGS().SendPointerPacket(GS_RINGTYPE_INIT_READ_FIFO1, 0, out);
-			GetMTGS().WaitGS(false); // wait without reg sync
-			GSreadFIFO2(reinterpret_cast<u8*>(out), 1);
+			GetMTGS().InitAndReadFIFO(reinterpret_cast<u8*>(out), 1);
 			vif1.GSLastDownloadSize--;
 			if (vif1.GSLastDownloadSize <= 16)
 				gifRegs.stat.OPH = false;

@@ -228,8 +228,7 @@ enum MTGS_RingCommand
 ,	GS_RINGTYPE_CRC
 ,	GS_RINGTYPE_GSPACKET
 ,	GS_RINGTYPE_MTVU_GSPACKET
-,	GS_RINGTYPE_INIT_READ_FIFO1
-,	GS_RINGTYPE_INIT_READ_FIFO2
+,	GS_RINGTYPE_INIT_AND_READ_FIFO
 };
 
 
@@ -299,6 +298,7 @@ public:
 
 	void SetEvent();
 	void PostVsyncStart();
+	void InitAndReadFIFO(u8* mem, u32 qwc);
 
 	void ExecuteTaskInThread();
 	void FinishTaskInThread();

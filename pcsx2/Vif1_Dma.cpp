@@ -54,10 +54,7 @@ void vif1TransferToMemory(void)
 	// completely and execute the transfer there-after.
 	const u32   size = std::min(vif1.GSLastDownloadSize, (u32)vif1ch.qwc);
 
-	GetMTGS().WaitGS();
-	GetMTGS().SendPointerPacket(GS_RINGTYPE_INIT_READ_FIFO2, size, pMem);
-	GetMTGS().WaitGS(false); // wait without reg sync
-	GSreadFIFO2((u8*)pMem, size);
+	GetMTGS().InitAndReadFIFO(reinterpret_cast<u8*>(pMem), size);
 
 	g_vif1Cycles += size * 2;
 	vif1ch.madr += size * 16; // mgs3 scene changes

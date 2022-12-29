@@ -1105,15 +1105,10 @@ EXPORT_C GSgifSoftReset(u32 mask)
 	s_gs->SoftReset(mask);
 }
 
-EXPORT_C GSreadFIFO2(u8* mem, u32 size)
+EXPORT_C GSInitAndReadFIFO(u8* mem, u32 size)
 {
+	s_gs->InitReadFIFO(mem, size);
 	s_gs->ReadFIFO(mem, size);
-}
-
-EXPORT_C GSinitReadFIFO2(u8* mem, u32 size)
-{
-	if (size > 0)
-		s_gs->InitReadFIFO(mem, size);
 }
 
 EXPORT_C GSgifTransfer(const u8* mem, u32 size)

@@ -85,8 +85,7 @@ void CALLBACK GSgifTransfer1(u8 *pMem, u32 addr);
 void CALLBACK GSgifTransfer2(u8 *pMem, u32 size);
 void CALLBACK GSgifTransfer3(u8 *pMem, u32 size);
 void CALLBACK GSgifSoftReset(u32 mask);
-void CALLBACK GSreadFIFO2(u8 *mem, int qwc);
-void CALLBACK GSinitReadFIFO2(u8 *mem, int qwc);
+void CALLBACK GSInitAndReadFIFO(u8 *mem, int qwc);
 
 // extended funcs
 void CALLBACK GSsetGameCRC(int crc, int gameoptions);
