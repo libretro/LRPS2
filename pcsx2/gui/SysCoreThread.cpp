@@ -125,7 +125,7 @@ void SysCoreThread::Cancel()
 {
 	m_hasActiveMachine = false;
 	R3000A::ioman::reset();
-	_parent::Cancel();
+	_parent::Cancel(wxTimeSpan(0, 0, 4, 0));
 }
 
 bool SysCoreThread::Cancel(const wxTimeSpan& span)

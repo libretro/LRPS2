@@ -104,7 +104,7 @@ VU_Thread::VU_Thread(BaseVUmicroCPU*& _vuCPU, VURegs& _vuRegs)
 
 VU_Thread::~VU_Thread()
 {
-	pxThread::Cancel();
+	pxThread::Cancel(wxTimeSpan(0, 0, 5, 0));
 }
 
 void VU_Thread::Reset(void)

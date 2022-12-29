@@ -104,7 +104,7 @@ AppCoreThread::AppCoreThread()
 AppCoreThread::~AppCoreThread()
 {
 	m_resetCdvd = false;
-	_parent::Cancel(true); // use parent's, skips thread affinity check.
+	_parent::Cancel(wxTimeSpan(0, 0, 4, 0));
 }
 
 void AppCoreThread::Cancel()

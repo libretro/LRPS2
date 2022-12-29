@@ -107,11 +107,7 @@ Threading::pxThread::pxThread(const wxString &name)
 Threading::pxThread::~pxThread()
 {
 	if (m_running)
-	{
-		m_mtx_InThread.Acquire();
 		m_mtx_InThread.Release();
-	}
-	Threading::sleep(1);
 	if (!m_detached.exchange(true))
 		pthread_detach(m_thread);
 }
