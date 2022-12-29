@@ -102,7 +102,6 @@ void Threading::Mutex::Detach()
             return;
     }
 
-    Acquire();
     Release();
     pthread_mutex_destroy(&m_mutex);
 }
