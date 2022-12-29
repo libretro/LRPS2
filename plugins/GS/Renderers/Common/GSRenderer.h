@@ -47,7 +47,6 @@ public:
 	virtual void UpdateRendererOptions();
 
 	virtual ~GSRenderer();
-	virtual bool CreateDevice(GSDevice* dev);
 	virtual void ResetDevice();
 	virtual void VSync(int field);
 	virtual bool CanUpscale() {return false;}

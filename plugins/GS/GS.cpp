@@ -1034,11 +1034,13 @@ GL_EXT_LOAD_OPT(glPolygonOffsetClamp);
 
 	s_gs->SetRegsMem(basemem);
 
-	if(!s_gs->CreateDevice(dev))
+	if (!dev->Create())
 	{
 		GSclose();
 		return -1;
 	}
+
+	s_gs->m_dev = dev;
 
 	return 0;
 }

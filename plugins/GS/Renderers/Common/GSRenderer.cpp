@@ -37,16 +37,6 @@ GSRenderer::~GSRenderer()
 	delete m_dev;
 }
 
-bool GSRenderer::CreateDevice(GSDevice* dev)
-{
-	if(!dev->Create())
-		return false;
-
-	m_dev = dev;
-
-	return true;
-}
-
 void GSRenderer::ResetDevice()
 {
     if(m_dev) m_dev->Reset(1, 1);
