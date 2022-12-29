@@ -48,7 +48,7 @@ GSRendererSW::GSRendererSW(int threads)
 
 	m_rl = GSRasterizerList::Create<GSDrawScanline>(threads);
 
-	m_output = (u8*)_aligned_malloc(1024 * 1024 * sizeof(u32), 32);
+	m_output = (u8*)AlignedMalloc(1024 * 1024 * sizeof(u32), 32);
 
 	for (u32 i = 0; i < ARRAY_SIZE(m_fzb_pages); i++)
 		m_fzb_pages[i] = 0;
@@ -87,7 +87,7 @@ GSRendererSW::~GSRendererSW()
 
 	delete m_rl;
 
-	_aligned_free(m_output);
+	AlignedFree(m_output);
 }
 
 void GSRendererSW::Reset()
@@ -261,7 +261,7 @@ void GSRendererSW::Draw()
 	std::shared_ptr<GSRasterizerData> data(sd);
 
 	sd->primclass = m_vt.m_primclass;
-	sd->buff = (u8*)_aligned_malloc(sizeof(GSVertexSW) * ((m_vertex.next + 1) & ~1) + sizeof(u32) * m_index.tail, 64);
+	sd->buff = (u8*)AlignedMalloc(sizeof(GSVertexSW) * ((m_vertex.next + 1) & ~1) + sizeof(u32) * m_index.tail, 64);
 	sd->vertex = (GSVertexSW*)sd->buff;
 	sd->vertex_count = m_vertex.next;
 	sd->index = (u32*)(sd->buff + sizeof(GSVertexSW) * ((m_vertex.next + 1) & ~1));
@@ -732,7 +732,7 @@ bool GSRendererSW::GetScanlineGlobalData(SharedData* data)
 			{
 				gd.sel.tlu = 1;
 
-				gd.clut = (u32*)_aligned_malloc(sizeof(u32) * 256, 32); // FIXME: might address uninitialized data of the texture (0xCD) that is not in 0-15 range for 4-bpp formats
+				gd.clut = (u32*)AlignedMalloc(sizeof(u32) * 256, 32); // FIXME: might address uninitialized data of the texture (0xCD) that is not in 0-15 range for 4-bpp formats
 
 				memcpy(gd.clut, (const u32*)m_mem.m_clut, sizeof(u32) * GSLocalMemory::m_psm[context->TEX0.PSM].pal);
 			}
@@ -992,7 +992,7 @@ bool GSRendererSW::GetScanlineGlobalData(SharedData* data)
 		{
 			gd.sel.dthe = 1;
 
-			gd.dimx = (GSVector4i*)_aligned_malloc(sizeof(env.dimx), 32);
+			gd.dimx = (GSVector4i*)AlignedMalloc(sizeof(env.dimx), 32);
 
 			memcpy(gd.dimx, env.dimx, sizeof(env.dimx));
 		}
@@ -1110,8 +1110,8 @@ GSRendererSW::SharedData::~SharedData()
 {
 	ReleasePages();
 
-	if(global.clut) _aligned_free(global.clut);
-	if(global.dimx) _aligned_free(global.dimx);
+	if(global.clut) AlignedFree(global.clut);
+	if(global.dimx) AlignedFree(global.dimx);
 }
 
 //static TransactionScope::Lock s_lock;

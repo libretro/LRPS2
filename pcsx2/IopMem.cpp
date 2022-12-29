@@ -55,8 +55,8 @@ void iopMemoryReserve::Reset()
 
 	if (!psxMemWLUT)
 	{
-		psxMemWLUT = (uptr*)_aligned_malloc(0x2000 * sizeof(uptr) * 2, 16);
-		psxMemRLUT = psxMemWLUT + 0x2000; //(uptr*)_aligned_malloc(0x10000 * sizeof(uptr),16);
+		psxMemWLUT = (uptr*)AlignedMalloc(0x2000 * sizeof(uptr) * 2, 16);
+		psxMemRLUT = psxMemWLUT + 0x2000;
 	}
 
 	memset(psxMemWLUT, 0, 0x2000 * sizeof(uptr) * 2);	// clears both allocations, RLUT and WLUT

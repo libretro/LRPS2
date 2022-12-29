@@ -443,10 +443,10 @@ static void _DynGen_Dispatchers(void)
 static void recAlloc(void)
 {
 	if (!recRAMCopy)
-		recRAMCopy = (u8*)_aligned_malloc(Ps2MemSize::MainRam, 4096);
+		recRAMCopy = (u8*)AlignedMalloc(Ps2MemSize::MainRam, 4096);
 
 	if (!recRAM)
-		recLutReserve_RAM = (u8*)_aligned_malloc(recLutSize, 4096);
+		recLutReserve_RAM = (u8*)AlignedMalloc(recLutSize, 4096);
 
 	BASEBLOCK* basepos = (BASEBLOCK*)recLutReserve_RAM;
 	recRAM		= basepos; basepos += (Ps2MemSize::MainRam / 4);
@@ -491,7 +491,7 @@ static void recAlloc(void)
 	}
 
 	if( !recConstBuf )
-		recConstBuf = (u32*) _aligned_malloc( RECCONSTBUF_SIZE * sizeof(*recConstBuf), 16 );
+		recConstBuf = (u32*) AlignedMalloc( RECCONSTBUF_SIZE * sizeof(*recConstBuf), 16 );
 
 	if( !s_pInstCache )
 	{

@@ -117,7 +117,7 @@ public:
 		// Allocate an empty cell for all buckets
 		for (auto& bucket : m_bucket)
 		{
-			bucket = (nVifBlock*)_aligned_malloc( sizeof(nVifBlock), 16 );
+			bucket = (nVifBlock*)AlignedMalloc( sizeof(nVifBlock), 16 );
 			memset(bucket, 0, sizeof(nVifBlock));
 		}
 	}

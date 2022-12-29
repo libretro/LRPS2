@@ -125,8 +125,8 @@ GSState::GSState()
 
 GSState::~GSState()
 {
-	if(m_vertex.buff) _aligned_free(m_vertex.buff);
-	if(m_index.buff) _aligned_free(m_index.buff);
+	if(m_vertex.buff) AlignedFree(m_vertex.buff);
+	if(m_index.buff)  AlignedFree(m_index.buff);
 }
 
 void GSState::Reset()
@@ -2052,8 +2052,8 @@ void GSState::UpdateVertexKick()
 void GSState::GrowVertexBuffer()
 {
 	int maxcount     = std::max<int>(m_vertex.maxcount * 3 / 2, 10000);
-	GSVertex* vertex = (GSVertex*)_aligned_malloc(sizeof(GSVertex) * maxcount, 32);
-	u32* index       = (u32*)_aligned_malloc(sizeof(u32) * maxcount * 3, 32); // worst case is slightly less than vertex number * 3
+	GSVertex* vertex = (GSVertex*)AlignedMalloc(sizeof(GSVertex) * maxcount, 32);
+	u32* index       = (u32*)AlignedMalloc(sizeof(u32) * maxcount * 3, 32); // worst case is slightly less than vertex number * 3
 
 	if(!vertex || !index)
 		throw GSDXError();
@@ -2061,13 +2061,13 @@ void GSState::GrowVertexBuffer()
 	if (m_vertex.buff)
 	{
 		memcpy(vertex, m_vertex.buff, sizeof(GSVertex) * m_vertex.tail);
-		_aligned_free(m_vertex.buff);
+		AlignedFree(m_vertex.buff);
 	}
 
 	if (m_index.buff)
 	{
 		memcpy(index, m_index.buff, sizeof(u32) * m_index.tail);
-		_aligned_free(m_index.buff);
+		AlignedFree(m_index.buff);
 	}
 
 	m_vertex.buff     = vertex;
@@ -2699,12 +2699,12 @@ GSState::GSTransferBuffer::GSTransferBuffer()
 	x = y = 0;
 	overflow = false;
 	start = end = total = 0;
-	buff = (u8*)_aligned_malloc(1024 * 1024 * 4, 32);
+	buff = (u8*)AlignedMalloc(1024 * 1024 * 4, 32);
 }
 
 GSState::GSTransferBuffer::~GSTransferBuffer()
 {
-	_aligned_free(buff);
+	AlignedFree(buff);
 }
 
 void GSState::GSTransferBuffer::Init(int tx, int ty, const GIFRegBITBLTBUF& blit)

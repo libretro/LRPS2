@@ -559,7 +559,7 @@ void vtlb_Alloc_Ppmap(void)
 		return;
 
 	if (!ppmap)
-		ppmap = (u32*)_aligned_malloc( PPMAP_SIZE, 16 );
+		ppmap = (u32*)AlignedMalloc( PPMAP_SIZE, 16 );
 
 	bool okay = HostSys::MmapCommitPtr(ppmap, PPMAP_SIZE, PageProtectionMode().Read().Write());
 	if (okay)

@@ -49,7 +49,7 @@ GSTextureCache::GSTextureCache(GSRenderer* r)
 	// In theory 4MB is enough but 9MB is safer for overflow (8MB
 	// isn't enough in custom resolution)
 	// Test: onimusha 3 PAL 60Hz
-	m_temp = (u8*)_aligned_malloc(9 * 1024 * 1024, 32);
+	m_temp = (u8*)AlignedMalloc(9 * 1024 * 1024, 32);
 
 	m_texture_inside_rt_cache.reserve(m_texture_inside_rt_cache_size);
 }
@@ -60,7 +60,7 @@ GSTextureCache::~GSTextureCache()
 
 	m_texture_inside_rt_cache.clear();
 
-	_aligned_free(m_temp);
+	AlignedFree(m_temp);
 }
 
 void GSTextureCache::RemovePartial()
@@ -1470,7 +1470,7 @@ GSTextureCache::Source::Source(GSRenderer* r, const GIFRegTEX0& TEX0, const GIFR
 
 		memset(m_valid, 0, sizeof(m_valid));
 
-		m_write.rect = (GSVector4i*)_aligned_malloc(3 * sizeof(GSVector4i), 32);
+		m_write.rect = (GSVector4i*)AlignedMalloc(3 * sizeof(GSVector4i), 32);
 		m_write.count = 0;
 
 		m_repeating = m_TEX0.IsRepeating();
@@ -1487,7 +1487,7 @@ GSTextureCache::Source::Source(GSRenderer* r, const GIFRegTEX0& TEX0, const GIFR
 
 GSTextureCache::Source::~Source()
 {
-	_aligned_free(m_write.rect);
+	AlignedFree(m_write.rect);
 }
 
 void GSTextureCache::Source::Update(const GSVector4i& rect, int layer)
@@ -1912,16 +1912,15 @@ GSTextureCache::Palette::Palette(const GSRenderer* renderer, u16 pal, bool need_
 	, m_renderer(renderer)
 {
 	u16 palette_size = pal * sizeof(u32);
-	m_clut = (u32*)_aligned_malloc(palette_size, 64);
+	m_clut = (u32*)AlignedMalloc(palette_size, 64);
 	memcpy(m_clut, (const u32*)m_renderer->m_mem.m_clut, palette_size);
-	if (need_gs_texture) {
+	if (need_gs_texture)
 		InitializeTexture();
-	}
 }
 
 GSTextureCache::Palette::~Palette() {
 	m_renderer->m_dev->Recycle(m_tex_palette);
-	_aligned_free(m_clut);
+	AlignedFree(m_clut);
 }
 
 GSTexture* GSTextureCache::Palette::GetPaletteGSTexture() {

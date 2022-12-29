@@ -73,7 +73,7 @@ public:
         // of T which crash if T is a (invalid) shared_ptr.
         //
         // Note another solution will be to create a char buffer as union of T
-        buffer = (T*)_aligned_malloc(sizeof(T)*max_size, 32);
+        buffer = (T*)AlignedMalloc(sizeof(T)*max_size, 32);
     }
 
     ~ringbuffer_base(void) {
@@ -81,7 +81,7 @@ public:
         T out;
         while (pop(out)) {};
 
-        _aligned_free(buffer);
+        AlignedFree(buffer);
     }
 
 

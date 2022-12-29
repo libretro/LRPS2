@@ -20,22 +20,23 @@
  */
 
 #include "Pcsx2Types.h"
+#include "Utilities/ScopedAlloc.h"
 
 #include "GSTextureSW.h"
 
 GSTextureSW::GSTextureSW(int type, int width, int height)
 {
 	m_mapped.clear(std::memory_order_release);
-	m_size = GSVector2i(width, height);
-	m_type = type;
+	m_size   = GSVector2i(width, height);
+	m_type   = type;
 	m_format = 0;
-	m_pitch = ((width << 2) + 31) & ~31;
-	m_data = _aligned_malloc(m_pitch * height, 32);
+	m_pitch  = ((width << 2) + 31) & ~31;
+	m_data   = AlignedMalloc(m_pitch * height, 32);
 }
 
 GSTextureSW::~GSTextureSW()
 {
-	_aligned_free(m_data);
+	AlignedFree(m_data);
 }
 
 bool GSTextureSW::Update(const GSVector4i& r, const void* data, int pitch, int layer)

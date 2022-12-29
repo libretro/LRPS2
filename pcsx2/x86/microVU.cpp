@@ -35,7 +35,7 @@ __ri void mVUcacheProg(microVU& mVU, microProgram& prog)
 
 // Creates a new Micro Program
 static __ri microProgram* mVUcreateProg(microVU& mVU, int startPC) {
-	microProgram* prog = (microProgram*)_aligned_malloc(sizeof(microProgram), 64);
+	microProgram* prog = (microProgram*)AlignedMalloc(sizeof(microProgram), 64);
 	memset(prog, 0, sizeof(microProgram));
 	prog->idx     = mVU.prog.total++;
 	prog->ranges  = new std::deque<microRange>();

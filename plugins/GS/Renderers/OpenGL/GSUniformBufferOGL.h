@@ -40,7 +40,7 @@ public:
 		glObjectLabel(GL_BUFFER, m_buffer, pretty_name.size(), pretty_name.c_str());
 		allocate();
 		attach();
-		m_cache = (u8*)_aligned_malloc(m_size, 32);
+		m_cache = (u8*)AlignedMalloc(m_size, 32);
 		memset(m_cache, 0, m_size);
 	}
 
@@ -85,7 +85,7 @@ public:
 	~GSUniformBufferOGL()
 	{
 		glDeleteBuffers(1, &m_buffer);
-		_aligned_free(m_cache);
+		AlignedFree(m_cache);
 	}
 };
 

@@ -463,8 +463,8 @@ GSLocalMemory::~GSLocalMemory()
 		vmfree(m_vm8, m_vmsize * 4);
 
 	for(auto &i : m_omap) delete i.second;
-	for(auto &i : m_pomap) _aligned_free(i.second);
-	for(auto &i : m_po4map) _aligned_free(i.second);
+	for(auto &i : m_pomap)  AlignedFree(i.second);
+	for(auto &i : m_po4map) AlignedFree(i.second);
 
 	for(auto &i : m_p2tmap)
 	{
@@ -512,7 +512,7 @@ GSPixelOffset* GSLocalMemory::GetPixelOffset(const GIFRegFRAME& FRAME, const GIF
 		return it->second;
 	}
 
-	GSPixelOffset* off = (GSPixelOffset*)_aligned_malloc(sizeof(GSPixelOffset), 32);
+	GSPixelOffset* off = (GSPixelOffset*)AlignedMalloc(sizeof(GSPixelOffset), 32);
 
 	off->hash = hash;
 	off->fbp = fbp;
@@ -566,7 +566,7 @@ GSPixelOffset4* GSLocalMemory::GetPixelOffset4(const GIFRegFRAME& FRAME, const G
 		return it->second;
 	}
 
-	GSPixelOffset4* off = (GSPixelOffset4*)_aligned_malloc(sizeof(GSPixelOffset4), 32);
+	GSPixelOffset4* off = (GSPixelOffset4*)AlignedMalloc(sizeof(GSPixelOffset4), 32);
 
 	off->hash = hash;
 	off->fbp = fbp;
@@ -2087,7 +2087,7 @@ GSOffset::GSOffset(u32 _bp, u32 _bw, u32 _psm)
 GSOffset::~GSOffset()
 {
 	for(auto buffer: pages_as_bit)
-		_aligned_free(buffer);
+		AlignedFree(buffer);
 }
 
 u32* GSOffset::GetPages(const GSVector4i& rect, u32* pages, GSVector4i* bbox)
@@ -2166,7 +2166,7 @@ u32* GSOffset::GetPagesAsBits(const GIFRegTEX0& TEX0)
 		return pages;
 
 	// Aligned on 64 bytes to store the full bitmap in a single cache line
-	pages = (u32*)_aligned_malloc(MAX_PAGES/8, 64);
+	pages = (u32*)AlignedMalloc(MAX_PAGES/8, 64);
 	pages_as_bit[hash_key] = pages;
 
 	GetPagesAsBits(GSVector4i(0, 0, 1 << TEX0.TW, 1 << TEX0.TH), pages);

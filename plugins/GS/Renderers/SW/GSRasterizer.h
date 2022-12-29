@@ -156,7 +156,7 @@ public:
 
 	virtual ~GSRasterizerData() 
 	{
-		if(buff != NULL) _aligned_free(buff);
+		if(buff) AlignedFree(buff);
 	}
 };
 

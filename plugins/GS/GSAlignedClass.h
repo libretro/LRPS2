@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "Utilities/ScopedAlloc.h"
+
 template<int i> class GSAlignedClass
 {
 protected:
@@ -30,21 +32,21 @@ public:
 
 	void* operator new (size_t size)
 	{
-		return _aligned_malloc(size, i);
+		return AlignedMalloc(size, i);
 	}
 
 	void operator delete (void* p)
 	{
-		_aligned_free(p);
+		AlignedFree(p);
 	}
 
 	void* operator new [] (size_t size)
 	{
-		return _aligned_malloc(size, i);
+		return AlignedMalloc(size, i);
 	}
 
 	void operator delete [] (void* p)
 	{
-		_aligned_free(p);
+		AlignedFree(p);
 	}
 };

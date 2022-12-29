@@ -534,7 +534,7 @@ static void recAlloc(void)
 	// always 4 bytes long).
 
 	if( m_recBlockAlloc == NULL )
-		m_recBlockAlloc = (u8*)_aligned_malloc( m_recBlockAllocSize, 4096 );
+		m_recBlockAlloc = (u8*)AlignedMalloc( m_recBlockAllocSize, 4096 );
 	u8* curpos = m_recBlockAlloc;
 	recRAM = (BASEBLOCK*)curpos; curpos += (Ps2MemSize::IopRam / 4) * sizeof(BASEBLOCK);
 	recROM = (BASEBLOCK*)curpos; curpos += (Ps2MemSize::Rom / 4) * sizeof(BASEBLOCK);
@@ -626,8 +626,6 @@ static void iopClearRecLUT(BASEBLOCK* base, int count)
 
 static void recExecute(void)
 {
-	// note: this function is currently never used.
-	//for (;;) R3000AExecute();
 }
 
 static __noinline s32 recExecuteBlock( s32 eeCycles )

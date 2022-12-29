@@ -24,6 +24,8 @@
 
 #include "../../stdafx.h"
 
+#include "Utilities/ScopedAlloc.h"
+
 #include "GSTextureOGL.h"
 #include "GLState.h"
 
@@ -228,7 +230,7 @@ GSTextureOGL::GSTextureOGL(int type, int w, int h, int format, GLuint fbo_read, 
 			return; // backbuffer isn't a real texture
 		case GSTexture::Offscreen:
 			// Offscreen is only used to read color. So it only requires 4B by pixel
-			m_local_buffer = (u8*)_aligned_malloc(m_size.x * m_size.y * 4, 32);
+			m_local_buffer = (u8*)AlignedMalloc(m_size.x * m_size.y * 4, 32);
 			break;
 		case GSTexture::Texture:
 			// Only 32 bits input texture will be supported for mipmap
@@ -323,7 +325,7 @@ GSTextureOGL::~GSTextureOGL()
 	GLState::available_vram += m_mem_usage;
 
 	if (m_local_buffer)
-		_aligned_free(m_local_buffer);
+		AlignedFree(m_local_buffer);
 }
 
 void GSTextureOGL::Clear(const void* data)

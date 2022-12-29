@@ -23,34 +23,42 @@
 #include "SafeArray.h"
 #include "General.h"
 
-void *_aligned_malloc(size_t size, size_t align)
+void *AlignedMalloc(size_t size, size_t alignment)
 {
-#if defined(__USE_ISOC11) && !defined(ASAN_WORKAROUND) // not supported yet on gcc 4.9
-    return aligned_alloc(align, size);
+#ifdef __MINGW32__
+	return __mingw_aligned_malloc(size, alignment);
+#elif defined(_WIN32)
+	return _aligned_malloc(size, alignment);
 #else
-    void *result = 0;
-#ifdef __APPLE__
-	// MacOS has a bug where posix_memalign is ridiculously slow on unaligned sizes
-	// This especially bad on M1s for some reason
-	size = (size + align - 1) & ~(align - 1);
-#endif
-    posix_memalign(&result, align, size);
-    return result;
+	void *p;
+	int ret = posix_memalign(&p, alignment, size);
+	return (ret == 0) ? p : 0;
 #endif
 }
 
 void *pcsx2_aligned_realloc(void *handle, size_t new_size, size_t align, size_t old_size)
 {
-    void *newbuf = _aligned_malloc(new_size, align);
+#ifdef _MSC_VER
+    return _aligned_realloc(handle, new_size, align);
+#else
+    void *newbuf = AlignedMalloc(new_size, align);
 
-    if (newbuf != NULL && handle != NULL) {
+    if (newbuf && handle)
+    {
         memcpy(newbuf, handle, std::min(old_size, new_size));
-        _aligned_free(handle);
+        AlignedFree(handle);
     }
     return newbuf;
+#endif
 }
 
-__fi void _aligned_free(void *pmem)
+__fi void AlignedFree(void *p)
 {
-    free(pmem);
+#ifdef __MINGW32__
+	__mingw_aligned_free(p);
+#elif defined(_MSC_VER)
+	_aligned_free(p);
+#else
+	free(p);
+#endif
 }

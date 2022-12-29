@@ -231,14 +231,14 @@ struct Gif_Path
 	Gif_Path_MTVU mtvu;          // Must be last for saved states
 
 	Gif_Path() { Reset(); }
-	~Gif_Path() { _aligned_free(buffer); }
+	~Gif_Path() { AlignedFree(buffer); }
 
 	void Init(GIF_PATH _idx, u32 _buffSize, u32 _buffSafeZone)
 	{
 		idx = _idx;
 		buffSize = _buffSize;
 		buffLimit = _buffSize - _buffSafeZone;
-		buffer = (u8*)_aligned_malloc(buffSize, 16);
+		buffer = (u8*)AlignedMalloc(buffSize, 16);
 		Reset();
 	}
 

@@ -183,17 +183,13 @@ GSTextureCacheSW::Texture::~Texture()
 	delete [] m_pages.n;
 
 	if(m_buff)
-	{
-		_aligned_free(m_buff);
-	}
+		AlignedFree(m_buff);
 }
 
 bool GSTextureCacheSW::Texture::Update(const GSVector4i& rect)
 {
 	if(m_complete)
-	{
 		return true;
-	}
 
 	const GSLocalMemory::psm_t& psm = GSLocalMemory::m_psm[m_TEX0.PSM];
 
@@ -217,12 +213,10 @@ bool GSTextureCacheSW::Texture::Update(const GSVector4i& rect)
 	{
 		u32 pitch = (1 << m_tw) << shift;
 		
-		m_buff = _aligned_malloc(pitch * th * 4, 32);
+		m_buff = AlignedMalloc(pitch * th * 4, 32);
 
-		if(m_buff == NULL)
-		{
+		if (!m_buff)
 			return false;
-		}
 	}
 
 	GSLocalMemory& mem = m_state->m_mem;

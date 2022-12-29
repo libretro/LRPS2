@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include "Pcsx2Types.h"
+
 //////////////////////////////////////////////////////////////////////////////////////////
 // Safe deallocation macros -- checks pointer validity (non-null) when needed, and sets
 // pointer to null after deallocation.
@@ -31,21 +33,15 @@
     ((void)(free(ptr), !!0), (ptr) = NULL)
 //((void) (( ( (ptr) != NULL ) && (free( ptr ), !!0) ), (ptr) = NULL))
 
-// Implementation note: all known implementations of _aligned_free check the pointer for
+// Implementation note: all known implementations of AlignedFree check the pointer for
 // NULL status (our implementation under GCC, and microsoft's under MSVC), so no need to
 // do it here.
 #define safe_aligned_free(ptr) \
-    ((void)(_aligned_free(ptr), (ptr) = NULL))
+    ((void)(AlignedFree(ptr), (ptr) = NULL))
 
-// aligned_malloc: Implement/declare linux equivalents here!
-#if !defined(_MSC_VER)
-extern void *_aligned_malloc(size_t size, size_t align);
+extern void *AlignedMalloc(size_t size, size_t align);
+extern void AlignedFree(void *pmem);
 extern void *pcsx2_aligned_realloc(void *handle, size_t new_size, size_t align, size_t old_size);
-extern void _aligned_free(void *pmem);
-#else
-#define pcsx2_aligned_realloc(handle, new_size, align, old_size) \
-    _aligned_realloc(handle, new_size, align)
-#endif
 
 // --------------------------------------------------------------------------------------
 //  pxDoOutOfMemory
@@ -220,7 +216,7 @@ public:
         if (!this->m_size)
             return;
 
-        this->m_buffer = (T *)_aligned_malloc(this->m_size * sizeof(T), align);
+        this->m_buffer = (T *)AlignedMalloc(this->m_size * sizeof(T), align);
     }
 
     virtual void Resize(size_t newsize)

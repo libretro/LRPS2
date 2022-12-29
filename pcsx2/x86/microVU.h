@@ -53,13 +53,13 @@ public:
 			microBlockLink* freeI = linkI;
 			safe_delete_array(linkI->block.jumpCache);
 			linkI = linkI->next;
-			_aligned_free(freeI);
+			AlignedFree(freeI);
 		}
 		for(microBlockLink* linkI = fBlockList; linkI != NULL; ) {
 			microBlockLink* freeI = linkI;
 			safe_delete_array(linkI->block.jumpCache);
 			linkI = linkI->next;
-			_aligned_free(freeI);
+			AlignedFree(freeI);
 		}
 		qBlockEnd = qBlockList = NULL;
 		fBlockEnd = fBlockList = NULL;
@@ -71,7 +71,7 @@ public:
 
 			microBlockLink*& blockList = fullCmp ? fBlockList : qBlockList;
 			microBlockLink*& blockEnd  = fullCmp ? fBlockEnd  : qBlockEnd;
-			microBlockLink*  newBlock  = (microBlockLink*)_aligned_malloc(sizeof(microBlockLink), 16);
+			microBlockLink*  newBlock  = (microBlockLink*)AlignedMalloc(sizeof(microBlockLink), 16);
 			newBlock->block.jumpCache  = NULL;
 			newBlock->next = NULL;
 

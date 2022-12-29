@@ -28,10 +28,10 @@ set(UtilitiesFinalFlags ${CommonFlags})
 		pxStreams.cpp
 		StringHelpers.cpp
 		Semaphore.cpp
+		AlignedMalloc.cpp
 		)
    if(NOT MSVC)
    set(UtilitiesSources ${UtilitiesSources}
-      AlignedMalloc.cpp
       Linux/LnxHostSys.cpp)
    endif()
 
