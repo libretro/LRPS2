@@ -118,7 +118,7 @@ SysCoreThread::SysCoreThread()
 
 SysCoreThread::~SysCoreThread()
 {
-	SysCoreThread::Cancel();
+	SysCoreThread::Cancel(wxTimeSpan(0, 0, 4, 0));
 }
 
 void SysCoreThread::Cancel()
