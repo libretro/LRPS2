@@ -2099,14 +2099,20 @@ __forceinline void GSState::VertexKick(u32 skip)
 
 	switch(prim)
 	{
-	case GS_POINTLIST: n = 1; break;
-	case GS_LINELIST: n = 2; break;
-	case GS_LINESTRIP: n = 2; break;
-	case GS_TRIANGLELIST: n = 3; break;
-	case GS_TRIANGLESTRIP: n = 3; break;
-	case GS_TRIANGLEFAN: n = 3; break;
-	case GS_SPRITE: n = 2; break;
-	case GS_INVALID: n = 1; break;
+		case GS_POINTLIST:
+		case GS_INVALID:
+			n = 1;
+			break;
+		case GS_LINELIST:
+		case GS_SPRITE:
+		case GS_LINESTRIP:
+			n = 2;
+			break;
+		case GS_TRIANGLELIST:
+		case GS_TRIANGLESTRIP:
+		case GS_TRIANGLEFAN:
+			n = 3;
+			break;
 	}
 
 	size_t m = tail - head;
