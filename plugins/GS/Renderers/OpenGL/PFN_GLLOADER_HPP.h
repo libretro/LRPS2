@@ -20,11 +20,7 @@
  *
  */
 
-#if defined(ENABLE_GL_ARB_ES3_2_compatibility) && defined(GL_ARB_ES3_2_compatibility)
-extern PFNGLPRIMITIVEBOUNDINGBOXARBPROC glPrimitiveBoundingBoxARB;
-#endif
 #if defined(ENABLE_GL_ARB_bindless_texture) && defined(GL_ARB_bindless_texture)
-extern PFNGLGETTEXTUREHANDLEARBPROC glGetTextureHandleARB;
 extern PFNGLGETTEXTURESAMPLERHANDLEARBPROC glGetTextureSamplerHandleARB;
 extern PFNGLMAKETEXTUREHANDLERESIDENTARBPROC glMakeTextureHandleResidentARB;
 extern PFNGLMAKETEXTUREHANDLENONRESIDENTARBPROC glMakeTextureHandleNonResidentARB;
@@ -54,7 +50,6 @@ extern PFNGLDEBUGMESSAGECALLBACKARBPROC glDebugMessageCallbackARB;
 extern PFNGLGETDEBUGMESSAGELOGARBPROC glGetDebugMessageLogARB;
 #endif
 #if defined(ENABLE_GL_ARB_draw_buffers_blend) && defined(GL_ARB_draw_buffers_blend)
-extern PFNGLBLENDEQUATIONIARBPROC glBlendEquationiARB;
 extern PFNGLBLENDEQUATIONSEPARATEIARBPROC glBlendEquationSeparateiARB;
 extern PFNGLBLENDFUNCIARBPROC glBlendFunciARB;
 extern PFNGLBLENDFUNCSEPARATEIARBPROC glBlendFuncSeparateiARB;
@@ -164,11 +159,6 @@ extern PFNGLBLENDBARRIERKHRPROC glBlendBarrierKHR;
 extern PFNGLMAXSHADERCOMPILERTHREADSKHRPROC glMaxShaderCompilerThreadsKHR;
 #endif
 #if defined(ENABLE_GL_VERSION_1_0) && defined(GL_VERSION_1_0)
-extern PFNGLCULLFACEPROC glCullFace;
-extern PFNGLFRONTFACEPROC glFrontFace;
-extern PFNGLHINTPROC glHint;
-extern PFNGLLINEWIDTHPROC glLineWidth;
-extern PFNGLPOINTSIZEPROC glPointSize;
 extern PFNGLPOLYGONMODEPROC glPolygonMode;
 extern PFNGLSCISSORPROC glScissor;
 extern PFNGLTEXPARAMETERFPROC glTexParameterf;
@@ -187,21 +177,14 @@ extern PFNGLCOLORMASKPROC glColorMask;
 extern PFNGLDEPTHMASKPROC glDepthMask;
 extern PFNGLDISABLEPROC glDisable;
 extern PFNGLENABLEPROC glEnable;
-extern PFNGLFINISHPROC glFinish;
-extern PFNGLFLUSHPROC glFlush;
 extern PFNGLBLENDFUNCPROC glBlendFunc;
-extern PFNGLLOGICOPPROC glLogicOp;
 extern PFNGLSTENCILFUNCPROC glStencilFunc;
 extern PFNGLSTENCILOPPROC glStencilOp;
 extern PFNGLDEPTHFUNCPROC glDepthFunc;
-extern PFNGLPIXELSTOREFPROC glPixelStoref;
 extern PFNGLPIXELSTOREIPROC glPixelStorei;
 extern PFNGLREADBUFFERPROC glReadBuffer;
 extern PFNGLREADPIXELSPROC glReadPixels;
-extern PFNGLGETBOOLEANVPROC glGetBooleanv;
-extern PFNGLGETDOUBLEVPROC glGetDoublev;
 extern PFNGLGETERRORPROC glGetError;
-extern PFNGLGETFLOATVPROC glGetFloatv;
 extern PFNGLGETINTEGERVPROC glGetIntegerv;
 extern PFNGLGETSTRINGPROC glGetString;
 extern PFNGLGETTEXIMAGEPROC glGetTexImage;
@@ -255,17 +238,11 @@ extern PFNGLPOINTPARAMETERFVPROC glPointParameterfv;
 extern PFNGLPOINTPARAMETERIPROC glPointParameteri;
 extern PFNGLPOINTPARAMETERIVPROC glPointParameteriv;
 extern PFNGLBLENDCOLORPROC glBlendColor;
-extern PFNGLBLENDEQUATIONPROC glBlendEquation;
 #endif
 #if defined(ENABLE_GL_VERSION_1_5) && defined(GL_VERSION_1_5)
 extern PFNGLGENQUERIESPROC glGenQueries;
 extern PFNGLDELETEQUERIESPROC glDeleteQueries;
 extern PFNGLISQUERYPROC glIsQuery;
-extern PFNGLBEGINQUERYPROC glBeginQuery;
-extern PFNGLENDQUERYPROC glEndQuery;
-extern PFNGLGETQUERYIVPROC glGetQueryiv;
-extern PFNGLGETQUERYOBJECTIVPROC glGetQueryObjectiv;
-extern PFNGLGETQUERYOBJECTUIVPROC glGetQueryObjectuiv;
 extern PFNGLBINDBUFFERPROC glBindBuffer;
 extern PFNGLDELETEBUFFERSPROC glDeleteBuffers;
 extern PFNGLGENBUFFERSPROC glGenBuffers;
@@ -520,8 +497,6 @@ extern PFNGLGETSAMPLERPARAMETERIIVPROC glGetSamplerParameterIiv;
 extern PFNGLGETSAMPLERPARAMETERFVPROC glGetSamplerParameterfv;
 extern PFNGLGETSAMPLERPARAMETERIUIVPROC glGetSamplerParameterIuiv;
 extern PFNGLQUERYCOUNTERPROC glQueryCounter;
-extern PFNGLGETQUERYOBJECTI64VPROC glGetQueryObjecti64v;
-extern PFNGLGETQUERYOBJECTUI64VPROC glGetQueryObjectui64v;
 extern PFNGLVERTEXATTRIBDIVISORPROC glVertexAttribDivisor;
 extern PFNGLVERTEXATTRIBP1UIPROC glVertexAttribP1ui;
 extern PFNGLVERTEXATTRIBP1UIVPROC glVertexAttribP1uiv;
@@ -534,7 +509,6 @@ extern PFNGLVERTEXATTRIBP4UIVPROC glVertexAttribP4uiv;
 #endif
 #if defined(ENABLE_GL_VERSION_4_0) && defined(GL_VERSION_4_0)
 extern PFNGLMINSAMPLESHADINGPROC glMinSampleShading;
-extern PFNGLBLENDEQUATIONIPROC glBlendEquationi;
 extern PFNGLBLENDEQUATIONSEPARATEIPROC glBlendEquationSeparatei;
 extern PFNGLBLENDFUNCIPROC glBlendFunci;
 extern PFNGLBLENDFUNCSEPARATEIPROC glBlendFuncSeparatei;
@@ -576,9 +550,6 @@ extern PFNGLPAUSETRANSFORMFEEDBACKPROC glPauseTransformFeedback;
 extern PFNGLRESUMETRANSFORMFEEDBACKPROC glResumeTransformFeedback;
 extern PFNGLDRAWTRANSFORMFEEDBACKPROC glDrawTransformFeedback;
 extern PFNGLDRAWTRANSFORMFEEDBACKSTREAMPROC glDrawTransformFeedbackStream;
-extern PFNGLBEGINQUERYINDEXEDPROC glBeginQueryIndexed;
-extern PFNGLENDQUERYINDEXEDPROC glEndQueryIndexed;
-extern PFNGLGETQUERYINDEXEDIVPROC glGetQueryIndexediv;
 #endif
 #if defined(ENABLE_GL_VERSION_4_1) && defined(GL_VERSION_4_1)
 extern PFNGLRELEASESHADERCOMPILERPROC glReleaseShaderCompiler;
@@ -835,10 +806,6 @@ extern PFNGLGETVERTEXARRAYINDEXED64IVPROC glGetVertexArrayIndexed64iv;
 extern PFNGLCREATESAMPLERSPROC glCreateSamplers;
 extern PFNGLCREATEPROGRAMPIPELINESPROC glCreateProgramPipelines;
 extern PFNGLCREATEQUERIESPROC glCreateQueries;
-extern PFNGLGETQUERYBUFFEROBJECTI64VPROC glGetQueryBufferObjecti64v;
-extern PFNGLGETQUERYBUFFEROBJECTIVPROC glGetQueryBufferObjectiv;
-extern PFNGLGETQUERYBUFFEROBJECTUI64VPROC glGetQueryBufferObjectui64v;
-extern PFNGLGETQUERYBUFFEROBJECTUIVPROC glGetQueryBufferObjectuiv;
 extern PFNGLMEMORYBARRIERBYREGIONPROC glMemoryBarrierByRegion;
 extern PFNGLGETTEXTURESUBIMAGEPROC glGetTextureSubImage;
 extern PFNGLGETCOMPRESSEDTEXTURESUBIMAGEPROC glGetCompressedTextureSubImage;
