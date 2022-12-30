@@ -2702,18 +2702,22 @@ void GSState::GSTransferBuffer::Init(int tx, int ty, const GIFRegBITBLTBUF& blit
 
 bool GSState::GSTransferBuffer::Update(int tw, int th, int bpp, int& len)
 {
+	u32 packet_size = 0;
+	u32 tex_size    = 0;
 	if(total == 0)
 	{
 		start = end = 0;
-		total = std::min<int>((tw * bpp >> 3) * th, 1024 * 1024 * 4);
-		overflow = false;
+		tex_size    = (((tw * th * bpp) + 7) >> 3);
+		packet_size = (tex_size + 15) & ~0xF; // Round up to the nearest quadword
+		total       = std::min<int>(tex_size, 1024 * 1024 * 4);
+		overflow    = false;
 	}
 
 	int remaining = total - end;
 
 	if(len > remaining)
 	{
-		if(!overflow)
+		if (!overflow && len > (int)packet_size)
 			overflow = true;
 
 		len = remaining;
