@@ -1004,9 +1004,6 @@ void GSApp::Init()
 	m_current_configuration["override_GL_ARB_texture_view"]               = "-1";
 	m_current_configuration["override_GL_ARB_vertex_attrib_binding"]      = "-1";
 	m_current_configuration["override_GL_ARB_texture_barrier"]            = "-1";
-#ifdef GL_EXT_TEX_SUB_IMAGE
-	m_default_configuration["override_GL_ARB_get_texture_sub_image"]      = "-1";
-#endif
 	m_current_configuration["paltex"]                                     = "0";
 	m_current_configuration["Renderer"]                                   = std::to_string(static_cast<int>(GSRendererType::Default));
 	m_current_configuration["upscale_multiplier"]                         = "1";
