@@ -874,10 +874,10 @@ void GSRendererDX11::DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Sou
 	//The resulting shifted output aligns better with common blending / corona / blurring effects,
 	//but introduces a few bad pixels on the edges.
 
-	if (rt && rt->LikelyOffset && m_userHacks_HPO == 1)
+	if (rt && rt->OffsetHack_modxy > 1.0f)
 	{
-		ox2 *= rt->OffsetHack_modx;
-		oy2 *= rt->OffsetHack_mody;
+		ox2 *= rt->OffsetHack_modxy;
+		oy2 *= rt->OffsetHack_modxy;
 	}
 
 	vs_cb.VertexScale  = GSVector4(sx, -sy, ldexpf(1, -32), 0.0f);

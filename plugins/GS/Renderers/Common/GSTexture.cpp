@@ -30,9 +30,7 @@ GSTexture::GSTexture()
 	, m_format(0)
 	, m_sparse(false)
 	, last_frame_used(0)
-	, LikelyOffset(false)
-	, OffsetHack_modx(0.0f)
-	, OffsetHack_mody(0.0f)
+	, OffsetHack_modxy(0.0f)
 {
 }
 
