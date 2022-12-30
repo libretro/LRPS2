@@ -77,9 +77,9 @@ s32 SPU2Savestate::ThawIt(DataBlock& spud)
 		// only way to get that is to use the game's existing core settings and hope
 		// they kinda match the settings for the savestate (IRQ enables and such).
 
-		// adpcm cache : Clear all the cache flags and buffers.
+		// ADPCM cache : Clear all the cache flags and buffers.
 
-		memset(pcm_cache_data, 0, pcm_BlockCount * sizeof(PcmCacheEntry));
+		memset(pcm_cache_data, 0, PCM_BLOCK_COUNT * sizeof(PcmCacheEntry));
 	}
 	else
 	{
@@ -98,7 +98,7 @@ s32 SPU2Savestate::ThawIt(DataBlock& spud)
 		lClocks = spud.lClocks;
 		PlayMode = spud.PlayMode;
 
-		memset(pcm_cache_data, 0, pcm_BlockCount * sizeof(PcmCacheEntry));
+		memset(pcm_cache_data, 0, PCM_BLOCK_COUNT * sizeof(PcmCacheEntry));
 
 		// Go through the V_Voice structs and recalculate SBuffer pointer from
 		// the NextA setting.
@@ -107,7 +107,7 @@ s32 SPU2Savestate::ThawIt(DataBlock& spud)
 		{
 			for (int v = 0; v < 24; v++)
 			{
-				const int cacheIdx = Cores[c].Voices[v].NextA / pcm_WordsPerBlock;
+				const int cacheIdx = Cores[c].Voices[v].NextA / PCM_WORDS_PER_BLOCK;
 				Cores[c].Voices[v].SBuffer = pcm_cache_data[cacheIdx].Sampledata;
 			}
 		}

@@ -15,15 +15,15 @@
 
 #include "Global.h"
 
-#include "spu2.h" // temporary until I resolve cyclePtr/TimeUpdate dependencies.
+#include "spu2.h" /* temporary until I resolve cyclePtr/TimeUpdate dependencies. */
 
-void V_Core::AutoDMAReadBuffer(int mode) //mode: 0= split stereo; 1 = do not split stereo
+void V_Core::AutoDMAReadBuffer(int mode) /* mode: 0= split stereo; 1 = do not split stereo */
 {
-	int spos = ((InputPosRead + 0xff) & 0x100); //starting position of the free buffer
+	int spos = ((InputPosRead + 0xff) & 0x100); /* starting position of the free buffer */
 
-	// HACKFIX!! DMAPtr can be invalid after a savestate load, so the savestate just forces it
-	// to nullptr and we ignore it here.  (used to work in old VM editions of PCSX2 with fixed
-	// addressing, but new PCSX2s have dynamic memory addressing).
+	/* HACKFIX!! DMAPtr can be invalid after a savestate load, 
+	 * so the savestate just forces it
+	 * to nullptr and we ignore it here. */
 
 	if (mode)
 	{
@@ -47,8 +47,6 @@ void V_Core::AutoDMAReadBuffer(int mode) //mode: 0= split stereo; 1 = do not spl
 		InputDataLeft -= 0x100;
 		InputDataProgress += 0x100;
 	}
-	// See ReadInput at mixer.cpp for explanation on the commented out lines
-	//
 }
 
 void V_Core::StartADMAWrite(u16* pMem, u32 sz)
@@ -70,7 +68,7 @@ void V_Core::StartADMAWrite(u16* pMem, u32 sz)
 				Cores[0].InputPosRead = 0;
 
 			AutoDMAReadBuffer(0);
-			// Klonoa 2
+			/* Klonoa 2 */
 			if (size == 512)
 				DMAICounter = size;
 		}
@@ -85,21 +83,22 @@ void V_Core::StartADMAWrite(u16* pMem, u32 sz)
 	TADR = MADR + (size << 1);
 }
 
-// HACKFIX: The BIOS breaks if we check the IRQA for both cores when issuing DMA writes.  The
-// breakage is a null psxRegs.pc being loaded form some memory address (haven't traced it deeper
-// yet).  We get around it by only checking the current core's IRQA, instead of doing the
-// *correct* thing and checking both.  This might break some games, but having a working BIOS
-// is more important for now, until a proper fix can be uncovered.
-//
-// This problem might be caused by bad DMA timings in the IOP or a lack of proper IRQ
-// handling by the Effects Processor.  After those are implemented, let's hope it gets
-// magically fixed?
-//
-// Note: This appears to affect DMA Writes only, so DMA Read DMAs are left intact (both core
-// IRQAs are tested).  Very few games use DMA reads tho, so it could just be a case of "works
-// by the grace of not being used."
-//
-// Update: This hack is no longer needed when we don't do a core reset. Guess the null pc was in spu2 memory?
+/* HACKFIX: The BIOS breaks if we check the IRQA for both cores when issuing DMA writes.  The
+ * breakage is a null psxRegs.pc being loaded form some memory address (haven't traced it deeper
+ * yet).  We get around it by only checking the current core's IRQA, instead of doing the
+ * *correct* thing and checking both.  This might break some games, but having a working BIOS
+ * is more important for now, until a proper fix can be uncovered.
+ *
+ * This problem might be caused by bad DMA timings in the IOP or a lack of proper IRQ
+ * handling by the Effects Processor.  After those are implemented, let's hope it gets
+ * magically fixed?
+ *
+ * Note: This appears to affect DMA Writes only, so DMA Read DMAs are left intact (both core
+ * IRQAs are tested).  Very few games use DMA reads tho, so it could just be a case of "works
+ * by the grace of not being used."
+ *
+ * UPDATE: This hack is no longer needed when we don't do a core reset. Guess the null PC was in SPU2 memory?
+ */
 #define NO_BIOS_HACKFIX 1 // set to 1 to disable the hackfix
 
 void V_Core::PlainDMAWrite(u16* pMem, u32 size)
@@ -118,20 +117,16 @@ void V_Core::PlainDMAWrite(u16* pMem, u32 size)
 		buff1end = 0x100000;
 	}
 
-	const int cacheIdxStart = TSA / pcm_WordsPerBlock;
-	const int cacheIdxEnd = (buff1end + pcm_WordsPerBlock - 1) / pcm_WordsPerBlock;
+	const int cacheIdxStart  = TSA / PCM_WORDS_PER_BLOCK;
+	const int cacheIdxEnd    = (buff1end + PCM_WORDS_PER_BLOCK - 1) / PCM_WORDS_PER_BLOCK;
 	PcmCacheEntry* cacheLine = &pcm_cache_data[cacheIdxStart];
-	PcmCacheEntry& cacheEnd = pcm_cache_data[cacheIdxEnd];
+	PcmCacheEntry& cacheEnd  = pcm_cache_data[cacheIdxEnd];
 
 	do
 	{
 		cacheLine->Validated = false;
 		cacheLine++;
 	} while (cacheLine != &cacheEnd);
-
-	//ConLog( "* SPU2: Cache Clear Range!  TSA=0x%x, TDA=0x%x (low8=0x%x, high8=0x%x, len=0x%x)\n",
-	//	TSA, buff1end, flagTSA, flagTDA, clearLen );
-
 
 	// First Branch needs cleared:
 	// It starts at TSA and goes to buff1end.
@@ -175,7 +170,6 @@ void V_Core::PlainDMAWrite(u16* pMem, u32 size)
 
 			if (Cores[i].IRQEnable && (Cores[i].IRQA > TSA || Cores[i].IRQA <= TDA))
 			{
-				//ConLog("DMAwrite Core %d: IRQ Called (IRQ passed). IRQA = %x Cycles = %d\n", i, Cores[i].IRQA, Cycles );
 				SetIrqCall(i);
 			}
 		}
@@ -201,7 +195,6 @@ void V_Core::PlainDMAWrite(u16* pMem, u32 size)
 		{
 			if (Cores[i].IRQEnable && (Cores[i].IRQA > TSA && Cores[i].IRQA <= TDA))
 			{
-				//ConLog("DMAwrite Core %d: IRQ Called (IRQ passed). IRQA = %x Cycles = %d\n", i, Cores[i].IRQA, Cycles );
 				SetIrqCall(i);
 			}
 		}
@@ -290,7 +283,6 @@ void V_Core::DoDMAread(u16* pMem, u32 size)
 
 	DMAICounter = size;
 	Regs.STATX &= ~0x80;
-	//Regs.ATTR |= 0x30;
 	TADR = MADR + (size << 1);
 }
 
@@ -301,7 +293,6 @@ void V_Core::DoDMAwrite(u16* pMem, u32 size)
 	if (size < 2)
 	{
 		Regs.STATX &= ~0x80;
-		//Regs.ATTR |= 0x30;
 		DMAICounter = 1;
 
 		return;
@@ -321,5 +312,4 @@ void V_Core::DoDMAwrite(u16* pMem, u32 size)
 		PlainDMAWrite(pMem, size);
 	}
 	Regs.STATX &= ~0x80;
-	//Regs.ATTR |= 0x30;
 }

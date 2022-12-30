@@ -20,8 +20,12 @@
 #include "Global.h"
 
 #ifdef __GNUC__
-#ifndef __forceinline
-#define __forceinline __inline__ __attribute__((always_inline,unused))
+#ifndef SPU2_FORCEINLINE
+#define SPU2_FORCEINLINE __inline__ __attribute__((always_inline,unused))
+#endif
+#else
+#ifndef SPU2_FORCEINLINE
+#define SPU2_FORCEINLINE __forceinline
 #endif
 #endif
 
@@ -424,7 +428,7 @@ struct V_Core
 	{
 	}
 	V_Core(int idx); // our badass constructor
-	~V_Core() throw();
+	~V_Core();
 
 	void Init(int index);
 	void UpdateEffectsBufferSize();
@@ -449,7 +453,7 @@ struct V_Core
 	// --------------------------------------------------------------------------
 	//  DMA Section
 	// --------------------------------------------------------------------------
-	__forceinline u16 DmaRead()
+	SPU2_FORCEINLINE u16 DmaRead(void)
 	{
 		u32 _addr     = TSA & 0xfffff;
 		const u16 ret = (u16)*GETMEMPTR(_addr);
@@ -458,7 +462,7 @@ struct V_Core
 		return ret;
 	}
 
-	__forceinline void DmaWrite(u16 value)
+	SPU2_FORCEINLINE void DmaWrite(u16 value)
 	{
 		spu2M_Write(TSA, (s16)value);
 		++TSA;
@@ -508,18 +512,19 @@ namespace SPU2Savestate
 #define SPU2_DYN_MEMLINE 0x2800
 
 // 8 short words per encoded PCM block. (as stored in SPU2 ram)
-static const int pcm_WordsPerBlock = 8;
+#define PCM_WORDS_PER_BLOCK 8
 
 // number of cachable ADPCM blocks (any blocks above the SPU2_DYN_MEMLINE)
-static const int pcm_BlockCount = 0x100000 / pcm_WordsPerBlock;
+// formula: 0x100000 / PCM_WORDS_PER_BLOCK
+#define PCM_BLOCK_COUNT 0x20000
 
 // 28 samples per decoded PCM block (as stored in our cache)
-static const int pcm_DecodedSamplesPerBlock = 28;
+#define PCM_DECODED_SAMPLES_PER_BLOCK 28
 
 struct PcmCacheEntry
 {
 	bool Validated;
-	s16 Sampledata[pcm_DecodedSamplesPerBlock];
+	s16 Sampledata[PCM_DECODED_SAMPLES_PER_BLOCK];
 };
 
 extern PcmCacheEntry* pcm_cache_data;

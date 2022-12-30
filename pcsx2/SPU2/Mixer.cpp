@@ -31,31 +31,31 @@ static const s32 tbl_XA_Factor[16][2] =
 		{122, -60}};
 
 template <typename T>
-static __forceinline void Clampify(T& src, T min, T max)
+static SPU2_FORCEINLINE void Clampify(T& src, T min, T max)
 {
 	src = std::min(std::max(src, min), max);
 }
 
 template <typename T>
-static __forceinline T GetClamped(T src, T min, T max)
+static SPU2_FORCEINLINE T GetClamped(T src, T min, T max)
 {
 	return std::min(std::max(src, min), max);
 }
 
-// Performs a 64-bit multiplication between two values and returns the
-// high 32 bits as a result (discarding the fractional 32 bits).
-// The combined fractional bits of both inputs must be 32 bits for this
-// to work properly.
-//
-// This is meant to be a drop-in replacement for times when the 'div' part
-// of a MulDiv is a constant.  (example: 1<<8, or 4096, etc)
-//
-// [Air] Performance breakdown: This is over 10 times faster than MulDiv in
-//   a *worst case* scenario.  It's also more accurate since it forces the
-//   caller to  extend the inputs so that they make use of all 32 bits of
-//   precision.
-//
-static __forceinline s32 MulShr32(s32 srcval, s32 mulval)
+/* Performs a 64-bit multiplication between two values and returns the
+ * high 32 bits as a result (discarding the fractional 32 bits).
+ * The combined fractional bits of both inputs must be 32 bits for this
+ * to work properly.
+ *
+ * This is meant to be a drop-in replacement for times when the 'div' part
+ * of a MulDiv is a constant.  (example: 1<<8, or 4096, etc)
+ *
+ * [Air] Performance breakdown: This is over 10 times faster than MulDiv in
+ *   a *worst case* scenario.  It's also more accurate since it forces the
+ *   caller to  extend the inputs so that they make use of all 32 bits of
+ *   precision.
+ */
+static SPU2_FORCEINLINE s32 MulShr32(s32 srcval, s32 mulval)
 {
 	return (s64)srcval * mulval >> 32;
 }
@@ -76,7 +76,7 @@ clamp_mix(const StereoOut32& sample, u8 bitshift)
 		GetClamped(sample.Right, -(0x7f00 << bitshift), 0x7f00 << bitshift));
 }
 
-static void __forceinline XA_decode_block(s16* buffer, const s16* block, s32& prev1, s32& prev2)
+static void SPU2_FORCEINLINE XA_decode_block(s16* buffer, const s16* block, s32& prev1, s32& prev2)
 {
 	const s32 header = *block;
 	const s32 shift = (header & 0xF) + 16;
@@ -106,14 +106,15 @@ static void __forceinline XA_decode_block(s16* buffer, const s16* block, s32& pr
 	}
 }
 
-static void __forceinline IncrementNextA(V_Core& thiscore, uint voiceidx)
+static void SPU2_FORCEINLINE IncrementNextA(V_Core& thiscore, uint voiceidx)
 {
+	int i;
 	V_Voice& vc(thiscore.Voices[voiceidx]);
 
-	// Important!  Both cores signal IRQ when an address is read, regardless of
-	// which core actually reads the address.
+	/* Important!  Both cores signal IRQ when an address is read, regardless of
+	 * which core actually reads the address. */
 
-	for (int i = 0; i < 2; i++)
+	for (i = 0; i < 2; i++)
 	{
 		if (Cores[i].IRQEnable && (vc.NextA == Cores[i].IRQA))
 		{
@@ -125,21 +126,23 @@ static void __forceinline IncrementNextA(V_Core& thiscore, uint voiceidx)
 	vc.NextA &= 0xFFFFF;
 }
 
-// decoded pcm data, used to cache the decoded data so that it needn't be decoded
-// multiple times.  Cache chunks are decoded when the mixer requests the blocks, and
-// invalided when DMA transfers and memory writes are performed.
+/* Decoded PCM data, used to cache the decoded data so that it needn't be decoded
+ * multiple times.  Cache chunks are decoded when the mixer requests the blocks, and
+ * invalided when DMA transfers and memory writes are performed.
+ */
 PcmCacheEntry* pcm_cache_data = nullptr;
 
-// LOOP/END sets the ENDX bit and sets NAX to LSA, and the voice is muted if LOOP is not set
-// LOOP seems to only have any effect on the block with LOOP/END set, where it prevents muting the voice
-// (the documented requirement that every block in a loop has the LOOP bit set is nonsense according to tests)
-// LOOP/START sets LSA to NAX unless LSA was written manually since sound generation started
-// (see LoopMode, the method by which this is achieved on the real SPU2 is unknown)
+/* LOOP/END sets the ENDX bit and sets NAX to LSA, and the voice is muted if LOOP is not set
+ * LOOP seems to only have any effect on the block with LOOP/END set, where it prevents muting the voice
+ * (the documented requirement that every block in a loop has the LOOP bit set is nonsense according to tests)
+ * LOOP/START sets LSA to NAX unless LSA was written manually since sound generation started
+ * (see LoopMode, the method by which this is achieved on the real SPU2 is unknown)
+ */
 #define XAFLAG_LOOP_END (1ul << 0)
 #define XAFLAG_LOOP (1ul << 1)
 #define XAFLAG_LOOP_START (1ul << 2)
 
-static __forceinline s32 GetNextDataBuffered(V_Core& thiscore, uint voiceidx)
+static SPU2_FORCEINLINE s32 GetNextDataBuffered(V_Core& thiscore, uint voiceidx)
 {
 	V_Voice& vc(thiscore.Voices[voiceidx]);
 
@@ -177,7 +180,7 @@ static __forceinline s32 GetNextDataBuffered(V_Core& thiscore, uint voiceidx)
 		if ((vc.LoopFlags & XAFLAG_LOOP_START) && !vc.LoopMode)
 			vc.LoopStartA = vc.NextA & 0xFFFF8;
 
-		const int cacheIdx = vc.NextA / pcm_WordsPerBlock;
+		const int cacheIdx = vc.NextA / PCM_WORDS_PER_BLOCK;
 		PcmCacheEntry& cacheLine = pcm_cache_data[cacheIdx];
 		vc.SBuffer = cacheLine.Sampledata;
 
@@ -204,7 +207,7 @@ static __forceinline s32 GetNextDataBuffered(V_Core& thiscore, uint voiceidx)
 	return vc.SBuffer[vc.SCurrent++];
 }
 
-static __forceinline void GetNextDataDummy(V_Core& thiscore, uint voiceidx)
+static SPU2_FORCEINLINE void GetNextDataDummy(V_Core& thiscore, uint voiceidx)
 {
 	V_Voice& vc(thiscore.Voices[voiceidx]);
 
@@ -239,44 +242,38 @@ static __forceinline void GetNextDataDummy(V_Core& thiscore, uint voiceidx)
 	vc.SCurrent += 4 - (vc.SCurrent & 3);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////
-
-static s32 __forceinline GetNoiseValues(void)
+static s32 SPU2_FORCEINLINE GetNoiseValues(void)
 {
 	static u16 lfsr = 0xC0FEu;
-	u16 bit = lfsr ^ (lfsr << 3) ^ (lfsr << 4) ^ (lfsr << 5);
-	lfsr = (lfsr << 1) | (bit >> 15);
+	u16 bit         = lfsr ^ (lfsr << 3) ^ (lfsr << 4) ^ (lfsr << 5);
+	lfsr            = (lfsr << 1) | (bit >> 15);
 	return (s16)lfsr;
 }
-/////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                     //
 
-// Data is expected to be 16 bit signed (typical stuff!).
-// volume is expected to be 32 bit signed (31 bits with reverse phase)
-// Data is shifted up by 1 bit to give the output an effective 16 bit range.
-static __forceinline s32 ApplyVolume(s32 data, s32 volume)
+/* Data is expected to be 16 bit signed (typical stuff!).
+ * volume is expected to be 32 bit signed (31 bits with reverse phase)
+ * Data is shifted up by 1 bit to give the output an effective 16 bit range.
+ */
+static SPU2_FORCEINLINE s32 ApplyVolume(s32 data, s32 volume)
 {
-	//return (volume * data) >> 15;
 	return MulShr32(data << 1, volume);
 }
 
-static __forceinline StereoOut32 ApplyVolume(const StereoOut32& data, const V_VolumeLR& volume)
+static SPU2_FORCEINLINE StereoOut32 ApplyVolume(const StereoOut32& data, const V_VolumeLR& volume)
 {
 	return StereoOut32(
 		ApplyVolume(data.Left, volume.Left),
 		ApplyVolume(data.Right, volume.Right));
 }
 
-static __forceinline StereoOut32 ApplyVolume(const StereoOut32& data, const V_VolumeSlideLR& volume)
+static SPU2_FORCEINLINE StereoOut32 ApplyVolume(const StereoOut32& data, const V_VolumeSlideLR& volume)
 {
 	return StereoOut32(
 		ApplyVolume(data.Left, volume.Left.Value),
 		ApplyVolume(data.Right, volume.Right.Value));
 }
 
-static void __forceinline UpdatePitch(uint coreidx, uint voiceidx)
+static void SPU2_FORCEINLINE UpdatePitch(uint coreidx, uint voiceidx)
 {
 	V_Voice& vc(Cores[coreidx].Voices[voiceidx]);
 	s32 pitch;
@@ -295,7 +292,7 @@ static void __forceinline UpdatePitch(uint coreidx, uint voiceidx)
 }
 
 
-static __forceinline void CalculateADSR(V_Core& thiscore, uint voiceidx)
+static SPU2_FORCEINLINE void CalculateADSR(V_Core& thiscore, uint voiceidx)
 {
 	V_Voice& vc(thiscore.Voices[voiceidx]);
 
@@ -313,78 +310,74 @@ static __forceinline void CalculateADSR(V_Core& thiscore, uint voiceidx)
    Tension: 65535 is high, 32768 is normal, 0 is low
 */
 template <s32 i_tension>
-__forceinline static s32 HermiteInterpolate(
+static SPU2_FORCEINLINE s32 HermiteInterpolate(
 	s32 y0, // 16.0
 	s32 y1, // 16.0
 	s32 y2, // 16.0
 	s32 y3, // 16.0
-	s32 mu  //  0.12
+	s32 mu  // 0.12
 )
 {
 	s32 m00 = ((y1 - y0) * i_tension) >> 16; // 16.0
 	s32 m01 = ((y2 - y1) * i_tension) >> 16; // 16.0
-	s32 m0 = m00 + m01;
+	s32 m0  = m00 + m01;
 
 	s32 m10 = ((y2 - y1) * i_tension) >> 16; // 16.0
 	s32 m11 = ((y3 - y2) * i_tension) >> 16; // 16.0
-	s32 m1 = m10 + m11;
+	s32 m1  = m10 + m11;
 
 	s32 val = ((2 * y1 + m0 + m1 - 2 * y2) * mu) >> 12;       // 16.0
-	val = ((val - 3 * y1 - 2 * m0 - m1 + 3 * y2) * mu) >> 12; // 16.0
-	val = ((val + m0) * mu) >> 11;                            // 16.0
+	val     = ((val - 3 * y1 - 2 * m0 - m1 + 3 * y2) * mu) >> 12; // 16.0
+	val     = ((val + m0) * mu) >> 11;                            // 16.0
 
 	return (val + (y1 << 1));
 }
 
-__forceinline static s32 CatmullRomInterpolate(
+static SPU2_FORCEINLINE s32 CatmullRomInterpolate(
 	s32 y0, // 16.0
 	s32 y1, // 16.0
 	s32 y2, // 16.0
 	s32 y3, // 16.0
-	s32 mu  //  0.12
+	s32 mu  // 0.12
 )
 {
-	//q(t) = 0.5 *(    	(2 * P1) +
-	//	(-P0 + P2) * t +
-	//	(2*P0 - 5*P1 + 4*P2 - P3) * t2 +
-	//	(-P0 + 3*P1- 3*P2 + P3) * t3)
-
-	s32 a3 = (-y0 + 3 * y1 - 3 * y2 + y3);
-	s32 a2 = (2 * y0 - 5 * y1 + 4 * y2 - y3);
-	s32 a1 = (-y0 + y2);
-	s32 a0 = (2 * y1);
+	s32 a3  = (-y0 + 3 * y1 - 3 * y2 + y3);
+	s32 a2  = (2 * y0 - 5 * y1 + 4 * y2 - y3);
+	s32 a1  = (-y0 + y2);
+	s32 a0  = (2 * y1);
 
 	s32 val = ((a3)*mu) >> 12;
-	val = ((a2 + val) * mu) >> 12;
-	val = ((a1 + val) * mu) >> 12;
+	val     = ((a2 + val) * mu) >> 12;
+	val     = ((a1 + val) * mu) >> 12;
 
 	return (a0 + val);
 }
 
-__forceinline static s32 CubicInterpolate(
+static SPU2_FORCEINLINE s32 CubicInterpolate(
 	s32 y0, // 16.0
 	s32 y1, // 16.0
 	s32 y2, // 16.0
 	s32 y3, // 16.0
-	s32 mu  //  0.12
+	s32 mu  // 0.12
 )
 {
 	const s32 a0 = y3 - y2 - y0 + y1;
 	const s32 a1 = y0 - y1 - a0;
 	const s32 a2 = y2 - y0;
 
-	s32 val = ((a0)*mu) >> 12;
-	val = ((val + a1) * mu) >> 12;
-	val = ((val + a2) * mu) >> 11;
+	s32 val      = ((a0)*mu) >> 12;
+	val          = ((val + a1) * mu) >> 12;
+	val          = ((val + a2) * mu) >> 11;
 
 	return (val + (y1 << 1));
 }
 
-// Returns a 16 bit result in Value.
-// Uses standard template-style optimization techniques to statically generate five different
-// versions of this function (one for each type of interpolation).
+/* Returns a 16 bit result in Value.
+ * Uses standard template-style optimization techniques to statically generate five different
+ * versions of this function (one for each type of interpolation).
+ */
 template <int InterpType>
-static __forceinline s32 GetVoiceValues(V_Core& thiscore, uint voiceidx)
+static SPU2_FORCEINLINE s32 GetVoiceValues(V_Core& thiscore, uint voiceidx)
 {
 	V_Voice& vc(thiscore.Voices[voiceidx]);
 
@@ -420,20 +413,18 @@ static __forceinline s32 GetVoiceValues(V_Core& thiscore, uint voiceidx)
 			break;
 	}
 
-	return 0; // technically unreachable!
+	return 0; /* technically unreachable! */
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                     //
-
-// writes a signed value to the SPU2 ram
-// Performs no cache invalidation -- use only for dynamic memory ranges
-// of the SPU2 (between 0x0000 and SPU2_DYN_MEMLINE)
-static __forceinline void spu2M_WriteFast(u32 addr, s16 value)
+/* writes a signed value to the SPU2 ram
+ * Performs no cache invalidation -- use only for dynamic memory ranges
+ * of the SPU2 (between 0x0000 and SPU2_DYN_MEMLINE)
+ */
+static SPU2_FORCEINLINE void spu2M_WriteFast(u32 addr, s16 value)
 {
+	int i;
 	// Fixes some of the oldest hangs in pcsx2's history! :p
-	for (int i = 0; i < 2; i++)
+	for (i = 0; i < 2; i++)
 	{
 		if (Cores[i].IRQEnable && Cores[i].IRQA == addr)
 			SetIrqCall(i);
@@ -441,22 +432,24 @@ static __forceinline void spu2M_WriteFast(u32 addr, s16 value)
 	*GetMemPtr(addr) = value;
 }
 
-#define Interpolation 4
+#define SPU2_INTERPOLATION 4
 
-static __forceinline StereoOut32 MixVoice(uint coreidx, uint voiceidx)
+static SPU2_FORCEINLINE StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 {
 	V_Core& thiscore(Cores[coreidx]);
 	V_Voice& vc(thiscore.Voices[voiceidx]);
 
-	// Most games don't use much volume slide effects.  So only call the UpdateVolume
-	// methods when needed by checking the flag outside the method here...
-	// (Note: Ys 6 : Ark of Nephistm uses these effects)
+	/* Most games don't use much volume slide effects.  So only call the UpdateVolume
+	 * methods when needed by checking the flag outside the method here...
+	 * (Note: Ys 6 : Ark of Nephistm uses these effects)
+	 */
 
 	vc.Volume.Update();
 
-	// SPU2 Note: The spu2 continues to process voices for eternity, always, so we
-	// have to run through all the motions of updating the voice regardless of it's
-	// audible status.  Otherwise IRQs might not trigger and emulation might fail.
+	/* SPU2 Note: The spu2 continues to process voices for eternity, always, so we
+	 * have to run through all the motions of updating the voice regardless of it's
+	 * audible status.  Otherwise IRQs might not trigger and emulation might fail.
+	 */
 
 	UpdatePitch(coreidx, voiceidx);
 
@@ -472,7 +465,7 @@ static __forceinline StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 			// Optimization : Forceinline'd Templated Dispatch Table.  Any halfwit compiler will
 			// turn this into a clever jump dispatch table (no call/rets, no compares, uber-efficient!)
 
-			switch (Interpolation)
+			switch (SPU2_INTERPOLATION)
 			{
 				case 0:
 					Value = GetVoiceValues<0>(thiscore, voiceidx);
@@ -495,12 +488,13 @@ static __forceinline StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 			}
 		}
 
-		// Update and Apply ADSR  (applies to normal and noise sources)
-		//
-		// Note!  It's very important that ADSR stay as accurate as possible.  By the way
-		// it is used, various sound effects can end prematurely if we truncate more than
-		// one or two bits.  Best result comes from no truncation at all, which is why we
-		// use a full 64-bit multiply/result here.
+		/* Update and Apply ADSR  (applies to normal and noise sources)
+		 *
+		 * Note!  It's very important that ADSR stay as accurate as possible.  By the way
+		 * it is used, various sound effects can end prematurely if we truncate more than
+		 * one or two bits.  Best result comes from no truncation at all, which is why we
+		 * use a full 64-bit multiply/result here.
+		 */
 
 		CalculateADSR(thiscore, voiceidx);
 		Value    = MulShr32(Value, vc.ADSR.Value);
@@ -511,7 +505,7 @@ static __forceinline StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 	else
 	{
 		while (vc.SP >= 0)
-			GetNextDataDummy(thiscore, voiceidx); // Dummy is enough
+			GetNextDataDummy(thiscore, voiceidx); /* Dummy is enough */
 	}
 
 	// Write-back of raw voice data (post ADSR applied)
@@ -525,7 +519,7 @@ static __forceinline StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 
 const VoiceMixSet VoiceMixSet::Empty((StereoOut32()), (StereoOut32())); // Don't use SteroOut32::Empty because C++ doesn't make any dep/order checks on global initializers.
 
-static __forceinline void MixCoreVoices(VoiceMixSet& dest, const uint coreidx)
+static SPU2_FORCEINLINE void MixCoreVoices(VoiceMixSet& dest, const uint coreidx)
 {
 	V_Core& thiscore(Cores[coreidx]);
 
@@ -625,11 +619,11 @@ void SPU2_Mix(void)
 			// 2. Games usually provide a normal ADMA stream as well and want to see it getting read!
 			/*(PlayMode&4) ? StereoOut32::Empty : */ ApplyVolume(Cores[0].ReadInput(), Cores[0].InpVol),
 
-			// CDDA is on Core 1:
+			/* CDDA is on Core 1: */
 			(PlayMode & 8) ? StereoOut32(0, 0) : ApplyVolume(Cores[1].ReadInput(), Cores[1].InpVol)};
 
-	// Todo: Replace me with memzero initializer!
-	VoiceMixSet VoiceData[2] = {VoiceMixSet::Empty, VoiceMixSet::Empty}; // mixed voice data for each core.
+	/* Todo: Replace me with memzero initializer! */
+	VoiceMixSet VoiceData[2] = {VoiceMixSet::Empty, VoiceMixSet::Empty}; /* mixed voice data for each core. */
 	MixCoreVoices(VoiceData[0], 0);
 	MixCoreVoices(VoiceData[1], 1);
 
@@ -640,7 +634,7 @@ void SPU2_Mix(void)
 	else
 		Ext = clamp_mix(ApplyVolume(Ext, Cores[0].MasterVol));
 
-	// Commit Core 0 output to ram before mixing Core 1:
+	/* Commit Core 0 output to ram before mixing Core 1: */
 	spu2M_WriteFast(0x800 + OutPos, Ext.Left);
 	spu2M_WriteFast(0xA00 + OutPos, Ext.Right);
 
@@ -649,7 +643,7 @@ void SPU2_Mix(void)
 
 	if (PlayMode & 8)
 	{
-		// Experimental CDDA support
+		/* Experimental CDDA support */
 		// The CDDA overrides all other mixer output.  It's a direct feed!
 
 		Out = Cores[1].ReadInput_HiFi();
@@ -671,7 +665,7 @@ void SPU2_Mix(void)
 	}
 	sample_cb(Out.Left >> 12, Out.Right >> 12);
 
-	// Update AutoDMA output positioning
+	/* Update AutoDMA output positioning */
 	OutPos++;
 	if (OutPos >= 0x200)
 		OutPos = 0;

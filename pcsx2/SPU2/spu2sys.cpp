@@ -49,21 +49,21 @@ void SetIrqCall(int core)
 	has_to_call_irq = true;
 }
 
-__forceinline s16* GetMemPtr(u32 addr)
+SPU2_FORCEINLINE s16* GetMemPtr(u32 addr)
 {
 	return GETMEMPTR(addr);
 }
 
 // writes a signed value to the SPU2 ram
 // Invalidates the ADPCM cache in the process.
-__forceinline void spu2M_Write(u32 addr, s16 value)
+SPU2_FORCEINLINE void spu2M_Write(u32 addr, s16 value)
 {
 	// Make sure the cache is invalidated:
 	// (note to self : addr address WORDs, not bytes)
 	addr &= 0xfffff;
 	if (addr >= SPU2_DYN_MEMLINE)
 	{
-		const int cacheIdx = addr / pcm_WordsPerBlock;
+		const int cacheIdx = addr / PCM_WORDS_PER_BLOCK;
 		pcm_cache_data[cacheIdx].Validated = false;
 	}
 	*GETMEMPTR(addr) = value;
@@ -72,14 +72,9 @@ __forceinline void spu2M_Write(u32 addr, s16 value)
 V_VolumeLR V_VolumeLR::Max(0x7FFFFFFF);
 V_VolumeSlideLR V_VolumeSlideLR::Max(0x3FFF, 0x7FFFFFFF);
 
-V_Core::V_Core(int coreidx)
-	: Index(coreidx)
-{
-}
+V_Core::V_Core(int coreidx) : Index(coreidx) { }
 
-V_Core::~V_Core() throw()
-{
-}
+V_Core::~V_Core() { }
 
 void V_Core::Init(int index)
 {
@@ -267,7 +262,7 @@ void V_Voice::Stop(void)
 #define TickInterval 768
 #define SanityInterval 4800
 
-__forceinline void TimeUpdate(u32 cClocks)
+SPU2_FORCEINLINE void TimeUpdate(u32 cClocks)
 {
 	u32 dClocks = cClocks - lClocks;
 
@@ -772,22 +767,22 @@ u16 V_Core::ReadRegPS1(u32 mem)
 }
 
 // Ah the joys of endian-specific code! :D
-static __forceinline void SetHiWord(u32& src, u16 value)
+static SPU2_FORCEINLINE void SetHiWord(u32& src, u16 value)
 {
 	((u16*)&src)[1] = value;
 }
 
-static __forceinline void SetLoWord(u32& src, u16 value)
+static SPU2_FORCEINLINE void SetLoWord(u32& src, u16 value)
 {
 	((u16*)&src)[0] = value;
 }
 
-static __forceinline u16 GetHiWord(u32& src)
+static SPU2_FORCEINLINE u16 GetHiWord(u32& src)
 {
 	return ((u16*)&src)[1];
 }
 
-static __forceinline u16 GetLoWord(u32& src)
+static SPU2_FORCEINLINE u16 GetLoWord(u32& src)
 {
 	return ((u16*)&src)[0];
 }
@@ -846,8 +841,6 @@ static void RegWrite_VoiceParams(u16 value)
 			//      (as usual... )
 		case 6:
 		case 7:
-			break;
-
 		default:
 			break;
 	}

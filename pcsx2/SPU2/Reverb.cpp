@@ -15,7 +15,7 @@
 
 #include "Global.h"
 
-__forceinline s32 V_Core::RevbGetIndexer(s32 offset)
+SPU2_FORCEINLINE s32 V_Core::RevbGetIndexer(s32 offset)
 {
 	u32 pos = ReverbX + offset;
 
