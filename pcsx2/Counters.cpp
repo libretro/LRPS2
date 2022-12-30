@@ -42,12 +42,14 @@
 //------------------------------------------------------------------
 #define HBLANK_COUNTER_SPEED	1 //Set to '3' to double the speed of games like KHII
 
+#define SCANLINES_TOTAL_1080	1125 // total number of scanlines for 1080I mode
 //------------------------------------------------------------------
 // NTSC Timing Information!!! (some scanline info is guessed)
 //------------------------------------------------------------------
 #define FRAMERATE_NTSC		29.97 // frames per second
 
-#define SCANLINES_TOTAL_NTSC	525 // total number of scanlines
+#define SCANLINES_TOTAL_NTSC_I	525 // total number of scanlines (Interlaced)
+#define SCANLINES_TOTAL_NTSC_NI	526 // total number of scanlines (Interlaced)
 #define SCANLINES_VSYNC_NTSC	3   // scanlines that are used for syncing every half-frame
 #define SCANLINES_VRENDER_NTSC	240 // scanlines in a half-frame (because of interlacing)
 #define SCANLINES_VBLANK1_NTSC	19  // scanlines used for vblank1 (even interlace)
@@ -58,7 +60,8 @@
 //------------------------------------------------------------------
 #define FRAMERATE_PAL		25.0// frames per second * 100 (25)
 
-#define SCANLINES_TOTAL_PAL	625 // total number of scanlines per frame
+#define SCANLINES_TOTAL_PAL_I   625 // total number of scanlines per frame (Interlaced)
+#define SCANLINES_TOTAL_PAL_NI  628 // total number of scanlines per frame (Interlaced)
 #define SCANLINES_VSYNC_PAL	5   // scanlines that are used for syncing every half-frame
 #define SCANLINES_VRENDER_PAL	288 // scanlines in a half-frame (because of interlacing)
 #define SCANLINES_VBLANK1_PAL	19  // scanlines used for vblank1 (even interlace)
@@ -216,7 +219,7 @@ static void vSyncInfoCalc(vSyncTimingInfo* info, Fixed100 framesPerSecond, u32 s
 	// Jak II - random speedups
 	// Shadow of Rome - FMV audio issues
 	const u64 HalfFrame = Frame / 2;
-	const u64 Blank     = Scanline * (gsVideoMode == GS_VideoMode::NTSC ? 22 : 26);
+	const u64 Blank     = Scanline * ((gsVideoMode == GS_VideoMode::NTSC ? 22 : 25) + static_cast<int>(gsIsInterlaced));
 	const u64 Render    = HalfFrame - Blank;
 	const u64 GSBlank   = Scanline * 3.5; // GS VBlank/CSR Swap happens roughly 3.5 Scanlines after VBlank Start
 	bool is_ana_vmode   = (gsVideoMode == GS_VideoMode::PAL || gsVideoMode == GS_VideoMode::NTSC || gsVideoMode == GS_VideoMode::DVD_NTSC || gsVideoMode == GS_VideoMode::DVD_PAL); /* Is analog video mode? */
@@ -338,24 +341,34 @@ void UpdateVSyncRate(void)
 
 			case GS_VideoMode::PAL:
 			case GS_VideoMode::DVD_PAL:
-				scanlines = SCANLINES_TOTAL_PAL;
+				if (gsIsInterlaced)
+					scanlines = SCANLINES_TOTAL_PAL_I;
+				else
+					scanlines = SCANLINES_TOTAL_PAL_NI;
 				break;
 
-			case GS_VideoMode::NTSC:
-			case GS_VideoMode::DVD_NTSC:
 			case GS_VideoMode::SDTV_480P:
 			case GS_VideoMode::SDTV_576P:
-			case GS_VideoMode::HDTV_1080P:
-			case GS_VideoMode::HDTV_1080I:
 			case GS_VideoMode::HDTV_720P:
 			case GS_VideoMode::VESA:
+				scanlines = SCANLINES_TOTAL_NTSC_I;
+				break;
+			case GS_VideoMode::HDTV_1080P:
+			case GS_VideoMode::HDTV_1080I:
+				scanlines = SCANLINES_TOTAL_1080;
+				break;
+			case GS_VideoMode::NTSC:
+			case GS_VideoMode::DVD_NTSC:
 			case GS_VideoMode::Uninitialized: // SYSCALL instruction hasn't executed yet, give some temporary values.
 			case GS_VideoMode::Unknown:
 			default:
 				// Falls through to default when unidentified mode parameter of SetGsCrt is detected.
 				// For Release builds, keep using the NTSC timing values when unknown video mode is detected.
 				// Assert will be triggered for debug/dev builds.
-				scanlines = SCANLINES_TOTAL_NTSC;
+				if (gsIsInterlaced)
+					scanlines = SCANLINES_TOTAL_NTSC_I;
+				else
+					scanlines = SCANLINES_TOTAL_NTSC_NI;
 				break;
 		}
 
@@ -561,12 +574,9 @@ static __fi void rcntUpdate_vSync(void)
 			// CSR is swapped and GS vBlank IRQ is triggered roughly 3.5 hblanks after VSync Start
 			// Swap field
 
-			/* Is progressive video mode? */
-			if (		   gsVideoMode == GS_VideoMode::VESA 
-					|| gsVideoMode == GS_VideoMode::SDTV_480P 
-					|| gsVideoMode == GS_VideoMode::SDTV_576P 
-					|| gsVideoMode == GS_VideoMode::HDTV_720P 
-					|| gsVideoMode == GS_VideoMode::HDTV_1080P)
+			/* The FIELD register only flips if the CMOD field in SMODE1 is set to anything but 0 and Front Porch bottom bit in SYNCV is set.
+			 * Also see "isReallyInterlaced()" in GSState.cpp */
+			if (!(*(u32*)PS2GS_BASE(GS_SYNCV) & 0x1) || !(*(u32*)PS2GS_BASE(GS_SMODE1) & 0x6000))
 				CSRreg._u32  |= 0x2000;
 			else
 				CSRreg._u32  ^= 0x2000;
@@ -616,8 +626,7 @@ static __fi void rcntUpdate_vSync(void)
 // well forceinline it!
 __fi void rcntUpdate(void)
 {
-	s32 diff = (cpuRegs.cycle - vsyncCounter.sCycle);
-	if( diff >= vsyncCounter.CycleT )
+	if (cpuTestCycle(vsyncCounter.sCycle, vsyncCounter.CycleT))
 		rcntUpdate_vSync();
 
 	// Update counters so that we can perform overflow and target tests.

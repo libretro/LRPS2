@@ -189,8 +189,10 @@ bool GSRenderer::Merge(int field)
 
 	ds = fs;
 
+	// When interlace(FRAME) mode, the rect is half height, so it needs to be stretched.
 	if(m_regs->SMODE2.INT && m_regs->SMODE2.FFMD)
 		ds.y *= 2;
+
 	m_real_size = ds;
 
 	bool slbg = m_regs->PMODE.SLBG;
@@ -205,7 +207,7 @@ bool GSRenderer::Merge(int field)
 
 		m_dev->Merge(tex, src_hw, dst, fs, m_regs->PMODE, m_regs->EXTBUF, c);
 
-		if(m_regs->SMODE2.INT && m_interlace > 0)
+		if(isReallyInterlaced() && m_interlace > 0)
 		{
 			if(m_interlace == 7 && m_regs->SMODE2.FFMD) // Auto interlace enabled / Odd frame interlace setting
 			{

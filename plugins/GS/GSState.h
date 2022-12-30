@@ -228,6 +228,7 @@ public:
 	GSVideoMode GetVideoMode();
 
 	bool IsEnabled(int i);
+	bool isReallyInterlaced(void);
 
 	virtual void Reset();
 	void Flush();
