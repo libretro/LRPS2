@@ -96,12 +96,11 @@ int ChdFileReader::ReadSync(void *pBuffer, uint sector, uint count)
     u8 *dst = (u8 *) pBuffer;
     u32 hunk = sector / sectors_per_hunk;
     u32 sector_in_hunk = sector % sectors_per_hunk;
-    chd_error error;
 
     for (uint i = 0; i < count; i++) {
       if (current_hunk != hunk)
       {
-        error = chd_read(ChdFile, hunk, hunk_buffer);
+        chd_read(ChdFile, hunk, hunk_buffer);
         current_hunk = hunk;
       }
       memcpy(dst + i * m_blocksize, hunk_buffer + sector_in_hunk * sector_size, m_blocksize);

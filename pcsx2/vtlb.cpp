@@ -131,7 +131,6 @@ void vtlb_memRead128(u32 mem, mem128_t *out)
 template< typename DataType >
 void vtlb_memWrite(u32 addr, DataType data)
 {
-	static const uint DataSize = sizeof(DataType) * 8;
 	u32 paddr;
 	auto vmv = vtlbdata.vmap[addr>>VTLB_PAGE_BITS];
 

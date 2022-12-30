@@ -490,35 +490,11 @@ namespace loadcore {
 }
 
 namespace intrman {
-	static const char* intrname[] = {
-		"INT_VBLANK",   "INT_GM",       "INT_CDROM",   "INT_DMA",		//00
-		"INT_RTC0",     "INT_RTC1",     "INT_RTC2",    "INT_SIO0",		//04
-		"INT_SIO1",     "INT_SPU",      "INT_PIO",     "INT_EVBLANK",	//08
-		"INT_DVD",      "INT_PCMCIA",   "INT_RTC3",    "INT_RTC4",		//0C
-		"INT_RTC5",     "INT_SIO2",     "INT_HTR0",    "INT_HTR1",		//10
-		"INT_HTR2",     "INT_HTR3",     "INT_USB",     "INT_EXTR",		//14
-		"INT_FWRE",     "INT_FDMA",     "INT_1A",      "INT_1B",		//18
-		"INT_1C",       "INT_1D",       "INT_1E",      "INT_1F",		//1C
-		"INT_dmaMDECi", "INT_dmaMDECo", "INT_dmaGPU",  "INT_dmaCD",		//20
-		"INT_dmaSPU",   "INT_dmaPIO",   "INT_dmaOTC",  "INT_dmaBERR",	//24
-		"INT_dmaSPU2",  "INT_dma8",     "INT_dmaSIF0", "INT_dmaSIF1",	//28
-		"INT_dmaSIO2i", "INT_dmaSIO2o", "INT_2E",      "INT_2F",		//2C
-		"INT_30",       "INT_31",       "INT_32",      "INT_33",		//30
-		"INT_34",       "INT_35",       "INT_36",      "INT_37",		//34
-		"INT_38",       "INT_39",       "INT_3A",      "INT_3B",		//38
-		"INT_3C",       "INT_3D",       "INT_3E",      "INT_3F",		//3C
-		"INT_MAX"														//40
-	};
-
-	void RegisterIntrHandler_DEBUG(void)
-	{
-	}
+	void RegisterIntrHandler_DEBUG(void) { }
 }
 
 namespace sifcmd {
-	void sceSifRegisterRpc_DEBUG(void)
-	{
-	}
+	void sceSifRegisterRpc_DEBUG(void) { }
 }
 
 u32 irxImportTableAddr(u32 entrypc)
@@ -598,7 +574,7 @@ int irxImportExec(u32 import_table, u16 index)
 		return 0;
 
 	std::string libname = iopMemReadString(import_table + 12, 8);
-	const char *funcname = irxImportFuncname(libname, index);
+	irxImportFuncname(libname, index);
 	irxHLE hle = irxImportHLE(libname, index);
 	irxDEBUG debug = irxImportDebug(libname, index);
 

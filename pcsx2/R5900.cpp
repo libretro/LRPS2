@@ -635,8 +635,6 @@ void eeloadHook2(void)
 	if (!g_osdsys_str)
 		return;
 
-	const char *argString = g_Conf->CurrentGameArgs.c_str();
-
 	// Add args string after game's ELF name that was written over "rom0:OSDSYS" by eeloadHook(). In between the ELF name and args
 	// string we insert a space character so that ParseArgumentString() has one continuous string to process.
 	int game_len = strlen((char *)PSM(g_osdsys_str));

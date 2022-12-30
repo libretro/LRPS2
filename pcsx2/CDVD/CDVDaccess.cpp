@@ -161,8 +161,6 @@ static int FindDiskType(int mType)
 		else
 			CDVD->getTD(0, &td2);
 
-		int tlength = td2.lsn - td.lsn;
-
 		if (td.type == CDVD_AUDIO_TRACK)
 			audioTracks++;
 		else
@@ -301,7 +299,7 @@ bool DoCDVDopen(void)
 
 	if (ret == -1)
 		return false;
-	int cdtype = DoCDVDdetectDiskType();
+	DoCDVDdetectDiskType();
 	return true;
 }
 

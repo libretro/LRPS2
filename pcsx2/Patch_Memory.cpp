@@ -23,7 +23,7 @@
 
 static u32 SkipCount = 0;
 static u32 IterationCount = 0;
-static u32 IterationIncrement = 0, ValueIncrement = 0;
+static u32 IterationIncrement = 0;
 static u32 PrevCheatType = 0, PrevCheatAddr = 0, LastType = 0;
 
 static void writeCheat(void)

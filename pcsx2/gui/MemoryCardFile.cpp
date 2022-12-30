@@ -634,11 +634,11 @@ u64 FileMcd_GetCRC(uint port, uint slot)
 
 void FileMcd_NextFrame(uint port, uint slot)
 {
-	const uint combinedSlot = FileMcd_ConvertToSlot(port, slot);
+	FileMcd_ConvertToSlot(port, slot);
 }
 
 bool FileMcd_ReIndex(uint port, uint slot, const wxString& filter)
 {
-	const uint combinedSlot = FileMcd_ConvertToSlot(port, slot);
+	FileMcd_ConvertToSlot(port, slot);
 	return false;
 }

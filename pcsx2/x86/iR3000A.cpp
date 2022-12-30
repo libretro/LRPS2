@@ -408,7 +408,6 @@ static void psxRecompileIrxImport(void)
 
 	irxHLE hle = irxImportHLE(libname, index);
 	const irxDEBUG debug = 0;
-	const char *funcname = nullptr;
 
 	if (!hle && !debug)
 		return;

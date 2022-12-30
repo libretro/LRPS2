@@ -1594,8 +1594,6 @@ template void GSState::Transfer<3>(const u8* mem, u32 size);
 
 template<int index> void GSState::Transfer(const u8* mem, u32 size)
 {
-	const u8* start = mem;
-
 	GIFPath& path = m_path[index];
 
 	while(size > 0)

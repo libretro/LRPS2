@@ -80,7 +80,7 @@ wxMappedFDIODispatcher::RegisterFD(int fd, wxFDIOHandler *handler, int flags)
     // notice that it's not an error to register a handler for the same fd
     // twice as it can be done with different flags -- but it is an error to
     // register different handlers
-    wxFDIOHandlerMap::iterator i = m_handlers.find(fd);
+    m_handlers.find(fd);
     m_handlers[fd] = wxFDIOHandlerEntry(handler, flags);
 
     return true;

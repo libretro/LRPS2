@@ -312,9 +312,6 @@ int GzippedFileReader::FinishRead(void)
 	return res;
 };
 
-#define PTT clock_t
-#define NOW() (clock() / (CLOCKS_PER_SEC / 1000))
-
 int GzippedFileReader::ReadSync(void* pBuffer, uint sector, uint count)
 {
 	s64 offset      = (s64)sector * m_blocksize + m_dataoffset;
@@ -370,7 +367,6 @@ int GzippedFileReader::_ReadSync(void* pBuffer, s64 offset, uint bytesToRead)
 
 	// Not available from cache. Decompress from optimal starting
 	// point in GZFILE_READ_CHUNK_SIZE chunks and cache each chunk.
-	PTT s = NOW();
 	s64 extractOffset = GetOptimalExtractionStart(offset); // guaranteed in GZFILE_READ_CHUNK_SIZE boundaries
 	int size = offset + maxInChunk - extractOffset;
 	unsigned char* extracted = (unsigned char*)malloc(size);

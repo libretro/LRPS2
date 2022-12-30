@@ -111,16 +111,14 @@ u32 ElfObject::getCRC()
 
 void ElfObject::loadHeaders()
 {
+	int i_st = -1, i_dt = -1;
 	if (secthead == NULL || header.e_shoff > (u32)data.GetLength()) return;
 
-	const u8* sections_names = data.GetPtr( secthead[ (header.e_shstrndx == 0xffff ? 0 : header.e_shstrndx) ].sh_offset );
-
-	int i_st = -1, i_dt = -1;
+	data.GetPtr( secthead[ (header.e_shstrndx == 0xffff ? 0 : header.e_shstrndx) ].sh_offset );
 
 	for( int i = 0 ; i < header.e_shnum ; i++ )
 	{
 		// dump symbol table
-
 		if (secthead[ i ].sh_type == 0x02)
 		{
 			i_st = i;

@@ -119,7 +119,7 @@ namespace PboPool {
 
 			// Check next segment is free
 			if (m_fence[segment_next]) {
-				GLenum status = glClientWaitSync(m_fence[segment_next], GL_SYNC_FLUSH_COMMANDS_BIT, GL_TIMEOUT_IGNORED);
+				glClientWaitSync(m_fence[segment_next], GL_SYNC_FLUSH_COMMANDS_BIT, GL_TIMEOUT_IGNORED);
 				// Potentially it doesn't work on AMD driver which might always return GL_CONDITION_SATISFIED
 
 				glDeleteSync(m_fence[segment_next]);
@@ -286,7 +286,6 @@ GSTextureOGL::GSTextureOGL(int type, int w, int h, int format, GLuint fbo_read, 
 	}
 
 	if (m_sparse) {
-		GSVector2i old_size = m_size;
 		m_size = RoundUpPage(m_size);
 		glTextureParameteri(m_texture_id, GL_TEXTURE_SPARSE_ARB, true);
 	} else {

@@ -183,8 +183,6 @@ static int ApplyDeadZoneX(int val_x, int val_y, float deadzone_percent)
 static int ApplyDeadZoneY(int val_x, int val_y, float deadzone_percent) 
 {
 	if (deadzone_percent == 0.0f) return val_y;
-
-	float deadzone_val_percent = 50.0f;
 	float deadzone_axis = 32767.0f * deadzone_percent / 100.0f;
 
 	float magnitude = (float)sqrt((val_x * val_x) + (val_y * val_y));
@@ -312,12 +310,13 @@ static u8 pad_poll(u8 value)
 
         switch (value) {
             case CMD_CONFIG_MODE:
-                if (pad->config) {
+                if (pad->config)
+		{
                     // In config mode.  Might not actually be leaving it.
                     query.set_result(ConfigExit);
                     return 0xF3;
                 }
-            // fallthrough on purpose (but I don't know why)
+		// fallthrough on purpose (but I don't know why)
 
             case CMD_READ_DATA_AND_VIBRATE: {
                 query.response[2] = 0x5A;

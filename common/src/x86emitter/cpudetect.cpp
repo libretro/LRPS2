@@ -113,12 +113,6 @@ void x86capabilities::Identify()
     s32 regs[4];
     u32 cmds;
 
-//AMD 64 STUFF
-#ifdef __M_X86_64
-    u32 x86_64_8BITBRANDID;
-    u32 x86_64_12BITBRANDID;
-#endif
-
     memzero(VendorName);
     cpuid(regs, 0);
 
@@ -146,9 +140,6 @@ void x86capabilities::Identify()
         Model = (regs[0] >> 4) & 0xf;
         FamilyID = (regs[0] >> 8) & 0xf;
         TypeID = (regs[0] >> 12) & 0x3;
-#ifdef __M_X86_64
-        x86_64_8BITBRANDID = regs[1] & 0xff;
-#endif
         Flags = regs[3];
         Flags2 = regs[2];
     }
@@ -165,9 +156,6 @@ void x86capabilities::Identify()
     if (cmds >= 0x80000001) {
         cpuid(regs, 0x80000001);
 
-#ifdef __M_X86_64
-        x86_64_12BITBRANDID = regs[1] & 0xfff;
-#endif
         EFlags2 = regs[2];
         EFlags = regs[3];
     }

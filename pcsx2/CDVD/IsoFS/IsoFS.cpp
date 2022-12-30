@@ -24,16 +24,11 @@
 // IsoDirectory
 //////////////////////////////////////////////////////////////////////////
 
-//u8		filesystemType;	// 0x01 = ISO9660, 0x02 = Joliet, 0xFF = NULL
-//u8		volID[5];		// "CD001"
-
-
 // Used to load the Root directory from an image
 IsoDirectory::IsoDirectory(SectorSource& r)
 	: internalReader(r)
 {
 	IsoFileDescriptor rootDirEntry;
-	bool isValid = false;
 	bool done = false;
 	uint i = 16;
 
@@ -52,7 +47,6 @@ IsoDirectory::IsoDirectory(SectorSource& r)
 
 				case 1:
 					rootDirEntry.Load(sector + 156, 38);
-					isValid = true;
 					break;
 
 				case 2:

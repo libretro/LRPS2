@@ -168,11 +168,10 @@ static void cdvdNVM(u8* buffer, int offset, size_t bytes, bool read)
 
 	fp.Seek(offset);
 
-	size_t ret;
 	if (read)
-		ret = fp.Read(buffer, bytes);
+		fp.Read(buffer, bytes);
 	else
-		ret = fp.Write(buffer, bytes);
+		fp.Write(buffer, bytes);
 }
 
 static void cdvdReadNVM(u8* dst, int offset, int bytes)

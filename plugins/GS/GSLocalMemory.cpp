@@ -176,7 +176,7 @@ static void* fifo_alloc(size_t size, size_t repeat)
 	for (size_t i = 1; i < repeat; i++)
 	{
 		void* base = (u8*)fifo + size * i;
-		u8* next = (u8*)mmap(base, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, s_shm_fd, 0);
+		(u8*)mmap(base, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, s_shm_fd, 0);
 	}
 
 	return fifo;
