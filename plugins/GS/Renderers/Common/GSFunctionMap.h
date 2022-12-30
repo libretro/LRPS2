@@ -23,12 +23,9 @@
 
 #include "Pcsx2Types.h"
 
-#include "../../GS.h"
 #include "../../GSCodeBuffer.h"
 
 #include "../../xbyak/xbyak_util.h"
-
-#include "../SW/GSScanlineEnvironment.h"
 
 template<class KEY, class VALUE> class GSFunctionMap
 {

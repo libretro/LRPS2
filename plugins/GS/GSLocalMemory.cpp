@@ -46,7 +46,142 @@
 
 #define FOREACH_BLOCK_END }}
 
-//
+#ifdef _WIN32
+void* vmalloc(size_t size, bool code)
+{
+	return VirtualAlloc(NULL, size, MEM_COMMIT | MEM_RESERVE, code ? PAGE_EXECUTE_READWRITE : PAGE_READWRITE);
+}
+
+void vmfree(void* ptr, size_t size)
+{
+	VirtualFree(ptr, 0, MEM_RELEASE);
+}
+
+static HANDLE s_fh = NULL;
+static u8* s_Next[8];
+
+static void fifo_free(void* ptr, size_t size, size_t repeat)
+{
+	if (!s_fh)
+	{
+		if (ptr)
+			vmfree(ptr, size);
+		return;
+	}
+
+	UnmapViewOfFile(ptr);
+
+	for (size_t i = 1; i < ARRAY_SIZE(s_Next); i++)
+	{
+		if (s_Next[i] != 0)
+		{
+			UnmapViewOfFile(s_Next[i]);
+			s_Next[i] = 0;
+		}
+	}
+
+	CloseHandle(s_fh);
+	s_fh = NULL;
+}
+
+static void* fifo_alloc(size_t size, size_t repeat)
+{
+	if (repeat >= ARRAY_SIZE(s_Next))
+		return nullptr;
+	if (!(s_fh = CreateFileMapping(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, size, nullptr)))
+		return nullptr;
+
+	int mmap_segment_failed = 0;
+	void* fifo = MapViewOfFile(s_fh, FILE_MAP_ALL_ACCESS, 0, 0, size);
+	for (size_t i = 1; i < repeat; i++) {
+		void* base = (u8*)fifo + size * i;
+		s_Next[i] = (u8*)MapViewOfFileEx(s_fh, FILE_MAP_ALL_ACCESS, 0, 0, size, base);
+		if (s_Next[i] != base)
+		{
+			mmap_segment_failed++;
+			if (mmap_segment_failed > 4)
+			{
+				fifo_free(fifo, size, repeat);
+				return nullptr;
+			}
+
+			do
+			{
+				UnmapViewOfFile(s_Next[i]);
+				s_Next[i] = 0;
+			} while (--i > 0);
+
+			fifo = MapViewOfFile(s_fh, FILE_MAP_ALL_ACCESS, 0, 0, size);
+		}
+	}
+
+	return fifo;
+}
+
+#else
+
+#include <sys/mman.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+void* vmalloc(size_t size, bool code)
+{
+	int prot    = PROT_READ | PROT_WRITE;
+	int flags   = MAP_PRIVATE | MAP_ANONYMOUS;
+	size_t mask = getpagesize() - 1;
+	size        = (size + mask) & ~mask;
+
+	if(code)
+	{
+		prot |= PROT_EXEC;
+#ifdef _M_AMD64
+		flags |= MAP_32BIT;
+#endif
+	}
+
+	return mmap(NULL, size, prot, flags, -1, 0);
+}
+
+void vmfree(void* ptr, size_t size)
+{
+	size_t mask = getpagesize() - 1;
+	size = (size + mask) & ~mask;
+	munmap(ptr, size);
+}
+
+static int s_shm_fd = -1;
+
+static void fifo_free(void* ptr, size_t size, size_t repeat)
+{
+	if (s_shm_fd < 0)
+		return;
+
+	munmap(ptr, size * repeat);
+
+	close(s_shm_fd);
+	s_shm_fd = -1;
+}
+
+static void* fifo_alloc(size_t size, size_t repeat)
+{
+	void *fifo            = NULL;
+	const char* file_name = "/GSDX.mem";
+	s_shm_fd = shm_open(file_name, O_RDWR | O_CREAT | O_EXCL, 0600);
+	if (s_shm_fd == -1)
+		return nullptr;
+	shm_unlink(file_name); // file is deleted but descriptor is still open
+	ftruncate(s_shm_fd, repeat * size);
+	fifo = mmap(nullptr, size * repeat, PROT_READ | PROT_WRITE, MAP_SHARED, s_shm_fd, 0);
+
+	for (size_t i = 1; i < repeat; i++)
+	{
+		void* base = (u8*)fifo + size * i;
+		u8* next = (u8*)mmap(base, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, s_shm_fd, 0);
+	}
+
+	return fifo;
+}
+#endif
 
 u32 GSLocalMemory::pageOffset32[32][32][64];
 u32 GSLocalMemory::pageOffset32Z[32][32][64];
@@ -75,11 +210,7 @@ short GSLocalMemory::blockOffset16SZ[256];
 short GSLocalMemory::blockOffset8[256];
 short GSLocalMemory::blockOffset4[256];
 
-//
-
 GSLocalMemory::psm_t GSLocalMemory::m_psm[64];
-
-//
 
 GSLocalMemory::GSLocalMemory()
 	: m_clut(this)

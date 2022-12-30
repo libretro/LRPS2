@@ -156,9 +156,6 @@ extern std::string format(const char* fmt, ...);
 extern void* vmalloc(size_t size, bool code);
 extern void vmfree(void* ptr, size_t size);
 
-extern void* fifo_alloc(size_t size, size_t repeat);
-extern void fifo_free(void* ptr, size_t size, size_t repeat);
-
 #include <libretro.h>
 extern retro_hw_render_callback hw_render;
 #define GL_DEFAULT_FRAMEBUFFER hw_render.get_current_framebuffer()
