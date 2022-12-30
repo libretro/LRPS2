@@ -585,38 +585,3 @@ endif()
    
    target_link_libraries(pcsx2_libretro PRIVATE ${pcsx2FinalLibs})
 target_compile_features(${Output} PRIVATE cxx_std_17)
-
-#if(COMMAND target_precompile_headers)
-#	message("Using precompiled headers.")
-#	target_precompile_headers(${Output} PRIVATE PrecompiledHeader.h)
-#endif()
-
-if (APPLE)
-	# MacOS defaults to having a maximum protection of the __DATA segment of rw (non-executable)
-	# We have a bunch of page-sized arrays in bss that we use for jit
-	# Obviously not being able to make those arrays executable would be a problem
-	target_link_options(${Output} PRIVATE -Wl,-segprot,__DATA,rwx,rw)
-
-	set_target_properties(${Output} PROPERTIES
-		MACOSX_BUNDLE true
-		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/gui/Resources/Info.plist.in"
-		OUTPUT_NAME PCSX2
-	)
-
-	target_sources(${Output} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/gui/Resources/PCSX2.icns")
-	set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/gui/Resources/PCSX2.icns" PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-
-	# If they say to skip postprocess bundle, leave the target in but make it so they have
-	# to manually run it
-	if (SKIP_POSTPROCESS_BUNDLE)
-		set(postprocessBundleType "")
-	else()
-		set(postprocessBundleType ALL)
-	endif()
-	# Use custom_target and not custom_command so plugins can add themselves as dependencies
-	add_custom_target(pcsx2-postprocess-bundle ${postprocessBundleType}
-		COMMAND ${CMAKE_COMMAND} "-DPCSX2_BUNDLE_PATH=$<TARGET_FILE_DIR:${Output}>/../.."
-			-P ${CMAKE_SOURCE_DIR}/cmake/Pcsx2PostprocessBundle.cmake
-	)
-	add_dependencies(pcsx2-postprocess-bundle ${Output})
-endif()
