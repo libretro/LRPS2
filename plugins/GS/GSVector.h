@@ -21,6 +21,8 @@
 
 #include "stdafx.h"
 
+#include <cstring>
+
 #pragma once
 
 enum Align_Mode
@@ -69,12 +71,12 @@ public:
 
 	bool operator == (const GSVector2T& v) const
 	{
-		return x == v.x && y == v.y;
+		return (std::memcmp(this, &v, sizeof(*this)) == 0);
 	}
 
 	bool operator != (const GSVector2T& v) const
 	{
-		return x != v.x || y != v.y;
+		return (std::memcmp(this, &v, sizeof(*this)) != 0);
 	}
 };
 
