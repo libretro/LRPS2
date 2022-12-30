@@ -20,8 +20,10 @@
 #include "Global.h"
 
 #ifdef __GNUC__
-#ifndef SPU2_FORCEINLINE
-#define SPU2_FORCEINLINE __inline__ __attribute__((always_inline,unused))
+#ifdef NDEBUG
+#define SPU2_FORCEINLINE __attribute__((always_inline, unused))
+#else
+#define SPU2_FORCEINLINE __attribute__((unused))
 #endif
 #else
 #ifndef SPU2_FORCEINLINE
@@ -39,8 +41,8 @@
 extern s16* spu2regs;
 extern s16* _spu2mem;
 #define GETMEMPTR(addr) ((_spu2mem) + (addr))
+#define GetMemPtr(addr) (GETMEMPTR(addr))
 
-extern s16* GetMemPtr(u32 addr);
 extern void spu2M_Write(u32 addr, s16 value);
 
 struct V_VolumeLR
@@ -193,7 +195,7 @@ struct V_Voice
 	s32 SCurrent;
 
 	// it takes a few ticks for voices to start on the real SPU2?
-	bool Start();
+	void Start();
 	void Stop();
 };
 
@@ -501,6 +503,10 @@ namespace SPU2Savestate
 	extern s32 ThawIt(DataBlock& spud);
 	extern s32 SizeIt(void);
 } // namespace SPU2Savestate
+ 
+
+#define SPU2_TICK_INTERVAL 768
+#define SPU2_SANITY_INTERVAL 4800
 
 // --------------------------------------------------------------------------------------
 //  ADPCM Decoder Cache
@@ -528,3 +534,7 @@ struct PcmCacheEntry
 };
 
 extern PcmCacheEntry* pcm_cache_data;
+extern bool has_to_call_irq;
+
+typedef void RegWriteHandler(u16 value);
+extern RegWriteHandler* const tbl_reg_writes[0x401];

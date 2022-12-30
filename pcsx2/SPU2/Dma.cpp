@@ -15,7 +15,7 @@
 
 #include "Global.h"
 
-#include "spu2.h" /* temporary until I resolve cyclePtr/TimeUpdate dependencies. */
+#include "spu2.h" /* temporary until I resolve cyclePtr dependencies. */
 
 void V_Core::AutoDMAReadBuffer(int mode) /* mode: 0= split stereo; 1 = do not split stereo */
 {

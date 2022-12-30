@@ -15,17 +15,12 @@
 
 #pragma once
 
-// Number of stereo samples per SndOut block.
-// All drivers must work in units of this size when communicating with
-// SndOut.
-#define SndOutPacketSize 64
-
 // Overall master volume shift; this is meant to be a precision value and does not affect
 // actual output volumes.  It converts SPU2 16 bit volumes to 32-bit volumes, and likewise
 // downsamples 32 bit samples to 16 bit sound driver output (this way timestretching and
 // DSP effects get better precision results)
-#define SndOutVolumeShift 12
-#define SndOutVolumeShift32 4 // shift up, not down, (formula = 16 - SndOutVolumeShift)
+#define SND_OUT_VOLUME_SHIFT 12
+#define SND_OUT_VOLUME_SHIFT32 4 // shift up, not down, (formula = 16 - SND_OUT_VOLUME_SHIFT)
 
 struct Stereo51Out16DplII;
 struct Stereo51Out32DplII;

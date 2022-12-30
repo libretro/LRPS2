@@ -84,10 +84,6 @@ StereoOut32 V_Core::ReadInput()
 			if (Cores[i].IRQEnable && 0x2000 + (Index << 10) + InputPosRead == (Cores[i].IRQA & 0xfffffdff))
 				SetIrqCall(i);
 
-		//retval = StereoOut32(
-		//	(s32)ADMATempBuffer[InputPosRead],
-		//	(s32)ADMATempBuffer[InputPosRead+0x200]
-		//);
 		retval = StereoOut32(
 			(s32)(*GetMemPtr(0x2000 + (Index << 10) + InputPosRead)),
 			(s32)(*GetMemPtr(0x2200 + (Index << 10) + InputPosRead)));

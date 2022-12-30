@@ -23,12 +23,13 @@
 extern retro_audio_sample_t sample_cb;
 
 static const s32 tbl_XA_Factor[16][2] =
-	{
-		{0, 0},
-		{60, 0},
-		{115, -52},
-		{98, -55},
-		{122, -60}};
+{
+	{0, 0},
+	{60, 0},
+	{115, -52},
+	{98, -55},
+	{122, -60}
+};
 
 template <typename T>
 static SPU2_FORCEINLINE void Clampify(T& src, T min, T max)
@@ -647,13 +648,12 @@ void SPU2_Mix(void)
 		// The CDDA overrides all other mixer output.  It's a direct feed!
 
 		Out = Cores[1].ReadInput_HiFi();
-		//WaveLog::WriteCore( 1, "CDDA-32", OutL, OutR );
 	}
 	else
 	{
-		Out.Left = MulShr32(Out.Left << SndOutVolumeShift,
+		Out.Left = MulShr32(Out.Left   << SND_OUT_VOLUME_SHIFT,
 				Cores[1].MasterVol.Left.Value);
-		Out.Right = MulShr32(Out.Right << SndOutVolumeShift,
+		Out.Right = MulShr32(Out.Right << SND_OUT_VOLUME_SHIFT,
 				Cores[1].MasterVol.Right.Value);
 
 		// Final Clamp!
@@ -661,7 +661,7 @@ void SPU2_Mix(void)
 		// output, giving us a nice thumpy sound at times.  So we add 1 above (2x volume pump) and
 		// then clamp it all here.
 
-		Out = clamp_mix(Out, SndOutVolumeShift);
+		Out = clamp_mix(Out, SND_OUT_VOLUME_SHIFT);
 	}
 	sample_cb(Out.Left >> 12, Out.Right >> 12);
 

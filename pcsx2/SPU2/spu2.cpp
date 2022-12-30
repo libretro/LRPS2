@@ -19,7 +19,8 @@
 
 #include "Global.h"
 #include "spu2.h"
-#include "R3000A.h"
+#include "../R3000A.h"
+#include "../IopDma.h"
 
 #define PCORE(c, p) U16P(Cores[c].p)
 #define PVCP(c, v, p) PCORE(c, Voices[v].p)
@@ -298,9 +299,81 @@ static u16 const* const regtable_original[0x401] =
 
 extern retro_audio_sample_t sample_cb;
 
-int SampleRate = 48000;
+static int SampleRate = 48000;
 
 u32 lClocks = 0;
+
+static void TimeUpdate(u32 cClocks)
+{
+	u32 dClocks = cClocks - lClocks;
+
+	// Sanity Checks:
+	//  It's not totally uncommon for the IOP's clock to jump backwards a cycle or two, and in
+	//  such cases we just want to ignore the TimeUpdate call.
+
+	if (dClocks > (u32)-15)
+		return;
+
+	//  But if for some reason our clock value seems way off base (typically due to bad dma
+	//  timings from PCSX2), just mix out a little bit, skip the rest, and hope the ship
+	//  "rights" itself later on.
+
+	if (dClocks > (u32)(SPU2_TICK_INTERVAL * SPU2_SANITY_INTERVAL))
+	{
+		dClocks = SPU2_TICK_INTERVAL * SPU2_SANITY_INTERVAL;
+		lClocks = cClocks - dClocks;
+	}
+	//Update Mixing Progress
+	while (dClocks >= SPU2_TICK_INTERVAL)
+	{
+		if (has_to_call_irq)
+		{
+			has_to_call_irq = false;
+			spu2Irq();
+		}
+
+		//Update DMA4 interrupt delay counter
+		if (Cores[0].DMAICounter > 0)
+		{
+			Cores[0].DMAICounter -= SPU2_TICK_INTERVAL;
+			if (Cores[0].DMAICounter <= 0)
+			{
+				if (Cores[0].IsDMARead)
+					Cores[0].FinishDMAread();
+
+				Cores[0].MADR = Cores[0].TADR;
+				Cores[0].DMAICounter = 0;
+				spu2DMA4Irq();
+			}
+			else
+				Cores[0].MADR += SPU2_TICK_INTERVAL << 1;
+		}
+
+		//Update DMA7 interrupt delay counter
+		if (Cores[1].DMAICounter > 0)
+		{
+			Cores[1].DMAICounter -= SPU2_TICK_INTERVAL;
+			if (Cores[1].DMAICounter <= 0)
+			{
+				if (Cores[1].IsDMARead)
+					Cores[1].FinishDMAread();
+
+				Cores[1].MADR = Cores[1].TADR;
+				Cores[1].DMAICounter = 0;
+				spu2DMA7Irq();
+			}
+			else
+				Cores[1].MADR += SPU2_TICK_INTERVAL << 1;
+		}
+
+		dClocks -= SPU2_TICK_INTERVAL;
+		lClocks += SPU2_TICK_INTERVAL;
+		Cycles++;
+
+		SPU2_Mix();
+	}
+}
+
 
 // --------------------------------------------------------------------------------------
 //  DMA 4/7 Callbacks from Core Emulator
@@ -310,6 +383,7 @@ u32 SPU2ReadMemAddr(int core)
 {
 	return Cores[core].MADR;
 }
+
 void SPU2WriteMemAddr(int core, u32 value)
 {
 	Cores[core].MADR = value;
@@ -396,7 +470,7 @@ s32 SPU2init(void)
 	spu2regs = (s16*)malloc(0x010000);
 	_spu2mem = (s16*)malloc(0x200000);
 
-	// adpcm decoder cache:
+	//  ADPCM decoder cache:
 	//  the cache data size is determined by taking the number of adpcm blocks
 	//  (2MB / 16) and multiplying it by the decoded block size (28 samples).
 	//  Thus: pcm_cache_data = 7,340,032 bytes (ouch!)
@@ -420,7 +494,6 @@ s32 SPU2init(void)
 	}
 
 	SPU2reset();
-
 	InitADSR();
 
 	return 0;
@@ -433,7 +506,10 @@ s32 SPU2open(void)
 	return 0;
 }
 
-void SPU2close(void) { }
+void SPU2close(void)
+{
+	has_to_call_irq = false;
+}
 
 void SPU2shutdown(void)
 {
@@ -481,7 +557,7 @@ void SPU2write(u32 rmem, u16 value)
 	if (rmem >> 16 == 0x1f80)
 		Cores[0].WriteRegPS1(rmem, value);
 	else
-		SPU2_FastWrite(rmem, value);
+		tbl_reg_writes[(rmem & 0x7ff) / 2](value);
 }
 
 s32 SPU2freeze(int mode, freezeData* data)
