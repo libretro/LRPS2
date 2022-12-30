@@ -2062,15 +2062,9 @@ void GSLocalMemory::ReadTexture(const GSOffset* RESTRICT off, const GSVector4i& 
 		}
 		else
 		{
+			u8* crdst = dst;
+			
 			for(int y = r.top; y < cr.top; y++, dst += dstpitch)
-			{
-				for(int x = r.left, i = 0; x < r.right; x++, i++)
-				{
-					((u32*)dst)[i] = (this->*rt)(x, y, TEX0, TEXA);
-				}
-			}
-
-			for(int y = cr.bottom; y < r.bottom; y++, dst += dstpitch)
 			{
 				for(int x = r.left, i = 0; x < r.right; x++, i++)
 				{
@@ -2085,7 +2079,15 @@ void GSLocalMemory::ReadTexture(const GSOffset* RESTRICT off, const GSVector4i& 
 					((u32*)dst)[i] = (this->*rt)(x, y, TEX0, TEXA);
 				}
 
-				for(int x = cr.right, i = x - r.left; x < r.right; x++, i++)
+				for (int x = cr.right, i = x - r.left; x < r.right; x++, i++)
+				{
+					((u32*)dst)[i] = (this->*rt)(x, y, TEX0, TEXA);
+				}
+			}
+
+			for (int y = cr.bottom; y < r.bottom; y++, dst += dstpitch)
+			{
+				for (int x = r.left, i = 0; x < r.right; x++, i++)
 				{
 					((u32*)dst)[i] = (this->*rt)(x, y, TEX0, TEXA);
 				}
@@ -2093,7 +2095,9 @@ void GSLocalMemory::ReadTexture(const GSOffset* RESTRICT off, const GSVector4i& 
 
 			if(!cr.rempty())
 			{
-				(this->*rtx)(off, cr, dst + (cr.left - r.left) * sizeof(u32), dstpitch, TEXA);
+				crdst += dstpitch * (cr.top - r.top);
+				crdst += sizeof(u32) * (cr.left - r.left);
+				(this->*rtx)(off, cr, crdst, dstpitch, TEXA);	
 			}
 		}
 	}
