@@ -91,14 +91,9 @@ void GSTextureCache::RemoveAll()
 
 GSTextureCache::Source* GSTextureCache::LookupDepthSource(const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA, const GSVector4i& r, bool palette)
 {
-	if (!m_can_convert_depth) {
-		if (m_renderer->m_game.title == CRC::JackieChanAdv || m_renderer->m_game.title == CRC::SVCChaos) {
-			// JackieChan and SVCChaos cause regressions when skipping the draw calls when depth is disabled/not supported.
-			// This way we make sure there are no regressions on D3D as well.
-			return LookupSource(TEX0, TEXA, r);
-		} else {
-			throw GSDXRecoverableError();
-		}
+	if (!m_can_convert_depth)
+	{
+		throw GSDXRecoverableError();
 	}
 
 	const GSLocalMemory::psm_t& psm_s = GSLocalMemory::m_psm[TEX0.PSM];
@@ -110,7 +105,8 @@ GSTextureCache::Source* GSTextureCache::LookupDepthSource(const GIFRegTEX0& TEX0
 	u32 bp = TEX0.TBP0;
 	u32 psm = TEX0.PSM;
 
-	for(auto t : m_dst[DepthStencil]) {
+	for(auto t : m_dst[DepthStencil])
+	{
 		if(t->m_used && t->m_dirty.empty() && GSUtil::HasSharedBits(bp, psm, t->m_TEX0.TBP0, t->m_TEX0.PSM))
 		{
 			if (t->m_age == 0)
@@ -118,16 +114,17 @@ GSTextureCache::Source* GSTextureCache::LookupDepthSource(const GIFRegTEX0& TEX0
 				// Perfect Match
 				dst = t;
 				break;
-			} else if (t->m_age == 1) {
-				// Better than nothing (Full Spectrum Warrior)
-				dst = t;
 			}
+			else if (t->m_age == 1) // Better than nothing (Full Spectrum Warrior)
+				dst = t;
 		}
 	}
 
-	if (!dst) {
+	if (!dst)
+	{
 		// Retry on the render target (Silent Hill 4)
-		for(auto t : m_dst[RenderTarget]) {
+		for(auto t : m_dst[RenderTarget])
+		{
 			// FIXME: do I need to allow m_age == 1 as a potential match (as DepthStencil) ???
 			if(!t->m_age && t->m_used && t->m_dirty.empty() && GSUtil::HasSharedBits(bp, psm, t->m_TEX0.TBP0, t->m_TEX0.PSM))
 			{
@@ -137,7 +134,8 @@ GSTextureCache::Source* GSTextureCache::LookupDepthSource(const GIFRegTEX0& TEX0
 		}
 	}
 
-	if (dst) {
+	if (dst)
+	{
 		// Create a shared texture source
 		src = new Source(m_renderer, TEX0, TEXA, m_temp, true);
 		src->m_texture = dst->m_texture;
@@ -153,12 +151,13 @@ GSTextureCache::Source* GSTextureCache::LookupDepthSource(const GIFRegTEX0& TEX0
 		// texture cache list. It means that a new Source is created everytime we need it.
 		// If it is too expensive, one could cut memory allocation in Source constructor for this
 		// use case.
-		if (palette) {
+		if (palette)
 			AttachPaletteToSource(src, psm_s.pal, true);
-		}
 
 		m_src.m_surfaces.insert(src);
-	} else {
+	}
+	else if (m_renderer->m_game.title == CRC::JackieChanAdv || m_renderer->m_game.title == CRC::SVCChaos || m_renderer->m_game.title == CRC::KOF2002)
+	{
 		// Possible ? In this case we could call LookupSource
 		// Or just put a basic texture
 		// src->m_texture = m_renderer->m_dev->CreateTexture(tw, th);
@@ -167,16 +166,10 @@ GSTextureCache::Source* GSTextureCache::LookupDepthSource(const GIFRegTEX0& TEX0
 		// Note: might worth to check previous frame
 		// Note: otherwise return NULL and skip the draw
 
-		if (m_renderer->m_game.title == CRC::JackieChanAdv || m_renderer->m_game.title == CRC::SVCChaos) {
-			// JackieChan and SVCChaos cause regressions when skipping the draw calls so we reuse the old code for these two.
-			return LookupSource(TEX0, TEXA, r);
-		} else {
-			// Full Spectrum Warrior: first draw call of cut-scene rendering
-			// The game tries to emulate a texture shuffle with an old depth buffer
-			// (don't exists yet for us due to the cache)
-			// Rendering is nicer (less garbage) if we skip the draw call.
-			throw GSDXRecoverableError();
-		}
+		// JackieChan and SVCChaos cause regressions when skipping the draw calls so we reuse the old code for these two.
+		//
+		// SVCChaos black screen & KOF2002 blue screen on main menu, regardless of depth enabled or disabled.
+		return LookupSource(TEX0, TEXA, r);
 	}
 
 	return src;

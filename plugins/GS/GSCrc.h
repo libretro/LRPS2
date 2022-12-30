@@ -84,6 +84,7 @@ public:
 		JakX,
 		KazokuKeikakuKokoroNoKizuna,
 		KnightsOfTheTemple2,
+		KOF2002,
 		Kunoichi,
 		KyuuketsuKitanMoonties,
 		Lamune,
