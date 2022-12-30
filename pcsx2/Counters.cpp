@@ -574,11 +574,15 @@ static __fi void rcntUpdate_vSync(void)
 			// CSR is swapped and GS vBlank IRQ is triggered roughly 3.5 hblanks after VSync Start
 			// Swap field
 
+#if 0
+			/* TODO/FIXME - breaks Drakengard for now - uncomment for now */
+
 			/* The FIELD register only flips if the CMOD field in SMODE1 is set to anything but 0 and Front Porch bottom bit in SYNCV is set.
 			 * Also see "isReallyInterlaced()" in GSState.cpp */
 			if (!(*(u32*)PS2GS_BASE(GS_SYNCV) & 0x1) || !(*(u32*)PS2GS_BASE(GS_SMODE1) & 0x6000))
 				CSRreg._u32  |= 0x2000;
 			else
+#endif
 				CSRreg._u32  ^= 0x2000;
 
 			if (!CSRreg.VSINT)
