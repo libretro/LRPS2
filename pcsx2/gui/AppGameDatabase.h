@@ -26,24 +26,3 @@ public:
 	virtual ~AppGameDatabase() { }
 	AppGameDatabase& Load();
 };
-
-static wxString compatToStringWX(GameDatabaseSchema::Compatibility compat)
-{
-	switch (compat)
-	{
-	case GameDatabaseSchema::Compatibility::Perfect:
-		return L"Perfect";
-	case GameDatabaseSchema::Compatibility::Playable:
-		return L"Playable";
-	case GameDatabaseSchema::Compatibility::InGame:
-		return L"In-Game";
-	case GameDatabaseSchema::Compatibility::Menu:
-		return L"Menu";
-	case GameDatabaseSchema::Compatibility::Intro:
-		return L"Intro";
-	case GameDatabaseSchema::Compatibility::Nothing:
-		return L"Nothing";
-	default:
-		return L"Unknown";
-	}
-}

@@ -15,7 +15,6 @@
 
 #include "../PrecompiledHeader.h"
 #include "App.h"
-#include "AppGameDatabase.h"
 
 #include <memory>
 

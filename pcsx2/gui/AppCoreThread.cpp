@@ -287,10 +287,6 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 		fixup.Gamefixes.DisableAll();
 
 	wxString gameCRC;
-	wxString gameSerial;
-
-	wxString gameName;
-	wxString gameCompat;
 	wxString gameMemCardFilter;
 
 	// The CRC can be known before the game actually starts (at the bios), so when
@@ -306,9 +302,6 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 	else
 		gameCRC = L""; // Needs to be reset when rebooting otherwise previously loaded patches may load
 		
-	if (ingame && !DiscSerial.IsEmpty())
-		gameSerial = L" [" + DiscSerial + L"]";
-
 	const wxString newGameKey(ingame ? SysGetDiscID() : SysGetBiosDiscID());
 
 	curGameKey = newGameKey;
@@ -321,12 +314,7 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 		{
 			GameDatabaseSchema::GameEntry game = GameDB->findGame(std::string(curGameKey));
 			if (game.isValid)
-			{
-				gameName = game.name;
-				gameName += L" (" + game.region + L")";
-				gameCompat = L" [Status = " + compatToStringWX(game.compat) + L"]";
 				gameMemCardFilter = game.memcardFiltersAsString();
-			}
 
 			if (fixup.EnablePatches)
 			{
@@ -344,15 +332,6 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 		sioSetGameSerial(gameMemCardFilter);
 	else
 		sioSetGameSerial(curGameKey);
-
-	if (gameName.IsEmpty() && gameSerial.IsEmpty() && gameCRC.IsEmpty())
-	{
-		// if all these conditions are met, it should mean that we're currently running BIOS code.
-		// Chances are the BiosChecksum value is still zero or out of date, however -- because
-		// the BIos isn't loaded until after initial calls to ApplySettings.
-
-		gameName = L"Booting PS2 BIOS... ";
-	}
 
 	//Till the end of this function, entry CRC will be 00000000
 	if (!gameCRC.Length())
