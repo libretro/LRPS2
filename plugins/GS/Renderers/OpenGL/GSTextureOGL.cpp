@@ -292,16 +292,9 @@ GSTextureOGL::GSTextureOGL(int type, int w, int h, int format, GLuint fbo_read, 
 		m_committed_size = m_size;
 	}
 
-	m_mem_usage = (m_committed_size.x * m_committed_size.y) << m_int_shift;
+	m_mem_usage              = (m_committed_size.x * m_committed_size.y) << m_int_shift;
 
-	static int every_512 = 0;
 	GLState::available_vram -= m_mem_usage;
-	if ((GLState::available_vram < 0) && (every_512 % 512 == 0)) {
-                /* Available VRAM is very low, a crash is expected. Disable Larger Framebuffer or reduce upscaling */
-		every_512++;
-		// Pull emergency break
-		throw std::bad_alloc();
-	}
 
 	glTextureStorage2D(m_texture_id, m_max_layer + GL_TEX_LEVEL_0, m_format, m_size.x, m_size.y);
 }

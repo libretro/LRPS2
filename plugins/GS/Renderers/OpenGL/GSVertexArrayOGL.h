@@ -78,8 +78,6 @@ class GSBufferOGL {
 
 		glBufferStorage(m_target, STRIDE * m_limit, NULL, create_flags );
 		m_buffer_ptr = (u8*) glMapBufferRange(m_target, 0, STRIDE * m_limit, map_flags);
-		if (!m_buffer_ptr)
-			throw GSDXError();
 	}
 
 	~GSBufferOGL() {

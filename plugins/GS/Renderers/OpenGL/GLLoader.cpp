@@ -23,6 +23,7 @@
 #include "../../stdafx.h"
 #include "GLLoader.h"
 #include "../../GS.h"
+#include "options_tools.h"
 
 #ifdef __unix__
 PFNGLBLENDFUNCSEPARATEPROC             glBlendFuncSeparate                 = NULL;
@@ -120,7 +121,7 @@ namespace Emulate_DSA {
 
 	// Replace function pointer to emulate DSA behavior
 	void Init() {
-		fprintf(stderr, "DSA is not supported. Expect slower performance\n");
+		log_cb(RETRO_LOG_WARN, "DSA is not supported. Expect slower performance\n");
 		glBindTextureUnit             = BindTextureUnit;
 		glCreateTextures              = CreateTexture;
 		glTextureStorage2D            = TextureStorage;
@@ -136,9 +137,6 @@ namespace Emulate_DSA {
 #endif
 
 namespace GLLoader {
-
-#define fprintf_once(out, ...) do if (s_first_load) fprintf(out, __VA_ARGS__); while(0);
-
 	bool s_first_load = true;
 
 	bool amd_legacy_buggy_driver = false;
@@ -167,10 +165,8 @@ namespace GLLoader {
 
 	static void mandatory(const std::string& ext)
 	{
-		if (!GLExtension::Has(ext)) {
-			fprintf(stderr, "ERROR: %s is NOT SUPPORTED\n", ext.c_str());
-			throw GSDXRecoverableError();
-		}
+		if (!GLExtension::Has(ext)) /* TODO/FIXME - return error */
+			log_cb(RETRO_LOG_ERROR, "ERROR: %s is NOT SUPPORTED\n", ext.c_str());
 
 		return;
 	}
@@ -179,18 +175,17 @@ namespace GLLoader {
 	{
 		bool found = GLExtension::Has(name);
 
-		if (!found) {
-			fprintf_once(stdout, "INFO: %s is NOT SUPPORTED\n", name.c_str());
-		} else {
-			fprintf_once(stdout, "INFO: %s is available\n", name.c_str());
-		}
+		if (!found)
+			log_cb(RETRO_LOG_WARN, "INFO: %s is NOT SUPPORTED\n", name.c_str());
+		else
+			log_cb(RETRO_LOG_DEBUG, "INFO: %s is available\n", name.c_str());
 
 		std::string opt("override_");
 		opt += name;
 
 		if (theApp.GetConfigI(opt.c_str()) != -1) {
 			found = theApp.GetConfigB(opt.c_str());
-			fprintf(stderr, "Override %s detection (%s)\n", name.c_str(), found ? "Enabled" : "Disabled");
+			log_cb(RETRO_LOG_DEBUG, "Override %s detection (%s)\n", name.c_str(), found ? "Enabled" : "Disabled");
 			GLExtension::Set(name, found);
 		}
 
@@ -219,7 +214,7 @@ namespace GLLoader {
 		if (theApp.GetConfigI("override_geometry_shader") != -1) {
 			found_geometry_shader = theApp.GetConfigB("override_geometry_shader");
 			GLExtension::Set("GL_ARB_geometry_shader4", found_geometry_shader);
-			fprintf(stderr, "Overriding geometry shaders detection\n");
+			log_cb(RETRO_LOG_INFO, "Overriding geometry shaders detection\n");
 		}
 
 		GLint major_gl = 0;
@@ -227,10 +222,11 @@ namespace GLLoader {
 		glGetIntegerv(GL_MAJOR_VERSION, &major_gl);
 		glGetIntegerv(GL_MINOR_VERSION, &minor_gl);
 		if ( (major_gl < major) || ( major_gl == major && minor_gl < minor ) ) {
-			fprintf(stderr, "OpenGL %d.%d is not supported. Only OpenGL %d.%d\n was found", major, minor, major_gl, minor_gl);
-			throw GSDXRecoverableError();
+			log_cb(RETRO_LOG_ERROR, "OpenGL %d.%d is not supported. Only OpenGL %d.%d\n was found", major, minor, major_gl, minor_gl);
+			/* TODO/FIXME - error out properly */
+			return;
 		}
-    }
+	}
 
 	void check_gl_supported_extension()
 	{
@@ -288,12 +284,12 @@ namespace GLLoader {
 		if (!GLExtension::Has("GL_ARB_viewport_array")) {
 			glScissorIndexed   = ReplaceGL::ScissorIndexed;
 			glViewportIndexedf = ReplaceGL::ViewportIndexedf;
-			fprintf_once(stderr, "GL_ARB_viewport_array is not supported! Function pointer will be replaced\n");
+			log_cb(RETRO_LOG_WARN, "GL_ARB_viewport_array is not supported! Function pointer will be replaced\n");
 		}
 
 		if (!GLExtension::Has("GL_ARB_texture_barrier")) {
 			glTextureBarrier = ReplaceGL::TextureBarrier;
-			fprintf_once(stderr, "GL_ARB_texture_barrier is not supported! Blending emulation will not be supported\n");
+			log_cb(RETRO_LOG_WARN, "GL_ARB_texture_barrier is not supported! Blending emulation will not be supported\n");
 		}
 
 #ifdef _WIN32
@@ -309,7 +305,7 @@ namespace GLLoader {
 		GLint index_count = 0;
 		glGetInternalformativ(GL_TEXTURE_2D, internal_fmt, GL_NUM_VIRTUAL_PAGE_SIZES_ARB, 1, &index_count);
 		if (!index_count) {
-			fprintf_once(stdout, "%s isn't sparse compatible. No index found\n", name);
+			log_cb(RETRO_LOG_WARN, "%s isn't sparse compatible. No index found\n", name);
 			return false;
 		}
 
@@ -317,7 +313,7 @@ namespace GLLoader {
 		glGetInternalformativ(GL_TEXTURE_2D, internal_fmt, GL_VIRTUAL_PAGE_SIZE_X_ARB, 1, &x);
 		glGetInternalformativ(GL_TEXTURE_2D, internal_fmt, GL_VIRTUAL_PAGE_SIZE_Y_ARB, 1, &y);
 		if (x > x_max && y > y_max) {
-			fprintf_once(stdout, "%s isn't sparse compatible. Page size (%d,%d) is too big (%d, %d)\n",
+			log_cb(RETRO_LOG_WARN, "%s isn't sparse compatible. Page size (%d,%d) is too big (%d, %d)\n",
 					name, x, y, x_max, y_max);
 			return false;
 		}
@@ -360,8 +356,8 @@ namespace GLLoader {
 		// driver reports a compatible sparse format for depth texture but it isn't attachable to a frame buffer.
 		found_compatible_sparse_depth = !vendor_id_amd && is_sparse2_compatible("GL_DEPTH32F_STENCIL8", GL_DEPTH32F_STENCIL8, 128, 128);
 
-		fprintf_once(stdout, "INFO sparse color texture is %s\n", found_compatible_GL_ARB_sparse_texture2 ? "available" : "NOT SUPPORTED");
-		fprintf_once(stdout, "INFO sparse depth texture is %s\n", found_compatible_sparse_depth ? "available" : "NOT SUPPORTED");
+		log_cb(RETRO_LOG_DEBUG, "INFO sparse color texture is %s\n", found_compatible_GL_ARB_sparse_texture2 ? "available" : "NOT SUPPORTED");
+		log_cb(RETRO_LOG_DEBUG, "INFO sparse depth texture is %s\n", found_compatible_sparse_depth ? "available" : "NOT SUPPORTED");
 	}
 
 	void check_gl_requirements()
@@ -372,8 +368,6 @@ namespace GLLoader {
 
 		// Bonus for sparse texture
 		check_sparse_compatibility();
-
-		fprintf_once(stdout, "\n");
 
 		s_first_load = false;
 	}

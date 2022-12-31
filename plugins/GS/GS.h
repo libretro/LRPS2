@@ -1240,9 +1240,6 @@ public:
 
 GSRendererType GetCurrentRendererType(void);
 
-struct GSDXError {};
-struct GSDXRecoverableError : GSDXError {};
-
 GSVector4i GSClientRect(void);
 
 extern GSApp theApp;

@@ -1246,18 +1246,8 @@ void GSState::FlushPrim()
 	if(GSLocalMemory::m_psm[m_context->FRAME.PSM].fmt < 3 && GSLocalMemory::m_psm[m_context->ZBUF.PSM].fmt < 3)
 	{
 		m_vt.Update(m_vertex.buff, m_index.buff, m_vertex.tail, m_index.tail, GSUtil::GetPrimClass(PRIM->PRIM));
-
 		m_context->SaveReg();
-
-		try {
-			Draw();
-		} catch (GSDXRecoverableError&) {
-			// could be an unsupported draw call
-		} catch (const std::bad_alloc& e) {
-			// Texture Out Of Memory
-			PurgePool();
-		}
-
+		Draw();
 		m_context->RestoreReg();
 	}
 
@@ -2043,9 +2033,6 @@ void GSState::GrowVertexBuffer()
 	int maxcount     = std::max<int>(m_vertex.maxcount * 3 / 2, 10000);
 	GSVertex* vertex = (GSVertex*)AlignedMalloc(sizeof(GSVertex) * maxcount, 32);
 	u32* index       = (u32*)AlignedMalloc(sizeof(u32) * maxcount * 3, 32); // worst case is slightly less than vertex number * 3
-
-	if(!vertex || !index)
-		throw GSDXError();
 
 	if (m_vertex.buff)
 	{

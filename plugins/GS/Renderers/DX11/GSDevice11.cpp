@@ -474,8 +474,6 @@ bool GSDevice11::Create()
 	if(!__super::Create())
 		return false;
 
-	HRESULT hr = E_FAIL;
-
 	D3D11_BUFFER_DESC bd;
 	D3D11_SAMPLER_DESC sd;
 	D3D11_DEPTH_STENCIL_DESC dsd;
@@ -532,19 +530,19 @@ bool GSDevice11::Create()
 
 	memset(&dsd, 0, sizeof(dsd));
 
-	hr = m_dev->CreateDepthStencilState(&dsd, &m_convert.dss);
+	m_dev->CreateDepthStencilState(&dsd, &m_convert.dss);
 
 	dsd.DepthEnable = true;
 	dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dsd.DepthFunc = D3D11_COMPARISON_ALWAYS;
 
-	hr = m_dev->CreateDepthStencilState(&dsd, &m_convert.dss_write);
+	m_dev->CreateDepthStencilState(&dsd, &m_convert.dss_write);
 
 	memset(&bsd, 0, sizeof(bsd));
 
 	bsd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-	hr = m_dev->CreateBlendState(&bsd, &m_convert.bs);
+	m_dev->CreateBlendState(&bsd, &m_convert.bs);
 
 	// merge
 
@@ -554,7 +552,7 @@ bool GSDevice11::Create()
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
-	hr = m_dev->CreateBuffer(&bd, NULL, &m_merge.cb);
+	m_dev->CreateBuffer(&bd, NULL, &m_merge.cb);
 
 	{
 		std::vector<char> shader(merge_shader_raw, merge_shader_raw + sizeof(merge_shader_raw)/sizeof(*merge_shader_raw));
@@ -577,7 +575,7 @@ bool GSDevice11::Create()
 	bsd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	bsd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-	hr = m_dev->CreateBlendState(&bsd, &m_merge.bs);
+	m_dev->CreateBlendState(&bsd, &m_merge.bs);
 
 	// interlace
 
@@ -587,7 +585,7 @@ bool GSDevice11::Create()
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
-	hr = m_dev->CreateBuffer(&bd, NULL, &m_interlace.cb);
+	m_dev->CreateBuffer(&bd, NULL, &m_interlace.cb);
 
 	{
 		std::vector<char> shader(interlace_shader_raw, interlace_shader_raw + sizeof(interlace_shader_raw)/sizeof(*interlace_shader_raw));
@@ -607,7 +605,7 @@ bool GSDevice11::Create()
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
-	hr = m_dev->CreateBuffer(&bd, NULL, &m_fxaa.cb);
+	m_dev->CreateBuffer(&bd, NULL, &m_fxaa.cb);
 
 	//
 
@@ -624,7 +622,7 @@ bool GSDevice11::Create()
 	rd.MultisampleEnable = true;
 	rd.AntialiasedLineEnable = false;
 
-	hr = m_dev->CreateRasterizerState(&rd, &m_rs);
+	m_dev->CreateRasterizerState(&rd, &m_rs);
 
 	m_ctx->RSSetState(m_rs);
 
@@ -641,11 +639,11 @@ bool GSDevice11::Create()
 	sd.MaxAnisotropy = m_aniso_filter;
 	sd.ComparisonFunc = D3D11_COMPARISON_NEVER;
 
-	hr = m_dev->CreateSamplerState(&sd, &m_convert.ln);
+	m_dev->CreateSamplerState(&sd, &m_convert.ln);
 
 	sd.Filter = m_aniso_filter ? D3D11_FILTER_ANISOTROPIC : D3D11_FILTER_MIN_MAG_MIP_POINT;
 
-	hr = m_dev->CreateSamplerState(&sd, &m_convert.pt);
+	m_dev->CreateSamplerState(&sd, &m_convert.pt);
 
 	//
 
@@ -900,10 +898,6 @@ GSTexture* GSDevice11::CreateSurface(int type, int w, int h, int format)
 			ClearDepth(t);
 			break;
 		}
-	}
-	else
-	{
-		throw std::bad_alloc();
 	}
 
 	return t;
@@ -1462,9 +1456,6 @@ void GSDevice11::OMSetRenderTargets(GSTexture* rt, GSTexture* ds, const GSVector
 	ID3D11RenderTargetView* rtv = NULL;
 	ID3D11DepthStencilView* dsv = NULL;
 
-	if (!rt && !ds)
-		throw GSDXRecoverableError();
-
 	if(rt) rtv = *(GSTexture11*)rt;
 	if(ds) dsv = *(GSTexture11*)ds;
 
@@ -1528,57 +1519,25 @@ D3D_SHADER_MACRO* GSDevice11::ShaderMacro::GetPtr(void)
 
 void GSDevice11::CreateShader(const std::vector<char>& source, const char* fn, ID3DInclude* include, const char* entry, D3D_SHADER_MACRO* macro, ID3D11VertexShader** vs, D3D11_INPUT_ELEMENT_DESC* layout, int count, ID3D11InputLayout** il)
 {
-	HRESULT hr;
-
 	CComPtr<ID3DBlob> shader;
-
 	CompileShader(source, fn, include, entry, macro, &shader, m_shader.vs);
 
-	hr = m_dev->CreateVertexShader((void*)shader->GetBufferPointer(), shader->GetBufferSize(), NULL, vs);
-
-	if(FAILED(hr))
-	{
-		throw GSDXRecoverableError();
-	}
-
-	hr = m_dev->CreateInputLayout(layout, count, shader->GetBufferPointer(), shader->GetBufferSize(), il);
-
-	if(FAILED(hr))
-	{
-		throw GSDXRecoverableError();
-	}
+	m_dev->CreateVertexShader((void*)shader->GetBufferPointer(), shader->GetBufferSize(), NULL, vs);
+	m_dev->CreateInputLayout(layout, count, shader->GetBufferPointer(), shader->GetBufferSize(), il);
 }
 
 void GSDevice11::CreateShader(const std::vector<char>& source, const char* fn, ID3DInclude* include, const char* entry, D3D_SHADER_MACRO* macro, ID3D11GeometryShader** gs)
 {
-	HRESULT hr;
-
 	CComPtr<ID3DBlob> shader;
-
 	CompileShader(source, fn, include, entry, macro, &shader, m_shader.gs);
-
-	hr = m_dev->CreateGeometryShader((void*)shader->GetBufferPointer(), shader->GetBufferSize(), NULL, gs);
-
-	if(FAILED(hr))
-	{
-		throw GSDXRecoverableError();
-	}
+	m_dev->CreateGeometryShader((void*)shader->GetBufferPointer(), shader->GetBufferSize(), NULL, gs);
 }
 
 void GSDevice11::CreateShader(const std::vector<char>& source, const char* fn, ID3DInclude* include, const char* entry, D3D_SHADER_MACRO* macro, ID3D11PixelShader** ps)
 {
-	HRESULT hr;
-
 	CComPtr<ID3DBlob> shader;
-
 	CompileShader(source, fn, include, entry, macro, &shader, m_shader.ps);
-
-	hr = m_dev->CreatePixelShader((void*)shader->GetBufferPointer(), shader->GetBufferSize(), NULL, ps);
-
-	if(FAILED(hr))
-	{
-		throw GSDXRecoverableError();
-	}
+	m_dev->CreatePixelShader((void*)shader->GetBufferPointer(), shader->GetBufferSize(), NULL, ps);
 }
 
 void GSDevice11::CompileShader(const std::vector<char>& source, const char* fn, ID3DInclude *include, const char* entry, D3D_SHADER_MACRO* macro, ID3DBlob** shader, std::string shader_model)
@@ -1591,7 +1550,7 @@ void GSDevice11::CompileShader(const std::vector<char>& source, const char* fn, 
 	flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_AVOID_FLOW_CONTROL;
 #endif
 
-	const HRESULT hr = D3DCompile(
+	D3DCompile(
 		source.data(), source.size(), fn, macro,
 		include, entry, shader_model.c_str(),
 		flags, 0, shader, &error
@@ -1599,9 +1558,6 @@ void GSDevice11::CompileShader(const std::vector<char>& source, const char* fn, 
 
 	if (error)
 		log_cb(RETRO_LOG_ERROR, "%s\n", (const char*)error->GetBufferPointer());
-
-	if (FAILED(hr))
-		throw GSDXRecoverableError();
 }
 
 u16 GSDevice11::ConvertBlendEnum(u16 generic)

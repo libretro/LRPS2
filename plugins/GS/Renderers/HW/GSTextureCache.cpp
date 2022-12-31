@@ -92,9 +92,7 @@ void GSTextureCache::RemoveAll()
 GSTextureCache::Source* GSTextureCache::LookupDepthSource(const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA, const GSVector4i& r, bool palette)
 {
 	if (!m_can_convert_depth)
-	{
-		throw GSDXRecoverableError();
-	}
+		return NULL; /* TODO/FIXME - proper error/return */
 
 	const GSLocalMemory::psm_t& psm_s = GSLocalMemory::m_psm[TEX0.PSM];
 
