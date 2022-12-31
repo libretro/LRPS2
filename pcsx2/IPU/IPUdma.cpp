@@ -61,7 +61,7 @@ static __fi int IPU1chain(void)
 
 static void IPU1dma(void)
 {
-	int ipu1cycles = 0;
+	int tagcycles = 0;
 	int totalqwc = 0;
 
 	//We MUST stop the IPU from trying to fill the FIFO with more data if the DMA has been suspended
@@ -86,7 +86,7 @@ static void IPU1dma(void)
 			return;
 		ipu1ch.madr = ptag[1]._u32;
 
-		ipu1cycles += 1; // Add 1 cycles from the QW read for the tag
+		tagcycles += 1; // Add 1 cycles from the QW read for the tag
 
 		IPU1Status.DMAFinished = hwDmacSrcChain(ipu1ch, ptag->ID);
 
@@ -103,7 +103,7 @@ static void IPU1dma(void)
 	//Do this here to prevent double settings on Chain DMA's
 	if(totalqwc == 0 || (IPU1Status.DMAFinished && !IPU1Status.InProgress))
 	{
-		totalqwc = std::max(4, totalqwc);
+		totalqwc = std::max(4, totalqwc) + tagcycles;
 		IPU_INT_TO(totalqwc);
 	}
 	else
@@ -114,6 +114,7 @@ static void IPU1dma(void)
 			cpuRegs.eCycle[4] = 0x9999;//IPU_INT_TO(2048);
 		else
 		{
+			totalqwc = std::max(4, totalqwc) + tagcycles;
 			IPU_INT_TO(totalqwc*BIAS);
 		}
 	}
