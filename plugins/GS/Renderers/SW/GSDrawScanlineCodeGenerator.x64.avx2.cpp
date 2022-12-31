@@ -2,7 +2,7 @@
  *	Copyright (C) 2007-2009 Gabest
  *	http://www.gabest.org
  *
- *  This Program is free software; you can redistribute it and/or modify
+ *  This Program is free software; you can redistribute it and_/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2, or (at your option)
  *  any later version.
@@ -346,7 +346,7 @@ void GSDrawScanlineCodeGenerator::Init()
 		// int skip = left & 7;
 
 		mov(ebx, a1.cvt32());
-		and(a1.cvt32(), 7);
+		and_(a1.cvt32(), 7);
 
 		// int steps = pixels + skip - 8;
 
@@ -360,7 +360,7 @@ void GSDrawScanlineCodeGenerator::Init()
 
 		mov(eax, ecx);
 		sar(eax, 31);
-		and(eax, ecx);
+		and_(eax, ecx);
 
 		vpmovsxbd(ymm7, ptr[edx * 8 + (size_t)g_const->m_test_256b[0]]);
 		vpmovsxbd(ymm0, ptr[eax * 8 + (size_t)g_const->m_test_256b[15]]);
@@ -371,7 +371,7 @@ void GSDrawScanlineCodeGenerator::Init()
 	else
 	{
 		mov(ebx, edx); // left
-		xor(edx, edx); // skip
+		xor_(edx, edx); // skip
 		lea(ecx, ptr[ecx - 8]); // steps
 	}
 
@@ -654,7 +654,7 @@ void GSDrawScanlineCodeGenerator::Step()
 				vpaddw(ymm5, ptr[&m_local.temp.rb]);
 				vpaddw(ymm6, ptr[&m_local.temp.ga]);
 
-				// FIXME: color may underflow and roll over at the end of the line, if decreasing
+				// FIXME: color may underflow and_ roll over at the end of the line, if decreasing
 
 				vpxor(ymm7, ymm7);
 				vpmaxsw(ymm5, ymm7);
@@ -680,7 +680,7 @@ void GSDrawScanlineCodeGenerator::Step()
 
 		mov(edx, ecx);
 		sar(edx, 31);
-		and(edx, ecx);
+		and_(edx, ecx);
 
 		vpmovsxbd(ymm7, ptr[edx * 8 + (size_t)g_const->m_test_256b[15]]);
 	}
@@ -697,7 +697,7 @@ void GSDrawScanlineCodeGenerator::TestZ(const Ymm& temp1, const Ymm& temp2)
 
 	mov(ebp, ptr[esi + 4]);
 	add(ebp, ptr[edi + 4]);
-	and(ebp, HALF_VM_SIZE - 1);
+	and_(ebp, HALF_VM_SIZE - 1);
 
 	// GSVector8i zs = zi;
 
@@ -779,7 +779,7 @@ void GSDrawScanlineCodeGenerator::TestZ(const Ymm& temp1, const Ymm& temp2)
 			vpor(ymm7, ymm1);
 			break;
 
-		case ZTST_GREATER: // TODO: tidus hair and chocobo wings only appear fully when this is tested as ZTST_GEQUAL
+		case ZTST_GREATER: // TODO: tidus hair and_ chocobo wings only appear fully when this is tested as ZTST_GEQUAL
 			// test |= zso <= zdo; // ~(zso > zdo)
 			vpcmpgtd(ymm0, ymm1);
 			vpcmpeqd(temp1, temp1);
@@ -1298,7 +1298,7 @@ void GSDrawScanlineCodeGenerator::SampleTextureLOD()
 
 		// ymm4 = (-log2(Q) * (1 << L) + K) * 0x10000
 
-		vxorps(ymm0, ymm0);
+		vxor_ps(ymm0, ymm0);
 		vminps(ymm4, ptr[&m_local.gd->mxl]);
 		vmaxps(ymm4, ymm0);
 		vcvtps2dq(ymm4, ymm4);
@@ -2355,7 +2355,7 @@ void GSDrawScanlineCodeGenerator::ReadFrame()
 
 	mov(ebx, ptr[esi]);
 	add(ebx, ptr[edi]);
-	and(ebx, HALF_VM_SIZE - 1);
+	and_(ebx, HALF_VM_SIZE - 1);
 
 	if(!m_sel.rfb)
 	{
@@ -2452,7 +2452,7 @@ void GSDrawScanlineCodeGenerator::WriteMask()
 
 	vpmovmskb(edx, ymm1);
 
-	not(edx);
+	not_(edx);
 }
 
 void GSDrawScanlineCodeGenerator::WriteZBuf()
@@ -2717,7 +2717,7 @@ void GSDrawScanlineCodeGenerator::WriteFrame()
 	if(m_sel.fpsm == 2 && m_sel.dthe)
 	{
 		mov(eax, ptr[esp + _top]);
-		and(eax, 3);
+		and_(eax, 3);
 		shl(eax, 5);
 		mov(ebp, ptr[&m_local.gd->dimx]);
 		vbroadcasti128(ymm7, ptr[ebp + eax + sizeof(GSVector4i) * 0]);
@@ -2784,7 +2784,7 @@ void GSDrawScanlineCodeGenerator::WriteFrame()
 	{
 		// fs = fs.blend(fd, fm);
 
-		blend(ymm5, ymm2, ymm3); // TODO: could be skipped in certain cases, depending on fpsm and fm
+		blend(ymm5, ymm2, ymm3); // TODO: could be skipped in certain cases, depending on fpsm and_ fm
 	}
 
 	bool fast = m_sel.rfb ? m_sel.fpsm < 2 : m_sel.fpsm == 0 && m_sel.notest;
@@ -2923,9 +2923,9 @@ void GSDrawScanlineCodeGenerator::WritePixel(const Xmm& src, const RegLong& addr
 	case 1:
 		if(j == 0) vmovd(eax, src);
 		else vpextrd(eax, src, j);
-		xor(eax, dst);
-		and(eax, 0xffffff);
-		xor(dst, eax);
+		xor_(eax, dst);
+		and_(eax, 0xffffff);
+		xor_(dst, eax);
 		break;
 	case 2:
 		if(j == 0) vmovd(eax, src);

@@ -289,7 +289,7 @@ void GSDrawScanlineCodeGenerator::Init_AVX()
 		// int skip = left & 3;
 
 		mov(ebx, a1.cvt32());
-		and(a1.cvt32(), 3);
+		and_(a1.cvt32(), 3);
 
 		// left -= skip;
 
@@ -307,7 +307,7 @@ void GSDrawScanlineCodeGenerator::Init_AVX()
 
 		mov(eax, a0.cvt32());
 		sar(eax, 31); // GH: 31 to extract the sign of the register
-		and(eax, a0.cvt32());
+		and_(eax, a0.cvt32());
 		shl(eax, 4); // * sizeof(m_test[0])
 		cdqe();
 
@@ -316,7 +316,7 @@ void GSDrawScanlineCodeGenerator::Init_AVX()
 	else
 	{
 		mov(ebx, a1.cvt32()); // left
-		xor(a1.cvt32(), a1.cvt32()); // skip
+		xor_(a1.cvt32(), a1.cvt32()); // skip
 		lea(a0.cvt32(), ptr[a0 - 4]); // steps
 	}
 
@@ -611,7 +611,7 @@ void GSDrawScanlineCodeGenerator::Step_AVX()
 
 		mov(eax, a0.cvt32());
 		sar(eax, 31); // GH: 31 to extract the sign of the register
-		and(eax, a0.cvt32());
+		and_(eax, a0.cvt32());
 		shl(eax, 4);
 		cdqe();
 
@@ -630,7 +630,7 @@ void GSDrawScanlineCodeGenerator::TestZ_AVX(const Xmm& temp1, const Xmm& temp2)
 
 	mov(ebp, dword[t1 + 4]);
 	add(ebp, dword[t0 + 4]);
-	and(ebp, HALF_VM_SIZE - 1);
+	and_(ebp, HALF_VM_SIZE - 1);
 
 	// GSVector4i zs = zi;
 
@@ -1458,7 +1458,7 @@ void GSDrawScanlineCodeGenerator::ReadFrame_AVX()
 
 	mov(ebx, dword[t1]);
 	add(ebx, dword[t0]);
-	and(ebx, HALF_VM_SIZE - 1);
+	and_(ebx, HALF_VM_SIZE - 1);
 
 	if(!m_sel.rfb)
 	{
@@ -1555,7 +1555,7 @@ void GSDrawScanlineCodeGenerator::WriteMask_AVX()
 
 	vpmovmskb(edx, xmm1);
 
-	not(edx);
+	not_(edx);
 }
 
 void GSDrawScanlineCodeGenerator::WriteZBuf_AVX()
@@ -1828,7 +1828,7 @@ void GSDrawScanlineCodeGenerator::WriteFrame_AVX()
 #ifndef _WIN64
 		mov(eax, ptr[rsp + _rz_top]);
 #endif
-		and(eax, 3);
+		and_(eax, 3);
 		shl(eax, 5);
 
 		// rb = rb.add16(m_global.dimx[0 + y]);
@@ -1998,9 +1998,9 @@ void GSDrawScanlineCodeGenerator::WritePixel_AVX(const Xmm& src, const Reg64& ad
 	case 1:
 		if(i == 0) vmovd(eax, src);
 		else vpextrd(eax, src, i);
-		xor(eax, dst);
-		and(eax, 0xffffff);
-		xor(dst, eax);
+		xor_(eax, dst);
+		and_(eax, 0xffffff);
+		xor_(dst, eax);
 		break;
 	case 2:
 		vpextrw(eax, src, i * 2);

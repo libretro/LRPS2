@@ -1556,12 +1556,3 @@ void pushad() { db(0x60); }
 void pushfd() { db(0x9C); }
 void popa() { db(0x61); }
 #endif
-#ifndef XBYAK_NO_OP_NAMES
-void and(const Operand& op1, const Operand& op2) { and_(op1, op2); }
-void and(const Operand& op, uint32_t imm) { and_(op, imm); }
-void or(const Operand& op1, const Operand& op2) { or_(op1, op2); }
-void or(const Operand& op, uint32_t imm) { or_(op, imm); }
-void xor(const Operand& op1, const Operand& op2) { xor_(op1, op2); }
-void xor(const Operand& op, uint32_t imm) { xor_(op, imm); }
-void not(const Operand& op) { not_(op); }
-#endif
