@@ -295,9 +295,6 @@ void SysMtgsThread::ExecuteTaskInThread()
 						case GS_RINGTYPE_INIT_AND_READ_FIFO:
 							GSInitAndReadFIFO( (u8*)tag.pointer, tag.data[0]);
 							break;
-
-						case GS_RINGTYPE_MODECHANGE:
-							// [TODO] some frameskip sync logic might be needed here!
 						default:
 							break;
 					}
