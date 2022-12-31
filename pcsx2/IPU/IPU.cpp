@@ -29,8 +29,6 @@
 
 #include "Utilities/MemsetFast.inl"
 
-#define ipumsk( src ) ( (src) & 0xff )
-
 // the BP doesn't advance and returns -1 if there is no data to be read
 __aligned16 tIPU_cmd ipu_cmd;
 __aligned16 tIPU_BP g_BP;
@@ -90,7 +88,7 @@ __fi u32 ipuRead32(u32 mem)
 
 	switch (mem)
 	{
-		case ipumsk(IPU_CMD) : // IPU_CMD
+		case (IPU_CMD & 0xff) : // IPU_CMD
 		{
 			if (ipu_cmd.CMD != SCE_IPU_FDEC && ipu_cmd.CMD != SCE_IPU_VDEC)
 			{
@@ -100,14 +98,14 @@ __fi u32 ipuRead32(u32 mem)
 			return ipuRegs.cmd.DATA;
 		}
 
-		case ipumsk(IPU_CTRL): // IPU_CTRL
+		case (IPU_CTRL & 0xff): // IPU_CTRL
 		{
 			ipuRegs.ctrl.IFC = g_BP.IFC;
 			ipuRegs.ctrl.CBP = coded_block_pattern;
 			return ipuRegs.ctrl._u32;
 		}
 
-		case ipumsk(IPU_BP): // IPU_BP
+		case (IPU_BP & 0xff): // IPU_BP
 		{
 			ipuRegs.ipubp  = g_BP.BP & 0x7f;
 			ipuRegs.ipubp |= g_BP.IFC << 8;
@@ -130,7 +128,7 @@ __fi u64 ipuRead64(u32 mem)
 
 	switch (mem)
 	{
-		case ipumsk(IPU_CMD): // IPU_CMD
+		case (IPU_CMD & 0xff): // IPU_CMD
 		{
 			if (ipu_cmd.CMD != SCE_IPU_FDEC && ipu_cmd.CMD != SCE_IPU_VDEC)
 			{
@@ -141,9 +139,9 @@ __fi u64 ipuRead64(u32 mem)
 			return ipuRegs.cmd._u64;
 		}
 
-		case ipumsk(IPU_CTRL):
-		case ipumsk(IPU_BP):
-		case ipumsk(IPU_TOP): // IPU_TOP
+		case (IPU_CTRL & 0xff):
+		case (IPU_BP   & 0xff):
+		case (IPU_TOP  & 0xff): // IPU_TOP
 		default:
 			break;
 	}
@@ -305,12 +303,12 @@ __fi bool ipuWrite32(u32 mem, u32 value)
 
 	switch (mem)
 	{
-		case ipumsk(IPU_CMD): // IPU_CMD
+		case (IPU_CMD & 0xff): // IPU_CMD
 			IPUCMD_WRITE(value);
 			IPUProcessInterrupt();
 			return false;
 
-		case ipumsk(IPU_CTRL): // IPU_CTRL
+		case (IPU_CTRL & 0xff): // IPU_CTRL
             // CTRL = the first 16 bits of ctrl [0x8000ffff], + value for the next 16 bits,
             // minus the reserved bits. (18-19; 27-29) [0x47f30000]
 			ipuRegs.ctrl.write(value);
@@ -332,7 +330,7 @@ __fi bool ipuWrite64(u32 mem, u64 value)
 
 	switch (mem)
 	{
-		case ipumsk(IPU_CMD):
+		case (IPU_CMD & 0xff):
 			IPUCMD_WRITE((u32)value);
 			IPUProcessInterrupt();
 			return false;
