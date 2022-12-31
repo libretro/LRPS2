@@ -252,4 +252,3 @@ extern bool ipuWrite64(u32 mem,u64 value);
 extern void IPUProcessInterrupt(void);
 
 extern u8 getBits32(u8 *address, bool advance);
-
