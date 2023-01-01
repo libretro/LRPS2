@@ -18,6 +18,8 @@
 #include "Elfheader.h"
 #include "DebugTools/SymbolMap.h"
 
+#define ELF32_ST_TYPE(i) ((i)&0xf)
+
 u32 ElfCRC;
 u32 ElfEntry;
 std::pair<u32,u32> ElfTextRange;
