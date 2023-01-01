@@ -34,9 +34,6 @@ struct StereoOut32
 	{
 	}
 
-	StereoOut32(const StereoOut16& src);
-	explicit StereoOut32(const StereoOutFloat& src);
-
 	StereoOut32 operator*(const int& factor) const
 	{
 		return StereoOut32(
@@ -65,6 +62,6 @@ struct StereoOut32
 };
 
 extern void SPU2_Mix(void);
-extern s32 clamp_mix(s32 x, u8 bitshift = 0);
+extern s32 clamp_mix(s32 x, u8 bitshift);
 
 extern StereoOut32 clamp_mix(const StereoOut32& sample, u8 bitshift = 0);

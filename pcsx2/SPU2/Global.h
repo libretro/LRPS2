@@ -17,9 +17,7 @@
 
 #define NOMINMAX
 
-struct StereoOut16;
 struct StereoOut32;
-struct StereoOutFloat;
 
 struct V_Core;
 

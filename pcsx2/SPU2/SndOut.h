@@ -34,60 +34,6 @@ extern void ProcessDplIISample32(const StereoOut32& src, Stereo51Out32DplII* s);
 extern void ProcessDplSample16(const StereoOut32& src, Stereo51Out16Dpl* s);
 extern void ProcessDplSample32(const StereoOut32& src, Stereo51Out32Dpl* s);
 
-struct StereoOut16
-{
-	s16 Left;
-	s16 Right;
-
-	StereoOut16()
-		: Left(0)
-		, Right(0)
-	{
-	}
-
-	StereoOut16(const StereoOut32& src)
-		: Left((s16)src.Left)
-		, Right((s16)src.Right)
-	{
-	}
-
-	StereoOut16(s16 left, s16 right)
-		: Left(left)
-		, Right(right)
-	{
-	}
-};
-
-struct StereoOutFloat
-{
-	float Left;
-	float Right;
-
-	StereoOutFloat()
-		: Left(0)
-		, Right(0)
-	{
-	}
-
-	explicit StereoOutFloat(const StereoOut32& src)
-		: Left(src.Left / 2147483647.0f)
-		, Right(src.Right / 2147483647.0f)
-	{
-	}
-
-	explicit StereoOutFloat(s32 left, s32 right)
-		: Left(left / 2147483647.0f)
-		, Right(right / 2147483647.0f)
-	{
-	}
-
-	StereoOutFloat(float left, float right)
-		: Left(left)
-		, Right(right)
-	{
-	}
-};
-
 struct Stereo21Out16
 {
 	s16 Left;
