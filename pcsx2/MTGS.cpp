@@ -615,5 +615,5 @@ void SysMtgsThread::Freeze( int mode, MTGS_FreezeData& data )
 	SendPointerPacket( GS_RINGTYPE_FREEZE, mode, &data );
 	// make sure MTGS is processing the packet we send it
 	Resume();
-	WaitGS();
+	WaitGS(true, false, false);
 }

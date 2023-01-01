@@ -282,7 +282,7 @@ public:
 	virtual ~SysMtgsThread();
 
 	// Waits for the GS to empty out the entire ring buffer contents.
-	void WaitGS(bool syncRegs=true, bool weakWait=false, bool isMTVU=false);
+	void WaitGS(bool syncRegs, bool weakWait, bool isMTVU);
 	void ResetGS();
 
 	void PrepDataPacket( MTGS_RingCommand cmd, u32 size );
