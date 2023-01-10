@@ -44,33 +44,33 @@ static std::vector<IniPatch> Patch;
 struct PatchTextTable
 {
 	int				code;
-	const wxChar*	text;
+	const char*	text;
 	PATCHTABLEFUNC*	func;
 };
 
 static const PatchTextTable commands_patch[] =
 {
-	{ 1, L"author",		PatchFunc::author},
-	{ 2, L"comment",	PatchFunc::comment },
-	{ 3, L"patch",		PatchFunc::patch },
-	{ 0, wxEmptyString, NULL } // Array Terminator
+	{ 1, "author",		PatchFunc::author},
+	{ 2, "comment",	PatchFunc::comment },
+	{ 3, "patch",		PatchFunc::patch },
+	{ 0, "", NULL } // Array Terminator
 };
 
 static const PatchTextTable dataType[] =
 {
-	{ 1, L"byte", NULL },
-	{ 2, L"short", NULL },
-	{ 3, L"word", NULL },
-	{ 4, L"double", NULL },
-	{ 5, L"extended", NULL },
-	{ 0, wxEmptyString, NULL }
+	{ 1, "byte", NULL },
+	{ 2, "short", NULL },
+	{ 3, "word", NULL },
+	{ 4, "double", NULL },
+	{ 5, "extended", NULL },
+	{ 0, "", NULL }
 };
 
 static const PatchTextTable cpuCore[] =
 {
-	{ 1, L"EE", NULL },
-	{ 2, L"IOP", NULL },
-	{ 0, wxEmptyString,  NULL }
+	{ 1, "EE", NULL },
+	{ 2, "IOP", NULL },
+	{ 0, "",  NULL }
 };
 
 // IniFile Functions.
@@ -286,14 +286,14 @@ static u64 StrToU64(const wxString& str, int base = 10)
 // PatchFunc Functions.
 namespace PatchFunc
 {
-	void comment(const wxString& text1, const wxString& text2)
+	void comment(const char *text1, const char *text2)
 	{
-		log_cb(RETRO_LOG_INFO, "comment: %s\n", WX_STR(text2));
+		log_cb(RETRO_LOG_INFO, "comment: %s\n", text2);
 	}
 
-	void author(const wxString& text1, const wxString& text2)
+	void author(const char *text1, const char *text2)
 	{
-		log_cb(RETRO_LOG_INFO, "Author: %s\n", WX_STR(text2));
+		log_cb(RETRO_LOG_INFO, "Author: %s\n", text2);
 	}
 
 	struct PatchPieces
@@ -317,7 +317,7 @@ namespace PatchFunc
 		const wxString& WriteValue() const { return m_pieces[4]; }
 	};
 
-	void patchHelper(const wxString& cmd, const wxString& param)
+	void patchHelper(const char *cmd, const char *param)
 	{
 		// Error Handling Note:  I just throw simple wxStrings here, and then catch them below and
 		// format them into more detailed cmd+data+error printouts.  If we want to add user-friendly
@@ -356,9 +356,9 @@ namespace PatchFunc
 
 		return;
 error:
-		log_cb(RETRO_LOG_ERROR, "(Patch) Error Parsing: %s=%s\n", WX_STR(cmd), WX_STR(param));
+		log_cb(RETRO_LOG_ERROR, "(Patch) Error Parsing: %s=%s\n", cmd, param);
 	}
-	void patch(const wxString& cmd, const wxString& param) { patchHelper(cmd, param); }
+	void patch(const char *cmd, const char *param) { patchHelper(cmd, param); }
 } // namespace PatchFunc
 
 // This is for applying patches directly to memory

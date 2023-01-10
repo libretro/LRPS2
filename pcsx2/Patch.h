@@ -78,7 +78,7 @@ enum patch_place_type {
 	_PPT_END_MARKER
 };
 
-typedef void PATCHTABLEFUNC( const wxString& text1, const wxString& text2 );
+typedef void PATCHTABLEFUNC( const char *text1, const char *text2 );
 
 struct IniPatch
 {
