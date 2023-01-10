@@ -99,12 +99,6 @@ static const s32 tbl_XA_Factor[16][2] =
 };
 
 template <typename T>
-static SPU2_FORCEINLINE void Clampify(T& src, T min, T max)
-{
-	src = std::min(std::max(src, min), max);
-}
-
-template <typename T>
 static SPU2_FORCEINLINE T GetClamped(T src, T min, T max)
 {
 	return std::min(std::max(src, min), max);
@@ -140,37 +134,37 @@ clamp_mix(const StereoOut32& sample, u8 bitshift)
 	// modules or sound drivers could (will :p) overshoot with that. So giving it a small safety.
 
 	return StereoOut32(
-		GetClamped(sample.Left, -(0x7f00 << bitshift), 0x7f00 << bitshift),
+		GetClamped(sample.Left,  -(0x7f00 << bitshift), 0x7f00 << bitshift),
 		GetClamped(sample.Right, -(0x7f00 << bitshift), 0x7f00 << bitshift));
 }
 
 static void SPU2_FORCEINLINE XA_decode_block(s16* buffer, const s16* block, s32& prev1, s32& prev2)
 {
-	const s32 header = *block;
-	const s32 shift = (header & 0xF) + 16;
-	const int id = header >> 4 & 0xF;
-	const s32 pred1 = tbl_XA_Factor[id][0];
-	const s32 pred2 = tbl_XA_Factor[id][1];
+	const s32 header     = *block;
+	const s32 shift      = (header & 0xF) + 16;
+	const int id         = header >> 4 & 0xF;
+	const s32 pred1      = tbl_XA_Factor[id][0];
+	const s32 pred2      = tbl_XA_Factor[id][1];
 
 	const s8* blockbytes = (s8*)&block[1];
-	const s8* blockend = &blockbytes[13];
+	const s8* blockend   = &blockbytes[13];
 
 	for (; blockbytes <= blockend; ++blockbytes)
 	{
-		s32 data = ((*blockbytes) << 28) & 0xF0000000;
-		s32 pcm = (data >> shift) + (((pred1 * prev1) + (pred2 * prev2) + 32) >> 6);
+		s32 data     = ((*blockbytes) << 28) & 0xF0000000;
+		s32 pcm      = (data >> shift) + (((pred1 * prev1) + (pred2 * prev2) + 32) >> 6);
 
-		Clampify(pcm, -0x8000, 0x7fff);
-		*(buffer++) = pcm;
+		pcm          = std::min(std::max(pcm, -0x8000), 0x7fff);
+		*(buffer++)  = pcm;
 
-		data = ((*blockbytes) << 24) & 0xF0000000;
-		s32 pcm2 = (data >> shift) + (((pred1 * pcm) + (pred2 * prev1) + 32) >> 6);
+		data         = ((*blockbytes) << 24) & 0xF0000000;
+		s32 pcm2     = (data >> shift) + (((pred1 * pcm) + (pred2 * prev1) + 32) >> 6);
 
-		Clampify(pcm2, -0x8000, 0x7fff);
-		*(buffer++) = pcm2;
+		pcm2         = std::min(std::max(pcm2, -0x8000), 0x7fff);
+		*(buffer++)  = pcm2;
 
-		prev2 = pcm;
-		prev1 = pcm2;
+		prev2        = pcm;
+		prev1        = pcm2;
 	}
 }
 
@@ -185,9 +179,7 @@ static void SPU2_FORCEINLINE IncrementNextA(V_Core& thiscore, uint voiceidx)
 	for (i = 0; i < 2; i++)
 	{
 		if (Cores[i].IRQEnable && (vc.NextA == Cores[i].IRQA))
-		{
 			SetIrqCall(i);
-		}
 	}
 
 	vc.NextA++;
@@ -353,7 +345,7 @@ static void SPU2_FORCEINLINE UpdatePitch(uint coreidx, uint voiceidx)
 	if ((vc.Modulated == 0) || (voiceidx == 0))
 		pitch = vc.Pitch;
 	else
-		pitch = GetClamped((vc.Pitch * (32768 + Cores[coreidx].Voices[voiceidx - 1].OutX)) >> 15, 0, 0x3fff);
+		pitch = std::min(std::max((vc.Pitch * (32768 + Cores[coreidx].Voices[voiceidx - 1].OutX)) >> 15, 0), 0x3fff);
 
 	pitch = std::min(pitch, 0x3FFF);
 	vc.SP += pitch;
@@ -384,10 +376,7 @@ static SPU2_FORCEINLINE s32 GaussianInterpolate(s32 pv4, s32 pv3, s32 pv2, s32 p
 }
 
 
-/* Returns a 16 bit result in Value.
- * Uses standard template-style optimization techniques to statically generate five different
- * versions of this function (one for each type of interpolation).
- */
+/* Returns a 16 bit result in Value. */
 static SPU2_FORCEINLINE s32 GetVoiceValues(V_Core& thiscore, uint voiceidx)
 {
 	V_Voice& vc(thiscore.Voices[voiceidx]);
