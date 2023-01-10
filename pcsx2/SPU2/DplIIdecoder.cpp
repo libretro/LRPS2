@@ -17,6 +17,7 @@
 #include <cmath>
 
 #include "Global.h"
+#include "SndOut.h"
 
 static float AccL = 0;
 static float AccR = 0;
@@ -44,13 +45,81 @@ static float AccR = 0;
 // formula: 0.20f * SPU2_SCALE = 0.20f * 4294967296.0f
 #define SPU2_ADD_CLR 858993459.2f /* Stereo expansion */
 
+struct Stereo51Out16
+{
+	s16 Left;
+	s16 Right;
+	s16 Center;
+	s16 LFE;
+	s16 LeftBack;
+	s16 RightBack;
+
+	// Implementation Note: Center and Subwoofer/LFE -->
+	// This method is simple and sounds nice.  It relies on the speaker/soundcard
+	// systems do to their own low pass / crossover.  Manual lowpass is wasted effort
+	// and can't match solid state results anyway.
+};
+
+struct Stereo51Out16DplII
+{
+	s16 Left;
+	s16 Right;
+	s16 Center;
+	s16 LFE;
+	s16 LeftBack;
+	s16 RightBack;
+};
+
+struct Stereo51Out32DplII
+{
+	s32 Left;
+	s32 Right;
+	s32 Center;
+	s32 LFE;
+	s32 LeftBack;
+	s32 RightBack;
+};
+
+struct Stereo51Out16Dpl
+{
+	s16 Left;
+	s16 Right;
+	s16 Center;
+	s16 LFE;
+	s16 LeftBack;
+	s16 RightBack;
+};
+
+struct Stereo51Out32Dpl
+{
+	s32 Left;
+	s32 Right;
+	s32 Center;
+	s32 LFE;
+	s32 LeftBack;
+	s32 RightBack;
+};
+
+struct Stereo51Out32
+{
+	s32 Left;
+	s32 Right;
+	s32 Center;
+	s32 LFE;
+	s32 LeftBack;
+	s32 RightBack;
+};
+
+#if 0
+/* TODO/FIXME - never used */
 void ResetDplIIDecoder(void)
 {
 	AccL = 0;
 	AccR = 0;
 }
+#endif
 
-void ProcessDplIISample32(const StereoOut32& src, Stereo51Out32DplII* s)
+static void ProcessDplIISample32(const StereoOut32& src, Stereo51Out32DplII* s)
 {
 	float IL = src.Left  / (float)(1 << (SND_OUT_VOLUME_SHIFT + 16));
 	float IR = src.Right / (float)(1 << (SND_OUT_VOLUME_SHIFT + 16));
@@ -100,7 +169,7 @@ void ProcessDplIISample32(const StereoOut32& src, Stereo51Out32DplII* s)
 	s->RightBack = (s32)(SR  * SPU2_GAIN_SR);
 }
 
-void ProcessDplIISample16(const StereoOut32& src, Stereo51Out16DplII* s)
+static void ProcessDplIISample16(const StereoOut32& src, Stereo51Out16DplII* s)
 {
 	Stereo51Out32DplII ss;
 	ProcessDplIISample32(src, &ss);
@@ -113,7 +182,7 @@ void ProcessDplIISample16(const StereoOut32& src, Stereo51Out16DplII* s)
 	s->RightBack = ss.RightBack >> 16;
 }
 
-void ProcessDplSample32(const StereoOut32& src, Stereo51Out32Dpl* s)
+static void ProcessDplSample32(const StereoOut32& src, Stereo51Out32Dpl* s)
 {
 	float ValL   = src.Left  / (float)(1 << (SND_OUT_VOLUME_SHIFT + 16));
 	float ValR   = src.Right / (float)(1 << (SND_OUT_VOLUME_SHIFT + 16));
@@ -136,7 +205,7 @@ void ProcessDplSample32(const StereoOut32& src, Stereo51Out32Dpl* s)
 	s->RightBack = (s32)(S   * SPU2_GAIN_SR);
 }
 
-void ProcessDplSample16(const StereoOut32& src, Stereo51Out16Dpl* s)
+static void ProcessDplSample16(const StereoOut32& src, Stereo51Out16Dpl* s)
 {
 	Stereo51Out32Dpl ss;
 	ProcessDplSample32(src, &ss);

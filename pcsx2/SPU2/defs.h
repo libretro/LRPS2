@@ -16,7 +16,6 @@
 #pragma once
 
 #include "Mixer.h"
-#include "SndOut.h"
 #include "Global.h"
 
 #ifdef __GNUC__

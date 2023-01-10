@@ -18,6 +18,7 @@
 #include <libretro.h>
 
 #include "Global.h"
+#include "SndOut.h"
 
 /* Forward declaration */
 extern retro_audio_sample_t sample_cb;
