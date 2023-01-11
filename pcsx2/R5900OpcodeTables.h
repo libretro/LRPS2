@@ -28,12 +28,6 @@ enum Syscall : u8
 	Deci2Call = 124
 };
 
-// TODO : Move these into the OpcodeTables namespace
-extern  void (*Int_COP2PrintTable[32])();
-extern  void (*Int_COP2BC2PrintTable[32])();
-extern  void (*Int_COP2SPECIAL1PrintTable[64])();
-extern  void (*Int_COP2SPECIAL2PrintTable[128])();
-
 // reserve the lower 8 bits for opcode specific types
 // which of these are actually used depends on the opcode
 // flags further below

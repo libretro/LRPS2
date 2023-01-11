@@ -174,7 +174,6 @@ namespace OpcodeImpl {
 
 void COP2(void)
 {
-	Int_COP2PrintTable[_Rs_]();
 }
 
 void Unknown(void) { }
