@@ -1502,13 +1502,6 @@ public:
 
 	__forceinline static void UnpackAndWriteBlock4HL(const u8* RESTRICT src, int srcpitch, u8* RESTRICT dst)
 	{
-		if(0)
-		{
-			u8* s = (u8*)src;
-			for(int j = 0; j < 8; j++, s += srcpitch)
-				for(int i = 0; i < 4; i++) s[i] = (columnTable32[j][i*2] & 0x0f) | (columnTable32[j][i*2+1] << 4);
-		}
-
 		GSVector4i v4, v5, v6, v7;
 
 		#if _M_SSE >= 0x501
