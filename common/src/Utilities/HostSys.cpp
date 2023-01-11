@@ -65,9 +65,7 @@ long __stdcall SysPageFaultExceptionFilter(EXCEPTION_POINTERS *eps)
 
 void _platform_InstallSignalHandler(void)
 {
-#if defined(_WIN64) // We don't handle SEH properly on Win64 so use a vectored exception handler instead
     AddVectoredExceptionHandler(true, SysPageFaultExceptionFilter);
-#endif
 }
 
 static DWORD ConvertToWinApi(const PageProtectionMode &mode)

@@ -43,46 +43,7 @@
 # include <setjmp.h>
 #endif
 
-#if defined(__CLEANUP_SEH)
-
-static DWORD
-ExceptionFilter (EXCEPTION_POINTERS * ep, DWORD * ei)
-{
-  switch (ep->ExceptionRecord->ExceptionCode)
-    {
-    case EXCEPTION_PTW32_SERVICES:
-      {
-	DWORD param;
-	DWORD numParams = ep->ExceptionRecord->NumberParameters;
-
-	numParams = (numParams > 3) ? 3 : numParams;
-
-	for (param = 0; param < numParams; param++)
-	  {
-	    ei[param] = ep->ExceptionRecord->ExceptionInformation[param];
-	  }
-
-	return EXCEPTION_EXECUTE_HANDLER;
-	break;
-      }
-    default:
-      {
-	/*
-	 * A system unexpected exception has occurred running the user's
-	 * routine. We need to cleanup before letting the exception
-	 * out of thread scope.
-	 */
-	pthread_t self = pthread_self ();
-
-	ptw32_callUserDestroyRoutines (self);
-
-	return EXCEPTION_CONTINUE_SEARCH;
-	break;
-      }
-    }
-}
-
-#elif defined(__CLEANUP_CXX)
+#if defined(__CLEANUP_CXX)
 
 #if defined(_MSC_VER)
 # include <eh.h>
@@ -133,12 +94,6 @@ ptw32_threadStart (void *vthreadParms)
   ptw32_thread_t * sp;
   void * (PTW32_CDECL *start) (void *);
   void * arg;
-
-#if defined(__CLEANUP_SEH)
-  DWORD
-  ei[] = { 0, 0, 0 };
-#endif
-
 #if defined(__CLEANUP_C)
   int setjmp_rc;
 #endif
@@ -173,44 +128,6 @@ ptw32_threadStart (void *vthreadParms)
 
   sp->state = PThreadStateRunning;
   ptw32_mcs_lock_release (&stateLock);
-
-#if defined(__CLEANUP_SEH)
-
-  __try
-  {
-    /*
-     * Run the caller's routine;
-     */
-    status = sp->exitStatus = (*start) (arg);
-    sp->state = PThreadStateExiting;
-
-#if defined(_UWIN)
-    if (--pthread_count <= 0)
-      exit (0);
-#endif
-
-  }
-  __except (ExceptionFilter (GetExceptionInformation (), ei))
-  {
-    switch (ei[0])
-      {
-      case PTW32_EPS_CANCEL:
-	status = sp->exitStatus = PTHREAD_CANCELED;
-#if defined(_UWIN)
-	if (--pthread_count <= 0)
-	  exit (0);
-#endif
-	break;
-      case PTW32_EPS_EXIT:
-	status = sp->exitStatus;
-	break;
-      default:
-	status = sp->exitStatus = PTHREAD_CANCELED;
-	break;
-      }
-  }
-
-#else /* __CLEANUP_SEH */
 
 #if defined(__CLEANUP_C)
 
@@ -320,7 +237,6 @@ ptw32_threadStart (void *vthreadParms)
 
 #endif /* __CLEANUP_CXX */
 #endif /* __CLEANUP_C */
-#endif /* __CLEANUP_SEH */
 
 #if defined(PTW32_STATIC_LIB)
   /*

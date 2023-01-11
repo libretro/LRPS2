@@ -371,9 +371,9 @@ static __fi void _reloadElfInfo(wxString elfpath)
 
 void cdvdReloadElfInfo(wxString elfoverride)
 {
-	// called from context of executing VM code (recompilers), so we need to trap exceptions
-	// and route them through the VM's exception handler.  (needed for non-SEH platforms, such
-	// as Linux/GCC)
+	// called from context of executing VM code (recompilers), 
+	// so we need to trap exceptions
+	// and route them through the VM's exception handler.
 
 	try
 	{

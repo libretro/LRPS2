@@ -495,52 +495,6 @@ struct ThreadKeyAssoc
   ThreadKeyAssoc *prevThread;
 };
 
-
-#if defined(__CLEANUP_SEH)
-/*
- * --------------------------------------------------------------
- * MAKE_SOFTWARE_EXCEPTION
- *      This macro constructs a software exception code following
- *      the same format as the standard Win32 error codes as defined
- *      in WINERROR.H
- *  Values are 32 bit values laid out as follows:
- *
- *   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
- *  +---+-+-+-----------------------+-------------------------------+
- *  |Sev|C|R|     Facility          |               Code            |
- *  +---+-+-+-----------------------+-------------------------------+
- *
- * Severity Values:
- */
-#define SE_SUCCESS              0x00
-#define SE_INFORMATION          0x01
-#define SE_WARNING              0x02
-#define SE_ERROR                0x03
-
-#define MAKE_SOFTWARE_EXCEPTION( _severity, _facility, _exception ) \
-( (DWORD) ( ( (_severity) << 30 ) |     /* Severity code        */ \
-            ( 1 << 29 ) |               /* MS=0, User=1         */ \
-            ( 0 << 28 ) |               /* Reserved             */ \
-            ( (_facility) << 16 ) |     /* Facility Code        */ \
-            ( (_exception) <<  0 )      /* Exception Code       */ \
-            ) )
-
-/*
- * We choose one specific Facility/Error code combination to
- * identify our software exceptions vs. WIN32 exceptions.
- * We store our actual component and error code within
- * the optional information array.
- */
-#define EXCEPTION_PTW32_SERVICES        \
-     MAKE_SOFTWARE_EXCEPTION( SE_ERROR, \
-                              PTW32_SERVICES_FACILITY, \
-                              PTW32_SERVICES_ERROR )
-
-#define PTW32_SERVICES_FACILITY         0xBAD
-#define PTW32_SERVICES_ERROR            0xDEED
-
-#endif /* __CLEANUP_SEH */
-
 /*
  * Services available through EXCEPTION_PTW32_SERVICES
  * and also used [as parameters to ptw32_throw()] as

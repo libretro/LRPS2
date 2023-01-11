@@ -117,24 +117,18 @@ static void _pt_callback_cleanup(void *handle)
     ((pxThread *)handle)->_ThreadCleanup();
 }
 
-// __try is used in pthread_cleanup_push when CLEANUP_SEH is used as the cleanup model.
-// That can't be used in a function that has objects that require unwinding (compile
-// error C2712), so move it into a separate function.
-static void internal_callback_helper(void *itsme)
-{
-    pxThread &owner = *static_cast<pxThread *>(itsme);
-
-    pthread_cleanup_push(_pt_callback_cleanup, itsme);
-    owner._internal_execute();
-    pthread_cleanup_pop(true);
-}
-
 // passed into pthread_create, and is used to dispatch the thread's object oriented
 // callback function
 static void *_internal_callback(void *itsme)
 {
     if (itsme)
-        internal_callback_helper(itsme);
+    {
+	    pxThread &owner = *static_cast<pxThread *>(itsme);
+
+	    pthread_cleanup_push(_pt_callback_cleanup, itsme);
+	    owner._internal_execute();
+	    pthread_cleanup_pop(true);
+    }
     return NULL;
 }
 

@@ -70,10 +70,6 @@ ptw32_throw (DWORD exception)
    */
   ptw32_thread_t * sp = (ptw32_thread_t *) pthread_getspecific (ptw32_selfThreadKey);
 
-#if defined(__CLEANUP_SEH)
-  DWORD exceptionInformation[3];
-#endif
-
   sp->state = PThreadStateExiting;
 
   if (exception != PTW32_EPS_CANCEL && exception != PTW32_EPS_EXIT)
@@ -121,17 +117,6 @@ ptw32_throw (DWORD exception)
 
     }
 
-#if defined(__CLEANUP_SEH)
-
-
-  exceptionInformation[0] = (DWORD) (exception);
-  exceptionInformation[1] = (DWORD) (0);
-  exceptionInformation[2] = (DWORD) (0);
-
-  RaiseException (EXCEPTION_PTW32_SERVICES, 0, 3, exceptionInformation);
-
-#else /* __CLEANUP_SEH */
-
 #if defined(__CLEANUP_C)
 
   ptw32_pop_cleanup_all (1);
@@ -159,8 +144,6 @@ ptw32_throw (DWORD exception)
 
 #endif /* __CLEANUP_C */
 
-#endif /* __CLEANUP_SEH */
-
   /* Never reached */
 }
 
@@ -171,19 +154,4 @@ ptw32_pop_cleanup_all (int execute)
   while (NULL != ptw32_pop_cleanup (execute))
     {
     }
-}
-
-
-DWORD
-ptw32_get_exception_services_code (void)
-{
-#if defined(__CLEANUP_SEH)
-
-  return EXCEPTION_PTW32_SERVICES;
-
-#else
-
-  return (DWORD)0;
-
-#endif
 }

@@ -33,9 +33,7 @@
 
 #include <utility>
 
-#if !PCSX2_SEH
 #include "Utilities/FastJmp.h"
-#endif
 
 using namespace x86Emitter;
 using namespace R5900;
@@ -1217,23 +1215,15 @@ static void recStep(void)
 {
 }
 
-#if !PCSX2_SEH
-	static fastjmp_buf m_SetJmp_StateCheck;
-#else
-#endif
+static fastjmp_buf m_SetJmp_StateCheck;
 
 static void recExitExecution(void)
 {
-#if PCSX2_SEH
-	throw Exception::ExitCpuExecute();
-#else
 	// Without SEH we'll need to hop to a safehouse point outside the scope of recompiled
 	// code.  C++ exceptions can't cross the mighty chasm in the stackframe that the recompiler
 	// creates.  However, the longjump is slow so we only want to do one when absolutely
 	// necessary:
-
 	fastjmp_jmp(&m_SetJmp_StateCheck, 1 );
-#endif
 }
 
 static void recCheckExecutionState(void)
@@ -1244,22 +1234,6 @@ static void recCheckExecutionState(void)
 
 static void recExecute(void)
 {
-	// Implementation Notes:
-	// [TODO] fix this comment to explain various code entry/exit points, when I'm not so tired!
-
-#if PCSX2_SEH
-	eeRecIsReset   = false;
-	eeCpuExecuting = true;
-
-	try {
-		EnterRecompiledCode();
-	}
-	catch( Exception::ExitCpuExecute& )
-	{
-	}
-
-#else
-
 	int oldstate;
 
 	// setjmp will save the register context and will return 0
@@ -1284,7 +1258,6 @@ static void recExecute(void)
 		pthread_setcancelstate( PTHREAD_CANCEL_ENABLE, &oldstate );
 
 	eeCpuExecuting = false;
-#endif
 }
 
 ////////////////////////////////////////////////////

@@ -70,12 +70,8 @@
  * C++ apps). This is currently consistent with most/all commercial Unix
  * POSIX threads implementations.
  */
-#if !defined( __CLEANUP_SEH ) && !defined( __CLEANUP_CXX ) && !defined( __CLEANUP_C )
+#if !defined( __CLEANUP_CXX ) && !defined( __CLEANUP_C )
 # define __CLEANUP_C
-#endif
-
-#if defined( __CLEANUP_SEH ) && ( !defined( _MSC_VER ) && !defined(PTW32_RC_MSC))
-#error ERROR [__FILE__, line __LINE__]: SEH is not supported for this compiler.
 #endif
 
 /*
@@ -765,33 +761,6 @@ struct ptw32_cleanup_t
   struct ptw32_cleanup_t *prev;
 };
 
-#if defined(__CLEANUP_SEH)
-        /*
-         * WIN32 SEH version of cancel cleanup.
-         */
-
-#define pthread_cleanup_push( _rout, _arg ) \
-        { \
-            ptw32_cleanup_t     _cleanup; \
-            \
-        _cleanup.routine        = (ptw32_cleanup_callback_t)(_rout); \
-            _cleanup.arg        = (_arg); \
-            __try \
-              { \
-
-#define pthread_cleanup_pop( _execute ) \
-              } \
-            __finally \
-                { \
-                    if( _execute || AbnormalTermination()) \
-                      { \
-                          (*(_cleanup.routine))( _cleanup.arg ); \
-                      } \
-                } \
-        }
-
-#else /* __CLEANUP_SEH */
-
 #if defined(__CLEANUP_C)
 
         /*
@@ -893,8 +862,6 @@ struct ptw32_cleanup_t
 #endif /* __CLEANUP_CXX */
 
 #endif /* __CLEANUP_C */
-
-#endif /* __CLEANUP_SEH */
 
 /*
  * ===============
@@ -1295,29 +1262,7 @@ class ptw32_exception_exit   : public ptw32_exception {};
 
 #endif
 
-#if PTW32_LEVEL >= PTW32_LEVEL_MAX
-
-/* FIXME: This is only required if the library was built using SEH */
-/*
- * Get internal SEH tag
- */
-PTW32_DLLPORT DWORD PTW32_CDECL ptw32_get_exception_services_code(void);
-
-#endif /* PTW32_LEVEL >= PTW32_LEVEL_MAX */
-
 #if !defined(PTW32_BUILD)
-
-#if defined(__CLEANUP_SEH)
-
-/*
- * Redefine the SEH __except keyword to ensure that applications
- * propagate our internal exceptions up to the library's internal handlers.
- */
-#define __except( E ) \
-        __except( ( GetExceptionCode() == ptw32_get_exception_services_code() ) \
-                 ? EXCEPTION_CONTINUE_SEARCH : ( E ) )
-
-#endif /* __CLEANUP_SEH */
 
 #if defined(__CLEANUP_CXX)
 
