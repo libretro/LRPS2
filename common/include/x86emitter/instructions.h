@@ -153,15 +153,14 @@ extern void xPUSH(xRegister32or64 from);
 // ----- Miscellaneous Instructions  -----
 // Various Instructions with no parameter and no special encoding logic.
 
-extern void xLEAVE();
-extern void xRET();
-extern void xCDQ();
-extern void xCWDE();
-
-extern void xLAHF();
+#define xLEAVE() (xWrite8(0xC9))
+#define xRET()   (xWrite8(0xC3))
+#define xCDQ()   (xWrite8(0x99))
+#define xCWDE()  (xWrite8(0x98))
+#define xLAHF()  (xWrite8(0x9f))
 
 // NOP 1-byte
-extern void xNOP();
+#define xNOP()   (xWrite8(0x90))
 
 extern void xINT(u8 imm);
 

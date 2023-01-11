@@ -74,8 +74,6 @@ extern void xWrite16(u16 val);
 extern void xWrite32(u32 val);
 extern void xWrite64(u64 val);
 
-extern const char *xGetRegName(int regid, int operandSize);
-
 //------------------------------------------------------------------
 // templated version of is_s8 is required, so that u16's get correct sign extension treatment.
 template <typename T>
@@ -97,12 +95,6 @@ void xWrite(T val);
 // use easily at a later time, if needed).
 //
 #define ALWAYS_USE_MOVAPS
-
-#ifdef ALWAYS_USE_MOVAPS
-static const bool AlwaysUseMovaps = true;
-#else
-static const bool AlwaysUseMovaps = false;
-#endif
 
 // --------------------------------------------------------------------------------------
 //  __emitline - preprocessors definition
@@ -128,7 +120,7 @@ enum ModRm_ModField {
     Mod_NoDisp = 0, // effective address operation with no displacement, in the form of [reg] (or uses special Disp32-only encoding in the case of [ebp] form)
     Mod_Disp8,      // effective address operation with 8 bit displacement, in the form of [reg+disp8]
     Mod_Disp32,     // effective address operation with 32 bit displacement, in the form of [reg+disp32],
-    Mod_Direct,     // direct reg/reg operation
+    Mod_Direct      // direct reg/reg operation
 };
 
 // ----------------------------------------------------------------------------
@@ -156,7 +148,7 @@ enum JccComparisonType {
     Jcc_Less = 0xc,
     Jcc_GreaterOrEqual = 0xd,
     Jcc_LessOrEqual = 0xe,
-    Jcc_Greater = 0xf,
+    Jcc_Greater = 0xf
 };
 
 // Not supported yet:
@@ -180,14 +172,20 @@ static const int ModRm_UseSib = 4;    // same index value as ESP (used in RM fie
 static const int ModRm_UseDisp32 = 5; // same index value as EBP (used in Mod field)
 static const int Sib_EIZ = 4;         // same index value as ESP (used in Index field)
 static const int Sib_UseDisp32 = 5;   // same index value as EBP (used in Base field)
+				      //
+// Assigns the current emitter buffer target address.
+// This is provided instead of using x86Ptr directly, since we may in the future find
+// a need to change the storage class system for the x86Ptr 'under the hood.'
+#define xSetPtr(ptr) (x86Ptr = (u8*)(ptr))
 
-extern void xSetPtr(void *ptr);
-extern void xAlignPtr(uint bytes);
-extern void xAdvancePtr(uint bytes);
-extern void xAlignCallTarget();
+#define xAdvancePtr(bytes) ((x86Ptr += (bytes)))
 
-extern u8 *xGetPtr();
-extern u8 *xGetAlignedCallTarget();
+// Retrieves the current emitter buffer target address.
+// This is provided instead of using x86Ptr directly, since we may in the future find
+// a need to change the storage class system for the x86Ptr 'under the hood.'
+#define xGetPtr() (x86Ptr)
+
+extern u8 *xGetAlignedCallTarget(void);
 
 extern JccComparisonType xInvertCond(JccComparisonType src);
 
@@ -289,9 +287,6 @@ public:
     // Returns true if the register is a valid accumulator: Eax, Ax, Al, XMM0.
     bool IsAccumulator() const { return Id == 0; }
 
-    // IsSIMD: returns true if the register is a valid XMM register.
-    bool IsSIMD() const { return _operandSize == 16; }
-
 // IsWide: return true if the register is 64 bits (requires a wide op on the rex prefix)
 #ifdef __M_X86_64
     bool IsWide() const
@@ -324,18 +319,13 @@ protected:
 public:
     xRegisterInt() = default;
 
-    /// IDs in [4, 8) are h registers in 8-bit
-    int isIDSameInAllSizes() const
-    {
-        return Id < 4 || Id >= 8;
-    }
-
     /// Checks if mapping the ID directly would be a good idea
     bool canMapIDTo(int otherSize) const
     {
 	if ((otherSize == 1) == (_operandSize == 1))
             return true;
-        return isIDSameInAllSizes();
+	/// IDs in [4, 8) are h registers in 8-bit
+        return Id < 4 || Id >= 8;
     }
 
     /// Get a non-wide version of the register (for use with e.g. mov, where `mov eax, 3` and `mov rax, 3` are functionally identical but `mov eax, 3` is shorter)
@@ -790,7 +780,6 @@ static __forceinline xAddressVoid operator+(sptr addr, const xAddressVoid &right
 template <typename OperandType>
 static __forceinline xAddressInfo<OperandType> operator+(const void *addr, const xAddressInfo<OperandType> &right)
 {
-    //return xAddressInfo<OperandType>( (sptr)addr ).Add( reg );
     return right + addr;
 }
 
@@ -830,8 +819,6 @@ public:
         m_imm = imm;
     }
 
-    const xRegType &GetReg() const { return m_reg; }
-    int GetImm() const { return m_imm; }
     bool IsReg() const { return !m_reg.IsEmpty(); }
 };
 

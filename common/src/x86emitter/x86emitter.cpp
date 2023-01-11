@@ -417,84 +417,26 @@ void EmitRex(const xRegisterBase &reg1, const xIndirectVoid &sib)
     EmitRex(w, r, x, b);
 }
 
-// For use by instructions that are implicitly wide
-void EmitRexImplicitlyWide(const xRegisterBase &reg)
-{
-    bool w = false;
-    bool r = false;
-    bool x = false;
-    bool b = reg.IsExtended();
-    EmitRex(w, r, x, b);
-}
-
-void EmitRexImplicitlyWide(const xIndirectVoid &sib)
-{
-    bool w = false;
-    bool r = false;
-    bool x = sib.Index.IsExtended();
-    bool b = sib.Base.IsExtended();
-    if (!NeedsSibMagic(sib)) {
-        b = x;
-        x = false;
-    }
-    EmitRex(w, r, x, b);
-}
-
-
 // --------------------------------------------------------------------------------------
-//  xSetPtr / xAlignPtr / xGetPtr / xAdvancePtr
+//  xAdvancePtr
 // --------------------------------------------------------------------------------------
-
-// Assigns the current emitter buffer target address.
-// This is provided instead of using x86Ptr directly, since we may in the future find
-// a need to change the storage class system for the x86Ptr 'under the hood.'
-__emitinline void xSetPtr(void *ptr)
-{
-    x86Ptr = (u8 *)ptr;
-}
-
-// Retrieves the current emitter buffer target address.
-// This is provided instead of using x86Ptr directly, since we may in the future find
-// a need to change the storage class system for the x86Ptr 'under the hood.'
-__emitinline u8 *xGetPtr()
-{
-    return x86Ptr;
-}
-
-__emitinline void xAlignPtr(uint bytes)
-{
-    // forward align
-    x86Ptr = (u8 *)(((uptr)x86Ptr + bytes - 1) & ~(uptr)(bytes - 1));
-}
 
 // Performs best-case alignment for the target CPU, for use prior to starting a new
 // function.  This is not meant to be used prior to jump targets, since it doesn't
 // add padding (additionally, speed benefit from jump alignment is minimal, and often
 // a loss).
-__emitinline void xAlignCallTarget()
+__emitinline u8 *xGetAlignedCallTarget(void)
 {
     // Core2/i7 CPUs prefer unaligned addresses.  Checking for SSSE3 is a decent filter.
     // (also align in debug modes for disasm convenience)
 
-    if (!x86caps.hasSupplementalStreamingSIMD3Extensions) {
-        // - P4's and earlier prefer 16 byte alignment.
-        // - AMD Athlons and Phenoms prefer 8 byte alignment, but I don't have an easy
-        //   heuristic for it yet.
-        // - AMD Phenom IIs are unknown (either prefer 8 byte, or unaligned).
-
-        xAlignPtr(16);
-    }
-}
-
-__emitinline u8 *xGetAlignedCallTarget()
-{
-    xAlignCallTarget();
+    // - P4's and earlier prefer 16 byte alignment.
+    // - AMD Athlons and Phenoms prefer 8 byte alignment, but I don't have an easy
+    //   heuristic for it yet.
+    // - AMD Phenom IIs are unknown (either prefer 8 byte, or unaligned).
+    if (!x86caps.hasSupplementalStreamingSIMD3Extensions)
+	    x86Ptr = (u8 *)(((uptr)x86Ptr + 16 - 1) & ~(uptr)(16 - 1));
     return x86Ptr;
-}
-
-__emitinline void xAdvancePtr(uint bytes)
-{
-	x86Ptr += bytes;
 }
 
 // --------------------------------------------------------------------------------------
@@ -933,20 +875,43 @@ const xImpl_DwordShift xSHRD = {0xac};
 
 __emitinline void xPOP(const xIndirectVoid &from)
 {
-    EmitRexImplicitlyWide(from);
+    bool w = false;
+    bool r = false;
+    bool x = from.Index.IsExtended();
+    bool b = from.Base.IsExtended();
+    if (!NeedsSibMagic(from))
+    {
+        b = x;
+        x = false;
+    }
+    EmitRex(w, r, x, b);
     xWrite8(0x8f);
     EmitSibMagic(0, from);
 }
 
 __emitinline void xPUSH(const xIndirectVoid &from)
 {
-    EmitRexImplicitlyWide(from);
+    bool w = false;
+    bool r = false;
+    bool x = from.Index.IsExtended();
+    bool b = from.Base.IsExtended();
+    if (!NeedsSibMagic(from))
+    {
+        b = x;
+        x = false;
+    }
+    EmitRex(w, r, x, b);
     xWrite8(0xff);
     EmitSibMagic(6, from);
 }
 
 __fi void xPOP(xRegister32or64 from) {
-    EmitRexImplicitlyWide(from);
+    const xRegisterBase &reg = from;
+    bool w = false;
+    bool r = false;
+    bool x = false;
+    bool b = reg.IsExtended();
+    EmitRex(w, r, x, b);
     xWrite8(0x58 | (from->Id & 7));
 }
 
@@ -961,23 +926,17 @@ __fi void xPUSH(u32 imm)
     }
 }
 __fi void xPUSH(xRegister32or64 from) {
-    EmitRexImplicitlyWide(from);
+    const xRegisterBase &reg = from;
+    bool w = false;
+    bool r = false;
+    bool x = false;
+    bool b = reg.IsExtended();
+    EmitRex(w, r, x, b);
     xWrite8(0x50 | (from->Id & 7));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-
-__fi void xLEAVE() { xWrite8(0xC9); }
-__fi void xRET() { xWrite8(0xC3); }
-__fi void xCDQ() { xWrite8(0x99); }
-__fi void xCWDE() { xWrite8(0x98); }
-
-__fi void xLAHF() { xWrite8(0x9f); }
-
-// NOP 1-byte
-__fi void xNOP() { xWrite8(0x90); }
-
 __fi void xINT(u8 imm)
 {
     if (imm == 3)
@@ -1000,21 +959,18 @@ __emitinline void xRestoreReg(const xRegisterSSE &dest)
     xMOVDQA(dest, ptr[&xmm_data[dest.Id * 2]]);
 }
 
-static void stackAlign(int offset, bool moveDown) {
-    int needed = (16 - (offset % 16)) % 16;
-    if (moveDown)
-        needed = -needed;
 #if defined(__M_X86_64)
-    // All x86-64 calling conventions ensure/require stack to be 16 bytes aligned
-    // I couldn't find documentation on when, but compilers would indicate it's before the call: https://gcc.godbolt.org/z/KzTfsz
-    xADD(rsp, needed);
+// All x86-64 calling conventions ensure/require stack to be 16 bytes aligned
+// I couldn't find documentation on when, but compilers would indicate it's before the call: https://gcc.godbolt.org/z/KzTfsz
+#define stackAlign(needed) (xADD(rsp, needed))
 #elif defined(__GNUC__)
-    // GCC ensures/requires stack to be 16 bytes aligned before the call
-    // Call will store 4 bytes. EDI/ESI/EBX will take another 12 bytes.
-    // EBP will take 4 bytes if m_base_frame is enabled
-    xADD(esp, needed);
+// GCC ensures/requires stack to be 16 bytes aligned before the call
+// Call will store 4 bytes. EDI/ESI/EBX will take another 12 bytes.
+// EBP will take 4 bytes if m_base_frame is enabled
+#define stackAlign(needed) (xADD(esp, needed))
+#else
+#define stackAlign(needed) ((void)0)
 #endif
-}
 
 xScopedStackFrame::xScopedStackFrame(bool base_frame, bool save_base_pointer, int offset)
 {
@@ -1059,12 +1015,15 @@ xScopedStackFrame::xScopedStackFrame(bool base_frame, bool save_base_pointer, in
 
 #endif
 
-    stackAlign(m_offset, true);
+    int needed = (16 - (m_offset % 16)) % 16;
+    needed     = -needed;
+    stackAlign(needed);
 }
 
 xScopedStackFrame::~xScopedStackFrame()
 {
-    stackAlign(m_offset, false);
+    int needed = (16 - (m_offset % 16)) % 16;
+    stackAlign(needed);
 
 #ifdef __M_X86_64
 
@@ -1105,11 +1064,16 @@ xScopedSavedRegisters::xScopedSavedRegisters(std::initializer_list<std::referenc
         const xAddressReg& regRef = reg;
         xPUSH(regRef);
     }
-    stackAlign(regs.size() * wordsize, true);
+    int offset = regs.size() * wordsize;
+    int needed = (16 - (offset % 16)) % 16;
+    needed     = -needed;
+    stackAlign(needed);
 }
 
 xScopedSavedRegisters::~xScopedSavedRegisters() {
-    stackAlign(regs.size() * wordsize, false);
+    int offset = regs.size() * wordsize;
+    int needed = (16 - (offset % 16)) % 16;
+    stackAlign(needed);
     for (auto it = regs.rbegin(); it < regs.rend(); ++it) {
         const xAddressReg& regRef = *it;
         xPOP(regRef);
