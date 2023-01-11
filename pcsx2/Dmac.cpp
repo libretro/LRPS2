@@ -24,21 +24,20 @@
 
 bool DMACh::transfer(const char *s, tDMA_TAG* ptag)
 {
-	if (ptag == NULL)  					 // Is ptag empty?
+	if (!ptag)  					 // Is ptag empty?
 	{
 		dmacRegs.stat.BEIS = true;
 		return false;
 	}
-	chcrTransfer(ptag);
-
-	qwcTransfer(ptag);
+	chcr.TAG = ptag[0]._u32 >> 16;
+	qwc      = ptag[0].QWC;
 	return true;
 }
 
 void DMACh::unsafeTransfer(tDMA_TAG* ptag)
 {
-    chcrTransfer(ptag);
-    qwcTransfer(ptag);
+    chcr.TAG = ptag[0]._u32 >> 16;
+    qwc      = ptag[0].QWC;
 }
 
 tDMA_TAG *DMACh::getAddr(u32 addr, u32 num, bool write)
@@ -60,8 +59,8 @@ tDMA_TAG *DMACh::DMAtransfer(u32 addr, u32 num)
 
 	if (tag)
 	{
-		chcrTransfer(tag);
-		qwcTransfer(tag);
+		chcr.TAG = tag[0]._u32 >> 16;
+		qwc      = tag[0].QWC;
 		return tag;
 	}
 	return NULL;

@@ -117,21 +117,19 @@ void FireMFIFOEmpty(void)
 }
 
 // Write 'size' bytes to memory address 'addr' from 'data'.
-__ri bool hwMFIFOWrite(u32 addr, const u128* data, uint qwc)
+__ri void hwMFIFOWrite(u32 addr, const u128* data, uint qwc)
 {
 	// DMAC Address resolution:  FIFO can be placed anywhere in the *physical* memory map
 	// for the PS2.  Its probably a serious error for a PS2 app to have the buffer cross
 	// valid/invalid page areas of ram, so realistically we only need to test the base address
 	// of the FIFO for address validity.
-
-	if (u128* dst = (u128*)PSM(dmacRegs.rbor.ADDR))
+	u128* dst = (u128*)PSM(dmacRegs.rbor.ADDR);
+	if (dst)
 	{
 		const u32 ringsize = (dmacRegs.rbsr.RMSK / 16) + 1;
 		uint startpos      = (addr & dmacRegs.rbsr.RMSK)/16;
 		MemCopy_WrappedDest( data, dst, startpos, ringsize, qwc );
-		return true;
 	}
-	return false;
 }
 
 __ri void hwMFIFOResume(u32 transferred)

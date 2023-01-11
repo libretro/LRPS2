@@ -147,16 +147,6 @@ struct DMACh {
 	u32 _null5[11];
 	u32 sadr;
 
-	void chcrTransfer(tDMA_TAG* ptag)
-	{
-	    chcr.TAG = ptag[0]._u32 >> 16;
-	}
-
-	void qwcTransfer(tDMA_TAG* ptag)
-	{
-	    qwc = ptag[0].QWC;
-	}
-
 	bool transfer(const char *s, tDMA_TAG* ptag);
 	void unsafeTransfer(tDMA_TAG* ptag);
 	tDMA_TAG *getAddr(u32 addr, u32 num, bool write);
@@ -381,7 +371,7 @@ static DMACregisters& dmacRegs	= (DMACregisters&)eeHw[0xE000];
 // Various useful locations
 static DMACh& vif0ch	= (DMACh&)eeHw[0x8000];
 static DMACh& vif1ch	= (DMACh&)eeHw[0x9000];
-static DMACh& gifch		= (DMACh&)eeHw[0xA000];
+static DMACh& gifch	= (DMACh&)eeHw[0xA000];
 static DMACh& spr0ch	= (DMACh&)eeHw[0xD000];
 static DMACh& spr1ch	= (DMACh&)eeHw[0xD400];
 static DMACh& ipu0ch	= (DMACh&)eeHw[0xb000];
@@ -397,7 +387,7 @@ extern void hwIntcIrq(int n);
 extern void hwDmacIrq(int n);
 
 extern void FireMFIFOEmpty();
-extern bool hwMFIFOWrite(u32 addr, const u128* data, uint size_qwc);
+extern void hwMFIFOWrite(u32 addr, const u128* data, uint size_qwc);
 extern void hwMFIFOResume(u32 transferred);
 extern void hwDmacSrcTadrInc(DMACh& dma);
 extern bool hwDmacSrcChainWithStack(DMACh& dma, int id);
