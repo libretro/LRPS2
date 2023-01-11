@@ -482,9 +482,6 @@ public:
     {
     }
 
-    // Returns true if the register is the stack pointer: ESP.
-    bool IsStackPointer() const { return Id == 4; }
-
     xAddressVoid operator+(const xAddressReg &right) const;
     xAddressVoid operator+(sptr right) const;
     xAddressVoid operator+(const void *right) const;

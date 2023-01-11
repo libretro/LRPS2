@@ -252,17 +252,15 @@ static __fi bool NeedsSibMagic(const xIndirectVoid &info)
     // no registers? no sibs!
     // (xIndirectVoid::Reduce always places a register in Index, and optionally leaves
     // Base empty if only register is specified)
-    if (info.Index.IsEmpty())
-        return false;
-
-    // A scaled register needs a SIB
-    if (info.Scale != 0)
-        return true;
-
-    // two registers needs a SIB
-    if (!info.Base.IsEmpty())
-        return true;
-
+    if (!info.Index.IsEmpty())
+    {
+	    // A scaled register needs a SIB
+	    if (info.Scale != 0)
+		    return true;
+	    // two registers needs a SIB
+	    if (!info.Base.IsEmpty())
+		    return true;
+    }
     return false;
 }
 
@@ -346,75 +344,77 @@ void EmitSibMagic(const xRegisterBase &reg1, const xIndirectVoid &sib, int extra
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-__emitinline static void EmitRex(bool w, bool r, bool x, bool b)
+void EmitRex(uint regfield, const void *address) /* stub */
+{
+}
+
+void EmitRex(uint regfield, const xIndirectVoid &info)
 {
 #ifdef __M_X86_64
-    u8 rex = 0x40 | (w << 3) | (r << 2) | (x << 1) | b;
+    bool w = info.IsWide();
+    bool x = info.Index.IsExtended();
+    bool b = info.Base.IsExtended();
+    if (!NeedsSibMagic(info))
+    {
+	    b = x;
+	    x = false;
+    }
+    u8 rex = 0x40 | (w << 3) | (x << 1) | b;
     if (rex != 0x40)
         xWrite8(rex);
 #endif
 }
 
-void EmitRex(uint regfield, const void *address)
-{
-    bool w = false;
-    bool r = false;
-    bool x = false;
-    bool b = false;
-    EmitRex(w, r, x, b);
-}
-
-void EmitRex(uint regfield, const xIndirectVoid &info)
-{
-    bool w = info.IsWide();
-    bool r = false;
-	bool x = info.Index.IsExtended();
-	bool b = info.Base.IsExtended();
-	if (!NeedsSibMagic(info)) {
-		b = x;
-		x = false;
-	}
-    EmitRex(w, r, x, b);
-}
-
 void EmitRex(uint reg1, const xRegisterBase &reg2)
 {
+#ifdef __M_X86_64
     bool w = reg2.IsWide();
-    bool r = false;
-    bool x = false;
     bool b = reg2.IsExtended();
-    EmitRex(w, r, x, b);
+    u8 rex = 0x40 | (w << 3) | b;
+    if (rex != 0x40)
+        xWrite8(rex);
+#endif
 }
 
 void EmitRex(const xRegisterBase &reg1, const xRegisterBase &reg2)
 {
+#ifdef __M_X86_64
     bool w = reg1.IsWide();
     bool r = reg1.IsExtended();
-    bool x = false;
     bool b = reg2.IsExtended();
-    EmitRex(w, r, x, b);
+    u8 rex = 0x40 | (w << 3) | (r << 2) | b;
+    if (rex != 0x40)
+        xWrite8(rex);
+#endif
 }
 
 void EmitRex(const xRegisterBase &reg1, const void *src)
 {
+#ifdef __M_X86_64
     bool w = reg1.IsWide();
     bool r = reg1.IsExtended();
-    bool x = false;
-    bool b = false; // FIXME src.IsExtended();
-    EmitRex(w, r, x, b);
+    u8 rex = 0x40 | (w << 3) | (r << 2);
+    if (rex != 0x40)
+        xWrite8(rex);
+#endif
 }
 
 void EmitRex(const xRegisterBase &reg1, const xIndirectVoid &sib)
 {
+#ifdef __M_X86_64
     bool w = reg1.IsWide();
     bool r = reg1.IsExtended();
     bool x = sib.Index.IsExtended();
     bool b = sib.Base.IsExtended();
-    if (!NeedsSibMagic(sib)) {
+    if (!NeedsSibMagic(sib))
+    {
         b = x;
         x = false;
     }
-    EmitRex(w, r, x, b);
+    u8 rex = 0x40 | (w << 3) | (r << 2) | (x << 1) | b;
+    if (rex != 0x40)
+        xWrite8(rex);
+#endif
 }
 
 // --------------------------------------------------------------------------------------
@@ -609,7 +609,7 @@ xIndirectVoid::xIndirectVoid(xAddressReg base, xAddressReg index, int scale, spt
 //
 void xIndirectVoid::Reduce(void)
 {
-    if (Index.IsStackPointer()) {
+    if (Index.Id == 4) { /* Is stack pointer ? */
         // esp cannot be encoded as the index, so move it to the Base, if possible.
         // note: intentionally leave index assigned to esp also (generates correct
         // encoding later, since ESP cannot be encoded 'alone')
@@ -619,51 +619,45 @@ void xIndirectVoid::Reduce(void)
     }
 
     // If no index reg, then load the base register into the index slot.
-    if (Index.IsEmpty()) {
+    if (Index.IsEmpty())
+    {
         Index = Base;
         Scale = 0;
-        if (!Base.IsStackPointer()) // prevent ESP from being encoded 'alone'
+        if (Base.Id != 4) // is not stack pointer? prevent ESP from being encoded 'alone'
             Base = xEmptyReg;
         return;
     }
 
     // The Scale has a series of valid forms, all shown here:
 
-    switch (Scale) {
-        case 0:
-            break;
+    switch (Scale)
+    {
         case 1:
             Scale = 0;
             break;
+        case 3: // becomes [reg*2+reg]
+            Base = Index;
+	    /* fall-through */
         case 2:
             Scale = 1;
             break;
-
-        case 3: // becomes [reg*2+reg]
+        case 5: // becomes [reg*4+reg]
             Base = Index;
-            Scale = 1;
-            break;
-
+	    /* fall-through */
         case 4:
             Scale = 2;
             break;
-
-        case 5: // becomes [reg*4+reg]
-            Base = Index;
-            Scale = 2;
-            break;
-
         case 6: // invalid!
         case 7: // so invalid!
             break;
 
+        case 9: // becomes [reg*8+reg]
+            Base = Index;
+	    /* fall-through */
         case 8:
             Scale = 3;
             break;
-        case 9: // becomes [reg*8+reg]
-            Base = Index;
-            Scale = 3;
-            break;
+	case 0:
 	default:
 	    break;
     }
@@ -875,8 +869,7 @@ const xImpl_DwordShift xSHRD = {0xac};
 
 __emitinline void xPOP(const xIndirectVoid &from)
 {
-    bool w = false;
-    bool r = false;
+#ifdef __M_X86_64
     bool x = from.Index.IsExtended();
     bool b = from.Base.IsExtended();
     if (!NeedsSibMagic(from))
@@ -884,15 +877,17 @@ __emitinline void xPOP(const xIndirectVoid &from)
         b = x;
         x = false;
     }
-    EmitRex(w, r, x, b);
+    u8 rex = 0x40 | (x << 1) | b;
+    if (rex != 0x40)
+        xWrite8(rex);
+#endif
     xWrite8(0x8f);
     EmitSibMagic(0, from);
 }
 
 __emitinline void xPUSH(const xIndirectVoid &from)
 {
-    bool w = false;
-    bool r = false;
+#ifdef __M_X86_64
     bool x = from.Index.IsExtended();
     bool b = from.Base.IsExtended();
     if (!NeedsSibMagic(from))
@@ -900,18 +895,22 @@ __emitinline void xPUSH(const xIndirectVoid &from)
         b = x;
         x = false;
     }
-    EmitRex(w, r, x, b);
+    u8 rex = 0x40 | (x << 1) | b;
+    if (rex != 0x40)
+        xWrite8(rex);
+#endif
     xWrite8(0xff);
     EmitSibMagic(6, from);
 }
 
 __fi void xPOP(xRegister32or64 from) {
+#ifdef __M_X86_64
     const xRegisterBase &reg = from;
-    bool w = false;
-    bool r = false;
-    bool x = false;
     bool b = reg.IsExtended();
-    EmitRex(w, r, x, b);
+    u8 rex = 0x40 | b;
+    if (rex != 0x40)
+        xWrite8(rex);
+#endif
     xWrite8(0x58 | (from->Id & 7));
 }
 
@@ -926,12 +925,13 @@ __fi void xPUSH(u32 imm)
     }
 }
 __fi void xPUSH(xRegister32or64 from) {
+#ifdef __M_X86_64
     const xRegisterBase &reg = from;
-    bool w = false;
-    bool r = false;
-    bool x = false;
     bool b = reg.IsExtended();
-    EmitRex(w, r, x, b);
+    u8 rex = 0x40 | b;
+    if (rex != 0x40)
+        xWrite8(rex);
+#endif
     xWrite8(0x50 | (from->Id & 7));
 }
 
