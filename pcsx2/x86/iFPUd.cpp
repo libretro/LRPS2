@@ -126,7 +126,7 @@ static const __aligned(32) FPUd_Globals s_const =
 
 // ToDouble : converts single-precision PS2 float to double-precision IEEE float
 
-void ToDouble(int reg)
+static void ToDouble(int reg)
 {
 	xUCOMI.SS(xRegisterSSE(reg), ptr[s_const.pos_inf]); // Sets ZF if reg is equal or incomparable to pos_inf
 	u8 *to_complex = JE8(0); // Complex conversion if positive infinity or NaN
@@ -166,7 +166,7 @@ void ToDouble(int reg)
 // converts really small normal numbers to zero (flush)
 // doesn't handle inf/nan/denormal
 
-void ToPS2FPU_Full(int reg, bool flags, int absreg, bool acc, bool addsub)
+static void ToPS2FPU_Full(int reg, bool flags, int absreg, bool acc, bool addsub)
 {
 	if (flags)
 		xAND(ptr32[&fpuRegs.fprc[31]], ~(FPUflagO | FPUflagU));
