@@ -574,7 +574,7 @@ static __fi void rcntUpdate_vSync(void)
 			// CSR is swapped and GS vBlank IRQ is triggered roughly 3.5 hblanks after VSync Start
 			// Swap field
 
-#if 1
+#if 0
 			/* TODO/FIXME - breaks Drakengard for now - uncomment for now */
 
 			/* The FIELD register only flips if the CMOD field in SMODE1 is set to anything but 0 and Front Porch bottom bit in SYNCV is set.
