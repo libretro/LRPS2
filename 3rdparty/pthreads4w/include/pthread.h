@@ -108,7 +108,6 @@
 #if defined(_UWIN)
 #   define HAVE_STRUCT_TIMESPEC 1
 #   define HAVE_SIGNAL_H        1
-#   undef HAVE_PTW32_CONFIG_H
 #   pragma comment(lib, "pthread")
 #endif
 
@@ -210,10 +209,6 @@ typedef unsigned long ULONG_PTR;
  * autoconf switches
  * -----------------
  */
-
-#if defined(HAVE_PTW32_CONFIG_H)
-#include "config.h"
-#endif /* HAVE_PTW32_CONFIG_H */
 
 #if !defined(NEED_FTIME)
 #include <time.h>

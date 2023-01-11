@@ -41,9 +41,6 @@
 #endif
 
 
-#if defined(PTW32_BUILD_INLINED)
-INLINE 
-#endif /* PTW32_BUILD_INLINED */
 DWORD
 ptw32_relmillisecs (const struct timespec * abstime)
 {
