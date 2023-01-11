@@ -13,15 +13,13 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
 #include "Common.h"
 
-#include <cmath>
 #include <float.h>
 
 #include "VUmicro.h"
 
-static __ri u32 VU_MAC_UPDATE( int shift, VURegs * VU, float f )
+__ri u32 VU_MAC_UPDATE( int shift, VURegs * VU, float f )
 {
 	u32 v   = *(u32*)&f;
 	u32 s   = v & 0x80000000;
@@ -54,52 +52,12 @@ static __ri u32 VU_MAC_UPDATE( int shift, VURegs * VU, float f )
 	return v;
 }
 
-__fi u32 VU_MACx_UPDATE(VURegs * VU, float x)
-{
-	return VU_MAC_UPDATE(3, VU, x);
-}
-
-__fi u32 VU_MACy_UPDATE(VURegs * VU, float y)
-{
-	return VU_MAC_UPDATE(2, VU, y);
-}
-
-__fi u32 VU_MACz_UPDATE(VURegs * VU, float z)
-{
-	return VU_MAC_UPDATE(1, VU, z);
-}
-
-__fi u32 VU_MACw_UPDATE(VURegs * VU, float w)
-{
-	return VU_MAC_UPDATE(0, VU, w);
-}
-
-__fi void VU_MACx_CLEAR(VURegs * VU)
-{
-	VU->macflag&= ~(0x1111<<3);
-}
-
-__fi void VU_MACy_CLEAR(VURegs * VU)
-{
-	VU->macflag&= ~(0x1111<<2);
-}
-
-__fi void VU_MACz_CLEAR(VURegs * VU)
-{
-	VU->macflag&= ~(0x1111<<1);
-}
-
-__fi void VU_MACw_CLEAR(VURegs * VU)
-{
-	VU->macflag&= ~(0x1111<<0);
-}
-
 __ri void VU_STAT_UPDATE(VURegs * VU)
 {
 	int newflag = 0 ;
-	if (VU->macflag & 0x000F) newflag = 0x1;
+	if (VU->macflag & 0x000F) newflag  = 0x1;
 	if (VU->macflag & 0x00F0) newflag |= 0x2;
 	if (VU->macflag & 0x0F00) newflag |= 0x4;
 	if (VU->macflag & 0xF000) newflag |= 0x8;
-	VU->statusflag = (VU->statusflag&0xc30)|newflag|((VU->statusflag&0xf)<<6);
+	VU->statusflag = (VU->statusflag&0xc30) | newflag | ((VU->statusflag&0xf)<<6);
 }

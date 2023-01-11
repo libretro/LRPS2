@@ -16,12 +16,15 @@
 #pragma once
 #include "VU.h"
 
-extern u32  VU_MACx_UPDATE(VURegs * VU, float x);
-extern u32  VU_MACy_UPDATE(VURegs * VU, float y);
-extern u32  VU_MACz_UPDATE(VURegs * VU, float z);
-extern u32  VU_MACw_UPDATE(VURegs * VU, float w);
-extern void VU_MACx_CLEAR(VURegs * VU);
-extern void VU_MACy_CLEAR(VURegs * VU);
-extern void VU_MACz_CLEAR(VURegs * VU);
-extern void VU_MACw_CLEAR(VURegs * VU);
+extern __ri u32 VU_MAC_UPDATE( int shift, VURegs * VU, float f );
 extern void VU_STAT_UPDATE(VURegs * VU);
+
+#define VU_MACx_UPDATE(VU, x) VU_MAC_UPDATE(3, (VU), x)
+#define VU_MACy_UPDATE(VU, y) VU_MAC_UPDATE(2, (VU), y)
+#define VU_MACz_UPDATE(VU, z) VU_MAC_UPDATE(1, (VU), z)
+#define VU_MACw_UPDATE(VU, w) VU_MAC_UPDATE(0, (VU), w)
+
+#define VU_MACx_CLEAR(VU) ((VU)->macflag&= ~(0x1111<<3))
+#define VU_MACy_CLEAR(VU) ((VU)->macflag&= ~(0x1111<<2))
+#define VU_MACz_CLEAR(VU) ((VU)->macflag&= ~(0x1111<<1))
+#define VU_MACw_CLEAR(VU) ((VU)->macflag&= ~(0x1111<<0))
