@@ -171,23 +171,6 @@ void _eeMoveGPRtoM(uptr to, int fromgpr)
 	}
 }
 
-void _eeMoveGPRtoRm(x86IntRegType to, int fromgpr)
-{
-	if( GPR_IS_CONST1(fromgpr) )
-		xMOV(ptr32[xAddressReg(to)], g_cpuConstRegs[fromgpr].UL[0] );
-	else {
-		int mmreg;
-
-		if( (mmreg = _checkXMMreg(XMMTYPE_GPRREG, fromgpr, MODE_READ)) >= 0 ) {
-			xMOVSS(ptr[xAddressReg(to)], xRegisterSSE(mmreg));
-		}
-		else {
-			xMOV(eax, ptr[&cpuRegs.GPR.r[ fromgpr ].UL[ 0 ] ]);
-			xMOV(ptr[xAddressReg(to)], eax);
-		}
-	}
-}
-
 void eeSignExtendTo(int gpr, bool onlyupper)
 {
 	xCDQ();

@@ -15,8 +15,5 @@
 
 #pragma once
 
-//#define SIB 4		// maps to ESP
-
 // general types
-typedef int x86IntRegType;
 typedef int x86SSERegType;
