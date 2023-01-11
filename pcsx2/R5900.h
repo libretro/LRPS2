@@ -314,14 +314,6 @@ struct R5900cpu
 	//
 	void (*Reset)();
 
-	// Steps a single instruction.  Meant to be used by debuggers.  Is currently unused
-	// and unimplemented.  Future note: recompiler "step" should *always* fall back
-	// on interpreters.
-	//
-	// Exception Throws:  [TODO] (possible execution-related throws to be added)
-	//
-	void (*Step)();
-
 	// Executes code until a break is signaled.  Execution can be paused or suspended
 	// via thread-style signals that are handled by CheckExecutionState callbacks.
 	// Execution Breakages are handled the same way, where-by a signal causes the Execute

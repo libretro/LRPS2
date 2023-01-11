@@ -433,7 +433,6 @@ R5900cpu intCpu =
 	intShutdown,
 
 	intReset,
-	execI,
 	intExecute,
 
 	intCheckExecutionState,

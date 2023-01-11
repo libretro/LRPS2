@@ -1211,10 +1211,6 @@ static void recResetEE(void)
 	recResetRaw();
 }
 
-static void recStep(void)
-{
-}
-
 static fastjmp_buf m_SetJmp_StateCheck;
 
 static void recExitExecution(void)
@@ -1521,7 +1517,6 @@ R5900cpu recCpu =
 	recShutdown,
 
 	recResetEE,
-	recStep,
 	recExecute,
 
 	recCheckExecutionState,
