@@ -15,7 +15,6 @@ set(x86emitterFinalFlags ${CommonFlags})
 
 # variable with all sources of this library
 set(x86emitterSources
-	bmi.cpp
 	cpudetect.cpp
 	groups.cpp
 	jmp.cpp
