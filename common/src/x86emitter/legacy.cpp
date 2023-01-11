@@ -33,7 +33,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 
-emitterT u8 *J8Rel(int cc, int to)
+static emitterT u8 *J8Rel(int cc, int to)
 {
     xWrite8(cc);
     xWrite8(to);
@@ -48,7 +48,7 @@ emitterT u16 *J16Rel(int cc, u32 to)
     return (u16 *)(x86Ptr - 2);
 }
 
-emitterT u32 *J32Rel(int cc, u32 to)
+static emitterT u32 *J32Rel(int cc, u32 to)
 {
     xWrite8(0x0F);
     xWrite8(cc);
