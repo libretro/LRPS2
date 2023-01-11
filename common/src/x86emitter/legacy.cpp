@@ -40,26 +40,12 @@ static emitterT u8 *J8Rel(int cc, int to)
     return (u8 *)(x86Ptr - 1);
 }
 
-emitterT u16 *J16Rel(int cc, u32 to)
-{
-    xWrite16(0x0F66);
-    xWrite8(cc);
-    xWrite16(to);
-    return (u16 *)(x86Ptr - 2);
-}
-
 static emitterT u32 *J32Rel(int cc, u32 to)
 {
     xWrite8(0x0F);
     xWrite8(cc);
     xWrite32(to);
     return (u32 *)(x86Ptr - 4);
-}
-
-////////////////////////////////////////////////////
-emitterT void x86SetPtr(u8 *ptr)
-{
-    x86Ptr = ptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -102,13 +88,6 @@ emitterT void x86SetJ32A(u32 *j32)
     while ((uptr)x86Ptr & 0xf)
         *x86Ptr++ = 0x90;
     x86SetJ32(j32);
-}
-
-////////////////////////////////////////////////////
-emitterT void x86Align(int bytes)
-{
-    // forward align
-    x86Ptr = (u8 *)(((uptr)x86Ptr + bytes - 1) & ~(bytes - 1));
 }
 
 /********************/

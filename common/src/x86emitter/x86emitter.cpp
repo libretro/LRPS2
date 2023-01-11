@@ -274,46 +274,57 @@ void EmitSibMagic(uint regfield, const xIndirectVoid &info, int extraRIPOffset)
 {
     // 3 bits also on x86_64 (so max is 8)
     // We might need to mask it on x86_64
-    int displacement_size = (info.Displacement == 0) ? 0 :
-                                                       ((info.IsByteSizeDisp()) ? 1 : 2);
+    int displacement_size = 0;
 
-    if (!NeedsSibMagic(info)) {
+    if (!NeedsSibMagic(info))
+    {
         // Use ModRm-only encoding, with the rm field holding an index/base register, if
         // one has been specified.  If neither register is specified then use Disp32 form,
         // which is encoded as "EBP w/o displacement" (which is why EBP must always be
         // encoded *with* a displacement of 0, if it would otherwise not have one).
 
-        if (info.Index.IsEmpty()) {
+        if (info.Index.IsEmpty())
+	{
             EmitSibMagic(regfield, (void *)info.Displacement, extraRIPOffset);
             return;
-        } else {
-            if (info.Index == rbp && displacement_size == 0)
-                displacement_size = 1; // forces [ebp] to be encoded as [ebp+0]!
-
-            ModRM(displacement_size, regfield, info.Index.Id & 7);
         }
-    } else {
+
+	displacement_size = (info.Displacement == 0) ? 0 :
+		((info.IsByteSizeDisp()) ? 1 : 2);
+
+	if (info.Index == rbp && displacement_size == 0)
+		displacement_size = 1; // forces [ebp] to be encoded as [ebp+0]!
+
+	ModRM(displacement_size, regfield, info.Index.Id & 7);
+    }
+    else
+    {
         // In order to encode "just" index*scale (and no base), we have to encode
         // it as a special [index*scale + displacement] form, which is done by
         // specifying EBP as the base register and setting the displacement field
         // to zero. (same as ModRm w/o SIB form above, basically, except the
         // ModRm_UseDisp flag is specified in the SIB instead of the ModRM field).
 
-        if (info.Base.IsEmpty()) {
+        if (info.Base.IsEmpty())
+	{
             ModRM(0, regfield, ModRm_UseSib);
             SibSB(info.Scale, info.Index.Id, Sib_UseDisp32);
             xWrite<s32>(info.Displacement);
             return;
-        } else {
-            if (info.Base == rbp && displacement_size == 0)
-                displacement_size = 1; // forces [ebp] to be encoded as [ebp+0]!
-
-            ModRM(displacement_size, regfield, ModRm_UseSib);
-            SibSB(info.Scale, info.Index.Id & 7, info.Base.Id & 7);
         }
+
+	displacement_size = (info.Displacement == 0) ? 0 :
+		((info.IsByteSizeDisp()) ? 1 : 2);
+
+	if (info.Base == rbp && displacement_size == 0)
+		displacement_size = 1; // forces [ebp] to be encoded as [ebp+0]!
+
+	ModRM(displacement_size, regfield, ModRm_UseSib);
+	SibSB(info.Scale, info.Index.Id & 7, info.Base.Id & 7);
     }
 
-    if (displacement_size != 0) {
+    if (displacement_size != 0)
+    {
         if (displacement_size == 1)
             xWrite<s8>(info.Displacement);
         else
@@ -351,15 +362,16 @@ void EmitRex(uint regfield, const void *address) /* stub */
 void EmitRex(uint regfield, const xIndirectVoid &info)
 {
 #ifdef __M_X86_64
+    u8 rex;
     bool w = info.IsWide();
     bool x = info.Index.IsExtended();
-    bool b = info.Base.IsExtended();
-    if (!NeedsSibMagic(info))
+    if (NeedsSibMagic(info))
     {
-	    b = x;
-	    x = false;
+	    bool b = info.Base.IsExtended();
+	    rex    = 0x40 | (w << 3) | (x << 1) | b;
     }
-    u8 rex = 0x40 | (w << 3) | (x << 1) | b;
+    else
+	    rex    = 0x40 | (w << 3) | x;
     if (rex != 0x40)
         xWrite8(rex);
 #endif
@@ -402,16 +414,17 @@ void EmitRex(const xRegisterBase &reg1, const void *src)
 void EmitRex(const xRegisterBase &reg1, const xIndirectVoid &sib)
 {
 #ifdef __M_X86_64
+    u8 rex;
     bool w = reg1.IsWide();
     bool r = reg1.IsExtended();
     bool x = sib.Index.IsExtended();
-    bool b = sib.Base.IsExtended();
-    if (!NeedsSibMagic(sib))
+    if (NeedsSibMagic(sib))
     {
-        b = x;
-        x = false;
+	    bool b = sib.Base.IsExtended();
+	    rex    = 0x40 | (w << 3) | (r << 2) | (x << 1) | b;
     }
-    u8 rex = 0x40 | (w << 3) | (r << 2) | (x << 1) | b;
+    else
+	    rex = 0x40 | (w << 3) | (r << 2) | x;
     if (rex != 0x40)
         xWrite8(rex);
 #endif
@@ -870,14 +883,15 @@ const xImpl_DwordShift xSHRD = {0xac};
 __emitinline void xPOP(const xIndirectVoid &from)
 {
 #ifdef __M_X86_64
+    u8 rex;
     bool x = from.Index.IsExtended();
-    bool b = from.Base.IsExtended();
-    if (!NeedsSibMagic(from))
+    if (NeedsSibMagic(from))
     {
-        b = x;
-        x = false;
+        bool b = from.Base.IsExtended();
+	rex    = 0x40 | (x << 1) | b;
     }
-    u8 rex = 0x40 | (x << 1) | b;
+    else
+	rex    = 0x40 | x;
     if (rex != 0x40)
         xWrite8(rex);
 #endif
@@ -888,14 +902,15 @@ __emitinline void xPOP(const xIndirectVoid &from)
 __emitinline void xPUSH(const xIndirectVoid &from)
 {
 #ifdef __M_X86_64
+    u8 rex;
     bool x = from.Index.IsExtended();
-    bool b = from.Base.IsExtended();
-    if (!NeedsSibMagic(from))
+    if (NeedsSibMagic(from))
     {
-        b = x;
-        x = false;
+        bool b = from.Base.IsExtended();
+	rex    = 0x40 | (x << 1) | b;
     }
-    u8 rex = 0x40 | (x << 1) | b;
+    else
+	rex    = 0x40 | x;
     if (rex != 0x40)
         xWrite8(rex);
 #endif
@@ -1081,12 +1096,10 @@ xScopedSavedRegisters::~xScopedSavedRegisters() {
 }
 
 xAddressVoid xComplexAddress(const xAddressReg& tmpRegister, void *base, const xAddressVoid& offset) {
-    if ((sptr)base == (s32)(sptr)base) {
+    if ((sptr)base == (s32)(sptr)base)
         return offset + base;
-    } else {
-        xLEA(tmpRegister, ptr[base]);
-        return offset + tmpRegister;
-    }
+    xLEA(tmpRegister, ptr[base]);
+    return offset + tmpRegister;
 }
 
 void xLoadFarAddr(const xAddressReg& dst, void *addr) {

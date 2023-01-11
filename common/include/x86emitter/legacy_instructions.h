@@ -15,22 +15,18 @@
 
 #pragma once
 
-//#define SPAM_DEPRECATION_WARNINGS
-#if defined(__linux__) && defined(__clang__) && defined(SPAM_DEPRECATION_WARNINGS)
-#define ATTR_DEP [[deprecated]]
-#else
 #define ATTR_DEP
-#endif
 
 //------------------------------------------------------------------
 // legacy jump/align functions
 //------------------------------------------------------------------
-ATTR_DEP extern void x86SetPtr(u8 *ptr);
+#define x86SetPtr(ptr) ((x86Ptr = (ptr)))
 ATTR_DEP extern void x86SetJ8(u8 *j8);
 ATTR_DEP extern void x86SetJ8A(u8 *j8);
 ATTR_DEP extern void x86SetJ32(u32 *j32);
 ATTR_DEP extern void x86SetJ32A(u32 *j32);
-ATTR_DEP extern void x86Align(int bytes);
+#define x86Align(bytes) (x86Ptr = (u8 *)(((uptr)x86Ptr + (bytes) - 1) & ~((bytes) - 1)))
+    
 //------------------------------------------------------------------
 
 ////////////////////////////////////
