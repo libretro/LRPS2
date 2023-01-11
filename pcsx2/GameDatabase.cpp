@@ -21,6 +21,9 @@
 #include <algorithm>
 #include <cctype>
 
+extern const wxChar* tbl_SpeedhackNames[];
+extern const wxChar *tbl_GamefixNames[];
+
 static std::string strToLower(std::string str)
 {
 	std::transform(str.begin(), str.end(), str.begin(),
@@ -99,7 +102,8 @@ static GameDatabaseSchema::GameEntry entryFromYaml(const std::string serial, con
 			bool fixValidated = false;
 			for (GamefixId id = GamefixId_FIRST; id < pxEnumEnd; id++)
 			{
-				std::string validFix =wxString(EnumToString(id)).ToStdString() + "Hack";
+				const wxChar *str    = tbl_GamefixNames[id];
+				std::string validFix = wxString(str).ToStdString() + "Hack";
 				if (validFix == fix)
 				{
 					fixValidated = true;
@@ -124,7 +128,8 @@ static GameDatabaseSchema::GameEntry entryFromYaml(const std::string serial, con
 				bool speedHackValidated = false;
 				for (SpeedhackId id = SpeedhackId_FIRST; id < pxEnumEnd; id++)
 				{
-					std::string validSpeedHack = wxString(EnumToString(id)).ToStdString() + "SpeedHack";
+					const wxChar *str         = tbl_SpeedhackNames[id];
+					std::string validSpeedHack = wxString(str).ToStdString() + "SpeedHack";
 					if (validSpeedHack == speedHack)
 					{
 						speedHackValidated = true;

@@ -116,8 +116,6 @@ enum SSE_RoundMode {
     SSE_RoundMode_COUNT
 };
 
-ImplementEnumOperators(SSE_RoundMode);
-
 // Predeclaration for xIndirect32
 namespace x86Emitter {
 	template <typename T> class xIndirect;

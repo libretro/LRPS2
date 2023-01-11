@@ -19,15 +19,11 @@
 #include "Config.h"
 #include "GS.h"
 
-const wxChar* const tbl_SpeedhackNames[] =
+const wxChar* tbl_SpeedhackNames[] =
 {
 	L"mvuFlag",
-	L"InstantVU1" };
-
-const __fi wxChar* EnumToString(SpeedhackId id)
-{
-	return tbl_SpeedhackNames[id];
-}
+	L"InstantVU1"
+};
 
 void Pcsx2Config::SpeedhackOptions::Set(SpeedhackId id, bool enabled)
 {
@@ -100,7 +96,7 @@ Pcsx2Config::GSOptions::GSOptions()
 }
 
 
-const wxChar *const tbl_GamefixNames[] =
+const wxChar *tbl_GamefixNames[] =
 {
 	L"VuAddSub",
 	L"FpuCompare",
@@ -120,11 +116,6 @@ const wxChar *const tbl_GamefixNames[] =
 	L"Ibit",
 	L"VUKickstart"
 };
-
-const __fi wxChar* EnumToString( GamefixId id )
-{
-	return tbl_GamefixNames[id];
-}
 
 // all gamefixes are disabled by default.
 Pcsx2Config::GamefixOptions::GamefixOptions()
@@ -154,7 +145,8 @@ void Pcsx2Config::GamefixOptions::Set( const wxString& list, bool enabled )
 		GamefixId i;
 		for (i=GamefixId_FIRST; i < pxEnumEnd; ++i)
 		{
-			if( token.CmpNoCase( EnumToString(i) ) == 0 ) break;
+			const wxChar *str    = tbl_GamefixNames[i];
+			if( token.CmpNoCase(str) == 0 ) break;
 		}
 		if( i < pxEnumEnd ) Set( i );
 	}

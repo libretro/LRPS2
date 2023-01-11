@@ -30,6 +30,11 @@
 
 #include "retro_messager.h"
 
+extern const wxChar* tbl_SpeedhackNames[];
+extern const wxChar *tbl_GamefixNames[];
+
+ImplementEnumOperators(SSE_RoundMode);
+
 class RecursionGuard
 {
 public:
@@ -171,7 +176,7 @@ static int loadGameSettings(Pcsx2Config& dest, const GameDatabaseSchema::GameEnt
 	if (game.eeRoundMode != GameDatabaseSchema::RoundMode::Undefined)
 	{
 		SSE_RoundMode eeRM = (SSE_RoundMode)enum_cast(game.eeRoundMode);
-		if (EnumIsValid(eeRM))
+		if (((int)eeRM >= SSE_RoundMode_FIRST) && ((int)eeRM < SSE_RoundMode_COUNT))
 		{
 			dest.Cpu.sseMXCSR.SetRoundMode(eeRM);
 			gf++;
@@ -181,7 +186,7 @@ static int loadGameSettings(Pcsx2Config& dest, const GameDatabaseSchema::GameEnt
 	if (game.vuRoundMode != GameDatabaseSchema::RoundMode::Undefined)
 	{
 		SSE_RoundMode vuRM = (SSE_RoundMode)enum_cast(game.vuRoundMode);
-		if (EnumIsValid(vuRM))
+		if (((int)vuRM >= SSE_RoundMode_FIRST) && ((int)vuRM < SSE_RoundMode_COUNT))
 		{
 			dest.Cpu.sseVUMXCSR.SetRoundMode(vuRM);
 			gf++;
@@ -211,7 +216,8 @@ static int loadGameSettings(Pcsx2Config& dest, const GameDatabaseSchema::GameEnt
 	// TODO - config - this could be simplified with maps instead of bitfields and enums
 	for (SpeedhackId id = SpeedhackId_FIRST; id < pxEnumEnd; id++)
 	{
-		std::string key = wxString(EnumToString(id)).ToStdString() + "SpeedHack";
+		const wxChar *str = tbl_SpeedhackNames[id];
+		std::string key   = wxString(str).ToStdString() + "SpeedHack";
 
 		// Gamefixes are already guaranteed to be valid, any invalid ones are dropped
 		if (game.speedHacks.count(key) == 1)
@@ -228,7 +234,8 @@ static int loadGameSettings(Pcsx2Config& dest, const GameDatabaseSchema::GameEnt
 	// TODO - config - this could be simplified with maps instead of bitfields and enums
 	for (GamefixId id = GamefixId_FIRST; id < pxEnumEnd; id++)
 	{
-		std::string key = wxString(EnumToString(id)).ToStdString() + "Hack";
+		const wxChar *str = tbl_GamefixNames[id];
+		std::string key   = wxString(str).ToStdString() + "Hack";
 
 		// Gamefixes are already guaranteed to be valid, any invalid ones are dropped
 		if (std::find(game.gameFixes.begin(), game.gameFixes.end(), key) != game.gameFixes.end())

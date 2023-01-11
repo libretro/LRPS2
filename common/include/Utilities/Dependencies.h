@@ -37,13 +37,6 @@
 //    Dummy_COUNT
 // };
 //
-// The macro also defines utility functions for bounds checking enumerations:
-//   EnumIsValid(value);   // returns TRUE if the enum value is between FIRST and COUNT.
-//
-// It also defines a *prototype* for converting the enumeration to a string.  Note that this
-// method is not implemented!  You must implement it yourself if you want to use it:
-//   EnumToString(value);
-//
 #define ImplementEnumOperators(enumName)                                                                             \
     static __fi enumName &operator++(enumName &src)                                                                  \
     {                                                                                                                \
@@ -70,13 +63,7 @@
                                                                                                                      \
     static __fi bool operator<(const enumName &left, const pxEnumEnd_t &) { return (int)left < enumName##_COUNT; }   \
     static __fi bool operator!=(const enumName &left, const pxEnumEnd_t &) { return (int)left != enumName##_COUNT; } \
-    static __fi bool operator==(const enumName &left, const pxEnumEnd_t &) { return (int)left == enumName##_COUNT; } \
-                                                                                                                     \
-    static __fi bool EnumIsValid(enumName id)                                                                        \
-    {                                                                                                                \
-        return ((int)id >= enumName##_FIRST) && ((int)id < enumName##_COUNT);                                        \
-    }                                                                                                                \
-    extern const wxChar *EnumToString(enumName id)
+    static __fi bool operator==(const enumName &left, const pxEnumEnd_t &) { return (int)left == enumName##_COUNT; }
 
 class pxEnumEnd_t
 {
