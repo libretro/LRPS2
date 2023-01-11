@@ -182,18 +182,9 @@ void cpuTlbMiss(u32 addr, u32 bd, u32 excode)
 	cpuRegs.CP0.n.BadVAddr = addr;
 	cpuRegs.CP0.n.Context &= 0xFF80000F;
 	cpuRegs.CP0.n.Context |= (addr >> 9) & 0x007FFFF0;
-	cpuRegs.CP0.n.EntryHi = (addr & 0xFFFFE000) | (cpuRegs.CP0.n.EntryHi & 0x1FFF);
-
-	cpuRegs.pc -= 4;
+	cpuRegs.CP0.n.EntryHi  = (addr & 0xFFFFE000) | (cpuRegs.CP0.n.EntryHi & 0x1FFF);
+	cpuRegs.pc            -= 4;
 	cpuException(excode, bd);
-}
-
-void cpuTlbMissR(u32 addr, u32 bd) {
-	cpuTlbMiss(addr, bd, EXC_CODE_TLBL);
-}
-
-void cpuTlbMissW(u32 addr, u32 bd) {
-	cpuTlbMiss(addr, bd, EXC_CODE_TLBS);
 }
 
 // sets a branch test to occur some time from an arbitrary starting point.
@@ -201,36 +192,8 @@ __fi void cpuSetNextEvent( u32 startCycle, s32 delta )
 {
 	// typecast the conditional to signed so that things don't blow up
 	// if startCycle is greater than our next branch cycle.
-
 	if( (int)(g_nextEventCycle - startCycle) > delta )
 		g_nextEventCycle = startCycle + delta;
-}
-
-// sets a branch to occur some time from the current cycle
-__fi void cpuSetNextEventDelta( s32 delta )
-{
-	cpuSetNextEvent( cpuRegs.cycle, delta );
-}
-
-// tests the cpu cycle against the given start and delta values.
-// Returns true if the delta time has passed.
-__fi int cpuTestCycle( u32 startCycle, s32 delta )
-{
-	// typecast the conditional to signed so that things don't explode
-	// if the startCycle is ahead of our current cpu cycle.
-
-	return (int)(cpuRegs.cycle - startCycle) >= delta;
-}
-
-// tells the EE to run the branch test the next time it gets a chance.
-__fi void cpuSetEvent(void)
-{
-	g_nextEventCycle = cpuRegs.cycle;
-}
-
-__fi void cpuClearInt( uint i )
-{
-	cpuRegs.interrupt &= ~(1 << i);
 }
 
 static __fi void TESTINT( u8 n, void (*callback)(void) )
@@ -449,18 +412,6 @@ __fi void cpuTestDMACInts(void)
 	{
 		iopBreak += iopCycleEE;		// record the number of cycles the IOP didn't run.
 		iopCycleEE = 0;
-	}
-}
-
-static __fi void cpuTestTIMRInts(void)
-{
-	if ((cpuRegs.CP0.n.Status.val & 0x10007) == 0x10001) {
-		// Perfs are updated when read by games (COP0's MFC0/MTC0 instructions), so we need
-		// only update them at semi-regular intervals to keep cpuRegs.cycle from wrapping
-		// around twice on us btween updates.  Hence this function is called from the cpu's
-		// Counters update.
-		COP0_UpdatePCCR();
-		_cpuTestTIMR();
 	}
 }
 

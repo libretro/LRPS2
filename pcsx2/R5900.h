@@ -399,16 +399,29 @@ extern uint dmacInterrupt();
 
 extern void cpuReset();		// can throw Exception::FileNotFound.
 extern void cpuException(u32 code, u32 bd);
-extern void cpuTlbMissR(u32 addr, u32 bd);
-extern void cpuTlbMissW(u32 addr, u32 bd);
-extern void cpuClearInt(uint n);
+extern void cpuTlbMiss(u32 addr, u32 bd, u32 excode);
+#define cpuTlbMissR(addr, bd) cpuTlbMiss((addr), (bd), EXC_CODE_TLBL)
+#define cpuTlbMissW(addr, bd) cpuTlbMiss((addr), (bd), EXC_CODE_TLBS)
+
+#define cpuClearInt(i) (cpuRegs.interrupt &= ~(1 << (i)))
+
 extern void GoemonPreloadTlb();
 extern void GoemonUnloadTlb(u32 key);
 
 extern void cpuSetNextEvent( u32 startCycle, s32 delta );
-extern void cpuSetNextEventDelta( s32 delta );
-extern int  cpuTestCycle( u32 startCycle, s32 delta );
-extern void cpuSetEvent();
+
+// sets a branch to occur some time from the current cycle
+#define cpuSetNextEventDelta(delta) cpuSetNextEvent(cpuRegs.cycle, (delta))
+
+// tests the cpu cycle against the given start and delta values.
+// Returns true if the delta time has passed.
+//
+// typecast the conditional to signed so that things don't explode
+// if the startCycle is ahead of our current cpu cycle.
+#define cpuTestCycle(startCycle, delta) ((int)(cpuRegs.cycle - ((u32)(startCycle))) >= ((s32)(delta)))
+
+// tells the EE to run the branch test the next time it gets a chance.
+#define cpuSetEvent() (g_nextEventCycle = cpuRegs.cycle)
 
 extern void _cpuEventTest_Shared();		// for internal use by the Dynarecs and Ints inside R5900:
 
