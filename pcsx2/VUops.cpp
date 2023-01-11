@@ -45,6 +45,49 @@
 
 static __aligned16 VECTOR RDzero;
 
+static __ri u32 VU_MAC_UPDATE( int shift, VURegs * VU, float f )
+{
+	u32 v   = *(u32*)&f;
+	u32 s   = v & 0x80000000;
+
+	if (s)
+		VU->macflag |= 0x0010<<shift;
+	else
+		VU->macflag &= ~(0x0010<<shift);
+
+	if( f == 0 )
+		VU->macflag = (VU->macflag & ~(0x1100<<shift)) | (0x0001<<shift);
+	else
+	{
+		int exp = (v >> 23) & 0xff;
+
+		switch(exp)
+		{
+			case 0:
+				VU->macflag = (VU->macflag&~(0x1000<<shift)) | (0x0101<<shift);
+				return s;
+			case 255:
+				VU->macflag = (VU->macflag&~(0x0100<<shift)) | (0x1000<<shift);
+				return s|0x7f7fffff; /* max allowed */
+			default:
+				VU->macflag = (VU->macflag & ~(0x1101<<shift));
+				break;
+		}
+	}
+
+	return v;
+}
+
+static __ri void VU_STAT_UPDATE(VURegs * VU)
+{
+	int newflag = 0 ;
+	if (VU->macflag & 0x000F) newflag  = 0x1;
+	if (VU->macflag & 0x00F0) newflag |= 0x2;
+	if (VU->macflag & 0x0F00) newflag |= 0x4;
+	if (VU->macflag & 0xF000) newflag |= 0x8;
+	VU->statusflag = (VU->statusflag&0xc30) | newflag | ((VU->statusflag&0xf)<<6);
+}
+
 static __ri void _vuFMACflush(VURegs * VU) {
 	int i;
 

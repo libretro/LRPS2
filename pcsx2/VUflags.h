@@ -16,9 +16,6 @@
 #pragma once
 #include "VU.h"
 
-extern __ri u32 VU_MAC_UPDATE( int shift, VURegs * VU, float f );
-extern void VU_STAT_UPDATE(VURegs * VU);
-
 #define VU_MACx_UPDATE(VU, x) VU_MAC_UPDATE(3, (VU), x)
 #define VU_MACy_UPDATE(VU, y) VU_MAC_UPDATE(2, (VU), y)
 #define VU_MACz_UPDATE(VU, z) VU_MAC_UPDATE(1, (VU), z)
