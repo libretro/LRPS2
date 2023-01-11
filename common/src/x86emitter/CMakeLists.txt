@@ -17,7 +17,6 @@ set(x86emitterFinalFlags ${CommonFlags})
 set(x86emitterSources
 	bmi.cpp
 	cpudetect.cpp
-	fpu.cpp
 	groups.cpp
 	jmp.cpp
 	legacy.cpp

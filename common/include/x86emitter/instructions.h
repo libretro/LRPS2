@@ -272,11 +272,9 @@ DEFINE_FORWARD_JUMP(JAE, Jcc_AboveOrEqual);
 DEFINE_FORWARD_JUMP(JBE, Jcc_BelowOrEqual);
 
 typedef xForwardJA<s8> xForwardJA8;
-typedef xForwardJA<s32> xForwardJA32;
 typedef xForwardJB<s8> xForwardJB8;
 typedef xForwardJB<s32> xForwardJB32;
 typedef xForwardJAE<s8> xForwardJAE8;
-typedef xForwardJAE<s32> xForwardJAE32;
 typedef xForwardJBE<s8> xForwardJBE8;
 typedef xForwardJBE<s32> xForwardJBE32;
 
@@ -311,18 +309,10 @@ typedef xForwardJNE<s32> xForwardJNE32;
 DEFINE_FORWARD_JUMP(JS, Jcc_Signed);
 DEFINE_FORWARD_JUMP(JNS, Jcc_Unsigned);
 
-typedef xForwardJS<s8> xForwardJS8;
-typedef xForwardJS<s32> xForwardJS32;
 typedef xForwardJNS<s8> xForwardJNS8;
-typedef xForwardJNS<s32> xForwardJNS32;
 
 DEFINE_FORWARD_JUMP(JO, Jcc_Overflow);
 DEFINE_FORWARD_JUMP(JNO, Jcc_NotOverflow);
-
-typedef xForwardJO<s8> xForwardJO8;
-typedef xForwardJO<s32> xForwardJO32;
-typedef xForwardJNO<s8> xForwardJNO8;
-typedef xForwardJNO<s32> xForwardJNO32;
 
 DEFINE_FORWARD_JUMP(JC, Jcc_Carry);
 DEFINE_FORWARD_JUMP(JNC, Jcc_NotCarry);

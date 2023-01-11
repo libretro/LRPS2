@@ -16,8 +16,6 @@
 #pragma once
 
 //#define SIB 4		// maps to ESP
-//#define SIBDISP 5	// maps to EBP
-#define DISP32 5 // maps to EBP
 
 // general types
 typedef int x86IntRegType;
