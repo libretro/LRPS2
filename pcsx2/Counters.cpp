@@ -221,7 +221,7 @@ static void vSyncInfoCalc(vSyncTimingInfo* info, Fixed100 framesPerSecond, u32 s
 	const u64 HalfFrame = Frame / 2;
 	const u64 Blank     = Scanline * ((gsVideoMode == GS_VideoMode::NTSC ? 22 : 25) + static_cast<int>(gsIsInterlaced));
 	const u64 Render    = HalfFrame - Blank;
-	const u64 GSBlank   = Scanline * 3.5; // GS VBlank/CSR Swap happens roughly 3.5 Scanlines after VBlank Start
+	const u64 GSBlank   = Scanline * (gsVideoMode == GS_VideoMode::NTSC ? 3.5 : 3); // GS VBlank/CSR Swap happens roughly 3.5(NTSC) and 3(PAL) Scanlines after VBlank Start
 	bool is_ana_vmode   = (gsVideoMode == GS_VideoMode::PAL || gsVideoMode == GS_VideoMode::NTSC || gsVideoMode == GS_VideoMode::DVD_NTSC || gsVideoMode == GS_VideoMode::DVD_PAL); /* Is analog video mode? */
 
 	// Important!  The hRender/hBlank timers should be 50/50 for best results.
