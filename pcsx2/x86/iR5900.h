@@ -74,7 +74,8 @@ u32 scaleblockcycles_clear(void);
 namespace R5900{
 namespace Dynarec {
 extern void recDoBranchImm( u32* jmpSkip, bool isLikely = false );
-extern void recDoBranchImm_Likely( u32* jmpSkip );
+#define recDoBranchImm_Likely(jmpSkip) recDoBranchImm( jmpSkip, true)
+	
 } }
 
 ////////////////////////////////////////////////////////////////////

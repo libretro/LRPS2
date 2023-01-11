@@ -23,9 +23,6 @@
 struct BASEBLOCK
 {
 	uptr m_pFnptr;
-
-	__inline uptr GetFnptr() const { return m_pFnptr; }
-	void __inline SetFnptr( uptr ptr ) { m_pFnptr = ptr; }
 };
 
 // extra block info (only valid for start of fn)
