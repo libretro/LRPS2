@@ -33,6 +33,14 @@
 #include "x86/iCOP0.h"
 #include "x86/iFPU.h"
 
+static void COP2_Unknown(void) { }
+static void COP2_BC2(void) { Int_COP2BC2PrintTable[_Rt_]();}
+static void COP2_SPECIAL(void) { Int_COP2SPECIAL1PrintTable[_Funct_]();}
+static void COP2_SPECIAL2(void)
+{
+	Int_COP2SPECIAL2PrintTable[(cpuRegs.code & 0x3) | ((cpuRegs.code >> 4) & 0x7c)]();
+}
+
 namespace R5900
 {
 	namespace Opcodes
@@ -683,3 +691,4 @@ void (*Int_COP2SPECIAL2PrintTable[128])() =
  COP2_Unknown,COP2_Unknown,COP2_Unknown,COP2_Unknown,COP2_Unknown,COP2_Unknown,COP2_Unknown,COP2_Unknown,
  COP2_Unknown,COP2_Unknown,COP2_Unknown,COP2_Unknown,COP2_Unknown,COP2_Unknown,COP2_Unknown,COP2_Unknown,
 };
+

@@ -34,11 +34,6 @@ extern  void (*Int_COP2BC2PrintTable[32])();
 extern  void (*Int_COP2SPECIAL1PrintTable[64])();
 extern  void (*Int_COP2SPECIAL2PrintTable[128])();
 
-void COP2_BC2(void);
-void COP2_SPECIAL(void);
-void COP2_SPECIAL2(void);
-void COP2_Unknown(void);
-
 // reserve the lower 8 bits for opcode specific types
 // which of these are actually used depends on the opcode
 // flags further below

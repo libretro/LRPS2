@@ -40,15 +40,6 @@
 
 using namespace R5900;
 
-void COP2_BC2(void) { Int_COP2BC2PrintTable[_Rt_]();}
-void COP2_SPECIAL(void) { Int_COP2SPECIAL1PrintTable[_Funct_]();}
-
-void COP2_SPECIAL2(void) {
-	Int_COP2SPECIAL2PrintTable[(cpuRegs.code & 0x3) | ((cpuRegs.code >> 4) & 0x7c)]();
-}
-
-void COP2_Unknown(void) { }
-
 //****************************************************************************
 
 static __fi void _vu0run(bool breakOnMbit, bool addCycles)
@@ -78,9 +69,9 @@ static __fi void _vu0run(bool breakOnMbit, bool addCycles)
 	}
 }
 
-void _vu0WaitMicro(void)   { _vu0run(1, 1); } // Runs VU0 Micro Until E-bit or M-Bit End
-void _vu0FinishMicro(void) { _vu0run(0, 1); } // Runs VU0 Micro Until E-Bit End
-void vu0Finish(void)	   { _vu0run(0, 0); } // Runs VU0 Micro Until E-Bit End (doesn't stall EE)
+void _vu0WaitMicro(void)   { _vu0run(true, true); } // Runs VU0 Micro Until E-bit or M-Bit End
+void _vu0FinishMicro(void) { _vu0run(false, true); } // Runs VU0 Micro Until E-Bit End
+void vu0Finish(void)	   { _vu0run(false, false); } // Runs VU0 Micro Until E-Bit End (doesn't stall EE)
 
 namespace R5900 {
 namespace Interpreter{
