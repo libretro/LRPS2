@@ -1334,7 +1334,7 @@ GSTextureCache::Source* GSTextureCache::CreateSource(const GIFRegTEX0& TEX0, con
 			{
 				case 2: case 4: case 6: case 8:  modxy += 0.2f; break;
 				case 3: case 7: case 9:		 modxy += 0.1f; break;
-				case 5:				 modxy += 0.3f; break;
+				case 5: case 10:		 modxy += 0.3f; break;
 				default:                         modxy  = 0.0f; break;
 			}
 		}

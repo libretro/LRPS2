@@ -217,6 +217,7 @@ struct retro_core_option_v2_definition option_defs_us[] = {
          {"7", "7x Native"},
          {"8", "8x Native ~2880p 5K"},
          {"9", "9x Native"},
+         {"10", "10x Native"},
          {NULL, NULL},
       },
       "1"
