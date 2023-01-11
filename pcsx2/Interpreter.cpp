@@ -35,7 +35,7 @@ static void intEventTest(void)
 	_cpuEventTest_Shared();
 }
 
-static void execI(void)
+static void R5900execI(void)
 {
 	u32 pc = cpuRegs.pc;
 	// We need to increase the pc before executing the memRead32. An exception could appears
@@ -55,7 +55,7 @@ static void execI(void)
 static __fi void _doBranch_shared(u32 tar)
 {
 	cpuRegs.branch = 1;
-	execI();
+	R5900execI();
 
 	// branch being 0 means an exception was thrown, since only the exception
 	// handler should ever clear it.
@@ -351,7 +351,7 @@ static void intExecute(void)
 			switch (state) {
 				case RESET:
 					do
-						execI();
+						R5900execI();
 					while (cpuRegs.pc != (g_eeloadMain ? g_eeloadMain : EELOAD_START));
 					if (cpuRegs.pc == EELOAD_START)
 					{
@@ -387,15 +387,15 @@ static void intExecute(void)
 				case GAME_LOADING:
 					if (ElfEntry != 0xFFFFFFFF) {
 						do
-							execI();
+							R5900execI();
 						while (cpuRegs.pc != ElfEntry);
 						eeGameStarting();
 					}
 					state = GAME_RUNNING;
 
 				case GAME_RUNNING:
-					while (true)
-						execI();
+					for (;;)
+						R5900execI();
 			}
 		}
 		catch( Exception::ExitCpuExecute& ) { }

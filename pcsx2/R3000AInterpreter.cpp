@@ -38,12 +38,12 @@ static void doBranch(s32 tar);	// forward declared prototype
 * Format:  OP rs, offset                                 *
 *********************************************************/
 
-void psxBGEZ()         // Branch if Rs >= 0
+void psxBGEZ(void)         // Branch if Rs >= 0
 {
 	if (_i32(_rRs_) >= 0) doBranch(_BranchTarget_);
 }
 
-void psxBGEZAL()   // Branch if Rs >= 0 and link
+void psxBGEZAL(void)   // Branch if Rs >= 0 and link
 {
 	_SetLink(31);
 	if (_i32(_rRs_) >= 0)
@@ -52,21 +52,21 @@ void psxBGEZAL()   // Branch if Rs >= 0 and link
 	}
 }
 
-void psxBGTZ()          // Branch if Rs >  0
+void psxBGTZ(void)          // Branch if Rs >  0
 {
 	if (_i32(_rRs_) > 0) doBranch(_BranchTarget_);
 }
 
-void psxBLEZ()         // Branch if Rs <= 0
+void psxBLEZ(void)         // Branch if Rs <= 0
 {
 	if (_i32(_rRs_) <= 0) doBranch(_BranchTarget_);
 }
-void psxBLTZ()          // Branch if Rs <  0
+void psxBLTZ(void)          // Branch if Rs <  0
 {
 	if (_i32(_rRs_) < 0) doBranch(_BranchTarget_);
 }
 
-void psxBLTZAL()    // Branch if Rs <  0 and link
+void psxBLTZAL(void)    // Branch if Rs <  0 and link
 {
 	_SetLink(31);
 	if (_i32(_rRs_) < 0)
@@ -80,12 +80,12 @@ void psxBLTZAL()    // Branch if Rs <  0 and link
 * Format:  OP rs, rt, offset                             *
 *********************************************************/
 
-void psxBEQ()   // Branch if Rs == Rt
+void psxBEQ(void)   // Branch if Rs == Rt
 {
 	if (_i32(_rRs_) == _i32(_rRt_)) doBranch(_BranchTarget_);
 }
 
-void psxBNE()   // Branch if Rs != Rt
+void psxBNE(void)   // Branch if Rs != Rt
 {
 	if (_i32(_rRs_) != _i32(_rRt_)) doBranch(_BranchTarget_);
 }
@@ -94,7 +94,7 @@ void psxBNE()   // Branch if Rs != Rt
 * Jump to target                                         *
 * Format:  OP target                                     *
 *********************************************************/
-void psxJ()
+void psxJ(void)
 {
 	// check for iop module import table magic
 	u32 delayslot = iopMemRead32(psxRegs.pc);
@@ -104,7 +104,7 @@ void psxJ()
 	doBranch(_JumpTarget_);
 }
 
-void psxJAL()
+void psxJAL(void)
 {
 	_SetLink(31);
 	doBranch(_JumpTarget_);
@@ -114,12 +114,12 @@ void psxJAL()
 * Register jump                                          *
 * Format:  OP rs, rd                                     *
 *********************************************************/
-void psxJR()
+void psxJR(void)
 {
 	doBranch(_u32(_rRs_));
 }
 
-void psxJALR()
+void psxJALR(void)
 {
 	if (_Rd_)
 	{
@@ -129,9 +129,9 @@ void psxJALR()
 }
 
 ///////////////////////////////////////////
-// These macros are used to assemble the repassembler functions
+// These macros are used to assemble the reassembler functions
 
-static __fi void execI()
+static __fi void R3000AexecI(void)
 {
 	// Inject IRX hack
 	if (psxRegs.pc == 0x1630 && g_Conf->CurrentIRX.Length() > 3) {
@@ -157,28 +157,31 @@ static __fi void execI()
 	psxBSC[psxRegs.code >> 26]();
 }
 
-static void doBranch(s32 tar) {
+static void doBranch(s32 tar)
+{
 	branch2 = iopIsDelaySlot = true;
 	branchPC = tar;
-	execI();
+	R3000AexecI();
 	iopIsDelaySlot = false;
 	psxRegs.pc = branchPC;
 
 	iopEventTest();
 }
 
-static void intReserve() {
+static void intReserve(void) {
 }
 
-static void intAlloc() {
+static void intAlloc(void) {
 }
 
-static void intReset() {
+static void intReset(void) {
 	intAlloc();
 }
 
-static void intExecute() {
-	for (;;) execI();
+static void intExecute(void)
+{
+	for (;;)
+		R3000AexecI();
 }
 
 static s32 intExecuteBlock( s32 eeCycles )
@@ -186,32 +189,25 @@ static s32 intExecuteBlock( s32 eeCycles )
 	iopBreak = 0;
 	iopCycleEE = eeCycles;
 
-	while (iopCycleEE > 0){
+	while (iopCycleEE > 0)
+	{
 		if ((psxHu32(HW_ICFG) & 8) && ((psxRegs.pc & 0x1fffffffU) == 0xa0 || (psxRegs.pc & 0x1fffffffU) == 0xb0 || (psxRegs.pc & 0x1fffffffU) == 0xc0))
 			psxBiosCall();
 
 		branch2 = 0;
-		while (!branch2) {
-			execI();
-        }
+		while (!branch2)
+			R3000AexecI();
 	}
 	return iopBreak + iopCycleEE;
 }
 
-static void intClear(u32 Addr, u32 Size) {
-}
+static void intClear(u32 Addr, u32 Size) { }
 
-static void intShutdown() {
-}
+static void intShutdown(void) { }
 
-static void intSetCacheReserve( uint reserveInMegs )
-{
-}
+static void intSetCacheReserve( uint reserveInMegs ) { }
 
-static uint intGetCacheReserve()
-{
-	return 0;
-}
+static uint intGetCacheReserve(void) { return 0; }
 
 R3000Acpu psxInt = {
 	intReserve,
