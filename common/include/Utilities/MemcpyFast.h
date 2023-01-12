@@ -17,6 +17,8 @@
 
 #include "Pcsx2Defs.h"
 
+#include <cstring>
+
 // This method can clear any object-like entity -- which is anything that is not a pointer.
 // Structures, static arrays, etc.  No need to include sizeof() crap, this does it automatically
 // for you!
