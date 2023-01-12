@@ -582,8 +582,6 @@ typedef struct pthread_mutexattr_t_ * pthread_mutexattr_t;
 typedef struct pthread_cond_t_ * pthread_cond_t;
 typedef struct pthread_condattr_t_ * pthread_condattr_t;
 #endif
-typedef struct pthread_rwlock_t_ * pthread_rwlock_t;
-typedef struct pthread_rwlockattr_t_ * pthread_rwlockattr_t;
 typedef struct pthread_spinlock_t_ * pthread_spinlock_t;
 typedef struct pthread_barrier_t_ * pthread_barrier_t;
 typedef struct pthread_barrierattr_t_ * pthread_barrierattr_t;
@@ -692,8 +690,6 @@ struct pthread_once_t_
 #define PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP PTHREAD_ERRORCHECK_MUTEX_INITIALIZER
 
 #define PTHREAD_COND_INITIALIZER ((pthread_cond_t)(size_t) -1)
-
-#define PTHREAD_RWLOCK_INITIALIZER ((pthread_rwlock_t)(size_t) -1)
 
 #define PTHREAD_SPINLOCK_INITIALIZER ((pthread_spinlock_t)(size_t) -1)
 
@@ -1065,40 +1061,6 @@ int PTW32_CDECL pthread_getschedparam (pthread_t thread,
 int PTW32_CDECL pthread_setconcurrency (int);
  
 int PTW32_CDECL pthread_getconcurrency (void);
-
-/*
- * Read-Write Lock Functions
- */
-int PTW32_CDECL pthread_rwlock_init(pthread_rwlock_t *lock,
-                                const pthread_rwlockattr_t *attr);
-
-int PTW32_CDECL pthread_rwlock_destroy(pthread_rwlock_t *lock);
-
-int PTW32_CDECL pthread_rwlock_tryrdlock(pthread_rwlock_t *);
-
-int PTW32_CDECL pthread_rwlock_trywrlock(pthread_rwlock_t *);
-
-int PTW32_CDECL pthread_rwlock_rdlock(pthread_rwlock_t *lock);
-
-int PTW32_CDECL pthread_rwlock_timedrdlock(pthread_rwlock_t *lock,
-                                       const struct timespec *abstime);
-
-int PTW32_CDECL pthread_rwlock_wrlock(pthread_rwlock_t *lock);
-
-int PTW32_CDECL pthread_rwlock_timedwrlock(pthread_rwlock_t *lock,
-                                       const struct timespec *abstime);
-
-int PTW32_CDECL pthread_rwlock_unlock(pthread_rwlock_t *lock);
-
-int PTW32_CDECL pthread_rwlockattr_init (pthread_rwlockattr_t * attr);
-
-int PTW32_CDECL pthread_rwlockattr_destroy (pthread_rwlockattr_t * attr);
-
-int PTW32_CDECL pthread_rwlockattr_getpshared (const pthread_rwlockattr_t * attr,
-                                           int *pshared);
-
-int PTW32_CDECL pthread_rwlockattr_setpshared (pthread_rwlockattr_t * attr,
-                                           int pshared);
 
 #if PTW32_LEVEL >= PTW32_LEVEL_MAX - 1
 

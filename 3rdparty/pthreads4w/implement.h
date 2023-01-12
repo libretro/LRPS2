@@ -368,24 +368,6 @@ struct pthread_condattr_t_
   int pshared;
 };
 
-#define PTW32_RWLOCK_MAGIC 0xfacade2
-
-struct pthread_rwlock_t_
-{
-  pthread_mutex_t mtxExclusiveAccess;
-  pthread_mutex_t mtxSharedAccessCompleted;
-  pthread_cond_t cndSharedAccessCompleted;
-  int nSharedAccessCount;
-  int nExclusiveAccessCount;
-  int nCompletedSharedAccessCount;
-  int nMagic;
-};
-
-struct pthread_rwlockattr_t_
-{
-  int pshared;
-};
-
 typedef struct ThreadKeyAssoc ThreadKeyAssoc;
 
 struct ThreadKeyAssoc
@@ -536,7 +518,6 @@ extern ptw32_mcs_lock_t ptw32_thread_reuse_lock;
 extern ptw32_mcs_lock_t ptw32_mutex_test_init_lock;
 extern ptw32_mcs_lock_t ptw32_cond_list_lock;
 extern ptw32_mcs_lock_t ptw32_cond_test_init_lock;
-extern ptw32_mcs_lock_t ptw32_rwlock_test_init_lock;
 extern ptw32_mcs_lock_t ptw32_spinlock_test_init_lock;
 
 #if defined(_UWIN)
@@ -560,7 +541,6 @@ extern "C"
 
   int ptw32_cond_check_need_init (pthread_cond_t * cond);
   int ptw32_mutex_check_need_init (pthread_mutex_t * mutex);
-  int ptw32_rwlock_check_need_init (pthread_rwlock_t * rwlock);
 
   int ptw32_robust_mutex_inherit(pthread_mutex_t * mutex);
   void ptw32_robust_mutex_add(pthread_mutex_t* mutex, pthread_t self);
@@ -587,8 +567,6 @@ extern "C"
   int ptw32_getprocessors (int *count);
 
   int ptw32_setthreadpriority (pthread_t thread, int policy, int priority);
-
-  void ptw32_rwlock_cancelwrwait (void *arg);
 
 #if ! (defined (__MINGW64__) || defined(__MINGW32__)) || (defined(__MSVCRT__) && ! defined(__DMC__))
   unsigned __stdcall

@@ -56,7 +56,6 @@
 #include "misc.c"
 #include "mutex.c"
 #include "nonportable.c"
-#include "rwlock.c"
 #include "sched.c"
 #include "semaphore.c"
 #include "signal.c"
