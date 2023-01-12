@@ -39,10 +39,6 @@ USBhandler usbHandler;
 
 static void modules_close(void)
 {
-	if( GetMTGS().IsSelf() )
-		GSclose();
-	else
-		GetMTGS().Suspend();
 	DoCDVDclose();
 	FWclose();
 	SPU2close();
@@ -56,11 +52,14 @@ static void modules_close(void)
 	usbHandler = NULL;
 
 	FileMcd_EmuClose();
+	if( GetMTGS().IsSelf() )
+		GSclose();
+	else
+		GetMTGS().Suspend();
 }
 
 static void modules_open(bool isSuspended)
 {
-	GetMTGS().Resume();
 	GetMTGS().WaitForOpen();
 	if (isSuspended || !g_GameStarted)
 		DoCDVDopen();
