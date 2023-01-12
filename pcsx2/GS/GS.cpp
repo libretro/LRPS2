@@ -56,7 +56,7 @@ GSVector4i GSClientRect(void)
         return GSVector4i(0, 0, internal_res.x, internal_res.y);
 }
 
-EXPORT_C_(int) GSinit(void)
+int GSinit(void)
 {
 	// Vector instructions must be avoided when initialising GS since PCSX2
 	// can crash if the CPU does not support the instruction set.
@@ -86,7 +86,7 @@ EXPORT_C_(int) GSinit(void)
 	return 0;
 }
 
-EXPORT_C GSshutdown(void)
+void GSshutdown(void)
 {
 	delete s_gs;
 	s_gs                    = nullptr;
@@ -95,7 +95,7 @@ EXPORT_C GSshutdown(void)
 	is_d3d                  = false;
 }
 
-EXPORT_C GSclose(void)
+void GSclose(void)
 {
 	if(s_gs == NULL) return;
 
@@ -817,7 +817,7 @@ void GSUpdateOptions(void)
 }
 
 
-EXPORT_C_(int) GSopen2(u32 flags, u8 *basemem)
+int GSopen2(u32 flags, u8 *basemem)
 {
 	const bool toggle_state = !!(flags & 4);
 
@@ -863,48 +863,49 @@ EXPORT_C_(int) GSopen2(u32 flags, u8 *basemem)
 	return _GSopen(m_current_renderer_type, -1, basemem);
 }
 
-EXPORT_C GSreset()
+void GSreset(void)
 {
 	s_gs->Reset();
 }
 
-EXPORT_C GSgifSoftReset(u32 mask)
+void GSgifSoftReset(u32 mask)
 {
 	s_gs->SoftReset(mask);
 }
 
-EXPORT_C GSInitAndReadFIFO(u8* mem, u32 size)
+void GSInitAndReadFIFO(u8* mem, u32 size)
 {
 	s_gs->InitAndReadFIFO(mem, size);
 }
 
-EXPORT_C GSgifTransfer(const u8* mem, u32 size)
+void GSgifTransfer(const u8* mem, u32 size)
 {
 	s_gs->Transfer<3>(mem, size);
 }
 
-EXPORT_C GSgifTransfer1(u8* mem, u32 addr)
+void GSgifTransfer1(u8* mem, u32 addr)
 {
 	s_gs->Transfer<0>(const_cast<u8*>(mem) + addr, (0x4000 - addr) / 16);
 }
 
-EXPORT_C GSgifTransfer2(u8* mem, u32 size)
+void GSgifTransfer2(u8* mem, u32 size)
 {
 	s_gs->Transfer<1>(const_cast<u8*>(mem), size);
 }
 
-EXPORT_C GSgifTransfer3(u8* mem, u32 size)
+void GSgifTransfer3(u8* mem, u32 size)
 {
 	s_gs->Transfer<2>(const_cast<u8*>(mem), size);
 }
 
-EXPORT_C GSvsync(int field)
+void GSvsync(int field)
 {
    s_gs->VSync(field);
 }
 
-EXPORT_C_(int) GSfreeze(int mode, GSFreezeData* data)
+int GSfreeze(int mode, void *_data)
 {
+	GSFreezeData* data = (GSFreezeData*)_data;
 	switch (mode)
 	{
 		case FREEZE_SAVE:
@@ -918,7 +919,7 @@ EXPORT_C_(int) GSfreeze(int mode, GSFreezeData* data)
 	return 0;
 }
 
-EXPORT_C GSsetGameCRC(u32 crc, int options)
+void GSsetGameCRC(u32 crc, int options)
 {
 	s_gs->SetGameCRC(crc, options);
 }

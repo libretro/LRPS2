@@ -53,14 +53,10 @@
 
 #ifdef _MSC_VER
     #define GS_FORCEINLINE __forceinline
-    #define EXPORT_C_(type) extern "C" type __stdcall
-    #define EXPORT_C EXPORT_C_(void)
 
     #define ALIGN_STACK(n) alignas(n) int dummy__;
 
 #else
-    #define EXPORT_C_(type) extern "C" __attribute__((stdcall,externally_visible,visibility("default"))) type
-    #define EXPORT_C EXPORT_C_(void)
 #ifdef NDEBUG
     #define GS_FORCEINLINE __inline__ __attribute__((always_inline,unused))
 #else
