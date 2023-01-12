@@ -15,13 +15,6 @@
 
 #pragma once
 
-struct BiosDebugInformation
-{
-	u32 biosVersion;
-	u32 biosChecksum;
-	u32 threadListAddr;
-};
-
 extern u32 BiosVersion;		//  Used by CDVD
 extern u32 BiosChecksum;
 extern wxString BiosDescription;

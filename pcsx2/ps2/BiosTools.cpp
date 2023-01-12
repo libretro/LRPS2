@@ -45,12 +45,20 @@ struct romdir
 #	pragma pack()
 #endif
 
+struct BiosDebugInformation
+{
+	u32 biosVersion;
+	u32 biosChecksum;
+	u32 threadListAddr;
+};
+
 u32 BiosVersion;
 u32 BiosChecksum;
 wxString BiosDescription;
+
 static const BiosDebugInformation* CurrentBiosInformation;
 
-const BiosDebugInformation biosVersions[] = {
+static const BiosDebugInformation biosVersions[] = {
 	// USA     v02.00(14/06/2004)  Console
 	{ 0x00000200, 0xD778DB8D, 0x8001a640 },
 	// Europe  v02.00(14/06/2004)
