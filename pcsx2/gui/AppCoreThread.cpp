@@ -128,9 +128,8 @@ void AppCoreThread::ResetQuick()
 
 void AppCoreThread::Suspend()
 {
-	if (IsClosed())
-		return;
-	_parent::Suspend();
+	if (IsOpen())
+		_parent::Suspend();
 }
 
 void AppCoreThread::Resume()

@@ -82,7 +82,7 @@ public:
 	explicit SysThreadBase();
 	virtual ~SysThreadBase() = default;
 
-	// Thread safety for IsOpen / IsClosed: The execution mode can change at any time on
+	// Thread safety for IsOpen: The execution mode can change at any time on
 	// any thread, so the actual status may have already changed by the time this function
 	// returns its result.  Typically this isn't of major concern.  However if you need
 	// more assured execution mode status, issue a lock against the ExecutionModeMutex()
@@ -92,7 +92,6 @@ public:
 		return IsRunning() && (m_ExecMode > ExecMode_Closed);
 	}
 
-	bool IsClosed() const { return !IsOpen(); }
 	bool IsPaused() const { return !IsRunning() || (m_ExecMode <= ExecMode_Paused); }
 
 	bool HasPendingStateChangeRequest() const
@@ -205,7 +204,7 @@ public:
 	explicit SysFakeThread();
 	virtual ~SysFakeThread() = default;
 
-	// Thread safety for IsOpen / IsClosed: The execution mode can change at any time on
+	// Thread safety for IsOpen: The execution mode can change at any time on
 	// any thread, so the actual status may have already changed by the time this function
 	// returns its result.  Typically this isn't of major concern.  However if you need
 	// more assured execution mode status, issue a lock against the ExecutionModeMutex()
@@ -218,7 +217,6 @@ public:
 		return IsRunning() && (m_ExecMode > ExecMode_Closed);
 	}
 
-	bool IsClosed() const { return !IsOpen(); }
 	bool IsPaused() const { return !IsRunning() || (m_ExecMode <= ExecMode_Paused); }
 
 	bool HasPendingStateChangeRequest() const
