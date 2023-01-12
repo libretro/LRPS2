@@ -89,14 +89,6 @@
  *
  */
 
-#if PTW32_SCHED_LEVEL >= PTW32_SCHED_LEVEL_MAX
-#if defined(NEED_ERRNO)
-#include "need_errno.h"
-#else
-#include <errno.h>
-#endif
-#endif /* PTW32_SCHED_LEVEL >= PTW32_SCHED_LEVEL_MAX */
-
 #if (defined(__MINGW64__) || defined(__MINGW32__)) || defined(_UWIN)
 # if PTW32_SCHED_LEVEL >= PTW32_SCHED_LEVEL_MAX
 /* For pid_t */
@@ -138,20 +130,6 @@ int __cdecl sched_get_priority_max (int policy);
 int __cdecl sched_setscheduler (pid_t pid, int policy);
 
 int __cdecl sched_getscheduler (pid_t pid);
-
-/*
- * Note that this macro returns ENOTSUP rather than
- * ENOSYS as might be expected. However, returning ENOSYS
- * should mean that sched_get_priority_{min,max} are
- * not implemented as well as sched_rr_get_interval.
- * This is not the case, since we just don't support
- * round-robin scheduling. Therefore I have chosen to
- * return the same value as sched_setscheduler when
- * SCHED_RR is passed to it.
- */
-#define sched_rr_get_interval(_pid, _interval) \
-  ( errno = ENOTSUP, (int) -1 )
-
 
 #if defined(__cplusplus)
 }                               /* End of extern "C" */

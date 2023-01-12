@@ -49,7 +49,6 @@
 #include "condvar.c"
 #include "create.c"
 #include "autostatic.c"
-#include "errno.c"
 #include "exit.c"
 #include "fork.c"
 #include "global.c"

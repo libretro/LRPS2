@@ -46,18 +46,6 @@
 #  endif
 #endif
 
-/*
- *
- */
-
-#if PTW32_SEMAPHORE_LEVEL >= PTW32_SEMAPHORE_LEVEL_MAX
-#if defined(NEED_ERRNO)
-#include "need_errno.h"
-#else
-#include <errno.h>
-#endif
-#endif /* PTW32_SEMAPHORE_LEVEL >= PTW32_SEMAPHORE_LEVEL_MAX */
-
 #define _POSIX_SEMAPHORES
 
 #if defined(__cplusplus)

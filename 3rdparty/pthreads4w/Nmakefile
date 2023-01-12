@@ -7,7 +7,6 @@ CCFLAGS 		= -V -g $(CC.DLL)
 _MT			== 1
 _timeb		== timeb
 _ftime		== ftime
-_errno		== _ast_errno
 
 $(INCLUDEDIR)	:INSTALLDIR:	pthread.h sched.h
 

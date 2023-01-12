@@ -3,7 +3,6 @@ add_library(pthread
    config.h
    context.h
    implement.h
-   need_errno.h
    include/pthread.h
    include/sched.h
    include/semaphore.h

@@ -249,14 +249,6 @@ enum {
  *
  */
 
-#if PTW32_LEVEL >= PTW32_LEVEL_MAX
-#if defined(NEED_ERRNO)
-#include "need_errno.h"
-#else
-#include <errno.h>
-#endif
-#endif /* PTW32_LEVEL >= PTW32_LEVEL_MAX */
-
 /*
  * Several systems don't define some error numbers.
  */
@@ -1114,22 +1106,6 @@ int PTW32_CDECL pthreadCancelableTimedWait (HANDLE waitHandle,
                                         DWORD timeout);
 
 #endif /* PTW32_LEVEL >= PTW32_LEVEL_MAX */
-
-/*
- * Thread-Safe C Runtime Library Mappings.
- */
-#if !defined(_UWIN)
-#  if defined(NEED_ERRNO)
-int * PTW32_CDECL _errno( void );
-#  else
-#    if !defined(errno)
-#      if (defined(_MT) || defined(_DLL))
-         __declspec(dllimport) extern int * __cdecl _errno(void);
-#        define errno   (*_errno())
-#      endif
-#    endif
-#  endif
-#endif
 
 /*
  * Some compiler environments don't define some things.
