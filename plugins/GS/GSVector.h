@@ -22,6 +22,7 @@
 #include "Pcsx2Types.h"
 #include "stdafx.h"
 
+#include <algorithm>
 #include <cstring>
 
 #pragma once

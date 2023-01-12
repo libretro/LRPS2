@@ -26,10 +26,6 @@ if(GCC_VERSION VERSION_EQUAL "8.0" OR GCC_VERSION VERSION_GREATER "8.0")
     )
 endif()
 
-if(USE_ICC)
-    set(CommonFlags "${CommonFlags} -restrict")
-endif()
-
 set(GSFinalFlags ${CommonFlags})
 
 if(CMAKE_COMPILER_IS_GNUCXX)
