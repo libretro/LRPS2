@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include "x86emitter/x86emitter.h"
+
 using namespace x86Emitter;
 
 #include <deque>
@@ -28,7 +30,6 @@ using namespace x86Emitter;
 #include "iR5900.h"
 #include "R5900OpcodeTables.h"
 #include "System/RecTypes.h"
-#include "x86emitter/x86emitter.h"
 #include "microVU_Misc.h"
 #include "microVU_IR.h"
 

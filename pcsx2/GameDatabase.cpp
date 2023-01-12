@@ -13,13 +13,15 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
-
 #include "GameDatabase.h"
 
 #include "yaml-cpp/yaml.h"
 #include <algorithm>
 #include <cctype>
+#include <wx/string.h>
+
+#include "Config.h"
+#include "../libretro/options_tools.h"
 
 extern const wxChar* tbl_SpeedhackNames[];
 extern const wxChar *tbl_GamefixNames[];

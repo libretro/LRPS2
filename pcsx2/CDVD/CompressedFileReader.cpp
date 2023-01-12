@@ -13,7 +13,6 @@
 *  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "PrecompiledHeader.h"
 #include "AsyncFileReader.h"
 #include "CompressedFileReader.h"
 #include "ChdFileReader.h"
@@ -24,17 +23,11 @@
 AsyncFileReader* CompressedFileReader::GetNewReader(const wxString& fileName)
 {
 	if (ChdFileReader::CanHandle(fileName))
-	{
 		return new ChdFileReader();
-	}
 	if (GzippedFileReader::CanHandle(fileName))
-	{
 		return new GzippedFileReader();
-	}
 	if (CsoFileReader::CanHandle(fileName))
-	{
 		return new CsoFileReader();
-	}
 	// This is the one which will fail on open.
 	return NULL;
 }

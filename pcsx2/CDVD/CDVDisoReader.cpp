@@ -20,8 +20,6 @@
  *  Fixed CdRead by linuzappz
  */
 
-#include "PrecompiledHeader.h"
-
 #include "IsoFileFormats.h"
 
 #include <cstring>

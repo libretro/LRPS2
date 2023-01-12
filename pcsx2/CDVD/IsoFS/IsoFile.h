@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include <string>
+#include <wx/filefn.h>
 #include "IsoFileDescriptor.h"
 #include "SectorSource.h"
 

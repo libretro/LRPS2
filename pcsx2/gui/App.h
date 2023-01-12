@@ -67,7 +67,7 @@ public:
 		ApplyCustomGamefixes	        = false;
 	}
 	
-	// Returns TRUE if either speedhacks or gamefixes are being overridden.
+	// Returns true if either speedhacks or gamefixes are being overridden.
 	bool HasCustomHacks() const
 	{
 		return DisableSpeedhacks || ApplyCustomGamefixes;

@@ -13,8 +13,16 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
+#define NOMINMAX
+
 #include "AsyncFileReader.h"
+
+#include <algorithm>
+
+#include <wx/filename.h>
+#include <wx/string.h>
+
+#include "../libretro/options_tools.h"
 
 // Tests for a filename extension in both upper and lower case, if the filesystem happens
 // to be case-sensitive.

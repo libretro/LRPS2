@@ -1,9 +1,10 @@
-#include "PrecompiledHeader.h"
 #include "ChdFileReader.h"
 
 #include "CDVD/CompressedFileReaderUtils.h"
 
 #include <wx/dir.h>
+#include <wx/filename.h>
+#include <wx/filefn.h>
 
 bool ChdFileReader::CanHandle(const wxString &fileName)
 {

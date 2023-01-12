@@ -26,6 +26,8 @@
 #include <array>
 #include <vector>
 
+#include "Pcsx2Defs.h"
+
 struct track
 {
 	u32 start_lba;

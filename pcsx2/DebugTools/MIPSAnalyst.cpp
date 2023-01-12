@@ -13,7 +13,6 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
 #include "MIPSAnalyst.h"
 #include "DebugInterface.h"
 #include "SymbolMap.h"

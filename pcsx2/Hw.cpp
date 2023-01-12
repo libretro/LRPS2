@@ -13,7 +13,6 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
 #include "Common.h"
 
 #include "Hardware.h"
@@ -21,8 +20,6 @@
 #include "Gif_Unit.h"
 #include "IopHw.h"
 #include "SPU2/spu2.h"
-
-using namespace R5900;
 
 const int rdram_devices = 2;	// put 8 for TOOL and 2 for PS2 and PSX
 int rdram_sdevid = 0;

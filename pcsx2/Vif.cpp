@@ -13,7 +13,6 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
 #include "Common.h"
 #include "Vif.h"
 #include "Vif_Dma.h"
@@ -25,7 +24,7 @@
 
 __aligned16 vifStruct  vif0, vif1;
 
-void vif0Reset()
+void vif0Reset(void)
 {
 	/* Reset the whole VIF, meaning the internal pcsx2 vars and all the registers */
 	memzero(vif0);
@@ -34,7 +33,7 @@ void vif0Reset()
 	resetNewVif(0);
 }
 
-void vif1Reset()
+void vif1Reset(void)
 {
 	/* Reset the whole VIF, meaning the internal pcsx2 vars, and all the registers */
 	memzero(vif1);
@@ -71,7 +70,8 @@ void SaveStateBase::vif1Freeze()
 // Vif0/Vif1 Write32
 //------------------------------------------------------------------
 
-__fi void vif0FBRST(u32 value) {
+__fi void vif0FBRST(u32 value)
+{
 	if (value & 0x1) // Reset Vif.
 	{
 		u128 SaveCol;
@@ -139,8 +139,8 @@ __fi void vif0FBRST(u32 value) {
 	}
 }
 
-__fi void vif1FBRST(u32 value) {
-	
+__fi void vif1FBRST(u32 value)
+{
 	if (FBRST(value).RST) // Reset Vif.
 	{
 		u128 SaveCol;
@@ -292,8 +292,8 @@ _vifT __fi u32 vifRead32(u32 mem) {
 	return psHu32(mem);
 }
 
-// returns FALSE if no writeback is needed (or writeback is handled internally)
-// returns TRUE if the caller should writeback the value to the eeHw register map.
+// returns false if no writeback is needed (or writeback is handled internally)
+// returns true if the caller should writeback the value to the eeHw register map.
 _vifT __fi bool vifWrite32(u32 mem, u32 value) {
 	vifStruct& vif = GetVifX;
 

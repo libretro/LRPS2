@@ -443,7 +443,7 @@ bool wxTempFile::Open(const wxString& strName)
 
 #ifdef __UNIX__
     // the temp file should have the same permissions as the original one
-    mode_t mode;
+    int mode;
 
     wxStructStat st;
     if ( stat( (const char*) m_strName.fn_str(), &st) == 0 )
@@ -454,8 +454,8 @@ bool wxTempFile::Open(const wxString& strName)
     {
         // file probably didn't exist, just give it the default mode _using_
         // user's umask (new files creation should respect umask)
-        mode_t mask = umask(0777);
-        mode = 0666 & ~mask;
+        int mask = umask(0777);
+        mode     = 0666 & ~mask;
         umask(mask);
     }
 

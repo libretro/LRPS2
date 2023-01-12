@@ -13,8 +13,6 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
-
 #include "Gif_Unit.h"
 
 // A three-way toggle used to determine if the GIF is stalling (transferring) or done (finished).

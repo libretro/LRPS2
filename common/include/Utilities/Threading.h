@@ -24,6 +24,7 @@
 #endif
 
 #include "Pcsx2Defs.h"
+#include "Utilities/Dependencies.h"
 
 #undef Yield // release the burden of windows.h global namespace spam.
 

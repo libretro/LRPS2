@@ -1,5 +1,5 @@
 
-#include "PrecompiledHeader.h"
+#include "Utilities/Dependencies.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -18,18 +18,18 @@
 #include <wx/dir.h>
 #include <wx/evtloop.h>
 
-#include "GS.h"
+#include "../pcsx2/GS.h"
 #include "options_tools.h"
 #include "retro_messager.h"
 #include "language_injector.h"
 #include "input.h"
 #include "svnrev.h"
 #include "disk_control.h"
-#include "SPU2/Global.h"
-#include "ps2/BiosTools.h"
+#include "../pcsx2/SPU2/Global.h"
+#include "../pcsx2/ps2/BiosTools.h"
 #include "memcard_retro.h"
 
-#include "MTVU.h"
+#include "../pcsx2/MTVU.h"
 
 #ifdef PERF_TEST
 static struct retro_perf_callback perf_cb;

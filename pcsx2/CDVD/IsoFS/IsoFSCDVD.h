@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include <stdio.h>
+#include "Pcsx2Types.h"
 
 #include "SectorSource.h"
 

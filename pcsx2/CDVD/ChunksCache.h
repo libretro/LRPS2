@@ -15,11 +15,17 @@
 
 #pragma once
 
+#include "Pcsx2Defs.h"
+
+#include <algorithm>
 #include <list>
 
 #include "zlib_indexed.h"
 
-#define CLAMP(val, minval, maxval) (std::min(maxval, std::max(minval, val)))
+#undef min
+#undef max
+
+#define CLAMP(val, minval, maxval) std::min(maxval, std::max(minval, val))
 
 class ChunksCache
 {
@@ -36,7 +42,7 @@ public:
 	int Read(void* pDest, s64 offset, int length);
 
 	static int CopyAvailable(void* pSrc, s64 srcOffset, int srcSize,
-							 void* pDst, s64 dstOffset, int maxCopySize)
+			void* pDst, s64 dstOffset, int maxCopySize)
 	{
 		int available = CLAMP(maxCopySize, 0, (int)(srcOffset + srcSize - dstOffset));
 		memcpy(pDst, (char*)pSrc + (dstOffset - srcOffset), available);

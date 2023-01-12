@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include "Pcsx2Defs.h"
+
 #include <map>			// used by BaseBlockEx
 
 // Every potential jump point in the PS2's addressable memory has a BASEBLOCK

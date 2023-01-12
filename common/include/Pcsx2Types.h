@@ -145,4 +145,7 @@ typedef union _s128_t
 
 #endif
 
+typedef void FnType_Void(void);
+typedef FnType_Void* Fnptr_Void;
+
 #endif

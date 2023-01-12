@@ -13,9 +13,10 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "PrecompiledHeader.h"
+#define NOMINMAX
+#include <algorithm>
 #include "IsoFileFormats.h"
+#include "../Config.h"
 
 int InputIsoFile::ReadSync(u8* dst, uint lsn)
 {

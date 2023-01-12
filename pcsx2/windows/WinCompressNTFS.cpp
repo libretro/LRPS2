@@ -13,7 +13,6 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
 #include "Utilities/RedtapeWindows.h"		// our "safe" include of windows (sets version and undefs uselessness)
 
 #include "../System.h"
@@ -53,7 +52,7 @@ static void StreamException_ThrowLastError( const wxString& streamname, HANDLE r
 	}
 }
 
-// returns TRUE if an error occurred.
+// returns true if an error occurred.
 static bool StreamException_LogLastError( const wxString& streamname, const wxChar* action, HANDLE result )
 {
 	try
@@ -97,7 +96,7 @@ void NTFS_CompressFile( const wxString& file, bool compressStatus )
 		DWORD bytesReturned = 0;
 		DWORD compressMode = compressStatus ? COMPRESSION_FORMAT_DEFAULT : COMPRESSION_FORMAT_NONE;
 
-		/*BOOL result = */DeviceIoControl(
+		DeviceIoControl(
 			bloated_crap, FSCTL_SET_COMPRESSION,
 			&compressMode, 2, NULL, 0,
 			&bytesReturned, NULL

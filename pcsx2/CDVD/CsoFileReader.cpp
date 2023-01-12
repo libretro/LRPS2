@@ -13,7 +13,6 @@
 *  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "PrecompiledHeader.h"
 #include "AsyncFileReader.h"
 #include "CompressedFileReaderUtils.h"
 #include "CsoFileReader.h"
@@ -23,6 +22,7 @@
 #else
 #include <zlib/zlib.h>
 #endif
+#include <wx/filename.h>
 
 // Implementation of CSO compressed ISO reading, based on:
 // https://github.com/unknownbrackets/maxcso/blob/master/README_CSO.md

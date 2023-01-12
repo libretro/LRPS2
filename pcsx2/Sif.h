@@ -16,7 +16,14 @@
 #ifndef __SIF_H__
 #define __SIF_H__
 
+#define NOMINMAX
+
 #include "Utilities/MemcpyFast.h"
+
+#include <algorithm>
+
+#undef min
+#undef max
 
 #define FIFO_SIF_W 128
 

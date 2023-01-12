@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include "Pcsx2Defs.h"
+
 typedef struct _cdvdSubQ
 {
 	u8 ctrl : 4;   // control and mode bits

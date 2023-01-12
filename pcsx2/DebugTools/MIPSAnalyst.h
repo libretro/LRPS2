@@ -15,8 +15,9 @@
 
 #pragma once
 
-class DebugInterface;
+#include "Pcsx2Types.h"
 
+class DebugInterface;
 
 #define MIPS_GET_OP(op)   ((op>>26) & 0x3F)
 #define MIPS_GET_FUNC(op) (op & 0x3F)

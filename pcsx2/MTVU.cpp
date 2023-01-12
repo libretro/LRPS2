@@ -13,7 +13,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
+#define NOMINMAX
 #include "Common.h"
 #include "MTVU.h"
 #include "newVif.h"
@@ -22,6 +22,7 @@
 #include <windows.h> /* for GetExceptionInformation */
 #endif
 
+#include <algorithm>
 #include <utility>
 
 __aligned16 VU_Thread vu1Thread(CpuVU1, VU1);

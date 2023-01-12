@@ -13,7 +13,8 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
+#define NOMINMAX
+
 #include "Utilities/FixedPointTypes.inl"
 #include "Utilities/MemcpyFast.h"
 #include "R3000A.h"
@@ -23,6 +24,7 @@
 #include "AppConfig.h"
 
 #include <memory>
+#include <algorithm>
 #include <ctype.h>
 #include <wx/datetime.h>
 #include <wx/wfstream.h>
@@ -422,7 +424,7 @@ void cdvdReadKey(u8, u16, u32 arg2, u8* key)
 	u32 key_0_3;
 	u8 key_4, key_14;
 
-	cdvdReloadElfInfo();
+	cdvdReloadElfInfo(wxEmptyString);
 
 	// clear key values
 	memset(key, 0, 16);
@@ -495,13 +497,13 @@ s32 cdvdReadSubQ(s32 lsn, cdvdSubQ* subq)
 	return ret;
 }
 
-static void cdvdDetectDisk()
+static void cdvdDetectDisk(void)
 {
 	cdvd.Type = DoCDVDdetectDiskType();
-	cdvdReloadElfInfo();
+	cdvdReloadElfInfo(wxEmptyString);
 }
 
-s32 cdvdCtrlTrayOpen()
+s32 cdvdCtrlTrayOpen(void)
 {
 	DiscSwapTimerSeconds = cdvd.RTC.second; // remember the PS2 time when this happened
 	cdvd.Status = CDVD_STATUS_TRAY_OPEN;
@@ -510,7 +512,7 @@ s32 cdvdCtrlTrayOpen()
 	return 0; // needs to be 0 for success according to homebrew test "CDVD"
 }
 
-s32 cdvdCtrlTrayClose()
+s32 cdvdCtrlTrayClose(void)
 {
 	cdvd.Status = CDVD_STATUS_PAUSE;
 	cdvd.Ready = CDVD_READY1;
@@ -522,25 +524,13 @@ s32 cdvdCtrlTrayClose()
 	return 0; // needs to be 0 for success according to homebrew test "CDVD"
 }
 
-// Some legacy function, not used anymore
-s32 cdvdGetTrayStatus()
-{
-	/*s32 ret = CDVD->getTrayStatus();
-
-	if (ret == -1)
-		return(CDVD_TRAY_CLOSE);
-	else
-		return(ret);*/
-	return -1;
-}
-
 // Note: Is tray status being kept as a var here somewhere?
 // Yep, and sceCdTrayReq needs it to detect tray state changes (rama)
 
 //   cdvdNewDiskCB() can update it's status as well...
 
 // Modified by (efp) - 16/01/2006
-static __fi void cdvdGetDiskType()
+static __fi void cdvdGetDiskType(void)
 {
 	cdvd.Type = DoCDVDdetectDiskType();
 }
@@ -593,7 +583,7 @@ static uint cdvdBlockReadTime(CDVD_MODE_TYPE mode)
 	return ((PSXCLK * cdvd.BlockSize) / ((float)(((mode == MODE_CDROM) ? PSX_CD_READSPEED : PSX_DVD_READSPEED) * cdvd.Speed) * sectorSpeed));
 }
 
-void cdvdReset()
+void cdvdReset(void)
 {
 	memzero(cdvd);
 

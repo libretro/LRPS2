@@ -13,17 +13,11 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
 #include "Common.h"
-
-#include <list>
 
 #include "GS.h"
 #include "Gif_Unit.h"
 #include "Counters.h"
-
-using namespace Threading;
-using namespace R5900;
 
 __aligned16 u8 g_RealGSMem[Ps2MemSize::GSregs];
 

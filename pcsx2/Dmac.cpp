@@ -14,7 +14,6 @@
  */
 
 
-#include "PrecompiledHeader.h"
 #include "Common.h"
 #include "Hardware.h"
 #include "MTVU.h"
@@ -263,7 +262,7 @@ __fi u32 dmacRead32( u32 mem )
 	return psHu32(mem);
 }
 
-// Returns TRUE if the caller should do writeback of the register to eeHw; false if the
+// Returns true if the caller should do writeback of the register to eeHw; false if the
 // register has no writeback, or if the writeback is handled internally.
 template< uint page >
 __fi bool dmacWrite32( u32 mem, mem32_t& value )

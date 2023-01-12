@@ -13,15 +13,11 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../PrecompiledHeader.h"
 #include "App.h"
 
 #include <memory>
 
-pxAppResources::pxAppResources()
-{
-}
-
+pxAppResources::pxAppResources() { }
 pxAppResources::~pxAppResources() = default;
 pxAppResources& Pcsx2App::GetResourceCache()
 {
