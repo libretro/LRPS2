@@ -1,9 +1,3 @@
-if (openSUSE)
-    # openSUSE don't install wx in a standard library system
-    # path. Let's bypass the dynamic linker and hardcode the path.
-    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
-endif()
-
 # Check that people use the good file
 if(NOT TOP_CMAKE_WAS_SOURCED)
     message(FATAL_ERROR "
@@ -19,6 +13,24 @@ set(CommonFlags
     -Wno-missing-braces
     -Werror=date-time
 	)
+
+if (NOT MSVC)
+set(CommonFlags
+    -Wno-unknown-pragmas
+    -Wno-parentheses
+    -Wunused-variable # __dummy variable need to be investigated
+    )
+endif()
+
+# The next two need to be looked at, but spam really badly in gcc 8.
+# Largely class alignment in GSDevice.h and memcpy in GSVector*.h.
+if(GCC_VERSION VERSION_EQUAL "8.0" OR GCC_VERSION VERSION_GREATER "8.0")
+    set(CommonFlags
+	    ${CommonFlags}
+        -Wno-class-memaccess
+        -Wno-packed-not-aligned
+    )
+endif()
 
 if ("${PGO}" STREQUAL "generate")
     set(pcsx2FinalFlags -fprofile-generate)
@@ -196,8 +208,8 @@ set(pcsx2CDVDHeaders
 	CDVD/zlib_indexed.h
 	)
 
-	# SPU2 sources
-	set(pcsx2SPU2Sources
+# SPU2 sources
+set(pcsx2SPU2Sources
       SPU2/ADSR.cpp
       SPU2/DplIIdecoder.cpp
       SPU2/Dma.cpp
@@ -208,7 +220,7 @@ set(pcsx2CDVDHeaders
       SPU2/Reverb.cpp
       SPU2/spu2freeze.cpp
       SPU2/spu2sys.cpp
-		 )
+      )
 
 # SPU2 headers
 set(pcsx2SPU2Headers
@@ -219,6 +231,134 @@ set(pcsx2SPU2Headers
    SPU2/regs.h
    SPU2/SndOut.h
 )
+
+# GS sources
+set(pcsx2GSSources
+    GS/GS.cpp
+    GS/GSBlock.cpp
+    GS/GSClut.cpp
+    GS/GSCodeBuffer.cpp
+    GS/GSCrc.cpp
+    GS/GSDrawingContext.cpp
+    GS/GSLocalMemory.cpp
+    GS/GSState.cpp
+    GS/GSTables.cpp
+    GS/GSUtil.cpp
+    GS/GSVector.cpp
+    GS/Renderers/Common/GSDevice.cpp
+    GS/Renderers/Common/GSDirtyRect.cpp
+    GS/Renderers/Common/GSRenderer.cpp
+    GS/Renderers/Common/GSTexture.cpp
+    GS/Renderers/Common/GSVertexTrace.cpp
+    GS/Renderers/HW/GSHwHack.cpp
+    GS/Renderers/HW/GSRendererHW.cpp
+    GS/Renderers/HW/GSTextureCache.cpp
+    GS/Renderers/SW/GSDrawScanline.cpp
+    GS/Renderers/SW/GSDrawScanlineCodeGenerator.cpp
+    GS/Renderers/SW/GSDrawScanlineCodeGenerator.x64.cpp
+    GS/Renderers/SW/GSDrawScanlineCodeGenerator.x64.avx.cpp
+    GS/Renderers/SW/GSDrawScanlineCodeGenerator.x64.avx2.cpp
+    GS/Renderers/SW/GSDrawScanlineCodeGenerator.x86.cpp
+    GS/Renderers/SW/GSDrawScanlineCodeGenerator.x86.avx.cpp
+    GS/Renderers/SW/GSDrawScanlineCodeGenerator.x86.avx2.cpp
+    GS/Renderers/SW/GSRasterizer.cpp
+    GS/Renderers/SW/GSRendererSW.cpp
+    GS/Renderers/SW/GSSetupPrimCodeGenerator.cpp
+    GS/Renderers/SW/GSSetupPrimCodeGenerator.x64.cpp
+    GS/Renderers/SW/GSSetupPrimCodeGenerator.x64.avx.cpp
+    GS/Renderers/SW/GSSetupPrimCodeGenerator.x64.avx2.cpp
+    GS/Renderers/SW/GSSetupPrimCodeGenerator.x86.cpp
+    GS/Renderers/SW/GSSetupPrimCodeGenerator.x86.avx.cpp
+    GS/Renderers/SW/GSSetupPrimCodeGenerator.x86.avx2.cpp
+    GS/Renderers/SW/GSTextureCacheSW.cpp
+    GS/Renderers/SW/GSTextureSW.cpp
+    GS/Renderers/SW/GSVertexSW.cpp
+    GS/Renderers/OpenGL/GLLoader.cpp
+    GS/Renderers/OpenGL/GLState.cpp
+    GS/Renderers/OpenGL/GSDeviceOGL.cpp
+    GS/Renderers/OpenGL/GSRendererOGL.cpp
+    GS/Renderers/OpenGL/GSShaderOGL.cpp
+    GS/Renderers/OpenGL/GSTextureCacheOGL.cpp
+    GS/Renderers/OpenGL/GSTextureOGL.cpp
+    )
+
+# GS headers 
+set(pcsx2GSHeaders
+    GS/GSAlignedClass.h
+    GS/GSBlock.h
+    GS/GSClut.h
+    GS/GSCodeBuffer.h
+    GS/GSCrc.h
+    GS/GSDrawingContext.h
+    GS/GSDrawingEnvironment.h
+    GS/GS.h
+    GS/GSFuncs.h
+    GS/GSLocalMemory.h
+    GS/GSState.h
+    GS/GSTables.h
+    GS/GSUtil.h
+    GS/GSVector.h
+    GS/stdafx.h
+    GS/Renderers/Common/GSDevice.h
+    GS/Renderers/Common/GSDirtyRect.h
+    GS/Renderers/Common/GSFastList.h
+    GS/Renderers/Common/GSFunctionMap.h
+    GS/Renderers/Common/GSRenderer.h
+    GS/Renderers/Common/GSTexture.h
+    GS/Renderers/Common/GSVertex.h
+    GS/Renderers/Common/GSVertexTrace.h
+    GS/Renderers/HW/GSRendererHW.h
+    GS/Renderers/HW/GSTextureCache.h
+    GS/Renderers/HW/GSVertexHW.h
+    GS/Renderers/SW/GSDrawScanlineCodeGenerator.h
+    GS/Renderers/SW/GSDrawScanline.h
+    GS/Renderers/SW/GSRasterizer.h
+    GS/Renderers/SW/GSRendererSW.h
+    GS/Renderers/SW/GSScanlineEnvironment.h
+    GS/Renderers/SW/GSSetupPrimCodeGenerator.h
+    GS/Renderers/SW/GSTextureCacheSW.h
+    GS/Renderers/SW/GSTextureSW.h
+    GS/Renderers/SW/GSVertexSW.h
+    GS/Renderers/OpenGL/GLLoader.h
+    GS/Renderers/OpenGL/GLState.h
+    GS/Renderers/OpenGL/GSDeviceOGL.h
+    GS/Renderers/OpenGL/GSRendererOGL.h
+    GS/Renderers/OpenGL/GSShaderOGL.h
+    GS/Renderers/OpenGL/GSTextureCacheOGL.h
+    GS/Renderers/OpenGL/GSTextureOGL.h
+    GS/Renderers/OpenGL/GSUniformBufferOGL.h
+    GS/Renderers/OpenGL/GSVertexArrayOGL.h
+    GS/xbyak/xbyak.h
+    GS/xbyak/xbyak_mnemonic.h
+    GS/xbyak/xbyak_util.h
+    )
+
+if(Windows)
+    LIST(APPEND pcsx2GSSources
+	GS/Renderers/DX11/GSDevice11.cpp
+	GS/Renderers/DX11/GSRendererDX11.cpp
+	GS/Renderers/DX11/GSTexture11.cpp
+	GS/Renderers/DX11/GSTextureCache11.cpp
+	GS/Renderers/DX11/GSTextureFX11.cpp
+        )
+
+    LIST(APPEND pcsx2GSHeaders
+	GS/Renderers/DX11/GSDevice11.h
+	GS/Renderers/DX11/GSRendererDX11.h
+	GS/Renderers/DX11/GSTexture11.h
+	GS/Renderers/DX11/GSTextureCache11.h
+        )
+endif()
+
+set(GS_LIBRARIES
+    ${OPENGL_LIBRARIES}
+    ${LIBC_LIBRARIES}
+)
+
+if(MSVC)
+	set(GS_LIBRARIES ${GS_LIBRARIES} d3dcompiler d3d11 dxgi dxguid winmm strmiids opengl32 comsuppw comctl32)
+	add_definitions(/wd4456 /wd4458 /wd4996 /wd4995 /wd4324 /wd4100 /wd4101 /wd4201 /wd4556 /wd4127 /wd4512)
+endif()
 
 # PAD sources
 set(pcsx2PADSources
@@ -497,6 +637,8 @@ set(pcsx2x86Headers
 		${pcsx2USBHeaders}
 		${pcsx2SPU2Sources}
 		${pcsx2SPU2Headers}
+		${pcsx2GSSources}
+		${pcsx2GSHeaders}
 		${pcsx2DebugToolsSources}
 		${pcsx2GuiSources}
 		${pcsx2GuiHeaders}
@@ -532,13 +674,14 @@ set(pcsx2FinalLibs
     Utilities
     x86emitter
     ${wxWidgets_LIBRARIES}
+    ${GS_LIBRARIES}
     ${ZLIB_LIBRARIES}
     ${AIO_LIBRARIES}
     ${GCOV_LIBRARIES}
     ${Platform_Libs}
 )
 
-set(pcsx2FinalLibs GS ${pcsx2FinalLibs})
+set(pcsx2FinalLibs ${pcsx2FinalLibs})
 if(MSVC)
   set(pcsx2FinalSources ${pcsx2FinalSources})
 endif()

@@ -58,43 +58,4 @@ typedef struct _keyEvent
     u32 evt;
 } keyEvent;
 
-///////////////////////////////////////////////////////////////////////
-
-// key values:
-/* key values must be OS dependant:
-	win32: the VK_XXX will be used (WinUser)
-	linux: the XK_XXX will be used (XFree86)
-*/
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* GS plugin API */
-
-// basic funcs
-
-s32 CALLBACK GSinit(void);
-s32 CALLBACK GSopen2(u32 flags, u8* basemem);
-void CALLBACK GSclose(void);
-void CALLBACK GSshutdown(void);
-
-void CALLBACK GSvsync(int field);
-void CALLBACK GSgifTransfer(const u8 *pMem, u32 addr);
-void CALLBACK GSgifTransfer1(u8 *pMem, u32 addr);
-void CALLBACK GSgifTransfer2(u8 *pMem, u32 size);
-void CALLBACK GSgifTransfer3(u8 *pMem, u32 size);
-void CALLBACK GSgifSoftReset(u32 mask);
-void CALLBACK GSInitAndReadFIFO(u8 *mem, int qwc);
-
-// extended funcs
-void CALLBACK GSsetGameCRC(int crc, int gameoptions);
-
-void CALLBACK GSreset(void);
-s32 CALLBACK GSfreeze(int mode, freezeData *data);
-
-#ifdef __cplusplus
-} // End extern "C"
-#endif
-
 #endif /* __PS2EDEFS_H__ */

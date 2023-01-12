@@ -51,8 +51,3 @@ endif()
 
 # make pcsx2
 add_subdirectory(pcsx2)
-
-# make plugins
-if(EXISTS "${CMAKE_SOURCE_DIR}/plugins")
-    add_subdirectory(plugins)
-endif()

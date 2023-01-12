@@ -20,6 +20,7 @@
 #include <wx/app.h>
 
 #include "GS.h"
+#include "GS/GSFuncs.h"
 #include "Gif_Unit.h"
 #include "MTVU.h"
 #include "Elfheader.h"
