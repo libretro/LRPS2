@@ -176,7 +176,6 @@ public:
 // Full state to manage save state
 struct PadPluginFreezeData
 {
-    char format[8];
     // active slot for port
     u8 slot[2];
     PadFreezeData padData[2][4];

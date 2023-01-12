@@ -2,6 +2,8 @@
 
 #include "CDVD/CompressedFileReaderUtils.h"
 
+#include <cstring> /* memcpy */
+
 #include <wx/dir.h>
 #include <wx/filename.h>
 #include <wx/filefn.h>

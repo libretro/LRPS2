@@ -39,7 +39,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <climits>
-#include <cstring>
+#include <cstring> /* memcpy */
 #include <stdexcept>
 
 IOCtlSrc::IOCtlSrc(decltype(m_filename) filename)

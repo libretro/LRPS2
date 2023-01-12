@@ -17,6 +17,8 @@
 #include "CompressedFileReaderUtils.h"
 #include "CsoFileReader.h"
 #include "Pcsx2Types.h"
+
+#include <cstring> /* memcpy */
 #ifdef __POSIX__
 #include <zlib.h>
 #else

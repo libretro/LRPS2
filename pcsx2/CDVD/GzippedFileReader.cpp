@@ -17,6 +17,8 @@
 
 #include <fstream>
 #include <algorithm>
+#include <cstring> /* memcpy */
+
 #include "AppConfig.h"
 #include "ChunksCache.h"
 #include "CompressedFileReaderUtils.h"

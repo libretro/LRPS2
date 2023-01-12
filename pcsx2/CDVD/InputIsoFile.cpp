@@ -15,6 +15,8 @@
 
 #define NOMINMAX
 #include <algorithm>
+#include <cstring> /* memcpy, memset */
+
 #include "IsoFileFormats.h"
 #include "../Config.h"
 

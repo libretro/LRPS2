@@ -22,7 +22,7 @@
 
 #include "IsoFileFormats.h"
 
-#include <cstring>
+#include <cstring> /* memcpy, memset */
 #include <array>
 
 static InputIsoFile iso;
