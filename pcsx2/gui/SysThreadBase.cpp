@@ -64,12 +64,6 @@ void SysThreadBase::OnStart()
 //   The previous suspension state; true if the thread was running or false if it was
 //   suspended.
 //
-// Exceptions:
-//   CancelEvent  - thrown if the thread is already in a Paused or Closing state.  Because
-//      actions that pause emulation typically rely on plugins remaining loaded/active,
-//      Suspension must cancel itself forcefully or risk crashing whatever other action is
-//      in progress.
-//
 void SysThreadBase::Suspend()
 {
 	if (IsSelf()) return;

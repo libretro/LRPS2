@@ -222,8 +222,6 @@ bool Threading::pxThread::IsRunning() const
 }
 
 // This helper function is a deadlock-safe method of waiting on a mutex in a pxThread.
-// If the thread is terminated or canceled by another thread or a nested action prior to the
-// mutex being unlocked, this function will detect that and a CancelEvent exception is thrown.
 //
 // Note: Use of this function only applies to mutexes which are acquired by a worker thread.
 // Calling this function from the context of the thread itself is an error, and a dev assertion

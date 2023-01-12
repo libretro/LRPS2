@@ -118,27 +118,6 @@ public:
     RuntimeError(const std::exception &ex, const wxString &prefix = wxEmptyString);
 };
 
-// --------------------------------------------------------------------------------------
-//  CancelAppEvent  -  Exception for canceling an event in a non-verbose fashion
-// --------------------------------------------------------------------------------------
-// Typically the PCSX2 interface issues popup dialogs for runtime errors.  This exception
-// instead issues a "silent" cancelation that is handled by the app gracefully (generates
-// log, and resumes messages queue processing).
-//
-// I chose to have this exception derive from RuntimeError, since if one is thrown from outside
-// an App message loop we'll still want it to be handled in a reasonably graceful manner.
-class CancelEvent : public RuntimeError
-{
-    DEFINE_RUNTIME_EXCEPTION(CancelEvent, RuntimeError, "No reason given.")
-
-public:
-    explicit CancelEvent(const wxString &logmsg)
-    {
-        m_message_diag = logmsg;
-        // overridden message formatters only use the diagnostic version...
-    }
-};
-
 class ParseError : public RuntimeError
 {
     DEFINE_RUNTIME_EXCEPTION(ParseError, RuntimeError, "Parse error");

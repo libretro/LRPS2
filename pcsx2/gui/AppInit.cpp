@@ -60,12 +60,8 @@ void Pcsx2App::CleanupRestartable(void)
 // to be friendly to the OnExit scenario (no message pump).
 void Pcsx2App::CleanupOnExit(void)
 {
-	try
-	{
-		CleanupRestartable();
-		CleanupResources();
-	}
-	catch( Exception::CancelEvent& ) { throw; }
+	CleanupRestartable();
+	CleanupResources();
 }
 
 void Pcsx2App::CleanupResources(void)
