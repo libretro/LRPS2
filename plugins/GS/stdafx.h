@@ -63,7 +63,6 @@
     #define EXPORT_C EXPORT_C_(void)
 
     #ifdef __GNUC__
-        #define __forceinline __inline__ __attribute__((always_inline,unused))
         // GCC removes the variable as dead code and generates some warnings.
         // Stack is automatically realigned due to SSE/AVX operations
         #define ALIGN_STACK(n) (void)0;
