@@ -838,17 +838,11 @@ int PTW32_CDECL pthread_attr_destroy (pthread_attr_t * attr);
 int PTW32_CDECL pthread_attr_getdetachstate (const pthread_attr_t * attr,
                                          int *detachstate);
 
-int PTW32_CDECL pthread_attr_getstackaddr (const pthread_attr_t * attr,
-                                       void **stackaddr);
-
 int PTW32_CDECL pthread_attr_getstacksize (const pthread_attr_t * attr,
                                        size_t * stacksize);
 
 int PTW32_CDECL pthread_attr_setdetachstate (pthread_attr_t * attr,
                                          int detachstate);
-
-int PTW32_CDECL pthread_attr_setstackaddr (pthread_attr_t * attr,
-                                       void *stackaddr);
 
 int PTW32_CDECL pthread_attr_setstacksize (pthread_attr_t * attr,
                                        size_t stacksize);
@@ -864,18 +858,6 @@ int PTW32_CDECL pthread_attr_setschedpolicy (pthread_attr_t *,
 
 int PTW32_CDECL pthread_attr_getschedpolicy (const pthread_attr_t *,
                                          int *);
-
-int PTW32_CDECL pthread_attr_setinheritsched(pthread_attr_t * attr,
-                                         int inheritsched);
-
-int PTW32_CDECL pthread_attr_getinheritsched(const pthread_attr_t * attr,
-                                         int * inheritsched);
-
-int PTW32_CDECL pthread_attr_setscope (pthread_attr_t *,
-                                   int);
-
-int PTW32_CDECL pthread_attr_getscope (const pthread_attr_t *,
-                                   int *);
 
 /*
  * PThread Functions
@@ -939,13 +921,6 @@ int PTW32_CDECL pthread_mutexattr_init (pthread_mutexattr_t * attr);
 
 int PTW32_CDECL pthread_mutexattr_destroy (pthread_mutexattr_t * attr);
 
-int PTW32_CDECL pthread_mutexattr_getpshared (const pthread_mutexattr_t
-                                          * attr,
-                                          int *pshared);
-
-int PTW32_CDECL pthread_mutexattr_setpshared (pthread_mutexattr_t * attr,
-                                          int pshared);
-
 int PTW32_CDECL pthread_mutexattr_settype (pthread_mutexattr_t * attr, int kind);
 int PTW32_CDECL pthread_mutexattr_gettype (const pthread_mutexattr_t * attr, int *kind);
 
@@ -974,12 +949,6 @@ int PTW32_CDECL pthread_mutex_consistent (pthread_mutex_t * mutex);
 int PTW32_CDECL pthread_condattr_init (pthread_condattr_t * attr);
 
 int PTW32_CDECL pthread_condattr_destroy (pthread_condattr_t * attr);
-
-int PTW32_CDECL pthread_condattr_getpshared (const pthread_condattr_t * attr,
-                                         int *pshared);
-
-int PTW32_CDECL pthread_condattr_setpshared (pthread_condattr_t * attr,
-                                         int pshared);
 
 /*
  * Condition Variable Functions

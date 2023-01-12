@@ -121,8 +121,6 @@ extern "C"
 {
 #endif                          /* __cplusplus */
 
-int __cdecl sched_yield (void);
-
 int __cdecl sched_get_priority_min (int policy);
 
 int __cdecl sched_get_priority_max (int policy);

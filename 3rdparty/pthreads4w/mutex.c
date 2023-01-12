@@ -49,8 +49,6 @@
 #include "pthread_mutex_destroy.c"
 #include "pthread_mutexattr_init.c"
 #include "pthread_mutexattr_destroy.c"
-#include "pthread_mutexattr_getpshared.c"
-#include "pthread_mutexattr_setpshared.c"
 #include "pthread_mutexattr_settype.c"
 #include "pthread_mutexattr_gettype.c"
 #include "pthread_mutex_lock.c"
