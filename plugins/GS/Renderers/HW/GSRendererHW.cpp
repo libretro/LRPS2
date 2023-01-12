@@ -22,6 +22,7 @@
 #include "Pcsx2Types.h"
 
 #include <cmath>
+#include <algorithm>
 
 #include "GSRendererHW.h"
 #include "options_tools.h"

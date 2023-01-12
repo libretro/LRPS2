@@ -223,8 +223,6 @@ struct Allocator {
 	virtual uint8_t *alloc(size_t size) { return reinterpret_cast<uint8_t*>(AlignedMalloc(size, inner::ALIGN_PAGE_SIZE)); }
 	virtual void free(uint8_t *p) { AlignedFree(p); }
 	virtual ~Allocator() {}
-	/* override to return false if you call protect() manually */
-	virtual bool useProtect() const { return true; }
 };
 
 class Operand {
@@ -587,7 +585,6 @@ class CodeArray {
 	};
 	CodeArray(const CodeArray& rhs);
 	void operator=(const CodeArray&);
-	bool isAllocType() const { return type_ == ALLOC_BUF || type_ == AUTO_GROW; }
 	struct AddrInfo {
 		size_t codeOffset; // position to write
 		size_t jmpAddr; // value to write
@@ -598,7 +595,7 @@ class CodeArray {
 		uint64_t getVal(const uint8_t *top) const
 		{
 			uint64_t disp = (mode == inner::LaddTop) ? jmpAddr + size_t(top) : (mode == inner::LasIs) ? jmpAddr : jmpAddr - size_t(top);
-			if (jmpSize == 4) disp = inner::VerifyInInt32(disp);
+			if (jmpSize == 4) return inner::VerifyInInt32(disp);
 			return disp;
 		}
 	};
@@ -634,7 +631,7 @@ protected:
 			uint64_t disp = i->getVal(top_);
 			rewrite(i->codeOffset, disp, i->jmpSize);
 		}
-		if (alloc_->useProtect() && !protect(top_, size_, true)) throw Error(ERR_CANT_PROTECT);
+		if (!protect(top_, size_, true)) throw Error(ERR_CANT_PROTECT);
 	}
 public:
 	explicit CodeArray(size_t maxSize, void *userPtr = 0, Allocator *allocator = 0)
@@ -645,15 +642,15 @@ public:
 		, size_(0)
 	{
 		if (maxSize_ > 0 && top_ == 0) throw Error(ERR_CANT_ALLOC);
-		if ((type_ == ALLOC_BUF && alloc_->useProtect()) && !protect(top_, maxSize, true)) {
+		if ((type_ == ALLOC_BUF) && !protect(top_, maxSize, true)) {
 			alloc_->free(top_);
 			throw Error(ERR_CANT_PROTECT);
 		}
 	}
 	virtual ~CodeArray()
 	{
-		if (isAllocType()) {
-			if (alloc_->useProtect()) protect(top_, maxSize_, false);
+		if (type_ == ALLOC_BUF || type_ == AUTO_GROW) {
+			protect(top_, maxSize_, false);
 			alloc_->free(top_);
 		}
 	}

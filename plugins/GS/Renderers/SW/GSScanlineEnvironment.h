@@ -24,6 +24,21 @@
 #include "../../GSLocalMemory.h"
 #include "../../GSVector.h"
 
+#include "../../xbyak/xbyak_util.h"
+
+class GSCodeGenerator : public Xbyak::CodeGenerator
+{
+protected:
+	Xbyak::util::Cpu m_cpu;
+
+public:
+	GSCodeGenerator(void* code, size_t maxsize)
+		: Xbyak::CodeGenerator(maxsize, code)
+	{
+	}
+};
+
+
 union GSScanlineSelector
 {
 	struct
