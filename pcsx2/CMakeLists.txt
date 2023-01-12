@@ -128,7 +128,6 @@ set(pcsx2Headers
 	Gif.h
 	Gif_Unit.h
 	GS.h
-	Hardware.h
 	Hw.h
 	IopBios.h
 	IopCounters.h

@@ -14,6 +14,7 @@
  */
 
 
+#include "Utilities/MemcpyFast.h"
 #include "Common.h"
 
 #include "R5900.h"
@@ -26,7 +27,10 @@
 #include "gui/SysThreads.h"
 #include "R5900Exceptions.h"
 
-#include "Hardware.h"
+#include "Counters.h"
+#include "GS.h"
+#include "Sif.h"
+#include "SPR.h"
 #include "IPU/IPUdma.h"
 
 #include "Elfheader.h"

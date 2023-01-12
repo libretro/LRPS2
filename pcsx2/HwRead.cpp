@@ -15,7 +15,11 @@
 
 
 #include "Common.h"
-#include "Hardware.h"
+#include "Counters.h"
+#include "IPU/IPU.h"
+#include "Sif.h"
+#include "Vif.h"
+#include "Vif_Dma.h"
 #include "IopHw.h"
 #include "ps2/HwInternal.h"
 

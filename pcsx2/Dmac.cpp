@@ -15,7 +15,9 @@
 
 
 #include "Common.h"
-#include "Hardware.h"
+#include "Gif.h"
+#include "Sif.h"
+#include "SPR.h"
 #include "MTVU.h"
 
 #include "IPU/IPUdma.h"
