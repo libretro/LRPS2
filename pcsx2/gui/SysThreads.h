@@ -40,11 +40,11 @@ public:
 		// returning false.
 		ExecMode_NoThreadYet,
 
-		// Thread is safely paused, with plugins in a "closed" state, and waiting for a
+		// Thread is safely paused, and waiting for a
 		// resume/open signal.
 		ExecMode_Closed,
 
-		// Thread is safely paused, with plugins in an "open" state, and waiting for a
+		// Thread is safely paused, and waiting for a
 		// resume/open signal.
 		ExecMode_Paused,
 
@@ -159,11 +159,11 @@ public:
 		// returning false.
 		ExecMode_NoThreadYet,
 
-		// Thread is safely paused, with plugins in a "closed" state, and waiting for a
+		// Thread is safely paused, and waiting for a
 		// resume/open signal.
 		ExecMode_Closed,
 
-		// Thread is safely paused, with plugins in an "open" state, and waiting for a
+		// Thread is safely paused, and waiting for a
 		// resume/open signal.
 		ExecMode_Paused,
 

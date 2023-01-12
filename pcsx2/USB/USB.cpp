@@ -62,16 +62,10 @@ u8 USBread8(u32 addr)
     switch (addr) {
         // Handle any appropriate addresses here.
         case 0x1f801600:
-#if 0
-            g_plugin_log.WriteLn("(USBnull) 8 bit read at address %lx", addr);
-#endif
             break;
 
         default:
             //value = usbRu8(addr);
-#if 0
-            g_plugin_log.WriteLn("*(USBnull) 8 bit read at address %lx", addr);
-#endif
             break;
     }
     return value;
@@ -84,16 +78,10 @@ u16 USBread16(u32 addr)
     switch (addr) {
         // Handle any appropriate addresses here.
         case 0x1f801600:
-#if 0
-            g_plugin_log.WriteLn("(USBnull) 16 bit read at address %lx", addr);
-#endif
             break;
 
         default:
             //value = usbRu16(addr);
-#if 0
-            g_plugin_log.WriteLn("(USBnull) 16 bit read at address %lx", addr);
-#endif
             break;
     }
     return value;
@@ -106,16 +94,10 @@ u32 USBread32(u32 addr)
     switch (addr) {
         // Handle any appropriate addresses here.
         case 0x1f801600:
-#if 0
-            g_plugin_log.WriteLn("(USBnull) 32 bit read at address %lx", addr);
-#endif
             break;
 
         default:
             //value = usbRu32(addr);
-#if 0
-            g_plugin_log.WriteLn("(USBnull) 32 bit read at address %lx", addr);
-#endif
             break;
     }
     return value;
@@ -126,16 +108,10 @@ void USBwrite8(u32 addr, u8 value)
     switch (addr) {
         // Handle any appropriate addresses here.
         case 0x1f801600:
-#if 0
-            g_plugin_log.WriteLn("(USBnull) 8 bit write at address %lx value %x", addr, value);
-#endif
             break;
 
         default:
             //usbRu8(addr) = value;
-#if 0
-            g_plugin_log.WriteLn("(USBnull) 8 bit write at address %lx value %x", addr, value);
-#endif
             break;
     }
 }
@@ -145,16 +121,10 @@ void USBwrite16(u32 addr, u16 value)
     switch (addr) {
         // Handle any appropriate addresses here.
         case 0x1f801600:
-#if 0
-            g_plugin_log.WriteLn("(USBnull) 16 bit write at address %lx value %x", addr, value);
-#endif
             break;
 
         default:
             //usbRu16(addr) = value;
-#if 0
-            g_plugin_log.WriteLn("(USBnull) 16 bit write at address %lx value %x", addr, value);
-#endif
             break;
     }
 }
@@ -164,16 +134,10 @@ void USBwrite32(u32 addr, u32 value)
     switch (addr) {
         // Handle any appropriate addresses here.
         case 0x1f801600:
-#if 0
-            g_plugin_log.WriteLn("(USBnull) 16 bit write at address %lx value %x", addr, value);
-#endif
             break;
 
         default:
             //usbRu32(addr) = value;
-#if 0
-            g_plugin_log.WriteLn("(USBnull) 32 bit write at address %lx value %x", addr, value);
-#endif
             break;
     }
 }

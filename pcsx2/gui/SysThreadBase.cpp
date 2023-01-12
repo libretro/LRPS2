@@ -51,7 +51,7 @@ void SysThreadBase::OnStart()
 	_parent::OnStart();
 }
 
-// Suspends emulation and closes the emulation state (including plugins) at the next PS2 vsync,
+// Suspends emulation and closes the emulation state at the next PS2 vsync,
 // and returns control to the calling thread; or does nothing if the core is already suspended.
 //
 // Parameters:
@@ -150,8 +150,6 @@ void SysThreadBase::Pause()
 // Resume, you'll need to bind callbacks to either OnResumeReady or OnResumeInThread.
 //
 // Exceptions:
-//   PluginInitError     - thrown if a plugin fails init (init is performed on the current thread
-//                         on the first time the thread is resumed from it's initial idle state)
 //
 void SysThreadBase::Resume()
 {

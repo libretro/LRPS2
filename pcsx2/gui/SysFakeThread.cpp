@@ -46,7 +46,7 @@ void SysFakeThread::OnStart()
 	m_ExecMode = ExecMode_Closed;
 }
 
-// Suspends emulation and closes the emulation state (including plugins) at the next PS2 vsync,
+// Suspends emulation and closes the emulation state at the next PS2 vsync,
 // and returns control to the calling thread; or does nothing if the core is already suspended.
 //
 // Parameters:
@@ -139,8 +139,6 @@ void SysFakeThread::Pause()
 // Resume, you'll need to bind callbacks to either OnResumeReady or OnResumeInThread.
 //
 // Exceptions:
-//   PluginInitError     - thrown if a plugin fails init (init is performed on the current thread
-//                         on the first time the thread is resumed from it's initial idle state)
 //   ThreadCreationError - Insufficient system resources to create thread.
 //
 void SysFakeThread::Resume()
