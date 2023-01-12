@@ -22,6 +22,7 @@
 #pragma once
 
 #include "Pcsx2Types.h"
+#include <list>
 
 #include "GSTextureCache.h"
 #include "../Common/GSFunctionMap.h"
