@@ -89,7 +89,6 @@ if(${PCSX2_TARGET_ARCHITECTURES} MATCHES "i386")
         else()
             # AVX requires some fix of the ABI (mangling) (default 2)
             # Note: V6 requires GCC 4.7
-            #set(ARCH_FLAG "-march=native -fabi-version=6")
             set(ARCH_FLAG "-mfxsr -march=native")
         endif()
     endif()
@@ -133,21 +132,6 @@ if(MSVC)
    add_definitions(-D_ARCH_64=1 -D_M_X86_64 -D__M_X86_64)
    add_definitions(/wd4063 /wd4100 /wd4267 /wd4244 /wd4244 /wd4312 /wd4334)
 else(MSVC)
-#-------------------------------------------------------------------------------
-# Control GCC flags
-#-------------------------------------------------------------------------------
-### Cmake set default value for various compilation variable
-### Here the list of default value for documentation purpose
-# ${CMAKE_SHARED_LIBRARY_CXX_FLAGS} = "-fPIC"
-# ${CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS} = "-rdynamic"
-#
-# ${CMAKE_C_FLAGS} = "-g -O2"
-# ${CMAKE_CXX_FLAGS} = "-g -O2"
-# Use in debug mode
-# ${CMAKE_CXX_FLAGS_DEBUG} = "-g"
-# Use in release mode
-# ${CMAKE_CXX_FLAGS_RELEASE} = "-O3 -DNDEBUG"
-
 #-------------------------------------------------------------------------------
 # Do not use default cmake flags
 #-------------------------------------------------------------------------------

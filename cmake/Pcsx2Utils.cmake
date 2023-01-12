@@ -116,24 +116,6 @@ macro(append_flags target flags)
     set_target_properties(${target} PROPERTIES COMPILE_FLAGS "${TEMP2}")
 endmacro(append_flags)
 
-macro(add_pcsx2_plugin lib srcs libs flags)
-    include_directories(.)
-    add_library(${lib} MODULE ${srcs})
-    target_link_libraries(${lib} ${libs})
-    append_flags(${lib} "${flags}")
-    if(NOT USER_CMAKE_LD_FLAGS STREQUAL "")
-        target_link_libraries(${lib} "${USER_CMAKE_LD_FLAGS}")
-    endif(NOT USER_CMAKE_LD_FLAGS STREQUAL "")
-    if (APPLE)
-        # Copy to app bundle
-        add_custom_command(TARGET ${lib} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:PCSX2>/plugins"
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:${lib}>" "$<TARGET_FILE_DIR:PCSX2>/plugins/"
-        )
-        add_dependencies(pcsx2-postprocess-bundle ${lib})
-    endif()
-endmacro(add_pcsx2_plugin)
-
 macro(add_pcsx2_lib lib srcs libs flags)
     include_directories(.)
     add_library(${lib} STATIC ${srcs})
