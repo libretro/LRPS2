@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include "../../GS.h"
 #include "../../GSState.h"
 
 class GSRenderer : public GSState

@@ -23,7 +23,6 @@
 
 #include "Pcsx2Types.h"
 
-#include "GS.h"
 #include "GSLocalMemory.h"
 #include "GSDrawingContext.h"
 #include "GSDrawingEnvironment.h"

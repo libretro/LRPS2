@@ -79,6 +79,5 @@ static const char* option_value(const char* const_option, KeyOptionString return
 	return NULL;
 }
 
-extern void GSUpdateOptions(void);
 extern void ResetContentStuffs(void);
 

@@ -27,7 +27,6 @@
 
 #include "Pcsx2Types.h"
 
-#include "GS.h"
 #include "GSTables.h"
 #include "GSVector.h"
 #include "GSBlock.h"

@@ -30,6 +30,7 @@
 #include "memcard_retro.h"
 
 #include "../pcsx2/MTVU.h"
+#include "../pcsx2/GS/GSFuncs.h"
 
 #ifdef PERF_TEST
 static struct retro_perf_callback perf_cb;

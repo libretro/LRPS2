@@ -97,7 +97,7 @@ void GSshutdown(void)
 
 void GSclose(void)
 {
-	if(s_gs == NULL) return;
+	if(!s_gs) return;
 
 	s_gs->ResetDevice();
 
@@ -811,12 +811,6 @@ GL_EXT_LOAD_OPT(glPolygonOffsetClamp);
 	return 0;
 }
 
-void GSUpdateOptions(void)
-{
-	s_gs->UpdateRendererOptions();
-}
-
-
 int GSopen2(u32 flags, u8 *basemem)
 {
 	const bool toggle_state = !!(flags & 4);
@@ -863,46 +857,6 @@ int GSopen2(u32 flags, u8 *basemem)
 	return _GSopen(m_current_renderer_type, -1, basemem);
 }
 
-void GSreset(void)
-{
-	s_gs->Reset();
-}
-
-void GSgifSoftReset(u32 mask)
-{
-	s_gs->SoftReset(mask);
-}
-
-void GSInitAndReadFIFO(u8* mem, u32 size)
-{
-	s_gs->InitAndReadFIFO(mem, size);
-}
-
-void GSgifTransfer(const u8* mem, u32 size)
-{
-	s_gs->Transfer<3>(mem, size);
-}
-
-void GSgifTransfer1(u8* mem, u32 addr)
-{
-	s_gs->Transfer<0>(const_cast<u8*>(mem) + addr, (0x4000 - addr) / 16);
-}
-
-void GSgifTransfer2(u8* mem, u32 size)
-{
-	s_gs->Transfer<1>(const_cast<u8*>(mem), size);
-}
-
-void GSgifTransfer3(u8* mem, u32 size)
-{
-	s_gs->Transfer<2>(const_cast<u8*>(mem), size);
-}
-
-void GSvsync(int field)
-{
-   s_gs->VSync(field);
-}
-
 int GSfreeze(int mode, void *_data)
 {
 	GSFreezeData* data = (GSFreezeData*)_data;
@@ -917,11 +871,6 @@ int GSfreeze(int mode, void *_data)
 	}
 
 	return 0;
-}
-
-void GSsetGameCRC(u32 crc, int options)
-{
-	s_gs->SetGameCRC(crc, options);
 }
 
 std::string format(const char* fmt, ...)

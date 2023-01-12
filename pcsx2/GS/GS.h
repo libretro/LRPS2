@@ -1165,8 +1165,15 @@ struct GSPrivRegSet
 
 #pragma pack(pop)
 
-enum {FREEZE_LOAD=0, FREEZE_SAVE=1, FREEZE_SIZE=2};
-struct GSFreezeData {int size; u8* data;};
+#define FREEZE_LOAD 0
+#define FREEZE_SAVE 1
+#define FREEZE_SIZE 2
+
+struct GSFreezeData
+{
+	int size;
+	u8* data;
+};
 
 enum class GSVideoMode : u8
 {
