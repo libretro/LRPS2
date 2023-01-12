@@ -85,7 +85,7 @@ void iopMemoryReserve::Reset()
 	for (int i=0; i<0x0040; i++)
 		psxMemWLUT[i + 0x2000 + 0x1fc0] = (uptr)&eeMem->ROM[i << 16];
 
-	for (int i=0; i<0x0004; i++)
+	for (int i=0; i<0x0040; i++)
 		psxMemWLUT[i + 0x2000 + 0x1e00] = (uptr)&eeMem->ROM1[i << 16];
 
 	for (int i = 0; i < 0x0008; i++) 

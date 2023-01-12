@@ -848,10 +848,12 @@ void SYSCALL(void)
 						break;
 
 					case 0x72:
+					case 0x82:
 						// "DVD NTSC 640x448 @ ??.???";
 						gsSetVideoMode(GS_VideoMode::DVD_NTSC);
 						break;
 					case 0x73:
+					case 0x83:
 						// "DVD PAL 720x480 @ ??.???";
 						gsSetVideoMode(GS_VideoMode::DVD_PAL);
 						break;

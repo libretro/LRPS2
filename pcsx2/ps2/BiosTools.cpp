@@ -166,7 +166,7 @@ static void ChecksumIt( u32& result, const u8 (&srcdata)[_size] )
 // the base.
 //
 // Parameters:
-//   ext - extension of the sub-component to load.  Valid options are rom1, rom2, AND erom.
+//   ext - extension of the sub-component to load.  Valid options are rom1 and rom2.
 //
 template< size_t _size >
 static void LoadExtraRom( const char *ext, u8 (&dest)[_size] )
@@ -230,7 +230,7 @@ static void LoadIrx( const wxString& filename, u8* dest )
 // this method being called.
 //
 // Remarks:
-//   This function does not fail if rom1, rom2, or erom files are missing, since none are
+//   This function does not fail if rom1 or rom2 files are missing, since none are
 //   explicitly required for most emulation tasks.
 //
 // Exceptions:
@@ -267,7 +267,6 @@ void LoadBIOS(void)
 
 		LoadExtraRom( "rom1", eeMem->ROM1 );
 		LoadExtraRom( "rom2", eeMem->ROM2 );
-		LoadExtraRom( "erom", eeMem->EROM );
 
 		if (g_Conf->CurrentIRX.Length() > 3)
 			LoadIrx(g_Conf->CurrentIRX, &eeMem->ROM[0x3C0000]);
