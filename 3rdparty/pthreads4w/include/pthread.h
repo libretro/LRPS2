@@ -1142,21 +1142,6 @@ PTW32_DLLPORT int PTW32_CDECL pthread_kill(pthread_t thread, int sig);
  */
 
 /*
- * Compatibility with Linux.
- */
-PTW32_DLLPORT int PTW32_CDECL pthread_mutexattr_setkind_np(pthread_mutexattr_t * attr,
-                                         int kind);
-PTW32_DLLPORT int PTW32_CDECL pthread_mutexattr_getkind_np(pthread_mutexattr_t * attr,
-                                         int *kind);
-
-/*
- * Possibly supported by other POSIX threads implementations
- */
-PTW32_DLLPORT int PTW32_CDECL pthread_delay_np (struct timespec * interval);
-PTW32_DLLPORT int PTW32_CDECL pthread_num_processors_np(void);
-PTW32_DLLPORT unsigned __int64 PTW32_CDECL pthread_getunique_np(pthread_t thread);
-
-/*
  * Useful if an application wants to statically link
  * the lib rather than load the DLL at run-time.
  */
@@ -1173,31 +1158,9 @@ enum ptw32_features {
   PTW32_SYSTEM_INTERLOCKED_COMPARE_EXCHANGE = 0x0001, /* System provides it. */
   PTW32_ALERTABLE_ASYNC_CANCEL              = 0x0002  /* Can cancel blocked threads. */
 };
-
-/*
- * Register a system time change with the library.
- * Causes the library to perform various functions
- * in response to the change. Should be called whenever
- * the application's top level window receives a
- * WM_TIMECHANGE message. It can be passed directly to
- * pthread_create() as a new thread if desired.
- */
-PTW32_DLLPORT void * PTW32_CDECL pthread_timechange_handler_np(void *);
-
 #endif /*PTW32_LEVEL >= PTW32_LEVEL_MAX - 1 */
 
 #if PTW32_LEVEL >= PTW32_LEVEL_MAX
-
-/*
- * Returns the Win32 HANDLE for the POSIX thread.
- */
-PTW32_DLLPORT HANDLE PTW32_CDECL pthread_getw32threadhandle_np(pthread_t thread);
-/*
- * Returns the win32 thread ID for POSIX thread.
- */
-PTW32_DLLPORT DWORD PTW32_CDECL pthread_getw32threadid_np (pthread_t thread);
-
-
 /*
  * Protected Methods
  *
