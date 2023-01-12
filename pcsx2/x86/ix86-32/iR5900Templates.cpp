@@ -31,11 +31,6 @@ using namespace x86Emitter;
 // Code Templates //
 ////////////////////
 
-void _eeOnWriteReg(int reg, int signext)
-{
-	GPR_DEL_CONST(reg);
-}
-
 void _deleteEEreg(int reg, int flush)
 {
 	if( !reg ) return;
@@ -58,10 +53,8 @@ void _flushEEreg(int reg)
 
 int eeProcessHILO(int reg, int mode, int mmx)
 {
-	if(_hasFreeXMMreg() || !(g_pCurInstInfo->regs[reg]&EEINST_LASTUSE))  {
+	if(_hasFreeXMMreg() || !(g_pCurInstInfo->regs[reg]&EEINST_LASTUSE))
 		return _allocGPRtoXMMreg(-1, reg, mode);
-	}
-
 	return -1;
 }
 

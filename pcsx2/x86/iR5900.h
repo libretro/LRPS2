@@ -90,6 +90,8 @@ extern void recDoBranchImm( u32* jmpSkip, bool isLikely = false );
 	} \
 }
 
+#define _eeOnWriteReg(reg, signext) GPR_DEL_CONST(reg)
+
 #define GPR_DEL_CONST(reg) { \
 	if( (reg) < 32 ) g_cpuHasConstReg &= ~(1<<(reg)); \
 }
@@ -103,7 +105,6 @@ void _eeMoveGPRtoM(uptr to, int fromgpr);
 void eeSignExtendTo(int gpr, bool onlyupper=false);
 
 void _eeFlushAllUnused(void);
-void _eeOnWriteReg(int reg, int signext);
 
 // totally deletes from const, xmm, and mmx entries
 // if flush is 1, also flushes to memory
