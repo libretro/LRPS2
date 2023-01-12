@@ -26,7 +26,7 @@
 #include "SysThreads.h"
 #include "../MTVU.h"
 #include "../FW.h"
-#include "../GS/GSfuncs.h"
+#include "../GS/GSFuncs.h"
 #include "../PAD/PAD.h"
 #include "../SPU2/spu2.h"
 
