@@ -229,38 +229,3 @@ ptw32_mcs_lock_try_acquire (ptw32_mcs_lock_t * lock, ptw32_mcs_local_node_t * no
                                                         (PTW32_INTERLOCKED_PVOID)0)
                                  == (PTW32_INTERLOCKED_PVOID)0) ? 0 : EBUSY;
 }
-
-/*
- * ptw32_mcs_node_transfer -- move an MCS lock local node, usually from thread
- * space to, for example, global space so that another thread can release
- * the lock on behalf of the current lock owner.
- *
- * Example: used in pthread_barrier_wait where we want the last thread out of
- * the barrier to release the lock owned by the last thread to enter the barrier
- * (the one that releases all threads but not necessarily the last to leave).
- *
- * Should only be called by the thread that has the lock.
- */
-void 
-ptw32_mcs_node_transfer (ptw32_mcs_local_node_t * new_node, ptw32_mcs_local_node_t * old_node)
-{
-  new_node->lock = old_node->lock;
-  new_node->nextFlag = 0; /* Not needed - used only in initial Acquire */
-  new_node->readyFlag = 0; /* Not needed - we were waiting on this */
-  new_node->next = 0;
-
-  if ((ptw32_mcs_local_node_t *)PTW32_INTERLOCKED_COMPARE_EXCHANGE_PTR((PTW32_INTERLOCKED_PVOID_PTR)new_node->lock,
-                                                                       (PTW32_INTERLOCKED_PVOID)new_node,
-                                                                       (PTW32_INTERLOCKED_PVOID)old_node)
-       != old_node)
-    {
-      /*
-       * A successor has queued after us, so wait for them to link to us
-       */
-      while (old_node->next == 0)
-        {
-          sched_yield();
-        }
-      new_node->next = old_node->next;
-    }
-}

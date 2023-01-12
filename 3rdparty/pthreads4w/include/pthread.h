@@ -575,8 +575,6 @@ typedef struct pthread_cond_t_ * pthread_cond_t;
 typedef struct pthread_condattr_t_ * pthread_condattr_t;
 #endif
 typedef struct pthread_spinlock_t_ * pthread_spinlock_t;
-typedef struct pthread_barrier_t_ * pthread_barrier_t;
-typedef struct pthread_barrierattr_t_ * pthread_barrierattr_t;
 
 /*
  * ====================
@@ -628,12 +626,7 @@ enum {
  * pthread_mutexattr_{get,set}robust
  */
   PTHREAD_MUTEX_STALLED         = 0,  /* Default */
-  PTHREAD_MUTEX_ROBUST          = 1,
-
-/*
- * pthread_barrier_wait
- */
-  PTHREAD_BARRIER_SERIAL_THREAD = -1
+  PTHREAD_MUTEX_ROBUST          = 1
 };
 
 /*
@@ -964,20 +957,6 @@ int PTW32_CDECL pthread_mutexattr_getrobust(
                                            int * robust);
 
 /*
- * Barrier Attribute Functions
- */
-int PTW32_CDECL pthread_barrierattr_init (pthread_barrierattr_t * attr);
-
-int PTW32_CDECL pthread_barrierattr_destroy (pthread_barrierattr_t * attr);
-
-int PTW32_CDECL pthread_barrierattr_getpshared (const pthread_barrierattr_t
-                                            * attr,
-                                            int *pshared);
-
-int PTW32_CDECL pthread_barrierattr_setpshared (pthread_barrierattr_t * attr,
-                                            int pshared);
-
-/*
  * Mutex Functions
  */
 int PTW32_CDECL pthread_mutex_init (pthread_mutex_t * mutex,
@@ -995,17 +974,6 @@ int PTW32_CDECL pthread_mutex_trylock (pthread_mutex_t * mutex);
 int PTW32_CDECL pthread_mutex_unlock (pthread_mutex_t * mutex);
 
 int PTW32_CDECL pthread_mutex_consistent (pthread_mutex_t * mutex);
-
-/*
- * Barrier Functions
- */
-int PTW32_CDECL pthread_barrier_init (pthread_barrier_t * barrier,
-                                  const pthread_barrierattr_t * attr,
-                                  unsigned int count);
-
-int PTW32_CDECL pthread_barrier_destroy (pthread_barrier_t * barrier);
-
-int PTW32_CDECL pthread_barrier_wait (pthread_barrier_t * barrier);
 
 /*
  * Condition Variable Attribute Functions

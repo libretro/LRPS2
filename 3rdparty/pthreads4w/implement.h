@@ -310,22 +310,6 @@ struct ptw32_mcs_node_t_
                                              successor */
 };
 
-
-struct pthread_barrier_t_
-{
-  unsigned int nCurrentBarrierHeight;
-  unsigned int nInitialBarrierHeight;
-  int pshared;
-  sem_t semBarrierBreeched;
-  ptw32_mcs_lock_t lock;
-  ptw32_mcs_local_node_t proxynode;
-};
-
-struct pthread_barrierattr_t_
-{
-  int pshared;
-};
-
 struct pthread_key_t_
 {
   DWORD key;
@@ -583,8 +567,6 @@ extern "C"
   int ptw32_mcs_lock_try_acquire (ptw32_mcs_lock_t * lock, ptw32_mcs_local_node_t * node);
 
   void ptw32_mcs_lock_release (ptw32_mcs_local_node_t * node);
-
-  void ptw32_mcs_node_transfer (ptw32_mcs_local_node_t * new_node, ptw32_mcs_local_node_t * old_node);
 
 #if defined(NEED_FTIME)
   void ptw32_timespec_to_filetime (const struct timespec *ts, FILETIME * ft);

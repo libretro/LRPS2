@@ -43,7 +43,6 @@
 
 #include "private.c"
 #include "attr.c"
-#include "barrier.c"
 #include "cancel.c"
 #include "cleanup.c"
 #include "condvar.c"
