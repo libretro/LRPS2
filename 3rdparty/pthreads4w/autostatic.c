@@ -34,8 +34,6 @@
  *      59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
 
-#if defined(PTW32_STATIC_LIB)
-
 #if defined(__MINGW64__) || defined(__MINGW32__) || defined(_MSC_VER)
 
 #include "pthread.h"
@@ -65,5 +63,3 @@ attribute_section(".CRT$XCU") void *msc_ctor = on_process_init;
 attribute_section(".CRT$XPU") void *msc_dtor = on_process_exit;
 
 #endif /* defined(__MINGW64__) || defined(__MINGW32__) || defined(_MSC_VER) */
-
-#endif /* PTW32_STATIC_LIB */

@@ -32,22 +32,6 @@
 #endif
 
 /*
- * When building the library, you should define PTW32_BUILD so that
- * the variables/functions are exported correctly. When using the library,
- * do NOT define PTW32_BUILD, and then the variables/functions will
- * be imported correctly.
- */
-#if !defined(PTW32_STATIC_LIB)
-#  if defined(PTW32_BUILD)
-#    define PTW32_DLLPORT __declspec (dllexport)
-#  else
-#    define PTW32_DLLPORT __declspec (dllimport)
-#  endif
-#else
-#  define PTW32_DLLPORT
-#endif
-
-/*
  * This is a duplicate of what is in the autoconf config.h,
  * which is only used when building the pthread-win32 libraries.
  */
@@ -83,23 +67,23 @@ extern "C"
 
 typedef struct sem_t_ * sem_t;
 
-PTW32_DLLPORT int __cdecl sem_init (sem_t * sem,
+int __cdecl sem_init (sem_t * sem,
 			    int pshared,
 			    unsigned int value);
 
-PTW32_DLLPORT int __cdecl sem_destroy (sem_t * sem);
+int __cdecl sem_destroy (sem_t * sem);
 
-PTW32_DLLPORT int __cdecl sem_wait (sem_t * sem);
+int __cdecl sem_wait (sem_t * sem);
 
-PTW32_DLLPORT int __cdecl sem_timedwait (sem_t * sem,
+int __cdecl sem_timedwait (sem_t * sem,
 				 const struct timespec * abstime);
 
-PTW32_DLLPORT int __cdecl sem_post (sem_t * sem);
+int __cdecl sem_post (sem_t * sem);
 
-PTW32_DLLPORT int __cdecl sem_post_multiple (sem_t * sem,
+int __cdecl sem_post_multiple (sem_t * sem,
 				     int count);
 
-PTW32_DLLPORT int __cdecl sem_getvalue (sem_t * sem,
+int __cdecl sem_getvalue (sem_t * sem,
 				int * sval);
 
 #if defined(__cplusplus)

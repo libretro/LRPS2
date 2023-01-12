@@ -71,22 +71,6 @@
 #endif
 
 /*
- * When building the library, you should define PTW32_BUILD so that
- * the variables/functions are exported correctly. When using the library,
- * do NOT define PTW32_BUILD, and then the variables/functions will
- * be imported correctly.
- */
-#if !defined(PTW32_STATIC_LIB)
-#  if defined(PTW32_BUILD)
-#    define PTW32_DLLPORT __declspec (dllexport)
-#  else
-#    define PTW32_DLLPORT __declspec (dllimport)
-#  endif
-#else
-#  define PTW32_DLLPORT
-#endif
-
-/*
  * This is a duplicate of what is in the autoconf config.h,
  * which is only used when building the pthread-win32 libraries.
  */
@@ -145,15 +129,15 @@ extern "C"
 {
 #endif                          /* __cplusplus */
 
-PTW32_DLLPORT int __cdecl sched_yield (void);
+int __cdecl sched_yield (void);
 
-PTW32_DLLPORT int __cdecl sched_get_priority_min (int policy);
+int __cdecl sched_get_priority_min (int policy);
 
-PTW32_DLLPORT int __cdecl sched_get_priority_max (int policy);
+int __cdecl sched_get_priority_max (int policy);
 
-PTW32_DLLPORT int __cdecl sched_setscheduler (pid_t pid, int policy);
+int __cdecl sched_setscheduler (pid_t pid, int policy);
 
-PTW32_DLLPORT int __cdecl sched_getscheduler (pid_t pid);
+int __cdecl sched_getscheduler (pid_t pid);
 
 /*
  * Note that this macro returns ENOTSUP rather than
