@@ -949,13 +949,6 @@ int PTW32_CDECL pthread_mutexattr_setpshared (pthread_mutexattr_t * attr,
 int PTW32_CDECL pthread_mutexattr_settype (pthread_mutexattr_t * attr, int kind);
 int PTW32_CDECL pthread_mutexattr_gettype (const pthread_mutexattr_t * attr, int *kind);
 
-int PTW32_CDECL pthread_mutexattr_setrobust(
-                                           pthread_mutexattr_t *attr,
-                                           int robust);
-int PTW32_CDECL pthread_mutexattr_getrobust(
-                                           const pthread_mutexattr_t * attr,
-                                           int * robust);
-
 /*
  * Mutex Functions
  */
