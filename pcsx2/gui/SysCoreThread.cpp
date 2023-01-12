@@ -84,14 +84,6 @@ static void modules_open(bool isSuspended)
 	FileMcd_EmuOpen();
 }
 
-static void modules_init(void)
-{
-	SPU2init();
-	PADinit(0);
-	USBinit();
-	DEV9init();
-}
-
 static void modules_shutdown(void)
 {
 	GetMTGS().Cancel();	// cancel it for speedier shutdown!
@@ -143,9 +135,11 @@ void SysCoreThread::OnStart()
 
 void SysCoreThread::Start()
 {
-	if(GSinit() != 0)
-		return;
-	modules_init();
+	GSinit();
+	SPU2init();
+	PADinit(0);
+	USBinit();
+	DEV9init();
 	_parent::Start();
 }
 
@@ -211,16 +205,6 @@ void SysCoreThread::ApplySettings(const Pcsx2Config& src)
 	m_resetVsyncTimers = (src.GS != EmuConfig.GS);
 
 	const_cast<Pcsx2Config&>(EmuConfig) = src;
-}
-
-void SysCoreThread::UploadStateCopy(const VmStateBuffer& copy)
-{
-	if (!(IsPaused()))
-		return;
-
-	memLoadingState loadme(copy);
-	loadme.FreezeAll();
-	m_resetVirtualMachine = false;
 }
 
 // --------------------------------------------------------------------------------------

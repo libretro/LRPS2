@@ -44,7 +44,6 @@ public:
 	virtual bool StateCheckInThread();
 
 	virtual void ApplySettings( const Pcsx2Config& src );
-	virtual void UploadStateCopy( const VmStateBuffer& copy );
 
 protected:
 	virtual void DoCpuExecute();

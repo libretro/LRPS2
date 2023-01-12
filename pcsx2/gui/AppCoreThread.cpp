@@ -527,11 +527,6 @@ bool AppCoreThread::StateCheckInThread()
 	return _parent::StateCheckInThread();
 }
 
-void AppCoreThread::UploadStateCopy(const VmStateBuffer& copy)
-{
-	_parent::UploadStateCopy(copy);
-}
-
 static uint m_except_threshold = 0;
 
 void AppCoreThread::ExecuteTaskInThread()
