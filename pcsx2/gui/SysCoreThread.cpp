@@ -15,6 +15,7 @@
 
 #include "../Common.h"
 #include "App.h"
+#include "MemoryCardFile.h"
 #include "../IopBios.h"
 #include "../IopDma.h"
 #include "../R5900.h"

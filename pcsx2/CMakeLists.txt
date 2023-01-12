@@ -142,7 +142,6 @@ set(pcsx2Headers
 	MemoryTypes.h
 	Patch.h
 	PathDefs.h
-	Plugins.h
 	R3000A.h
 	R5900Exceptions.h
 	R5900.h

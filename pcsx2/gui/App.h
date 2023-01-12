@@ -20,12 +20,13 @@
 #include <wx/apptrait.h>
 #include <memory>
 
+#include "PS2Edefs.h"
+
 #include "AppConfig.h"
 #include "AppCoreThread.h"
 #include "AppGameDatabase.h"
 #include "AppEventListeners.h"
 
-#include "../Plugins.h"
 #include "../System.h"
 #include "SysThreads.h"
 
@@ -225,6 +226,7 @@ wxDECLARE_APP(Pcsx2App);
 // --------------------------------------------------------------------------------------
 //  External App-related Globals and Shortcuts
 // --------------------------------------------------------------------------------------
+class SysMtgsThread;
 
 extern __aligned16 SysMtgsThread mtgsThread;
 extern __aligned16 AppCoreThread CoreThread;
