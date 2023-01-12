@@ -506,19 +506,12 @@ extern pthread_key_t ptw32_cleanupKey;
 extern pthread_cond_t ptw32_cond_list_head;
 extern pthread_cond_t ptw32_cond_list_tail;
 
-extern int ptw32_mutex_default_kind;
-
 extern unsigned __int64 ptw32_threadSeqNumber;
-
-extern int ptw32_concurrency;
-
-extern int ptw32_features;
 
 extern ptw32_mcs_lock_t ptw32_thread_reuse_lock;
 extern ptw32_mcs_lock_t ptw32_mutex_test_init_lock;
 extern ptw32_mcs_lock_t ptw32_cond_list_lock;
 extern ptw32_mcs_lock_t ptw32_cond_test_init_lock;
-extern ptw32_mcs_lock_t ptw32_spinlock_test_init_lock;
 
 #if defined(_UWIN)
 extern int pthread_count;
@@ -596,12 +589,6 @@ extern "C"
 #if defined(NEED_FTIME)
   void ptw32_timespec_to_filetime (const struct timespec *ts, FILETIME * ft);
   void ptw32_filetime_to_timespec (const FILETIME * ft, struct timespec *ts);
-#endif
-
-/* Declared in misc.c */
-#if defined(NEED_CALLOC)
-#define calloc(n, s) ptw32_calloc(n, s)
-  void *ptw32_calloc (size_t n, size_t s);
 #endif
 
 /* Declared in private.c */

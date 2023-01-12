@@ -47,11 +47,6 @@ pthread_key_t ptw32_cleanupKey = NULL;
 pthread_cond_t ptw32_cond_list_head = NULL;
 pthread_cond_t ptw32_cond_list_tail = NULL;
 
-int ptw32_concurrency = 0;
-
-/* What features have been auto-detected */
-int ptw32_features = 0;
-
 /*
  * Global [process wide] thread sequence Number
  */
@@ -79,18 +74,6 @@ ptw32_mcs_lock_t ptw32_mutex_test_init_lock = 0;
  * created condition variables.
  */
 ptw32_mcs_lock_t ptw32_cond_test_init_lock = 0;
-
-/*
- * Global lock for testing internal state of PTHREAD_RWLOCK_INITIALIZER
- * created read/write locks.
- */
-ptw32_mcs_lock_t ptw32_rwlock_test_init_lock = 0;
-
-/*
- * Global lock for testing internal state of PTHREAD_SPINLOCK_INITIALIZER
- * created spin locks.
- */
-ptw32_mcs_lock_t ptw32_spinlock_test_init_lock = 0;
 
 /*
  * Global lock for condition variable linked list. The list exists

@@ -54,15 +54,6 @@ pthread_win32_process_attach_np ()
   pthread_count++;
 #endif
 
-#if defined(__GNUC__)
-  ptw32_features = 0;
-#else
-  /*
-   * This is obsolete now.
-   */
-  ptw32_features = PTW32_SYSTEM_INTERLOCKED_COMPARE_EXCHANGE;
-#endif
-
   /*
    * Load QUSEREX.DLL and try to get address of QueueUserAPCEx.
    * Because QUSEREX.DLL requires a driver to be installed we will
@@ -128,11 +119,6 @@ pthread_win32_process_attach_np ()
 	  (void) FreeLibrary (ptw32_h_quserex);
 	  ptw32_h_quserex = 0;
 	}
-    }
-
-  if (ptw32_h_quserex)
-    {
-      ptw32_features |= PTW32_ALERTABLE_ASYNC_CANCEL;
     }
 
   return result;
@@ -247,10 +233,4 @@ pthread_win32_thread_detach_np ()
     }
 
   return TRUE;
-}
-
-BOOL
-pthread_win32_test_features_np (int feature_mask)
-{
-  return ((ptw32_features & feature_mask) == feature_mask);
 }

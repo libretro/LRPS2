@@ -1050,10 +1050,6 @@ int PTW32_CDECL pthread_getschedparam (pthread_t thread,
                                    int *policy,
                                    struct sched_param *param);
 
-int PTW32_CDECL pthread_setconcurrency (int);
- 
-int PTW32_CDECL pthread_getconcurrency (void);
-
 #if PTW32_LEVEL >= PTW32_LEVEL_MAX - 1
 
 /*
@@ -1074,15 +1070,6 @@ int PTW32_CDECL pthread_win32_process_attach_np(void);
 int PTW32_CDECL pthread_win32_process_detach_np(void);
 int PTW32_CDECL pthread_win32_thread_attach_np(void);
 int PTW32_CDECL pthread_win32_thread_detach_np(void);
-
-/*
- * Features that are auto-detected at load/run time.
- */
-int PTW32_CDECL pthread_win32_test_features_np(int);
-enum ptw32_features {
-  PTW32_SYSTEM_INTERLOCKED_COMPARE_EXCHANGE = 0x0001, /* System provides it. */
-  PTW32_ALERTABLE_ASYNC_CANCEL              = 0x0002  /* Can cancel blocked threads. */
-};
 #endif /*PTW32_LEVEL >= PTW32_LEVEL_MAX - 1 */
 
 #if PTW32_LEVEL >= PTW32_LEVEL_MAX
@@ -1125,57 +1112,6 @@ class ptw32_exception_cancel : public ptw32_exception {};
 class ptw32_exception_exit   : public ptw32_exception {};
 
 #endif
-
-#if !defined(PTW32_BUILD)
-
-#if defined(__CLEANUP_CXX)
-
-/*
- * Redefine the C++ catch keyword to ensure that applications
- * propagate our internal exceptions up to the library's internal handlers.
- */
-#if defined(_MSC_VER)
-        /*
-         * WARNING: Replace any 'catch( ... )' with 'PtW32CatchAll'
-         * if you want Pthread-Win32 cancelation and pthread_exit to work.
-         */
-
-#if !defined(PtW32NoCatchWarn)
-
-#pragma message("Specify \"/DPtW32NoCatchWarn\" compiler flag to skip this message.")
-#pragma message("------------------------------------------------------------------")
-#pragma message("When compiling applications with MSVC++ and C++ exception handling:")
-#pragma message("  Replace any 'catch( ... )' in routines called from POSIX threads")
-#pragma message("  with 'PtW32CatchAll' or 'CATCHALL' if you want POSIX thread")
-#pragma message("  cancelation and pthread_exit to work. For example:")
-#pragma message("")
-#pragma message("    #if defined(PtW32CatchAll)")
-#pragma message("      PtW32CatchAll")
-#pragma message("    #else")
-#pragma message("      catch(...)")
-#pragma message("    #endif")
-#pragma message("        {")
-#pragma message("          /* Catchall block processing */")
-#pragma message("        }")
-#pragma message("------------------------------------------------------------------")
-
-#endif
-
-#define PtW32CatchAll \
-        catch( ptw32_exception & ) { throw; } \
-        catch( ... )
-
-#else /* _MSC_VER */
-
-#define catch( E ) \
-        catch( ptw32_exception & ) { throw; } \
-        catch( E )
-
-#endif /* _MSC_VER */
-
-#endif /* __CLEANUP_CXX */
-
-#endif /* ! PTW32_BUILD */
 
 #if defined(__cplusplus)
 }                               /* End of extern "C" */
