@@ -60,12 +60,12 @@ private:
 	u16* m_free_indexes_stack;
 
 public:
-	__forceinline FastList() {
+	GS_FORCEINLINE FastList() {
 		m_buffer = nullptr;
 		clear();
 	}
 
-	__forceinline ~FastList() {
+	GS_FORCEINLINE ~FastList() {
 		AlignedFree(m_buffer);
 	}
 
@@ -93,7 +93,7 @@ public:
 	}
 
 	// Insert the element in front of the list and return its position in m_buffer
-	__forceinline u16 InsertFront(const T& data) {
+	GS_FORCEINLINE u16 InsertFront(const T& data) {
 		if (Full()) {
 			Grow();
 		}
@@ -105,81 +105,81 @@ public:
 		return free_index;
 	}
 
-	__forceinline void push_front(const T& data) {
+	GS_FORCEINLINE void push_front(const T& data) {
 		InsertFront(data);
 	}
 
-	__forceinline const T& back() const {
+	GS_FORCEINLINE const T& back() const {
 		return m_buffer[LastIndex()].data;
 	}
 
-	__forceinline void pop_back() {
+	GS_FORCEINLINE void pop_back() {
 		EraseIndex(LastIndex());
 	}
 
-	__forceinline u16 size() const {
+	GS_FORCEINLINE u16 size() const {
 		return m_free_indexes_stack_top;
 	}
 
-	__forceinline bool empty() const {
+	GS_FORCEINLINE bool empty() const {
 		return size() == 0;
 	}	
 
-	__forceinline void EraseIndex(const u16 index) {
+	GS_FORCEINLINE void EraseIndex(const u16 index) {
 		ListRemove(index);
 		m_free_indexes_stack[--m_free_indexes_stack_top] = index;
 	}
 
-	__forceinline void MoveFront(const u16 index) {
+	GS_FORCEINLINE void MoveFront(const u16 index) {
 		if (FirstIndex() != index) {
 			ListRemove(index);
 			ListInsertFront(index);
 		}
 	}
 
-	__forceinline const FastListIterator<T> begin() const {
+	GS_FORCEINLINE const FastListIterator<T> begin() const {
 		return FastListIterator<T>(this, FirstIndex());
 	}
 
-	__forceinline const FastListIterator<T> end() const {
+	GS_FORCEINLINE const FastListIterator<T> end() const {
 		return FastListIterator<T>(this, 0);
 	}
 
-	__forceinline FastListIterator<T> erase(FastListIterator<T> i) {
+	GS_FORCEINLINE FastListIterator<T> erase(FastListIterator<T> i) {
 		EraseIndex(i.Index());
 		return ++i;
 	}
 
 private:
 	// Accessed by FastListIterator<T> using class friendship
-	__forceinline const T& Data(const u16 index) const {
+	GS_FORCEINLINE const T& Data(const u16 index) const {
 		return m_buffer[index].data;
 	}
 
 	// Accessed by FastListIterator<T> using class friendship
-	__forceinline u16 NextIndex(const u16 index) const {
+	GS_FORCEINLINE u16 NextIndex(const u16 index) const {
 		return m_buffer[index].next_index;
 	}
 
 	// Accessed by FastListIterator<T> using class friendship
-	__forceinline u16 PrevIndex(const u16 index) const {
+	GS_FORCEINLINE u16 PrevIndex(const u16 index) const {
 		return m_buffer[index].prev_index;
 	}
 
-	__forceinline u16 FirstIndex() const {
+	GS_FORCEINLINE u16 FirstIndex() const {
 		return m_buffer[0].next_index;
 	}
 
-	__forceinline u16 LastIndex() const {
+	GS_FORCEINLINE u16 LastIndex() const {
 		return m_buffer[0].prev_index;
 	}
 
-	__forceinline bool Full() const {
+	GS_FORCEINLINE bool Full() const {
 		// The minus one is due to the presence of the auxiliary element
 		return size() == m_capacity - 1;
 	}
 
-	__forceinline void ListInsertFront(const u16 index) {
+	GS_FORCEINLINE void ListInsertFront(const u16 index) {
 		// Update prev / next indexes to add m_buffer[index] to the chain
 		Element<T>& head = m_buffer[0];
 		m_buffer[index].prev_index = 0;
@@ -188,7 +188,7 @@ private:
 		head.next_index = index;
 	}
 
-	__forceinline void ListRemove(const u16 index) {
+	GS_FORCEINLINE void ListRemove(const u16 index) {
 		// Update prev / next indexes to remove m_buffer[index] from the chain
 		const Element<T>& to_remove = m_buffer[index];
 		m_buffer[to_remove.prev_index].next_index = to_remove.next_index;
@@ -228,50 +228,50 @@ private:
 	u16 m_index;
 
 public:
-	__forceinline FastListIterator(const FastList<T>* fastlist, const u16 index) {
+	GS_FORCEINLINE FastListIterator(const FastList<T>* fastlist, const u16 index) {
 		m_fastlist = fastlist;
 		m_index = index;
 	}
 
-	__forceinline bool operator!=(const FastListIterator<T>& other) const {
+	GS_FORCEINLINE bool operator!=(const FastListIterator<T>& other) const {
 		return (m_index != other.m_index);
 	}
 
-	__forceinline bool operator==(const FastListIterator<T>& other) const {
+	GS_FORCEINLINE bool operator==(const FastListIterator<T>& other) const {
 		return (m_index == other.m_index);
 	}
 
 	// Prefix increment
-	__forceinline const FastListIterator<T>& operator++() {
+	GS_FORCEINLINE const FastListIterator<T>& operator++() {
 		m_index = m_fastlist->NextIndex(m_index);
 		return *this;
 	}
 
 	// Postfix increment
-	__forceinline const FastListIterator<T> operator++(int) {
+	GS_FORCEINLINE const FastListIterator<T> operator++(int) {
 		FastListIterator<T> copy(*this);
 		++(*this);
 		return copy;
 	}
 
 	// Prefix decrement
-	__forceinline const FastListIterator<T>& operator--() {
+	GS_FORCEINLINE const FastListIterator<T>& operator--() {
 		m_index = m_fastlist->PrevIndex(m_index);
 		return *this;
 	}
 
 	// Postfix decrement
-	__forceinline const FastListIterator<T> operator--(int) {
+	GS_FORCEINLINE const FastListIterator<T> operator--(int) {
 		FastListIterator<T> copy(*this);
 		--(*this);
 		return copy;
 	}
 
-	__forceinline const T& operator*() const {
+	GS_FORCEINLINE const T& operator*() const {
 		return m_fastlist->Data(m_index);
 	}
 
-	__forceinline u16 Index() const {
+	GS_FORCEINLINE u16 Index() const {
 		return m_index;
 	}
 };

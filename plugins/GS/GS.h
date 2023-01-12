@@ -459,9 +459,9 @@ REG64_(GIFReg, ALPHA)
 	u8 _PAD2[3];
 REG_END2
 	// opaque => output will be Cs/As
-	__forceinline bool IsOpaque() const {return ((A == B || (C == 2 && FIX == 0)) && D == 0) || (A == 0 && B == D && C == 2 && FIX == 0x80);}
-	__forceinline bool IsOpaque(int amin, int amax) const {return ((A == B || amax == 0) && D == 0) || (A == 0 && B == D && amin == 0x80 && amax == 0x80);}
-	__forceinline bool IsCd() { return (A == B) && (D == 1);}
+	GS_FORCEINLINE bool IsOpaque() const {return ((A == B || (C == 2 && FIX == 0)) && D == 0) || (A == 0 && B == D && C == 2 && FIX == 0x80);}
+	GS_FORCEINLINE bool IsOpaque(int amin, int amax) const {return ((A == B || amax == 0) && D == 0) || (A == 0 && B == D && amin == 0x80 && amax == 0x80);}
+	GS_FORCEINLINE bool IsCd() { return (A == B) && (D == 1);}
 REG_END2
 
 REG64_(GIFReg, BITBLTBUF)
@@ -706,9 +706,9 @@ REG64_(GIFReg, TEST)
 	u32 _PAD1:13;
 	u32 _PAD2:32;
 REG_END2
-	__forceinline bool DoFirstPass() const {return !ATE || ATST != ATST_NEVER;} // not all pixels fail automatically
-	__forceinline bool DoSecondPass() const {return ATE && ATST != ATST_ALWAYS && AFAIL != AFAIL_KEEP;} // pixels may fail, write fb/z
-	__forceinline bool NoSecondPass() const {return ATE && ATST != ATST_ALWAYS && AFAIL == AFAIL_KEEP;} // pixels may fail, no output
+	GS_FORCEINLINE bool DoFirstPass() const {return !ATE || ATST != ATST_NEVER;} // not all pixels fail automatically
+	GS_FORCEINLINE bool DoSecondPass() const {return ATE && ATST != ATST_ALWAYS && AFAIL != AFAIL_KEEP;} // pixels may fail, write fb/z
+	GS_FORCEINLINE bool NoSecondPass() const {return ATE && ATST != ATST_ALWAYS && AFAIL == AFAIL_KEEP;} // pixels may fail, no output
 REG_END2
 
 REG64_(GIFReg, TEX0)
@@ -739,7 +739,7 @@ union
 	};
 };
 REG_END2
-	__forceinline bool IsRepeating() const
+	GS_FORCEINLINE bool IsRepeating() const
 	{
 		if(TBW < 2)
 		{
@@ -1025,7 +1025,7 @@ struct alignas(32) GIFPath
 
 	enum {TYPE_UNKNOWN, TYPE_ADONLY, TYPE_STQRGBAXYZF2, TYPE_STQRGBAXYZ2};
 
-	__forceinline void SetTag(const void* mem)
+	GS_FORCEINLINE void SetTag(const void* mem)
 	{
 		const GIFTag* RESTRICT src = (const GIFTag*)mem;
 
@@ -1090,7 +1090,7 @@ struct alignas(32) GIFPath
 		}
 	}
 
-	__forceinline bool StepReg()
+	GS_FORCEINLINE bool StepReg()
 	{
 		if(++reg == nreg)
 		{

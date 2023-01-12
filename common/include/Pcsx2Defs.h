@@ -106,7 +106,7 @@
 
 #define _inline __inline__ __attribute__((unused))
 #ifdef NDEBUG
-#define __forceinline __inline__ __attribute__((always_inline, unused))
+#define __forceinline __attribute__((always_inline, unused))
 #else
 #define __forceinline __attribute__((unused))
 #endif

@@ -163,12 +163,12 @@ protected:
 	static short blockOffset8[256];
 	static short blockOffset4[256];
 
-	__forceinline static u32 Expand24To32(u32 c, const GIFRegTEXA& TEXA)
+	GS_FORCEINLINE static u32 Expand24To32(u32 c, const GIFRegTEXA& TEXA)
 	{
 		return (((!TEXA.AEM | (c & 0xffffff)) ? TEXA.TA0 : 0) << 24) | (c & 0xffffff);
 	}
 
-	__forceinline static u32 Expand16To32(u16 c, const GIFRegTEXA& TEXA)
+	GS_FORCEINLINE static u32 Expand16To32(u16 c, const GIFRegTEXA& TEXA)
 	{
 		return (((c & 0x8000) ? TEXA.TA1 : (!TEXA.AEM | c) ? TEXA.TA0 : 0) << 24) | ((c & 0x7c00) << 9) | ((c & 0x03e0) << 6) | ((c & 0x001f) << 3);
 	}
@@ -320,7 +320,7 @@ public:
 		return (BlockNumber16SZ(x, y, bp, bw) << 7) + columnTable16[y & 7][x & 15];
 	}
 
-	static __forceinline u32 PixelAddress32(int x, int y, u32 bp, u32 bw)
+	static GS_FORCEINLINE u32 PixelAddress32(int x, int y, u32 bp, u32 bw)
 	{
 		u32 page = ((bp >> 5) + (y >> 5) * bw + (x >> 6)) % MAX_PAGES;
 		u32 word = (page << 11) + pageOffset32[bp & 0x1f][y & 0x1f][x & 0x3f];
@@ -328,7 +328,7 @@ public:
 		return word;
 	}
 
-	static __forceinline u32 PixelAddress16(int x, int y, u32 bp, u32 bw)
+	static GS_FORCEINLINE u32 PixelAddress16(int x, int y, u32 bp, u32 bw)
 	{
 		u32 page = ((bp >> 5) + (y >> 6) * bw + (x >> 6)) % MAX_PAGES;
 		u32 word = (page << 12) + pageOffset16[bp & 0x1f][y & 0x3f][x & 0x3f];
@@ -336,7 +336,7 @@ public:
 		return word;
 	}
 
-	static __forceinline u32 PixelAddress16S(int x, int y, u32 bp, u32 bw)
+	static GS_FORCEINLINE u32 PixelAddress16S(int x, int y, u32 bp, u32 bw)
 	{
 		u32 page = ((bp >> 5) + (y >> 6) * bw + (x >> 6)) % MAX_PAGES;
 		u32 word = (page << 12) + pageOffset16S[bp & 0x1f][y & 0x3f][x & 0x3f];
@@ -344,7 +344,7 @@ public:
 		return word;
 	}
 
-	static __forceinline u32 PixelAddress8(int x, int y, u32 bp, u32 bw)
+	static GS_FORCEINLINE u32 PixelAddress8(int x, int y, u32 bp, u32 bw)
 	{
 		u32 page = ((bp >> 5) + (y >> 6) * (bw >> 1) + (x >> 7)) % MAX_PAGES;
 		u32 word = (page << 13) + pageOffset8[bp & 0x1f][y & 0x3f][x & 0x7f];
@@ -352,7 +352,7 @@ public:
 		return word;
 	}
 
-	static __forceinline u32 PixelAddress4(int x, int y, u32 bp, u32 bw)
+	static GS_FORCEINLINE u32 PixelAddress4(int x, int y, u32 bp, u32 bw)
 	{
 		u32 page = ((bp >> 5) + (y >> 7) * (bw >> 1) + (x >> 7)) % MAX_PAGES;
 		u32 word = (page << 14) + pageOffset4[bp & 0x1f][y & 0x7f][x & 0x7f];
@@ -360,7 +360,7 @@ public:
 		return word;
 	}
 
-	static __forceinline u32 PixelAddress32Z(int x, int y, u32 bp, u32 bw)
+	static GS_FORCEINLINE u32 PixelAddress32Z(int x, int y, u32 bp, u32 bw)
 	{
 		u32 page = ((bp >> 5) + (y >> 5) * bw + (x >> 6)) % MAX_PAGES;
 		u32 word = (page << 11) + pageOffset32Z[bp & 0x1f][y & 0x1f][x & 0x3f];
@@ -368,7 +368,7 @@ public:
 		return word;
 	}
 
-	static __forceinline u32 PixelAddress16Z(int x, int y, u32 bp, u32 bw)
+	static GS_FORCEINLINE u32 PixelAddress16Z(int x, int y, u32 bp, u32 bw)
 	{
 		u32 page = ((bp >> 5) + (y >> 6) * bw + (x >> 6)) % MAX_PAGES;
 		u32 word = (page << 12) + pageOffset16Z[bp & 0x1f][y & 0x3f][x & 0x3f];
@@ -376,7 +376,7 @@ public:
 		return word;
 	}
 
-	static __forceinline u32 PixelAddress16SZ(int x, int y, u32 bp, u32 bw)
+	static GS_FORCEINLINE u32 PixelAddress16SZ(int x, int y, u32 bp, u32 bw)
 	{
 		u32 page = ((bp >> 5) + (y >> 6) * bw + (x >> 6)) % MAX_PAGES;
 		u32 word = (page << 12) + pageOffset16SZ[bp & 0x1f][y & 0x3f][x & 0x3f];
@@ -386,196 +386,196 @@ public:
 
 	// pixel R/W
 
-	__forceinline u32 ReadPixel32(u32 addr) const
+	GS_FORCEINLINE u32 ReadPixel32(u32 addr) const
 	{
 		return m_vm32[addr];
 	}
 
-	__forceinline u32 ReadPixel24(u32 addr) const
+	GS_FORCEINLINE u32 ReadPixel24(u32 addr) const
 	{
 		return m_vm32[addr] & 0x00ffffff;
 	}
 
-	__forceinline u32 ReadPixel16(u32 addr) const
+	GS_FORCEINLINE u32 ReadPixel16(u32 addr) const
 	{
 		return (u32)m_vm16[addr];
 	}
 
-	__forceinline u32 ReadPixel8(u32 addr) const
+	GS_FORCEINLINE u32 ReadPixel8(u32 addr) const
 	{
 		return (u32)m_vm8[addr];
 	}
 
-	__forceinline u32 ReadPixel4(u32 addr) const
+	GS_FORCEINLINE u32 ReadPixel4(u32 addr) const
 	{
 		return (m_vm8[addr >> 1] >> ((addr & 1) << 2)) & 0x0f;
 	}
 
-	__forceinline u32 ReadPixel8H(u32 addr) const
+	GS_FORCEINLINE u32 ReadPixel8H(u32 addr) const
 	{
 		return m_vm32[addr] >> 24;
 	}
 
-	__forceinline u32 ReadPixel4HL(u32 addr) const
+	GS_FORCEINLINE u32 ReadPixel4HL(u32 addr) const
 	{
 		return (m_vm32[addr] >> 24) & 0x0f;
 	}
 
-	__forceinline u32 ReadPixel4HH(u32 addr) const
+	GS_FORCEINLINE u32 ReadPixel4HH(u32 addr) const
 	{
 		return (m_vm32[addr] >> 28) & 0x0f;
 	}
 
-	__forceinline u32 ReadFrame24(u32 addr) const
+	GS_FORCEINLINE u32 ReadFrame24(u32 addr) const
 	{
 		return 0x80000000 | (m_vm32[addr] & 0xffffff);
 	}
 
-	__forceinline u32 ReadFrame16(u32 addr) const
+	GS_FORCEINLINE u32 ReadFrame16(u32 addr) const
 	{
 		u32 c = (u32)m_vm16[addr];
 
 		return ((c & 0x8000) << 16) | ((c & 0x7c00) << 9) | ((c & 0x03e0) << 6) | ((c & 0x001f) << 3);
 	}
 
-	__forceinline u32 ReadPixel32(int x, int y, u32 bp, u32 bw) const
+	GS_FORCEINLINE u32 ReadPixel32(int x, int y, u32 bp, u32 bw) const
 	{
 		return ReadPixel32(PixelAddress32(x, y, bp, bw));
 	}
 
-	__forceinline u32 ReadPixel24(int x, int y, u32 bp, u32 bw) const
+	GS_FORCEINLINE u32 ReadPixel24(int x, int y, u32 bp, u32 bw) const
 	{
 		return ReadPixel24(PixelAddress32(x, y, bp, bw));
 	}
 
-	__forceinline u32 ReadPixel16(int x, int y, u32 bp, u32 bw) const
+	GS_FORCEINLINE u32 ReadPixel16(int x, int y, u32 bp, u32 bw) const
 	{
 		return ReadPixel16(PixelAddress16(x, y, bp, bw));
 	}
 
-	__forceinline u32 ReadPixel16S(int x, int y, u32 bp, u32 bw) const
+	GS_FORCEINLINE u32 ReadPixel16S(int x, int y, u32 bp, u32 bw) const
 	{
 		return ReadPixel16(PixelAddress16S(x, y, bp, bw));
 	}
 
-	__forceinline u32 ReadPixel8(int x, int y, u32 bp, u32 bw) const
+	GS_FORCEINLINE u32 ReadPixel8(int x, int y, u32 bp, u32 bw) const
 	{
 		return ReadPixel8(PixelAddress8(x, y, bp, bw));
 	}
 
-	__forceinline u32 ReadPixel4(int x, int y, u32 bp, u32 bw) const
+	GS_FORCEINLINE u32 ReadPixel4(int x, int y, u32 bp, u32 bw) const
 	{
 		return ReadPixel4(PixelAddress4(x, y, bp, bw));
 	}
 
-	__forceinline u32 ReadPixel8H(int x, int y, u32 bp, u32 bw) const
+	GS_FORCEINLINE u32 ReadPixel8H(int x, int y, u32 bp, u32 bw) const
 	{
 		return ReadPixel8H(PixelAddress32(x, y, bp, bw));
 	}
 
-	__forceinline u32 ReadPixel4HL(int x, int y, u32 bp, u32 bw) const
+	GS_FORCEINLINE u32 ReadPixel4HL(int x, int y, u32 bp, u32 bw) const
 	{
 		return ReadPixel4HL(PixelAddress32(x, y, bp, bw));
 	}
 
-	__forceinline u32 ReadPixel4HH(int x, int y, u32 bp, u32 bw) const
+	GS_FORCEINLINE u32 ReadPixel4HH(int x, int y, u32 bp, u32 bw) const
 	{
 		return ReadPixel4HH(PixelAddress32(x, y, bp, bw));
 	}
 
-	__forceinline u32 ReadPixel32Z(int x, int y, u32 bp, u32 bw) const
+	GS_FORCEINLINE u32 ReadPixel32Z(int x, int y, u32 bp, u32 bw) const
 	{
 		return ReadPixel32(PixelAddress32Z(x, y, bp, bw));
 	}
 
-	__forceinline u32 ReadPixel24Z(int x, int y, u32 bp, u32 bw) const
+	GS_FORCEINLINE u32 ReadPixel24Z(int x, int y, u32 bp, u32 bw) const
 	{
 		return ReadPixel24(PixelAddress32Z(x, y, bp, bw));
 	}
 
-	__forceinline u32 ReadPixel16Z(int x, int y, u32 bp, u32 bw) const
+	GS_FORCEINLINE u32 ReadPixel16Z(int x, int y, u32 bp, u32 bw) const
 	{
 		return ReadPixel16(PixelAddress16Z(x, y, bp, bw));
 	}
 
-	__forceinline u32 ReadPixel16SZ(int x, int y, u32 bp, u32 bw) const
+	GS_FORCEINLINE u32 ReadPixel16SZ(int x, int y, u32 bp, u32 bw) const
 	{
 		return ReadPixel16(PixelAddress16SZ(x, y, bp, bw));
 	}
 
-	__forceinline u32 ReadFrame24(int x, int y, u32 bp, u32 bw) const
+	GS_FORCEINLINE u32 ReadFrame24(int x, int y, u32 bp, u32 bw) const
 	{
 		return ReadFrame24(PixelAddress32(x, y, bp, bw));
 	}
 
-	__forceinline u32 ReadFrame16(int x, int y, u32 bp, u32 bw) const
+	GS_FORCEINLINE u32 ReadFrame16(int x, int y, u32 bp, u32 bw) const
 	{
 		return ReadFrame16(PixelAddress16(x, y, bp, bw));
 	}
 
-	__forceinline u32 ReadFrame16S(int x, int y, u32 bp, u32 bw) const
+	GS_FORCEINLINE u32 ReadFrame16S(int x, int y, u32 bp, u32 bw) const
 	{
 		return ReadFrame16(PixelAddress16S(x, y, bp, bw));
 	}
 
-	__forceinline u32 ReadFrame24Z(int x, int y, u32 bp, u32 bw) const
+	GS_FORCEINLINE u32 ReadFrame24Z(int x, int y, u32 bp, u32 bw) const
 	{
 		return ReadFrame24(PixelAddress32Z(x, y, bp, bw));
 	}
 
-	__forceinline u32 ReadFrame16Z(int x, int y, u32 bp, u32 bw) const
+	GS_FORCEINLINE u32 ReadFrame16Z(int x, int y, u32 bp, u32 bw) const
 	{
 		return ReadFrame16(PixelAddress16Z(x, y, bp, bw));
 	}
 
-	__forceinline u32 ReadFrame16SZ(int x, int y, u32 bp, u32 bw) const
+	GS_FORCEINLINE u32 ReadFrame16SZ(int x, int y, u32 bp, u32 bw) const
 	{
 		return ReadFrame16(PixelAddress16SZ(x, y, bp, bw));
 	}
 
-	__forceinline void WritePixel32(u32 addr, u32 c)
+	GS_FORCEINLINE void WritePixel32(u32 addr, u32 c)
 	{
 		m_vm32[addr] = c;
 	}
 
-	__forceinline void WritePixel24(u32 addr, u32 c)
+	GS_FORCEINLINE void WritePixel24(u32 addr, u32 c)
 	{
 		m_vm32[addr] = (m_vm32[addr] & 0xff000000) | (c & 0x00ffffff);
 	}
 
-	__forceinline void WritePixel16(u32 addr, u32 c)
+	GS_FORCEINLINE void WritePixel16(u32 addr, u32 c)
 	{
 		m_vm16[addr] = (u16)c;
 	}
 
-	__forceinline void WritePixel8(u32 addr, u32 c)
+	GS_FORCEINLINE void WritePixel8(u32 addr, u32 c)
 	{
 		m_vm8[addr] = (u8)c;
 	}
 
-	__forceinline void WritePixel4(u32 addr, u32 c)
+	GS_FORCEINLINE void WritePixel4(u32 addr, u32 c)
 	{
 		int shift = (addr & 1) << 2; addr >>= 1;
 
 		m_vm8[addr] = (u8)((m_vm8[addr] & (0xf0 >> shift)) | ((c & 0x0f) << shift));
 	}
 
-	__forceinline void WritePixel8H(u32 addr, u32 c)
+	GS_FORCEINLINE void WritePixel8H(u32 addr, u32 c)
 	{
 		m_vm32[addr] = (m_vm32[addr] & 0x00ffffff) | (c << 24);
 	}
 
-	__forceinline void WritePixel4HL(u32 addr, u32 c)
+	GS_FORCEINLINE void WritePixel4HL(u32 addr, u32 c)
 	{
 		m_vm32[addr] = (m_vm32[addr] & 0xf0ffffff) | ((c & 0x0f) << 24);
 	}
 
-	__forceinline void WritePixel4HH(u32 addr, u32 c)
+	GS_FORCEINLINE void WritePixel4HH(u32 addr, u32 c)
 	{
 		m_vm32[addr] = (m_vm32[addr] & 0x0fffffff) | ((c & 0x0f) << 28);
 	}
 
-	__forceinline void WriteFrame16(u32 addr, u32 c)
+	GS_FORCEINLINE void WriteFrame16(u32 addr, u32 c)
 	{
 		u32 rb = c & 0x00f800f8;
 		u32 ga = c & 0x8000f800;
@@ -583,92 +583,92 @@ public:
 		WritePixel16(addr, (ga >> 16) | (rb >> 9) | (ga >> 6) | (rb >> 3));
 	}
 
-	__forceinline void WritePixel32(int x, int y, u32 c, u32 bp, u32 bw)
+	GS_FORCEINLINE void WritePixel32(int x, int y, u32 c, u32 bp, u32 bw)
 	{
 		WritePixel32(PixelAddress32(x, y, bp, bw), c);
 	}
 
-	__forceinline void WritePixel24(int x, int y, u32 c, u32 bp, u32 bw)
+	GS_FORCEINLINE void WritePixel24(int x, int y, u32 c, u32 bp, u32 bw)
 	{
 		WritePixel24(PixelAddress32(x, y, bp, bw), c);
 	}
 
-	__forceinline void WritePixel16(int x, int y, u32 c, u32 bp, u32 bw)
+	GS_FORCEINLINE void WritePixel16(int x, int y, u32 c, u32 bp, u32 bw)
 	{
 		WritePixel16(PixelAddress16(x, y, bp, bw), c);
 	}
 
-	__forceinline void WritePixel16S(int x, int y, u32 c, u32 bp, u32 bw)
+	GS_FORCEINLINE void WritePixel16S(int x, int y, u32 c, u32 bp, u32 bw)
 	{
 		WritePixel16(PixelAddress16S(x, y, bp, bw), c);
 	}
 
-	__forceinline void WritePixel8(int x, int y, u32 c, u32 bp, u32 bw)
+	GS_FORCEINLINE void WritePixel8(int x, int y, u32 c, u32 bp, u32 bw)
 	{
 		WritePixel8(PixelAddress8(x, y, bp, bw), c);
 	}
 
-	__forceinline void WritePixel4(int x, int y, u32 c, u32 bp, u32 bw)
+	GS_FORCEINLINE void WritePixel4(int x, int y, u32 c, u32 bp, u32 bw)
 	{
 		WritePixel4(PixelAddress4(x, y, bp, bw), c);
 	}
 
-	__forceinline void WritePixel8H(int x, int y, u32 c, u32 bp, u32 bw)
+	GS_FORCEINLINE void WritePixel8H(int x, int y, u32 c, u32 bp, u32 bw)
 	{
 		WritePixel8H(PixelAddress32(x, y, bp, bw), c);
 	}
 
-    __forceinline void WritePixel4HL(int x, int y, u32 c, u32 bp, u32 bw)
+    GS_FORCEINLINE void WritePixel4HL(int x, int y, u32 c, u32 bp, u32 bw)
 	{
 		WritePixel4HL(PixelAddress32(x, y, bp, bw), c);
 	}
 
-	__forceinline void WritePixel4HH(int x, int y, u32 c, u32 bp, u32 bw)
+	GS_FORCEINLINE void WritePixel4HH(int x, int y, u32 c, u32 bp, u32 bw)
 	{
 		WritePixel4HH(PixelAddress32(x, y, bp, bw), c);
 	}
 
-	__forceinline void WritePixel32Z(int x, int y, u32 c, u32 bp, u32 bw)
+	GS_FORCEINLINE void WritePixel32Z(int x, int y, u32 c, u32 bp, u32 bw)
 	{
 		WritePixel32(PixelAddress32Z(x, y, bp, bw), c);
 	}
 
-	__forceinline void WritePixel24Z(int x, int y, u32 c, u32 bp, u32 bw)
+	GS_FORCEINLINE void WritePixel24Z(int x, int y, u32 c, u32 bp, u32 bw)
 	{
 		WritePixel24(PixelAddress32Z(x, y, bp, bw), c);
 	}
 
-	__forceinline void WritePixel16Z(int x, int y, u32 c, u32 bp, u32 bw)
+	GS_FORCEINLINE void WritePixel16Z(int x, int y, u32 c, u32 bp, u32 bw)
 	{
 		WritePixel16(PixelAddress16Z(x, y, bp, bw), c);
 	}
 
-	__forceinline void WritePixel16SZ(int x, int y, u32 c, u32 bp, u32 bw)
+	GS_FORCEINLINE void WritePixel16SZ(int x, int y, u32 c, u32 bp, u32 bw)
 	{
 		WritePixel16(PixelAddress16SZ(x, y, bp, bw), c);
 	}
 
-	__forceinline void WriteFrame16(int x, int y, u32 c, u32 bp, u32 bw)
+	GS_FORCEINLINE void WriteFrame16(int x, int y, u32 c, u32 bp, u32 bw)
 	{
 		WriteFrame16(PixelAddress16(x, y, bp, bw), c);
 	}
 
-	__forceinline void WriteFrame16S(int x, int y, u32 c, u32 bp, u32 bw)
+	GS_FORCEINLINE void WriteFrame16S(int x, int y, u32 c, u32 bp, u32 bw)
 	{
 		WriteFrame16(PixelAddress16S(x, y, bp, bw), c);
 	}
 
-	__forceinline void WriteFrame16Z(int x, int y, u32 c, u32 bp, u32 bw)
+	GS_FORCEINLINE void WriteFrame16Z(int x, int y, u32 c, u32 bp, u32 bw)
 	{
 		WriteFrame16(PixelAddress16Z(x, y, bp, bw), c);
 	}
 
-	__forceinline void WriteFrame16SZ(int x, int y, u32 c, u32 bp, u32 bw)
+	GS_FORCEINLINE void WriteFrame16SZ(int x, int y, u32 c, u32 bp, u32 bw)
 	{
 		WriteFrame16(PixelAddress16SZ(x, y, bp, bw), c);
 	}
 
-	__forceinline void WritePixel32(u8* RESTRICT src, u32 pitch, GSOffset* off, const GSVector4i& r)
+	GS_FORCEINLINE void WritePixel32(u8* RESTRICT src, u32 pitch, GSOffset* off, const GSVector4i& r)
 	{
 		src -= r.left * sizeof(u32);
 
@@ -685,7 +685,7 @@ public:
 		}
 	}
 
-	__forceinline void WritePixel24(u8* RESTRICT src, u32 pitch, GSOffset* off, const GSVector4i& r)
+	GS_FORCEINLINE void WritePixel24(u8* RESTRICT src, u32 pitch, GSOffset* off, const GSVector4i& r)
 	{
 		src -= r.left * sizeof(u32);
 
@@ -702,7 +702,7 @@ public:
 		}
 	}
 
-	__forceinline void WritePixel16(u8* RESTRICT src, u32 pitch, GSOffset* off, const GSVector4i& r)
+	GS_FORCEINLINE void WritePixel16(u8* RESTRICT src, u32 pitch, GSOffset* off, const GSVector4i& r)
 	{
 		src -= r.left * sizeof(u16);
 
@@ -719,7 +719,7 @@ public:
 		}
 	}
 
-	__forceinline void WriteFrame16(u8* RESTRICT src, u32 pitch, GSOffset* off, const GSVector4i& r)
+	GS_FORCEINLINE void WriteFrame16(u8* RESTRICT src, u32 pitch, GSOffset* off, const GSVector4i& r)
 	{
 		src -= r.left * sizeof(u32);
 
@@ -739,107 +739,107 @@ public:
 		}
 	}
 
-	__forceinline u32 ReadTexel32(u32 addr, const GIFRegTEXA& TEXA) const
+	GS_FORCEINLINE u32 ReadTexel32(u32 addr, const GIFRegTEXA& TEXA) const
 	{
 		return m_vm32[addr];
 	}
 
-	__forceinline u32 ReadTexel24(u32 addr, const GIFRegTEXA& TEXA) const
+	GS_FORCEINLINE u32 ReadTexel24(u32 addr, const GIFRegTEXA& TEXA) const
 	{
 		return Expand24To32(m_vm32[addr], TEXA);
 	}
 
-	__forceinline u32 ReadTexel16(u32 addr, const GIFRegTEXA& TEXA) const
+	GS_FORCEINLINE u32 ReadTexel16(u32 addr, const GIFRegTEXA& TEXA) const
 	{
 		return Expand16To32(m_vm16[addr], TEXA);
 	}
 
-	__forceinline u32 ReadTexel8(u32 addr, const GIFRegTEXA& TEXA) const
+	GS_FORCEINLINE u32 ReadTexel8(u32 addr, const GIFRegTEXA& TEXA) const
 	{
 		return m_clut[ReadPixel8(addr)];
 	}
 
-	__forceinline u32 ReadTexel4(u32 addr, const GIFRegTEXA& TEXA) const
+	GS_FORCEINLINE u32 ReadTexel4(u32 addr, const GIFRegTEXA& TEXA) const
 	{
 		return m_clut[ReadPixel4(addr)];
 	}
 
-	__forceinline u32 ReadTexel8H(u32 addr, const GIFRegTEXA& TEXA) const
+	GS_FORCEINLINE u32 ReadTexel8H(u32 addr, const GIFRegTEXA& TEXA) const
 	{
 		return m_clut[ReadPixel8H(addr)];
 	}
 
-	__forceinline u32 ReadTexel4HL(u32 addr, const GIFRegTEXA& TEXA) const
+	GS_FORCEINLINE u32 ReadTexel4HL(u32 addr, const GIFRegTEXA& TEXA) const
 	{
 		return m_clut[ReadPixel4HL(addr)];
 	}
 
-	__forceinline u32 ReadTexel4HH(u32 addr, const GIFRegTEXA& TEXA) const
+	GS_FORCEINLINE u32 ReadTexel4HH(u32 addr, const GIFRegTEXA& TEXA) const
 	{
 		return m_clut[ReadPixel4HH(addr)];
 	}
 
-	__forceinline u32 ReadTexel32(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
+	GS_FORCEINLINE u32 ReadTexel32(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
 	{
 		return ReadTexel32(PixelAddress32(x, y, TEX0.TBP0, TEX0.TBW), TEXA);
 	}
 
-	__forceinline u32 ReadTexel24(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
+	GS_FORCEINLINE u32 ReadTexel24(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
 	{
 		return ReadTexel24(PixelAddress32(x, y, TEX0.TBP0, TEX0.TBW), TEXA);
 	}
 
-	__forceinline u32 ReadTexel16(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
+	GS_FORCEINLINE u32 ReadTexel16(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
 	{
 		return ReadTexel16(PixelAddress16(x, y, TEX0.TBP0, TEX0.TBW), TEXA);
 	}
 
-	__forceinline u32 ReadTexel16S(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
+	GS_FORCEINLINE u32 ReadTexel16S(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
 	{
 		return ReadTexel16(PixelAddress16S(x, y, TEX0.TBP0, TEX0.TBW), TEXA);
 	}
 
-	__forceinline u32 ReadTexel8(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
+	GS_FORCEINLINE u32 ReadTexel8(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
 	{
 		return ReadTexel8(PixelAddress8(x, y, TEX0.TBP0, TEX0.TBW), TEXA);
 	}
 
-	__forceinline u32 ReadTexel4(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
+	GS_FORCEINLINE u32 ReadTexel4(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
 	{
 		return ReadTexel4(PixelAddress4(x, y, TEX0.TBP0, TEX0.TBW), TEXA);
 	}
 
-	__forceinline u32 ReadTexel8H(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
+	GS_FORCEINLINE u32 ReadTexel8H(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
 	{
 		return ReadTexel8H(PixelAddress32(x, y, TEX0.TBP0, TEX0.TBW), TEXA);
 	}
 
-	__forceinline u32 ReadTexel4HL(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
+	GS_FORCEINLINE u32 ReadTexel4HL(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
 	{
 		return ReadTexel4HL(PixelAddress32(x, y, TEX0.TBP0, TEX0.TBW), TEXA);
 	}
 
-	__forceinline u32 ReadTexel4HH(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
+	GS_FORCEINLINE u32 ReadTexel4HH(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
 	{
 		return ReadTexel4HH(PixelAddress32(x, y, TEX0.TBP0, TEX0.TBW), TEXA);
 	}
 
-	__forceinline u32 ReadTexel32Z(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
+	GS_FORCEINLINE u32 ReadTexel32Z(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
 	{
 		return ReadTexel32(PixelAddress32Z(x, y, TEX0.TBP0, TEX0.TBW), TEXA);
 	}
 
-	__forceinline u32 ReadTexel24Z(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
+	GS_FORCEINLINE u32 ReadTexel24Z(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
 	{
 		return ReadTexel24(PixelAddress32Z(x, y, TEX0.TBP0, TEX0.TBW), TEXA);
 	}
 
-	__forceinline u32 ReadTexel16Z(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
+	GS_FORCEINLINE u32 ReadTexel16Z(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
 	{
 		return ReadTexel16(PixelAddress16Z(x, y, TEX0.TBP0, TEX0.TBW), TEXA);
 	}
 
-	__forceinline u32 ReadTexel16SZ(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
+	GS_FORCEINLINE u32 ReadTexel16SZ(int x, int y, const GIFRegTEX0& TEX0, const GIFRegTEXA& TEXA) const
 	{
 		return ReadTexel16(PixelAddress16SZ(x, y, TEX0.TBP0, TEX0.TBW), TEXA);
 	}

@@ -52,7 +52,7 @@
 #include <memory>
 
 #ifdef _MSC_VER
-
+    #define GS_FORCEINLINE __forceinline
     #define EXPORT_C_(type) extern "C" type __stdcall
     #define EXPORT_C EXPORT_C_(void)
 
@@ -61,6 +61,11 @@
 #else
     #define EXPORT_C_(type) extern "C" __attribute__((stdcall,externally_visible,visibility("default"))) type
     #define EXPORT_C EXPORT_C_(void)
+#ifdef NDEBUG
+    #define GS_FORCEINLINE __inline__ __attribute__((always_inline,unused))
+#else
+    #define GS_FORCEINLINE __attribute__((unused))
+#endif
 
     #ifdef __GNUC__
         // GCC removes the variable as dead code and generates some warnings.
@@ -143,7 +148,7 @@
 
 #if !defined(_MSC_VER)
 	// http://svn.reactos.org/svn/reactos/trunk/reactos/include/crt/mingw32/intrin_x86.h?view=markup
-	__forceinline int _BitScanForward(unsigned long* const Index, const unsigned long Mask)
+	GS_FORCEINLINE int _BitScanForward(unsigned long* const Index, const unsigned long Mask)
 	{
 		__asm__("bsfl %k[Mask], %k[Index]" : [Index] "=r" (*Index) : [Mask] "mr" (Mask) : "cc");
 		return Mask ? 1 : 0;

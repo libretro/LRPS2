@@ -418,7 +418,7 @@ void GSClut::WriteCLUT_T32_I8_CSM1(const u32* RESTRICT src, u16* RESTRICT clut, 
 	}
 }
 
-__forceinline void GSClut::WriteCLUT_T32_I4_CSM1(const u32* RESTRICT src, u16* RESTRICT clut)
+GS_FORCEINLINE void GSClut::WriteCLUT_T32_I4_CSM1(const u32* RESTRICT src, u16* RESTRICT clut)
 {
 	// 1 block
 
@@ -484,7 +484,7 @@ void GSClut::WriteCLUT_T16_I8_CSM1(const u16* RESTRICT src, u16* RESTRICT clut)
 	}
 }
 
-__forceinline void GSClut::WriteCLUT_T16_I4_CSM1(const u16* RESTRICT src, u16* RESTRICT clut)
+GS_FORCEINLINE void GSClut::WriteCLUT_T16_I4_CSM1(const u16* RESTRICT src, u16* RESTRICT clut)
 {
 	// 1 block (half)
 
@@ -509,7 +509,7 @@ void GSClut::ReadCLUT_T32_I8(const u16* RESTRICT clut, u32* RESTRICT dst, int of
 	}
 }
 
-__forceinline void GSClut::ReadCLUT_T32_I4(const u16* RESTRICT clut, u32* RESTRICT dst)
+GS_FORCEINLINE void GSClut::ReadCLUT_T32_I4(const u16* RESTRICT clut, u32* RESTRICT dst)
 {
 	GSVector4i* s = (GSVector4i*)clut;
 	GSVector4i* d = (GSVector4i*)dst;
@@ -543,7 +543,7 @@ void GSClut::ExpandCLUT64_T32_I8(const u32* RESTRICT src, u64* RESTRICT dst)
 	ExpandCLUT64_T32(s3, s0, s1, s2, s3, &d[96]);
 }
 
-__forceinline void GSClut::ExpandCLUT64_T32(const GSVector4i& hi, const GSVector4i& lo0, const GSVector4i& lo1, const GSVector4i& lo2, const GSVector4i& lo3, GSVector4i* dst)
+GS_FORCEINLINE void GSClut::ExpandCLUT64_T32(const GSVector4i& hi, const GSVector4i& lo0, const GSVector4i& lo1, const GSVector4i& lo2, const GSVector4i& lo3, GSVector4i* dst)
 {
 	ExpandCLUT64_T32(hi.xxxx(), lo0, &dst[0]);
 	ExpandCLUT64_T32(hi.xxxx(), lo1, &dst[2]);
@@ -563,13 +563,13 @@ __forceinline void GSClut::ExpandCLUT64_T32(const GSVector4i& hi, const GSVector
 	ExpandCLUT64_T32(hi.wwww(), lo3, &dst[30]);
 }
 
-__forceinline void GSClut::ExpandCLUT64_T32(const GSVector4i& hi, const GSVector4i& lo, GSVector4i* dst)
+GS_FORCEINLINE void GSClut::ExpandCLUT64_T32(const GSVector4i& hi, const GSVector4i& lo, GSVector4i* dst)
 {
 	dst[0] = lo.upl32(hi);
 	dst[1] = lo.uph32(hi);
 }
 
-__forceinline void GSClut::ExpandCLUT64_T16(const GSVector4i& hi, const GSVector4i& lo0, const GSVector4i& lo1, const GSVector4i& lo2, const GSVector4i& lo3, GSVector4i* dst)
+GS_FORCEINLINE void GSClut::ExpandCLUT64_T16(const GSVector4i& hi, const GSVector4i& lo0, const GSVector4i& lo1, const GSVector4i& lo2, const GSVector4i& lo3, GSVector4i* dst)
 {
 	ExpandCLUT64_T16(hi.xxxx(), lo0, &dst[0]);
 	ExpandCLUT64_T16(hi.xxxx(), lo1, &dst[2]);
@@ -589,7 +589,7 @@ __forceinline void GSClut::ExpandCLUT64_T16(const GSVector4i& hi, const GSVector
 	ExpandCLUT64_T16(hi.wwww(), lo3, &dst[30]);
 }
 
-__forceinline void GSClut::ExpandCLUT64_T16(const GSVector4i& hi, const GSVector4i& lo, GSVector4i* dst)
+GS_FORCEINLINE void GSClut::ExpandCLUT64_T16(const GSVector4i& hi, const GSVector4i& lo, GSVector4i* dst)
 {
 	dst[0] = lo.upl16(hi);
 	dst[1] = lo.uph16(hi);

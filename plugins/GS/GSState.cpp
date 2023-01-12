@@ -573,7 +573,7 @@ void GSState::GIFRegHandlerNull(const GIFReg* RESTRICT r)
 {
 }
 
-__forceinline void GSState::ApplyPRIM(u32 prim)
+GS_FORCEINLINE void GSState::ApplyPRIM(u32 prim)
 {
 	if(GSUtil::GetPrimClass(m_env.PRIM.PRIM) == GSUtil::GetPrimClass(prim & 7)) // NOTE: assume strips/fans are converted to lists
 	{
@@ -2052,7 +2052,7 @@ void GSState::GrowVertexBuffer()
 }
 
 template<u32 prim, bool auto_flush>
-__forceinline void GSState::VertexKick(u32 skip)
+GS_FORCEINLINE void GSState::VertexKick(u32 skip)
 {
 	size_t head = m_vertex.head;
 	size_t tail = m_vertex.tail;

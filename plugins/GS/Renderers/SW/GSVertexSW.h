@@ -27,10 +27,10 @@ struct alignas(32) GSVertexSW
 {
 	GSVector4 p, _pad, t, c;
 
-	__forceinline GSVertexSW() {}
-	__forceinline GSVertexSW(const GSVertexSW& v) {*this = v;}
+	GS_FORCEINLINE GSVertexSW() {}
+	GS_FORCEINLINE GSVertexSW(const GSVertexSW& v) {*this = v;}
 
-	__forceinline static GSVertexSW zero()
+	GS_FORCEINLINE static GSVertexSW zero()
 	{
 		GSVertexSW v;
 
@@ -40,21 +40,21 @@ struct alignas(32) GSVertexSW
 
 		return v;
 	}
-	__forceinline void operator = (const GSVertexSW& v) 
+	GS_FORCEINLINE void operator = (const GSVertexSW& v) 
 	{
 		p = v.p; 
 		t = v.t;
 		c = v.c; 
 	}
 	
-	__forceinline void operator += (const GSVertexSW& v) 
+	GS_FORCEINLINE void operator += (const GSVertexSW& v) 
 	{
 		p += v.p; 
 		t += v.t;
 		c += v.c; 
 	}
 
-	__forceinline friend GSVertexSW operator + (const GSVertexSW& a, const GSVertexSW& b)
+	GS_FORCEINLINE friend GSVertexSW operator + (const GSVertexSW& a, const GSVertexSW& b)
 	{
 		GSVertexSW v;
 
@@ -65,7 +65,7 @@ struct alignas(32) GSVertexSW
 		return v;
 	}
 
-	__forceinline friend GSVertexSW operator - (const GSVertexSW& a, const GSVertexSW& b)
+	GS_FORCEINLINE friend GSVertexSW operator - (const GSVertexSW& a, const GSVertexSW& b)
 	{
 		GSVertexSW v;
 
@@ -76,7 +76,7 @@ struct alignas(32) GSVertexSW
 		return v;
 	}
 
-	__forceinline friend GSVertexSW operator * (const GSVertexSW& a, const GSVector4& b)
+	GS_FORCEINLINE friend GSVertexSW operator * (const GSVertexSW& a, const GSVector4& b)
 	{
 		GSVertexSW v;
 
@@ -87,7 +87,7 @@ struct alignas(32) GSVertexSW
 		return v;
 	}
 
-	__forceinline friend GSVertexSW operator / (const GSVertexSW& a, const GSVector4& b)
+	GS_FORCEINLINE friend GSVertexSW operator / (const GSVertexSW& a, const GSVector4& b)
 	{
 		GSVertexSW v;
 
@@ -242,16 +242,16 @@ struct alignas(32) GSVertexSW2
 	GSVector4 p, _pad;
 	GSVector8 tc;
 
-	__forceinline GSVertexSW2() {}
-	__forceinline GSVertexSW2(const GSVertexSW2& v) {*this = v;}
+	GS_FORCEINLINE GSVertexSW2() {}
+	GS_FORCEINLINE GSVertexSW2(const GSVertexSW2& v) {*this = v;}
 
-	__forceinline void operator = (const GSVertexSW2& v) 
+	GS_FORCEINLINE void operator = (const GSVertexSW2& v) 
 	{
 		p = v.p; 
 		tc = v.tc;
 	}
 
-	__forceinline friend GSVertexSW2 operator - (const GSVertexSW2& a, const GSVertexSW2& b)
+	GS_FORCEINLINE friend GSVertexSW2 operator - (const GSVertexSW2& a, const GSVertexSW2& b)
 	{
 		GSVertexSW2 v;
 

@@ -49,17 +49,17 @@ protected:
 	void DrawRectT(const int* RESTRICT row, const int* RESTRICT col, const GSVector4i& r, u32 c, u32 m);
 
 	template<class T, bool masked>
-	__forceinline void FillRect(const int* RESTRICT row, const int* RESTRICT col, const GSVector4i& r, u32 c, u32 m);
+	GS_FORCEINLINE void FillRect(const int* RESTRICT row, const int* RESTRICT col, const GSVector4i& r, u32 c, u32 m);
 
 	#if _M_SSE >= 0x501
 
 	template<class T, bool masked>
-	__forceinline void FillBlock(const int* RESTRICT row, const int* RESTRICT col, const GSVector4i& r, const GSVector8i& c, const GSVector8i& m);
+	GS_FORCEINLINE void FillBlock(const int* RESTRICT row, const int* RESTRICT col, const GSVector4i& r, const GSVector8i& c, const GSVector8i& m);
 
 	#else
 
 	template<class T, bool masked>
-	__forceinline void FillBlock(const int* RESTRICT row, const int* RESTRICT col, const GSVector4i& r, const GSVector4i& c, const GSVector4i& m);
+	GS_FORCEINLINE void FillBlock(const int* RESTRICT row, const int* RESTRICT col, const GSVector4i& r, const GSVector4i& c, const GSVector4i& m);
 
 	#endif
 

@@ -181,14 +181,14 @@ public:
 	virtual void BeginDraw(const GSRasterizerData* data) = 0;
 	virtual void EndDraw(u64 frame, int actual, int total) = 0;
 
-	__forceinline void SetupPrim(const GSVertexSW* vertex, const u32* index, const GSVertexSW& dscan) {m_sp(vertex, index, dscan);}
-	__forceinline void DrawScanline(int pixels, int left, int top, const GSVertexSW& scan) {m_ds(pixels, left, top, scan);}
-	__forceinline void DrawEdge(int pixels, int left, int top, const GSVertexSW& scan) {m_de(pixels, left, top, scan);}
-	__forceinline void DrawRect(const GSVector4i& r, const GSVertexSW& v) {(this->*m_dr)(r, v);}
+	GS_FORCEINLINE void SetupPrim(const GSVertexSW* vertex, const u32* index, const GSVertexSW& dscan) {m_sp(vertex, index, dscan);}
+	GS_FORCEINLINE void DrawScanline(int pixels, int left, int top, const GSVertexSW& scan) {m_ds(pixels, left, top, scan);}
+	GS_FORCEINLINE void DrawEdge(int pixels, int left, int top, const GSVertexSW& scan) {m_de(pixels, left, top, scan);}
+	GS_FORCEINLINE void DrawRect(const GSVector4i& r, const GSVertexSW& v) {(this->*m_dr)(r, v);}
 
 
-	__forceinline bool HasEdge() const {return m_de != NULL;}
-	__forceinline bool IsSolidRect() const {return m_dr != NULL;}
+	GS_FORCEINLINE bool HasEdge() const {return m_de != NULL;}
+	GS_FORCEINLINE bool IsSolidRect() const {return m_dr != NULL;}
 };
 
 class IRasterizer : public GSAlignedClass<32>
@@ -225,26 +225,26 @@ protected:
 	void DrawSprite(const GSVertexSW* vertex, const u32* index);
 
 	#if _M_SSE >= 0x501
-	__forceinline void DrawTriangleSection(int top, int bottom, GSVertexSW2& edge, const GSVertexSW2& dedge, const GSVertexSW2& dscan, const GSVector4& p0);
+	GS_FORCEINLINE void DrawTriangleSection(int top, int bottom, GSVertexSW2& edge, const GSVertexSW2& dedge, const GSVertexSW2& dscan, const GSVector4& p0);
 	#else
-	__forceinline void DrawTriangleSection(int top, int bottom, GSVertexSW& edge, const GSVertexSW& dedge, const GSVertexSW& dscan, const GSVector4& p0);
+	GS_FORCEINLINE void DrawTriangleSection(int top, int bottom, GSVertexSW& edge, const GSVertexSW& dedge, const GSVertexSW& dscan, const GSVector4& p0);
 	#endif
 
 	void DrawEdge(const GSVertexSW& v0, const GSVertexSW& v1, const GSVertexSW& dv, int orientation, int side);
 
-	__forceinline void AddScanline(GSVertexSW* e, int pixels, int left, int top, const GSVertexSW& scan);
-	__forceinline void Flush(const GSVertexSW* vertex, const u32* index, const GSVertexSW& dscan, bool edge = false);
+	GS_FORCEINLINE void AddScanline(GSVertexSW* e, int pixels, int left, int top, const GSVertexSW& scan);
+	GS_FORCEINLINE void Flush(const GSVertexSW* vertex, const u32* index, const GSVertexSW& dscan, bool edge = false);
 
-	__forceinline void DrawScanline(int pixels, int left, int top, const GSVertexSW& scan);
-	__forceinline void DrawEdge(int pixels, int left, int top, const GSVertexSW& scan);
+	GS_FORCEINLINE void DrawScanline(int pixels, int left, int top, const GSVertexSW& scan);
+	GS_FORCEINLINE void DrawEdge(int pixels, int left, int top, const GSVertexSW& scan);
 
 public:
 	GSRasterizer(IDrawScanline* ds, int id, int threads);
 	virtual ~GSRasterizer();
 
-	__forceinline bool IsOneOfMyScanlines(int top) const;
-	__forceinline bool IsOneOfMyScanlines(int top, int bottom) const;
-	__forceinline int FindMyNextScanline(int top) const;
+	GS_FORCEINLINE bool IsOneOfMyScanlines(int top) const;
+	GS_FORCEINLINE bool IsOneOfMyScanlines(int top, int bottom) const;
+	GS_FORCEINLINE int FindMyNextScanline(int top) const;
 
 	void Draw(GSRasterizerData* data);
 

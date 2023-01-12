@@ -61,7 +61,7 @@ public:
 			pad_vscb             = GSVector2i(0);
 		}
 
-		__forceinline bool Update(const VSConstantBuffer* cb)
+		GS_FORCEINLINE bool Update(const VSConstantBuffer* cb)
 		{
 			GSVector4i* a = (GSVector4i*)this;
 			GSVector4i* b = (GSVector4i*)cb;
@@ -134,7 +134,7 @@ public:
 			DitherMatrix[3] = GSVector4::zero();
 		}
 
-		__forceinline bool Update(const PSConstantBuffer* cb)
+		GS_FORCEINLINE bool Update(const PSConstantBuffer* cb)
 		{
 			GSVector4i* a = (GSVector4i*)this;
 			GSVector4i* b = (GSVector4i*)cb;
@@ -174,7 +174,7 @@ public:
 			PointSize = GSVector2(0);
 		}
 
-		__forceinline bool Update(const GSConstantBuffer* cb)
+		GS_FORCEINLINE bool Update(const GSConstantBuffer* cb)
 		{
 			return true;
 		}
