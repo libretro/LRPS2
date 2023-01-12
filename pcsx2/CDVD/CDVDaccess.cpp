@@ -13,9 +13,6 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "PrecompiledHeader.h"
-
 #include <ctype.h>
 #include <time.h>
 #include <exception>
@@ -26,6 +23,7 @@
 #include "IsoFileFormats.h"
 
 #include "DebugTools/SymbolMap.h"
+#include "../Config.h"
 
 CDVD_API* CDVD = NULL;
 

@@ -17,7 +17,6 @@
 // authors: cottonvibes(@gmail.com)
 //			Jake.Stine (@gmail.com)
 
-#include "PrecompiledHeader.h"
 #include "newVif_UnpackSSE.h"
 #include "MTVU.h"
 

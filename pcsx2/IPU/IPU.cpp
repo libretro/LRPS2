@@ -13,7 +13,6 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
 #include "Utilities/MemcpyFast.h"
 #include "Common.h"
 
@@ -319,7 +318,7 @@ __fi bool ipuWrite32(u32 mem, u32 value)
 	return true;
 }
 
-// returns FALSE when the writeback is handled, TRUE if the caller should do the
+// returns false when the writeback is handled, true if the caller should do the
 // writeback itself.
 __fi bool ipuWrite64(u32 mem, u64 value)
 {
@@ -492,7 +491,7 @@ static __ri bool ipuPACK(tIPU_CMD_CSC csc)
 		ipu_cmd.pos[1] = 0;
 	}
 
-	return TRUE;
+	return true;
 }
 
 // IPU-correct yuv conversions by Pseudonym

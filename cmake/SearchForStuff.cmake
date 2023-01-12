@@ -80,7 +80,6 @@ if(NOT LIBLZMA_FOUND)
 endif()
 
 if(MSVC)
-   add_definitions(-DPTW32_STATIC_LIB)
    add_subdirectory(${CMAKE_SOURCE_DIR}/3rdparty/pthreads4w)
    include_directories(${CMAKE_SOURCE_DIR}/3rdparty/pthreads4w/include)
 endif()

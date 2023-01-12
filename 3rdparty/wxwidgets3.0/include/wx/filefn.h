@@ -38,10 +38,6 @@
 // constants
 // ----------------------------------------------------------------------------
 
-#if defined(__VISUALC__)
-    typedef int mode_t;
-#endif
-
 // define off_t
 #if !defined(__WXMAC__) || defined(__UNIX__) || defined(__MACH__)
 #include  <sys/types.h>
@@ -383,11 +379,11 @@ enum wxPosixPermissions
     #define wxFtell ftell
 #endif
 
-inline int wxAccess(const wxString& path, mode_t mode)
+inline int wxAccess(const wxString& path, int mode)
     { return wxCRT_Access(path.fn_str(), mode); }
-inline int wxChmod(const wxString& path, mode_t mode)
+inline int wxChmod(const wxString& path, int mode)
     { return wxCRT_Chmod(path.fn_str(), mode); }
-inline int wxOpen(const wxString& path, int flags, mode_t mode)
+inline int wxOpen(const wxString& path, int flags, int mode)
     { return wxCRT_Open(path.fn_str(), flags, mode); }
 
 inline int wxStat(const wxString& path, wxStructStat *buf)
@@ -397,10 +393,10 @@ inline int wxLstat(const wxString& path, wxStructStat *buf)
 inline int wxRmDir(const wxString& path)
     { return wxCRT_RmDir(path.fn_str()); }
 #if (defined(__WINDOWS__) && !defined(__CYGWIN__))
-inline int wxMkDir(const wxString& path, mode_t WXUNUSED(mode) = 0)
+inline int wxMkDir(const wxString& path, int WXUNUSED(mode) = 0)
     { return wxCRT_MkDir(path.fn_str()); }
 #else
-inline int wxMkDir(const wxString& path, mode_t mode)
+inline int wxMkDir(const wxString& path, int mode)
     { return wxCRT_MkDir(path.fn_str(), mode); }
 #endif
 
@@ -543,13 +539,13 @@ public:
     // wxFileConfig::Flush() for example
     wxUmaskChanger(int umaskNew)
     {
-        m_umaskOld = umaskNew == -1 ? -1 : (int)umask((mode_t)umaskNew);
+        m_umaskOld = umaskNew == -1 ? -1 : (int)umask((int)umaskNew);
     }
 
     ~wxUmaskChanger()
     {
         if ( m_umaskOld != -1 )
-            umask((mode_t)m_umaskOld);
+            umask((int)m_umaskOld);
     }
 
 private:

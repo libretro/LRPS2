@@ -69,7 +69,6 @@ set(pcsx2Sources
 	Patch.cpp
 	Patch_Memory.cpp
 	Pcsx2Config.cpp
-	PrecompiledHeader.cpp
 	R3000A.cpp
 	R3000AInterpreter.cpp
 	R3000AOpcodeTables.cpp
@@ -133,7 +132,6 @@ set(pcsx2Headers
 	Patch.h
 	PathDefs.h
 	Plugins.h
-	PrecompiledHeader.h
 	R3000A.h
 	R5900Exceptions.h
 	R5900.h

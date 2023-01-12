@@ -238,7 +238,6 @@ ptw32_threadStart (void *vthreadParms)
 #endif /* __CLEANUP_CXX */
 #endif /* __CLEANUP_C */
 
-#if defined(PTW32_STATIC_LIB)
   /*
    * We need to cleanup the pthread now if we have
    * been statically linked, in which case the cleanup
@@ -254,7 +253,6 @@ ptw32_threadStart (void *vthreadParms)
    * For the dll, dllMain will do the cleanup automatically.
    */
   (void) pthread_win32_thread_detach_np ();
-#endif
 
 #if ! (defined(__MINGW64__) || defined(__MINGW32__)) || defined (__MSVCRT__) || defined (__DMC__)
   _endthreadex ((unsigned)(size_t) status);

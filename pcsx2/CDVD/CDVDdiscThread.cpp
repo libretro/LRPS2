@@ -13,7 +13,6 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
 #include "CDVDdiscReader.h"
 #include "CDVDaccess.h"
 
@@ -21,6 +20,7 @@
 #include <condition_variable>
 #include <limits>
 #include <queue>
+#include <cstring> /* memcpy */
 #include <thread>
 
 const u32 sectors_per_read = 16;

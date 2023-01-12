@@ -15,6 +15,10 @@
 
 #pragma once
 
+#include "Pcsx2Defs.h"
+
+#include <wx/string.h>
+
 struct IsoFileDescriptor
 {
 	struct FileDate // not 1:1 with iso9660 date struct

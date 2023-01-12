@@ -43,9 +43,6 @@
 /* Define if your C (not C++) compiler supports "inline" functions. */
 #undef HAVE_C_INLINE
 
-/* Do we know about type mode_t? */
-#undef HAVE_MODE_T
-
 /* 
  * Define if GCC has atomic builtins, i.e. __sync_* intrinsics
  * __sync_lock_* is implemented in mingw32 gcc 4.5.2 at least
@@ -122,7 +119,6 @@
 #endif
 
 #if defined(_UWIN)
-#define HAVE_MODE_T
 #define HAVE_STRUCT_TIMESPEC
 #endif
 
@@ -131,10 +127,7 @@
 #endif
 
 #if defined(__MINGW64__)
-#define HAVE_MODE_T
 #define HAVE_STRUCT_TIMESPEC
-#elif defined(__MINGW32__)
-#define HAVE_MODE_T
 #endif
 
 #if _MSC_VER >= 1900

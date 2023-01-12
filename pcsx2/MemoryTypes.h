@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include "Utilities/Dependencies.h"
+
 namespace Ps2MemSize
 {
 	static const uint MainRam	= _32mb;			// 32 MB main memory!

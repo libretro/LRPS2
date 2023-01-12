@@ -13,15 +13,14 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../PrecompiledHeader.h"
 #include "App.h"
 #include "../GS.h"
 
 #include "../ps2/BiosTools.h"
 #include "options_tools.h"
 
-
-Pcsx2App& wxGetApp() {
+Pcsx2App& wxGetApp(void)
+{
    static Pcsx2App pcsx2;
    return pcsx2;
 }
@@ -112,8 +111,8 @@ void AppApplySettings()
 // function actually executed the specified method or not.
 //
 // Returns:
-//   FALSE if the method was not posted to the main thread (meaning this IS the main thread!)
-//   TRUE if the method was posted.
+//   false if the method was not posted to the main thread (meaning this IS the main thread!)
+//   true if the method was posted.
 //
 bool Pcsx2App::AppRpc_TryInvoke( FnPtr_Pcsx2App method )
 {
@@ -134,8 +133,8 @@ bool Pcsx2App::AppRpc_TryInvoke( FnPtr_Pcsx2App method )
 // function actually executed the specified method or not.
 //
 // Returns:
-//   FALSE if the method was not posted to the main thread (meaning this IS the main thread!)
-//   TRUE if the method was posted.
+//   false if the method was not posted to the main thread (meaning this IS the main thread!)
+//   true if the method was posted.
 //
 bool Pcsx2App::AppRpc_TryInvokeAsync( FnPtr_Pcsx2App method )
 {

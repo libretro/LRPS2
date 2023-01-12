@@ -13,8 +13,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "PrecompiledHeader.h"
+#include "Utilities/Exceptions.h"
 
 #include "IsoFS.h"
 #include "IsoFile.h"

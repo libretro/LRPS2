@@ -13,17 +13,16 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
-
 #include "Pcsx2Defs.h"
 #include "SymbolMap.h"
 
 #include <algorithm>
+#include <cstring> /* strncpy, strchr, strcmp */
 
 SymbolMap symbolMap;
 
 #ifdef _WIN32
-#define strcasecmp stricmp
+#define strcasecmp _stricmp
 #endif
 
 void SymbolMap::Clear() {

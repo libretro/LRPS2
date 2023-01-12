@@ -114,8 +114,8 @@ wxIMPLEMENT_DYNAMIC_CLASS(wxAppWithHelpers, wxApp);
 // function actually executed the specified method or not.
 //
 // Returns:
-//   FALSE if the method was not invoked (meaning this IS the main thread!)
-//   TRUE if the method was invoked.
+//   false if the method was not invoked (meaning this IS the main thread!)
+//   true if the method was invoked.
 //
 
 bool wxAppWithHelpers::Rpc_TryInvoke(FnType_Void *method)

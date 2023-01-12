@@ -18,7 +18,6 @@
 // event test, so instead of using the iopTestIntc we just set the 0x1070 flags directly.
 // The EventText function will pick it up.
 
-#include "PrecompiledHeader.h"
 #include "Utilities/MemcpyFast.h"
 #include "R3000A.h"
 #include "Common.h"

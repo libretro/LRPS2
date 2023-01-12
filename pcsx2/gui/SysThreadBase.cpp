@@ -13,8 +13,6 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../PrecompiledHeader.h"
-
 #include "../System.h"
 #include "SysThreads.h"
 
@@ -230,7 +228,7 @@ void SysThreadBase::OnResumeInThread( bool isSuspended ) {}
 // this thread's state without pausing or closing it first, to prevent race conditions).
 //
 // Return value:
-//   TRUE if the thread was paused or closed; FALSE if the thread
+//   true if the thread was paused or closed; false if the thread
 //   continued execution unimpeded.
 bool SysThreadBase::StateCheckInThread()
 {

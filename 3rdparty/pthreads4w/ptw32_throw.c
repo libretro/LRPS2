@@ -103,11 +103,7 @@ ptw32_throw (DWORD exception)
 	}
 #endif
 
-#if defined(PTW32_STATIC_LIB)
-
       pthread_win32_thread_detach_np ();
-
-#endif
 
 #if ! (defined(__MINGW64__) || defined(__MINGW32__)) || defined (__MSVCRT__) || defined (__DMC__)
       _endthreadex (exitCode);

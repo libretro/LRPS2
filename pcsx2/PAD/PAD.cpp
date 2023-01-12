@@ -685,8 +685,7 @@ s32 PADfreeze(int mode, freezeData *data)
 
 	    Pad::stop_vibrate_all();
 
-	    if (data->size != sizeof(PadPluginFreezeData) ||
-			    strncmp(pdata->format, "OnePad", sizeof(pdata->format)))
+	    if (data->size != sizeof(PadPluginFreezeData))
 		    return 0;
 
 	    query = pdata->query;
@@ -727,7 +726,6 @@ s32 PADfreeze(int mode, freezeData *data)
 	    // - PCSX2 only saves port0 (save #1), then port1 (save #2)
 
 	    memset(pdata, 0, data->size);
-	    strncpy(pdata->format, "OnePad", sizeof(pdata->format));
 	    pdata->query = query;
 
 	    for (int port = 0; port < 2; port++)

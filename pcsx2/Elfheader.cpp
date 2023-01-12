@@ -13,10 +13,12 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
-
 #include "Elfheader.h"
+#include "Utilities/Dependencies.h"
+#include "CDVD/IsoFS/IsoFile.h"
 #include "DebugTools/SymbolMap.h"
+
+#include <wx/longlong.h>
 
 #define ELF32_ST_TYPE(i) ((i)&0xf)
 

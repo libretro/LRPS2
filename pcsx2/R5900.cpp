@@ -14,7 +14,6 @@
  */
 
 
-#include "PrecompiledHeader.h"
 #include "Common.h"
 
 #include "R5900.h"
@@ -499,7 +498,7 @@ void eeloadHook(void)
 	if (!elf_override.IsEmpty())
 		cdvdReloadElfInfo(L"host:" + elf_override);
 	else
-		cdvdReloadElfInfo();
+		cdvdReloadElfInfo(wxEmptyString);
 
 	wxString discelf;
 	int disctype = GetPS2ElfName(discelf);

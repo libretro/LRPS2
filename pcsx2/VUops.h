@@ -14,6 +14,8 @@
  */
 
 #pragma once
+
+#include "Pcsx2Defs.h"
 #include "VU.h"
 #include "VUflags.h"
 

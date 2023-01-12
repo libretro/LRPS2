@@ -13,7 +13,6 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
 #include "Common.h"
 #include "BiosTools.h"
 
@@ -23,6 +22,7 @@
 #include "Utilities/pxStreams.h"
 // FIXME: Temporary hack until we remove dependence on Pcsx2App.
 #include "AppConfig.h"
+#include "../../libretro/options_tools.h"
 
 #define DIRENTRY_SIZE 16
 

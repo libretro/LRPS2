@@ -16,7 +16,6 @@
 #include <stdlib.h>
 #include <string>
 
-#include "PrecompiledHeader.h"
 #include "IopDma.h"
 #include "R3000A.h"
 

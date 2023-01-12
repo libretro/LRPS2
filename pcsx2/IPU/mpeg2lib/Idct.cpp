@@ -26,10 +26,8 @@
 // should probably upgrade to.  They use their own raw-style intrinsics and not the intel
 // compiler-integrated ones.
 
-#include "PrecompiledHeader.h"
-
-#include "Common.h"
-#include "IPU/IPU.h"
+#include "../../Common.h"
+#include "../IPU.h"
 #include "Mpeg.h"
 
 #define W1 2841 /* 2048*sqrt (2)*cos (1*pi/16) */

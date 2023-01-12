@@ -13,7 +13,6 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
 #include "CDVD.h"
 #include "CDVDdiscReader.h"
 #include "CDVDaccess.h"
@@ -22,7 +21,7 @@
 
 #include <condition_variable>
 
-void (*newDiscCB)();
+void (*newDiscCB)(void);
 
 static std::mutex s_keepalive_lock;
 static std::condition_variable s_keepalive_cv;
@@ -39,8 +38,8 @@ track tracks[100];
 int curDiskType;
 int curTrayStatus;
 
-static u32 csector;
-int cmode;
+static u32 csector      = 0;
+static int cmode        = 0;
 
 int lastReadInNewDiskCB = 0;
 u8 directReadSectorBuffer[2448];

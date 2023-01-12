@@ -15,7 +15,6 @@
 
 #include <wx/wfstream.h>
 
-#include "PrecompiledHeader.h"
 #include "IsoFileFormats.h"
 
 enum isoFlags

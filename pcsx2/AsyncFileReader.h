@@ -16,14 +16,17 @@
 #pragma once
 
 #ifdef _WIN32
-#	include <Windows.h>
-#	undef Yield
+#include <windows.h>
+#undef Yield
 #elif defined(__linux__)
-#	include <libaio.h>
+#include <libaio.h>
 #elif defined(__POSIX__)
-#	include <aio.h>
+#include <aio.h>
 #endif
+#include <wx/string.h>
 #include <memory>
+#include "Pcsx2Defs.h"
+#include "Utilities/Dependencies.h"
 
 class AsyncFileReader
 {

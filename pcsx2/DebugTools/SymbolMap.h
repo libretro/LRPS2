@@ -27,7 +27,7 @@ enum SymbolType {
 	ST_NONE     = 0,
 	ST_FUNCTION = 1,
 	ST_DATA     = 2,
-	ST_ALL      = 3,
+	ST_ALL      = 3
 };
 
 struct SymbolInfo {

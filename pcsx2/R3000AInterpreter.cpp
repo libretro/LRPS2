@@ -14,7 +14,6 @@
  */
 
 
-#include "PrecompiledHeader.h"
 #include "R3000A.h"
 #include "Common.h"
 #include "App.h" // For host irx injection hack

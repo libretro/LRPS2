@@ -19,7 +19,6 @@
 #include "Cache.h"
 #include "vtlb.h"
 
-using namespace R5900;
 using namespace vtlb_private;
 
 namespace

@@ -13,7 +13,6 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../PrecompiledHeader.h"
 #include "CDVDdiscReader.h"
 
 #if defined(__unix__) || defined(__APPLE__)
@@ -27,13 +26,13 @@ std::vector<std::wstring> GetOpticalDriveList(void)
 {
 	DWORD size = GetLogicalDriveStrings(0, nullptr);
 	std::vector<wchar_t> drive_strings(size);
-	if (GetLogicalDriveStrings(size, drive_strings.data()) != size - 1)
+	if (GetLogicalDriveStringsW(size, drive_strings.data()) != size - 1)
 		return {};
 
 	std::vector<std::wstring> drives;
 	for (auto p = drive_strings.data(); *p; ++p)
 	{
-		if (GetDriveType(p) == DRIVE_CDROM)
+		if (GetDriveTypeW(p) == DRIVE_CDROM)
 			drives.push_back(p);
 		while (*p)
 			++p;
@@ -43,7 +42,7 @@ std::vector<std::wstring> GetOpticalDriveList(void)
 
 void GetValidDrive(std::wstring& drive)
 {
-	if (drive.empty() || GetDriveType(drive.c_str()) != DRIVE_CDROM)
+	if (drive.empty() || GetDriveTypeW(drive.c_str()) != DRIVE_CDROM)
 	{
 		auto drives = GetOpticalDriveList();
 		if (drives.empty())

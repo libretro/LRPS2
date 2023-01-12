@@ -15,9 +15,11 @@
 
 #pragma once
 
-#include "../PathDefs.h"
-#include "CDVD/CDVDaccess.h"
 #include <memory>
+
+#include "../Config.h"
+#include "../PathDefs.h"
+#include "../CDVD/CDVDaccess.h"
 
 extern wxDirName		SettingsFolder;				// dictates where the settings folder comes from.
 

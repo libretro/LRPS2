@@ -60,6 +60,5 @@
 #include "sched.c"
 #include "semaphore.c"
 #include "signal.c"
-#include "spin.c"
 #include "sync.c"
 #include "tsd.c"

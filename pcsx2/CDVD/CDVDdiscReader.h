@@ -24,7 +24,10 @@
 
 #include <mutex>
 #include <array>
+#include <memory> /* for unique_ptr */
 #include <vector>
+
+#include "Pcsx2Defs.h"
 
 struct track
 {

@@ -13,7 +13,6 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
 #include "Utilities/MemcpyFast.h"
 #include "R3000A.h"
 #include "IopHw.h"

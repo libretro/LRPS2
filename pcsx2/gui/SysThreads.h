@@ -37,7 +37,7 @@ public:
 	enum ExecutionMode
 	{
 		// Thread has not been created yet.  Typically this is the same as IsRunning()
-		// returning FALSE.
+		// returning false.
 		ExecMode_NoThreadYet,
 
 		// Thread is safely paused, with plugins in a "closed" state, and waiting for a
@@ -138,8 +138,8 @@ protected:
 	// handles invocation by the following guidelines: Called from StateCheckInThread() after the
 	// thread has been suspended and then subsequently resumed.
 	// Parameter:
-	//   isSuspended - set to TRUE if the thread is returning from a suspended state, or
-	//     FALSE if it's returning from a paused state.
+	//   isSuspended - set to true if the thread is returning from a suspended state, or
+	//     false if it's returning from a paused state.
 	virtual void OnResumeInThread( bool isSuspended )=0;
 };
 
@@ -156,7 +156,7 @@ public:
 	enum ExecutionMode
 	{
 		// Thread has not been created yet.  Typically this is the same as IsRunning()
-		// returning FALSE.
+		// returning false.
 		ExecMode_NoThreadYet,
 
 		// Thread is safely paused, with plugins in a "closed" state, and waiting for a
@@ -265,8 +265,8 @@ protected:
 	// handles invocation by the following guidelines: Called from StateCheckInThread() after the
 	// thread has been suspended and then subsequently resumed.
 	// Parameter:
-	//   isSuspended - set to TRUE if the thread is returning from a suspended state, or
-	//     FALSE if it's returning from a paused state.
+	//   isSuspended - set to true if the thread is returning from a suspended state, or
+	//     false if it's returning from a paused state.
 	virtual void OnResumeInThread( bool isSuspended )=0;
 };
 

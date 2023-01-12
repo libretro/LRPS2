@@ -21,6 +21,7 @@
 #include "spu2.h"
 #include "../R3000A.h"
 #include "../IopDma.h"
+#include "../../libretro/options_tools.h"
 
 #define PCORE(c, p) U16P(Cores[c].p)
 #define PVCP(c, v, p) PCORE(c, Voices[v].p)

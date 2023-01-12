@@ -20,11 +20,9 @@
  *  Fixed CdRead by linuzappz
  */
 
-#include "PrecompiledHeader.h"
-
 #include "IsoFileFormats.h"
 
-#include <cstring>
+#include <cstring> /* memcpy, memset */
 #include <array>
 
 static InputIsoFile iso;
