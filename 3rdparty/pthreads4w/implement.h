@@ -541,8 +541,6 @@ extern "C"
 
   void ptw32_threadReusePush (pthread_t thread);
 
-  int ptw32_getprocessors (int *count);
-
   int ptw32_setthreadpriority (pthread_t thread, int policy, int priority);
 
 #if ! (defined (__MINGW64__) || defined(__MINGW32__)) || (defined(__MSVCRT__) && ! defined(__DMC__))

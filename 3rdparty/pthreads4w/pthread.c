@@ -49,7 +49,6 @@
 #include "create.c"
 #include "autostatic.c"
 #include "exit.c"
-#include "fork.c"
 #include "global.c"
 #include "misc.c"
 #include "mutex.c"

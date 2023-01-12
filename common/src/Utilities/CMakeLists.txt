@@ -24,7 +24,6 @@ set(UtilitiesFinalFlags ${CommonFlags})
 		FastJmp.cpp
 		Mutex.cpp
 		PathUtils.cpp
-		PrecompiledHeader.cpp
 		pxStreams.cpp
 		StringHelpers.cpp
 		Semaphore.cpp
@@ -52,7 +51,6 @@ set(UtilitiesHeaders
 	../../include/Utilities/ScopedAlloc.h
 	../../include/Utilities/StringHelpers.h
 	../../include/Utilities/Threading.h
-	PrecompiledHeader.h
 )
 
 if(MSVC)

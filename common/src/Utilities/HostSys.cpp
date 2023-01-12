@@ -13,11 +13,14 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PrecompiledHeader.h"
-
 #include "Utilities/Dependencies.h"
+#include "Utilities/MemcpyFast.h"
+#include "Utilities/Exceptions.h"
+#include "Utilities/SafeArray.h"
 #include "Utilities/General.h"
-#include "PageFaultSource.h"
+#include "Utilities/PageFaultSource.h"
+
+#include "../../libretro/retro_messager.h"
 
 #if defined(_WIN32)
 #include "Utilities/RedtapeWindows.h"
