@@ -68,23 +68,6 @@ static void DoFmvSwitch(bool on)
 }
 #endif
 
-inline void MemCopy_WrappedSrc( const u128* srcBase, uint& srcStart, uint srcSize, u128* dest, uint len )
-{
-	uint endpos = srcStart + len;
-	if ( endpos < srcSize )
-	{
-		memcpy(dest, &srcBase[srcStart], len*16);
-		srcStart += len;
-	}
-	else
-	{
-		uint firstcopylen = srcSize - srcStart;
-		memcpy(dest, &srcBase[srcStart], firstcopylen*16);
-		srcStart = endpos % srcSize;
-		memcpy(dest+firstcopylen, srcBase, srcStart*16);
-	}
-}
-
 SysMtgsThread::SysMtgsThread() :
 	SysFakeThread()
 {
@@ -285,19 +268,32 @@ void SysMtgsThread::ExecuteTaskInThread()
 					{
 						case GS_RINGTYPE_VSYNC:
 							{
-								const int qsize = tag.data[0];
-								ringposinc += qsize;
+								const int qsize     = tag.data[0];
+								ringposinc         += qsize;
 
 								// Mail in the important GS registers.
 								// This seemingly obtuse system is needed in order to handle cases where the vsync data wraps
 								// around the edge of the ringbuffer.  If not for that I'd just use a struct. >_<
 
-								uint datapos = (local_ReadPos+1) & RINGBUFFERMASK;
-								MemCopy_WrappedSrc( RingBuffer.m_Ring, datapos, RINGBUFFERSIZE, (u128*)RingBuffer.Regs, 0xf );
+								uint datapos        = (local_ReadPos+1) & RINGBUFFERMASK;
+								const u128* srcBase = RingBuffer.m_Ring;
+								uint endpos         = datapos + 0xf;
+								if (endpos < RINGBUFFERSIZE)
+								{
+									memcpy(RingBuffer.Regs, &srcBase[datapos], 240 /*0xf * 16*/);
+									datapos += 0xf;
+								}
+								else
+								{
+									uint firstcopylen = RINGBUFFERSIZE - datapos;
+									memcpy(RingBuffer.Regs, &srcBase[datapos], firstcopylen * 16);
+									datapos = endpos % RINGBUFFERSIZE;
+									memcpy(RingBuffer.Regs + firstcopylen, srcBase, datapos * 16);
+								}
 
-								u32* remainder = (u32*)&RingBuffer[datapos];
-								((u32&)RingBuffer.Regs[0x1000])				= remainder[0];
-								((u32&)RingBuffer.Regs[0x1010])				= remainder[1];
+								u32* remainder                                  = (u32*)&RingBuffer[datapos];
+								((u32&)RingBuffer.Regs[0x1000])			= remainder[0];
+								((u32&)RingBuffer.Regs[0x1010])			= remainder[1];
 								((GSRegSIGBLID&)RingBuffer.Regs[0x1080])	= (GSRegSIGBLID&)remainder[2];
 
 								// CSR & 0x2000; is the pageflip id.
