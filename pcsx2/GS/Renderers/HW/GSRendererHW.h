@@ -153,6 +153,7 @@ protected:
 	int m_userhacks_round_sprite_offset;
 	int m_userHacks_HPO;
 	bool m_userHacks_enabled_unscale_ptln;
+	bool m_userHacks_preload_frame_data;
 
 	bool m_userhacks_tcoffset;
 	float m_userhacks_tcoffset_x;

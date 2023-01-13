@@ -943,6 +943,20 @@ struct retro_core_option_v2_definition option_defs_us[] = {
       "disabled"
    },
    {
+      BOOL_PCSX2_OPT_USERHACK_PRELOAD_FRAME_DATA,
+      "Hack: Preload Frame Data",
+      "Preload Frame Data",
+      "Uploads GS data when rendering a new frame to reproduce some effects accurately. (Content restart required)",
+      NULL,
+      "hacks_options",
+      {
+         {"disabled", NULL},
+         {"enabled", NULL},
+         {NULL, NULL},
+      },
+      "disabled"
+   },
+   {
       BOOL_PCSX2_OPT_USERHACK_FB_CONVERSION,
       "Hack: Frame Buffer Conversion",
       "Frame Buffer Conversion",

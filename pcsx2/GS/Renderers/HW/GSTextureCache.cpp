@@ -34,10 +34,10 @@ GSTextureCache::GSTextureCache(GSRenderer* r)
 	, m_palette_map(r)
 {
 	UserHacks_HalfPixelOffset      = false;
-	m_preload_frame                = false;
 	m_disable_partial_invalidation = hack_fast_invalidation;
 	m_can_convert_depth            = true;
 	m_cpu_fb_conversion            = hack_fb_conversion;
+	m_preload_frame                = hack_preload_frame_data;
 	m_texture_inside_rt            = false;
 	m_wrap_gs_mem                  = false;
 	m_paltex                       = option_palette_conversion;
@@ -512,7 +512,7 @@ GSTextureCache::Target* GSTextureCache::LookupTarget(const GIFRegTEX0& TEX0, int
 		// From a performance point of view, it might cost a little on big upscaling
 		// but normally few RT are miss so it must remain reasonable.
 		bool supported_fmt = m_can_convert_depth || psm_s.depth == 0;
-		if (m_preload_frame && TEX0.TBW > 0 && supported_fmt) {
+		if (hack_preload_frame_data && TEX0.TBW > 0 && supported_fmt) {
 			// RT doesn't have height but if we use a too big value, we will read outside of the GS memory.
 			int page0 = TEX0.TBP0 >> 5;
 			int max_page = (MAX_PAGES - page0);
@@ -572,7 +572,8 @@ GSTextureCache::Target* GSTextureCache::LookupTarget(const GIFRegTEX0& TEX0, int
 		dst = CreateTarget(TEX0, w, h, RenderTarget);
 		ScaleTexture(dst->m_texture);
 
-		if (m_preload_frame) {
+		if (hack_preload_frame_data)
+		{
 			// Load GS data into frame. Game can directly uploads a background or the full image in
 			// "CTRC" buffer. It will also avoid various black screen issue in gs dump.
 			//

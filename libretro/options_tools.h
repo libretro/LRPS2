@@ -13,6 +13,7 @@ extern bool option_palette_conversion;
 extern bool hack_fb_conversion;
 extern bool hack_AutoFlush;
 extern bool hack_fast_invalidation;
+extern bool hack_preload_frame_data;
 /*
 * These are quick fixes to provide system paths at pcsx2 app startup.
 * Because of the huge refactoring, paths are not saved/loaded from inis files anymore,

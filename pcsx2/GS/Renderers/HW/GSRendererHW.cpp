@@ -78,10 +78,7 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 
 	m_userhacks_ts_half_bottom		= option_value(INT_PCSX2_OPT_USERHACK_HALFSCREEN_FIX, KeyOptionInt::return_type);
 	m_userhacks_auto_flush			= option_value(BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH, KeyOptionBool::return_type);
-
-	//theApp.SetConfig("UserHacks_AutoFlush", m_userhacks_auto_flush);
-	
-
+	m_userhacks_preload_frame_data          = hack_preload_frame_data = option_value(BOOL_PCSX2_OPT_USERHACK_PRELOAD_FRAME_DATA, KeyOptionBool::return_type);
 
 	int toffset_x = option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_HUNDREDS, KeyOptionInt::return_type);
 	toffset_x += option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_TENS, KeyOptionInt::return_type);
@@ -126,19 +123,17 @@ void GSRendererHW::UpdateRendererOptions()
 	
 	m_userhacks_align_sprite_X			= option_value(BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE, KeyOptionBool::return_type);
 	m_userHacks_merge_sprite			= option_value(BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE, KeyOptionBool::return_type);
-	int skipdraw_start					= option_value(INT_PCSX2_OPT_USERHACK_SKIPDRAW_START, KeyOptionInt::return_type);
-	int skipdraw_layers					= option_value(INT_PCSX2_OPT_USERHACK_SKIPDRAW_LAYERS, KeyOptionInt::return_type);
+	int skipdraw_start				= option_value(INT_PCSX2_OPT_USERHACK_SKIPDRAW_START, KeyOptionInt::return_type);
+	int skipdraw_layers				= option_value(INT_PCSX2_OPT_USERHACK_SKIPDRAW_LAYERS, KeyOptionInt::return_type);
 	m_userhacks_skipdraw_offset			= skipdraw_start;
 	m_userhacks_skipdraw				= skipdraw_start + skipdraw_layers;
-	m_userHacks_HPO						= option_value(INT_PCSX2_OPT_USERHACK_HALFPIXEL_OFFSET, KeyOptionInt::return_type);
-	m_userhacks_round_sprite_offset		= option_value(INT_PCSX2_OPT_USERHACK_ROUND_SPRITE, KeyOptionInt::return_type);
+	m_userHacks_HPO					= option_value(INT_PCSX2_OPT_USERHACK_HALFPIXEL_OFFSET, KeyOptionInt::return_type);
+	m_userhacks_round_sprite_offset		        = option_value(INT_PCSX2_OPT_USERHACK_ROUND_SPRITE, KeyOptionInt::return_type);
 	m_userhacks_wildhack				= option_value(BOOL_PCSX2_OPT_USERHACK_WILDARMS_OFFSET, KeyOptionBool::return_type);
 	m_userhacks_ts_half_bottom			= option_value(INT_PCSX2_OPT_USERHACK_HALFSCREEN_FIX, KeyOptionInt::return_type);
 	m_userhacks_auto_flush				= option_value(BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH, KeyOptionBool::return_type);
+	m_userhacks_preload_frame_data                  = option_value(BOOL_PCSX2_OPT_USERHACK_PRELOAD_FRAME_DATA, KeyOptionBool::return_type);
 
-	//theApp.SetConfig("UserHacks_AutoFlush", m_userhacks_auto_flush);
-	//theApp.SetConfig("UserHacks", true);
-	
 	int toffset_x = option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_HUNDREDS, KeyOptionInt::return_type);
 	toffset_x += option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_TENS, KeyOptionInt::return_type);
 	theApp.SetConfig("UserHacks_TCOffsetX", toffset_x);

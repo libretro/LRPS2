@@ -159,6 +159,7 @@ protected:
 	int m_userhacks_skipdraw;
 	int m_userhacks_skipdraw_offset;
 	bool m_userhacks_auto_flush;
+	bool m_userhacks_preload_frame_data;
 
 	GSVertex m_v;
 	float m_q;
