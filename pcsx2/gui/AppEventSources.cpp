@@ -77,8 +77,8 @@ void Pcsx2App::DispatchEvent( AppEventType evt )
 
 void Pcsx2App::DispatchEvent( CoreThreadStatus evt )
 {
-	// Clear the sticky key statuses, because hell knows what'll change while the PAD
-	// plugin is suspended.
+	// Clear the sticky key statuses, because hell knows what'll change while PAD
+	// is suspended.
 	m_evtsrc_CoreThreadStatus.Dispatch( evt );
 }
 
