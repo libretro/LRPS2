@@ -50,7 +50,6 @@
 #include "pthread_mutexattr_init.c"
 #include "pthread_mutexattr_destroy.c"
 #include "pthread_mutexattr_settype.c"
-#include "pthread_mutexattr_gettype.c"
 #include "pthread_mutex_lock.c"
 #include "pthread_mutex_timedlock.c"
 #include "pthread_mutex_unlock.c"

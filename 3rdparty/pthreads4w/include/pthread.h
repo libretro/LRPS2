@@ -910,7 +910,6 @@ int PTW32_CDECL pthread_mutexattr_init (pthread_mutexattr_t * attr);
 int PTW32_CDECL pthread_mutexattr_destroy (pthread_mutexattr_t * attr);
 
 int PTW32_CDECL pthread_mutexattr_settype (pthread_mutexattr_t * attr, int kind);
-int PTW32_CDECL pthread_mutexattr_gettype (const pthread_mutexattr_t * attr, int *kind);
 
 /*
  * Mutex Functions
@@ -986,7 +985,6 @@ int PTW32_CDECL pthread_kill(pthread_t thread, int sig);
  */
 int PTW32_CDECL pthread_win32_process_attach_np(void);
 int PTW32_CDECL pthread_win32_process_detach_np(void);
-int PTW32_CDECL pthread_win32_thread_attach_np(void);
 int PTW32_CDECL pthread_win32_thread_detach_np(void);
 #endif /*PTW32_LEVEL >= PTW32_LEVEL_MAX - 1 */
 

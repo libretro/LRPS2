@@ -175,12 +175,6 @@ pthread_win32_process_detach_np ()
 }
 
 BOOL
-pthread_win32_thread_attach_np ()
-{
-  return TRUE;
-}
-
-BOOL
 pthread_win32_thread_detach_np ()
 {
   if (ptw32_processInitialized)
