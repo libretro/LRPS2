@@ -14,6 +14,7 @@
  */
 
 #include <stdlib.h>
+#include <cstring>
 #include <string>
 
 #include "IopDma.h"
