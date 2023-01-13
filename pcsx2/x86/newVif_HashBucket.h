@@ -68,7 +68,8 @@ public:
 	__fi nVifBlock* find(const nVifBlock& dataPtr) {
 		nVifBlock* chainpos = m_bucket[dataPtr.hash_key];
 
-		while (true) {
+		for (;;)
+		{
 			if (chainpos->key0 == dataPtr.key0 && chainpos->key1 == dataPtr.key1)
 				return chainpos;
 

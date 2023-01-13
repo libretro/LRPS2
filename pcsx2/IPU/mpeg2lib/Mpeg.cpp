@@ -1112,7 +1112,7 @@ __fi bool mpeg2sliceIDEC(void)
 
 	case 2:
 		ipu_cmd.pos[0] = 2;
-		while (1)
+		for (;;)
 		{
 			// IPU0 isn't ready for data, so let's wait for it to be
 			if (!ipu0ch.chcr.STR || ipuRegs.ctrl.OFC || ipu0ch.qwc == 0)
@@ -1235,7 +1235,7 @@ __fi bool mpeg2sliceIDEC(void)
 			// Fall through
 
 			case 3:
-				while (1)
+				for (;;)
 				{
 					if (!GETWORD())
 					{
