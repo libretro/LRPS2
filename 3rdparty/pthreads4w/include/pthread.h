@@ -835,18 +835,6 @@ int PTW32_CDECL pthread_attr_init (pthread_attr_t * attr);
 
 int PTW32_CDECL pthread_attr_destroy (pthread_attr_t * attr);
 
-int PTW32_CDECL pthread_attr_getdetachstate (const pthread_attr_t * attr,
-                                         int *detachstate);
-
-int PTW32_CDECL pthread_attr_getstacksize (const pthread_attr_t * attr,
-                                       size_t * stacksize);
-
-int PTW32_CDECL pthread_attr_setdetachstate (pthread_attr_t * attr,
-                                         int detachstate);
-
-int PTW32_CDECL pthread_attr_setstacksize (pthread_attr_t * attr,
-                                       size_t stacksize);
-
 int PTW32_CDECL pthread_attr_getschedparam (const pthread_attr_t *attr,
                                         struct sched_param *param);
 

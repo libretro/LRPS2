@@ -55,6 +55,5 @@
 #include "nonportable.c"
 #include "sched.c"
 #include "semaphore.c"
-#include "signal.c"
 #include "sync.c"
 #include "tsd.c"

@@ -125,10 +125,6 @@ int __cdecl sched_get_priority_min (int policy);
 
 int __cdecl sched_get_priority_max (int policy);
 
-int __cdecl sched_setscheduler (pid_t pid, int policy);
-
-int __cdecl sched_getscheduler (pid_t pid);
-
 #if defined(__cplusplus)
 }                               /* End of extern "C" */
 #endif                          /* __cplusplus */

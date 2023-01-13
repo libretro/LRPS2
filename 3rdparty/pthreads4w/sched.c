@@ -46,5 +46,3 @@
 #include "pthread_getschedparam.c"
 #include "sched_get_priority_max.c"
 #include "sched_get_priority_min.c"
-#include "sched_setscheduler.c"
-#include "sched_getscheduler.c"

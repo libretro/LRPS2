@@ -43,7 +43,3 @@
 
 #include "pthread_attr_init.c"
 #include "pthread_attr_destroy.c"
-#include "pthread_attr_getdetachstate.c"
-#include "pthread_attr_setdetachstate.c"
-#include "pthread_attr_getstacksize.c"
-#include "pthread_attr_setstacksize.c"
