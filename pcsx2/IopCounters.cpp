@@ -411,12 +411,11 @@ void psxVBlankEnd(void)
 void psxRcntUpdate(void)
 {
 	int i;
-	//u32 change = 0;
 
-	g_iopNextEventCycle = psxRegs.cycle + 32;
+	psxRegs.iopNextEventCycle   = psxRegs.cycle + 32;
 
-	psxNextCounter = 0x7fffffff;
-	psxNextsCounter = psxRegs.cycle;
+	psxNextCounter              = 0x7fffffff;
+	psxNextsCounter             = psxRegs.cycle;
 
 	for (i = 0; i <= 5; i++)
 	{
@@ -429,10 +428,9 @@ void psxRcntUpdate(void)
 		if (psxCounters[i].mode & IOPCNT_STOPPED)
 			continue;
 
+		//Repeat IRQ mode Pulsed, resets a few cycles after the interrupt, this should do.
 		if ((psxCounters[i].mode & 0x40) && !(psxCounters[i].mode & 0x80))
-		{ //Repeat IRQ mode Pulsed, resets a few cycles after the interrupt, this should do.
 			psxCounters[i].mode |= 0x400;
-		}
 
 		if (psxCounters[i].rate == PSXHBLANK)
 			continue;

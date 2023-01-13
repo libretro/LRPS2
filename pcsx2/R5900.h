@@ -168,6 +168,14 @@ struct cpuRegisters {
 	int branch;
 	int opmode;			// operating mode
 	u32 tempcycles;
+
+	u32 pcWriteback;
+
+	// if cpuRegs.cycle is greater than this cycle, should check cpuEventTest for updates
+	u32 nextEventCycle;
+	u32 lastEventCycle;
+	u32 lastCOP0Cycle;
+	u32 lastPERFCycle[2];
 };
 
 // used for optimization
@@ -241,11 +249,7 @@ extern __aligned16 cpuRegisters cpuRegs;
 extern __aligned16 fpuRegisters fpuRegs;
 extern __aligned16 tlbs tlb[48];
 
-extern u32 g_nextEventCycle;
-extern u32 g_lastEventCycle;
 extern bool eeEventTestIsActive;
-extern u32 s_iLastCOP0Cycle;
-extern u32 s_iLastPERFCycle[2];
 
 // This is a special form of the interpreter's doBranch that is run from various
 // parts of the Recs (namely COP0's branch codes and stuff).
@@ -416,7 +420,7 @@ extern void cpuSetNextEvent( u32 startCycle, s32 delta );
 #define cpuTestCycle(startCycle, delta) ((int)(cpuRegs.cycle - ((u32)(startCycle))) >= ((s32)(delta)))
 
 // tells the EE to run the branch test the next time it gets a chance.
-#define cpuSetEvent() (g_nextEventCycle = cpuRegs.cycle)
+#define cpuSetEvent() (cpuRegs.nextEventCycle = cpuRegs.cycle)
 
 extern void _cpuEventTest_Shared();		// for internal use by the Dynarecs and Ints inside R5900:
 

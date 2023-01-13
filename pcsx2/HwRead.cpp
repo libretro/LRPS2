@@ -31,8 +31,8 @@ static __fi void IntCHackCheck(void)
 {
 	// Sanity check: To protect from accidentally "rewinding" the cyclecount
 	// on the few times nextBranchCycle can be behind our current cycle.
-	s32 diff = g_nextEventCycle - cpuRegs.cycle;
-	if (diff > 0 && (cpuRegs.cycle - g_lastEventCycle) > 8) cpuRegs.cycle = g_nextEventCycle;
+	s32 diff = cpuRegs.nextEventCycle - cpuRegs.cycle;
+	if (diff > 0 && (cpuRegs.cycle - cpuRegs.lastEventCycle) > 8) cpuRegs.cycle = cpuRegs.nextEventCycle;
 }
 
 template< uint page > void _hwRead128(u32 mem, mem128_t* result );
@@ -83,7 +83,8 @@ mem32_t _hwRead32(u32 mem)
 
 			if (mem == INTC_STAT)
 			{
-				if (intcstathack) IntCHackCheck();
+				if (intcstathack)
+					IntCHackCheck();
 				return psHu32(INTC_STAT);
 			}
 

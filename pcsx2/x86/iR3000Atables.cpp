@@ -974,13 +974,15 @@ void rpsxJALR()
 
 	psxRecompileNextInstruction(1);
 
-	if( x86regs[calleeSavedReg2d.GetId()].inuse ) {
+	if( x86regs[calleeSavedReg2d.GetId()].inuse )
+	{
 		xMOV(ptr32[&psxRegs.pc], calleeSavedReg2d);
 		x86regs[calleeSavedReg2d.GetId()].inuse = 0;
 
 	}
-	else {
-		xMOV(eax, ptr32[&g_recWriteback]);
+	else
+	{
+		xMOV(eax, ptr32[&psxRegs.pcWriteback]);
 		xMOV(ptr32[&psxRegs.pc], eax);
 	}
 

@@ -75,10 +75,10 @@ static uptr _x86GetAddr(int type, int reg)
 			return (uptr)&psxRegs.GPR.r[reg];
 
 		case X86TYPE_PCWRITEBACK:
-			return (uptr)&g_recWriteback;
+			return (uptr)&cpuRegs.pcWriteback;
 
-		case X86TYPE_VUJUMP:
-			return (uptr)&g_recWriteback;
+		case X86TYPE_PSX_PCWRITEBACK:
+			return (uptr)&psxRegs.pcWriteback;
 
 		default:
 			break;

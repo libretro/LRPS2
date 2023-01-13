@@ -165,10 +165,6 @@ SaveStateBase& SaveStateBase::FreezeInternals()
 	FreezeTag( "Cycles" );
 	Freeze(EEsCycle);
 	Freeze(EEoCycle);
-	Freeze(g_nextEventCycle);
-	Freeze(g_iopNextEventCycle);
-	Freeze(s_iLastCOP0Cycle);
-	Freeze(s_iLastPERFCycle);
 
 	// Fourth Block - EE-related systems
 	// ---------------------------------

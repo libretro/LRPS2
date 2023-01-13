@@ -17,9 +17,6 @@
 #include "Common.h"
 #include "COP0.h"
 
-u32 s_iLastCOP0Cycle    = 0;
-u32 s_iLastPERFCycle[2] = { 0, 0 };
-
 void WriteCP0Status(u32 value)
 {
 	cpuRegs.CP0.n.Status.val = value;
@@ -75,8 +72,8 @@ __fi void COP0_UpdatePCCR(void)
 	// or the counting function is not enabled (CTE)
 	if (cpuRegs.CP0.n.Status.b.ERL || !cpuRegs.PERF.n.pccr.b.CTE)
 	{
-		s_iLastPERFCycle[0] = cpuRegs.cycle;
-		s_iLastPERFCycle[1] = s_iLastPERFCycle[0];
+		cpuRegs.lastPERFCycle[0] = cpuRegs.cycle;
+		cpuRegs.lastPERFCycle[1] = cpuRegs.lastPERFCycle[0];
 		return;
 	}
 
@@ -91,13 +88,13 @@ __fi void COP0_UpdatePCCR(void)
 
 		if (PERF_ShouldCountEvent(evt))
 		{
-			u32 incr = cpuRegs.cycle - s_iLastPERFCycle[0];
+			u32 incr = cpuRegs.cycle - cpuRegs.lastPERFCycle[0];
 			if( incr == 0 ) incr++;
 
 			// use prev/XOR method for one-time exceptions (but likely less correct)
 			//u32 prev = cpuRegs.PERF.n.pcr0;
 			cpuRegs.PERF.n.pcr0 += incr;
-			s_iLastPERFCycle[0]  = cpuRegs.cycle;
+			cpuRegs.lastPERFCycle[0]  = cpuRegs.cycle;
 		}
 	}
 
@@ -110,11 +107,11 @@ __fi void COP0_UpdatePCCR(void)
 
 		if (PERF_ShouldCountEvent(evt))
 		{
-			u32 incr = cpuRegs.cycle - s_iLastPERFCycle[1];
+			u32 incr = cpuRegs.cycle - cpuRegs.lastPERFCycle[1];
 			if( incr == 0 ) incr++;
 
-			cpuRegs.PERF.n.pcr1 += incr;
-			s_iLastPERFCycle[1]  = cpuRegs.cycle;
+			cpuRegs.PERF.n.pcr1      += incr;
+			cpuRegs.lastPERFCycle[1]  = cpuRegs.cycle;
 
 		}
 	}
@@ -329,10 +326,10 @@ void MFC0(void)
 
 		case 9:
 		{
-			u32 incr = cpuRegs.cycle - s_iLastCOP0Cycle;
+			u32 incr = cpuRegs.cycle - cpuRegs.lastCOP0Cycle;
 			if( incr == 0 ) incr++;
-			cpuRegs.CP0.n.Count += incr;
-			s_iLastCOP0Cycle     = cpuRegs.cycle;
+			cpuRegs.CP0.n.Count  += incr;
+			cpuRegs.lastCOP0Cycle = cpuRegs.cycle;
 			if( !_Rt_ )
 				break;
 		}
@@ -348,8 +345,8 @@ void MTC0(void)
 	switch (_Rd_)
 	{
 		case 9:
-			s_iLastCOP0Cycle = cpuRegs.cycle;
-			cpuRegs.CP0.r[9] = cpuRegs.GPR.r[_Rt_].UL[0];
+			cpuRegs.lastCOP0Cycle = cpuRegs.cycle;
+			cpuRegs.CP0.r[9]      = cpuRegs.GPR.r[_Rt_].UL[0];
 			break;
 
 		case 12:
@@ -371,12 +368,12 @@ void MTC0(void)
 			else if (0 == (_Imm_ & 2)) // MTPC 0, only LSB of register matters
 			{
 				cpuRegs.PERF.n.pcr0 = cpuRegs.GPR.r[_Rt_].UL[0];
-				s_iLastPERFCycle[0] = cpuRegs.cycle;
+				cpuRegs.lastPERFCycle[0] = cpuRegs.cycle;
 			}
 			else // MTPC 1
 			{
 				cpuRegs.PERF.n.pcr1 = cpuRegs.GPR.r[_Rt_].UL[0];
-				s_iLastPERFCycle[1] = cpuRegs.cycle;
+				cpuRegs.lastPERFCycle[1] = cpuRegs.cycle;
 			}
 			break;
 

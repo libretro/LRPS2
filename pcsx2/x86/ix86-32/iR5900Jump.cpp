@@ -87,7 +87,6 @@ void recJR()
 ////////////////////////////////////////////////////
 void recJALR()
 {
-
 	int newpc = pc + 4;
 	_allocX86reg(calleeSavedReg2d, X86TYPE_PCWRITEBACK, 0, MODE_WRITE);
 	_eeMoveGPRtoR(calleeSavedReg2d, _Rs_);
@@ -97,22 +96,6 @@ void recJALR()
 		vtlb_DynV2P();
 		xMOV(calleeSavedReg2d, eax);
 	}
-	// uncomment when there are NO instructions that need to call interpreter
-//	int mmreg;
-//	if( GPR_IS_CONST1(_Rs_) )
-//		xMOV(ptr32[&cpuRegs.pc], g_cpuConstRegs[_Rs_].UL[0] );
-//	else {
-//		int mmreg;
-//
-//		if( (mmreg = _checkXMMreg(XMMTYPE_GPRREG, _Rs_, MODE_READ)) >= 0 ) {
-//			xMOVSS(ptr[&cpuRegs.pc], xRegisterSSE(mmreg));
-//		}
-//		else {
-//			xMOV(eax, ptr[(void*)((int)&cpuRegs.GPR.r[ _Rs_ ].UL[ 0 ] )]);
-//			xMOV(ptr[&cpuRegs.pc], eax);
-//		}
-//	}
-
 	
 	if ( _Rd_ )
 	{
@@ -130,7 +113,7 @@ void recJALR()
 		x86regs[calleeSavedReg2d.GetId()].inuse = 0;
 	}
 	else {
-		xMOV(eax, ptr[&g_recWriteback]);
+		xMOV(eax, ptr[&cpuRegs.pcWriteback]);
 		xMOV(ptr[&cpuRegs.pc], eax);
 	}
 

@@ -144,15 +144,11 @@ static __fi void R3000AexecI(void)
 	psxRegs.pc+= 4;
 	psxRegs.cycle++;
 	
+	/* One of the IOP to EE delta clocks to be set in PS1 mode. */
 	if ((psxHu32(HW_ICFG) & (1 << 3)))
-	{
-		//One of the Iop to EE delta clocks to be set in PS1 mode.
-		iopCycleEE-=9;
-	}
-	else
-	{   //default ps2 mode value
-		iopCycleEE-=8;
-	}
+		psxRegs.iopCycleEE -= 9;
+	else /* Default PS2 mode value */
+		psxRegs.iopCycleEE -= 8;
 	psxBSC[psxRegs.code >> 26]();
 }
 
@@ -185,10 +181,10 @@ static void intExecute(void)
 
 static s32 intExecuteBlock( s32 eeCycles )
 {
-	iopBreak = 0;
-	iopCycleEE = eeCycles;
+	psxRegs.iopBreak   = 0;
+	psxRegs.iopCycleEE = eeCycles;
 
-	while (iopCycleEE > 0)
+	while (psxRegs.iopCycleEE > 0)
 	{
 		if ((psxHu32(HW_ICFG) & 8) && ((psxRegs.pc & 0x1fffffffU) == 0xa0 || (psxRegs.pc & 0x1fffffffU) == 0xb0 || (psxRegs.pc & 0x1fffffffU) == 0xc0))
 			psxBiosCall();
@@ -197,7 +193,7 @@ static s32 intExecuteBlock( s32 eeCycles )
 		while (!branch2)
 			R3000AexecI();
 	}
-	return iopBreak + iopCycleEE;
+	return psxRegs.iopBreak + psxRegs.iopCycleEE;
 }
 
 static void intClear(u32 Addr, u32 Size) { }

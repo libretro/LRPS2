@@ -231,7 +231,7 @@ void recBranchCall( void (*func)(void) )
 	// to the current cpu cycle.
 
 	xMOV(eax, ptr[&cpuRegs.cycle ]);
-	xMOV(ptr[&g_nextEventCycle], eax);
+	xMOV(ptr[&cpuRegs.nextEventCycle], eax);
 
 	recCall(func);
 	g_branch = 2;
@@ -607,11 +607,11 @@ static void iBranchTest(u32 newpc)
 	// Check the Event scheduler if our "cycle target" has been reached.
 	// Equiv code to:
 	//    cpuRegs.cycle += blockcycles;
-	//    if( cpuRegs.cycle > g_nextEventCycle ) { DoEvents(); }
+	//    if( cpuRegs.cycle > cpuRegs.nextEventCycle ) { DoEvents(); }
 
 	if (EmuConfig.Speedhacks.WaitLoop && s_nBlockFF && newpc == s_branchTo)
 	{
-		xMOV(eax, ptr32[&g_nextEventCycle]);
+		xMOV(eax, ptr32[&cpuRegs.nextEventCycle]);
 		xADD(ptr32[&cpuRegs.cycle], scaleblockcycles_calculation());
 		xCMP(eax, ptr32[&cpuRegs.cycle]);
 		xCMOVS(eax, ptr32[&cpuRegs.cycle]);
@@ -624,7 +624,7 @@ static void iBranchTest(u32 newpc)
 		xMOV(eax, ptr[&cpuRegs.cycle]);
 		xADD(eax, scaleblockcycles_calculation());
 		xMOV(ptr[&cpuRegs.cycle], eax); // update cycles
-		xSUB(eax, ptr[&g_nextEventCycle]);
+		xSUB(eax, ptr[&cpuRegs.nextEventCycle]);
 
 		if (newpc == 0xffffffff)
 			xJS( DispatcherReg );
@@ -1280,12 +1280,14 @@ void SetBranchReg( u32 reg )
 
 		recompileNextInstruction(1);
 
-		if( x86regs[calleeSavedReg2d.GetId()].inuse ) {
+		if( x86regs[calleeSavedReg2d.GetId()].inuse )
+		{
 			xMOV(ptr[&cpuRegs.pc], calleeSavedReg2d);
 			x86regs[calleeSavedReg2d.GetId()].inuse = 0;
 		}
-		else {
-			xMOV(eax, ptr[&g_recWriteback]);
+		else
+		{
+			xMOV(eax, ptr[&cpuRegs.pcWriteback]);
 			xMOV(ptr[&cpuRegs.pc], eax);
 		}
 	}
