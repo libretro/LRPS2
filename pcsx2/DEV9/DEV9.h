@@ -19,11 +19,8 @@
 #ifndef __DEV9_H__
 #define __DEV9_H__
 
-#include <stdio.h>
-
 #define DEV9defs
-#include "PS2Edefs.h"
-#include "PS2Eext.h"
+#include "Pcsx2Defs.h"
 
 typedef void (*DEV9callback)(int cycles);
 typedef int (*DEV9handler)(void);

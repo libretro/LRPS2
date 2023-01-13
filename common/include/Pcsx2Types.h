@@ -29,7 +29,6 @@ class FastFormatAscii;
 class FastFormatUnicode;
 #endif
 
-
 // --------------------------------------------------------------------------------------
 //  Basic Atomic Types
 // --------------------------------------------------------------------------------------
@@ -147,5 +146,16 @@ typedef union _s128_t
 
 typedef void FnType_Void(void);
 typedef FnType_Void* Fnptr_Void;
+
+// freeze modes:
+#define FREEZE_LOAD 0
+#define FREEZE_SAVE 1
+#define FREEZE_SIZE 2
+
+typedef struct
+{
+    int size;
+    s8 *data;
+} freezeData;
 
 #endif

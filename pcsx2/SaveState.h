@@ -15,11 +15,7 @@
 
 #pragma once
 
-#define FREEZE_LOAD 0
-#define FREEZE_SAVE 1
-#define FREEZE_SIZE 2
-
-#include "PS2Edefs.h"
+#include "Pcsx2Defs.h"
 #include "System.h"
 
 // Savestate Versioning!

@@ -15,7 +15,7 @@
 
 #pragma once 
 
-#include "PS2Edefs.h"
+#include "Pcsx2Defs.h"
 
 #include "DEV9/DEV9.h"
 #include "USB/USB.h"

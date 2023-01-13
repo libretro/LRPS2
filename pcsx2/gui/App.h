@@ -20,7 +20,7 @@
 #include <wx/apptrait.h>
 #include <memory>
 
-#include "PS2Edefs.h"
+#include "Pcsx2Defs.h"
 
 #include "AppConfig.h"
 #include "AppCoreThread.h"

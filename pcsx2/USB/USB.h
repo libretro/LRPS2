@@ -17,8 +17,7 @@
 #define __USB_H__
 
 #define USBdefs
-#include "PS2Edefs.h"
-#include "PS2Eext.h"
+#include "Pcsx2Defs.h"
 
 typedef void (*USBcallback)(int cycles);
 typedef int (*USBhandler)(void);

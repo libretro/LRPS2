@@ -30,7 +30,7 @@
 #include <memory>
 
 #define PADdefs
-#include "PS2Edefs.h"
+#include "Pcsx2Defs.h"
 
 enum PadOptions {
     PADOPTION_FORCEFEEDBACK = 0x1,
