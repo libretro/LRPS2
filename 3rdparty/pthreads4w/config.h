@@ -96,17 +96,6 @@
  * If you find that these are incorrect or incomplete please report it
  * to the pthreads-win32 maintainer. Thanks.
  *********************************************************************/
-#if defined(WINCE)
-#define NEED_DUPLICATEHANDLE
-#define NEED_CREATETHREAD
-#define NEED_ERRNO
-#define NEED_FTIME
-/* #define NEED_SEM */
-#define NEED_UNICODE_CONSTS
-#define NEED_PROCESS_AFFINITY_MASK
-/* This may not be needed */
-#define RETAIN_WSALASTERROR
-#endif
 
 #if defined(_UWIN)
 #define HAVE_STRUCT_TIMESPEC

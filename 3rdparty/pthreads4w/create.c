@@ -37,9 +37,6 @@
 
 #include "pthread.h"
 #include "implement.h"
-#if ! defined(_UWIN) && ! defined(WINCE)
-#include <process.h>
-#endif
 
 int
 pthread_create (pthread_t * tid,

@@ -236,10 +236,6 @@ enum {
  */
 
 #if !defined(PTW32_CONFIG_H)
-#  if defined(WINCE)
-#    define NEED_ERRNO
-#    define NEED_SEM
-#  endif
 #  if defined(__MINGW64__)
 #    define HAVE_STRUCT_TIMESPEC
 #  endif
@@ -849,9 +845,6 @@ int PTW32_CDECL pthread_equal (pthread_t t1,
                            pthread_t t2);
 
 void PTW32_CDECL pthread_exit (void *value_ptr);
-
-int PTW32_CDECL pthread_join (pthread_t thread,
-                          void **value_ptr);
 
 pthread_t PTW32_CDECL pthread_self (void);
 

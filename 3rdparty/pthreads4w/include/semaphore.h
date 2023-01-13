@@ -37,10 +37,6 @@
  */
 
 #if !defined(PTW32_CONFIG_H)
-#  if defined(WINCE)
-#    define NEED_ERRNO
-#    define NEED_SEM
-#  endif
 #  if defined(__MINGW64__)
 #    define HAVE_STRUCT_TIMESPEC
 #  endif

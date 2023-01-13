@@ -34,9 +34,6 @@
  *      59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
 
-#if ! defined(_UWIN) && ! defined(WINCE)
-#   include <process.h>
-#endif
 #if !defined(NEED_FTIME)
 #include <sys/timeb.h>
 #endif

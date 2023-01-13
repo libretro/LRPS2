@@ -38,15 +38,6 @@
 #include "pthread.h"
 #include "implement.h"
 
-/*
- * Not needed yet, but defining it should indicate clashes with build target
- * environment that should be fixed.
- */
-#if !defined(WINCE)
-#  include <signal.h>
-#endif
-
-
 int
 pthread_detach (pthread_t thread)
      /*

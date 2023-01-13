@@ -45,13 +45,6 @@
 #include <windows.h>
 
 /*
- * In case windows.h doesn't define it (e.g. WinCE perhaps)
- */
-#if defined(WINCE)
-typedef VOID (APIENTRY *PAPCFUNC)(DWORD dwParam);
-#endif
-
-/*
  * note: ETIMEDOUT is correctly defined in winsock.h
  */
 #include <winsock.h>
