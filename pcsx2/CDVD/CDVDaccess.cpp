@@ -191,31 +191,19 @@ static int FindDiskType(int mType)
 
 static void DetectDiskType(void)
 {
-	if (CDVD->getTrayStatus() == CDVD_TRAY_OPEN)
-	{
-		diskTypeCached = CDVD_TYPE_NODISC;
-		return;
-	}
-
-	int baseMediaType = CDVD->getDiskType();
-	int mType = -1;
-
-	// Paranoid mode: do not trust the plugin's detection system to work correctly.
-	// (.. and there's no reason plugins should be doing their own detection anyway).
-
-	//TODO_CDVD We're not using CDVD plugins anymore but I believe both ISO and Disc use their own
-	//detection system. Possible code reduction here
+	int baseMediaType = CDVD_TYPE_NODISC;
+	if (CDVD->getTrayStatus() != CDVD_TRAY_OPEN)
+		baseMediaType = CDVD->getDiskType();
 
 	switch (baseMediaType)
 	{
 		case CDVD_TYPE_NODISC:
 			diskTypeCached = CDVD_TYPE_NODISC;
-			return;
+			break;
 		default:
+			diskTypeCached = FindDiskType(-1);
 			break;
 	}
-
-	diskTypeCached = FindDiskType(mType);
 }
 
 static wxString m_SourceFilename[3];
@@ -277,8 +265,6 @@ void CDVDsys_ChangeSource(CDVD_SourceType type)
 
 bool DoCDVDopen(void)
 {
-	// the new disk callback is set on Init also, but just in case the plugin clears it for
-	// some reason on close, we re-send here:
 	CDVD->newDiskCB(cdvdNewDiskCB);
 
 	// Win32 Fail: the old CDVD api expects MBCS on Win32 platforms, but generating a MBCS
@@ -286,7 +272,6 @@ bool DoCDVDopen(void)
 	// converted (which isn't really practical knowledge).  A 'best guess' would be the
 	// default codepage of the user's Windows install, but even that will fail and return
 	// question marks if the filename is another language.
-	// Likely Fix: Force new versions of CDVD plugins to expect UTF8 instead.
 
 	//TODO_CDVD check if ISO and Disc use UTF8
 
@@ -316,7 +301,6 @@ s32 DoCDVDreadSector(u8* buffer, u32 lsn, int mode)
 
 s32 DoCDVDreadTrack(u32 lsn, int mode)
 {
-	// TEMP: until all the plugins use the new CDVDgetBuffer style
 	// TODO: The CDVD api only uses the new getBuffer style. Why is this temp?
 	// lastReadSize is needed for block dumps
 	switch (mode)

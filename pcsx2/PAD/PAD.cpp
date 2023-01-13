@@ -30,7 +30,7 @@
 #include "../../libretro/libretro.h"
 #include "../../libretro/input.h"
 
-#include "PS2Edefs.h"
+#include "Pcsx2Defs.h"
 #include "PAD.h"
 
 #ifdef _WIN32
@@ -678,14 +678,14 @@ s32 PADfreeze(int mode, freezeData *data)
         return -1;
 
     if (mode == FREEZE_SIZE)
-	    data->size = sizeof(PadPluginFreezeData);
+	    data->size = sizeof(PadFullFreezeData);
     else if (mode == FREEZE_LOAD)
     {
-	    PadPluginFreezeData *pdata = (PadPluginFreezeData *)(data->data);
+	    PadFullFreezeData *pdata = (PadFullFreezeData *)(data->data);
 
 	    Pad::stop_vibrate_all();
 
-	    if (data->size != sizeof(PadPluginFreezeData))
+	    if (data->size != sizeof(PadFullFreezeData))
 		    return 0;
 
 	    query = pdata->query;
@@ -717,10 +717,10 @@ s32 PADfreeze(int mode, freezeData *data)
     }
     else if (mode == FREEZE_SAVE)
     {
-	    if (data->size != sizeof(PadPluginFreezeData))
+	    if (data->size != sizeof(PadFullFreezeData))
 		    return 0;
 
-	    PadPluginFreezeData *pdata = (PadPluginFreezeData *)(data->data);
+	    PadFullFreezeData *pdata = (PadFullFreezeData *)(data->data);
 
 	    // Tales of the Abyss - pad fix
 	    // - PCSX2 only saves port0 (save #1), then port1 (save #2)
