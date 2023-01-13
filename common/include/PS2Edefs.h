@@ -52,10 +52,4 @@ typedef struct
     s8 *data;
 } freezeData;
 
-typedef struct _keyEvent
-{
-    u32 key;
-    u32 evt;
-} keyEvent;
-
 #endif /* __PS2EDEFS_H__ */

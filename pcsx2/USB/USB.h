@@ -49,7 +49,6 @@ void USBirqCallback(USBcallback callback);
 int _USBirqHandler(void);
 USBhandler USBirqHandler(void);
 void USBsetRAM(void *mem);
-void USBkeyEvent(keyEvent *ev);
 s32 USBfreeze(int mode, freezeData *data);
 void USBasync(u32 cycles);
 

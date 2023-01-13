@@ -83,8 +83,6 @@ enum gamePadValues {
     PAD_R_LEFT    // Right joystick (Left) ←
 };
 
-extern keyEvent event;
-
 s32 PADopen(void);
 void PADclose(void);
 void PADsetMode(int pad, int mode);

@@ -231,11 +231,6 @@ void DEV9async(u32 cycles)
 }
 
 // extended funcs
-
-void DEV9keyEvent(keyEvent *ev)
-{
-}
-
 s32 DEV9freeze(int mode, freezeData *data)
 {
     // This should store or retrieve any information, for if emulation

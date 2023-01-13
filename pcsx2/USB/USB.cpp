@@ -169,11 +169,6 @@ void USBsetRAM(void *mem)
 }
 
 // extended funcs
-
-void USBkeyEvent(keyEvent *ev)
-{
-}
-
 s32 USBfreeze(int mode, freezeData *data)
 {
     // This should store or retrieve any information, for if emulation

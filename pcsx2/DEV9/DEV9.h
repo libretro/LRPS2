@@ -46,7 +46,6 @@ s32 DEV9init();
 s32 DEV9open();
 void DEV9close();
 void DEV9shutdown();
-void DEV9keyEvent(keyEvent *ev);
 
 u8 DEV9read8(u32 addr);
 u16 DEV9read16(u32 addr);
