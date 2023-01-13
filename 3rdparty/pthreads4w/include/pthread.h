@@ -923,25 +923,6 @@ int PTW32_CDECL pthread_condattr_init (pthread_condattr_t * attr);
 int PTW32_CDECL pthread_condattr_destroy (pthread_condattr_t * attr);
 
 /*
- * Condition Variable Functions
- */
-int PTW32_CDECL pthread_cond_init (pthread_cond_t * cond,
-                               const pthread_condattr_t * attr);
-
-int PTW32_CDECL pthread_cond_destroy (pthread_cond_t * cond);
-
-int PTW32_CDECL pthread_cond_wait (pthread_cond_t * cond,
-                               pthread_mutex_t * mutex);
-
-int PTW32_CDECL pthread_cond_timedwait (pthread_cond_t * cond,
-                                    pthread_mutex_t * mutex,
-                                    const struct timespec *abstime);
-
-int PTW32_CDECL pthread_cond_signal (pthread_cond_t * cond);
-
-int PTW32_CDECL pthread_cond_broadcast (pthread_cond_t * cond);
-
-/*
  * Scheduling
  */
 #if PTW32_LEVEL >= PTW32_LEVEL_MAX - 1

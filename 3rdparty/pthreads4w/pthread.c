@@ -45,7 +45,6 @@
 #include "attr.c"
 #include "cancel.c"
 #include "cleanup.c"
-#include "condvar.c"
 #include "create.c"
 #include "autostatic.c"
 #include "exit.c"

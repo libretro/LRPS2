@@ -44,8 +44,6 @@ ptw32_thread_t * ptw32_threadReuseTop = PTW32_THREAD_REUSE_EMPTY;
 ptw32_thread_t * ptw32_threadReuseBottom = PTW32_THREAD_REUSE_EMPTY;
 pthread_key_t ptw32_selfThreadKey = NULL;
 pthread_key_t ptw32_cleanupKey = NULL;
-pthread_cond_t ptw32_cond_list_head = NULL;
-pthread_cond_t ptw32_cond_list_tail = NULL;
 
 /*
  * Global [process wide] thread sequence Number
@@ -68,19 +66,6 @@ ptw32_mcs_lock_t ptw32_thread_reuse_lock = 0;
  * Global lock for testing internal state of statically declared mutexes.
  */
 ptw32_mcs_lock_t ptw32_mutex_test_init_lock = 0;
-
-/*
- * Global lock for testing internal state of PTHREAD_COND_INITIALIZER
- * created condition variables.
- */
-ptw32_mcs_lock_t ptw32_cond_test_init_lock = 0;
-
-/*
- * Global lock for condition variable linked list. The list exists
- * to wake up CVs when a WM_TIMECHANGE message arrives. See
- * w32_TimeChangeHandler.c.
- */
-ptw32_mcs_lock_t ptw32_cond_list_lock = 0;
 
 #if defined(_UWIN)
 /*

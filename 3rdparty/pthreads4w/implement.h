@@ -487,15 +487,11 @@ extern ptw32_thread_t * ptw32_threadReuseTop;
 extern ptw32_thread_t * ptw32_threadReuseBottom;
 extern pthread_key_t ptw32_selfThreadKey;
 extern pthread_key_t ptw32_cleanupKey;
-extern pthread_cond_t ptw32_cond_list_head;
-extern pthread_cond_t ptw32_cond_list_tail;
 
 extern unsigned __int64 ptw32_threadSeqNumber;
 
 extern ptw32_mcs_lock_t ptw32_thread_reuse_lock;
 extern ptw32_mcs_lock_t ptw32_mutex_test_init_lock;
-extern ptw32_mcs_lock_t ptw32_cond_list_lock;
-extern ptw32_mcs_lock_t ptw32_cond_test_init_lock;
 
 #if defined(_UWIN)
 extern int pthread_count;
@@ -516,7 +512,6 @@ extern "C"
 
   int ptw32_is_attr (const pthread_attr_t * attr);
 
-  int ptw32_cond_check_need_init (pthread_cond_t * cond);
   int ptw32_mutex_check_need_init (pthread_mutex_t * mutex);
 
   int ptw32_robust_mutex_inherit(pthread_mutex_t * mutex);
