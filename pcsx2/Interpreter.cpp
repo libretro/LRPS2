@@ -24,15 +24,10 @@
 
 #include <float.h>
 
-using namespace R5900;		// for OPCODE and OpcodeImpl
-
 static u32 cpuBlockCycles = 0;	// 3 bit fixed point version of cycle count
 
-static void intEventTest(void)
-{
-	// Perform counters, ints, and IOP updates:
-	_cpuEventTest_Shared();
-}
+/* Perform counters, ints, and IOP updates */
+#define intEventTest() _cpuEventTest_Shared()
 
 static void R5900execI(void)
 {
@@ -44,7 +39,7 @@ static void R5900execI(void)
 	// interprete instruction
 	cpuRegs.code = memRead32( pc );
 
-	const OPCODE& opcode = GetCurrentInstruction();
+	const R5900::OPCODE& opcode = R5900::GetCurrentInstruction();
 
 	cpuBlockCycles += opcode.cycles;
 
@@ -69,7 +64,7 @@ static __fi void _doBranch_shared(u32 tar)
 static void doBranch( u32 target )
 {
 	_doBranch_shared( target );
-	cpuRegs.cycle += cpuBlockCycles >> 3;
+	cpuRegs.cycle  += cpuBlockCycles >> 3;
 	cpuBlockCycles &= (1<<3)-1;
 	intEventTest();
 }
@@ -84,10 +79,6 @@ void intDoBranch(u32 target)
 		cpuBlockCycles &= (1<<3)-1;
 		intEventTest();
 	}
-}
-
-void intSetBranch()
-{
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -317,21 +308,8 @@ void JALR(void)
 // --------------------------------------------------------------------------------------
 //  R5900cpu/intCpu interface (implementations)
 // --------------------------------------------------------------------------------------
-
-static void intReserve(void)
-{
-	// fixme : detect cpu for use the optimize asm code
-}
-
-static void intAlloc(void)
-{
-	// Nothing to do!
-}
-
-static void intReset(void)
-{
-	cpuRegs.branch = 0;
-}
+static void intDummyFunc(void) { }
+static void intReset(void) { cpuRegs.branch = 0; }
 
 static void intExecute(void)
 {
@@ -411,25 +389,14 @@ static void intCheckExecutionState(void)
 		throw Exception::ExitCpuExecute();
 }
 
-static void intClear(u32 Addr, u32 Size)
-{
-}
-
-static void intShutdown(void) { }
-
-static void intSetCacheReserve( uint reserveInMegs )
-{
-}
-
-static uint intGetCacheReserve()
-{
-	return 0;
-}
+static void intClear(u32 Addr, u32 Size) { }
+static void intSetCacheReserve( uint reserveInMegs ) { }
+static uint intGetCacheReserve(void) { return 0; }
 
 R5900cpu intCpu =
 {
-	intReserve,
-	intShutdown,
+	intDummyFunc,
+	intDummyFunc,
 
 	intReset,
 	intExecute,

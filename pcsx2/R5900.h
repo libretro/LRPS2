@@ -247,8 +247,6 @@ extern bool eeEventTestIsActive;
 extern u32 s_iLastCOP0Cycle;
 extern u32 s_iLastPERFCycle[2];
 
-void intSetBranch();
-
 // This is a special form of the interpreter's doBranch that is run from various
 // parts of the Recs (namely COP0's branch codes and stuff).
 void intDoBranch(u32 target);

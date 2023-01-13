@@ -16,14 +16,12 @@
 
 #include "Common.h"
 
-#include "R5900OpcodeTables.h"
 #include "VUmicro.h"
 
-using namespace R5900;
-using namespace R5900::Interpreter;
 #define CP2COND (((VU0.VI[REG_VPU_STAT].US[0] >> 8) & 1))
 
-//Run the FINISH either side of the VCALL's as we have no control over it past here.
+/* Run the FINISH either side of the VCALL's 
+ * as we have no control over it past here. */
 void VCALLMS(void)
 {
 	vu0Finish();
