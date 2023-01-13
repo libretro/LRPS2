@@ -39,35 +39,6 @@
 #include "sched.h"
 
 int
-pthread_setschedparam (pthread_t thread, int policy,
-		       const struct sched_param *param)
-{
-  int result;
-
-  /* Validate the thread id. */
-  result = pthread_kill (thread, 0);
-  if (0 != result)
-    {
-      return result;
-    }
-
-  /* Validate the scheduling policy. */
-  if (policy < SCHED_MIN || policy > SCHED_MAX)
-    {
-      return EINVAL;
-    }
-
-  /* Ensure the policy is SCHED_OTHER. */
-  if (policy != SCHED_OTHER)
-    {
-      return ENOTSUP;
-    }
-
-  return (ptw32_setthreadpriority (thread, policy, param->sched_priority));
-}
-
-
-int
 ptw32_setthreadpriority (pthread_t thread, int policy, int priority)
 {
   int prio;

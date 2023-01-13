@@ -835,18 +835,6 @@ int PTW32_CDECL pthread_attr_init (pthread_attr_t * attr);
 
 int PTW32_CDECL pthread_attr_destroy (pthread_attr_t * attr);
 
-int PTW32_CDECL pthread_attr_getschedparam (const pthread_attr_t *attr,
-                                        struct sched_param *param);
-
-int PTW32_CDECL pthread_attr_setschedparam (pthread_attr_t *attr,
-                                        const struct sched_param *param);
-
-int PTW32_CDECL pthread_attr_setschedpolicy (pthread_attr_t *,
-                                         int);
-
-int PTW32_CDECL pthread_attr_getschedpolicy (const pthread_attr_t *,
-                                         int *);
-
 /*
  * PThread Functions
  */
@@ -871,9 +859,6 @@ int PTW32_CDECL pthread_cancel (pthread_t thread);
 
 int PTW32_CDECL pthread_setcancelstate (int state,
                                     int *oldstate);
-
-int PTW32_CDECL pthread_setcanceltype (int type,
-                                   int *oldtype);
 
 void PTW32_CDECL pthread_testcancel (void);
 
@@ -959,14 +944,6 @@ int PTW32_CDECL pthread_cond_broadcast (pthread_cond_t * cond);
 /*
  * Scheduling
  */
-int PTW32_CDECL pthread_setschedparam (pthread_t thread,
-                                   int policy,
-                                   const struct sched_param *param);
-
-int PTW32_CDECL pthread_getschedparam (pthread_t thread,
-                                   int *policy,
-                                   struct sched_param *param);
-
 #if PTW32_LEVEL >= PTW32_LEVEL_MAX - 1
 
 /*
