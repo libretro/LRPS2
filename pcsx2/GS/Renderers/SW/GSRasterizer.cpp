@@ -340,7 +340,7 @@ void GSRasterizer::DrawLine(const GSVertexSW* vertex, const u32* index)
 
 		GSVertexSW* RESTRICT e = m_edge.buff;
 
-		while(1)
+		for(;;)
 		{
 			GSVector4i p(edge.p);
 
@@ -831,12 +831,10 @@ void GSRasterizer::DrawSprite(const GSVertexSW* vertex, const u32* index)
 
 	m_ds->SetupPrim(vertex, index, dscan);
 
-	while(1)
+	for(;;)
 	{
 		if(IsOneOfMyScanlines(r.top))
-		{
 			DrawScanline(r.width(), r.left, r.top, scan);
-		}
 
 		if(++r.top >= r.bottom) break;
 
@@ -902,7 +900,7 @@ void GSRasterizer::DrawEdge(const GSVertexSW& v0, const GSVertexSW& v1, const GS
 
 		if(side)
 		{
-			while(1)
+			for(;;)
 			{
 				int xi = x >> 16;
 				int xf = x & 0xffff;
@@ -924,7 +922,7 @@ void GSRasterizer::DrawEdge(const GSVertexSW& v0, const GSVertexSW& v1, const GS
 		}
 		else
 		{
-			while(1)
+			for(;;)
 			{
 				int xi = (x >> 16) + 1;
 				int xf = x & 0xffff;
@@ -988,7 +986,7 @@ void GSRasterizer::DrawEdge(const GSVertexSW& v0, const GSVertexSW& v1, const GS
 
 		if(side)
 		{
-			while(1)
+			for(;;)
 			{
 				int yi = y >> 16;
 				int yf = y & 0xffff;
@@ -1010,7 +1008,7 @@ void GSRasterizer::DrawEdge(const GSVertexSW& v0, const GSVertexSW& v1, const GS
 		}
 		else
 		{
-			while(1)
+			for(;;)
 			{
 				int yi = (y >> 16) + 1;
 				int yf = y & 0xffff;

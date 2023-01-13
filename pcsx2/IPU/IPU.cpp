@@ -533,7 +533,7 @@ static __ri void yuv2rgb(void)
 	const __m128i y_mask          = _mm_set1_epi16(s16(0xFF00));
 	// Specifying round off instead of round down as everywhere else
 	// implies that this is right
-	const __m128i round_1bit      = _mm_set1_epi16(0x0001);;
+	const __m128i round_1bit      = _mm_set1_epi16(0x0001);
 
 	const __m128i y_coefficient   = _mm_set1_epi16(s16(IPU_Y_COEFF << 2));
 	const __m128i gcr_coefficient = _mm_set1_epi16(s16(u16(IPU_GCR_COEFF) << 2));

@@ -161,7 +161,7 @@ static void writeCache(u32 mem, Int value)
 	const int idx  = getFreeCache(mem, &way);
 	CacheLine line = { cache.sets[idx].tags[way], cache.sets[idx].data[way], idx };
 
-	line.tag.rawValue |= CacheTag::DIRTY_FLAG;; // Set dirty bit for writes;
+	line.tag.rawValue |= CacheTag::DIRTY_FLAG; // Set dirty bit for writes;
 	u32 aligned        = mem & ~(sizeof(value) - 1);
 	*reinterpret_cast<Int*>(&line.data.bytes[aligned & 0x3f]) = value;
 }
@@ -191,7 +191,7 @@ static void writeCache128(u32 mem, const mem128_t* value)
 	int way        = 0;
 	const int idx  = getFreeCache(mem, &way);
 	CacheLine line = { cache.sets[idx].tags[way], cache.sets[idx].data[way], idx };
-	line.tag.rawValue |= CacheTag::DIRTY_FLAG;; // Set dirty bit for writes;
+	line.tag.rawValue |= CacheTag::DIRTY_FLAG; // Set dirty bit for writes;
 	u32 aligned    = mem & ~0xF;
 	*reinterpret_cast<mem128_t*>(&line.data.bytes[aligned & 0x3f]) = *value;
 }

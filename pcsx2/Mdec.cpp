@@ -150,7 +150,7 @@ static void idct(int *block,int k)
       ptr[5] =
       ptr[6] =
       ptr[7] =
-      	RANGE(DESCALE(ptr[0], PASS1_BITS+3));;
+      	RANGE(DESCALE(ptr[0], PASS1_BITS+3));
 
       continue;
     }
@@ -176,14 +176,14 @@ static void idct(int *block,int k)
     tmp5 = MULTIPLY(z11 - z13, FIX_1_414213562) - tmp6;
     tmp4 = MULTIPLY(z12, FIX_1_082392200) - z5 + tmp5;
 
-    ptr[0] = RANGE(DESCALE(tmp0 + tmp7, PASS1_BITS+3));;
-    ptr[7] = RANGE(DESCALE(tmp0 - tmp7, PASS1_BITS+3));;
-    ptr[1] = RANGE(DESCALE(tmp1 + tmp6, PASS1_BITS+3));;
-    ptr[6] = RANGE(DESCALE(tmp1 - tmp6, PASS1_BITS+3));;
-    ptr[2] = RANGE(DESCALE(tmp2 + tmp5, PASS1_BITS+3));;
-    ptr[5] = RANGE(DESCALE(tmp2 - tmp5, PASS1_BITS+3));;
-    ptr[4] = RANGE(DESCALE(tmp3 + tmp4, PASS1_BITS+3));;
-    ptr[3] = RANGE(DESCALE(tmp3 - tmp4, PASS1_BITS+3));;
+    ptr[0] = RANGE(DESCALE(tmp0 + tmp7, PASS1_BITS+3));
+    ptr[7] = RANGE(DESCALE(tmp0 - tmp7, PASS1_BITS+3));
+    ptr[1] = RANGE(DESCALE(tmp1 + tmp6, PASS1_BITS+3));
+    ptr[6] = RANGE(DESCALE(tmp1 - tmp6, PASS1_BITS+3));
+    ptr[2] = RANGE(DESCALE(tmp2 + tmp5, PASS1_BITS+3));
+    ptr[5] = RANGE(DESCALE(tmp2 - tmp5, PASS1_BITS+3));
+    ptr[4] = RANGE(DESCALE(tmp3 + tmp4, PASS1_BITS+3));
+    ptr[3] = RANGE(DESCALE(tmp3 - tmp4, PASS1_BITS+3));
 
   }
 }

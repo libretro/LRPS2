@@ -912,7 +912,8 @@ static void iopRecRecompile( const u32 startpc )
 	s_nEndBlock = 0xffffffff;
 	s_branchTo = -1;
 
-	while(1) {
+	for(;;)
+	{
 		BASEBLOCK* pblock = PSX_GETBLOCK(i);
 		if (i != startpc
 		 && pblock->m_pFnptr != (uptr)iopJITCompile

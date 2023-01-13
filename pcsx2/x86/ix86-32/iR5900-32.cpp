@@ -766,7 +766,8 @@ static void recRecompile( const u32 startpc )
 	s_nEndBlock = 0xffffffff;
 	s_branchTo  = -1;
 
-	while(1) {
+	for(;;)
+	{
 		BASEBLOCK* pblock = PC_GETBLOCK(i);
 
 		if(i != startpc)	// Block size truncation checks.

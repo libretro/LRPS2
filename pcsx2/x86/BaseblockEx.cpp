@@ -21,7 +21,7 @@ BASEBLOCKEX* BaseBlocks::New(u32 startpc, uptr fnptr)
 	for (linkiter_t i = range.first; i != range.second; ++i)
 		*(u32*)i->second = fnptr - (i->second + 4);
 	
-	return blocks.insert(startpc, fnptr);;
+	return blocks.insert(startpc, fnptr);
 }
 
 int BaseBlocks::LastIndex(u32 startpc) const
