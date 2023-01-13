@@ -192,7 +192,7 @@ struct GS_FINISH
 
 static __fi void incTag(u32& offset, u32& size, u32 incAmount)
 {
-	size += incAmount;
+	size   += incAmount;
 	offset += incAmount;
 }
 
@@ -203,7 +203,7 @@ struct Gif_Path_MTVU
 	// Set a size based on MTGS but keep a factor 2 to avoid too waste to much
 	// memory overhead. Note the struct is instantied 3 times (for each gif
 	// path)
-	ringbuffer_base<GS_Packet, RingBufferSize / 2> gsPackQueue;
+	ringbuffer_base<GS_Packet, RINGBUFFERSIZE / 2> gsPackQueue;
 	Gif_Path_MTVU() { Reset(); }
 	void Reset()
 	{

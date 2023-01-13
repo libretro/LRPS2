@@ -355,60 +355,25 @@ extern u128 gsNonMirroredRead(u32 mem);
 
 extern tGS_CSR CSRr;
 
-// Size of the ringbuffer as a power of 2 -- size is a multiple of simd128s.
-// (actual size is 1<<m_RingBufferSizeFactor simd vectors [128-bit values])
-// A value of 19 is a 8meg ring buffer.  18 would be 4 megs, and 20 would be 16 megs.
-// Default was 2mb, but some games with lots of MTGS activity want 8mb to run fast (rama)
-static const uint RingBufferSizeFactor = 19;
-
 // size of the ringbuffer in simd128's.
-static const uint RingBufferSize = 1<<RingBufferSizeFactor;
-
-// Mask to apply to ring buffer indices to wrap the pointer from end to
-// start (the wrapping is what makes it a ringbuffer, yo!)
-static const uint RingBufferMask = RingBufferSize - 1;
-
-struct MTGS_BufferedData
-{
-	u128		m_Ring[RingBufferSize];
-	u8		Regs[Ps2MemSize::GSregs];
-
-	MTGS_BufferedData() {}
-
-	u128& operator[]( uint idx )
-	{
-		return m_Ring[idx];
-	}
-};
-
-extern __aligned(32) MTGS_BufferedData RingBuffer;
+// formula = 1 << RINGBUFFERSIZEFACTOR = 1 << 19 = 524288
+#define RINGBUFFERSIZE 524288
 
 // FIXME: These belong in common with other memcpy tools.  Will move them there later if no one
 // else beats me to it.  --air
-inline void MemCopy_WrappedDest( const u128* src, u128* destBase, uint& destStart, uint destSize, uint len ) {
+inline void MemCopy_WrappedDest( const u128* src, u128* destBase, uint& destStart, uint destSize, uint len )
+{
 	uint endpos = destStart + len;
-	if ( endpos < destSize ) {
+	if ( endpos < destSize )
+	{
 		memcpy(&destBase[destStart], src, len*16);
 		destStart += len;
 	}
-	else {
+	else
+	{
 		uint firstcopylen = destSize - destStart;
 		memcpy(&destBase[destStart], src, firstcopylen*16);
 		destStart = endpos % destSize;
 		memcpy(destBase, src+firstcopylen, destStart*16);
-	}
-}
-
-inline void MemCopy_WrappedSrc( const u128* srcBase, uint& srcStart, uint srcSize, u128* dest, uint len ) {
-	uint endpos = srcStart + len;
-	if ( endpos < srcSize ) {
-		memcpy(dest, &srcBase[srcStart], len*16);
-		srcStart += len;
-	}
-	else {
-		uint firstcopylen = srcSize - srcStart;
-		memcpy(dest, &srcBase[srcStart], firstcopylen*16);
-		srcStart = endpos % srcSize;
-		memcpy(dest+firstcopylen, srcBase, srcStart*16);
 	}
 }

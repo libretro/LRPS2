@@ -28,8 +28,35 @@
 // =====================================================================================================
 //  MTGS Threaded Class Implementation
 // =====================================================================================================
+// Size of the ringbuffer as a power of 2 -- size is a multiple of simd128s.
+// (actual size is 1<<m_RingBufferSizeFactor simd vectors [128-bit values])
+// A value of 19 is a 8meg ring buffer.  18 would be 4 megs, and 20 would be 16 megs.
+// Default was 2mb, but some games with lots of MTGS activity want 8mb to run fast (rama)
+#define RINGBUFFERSIZEFACTOR 19
 
-__aligned(32) MTGS_BufferedData RingBuffer;
+// size of the ringbuffer in simd128's.
+// formula = 1 << RINGBUFFERSIZEFACTOR = 1 << 19 = 524288
+#define RINGBUFFERSIZE 524288
+
+// Mask to apply to ring buffer indices to wrap the pointer from end to
+// start (the wrapping is what makes it a ringbuffer, yo!)
+// formula = (RINGBUFFERSIZE - 1) =  (524288 - 1) = 524287
+#define RINGBUFFERMASK 524287
+
+struct MTGS_BufferedData
+{
+	u128		m_Ring[RINGBUFFERSIZE];
+	u8		Regs[Ps2MemSize::GSregs];
+
+	MTGS_BufferedData() {}
+
+	u128& operator[]( uint idx )
+	{
+		return m_Ring[idx];
+	}
+};
+
+static __aligned(32) MTGS_BufferedData RingBuffer;
 
 static bool renderswitch = false;
 
@@ -40,6 +67,23 @@ static void DoFmvSwitch(bool on)
 		renderswitch = !renderswitch;
 }
 #endif
+
+inline void MemCopy_WrappedSrc( const u128* srcBase, uint& srcStart, uint srcSize, u128* dest, uint len )
+{
+	uint endpos = srcStart + len;
+	if ( endpos < srcSize )
+	{
+		memcpy(dest, &srcBase[srcStart], len*16);
+		srcStart += len;
+	}
+	else
+	{
+		uint firstcopylen = srcSize - srcStart;
+		memcpy(dest, &srcBase[srcStart], firstcopylen*16);
+		srcStart = endpos % srcSize;
+		memcpy(dest+firstcopylen, srcBase, srcStart*16);
+	}
+}
 
 SysMtgsThread::SysMtgsThread() :
 	SysFakeThread()
@@ -111,13 +155,13 @@ void SysMtgsThread::PostVsyncStart()
 
 	uint packsize = sizeof(RingCmdPacket_Vsync) / 16;
 	PrepDataPacket(GS_RINGTYPE_VSYNC, packsize);
-	MemCopy_WrappedDest( (u128*)PS2MEM_GS, RingBuffer.m_Ring, m_packet_writepos, RingBufferSize, 0xf );
+	MemCopy_WrappedDest( (u128*)PS2MEM_GS, RingBuffer.m_Ring, m_packet_writepos, RINGBUFFERSIZE, 0xf );
 
-	u32* remainder = (u32*)(u8*)&RingBuffer[m_packet_writepos & RingBufferMask];
+	u32* remainder = (u32*)(u8*)&RingBuffer[m_packet_writepos & RINGBUFFERMASK];
 	remainder[0] = GSCSRr;
 	remainder[1] = GSIMR._u32;
 	(GSRegSIGBLID&)remainder[2] = GSSIGLBLID;
-	m_packet_writepos = (m_packet_writepos + 1) & RingBufferMask;
+	m_packet_writepos = (m_packet_writepos + 1) & RINGBUFFERMASK;
 
 	SendDataPacket();
 
@@ -248,8 +292,8 @@ void SysMtgsThread::ExecuteTaskInThread()
 								// This seemingly obtuse system is needed in order to handle cases where the vsync data wraps
 								// around the edge of the ringbuffer.  If not for that I'd just use a struct. >_<
 
-								uint datapos = (local_ReadPos+1) & RingBufferMask;
-								MemCopy_WrappedSrc( RingBuffer.m_Ring, datapos, RingBufferSize, (u128*)RingBuffer.Regs, 0xf );
+								uint datapos = (local_ReadPos+1) & RINGBUFFERMASK;
+								MemCopy_WrappedSrc( RingBuffer.m_Ring, datapos, RINGBUFFERSIZE, (u128*)RingBuffer.Regs, 0xf );
 
 								u32* remainder = (u32*)&RingBuffer[datapos];
 								((u32&)RingBuffer.Regs[0x1000])				= remainder[0];
@@ -301,7 +345,7 @@ void SysMtgsThread::ExecuteTaskInThread()
 				}
 			}
 
-			uint newringpos = (m_ReadPos.load(std::memory_order_relaxed) + ringposinc) & RingBufferMask;
+			uint newringpos = (m_ReadPos.load(std::memory_order_relaxed) + ringposinc) & RINGBUFFERMASK;
 
 			m_ReadPos.store(newringpos, std::memory_order_release);
 
@@ -443,7 +487,7 @@ void SysMtgsThread::SetEvent()
 // Closes the data packet send command, and initiates the gs thread (if needed).
 void SysMtgsThread::SendDataPacket()
 {
-	uint actualSize = ((m_packet_writepos - m_packet_startpos) & RingBufferMask)-1;
+	uint actualSize = ((m_packet_writepos - m_packet_startpos) & RINGBUFFERMASK)-1;
 	PacketTagType& tag = (PacketTagType&)RingBuffer[m_packet_startpos];
 	tag.data[0] = actualSize;
 
@@ -476,7 +520,7 @@ void SysMtgsThread::GenericStall( uint size )
 	if (writepos < readpos)
 		freeroom = readpos - writepos;
 	else
-		freeroom = RingBufferSize - (writepos - readpos);
+		freeroom = RINGBUFFERSIZE - (writepos - readpos);
 
 	if (freeroom <= size)
 	{
@@ -488,7 +532,7 @@ void SysMtgsThread::GenericStall( uint size )
 		// the next packet will likely stall up too.  So lets set a condition for the MTGS
 		// thread to wake up the EE once there's a sizable chunk of the ringbuffer emptied.
 
-		uint somedone	= (RingBufferSize - freeroom) / 4;
+		uint somedone	= (RINGBUFFERSIZE - freeroom) / 4;
 		if( somedone < size+1 ) somedone = size + 1;
 
 		// FMV Optimization: FMVs typically send *very* little data to the GS, in some cases
@@ -508,7 +552,7 @@ void SysMtgsThread::GenericStall( uint size )
 				if (writepos < readpos)
 					freeroom = readpos - writepos;
 				else
-					freeroom = RingBufferSize - (writepos - readpos);
+					freeroom = RINGBUFFERSIZE - (writepos - readpos);
 
 				if (freeroom > size) break;
 			}
@@ -523,7 +567,7 @@ void SysMtgsThread::GenericStall( uint size )
 				if (writepos < readpos)
 					freeroom = readpos - writepos;
 				else
-					freeroom = RingBufferSize - (writepos - readpos);
+					freeroom = RINGBUFFERSIZE - (writepos - readpos);
 
 				if (freeroom > size) break;
 			}
@@ -545,12 +589,12 @@ void SysMtgsThread::PrepDataPacket( MTGS_RingCommand cmd, u32 size )
 	tag.command        = cmd;
 	tag.data[0]        = m_packet_size;
 	m_packet_startpos  = local_WritePos;
-	m_packet_writepos  = (local_WritePos + 1) & RingBufferMask;
+	m_packet_writepos  = (local_WritePos + 1) & RINGBUFFERMASK;
 }
 
 __fi void SysMtgsThread::_FinishSimplePacket()
 {
-	uint future_writepos = (m_WritePos.load(std::memory_order_relaxed) +1) & RingBufferMask;
+	uint future_writepos = (m_WritePos.load(std::memory_order_relaxed) +1) & RINGBUFFERMASK;
 	m_WritePos.store(future_writepos, std::memory_order_release);
 
 	++m_CopyDataTally;
