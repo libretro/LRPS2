@@ -32,8 +32,6 @@
 #include "../pcsx2/GS/GSFuncs.h"
 
 #ifdef PERF_TEST
-static struct retro_perf_callback perf_cb;
-
 #define RETRO_PERFORMANCE_INIT(name)                 \
 	retro_perf_tick_t current_ticks;                 \
 	static struct retro_perf_counter name = {#name}; \
@@ -51,45 +49,19 @@ static struct retro_perf_callback perf_cb;
 #define RETRO_PERFORMANCE_STOP(name)
 #endif
 
-static const int PCSX2_VersionHi	= 1;
-static const int PCSX2_VersionMid	= 7;
-static const int PCSX2_VersionLo	= 0;
-
-static bool libretro_supports_option_categories = false;
-static bool init_failed = false;
-int option_upscale_mult = 1;
-int option_pad_left_deadzone = 0;
-int option_pad_right_deadzone = 0;
-bool option_palette_conversion = false;
-bool hack_fb_conversion = false;
-bool hack_AutoFlush = false;
-bool hack_fast_invalidation  = false;
-bool hack_preload_frame_data = false;
-
-std::string sel_bios_path = "";
-retro_environment_t environ_cb;
-retro_video_refresh_t video_cb;
-struct retro_hw_render_callback hw_render;
-unsigned libretro_msg_interface_version = 0;
-retro_log_printf_t log_cb;
-
-std::string retroarch_system_path;
-
-Pcsx2App* pcsx2;
-static wxFileName bios_dir;
-
 #define FILENAME_SHARED_MEMCARD_8 "Shared Memory Card (8 MB)"
 #define FILENAME_SHARED_MEMCARD_32 "Shared Memory Card (32 MB)"
 
-static wxFileName slot1_file;
-static wxFileName slot2_file;
+retro_audio_sample_t sample_cb;
+retro_environment_t environ_cb;
+retro_video_refresh_t video_cb;
+retro_log_printf_t log_cb;
 
-static wxFileName legacy_memcard1;
-static wxFileName legacy_memcard2;
+struct retro_hw_render_callback hw_render;
 
-static std::vector<std::string> bios_files;
-static std::vector<std::string> custom_memcard_list_slot1;
-static std::vector<std::string> custom_memcard_list_slot2;
+#ifdef PERF_TEST
+static struct retro_perf_callback perf_cb;
+#endif
 
 struct retro_rumble_interface rumble;
 static retro_input_poll_t poll_cb;
@@ -139,6 +111,36 @@ static struct retro_input_descriptor desc[] = {
 
 	{0},
 };
+
+static wxFileName bios_dir;
+
+static wxFileName slot1_file;
+static wxFileName slot2_file;
+
+static wxFileName legacy_memcard1;
+static wxFileName legacy_memcard2;
+
+static std::vector<std::string> bios_files;
+static std::vector<std::string> custom_memcard_list_slot1;
+static std::vector<std::string> custom_memcard_list_slot2;
+
+static bool libretro_supports_option_categories = false;
+static bool init_failed                         = false;
+int option_upscale_mult                         = 1;
+int option_pad_left_deadzone                    = 0;
+int option_pad_right_deadzone                   = 0;
+bool option_palette_conversion                  = false;
+bool hack_fb_conversion                         = false;
+bool hack_AutoFlush                             = false;
+bool hack_fast_invalidation                     = false;
+bool hack_preload_frame_data                    = false;
+
+std::string sel_bios_path                       = "";
+unsigned libretro_msg_interface_version         = 0;
+
+std::string retroarch_system_path;
+
+Pcsx2App* pcsx2;
 
 /* forward declaration */
 extern Pad pads[2][4];
@@ -271,11 +273,11 @@ void retro_init(void)
 	{								
 		size_t i = 0, j;
 		if (!def.key || strcmp(def.key, "pcsx2_memcard_slot_1")) continue;
-		def.values[i++]         = { "empty", "Empty" };
+		def.values[i++]         = { "empty",   "Empty"                    };
 		if (legacy_memcard1.FileExists())
-			def.values[i++] = {"legacy", "Legacy"};
-		def.values[i++]         = { "shared8", "Shared Memory Card (8 MB)" };
-		def.values[i++]         = { "shared32", "Shared Memory Card (32 MB)" };
+			def.values[i++] = {"legacy",   "Legacy"                   };
+		def.values[i++]         = {"shared8",  FILENAME_SHARED_MEMCARD_8  };
+		def.values[i++]         = {"shared32", FILENAME_SHARED_MEMCARD_32 };
 		for (j = 0; j < custom_memcard_list_slot1.size(); j += 2)
 		{
 			if (j >= 40) break;
@@ -292,11 +294,11 @@ void retro_init(void)
 	{
 		size_t i = 0, j;
 		if (!def.key || strcmp(def.key, "pcsx2_memcard_slot_2")) continue; 
-		def.values[i++]         = {"empty", "Empty"};
+		def.values[i++]         = {"empty",    "Empty"                    };
 		if (legacy_memcard2.FileExists())
-			def.values[i++] = {"legacy", "Legacy"};
-		def.values[i++]         = { "shared8", "Shared Memory Card (8 MB)" };
-		def.values[i++]         = { "shared32", "Shared Memory Card (32 MB)" };
+			def.values[i++] = {"legacy",   "Legacy"                   };
+		def.values[i++]         = {"shared8",  FILENAME_SHARED_MEMCARD_8  };
+		def.values[i++]         = {"shared32", FILENAME_SHARED_MEMCARD_32 };
 		for (j = 0; j < custom_memcard_list_slot2.size(); j += 2)
 		{
 			if (j >= 40) break;
@@ -499,46 +501,48 @@ void retro_deinit(void)
 
 void retro_get_system_info(retro_system_info* info)
 {
+	static const int PCSX2_VersionHi    = 1;
+	static const int PCSX2_VersionMid   = 7;
+	static const int PCSX2_VersionLo    = 0;
 #ifdef GIT_REV
-	info->library_version  = GIT_REV;
+	info->library_version               = GIT_REV;
 #else
-	static char version[]  = "#.#.#";
-	version[0]             = '0' + PCSX2_VersionHi;
-	version[2]             = '0' + PCSX2_VersionMid;
-	version[4]             = '0' + PCSX2_VersionLo;
-	info->library_version  = version;
+	static char version[]               = "#.#.#";
+	version[0]                          = '0' + PCSX2_VersionHi;
+	version[2]                          = '0' + PCSX2_VersionMid;
+	version[4]                          = '0' + PCSX2_VersionLo;
+	info->library_version               = version;
 #endif
-
-	info->library_name     = "LRPS2 (alpha)";
-	info->valid_extensions = "elf|iso|ciso|chd|cso|cue|bin|m3u";
-	info->need_fullpath    = true;
-	info->block_extract    = true;
+	info->library_name                  = "LRPS2 (alpha)";
+	info->valid_extensions              = "elf|iso|ciso|chd|cso|cue|bin|m3u";
+	info->need_fullpath                 = true;
+	info->block_extract                 = true;
 }
 
 void retro_get_system_av_info(retro_system_av_info* info)
 {
-	if ( !std::strcmp(option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type), "Software") || !std::strcmp(option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type), "Null"))
+	extern bool msg_cheat_ws_found_sent;
+	info->geometry.base_width           = 640;
+	info->geometry.base_height          = 448;
+	if (!(!std::strcmp(option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type), "Software") || !std::strcmp(option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type), "Null")))
 	{
-		info->geometry.base_width   = 640;
-		info->geometry.base_height  = 448;
-	}
-	else
-	{
-		info->geometry.base_width   = 640 * option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
-		info->geometry.base_height  = 448 * option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
+		int upscale_multiplier       = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
+		info->geometry.base_width   *= upscale_multiplier;
+		info->geometry.base_height  *= upscale_multiplier;
 	}
 
-	info->geometry.max_width            = info->geometry.base_width;
-	info->geometry.max_height           = info->geometry.base_height;
+	info->geometry.max_width             = info->geometry.base_width;
+	info->geometry.max_height            = info->geometry.base_height;
 
-	if (option_value(INT_PCSX2_OPT_ASPECT_RATIO, KeyOptionInt::return_type) == 0)
-		info->geometry.aspect_ratio = 4.0f / 3.0f;
+	if ((option_value(INT_PCSX2_OPT_ASPECT_RATIO, KeyOptionInt::return_type) != 0) || msg_cheat_ws_found_sent)
+		info->geometry.aspect_ratio  = 16.0f / 9.0f;
 	else
-		info->geometry.aspect_ratio = 16.0f / 9.0f;
-	info->timing.fps                    = (retro_get_region() == RETRO_REGION_NTSC) ? (60.0f / 1.001f) : 50.0f;
-	info->timing.sample_rate            = 48000;
+		info->geometry.aspect_ratio  = 4.0f / 3.0f;
+	info->timing.fps                     = (retro_get_region() == RETRO_REGION_NTSC) ? (60.0f / 1.001f) : 50.0f;
+	info->timing.sample_rate             = 48000;
 }
 
+/* TODO/FIXME - fix this */
 void retro_reset(void)
 {
 	GetMTGS().FinishTaskInThread();
@@ -611,26 +615,25 @@ static bool set_hw_render(retro_hw_context_type type)
 	return environ_cb(RETRO_ENVIRONMENT_SET_HW_RENDER, &hw_render);
 }
 
-static wxVector<wxString>
-read_m3u_file(const wxFileName& m3u_file)
+static wxVector<wxString> read_m3u_file(const wxFileName& m3u_file)
 {
-	log_cb(RETRO_LOG_DEBUG, "Reading M3U file");
-
+	wxString base_path, line;
 	wxVector<wxString> result;
-
 	wxTextFile m3u_data;
+	/* This is the UTF-8 representation of U+FEFF. */
+	const wxString utf8_bom = "\xEF\xBB\xBF";
+
+	log_cb(RETRO_LOG_DEBUG, "Reading M3U file...\n");
+
 	if (!m3u_data.Open(m3u_file.GetFullPath()))
 	{
 		log_cb(RETRO_LOG_ERROR, "M3U file \"%s\" cannot be read", m3u_file.GetFullPath().c_str());
 		return result;
 	}
 
-	wxString base_path = m3u_file.GetPath();
+	base_path = m3u_file.GetPath();
+	line      = m3u_data.GetFirstLine();
 
-	// This is the UTF-8 representation of U+FEFF.
-	const wxString utf8_bom = "\xEF\xBB\xBF";
-
-	wxString line = m3u_data.GetFirstLine();
 	if (line.StartsWith(utf8_bom))
 	{
 		log_cb(RETRO_LOG_WARN, "M3U file \"%s\" contains UTF-8 BOM", m3u_file.GetFullPath().c_str());
@@ -645,20 +648,19 @@ read_m3u_file(const wxFileName& m3u_file)
 			discFile.Normalize();
 			if (discFile.Exists())
 			{
-				log_cb(RETRO_LOG_DEBUG, "Found disc image in M3U file, %s", discFile.GetFullPath());
+				log_cb(RETRO_LOG_DEBUG, "Found disc image in M3U file, %s\n", discFile.GetFullPath());
 				result.push_back(discFile.GetFullPath());
 			}
 			else
 			{
 				wxString full_path = discFile.GetFullPath();
-				log_cb(RETRO_LOG_WARN, "File specified in the M3U file \"%s\" was not found:\n%s", m3u_file.GetFullPath().c_str(), full_path.c_str());
+				log_cb(RETRO_LOG_WARN, "File specified in the M3U file \"%s\" was not found:\n%s\n", m3u_file.GetFullPath().c_str(), full_path.c_str());
 			}
 		}
 	}
 
 	if (result.empty())
-		log_cb(RETRO_LOG_ERROR, "No paths found in the M3U file \"%s\"", m3u_file.GetFullPath().c_str());
-
+		log_cb(RETRO_LOG_ERROR, "No paths found in the M3U file \"%s\"\n", m3u_file.GetFullPath().c_str());
 	return result;
 }
 
@@ -803,7 +805,7 @@ bool retro_load_game(const struct retro_game_info* game)
 		if (file_name.GetExt() == "m3u")
 		{
 			game_paths = read_m3u_file(file_name);
-			log_cb(RETRO_LOG_DEBUG, "Found %u game images in M3U file.", game_paths.size());
+			log_cb(RETRO_LOG_DEBUG, "Found %u game images in M3U file.\n", game_paths.size());
 		}
 		else
 			game_paths.push_back(game->path);
@@ -945,74 +947,32 @@ void retro_run(void)
 	RETRO_PERFORMANCE_STOP(pcsx2_run);
 }
 
-size_t retro_serialize_size(void)
-{
-	return 0;
-}
+/* TODO/FIXME - implement */
+size_t retro_serialize_size(void)                     { return 0; }
+bool retro_serialize(void* data, size_t size)         { return false; }
+bool retro_unserialize(const void* data, size_t size) { return false; }
 
-bool retro_serialize(void* data, size_t size)
-{
-	return false;
-}
-bool retro_unserialize(const void* data, size_t size)
-{
-	return false;
-}
+/* TODO/FIXME - properly implement */
+unsigned retro_get_region(void)                       { return RETRO_REGION_NTSC; }
+unsigned retro_api_version(void)                      { return RETRO_API_VERSION; }
+size_t retro_get_memory_size(unsigned id)             { return 0; }
+void* retro_get_memory_data(unsigned id)              { return NULL; }
 
-unsigned retro_get_region(void)
-{
-	return RETRO_REGION_NTSC;
-}
+/* TODO/FIXME - implement */
+void retro_cheat_reset(void)                                         { }
+void retro_cheat_set(unsigned index, bool enabled, const char* code) { }
 
-unsigned retro_api_version()
-{
-	return RETRO_API_VERSION;
-}
-
-size_t retro_get_memory_size(unsigned id)
-{
-	return 0;
-}
-
-void* retro_get_memory_data(unsigned id)
-{
-	return NULL;
-}
-
-void retro_cheat_reset(void)
-{
-}
-
-void retro_cheat_set(unsigned index, bool enabled, const char* code)
-{
-}
-
-retro_audio_sample_t sample_cb;
-
-void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb)
-{
-}
-
-void retro_set_audio_sample(retro_audio_sample_t cb)
-{
-	sample_cb = cb;
-}
-
-void DspUpdate()
-{
-}
-
-s32 DspLoadLibrary(wchar_t* fileName, int modnum)
-{
-	return 0;
-}
+/* TODO/FIXME - should maybe go for sample batch cb for improved
+ * efficiency */
+void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb) {}
+void retro_set_audio_sample(retro_audio_sample_t cb)             {sample_cb = cb; }
 
 wxEventLoopBase* Pcsx2AppTraits::CreateEventLoop()
 {
 	return new wxEventLoop();
 }
 
-wxString GetExecutablePath()
+wxString GetExecutablePath(void)
 {
 	const char* system = nullptr;
 	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);

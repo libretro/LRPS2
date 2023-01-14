@@ -382,7 +382,8 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 				int numberDbfCheatsLoaded = LoadWidescreenPatchesFromDatabase(gameCRC.ToStdString());
 				log_cb(RETRO_LOG_INFO, "(Wide Screen Cheats DB) Patches Loaded: %d\n", numberDbfCheatsLoaded);
 
-				if (numberDbfCheatsLoaded) {
+				if (numberDbfCheatsLoaded)
+				{
 					if (!msg_cheat_ws_found_sent)
 					{
 						RetroMessager::Notification("Found and applied Widescreen Patch");
@@ -391,6 +392,14 @@ static void _ApplySettings(const Pcsx2Config& src, Pcsx2Config& fixup)
 					}
 				}
 
+			}
+
+			/* If we applied a widescreen hack, we need to update the aspect ratio on the libretro side */
+			if (msg_cheat_ws_found_sent) 
+			{
+				struct retro_system_av_info info;
+				retro_get_system_av_info(&info);
+				environ_cb(RETRO_ENVIRONMENT_SET_GEOMETRY, &info.geometry);
 			}
 		}
 
