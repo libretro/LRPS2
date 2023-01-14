@@ -83,8 +83,6 @@ enum gamePadValues {
     PAD_R_LEFT    // Right joystick (Left) ←
 };
 
-s32 PADopen(void);
-void PADclose(void);
 void PADsetMode(int pad, int mode);
 u8 PADstartPoll(int pad);
 s32 PADinit(u32 flags);
@@ -168,7 +166,6 @@ public:
 
     static void reset_all();
     static void stop_vibrate_all();
-    static void rumble_all();
 };
 
 // Full state to manage save state

@@ -49,56 +49,8 @@ typedef struct
     u8 rx, ry;
 } PADAnalog;
 
-extern retro_environment_t environ_cb;
-static retro_input_poll_t poll_cb;
 static retro_input_state_t input_cb;
-struct retro_rumble_interface rumble;
-
-static struct retro_input_descriptor desc[] = {
-	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT, "D-Pad Left"},
-	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP, "D-Pad Up"},
-	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_DOWN, "D-Pad Down"},
-	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT, "D-Pad Right"},
-	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_X, "Triangle"},
-	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A, "Circle"},
-	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_B, "Cross"},
-	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_Y, "Square"},
-	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L, "L1"},
-	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R, "R1"},
-	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L2, "L2"},
-	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R2, "R2"},
-	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L3, "L3"},
-	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R3, "R3"},
-	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_START, "Start"},
-	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_SELECT, "Select"},
-	{0, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X, "L-Analog X"},
-	{0, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y, "L-Analog Y"},
-	{0, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_X, "R-Analog X"},
-	{0, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y, "R-Analog Y"},
-
-	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT, "D-Pad Left"},
-	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP, "D-Pad Up"},
-	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_DOWN, "D-Pad Down"},
-	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT, "D-Pad Right"},
-	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_X, "Triangle"},
-	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A, "Circle"},
-	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_B, "Cross"},
-	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_Y, "Square"},
-	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L, "L1"},
-	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R, "R1"},
-	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L2, "L2"},
-	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R2, "R2"},
-	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L3, "L3"},
-	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R3, "R3"},
-	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_START, "Start"},
-	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_SELECT, "Select"},
-	{1, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X, "L-Analog X"},
-	{1, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y, "L-Analog Y"},
-	{1, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_X, "R-Analog X"},
-	{1, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y, "R-Analog Y"},
-
-	{0},
-};
+extern struct retro_rumble_interface rumble;
 
 static int keymap[] =
 {
@@ -150,7 +102,7 @@ static const u8 queryAct[2][7] = {
     {0x5A, 0x00, 0x00, 0x01, 0x01, 0x01, 0x14}};
 
 static QueryInfo query;
-static Pad pads[2][4];
+Pad pads[2][4];
 static int slots[2] = {0, 0};
 
 static inline bool IsDualshock2(void)
@@ -245,33 +197,6 @@ static u8 key_status_get(u32 pad, u32 index)
 	}
 
 	return 0x80 + (val >> 8);
-}
-
-void Input_Init(void)
-{
-	environ_cb(RETRO_ENVIRONMENT_GET_RUMBLE_INTERFACE, &rumble);
-	static const struct retro_controller_description ds2_desc[] = {
-		{"DualShock 2", RETRO_DEVICE_JOYPAD},
-	};
-
-	static const struct retro_controller_info ports[] = {
-		{ds2_desc, sizeof(ds2_desc) / sizeof(*ds2_desc)},
-		{ds2_desc, sizeof(ds2_desc) / sizeof(*ds2_desc)},
-		{},
-	};
-
-	environ_cb(RETRO_ENVIRONMENT_SET_CONTROLLER_INFO, (void*)ports);
-	//	environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
-}
-
-void Input_Shutdown(void)
-{
-}
-
-void Input_Update(void)
-{
-	poll_cb();
-	Pad::rumble_all();
 }
 
 static void setRumbleLevel(int percent)
@@ -587,23 +512,10 @@ static u8 pad_poll(u8 value)
     }
 }
 
-
-void retro_set_input_poll(retro_input_poll_t cb)
-{
-	poll_cb = cb;
-}
-
 void retro_set_input_state(retro_input_state_t cb)
 {
 	input_cb = cb;
 }
-
-void retro_set_controller_port_device(unsigned port, unsigned device)
-{
-	environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
-}
-
-void PADupdate(int pad) { }
 
 static void GamePad_DoRumble(unsigned type, unsigned pad)
 {
@@ -623,8 +535,6 @@ static void GamePad_DoRumble(unsigned type, unsigned pad)
 		rumble.set_rumble_state(pad, RETRO_RUMBLE_STRONG, 0x0);
 }
 
-void PADconfigure(void) { }
-
 s32 PADinit(u32 flags)
 {
     Pad::reset_all();
@@ -641,20 +551,6 @@ void PADshutdown(void)
 {
 }
 
-s32 PADopen(void)
-{
-    return 0;
-}
-
-void PADclose(void)
-{
-}
-
-u32 PADquery(void)
-{
-    return 3; // both
-}
-
 s32 PADsetSlot(u8 port, u8 slot)
 {
     port--;
@@ -665,11 +561,6 @@ s32 PADsetSlot(u8 port, u8 slot)
     slots[port] = slot;
 
     return 1;
-}
-
-s32 PADqueryMtap(u8 port)
-{
-   return 0;
 }
 
 s32 PADfreeze(int mode, freezeData *data)
@@ -853,11 +744,3 @@ void Pad::reset_all()
         for (int slot = 0; slot < 4; slot++)
             pads[port][slot].reset();
 }
-
-void Pad::rumble_all()
-{
-    for (unsigned port = 0; port < 2; port++)
-        for (unsigned slot = 0; slot < 4; slot++)
-            pads[port][slot].rumble(port);
-}
-

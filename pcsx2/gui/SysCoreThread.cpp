@@ -42,7 +42,6 @@ static void modules_close(void)
 	DoCDVDclose();
 	FWclose();
 	SPU2close();
-	PADclose();
 	/* DEV9 */
 	DEV9close();
 	dev9Handler = NULL;
@@ -65,7 +64,6 @@ static void modules_open(bool isSuspended)
 		DoCDVDopen();
 	FWopen();
 	SPU2open();
-	PADopen();
 
 	/* DEV9 */
 	dev9Handler = NULL;

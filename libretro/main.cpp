@@ -26,6 +26,7 @@
 #include "disk_control.h"
 #include "../pcsx2/ps2/BiosTools.h"
 #include "memcard_retro.h"
+#include "../pcsx2/PAD/PAD.h"
 
 #include "../pcsx2/MTVU.h"
 #include "../pcsx2/GS/GSFuncs.h"
@@ -72,28 +73,85 @@ struct retro_hw_render_callback hw_render;
 unsigned libretro_msg_interface_version = 0;
 retro_log_printf_t log_cb;
 
-
 std::string retroarch_system_path;
 
 Pcsx2App* pcsx2;
 static wxFileName bios_dir;
 
-static const char* FILENAME_SHARED_MEMCARD_8 = "Shared Memory Card (8 MB)";
-static const char* FILENAME_SHARED_MEMCARD_32 = "Shared Memory Card (32 MB)";
+#define FILENAME_SHARED_MEMCARD_8 "Shared Memory Card (8 MB)"
+#define FILENAME_SHARED_MEMCARD_32 "Shared Memory Card (32 MB)"
 
-wxFileName save_dir_root;
+static wxFileName slot1_file;
+static wxFileName slot2_file;
 
-wxFileName slot1_file;
-wxFileName slot2_file;
-
-wxFileName legacy_memcard1;
-wxFileName legacy_memcard2;
-
-wxFileName save_game_folder;
+static wxFileName legacy_memcard1;
+static wxFileName legacy_memcard2;
 
 static std::vector<std::string> bios_files;
 static std::vector<std::string> custom_memcard_list_slot1;
 static std::vector<std::string> custom_memcard_list_slot2;
+
+struct retro_rumble_interface rumble;
+static retro_input_poll_t poll_cb;
+
+static struct retro_input_descriptor desc[] = {
+	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT, "D-Pad Left"},
+	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP, "D-Pad Up"},
+	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_DOWN, "D-Pad Down"},
+	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT, "D-Pad Right"},
+	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_X, "Triangle"},
+	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A, "Circle"},
+	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_B, "Cross"},
+	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_Y, "Square"},
+	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L, "L1"},
+	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R, "R1"},
+	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L2, "L2"},
+	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R2, "R2"},
+	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L3, "L3"},
+	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R3, "R3"},
+	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_START, "Start"},
+	{0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_SELECT, "Select"},
+	{0, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X, "L-Analog X"},
+	{0, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y, "L-Analog Y"},
+	{0, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_X, "R-Analog X"},
+	{0, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y, "R-Analog Y"},
+
+	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT, "D-Pad Left"},
+	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP, "D-Pad Up"},
+	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_DOWN, "D-Pad Down"},
+	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT, "D-Pad Right"},
+	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_X, "Triangle"},
+	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A, "Circle"},
+	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_B, "Cross"},
+	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_Y, "Square"},
+	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L, "L1"},
+	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R, "R1"},
+	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L2, "L2"},
+	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R2, "R2"},
+	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L3, "L3"},
+	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R3, "R3"},
+	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_START, "Start"},
+	{1, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_SELECT, "Select"},
+	{1, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X, "L-Analog X"},
+	{1, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y, "L-Analog Y"},
+	{1, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_X, "R-Analog X"},
+	{1, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y, "R-Analog Y"},
+
+	{0},
+};
+
+/* forward declaration */
+extern Pad pads[2][4];
+
+void retro_set_controller_port_device(unsigned port, unsigned device)
+{
+	environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
+}
+
+void retro_set_input_poll(retro_input_poll_t cb)
+{
+	poll_cb = cb;
+}
 
 void retro_set_video_refresh(retro_video_refresh_t cb)
 {
@@ -112,40 +170,42 @@ void retro_set_environment(retro_environment_t cb)
 
 void retro_init(void)
 {
-	enum retro_pixel_format xrgb888 = RETRO_PIXEL_FORMAT_XRGB8888;
-	environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &xrgb888);
+	wxFileName save_dir_root;
+	wxFileName f_bios;
+	wxArrayString bios_list;
+	wxArrayString memcard_files_slot1;
+	wxArrayString memcard_files_slot2;
 	struct retro_log_callback log;
+	const char* system   = NULL;
+	const char* save_dir = NULL;
+	enum retro_pixel_format xrgb888 = RETRO_PIXEL_FORMAT_XRGB8888;
+
+	environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &xrgb888);
+
 	if (environ_cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &log))
-	{
 		log_cb = log.log;
-	}
+
 	environ_cb(RETRO_ENVIRONMENT_GET_MESSAGE_INTERFACE_VERSION, &libretro_msg_interface_version);
-
-	const char* system = nullptr;
 	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
-	
-	const char* save_dir = nullptr;
 	environ_cb(RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY, &save_dir);
-
 
 	retroarch_system_path = system;
 
 	// checks and create save folders
 
 	save_dir_root = wxFileName(wxString(save_dir), "");
+	slot1_file    = wxFileName(save_dir_root.GetPath(), "");
+	slot2_file    = wxFileName(save_dir_root.GetPath(), "");
 	save_dir_root.AppendDir("pcsx2");
-
-	slot1_file = wxFileName(save_dir_root.GetPath(), "");
 	slot1_file.AppendDir("Slot 1");
-
-	slot2_file = wxFileName(save_dir_root.GetPath(), "");
 	slot2_file.AppendDir("Slot 2");
-
 	
-	if (! save_dir_root.DirExists()) save_dir_root.Mkdir();
-	if (!slot1_file.DirExists()) slot1_file.Mkdir();
-	if (!slot2_file.DirExists()) slot2_file.Mkdir();
-	
+	if (! save_dir_root.DirExists())
+		save_dir_root.Mkdir();
+	if (!slot1_file.DirExists())
+		slot1_file.Mkdir();
+	if (!slot2_file.DirExists())
+		slot2_file.Mkdir();
 
 	// check if legacy memcards exists
 
@@ -161,12 +221,7 @@ void retro_init(void)
 	legacy_memcard2.SetName("Mcd002");
 	legacy_memcard2.SetExt("ps2");
 
-
 	// get other 'custom' memcards put by the user in the slot 1 folder, if any
-
-	wxArrayString memcard_files_slot1;
-
-
 	wxDir::GetAllFiles(slot1_file.GetPath(), &memcard_files_slot1, L"*.*", wxDIR_FILES);
 	for (wxString memcard_file : memcard_files_slot1)
 	{
@@ -187,10 +242,6 @@ void retro_init(void)
 	}
 
 	// get other 'custom' memcards put by the user in the slot 2 folder, if any
-
-	wxArrayString memcard_files_slot2;
-	//wxString shared_path = wxString(shared_memcards_dir);
-
 	wxDir::GetAllFiles(slot2_file.GetPath(), &memcard_files_slot2, L"*.*", wxDIR_FILES);
 	for (wxString memcard_file : memcard_files_slot2)
 	{
@@ -218,46 +269,42 @@ void retro_init(void)
 	// and seems not working well on some games
 	for (retro_core_option_v2_definition& def : option_defs_us)
 	{								
-		if (!def.key || strcmp(def.key, "pcsx2_memcard_slot_1")) continue; 
-		size_t i = 0;
-		def.values[i++] = { "empty", "Empty" };
+		size_t i = 0, j;
+		if (!def.key || strcmp(def.key, "pcsx2_memcard_slot_1")) continue;
+		def.values[i++]         = { "empty", "Empty" };
 		if (legacy_memcard1.FileExists())
-		{
 			def.values[i++] = {"legacy", "Legacy"};
-		}
-		def.values[i++] = { "shared8", "Shared Memory Card (8 MB)" };
-		def.values[i++] = { "shared32", "Shared Memory Card (32 MB)" };
-		for (size_t j = 0; j < custom_memcard_list_slot1.size(); j += 2)
+		def.values[i++]         = { "shared8", "Shared Memory Card (8 MB)" };
+		def.values[i++]         = { "shared32", "Shared Memory Card (32 MB)" };
+		for (j = 0; j < custom_memcard_list_slot1.size(); j += 2)
 		{
 			if (j >= 40) break;
 			def.values[i++] = { custom_memcard_list_slot1[j].c_str(), custom_memcard_list_slot1[j + 1].c_str()};
 		}
 
-		def.values[i++] = { NULL, NULL };
+		def.values[i++]         = { NULL, NULL };
 		if (i > 1)
-		def.default_value = def.values[1].value;
+			def.default_value = def.values[1].value;
 		break;
 	}
 
 	for (retro_core_option_v2_definition& def : option_defs_us)
 	{
+		size_t i = 0, j;
 		if (!def.key || strcmp(def.key, "pcsx2_memcard_slot_2")) continue; 
-		size_t i = 0;
-		def.values[i++] = {"empty", "Empty"};
+		def.values[i++]         = {"empty", "Empty"};
 		if (legacy_memcard2.FileExists())
-		{
 			def.values[i++] = {"legacy", "Legacy"};
-		}
-		def.values[i++] = { "shared8", "Shared Memory Card (8 MB)" };
-		def.values[i++] = { "shared32", "Shared Memory Card (32 MB)" };
-		for (size_t j = 0; j < custom_memcard_list_slot2.size(); j += 2)
+		def.values[i++]         = { "shared8", "Shared Memory Card (8 MB)" };
+		def.values[i++]         = { "shared32", "Shared Memory Card (32 MB)" };
+		for (j = 0; j < custom_memcard_list_slot2.size(); j += 2)
 		{
 			if (j >= 40) break;
 			def.values[i++] = { custom_memcard_list_slot2[j].c_str(), custom_memcard_list_slot2[j + 1].c_str()};
 		}
 
-		def.values[i++] = { NULL, NULL };
-		def.default_value = def.values[0].value;
+		def.values[i++]         = { NULL, NULL };
+		def.default_value       = def.values[0].value;
 		break;
 	}
 
@@ -265,13 +312,12 @@ void retro_init(void)
 	// get the BIOS available and fill the option
 
 	bios_dir = Path::Combine(system, "pcsx2/bios");
-
-	wxArrayString bios_list;
 	wxDir::GetAllFiles(bios_dir.GetFullPath(), &bios_list, L"*.*", wxDIR_FILES);
 	for (wxString bios_file : bios_list)
 	{
 			wxString description;
-			if (IsBIOS(bios_file, description)) {
+			if (IsBIOS(bios_file, description))
+			{
 				std::string log_bios = (std::string)description;
 				wxFileName f;
 				f.Assign(bios_file);
@@ -282,7 +328,8 @@ void retro_init(void)
 
 	// check if there are bios file in the bios folders, otherwise terminates with a explicit log message
 
-	if (bios_files.size() == 0) {
+	if (bios_files.size() == 0)
+	{
 		std::string checked_path = bios_dir.GetFullPath().ToStdString();
 		log_cb(RETRO_LOG_ERROR, "Could not find valid BIOS files! \n");
 		log_cb(RETRO_LOG_ERROR, "Please provide required BIOS file in the following folder: '%s' \n", checked_path.c_str());
@@ -292,10 +339,11 @@ void retro_init(void)
 
 	for (retro_core_option_v2_definition& def : option_defs_us)
 	{
-		if (!def.key || strcmp(def.key, "pcsx2_bios")) continue;
-		size_t i = 0, numfiles = bios_files.size();
 		int cont = 0;
-		for (size_t f = 0; f != numfiles; f += 2)
+		size_t f, numfiles, i = 0;
+		if (!def.key || strcmp(def.key, "pcsx2_bios")) continue;
+		numfiles = bios_files.size();
+		for (f = 0; f != numfiles; f += 2)
 		{
 			def.values[i++] = { bios_files[f].c_str(), bios_files[f + 1].c_str() };
 			cont++;
@@ -321,18 +369,17 @@ void retro_init(void)
 	hack_fast_invalidation    = option_value(BOOL_PCSX2_OPT_USERHACK_FAST_INVALIDATION, KeyOptionBool::return_type);
 	hack_preload_frame_data   = option_value(BOOL_PCSX2_OPT_USERHACK_PRELOAD_FRAME_DATA, KeyOptionBool::return_type);
 
-	wxFileName f_bios;
 	f_bios.Assign(option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type));
 
-	f_bios = wxFileName(bios_dir.GetFullPath(), option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type));
-	sel_bios_path = f_bios.GetFullPath().ToStdString();
+	f_bios                    = wxFileName(bios_dir.GetFullPath(), option_value(STRING_PCSX2_OPT_BIOS, KeyOptionString::return_type));
+	sel_bios_path             = f_bios.GetFullPath().ToStdString();
 	
 	// instantiate the pcsx2 app and so some things on it
 
-	pcsx2 = &wxGetApp();
-	pxDoOutOfMemory = SysOutOfMemory_EmergencyResponse;
+	pcsx2                    = &wxGetApp();
+	pxDoOutOfMemory          = SysOutOfMemory_EmergencyResponse;
 	
-	g_Conf = std::make_unique<AppConfig>();
+	g_Conf                   = std::make_unique<AppConfig>();
 	g_Conf->EmuOptions.BiosFilename.Assign(sel_bios_path);
 	
 	// some other stuffs about pcsx2
@@ -373,37 +420,36 @@ void retro_init(void)
 			MemCardRetro::CreateSharedMemCardIfNotExisting(slot2_file, 32);
 		}
 
+		// apply options to LRPS2
 
-		// apply options to pcsx2
+		g_Conf->EnablePresets                              = true;
+		g_Conf->EmuOptions.Speedhacks.fastCDVD             = option_value(BOOL_PCSX2_OPT_FASTCDVD, KeyOptionBool::return_type);
 
-		g_Conf->EnablePresets = true;
-		g_Conf->EmuOptions.Speedhacks.fastCDVD  = option_value(BOOL_PCSX2_OPT_FASTCDVD, KeyOptionBool::return_type);
-
-		g_Conf->EmuOptions.EnableNointerlacingPatches = (option_value(INT_PCSX2_OPT_DEINTERLACING_MODE, KeyOptionInt::return_type) == -1);
-		g_Conf->EmuOptions.Enable60fpsPatches = (option_value(BOOL_PCSX2_OPT_ENABLE_60FPS_PATCHES, KeyOptionBool::return_type));
-		g_Conf->EmuOptions.EnableWideScreenPatches = option_value(BOOL_PCSX2_OPT_ENABLE_WIDESCREEN_PATCHES, KeyOptionBool::return_type);
-		g_Conf->EmuOptions.GS.VsyncQueueSize = option_value(INT_PCSX2_OPT_VSYNC_MTGS_QUEUE, KeyOptionInt::return_type);
-		g_Conf->EmuOptions.EnableCheats = option_value(BOOL_PCSX2_OPT_ENABLE_CHEATS, KeyOptionBool::return_type);
+		g_Conf->EmuOptions.EnableNointerlacingPatches      = (option_value(INT_PCSX2_OPT_DEINTERLACING_MODE, KeyOptionInt::return_type) == -1);
+		g_Conf->EmuOptions.Enable60fpsPatches              = (option_value(BOOL_PCSX2_OPT_ENABLE_60FPS_PATCHES, KeyOptionBool::return_type));
+		g_Conf->EmuOptions.EnableWideScreenPatches         = option_value(BOOL_PCSX2_OPT_ENABLE_WIDESCREEN_PATCHES, KeyOptionBool::return_type);
+		g_Conf->EmuOptions.GS.VsyncQueueSize               = option_value(INT_PCSX2_OPT_VSYNC_MTGS_QUEUE, KeyOptionInt::return_type);
+		g_Conf->EmuOptions.EnableCheats                    = option_value(BOOL_PCSX2_OPT_ENABLE_CHEATS, KeyOptionBool::return_type);
 
 
-		int EE_clampMode = option_value(INT_PCSX2_OPT_EE_CLAMPING_MODE, KeyOptionInt::return_type);
-		g_Conf->EmuOptions.Cpu.Recompiler.fpuOverflow = (EE_clampMode >= 1);
+		int EE_clampMode                                   = option_value(INT_PCSX2_OPT_EE_CLAMPING_MODE, KeyOptionInt::return_type);
+		g_Conf->EmuOptions.Cpu.Recompiler.fpuOverflow      = (EE_clampMode >= 1);
 		g_Conf->EmuOptions.Cpu.Recompiler.fpuExtraOverflow = (EE_clampMode >= 2);
-		g_Conf->EmuOptions.Cpu.Recompiler.fpuFullMode = (EE_clampMode >= 3);
+		g_Conf->EmuOptions.Cpu.Recompiler.fpuFullMode      = (EE_clampMode >= 3);
 
-		SSE_RoundMode EE_roundMode = (SSE_RoundMode)option_value(INT_PCSX2_OPT_EE_ROUND_MODE, KeyOptionInt::return_type);
+		SSE_RoundMode EE_roundMode                         = (SSE_RoundMode)option_value(INT_PCSX2_OPT_EE_ROUND_MODE, KeyOptionInt::return_type);
 		g_Conf->EmuOptions.Cpu.sseMXCSR.SetRoundMode(EE_roundMode);
 
-		int VUs_clampMode = option_value(INT_PCSX2_OPT_VU_CLAMPING_MODE, KeyOptionInt::return_type);
-		g_Conf->EmuOptions.Cpu.Recompiler.vuOverflow = (VUs_clampMode >= 1);
-		g_Conf->EmuOptions.Cpu.Recompiler.vuExtraOverflow = (VUs_clampMode >= 2);
-		g_Conf->EmuOptions.Cpu.Recompiler.vuSignOverflow = (VUs_clampMode >= 3);
+		int VUs_clampMode                                  = option_value(INT_PCSX2_OPT_VU_CLAMPING_MODE, KeyOptionInt::return_type);
+		g_Conf->EmuOptions.Cpu.Recompiler.vuOverflow       = (VUs_clampMode >= 1);
+		g_Conf->EmuOptions.Cpu.Recompiler.vuExtraOverflow  = (VUs_clampMode >= 2);
+		g_Conf->EmuOptions.Cpu.Recompiler.vuSignOverflow   = (VUs_clampMode >= 3);
 
-		SSE_RoundMode VUs_roundMode = (SSE_RoundMode)option_value(INT_PCSX2_OPT_VU_ROUND_MODE, KeyOptionInt::return_type);
+		SSE_RoundMode VUs_roundMode                        = (SSE_RoundMode)option_value(INT_PCSX2_OPT_VU_ROUND_MODE, KeyOptionInt::return_type);
 		g_Conf->EmuOptions.Cpu.sseVUMXCSR.SetRoundMode(VUs_roundMode);
 
-		option_pad_left_deadzone = option_value(INT_PCSX2_OPT_GAMEPAD_L_DEADZONE, KeyOptionInt::return_type);
-		option_pad_right_deadzone = option_value(INT_PCSX2_OPT_GAMEPAD_R_DEADZONE, KeyOptionInt::return_type);
+		option_pad_left_deadzone                           = option_value(INT_PCSX2_OPT_GAMEPAD_L_DEADZONE, KeyOptionInt::return_type);
+		option_pad_right_deadzone                          = option_value(INT_PCSX2_OPT_GAMEPAD_R_DEADZONE, KeyOptionInt::return_type);
 
 		static retro_disk_control_ext_callback disk_control = {
 			DiskControl::set_eject_state,
@@ -436,7 +482,7 @@ void retro_deinit(void)
 	vu1Thread.WaitVU();
 	//vu1Thread.Cancel();
 	
-	if (pcsx2 != nullptr)
+	if (pcsx2)
 	{
 		pcsx2->CleanupOnExit();
 		pcsx2->OnExit();
@@ -454,43 +500,43 @@ void retro_deinit(void)
 void retro_get_system_info(retro_system_info* info)
 {
 #ifdef GIT_REV
-	info->library_version = GIT_REV;
+	info->library_version  = GIT_REV;
 #else
-	static char version[] = "#.#.#";
-	version[0] = '0' + PCSX2_VersionHi;
-	version[2] = '0' + PCSX2_VersionMid;
-	version[4] = '0' + PCSX2_VersionLo;
-	info->library_version = version;
+	static char version[]  = "#.#.#";
+	version[0]             = '0' + PCSX2_VersionHi;
+	version[2]             = '0' + PCSX2_VersionMid;
+	version[4]             = '0' + PCSX2_VersionLo;
+	info->library_version  = version;
 #endif
 
-	info->library_name = "LRPS2 (alpha)";
+	info->library_name     = "LRPS2 (alpha)";
 	info->valid_extensions = "elf|iso|ciso|chd|cso|cue|bin|m3u";
-	info->need_fullpath = true;
-	info->block_extract = true;
+	info->need_fullpath    = true;
+	info->block_extract    = true;
 }
 
 void retro_get_system_av_info(retro_system_av_info* info)
 {
 	if ( !std::strcmp(option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type), "Software") || !std::strcmp(option_value(STRING_PCSX2_OPT_RENDERER, KeyOptionString::return_type), "Null"))
 	{
-		info->geometry.base_width = 640;
-		info->geometry.base_height = 448;
+		info->geometry.base_width   = 640;
+		info->geometry.base_height  = 448;
 	}
 	else
 	{
-		info->geometry.base_width = 640 * option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
-		info->geometry.base_height = 448 * option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
+		info->geometry.base_width   = 640 * option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
+		info->geometry.base_height  = 448 * option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 	}
 
-	info->geometry.max_width = info->geometry.base_width;
-	info->geometry.max_height = info->geometry.base_height;
+	info->geometry.max_width            = info->geometry.base_width;
+	info->geometry.max_height           = info->geometry.base_height;
 
 	if (option_value(INT_PCSX2_OPT_ASPECT_RATIO, KeyOptionInt::return_type) == 0)
 		info->geometry.aspect_ratio = 4.0f / 3.0f;
 	else
 		info->geometry.aspect_ratio = 16.0f / 9.0f;
-	info->timing.fps = (retro_get_region() == RETRO_REGION_NTSC) ? (60.0f / 1.001f) : 50.0f;
-	info->timing.sample_rate = 48000;
+	info->timing.fps                    = (retro_get_region() == RETRO_REGION_NTSC) ? (60.0f / 1.001f) : 50.0f;
+	info->timing.sample_rate            = 48000;
 }
 
 void retro_reset(void)
@@ -518,13 +564,12 @@ static void context_destroy(void)
 
 static bool set_hw_render(retro_hw_context_type type)
 {
-
-	hw_render.context_type = type;
-	hw_render.context_reset = context_reset;
-	hw_render.context_destroy = context_destroy;
+	hw_render.context_type       = type;
+	hw_render.context_reset      = context_reset;
+	hw_render.context_destroy    = context_destroy;
 	hw_render.bottom_left_origin = true;
-	hw_render.depth = true;
-	hw_render.cache_context = false;
+	hw_render.depth              = true;
+	hw_render.cache_context      = false;
 
 	switch (type)
 	{
@@ -619,6 +664,21 @@ read_m3u_file(const wxFileName& m3u_file)
 
 bool retro_load_game(const struct retro_game_info* game)
 {
+	static const struct retro_controller_description ds2_desc[] = {
+		{"DualShock 2", RETRO_DEVICE_JOYPAD},
+	};
+
+	static const struct retro_controller_info ports[] = {
+		{ds2_desc, sizeof(ds2_desc) / sizeof(*ds2_desc)},
+		{ds2_desc, sizeof(ds2_desc) / sizeof(*ds2_desc)},
+		{},
+	};
+
+	bool fastboot_option;
+	wxFileName nvmFileCheck;
+	const char *selected_bios = NULL;
+	const char* system        = NULL;
+
 	if (init_failed)
 	{
 		init_failed = false;
@@ -629,40 +689,32 @@ bool retro_load_game(const struct retro_game_info* game)
 
 	if (sel_bios_path.empty())
 	{
-		log_cb(RETRO_LOG_ERROR, "Could not find any valid PS2 Bios File in %s\n", (const char*)bios_dir.GetFullPath());
+		log_cb(RETRO_LOG_ERROR, "Could not find any valid PS2 BIOS File in %s\n", (const char*)bios_dir.GetFullPath());
 		return false;
 	}
 		
-	const char* selected_bios = sel_bios_path.c_str();
+	selected_bios = sel_bios_path.c_str();
 	
 	log_cb(RETRO_LOG_INFO, "Loading selected BIOS:  %s\n", selected_bios);
 
-	// we check if nvm file exists, if not it means that it's a new bios.
-	// in this case whe bypass the fastboot option, forcing to enter the bios first run setup
+	// we check if NVM file exists, if not it means that it's a new BIOS.
 
-	wxFileName nvmFileCheck;
 	nvmFileCheck.Assign(sel_bios_path);
 	nvmFileCheck.SetExt("nvm");
 	
-	bool fastboot_option = option_value(BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::return_type);
+	fastboot_option            = option_value(BOOL_PCSX2_OPT_FASTBOOT, KeyOptionBool::return_type);
 
-	if (! nvmFileCheck.FileExists()) {
-		fastboot_option = false;
-	}
+	// in this case we bypass the fastboot option, forcing to enter the BIOS first run setup
+	if (! nvmFileCheck.FileExists())
+		fastboot_option    = false;
 
-
-
-
-	const char* system = nullptr;
 	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
 
-	//	pcsx2->Overrides.Gamefixes.Set( id, true);
-
 	// By default no IRX injection
-	g_Conf->CurrentIRX = "";
+	g_Conf->CurrentIRX         = "";
 	g_Conf->BaseFilenames.Bios = selected_bios;
 
-	DiskControl::eject_state = false;
+	DiskControl::eject_state   = false;
 
 
 	// set up memcard on slot 1
@@ -670,23 +722,23 @@ bool retro_load_game(const struct retro_game_info* game)
 	if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "empty") == 0)
 	{
 		// slot empty
-		g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_None;
-		g_Conf->Mcd[0].Enabled = false;
+		g_Conf->Mcd[0].Type     = MemoryCardType::MemoryCard_None;
+		g_Conf->Mcd[0].Enabled  = false;
 	}
 	else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "shared8") == 0
 		|| strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "shared32") == 0)
 	{
 		// Shared Memcards
-		g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_File;
-		g_Conf->Mcd[0].Enabled = true;
+		g_Conf->Mcd[0].Type     = MemoryCardType::MemoryCard_File;
+		g_Conf->Mcd[0].Enabled  = true;
 		g_Conf->Mcd[0].Filename = slot1_file;
 
 	}
 	else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type), "legacy") == 0)
 	{
 		// legacy
-		g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_File;
-		g_Conf->Mcd[0].Enabled = true;
+		g_Conf->Mcd[0].Type     = MemoryCardType::MemoryCard_File;
+		g_Conf->Mcd[0].Enabled  = true;
 		g_Conf->Mcd[0].Filename = legacy_memcard1;
 	}
 	else
@@ -695,8 +747,8 @@ bool retro_load_game(const struct retro_game_info* game)
 		wxFileName user_memcard;
 		user_memcard.Assign(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_1, KeyOptionString::return_type));
 
-		g_Conf->Mcd[0].Type = MemoryCardType::MemoryCard_File;
-		g_Conf->Mcd[0].Enabled = true;
+		g_Conf->Mcd[0].Type     = MemoryCardType::MemoryCard_File;
+		g_Conf->Mcd[0].Enabled  = true;
 		g_Conf->Mcd[0].Filename = user_memcard;
 	}
 
@@ -706,22 +758,22 @@ bool retro_load_game(const struct retro_game_info* game)
 	if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "empty") == 0)
 	{
 		// slot empty
-		g_Conf->Mcd[1].Type = MemoryCardType::MemoryCard_None;
-		g_Conf->Mcd[1].Enabled = false;
+		g_Conf->Mcd[1].Type     = MemoryCardType::MemoryCard_None;
+		g_Conf->Mcd[1].Enabled  = false;
 	}
 	else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "shared8") == 0
 		|| strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "shared32") == 0)
 	{
 		// Shared Memcards
-		g_Conf->Mcd[1].Type = MemoryCardType::MemoryCard_File;
-		g_Conf->Mcd[1].Enabled = true;
+		g_Conf->Mcd[1].Type     = MemoryCardType::MemoryCard_File;
+		g_Conf->Mcd[1].Enabled  = true;
 		g_Conf->Mcd[1].Filename = slot2_file;
 	}
 	else if (strcmp(option_value(STRING_PCSX2_OPT_MEMCARD_SLOT_2, KeyOptionString::return_type), "legacy") == 0)
 	{
 		// legacy
-		g_Conf->Mcd[1].Type = MemoryCardType::MemoryCard_File;
-		g_Conf->Mcd[1].Enabled = true;
+		g_Conf->Mcd[1].Type     = MemoryCardType::MemoryCard_File;
+		g_Conf->Mcd[1].Enabled  = true;
 		g_Conf->Mcd[1].Filename = legacy_memcard2;
 	}
 	else
@@ -736,18 +788,16 @@ bool retro_load_game(const struct retro_game_info* game)
 
 	}
 
-
 	if (game)
 	{
+		u32 magic = 0;
+		FILE *fp  = NULL;
+		wxVector<wxString> game_paths;
 
 		LanguageInjector::Inject(
 				sel_bios_path,
 				option_value(STRING_PCSX2_OPT_SYSTEM_LANGUAGE, KeyOptionString::return_type)
 				);
-
-
-
-		wxVector<wxString> game_paths;
 
 		wxFileName file_name(game->path);
 		if (file_name.GetExt() == "m3u")
@@ -756,25 +806,20 @@ bool retro_load_game(const struct retro_game_info* game)
 			log_cb(RETRO_LOG_DEBUG, "Found %u game images in M3U file.", game_paths.size());
 		}
 		else
-		{
 			game_paths.push_back(game->path);
-		}
 
 		DiskControl::disk_images.assign(game_paths.begin(), game_paths.end());
 
-		u32 magic = 0;
-		FILE* fp = fopen(game_paths[0], "rb");
-
-		if (!fp)
+		if (!(fp = fopen(game_paths[0], "rb")))
 		{
-			log_cb(RETRO_LOG_ERROR, "Could not open File: %s\n", game_paths[0]);
+			log_cb(RETRO_LOG_ERROR, "Could not open file: %s\n", game_paths[0]);
 			return false;
 		}
 
 		fread(&magic, 4, 1, fp);
 		fclose(fp);
 
-		if (magic == 0x464C457F) // elf
+		if (magic == 0x464C457F) /* ELF */
 		{
 			// g_Conf->CurrentIRX = "";
 			log_cb(RETRO_LOG_INFO, "ELF file detected, loading content....\n");
@@ -783,21 +828,16 @@ bool retro_load_game(const struct retro_game_info* game)
 		}
 		else
 		{	
-
 			g_Conf->EmuOptions.UseBOOT2Injection = fastboot_option;
-			g_Conf->CdvdSource = CDVD_SourceType::Iso;
-			g_Conf->CurrentIso = game_paths[0];
-
+			g_Conf->CdvdSource                   = CDVD_SourceType::Iso;
+			g_Conf->CurrentIso                   = game_paths[0];
 
 			if (!option_value(BOOL_PCSX2_OPT_BOOT_TO_BIOS, KeyOptionBool::return_type))
-			{
 				pcsx2->SysExecute(g_Conf->CdvdSource);
-				log_cb(RETRO_LOG_INFO, "Game Loaded\n");
-			}
 			else
 			{
-				// we enter here in the bios, so we have the correct memcards loaded
-				log_cb(RETRO_LOG_INFO, "Entrerning BIOS Menu.....\n");
+				// We enter here in the BIOS, so we have the correct memcards loaded
+				log_cb(RETRO_LOG_INFO, "Entering BIOS Menu.....\n");
 				RetroMessager::Notification("Boot to BIOS enabled", true);
 				g_Conf->EmuOptions.UseBOOT2Injection = false;
 				g_Conf->CdvdSource = CDVD_SourceType::NoDisc;
@@ -810,14 +850,17 @@ bool retro_load_game(const struct retro_game_info* game)
 	}
 	else
 	{
-		log_cb(RETRO_LOG_INFO, "Enterning BIOS Menu.....\n");
+		log_cb(RETRO_LOG_INFO, "Entering BIOS Menu.....\n");
 		g_Conf->EmuOptions.UseBOOT2Injection = false;
 		g_Conf->CdvdSource = CDVD_SourceType::NoDisc;
 		g_Conf->CurrentIso = "";
 		pcsx2->SysExecute(g_Conf->CdvdSource);
 	}
 
-	Input_Init();
+	environ_cb(RETRO_ENVIRONMENT_GET_RUMBLE_INTERFACE, &rumble);
+	environ_cb(RETRO_ENVIRONMENT_SET_CONTROLLER_INFO, (void*)ports);
+	//	environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
+
 	Input_RumbleEnabled(
 			option_value(BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE, KeyOptionBool::return_type),
 			option_value(INT_PCSX2_OPT_GAMEPAD_RUMBLE_FORCE, KeyOptionInt::return_type)
@@ -830,14 +873,12 @@ bool retro_load_game(const struct retro_game_info* game)
 	if (!std::strcmp(option_renderer,"Auto"))
 	{
 		environ_cb(RETRO_ENVIRONMENT_GET_PREFERRED_HW_RENDER, &context_type);
-		// Check if the selected video driver is supported, switch to OpenGL otherwise.
+		/* Check if the selected video driver is supported, switch to OpenGL otherwise. */
 		if (context_type != RETRO_HW_CONTEXT_NONE && set_hw_render(context_type))
 			return true;
-		else
-		{
-			context_type = RETRO_HW_CONTEXT_OPENGL;
-			log_cb(RETRO_LOG_INFO, "The video driver found is not compatible, switched to OpenGL.\n");
-		}
+
+		context_type = RETRO_HW_CONTEXT_OPENGL;
+		log_cb(RETRO_LOG_INFO, "The video driver found is not compatible, switched to OpenGL.\n");
 	}
 #ifdef _WIN32
 	else if (!std::strcmp(option_renderer, "D3D11"))
@@ -846,13 +887,9 @@ bool retro_load_game(const struct retro_game_info* game)
 	else if (!std::strcmp(option_renderer, "Null"))
 		context_type = RETRO_HW_CONTEXT_NONE;
 
-	return set_hw_render(context_type);
-}
-
-bool retro_load_game_special(unsigned game_type, const struct retro_game_info* info,
-							 size_t num_info)
-{
-	return false;
+	if (!set_hw_render(context_type))
+		return false;
+	return true;
 }
 
 void retro_unload_game(void)
@@ -867,8 +904,15 @@ void retro_unload_game(void)
 
 	while (pcsx2->HasPendingEvents())
 		pcsx2->ProcessPendingEvents();
+
+	init_failed = false;
 }
 
+bool retro_load_game_special(unsigned game_type, const struct retro_game_info* info,
+		size_t num_info)
+{
+	return false;
+}
 
 void retro_run(void)
 {
@@ -881,12 +925,16 @@ void retro_run(void)
 			option_value(BOOL_PCSX2_OPT_GAMEPAD_RUMBLE_ENABLE, KeyOptionBool::return_type),
 			option_value(INT_PCSX2_OPT_GAMEPAD_RUMBLE_FORCE, KeyOptionInt::return_type)
 		);
-		option_pad_left_deadzone = option_value(INT_PCSX2_OPT_GAMEPAD_L_DEADZONE, KeyOptionInt::return_type);
+		option_pad_left_deadzone  = option_value(INT_PCSX2_OPT_GAMEPAD_L_DEADZONE, KeyOptionInt::return_type);
 		option_pad_right_deadzone = option_value(INT_PCSX2_OPT_GAMEPAD_R_DEADZONE, KeyOptionInt::return_type);
 
 	}
 
-	Input_Update();
+	poll_cb();
+
+	for (unsigned port = 0; port < 2; port++)
+		for (unsigned slot = 0; slot < 4; slot++)
+			pads[port][slot].rumble(port);
 
 	RETRO_PERFORMANCE_INIT(pcsx2_run);
 	RETRO_PERFORMANCE_START(pcsx2_run);
