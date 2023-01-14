@@ -33,59 +33,6 @@ struct _mcd
 	// Auto Eject
 	u32 ForceEjection_Timeout; // in SIO checks
 	wxDateTime ForceEjection_Timestamp;
-
-
-	void GetSizeInfo(McdSizeInfo &info)
-	{
-		FileMcd_GetSizeInfo(port, slot, &info);
-	}
-
-	bool IsPSX()
-	{
-		return FileMcd_IsPSX(port, slot);
-	}
-
-	void EraseBlock()
-	{
-		FileMcd_EraseBlock(port, slot, transferAddr);
-	}
-
-	// Read from memorycard to dest
-	void Read(u8 *dest, int size) 
-	{
-		FileMcd_Read(port, slot, dest, transferAddr, size);
-	}
-
-	// Write to memorycard from src
-	void Write(u8 *src, int size) 
-	{
-		FileMcd_Save(port, slot, src,transferAddr, size);
-	}
-
-	bool IsPresent()
-	{
-		return FileMcd_IsPresent(port, slot);
-	}
-
-	u8 DoXor(const u8 *buf, uint length)
-	{
-		u8 i, x;
-		for (x=0, i=0; i<length; i++) x ^= buf[i];
-		return x;
-	}
-
-	u64 GetChecksum()
-	{
-		return FileMcd_GetCRC(port, slot);
-	}
-
-	void NextFrame() {
-		FileMcd_NextFrame( port, slot );
-	}
-
-	bool ReIndex(const wxString& filter = L"") {
-		return FileMcd_ReIndex( port, slot, filter );
-	}
 };
 
 struct _sio
@@ -107,9 +54,6 @@ struct _sio
 
 	u8 port;    // current port
 	u8 slot[2]; // current slot
-
-	u8 GetPort() { return port; }
-	u8 GetSlot() { return slot[port]; }
 };
 
 extern _sio sio;

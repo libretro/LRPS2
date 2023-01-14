@@ -372,7 +372,7 @@ void inline memcardErase(u8 data)
 					case 0x82: // Erase
 						memcpy(sio.buf, &header[1], 4);
 						sio.bufSize = 3;
-						mcd->EraseBlock();
+						FileMcd_EraseBlock(mcd->port, mcd->slot, mcd->transferAddr);
 						break;
 
 					default:
@@ -394,6 +394,13 @@ void inline memcardErase(u8 data)
 			}
 			break;
 	}
+}
+
+static u8 DoXor(const u8 *buf, uint length)
+{
+	u8 i, x;
+	for (x=0, i=0; i<length; i++) x ^= buf[i];
+	return x;
 }
 
 void inline memcardWrite(u8 data)
@@ -458,9 +465,14 @@ void inline memcardWrite(u8 data)
 			sio.buf[sio.bufCount+1] = data;
 		else if(sio.bufCount == checksum_pos)
 		{
-			u8 xor_check = mcd->DoXor(&sio.buf[4], checksum_pos - 4);
+			u8 xor_check = DoXor(&sio.buf[4], checksum_pos - 4);
 			sio.buf[sio.bufCount] = xor_check;
-			mcd->Write(&sio.buf[4], transfer_size);
+			FileMcd_Save(
+					mcd->port,
+					mcd->slot,
+					&sio.buf[4],
+					mcd->transferAddr,
+					transfer_size);
 			mcd->transferAddr += transfer_size;
 		}
 
@@ -525,10 +537,10 @@ void inline memcardRead(u8 data)
 		case 2:
 			transfer_size               = data;
 
-			mcd->Read(&sio.buf[4], transfer_size);
+			FileMcd_Read(mcd->port, mcd->slot, &sio.buf[4], mcd->transferAddr, transfer_size);
 			mcd->transferAddr          += transfer_size;
 
-			sio.buf[transfer_size + 4]  = mcd->DoXor(&sio.buf[4], transfer_size);
+			sio.buf[transfer_size + 4]  = DoXor(&sio.buf[4], transfer_size);
 			sio.buf[transfer_size + 5]  = mcd->term;
 			sio.bufSize                 = transfer_size + 5;
 			break;
@@ -592,7 +604,7 @@ void inline memcardSector(u8 data)
 
 void inline memcardInit(void)
 {
-	mcd = &mcds[sio.GetPort()][sio.GetSlot()];
+	mcd = &mcds[sio.port][sio.slot[sio.port]];
 
 	// forced ejection logic.  Technically belongs in the McdIsPresent handler for
 	// the plugin, once the memorycard plugin system is completed.
@@ -618,10 +630,10 @@ void inline memcardInit(void)
 		}
 	}
 			
-	if(!forceEject && mcd->IsPresent())
+	if(!forceEject && FileMcd_IsPresent(mcd->port, mcd->slot))
 	{
 		DEVICE_PLUGGED();
-		siomode = mcd->IsPSX() ? SIO_MEMCARD_PSX : SIO_MEMCARD;
+		siomode = FileMcd_IsPSX(mcd->port, mcd->slot) ? SIO_MEMCARD_PSX : SIO_MEMCARD;
 	}
 	else
 	{
@@ -659,7 +671,7 @@ void inline sioWriteMemcard(u8 data)
 						mc_command_0x26_tag cmd;
 						McdSizeInfo info;
 
-						mcd->GetSizeInfo(info);
+						FileMcd_GetSizeInfo(mcd->port, mcd->slot, &info);
 
 						cmd.field_151			= 0x2B;
 						cmd.sectorSize			= info.SectorSize;
@@ -798,9 +810,8 @@ void inline sioWriteMemcardPSX(u8 data)
 					sio.buf[6] = 0x5C;
 					sio.buf[7] = 0x5D;
 
-					mcd->Read(&sio.buf[10], 0x80);
-
-					sio.buf[138] = mcd->DoXor(&sio.buf[8], 0x80 + 2);
+					FileMcd_Read(mcd->port, mcd->slot, &sio.buf[10], mcd->transferAddr, 0x80);
+					sio.buf[138] = DoXor(&sio.buf[8], 0x80 + 2);
 					sio.buf[139] = 0x47;
 					siomode = SIO_DUMMY;
 				}
@@ -816,15 +827,20 @@ void inline sioWriteMemcardPSX(u8 data)
 
 			if(sio.bufCount == 134)
 			{
-				u8 xorcheck = mcd->DoXor(&sio.buf[5], 0x80+2);
+				u8 xorcheck  = DoXor(&sio.buf[5], 0x80+2);
 
 				sio.buf[135] = 0x5C;
 				sio.buf[136] = 0x5D;
 
 				// (47h=Good, 4Eh=BadChecksum, FFh=BadSector)
 				sio.buf[137] = data == xorcheck ? 0x47 : 0x4E;
-				if(!mcd->goodSector) sio.buf[137] = 0xFF;
-				else mcd->Write(&sio.buf[7], 0x80);
+				if(!mcd->goodSector)
+					sio.buf[137] = 0xFF;
+				else
+					FileMcd_Save(mcd->port, mcd->slot,
+							&sio.buf[7],
+							mcd->transferAddr,
+							0x80);
 				siomode = SIO_DUMMY;
 			}
 			break;
@@ -946,17 +962,22 @@ void sioNextFrame(void)
 	for ( uint port = 0; port < 2; ++port )
 	{
 		for ( uint slot = 0; slot < 4; ++slot )
-			mcds[port][slot].NextFrame();
+			FileMcd_NextFrame(mcds[port][slot].port,
+					  mcds[port][slot].slot);
 	}
 }
 
 void sioSetGameSerial( const wxString& serial )
 {
-	for ( uint port = 0; port < 2; ++port ) {
-		for ( uint slot = 0; slot < 4; ++slot ) {
-			if ( mcds[port][slot].ReIndex( serial ) ) {
+	for ( uint port = 0; port < 2; ++port )
+	{
+		for ( uint slot = 0; slot < 4; ++slot )
+		{
+			if (FileMcd_ReIndex(
+						mcds[port][slot].port,
+						mcds[port][slot].slot,
+						serial))
 				SetForceMcdEjectTimeoutNow( port, slot );
-			}
 		}
 	}
 }
@@ -977,7 +998,7 @@ void SaveStateBase::sioFreeze(void)
 	{
 		for( uint port=0; port<2; ++port )
 			for( uint slot=0; slot<4; ++slot )
-				m_mcdCRCs[port][slot] = mcds[port][slot].GetChecksum();
+				m_mcdCRCs[port][slot] = FileMcd_GetCRC(mcds[port][slot].port, mcds[port][slot].slot);
 	}
 
 	Freeze( m_mcdCRCs );
@@ -1000,7 +1021,7 @@ void SaveStateBase::sioFreeze(void)
 		for( u8 port=0; port<2; ++port )
 			for( u8 slot=0; slot<4; ++slot )
 		{
-			u64 checksum = mcds[port][slot].GetChecksum();
+			u64 checksum = FileMcd_GetCRC(mcds[port][slot].port, mcds[port][slot].slot);
 
 			if( checksum != m_mcdCRCs[port][slot] )
 				mcds[port][slot].ForceEjection_Timeout = FORCED_MCD_EJECTION_MAX_TRIES;
