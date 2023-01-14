@@ -19,6 +19,8 @@
  *
  */
 
+#include <algorithm>
+
 #include "GSState.h"
 #include "GS.h"
 #include "GSUtil.h"
@@ -89,7 +91,6 @@ GSState::GSState()
 		m_sssize += sizeof(m_env.CTXT[i].XYOFFSET);
 		m_sssize += sizeof(m_env.CTXT[i].TEX0);
 		m_sssize += sizeof(m_env.CTXT[i].TEX1);
-		m_sssize += sizeof(m_env.CTXT[i].TEX2);
 		m_sssize += sizeof(m_env.CTXT[i].CLAMP);
 		m_sssize += sizeof(m_env.CTXT[i].MIPTBP1);
 		m_sssize += sizeof(m_env.CTXT[i].MIPTBP2);
@@ -319,20 +320,32 @@ void GSState::SaturateOutputSize(GSVector4i& r)
 {
 	const GSVideoMode videomode = GetVideoMode();
 
+	const bool is_ntsc = videomode == GSVideoMode::NTSC;
+	const bool is_pal = videomode == GSVideoMode::PAL;
+
 	//Some games (such as Pool Paradise) use alternate line reading and provide a massive height which is really half.
-	if (r.height() > 640 && (videomode == GSVideoMode::NTSC || videomode == GSVideoMode::PAL))
+	if (r.height() > 640 && (is_ntsc || is_pal))
 	{
 		r.bottom = r.top + (r.height() / 2);
 		return;
 	}
 
+	const auto& SMODE2 = m_regs->SMODE2;
+	const auto& PMODE = m_regs->PMODE;
+
 	//  Limit games to standard NTSC resolutions. games with 512X512 (PAL resolution) on NTSC video mode produces black border on the bottom.
 	//  512 X 448 is the resolution generally used by NTSC, saturating the height value seems to get rid of the black borders.
 	//  Though it's quite a bad hack as it affects binaries which are patched to run on a non-native video mode.
-	const bool interlaced_field        = m_regs->SMODE2.INT && !m_regs->SMODE2.FFMD;
-	const bool single_frame_output     = m_regs->SMODE2.INT &&  m_regs->SMODE2.FFMD && (m_regs->PMODE.EN1 ^ m_regs->PMODE.EN2);
+	const bool interlaced_field        = SMODE2.INT && !SMODE2.FFMD;
+	const bool single_frame_output     = SMODE2.INT && SMODE2.FFMD && (PMODE.EN1 ^ PMODE.EN2);
 	const bool unsupported_output_size = r.height() > 448 && r.width() < 640;
-	if (m_NTSC_Saturation && videomode == GSVideoMode::NTSC && (interlaced_field || single_frame_output) && unsupported_output_size)
+	const bool saturate =
+		m_NTSC_Saturation &&
+		is_ntsc &&
+		(interlaced_field || single_frame_output) &&
+		unsupported_output_size;
+
+	if (saturate)
 		r.bottom = r.top + 448;
 }
 
@@ -344,28 +357,50 @@ GSVector4i GSState::GetDisplayRect(int i)
 	// If no specific context is requested then pass the merged rectangle as return value
 	if (i == -1)
 	{
-		if (m_regs->PMODE.EN1 & m_regs->PMODE.EN2)
+		if (IsEnabled(0) && IsEnabled(1))
 		{
-			GSVector4i r[2]        = { GetDisplayRect(0), GetDisplayRect(1) };
-			GSVector4i r_intersect = r[0].rintersect(r[1]);
-			GSVector4i r_union     = r[0].runion_ordered(r[1]);
+			const GSVector4i disp1_rect = GetDisplayRect(0);
+			const GSVector4i disp2_rect = GetDisplayRect(1);
 
+			const GSVector4i intersect  = disp1_rect.rintersect(disp2_rect);
+			const GSVector4i combined   = disp1_rect.runion_ordered(disp2_rect);
 			// If the conditions for passing the merged rectangle is unsatisfied, then
 			// pass the rectangle with the bigger size.
-			bool can_be_merged     = !r_intersect.width() || !r_intersect.height() || r_intersect.xyxy().eq(r_union.xyxy());
-			return (can_be_merged) ? r_union : r[r[1].rarea() > r[0].rarea()];
+			const bool can_be_merged =
+				intersect.width() == 0 ||
+				intersect.height() == 0 ||
+				intersect.xyxy().eq(combined.xyxy());
+
+			if (can_be_merged)
+				return combined;
+
+			if (disp1_rect.rarea() > disp2_rect.rarea())
+				return disp1_rect;
+
+			return disp2_rect;
 		}
 		i = m_regs->PMODE.EN2;
 	}
 
-	GSVector2i magnification (m_regs->DISP[i].DISPLAY.MAGH + 1, m_regs->DISP[i].DISPLAY.MAGV + 1);
-	int width        = (m_regs->DISP[i].DISPLAY.DW + 1) / magnification.x;
-	int height       = (m_regs->DISP[i].DISPLAY.DH + 1) / magnification.y;
+	const auto& DISP = m_regs->DISP[i].DISPLAY;
+
+	const u32 DW = DISP.DW + 1;
+	const u32 DH = DISP.DH + 1;
+	const u32 DX = DISP.DX;
+	const u32 DY = DISP.DY;
+
+	const u32 MAGH = DISP.MAGH + 1;
+	const u32 MAGV = DISP.MAGV + 1;
+
+	const GSVector2i magnification(MAGH, MAGV);
+
+	const int width = DW / magnification.x;
+	const int height = DH / magnification.y;
 
 	// Set up the display rectangle based on the values obtained from DISPLAY registers
 	GSVector4i rectangle;
-	rectangle.left   = m_regs->DISP[i].DISPLAY.DX / magnification.x;
-	rectangle.top    = m_regs->DISP[i].DISPLAY.DY / magnification.y;
+	rectangle.left   = DX / magnification.x;
+	rectangle.top    = DY / magnification.y;
 	rectangle.right  = rectangle.left + width;
 	rectangle.bottom = rectangle.top + height;
 
@@ -382,8 +417,11 @@ GSVector4i GSState::GetFrameRect(int i)
 	if (ISINTERLACED() && m_regs->SMODE2.FFMD && h > 1)
 		h >>= 1;
 
-	rectangle.left       = m_regs->DISP[i].DISPFB.DBX;
-	rectangle.top        = m_regs->DISP[i].DISPFB.DBY;
+	const u32 DBX        = m_regs->DISP[i].DISPFB.DBX;
+	const u32 DBY        = m_regs->DISP[i].DISPFB.DBY;
+
+	rectangle.left       = DBX;
+	rectangle.top        = DBY;
 	rectangle.right      = rectangle.left + w;
 	rectangle.bottom     = rectangle.top + h;
 
@@ -392,23 +430,31 @@ GSVector4i GSState::GetFrameRect(int i)
 
 int GSState::GetFramebufferHeight()
 {
-	// Framebuffer height is 11 bits max according to GS user manual
-	const int height_limit         = (1 << 11);
-	const GSVector4i output[2]     = { GetFrameRect(0), GetFrameRect(1) };
-	const GSVector4i merged_output = output[0].runion(output[1]);
+	// Framebuffer height is 11 bits max
+	constexpr int height_limit = (1 << 11);
+	const GSVector4i disp1_rect = GetFrameRect(0);
+	const GSVector4i disp2_rect = GetFrameRect(1);
 
-	int max_height                 = std::max(output[0].height(), output[1].height());
+	const GSVector4i combined = disp1_rect.runion(disp2_rect);
+
 	// DBY isn't an offset to the frame memory but rather an offset to read output circuit inside
 	// the frame memory, hence the top offset should also be calculated for the total height of the
 	// frame memory. Also we need to wrap the value only when we're dealing with values with range of the
 	// frame memory (offset + read output circuit height, IOW bottom of merged_output)
-	return std::max(max_height, merged_output.bottom % height_limit);
+	const int max_height = std::max(disp1_rect.height(), disp2_rect.height());
+	const int frame_memory_height = std::max(max_height, combined.bottom % height_limit);
+	return frame_memory_height;
 }
 
 bool GSState::IsEnabled(int i)
 {
-	if ((i == 0 && m_regs->PMODE.EN1) || (i == 1 && m_regs->PMODE.EN2))
-		return m_regs->DISP[i].DISPLAY.DW && m_regs->DISP[i].DISPLAY.DH;
+	const auto& DISP         = m_regs->DISP[i].DISPLAY;
+
+	const bool disp1_enabled = m_regs->PMODE.EN1;
+	const bool disp2_enabled = m_regs->PMODE.EN2;
+
+	if ((i == 0 && disp1_enabled) || (i == 1 && disp2_enabled))
+		return DISP.DW && DISP.DH;
 	return false;
 }
 
@@ -422,8 +468,8 @@ void GSState::GIFPackedRegHandlerRGBA(const GIFPackedReg* RESTRICT r)
 {
 	#if _M_SSE >= 0x301
 
-	GSVector4i mask = GSVector4i::load(0x0c080400);
-	GSVector4i v = GSVector4i::load<false>(r).shuffle8(mask);
+	const GSVector4i mask = GSVector4i::load(0x0c080400);
+	const GSVector4i v = GSVector4i::load<false>(r).shuffle8(mask);
 
 	m_v.RGBAQ.U32[0] = (u32)GSVector4i::store(v);
 
@@ -440,14 +486,16 @@ void GSState::GIFPackedRegHandlerRGBA(const GIFPackedReg* RESTRICT r)
 
 void GSState::GIFPackedRegHandlerSTQ(const GIFPackedReg* RESTRICT r)
 {
-	GSVector4i st = GSVector4i::loadl(&r->U64[0]);
-	GSVector4i q = GSVector4i::loadl(&r->U64[1]);
+	const GSVector4i st = GSVector4i::loadl(&r->U64[0]);
 
+	GSVector4i q = GSVector4i::loadl(&r->U64[1]);
 	GSVector4i::storel(&m_v.ST, st);
 
-	// character shadow in Vexx, q = 0 (st also 0 on the first 16 vertices), setting it to 1.0f to avoid div by zero later
+	// Vexx (character shadow)
+	// q = 0 (st also 0 on the first 16 vertices), setting it to 1.0f to avoid div by zero later
 	q = q.blend8(GSVector4i::cast(GSVector4::m_one), q == GSVector4i::zero());
-	// Suikoden 4 creates some nan for Q. Let's avoid undefined behavior (See GIFRegHandlerRGBAQ)
+	// Suikoden 4
+	// creates some nan for Q. Let's avoid undefined behavior (See GIFRegHandlerRGBAQ)
 	q = GSVector4i::cast(GSVector4::cast(q).replace_nan(GSVector4::m_max));
 
 	GSVector4::store(&m_q, GSVector4::cast(q));
@@ -455,14 +503,14 @@ void GSState::GIFPackedRegHandlerSTQ(const GIFPackedReg* RESTRICT r)
 
 void GSState::GIFPackedRegHandlerUV(const GIFPackedReg* RESTRICT r)
 {
-	GSVector4i v = GSVector4i::loadl(r) & GSVector4i::x00003fff();
+	const GSVector4i v = GSVector4i::loadl(r) & GSVector4i::x00003fff();
 
 	m_v.UV = (u32)GSVector4i::store(v.ps32(v));
 }
 
 void GSState::GIFPackedRegHandlerUV_Hack(const GIFPackedReg* RESTRICT r)
 {
-	GSVector4i v = GSVector4i::loadl(r) & GSVector4i::x00003fff();
+	const GSVector4i v = GSVector4i::loadl(r) & GSVector4i::x00003fff();
 
 	m_v.UV = (u32)GSVector4i::store(v.ps32(v));
 
@@ -474,6 +522,7 @@ void GSState::GIFPackedRegHandlerXYZF2(const GIFPackedReg* RESTRICT r)
 {
 	GSVector4i xy = GSVector4i::loadl(&r->U64[0]);
 	GSVector4i zf = GSVector4i::loadl(&r->U64[1]);
+
 	xy = xy.upl16(xy.srl<4>()).upl32(GSVector4i::load((int)m_v.UV));
 	zf = zf.srl32(4) & GSVector4i::x00ffffff().upl32(GSVector4i::x000000ff());
 
@@ -485,9 +534,9 @@ void GSState::GIFPackedRegHandlerXYZF2(const GIFPackedReg* RESTRICT r)
 template<u32 prim, u32 adc, bool auto_flush>
 void GSState::GIFPackedRegHandlerXYZ2(const GIFPackedReg* RESTRICT r)
 {
-	GSVector4i xy = GSVector4i::loadl(&r->U64[0]);
-	GSVector4i z = GSVector4i::loadl(&r->U64[1]);
-	GSVector4i xyz = xy.upl16(xy.srl<4>()).upl32(z);
+	const GSVector4i xy = GSVector4i::loadl(&r->U64[0]);
+	const GSVector4i z = GSVector4i::loadl(&r->U64[1]);
+	const GSVector4i xyz = xy.upl16(xy.srl<4>()).upl32(z);
 
 	m_v.m[1] = xyz.upl64(GSVector4i::loadl(&m_v.UV));
 
@@ -639,19 +688,6 @@ void GSState::GIFRegHandlerUV_Hack(const GIFReg* RESTRICT r)
 template<u32 prim, u32 adc, bool auto_flush>
 void GSState::GIFRegHandlerXYZF2(const GIFReg* RESTRICT r)
 {
-/*
-	m_v.XYZ.X = r->XYZF.X;
-	m_v.XYZ.Y = r->XYZF.Y;
-	m_v.XYZ.Z = r->XYZF.Z;
-	m_v.FOG.F = r->XYZF.F;
-*/
-	
-/*
-	m_v.XYZ.U32[0] = r->XYZF.U32[0];
-	m_v.XYZ.U32[1] = r->XYZF.U32[1] & 0x00ffffff;
-	m_v.FOG = r->XYZF.U32[1] >> 24;
-*/
-
 	GSVector4i xyzf = GSVector4i::loadl(&r->XYZF);
 	GSVector4i xyz = xyzf & (GSVector4i::xffffffff().upl32(GSVector4i::x00ffffff()));
 	GSVector4i uvf = GSVector4i::load((int)m_v.UV).upl32(xyzf.srl32(24).srl<4>());
@@ -664,8 +700,6 @@ void GSState::GIFRegHandlerXYZF2(const GIFReg* RESTRICT r)
 template<u32 prim, u32 adc, bool auto_flush>
 void GSState::GIFRegHandlerXYZ2(const GIFReg* RESTRICT r)
 {
-	// m_v.XYZ = (GSVector4i)r->XYZ;
-
 	m_v.m[1] = GSVector4i::load(&r->XYZ, &m_v.UV);
 
 	VertexKick<prim, auto_flush>(adc);
@@ -674,11 +708,11 @@ void GSState::GIFRegHandlerXYZ2(const GIFReg* RESTRICT r)
 template<int i> void GSState::ApplyTEX0(GIFRegTEX0& TEX0)
 {
 	// even if TEX0 did not change, a new palette may have been uploaded and will overwrite the currently queued for drawing
-	bool wt = m_mem.m_clut.WriteTest(TEX0, m_env.TEXCLUT);
+	const bool wt = m_mem.m_clut.WriteTest(TEX0, m_env.TEXCLUT);
 
 	// clut loading already covered with WriteTest, for drawing only have to check CPSM and CSA (MGS3 intro skybox would be drawn piece by piece without this)
 
-	u64 mask = 0x1f78001fffffffffull; // TBP0 TBW PSM TW TH TCC TFX CPSM CSA
+	constexpr u64 mask = 0x1f78001fffffffffull; // TBP0 TBW PSM TW TH TCC TFX CPSM CSA
 
 	if(wt || PRIM->CTXT == i && ((TEX0.U64 ^ m_env.CTXT[i].TEX0.U64) & mask))
 		Flush();
@@ -747,31 +781,19 @@ template<int i> void GSState::GIFRegHandlerTEX0(const GIFReg* RESTRICT r)
 {
 	GIFRegTEX0 TEX0 = r->TEX0;
 
-	int tw = (int)TEX0.TW;
-	int th = (int)TEX0.TH;
-
-	if(tw > 10) tw = 10;
-	if(th > 10) th = 10;
-
-	if(PRIM->FST)
-	{
-		// Tokyo Xtreme Racer Drift 2, TW/TH == 0
-		// Just setting the max texture size to make the texture cache allocate some surface. 
-		// The vertex trace will narrow the updated area down to the minimum, upper-left 8x8 
-		// for a single letter, but it may address the whole thing if it wants to.
-
-		if(tw == 0) tw = 10;
-		if(th == 0) th = 10;
-	}
-	else
-	{
-		// Yakuza, TW/TH == 0
-		// The minimap is drawn using solid colors, the texture is really a 1x1 white texel, 
-		// modulated by the vertex color. Cannot change the dimension because S/T are normalized.
-	}
-
-	TEX0.TW = tw;
-	TEX0.TH = th;
+	// Spec max is 10
+	//
+	// Yakuza (minimap)
+	// Sets TW/TH to 0
+	// Drawn using solid colors, the texture is really a 1x1 white texel,
+	// modulated by the vertex color. Cannot change the dimension because S/T are normalized.
+	//
+	// Tokyo Xtreme Racer Drift 2 (text)
+	// Sets TW/TH to 0
+	// there used to be a case to force this to 10
+	// but GetSizeFixedTEX0 sorts this now
+	TEX0.TW = std::clamp<u32>(TEX0.TW, 0, 10);
+	TEX0.TH = std::clamp<u32>(TEX0.TH, 0, 10);
 
 	if((TEX0.TBW & 1) && (TEX0.PSM == PSM_PSMT8 || TEX0.PSM == PSM_PSMT4))
 		TEX0.TBW &= ~1; // GS User 2.6
@@ -788,7 +810,8 @@ template<int i> void GSState::GIFRegHandlerTEX0(const GIFReg* RESTRICT r)
 		u32 bw = TEX0.TBW;
 		u32 w = 1u << TEX0.TW;
 		u32 h = 1u << TEX0.TH;
-		u32 bpp = GSLocalMemory::m_psm[TEX0.PSM].bpp;
+
+		const u32 bpp = GSLocalMemory::m_psm[TEX0.PSM].bpp;
 
 		if(h < w) h = w;
 
@@ -851,7 +874,7 @@ template<int i> void GSState::GIFRegHandlerTEX2(const GIFReg* RESTRICT r)
 	// It ignores these fields (uses existing values in the context):
 	//    TFX, TCC, TH, TW, TBW, and TBP0
 
-	u64 mask = 0xFFFFFFE003F00000ull; // TEX2 bits
+	constexpr u64 mask = 0xFFFFFFE003F00000ull; // TEX2 bits
 
 	GIFRegTEX0 TEX0;
 	
@@ -862,7 +885,7 @@ template<int i> void GSState::GIFRegHandlerTEX2(const GIFReg* RESTRICT r)
 
 template<int i> void GSState::GIFRegHandlerXYOFFSET(const GIFReg* RESTRICT r)
 {
-	GSVector4i o = (GSVector4i)r->XYOFFSET & GSVector4i::x0000ffff();
+	const GSVector4i o = (GSVector4i)r->XYOFFSET & GSVector4i::x0000ffff();
 
 	if(!o.eq(m_env.CTXT[i].XYOFFSET))
 		Flush();
@@ -893,8 +916,8 @@ void GSState::GIFRegHandlerPRMODE(const GIFReg* RESTRICT r)
 	if(!m_env.PRMODECONT.AC)
 		Flush();
 
-	u32 _PRIM = m_env.PRMODE._PRIM;
-	m_env.PRMODE = (GSVector4i)r->PRMODE;
+	const u32 _PRIM    = m_env.PRIM.PRIM;
+	m_env.PRMODE       = (GSVector4i)r->PRMODE;
 	m_env.PRMODE._PRIM = _PRIM;
 
 	UpdateContext();
@@ -973,9 +996,12 @@ template<int i> void GSState::GIFRegHandlerALPHA(const GIFReg* RESTRICT r)
 
 	m_env.CTXT[i].ALPHA = (GSVector4i)r->ALPHA;
 
-	// A/B/C/D == 3? => 2
-
-	m_env.CTXT[i].ALPHA.U32[0] = ((~m_env.CTXT[i].ALPHA.U32[0] >> 1) | 0xAA) & m_env.CTXT[i].ALPHA.U32[0];
+	// value of 4 is not allowed by the spec
+	// acts has 3 on real hw, so just clamp it
+	m_env.CTXT[i].ALPHA.A = std::clamp<u32>(r->ALPHA.A, 0, 3);
+	m_env.CTXT[i].ALPHA.B = std::clamp<u32>(r->ALPHA.B, 0, 3);
+	m_env.CTXT[i].ALPHA.C = std::clamp<u32>(r->ALPHA.C, 0, 3);
+	m_env.CTXT[i].ALPHA.D = std::clamp<u32>(r->ALPHA.D, 0, 3);
 }
 
 void GSState::GIFRegHandlerDIMX(const GIFReg* RESTRICT r)
@@ -1081,14 +1107,6 @@ template<int i> void GSState::GIFRegHandlerZBUF(const GIFReg* RESTRICT r)
 	// we don't emulate this yet (and maybe we wont need to)
 	ZBUF.PSM |= 0x30;
 
-	if(ZBUF.PSM != PSM_PSMZ32
-	&& ZBUF.PSM != PSM_PSMZ24
-	&& ZBUF.PSM != PSM_PSMZ16
-	&& ZBUF.PSM != PSM_PSMZ16S)
-	{
-		ZBUF.PSM = PSM_PSMZ32;
-	}
-
 	if(PRIM->CTXT == i && ZBUF != m_env.CTXT[i].ZBUF)
 		Flush();
 
@@ -1161,9 +1179,8 @@ void GSState::GIFRegHandlerTRXDIR(const GIFReg* RESTRICT r)
 		case 2: // local -> local
 			Move();
 			break;
-		case 3: // 3 prohibited, behavior unknown
+		default: // 3 prohibited, behavior unknown
 			// fall-through
-		default:
 			break;
 	}
 }
@@ -1196,7 +1213,7 @@ void GSState::FlushWrite(const int len)
 
 	InvalidateVideoMem(m_env.BITBLTBUF, r);
 
-	GSLocalMemory::writeImage wi = GSLocalMemory::m_psm[m_env.BITBLTBUF.DPSM].wi;
+	const GSLocalMemory::writeImage wi = GSLocalMemory::m_psm[m_env.BITBLTBUF.DPSM].wi;
 
 	(m_mem.*wi)(m_tr.x, m_tr.y, &m_tr.buff[m_tr.start], len, m_env.BITBLTBUF, m_env.TRXPOS, m_env.TRXREG);
 
@@ -1279,22 +1296,23 @@ void GSState::Write(const u8* mem, int len)
 	GIFRegBITBLTBUF& blit = m_tr.m_blit;
 	const GSLocalMemory::psm_t& psm = GSLocalMemory::m_psm[blit.DPSM];
 
-	/*
-	 *  The game uses a resolution of 512x244. RT is located at 0x700 and depth at 0x0
-	 *
-	 * #Bug number 1. (bad top bar)
-	 * The game saves the depth buffer in the EE but with a resolution of
-	 * 512x255. So it is ending to 0x7F8, ouch it saves the top of the RT too.
-	 *
-	 * #Bug number 2. (darker screen)
-	 * The game will restore the previously saved buffer at position 0x0 to
-	 * 0x7F8.  Because of the extra RT pixels, GS will partially invalidate
-	 * the texture located at 0x700. Next access will generate a cache miss
-	 *
-	 * The no-solution: instead to handle garbage (aka RT) at the end of the
-	 * depth buffer. Let's reduce the size of the transfer
-	 */
-	if (m_game.title == CRC::SMTNocturne) {
+	// The game uses a resolution of 512x244. RT is located at 0x700 and depth at 0x0
+	//
+	// #Bug number 1. (bad top bar)
+	// The game saves the depth buffer in the EE but with a resolution of
+	// 512x255. So it is ending to 0x7F8, ouch it saves the top of the RT too.
+	//
+	// #Bug number 2. (darker screen)
+	// The game will restore the previously saved buffer at position 0x0 to
+	// 0x7F8.  Because of the extra RT pixels, GS will partialy invalidate
+	// the texture located at 0x700. Next access will generate a cache miss
+	//
+	// The no-solution: instead to handle garbage (aka RT) at the end of the
+	// depth buffer. Let's reduce the size of the transfer
+
+	if (m_game.title == CRC::SMTNocturne) // TODO: hack
+	if (m_game.title == CRC::SMTNocturne)
+	{
 		if (blit.DBP == 0 && blit.DPSM == PSM_PSMZ32 && w == 512 && h > 224) {
 			h = 224;
 			m_env.TRXREG.RRH = 224;
@@ -1725,7 +1743,8 @@ template<int index> void GSState::Transfer(const u8* mem, u32 size)
 				break;
 
 			case GIF_FLG_IMAGE2:
-				// hmmm // Fall through here fixes a crash in Wallace and Gromit Project Zoo
+				// hmmm 
+				// Fall through here fixes a crash in Wallace and Gromit Project Zoo
 				// and according to Pseudonym we shouldn't even land in this code. So hmm indeed. (rama)
 			case GIF_FLG_IMAGE:
 
@@ -1829,7 +1848,6 @@ int GSState::Freeze(GSFreezeData* fd, bool sizeonly)
 		WriteState(data, &m_env.CTXT[i].XYOFFSET);
 		WriteState(data, &m_env.CTXT[i].TEX0);
 		WriteState(data, &m_env.CTXT[i].TEX1);
-		WriteState(data, &m_env.CTXT[i].TEX2);
 		WriteState(data, &m_env.CTXT[i].CLAMP);
 		WriteState(data, &m_env.CTXT[i].MIPTBP1);
 		WriteState(data, &m_env.CTXT[i].MIPTBP2);
@@ -1918,7 +1936,6 @@ int GSState::Defrost(const GSFreezeData* fd)
 		ReadState(&m_env.CTXT[i].XYOFFSET, data);
 		ReadState(&m_env.CTXT[i].TEX0, data);
 		ReadState(&m_env.CTXT[i].TEX1, data);
-		ReadState(&m_env.CTXT[i].TEX2, data);
 		ReadState(&m_env.CTXT[i].CLAMP, data);
 		ReadState(&m_env.CTXT[i].MIPTBP1, data);
 		ReadState(&m_env.CTXT[i].MIPTBP2, data);
@@ -2012,7 +2029,7 @@ void GSState::UpdateScissor()
 
 void GSState::UpdateVertexKick()
 {
-	u32 prim = PRIM->PRIM;
+	const u32 prim = PRIM->PRIM;
 
 	m_fpGIFPackedRegHandlers[GIF_REG_XYZF2] = m_fpGIFPackedRegHandlerXYZ[prim][0];
 	m_fpGIFPackedRegHandlers[GIF_REG_XYZF3] = m_fpGIFPackedRegHandlerXYZ[prim][1];
@@ -2030,7 +2047,7 @@ void GSState::UpdateVertexKick()
 
 void GSState::GrowVertexBuffer()
 {
-	int maxcount     = std::max<int>(m_vertex.maxcount * 3 / 2, 10000);
+	const size_t maxcount     = std::max<size_t>(m_vertex.maxcount * 3 / 2, 10000);
 	GSVertex* vertex = (GSVertex*)AlignedMalloc(sizeof(GSVertex) * maxcount, 32);
 	u32* index       = (u32*)AlignedMalloc(sizeof(u32) * maxcount * 3, 32); // worst case is slightly less than vertex number * 3
 
@@ -2069,7 +2086,7 @@ GS_FORCEINLINE void GSState::VertexKick(u32 skip)
 	tailptr[0] = v0;
 	tailptr[1] = v1;
 
-	GSVector4i xy = v1.xxxx().u16to32().sub32(m_ofxy);
+	const GSVector4i xy = v1.xxxx().u16to32().sub32(m_ofxy);
 
 	#if _M_SSE >= 0x401
 	GSVector4i::storel(&m_vertex.xy[xy_tail & 3], xy.blend16<0xf0>(xy.sra32(4)).ps32());
@@ -2285,21 +2302,21 @@ void GSState::GetTextureMinMax(GSVector4i& r, const GIFRegTEX0& TEX0, const GIFR
 {
 	// TODO: some of the +1s can be removed if linear == false
 
-	int tw = TEX0.TW;
-	int th = TEX0.TH;
+	const int tw = TEX0.TW;
+	const int th = TEX0.TH;
 
-	int w = 1 << tw;
-	int h = 1 << th;
+	const int w  = 1 << tw;
+	const int h  = 1 << th;
 
 	GSVector4i tr(0, 0, w, h);
 
-	int wms = CLAMP.WMS;
-	int wmt = CLAMP.WMT;
+	const int wms = CLAMP.WMS;
+	const int wmt = CLAMP.WMT;
 
-	int minu = (int)CLAMP.MINU;
-	int minv = (int)CLAMP.MINV;
-	int maxu = (int)CLAMP.MAXU;
-	int maxv = (int)CLAMP.MAXV;
+	const int minu = (int)CLAMP.MINU;
+	const int minv = (int)CLAMP.MINV;
+	const int maxu = (int)CLAMP.MAXU;
+	const int maxv = (int)CLAMP.MAXV;
 
 	GSVector4i vr = tr;
 
@@ -2577,7 +2594,8 @@ bool GSState::IsOpaque()
 
 	const GSDrawingContext* context = m_context;
 
-	int amin = 0, amax = 0xff;
+	int amin = 0;
+	int amax = 0xff;
 
 	if(context->ALPHA.A != context->ALPHA.B)
 	{
@@ -2692,7 +2710,7 @@ bool GSState::GSTransferBuffer::Update(int tw, int th, int bpp, int& len)
 		overflow    = false;
 	}
 
-	int remaining = total - end;
+	const int remaining = total - end;
 
 	if(len > remaining)
 	{
