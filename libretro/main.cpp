@@ -906,6 +906,7 @@ void retro_unload_game(void)
 		pcsx2->ProcessPendingEvents();
 
 	init_failed = false;
+	ResetContentStuffs();
 }
 
 bool retro_load_game_special(unsigned game_type, const struct retro_game_info* info,

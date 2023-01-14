@@ -88,12 +88,11 @@ static void PostCoreStatus(CoreThreadStatus pevt)
 */
 void ResetContentStuffs(void)
 {
-	msg_cheat_ws_found_sent = false;
-	msg_cheat_60fps_found_sent = false;
+	msg_cheat_ws_found_sent            = false;
+	msg_cheat_60fps_found_sent         = false;
 	msg_cheat_nointerlacing_found_sent = false;
-	msg_cheats_found_sent = false;
-	ElfCRC = 0;
-
+	msg_cheats_found_sent              = false;
+	ElfCRC                             = 0;
 }
 
 // --------------------------------------------------------------------------------------
