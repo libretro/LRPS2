@@ -327,14 +327,13 @@ __fi void _vuAddLowerStalls(VURegs * VU, _VURegsNum *VUregsn) {
 /******************************/
 /*   VU Upper instructions    */
 /******************************/
-#ifndef INT_VUDOUBLEHACK
 static float vuDouble(u32 f)
 {
 	switch (f & 0x7f800000)
 	{
 		case 0x0:
 			f &= 0x80000000;
-			return *(float*)&f;
+			break;
 		case 0x7f800000:
 		{
 			u32 d = (f & 0x80000000) | 0x7f7fffff;
@@ -343,12 +342,6 @@ static float vuDouble(u32 f)
 	}
 	return *(float*)&f;
 }
-#else
-static __fi float vuDouble(u32 f)
-{
-	return *(float*)&f;
-}
-#endif
 
 static __fi float vuADD_TriAceHack(u32 a, u32 b) {
 	// On VU0 TriAce Games use ADDi and expects these bit-perfect results:

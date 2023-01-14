@@ -34,16 +34,6 @@ enum VURegFlags
     REG_CMSAR1		= 31
 };
 
-//interpreter hacks, WIP
-//#define INT_VUSTALLHACK //some games work without those, big speedup
-//#define INT_VUDOUBLEHACK
-
-enum VUStatus {
-	VU_Ready = 0,
-	VU_Run   = 1,
-	VU_Stop  = 2,
-};
-
 union VECTOR {
 	struct {
 		float x,y,z,w;
@@ -80,7 +70,7 @@ struct REG_VI {
 					// VU0 mem, with only lower 16 bits valid, and the upper 112bits are hardwired to 0 (cottonvibes)
 };
 
-#define VUFLAG_MFLAGSET			0x00000002
+#define VUFLAG_MFLAGSET		0x00000002
 #define VUFLAG_INTCINTERRUPT    0x00000004
 
 struct fdivPipe {
