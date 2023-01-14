@@ -77,15 +77,13 @@ static __ri u32 VU_MAC_UPDATE( int shift, VURegs * VU, float f )
 	return v;
 }
 
-static __ri void VU_STAT_UPDATE(VURegs * VU)
-{
-	int newflag = 0 ;
-	if (VU->macflag & 0x000F) newflag  = 0x1;
-	if (VU->macflag & 0x00F0) newflag |= 0x2;
-	if (VU->macflag & 0x0F00) newflag |= 0x4;
-	if (VU->macflag & 0xF000) newflag |= 0x8;
-	VU->statusflag = (VU->statusflag&0xc30) | newflag | ((VU->statusflag&0xf)<<6);
-}
+#define VU_STAT_UPDATE(VU) \
+	int newflag = 0; \
+	if (VU->macflag & 0x000F) newflag  = 0x1; \
+	if (VU->macflag & 0x00F0) newflag |= 0x2; \
+	if (VU->macflag & 0x0F00) newflag |= 0x4; \
+	if (VU->macflag & 0xF000) newflag |= 0x8; \
+	VU->statusflag = (VU->statusflag&0xc30) | newflag | ((VU->statusflag&0xf)<<6)
 
 static __ri void _vuFMACflush(VURegs * VU) {
 	int i;
@@ -387,7 +385,7 @@ static __fi void _vuADD(VURegs * VU)
 	if (_Y){ dst->i.y = VU_MACy_UPDATE(VU, vuDouble(VU->VF[_Fs_].i.y) + vuDouble(VU->VF[_Ft_].i.y)); } else VU_MACy_CLEAR(VU);
 	if (_Z){ dst->i.z = VU_MACz_UPDATE(VU, vuDouble(VU->VF[_Fs_].i.z) + vuDouble(VU->VF[_Ft_].i.z)); } else VU_MACz_CLEAR(VU);
 	if (_W){ dst->i.w = VU_MACw_UPDATE(VU, vuDouble(VU->VF[_Fs_].i.w) + vuDouble(VU->VF[_Ft_].i.w)); } else VU_MACw_CLEAR(VU);
-    VU_STAT_UPDATE(VU);
+	VU_STAT_UPDATE(VU);
 }
 
 static __fi void _vuADDi(VURegs * VU)
@@ -403,15 +401,15 @@ static __fi void _vuADDi(VURegs * VU)
 		if (_Y){ dst->i.y = VU_MACy_UPDATE(VU, vuDouble(VU->VF[_Fs_].i.y) + vuDouble(VU->VI[REG_I].UL));} else VU_MACy_CLEAR(VU);
 		if (_Z){ dst->i.z = VU_MACz_UPDATE(VU, vuDouble(VU->VF[_Fs_].i.z) + vuDouble(VU->VI[REG_I].UL));} else VU_MACz_CLEAR(VU);
 		if (_W){ dst->i.w = VU_MACw_UPDATE(VU, vuDouble(VU->VF[_Fs_].i.w) + vuDouble(VU->VI[REG_I].UL));} else VU_MACw_CLEAR(VU);
-		VU_STAT_UPDATE(VU);
 	}
-	else {
+	else
+	{
 		if (_X){ dst->i.x = VU_MACx_UPDATE(VU, vuADD_TriAceHack(VU->VF[_Fs_].i.x, VU->VI[REG_I].UL));} else VU_MACx_CLEAR(VU);
 		if (_Y){ dst->i.y = VU_MACy_UPDATE(VU, vuADD_TriAceHack(VU->VF[_Fs_].i.y, VU->VI[REG_I].UL));} else VU_MACy_CLEAR(VU);
 		if (_Z){ dst->i.z = VU_MACz_UPDATE(VU, vuADD_TriAceHack(VU->VF[_Fs_].i.z, VU->VI[REG_I].UL));} else VU_MACz_CLEAR(VU);
 		if (_W){ dst->i.w = VU_MACw_UPDATE(VU, vuADD_TriAceHack(VU->VF[_Fs_].i.w, VU->VI[REG_I].UL));} else VU_MACw_CLEAR(VU);
-		VU_STAT_UPDATE(VU);
 	}
+	VU_STAT_UPDATE(VU);
 }
 
 static __fi void _vuADDq(VURegs * VU) {
