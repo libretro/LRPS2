@@ -156,12 +156,14 @@ void GSRendererOGL::EmulateAtst(const int pass, const GSTextureCache::Source* te
 
 void GSRendererOGL::EmulateZbuffer()
 {
-	if (m_context->TEST.ZTE) {
+	if (m_context->TEST.ZTE)
+	{
 		m_om_dssel.ztst = m_context->TEST.ZTST;
-		m_om_dssel.zwe = !m_context->ZBUF.ZMSK;
-	} else {
-		m_om_dssel.ztst = ZTST_ALWAYS;
+		// AA1: Z is not written on lines since coverage is always less than 0x80.
+		m_om_dssel.zwe = (m_context->ZBUF.ZMSK || (PRIM->AA1 && m_vt.m_primclass == GS_LINE_CLASS)) ? 0 : 1;
 	}
+	else
+		m_om_dssel.ztst = ZTST_ALWAYS;
 
 	// On the real GS we appear to do clamping on the max z value the format allows.
 	// Clamping is done after rasterization.
