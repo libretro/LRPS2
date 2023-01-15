@@ -46,9 +46,9 @@ protected:
 
 	typedef void (GSVertexTrace::*FindMinMaxPtr)(const void* vertex, const u32* index, int count);
 
-	FindMinMaxPtr m_fmm[2][2][2][2][2][4];
+	FindMinMaxPtr m_fmm[2][2][2][2][4];
 
-	template<GS_PRIM_CLASS primclass, u32 iip, u32 tme, u32 fst, u32 color, u32 accurate_stq>
+	template<GS_PRIM_CLASS primclass, u32 iip, u32 tme, u32 fst, u32 color>
 	void FindMinMax(const void* vertex, const u32* index, int count);
 
 public:

@@ -39,8 +39,7 @@ GSVertexTrace::GSVertexTrace(const GSState* state)
 	memset(&m_alpha, 0, sizeof(m_alpha));
 
 	#define InitUpdate3(P, IIP, TME, FST, COLOR) \
-		m_fmm[0][COLOR][FST][TME][IIP][P] = &GSVertexTrace::FindMinMax<P, IIP, TME, FST, COLOR, 0>; \
-		m_fmm[1][COLOR][FST][TME][IIP][P] = &GSVertexTrace::FindMinMax<P, IIP, TME, FST, COLOR, 1>; \
+		m_fmm[COLOR][FST][TME][IIP][P] = &GSVertexTrace::FindMinMax<P, IIP, TME, FST, COLOR>; \
 
 	#define InitUpdate2(P, IIP, TME) \
 		InitUpdate3(P, IIP, TME, 0, 0) \
@@ -69,16 +68,13 @@ void GSVertexTrace::Update(const void* vertex, const u32* index, int v_count, in
 	u32 fst = m_state->PRIM->FST;
 	u32 color = !(m_state->PRIM->TME && m_state->m_context->TEX0.TFX == TFX_DECAL && m_state->m_context->TEX0.TCC);
 
-	(this->*m_fmm[m_accurate_stq][color][fst][tme][iip][primclass])(vertex, index, i_count);
+	(this->*m_fmm[color][fst][tme][iip][primclass])(vertex, index, i_count);
 
 	// Potential float overflow detected. Better uses the slower division instead
 	// Note: If Q is too big, 1/Q will end up as 0. 1e30 is a random number
 	// that feel big enough.
 	if (!fst && !m_accurate_stq && m_min.t.z > 1e30)
-	{
 		m_accurate_stq = true;
-		(this->*m_fmm[m_accurate_stq][color][fst][tme][iip][primclass])(vertex, index, i_count);
-	}
 
 	m_eq.value = (m_min.c == m_max.c).mask() | ((m_min.p == m_max.p).mask() << 16) | ((m_min.t == m_max.t).mask() << 20);
 
@@ -147,7 +143,7 @@ void GSVertexTrace::Update(const void* vertex, const u32* index, int v_count, in
 	}
 }
 
-template<GS_PRIM_CLASS primclass, u32 iip, u32 tme, u32 fst, u32 color, u32 accurate_stq>
+template<GS_PRIM_CLASS primclass, u32 iip, u32 tme, u32 fst, u32 color>
 void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 {
 	const GSDrawingContext* context = m_state->m_context;
@@ -213,7 +209,7 @@ void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 			{
 				GSVector4 stq0 = GSVector4::cast(GSVector4i(v0.m[0]));
 				GSVector4 stq1 = GSVector4::cast(GSVector4i(v1.m[0]));
-				GSVector4 st, q;
+				GSVector4 q;
 				// Sprites always have indices == vertices, so we don't have to look at the index table here
 				if (primclass == GS_SPRITE_CLASS)
 					q  = stq1.wwww();
@@ -224,10 +220,7 @@ void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 				//       make sure to remove the z (rgba) field as it's often denormal.
 				//       Then, use GSVector4::noopt() to prevent clang from optimizing out your "useless" shuffle
 				//       e.g. stq = (stq.xyww() / stq.wwww()).noopt().xyww(stq);
-				if (accurate_stq)
-					st = stq0.xyxy(stq1) / q;
-				else
-					st = stq0.xyxy(stq1) * q.rcpnr();
+				GSVector4 st = stq0.xyxy(stq1) * q;
 
 				stq0       = st.xyww(primclass == GS_SPRITE_CLASS ? stq1 : stq0);
 				stq1       = st.zwww(stq1);
