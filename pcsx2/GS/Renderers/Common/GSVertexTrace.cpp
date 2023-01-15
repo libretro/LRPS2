@@ -207,9 +207,9 @@ void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 					GSVector4 q = stq.wwww();
 
 					if (accurate_stq)
-						stq = (stq.xyww() / q).xyww(q);
+						stq = (stq.xyww() / q).noopt().xyww(q);
 					else
-						stq = (stq.xyww() * q.rcpnr()).xyww(q);
+						stq = (stq.xyww() * q.rcpnr()).noopt().xyww(q);
 
 					tmin = tmin.min(stq);
 					tmax = tmax.max(stq);
@@ -272,19 +272,21 @@ void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 					GSVector4 stq0 = GSVector4::cast(c0);
 					GSVector4 stq1 = GSVector4::cast(c1);
 
+					GSVector4 q    = stq0.wwww(stq1);
+
 					if(accurate_stq)
 					{
-						GSVector4 q = stq0.wwww(stq1);
+						GSVector4 st = stq0.xyxy(stq1) / q;
 
-						stq0 = (stq0.xyww() / q.xxxx()).xyww(stq0);
-						stq1 = (stq1.xyww() / q.zzzz()).xyww(stq1);
+						stq0 = st.xyww(stq1);
+						stq1 = st.zwww(stq1);
 					}
 					else
 					{
-						GSVector4 q = stq0.wwww(stq1).rcpnr();
+						GSVector4 st = stq0.xyxy(stq1) * q.rcpnr();
 
-						stq0 = (stq0.xyww() * q.xxxx()).xyww(stq0);
-						stq1 = (stq1.xyww() * q.zzzz()).xyww(stq1);
+						stq0 = st.xyww(stq0);
+						stq1 = st.zwww(stq1);
 					}
 
 					tmin = tmin.min(stq0.min(stq1));
@@ -359,19 +361,20 @@ void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 
 					if(accurate_stq)
 					{
-						GSVector4 q = stq0.wwww(stq1).xzww(stq2);
+						GSVector4 st01 = stq0.xyxy(stq1) / stq0.wwww(stq1);
 
-						stq0 = (stq0.xyww() / q.xxxx()).xyww(stq0);
-						stq1 = (stq1.xyww() / q.yyyy()).xyww(stq1);
-						stq2 = (stq2.xyww() / q.zzzz()).xyww(stq2);
+						stq0 = st01.xyww(stq0);
+						stq1 = st01.zwww(stq1);
+						stq2 = (stq2.xyww() / stq2.wwww()).noopt().xyww(stq2);
 					}
 					else
 					{
 						GSVector4 q = stq0.wwww(stq1).xzww(stq2).rcpnr();
+						GSVector4 st01 = stq0.xyxy(stq1) * q.xxyy();
 
-						stq0 = (stq0.xyww() * q.xxxx()).xyww(stq0);
-						stq1 = (stq1.xyww() * q.yyyy()).xyww(stq1);
-						stq2 = (stq2.xyww() * q.zzzz()).xyww(stq2);
+						stq0 = st01.xyww(stq0);
+						stq1 = st01.zwww(stq1);
+						stq2 = (stq2.xyww() * q.zzzz()).noopt().xyww(stq2);
 					}
 
 					tmin = tmin.min(stq2).min(stq0.min(stq1));
@@ -451,17 +454,17 @@ void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 
 					if(accurate_stq)
 					{
-						GSVector4 q = stq1.wwww();
+						GSVector4 st = stq0.xyxy(stq1) / stq1.wwww();
 
-						stq0 = (stq0.xyww() / q).xyww(stq1);
-						stq1 = (stq1.xyww() / q).xyww(stq1);
+						stq0 = st.xyww(stq1);
+						stq1 = st.zwww(stq1);
 					}
 					else
 					{
-						GSVector4 q = stq1.wwww().rcpnr();
+						GSVector4 st = stq0.xyxy(stq1) * stq1.wwww().rcpnr();
 
-						stq0 = (stq0.xyww() * q).xyww(stq1);
-						stq1 = (stq1.xyww() * q).xyww(stq1);
+						stq0 = st.xyww(stq1);
+						stq1 = st.zwww(stq1);
 					}
 
 					tmin = tmin.min(stq0.min(stq1));
