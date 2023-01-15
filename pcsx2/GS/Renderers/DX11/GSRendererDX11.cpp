@@ -445,12 +445,6 @@ void GSRendererDX11::EmulateChannelShuffle(GSTexture** rt, const GSTextureCache:
 		m_vertex.head = m_vertex.tail = m_vertex.next = 2;
 		m_index.tail = 2;
 	}
-	else
-	{
-#ifdef _DEBUG
-		dev->PSSetShaderResource(4, NULL);
-#endif
-	}
 }
 
 void GSRendererDX11::EmulateBlending()
