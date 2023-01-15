@@ -53,14 +53,14 @@ static int findmax(int tl, int br, int limit, int wm, int minuv, int maxuv)
 
 static int reduce(int uv, int size)
 {
-	while(size > 3 && (1 << (size - 1)) >= uv + 1)
+	while (size > 3 && (1 << (size - 1)) >= uv)
 		size--;
 	return size;
 }
 
 static int extend(int uv, int size)
 {
-	while(size < 10 && (1 << size) < uv + 1)
+	while (size < 10 && (1 << size) < uv)
 		size++;
 	return size;
 }
@@ -87,7 +87,7 @@ GIFRegTEX0 GSDrawingContext::GetSizeFixedTEX0(const GSVector4& st, bool linear, 
 	if(linear)
 		uvf += GSVector4(-0.5f, 0.5f).xxyy();
 
-	GSVector4i uv = GSVector4i(uvf.floor());
+	GSVector4i uv = GSVector4i(uvf.floor().xyzw(uvf.ceil()));
 
 	uv.x = findmax(uv.x, uv.z, (1 << tw) - 1, wms, minu, maxu);
 	uv.y = findmax(uv.y, uv.w, (1 << th) - 1, wmt, minv, maxv);
@@ -118,7 +118,7 @@ void GSDrawingContext::ComputeFixedTEX0(const GSVector4& st)
 	// therefore we remove the reduce optimization and we don't handle bilinear filtering which might create wrong interpolation at the border.
 	int wms       = (int)CLAMP.WMS;
 	int wmt       = (int)CLAMP.WMT;
-	GSVector4i uv = GSVector4i(st.floor());
+	GSVector4i uv = GSVector4i(st.floor().xyzw(st.ceil()));
 
 	if (wms == CLAMP_REGION_CLAMP || wms == CLAMP_REGION_REPEAT)
 	{
