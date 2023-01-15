@@ -458,7 +458,7 @@ void GSRendererDX11::EmulateBlending()
 	const bool aa1 = PRIM->AA1 && (m_vt.m_primclass == GS_LINE_CLASS);
 
 	// No blending so early exit
-	if (aa1 || !(PRIM->ABE || m_env.PABE.PABE))
+	if (!aa1 && !(PRIM->ABE || m_env.PABE.PABE))
 		return;
 
 	m_om_bsel.abe = 1;

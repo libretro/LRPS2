@@ -431,7 +431,7 @@ void GSRendererOGL::EmulateBlending(bool& DATE_GL42, bool& DATE_GL45)
 	const bool aa1 = PRIM->AA1 && (m_vt.m_primclass == GS_LINE_CLASS);
 
 	// No blending so early exit
-	if (aa1 || !(PRIM->ABE || m_env.PABE.PABE))
+	if (!aa1 && !(PRIM->ABE || m_env.PABE.PABE))
 	{
 		dev->OMSetBlendState();
 		return;
