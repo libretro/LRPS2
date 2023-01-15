@@ -30,31 +30,8 @@
 #define GL_CONTEXT_FLAG_NO_ERROR_BIT_KHR  0x00000008
 #endif
 
-#ifdef _WIN32
-	// Note use GL/glcorearb.h on the future
-	// Requirements:
-	//	* Update GSWndWGL::GetProcAddress to query 1.0 and 1.1 symbols
-	//	* define all ENABLE_GL_VERSION_1_*
-	#include <GL/gl.h>
-	#include <GL/glext.h>
-
-	#define DIRECTORY_SEPARATOR '\\'
-
-#else
-
-	// Note use GL/glcorearb.h on the future
-	// Requirements:
-	//	* Drop GLX that still include gl.h...
-	//	  EGL/OGL status on AMD GPU pro driver is unknown
-	//	* define all ENABLE_GL_VERSION_1_*
-	#include <GL/gl.h>
-	#include <GL/glext.h>
-
-	#include <sys/stat.h> // mkdir
-
-	#define DIRECTORY_SEPARATOR '/'
-
-#endif
+#include <GL/gl.h>
+#include <GL/glext.h>
 
 // FIX compilation issue with Mesa 10
 #include "glext_extra.h"
@@ -149,11 +126,20 @@ extern   PFNGLTEXTUREPAGECOMMITMENTEXTPROC      glTexturePageCommitmentEXT;
 
 namespace GLExtension {
 	extern bool Has(const std::string& ext);
-	extern void Set(const std::string& ext, bool v = true);
+	extern void Set(const std::string& ext, bool v);
 }
 
 namespace GLLoader {
-	void check_gl_requirements();
+	bool check_gl_requirements(void);
+
+	extern bool found_gl_version_3_3;
+	extern bool found_gl_version_4_0;
+	extern bool found_gl_version_4_1;
+	extern bool found_gl_version_4_2;
+	extern bool found_gl_version_4_3;
+	extern bool found_gl_version_4_4;
+	extern bool found_gl_version_4_5;
+	extern bool found_gl_version_4_6;
 
 	extern bool vendor_id_amd;
 	extern bool vendor_id_nvidia;
@@ -161,11 +147,15 @@ namespace GLLoader {
 	extern bool mesa_driver;
 	extern bool buggy_sso_dual_src;
 
-	// GL
+	/* OpenGL (Desktop) */
 	extern bool found_geometry_shader;
 	extern bool found_GL_ARB_gpu_shader5;
 	extern bool found_GL_ARB_shader_image_load_store;
 	extern bool found_GL_ARB_clear_texture;
+	extern bool found_GL_ARB_buffer_storage;
+
+	/* OpenGL ES (Mobile) */
+	extern bool found_GL_EXT_buffer_storage;
 
 	extern bool found_compatible_GL_ARB_sparse_texture2;
 	extern bool found_compatible_sparse_depth;

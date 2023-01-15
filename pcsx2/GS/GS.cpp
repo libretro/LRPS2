@@ -745,9 +745,11 @@ GL_EXT_LOAD_OPT(glPolygonOffsetClamp);
 #endif
 			GL_EXT_LOAD_OPT(glTexturePageCommitmentEXT);
 
-			// Check openGL requirement as soon as possible so we can switch to another
+			// Check OpenGL requirements as soon as 
+			// possible so we can switch to another
 			// renderer/device
-			GLLoader::check_gl_requirements();
+			if (!(GLLoader::check_gl_requirements()))
+				return -1;
 			break;
 		default:
 			break;

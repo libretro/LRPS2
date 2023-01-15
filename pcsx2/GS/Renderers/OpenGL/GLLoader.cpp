@@ -50,7 +50,8 @@ namespace GLExtension {
 	}
 }
 
-namespace ReplaceGL {
+namespace ReplaceGL
+{
 	void APIENTRY ScissorIndexed(GLuint index, GLint left, GLint bottom, GLsizei width, GLsizei height)
 	{
 		glScissor(left, bottom, width, height);
@@ -68,7 +69,8 @@ namespace ReplaceGL {
 }
 
 #ifdef _WIN32
-namespace Emulate_DSA {
+namespace Emulate_DSA
+{
 	// Texture entry point
 	void APIENTRY BindTextureUnit(GLuint unit, GLuint texture) {
 		glActiveTexture(GL_TEXTURE0 + unit);
@@ -119,9 +121,10 @@ namespace Emulate_DSA {
 		glGenSamplers(n, samplers);
 	}
 
-	// Replace function pointer to emulate DSA behavior
-	void Init() {
-		log_cb(RETRO_LOG_WARN, "DSA is not supported. Expect slower performance\n");
+	// Replace function pointer to emulate DSA (Direct State Access) behavior
+	void Init(void)
+	{
+		log_cb(RETRO_LOG_WARN, "DSA (Direct State Access) is not supported. Expect slower performance\n");
 		glBindTextureUnit             = BindTextureUnit;
 		glCreateTextures              = CreateTexture;
 		glTextureStorage2D            = TextureStorage;
@@ -137,38 +140,51 @@ namespace Emulate_DSA {
 #endif
 
 namespace GLLoader {
-	bool s_first_load = true;
+	bool amd_legacy_buggy_driver                   = false;
+	bool vendor_id_amd                             = false;
+	bool vendor_id_nvidia                          = false;
+	bool vendor_id_intel                           = false;
+	bool mesa_driver                               = false;
+	bool buggy_sso_dual_src                        = false;
 
-	bool amd_legacy_buggy_driver = false;
-	bool vendor_id_amd      = false;
-	bool vendor_id_nvidia   = false;
-	bool vendor_id_intel    = false;
-	bool mesa_driver        = false;
-	bool buggy_sso_dual_src = false;
+	/* OpenGL ES */
+	bool found_GL_EXT_buffer_storage               = false;
 
-	bool found_geometry_shader = true; // we require GL3.3 so geometry must be supported by default
-	bool found_GL_ARB_clear_texture = false;
-	// DX11 GPU
-	bool found_GL_ARB_gpu_shader5 = false; // Require IvyBridge
-	bool found_GL_ARB_shader_image_load_store = false; // Intel IB. Nvidia/AMD miss Mesa implementation.
+	/* Desktop OpenGL */
+	bool found_gl_version_3_3                      = false;
+	bool found_gl_version_4_0                      = false;
+	bool found_gl_version_4_1                      = false;
+	bool found_gl_version_4_2                      = false;
+	bool found_gl_version_4_3                      = false;
+	bool found_gl_version_4_4                      = false;
+	bool found_gl_version_4_5                      = false;
+	bool found_gl_version_4_6                      = false;
+
+	bool found_GL_ARB_buffer_storage               = false;
+	bool found_geometry_shader                     = true; /* We require at least OpenGL 3.3 so geometry must be supported by default */
+	bool found_GL_ARB_clear_texture                = false;
+
+	/* DirectX11 class GPU for OpenGL */
+	bool found_GL_ARB_gpu_shader5                  = false; /* Require Ivy Bridge */
+	bool found_GL_ARB_shader_image_load_store      = false; /* Intel IB. Nvidia/AMD miss Mesa implementation. */
 	bool found_GL_ARB_shader_storage_buffer_object = false;
-	bool found_GL_ARB_compute_shader = false;
-	bool found_GL_ARB_texture_view = false; // maybe older gpu can support it ?
+	bool found_GL_ARB_compute_shader               = false;
+	bool found_GL_ARB_texture_view                 = false; /* Maybe older GPUs can support it ? */
 
-	// Mandatory in the future
-	bool found_GL_ARB_multi_bind = false;
-	bool found_GL_ARB_vertex_attrib_binding = false;
+	/* Mandatory in the future */
+	bool found_GL_ARB_multi_bind                   = false;
+	bool found_GL_ARB_vertex_attrib_binding        = false;
 
-	// In case sparse2 isn't supported
-	bool found_compatible_GL_ARB_sparse_texture2 = false;
-	bool found_compatible_sparse_depth = false;
+	/* In case sparse2 isn't supported */
+	bool found_compatible_GL_ARB_sparse_texture2   = false;
+	bool found_compatible_sparse_depth             = false;
 
-	static void mandatory(const std::string& ext)
+	static bool mandatory(const std::string& ext)
 	{
-		if (!GLExtension::Has(ext)) /* TODO/FIXME - return error */
+		bool found = GLExtension::Has(ext);
+		if (!found) /* TODO/FIXME - return error */
 			log_cb(RETRO_LOG_ERROR, "ERROR: %s is NOT SUPPORTED\n", ext.c_str());
-
-		return;
+		return found;
 	}
 
 	static bool optional(const std::string& name)
@@ -177,13 +193,12 @@ namespace GLLoader {
 
 		if (!found)
 			log_cb(RETRO_LOG_WARN, "INFO: %s is NOT SUPPORTED\n", name.c_str());
-		else
-			log_cb(RETRO_LOG_DEBUG, "INFO: %s is available\n", name.c_str());
 
 		std::string opt("override_");
 		opt += name;
 
-		if (theApp.GetConfigI(opt.c_str()) != -1) {
+		if (theApp.GetConfigI(opt.c_str()) != -1)
+		{
 			found = theApp.GetConfigB(opt.c_str());
 			log_cb(RETRO_LOG_DEBUG, "Override %s detection (%s)\n", name.c_str(), found ? "Enabled" : "Disabled");
 			GLExtension::Set(name, found);
@@ -192,63 +207,93 @@ namespace GLLoader {
 		return found;
 	}
 
-	void check_gl_version(int major, int minor)
+	bool check_gl_version(int major, int minor)
 	{
+		GLint major_gl     = 0;
+		GLint minor_gl     = 0;
 		const char* vendor = (const char*)glGetString(GL_VENDOR);
 
 		if (strstr(vendor, "Advanced Micro Devices") || strstr(vendor, "ATI Technologies Inc.") || strstr(vendor, "ATI"))
 			vendor_id_amd = true;
 		else if (strstr(vendor, "NVIDIA Corporation"))
 			vendor_id_nvidia = true;
-
 #ifdef _WIN32
 		else if (strstr(vendor, "Intel"))
 			vendor_id_intel = true;
 #else
 		// On linux assumes the free driver if it isn't nvidia or amd pro driver
-		mesa_driver = !vendor_id_nvidia && !vendor_id_amd;
+		mesa_driver        = !vendor_id_nvidia && !vendor_id_amd;
 #endif
 		// As of 2019 SSO is still broken on intel (Kaby Lake confirmed).
 		buggy_sso_dual_src = vendor_id_intel || vendor_id_amd;
 
-		if (theApp.GetConfigI("override_geometry_shader") != -1) {
+		if (theApp.GetConfigI("override_geometry_shader") != -1)
+		{
 			found_geometry_shader = theApp.GetConfigB("override_geometry_shader");
 			GLExtension::Set("GL_ARB_geometry_shader4", found_geometry_shader);
 			log_cb(RETRO_LOG_INFO, "Overriding geometry shaders detection\n");
 		}
 
-		GLint major_gl = 0;
-		GLint minor_gl = 0;
 		glGetIntegerv(GL_MAJOR_VERSION, &major_gl);
 		glGetIntegerv(GL_MINOR_VERSION, &minor_gl);
-		if ( (major_gl < major) || ( major_gl == major && minor_gl < minor ) ) {
-			log_cb(RETRO_LOG_ERROR, "OpenGL %d.%d is not supported. Only OpenGL %d.%d\n was found", major, minor, major_gl, minor_gl);
-			/* TODO/FIXME - error out properly */
-			return;
+		if ( (major_gl < major) || ( major_gl == major && minor_gl < minor ) )
+		{
+			log_cb(RETRO_LOG_ERROR, "OpenGL %d.%d is not supported. Only OpenGL %d.%d\n was found\n", major, minor, major_gl, minor_gl);
+			return false;
 		}
+
+		found_gl_version_3_3 = true;
+
+		if (major_gl == 4)
+		{
+			if (minor_gl >= 0)
+				found_gl_version_4_0 = true;
+			if (minor_gl >= 1)
+				found_gl_version_4_1 = true;
+			if (minor_gl >= 2)
+				found_gl_version_4_2 = true;
+			if (minor_gl >= 3)
+				found_gl_version_4_3 = true;
+			if (minor_gl >= 4)
+				found_gl_version_4_4 = true;
+			if (minor_gl >= 5)
+				found_gl_version_4_5 = true;
+			if (minor_gl == 6)
+				found_gl_version_4_6 = true;
+		}
+
+		log_cb(RETRO_LOG_INFO, "OpenGL version supported: %d.%d.\n", major_gl, minor_gl);
+
+		return true;
 	}
 
-	void check_gl_supported_extension()
+	void check_gl_supported_extension(void)
 	{
+		GLint i;
 		int max_ext = 0;
 		glGetIntegerv(GL_NUM_EXTENSIONS, &max_ext);
-		for (GLint i = 0; i < max_ext; i++) {
+		for (i = 0; i < max_ext; i++)
+		{
 			std::string ext{(const char*)glGetStringi(GL_EXTENSIONS, i)};
-			GLExtension::Set(ext);
+			GLExtension::Set(ext, true);
 		}
 
-		// Mandatory for both renderer
+		/* Mandatory for both OpenGL HW/SW renderers */
 		{
-			// GL4.1
+			/* OpenGL 4.1 */
 			mandatory("GL_ARB_separate_shader_objects");
-			// GL4.2
+			/* OpenGL 4.2 */
 			mandatory("GL_ARB_shading_language_420pack");
 			mandatory("GL_ARB_texture_storage");
-			// GL4.3
+
+			/* TODO/FIXME - can put this behind debug ifdef */
+			/* OpenGL 4.3 */
 			mandatory("GL_KHR_debug");
-			// GL4.4
-			mandatory("GL_ARB_buffer_storage");
+
+			/* OpenGL 4.4 */
+			found_GL_ARB_buffer_storage = mandatory("GL_ARB_buffer_storage");
 		}
+
 
 		// Only for HW renderer
 		if (GetCurrentRendererType() == GSRendererType::OGL_HW)
@@ -257,83 +302,87 @@ namespace GLLoader {
 			mandatory("GL_ARB_clip_control");
 		}
 
+#ifdef HAVE_GLES
+		/* OpenGL ES */
+		{
+			// Alternative for GL_ARB_buffer_storage 
+			found_GL_EXT_buffer_storage               = optional("GL_EXT_buffer_storage");
+		}
+#endif
+
 		// Extra
 		{
 			// Bonus
 			optional("GL_ARB_sparse_texture");
 			optional("GL_ARB_sparse_texture2");
-			// GL4.0
-			found_GL_ARB_gpu_shader5 = optional("GL_ARB_gpu_shader5");
-			// GL4.2
-			found_GL_ARB_shader_image_load_store = optional("GL_ARB_shader_image_load_store");
-			// GL4.3
-			found_GL_ARB_compute_shader = optional("GL_ARB_compute_shader");
+			/* OpenGL 4.0 */
+			found_GL_ARB_gpu_shader5                  = optional("GL_ARB_gpu_shader5");
+			/* OpenGL 4.2 */
+			found_GL_ARB_shader_image_load_store      = optional("GL_ARB_shader_image_load_store");
+			/* OpenGL 4.3 */
+			found_GL_ARB_compute_shader               = optional("GL_ARB_compute_shader");
 			found_GL_ARB_shader_storage_buffer_object = optional("GL_ARB_shader_storage_buffer_object");
-			found_GL_ARB_texture_view = optional("GL_ARB_texture_view");
-			found_GL_ARB_vertex_attrib_binding = optional("GL_ARB_vertex_attrib_binding");
-			// GL4.4
-			found_GL_ARB_clear_texture = optional("GL_ARB_clear_texture");
-			found_GL_ARB_multi_bind = optional("GL_ARB_multi_bind");
-			// GL4.5
+			found_GL_ARB_texture_view                 = optional("GL_ARB_texture_view");
+			found_GL_ARB_vertex_attrib_binding        = optional("GL_ARB_vertex_attrib_binding");
+			/* OpenGL 4.4 */
+			found_GL_ARB_clear_texture                = optional("GL_ARB_clear_texture");
+			found_GL_ARB_multi_bind                   = optional("GL_ARB_multi_bind");
+			/* OpenGL 4.5 */
 			optional("GL_ARB_direct_state_access");
-			// Mandatory for the advance HW renderer effect. Unfortunately Mesa LLVMPIPE/SWR renderers doesn't support this extension.
-			// Rendering might be corrupted but it could be good enough for test/virtual machine.
+
+			/* Mandatory for the advance HW renderer effect. Unfortunately Mesa LLVMPIPE/SWR renderers doesn't support this extension.
+			 * Rendering might be corrupted but it could be good enough for test/virtual machine. */
 			optional("GL_ARB_texture_barrier");
 		}
 
-		if (!GLExtension::Has("GL_ARB_viewport_array")) {
+		if (!GLExtension::Has("GL_ARB_viewport_array"))
+		{
 			glScissorIndexed   = ReplaceGL::ScissorIndexed;
 			glViewportIndexedf = ReplaceGL::ViewportIndexedf;
 			log_cb(RETRO_LOG_WARN, "GL_ARB_viewport_array is not supported! Function pointer will be replaced\n");
 		}
 
-		if (!GLExtension::Has("GL_ARB_texture_barrier")) {
+		if (!GLExtension::Has("GL_ARB_texture_barrier"))
+		{
 			glTextureBarrier = ReplaceGL::TextureBarrier;
 			log_cb(RETRO_LOG_WARN, "GL_ARB_texture_barrier is not supported! Blending emulation will not be supported\n");
 		}
 
 #ifdef _WIN32
-		// Thank you Intel for not providing support of basic features on your IGPUs.
-		if (!GLExtension::Has("GL_ARB_direct_state_access")) {
+		// Thank you Intel for not providing support of basic features on your iGPUs.
+		if (!GLExtension::Has("GL_ARB_direct_state_access"))
 			Emulate_DSA::Init();
-		}
 #endif
 	}
 
 	bool is_sparse2_compatible(const char* name, GLenum internal_fmt, int x_max, int y_max)
 	{
+		GLint x, y;
 		GLint index_count = 0;
 		glGetInternalformativ(GL_TEXTURE_2D, internal_fmt, GL_NUM_VIRTUAL_PAGE_SIZES_ARB, 1, &index_count);
-		if (!index_count) {
-			log_cb(RETRO_LOG_WARN, "%s isn't sparse compatible. No index found\n", name);
+		if (!index_count)
 			return false;
-		}
-
-		GLint x, y;
 		glGetInternalformativ(GL_TEXTURE_2D, internal_fmt, GL_VIRTUAL_PAGE_SIZE_X_ARB, 1, &x);
 		glGetInternalformativ(GL_TEXTURE_2D, internal_fmt, GL_VIRTUAL_PAGE_SIZE_Y_ARB, 1, &y);
-		if (x > x_max && y > y_max) {
-			log_cb(RETRO_LOG_WARN, "%s isn't sparse compatible. Page size (%d,%d) is too big (%d, %d)\n",
-					name, x, y, x_max, y_max);
+		if (x > x_max && y > y_max)
 			return false;
-		}
-
 		return true;
 	}
 
-	static void check_sparse_compatibility()
+	static bool check_sparse_compatibility(void)
 	{
-		if (!GLExtension::Has("GL_ARB_sparse_texture") || 
-			!GLExtension::Has("GL_EXT_direct_state_access") ||
-			theApp.GetConfigI("override_GL_ARB_sparse_texture") != 1) {
+		if (       !GLExtension::Has("GL_ARB_sparse_texture")
+			|| !GLExtension::Has("GL_EXT_direct_state_access")
+			|| theApp.GetConfigI("override_GL_ARB_sparse_texture") != 1)
+		{
 			found_compatible_GL_ARB_sparse_texture2 = false;
-			found_compatible_sparse_depth = false;
-
-			return;
+			found_compatible_sparse_depth           = false;
+			return false;
 		}
 
-		found_compatible_GL_ARB_sparse_texture2 = true;
-		if (!GLExtension::Has("GL_ARB_sparse_texture2")) {
+		found_compatible_GL_ARB_sparse_texture2         = true;
+		if (!GLExtension::Has("GL_ARB_sparse_texture2"))
+		{
 			// Only check format from GSTextureOGL
 			found_compatible_GL_ARB_sparse_texture2 &= is_sparse2_compatible("GL_R8", GL_R8, 256, 256);
 
@@ -356,19 +405,23 @@ namespace GLLoader {
 		// driver reports a compatible sparse format for depth texture but it isn't attachable to a frame buffer.
 		found_compatible_sparse_depth = !vendor_id_amd && is_sparse2_compatible("GL_DEPTH32F_STENCIL8", GL_DEPTH32F_STENCIL8, 128, 128);
 
-		log_cb(RETRO_LOG_DEBUG, "INFO sparse color texture is %s\n", found_compatible_GL_ARB_sparse_texture2 ? "available" : "NOT SUPPORTED");
-		log_cb(RETRO_LOG_DEBUG, "INFO sparse depth texture is %s\n", found_compatible_sparse_depth ? "available" : "NOT SUPPORTED");
+		return true;
 	}
 
-	void check_gl_requirements()
+	bool check_gl_requirements(void)
 	{
-		check_gl_version(3, 3);
+		if (!check_gl_version(3, 3))
+			return false;
 
 		check_gl_supported_extension();
 
 		// Bonus for sparse texture
-		check_sparse_compatibility();
+		if (check_sparse_compatibility())
+		{
+			log_cb(RETRO_LOG_INFO, "Sparse color texture is %s\n", found_compatible_GL_ARB_sparse_texture2 ? "available" : "NOT SUPPORTED");
+			log_cb(RETRO_LOG_INFO, "Sparse depth texture is %s\n", found_compatible_sparse_depth ? "available" : "NOT SUPPORTED");
+		}
 
-		s_first_load = false;
+		return true;
 	}
 }
