@@ -452,7 +452,6 @@ void GSRendererDX11::EmulateBlending()
 {
 	// Partial port of OGL SW blending. Currently only works for accumulation and non recursive blend.
 	const GIFRegALPHA& ALPHA = m_context->ALPHA;
-	bool sw_blending         = false;
 
 	// No blending so early exit
 	if (!(PRIM->ABE || m_env.PABE.PABE))
@@ -490,6 +489,7 @@ void GSRendererDX11::EmulateBlending()
 	// Blending doesn't require sampling of the rt
 	const bool blend_non_recursive = !!(blend_flag & BLEND_NO_REC);
 
+	bool sw_blending         = false;
 	switch (m_sw_blending)
 	{
 		case ACC_BLEND_HIGH_D3D11:
