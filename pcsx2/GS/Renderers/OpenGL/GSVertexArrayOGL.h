@@ -25,7 +25,8 @@
 
 #include <cmath>
 
-struct GSInputLayoutOGL {
+struct GSInputLayoutOGL
+{
 	GLint   location;
 	GLint   size;
 	GLenum  type;
@@ -58,9 +59,8 @@ class GSBufferOGL {
 		m_limit = 1u << (1u + (size_t)std::log2(count - 1u));
 		m_quarter_shift = (size_t)std::log2(m_limit * STRIDE) - 2;
 
-		for (size_t i = 0; i < 5; i++) {
+		for (size_t i = 0; i < 5; i++)
 			m_fence[i] = 0;
-		}
 
 		// TODO: if we do manually the synchronization, I'm not sure size is important. It worths to investigate it.
 		// => bigger buffer => less sync
@@ -247,25 +247,18 @@ public:
 
 	void SetTopology(GLenum topology) { m_topology = topology; }
 
-	void* MapVB(size_t count) {
-		void *ptr;
-		while (true) {
-			ptr = m_vb->map(count);
-			break;
-		}
-
-		return ptr;
-	}
-	void UnmapVB() { m_vb->unmap(); }
 	void UploadVB(const void* vertices, size_t count) {
-		while (true) {
+		for (;;)
+		{
 			m_vb->upload(vertices, count);
 			break;
 		}
 	}
 
-	void UploadIB(const void* index, size_t count) {
-		while (true) {
+	void UploadIB(const void* index, size_t count)
+	{
+		for (;;)
+		{
 			m_ib->upload(index, count);
 			break;
 		}
