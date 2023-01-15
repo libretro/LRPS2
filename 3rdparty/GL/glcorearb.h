@@ -2521,8 +2521,6 @@ typedef void (APIENTRYP PFNGLGETOBJECTPTRLABELPROC) (const void *ptr, GLsizei bu
 #ifdef GL_GLEXT_PROTOTYPES
 GLAPI void APIENTRY glClearBufferData (GLenum target, GLenum internalformat, GLenum format, GLenum type, const void *data);
 GLAPI void APIENTRY glClearBufferSubData (GLenum target, GLenum internalformat, GLintptr offset, GLsizeiptr size, GLenum format, GLenum type, const void *data);
-GLAPI void APIENTRY glDispatchCompute (GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);
-GLAPI void APIENTRY glDispatchComputeIndirect (GLintptr indirect);
 GLAPI void APIENTRY glCopyImageSubData (GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei srcWidth, GLsizei srcHeight, GLsizei srcDepth);
 GLAPI void APIENTRY glFramebufferParameteri (GLenum target, GLenum pname, GLint param);
 GLAPI void APIENTRY glGetFramebufferParameteriv (GLenum target, GLenum pname, GLint *params);
@@ -2599,12 +2597,6 @@ typedef void (APIENTRYP PFNGLBINDVERTEXBUFFERSPROC) (GLuint first, GLsizei count
 GLAPI void APIENTRY glBufferStorage (GLenum target, GLsizeiptr size, const void *data, GLbitfield flags);
 GLAPI void APIENTRY glClearTexImage (GLuint texture, GLint level, GLenum format, GLenum type, const void *data);
 GLAPI void APIENTRY glClearTexSubImage (GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const void *data);
-GLAPI void APIENTRY glBindBuffersBase (GLenum target, GLuint first, GLsizei count, const GLuint *buffers);
-GLAPI void APIENTRY glBindBuffersRange (GLenum target, GLuint first, GLsizei count, const GLuint *buffers, const GLintptr *offsets, const GLsizeiptr *sizes);
-GLAPI void APIENTRY glBindTextures (GLuint first, GLsizei count, const GLuint *textures);
-GLAPI void APIENTRY glBindSamplers (GLuint first, GLsizei count, const GLuint *samplers);
-GLAPI void APIENTRY glBindImageTextures (GLuint first, GLsizei count, const GLuint *textures);
-GLAPI void APIENTRY glBindVertexBuffers (GLuint first, GLsizei count, const GLuint *buffers, const GLintptr *offsets, const GLsizei *strides);
 #endif
 #endif /* GL_VERSION_4_4 */
 
@@ -2981,22 +2973,6 @@ GLAPI GLsync APIENTRY glCreateSyncFromCLeventARB (struct _cl_context *context, s
 #define GL_ARB_compressed_texture_pixel_storage 1
 #endif /* GL_ARB_compressed_texture_pixel_storage */
 
-#ifndef GL_ARB_compute_shader
-#define GL_ARB_compute_shader 1
-#endif /* GL_ARB_compute_shader */
-
-#ifndef GL_ARB_compute_variable_group_size
-#define GL_ARB_compute_variable_group_size 1
-#define GL_MAX_COMPUTE_VARIABLE_GROUP_INVOCATIONS_ARB 0x9344
-#define GL_MAX_COMPUTE_FIXED_GROUP_INVOCATIONS_ARB 0x90EB
-#define GL_MAX_COMPUTE_VARIABLE_GROUP_SIZE_ARB 0x9345
-#define GL_MAX_COMPUTE_FIXED_GROUP_SIZE_ARB 0x91BF
-typedef void (APIENTRYP PFNGLDISPATCHCOMPUTEGROUPSIZEARBPROC) (GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z, GLuint group_size_x, GLuint group_size_y, GLuint group_size_z);
-#ifdef GL_GLEXT_PROTOTYPES
-GLAPI void APIENTRY glDispatchComputeGroupSizeARB (GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z, GLuint group_size_x, GLuint group_size_y, GLuint group_size_z);
-#endif
-#endif /* GL_ARB_compute_variable_group_size */
-
 #ifndef GL_ARB_conditional_render_inverted
 #define GL_ARB_conditional_render_inverted 1
 #endif /* GL_ARB_conditional_render_inverted */
@@ -3347,10 +3323,6 @@ GLAPI void APIENTRY glVertexAttribDivisorARB (GLuint index, GLuint divisor);
 #ifndef GL_ARB_map_buffer_range
 #define GL_ARB_map_buffer_range 1
 #endif /* GL_ARB_map_buffer_range */
-
-#ifndef GL_ARB_multi_bind
-#define GL_ARB_multi_bind 1
-#endif /* GL_ARB_multi_bind */
 
 #ifndef GL_ARB_multi_draw_indirect
 #define GL_ARB_multi_draw_indirect 1
@@ -4859,10 +4831,6 @@ GLAPI void APIENTRY glCompileCommandListNV (GLuint list);
 GLAPI void APIENTRY glCallCommandListNV (GLuint list);
 #endif
 #endif /* GL_NV_command_list */
-
-#ifndef GL_NV_compute_shader_derivatives
-#define GL_NV_compute_shader_derivatives 1
-#endif /* GL_NV_compute_shader_derivatives */
 
 #ifndef GL_NV_conditional_render
 #define GL_NV_conditional_render 1

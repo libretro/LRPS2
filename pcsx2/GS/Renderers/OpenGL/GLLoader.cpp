@@ -167,13 +167,6 @@ namespace GLLoader {
 	/* DirectX11 class GPU for OpenGL */
 	bool found_GL_ARB_gpu_shader5                  = false; /* Require Ivy Bridge */
 	bool found_GL_ARB_shader_image_load_store      = false; /* Intel IB. Nvidia/AMD miss Mesa implementation. */
-	bool found_GL_ARB_shader_storage_buffer_object = false;
-	bool found_GL_ARB_compute_shader               = false;
-	bool found_GL_ARB_texture_view                 = false; /* Maybe older GPUs can support it ? */
-
-	/* Mandatory in the future */
-	bool found_GL_ARB_multi_bind                   = false;
-	bool found_GL_ARB_vertex_attrib_binding        = false;
 
 	static bool mandatory(const std::string& ext)
 	{
@@ -281,11 +274,9 @@ namespace GLLoader {
 			/* OpenGL 4.2 */
 			mandatory("GL_ARB_shading_language_420pack");
 			mandatory("GL_ARB_texture_storage");
-
 			/* TODO/FIXME - can put this behind debug ifdef */
 			/* OpenGL 4.3 */
 			mandatory("GL_KHR_debug");
-
 			/* OpenGL 4.4 */
 			found_GL_ARB_buffer_storage = mandatory("GL_ARB_buffer_storage");
 		}
@@ -312,14 +303,8 @@ namespace GLLoader {
 			found_GL_ARB_gpu_shader5                  = optional("GL_ARB_gpu_shader5");
 			/* OpenGL 4.2 */
 			found_GL_ARB_shader_image_load_store      = optional("GL_ARB_shader_image_load_store");
-			/* OpenGL 4.3 */
-			found_GL_ARB_compute_shader               = optional("GL_ARB_compute_shader");
-			found_GL_ARB_shader_storage_buffer_object = optional("GL_ARB_shader_storage_buffer_object");
-			found_GL_ARB_texture_view                 = optional("GL_ARB_texture_view");
-			found_GL_ARB_vertex_attrib_binding        = optional("GL_ARB_vertex_attrib_binding");
 			/* OpenGL 4.4 */
 			found_GL_ARB_clear_texture                = optional("GL_ARB_clear_texture");
-			found_GL_ARB_multi_bind                   = optional("GL_ARB_multi_bind");
 			/* OpenGL 4.5 */
 			optional("GL_ARB_direct_state_access");
 

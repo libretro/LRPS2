@@ -70,7 +70,6 @@ typedef void (APIENTRYP PFNGLTEXTUREPAGECOMMITMENTEXTPROC) (GLuint texture, GLin
 // #define ENABLE_GL_ARB_ES3_2_compatibility 1
 // #define ENABLE_GL_ARB_bindless_texture 1
 // #define ENABLE_GL_ARB_cl_event 1
-// #define ENABLE_GL_ARB_compute_variable_group_size 1
 // #define ENABLE_GL_ARB_debug_output 1
 // #define ENABLE_GL_ARB_draw_buffers_blend 1
 // #define ENABLE_GL_ARB_draw_instanced 1

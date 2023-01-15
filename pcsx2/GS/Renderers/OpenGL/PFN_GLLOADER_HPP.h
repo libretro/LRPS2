@@ -36,9 +36,6 @@ extern PFNGLGETVERTEXATTRIBLUI64VARBPROC glGetVertexAttribLui64vARB;
 #if defined(ENABLE_GL_ARB_cl_event) && defined(GL_ARB_cl_event)
 extern PFNGLCREATESYNCFROMCLEVENTARBPROC glCreateSyncFromCLeventARB;
 #endif
-#if defined(ENABLE_GL_ARB_compute_variable_group_size) && defined(GL_ARB_compute_variable_group_size)
-extern PFNGLDISPATCHCOMPUTEGROUPSIZEARBPROC glDispatchComputeGroupSizeARB;
-#endif
 #if defined(ENABLE_GL_ARB_debug_output) && defined(GL_ARB_debug_output)
 extern PFNGLDEBUGMESSAGECONTROLARBPROC glDebugMessageControlARB;
 extern PFNGLDEBUGMESSAGEINSERTARBPROC glDebugMessageInsertARB;
@@ -476,8 +473,6 @@ extern PFNGLDRAWTRANSFORMFEEDBACKSTREAMINSTANCEDPROC glDrawTransformFeedbackStre
 #if defined(ENABLE_GL_VERSION_4_3) && defined(GL_VERSION_4_3)
 extern PFNGLCLEARBUFFERDATAPROC glClearBufferData;
 extern PFNGLCLEARBUFFERSUBDATAPROC glClearBufferSubData;
-extern PFNGLDISPATCHCOMPUTEPROC glDispatchCompute;
-extern PFNGLDISPATCHCOMPUTEINDIRECTPROC glDispatchComputeIndirect;
 extern PFNGLCOPYIMAGESUBDATAPROC glCopyImageSubData;
 extern PFNGLFRAMEBUFFERPARAMETERIPROC glFramebufferParameteri;
 extern PFNGLGETFRAMEBUFFERPARAMETERIVPROC glGetFramebufferParameteriv;
@@ -516,12 +511,6 @@ extern PFNGLGETOBJECTPTRLABELPROC glGetObjectPtrLabel;
 extern PFNGLBUFFERSTORAGEPROC glBufferStorage;
 extern PFNGLCLEARTEXIMAGEPROC glClearTexImage;
 extern PFNGLCLEARTEXSUBIMAGEPROC glClearTexSubImage;
-extern PFNGLBINDBUFFERSBASEPROC glBindBuffersBase;
-extern PFNGLBINDBUFFERSRANGEPROC glBindBuffersRange;
-extern PFNGLBINDTEXTURESPROC glBindTextures;
-extern PFNGLBINDSAMPLERSPROC glBindSamplers;
-extern PFNGLBINDIMAGETEXTURESPROC glBindImageTextures;
-extern PFNGLBINDVERTEXBUFFERSPROC glBindVertexBuffers;
 #endif
 #if defined(ENABLE_GL_VERSION_4_5) && defined(GL_VERSION_4_5)
 extern PFNGLCLIPCONTROLPROC glClipControl;

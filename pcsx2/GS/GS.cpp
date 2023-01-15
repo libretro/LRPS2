@@ -149,9 +149,6 @@ GL_EXT_LOAD_OPT(glGetVertexAttribLui64vARB);
 #if defined(ENABLE_GL_ARB_cl_event) && defined(GL_ARB_cl_event)
 GL_EXT_LOAD_OPT(glCreateSyncFromCLeventARB);
 #endif
-#if defined(ENABLE_GL_ARB_compute_variable_group_size) && defined(GL_ARB_compute_variable_group_size)
-GL_EXT_LOAD_OPT(glDispatchComputeGroupSizeARB);
-#endif
 #if defined(ENABLE_GL_ARB_debug_output) && defined(GL_ARB_debug_output)
 GL_EXT_LOAD_OPT(glDebugMessageControlARB);
 GL_EXT_LOAD_OPT(glDebugMessageInsertARB);
@@ -589,8 +586,6 @@ GL_EXT_LOAD_OPT(glDrawTransformFeedbackStreamInstanced);
 #if defined(ENABLE_GL_VERSION_4_3) && defined(GL_VERSION_4_3)
 GL_EXT_LOAD_OPT(glClearBufferData);
 GL_EXT_LOAD_OPT(glClearBufferSubData);
-GL_EXT_LOAD_OPT(glDispatchCompute);
-GL_EXT_LOAD_OPT(glDispatchComputeIndirect);
 GL_EXT_LOAD_OPT(glCopyImageSubData);
 GL_EXT_LOAD_OPT(glFramebufferParameteri);
 GL_EXT_LOAD_OPT(glGetFramebufferParameteriv);
@@ -629,12 +624,6 @@ GL_EXT_LOAD_OPT(glGetObjectPtrLabel);
 GL_EXT_LOAD_OPT(glBufferStorage);
 GL_EXT_LOAD_OPT(glClearTexImage);
 GL_EXT_LOAD_OPT(glClearTexSubImage);
-GL_EXT_LOAD_OPT(glBindBuffersBase);
-GL_EXT_LOAD_OPT(glBindBuffersRange);
-GL_EXT_LOAD_OPT(glBindTextures);
-GL_EXT_LOAD_OPT(glBindSamplers);
-GL_EXT_LOAD_OPT(glBindImageTextures);
-GL_EXT_LOAD_OPT(glBindVertexBuffers);
 #endif
 #if defined(ENABLE_GL_VERSION_4_5) && defined(GL_VERSION_4_5)
 GL_EXT_LOAD_OPT(glClipControl);
@@ -935,18 +924,13 @@ void GSApp::Init()
 	m_current_configuration["mipmap_hw"]                                  = std::to_string(static_cast<int>(HWMipmapLevel::Automatic));
 	m_current_configuration["NTSC_Saturation"]                            = "1";
 	m_current_configuration["override_geometry_shader"]                   = "-1";
-	m_current_configuration["override_GL_ARB_compute_shader"]             = "-1";
 	m_current_configuration["override_GL_ARB_copy_image"]                 = "-1";
 	m_current_configuration["override_GL_ARB_clear_texture"]              = "-1";
 	m_current_configuration["override_GL_ARB_clip_control"]               = "-1";
 	m_current_configuration["override_GL_ARB_direct_state_access"]        = "-1";
 	m_current_configuration["override_GL_ARB_draw_buffers_blend"]         = "-1";
 	m_current_configuration["override_GL_ARB_gpu_shader5"]                = "-1";
-	m_current_configuration["override_GL_ARB_multi_bind"]                 = "-1";
 	m_current_configuration["override_GL_ARB_shader_image_load_store"]    = "-1";
-	m_current_configuration["override_GL_ARB_shader_storage_buffer_object"] = "-1";
-	m_current_configuration["override_GL_ARB_texture_view"]               = "-1";
-	m_current_configuration["override_GL_ARB_vertex_attrib_binding"]      = "-1";
 	m_current_configuration["override_GL_ARB_texture_barrier"]            = "-1";
 	m_current_configuration["paltex"]                                     = "0";
 	m_current_configuration["Renderer"]                                   = std::to_string(static_cast<int>(GSRendererType::Default));
