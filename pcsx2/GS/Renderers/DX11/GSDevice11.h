@@ -318,22 +318,20 @@ public:
 		{
 			struct
 			{
-				u32 abe:1;
-				u32 a:2;
-				u32 b:2;
-				u32 c:2;
-				u32 d:2;
+				/* Color mask */
 				u32 wr:1;
 				u32 wg:1;
 				u32 wb:1;
 				u32 wa:1;
+				/* Alpha blending */
+				u32 blend_index:7;
+				u32 abe:1;
 				u32 accu_blend:1;
 			};
 
 			struct
 			{
-				u32 _pad:1;
-				u32 abcd:8;
+				/* Color mask */
 				u32 wrgba:4;
 			};
 
