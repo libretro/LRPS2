@@ -175,10 +175,6 @@ namespace GLLoader {
 	bool found_GL_ARB_multi_bind                   = false;
 	bool found_GL_ARB_vertex_attrib_binding        = false;
 
-	/* In case sparse2 isn't supported */
-	bool found_compatible_GL_ARB_sparse_texture2   = false;
-	bool found_compatible_sparse_depth             = false;
-
 	static bool mandatory(const std::string& ext)
 	{
 		bool found = GLExtension::Has(ext);
@@ -312,9 +308,6 @@ namespace GLLoader {
 
 		// Extra
 		{
-			// Bonus
-			optional("GL_ARB_sparse_texture");
-			optional("GL_ARB_sparse_texture2");
 			/* OpenGL 4.0 */
 			found_GL_ARB_gpu_shader5                  = optional("GL_ARB_gpu_shader5");
 			/* OpenGL 4.2 */
@@ -355,73 +348,12 @@ namespace GLLoader {
 #endif
 	}
 
-	bool is_sparse2_compatible(const char* name, GLenum internal_fmt, int x_max, int y_max)
-	{
-		GLint x, y;
-		GLint index_count = 0;
-		glGetInternalformativ(GL_TEXTURE_2D, internal_fmt, GL_NUM_VIRTUAL_PAGE_SIZES_ARB, 1, &index_count);
-		if (!index_count)
-			return false;
-		glGetInternalformativ(GL_TEXTURE_2D, internal_fmt, GL_VIRTUAL_PAGE_SIZE_X_ARB, 1, &x);
-		glGetInternalformativ(GL_TEXTURE_2D, internal_fmt, GL_VIRTUAL_PAGE_SIZE_Y_ARB, 1, &y);
-		if (x > x_max && y > y_max)
-			return false;
-		return true;
-	}
-
-	static bool check_sparse_compatibility(void)
-	{
-		if (       !GLExtension::Has("GL_ARB_sparse_texture")
-			|| !GLExtension::Has("GL_EXT_direct_state_access")
-			|| theApp.GetConfigI("override_GL_ARB_sparse_texture") != 1)
-		{
-			found_compatible_GL_ARB_sparse_texture2 = false;
-			found_compatible_sparse_depth           = false;
-			return false;
-		}
-
-		found_compatible_GL_ARB_sparse_texture2         = true;
-		if (!GLExtension::Has("GL_ARB_sparse_texture2"))
-		{
-			// Only check format from GSTextureOGL
-			found_compatible_GL_ARB_sparse_texture2 &= is_sparse2_compatible("GL_R8", GL_R8, 256, 256);
-
-			found_compatible_GL_ARB_sparse_texture2 &= is_sparse2_compatible("GL_R16UI", GL_R16UI, 256, 128);
-
-			found_compatible_GL_ARB_sparse_texture2 &= is_sparse2_compatible("GL_R32UI", GL_R32UI, 128, 128);
-			found_compatible_GL_ARB_sparse_texture2 &= is_sparse2_compatible("GL_R32I", GL_R32I, 128, 128);
-			found_compatible_GL_ARB_sparse_texture2 &= is_sparse2_compatible("GL_RGBA8", GL_RGBA8, 128, 128);
-
-			found_compatible_GL_ARB_sparse_texture2 &= is_sparse2_compatible("GL_RGBA16", GL_RGBA16, 128, 64);
-			found_compatible_GL_ARB_sparse_texture2 &= is_sparse2_compatible("GL_RGBA16I", GL_RGBA16I, 128, 64);
-			found_compatible_GL_ARB_sparse_texture2 &= is_sparse2_compatible("GL_RGBA16UI", GL_RGBA16UI, 128, 64);
-			found_compatible_GL_ARB_sparse_texture2 &= is_sparse2_compatible("GL_RGBA16F", GL_RGBA16F, 128, 64);
-
-			found_compatible_GL_ARB_sparse_texture2 &= is_sparse2_compatible("GL_RGBA32F", GL_RGBA32F, 64, 64);
-		}
-
-		// Can fit in 128x64 but 128x128 is enough
-		// Disable sparse depth for AMD. Bad driver strikes again.
-		// driver reports a compatible sparse format for depth texture but it isn't attachable to a frame buffer.
-		found_compatible_sparse_depth = !vendor_id_amd && is_sparse2_compatible("GL_DEPTH32F_STENCIL8", GL_DEPTH32F_STENCIL8, 128, 128);
-
-		return true;
-	}
-
 	bool check_gl_requirements(void)
 	{
 		if (!check_gl_version(3, 3))
 			return false;
 
 		check_gl_supported_extension();
-
-		// Bonus for sparse texture
-		if (check_sparse_compatibility())
-		{
-			log_cb(RETRO_LOG_INFO, "Sparse color texture is %s\n", found_compatible_GL_ARB_sparse_texture2 ? "available" : "NOT SUPPORTED");
-			log_cb(RETRO_LOG_INFO, "Sparse depth texture is %s\n", found_compatible_sparse_depth ? "available" : "NOT SUPPORTED");
-		}
-
 		return true;
 	}
 }

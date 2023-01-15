@@ -89,12 +89,6 @@ extern PFNGLISNAMEDSTRINGARBPROC glIsNamedStringARB;
 extern PFNGLGETNAMEDSTRINGARBPROC glGetNamedStringARB;
 extern PFNGLGETNAMEDSTRINGIVARBPROC glGetNamedStringivARB;
 #endif
-#if defined(ENABLE_GL_ARB_sparse_buffer) && defined(GL_ARB_sparse_buffer)
-extern PFNGLBUFFERPAGECOMMITMENTARBPROC glBufferPageCommitmentARB;
-#endif
-#if defined(ENABLE_GL_ARB_sparse_texture) && defined(GL_ARB_sparse_texture)
-extern PFNGLTEXPAGECOMMITMENTARBPROC glTexPageCommitmentARB;
-#endif
 #if defined(ENABLE_GL_ARB_texture_buffer_object) && defined(GL_ARB_texture_buffer_object)
 extern PFNGLTEXBUFFERARBPROC glTexBufferARB;
 #endif

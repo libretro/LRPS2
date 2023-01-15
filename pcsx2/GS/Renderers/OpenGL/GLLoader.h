@@ -42,7 +42,7 @@
  * is to move to core only OpenGL
  ************************************************************/
 
-// Extension not in core profile. It will become irrelevant with sparse texture
+// Extension not in core profile.
 #ifndef GL_TEXTURE_FREE_MEMORY_ATI
 #define GL_TEXTURE_FREE_MEMORY_ATI 0x87FC
 #endif
@@ -84,8 +84,6 @@ typedef void (APIENTRYP PFNGLTEXTUREPAGECOMMITMENTEXTPROC) (GLuint texture, GLin
 // #define ENABLE_GL_ARB_sample_locations 1
 // #define ENABLE_GL_ARB_sample_shading 1
 // #define ENABLE_GL_ARB_shading_language_include 1
-// #define ENABLE_GL_ARB_sparse_buffer 1
-#define ENABLE_GL_ARB_sparse_texture 1
 // #define ENABLE_GL_ARB_texture_buffer_object 1
 // #define ENABLE_GL_KHR_blend_equation_advanced 1
 // #define ENABLE_GL_KHR_parallel_shader_compile 1
@@ -156,7 +154,4 @@ namespace GLLoader {
 
 	/* OpenGL ES (Mobile) */
 	extern bool found_GL_EXT_buffer_storage;
-
-	extern bool found_compatible_GL_ARB_sparse_texture2;
-	extern bool found_compatible_sparse_depth;
 }

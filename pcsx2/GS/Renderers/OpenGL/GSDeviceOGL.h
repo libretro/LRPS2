@@ -549,9 +549,6 @@ public:
 	void OMSetRenderTargets(GSTexture* rt, GSTexture* ds, const GSVector4i* scissor = NULL);
 	void OMSetColorMaskState(OMColorMaskSelector sel = OMColorMaskSelector());
 
-	virtual bool HasColorSparse() final { return GLLoader::found_compatible_GL_ARB_sparse_texture2; }
-	virtual bool HasDepthSparse() final { return GLLoader::found_compatible_sparse_depth; }
-
 	void CreateTextureFX();
 	GLuint CompileVS(VSSelector sel);
 	GLuint CompileGS(GSSelector sel);

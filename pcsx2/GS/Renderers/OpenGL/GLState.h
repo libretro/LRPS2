@@ -62,7 +62,5 @@ namespace GLState {
 	extern GLuint program;
 	extern GLuint pipeline;
 
-	extern s64 available_vram;
-
 	extern void Clear();
 }

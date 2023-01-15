@@ -202,12 +202,6 @@ GL_EXT_LOAD_OPT(glIsNamedStringARB);
 GL_EXT_LOAD_OPT(glGetNamedStringARB);
 GL_EXT_LOAD_OPT(glGetNamedStringivARB);
 #endif
-#if defined(ENABLE_GL_ARB_sparse_buffer) && defined(GL_ARB_sparse_buffer)
-GL_EXT_LOAD_OPT(glBufferPageCommitmentARB);
-#endif
-#if defined(ENABLE_GL_ARB_sparse_texture) && defined(GL_ARB_sparse_texture)
-GL_EXT_LOAD_OPT(glTexPageCommitmentARB);
-#endif
 #if defined(ENABLE_GL_ARB_texture_buffer_object) && defined(GL_ARB_texture_buffer_object)
 GL_EXT_LOAD_OPT(glTexBufferARB);
 #endif
@@ -951,8 +945,6 @@ void GSApp::Init()
 	m_current_configuration["override_GL_ARB_multi_bind"]                 = "-1";
 	m_current_configuration["override_GL_ARB_shader_image_load_store"]    = "-1";
 	m_current_configuration["override_GL_ARB_shader_storage_buffer_object"] = "-1";
-	m_current_configuration["override_GL_ARB_sparse_texture"]             = "-1";
-	m_current_configuration["override_GL_ARB_sparse_texture2"]            = "-1";
 	m_current_configuration["override_GL_ARB_texture_view"]               = "-1";
 	m_current_configuration["override_GL_ARB_vertex_attrib_binding"]      = "-1";
 	m_current_configuration["override_GL_ARB_texture_barrier"]            = "-1";

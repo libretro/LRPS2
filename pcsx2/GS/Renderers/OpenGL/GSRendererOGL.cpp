@@ -1162,13 +1162,8 @@ void GSRendererOGL::DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Sour
 
 	const GSVector4i commitRect = ComputeBoundingBox(rtscale, rtsize);
 
-	if (rt)
-		rt->CommitRegion(GSVector2i(commitRect.z, commitRect.w));
-
-	if (ds)
-		ds->CommitRegion(GSVector2i(commitRect.z, commitRect.w));
-
-	if (DATE_GL42) {
+	if (DATE_GL42)
+	{
 		// It could be good idea to use stencil in the same time.
 		// Early stencil test will reduce the number of atomic-load operation
 

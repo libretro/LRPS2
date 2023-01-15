@@ -191,9 +191,8 @@ void GSRendererHW::SetScaling()
 	// * high resolution game such as snowblind engine game
 	//
 	// Autodetection isn't a good idea because it will create flickering
-	// If memory consumption is an issue, there are 2 possibilities
+	// If memory consumption is an issue, there is 1 possibility
 	// * 1/ Avoid to create hundreds of RT
-	// * 2/ Use sparse texture (requires recent HW)
 	//
 	// Avoid to alternate between 640x1280 and 1280x1024 on snow blind engine game
 	// int fb_height = (fb_width < 1024) ? 1280 : 1024;
@@ -1404,8 +1403,6 @@ void GSRendererHW::OI_DoubleHalfClear(GSTexture* rt, GSTexture* ds)
 
 			// Commit texture with a factor 2 on the height
 			GSTexture* t = clear_depth ? ds : rt;
-			const GSVector4i commitRect = ComputeBoundingBox(t->GetScale(), t->GetSize());
-			t->CommitRegion(GSVector2i(commitRect.z, 2 * commitRect.w));
 
 			if (clear_depth)
 				// Only pure clear are supported for depth
@@ -1655,13 +1652,9 @@ bool GSRendererHW::OI_FFX(GSTexture* rt, GSTexture* ds, GSTextureCache::Source* 
 	const u32 ZBP = GIFREG_ZBUF_BLOCK(m_context->ZBUF);
 	const u32 TBP = m_context->TEX0.TBP0;
 
+	// random battle transition (z buffer written directly, clear it now)
 	if((FBP == 0x00d00 || FBP == 0x00000) && ZBP == 0x02100 && PRIM->TME && TBP == 0x01a00 && m_context->TEX0.PSM == PSM_PSMCT16S)
-	{
-		// random battle transition (z buffer written directly, clear it now)
-		if(ds)
-			ds->Commit(); // Don't bother to save few MB for a single game
 		m_dev->ClearDepth(ds);
-	}
 
 	return true;
 }
@@ -1709,10 +1702,7 @@ bool GSRendererHW::OI_RozenMaidenGebetGarden(GSTexture* rt, GSTexture* ds, GSTex
 			TEX0.PSM = m_context->FRAME.PSM;
 
 			if(GSTextureCache::Target* tmp_rt = m_tc->LookupTarget(TEX0, m_width, m_height, GSTextureCache::RenderTarget, true))
-			{
-				tmp_rt->m_texture->Commit(); // Don't bother to save few MB for a single game
 				m_dev->ClearRenderTarget(tmp_rt->m_texture, 0);
-			}
 
 			return false;
 		}
@@ -1727,10 +1717,7 @@ bool GSRendererHW::OI_RozenMaidenGebetGarden(GSTexture* rt, GSTexture* ds, GSTex
 			TEX0.PSM = m_context->ZBUF.PSM;
 
 			if(GSTextureCache::Target* tmp_ds = m_tc->LookupTarget(TEX0, m_width, m_height, GSTextureCache::DepthStencil, true))
-			{
-				tmp_ds->m_texture->Commit(); // Don't bother to save few MB for a single game
 				m_dev->ClearDepth(tmp_ds->m_texture);
-			}
 
 			return false;
 		}
@@ -1781,11 +1768,7 @@ bool GSRendererHW::OI_StarWarsForceUnleashed(GSTexture* rt, GSTexture* ds, GSTex
 	if(PRIM->TME)
 	{
 		if((FBP == 0x0 || FBP == 0x01180) && FPSM == PSM_PSMCT32 && (m_vt.m_eq.z && m_vt.m_max.p.z == 0))
-		{
-			if(ds)
-				ds->Commit(); // Don't bother to save few MB for a single game
 			m_dev->ClearDepth(ds);
-		}
 	}
 
 	return true;
@@ -1859,8 +1842,6 @@ bool GSRendererHW::OI_SuperManReturns(GSTexture* rt, GSTexture* ds, GSTextureCac
 		return true;
 
 	// Do a direct write
-	if(rt)
-		rt->Commit(); // Don't bother to save few MB for a single game
 	m_dev->ClearRenderTarget(rt, GSVector4(m_vt.m_min.c));
 
 	m_tc->InvalidateVideoMemType(GSTextureCache::DepthStencil, GIFREG_FRAME_BLOCK(ctx->FRAME));
@@ -1893,11 +1874,8 @@ bool GSRendererHW::OI_ArTonelico2(GSTexture* rt, GSTexture* ds, GSTextureCache::
 
 	const GSVertex* v = &m_vertex.buff[0];
 
-	if (m_vertex.next == 2 && !PRIM->TME && m_context->FRAME.FBW == 10 && v->XYZ.Z == 0 && m_context->TEST.ZTST == ZTST_ALWAYS) {
-		if(ds)
-			ds->Commit(); // Don't bother to save few MB for a single game
+	if (m_vertex.next == 2 && !PRIM->TME && m_context->FRAME.FBW == 10 && v->XYZ.Z == 0 && m_context->TEST.ZTST == ZTST_ALWAYS)
 		m_dev->ClearDepth(ds);
-	}
 
 	return true;
 }

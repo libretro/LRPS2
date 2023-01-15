@@ -1781,10 +1781,6 @@ GSTexture* GSDeviceOGL::CreateSurface(int type, int w, int h, int fmt)
 	// FIXME: it will be more logical to do it in FetchSurface. This code is only called at first creation
 	//  of the texture. However we could reuse a deleted texture.
 	if (m_force_texture_clear == 0) {
-		// Clear won't be done if the texture isn't committed. Commit the full texture to ensure
-		// correct behavior of force clear option (debug option)
-		t->Commit();
-
 		switch(type)
 		{
 			case GSTexture::RenderTarget:
@@ -1803,16 +1799,12 @@ GSTexture* GSDeviceOGL::CreateSurface(int type, int w, int h, int fmt)
 GSTexture* GSDeviceOGL::FetchSurface(int type, int w, int h, int format)
 {
 	if (format == 0)
-		format = (type == GSTexture::DepthStencil || type == GSTexture::SparseDepthStencil) ? GL_DEPTH32F_STENCIL8 : GL_RGBA8;
+		format = (type == GSTexture::DepthStencil) ? GL_DEPTH32F_STENCIL8 : GL_RGBA8;
 
 	GSTexture* t = GSDevice::FetchSurface(type, w, h, format);
 
 
 	if (m_force_texture_clear) {
-		// Clear won't be done if the texture isn't committed. Commit the full texture to ensure
-		// correct behavior of force clear option (debug option)
-		t->Commit();
-
 		GSVector4 red(1.0f, 0.0f, 0.0f, 1.0f);
 		switch(type)
 		{
@@ -2017,12 +2009,6 @@ bool GSDeviceOGL::Create()
 		// GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX <= give full memory
 		// Available vram
 		glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, vram);
-
-	// When VRAM is at least 2GB, we set the limit to the default i.e. 3.8 GB
-	// When VRAM is below 2GB, we add a factor 2 because RAM can be used. Potentially
-	// low VRAM gpu can go higher but perf will be bad anyway.
-	if (vram[0] > 0 && vram[0] < 1800000)
-		GLState::available_vram = (s64)(vram[0]) * 1024ul * 2ul;
 
 	// ****************************************************************
 	// Finish window setup and backbuffer
@@ -2412,8 +2398,6 @@ void GSDeviceOGL::CopyRectConv(GSTexture* sTex, GSTexture* dTex, const GSVector4
 	const GLuint& sid = static_cast<GSTextureOGL*>(sTex)->GetID();
 	const GLuint& did = static_cast<GSTextureOGL*>(dTex)->GetID();
 
-	dTex->CommitRegion(GSVector2i(r.z, r.w));
-
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo_read);
 
 	glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, sid, 0);
@@ -2433,8 +2417,6 @@ void GSDeviceOGL::CopyRect(GSTexture* sTex, GSTexture* dTex, const GSVector4i& r
 
 	const GLuint& sid = static_cast<GSTextureOGL*>(sTex)->GetID();
 	const GLuint& did = static_cast<GSTextureOGL*>(dTex)->GetID();
-
-	dTex->CommitRegion(GSVector2i(r.z, r.w));
 
 	glCopyImageSubData( sid, GL_TEXTURE_2D,
 			0, r.x, r.y, 0,
@@ -2547,7 +2529,6 @@ void GSDeviceOGL::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture
 	// ************************************
 	// Draw
 	// ************************************
-	dTex->CommitRegion(GSVector2i((int)dRect.z + 1, (int)dRect.w + 1));
 	DrawPrimitive();
 
 	// ************************************

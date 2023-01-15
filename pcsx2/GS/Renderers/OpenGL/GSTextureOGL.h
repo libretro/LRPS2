@@ -63,9 +63,6 @@ class GSTextureOGL final : public GSTexture
 		GLenum m_int_type;
 		u32 m_int_shift;
 
-		// Allow to track size of allocated memory
-		u32 m_mem_usage;
-
 	public:
 		explicit GSTextureOGL(int type, int w, int h, int format, GLuint fbo_read, bool mipmap);
 		virtual ~GSTextureOGL();
@@ -75,8 +72,8 @@ class GSTextureOGL final : public GSTexture
 		void Unmap() final;
 		void GenerateMipmap() final;
 
-		bool IsBackbuffer() { return (m_type == GSTexture::Backbuffer); }
-		bool IsDss() { return (m_type == GSTexture::DepthStencil || m_type == GSTexture::SparseDepthStencil); }
+		bool IsBackbuffer() { return m_type == GSTexture::Backbuffer; }
+		bool IsDss() { return m_type == GSTexture::DepthStencil; }
 
 		u32 GetID() final { return m_texture_id; }
 		bool HasBeenCleaned() { return m_clean; }
@@ -85,8 +82,4 @@ class GSTextureOGL final : public GSTexture
 
 		void Clear(const void* data);
 		void Clear(const void* data, const GSVector4i& area);
-
-		void CommitPages(const GSVector2i& region, bool commit) final;
-
-		u32 GetMemUsage();
 };

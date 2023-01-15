@@ -147,7 +147,6 @@ GSTextureOGL::GSTextureOGL(int type, int w, int h, int format, GLuint fbo_read, 
 	m_type   = type;
 	m_fbo_read = fbo_read;
 	m_texture_id = 0;
-	m_sparse = false;
 	m_max_layer = 1;
 
 	// Bunch of constant parameter
@@ -236,65 +235,17 @@ GSTextureOGL::GSTextureOGL(int type, int w, int h, int format, GLuint fbo_read, 
 			// Only 32 bits input texture will be supported for mipmap
 			m_max_layer = mipmap && m_format == GL_RGBA8 ? (int)log2(std::max(w,h)) : 1;
 			break;
-		case SparseRenderTarget:
-		case SparseDepthStencil:
-			m_sparse = true;
-			break;
 		default:
 			break;
 	}
 
-	switch (m_format) {
-		case GL_R16UI:
-		case GL_R8:
-			m_sparse &= GLLoader::found_compatible_GL_ARB_sparse_texture2;
-			SetGpuPageSize(GSVector2i(255, 255));
-			break;
-
-		case GL_R32UI:
-		case GL_R32I:
-		case GL_RGBA16:
-		case GL_RGBA8:
-		case GL_RGBA16I:
-		case GL_RGBA16UI:
-		case GL_RGBA16F:
-		case 0:
-			m_sparse &= GLLoader::found_compatible_GL_ARB_sparse_texture2;
-			SetGpuPageSize(GSVector2i(127, 127));
-			break;
-
-		case GL_RGBA32F:
-			m_sparse &= GLLoader::found_compatible_GL_ARB_sparse_texture2;
-			SetGpuPageSize(GSVector2i(63, 63));
-			break;
-
-		case GL_DEPTH32F_STENCIL8:
-			m_sparse &= GLLoader::found_compatible_sparse_depth;
-			SetGpuPageSize(GSVector2i(127, 127));
-			break;
-
-		default:
-			break;
-	}
-
-	// Create a gl object (texture isn't allocated here)
+	// Create a GL object (texture isn't allocated here)
 	glCreateTextures(GL_TEXTURE_2D, 1, &m_texture_id);
-	if (m_format == GL_R8) {
-		// Emulate DX behavior, beside it avoid special code in shader to differentiate
-		// palette texture from a GL_RGBA target or a GL_R texture.
+
+	// Emulate DX behavior, besides it avoids special code in shader to differentiate
+	// palette texture from a GL_RGBA target or a GL_R texture.
+	if (m_format == GL_R8)
 		glTextureParameteri(m_texture_id, GL_TEXTURE_SWIZZLE_A, GL_RED);
-	}
-
-	if (m_sparse) {
-		m_size = RoundUpPage(m_size);
-		glTextureParameteri(m_texture_id, GL_TEXTURE_SPARSE_ARB, true);
-	} else {
-		m_committed_size = m_size;
-	}
-
-	m_mem_usage              = (m_committed_size.x * m_committed_size.y) << m_int_shift;
-
-	GLState::available_vram -= m_mem_usage;
 
 	glTextureStorage2D(m_texture_id, m_max_layer + GL_TEX_LEVEL_0, m_format, m_size.x, m_size.y);
 }
@@ -313,8 +264,6 @@ GSTextureOGL::~GSTextureOGL()
 	}
 
 	glDeleteTextures(1, &m_texture_id);
-
-	GLState::available_vram += m_mem_usage;
 
 	if (m_local_buffer)
 		AlignedFree(m_local_buffer);
@@ -352,7 +301,8 @@ bool GSTextureOGL::Update(const GSVector4i& r, const void* data, int pitch, int 
 
 	// PERF: slow path of the texture upload. Dunno if we could do better maybe check if TC can keep row_byte == pitch
 	// Note: row_byte != pitch
-	for (int h = 0; h < r.height(); h++) {
+	for (int h = 0; h < r.height(); h++)
+	{
 		memcpy(map, src, row_byte);
 		map += row_byte;
 		src += pitch;
@@ -443,39 +393,4 @@ void GSTextureOGL::GenerateMipmap()
 		glGenerateTextureMipmap(m_texture_id);
 		m_generate_mipmap = false;
 	}
-}
-
-void GSTextureOGL::CommitPages(const GSVector2i& region, bool commit)
-{
-	GLState::available_vram += m_mem_usage;
-
-	if (commit) {
-		if (m_committed_size.x == 0) {
-			// Nothing allocated so far
-			glTexturePageCommitmentEXT(m_texture_id, GL_TEX_LEVEL_0, 0, 0, 0, region.x, region.y, 1, commit);
-		} else {
-			int w = region.x - m_committed_size.x;
-			int h = region.y - m_committed_size.y;
-			// Extend width
-			glTexturePageCommitmentEXT(m_texture_id, GL_TEX_LEVEL_0, m_committed_size.x, 0, 0, w, m_committed_size.y, 1, commit);
-			// Extend height
-			glTexturePageCommitmentEXT(m_texture_id, GL_TEX_LEVEL_0, 0, m_committed_size.y, 0, region.x, h, 1, commit);
-		}
-		m_committed_size = region;
-
-	} else {
-		// Release everything
-
-		glTexturePageCommitmentEXT(m_texture_id, GL_TEX_LEVEL_0, 0, 0, 0, m_committed_size.x, m_committed_size.y, 1, commit);
-
-		m_committed_size = GSVector2i(0, 0);
-	}
-
-	m_mem_usage = (m_committed_size.x * m_committed_size.y) << m_int_shift;
-	GLState::available_vram -= m_mem_usage;
-}
-
-u32 GSTextureOGL::GetMemUsage()
-{
-	return m_mem_usage;
 }

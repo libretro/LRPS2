@@ -163,16 +163,11 @@ public:
 
 	virtual void EndScene();
 
-	virtual bool HasDepthSparse() { return false; }
-	virtual bool HasColorSparse() { return false; }
-
 	virtual void ClearRenderTarget(GSTexture* t, const GSVector4& c) {}
 	virtual void ClearRenderTarget(GSTexture* t, u32 c) {}
 	virtual void ClearDepth(GSTexture* t) {}
 	virtual void ClearStencil(GSTexture* t, u8 c) {}
 
-	GSTexture* CreateSparseRenderTarget(int w, int h, int format = 0);
-	GSTexture* CreateSparseDepthStencil(int w, int h, int format = 0);
 	GSTexture* CreateRenderTarget(int w, int h, int format = 0);
 	GSTexture* CreateDepthStencil(int w, int h, int format = 0);
 	GSTexture* CreateTexture(int w, int h, int format = 0);
