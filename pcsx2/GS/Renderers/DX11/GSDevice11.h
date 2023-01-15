@@ -327,6 +327,7 @@ public:
 				u32 blend_index:7;
 				u32 abe:1;
 				u32 accu_blend:1;
+				u32 blend_mix : 1;
 			};
 
 			struct

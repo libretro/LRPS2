@@ -472,6 +472,16 @@ void GSRendererDX11::EmulateBlending(u8& afix)
 	// Blending doesn't require sampling of the rt
 	const bool blend_non_recursive = !!(blend_flag & BLEND_NO_REC);
 
+	// BLEND MIX selection, use a mix of hw/sw blending
+	if (!m_vt.m_alpha.valid && (ALPHA.C == 0))
+		GetAlphaMinMax();
+	const bool blend_mix1 = !!(blend_flag & BLEND_MIX1);
+	const bool blend_mix2 = !!(blend_flag & BLEND_MIX2);
+	const bool blend_mix3 = !!(blend_flag & BLEND_MIX3);
+	bool blend_mix  = (blend_mix1 || blend_mix2 || blend_mix3)
+		// Do not enable if As > 128 or F > 128, hw blend clamps to 1
+		&& !((ALPHA.C == 0 && m_vt.m_alpha.max > 128) || (ALPHA.C == 2 && ALPHA.FIX > 128u));
+
 	bool sw_blending         = false;
 	switch (m_sw_blending)
 	{
@@ -483,6 +493,13 @@ void GSRendererDX11::EmulateBlending(u8& afix)
 		default: break;
 	}
 
+	// Do not run BLEND MIX if sw blending is already present, it's less accurate
+	if (m_sw_blending)
+	{
+		blend_mix   &= !sw_blending;
+		sw_blending |=  blend_mix;
+	}
+
 	// Color clip
 	if (m_env.COLCLAMP.CLAMP == 0)
 	{
@@ -492,8 +509,9 @@ void GSRendererDX11::EmulateBlending(u8& afix)
 			m_ps_sel.colclip = 1;
 			sw_blending = true;
 		}
-		else if (accumulation_blend)
+		else if (accumulation_blend || blend_mix)
 		{
+			/* COLCLIP Fast HDR mode ENABLED */
 			sw_blending = true;
 			m_ps_sel.hdr = 1;
 		}
@@ -515,7 +533,7 @@ void GSRendererDX11::EmulateBlending(u8& afix)
 			// Breath of Fire Dragon Quarter, Strawberry Shortcake, Super Robot Wars, Cartoon Network Racing.
                         // PABE mode ENABLED
 			m_ps_sel.pabe = 1;
-			sw_blending   = !accumulation_blend;
+			sw_blending   = blend_non_recursive;
 		}
 	}
 
@@ -541,6 +559,30 @@ void GSRendererDX11::EmulateBlending(u8& afix)
 			}
 			// Remove the addition/substraction from the SW blending
 			m_ps_sel.blend_d = 2;
+		}
+		else if (blend_mix)
+		{
+			afix = (ALPHA.C == 2) ? ALPHA.FIX : 0;
+			m_om_bsel.blend_mix = 1;
+
+			if (blend_mix1)
+			{
+				m_ps_sel.blend_a = 0;
+				m_ps_sel.blend_b = 2;
+				m_ps_sel.blend_d = 2;
+			}
+			else if (blend_mix2)
+			{
+				m_ps_sel.blend_a = 0;
+				m_ps_sel.blend_b = 2;
+				m_ps_sel.blend_d = 0;
+			}
+			else if (blend_mix3)
+			{
+				m_ps_sel.blend_a = 2;
+				m_ps_sel.blend_b = 0;
+				m_ps_sel.blend_d = 0;
+			}
 		}
 		else
 		{

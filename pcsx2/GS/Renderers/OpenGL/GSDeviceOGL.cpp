@@ -2767,7 +2767,7 @@ void GSDeviceOGL::OMSetColorMaskState(OMColorMaskSelector sel)
 	}
 }
 
-void GSDeviceOGL::OMSetBlendState(u8 blend_index, u8 blend_factor, bool is_blend_constant, bool accumulation_blend)
+void GSDeviceOGL::OMSetBlendState(u8 blend_index, u8 blend_factor, bool is_blend_constant, bool accumulation_blend, bool blend_mix)
 {
 	if (blend_index) {
 		if (!GLState::blend) {
@@ -2786,6 +2786,8 @@ void GSDeviceOGL::OMSetBlendState(u8 blend_index, u8 blend_factor, bool is_blend
 			b.src = GL_ONE;
 			b.dst = GL_ONE;
 		}
+		else if (blend_mix)
+			b.src = GL_ONE;
 
 		if (GLState::eq_RGB != b.op) {
 			GLState::eq_RGB = b.op;

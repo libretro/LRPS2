@@ -437,26 +437,33 @@ void GSRendererOGL::EmulateBlending(bool& DATE_GL42, bool& DATE_GL45)
 		return;
 	}
 
-	// Breath of Fire Dragon Quarter, Strawberry Shortcake, Super Robot Wars, Cartoon Network Racing.
-	// PABE mode ENABLED
-	if (m_env.PABE.PABE)
-		m_ps_sel.pabe = 1;
-
 	// Compute the blending equation to detect special case
 	const GIFRegALPHA& ALPHA = m_context->ALPHA;
 	const u8 blend_index  = u8(((ALPHA.A * 3 + ALPHA.B) * 3 + ALPHA.C) * 3 + ALPHA.D);
 	const int blend_flag = m_dev->GetBlendFlags(blend_index);
-
-	// SW Blend is (nearly) free. Let's use it.
-	const bool impossible_or_free_blend = (blend_flag & (BLEND_NO_REC|BLEND_A_MAX|BLEND_ACCU)) // Blend doesn't requires the costly barrier
-		|| (m_prim_overlap == PRIM_OVERLAP_NO) // Blend can be done in a single draw
-		|| (m_require_full_barrier);           // Another effect (for example fbmask) already requires a full barrier
 
 	// Do the multiplication in shader for blending accumulation: Cs*As + Cd or Cs*Af + Cd
 	bool accumulation_blend = !!(blend_flag & BLEND_ACCU);
 
 	// Blending doesn't require barrier, or sampling of the rt
 	const bool blend_non_recursive = !!(blend_flag & BLEND_NO_REC);
+
+	// BLEND MIX selection, use a mix of hw/sw blending
+	if (!m_vt.m_alpha.valid && (ALPHA.C == 0))
+		GetAlphaMinMax();
+	const bool blend_mix1 = !!(blend_flag & BLEND_MIX1);
+	const bool blend_mix2 = !!(blend_flag & BLEND_MIX2);
+	const bool blend_mix3 = !!(blend_flag & BLEND_MIX3);
+	bool blend_mix  = (blend_mix1 || blend_mix2 || blend_mix3)
+		// Do not enable if As > 128 or F > 128, hw blend clamps to 1
+		&& !((ALPHA.C == 0 && m_vt.m_alpha.max > 128) || (ALPHA.C == 2 && ALPHA.FIX > 128u));
+
+	// SW Blend is (nearly) free. Let's use it.
+	const bool impossible_or_free_blend = (blend_flag & BLEND_A_MAX) // Impossible blending
+		|| blend_non_recursive                 // Free sw blending, doesn't require barriers or reading fb
+		|| accumulation_blend                  // Mix of hw/sw blending
+		|| (m_prim_overlap == PRIM_OVERLAP_NO) // Blend can be done in a single draw
+		|| (m_require_full_barrier);           // Another effect (for example fbmask) already requires a full barrier
 
 	// Warning no break on purpose
 	// Note: the "fall through" comments tell gcc not to complain about not having breaks.
@@ -466,7 +473,6 @@ void GSRendererOGL::EmulateBlending(bool& DATE_GL42, bool& DATE_GL45)
 			sw_blending |= true;
 			// fall through
 		case ACC_BLEND_FULL:
-			if (!m_vt.m_alpha.valid && (ALPHA.C == 0)) GetAlphaMinMax();
 			sw_blending |= (ALPHA.A != ALPHA.B) && ((ALPHA.C == 0 && m_vt.m_alpha.max > 128) || (ALPHA.C == 2 && ALPHA.FIX > 128u));
 			// fall through
 		case ACC_BLEND_HIGH:
@@ -485,6 +491,13 @@ void GSRendererOGL::EmulateBlending(bool& DATE_GL42, bool& DATE_GL45)
 			/*sw_blending |= accumulation_blend*/;
 	}
 
+	// Do not run BLEND MIX if sw blending is already present, it's less accurate
+	if (m_sw_blending)
+	{
+		blend_mix   &= !sw_blending;
+		sw_blending |=  blend_mix;
+	}
+
 	// Color clip
 	if (m_env.COLCLAMP.CLAMP == 0) {
 		// Safe FBMASK, avoid hitting accumulation mode on 16bit,
@@ -497,7 +510,9 @@ void GSRendererOGL::EmulateBlending(bool& DATE_GL42, bool& DATE_GL45)
 			m_ps_sel.colclip = 1;
 			sw_blending = true;
 			accumulation_blend = false; // disable the HDR algo
-		} else if (accumulation_blend) {
+			blend_mix = false;
+		} else if (accumulation_blend || blend_mix)
+		{
 			// A fast algo that requires 2 passes
 			// COLCLIP Fast HDR mode ENABLED
 			m_ps_sel.hdr = 1;
@@ -511,6 +526,20 @@ void GSRendererOGL::EmulateBlending(bool& DATE_GL42, bool& DATE_GL45)
 			m_ps_sel.hdr = 1;
 		}
 	}
+
+	// Per pixel alpha blending
+	if (m_env.PABE.PABE)
+	{
+		// Breath of Fire Dragon Quarter, Strawberry Shortcake, Super Robot Wars, Cartoon Network Racing.
+		if (sw_blending)
+		{
+			// PABE mode ENABLED
+			m_ps_sel.pabe = 1;
+			accumulation_blend = false;
+			blend_mix = false;
+		}
+	}
+
 
 	// GL42 interact very badly with sw blending. GL42 uses the primitiveID to find the primitive
 	// that write the bad alpha value. Sw blending will force the draw to run primitive by primitive
@@ -546,7 +575,32 @@ void GSRendererOGL::EmulateBlending(bool& DATE_GL42, bool& DATE_GL45)
 
 			// Note accumulation_blend doesn't require a barrier
 
-		} else {
+		}
+		else if (blend_mix)
+		{
+			dev->OMSetBlendState(blend_index, ALPHA.FIX, ALPHA.C == 2, false, true);
+
+			if (blend_mix1)
+			{
+				m_ps_sel.blend_a = 0;
+				m_ps_sel.blend_b = 2;
+				m_ps_sel.blend_d = 2;
+			}
+			else if (blend_mix2)
+			{
+				m_ps_sel.blend_a = 0;
+				m_ps_sel.blend_b = 2;
+				m_ps_sel.blend_d = 0;
+			}
+			else if (blend_mix3)
+			{
+				m_ps_sel.blend_a = 2;
+				m_ps_sel.blend_b = 0;
+				m_ps_sel.blend_d = 0;
+			}
+		}
+		else
+		{
 			// Disable HW blending
 			dev->OMSetBlendState();
 
