@@ -1999,18 +1999,6 @@ bool GSDeviceOGL::Create()
 	}
 
 	// ****************************************************************
-	// Get Available Memory
-	// ****************************************************************
-	GLint vram[4] = {0};
-	if (GLLoader::vendor_id_amd)
-		// Full vram, remove a small margin for others buffer
-		glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, vram);
-	else if (GLExtension::Has("GL_NVX_gpu_memory_info"))
-		// GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX <= give full memory
-		// Available vram
-		glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, vram);
-
-	// ****************************************************************
 	// Finish window setup and backbuffer
 	// ****************************************************************
 	if(!GSDevice::Create())
