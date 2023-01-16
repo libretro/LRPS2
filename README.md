@@ -8,7 +8,8 @@ Changes (in no particular order):
 - We only target Libretro
 - Removed as much cross-platform code as possible, reduces a significant chunk of the code
   - (SPU2)   Removed all sound API dependent code, we only target Libretro audio
-  - (GS/OGL) Removed all OpenGL context code, we only target the Libretro GL renderpath
+  - (GS/OGL) Removed all OpenGL context code (WGL/GLX/EGL/etc), we only target the Libretro GL hardware context
+  - (GS/D3D11) Removed DXGI context code, not needed for Libretro D3D11 hardware context
   - (Input)  Removed all input API dependent code, we only target Libretro audio
 - (GS/OGL) Don't use GLAD for GL extension loading purposes, try to keep a few limited function pointers for calling GL functions
 - (GS) Embed shaders into the core itself instead of having to read them from disk. Reduces file I/O and makes it so we have as few file dependencies as possible
