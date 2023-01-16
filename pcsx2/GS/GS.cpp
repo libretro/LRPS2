@@ -921,15 +921,6 @@ void GSApp::Init()
 	m_current_configuration["mipmap"]                                     = "1";
 	m_current_configuration["mipmap_hw"]                                  = std::to_string(static_cast<int>(HWMipmapLevel::Automatic));
 	m_current_configuration["NTSC_Saturation"]                            = "1";
-	m_current_configuration["override_geometry_shader"]                   = "-1";
-	m_current_configuration["override_GL_ARB_copy_image"]                 = "-1";
-	m_current_configuration["override_GL_ARB_clear_texture"]              = "-1";
-	m_current_configuration["override_GL_ARB_clip_control"]               = "-1";
-	m_current_configuration["override_GL_ARB_direct_state_access"]        = "-1";
-	m_current_configuration["override_GL_ARB_draw_buffers_blend"]         = "-1";
-	m_current_configuration["override_GL_ARB_gpu_shader5"]                = "-1";
-	m_current_configuration["override_GL_ARB_shader_image_load_store"]    = "-1";
-	m_current_configuration["override_GL_ARB_texture_barrier"]            = "-1";
 	m_current_configuration["paltex"]                                     = "0";
 	m_current_configuration["Renderer"]                                   = std::to_string(static_cast<int>(GSRendererType::Default));
 	m_current_configuration["upscale_multiplier"]                         = "1";

@@ -178,20 +178,8 @@ namespace GLLoader {
 	static bool optional(const std::string& name)
 	{
 		bool found = GLExtension::Has(name);
-
 		if (!found)
 			log_cb(RETRO_LOG_WARN, "INFO: %s is NOT SUPPORTED\n", name.c_str());
-
-		std::string opt("override_");
-		opt += name;
-
-		if (theApp.GetConfigI(opt.c_str()) != -1)
-		{
-			found = theApp.GetConfigB(opt.c_str());
-			log_cb(RETRO_LOG_DEBUG, "Override %s detection (%s)\n", name.c_str(), found ? "Enabled" : "Disabled");
-			GLExtension::Set(name, found);
-		}
-
 		return found;
 	}
 
@@ -215,16 +203,9 @@ namespace GLLoader {
 		// As of 2019 SSO is still broken on intel (Kaby Lake confirmed).
 		buggy_sso_dual_src = vendor_id_intel || vendor_id_amd;
 
-		if (theApp.GetConfigI("override_geometry_shader") != -1)
-		{
-			found_geometry_shader = theApp.GetConfigB("override_geometry_shader");
-			GLExtension::Set("GL_ARB_geometry_shader4", found_geometry_shader);
-			log_cb(RETRO_LOG_INFO, "Overriding geometry shaders detection\n");
-		}
-
 		glGetIntegerv(GL_MAJOR_VERSION, &major_gl);
 		glGetIntegerv(GL_MINOR_VERSION, &minor_gl);
-		if ( (major_gl < major) || ( major_gl == major && minor_gl < minor ) )
+		if ((major_gl < major) || (major_gl == major && minor_gl < minor))
 		{
 			log_cb(RETRO_LOG_ERROR, "OpenGL %d.%d is not supported. Only OpenGL %d.%d\n was found\n", major, minor, major_gl, minor_gl);
 			return false;
