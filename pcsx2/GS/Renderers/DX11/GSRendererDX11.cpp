@@ -206,23 +206,25 @@ void GSRendererDX11::EmulateTextureShuffleAndFbmask()
 	bool enable_fbmask_emulation = false;
 	switch (m_sw_blending)
 	{
-		case ACC_BLEND_HIGH_D3D11:
+		case ACC_BLEND_HIGH:
 			// Fully enable Fbmask emulation like on opengl, note misses sw blending to work as opengl on some games (Genji).
 			// Debug
 			enable_fbmask_emulation = true;
 			break;
-		case ACC_BLEND_MEDIUM_D3D11:
+		case ACC_BLEND_MEDIUM:
 			// Enable Fbmask emulation excluding triangle class because it is quite slow.
 			// Exclude 0x80000000 because Genji needs sw blending, otherwise it breaks some effects.
 			enable_fbmask_emulation = ((m_vt.m_primclass != GS_TRIANGLE_CLASS) && (m_context->FRAME.FBMSK != 0x80000000));
 			break;
-		case ACC_BLEND_BASIC_D3D11:
+		case ACC_BLEND_BASIC:
 			// Enable Fbmask emulation excluding triangle class because it is quite slow.
 			// Exclude 0x80000000 because Genji needs sw blending, otherwise it breaks some effects.
 			// Also exclude fbmask emulation on texture shuffle just in case, it is probably safe tho.
 			enable_fbmask_emulation = (!m_texture_shuffle && (m_vt.m_primclass != GS_TRIANGLE_CLASS) && (m_context->FRAME.FBMSK != 0x80000000));
 			break;
-		case ACC_BLEND_NONE_D3D11:
+		case ACC_BLEND_NONE:
+		case ACC_BLEND_FULL:  /* TODO/FIXME - not implemented */
+		case ACC_BLEND_ULTRA: /* TODO/FIXME - not implemented */
 		default:
 			break;
 	}
@@ -485,11 +487,13 @@ void GSRendererDX11::EmulateBlending(u8& afix)
 	bool sw_blending         = false;
 	switch (m_sw_blending)
 	{
-		case ACC_BLEND_HIGH_D3D11:
-		case ACC_BLEND_MEDIUM_D3D11:
-		case ACC_BLEND_BASIC_D3D11:
+		case ACC_BLEND_HIGH:
+		case ACC_BLEND_MEDIUM:
+		case ACC_BLEND_BASIC:
 			sw_blending |= accumulation_blend || blend_non_recursive;
 			// fall through
+		case ACC_BLEND_FULL:  /* TODO/FIXME - not implemented */
+		case ACC_BLEND_ULTRA: /* TODO/FIXME - not implemented */
 		default: break;
 	}
 
