@@ -188,19 +188,19 @@ void GSVertexTrace::FindMinMax(const void* vertex, const u32* index, int count)
 	{
 		if(color)
 		{
-			GSVector4i c0 = GSVector4i::load(v0.RGBAQ.U32[0]);
 			GSVector4i c1 = GSVector4i::load(v1.RGBAQ.U32[0]);
 			if (iip || finalVertex)
 			{
-				cmin = cmin.min_u8(c0.min_u8(c1));
-				cmax = cmax.max_u8(c0.max_u8(c1));
+				GSVector4i c0 = GSVector4i::load(v0.RGBAQ.U32[0]);
+				cmin          = cmin.min_u8(c0.min_u8(c1));
+				cmax          = cmax.max_u8(c0.max_u8(c1));
 			}
 			else if (n == 2)
 			{
-				// For even n, we process v1 and v2 of the same prim
+				// For even n, we process vertex 1 and 2 of the same prim
 				// (For odd n, we process one vertex from each of two prims)
-				cmin = cmin.min_u8(c1);
-				cmax = cmax.max_u8(c1);
+				cmin         = cmin.min_u8(c1);
+				cmax         = cmax.max_u8(c1);
 			}
 		}
 
