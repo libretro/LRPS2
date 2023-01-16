@@ -34,6 +34,7 @@ TODO/FIXME:
 - Try to make sure Apple x64 builds have reasonably good backwards compatibility
 - Reimplement DEV9, should get a complete bottoms-up reimplementation for Libretro
 - Reimplement USB, shold get a complete bottoms-up reimplementation for Libretro
+- Figure out remaining PAD issues
 - Use more of libretro-common instead of relying on Common/ code
 - Reduce some of the threading overhead right now - there might be some threads being spun that are unneeded with no workloads or outright fake threads.
 - Maybe reimplement how MTGS works.
