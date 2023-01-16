@@ -161,8 +161,6 @@ bool GSClut::WriteTest(const GIFRegTEX0& TEX0, const GIFRegTEXCLUT& TEXCLUT)
 
 	switch (TEX0.CLD)
 	{
-		case 1:
-			break;
 		case 2:
 			m_CBP[0] = TEX0.CBP;
 			break;
@@ -183,12 +181,13 @@ bool GSClut::WriteTest(const GIFRegTEX0& TEX0, const GIFRegTEXCLUT& TEXCLUT)
 		case 6: // FFX-2 menu
 		case 7: // ford mustang racing // Bouken Jidai Katsugeki Goemon
 			return false; 
+		case 1:
 		default:
 			break;
 	}
 
 	// CLUT only reloads if PSM is a valid index type, avoid unnecessary flushes
-	return m_write.IsDirty(TEX0, TEXCLUT);
+	return ((TEX0.PSM & 0x7) >= 3) && m_write.IsDirty(TEX0, TEXCLUT);
 }
 
 void GSClut::Write(const GIFRegTEX0& TEX0, const GIFRegTEXCLUT& TEXCLUT)
