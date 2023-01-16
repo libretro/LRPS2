@@ -479,7 +479,6 @@ static __ri s32 SBITS(uint bits)
 	return result;
 }
 
-
 static __fi u32 GETBITS(uint num)
 {
 	uint ret = UBITS(num);
@@ -641,7 +640,7 @@ int __fi get_dmv(void)
 	return (tab->dmv | (tab->len << 16));
 }
 
-int get_macroblock_address_increment()
+int get_macroblock_address_increment(void)
 {
 	const MBAtab *mba;
 	
@@ -674,7 +673,7 @@ int get_macroblock_address_increment()
 	return ((mba->mba + 1) | (mba->len << 16));
 }
 
-static __fi int get_luma_dc_dct_diff()
+static __fi int get_luma_dc_dct_diff(void)
 {
 	int size;
 	int dc_diff;
@@ -706,7 +705,7 @@ static __fi int get_luma_dc_dct_diff()
 	return dc_diff;
 }
 
-static __fi int get_chroma_dc_dct_diff()
+static __fi int get_chroma_dc_dct_diff(void)
 {
 	int size;
 	int dc_diff;
@@ -741,7 +740,7 @@ static __fi void SATURATE(int& val)
 		val = (val >> 31) ^ 2047;
 }
 
-static bool get_intra_block()
+static bool get_intra_block(void)
 {
 	const u8 * scan = decoder.scantype ? mpeg2_scan.alt : mpeg2_scan.norm;
 	const u8 (&quant_matrix)[64] = decoder.iq;
@@ -1064,12 +1063,6 @@ static __fi bool slice_non_intra_DCT(s16 * const dest, const int stride, const b
 	return true;
 }
 
-void __fi finishmpeg2sliceIDEC(void)
-{
-	ipuRegs.ctrl.SCD = 0;
-	coded_block_pattern = decoder.coded_block_pattern;
-}
-
 static u8 getBits8(u8 *address, bool advance)
 {
 	if (!g_BP.FillBuffer(8)) return 0;
@@ -1300,7 +1293,8 @@ __fi bool mpeg2sliceIDEC(void)
 		// Fall through
 
 finish_idec:
-		finishmpeg2sliceIDEC();
+		ipuRegs.ctrl.SCD = 0;
+		coded_block_pattern = decoder.coded_block_pattern;
 		// Fall through
 
 	case 3:

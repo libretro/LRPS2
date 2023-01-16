@@ -62,7 +62,8 @@ static __fi void idct_row (s16 * const block)
 
     /* shortcut */
     if (!(block[1] | ((s32 *)block)[1] | ((s32 *)block)[2] |
-		  ((s32 *)block)[3])) {
+		  ((s32 *)block)[3]))
+    {
 		u32 tmp = (u16) (block[0] << 3);
 		tmp |= tmp << 16;
 		((s32 *)block)[0] = tmp;
@@ -109,16 +110,14 @@ static __fi void idct_row (s16 * const block)
 
 static __fi void idct_col (s16 * const block)
 {
-    int d0, d1, d2, d3;
     int a0, a1, a2, a3, b0, b1, b2, b3;
-    int t0, t1, t2, t3;
-
-    d0 = (block[8*0] << 11) + 65536;
-    d1 = block[8*1];
-    d2 = block[8*2] << 11;
-    d3 = block[8*3];
-    t0 = d0 + d2;
-    t1 = d0 - d2;
+    int t2, t3;
+    int d0 = (block[8*0] << 11) + 65536;
+    int d1 = block[8*1];
+    int d2 = block[8*2] << 11;
+    int d3 = block[8*3];
+    int t0 = d0 + d2;
+    int t1 = d0 - d2;
     BUTTERFLY (t2, t3, W6, W2, d3, d1);
     a0 = t0 + t2;
     a1 = t1 + t3;
@@ -151,13 +150,12 @@ static __fi void idct_col (s16 * const block)
 __ri void mpeg2_idct_copy(s16 * block, u8 * dest, const int stride)
 {
     int i;
+    __m128 zero = _mm_setzero_ps();
 
     for (i = 0; i < 8; i++)
 		idct_row (block + 8 * i);
     for (i = 0; i < 8; i++)
 		idct_col (block + i);
-
-	__m128 zero = _mm_setzero_ps();
     do {
 		dest[0] = CLIP (block[0]);
 		dest[1] = CLIP (block[1]);
@@ -170,7 +168,7 @@ __ri void mpeg2_idct_copy(s16 * block, u8 * dest, const int stride)
 
 		_mm_store_ps((float*)block, zero);
 
-		dest += stride;
+		dest  += stride;
 		block += 8;
     } while (--i);
 }
