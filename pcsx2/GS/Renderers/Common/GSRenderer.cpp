@@ -20,6 +20,7 @@
  */
 
 #include "GSRenderer.h"
+#include "options_tools.h"
 
 GSRenderer::GSRenderer()
 	: m_texture_shuffle(false)
@@ -27,8 +28,8 @@ GSRenderer::GSRenderer()
 	, m_dev(NULL)
 {
 	const unsigned int s_interlace_nb = 8;
-	m_interlace   = theApp.GetConfigI("interlace") % s_interlace_nb;
-	m_fxaa        = theApp.GetConfigB("fxaa");
+	m_interlace   = option_value(INT_PCSX2_OPT_DEINTERLACING_MODE, KeyOptionInt::return_type) % s_interlace_nb;
+	m_fxaa        = option_value(INT_PCSX2_OPT_FXAA, KeyOptionInt::return_type);
 	m_dithering   = theApp.GetConfigI("dithering_ps2"); // 0 off, 1 auto, 2 auto no scale
 }
 

@@ -51,20 +51,15 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 	theApp.SetConfig("MaxAnisotropy", option_value(INT_PCSX2_OPT_ANISOTROPIC_FILTER, KeyOptionInt::return_type));
 	theApp.SetConfig("filter", option_value(INT_PCSX2_OPT_TEXTURE_FILTERING, KeyOptionInt::return_type));
 
-	m_fxaa = option_value(INT_PCSX2_OPT_FXAA, KeyOptionInt::return_type);
-	theApp.SetConfig("fxaa", m_fxaa);
-	
-	m_interlace = option_value(INT_PCSX2_OPT_DEINTERLACING_MODE, KeyOptionInt::return_type);
-	theApp.SetConfig("interlace", m_interlace);
+	m_fxaa                                  = option_value(INT_PCSX2_OPT_FXAA, KeyOptionInt::return_type);
+	m_interlace                             = option_value(INT_PCSX2_OPT_DEINTERLACING_MODE, KeyOptionInt::return_type);
+	m_dithering                             = option_value(INT_PCSX2_OPT_DITHERING, KeyOptionInt::return_type);
 
-	m_dithering = option_value(INT_PCSX2_OPT_DITHERING, KeyOptionInt::return_type);
-
-	m_userhacks_enabled_gs_mem_clear = true;
-	m_userHacks_enabled_unscale_ptln = true;
+	m_userhacks_enabled_gs_mem_clear        = true;
+	m_userHacks_enabled_unscale_ptln        = true;
 
 	m_upscale_multiplier			= option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
-	option_upscale_mult = m_upscale_multiplier;
-	theApp.SetConfig("upscale_multiplier", m_upscale_multiplier);
+	option_upscale_mult                     = m_upscale_multiplier;
 
 	m_userhacks_align_sprite_X		= option_value(BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE, KeyOptionBool::return_type);
 	m_userHacks_merge_sprite		= option_value(BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE, KeyOptionBool::return_type);
@@ -110,16 +105,13 @@ void GSRendererHW::UpdateRendererOptions()
 	theApp.SetConfig("MaxAnisotropy", option_value(INT_PCSX2_OPT_ANISOTROPIC_FILTER, KeyOptionInt::return_type));
 	theApp.SetConfig("filter", option_value(INT_PCSX2_OPT_TEXTURE_FILTERING, KeyOptionInt::return_type));
 	
-	m_fxaa = option_value(INT_PCSX2_OPT_FXAA, KeyOptionInt::return_type);
-	theApp.SetConfig("fxaa", m_fxaa);
-	m_interlace = option_value(INT_PCSX2_OPT_DEINTERLACING_MODE, KeyOptionInt::return_type);
-	theApp.SetConfig("interlace", m_interlace);
+	m_fxaa                                          = option_value(INT_PCSX2_OPT_FXAA, KeyOptionInt::return_type);
+	m_interlace                                     = option_value(INT_PCSX2_OPT_DEINTERLACING_MODE, KeyOptionInt::return_type);
 
 	m_upscale_multiplier				= option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
-	option_upscale_mult = m_upscale_multiplier;
-	theApp.SetConfig("upscale_multiplier", m_upscale_multiplier);
+	option_upscale_mult                             = m_upscale_multiplier;
 
-	m_dithering = option_value(INT_PCSX2_OPT_DITHERING, KeyOptionInt::return_type);
+	m_dithering                                     = option_value(INT_PCSX2_OPT_DITHERING, KeyOptionInt::return_type);
 	
 	m_userhacks_align_sprite_X			= option_value(BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE, KeyOptionBool::return_type);
 	m_userHacks_merge_sprite			= option_value(BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE, KeyOptionBool::return_type);

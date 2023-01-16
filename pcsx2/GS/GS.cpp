@@ -913,8 +913,6 @@ void GSApp::Init()
 	m_current_configuration["extrathreads_height"]                        = "4";
 	m_current_configuration["filter"]                                     = std::to_string(static_cast<s8>(BiFiltering::PS2));
 	m_current_configuration["force_texture_clear"]                        = "0";
-	m_current_configuration["fxaa"]                                       = "0";
-	m_current_configuration["interlace"]                                  = "7";
 	m_current_configuration["large_framebuffer"]                          = "0";
 	m_current_configuration["linear_present"]                             = "1";
 	m_current_configuration["MaxAnisotropy"]                              = "0";
@@ -922,8 +920,6 @@ void GSApp::Init()
 	m_current_configuration["mipmap_hw"]                                  = std::to_string(static_cast<int>(HWMipmapLevel::Automatic));
 	m_current_configuration["NTSC_Saturation"]                            = "1";
 	m_current_configuration["paltex"]                                     = "0";
-	m_current_configuration["Renderer"]                                   = std::to_string(static_cast<int>(GSRendererType::Default));
-	m_current_configuration["upscale_multiplier"]                         = "1";
 	m_current_configuration["UserHacks"]                                  = "0";
 	m_current_configuration["UserHacks_align_sprite_X"]                   = "0";
 	m_current_configuration["UserHacks_AutoFlush"]                        = "0";
