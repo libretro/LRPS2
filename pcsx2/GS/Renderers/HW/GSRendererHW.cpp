@@ -1218,6 +1218,37 @@ void GSRendererHW::Draw()
 	// The rectangle of the draw
 	m_r = GSVector4i(m_vt.m_min.p.xyxy(m_vt.m_max.p)).rintersect(GSVector4i(context->scissor.in));
 
+	{
+		const GSVector2 up_s = GetTextureScaleFactor();
+		const int up_w = static_cast<int>(std::ceil(static_cast<float>(m_r.z) * up_s.x));
+		const int up_h = static_cast<int>(std::ceil(static_cast<float>(m_r.w) * up_s.y));
+		const int new_w = std::max(up_w, std::max(rt_tex ? rt_tex->GetWidth() : 0, ds_tex ? ds_tex->GetWidth() : 0));
+		const int new_h = std::max(up_h, std::max(rt_tex ? rt_tex->GetHeight() : 0, ds_tex ? ds_tex->GetHeight() : 0));
+		std::array<GSTextureCache::Target*, 2> ts{ rt, ds };
+		for (GSTextureCache::Target* t : ts)
+		{
+			if (t)
+			{
+				// Adjust texture size to fit current draw if necessary.
+				GSTexture* tex = t->m_texture;
+				const int w    = tex->GetWidth();
+				const int h    = tex->GetHeight();
+				if (w != new_w || h != new_h)
+				{
+					const bool is_rt = t == rt;
+					t->m_texture = is_rt ?
+						m_dev->CreateRenderTarget(new_w, new_h, tex->GetFormat()) :
+						m_dev->CreateDepthStencil(new_w, new_h, tex->GetFormat());
+					const GSVector4i r{ 0, 0, w, h };
+					m_dev->CopyRect(tex, t->m_texture, r);
+					m_dev->Recycle(tex);
+					t->m_texture->SetScale(up_s);
+					(is_rt ? rt_tex : ds_tex) = t->m_texture;
+				}
+			}
+		}
+	}
+
 	if(m_hacks.m_oi && !(this->*m_hacks.m_oi)(rt_tex, ds_tex, m_src))
 		return;
 
