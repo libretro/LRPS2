@@ -17,6 +17,7 @@ Changes (in no particular order):
 - The entire GameDB YAML file is embedded into the core. Reduces file I/O and makes it so we have as few file dependencies as possible
 - Widescreen and 60fps patches is embedded into the core. Reduces file I/O and makes it so we have as few file dependencies as possible.
   - Aim is an out of the box experience to make games run as the user would expect with minimal interlacing/ghosting issues. Not quite there yet but making progress.
+- Get rid of unnecessary ini/config file reading, Libretro core should only care about its core options and nothing else (whicih the frontend can write to a file)
 - All plugins unified, LRPS2 now builds as a single dynamic library with as few static libraries linked in near the end
 
 TODO/FIXME:
