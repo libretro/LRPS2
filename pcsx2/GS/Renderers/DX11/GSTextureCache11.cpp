@@ -67,14 +67,9 @@ void GSTextureCache11::Read(Target* t, const GSVector4i& r)
 			return;
 	}
 
-	// printf("GSRenderTarget::Read %d,%d - %d,%d (%08x)\n", r.left, r.top, r.right, r.bottom, TEX0.TBP0);
-
-	int w = r.width();
-	int h = r.height();
-
 	GSVector4 src = GSVector4(r) * GSVector4(t->m_texture->GetScale()).xyxy() / GSVector4(t->m_texture->GetSize()).xyxy();
 
-	if (GSTexture* offscreen = m_renderer->m_dev->CopyOffscreen(t->m_texture, src, w, h, format, ps_shader))
+	if (GSTexture* offscreen = m_renderer->m_dev->CopyOffscreen(t->m_texture, src, r.width(), r.height(), format, ps_shader))
 	{
 		GSTexture::GSMap m;
 
@@ -108,6 +103,7 @@ void GSTextureCache11::Read(Target* t, const GSVector4i& r)
 			offscreen->Unmap();
 		}
 
+		// FIXME invalidate data
 		m_renderer->m_dev->Recycle(offscreen);
 	}
 }
