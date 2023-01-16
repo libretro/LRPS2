@@ -12,8 +12,8 @@ Changes (in no particular order):
   - (Input)  Removed all input API dependent code, we only target Libretro audio
 - (GS/OGL) Don't use GLAD for GL extension loading purposes, try to keep a few limited function pointers for calling GL functions
 - (GS) Embed shaders into the core itself instead of having to read them from disk. Reduces file I/O and makes it so we have as few file dependencies as possible
-- The entire GameDB YAML file gets embedded into the core. Reduces file I/O and makes it so we have as few file dependencies as possible
-- Widescreen and 60fps patches get embedded into the core. Reduces file I/O and makes it so we have as few file dependencies as possible.
+- The entire GameDB YAML file is embedded into the core. Reduces file I/O and makes it so we have as few file dependencies as possible
+- Widescreen and 60fps patches is embedded into the core. Reduces file I/O and makes it so we have as few file dependencies as possible.
   - Aim is an out of the box experience to make games run as the user would expect with minimal interlacing/ghosting issues. Not quite there yet but making progress.
 - All plugins unified, LRPS2 now builds as a single dynamic library with as few static libraries linked in near the end
 
