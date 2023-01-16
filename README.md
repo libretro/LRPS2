@@ -20,6 +20,7 @@ Changes (in no particular order):
 
 TODO/FIXME:
 - File I/O code should all go through libretro VFS
+- Linux build should stop relying on libaio as a hard dependency, causes Linux distribution issues.
 - Get rid of remaining threading issues at context teardown. Has been reduced but can still happen at times.
 - Get rid of wxWidgets entirely. Made a lot of progress here but not done yet
 - (Dependent on wxWidgets removal) Move as much of the gui/ code as possible
@@ -29,6 +30,8 @@ TODO/FIXME:
 - Backport D3D12 renderer
 - Backport Metal renderer
 - Aim at providing better backwards compatibility (for older OpenGL versions, bring back Direct3D 10 rendering option perhaps, aim at keeping the 32bit x86 build around)
+- Try to make sure Windows builds have reasonably good backwards compatibility (check also CPU extension availability issues like SSE2/SSE4.1/AVX/AVX2)
+- Try to make sure Apple x64 builds have reasonably good backwards compatibility
 - Reimplement DEV9, should get a complete bottoms-up reimplementation for Libretro
 - Reimplement USB, shold get a complete bottoms-up reimplementation for Libretro
 - Use more of libretro-common instead of relying on Common/ code
