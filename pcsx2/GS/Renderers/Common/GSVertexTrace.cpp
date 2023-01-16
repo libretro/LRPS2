@@ -125,16 +125,17 @@ void GSVertexTrace::Update(const void* vertex, const u32* index, int v_count, in
 			case BiFiltering::Nearest:
 				m_filter.opt_linear = 0;
 				break;
-
-			case BiFiltering::Forced_But_Sprite:
-				// Special case to reduce the number of glitch when upscaling is enabled
-				m_filter.opt_linear = (m_primclass == GS_SPRITE_CLASS) ? m_filter.linear : 1;
-				break;
-
 			case BiFiltering::Forced:
 				m_filter.opt_linear = 1;
 				break;
-
+			case BiFiltering::Forced_But_Sprite:
+				// Special case to reduce the number of glitches when upscaling is enabled
+				if (m_primclass != GS_SPRITE_CLASS)
+				{
+					m_filter.opt_linear = 1;
+					break;
+				}
+				/* fall-through */
 			case BiFiltering::PS2:
 			default:
 				m_filter.opt_linear = m_filter.linear;
