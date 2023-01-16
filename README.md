@@ -37,3 +37,4 @@ TODO/FIXME:
 - Use more of libretro-common instead of relying on Common/ code
 - Reduce some of the threading overhead right now - there might be some threads being spun that are unneeded with no workloads or outright fake threads.
 - Maybe reimplement how MTGS works.
+- Provide a plain static Makefile like all other Libretro cores.
