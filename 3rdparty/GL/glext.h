@@ -4154,45 +4154,6 @@ GLAPI void APIENTRY glGetNamedStringivARB (GLint namelen, const GLchar *name, GL
 #define GL_TEXTURE_COMPARE_FAIL_VALUE_ARB 0x80BF
 #endif /* GL_ARB_shadow_ambient */
 
-#ifndef GL_ARB_sparse_buffer
-#define GL_ARB_sparse_buffer 1
-#define GL_SPARSE_STORAGE_BIT_ARB         0x0400
-#define GL_SPARSE_BUFFER_PAGE_SIZE_ARB    0x82F8
-typedef void (APIENTRYP PFNGLBUFFERPAGECOMMITMENTARBPROC) (GLenum target, GLintptr offset, GLsizeiptr size, GLboolean commit);
-typedef void (APIENTRYP PFNGLNAMEDBUFFERPAGECOMMITMENTEXTPROC) (GLuint buffer, GLintptr offset, GLsizeiptr size, GLboolean commit);
-typedef void (APIENTRYP PFNGLNAMEDBUFFERPAGECOMMITMENTARBPROC) (GLuint buffer, GLintptr offset, GLsizeiptr size, GLboolean commit);
-#ifdef GL_GLEXT_PROTOTYPES
-GLAPI void APIENTRY glBufferPageCommitmentARB (GLenum target, GLintptr offset, GLsizeiptr size, GLboolean commit);
-#endif
-#endif /* GL_ARB_sparse_buffer */
-
-#ifndef GL_ARB_sparse_texture
-#define GL_ARB_sparse_texture 1
-#define GL_TEXTURE_SPARSE_ARB             0x91A6
-#define GL_VIRTUAL_PAGE_SIZE_INDEX_ARB    0x91A7
-#define GL_NUM_SPARSE_LEVELS_ARB          0x91AA
-#define GL_NUM_VIRTUAL_PAGE_SIZES_ARB     0x91A8
-#define GL_VIRTUAL_PAGE_SIZE_X_ARB        0x9195
-#define GL_VIRTUAL_PAGE_SIZE_Y_ARB        0x9196
-#define GL_VIRTUAL_PAGE_SIZE_Z_ARB        0x9197
-#define GL_MAX_SPARSE_TEXTURE_SIZE_ARB    0x9198
-#define GL_MAX_SPARSE_3D_TEXTURE_SIZE_ARB 0x9199
-#define GL_MAX_SPARSE_ARRAY_TEXTURE_LAYERS_ARB 0x919A
-#define GL_SPARSE_TEXTURE_FULL_ARRAY_CUBE_MIPMAPS_ARB 0x91A9
-typedef void (APIENTRYP PFNGLTEXPAGECOMMITMENTARBPROC) (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLboolean commit);
-#ifdef GL_GLEXT_PROTOTYPES
-GLAPI void APIENTRY glTexPageCommitmentARB (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLboolean commit);
-#endif
-#endif /* GL_ARB_sparse_texture */
-
-#ifndef GL_ARB_sparse_texture2
-#define GL_ARB_sparse_texture2 1
-#endif /* GL_ARB_sparse_texture2 */
-
-#ifndef GL_ARB_sparse_texture_clamp
-#define GL_ARB_sparse_texture_clamp 1
-#endif /* GL_ARB_sparse_texture_clamp */
-
 #ifndef GL_ARB_stencil_texturing
 #define GL_ARB_stencil_texturing 1
 #endif /* GL_ARB_stencil_texturing */
@@ -5538,25 +5499,6 @@ GLAPI void APIENTRY glSetMultisamplefvAMD (GLenum pname, GLuint index, const GLf
 #ifndef GL_AMD_shader_trinary_minmax
 #define GL_AMD_shader_trinary_minmax 1
 #endif /* GL_AMD_shader_trinary_minmax */
-
-#ifndef GL_AMD_sparse_texture
-#define GL_AMD_sparse_texture 1
-#define GL_VIRTUAL_PAGE_SIZE_X_AMD        0x9195
-#define GL_VIRTUAL_PAGE_SIZE_Y_AMD        0x9196
-#define GL_VIRTUAL_PAGE_SIZE_Z_AMD        0x9197
-#define GL_MAX_SPARSE_TEXTURE_SIZE_AMD    0x9198
-#define GL_MAX_SPARSE_3D_TEXTURE_SIZE_AMD 0x9199
-#define GL_MAX_SPARSE_ARRAY_TEXTURE_LAYERS 0x919A
-#define GL_MIN_SPARSE_LEVEL_AMD           0x919B
-#define GL_MIN_LOD_WARNING_AMD            0x919C
-#define GL_TEXTURE_STORAGE_SPARSE_BIT_AMD 0x00000001
-typedef void (APIENTRYP PFNGLTEXSTORAGESPARSEAMDPROC) (GLenum target, GLenum internalFormat, GLsizei width, GLsizei height, GLsizei depth, GLsizei layers, GLbitfield flags);
-typedef void (APIENTRYP PFNGLTEXTURESTORAGESPARSEAMDPROC) (GLuint texture, GLenum target, GLenum internalFormat, GLsizei width, GLsizei height, GLsizei depth, GLsizei layers, GLbitfield flags);
-#ifdef GL_GLEXT_PROTOTYPES
-GLAPI void APIENTRY glTexStorageSparseAMD (GLenum target, GLenum internalFormat, GLsizei width, GLsizei height, GLsizei depth, GLsizei layers, GLbitfield flags);
-GLAPI void APIENTRY glTextureStorageSparseAMD (GLuint texture, GLenum target, GLenum internalFormat, GLsizei width, GLsizei height, GLsizei depth, GLsizei layers, GLbitfield flags);
-#endif
-#endif /* GL_AMD_sparse_texture */
 
 #ifndef GL_AMD_stencil_operation_extended
 #define GL_AMD_stencil_operation_extended 1
@@ -7061,7 +7003,6 @@ GLAPI void APIENTRY glVertexArrayVertexAttribLFormatEXT (GLuint vaobj, GLuint at
 GLAPI void APIENTRY glVertexArrayVertexAttribBindingEXT (GLuint vaobj, GLuint attribindex, GLuint bindingindex);
 GLAPI void APIENTRY glVertexArrayVertexBindingDivisorEXT (GLuint vaobj, GLuint bindingindex, GLuint divisor);
 GLAPI void APIENTRY glVertexArrayVertexAttribLOffsetEXT (GLuint vaobj, GLuint buffer, GLuint index, GLint size, GLenum type, GLsizei stride, GLintptr offset);
-GLAPI void APIENTRY glTexturePageCommitmentEXT (GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLboolean commit);
 GLAPI void APIENTRY glVertexArrayVertexAttribDivisorEXT (GLuint vaobj, GLuint index, GLuint divisor);
 #endif
 #endif /* GL_EXT_direct_state_access */
@@ -7779,10 +7720,6 @@ GLAPI void APIENTRY glMemoryBarrierEXT (GLbitfield barriers);
 #define GL_EXT_shared_texture_palette 1
 #define GL_SHARED_TEXTURE_PALETTE_EXT     0x81FB
 #endif /* GL_EXT_shared_texture_palette */
-
-#ifndef GL_EXT_sparse_texture2
-#define GL_EXT_sparse_texture2 1
-#endif /* GL_EXT_sparse_texture2 */
 
 #ifndef GL_EXT_stencil_clear_tag
 #define GL_EXT_stencil_clear_tag 1

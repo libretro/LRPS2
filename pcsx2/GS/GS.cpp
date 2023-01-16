@@ -726,8 +726,6 @@ GL_EXT_LOAD_OPT(glPolygonOffsetClamp);
 #ifdef __unix__
 			GL_EXT_LOAD(glBlendFuncSeparate);
 #endif
-			GL_EXT_LOAD_OPT(glTexturePageCommitmentEXT);
-
 			// Check OpenGL requirements as soon as 
 			// possible so we can switch to another
 			// renderer/device

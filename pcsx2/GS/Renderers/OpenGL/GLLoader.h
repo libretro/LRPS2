@@ -42,27 +42,9 @@
  * is to move to core only OpenGL
  ************************************************************/
 
-// Extension not in core profile.
-#ifndef GL_TEXTURE_FREE_MEMORY_ATI
-#define GL_TEXTURE_FREE_MEMORY_ATI 0x87FC
-#endif
-#ifndef GL_NVX_gpu_memory_info
-#define GL_NVX_gpu_memory_info 1
-#define GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX 0x9047
-#define GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX 0x9048
-#define GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX 0x9049
-#define GL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX 0x904A
-#define GL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX 0x904B
-#endif /* GL_NVX_gpu_memory_info */
-
 // Added in GL4.6. Code should be updated but driver support...
 #ifndef GL_TEXTURE_MAX_ANISOTROPY_EXT
 #define GL_TEXTURE_MAX_ANISOTROPY_EXT     0x84FE
-#endif
-
-// Believe me or not, they forgot to add the interaction with DSA...
-#ifndef GL_EXT_direct_state_access
-typedef void (APIENTRYP PFNGLTEXTUREPAGECOMMITMENTEXTPROC) (GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLboolean commit);
 #endif
 
 // **********************  End of the extra header ******************* //
@@ -117,7 +99,6 @@ typedef void (APIENTRYP PFNGLTEXTUREPAGECOMMITMENTEXTPROC) (GLuint texture, GLin
 #ifdef __unix__
 extern   PFNGLBLENDFUNCSEPARATEPROC             glBlendFuncSeparate;
 #endif
-extern   PFNGLTEXTUREPAGECOMMITMENTEXTPROC      glTexturePageCommitmentEXT;
 
 #include "PFN_GLLOADER_HPP.h"
 

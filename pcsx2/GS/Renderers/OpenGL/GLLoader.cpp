@@ -28,7 +28,6 @@
 #ifdef __unix__
 PFNGLBLENDFUNCSEPARATEPROC             glBlendFuncSeparate                 = NULL;
 #endif
-PFNGLTEXTUREPAGECOMMITMENTEXTPROC      glTexturePageCommitmentEXT		   = NULL;
 
 #include "PFN_GLLOADER_CPP.h"
 
