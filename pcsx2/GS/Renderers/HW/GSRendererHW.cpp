@@ -665,6 +665,18 @@ void GSRendererHW::MergeSprite(GSTextureCache::Source* tex)
 	}
 }
 
+GSVector2 GSRendererHW::GetTextureScaleFactor()
+{
+	GSVector2 scale_factor{ 1.0f, 1.0f };
+	if (CanUpscale())
+	{
+		const int multiplier = GetUpscaleMultiplier();
+		scale_factor.x       = multiplier;
+		scale_factor.y       = multiplier;
+	}
+	return scale_factor;
+}
+
 void GSRendererHW::InvalidateVideoMem(const GIFRegBITBLTBUF& BITBLTBUF, const GSVector4i& r)
 {
 	m_tc->InvalidateVideoMem(m_mem.GetOffset(BITBLTBUF.DBP, BITBLTBUF.DBW, BITBLTBUF.DPSM), r);

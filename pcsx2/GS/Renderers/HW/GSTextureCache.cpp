@@ -412,16 +412,8 @@ GSTextureCache::Source* GSTextureCache::LookupSource(const GIFRegTEX0& TEX0, con
 
 void GSTextureCache::ScaleTexture(GSTexture* texture)
 {
-	if (!m_renderer->CanUpscale())
-	{
-		texture->SetScale({1,1});
-		return;
-	}
-
-	float multiplier = static_cast<float>(m_renderer->GetUpscaleMultiplier());
-	GSVector2 scale_factor(multiplier);
-
-	texture->SetScale(scale_factor);
+	if (m_renderer->CanUpscale())
+		texture->SetScale(m_renderer->GetTextureScaleFactor());
 }
 
 bool GSTextureCache::ShallSearchTextureInsideRt()
