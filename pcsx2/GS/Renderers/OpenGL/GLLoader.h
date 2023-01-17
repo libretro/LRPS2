@@ -22,9 +22,6 @@
 #pragma once
 
 #define GL_TEX_LEVEL_0 (0)
-#define GL_TEX_LEVEL_1 (1)
-#define GL_FB_DEFAULT  (0)
-#define GL_BUFFER_0    (0)
 
 #ifndef GL_CONTEXT_FLAG_NO_ERROR_BIT_KHR
 #define GL_CONTEXT_FLAG_NO_ERROR_BIT_KHR  0x00000008

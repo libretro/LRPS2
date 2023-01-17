@@ -133,9 +133,6 @@ static int _GSopen(GSRendererType renderer, int threads, u8 *basemem)
 #define GL_EXT_LOAD(ext)     *(void**)&(ext) = (void*)hw_render.get_proc_address(#ext)
 			// Load extra function pointer
 #define GL_EXT_LOAD_OPT(ext) *(void**)&(ext) = (void*)hw_render.get_proc_address(#ext)
-#if defined(ENABLE_GL_ARB_bindless_texture) && defined(GL_ARB_bindless_texture)
-GL_EXT_LOAD_OPT(glGetVertexAttribLui64vARB);
-#endif
 #if defined(ENABLE_GL_ARB_debug_output) && defined(GL_ARB_debug_output)
 GL_EXT_LOAD_OPT(glDebugMessageControlARB);
 GL_EXT_LOAD_OPT(glDebugMessageInsertARB);
@@ -144,7 +141,6 @@ GL_EXT_LOAD_OPT(glGetDebugMessageLogARB);
 #endif
 #if defined(ENABLE_GL_ARB_draw_buffers_blend) && defined(GL_ARB_draw_buffers_blend)
 GL_EXT_LOAD_OPT(glBlendEquationSeparateiARB);
-GL_EXT_LOAD_OPT(glBlendFunciARB);
 GL_EXT_LOAD_OPT(glBlendFuncSeparateiARB);
 #endif
 #if defined(ENABLE_GL_ARB_draw_instanced) && defined(GL_ARB_draw_instanced)
@@ -181,7 +177,6 @@ GL_EXT_LOAD_OPT(glTexParameterf);
 GL_EXT_LOAD_OPT(glTexParameterfv);
 GL_EXT_LOAD_OPT(glTexParameteri);
 GL_EXT_LOAD_OPT(glTexParameteriv);
-GL_EXT_LOAD_OPT(glTexImage1D);
 GL_EXT_LOAD_OPT(glTexImage2D);
 GL_EXT_LOAD_OPT(glDrawBuffer);
 GL_EXT_LOAD_OPT(glClear);
@@ -193,7 +188,6 @@ GL_EXT_LOAD_OPT(glColorMask);
 GL_EXT_LOAD_OPT(glDepthMask);
 GL_EXT_LOAD_OPT(glDisable);
 GL_EXT_LOAD_OPT(glEnable);
-GL_EXT_LOAD_OPT(glBlendFunc);
 GL_EXT_LOAD_OPT(glStencilFunc);
 GL_EXT_LOAD_OPT(glStencilOp);
 GL_EXT_LOAD_OPT(glDepthFunc);
@@ -204,28 +198,18 @@ GL_EXT_LOAD_OPT(glGetError);
 GL_EXT_LOAD_OPT(glGetIntegerv);
 GL_EXT_LOAD_OPT(glGetString);
 GL_EXT_LOAD_OPT(glGetTexImage);
-GL_EXT_LOAD_OPT(glGetTexParameterfv);
-GL_EXT_LOAD_OPT(glGetTexParameteriv);
 GL_EXT_LOAD_OPT(glIsEnabled);
 GL_EXT_LOAD_OPT(glViewport);
 #endif
 #if defined(ENABLE_GL_VERSION_1_1) && defined(GL_VERSION_1_1)
 GL_EXT_LOAD_OPT(glDrawArrays);
 GL_EXT_LOAD_OPT(glDrawElements);
-GL_EXT_LOAD_OPT(glGetPointerv);
-GL_EXT_LOAD_OPT(glCopyTexSubImage1D);
 GL_EXT_LOAD_OPT(glCopyTexSubImage2D);
-GL_EXT_LOAD_OPT(glTexSubImage1D);
 GL_EXT_LOAD_OPT(glTexSubImage2D);
 GL_EXT_LOAD_OPT(glBindTexture);
 GL_EXT_LOAD_OPT(glDeleteTextures);
 GL_EXT_LOAD_OPT(glGenTextures);
 GL_EXT_LOAD_OPT(glIsTexture);
-#endif
-#if defined(ENABLE_GL_VERSION_1_2) && defined(GL_VERSION_1_2)
-GL_EXT_LOAD_OPT(glTexImage3D);
-GL_EXT_LOAD_OPT(glTexSubImage3D);
-GL_EXT_LOAD_OPT(glCopyTexSubImage3D);
 #endif
 #if defined(ENABLE_GL_VERSION_1_3) && defined(GL_VERSION_1_3)
 GL_EXT_LOAD_OPT(glActiveTexture);
@@ -268,21 +252,15 @@ GL_EXT_LOAD_OPT(glGetAttribLocation);
 GL_EXT_LOAD_OPT(glGetShaderiv);
 GL_EXT_LOAD_OPT(glGetShaderInfoLog);
 GL_EXT_LOAD_OPT(glGetShaderSource);
-GL_EXT_LOAD_OPT(glGetVertexAttribdv);
-GL_EXT_LOAD_OPT(glGetVertexAttribfv);
-GL_EXT_LOAD_OPT(glGetVertexAttribiv);
-GL_EXT_LOAD_OPT(glGetVertexAttribPointerv);
 GL_EXT_LOAD_OPT(glIsProgram);
 GL_EXT_LOAD_OPT(glIsShader);
 GL_EXT_LOAD_OPT(glLinkProgram);
 GL_EXT_LOAD_OPT(glShaderSource);
 GL_EXT_LOAD_OPT(glUseProgram);
-GL_EXT_LOAD_OPT(glValidateProgram);
 GL_EXT_LOAD_OPT(glVertexAttribPointer);
 #endif
 #if defined(ENABLE_GL_VERSION_3_0) && defined(GL_VERSION_3_0)
 GL_EXT_LOAD_OPT(glColorMaski);
-GL_EXT_LOAD_OPT(glGetBooleani_v);
 GL_EXT_LOAD_OPT(glGetIntegeri_v);
 GL_EXT_LOAD_OPT(glEnablei);
 GL_EXT_LOAD_OPT(glDisablei);
@@ -290,14 +268,10 @@ GL_EXT_LOAD_OPT(glIsEnabledi);
 GL_EXT_LOAD_OPT(glBindBufferRange);
 GL_EXT_LOAD_OPT(glBindBufferBase);
 GL_EXT_LOAD_OPT(glVertexAttribIPointer);
-GL_EXT_LOAD_OPT(glGetVertexAttribIiv);
-GL_EXT_LOAD_OPT(glGetVertexAttribIuiv);
 GL_EXT_LOAD_OPT(glBindFragDataLocation);
 GL_EXT_LOAD_OPT(glGetFragDataLocation);
 GL_EXT_LOAD_OPT(glTexParameterIiv);
 GL_EXT_LOAD_OPT(glTexParameterIuiv);
-GL_EXT_LOAD_OPT(glGetTexParameterIiv);
-GL_EXT_LOAD_OPT(glGetTexParameterIuiv);
 GL_EXT_LOAD_OPT(glClearBufferiv);
 GL_EXT_LOAD_OPT(glClearBufferuiv);
 GL_EXT_LOAD_OPT(glClearBufferfv);
@@ -343,7 +317,6 @@ GL_EXT_LOAD_OPT(glGetInteger64i_v);
 GL_EXT_LOAD_OPT(glGetBufferParameteri64v);
 GL_EXT_LOAD_OPT(glFramebufferTexture);
 GL_EXT_LOAD_OPT(glTexImage2DMultisample);
-GL_EXT_LOAD_OPT(glTexImage3DMultisample);
 GL_EXT_LOAD_OPT(glGetMultisamplefv);
 #endif
 #if defined(ENABLE_GL_VERSION_3_3) && defined(GL_VERSION_3_3)
@@ -362,7 +335,6 @@ GL_EXT_LOAD_OPT(glSamplerParameterIuiv);
 #endif
 #if defined(ENABLE_GL_VERSION_4_0) && defined(GL_VERSION_4_0)
 GL_EXT_LOAD_OPT(glBlendEquationSeparatei);
-GL_EXT_LOAD_OPT(glBlendFunci);
 GL_EXT_LOAD_OPT(glBlendFuncSeparatei);
 GL_EXT_LOAD_OPT(glDrawArraysIndirect);
 GL_EXT_LOAD_OPT(glDrawElementsIndirect);
@@ -379,14 +351,10 @@ GL_EXT_LOAD_OPT(glBindProgramPipeline);
 GL_EXT_LOAD_OPT(glDeleteProgramPipelines);
 GL_EXT_LOAD_OPT(glGenProgramPipelines);
 GL_EXT_LOAD_OPT(glIsProgramPipeline);
-GL_EXT_LOAD_OPT(glValidateProgramPipeline);
-GL_EXT_LOAD_OPT(glGetVertexAttribLdv);
 GL_EXT_LOAD_OPT(glViewportArrayv);
 GL_EXT_LOAD_OPT(glViewportIndexedf);
 GL_EXT_LOAD_OPT(glViewportIndexedfv);
 GL_EXT_LOAD_OPT(glScissorIndexed);
-GL_EXT_LOAD_OPT(glGetFloati_v);
-GL_EXT_LOAD_OPT(glGetDoublei_v);
 #endif
 #if defined(ENABLE_GL_VERSION_4_2) && defined(GL_VERSION_4_2)
 GL_EXT_LOAD_OPT(glDrawArraysInstancedBaseInstance);
@@ -403,12 +371,6 @@ GL_EXT_LOAD_OPT(glClearBufferSubData);
 GL_EXT_LOAD_OPT(glCopyImageSubData);
 GL_EXT_LOAD_OPT(glFramebufferParameteri);
 GL_EXT_LOAD_OPT(glGetInternalformati64v);
-GL_EXT_LOAD_OPT(glInvalidateTexSubImage);
-GL_EXT_LOAD_OPT(glInvalidateTexImage);
-GL_EXT_LOAD_OPT(glInvalidateBufferSubData);
-GL_EXT_LOAD_OPT(glInvalidateBufferData);
-GL_EXT_LOAD_OPT(glInvalidateFramebuffer);
-GL_EXT_LOAD_OPT(glInvalidateSubFramebuffer);
 GL_EXT_LOAD_OPT(glShaderStorageBlockBinding);
 GL_EXT_LOAD_OPT(glTexStorage2DMultisample);
 GL_EXT_LOAD_OPT(glBindVertexBuffer);
@@ -430,19 +392,11 @@ GL_EXT_LOAD_OPT(glClearTexSubImage);
 #endif
 #if defined(ENABLE_GL_VERSION_4_5) && defined(GL_VERSION_4_5)
 GL_EXT_LOAD_OPT(glClipControl);
-GL_EXT_LOAD_OPT(glClearNamedBufferData);
-GL_EXT_LOAD_OPT(glClearNamedBufferSubData);
 GL_EXT_LOAD_OPT(glMapNamedBuffer);
 GL_EXT_LOAD_OPT(glMapNamedBufferRange);
 GL_EXT_LOAD_OPT(glUnmapNamedBuffer);
 GL_EXT_LOAD_OPT(glFlushMappedNamedBufferRange);
 GL_EXT_LOAD_OPT(glCreateFramebuffers);
-GL_EXT_LOAD_OPT(glInvalidateNamedFramebufferData);
-GL_EXT_LOAD_OPT(glInvalidateNamedFramebufferSubData);
-GL_EXT_LOAD_OPT(glClearNamedFramebufferiv);
-GL_EXT_LOAD_OPT(glClearNamedFramebufferuiv);
-GL_EXT_LOAD_OPT(glClearNamedFramebufferfv);
-GL_EXT_LOAD_OPT(glClearNamedFramebufferfi);
 GL_EXT_LOAD_OPT(glBlitNamedFramebuffer);
 GL_EXT_LOAD_OPT(glCheckNamedFramebufferStatus);
 GL_EXT_LOAD_OPT(glCreateRenderbuffers);
@@ -454,12 +408,8 @@ GL_EXT_LOAD_OPT(glTextureStorage2D);
 GL_EXT_LOAD_OPT(glTextureStorage3D);
 GL_EXT_LOAD_OPT(glTextureStorage2DMultisample);
 GL_EXT_LOAD_OPT(glTextureStorage3DMultisample);
-GL_EXT_LOAD_OPT(glTextureSubImage1D);
 GL_EXT_LOAD_OPT(glTextureSubImage2D);
-GL_EXT_LOAD_OPT(glTextureSubImage3D);
-GL_EXT_LOAD_OPT(glCopyTextureSubImage1D);
 GL_EXT_LOAD_OPT(glCopyTextureSubImage2D);
-GL_EXT_LOAD_OPT(glCopyTextureSubImage3D);
 GL_EXT_LOAD_OPT(glTextureParameterf);
 GL_EXT_LOAD_OPT(glTextureParameterfv);
 GL_EXT_LOAD_OPT(glTextureParameteri);
