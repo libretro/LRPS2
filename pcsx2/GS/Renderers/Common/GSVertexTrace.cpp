@@ -24,6 +24,7 @@
 #include "GSVertexTrace.h"
 #include "../../GSUtil.h"
 #include "../../GSState.h"
+#include "options_tools.h"
 
 GSVector4 GSVertexTrace::s_minmax;
 
@@ -35,7 +36,7 @@ void GSVertexTrace::InitVectors()
 GSVertexTrace::GSVertexTrace(const GSState* state)
 	: m_accurate_stq(false), m_state(state), m_primclass(GS_INVALID_CLASS)
 {
-	m_force_filter = static_cast<BiFiltering>(theApp.GetConfigI("filter"));
+	m_force_filter = static_cast<BiFiltering>(option_value(INT_PCSX2_OPT_TEXTURE_FILTERING, KeyOptionInt::return_type));
 	memset(&m_alpha, 0, sizeof(m_alpha));
 
 	#define InitUpdate3(P, IIP, TME, FST, COLOR) \

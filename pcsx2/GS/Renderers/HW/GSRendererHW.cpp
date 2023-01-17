@@ -43,13 +43,10 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 	, m_channel_shuffle(false)
 	, m_lod(GSVector2i(0,0))
 {
-	m_mipmap = option_value(INT_PCSX2_OPT_MIPMAPPING, KeyOptionInt::return_type);
+	m_mipmap                                = option_value(INT_PCSX2_OPT_MIPMAPPING, KeyOptionInt::return_type);
 
-	m_large_framebuffer  = ! option_value(BOOL_PCSX2_OPT_CONSERVATIVE_BUFFER, KeyOptionBool::return_type);
-	m_accurate_date = option_value(BOOL_PCSX2_OPT_ACCURATE_DATE, KeyOptionBool::return_type);
-
-	theApp.SetConfig("MaxAnisotropy", option_value(INT_PCSX2_OPT_ANISOTROPIC_FILTER, KeyOptionInt::return_type));
-	theApp.SetConfig("filter", option_value(INT_PCSX2_OPT_TEXTURE_FILTERING, KeyOptionInt::return_type));
+	m_large_framebuffer                     = !option_value(BOOL_PCSX2_OPT_CONSERVATIVE_BUFFER, KeyOptionBool::return_type);
+	m_accurate_date                         = option_value(BOOL_PCSX2_OPT_ACCURATE_DATE, KeyOptionBool::return_type);
 
 	m_fxaa                                  = option_value(INT_PCSX2_OPT_FXAA, KeyOptionInt::return_type);
 	m_interlace                             = option_value(INT_PCSX2_OPT_DEINTERLACING_MODE, KeyOptionInt::return_type);
@@ -75,17 +72,14 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 	m_userhacks_auto_flush			= option_value(BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH, KeyOptionBool::return_type);
 	m_userhacks_preload_frame_data          = hack_preload_frame_data = option_value(BOOL_PCSX2_OPT_USERHACK_PRELOAD_FRAME_DATA, KeyOptionBool::return_type);
 
-	int toffset_x = option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_HUNDREDS, KeyOptionInt::return_type);
-	toffset_x += option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_TENS, KeyOptionInt::return_type);
-	theApp.SetConfig("UserHacks_TCOffsetX", toffset_x);
+	int toffset_x           = option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_HUNDREDS, KeyOptionInt::return_type);
+	toffset_x              += option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_TENS, KeyOptionInt::return_type);
 
+	int toffset_y           = option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_Y_HUNDREDS, KeyOptionInt::return_type);
+	toffset_y              += option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_Y_TENS, KeyOptionInt::return_type);
 
-	int toffset_y = option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_Y_HUNDREDS, KeyOptionInt::return_type);
-	toffset_y += option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_Y_TENS, KeyOptionInt::return_type);
-	theApp.SetConfig("UserHacks_TCOffsetY", toffset_y);
-
-	m_userhacks_tcoffset_x	= theApp.GetConfigI("UserHacks_TCOffsetX") / -1000.0f;
-	m_userhacks_tcoffset_y	= theApp.GetConfigI("UserHacks_TCOffsetY") / -1000.0f;
+	m_userhacks_tcoffset_x	= toffset_x / -1000.0f;
+	m_userhacks_tcoffset_y	= toffset_y / -1000.0f;
 	m_userhacks_tcoffset	= m_userhacks_tcoffset_x < 0.0f || m_userhacks_tcoffset_y < 0.0f;
 
 	if (m_upscale_multiplier == 1) { // hacks are only needed for upscaling issues.
@@ -98,13 +92,10 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 
 void GSRendererHW::UpdateRendererOptions()
 {
-	m_large_framebuffer = !option_value(BOOL_PCSX2_OPT_CONSERVATIVE_BUFFER, KeyOptionBool::return_type);
-	m_mipmap = option_value(INT_PCSX2_OPT_MIPMAPPING, KeyOptionInt::return_type);
-	m_accurate_date = option_value(BOOL_PCSX2_OPT_ACCURATE_DATE, KeyOptionBool::return_type);
+	m_large_framebuffer                             = !option_value(BOOL_PCSX2_OPT_CONSERVATIVE_BUFFER, KeyOptionBool::return_type);
+	m_mipmap                                        = option_value(INT_PCSX2_OPT_MIPMAPPING, KeyOptionInt::return_type);
+	m_accurate_date                                 = option_value(BOOL_PCSX2_OPT_ACCURATE_DATE, KeyOptionBool::return_type);
 
-	theApp.SetConfig("MaxAnisotropy", option_value(INT_PCSX2_OPT_ANISOTROPIC_FILTER, KeyOptionInt::return_type));
-	theApp.SetConfig("filter", option_value(INT_PCSX2_OPT_TEXTURE_FILTERING, KeyOptionInt::return_type));
-	
 	m_fxaa                                          = option_value(INT_PCSX2_OPT_FXAA, KeyOptionInt::return_type);
 	m_interlace                                     = option_value(INT_PCSX2_OPT_DEINTERLACING_MODE, KeyOptionInt::return_type);
 
@@ -125,29 +116,22 @@ void GSRendererHW::UpdateRendererOptions()
 	m_userhacks_ts_half_bottom			= option_value(INT_PCSX2_OPT_USERHACK_HALFSCREEN_FIX, KeyOptionInt::return_type);
 	m_userhacks_auto_flush				= option_value(BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH, KeyOptionBool::return_type);
 	m_userhacks_preload_frame_data                  = option_value(BOOL_PCSX2_OPT_USERHACK_PRELOAD_FRAME_DATA, KeyOptionBool::return_type);
+	int toffset_x                                   = option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_HUNDREDS, KeyOptionInt::return_type);
+	int toffset_y                                   = option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_Y_HUNDREDS, KeyOptionInt::return_type);
+	toffset_x                                      += option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_TENS, KeyOptionInt::return_type);
+	toffset_y                                      += option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_Y_TENS, KeyOptionInt::return_type);
+	m_userhacks_tcoffset_x                          = toffset_x / -1000.0f;
+	m_userhacks_tcoffset_y                          = toffset_y / -1000.0f;
+	m_userhacks_tcoffset                            = m_userhacks_tcoffset_x < 0.0f || m_userhacks_tcoffset_y < 0.0f;
+	hack_fb_conversion                              = option_value(BOOL_PCSX2_OPT_USERHACK_FB_CONVERSION, KeyOptionBool::return_type);
 
-	int toffset_x = option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_HUNDREDS, KeyOptionInt::return_type);
-	toffset_x += option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_TENS, KeyOptionInt::return_type);
-	theApp.SetConfig("UserHacks_TCOffsetX", toffset_x);
-
-
-	int toffset_y = option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_Y_HUNDREDS, KeyOptionInt::return_type);
-	toffset_y += option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_Y_TENS, KeyOptionInt::return_type);
-	theApp.SetConfig("UserHacks_TCOffsetY", toffset_y);
-
-	m_userhacks_tcoffset_x = theApp.GetConfigI("UserHacks_TCOffsetX") / -1000.0f;
-	m_userhacks_tcoffset_y = theApp.GetConfigI("UserHacks_TCOffsetY") / -1000.0f;
-	m_userhacks_tcoffset = m_userhacks_tcoffset_x < 0.0f || m_userhacks_tcoffset_y < 0.0f;
-
-	//theApp.SetConfig("UserHacks_CPU_FB_Conversion", option_value(BOOL_PCSX2_OPT_USERHACK_FB_CONVERSION, KeyOptionBool::return_type));
-
-	hack_fb_conversion = option_value(BOOL_PCSX2_OPT_USERHACK_FB_CONVERSION, KeyOptionBool::return_type);
-
-	if (m_upscale_multiplier == 1) { // hacks are only needed for upscaling issues.
-		m_userhacks_round_sprite_offset = 0;
-		m_userhacks_align_sprite_X = false;
-		m_userHacks_merge_sprite = false;
-		m_userhacks_wildhack = false;
+	if (m_upscale_multiplier == 1)
+	{
+		// hacks are only needed for upscaling issues.
+		m_userhacks_round_sprite_offset         = 0;
+		m_userhacks_align_sprite_X              = false;
+		m_userHacks_merge_sprite                = false;
+		m_userhacks_wildhack                    = false;
 	}
 }
 

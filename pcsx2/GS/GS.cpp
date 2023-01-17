@@ -44,7 +44,7 @@ GSVector4i GSClientRect(void)
 #ifdef _WIN32
 	if(is_d3d)
 	{
-		// For whatever reason, we need this awkward hack right now for 
+		// For whatever reason, we need this awkward hack for 
      		// D3D right now - setting orig_w/orig_h to any value other than
  		// 640, 480 seems to cause issues on various games, 
 		// like 007 Nightfire
@@ -473,9 +473,8 @@ GL_EXT_LOAD_OPT(glTextureBarrier);
 			default:
 #ifdef _WIN32
 			case GSRendererType::DX1011_HW:
-                                
-				s_gs         = (GSRenderer*)new GSRendererDX11();
                                 is_d3d       = true;
+				s_gs         = (GSRenderer*)new GSRendererDX11();
 				break;
 #endif
 			case GSRendererType::OGL_HW:
@@ -596,24 +595,12 @@ GSApp::GSApp()
 
 void GSApp::Init()
 {
-	static bool is_initialised = false;
-	if (is_initialised)
-		return;
-
-	is_initialised          = true;
 	m_current_renderer_type = GSRendererType::Undefined;
 
 	// Init configuration map with default values
 	// later in the flow they will be overwritten by custom config
 
-	// Avoid to clutter the ini file with useless options
-#ifdef _WIN32
-	// D3D Blending option
-	m_current_configuration["accurate_blending_unit_d3d11"]               = "1";
-#endif
-	m_current_configuration["accurate_date"]                              = "1";
 	m_current_configuration["accurate_blending_unit"]                     = "1";
-	m_current_configuration["AspectRatio"]                                = "1";
 	m_current_configuration["autoflush_sw"]                               = "1";
 	m_current_configuration["clut_load_before_draw"]                      = "0";
 	m_current_configuration["crc_hack_level"]                             = std::to_string(static_cast<s8>(CRCHackLevel::Automatic));
@@ -621,40 +608,18 @@ void GSApp::Init()
 	m_current_configuration["dithering_ps2"]                              = "2";
 	m_current_configuration["extrathreads"]                               = "2";
 	m_current_configuration["extrathreads_height"]                        = "4";
-	m_current_configuration["filter"]                                     = std::to_string(static_cast<s8>(BiFiltering::PS2));
-	m_current_configuration["force_texture_clear"]                        = "0";
-	m_current_configuration["large_framebuffer"]                          = "0";
+	m_current_configuration["force_texture_clear"]                        = "0"; /* TODO/FIXME - GL only, remove later after Burnout hack? */
 	m_current_configuration["linear_present"]                             = "1";
-	m_current_configuration["MaxAnisotropy"]                              = "0";
 	m_current_configuration["mipmap"]                                     = "1";
 	m_current_configuration["mipmap_hw"]                                  = std::to_string(static_cast<int>(HWMipmapLevel::Automatic));
 	m_current_configuration["NTSC_Saturation"]                            = "1";
 	m_current_configuration["paltex"]                                     = "0";
-	m_current_configuration["UserHacks"]                                  = "0";
-	m_current_configuration["UserHacks_align_sprite_X"]                   = "0";
-	m_current_configuration["UserHacks_AutoFlush"]                        = "0";
-	m_current_configuration["UserHacks_DisableDepthSupport"]              = "0";
-	m_current_configuration["UserHacks_Disable_Safe_Features"]            = "0";
-	m_current_configuration["UserHacks_DisablePartialInvalidation"]       = "0";
-	m_current_configuration["UserHacks_CPU_FB_Conversion"]                = "0";
-	m_current_configuration["UserHacks_Half_Bottom_Override"]             = "-1";
-	m_current_configuration["UserHacks_HalfPixelOffset"]                  = "0";
-	m_current_configuration["UserHacks_merge_pp_sprite"]                  = "0";
-	m_current_configuration["UserHacks_round_sprite_offset"]              = "0";
-	m_current_configuration["UserHacks_SkipDraw"]                         = "0";
-	m_current_configuration["UserHacks_SkipDraw_Offset"]                  = "0";
-	m_current_configuration["UserHacks_TCOffsetX"]                        = "0";
-	m_current_configuration["UserHacks_TCOffsetY"]                        = "0";
-	m_current_configuration["UserHacks_TextureInsideRt"]                  = "0";
 	m_current_configuration["UserHacks_TriFilter"]                        = std::to_string(static_cast<s8>(TriFiltering::None));
-	m_current_configuration["UserHacks_WildHack"]                         = "0";
 	m_current_configuration["wrap_gs_mem"]                                = "0";
 }
 
-
 std::string GSApp::GetConfigS(const char* entry)
 {
-	
 	return m_current_configuration[entry];
 }
 
@@ -666,7 +631,6 @@ void GSApp::SetConfig(const char* entry, const char* value)
 int GSApp::GetConfigI(const char* entry)
 {
 	return std::stoi(m_current_configuration[entry]);
-
 }
 
 bool GSApp::GetConfigB(const char* entry)

@@ -427,8 +427,8 @@ GSDevice11::GSDevice11()
 	m_mipmap = theApp.GetConfigI("mipmap");
 	m_upscale_multiplier = option_upscale_mult;
 	
-	const BiFiltering nearest_filter = static_cast<BiFiltering>(theApp.GetConfigI("filter"));
-	const int aniso_level = theApp.GetConfigI("MaxAnisotropy");
+	const BiFiltering nearest_filter = static_cast<BiFiltering>(option_value(INT_PCSX2_OPT_TEXTURE_FILTERING, KeyOptionInt::return_type));
+	const int aniso_level            = option_value(INT_PCSX2_OPT_ANISOTROPIC_FILTER, KeyOptionInt::return_type);
 	if ((nearest_filter != BiFiltering::Nearest && !theApp.GetConfigB("paltex") && aniso_level))
 		m_aniso_filter = aniso_level;
 	else
