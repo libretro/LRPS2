@@ -35,9 +35,6 @@ PFNGLFRAMEBUFFERTEXTUREARBPROC glFramebufferTextureARB = NULL;
 PFNGLFRAMEBUFFERTEXTURELAYERARBPROC glFramebufferTextureLayerARB = NULL;
 PFNGLFRAMEBUFFERTEXTUREFACEARBPROC glFramebufferTextureFaceARB = NULL;
 #endif
-#if defined(ENABLE_GL_ARB_parallel_shader_compile) && defined(GL_ARB_parallel_shader_compile)
-PFNGLMAXSHADERCOMPILERTHREADSARBPROC glMaxShaderCompilerThreadsARB = NULL;
-#endif
 #if defined(ENABLE_GL_ARB_sample_locations) && defined(GL_ARB_sample_locations)
 PFNGLFRAMEBUFFERSAMPLELOCATIONSFVARBPROC glFramebufferSampleLocationsfvARB = NULL;
 PFNGLEVALUATEDEPTHVALUESARBPROC glEvaluateDepthValuesARB = NULL;
@@ -46,12 +43,6 @@ PFNGLEVALUATEDEPTHVALUESARBPROC glEvaluateDepthValuesARB = NULL;
 PFNGLDELETENAMEDSTRINGARBPROC glDeleteNamedStringARB = NULL;
 PFNGLCOMPILESHADERINCLUDEARBPROC glCompileShaderIncludeARB = NULL;
 PFNGLISNAMEDSTRINGARBPROC glIsNamedStringARB = NULL;
-#endif
-#if defined(ENABLE_GL_KHR_blend_equation_advanced) && defined(GL_KHR_blend_equation_advanced)
-PFNGLBLENDBARRIERKHRPROC glBlendBarrierKHR = NULL;
-#endif
-#if defined(ENABLE_GL_KHR_parallel_shader_compile) && defined(GL_KHR_parallel_shader_compile)
-PFNGLMAXSHADERCOMPILERTHREADSKHRPROC glMaxShaderCompilerThreadsKHR = NULL;
 #endif
 #if defined(ENABLE_GL_VERSION_1_0) && defined(GL_VERSION_1_0)
 PFNGLPOLYGONMODEPROC glPolygonMode = NULL;
@@ -281,8 +272,6 @@ PFNGLDISABLEVERTEXARRAYATTRIBPROC glDisableVertexArrayAttrib = NULL;
 PFNGLENABLEVERTEXARRAYATTRIBPROC glEnableVertexArrayAttrib = NULL;
 PFNGLCREATESAMPLERSPROC glCreateSamplers = NULL;
 PFNGLCREATEPROGRAMPIPELINESPROC glCreateProgramPipelines = NULL;
-PFNGLCREATEQUERIESPROC glCreateQueries = NULL;
-PFNGLMEMORYBARRIERBYREGIONPROC glMemoryBarrierByRegion = NULL;
 PFNGLGETTEXTURESUBIMAGEPROC glGetTextureSubImage = NULL;
 PFNGLTEXTUREBARRIERPROC glTextureBarrier = NULL;
 #endif

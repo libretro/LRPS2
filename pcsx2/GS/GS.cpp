@@ -148,9 +148,6 @@ GL_EXT_LOAD_OPT(glFramebufferTextureARB);
 GL_EXT_LOAD_OPT(glFramebufferTextureLayerARB);
 GL_EXT_LOAD_OPT(glFramebufferTextureFaceARB);
 #endif
-#if defined(ENABLE_GL_ARB_parallel_shader_compile) && defined(GL_ARB_parallel_shader_compile)
-GL_EXT_LOAD_OPT(glMaxShaderCompilerThreadsARB);
-#endif
 #if defined(ENABLE_GL_ARB_sample_locations) && defined(GL_ARB_sample_locations)
 GL_EXT_LOAD_OPT(glFramebufferSampleLocationsfvARB);
 GL_EXT_LOAD_OPT(glEvaluateDepthValuesARB);
@@ -159,12 +156,6 @@ GL_EXT_LOAD_OPT(glEvaluateDepthValuesARB);
 GL_EXT_LOAD_OPT(glDeleteNamedStringARB);
 GL_EXT_LOAD_OPT(glCompileShaderIncludeARB);
 GL_EXT_LOAD_OPT(glIsNamedStringARB);
-#endif
-#if defined(ENABLE_GL_KHR_blend_equation_advanced) && defined(GL_KHR_blend_equation_advanced)
-GL_EXT_LOAD_OPT(glBlendBarrierKHR);
-#endif
-#if defined(ENABLE_GL_KHR_parallel_shader_compile) && defined(GL_KHR_parallel_shader_compile)
-GL_EXT_LOAD_OPT(glMaxShaderCompilerThreadsKHR);
 #endif
 #if defined(ENABLE_GL_VERSION_1_0) && defined(GL_VERSION_1_0)
 GL_EXT_LOAD_OPT(glPolygonMode);
@@ -257,8 +248,6 @@ GL_EXT_LOAD_OPT(glIsEnabledi);
 GL_EXT_LOAD_OPT(glBindBufferRange);
 GL_EXT_LOAD_OPT(glBindBufferBase);
 GL_EXT_LOAD_OPT(glVertexAttribIPointer);
-GL_EXT_LOAD_OPT(glBindFragDataLocation);
-GL_EXT_LOAD_OPT(glGetFragDataLocation);
 GL_EXT_LOAD_OPT(glTexParameterIiv);
 GL_EXT_LOAD_OPT(glTexParameterIuiv);
 GL_EXT_LOAD_OPT(glClearBufferiv);
@@ -301,8 +290,6 @@ GL_EXT_LOAD_OPT(glFramebufferTexture);
 GL_EXT_LOAD_OPT(glGetMultisamplefv);
 #endif
 #if defined(ENABLE_GL_VERSION_3_3) && defined(GL_VERSION_3_3)
-GL_EXT_LOAD_OPT(glBindFragDataLocationIndexed);
-GL_EXT_LOAD_OPT(glGetFragDataIndex);
 GL_EXT_LOAD_OPT(glGenSamplers);
 GL_EXT_LOAD_OPT(glDeleteSamplers);
 GL_EXT_LOAD_OPT(glIsSampler);
@@ -387,15 +374,11 @@ GL_EXT_LOAD_OPT(glTextureParameteriv);
 GL_EXT_LOAD_OPT(glGenerateTextureMipmap);
 GL_EXT_LOAD_OPT(glBindTextureUnit);
 GL_EXT_LOAD_OPT(glGetTextureImage);
-GL_EXT_LOAD_OPT(glGetTextureLevelParameterfv);
-GL_EXT_LOAD_OPT(glGetTextureLevelParameteriv);
 GL_EXT_LOAD_OPT(glCreateVertexArrays);
 GL_EXT_LOAD_OPT(glDisableVertexArrayAttrib);
 GL_EXT_LOAD_OPT(glEnableVertexArrayAttrib);
 GL_EXT_LOAD_OPT(glCreateSamplers);
 GL_EXT_LOAD_OPT(glCreateProgramPipelines);
-GL_EXT_LOAD_OPT(glCreateQueries);
-GL_EXT_LOAD_OPT(glMemoryBarrierByRegion);
 GL_EXT_LOAD_OPT(glGetTextureSubImage);
 GL_EXT_LOAD_OPT(glTextureBarrier);
 #endif
