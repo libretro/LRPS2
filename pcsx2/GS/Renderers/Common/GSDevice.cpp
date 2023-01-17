@@ -25,8 +25,7 @@
 #include "fxaa_shader.h"
 
 GSDevice::GSDevice()
-	: m_rbswapped(false)
-	, m_backbuffer(NULL)
+	: m_backbuffer(NULL)
 	, m_merge(NULL)
 	, m_weavebob(NULL)
 	, m_blend(NULL)

@@ -133,7 +133,6 @@ protected:
 	static const int m_NO_BLEND     = 0;
 	static const int m_MERGE_BLEND  = m_blendMap.size() - 1;
 
-	bool m_rbswapped;
 	GSTexture* m_backbuffer;
 	GSTexture* m_merge;
 	GSTexture* m_weavebob;
@@ -192,8 +191,6 @@ public:
 	bool ResizeTexture(GSTexture** t, int w, int h);
 	bool ResizeTarget(GSTexture** t, int w, int h);
 	bool ResizeTarget(GSTexture** t);
-
-	bool IsRBSwapped() {return m_rbswapped;}
 
 	void AgePool();
 	void PurgePool();
