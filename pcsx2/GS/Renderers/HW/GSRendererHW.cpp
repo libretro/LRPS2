@@ -43,51 +43,10 @@ GSRendererHW::GSRendererHW(GSTextureCache* tc)
 	, m_channel_shuffle(false)
 	, m_lod(GSVector2i(0,0))
 {
-	m_mipmap                                = option_value(INT_PCSX2_OPT_MIPMAPPING, KeyOptionInt::return_type);
+	m_userhacks_enabled_gs_mem_clear         = true;
+	m_userHacks_enabled_unscale_ptln         = true;
 
-	m_large_framebuffer                     = !option_value(BOOL_PCSX2_OPT_CONSERVATIVE_BUFFER, KeyOptionBool::return_type);
-	m_accurate_date                         = option_value(BOOL_PCSX2_OPT_ACCURATE_DATE, KeyOptionBool::return_type);
-
-	m_fxaa                                  = option_value(INT_PCSX2_OPT_FXAA, KeyOptionInt::return_type);
-	m_interlace                             = option_value(INT_PCSX2_OPT_DEINTERLACING_MODE, KeyOptionInt::return_type);
-	m_dithering                             = option_value(INT_PCSX2_OPT_DITHERING, KeyOptionInt::return_type);
-
-	m_userhacks_enabled_gs_mem_clear        = true;
-	m_userHacks_enabled_unscale_ptln        = true;
-
-	m_upscale_multiplier			= option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
-	option_upscale_mult                     = m_upscale_multiplier;
-
-	m_userhacks_align_sprite_X		= option_value(BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE, KeyOptionBool::return_type);
-	m_userHacks_merge_sprite		= option_value(BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE, KeyOptionBool::return_type);
-	int skipdraw_start				= option_value(INT_PCSX2_OPT_USERHACK_SKIPDRAW_START, KeyOptionInt::return_type);
-	int skipdraw_layers				= option_value(INT_PCSX2_OPT_USERHACK_SKIPDRAW_LAYERS, KeyOptionInt::return_type);
-	m_userhacks_skipdraw_offset		= skipdraw_start;
-	m_userhacks_skipdraw			= skipdraw_start + skipdraw_layers;
-	m_userHacks_HPO					= option_value(INT_PCSX2_OPT_USERHACK_HALFPIXEL_OFFSET, KeyOptionInt::return_type);
-	m_userhacks_round_sprite_offset = option_value(INT_PCSX2_OPT_USERHACK_ROUND_SPRITE, KeyOptionInt::return_type);
-	m_userhacks_wildhack			= option_value(BOOL_PCSX2_OPT_USERHACK_WILDARMS_OFFSET, KeyOptionBool::return_type);
-
-	m_userhacks_ts_half_bottom		= option_value(INT_PCSX2_OPT_USERHACK_HALFSCREEN_FIX, KeyOptionInt::return_type);
-	m_userhacks_auto_flush			= option_value(BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH, KeyOptionBool::return_type);
-	m_userhacks_preload_frame_data          = hack_preload_frame_data = option_value(BOOL_PCSX2_OPT_USERHACK_PRELOAD_FRAME_DATA, KeyOptionBool::return_type);
-
-	int toffset_x           = option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_HUNDREDS, KeyOptionInt::return_type);
-	toffset_x              += option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_TENS, KeyOptionInt::return_type);
-
-	int toffset_y           = option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_Y_HUNDREDS, KeyOptionInt::return_type);
-	toffset_y              += option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_Y_TENS, KeyOptionInt::return_type);
-
-	m_userhacks_tcoffset_x	= toffset_x / -1000.0f;
-	m_userhacks_tcoffset_y	= toffset_y / -1000.0f;
-	m_userhacks_tcoffset	= m_userhacks_tcoffset_x < 0.0f || m_userhacks_tcoffset_y < 0.0f;
-
-	if (m_upscale_multiplier == 1) { // hacks are only needed for upscaling issues.
-		m_userhacks_round_sprite_offset  = 0;
-		m_userhacks_align_sprite_X       = false;
-		m_userHacks_merge_sprite         = false;
-		m_userhacks_wildhack = false;
-	}
+	UpdateRendererOptions();
 }
 
 void GSRendererHW::UpdateRendererOptions()
@@ -96,30 +55,32 @@ void GSRendererHW::UpdateRendererOptions()
 	m_mipmap                                        = option_value(INT_PCSX2_OPT_MIPMAPPING, KeyOptionInt::return_type);
 	m_accurate_date                                 = option_value(BOOL_PCSX2_OPT_ACCURATE_DATE, KeyOptionBool::return_type);
 
+	m_sw_blending                                   = option_value(INT_PCSX2_OPT_BLEND_UNIT_ACCURACY, KeyOptionInt::return_type);
+
 	m_fxaa                                          = option_value(INT_PCSX2_OPT_FXAA, KeyOptionInt::return_type);
 	m_interlace                                     = option_value(INT_PCSX2_OPT_DEINTERLACING_MODE, KeyOptionInt::return_type);
+	m_dithering                                     = option_value(INT_PCSX2_OPT_DITHERING, KeyOptionInt::return_type);
 
 	m_upscale_multiplier				= option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 	option_upscale_mult                             = m_upscale_multiplier;
-
-	m_dithering                                     = option_value(INT_PCSX2_OPT_DITHERING, KeyOptionInt::return_type);
 	
-	m_userhacks_align_sprite_X			= option_value(BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE, KeyOptionBool::return_type);
-	m_userHacks_merge_sprite			= option_value(BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE, KeyOptionBool::return_type);
 	int skipdraw_start				= option_value(INT_PCSX2_OPT_USERHACK_SKIPDRAW_START, KeyOptionInt::return_type);
 	int skipdraw_layers				= option_value(INT_PCSX2_OPT_USERHACK_SKIPDRAW_LAYERS, KeyOptionInt::return_type);
 	m_userhacks_skipdraw_offset			= skipdraw_start;
 	m_userhacks_skipdraw				= skipdraw_start + skipdraw_layers;
 	m_userHacks_HPO					= option_value(INT_PCSX2_OPT_USERHACK_HALFPIXEL_OFFSET, KeyOptionInt::return_type);
-	m_userhacks_round_sprite_offset		        = option_value(INT_PCSX2_OPT_USERHACK_ROUND_SPRITE, KeyOptionInt::return_type);
 	m_userhacks_wildhack				= option_value(BOOL_PCSX2_OPT_USERHACK_WILDARMS_OFFSET, KeyOptionBool::return_type);
+
 	m_userhacks_ts_half_bottom			= option_value(INT_PCSX2_OPT_USERHACK_HALFSCREEN_FIX, KeyOptionInt::return_type);
 	m_userhacks_auto_flush				= option_value(BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH, KeyOptionBool::return_type);
 	m_userhacks_preload_frame_data                  = option_value(BOOL_PCSX2_OPT_USERHACK_PRELOAD_FRAME_DATA, KeyOptionBool::return_type);
+
 	int toffset_x                                   = option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_HUNDREDS, KeyOptionInt::return_type);
-	int toffset_y                                   = option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_Y_HUNDREDS, KeyOptionInt::return_type);
 	toffset_x                                      += option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_X_TENS, KeyOptionInt::return_type);
+
+	int toffset_y                                   = option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_Y_HUNDREDS, KeyOptionInt::return_type);
 	toffset_y                                      += option_value(INT_PCSX2_OPT_USERHACK_TEXTURE_OFFSET_Y_TENS, KeyOptionInt::return_type);
+
 	m_userhacks_tcoffset_x                          = toffset_x / -1000.0f;
 	m_userhacks_tcoffset_y                          = toffset_y / -1000.0f;
 	m_userhacks_tcoffset                            = m_userhacks_tcoffset_x < 0.0f || m_userhacks_tcoffset_y < 0.0f;
@@ -132,6 +93,12 @@ void GSRendererHW::UpdateRendererOptions()
 		m_userhacks_align_sprite_X              = false;
 		m_userHacks_merge_sprite                = false;
 		m_userhacks_wildhack                    = false;
+	}
+	else
+	{
+		m_userhacks_round_sprite_offset         = option_value(INT_PCSX2_OPT_USERHACK_ROUND_SPRITE, KeyOptionInt::return_type);
+		m_userhacks_align_sprite_X              = option_value(BOOL_PCSX2_OPT_USERHACK_ALIGN_SPRITE, KeyOptionBool::return_type);
+		m_userHacks_merge_sprite                = option_value(BOOL_PCSX2_OPT_USERHACK_MERGE_SPRITE, KeyOptionBool::return_type);
 	}
 }
 

@@ -127,7 +127,6 @@ static std::vector<std::string> custom_memcard_list_slot2;
 static bool libretro_supports_option_categories = false;
 static bool init_failed                         = false;
 int option_upscale_mult                         = 1;
-int option_blend_unit_accuracy                  = 1;
 int option_pad_left_deadzone                    = 0;
 int option_pad_right_deadzone                   = 0;
 bool option_palette_conversion                  = false;
@@ -364,8 +363,6 @@ void retro_init(void)
 		&libretro_supports_option_categories);
 
 	// start init some core settings
-
-	option_blend_unit_accuracy= option_value(INT_PCSX2_OPT_BLEND_UNIT_ACCURACY, KeyOptionInt::return_type);
 	option_upscale_mult       = option_value(INT_PCSX2_OPT_UPSCALE_MULTIPLIER, KeyOptionInt::return_type);
 	option_palette_conversion = option_value(BOOL_PCSX2_OPT_PALETTE_CONVERSION, KeyOptionBool::return_type);
 	hack_fb_conversion        = option_value(BOOL_PCSX2_OPT_USERHACK_FB_CONVERSION, KeyOptionBool::return_type);

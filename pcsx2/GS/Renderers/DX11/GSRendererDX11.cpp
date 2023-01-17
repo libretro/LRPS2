@@ -27,8 +27,7 @@
 GSRendererDX11::GSRendererDX11()
 	: GSRendererHW(new GSTextureCache11(this))
 {
-	int val       = option_value(INT_PCSX2_OPT_BLEND_UNIT_ACCURACY, KeyOptionInt::return_type);
-	m_sw_blending = (val >= 4 ? 3 : val ); /* TODO/FIXME - D3D11 doesn't support Full or Ultra blend accuracy, so clamp at High (3) */
+	m_sw_blending = option_value(INT_PCSX2_OPT_BLEND_UNIT_ACCURACY, KeyOptionInt::return_type);
 
 	ResetStates();
 }
@@ -209,6 +208,8 @@ void GSRendererDX11::EmulateTextureShuffleAndFbmask()
 	switch (m_sw_blending)
 	{
 		case ACC_BLEND_HIGH:
+		case ACC_BLEND_FULL:  /* TODO/FIXME - not implemented - so for now just default to High instead */
+		case ACC_BLEND_ULTRA: /* TODO/FIXME - not implemented - so for now just default to High instead */
 			// Fully enable Fbmask emulation like on opengl, note misses sw blending to work as opengl on some games (Genji).
 			// Debug
 			enable_fbmask_emulation = true;
@@ -225,8 +226,6 @@ void GSRendererDX11::EmulateTextureShuffleAndFbmask()
 			enable_fbmask_emulation = (!m_texture_shuffle && (m_vt.m_primclass != GS_TRIANGLE_CLASS) && (m_context->FRAME.FBMSK != 0x80000000));
 			break;
 		case ACC_BLEND_NONE:
-		case ACC_BLEND_FULL:  /* TODO/FIXME - not implemented */
-		case ACC_BLEND_ULTRA: /* TODO/FIXME - not implemented */
 		default:
 			break;
 	}
