@@ -203,7 +203,7 @@ void GSRendererHW::SetGameCRC(u32 crc, int options)
 	m_hacks.SetGameCRC(m_game);
 
 	// Code for Automatic Mipmapping. Relies on game CRCs.
-	if (theApp.GetConfigT<HWMipmapLevel>("mipmap_hw") == HWMipmapLevel::Automatic)
+	if (option_value(INT_PCSX2_OPT_MIPMAPPING, KeyOptionInt::return_type) == -1) /* -1 is mipmap level automatic */
 	{
 		switch (CRC::Lookup(crc).title)
 		{
