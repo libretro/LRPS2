@@ -603,7 +603,6 @@ void GSApp::Init()
 	m_current_configuration["accurate_blending_unit"]                     = "1";
 	m_current_configuration["autoflush_sw"]                               = "1";
 	m_current_configuration["clut_load_before_draw"]                      = "0";
-	m_current_configuration["crc_hack_level"]                             = std::to_string(static_cast<s8>(CRCHackLevel::Automatic));
 	m_current_configuration["CrcHacksExclusions"]                         = "";
 	m_current_configuration["extrathreads"]                               = "2";
 	m_current_configuration["extrathreads_height"]                        = "4";
