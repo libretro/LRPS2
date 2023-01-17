@@ -226,12 +226,7 @@ void GSShaderOGL::BindPipeline(GLuint vs, GLuint gs, GLuint ps)
 		glUseProgramStages(m_pipeline, GL_GEOMETRY_SHADER_BIT, gs);
 	}
 
-#ifdef _DEBUG
-	// In debug always sets the program. It allow to replace the program in apitrace easily.
-	if (true)
-#else
 	if (GLState::ps != ps)
-#endif
 	{
 		GLState::ps = ps;
 		glUseProgramStages(m_pipeline, GL_FRAGMENT_SHADER_BIT, ps);
