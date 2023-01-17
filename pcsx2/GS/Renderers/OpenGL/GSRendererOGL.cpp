@@ -20,16 +20,13 @@
  */
 
 #include "GSRendererOGL.h"
-
+#include "options_tools.h"
 
 GSRendererOGL::GSRendererOGL()
 	: GSRendererHW(new GSTextureCacheOGL(this))
 {
-	m_sw_blending = theApp.GetConfigI("accurate_blending_unit");
-//	if (theApp.GetConfigB("UserHacks"))
-		UserHacks_tri_filter = static_cast<TriFiltering>(theApp.GetConfigI("UserHacks_TriFilter"));
-//	else
-//		UserHacks_tri_filter = TriFiltering::None;
+	m_sw_blending        = option_value(INT_PCSX2_OPT_BLEND_UNIT_ACCURACY, KeyOptionInt::return_type);
+	UserHacks_tri_filter = static_cast<TriFiltering>(theApp.GetConfigI("UserHacks_TriFilter"));
 
 	// Hope nothing requires too many draw calls.
 	m_drawlist.reserve(2048);

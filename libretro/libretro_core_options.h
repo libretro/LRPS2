@@ -353,6 +353,31 @@ struct retro_core_option_v2_definition option_defs_us[] = {
       "2"
    },
    {
+      INT_PCSX2_OPT_BLEND_UNIT_ACCURACY,
+      "Video: Blend Unit Accuracy",
+      "Blend Unit Accuracy",
+      "Control the accuracy level of the blending. Increase if you notice flickering or improper lighting effects. Note, higher blending accuracy substantially increases performance requirements. \
+      \n'None' \
+      \n'Basic (Default)' \
+      \n'Medium' \
+      \n'High' \
+      \n'Full' (Slow): NOTE: D3D11 doesn't support this. \
+      \n'Ultra' (Very Slow): NOTE: D3D11 doesn't support this. ",
+      NULL,
+      "video_options",
+      {
+         {"0", "None"},
+         {"1", "Basic"},
+         {"2", "Medium"},
+         {"3", "High"},
+         {"4", "Full"},
+         {"5", "Ultra"},
+   
+         {NULL, NULL},
+      },
+      "1"
+   },
+   {
       INT_PCSX2_OPT_MIPMAPPING,
       "Video: Mipmapping",
       "Mipmapping",

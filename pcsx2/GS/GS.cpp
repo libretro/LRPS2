@@ -599,8 +599,6 @@ void GSApp::Init()
 
 	// Init configuration map with default values
 	// later in the flow they will be overwritten by custom config
-
-	m_current_configuration["accurate_blending_unit"]                     = "1";
 	m_current_configuration["autoflush_sw"]                               = "1";
 	m_current_configuration["clut_load_before_draw"]                      = "0";
 	m_current_configuration["extrathreads"]                               = "2";

@@ -22,11 +22,13 @@
 #include "Pcsx2Types.h"
 
 #include "GSRendererDX11.h"
+#include "options_tools.h"
 
 GSRendererDX11::GSRendererDX11()
 	: GSRendererHW(new GSTextureCache11(this))
 {
-	m_sw_blending = theApp.GetConfigI("accurate_blending_unit");
+	int val       = option_value(INT_PCSX2_OPT_BLEND_UNIT_ACCURACY, KeyOptionInt::return_type);
+	m_sw_blending = (val >= 4 ? 3 : val ); /* TODO/FIXME - D3D11 doesn't support Full or Ultra blend accuracy, so clamp at High (3) */
 
 	ResetStates();
 }
