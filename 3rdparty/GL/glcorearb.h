@@ -2432,10 +2432,6 @@ GLAPI void APIENTRY glDebugMessageCallback (GLDEBUGPROC callback, const void *us
 GLAPI GLuint APIENTRY glGetDebugMessageLog (GLuint count, GLsizei bufSize, GLenum *sources, GLenum *types, GLuint *ids, GLenum *severities, GLsizei *lengths, GLchar *messageLog);
 GLAPI void APIENTRY glPushDebugGroup (GLenum source, GLuint id, GLsizei length, const GLchar *message);
 GLAPI void APIENTRY glPopDebugGroup (void);
-GLAPI void APIENTRY glObjectLabel (GLenum identifier, GLuint name, GLsizei length, const GLchar *label);
-GLAPI void APIENTRY glGetObjectLabel (GLenum identifier, GLuint name, GLsizei bufSize, GLsizei *length, GLchar *label);
-GLAPI void APIENTRY glObjectPtrLabel (const void *ptr, GLsizei length, const GLchar *label);
-GLAPI void APIENTRY glGetObjectPtrLabel (const void *ptr, GLsizei bufSize, GLsizei *length, GLchar *label);
 #endif
 #endif /* GL_VERSION_4_3 */
 
@@ -3751,22 +3747,6 @@ GLAPI void APIENTRY glEGLImageTargetTexStorageEXT (GLenum target, GLeglImageOES 
 GLAPI void APIENTRY glEGLImageTargetTextureStorageEXT (GLuint texture, GLeglImageOES image, const GLint* attrib_list);
 #endif
 #endif /* GL_EXT_EGL_image_storage */
-
-#ifndef GL_EXT_debug_label
-#define GL_EXT_debug_label 1
-#define GL_PROGRAM_PIPELINE_OBJECT_EXT    0x8A4F
-#define GL_PROGRAM_OBJECT_EXT             0x8B40
-#define GL_SHADER_OBJECT_EXT              0x8B48
-#define GL_BUFFER_OBJECT_EXT              0x9151
-#define GL_QUERY_OBJECT_EXT               0x9153
-#define GL_VERTEX_ARRAY_OBJECT_EXT        0x9154
-typedef void (APIENTRYP PFNGLLABELOBJECTEXTPROC) (GLenum type, GLuint object, GLsizei length, const GLchar *label);
-typedef void (APIENTRYP PFNGLGETOBJECTLABELEXTPROC) (GLenum type, GLuint object, GLsizei bufSize, GLsizei *length, GLchar *label);
-#ifdef GL_GLEXT_PROTOTYPES
-GLAPI void APIENTRY glLabelObjectEXT (GLenum type, GLuint object, GLsizei length, const GLchar *label);
-GLAPI void APIENTRY glGetObjectLabelEXT (GLenum type, GLuint object, GLsizei bufSize, GLsizei *length, GLchar *label);
-#endif
-#endif /* GL_EXT_debug_label */
 
 #ifndef GL_EXT_debug_marker
 #define GL_EXT_debug_marker 1

@@ -2388,10 +2388,6 @@ GLAPI void APIENTRY glDebugMessageCallback (GLDEBUGPROC callback, const void *us
 GLAPI GLuint APIENTRY glGetDebugMessageLog (GLuint count, GLsizei bufSize, GLenum *sources, GLenum *types, GLuint *ids, GLenum *severities, GLsizei *lengths, GLchar *messageLog);
 GLAPI void APIENTRY glPushDebugGroup (GLenum source, GLuint id, GLsizei length, const GLchar *message);
 GLAPI void APIENTRY glPopDebugGroup (void);
-GLAPI void APIENTRY glObjectLabel (GLenum identifier, GLuint name, GLsizei length, const GLchar *label);
-GLAPI void APIENTRY glGetObjectLabel (GLenum identifier, GLuint name, GLsizei bufSize, GLsizei *length, GLchar *label);
-GLAPI void APIENTRY glObjectPtrLabel (const void *ptr, GLsizei length, const GLchar *label);
-GLAPI void APIENTRY glGetObjectPtrLabel (const void *ptr, GLsizei bufSize, GLsizei *length, GLchar *label);
 #endif
 #endif /* GL_VERSION_4_3 */
 
@@ -3849,8 +3845,6 @@ GLAPI void APIENTRY glUniform4ivARB (GLint location, GLsizei count, const GLint 
 GLAPI void APIENTRY glUniformMatrix2fvARB (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 GLAPI void APIENTRY glUniformMatrix3fvARB (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 GLAPI void APIENTRY glUniformMatrix4fvARB (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
-GLAPI void APIENTRY glGetObjectParameterfvARB (GLhandleARB obj, GLenum pname, GLfloat *params);
-GLAPI void APIENTRY glGetObjectParameterivARB (GLhandleARB obj, GLenum pname, GLint *params);
 GLAPI void APIENTRY glGetInfoLogARB (GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *infoLog);
 GLAPI void APIENTRY glGetAttachedObjectsARB (GLhandleARB containerObj, GLsizei maxCount, GLsizei *count, GLhandleARB *obj);
 GLAPI GLint APIENTRY glGetUniformLocationARB (GLhandleARB programObj, const GLcharARB *name);
@@ -5332,24 +5326,6 @@ GLAPI void APIENTRY glFlushMappedBufferRangeAPPLE (GLenum target, GLintptr offse
 #endif
 #endif /* GL_APPLE_flush_buffer_range */
 
-#ifndef GL_APPLE_object_purgeable
-#define GL_APPLE_object_purgeable 1
-#define GL_BUFFER_OBJECT_APPLE            0x85B3
-#define GL_RELEASED_APPLE                 0x8A19
-#define GL_VOLATILE_APPLE                 0x8A1A
-#define GL_RETAINED_APPLE                 0x8A1B
-#define GL_UNDEFINED_APPLE                0x8A1C
-#define GL_PURGEABLE_APPLE                0x8A1D
-typedef GLenum (APIENTRYP PFNGLOBJECTPURGEABLEAPPLEPROC) (GLenum objectType, GLuint name, GLenum option);
-typedef GLenum (APIENTRYP PFNGLOBJECTUNPURGEABLEAPPLEPROC) (GLenum objectType, GLuint name, GLenum option);
-typedef void (APIENTRYP PFNGLGETOBJECTPARAMETERIVAPPLEPROC) (GLenum objectType, GLuint name, GLenum pname, GLint *params);
-#ifdef GL_GLEXT_PROTOTYPES
-GLAPI GLenum APIENTRY glObjectPurgeableAPPLE (GLenum objectType, GLuint name, GLenum option);
-GLAPI GLenum APIENTRY glObjectUnpurgeableAPPLE (GLenum objectType, GLuint name, GLenum option);
-GLAPI void APIENTRY glGetObjectParameterivAPPLE (GLenum objectType, GLuint name, GLenum pname, GLint *params);
-#endif
-#endif /* GL_APPLE_object_purgeable */
-
 #ifndef GL_APPLE_rgb_422
 #define GL_APPLE_rgb_422 1
 #define GL_RGB_422_APPLE                  0x8A1F
@@ -5768,8 +5744,6 @@ typedef void (APIENTRYP PFNGLGETVARIANTARRAYOBJECTIVATIPROC) (GLuint id, GLenum 
 GLAPI GLuint APIENTRY glNewObjectBufferATI (GLsizei size, const void *pointer, GLenum usage);
 GLAPI GLboolean APIENTRY glIsObjectBufferATI (GLuint buffer);
 GLAPI void APIENTRY glUpdateObjectBufferATI (GLuint buffer, GLuint offset, GLsizei size, const void *pointer, GLenum preserve);
-GLAPI void APIENTRY glGetObjectBufferfvATI (GLuint buffer, GLenum pname, GLfloat *params);
-GLAPI void APIENTRY glGetObjectBufferivATI (GLuint buffer, GLenum pname, GLint *params);
 GLAPI void APIENTRY glFreeObjectBufferATI (GLuint buffer);
 GLAPI void APIENTRY glArrayObjectATI (GLenum array, GLint size, GLenum type, GLsizei stride, GLuint buffer, GLuint offset);
 GLAPI void APIENTRY glGetArrayObjectfvATI (GLenum array, GLenum pname, GLfloat *params);
@@ -6166,22 +6140,6 @@ GLAPI void APIENTRY glCullParameterdvEXT (GLenum pname, GLdouble *params);
 GLAPI void APIENTRY glCullParameterfvEXT (GLenum pname, GLfloat *params);
 #endif
 #endif /* GL_EXT_cull_vertex */
-
-#ifndef GL_EXT_debug_label
-#define GL_EXT_debug_label 1
-#define GL_PROGRAM_PIPELINE_OBJECT_EXT    0x8A4F
-#define GL_PROGRAM_OBJECT_EXT             0x8B40
-#define GL_SHADER_OBJECT_EXT              0x8B48
-#define GL_BUFFER_OBJECT_EXT              0x9151
-#define GL_QUERY_OBJECT_EXT               0x9153
-#define GL_VERTEX_ARRAY_OBJECT_EXT        0x9154
-typedef void (APIENTRYP PFNGLLABELOBJECTEXTPROC) (GLenum type, GLuint object, GLsizei length, const GLchar *label);
-typedef void (APIENTRYP PFNGLGETOBJECTLABELEXTPROC) (GLenum type, GLuint object, GLsizei bufSize, GLsizei *length, GLchar *label);
-#ifdef GL_GLEXT_PROTOTYPES
-GLAPI void APIENTRY glLabelObjectEXT (GLenum type, GLuint object, GLsizei length, const GLchar *label);
-GLAPI void APIENTRY glGetObjectLabelEXT (GLenum type, GLuint object, GLsizei bufSize, GLsizei *length, GLchar *label);
-#endif
-#endif /* GL_EXT_debug_label */
 
 #ifndef GL_EXT_debug_marker
 #define GL_EXT_debug_marker 1

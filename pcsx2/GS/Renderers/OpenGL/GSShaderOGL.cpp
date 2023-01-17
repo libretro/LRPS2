@@ -167,8 +167,6 @@ GLuint GSShaderOGL::LinkPipeline(const std::string& pretty_print, GLuint vs, GLu
 	glUseProgramStages(p, GL_GEOMETRY_SHADER_BIT, gs);
 	glUseProgramStages(p, GL_FRAGMENT_SHADER_BIT, ps);
 
-	glObjectLabel(GL_PROGRAM_PIPELINE, p, pretty_print.size(), pretty_print.c_str());
-
 	m_pipe_to_delete.push_back(p);
 
 	return p;

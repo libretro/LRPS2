@@ -52,10 +52,7 @@ namespace PboPool {
 	void Init() {
 		glGenBuffers(1, &m_buffer);
 
-		BindPbo();
-
-		glObjectLabel(GL_BUFFER, m_buffer, -1, "PBO");
-
+		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_buffer);
 		glBufferStorage(GL_PIXEL_UNPACK_BUFFER, m_pbo_size, NULL, create_flags);
 		m_map    = (char*)glMapBufferRange(GL_PIXEL_UNPACK_BUFFER, 0, m_pbo_size, map_flags);
 		m_offset = 0;
@@ -63,7 +60,7 @@ namespace PboPool {
 		for (size_t i = 0; i < ARRAY_SIZE(m_fence); i++)
 			m_fence[i] = 0;
 
-		UnbindPbo();
+		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 	}
 
 	char* Map(u32 size) {
@@ -73,21 +70,13 @@ namespace PboPool {
 
 		// Note: texsubimage will access currently bound buffer
 		// Pbo ready let's get a pointer
-		BindPbo();
+		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_buffer);
 
 		Sync();
 
 		map = m_map + m_offset;
 
 		return map;
-	}
-
-	void Unmap() {
-		glFlushMappedBufferRange(GL_PIXEL_UNPACK_BUFFER, m_offset, m_size);
-	}
-
-	uptr Offset() {
-		return m_offset;
 	}
 
 	void Destroy() {
@@ -98,10 +87,6 @@ namespace PboPool {
 			glDeleteSync(m_fence[i]);
 
 		glDeleteBuffers(1, &m_buffer);
-	}
-
-	void BindPbo() {
-		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_buffer);
 	}
 
 	void Sync() {
@@ -126,14 +111,6 @@ namespace PboPool {
 				m_fence[segment_next] = 0;
 			}
 		}
-	}
-
-	void UnbindPbo() {
-		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-	}
-
-	void EndTransfer() {
-		m_offset += m_size;
 	}
 }
 
@@ -308,14 +285,14 @@ bool GSTextureOGL::Update(const GSVector4i& r, const void* data, int pitch, int 
 		src += pitch;
 	}
 
-	PboPool::Unmap();
+	glFlushMappedBufferRange(GL_PIXEL_UNPACK_BUFFER, PboPool::m_offset, PboPool::m_size);
 
-	glTextureSubImage2D(m_texture_id, layer, r.x, r.y, r.width(), r.height(), m_int_format, m_int_type, (const void*)PboPool::Offset());
+	glTextureSubImage2D(m_texture_id, layer, r.x, r.y, r.width(), r.height(), m_int_format, m_int_type, (const void*)PboPool::m_offset);
 
 	// FIXME OGL4: investigate, only 1 unpack buffer always bound
-	PboPool::UnbindPbo();
+	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
-	PboPool::EndTransfer();
+	PboPool::m_offset += PboPool::m_size;
 
 	m_generate_mipmap = true;
 
@@ -374,14 +351,14 @@ void GSTextureOGL::Unmap()
 {
 	if (m_type == GSTexture::Texture || m_type == GSTexture::RenderTarget) {
 
-		PboPool::Unmap();
+		glFlushMappedBufferRange(GL_PIXEL_UNPACK_BUFFER, PboPool::m_offset, PboPool::m_size);
 
-		glTextureSubImage2D(m_texture_id, m_layer, m_r_x, m_r_y, m_r_w, m_r_h, m_int_format, m_int_type, (const void*)PboPool::Offset());
+		glTextureSubImage2D(m_texture_id, m_layer, m_r_x, m_r_y, m_r_w, m_r_h, m_int_format, m_int_type, (const void*)PboPool::m_offset);
 
 		// FIXME OGL4: investigate, only 1 unpack buffer always bound
-		PboPool::UnbindPbo();
+		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
-		PboPool::EndTransfer();
+		PboPool::m_offset += PboPool::m_size;
 
 		m_generate_mipmap = true;
 	}

@@ -380,10 +380,6 @@ GL_EXT_LOAD_OPT(glDebugMessageCallback);
 GL_EXT_LOAD_OPT(glGetDebugMessageLog);
 GL_EXT_LOAD_OPT(glPushDebugGroup);
 GL_EXT_LOAD_OPT(glPopDebugGroup);
-GL_EXT_LOAD_OPT(glObjectLabel);
-GL_EXT_LOAD_OPT(glGetObjectLabel);
-GL_EXT_LOAD_OPT(glObjectPtrLabel);
-GL_EXT_LOAD_OPT(glGetObjectPtrLabel);
 #endif
 #if defined(ENABLE_GL_VERSION_4_4) && defined(GL_VERSION_4_4)
 GL_EXT_LOAD_OPT(glBufferStorage);

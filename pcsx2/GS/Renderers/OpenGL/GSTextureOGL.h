@@ -27,14 +27,9 @@
 #include "../Common/GSTexture.h"
 
 namespace PboPool {
-	inline void BindPbo();
-	inline void UnbindPbo();
 	inline void Sync();
 
 	inline char* Map(u32 size);
-	inline void  Unmap();
-	inline uptr  Offset();
-	inline void  EndTransfer();
 
 	void Init();
 	void Destroy();

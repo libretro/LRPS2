@@ -37,7 +37,6 @@ public:
 	{
 		glGenBuffers(1, &m_buffer);
 		bind();
-		glObjectLabel(GL_BUFFER, m_buffer, pretty_name.size(), pretty_name.c_str());
 		allocate();
 		attach();
 		m_cache = (u8*)AlignedMalloc(m_size, 32);

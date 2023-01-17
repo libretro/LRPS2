@@ -66,11 +66,6 @@ class GSBufferOGL {
 		// => bigger buffer => less sync
 		bind();
 
-		if (STRIDE <= 4)
-			glObjectLabel(GL_BUFFER, m_buffer_name, -1, "IBO");
-		else
-			glObjectLabel(GL_BUFFER, m_buffer_name, -1, "VBO");
-
 		// coherency will be done by flushing
 		const GLbitfield common_flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT;
 		const GLbitfield map_flags = common_flags | GL_MAP_FLUSH_EXPLICIT_BIT;
