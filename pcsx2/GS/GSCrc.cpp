@@ -22,9 +22,7 @@
 #include <algorithm>
 
 #include "Pcsx2Types.h"
-#include "GS.h"
 #include "GSCrc.h"
-#include "options_tools.h"
 
 CRC::Game CRC::m_games[] =
 {
@@ -563,47 +561,13 @@ CRC::Game CRC::m_games[] =
 	{0xB1BE3E51, Whiplash, EU, 0},
 };
 
-std::map<u32, CRC::Game*> CRC::m_map;
-
-std::string ToLower( std::string str )
-{
-	transform( str.begin(), str.end(), str.begin(), ::tolower);
-	return str;
-}
-
-// The exclusions list is a comma separated list of: the word "all" and/or CRCs in standard hex notation (0x and 8 digits with leading 0's if required).
-// The list is case insensitive and order insensitive.
-// E.g. Disable all CRC hacks:          CrcHacksExclusions=all
-// E.g. Disable hacks for these CRCs:   CrcHacksExclusions=0x0F0C4A9C, 0x0EE5646B, 0x7ACF7E03
-bool IsCrcExcluded(std::string exclusionList, u32 crc)
-{
-	char str[32];
-	snprintf(str, sizeof(str), "0x%08x", crc);
-	exclusionList = ToLower(exclusionList);
-	return exclusionList.find(std::string(str)) != std::string::npos || exclusionList.find("all") != std::string::npos;
-}
-
 CRC::Game CRC::Lookup(u32 crc)
 {
-	if(m_map.empty())
+	for (const Game& game : m_games)
 	{
-		std::string exclusions = theApp.GetConfigS("CrcHacksExclusions");
-		int crcDups = 0;
-		for(size_t i = 0; i < ARRAY_SIZE(m_games); i++)
-		{
-			if( !IsCrcExcluded( exclusions, m_games[i].crc ) ){
-				if(m_map[m_games[i].crc])
-					crcDups++;
-
-				m_map[m_games[i].crc] = &m_games[i];
-			}
-		}
+		if (game.crc == crc)
+			return game;
 	}
-
-	auto i = m_map.find(crc);
-
-	if(i != m_map.end())
-		return *i->second;
 
 	return m_games[0];
 }

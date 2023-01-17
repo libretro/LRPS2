@@ -193,8 +193,6 @@ public:
 
 private:
 	static Game m_games[];
-	static std::map<u32, Game*> m_map;
-
 public:
 	static Game Lookup(u32 crc);
 };
