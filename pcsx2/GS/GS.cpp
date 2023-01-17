@@ -614,11 +614,6 @@ void GSApp::Init()
 	m_current_configuration["wrap_gs_mem"]                                = "0";
 }
 
-std::string GSApp::GetConfigS(const char* entry)
-{
-	return m_current_configuration[entry];
-}
-
 int GSApp::GetConfigI(const char* entry)
 {
 	return std::stoi(m_current_configuration[entry]);

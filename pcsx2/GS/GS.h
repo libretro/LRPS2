@@ -1236,11 +1236,8 @@ public:
 	void Init();
 
 	// Avoid issue with overloading
-	template<typename T>
-	T      GetConfigT(const char* entry) { return static_cast<T>(GetConfigI(entry)); }
 	int    GetConfigI(const char* entry);
 	bool   GetConfigB(const char* entry);
-	std::string GetConfigS(const char* entry);
 };
 
 GSRendererType GetCurrentRendererType(void);
