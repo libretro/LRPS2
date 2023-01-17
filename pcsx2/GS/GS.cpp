@@ -623,11 +623,6 @@ std::string GSApp::GetConfigS(const char* entry)
 	return m_current_configuration[entry];
 }
 
-void GSApp::SetConfig(const char* entry, const char* value)
-{
-	m_current_configuration[entry] = value;
-}
-
 int GSApp::GetConfigI(const char* entry)
 {
 	return std::stoi(m_current_configuration[entry]);
@@ -636,15 +631,6 @@ int GSApp::GetConfigI(const char* entry)
 bool GSApp::GetConfigB(const char* entry)
 {
 	return !!GetConfigI(entry);
-}
-
-void GSApp::SetConfig(const char* entry, int value)
-{
-	char buff[32] = {0};
-
-	sprintf(buff, "%d", value);
-
-	SetConfig(entry, buff);
 }
 
 GSRendererType GetCurrentRendererType(void)

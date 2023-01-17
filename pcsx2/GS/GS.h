@@ -1235,8 +1235,6 @@ public:
 
 	void Init();
 
-	void SetConfig(const char* entry, const char* value);
-	void SetConfig(const char* entry, int value);
 	// Avoid issue with overloading
 	template<typename T>
 	T      GetConfigT(const char* entry) { return static_cast<T>(GetConfigI(entry)); }
