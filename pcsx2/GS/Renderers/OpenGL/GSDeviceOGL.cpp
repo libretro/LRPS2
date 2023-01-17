@@ -1873,7 +1873,9 @@ bool GSDeviceOGL::Create()
 
 		m_convert.vs = vs;
 		for(size_t i = 0; i < ARRAY_SIZE(m_convert.ps); i++) {
-			ps = m_shader->Compile("convert.glsl", format("ps_main%d", i), GL_FRAGMENT_SHADER, convert_shader.data());
+			char str[32];
+			snprintf(str, sizeof(str), "ps_main%d", (int)i);
+			ps = m_shader->Compile("convert.glsl", str, GL_FRAGMENT_SHADER, convert_shader.data());
 			std::string pretty_name = "Convert pipe " + std::to_string(i);
 			m_convert.ps[i] = m_shader->LinkPipeline(pretty_name, vs, 0, ps);
 		}
@@ -1900,7 +1902,9 @@ bool GSDeviceOGL::Create()
 		std::vector<char> merge_shader(merge_glsl_shader_raw, merge_glsl_shader_raw + sizeof(merge_glsl_shader_raw)/sizeof(*merge_glsl_shader_raw));
 
 		for(size_t i = 0; i < ARRAY_SIZE(m_merge_obj.ps); i++) {
-			ps = m_shader->Compile("merge.glsl", format("ps_main%d", i), GL_FRAGMENT_SHADER, merge_shader.data());
+			char str[32];
+			snprintf(str, sizeof(str), "ps_main%d", (int)i);
+			ps = m_shader->Compile("merge.glsl", str, GL_FRAGMENT_SHADER, merge_shader.data());
 			std::string pretty_name = "Merge pipe " + std::to_string(i);
 			m_merge_obj.ps[i] = m_shader->LinkPipeline(pretty_name, vs, 0, ps);
 		}
@@ -1915,7 +1919,9 @@ bool GSDeviceOGL::Create()
 		std::vector<char> interlace_shader(interlace_glsl_shader_raw, interlace_glsl_shader_raw + sizeof(interlace_glsl_shader_raw)/sizeof(*interlace_glsl_shader_raw));
 
 		for(size_t i = 0; i < ARRAY_SIZE(m_interlace.ps); i++) {
-			ps = m_shader->Compile("interlace.glsl", format("ps_main%d", i), GL_FRAGMENT_SHADER, interlace_shader.data());
+			char str[32];
+			snprintf(str, sizeof(str), "ps_main%d", (int)i);
+			ps = m_shader->Compile("interlace.glsl", str, GL_FRAGMENT_SHADER, interlace_shader.data());
 			std::string pretty_name = "Interlace pipe " + std::to_string(i);
 			m_interlace.ps[i] = m_shader->LinkPipeline(pretty_name, vs, 0, ps);
 		}

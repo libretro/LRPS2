@@ -40,7 +40,7 @@ GSTextureCache::GSTextureCache(GSRenderer* r)
 	m_preload_frame                = hack_preload_frame_data;
 	m_texture_inside_rt            = false;
 	m_wrap_gs_mem                  = false;
-	_paltex                        = option_palette_conversion;
+	m_paltex                       = option_palette_conversion;
 	m_crc_hack_level               = GSUtil::GetRecommendedCRCHackLevel(GetCurrentRendererType());
 
 	// In theory 4MB is enough but 9MB is safer for overflow (8MB

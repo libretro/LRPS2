@@ -24,6 +24,7 @@
 #include "Pcsx2Types.h"
 #include "GS.h"
 #include "GSCrc.h"
+#include "options_tools.h"
 
 CRC::Game CRC::m_games[] =
 {
@@ -576,9 +577,10 @@ std::string ToLower( std::string str )
 // E.g. Disable hacks for these CRCs:   CrcHacksExclusions=0x0F0C4A9C, 0x0EE5646B, 0x7ACF7E03
 bool IsCrcExcluded(std::string exclusionList, u32 crc)
 {
-	std::string target = format("0x%08x", crc);
+	char str[32];
+	snprintf(str, sizeof(str), "0x%08x", crc);
 	exclusionList = ToLower(exclusionList);
-	return exclusionList.find(target) != std::string::npos || exclusionList.find("all") != std::string::npos;
+	return exclusionList.find(std::string(str)) != std::string::npos || exclusionList.find("all") != std::string::npos;
 }
 
 CRC::Game CRC::Lookup(u32 crc)
