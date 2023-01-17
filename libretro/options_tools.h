@@ -55,9 +55,6 @@ static bool option_value(const char* const_option, KeyOptionBool return_type) {
 		if (strcmp(var.value, "enabled") == 0)
 			return true;
 	}
-	else 
-		log_cb(RETRO_LOG_ERROR, "Error while getting option: %s\n", var.key);
-	
 	return false;
 }
 
@@ -66,7 +63,6 @@ static int option_value(const char* const_option, KeyOptionInt return_type) {
 	var.key = const_option;
 	if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var))
 		return atoi(var.value);
-	log_cb(RETRO_LOG_ERROR, "Error while getting option: %s\n", var.key);
 	return 0;
 }
 
@@ -76,7 +72,6 @@ static const char* option_value(const char* const_option, KeyOptionString return
 	var.key = const_option;
 	if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var))
 		return var.value;
-	log_cb(RETRO_LOG_ERROR, "Error while getting option: %s\n", var.key);
 	return NULL;
 }
 
