@@ -22,6 +22,7 @@
 #include "Pcsx2Types.h"
 
 #include "GSRendererSW.h"
+#include "options_tools.h"
 
 GSVector4 GSRendererSW::m_pos_scale;
 #if _M_SSE >= 0x501
@@ -71,8 +72,8 @@ GSRendererSW::GSRendererSW(int threads)
 	InitCVB(GS_SPRITE_CLASS);
 
 	// Reset handler with the auto flush hack enabled on the SW renderer.
-	// Some games run better without the hack so rely on ini/gui option.
-	if (theApp.GetConfigB("autoflush_sw")) {
+	if (option_value(BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH_SW, KeyOptionBool::return_type))
+	{
 		m_userhacks_auto_flush = true;
 		ResetHandlers();
 	}

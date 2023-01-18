@@ -45,6 +45,7 @@
 #define BOOL_PCSX2_OPT_USERHACK_FB_CONVERSION                 "pcsx2_userhack_fb_conversion"
 #define BOOL_PCSX2_OPT_USERHACK_FAST_INVALIDATION             "pcsx2_fast_invalidation"
 #define BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH                    "pcsx2_userhack_auto_flush"
+#define BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH_SW                 "pcsx2_userhack_auto_flush_sw"
 #define BOOL_PCSX2_OPT_USERHACK_PRELOAD_FRAME_DATA            "pcsx2_userhack_preload_frame_data"
 #define INT_PCSX2_OPT_BLEND_UNIT_ACCURACY                     "pcsx2_blend_unit_accuracy"
 #define INT_PCSX2_OPT_USERHACK_SKIPDRAW_START                 "pcsx2_userhack_skipdraw_start"

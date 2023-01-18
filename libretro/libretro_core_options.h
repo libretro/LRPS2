@@ -953,6 +953,21 @@ struct retro_core_option_v2_definition option_defs_us[] = {
       "disabled"
    },
    {
+      BOOL_PCSX2_OPT_USERHACK_AUTO_FLUSH_SW,
+      "Hack: Auto Flush (Software Renderer)",
+      "Auto Flush",
+      "(Software renderer only) Force a primitive flush when a framebuffer is also an input texture. Fixes some processing effects such as the shadows in the Jak series and radiosity in GTA:SA. \
+      \nVery costly in performance. (Content restart required)",
+      NULL,
+      "hacks_options",
+      {
+         {"disabled", NULL},
+         {"enabled", NULL},
+         {NULL, NULL},
+      },
+      "disabled"
+   },
+   {
       BOOL_PCSX2_OPT_USERHACK_FAST_INVALIDATION,
       "Hack: Fast Texture Invalidation",
       "Fast Texture Invalidation",
