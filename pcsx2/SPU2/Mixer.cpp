@@ -554,11 +554,14 @@ StereoOut32 V_Core::Mix(const VoiceMixSet& inVoices, const StereoOut32& Input, c
 	TW.Left += Ext.Left & WetGate.ExtL;
 	TW.Right += Ext.Right & WetGate.ExtR;
 
-	StereoOut32 RV = DoReverb(TW);
+	StereoOut32 RV           = DoReverb(TW);
 
 	// Mix Dry + Wet
 	// (master volume is applied later to the result of both outputs added together).
-	return TD + ApplyVolume(RV, FxVol);
+	const StereoOut32& right = ApplyVolume(RV, FxVol);
+	return StereoOut32(
+			TD.Left + right.Left,
+			TD.Right + right.Right);
 }
 
 void SPU2_Mix(void)

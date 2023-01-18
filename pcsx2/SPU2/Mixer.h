@@ -15,6 +15,17 @@
 
 #pragma once
 
+struct StereoOut16
+{
+	static StereoOut16 Empty;
+
+	s16 Left;
+	s16 Right;
+
+	StereoOut16() : Left(0), Right(0) { }
+	StereoOut16(s16 left, s16 right) : Left(left), Right(right) { }
+};
+
 struct StereoOut32
 {
 	static StereoOut32 Empty;
@@ -22,43 +33,8 @@ struct StereoOut32
 	s32 Left;
 	s32 Right;
 
-	StereoOut32()
-		: Left(0)
-		, Right(0)
-	{
-	}
-
-	StereoOut32(s32 left, s32 right)
-		: Left(left)
-		, Right(right)
-	{
-	}
-
-	StereoOut32 operator*(const int& factor) const
-	{
-		return StereoOut32(
-			Left * factor,
-			Right * factor);
-	}
-
-	StereoOut32& operator*=(const int& factor)
-	{
-		Left *= factor;
-		Right *= factor;
-		return *this;
-	}
-
-	StereoOut32 operator+(const StereoOut32& right) const
-	{
-		return StereoOut32(
-			Left + right.Left,
-			Right + right.Right);
-	}
-
-	StereoOut32 operator/(int src) const
-	{
-		return StereoOut32(Left / src, Right / src);
-	}
+	StereoOut32() : Left(0), Right(0) { }
+	StereoOut32(s32 left, s32 right) : Left(left), Right(right) { }
 };
 
 extern void SPU2_Mix(void);
