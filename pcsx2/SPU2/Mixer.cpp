@@ -292,19 +292,15 @@ static s32 SPU2_FORCEINLINE GetNoiseValues(void)
 static void SPU2_FORCEINLINE UpdatePitch(uint coreidx, uint voiceidx)
 {
 	V_Voice& vc(Cores[coreidx].Voices[voiceidx]);
-	s32 pitch;
 
 	// [Air] : re-ordered comparisons: Modulated is much more likely to be zero than voice,
 	//   and so the way it was before it's have to check both voice and modulated values
 	//   most of the time.  Now it'll just check Modulated and short-circuit past the voice
 	//   check (not that it amounts to much, but eh every little bit helps).
 	if ((vc.Modulated == 0) || (voiceidx == 0))
-		pitch = vc.Pitch;
+		vc.SP += std::min((s32)vc.Pitch, 0x3FFF);
 	else
-		pitch = std::min(std::max((vc.Pitch * (32768 + Cores[coreidx].Voices[voiceidx - 1].OutX)) >> 15, 0), 0x3fff);
-
-	pitch = std::min(pitch, 0x3FFF);
-	vc.SP += pitch;
+		vc.SP += std::min(std::max((vc.Pitch * (0x8000 + Cores[coreidx].Voices[voiceidx - 1].OutX)) >> 15, 0), 0x3fff);
 }
 
 
