@@ -372,7 +372,7 @@ static SPU2_FORCEINLINE StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 		if (vc.ADSR.Phase == 0)
 			vc.ADSR.Value = 0;
 		else if (!vc.ADSR.Calculate())
-			vc.Stop()
+			vc.Stop();
 
 		Value    = MULSHR32(Value, vc.ADSR.Value);
 		vc.OutX  = Value;
