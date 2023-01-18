@@ -965,7 +965,7 @@ struct retro_core_option_v2_definition option_defs_us[] = {
          {"enabled", NULL},
          {NULL, NULL},
       },
-      "disabled"
+      "enabled"
    },
    {
       BOOL_PCSX2_OPT_USERHACK_FAST_INVALIDATION,
