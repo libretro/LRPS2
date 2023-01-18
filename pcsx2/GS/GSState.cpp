@@ -40,8 +40,8 @@ GSState::GSState()
 {
 	// m_nativeres seems to be a hack. Unfortunately it impacts draw call number which make debug painful in the replayer.
 	// Let's keep it disabled to ease debug.
-	m_nativeres             =  option_upscale_mult == 1;
-	m_mipmap                = theApp.GetConfigI("mipmap");
+	m_nativeres             = option_upscale_mult == 1;
+	m_mipmap                = option_value(INT_PCSX2_OPT_MIPMAPPING, KeyOptionInt::return_type);
 	m_NTSC_Saturation       = theApp.GetConfigB("NTSC_Saturation");
 	m_clut_load_before_draw = theApp.GetConfigB("clut_load_before_draw");
 

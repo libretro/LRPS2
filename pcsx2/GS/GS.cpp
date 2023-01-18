@@ -555,7 +555,6 @@ void GSApp::Init()
 	m_current_configuration["extrathreads_height"]       = "4";
 	m_current_configuration["force_texture_clear"]       = "0"; /* TODO/FIXME - GL only, remove later after Burnout hack? */
 	m_current_configuration["linear_present"]            = "1";
-	m_current_configuration["mipmap"]                    = "1";
 	m_current_configuration["NTSC_Saturation"]           = "1";
 	m_current_configuration["paltex"]                    = "0";
 	m_current_configuration["UserHacks_TriFilter"]       = std::to_string(static_cast<s8>(TriFiltering::None));

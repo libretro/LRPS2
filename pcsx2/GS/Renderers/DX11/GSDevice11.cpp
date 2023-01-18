@@ -424,8 +424,8 @@ GSDevice11::GSDevice11()
 	m_state.topology = D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
 	m_state.bf = -1;
 
-	m_mipmap = theApp.GetConfigI("mipmap");
-	m_upscale_multiplier = option_upscale_mult;
+	m_mipmap                         = option_value(INT_PCSX2_OPT_MIPMAPPING, KeyOptionInt::return_type);
+	m_upscale_multiplier             = option_upscale_mult;
 	
 	const BiFiltering nearest_filter = static_cast<BiFiltering>(option_value(INT_PCSX2_OPT_TEXTURE_FILTERING, KeyOptionInt::return_type));
 	const int aniso_level            = option_value(INT_PCSX2_OPT_ANISOTROPIC_FILTER, KeyOptionInt::return_type);

@@ -1689,11 +1689,8 @@ GSDeviceOGL::GSDeviceOGL()
 	memset(&m_profiler, 0 , sizeof(m_profiler));
 	GLState::Clear();
 
-	m_mipmap = theApp.GetConfigI("mipmap");
-//	if (theApp.GetConfigB("UserHacks"))
-		m_filter = static_cast<TriFiltering>(theApp.GetConfigI("UserHacks_TriFilter"));
-//	else
-//		m_filter = TriFiltering::None;
+	m_mipmap = option_value(INT_PCSX2_OPT_MIPMAPPING, KeyOptionInt::return_type);
+	m_filter = static_cast<TriFiltering>(theApp.GetConfigI("UserHacks_TriFilter"));
 }
 
 GSDeviceOGL::~GSDeviceOGL()
