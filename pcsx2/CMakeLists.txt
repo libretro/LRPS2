@@ -227,7 +227,6 @@ set(pcsx2SPU2Headers
    SPU2/Mixer.h
    SPU2/spu2.h
    SPU2/regs.h
-   SPU2/SndOut.h
 )
 
 # GS sources

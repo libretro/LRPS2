@@ -18,7 +18,6 @@
 #include <libretro.h>
 
 #include "Global.h"
-#include "SndOut.h"
 
 /* Forward declaration */
 extern retro_audio_sample_t sample_cb;
@@ -99,12 +98,6 @@ static const s32 tbl_XA_Factor[16][2] =
 	{122, -60}
 };
 
-template <typename T>
-static SPU2_FORCEINLINE T GetClamped(T src, T min, T max)
-{
-	return std::min(std::max(src, min), max);
-}
-
 /* Performs a 64-bit multiplication between two values and returns the
  * high 32 bits as a result (discarding the fractional 32 bits).
  * The combined fractional bits of both inputs must be 32 bits for this
@@ -123,20 +116,14 @@ static SPU2_FORCEINLINE s32 MulShr32(s32 srcval, s32 mulval)
 	return (s64)srcval * mulval >> 32;
 }
 
-s32 clamp_mix(s32 x, u8 bitshift)
+s32 clamp_mix(s32 x)
 {
-	return GetClamped(x, -(0x8000 << bitshift), 0x7fff << bitshift);
+	return std::min(std::max(x, -0x8000), 0x7fff);
 }
 
-StereoOut32
-clamp_mix(const StereoOut32& sample, u8 bitshift)
+StereoOut32 clamp_mix(const StereoOut32& sample)
 {
-	// We should clampify between -0x8000 and 0x7fff, however some audio output
-	// modules or sound drivers could (will :p) overshoot with that. So giving it a small safety.
-
-	return StereoOut32(
-		GetClamped(sample.Left,  -(0x7f00 << bitshift), 0x7f00 << bitshift),
-		GetClamped(sample.Right, -(0x7f00 << bitshift), 0x7f00 << bitshift));
+	return StereoOut32(clamp_mix(sample.Left), clamp_mix(sample.Right));
 }
 
 static void SPU2_FORCEINLINE XA_decode_block(s16* buffer, const s16* block, s32& prev1, s32& prev2)
@@ -601,24 +588,22 @@ void SPU2_Mix(void)
 	{
 		/* Experimental CDDA support */
 		// The CDDA overrides all other mixer output.  It's a direct feed!
-
-		Out = Cores[1].ReadInput_HiFi();
+		Out       = Cores[1].ReadInput_HiFi();
 	}
 	else
 	{
-		Out.Left = MulShr32(Out.Left   << SND_OUT_VOLUME_SHIFT,
+		Out.Left  = MulShr32(Out.Left,
 				Cores[1].MasterVol.Left.Value);
-		Out.Right = MulShr32(Out.Right << SND_OUT_VOLUME_SHIFT,
+		Out.Right = MulShr32(Out.Right,
 				Cores[1].MasterVol.Right.Value);
-
-		// Final Clamp!
-		// Like any good audio system, the PS2 pumps the volume and incurs some distortion in its
-		// output, giving us a nice thumpy sound at times.  So we add 1 above (2x volume pump) and
-		// then clamp it all here.
-
-		Out = clamp_mix(Out, SND_OUT_VOLUME_SHIFT);
 	}
-	sample_cb(Out.Left >> 12, Out.Right >> 12);
+
+	Out               = clamp_mix(Out);
+
+	StereoOut16 out16;
+	out16.Left        = (s16)Out.Left;
+	out16.Right       = (s16)Out.Right;
+	sample_cb(out16.Left, out16.Right);
 
 	/* Update AutoDMA output positioning */
 	OutPos++;

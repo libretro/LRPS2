@@ -17,7 +17,6 @@
 #include <cmath>
 
 #include "Global.h"
-#include "SndOut.h"
 
 static float AccL = 0;
 static float AccR = 0;
@@ -119,10 +118,10 @@ void ResetDplIIDecoder(void)
 }
 #endif
 
-static void ProcessDplIISample32(const StereoOut32& src, Stereo51Out32DplII* s)
+static void ProcessDplIISample32(const StereoOut16& src, Stereo51Out32DplII* s)
 {
-	float IL = src.Left  / (float)(1 << (SND_OUT_VOLUME_SHIFT + 16));
-	float IR = src.Right / (float)(1 << (SND_OUT_VOLUME_SHIFT + 16));
+	float IL = src.Left  / (float)(1 << 16);
+	float IR = src.Right / (float)(1 << 16);
 
 	// Calculate center channel and LFE
 	float C = (IL + IR) * 0.5f;
@@ -169,7 +168,7 @@ static void ProcessDplIISample32(const StereoOut32& src, Stereo51Out32DplII* s)
 	s->RightBack = (s32)(SR  * SPU2_GAIN_SR);
 }
 
-static void ProcessDplIISample16(const StereoOut32& src, Stereo51Out16DplII* s)
+static void ProcessDplIISample16(const StereoOut16& src, Stereo51Out16DplII* s)
 {
 	Stereo51Out32DplII ss;
 	ProcessDplIISample32(src, &ss);
@@ -182,10 +181,10 @@ static void ProcessDplIISample16(const StereoOut32& src, Stereo51Out16DplII* s)
 	s->RightBack = ss.RightBack >> 16;
 }
 
-static void ProcessDplSample32(const StereoOut32& src, Stereo51Out32Dpl* s)
+static void ProcessDplSample32(const StereoOut16& src, Stereo51Out32Dpl* s)
 {
-	float ValL   = src.Left  / (float)(1 << (SND_OUT_VOLUME_SHIFT + 16));
-	float ValR   = src.Right / (float)(1 << (SND_OUT_VOLUME_SHIFT + 16));
+	float ValL   = src.Left  / (float)(1 << 16);
+	float ValR   = src.Right / (float)(1 << 16);
 
 	float C      = (ValL + ValR) * 0.5f; //+15.8
 	float S      = (ValL - ValR) * 0.5f;
@@ -205,7 +204,7 @@ static void ProcessDplSample32(const StereoOut32& src, Stereo51Out32Dpl* s)
 	s->RightBack = (s32)(S   * SPU2_GAIN_SR);
 }
 
-static void ProcessDplSample16(const StereoOut32& src, Stereo51Out16Dpl* s)
+static void ProcessDplSample16(const StereoOut16& src, Stereo51Out16Dpl* s)
 {
 	Stereo51Out32Dpl ss;
 	ProcessDplSample32(src, &ss);
