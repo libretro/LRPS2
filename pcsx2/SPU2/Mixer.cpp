@@ -229,7 +229,9 @@ static SPU2_FORCEINLINE void spu2M_WriteFast(u32 addr, s16 value)
 	*GetMemPtr(addr) = value;
 }
 
-static SPU2_FORCEINLINE StereoOut32 MixVoice(uint coreidx, uint voiceidx)
+const VoiceMixSet VoiceMixSet::Empty((StereoOut32()), (StereoOut32())); // Don't use SteroOut32::Empty because C++ doesn't make any dep/order checks on global initializers.
+
+static SPU2_FORCEINLINE void MixCoreVoices(VoiceMixSet& dest, const uint coreidx)
 {
 	static const s16 interpTable[0x200] = {
 		-0x001, -0x001, -0x001, -0x001, -0x001, -0x001, -0x001, -0x001, //
@@ -297,120 +299,111 @@ static SPU2_FORCEINLINE StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 		0x593A, 0x5949, 0x5958, 0x5965, 0x5971, 0x597C, 0x5986, 0x598F, //
 		0x5997, 0x599E, 0x59A4, 0x59A9, 0x59AD, 0x59B0, 0x59B2, 0x59B3  //
 	};
-
-	V_Core& thiscore(Cores[coreidx]);
-	V_Voice& vc(thiscore.Voices[voiceidx]);
-
-	/* Most games don't use much volume slide effects.  So only call the UpdateVolume
-	 * methods when needed by checking the flag outside the method here...
-	 * (Note: Ys 6 : Ark of Nephistm uses these effects)
-	 */
-
-	if ((vc.Volume.Left.Mode & VOLFLAG_SLIDE_ENABLE)  && vc.Volume.Left.Increment  != 0x7f)
-		vc.Volume.Left.Update();
-	if ((vc.Volume.Right.Mode & VOLFLAG_SLIDE_ENABLE) && vc.Volume.Right.Increment != 0x7f)
-		vc.Volume.Right.Update();
-
-	/* SPU2 Note: The spu2 continues to process voices for eternity, always, so we
-	 * have to run through all the motions of updating the voice regardless of it's
-	 * audible status.  Otherwise IRQs might not trigger and emulation might fail.
-	 */
-
-	/* Update pitch */
-	/* [Air] : re-ordered comparisons: Modulated is much more likely to be zero than voice,
-	 *   and so the way it was before it's have to check both voice and modulated values
-	 *   most of the time.  Now it'll just check Modulated and short-circuit past the voice
-	 *   check (not that it amounts to much, but eh every little bit helps). */
-	if ((vc.Modulated == 0) || ((voiceidx) == 0))
-		vc.SP += std::min((s32)vc.Pitch, 0x3FFF);
-	else
-		vc.SP += std::min(std::max((vc.Pitch * (0x8000 + Cores[(coreidx)].Voices[(voiceidx) - 1].OutX)) >> 15, 0), 0x3FFF);
-
-	StereoOut32 voiceOut(0, 0);
-	s32 Value = 0;
-
-	if (vc.ADSR.Phase > 0)
-	{
-		if (vc.Noise)
-		{
-			/* Get noise values */
-			static u16 lfsr = 0xC0FEu;
-			u16 bit         = lfsr ^ (lfsr << 3) ^ (lfsr << 4) ^ (lfsr << 5);
-			lfsr            = (lfsr << 1) | (bit >> 15);
-			Value           = (s16)lfsr;
-		}
-		else
-		{         
-			/* Get voice values */
-			while (vc.SP > 0)
-			{
-				vc.PV4 = vc.PV3;
-				vc.PV3 = vc.PV2;
-				vc.PV2 = vc.PV1;
-				vc.PV1 = GetNextDataBuffered(thiscore, voiceidx);
-				vc.SP -= 0x1000;
-			}
-
-			s32 mu  = vc.SP + 0x1000;
-			s32 pv4 = vc.PV4; 
-			s32 pv3 = vc.PV3;
-			s32 pv2 = vc.PV2;
-			s32 pv1 = vc.PV1;
-			s32 i   = (mu & 0x0FF0) >> 4;
-			/* Gaussian interpolation */
-			Value   =   ((interpTable[0x0FF - i] * pv4) >> 15)
-				+   ((interpTable[0x1FF - i] * pv3) >> 15)
-				+   ((interpTable[0x100 + i] * pv2) >> 15)
-				+   ((interpTable[0x000 + i] * pv1) >> 15);
-		}
-
-		/* Update and Apply ADSR  (applies to normal and noise sources)
-		 *
-		 * Note!  It's very important that ADSR stay as accurate as possible.  By the way
-		 * it is used, various sound effects can end prematurely if we truncate more than
-		 * one or two bits.  Best result comes from no truncation at all, which is why we
-		 * use a full 64-bit multiply/result here.
-		 */
-		if (vc.ADSR.Phase == 0)
-			vc.ADSR.Value = 0;
-		else if (!vc.ADSR.Calculate())
-			vc.Stop();
-
-		Value    = MULSHR32(Value, vc.ADSR.Value);
-		vc.OutX  = Value;
-
-		voiceOut = APPLY_VOLUME(Value, vc.Volume.Left.Value, Value, vc.Volume.Right.Value);
-	}
-	else
-	{
-		while (vc.SP >= 0)
-			GetNextDataDummy(thiscore, voiceidx); /* Dummy is enough */
-	}
-
-	// Write-back of raw voice data (post ADSR applied)
-	if (voiceidx == 1)
-		spu2M_WriteFast(((0 == coreidx) ? 0x400 : 0xc00) + OutPos, Value);
-	else if (voiceidx == 3)
-		spu2M_WriteFast(((0 == coreidx) ? 0x600 : 0xe00) + OutPos, Value);
-
-	return voiceOut;
-}
-
-const VoiceMixSet VoiceMixSet::Empty((StereoOut32()), (StereoOut32())); // Don't use SteroOut32::Empty because C++ doesn't make any dep/order checks on global initializers.
-
-static SPU2_FORCEINLINE void MixCoreVoices(VoiceMixSet& dest, const uint coreidx)
-{
 	V_Core& thiscore(Cores[coreidx]);
 
 	for (uint voiceidx = 0; voiceidx < NUM_VOICES; ++voiceidx)
 	{
-		StereoOut32 VVal(MixVoice(coreidx, voiceidx));
+		StereoOut32 VVal;
+		s32 Value = 0;
+
+		V_Voice& vc(thiscore.Voices[voiceidx]);
+
+		/* Most games don't use much volume slide effects.  So only call the UpdateVolume
+		 * methods when needed by checking the flag outside the method here...
+		 * (Note: Ys 6 : Ark of Nephistm uses these effects)
+		 */
+
+		if ((vc.Volume.Left.Mode & VOLFLAG_SLIDE_ENABLE)  && vc.Volume.Left.Increment  != 0x7f)
+			vc.Volume.Left.Update();
+		if ((vc.Volume.Right.Mode & VOLFLAG_SLIDE_ENABLE) && vc.Volume.Right.Increment != 0x7f)
+			vc.Volume.Right.Update();
+
+		/* SPU2 Note: The spu2 continues to process voices for eternity, always, so we
+		 * have to run through all the motions of updating the voice regardless of it's
+		 * audible status.  Otherwise IRQs might not trigger and emulation might fail.
+		 */
+
+		/* Update pitch */
+		/* [Air] : re-ordered comparisons: Modulated is much more likely to be zero than voice,
+		 *   and so the way it was before it's have to check both voice and modulated values
+		 *   most of the time.  Now it'll just check Modulated and short-circuit past the voice
+		 *   check (not that it amounts to much, but eh every little bit helps). */
+		if ((vc.Modulated == 0) || ((voiceidx) == 0))
+			vc.SP += std::min((s32)vc.Pitch, 0x3FFF);
+		else
+			vc.SP += std::min(std::max((vc.Pitch * (0x8000 + Cores[(coreidx)].Voices[(voiceidx) - 1].OutX)) >> 15, 0), 0x3FFF);
+
+		if (vc.ADSR.Phase > 0)
+		{
+			if (vc.Noise)
+			{
+				/* Get noise values */
+				static u16 lfsr = 0xC0FEu;
+				u16 bit         = lfsr ^ (lfsr << 3) ^ (lfsr << 4) ^ (lfsr << 5);
+				lfsr            = (lfsr << 1) | (bit >> 15);
+				Value           = (s16)lfsr;
+			}
+			else
+			{         
+				/* Get voice values */
+				while (vc.SP > 0)
+				{
+					vc.PV4 = vc.PV3;
+					vc.PV3 = vc.PV2;
+					vc.PV2 = vc.PV1;
+					vc.PV1 = GetNextDataBuffered(thiscore, voiceidx);
+					vc.SP -= 0x1000;
+				}
+
+				s32 mu  = vc.SP + 0x1000;
+				s32 pv4 = vc.PV4; 
+				s32 pv3 = vc.PV3;
+				s32 pv2 = vc.PV2;
+				s32 pv1 = vc.PV1;
+				s32 i   = (mu & 0x0FF0) >> 4;
+				/* Gaussian interpolation */
+				Value   =   ((interpTable[0x0FF - i] * pv4) >> 15)
+					+   ((interpTable[0x1FF - i] * pv3) >> 15)
+					+   ((interpTable[0x100 + i] * pv2) >> 15)
+					+   ((interpTable[0x000 + i] * pv1) >> 15);
+			}
+
+			/* Update and Apply ADSR  (applies to normal and noise sources)
+			 *
+			 * Note!  It's very important that ADSR stay as accurate as possible.  By the way
+			 * it is used, various sound effects can end prematurely if we truncate more than
+			 * one or two bits.  Best result comes from no truncation at all, which is why we
+			 * use a full 64-bit multiply/result here.
+			 */
+			if (vc.ADSR.Phase == 0)
+				vc.ADSR.Value = 0;
+			else if (!vc.ADSR.Calculate())
+				vc.Stop();
+
+			Value    = MULSHR32(Value, vc.ADSR.Value);
+			vc.OutX  = Value;
+
+			VVal = APPLY_VOLUME(Value, vc.Volume.Left.Value, Value, vc.Volume.Right.Value);
+		}
+		else
+		{
+			while (vc.SP >= 0)
+				GetNextDataDummy(thiscore, voiceidx); /* Dummy is enough */
+			VVal.Left  = 0;
+			VVal.Right = 0;
+		}
+
+		// Write-back of raw voice data (post ADSR applied)
+		if (voiceidx == 1)
+			spu2M_WriteFast(((0 == coreidx) ? 0x400 : 0xc00) + OutPos, Value);
+		else if (voiceidx == 3)
+			spu2M_WriteFast(((0 == coreidx) ? 0x600 : 0xe00) + OutPos, Value);
 
 		// Note: Results from MixVoice are ranged at 16 bits.
 
-		dest.Dry.Left += VVal.Left & thiscore.VoiceGates[voiceidx].DryL;
+		dest.Dry.Left  += VVal.Left  & thiscore.VoiceGates[voiceidx].DryL;
 		dest.Dry.Right += VVal.Right & thiscore.VoiceGates[voiceidx].DryR;
-		dest.Wet.Left += VVal.Left & thiscore.VoiceGates[voiceidx].WetL;
+		dest.Wet.Left  += VVal.Left  & thiscore.VoiceGates[voiceidx].WetL;
 		dest.Wet.Right += VVal.Right & thiscore.VoiceGates[voiceidx].WetR;
 	}
 }
