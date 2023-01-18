@@ -42,6 +42,11 @@ extern s16* _spu2mem;
 #define GETMEMPTR(addr) ((_spu2mem) + (addr))
 #define GetMemPtr(addr) (GETMEMPTR(addr))
 
+#define VOLFLAG_REVERSE_PHASE (1ul << 0)
+#define VOLFLAG_DECREMENT (1ul << 1)
+#define VOLFLAG_EXPONENTIAL (1ul << 2)
+#define VOLFLAG_SLIDE_ENABLE (1ul << 3)
+
 extern void spu2M_Write(u32 addr, s16 value);
 
 struct V_VolumeLR

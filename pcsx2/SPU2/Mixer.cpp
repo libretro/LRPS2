@@ -306,8 +306,10 @@ static SPU2_FORCEINLINE StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 	 * (Note: Ys 6 : Ark of Nephistm uses these effects)
 	 */
 
-	vc.Volume.Left.Update();
-	vc.Volume.Right.Update();
+	if ((vc.Volume.Left.Mode & VOLFLAG_SLIDE_ENABLE)  && vc.Volume.Left.Increment  != 0x7f)
+		vc.Volume.Left.Update();
+	if ((vc.Volume.Right.Mode & VOLFLAG_SLIDE_ENABLE) && vc.Volume.Right.Increment != 0x7f)
+		vc.Volume.Right.Update();
 
 	/* SPU2 Note: The spu2 continues to process voices for eternity, always, so we
 	 * have to run through all the motions of updating the voice regardless of it's
@@ -415,8 +417,10 @@ static SPU2_FORCEINLINE void MixCoreVoices(VoiceMixSet& dest, const uint coreidx
 
 StereoOut32 V_Core::Mix(const VoiceMixSet& inVoices, const StereoOut32& Input, const StereoOut32& Ext)
 {
-	MasterVol.Left.Update();
-	MasterVol.Right.Update();
+	if ((MasterVol.Left.Mode & VOLFLAG_SLIDE_ENABLE)  && MasterVol.Left.Increment  != 0x7f)
+		MasterVol.Left.Update();
+	if ((MasterVol.Right.Mode & VOLFLAG_SLIDE_ENABLE) && MasterVol.Right.Increment != 0x7f)
+		MasterVol.Right.Update();
 
 	// Saturate final result to standard 16 bit range.
 	const VoiceMixSet Voices(

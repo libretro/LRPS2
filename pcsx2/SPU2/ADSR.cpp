@@ -167,22 +167,10 @@ bool V_ADSR::Calculate()
 /////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                     //
 
-#define VOLFLAG_REVERSE_PHASE (1ul << 0)
-#define VOLFLAG_DECREMENT (1ul << 1)
-#define VOLFLAG_EXPONENTIAL (1ul << 2)
-#define VOLFLAG_SLIDE_ENABLE (1ul << 3)
-
 void V_VolumeSlide::Update()
 {
-	if (!(Mode & VOLFLAG_SLIDE_ENABLE))
-		return;
-
 	// Volume slides use the same basic logic as ADSR, but simplified (single-stage
 	// instead of multi-stage)
-
-	if (Increment == 0x7f)
-		return;
-
 	s32 value = abs(Value);
 
 	if (Mode & VOLFLAG_DECREMENT)
