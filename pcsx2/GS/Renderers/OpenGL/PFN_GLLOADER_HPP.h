@@ -73,7 +73,6 @@ extern PFNGLVIEWPORTPROC glViewport;
 #endif
 #if defined(ENABLE_GL_VERSION_1_1) && defined(GL_VERSION_1_1)
 extern PFNGLDRAWARRAYSPROC glDrawArrays;
-extern PFNGLDRAWELEMENTSPROC glDrawElements;
 extern PFNGLCOPYTEXSUBIMAGE2DPROC glCopyTexSubImage2D;
 extern PFNGLTEXSUBIMAGE2DPROC glTexSubImage2D;
 extern PFNGLBINDTEXTUREPROC glBindTexture;
@@ -240,8 +239,6 @@ extern PFNGLCLEARTEXSUBIMAGEPROC glClearTexSubImage;
 #endif
 #if defined(ENABLE_GL_VERSION_4_5) && defined(GL_VERSION_4_5)
 extern PFNGLCLIPCONTROLPROC glClipControl;
-extern PFNGLMAPNAMEDBUFFERPROC glMapNamedBuffer;
-extern PFNGLMAPNAMEDBUFFERRANGEPROC glMapNamedBufferRange;
 extern PFNGLUNMAPNAMEDBUFFERPROC glUnmapNamedBuffer;
 extern PFNGLFLUSHMAPPEDNAMEDBUFFERRANGEPROC glFlushMappedNamedBufferRange;
 extern PFNGLCREATEFRAMEBUFFERSPROC glCreateFramebuffers;

@@ -2543,8 +2543,6 @@ GLAPI void APIENTRY glGetTransformFeedbacki_v (GLuint xfb, GLenum pname, GLuint 
 GLAPI void APIENTRY glGetTransformFeedbacki64_v (GLuint xfb, GLenum pname, GLuint index, GLint64 *param);
 GLAPI void APIENTRY glCreateBuffers (GLsizei n, GLuint *buffers);
 GLAPI void APIENTRY glCopyNamedBufferSubData (GLuint readBuffer, GLuint writeBuffer, GLintptr readOffset, GLintptr writeOffset, GLsizeiptr size);
-GLAPI void *APIENTRY glMapNamedBuffer (GLuint buffer, GLenum access);
-GLAPI void *APIENTRY glMapNamedBufferRange (GLuint buffer, GLintptr offset, GLsizeiptr length, GLbitfield access);
 GLAPI GLboolean APIENTRY glUnmapNamedBuffer (GLuint buffer);
 GLAPI void APIENTRY glFlushMappedNamedBufferRange (GLuint buffer, GLintptr offset, GLsizeiptr length);
 GLAPI void APIENTRY glGetNamedBufferParameteriv (GLuint buffer, GLenum pname, GLint *params);
@@ -4643,7 +4641,6 @@ GLAPI void APIENTRY glNormal3xOES (GLfixed nx, GLfixed ny, GLfixed nz);
 GLAPI void APIENTRY glOrthoxOES (GLfixed l, GLfixed r, GLfixed b, GLfixed t, GLfixed n, GLfixed f);
 GLAPI void APIENTRY glPointParameterxvOES (GLenum pname, const GLfixed *params);
 GLAPI void APIENTRY glPointSizexOES (GLfixed size);
-GLAPI void APIENTRY glPolygonOffsetxOES (GLfixed factor, GLfixed units);
 GLAPI void APIENTRY glRotatexOES (GLfixed angle, GLfixed x, GLfixed y, GLfixed z);
 GLAPI void APIENTRY glScalexOES (GLfixed x, GLfixed y, GLfixed z);
 GLAPI void APIENTRY glTexEnvxOES (GLenum target, GLenum pname, GLfixed param);
@@ -6299,7 +6296,6 @@ GLAPI void APIENTRY glMatrixLoadTransposefEXT (GLenum mode, const GLfloat *m);
 GLAPI void APIENTRY glMatrixLoadTransposedEXT (GLenum mode, const GLdouble *m);
 GLAPI void APIENTRY glMatrixMultTransposefEXT (GLenum mode, const GLfloat *m);
 GLAPI void APIENTRY glMatrixMultTransposedEXT (GLenum mode, const GLdouble *m);
-GLAPI void *APIENTRY glMapNamedBufferEXT (GLuint buffer, GLenum access);
 GLAPI GLboolean APIENTRY glUnmapNamedBufferEXT (GLuint buffer);
 GLAPI void APIENTRY glGetNamedBufferParameterivEXT (GLuint buffer, GLenum pname, GLint *params);
 GLAPI void APIENTRY glGetNamedBufferPointervEXT (GLuint buffer, GLenum pname, void **params);
@@ -6341,7 +6337,6 @@ GLAPI void APIENTRY glGetVertexArrayIntegervEXT (GLuint vaobj, GLenum pname, GLi
 GLAPI void APIENTRY glGetVertexArrayPointervEXT (GLuint vaobj, GLenum pname, void **param);
 GLAPI void APIENTRY glGetVertexArrayIntegeri_vEXT (GLuint vaobj, GLuint index, GLenum pname, GLint *param);
 GLAPI void APIENTRY glGetVertexArrayPointeri_vEXT (GLuint vaobj, GLuint index, GLenum pname, void **param);
-GLAPI void *APIENTRY glMapNamedBufferRangeEXT (GLuint buffer, GLintptr offset, GLsizeiptr length, GLbitfield access);
 GLAPI void APIENTRY glFlushMappedNamedBufferRangeEXT (GLuint buffer, GLintptr offset, GLsizeiptr length);
 GLAPI void APIENTRY glGetNamedFramebufferParameterivEXT (GLuint framebuffer, GLenum pname, GLint *params);
 GLAPI void APIENTRY glTextureBufferRangeEXT (GLuint texture, GLenum target, GLenum internalformat, GLuint buffer, GLintptr offset, GLsizeiptr size);
@@ -6836,26 +6831,6 @@ GLAPI void APIENTRY glPointParameterfEXT (GLenum pname, GLfloat param);
 GLAPI void APIENTRY glPointParameterfvEXT (GLenum pname, const GLfloat *params);
 #endif
 #endif /* GL_EXT_point_parameters */
-
-#ifndef GL_EXT_polygon_offset
-#define GL_EXT_polygon_offset 1
-#define GL_POLYGON_OFFSET_EXT             0x8037
-#define GL_POLYGON_OFFSET_FACTOR_EXT      0x8038
-#define GL_POLYGON_OFFSET_BIAS_EXT        0x8039
-typedef void (APIENTRYP PFNGLPOLYGONOFFSETEXTPROC) (GLfloat factor, GLfloat bias);
-#ifdef GL_GLEXT_PROTOTYPES
-GLAPI void APIENTRY glPolygonOffsetEXT (GLfloat factor, GLfloat bias);
-#endif
-#endif /* GL_EXT_polygon_offset */
-
-#ifndef GL_EXT_polygon_offset_clamp
-#define GL_EXT_polygon_offset_clamp 1
-#define GL_POLYGON_OFFSET_CLAMP_EXT       0x8E1B
-typedef void (APIENTRYP PFNGLPOLYGONOFFSETCLAMPEXTPROC) (GLfloat factor, GLfloat units, GLfloat clamp);
-#ifdef GL_GLEXT_PROTOTYPES
-GLAPI void APIENTRY glPolygonOffsetClampEXT (GLfloat factor, GLfloat units, GLfloat clamp);
-#endif
-#endif /* GL_EXT_polygon_offset_clamp */
 
 #ifndef GL_EXT_post_depth_coverage
 #define GL_EXT_post_depth_coverage 1

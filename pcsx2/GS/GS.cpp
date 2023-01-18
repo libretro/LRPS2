@@ -186,7 +186,6 @@ GL_EXT_LOAD_OPT(glViewport);
 #endif
 #if defined(ENABLE_GL_VERSION_1_1) && defined(GL_VERSION_1_1)
 GL_EXT_LOAD_OPT(glDrawArrays);
-GL_EXT_LOAD_OPT(glDrawElements);
 GL_EXT_LOAD_OPT(glCopyTexSubImage2D);
 GL_EXT_LOAD_OPT(glTexSubImage2D);
 GL_EXT_LOAD_OPT(glBindTexture);
@@ -349,8 +348,6 @@ GL_EXT_LOAD_OPT(glClearTexSubImage);
 #endif
 #if defined(ENABLE_GL_VERSION_4_5) && defined(GL_VERSION_4_5)
 GL_EXT_LOAD_OPT(glClipControl);
-GL_EXT_LOAD_OPT(glMapNamedBuffer);
-GL_EXT_LOAD_OPT(glMapNamedBufferRange);
 GL_EXT_LOAD_OPT(glUnmapNamedBuffer);
 GL_EXT_LOAD_OPT(glFlushMappedNamedBufferRange);
 GL_EXT_LOAD_OPT(glCreateFramebuffers);
