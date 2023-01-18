@@ -139,7 +139,7 @@ static SPU2_FORCEINLINE s32 GetNextDataBuffered(V_Core& thiscore, uint voiceidx)
 			if (Cores[i].IRQEnable && Cores[i].IRQA == (vc.NextA & 0xFFFF8))
 				SetIrqCall(i);
 
-		s16* memptr = GetMemPtr(vc.NextA & 0xFFFF8);
+		s16* memptr  = GetMemPtr(vc.NextA & 0xFFFF8);
 		vc.LoopFlags = *memptr >> 8; // grab loop flags from the upper byte.
 
 		if ((vc.LoopFlags & XAFLAG_LOOP_START) && !vc.LoopMode)
@@ -207,31 +207,11 @@ static SPU2_FORCEINLINE void GetNextDataDummy(V_Core& thiscore, uint voiceidx)
 	vc.SCurrent += 4 - (vc.SCurrent & 3);
 }
 
-static s32 SPU2_FORCEINLINE GetNoiseValues(void)
-{
-}
-
 /* Data is expected to be 16 bit signed (typical stuff!).
  * volume is expected to be 32 bit signed (31 bits with reverse phase)
  * Data is shifted up by 1 bit to give the output an effective 16 bit range.
  */
 #define APPLY_VOLUME(s1, s2, s3, s4) StereoOut32(MULSHR32((s1) << 1, (s2)), MULSHR32((s3) << 1, (s4)))
-
-// [Air] : re-ordered comparisons: Modulated is much more likely to be zero than voice,
-//   and so the way it was before it's have to check both voice and modulated values
-//   most of the time.  Now it'll just check Modulated and short-circuit past the voice
-//   check (not that it amounts to much, but eh every little bit helps).
-#define UpdatePitch(coreidx, voiceidx) \
-	if ((vc.Modulated == 0) || ((voiceidx) == 0)) \
-		vc.SP += std::min((s32)vc.Pitch, 0x3FFF); \
-	else \
-		vc.SP += std::min(std::max((vc.Pitch * (0x8000 + Cores[(coreidx)].Voices[(voiceidx) - 1].OutX)) >> 15, 0), 0x3fff)
-
-#define CalculateADSR() \
-	if (vc.ADSR.Phase == 0) \
-		vc.ADSR.Value = 0; \
-	else if (!vc.ADSR.Calculate()) \
-		vc.Stop()
 
 /* writes a signed value to the SPU2 ram
  * Performs no cache invalidation -- use only for dynamic memory ranges
@@ -334,7 +314,15 @@ static SPU2_FORCEINLINE StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 	 * audible status.  Otherwise IRQs might not trigger and emulation might fail.
 	 */
 
-	UpdatePitch(coreidx, voiceidx);
+	/* Update pitch */
+	/* [Air] : re-ordered comparisons: Modulated is much more likely to be zero than voice,
+	 *   and so the way it was before it's have to check both voice and modulated values
+	 *   most of the time.  Now it'll just check Modulated and short-circuit past the voice
+	 *   check (not that it amounts to much, but eh every little bit helps). */
+	if ((vc.Modulated == 0) || ((voiceidx) == 0))
+		vc.SP += std::min((s32)vc.Pitch, 0x3FFF);
+	else
+		vc.SP += std::min(std::max((vc.Pitch * (0x8000 + Cores[(coreidx)].Voices[(voiceidx) - 1].OutX)) >> 15, 0), 0x3FFF);
 
 	StereoOut32 voiceOut(0, 0);
 	s32 Value = 0;
@@ -381,7 +369,10 @@ static SPU2_FORCEINLINE StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 		 * one or two bits.  Best result comes from no truncation at all, which is why we
 		 * use a full 64-bit multiply/result here.
 		 */
-		CalculateADSR();
+		if (vc.ADSR.Phase == 0)
+			vc.ADSR.Value = 0;
+		else if (!vc.ADSR.Calculate())
+			vc.Stop()
 
 		Value    = MULSHR32(Value, vc.ADSR.Value);
 		vc.OutX  = Value;
