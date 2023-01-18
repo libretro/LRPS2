@@ -13,8 +13,6 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <algorithm>
-
 #include <libretro.h>
 
 #include "Global.h"
@@ -111,20 +109,7 @@ static const s32 tbl_XA_Factor[16][2] =
  *   caller to  extend the inputs so that they make use of all 32 bits of
  *   precision.
  */
-static SPU2_FORCEINLINE s32 MulShr32(s32 srcval, s32 mulval)
-{
-	return (s64)srcval * mulval >> 32;
-}
-
-s32 clamp_mix(s32 x)
-{
-	return std::min(std::max(x, -0x8000), 0x7fff);
-}
-
-StereoOut32 clamp_mix(const StereoOut32& sample)
-{
-	return StereoOut32(clamp_mix(sample.Left), clamp_mix(sample.Right));
-}
+#define MULSHR32(srcval, mulval) ((s64)(srcval) * (mulval) >> 32)
 
 static void SPU2_FORCEINLINE XA_decode_block(s16* buffer, const s16* block, s32& prev1, s32& prev2)
 {
@@ -304,7 +289,7 @@ static s32 SPU2_FORCEINLINE GetNoiseValues(void)
  */
 static SPU2_FORCEINLINE s32 ApplyVolume(s32 data, s32 volume)
 {
-	return MulShr32(data << 1, volume);
+	return MULSHR32(data << 1, volume);
 }
 
 static SPU2_FORCEINLINE StereoOut32 ApplyVolume(const StereoOut32& data, const V_VolumeLR& volume)
@@ -437,7 +422,7 @@ static SPU2_FORCEINLINE StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 		 */
 
 		CalculateADSR(thiscore, voiceidx);
-		Value    = MulShr32(Value, vc.ADSR.Value);
+		Value    = MULSHR32(Value, vc.ADSR.Value);
 		vc.OutX  = Value;
 
 		voiceOut = ApplyVolume(StereoOut32(Value, Value), vc.Volume);
@@ -481,7 +466,14 @@ StereoOut32 V_Core::Mix(const VoiceMixSet& inVoices, const StereoOut32& Input, c
 	MasterVol.Update();
 
 	// Saturate final result to standard 16 bit range.
-	const VoiceMixSet Voices(clamp_mix(inVoices.Dry), clamp_mix(inVoices.Wet));
+	const VoiceMixSet Voices(
+			StereoOut32(
+				CLAMP_MIX(inVoices.Dry.Left),
+				CLAMP_MIX(inVoices.Dry.Right)),
+			StereoOut32(
+				CLAMP_MIX(inVoices.Wet.Left),
+				CLAMP_MIX(inVoices.Wet.Right))
+			);
 
 	// Write Mixed results To Output Area
 	spu2M_WriteFast(((0 == Index) ? 0x1000 : 0x1800) + OutPos, Voices.Dry.Left);
@@ -575,7 +567,10 @@ void SPU2_Mix(void)
 	if ((PlayMode & 4) || (Cores[0].Mute != 0))
 		Ext = StereoOut32(0, 0);
 	else
-		Ext = clamp_mix(ApplyVolume(Ext, Cores[0].MasterVol));
+	{
+		const StereoOut32& sample = ApplyVolume(Ext, Cores[0].MasterVol);
+		Ext = StereoOut32(CLAMP_MIX(sample.Left), CLAMP_MIX(sample.Right));
+	}
 
 	/* Commit Core 0 output to ram before mixing Core 1: */
 	spu2M_WriteFast(0x800 + OutPos, Ext.Left);
@@ -592,17 +587,13 @@ void SPU2_Mix(void)
 	}
 	else
 	{
-		Out.Left  = MulShr32(Out.Left,
-				Cores[1].MasterVol.Left.Value);
-		Out.Right = MulShr32(Out.Right,
-				Cores[1].MasterVol.Right.Value);
+		Out.Left  = MULSHR32(Out.Left, Cores[1].MasterVol.Left.Value);
+		Out.Right = MULSHR32(Out.Right,Cores[1].MasterVol.Right.Value);
 	}
 
-	Out               = clamp_mix(Out);
-
 	StereoOut16 out16;
-	out16.Left        = (s16)Out.Left;
-	out16.Right       = (s16)Out.Right;
+	out16.Left        = (s16)CLAMP_MIX(Out.Left);
+	out16.Right       = (s16)CLAMP_MIX(Out.Right);
 	sample_cb(out16.Left, out16.Right);
 
 	/* Update AutoDMA output positioning */

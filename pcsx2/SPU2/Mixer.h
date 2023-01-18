@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include <algorithm>
+
 struct StereoOut16
 {
 	static StereoOut16 Empty;
@@ -37,6 +39,6 @@ struct StereoOut32
 	StereoOut32(s32 left, s32 right) : Left(left), Right(right) { }
 };
 
+#define CLAMP_MIX(x) (std::min(std::max((x), -0x8000), 0x7fff))
+
 extern void SPU2_Mix(void);
-extern s32 clamp_mix(s32 x);
-extern StereoOut32 clamp_mix(const StereoOut32& sample);
