@@ -289,34 +289,21 @@ static s32 SPU2_FORCEINLINE GetNoiseValues(void)
  */
 #define APPLY_VOLUME(s1, s2, s3, s4) StereoOut32(MULSHR32((s1) << 1, (s2)), MULSHR32((s3) << 1, (s4)))
 
-static void SPU2_FORCEINLINE UpdatePitch(uint coreidx, uint voiceidx)
-{
-	V_Voice& vc(Cores[coreidx].Voices[voiceidx]);
+// [Air] : re-ordered comparisons: Modulated is much more likely to be zero than voice,
+//   and so the way it was before it's have to check both voice and modulated values
+//   most of the time.  Now it'll just check Modulated and short-circuit past the voice
+//   check (not that it amounts to much, but eh every little bit helps).
+#define UpdatePitch(coreidx, voiceidx) \
+	if ((vc.Modulated == 0) || ((voiceidx) == 0)) \
+		vc.SP += std::min((s32)vc.Pitch, 0x3FFF); \
+	else \
+		vc.SP += std::min(std::max((vc.Pitch * (0x8000 + Cores[(coreidx)].Voices[(voiceidx) - 1].OutX)) >> 15, 0), 0x3fff)
 
-	// [Air] : re-ordered comparisons: Modulated is much more likely to be zero than voice,
-	//   and so the way it was before it's have to check both voice and modulated values
-	//   most of the time.  Now it'll just check Modulated and short-circuit past the voice
-	//   check (not that it amounts to much, but eh every little bit helps).
-	if ((vc.Modulated == 0) || (voiceidx == 0))
-		vc.SP += std::min((s32)vc.Pitch, 0x3FFF);
-	else
-		vc.SP += std::min(std::max((vc.Pitch * (0x8000 + Cores[coreidx].Voices[voiceidx - 1].OutX)) >> 15, 0), 0x3fff);
-}
-
-
-static SPU2_FORCEINLINE void CalculateADSR(V_Core& thiscore, uint voiceidx)
-{
-	V_Voice& vc(thiscore.Voices[voiceidx]);
-
-	if (vc.ADSR.Phase == 0)
-	{
-		vc.ADSR.Value = 0;
-		return;
-	}
-
-	if (!vc.ADSR.Calculate())
-		vc.Stop();
-}
+#define CalculateADSR() \
+	if (vc.ADSR.Phase == 0) \
+		vc.ADSR.Value = 0; \
+	else if (!vc.ADSR.Calculate()) \
+		vc.Stop()
 
 static SPU2_FORCEINLINE s32 GaussianInterpolate(s32 pv4, s32 pv3, s32 pv2, s32 pv1, s32 i)
 {
@@ -400,8 +387,8 @@ static SPU2_FORCEINLINE StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 		 * one or two bits.  Best result comes from no truncation at all, which is why we
 		 * use a full 64-bit multiply/result here.
 		 */
+		CalculateADSR();
 
-		CalculateADSR(thiscore, voiceidx);
 		Value    = MULSHR32(Value, vc.ADSR.Value);
 		vc.OutX  = Value;
 
