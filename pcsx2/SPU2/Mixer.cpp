@@ -287,24 +287,7 @@ static s32 SPU2_FORCEINLINE GetNoiseValues(void)
  * volume is expected to be 32 bit signed (31 bits with reverse phase)
  * Data is shifted up by 1 bit to give the output an effective 16 bit range.
  */
-static SPU2_FORCEINLINE s32 ApplyVolume(s32 data, s32 volume)
-{
-	return MULSHR32(data << 1, volume);
-}
-
-static SPU2_FORCEINLINE StereoOut32 ApplyVolume(const StereoOut32& data, const V_VolumeLR& volume)
-{
-	return StereoOut32(
-		ApplyVolume(data.Left, volume.Left),
-		ApplyVolume(data.Right, volume.Right));
-}
-
-static SPU2_FORCEINLINE StereoOut32 ApplyVolume(const StereoOut32& data, const V_VolumeSlideLR& volume)
-{
-	return StereoOut32(
-		ApplyVolume(data.Left, volume.Left.Value),
-		ApplyVolume(data.Right, volume.Right.Value));
-}
+#define APPLY_VOLUME(s1, s2, s3, s4) StereoOut32(MULSHR32((s1) << 1, (s2)), MULSHR32((s3) << 1, (s4)))
 
 static void SPU2_FORCEINLINE UpdatePitch(uint coreidx, uint voiceidx)
 {
@@ -394,7 +377,8 @@ static SPU2_FORCEINLINE StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 	 * (Note: Ys 6 : Ark of Nephistm uses these effects)
 	 */
 
-	vc.Volume.Update();
+	vc.Volume.Left.Update();
+	vc.Volume.Right.Update();
 
 	/* SPU2 Note: The spu2 continues to process voices for eternity, always, so we
 	 * have to run through all the motions of updating the voice regardless of it's
@@ -425,7 +409,7 @@ static SPU2_FORCEINLINE StereoOut32 MixVoice(uint coreidx, uint voiceidx)
 		Value    = MULSHR32(Value, vc.ADSR.Value);
 		vc.OutX  = Value;
 
-		voiceOut = ApplyVolume(StereoOut32(Value, Value), vc.Volume);
+		voiceOut = APPLY_VOLUME(Value, vc.Volume.Left.Value, Value, vc.Volume.Right.Value);
 	}
 	else
 	{
@@ -463,7 +447,8 @@ static SPU2_FORCEINLINE void MixCoreVoices(VoiceMixSet& dest, const uint coreidx
 
 StereoOut32 V_Core::Mix(const VoiceMixSet& inVoices, const StereoOut32& Input, const StereoOut32& Ext)
 {
-	MasterVol.Update();
+	MasterVol.Left.Update();
+	MasterVol.Right.Update();
 
 	// Saturate final result to standard 16 bit range.
 	const VoiceMixSet Voices(
@@ -476,10 +461,20 @@ StereoOut32 V_Core::Mix(const VoiceMixSet& inVoices, const StereoOut32& Input, c
 			);
 
 	// Write Mixed results To Output Area
-	spu2M_WriteFast(((0 == Index) ? 0x1000 : 0x1800) + OutPos, Voices.Dry.Left);
-	spu2M_WriteFast(((0 == Index) ? 0x1200 : 0x1A00) + OutPos, Voices.Dry.Right);
-	spu2M_WriteFast(((0 == Index) ? 0x1400 : 0x1C00) + OutPos, Voices.Wet.Left);
-	spu2M_WriteFast(((0 == Index) ? 0x1600 : 0x1E00) + OutPos, Voices.Wet.Right);
+	if (Index == 0)
+	{
+		spu2M_WriteFast(0x1000 + OutPos, Voices.Dry.Left);
+		spu2M_WriteFast(0x1200 + OutPos, Voices.Dry.Right);
+		spu2M_WriteFast(0x1400 + OutPos, Voices.Wet.Left);
+		spu2M_WriteFast(0x1600 + OutPos, Voices.Wet.Right);
+	}
+	else
+	{
+		spu2M_WriteFast(0x1800 + OutPos, Voices.Dry.Left);
+		spu2M_WriteFast(0x1A00 + OutPos, Voices.Dry.Right);
+		spu2M_WriteFast(0x1C00 + OutPos, Voices.Wet.Left);
+		spu2M_WriteFast(0x1E00 + OutPos, Voices.Wet.Right);
+	}
 
 	// Mix in the Input data
 
@@ -537,7 +532,7 @@ StereoOut32 V_Core::Mix(const VoiceMixSet& inVoices, const StereoOut32& Input, c
 
 	// Mix Dry + Wet
 	// (master volume is applied later to the result of both outputs added together).
-	const StereoOut32& right = ApplyVolume(RV, FxVol);
+	const StereoOut32& right = APPLY_VOLUME(RV.Left, FxVol.Left, RV.Right, FxVol.Right);
 	return StereoOut32(
 			TD.Left + right.Left,
 			TD.Right + right.Right);
@@ -545,6 +540,9 @@ StereoOut32 V_Core::Mix(const VoiceMixSet& inVoices, const StereoOut32& Input, c
 
 void SPU2_Mix(void)
 {
+	const StereoOut32& core0_data = Cores[0].ReadInput();
+	const StereoOut32& core1_data = Cores[1].ReadInput();
+
 	// Note: Playmode 4 is SPDIF, which overrides other inputs.
 	StereoOut32 InputData[2] =
 		{
@@ -552,10 +550,10 @@ void SPU2_Mix(void)
 			// Fixme:
 			// 1. We do not have an AC3 decoder for the bitstream.
 			// 2. Games usually provide a normal ADMA stream as well and want to see it getting read!
-			/*(PlayMode&4) ? StereoOut32::Empty : */ ApplyVolume(Cores[0].ReadInput(), Cores[0].InpVol),
+			/*(PlayMode&4) ? StereoOut32::Empty : */ APPLY_VOLUME(core0_data.Left, Cores[0].InpVol.Left, core0_data.Right, Cores[0].InpVol.Right),
 
 			/* CDDA is on Core 1: */
-			(PlayMode & 8) ? StereoOut32(0, 0) : ApplyVolume(Cores[1].ReadInput(), Cores[1].InpVol)};
+			(PlayMode & 8) ? StereoOut32(0, 0) : APPLY_VOLUME(core1_data.Left, Cores[1].InpVol.Left, core1_data.Right, Cores[1].InpVol.Right)};
 
 	/* Todo: Replace me with memzero initializer! */
 	VoiceMixSet VoiceData[2] = {VoiceMixSet::Empty, VoiceMixSet::Empty}; /* mixed voice data for each core. */
@@ -568,7 +566,7 @@ void SPU2_Mix(void)
 		Ext = StereoOut32(0, 0);
 	else
 	{
-		const StereoOut32& sample = ApplyVolume(Ext, Cores[0].MasterVol);
+		const StereoOut32& sample = APPLY_VOLUME(Ext.Left, Cores[0].MasterVol.Left.Value, Ext.Right, Cores[0].MasterVol.Right.Value);
 		Ext = StereoOut32(CLAMP_MIX(sample.Left), CLAMP_MIX(sample.Right));
 	}
 
@@ -576,7 +574,7 @@ void SPU2_Mix(void)
 	spu2M_WriteFast(0x800 + OutPos, Ext.Left);
 	spu2M_WriteFast(0xA00 + OutPos, Ext.Right);
 
-	Ext = ApplyVolume(Ext, Cores[1].ExtVol);
+	Ext = APPLY_VOLUME(Ext.Left, Cores[1].ExtVol.Left, Ext.Right, Cores[1].ExtVol.Right);
 	StereoOut32 Out(Cores[1].Mix(VoiceData[1], InputData[1], Ext));
 
 	if (PlayMode & 8)

@@ -95,12 +95,6 @@ public:
 		, Right(regval, bothval)
 	{
 	}
-
-	void Update()
-	{
-		Left.Update();
-		Right.Update();
-	}
 };
 
 struct V_ADSR

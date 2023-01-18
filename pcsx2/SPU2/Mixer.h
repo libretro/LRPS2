@@ -19,19 +19,12 @@
 
 struct StereoOut16
 {
-	static StereoOut16 Empty;
-
 	s16 Left;
 	s16 Right;
-
-	StereoOut16() : Left(0), Right(0) { }
-	StereoOut16(s16 left, s16 right) : Left(left), Right(right) { }
 };
 
 struct StereoOut32
 {
-	static StereoOut32 Empty;
-
 	s32 Left;
 	s32 Right;
 
