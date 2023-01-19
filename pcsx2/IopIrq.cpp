@@ -48,11 +48,6 @@ void fwIrq(void)
 	iopIntcIrq(24);
 }
 
-void spu2Irq(void)
-{
-	iopIntcIrq(9);
-}
-
 void iopIntcIrq(uint irqType)
 {
 	psxHu32(0x1070) |= 1 << irqType;

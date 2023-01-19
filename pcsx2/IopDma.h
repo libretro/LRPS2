@@ -36,7 +36,7 @@ extern void dev9Irq(int cycles);
 extern void usbInterrupt(void);
 extern void usbIrq(int cycles);
 extern void fwIrq(void);
-extern void spu2Irq(void);
+#define spu2Irq() iopIntcIrq(9)
 extern void spu2DMA4Irq(void);
 extern void spu2DMA7Irq(void);
 
