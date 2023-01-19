@@ -430,12 +430,10 @@ void SPU2writeDMA7Mem(u16* pMem, u32 size)
 
 s32 SPU2reset(void)
 {
+	/* TODO/FIXME - we would want to call
+	   set_av_info here to set the audio samplerate */
 	if (SampleRate != 48000)
-	{
 		SampleRate = 48000;
-		/* TODO/FIXME - we would want to call
-		   set_av_info here to set the audio samplerate */
-	}
 
 	memset(spu2regs, 0, 0x010000);
 	memset(_spu2mem, 0, 0x200000);
@@ -454,20 +452,16 @@ s32 SPU2reset(void)
 
 s32 SPU2ps1reset(void)
 {
+	/* TODO/FIXME - we would want to call
+	   set_av_info here to set the audio samplerate */
 	if (SampleRate != 44100)
-	{
 		SampleRate = 44100;
-		/* TODO/FIXME - we would want to call
-		   set_av_info here to set the audio samplerate */
-	}
 
 	return 0;
 }
 
 s32 SPU2init(void)
 {
-	srand((unsigned)time(nullptr));
-
 	spu2regs = (s16*)malloc(0x010000);
 	_spu2mem = (s16*)malloc(0x200000);
 

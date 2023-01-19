@@ -384,24 +384,6 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 				tbl_reg_writes[((REG_S_VMIXER + 2) & 0x7ff) / 2](value);
 				break;
 
-			// this was wrong? // edit: appears so!
-			//case 0x1d9c://         Channel Reverb mode (0-15)
-			//      tbl_reg_writes[(REG_S_VMIXL & 0x7ff) / 2](value);
-			//      tbl_reg_writes[(REG_S_VMIXR & 0x7ff) / 2](value);
-			//break;
-
-			//case 0x1d9e://         Channel Reverb mode (16-23)
-			//      tbl_reg_writes[((REG_S_VMIXL + 2) & 0x7ff) / 2](value);
-			//      tbl_reg_writes[((REG_S_VMIXR + 2) & 0x7ff) / 2](value);
-			//break;
-			case 0x1d9c: // Voice 0..15 ON/OFF (status) (ENDX) (R) // writeable but hw overrides it shortly after
-				//Regs.ENDX &= 0xff0000;
-				break;
-
-			case 0x1d9e: //         // Voice 15..23 ON/OFF (status) (ENDX) (R) // writeable but hw overrides it shortly after
-				//Regs.ENDX &= 0xffff;
-				break;
-
 			case 0x1da2: //         Reverb work area start
 			{
 				EffectsStartA = MAP_SPU1TO2(value);
@@ -422,7 +404,7 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 				if (Cores[0].IRQEnable && (Cores[0].IRQA <= Cores[0].TSA))
 				{
 					SetIrqCall(0);
-               spu2Irq();
+					spu2Irq();
 				}
 				DmaWrite(value);
 				break;
@@ -435,27 +417,19 @@ void V_Core::WriteRegPS1(u32 mem, u16 value)
 				psxSoundDataTransferControl = value;
 				break;
 
-			case 0x1dae: // 1F801DAEh - SPU Status Register (SPUSTAT) (R)
-						 // The SPUSTAT register should be treated read-only (writing is possible in so far that the written
-						 // value can be read-back for a short moment, however, thereafter the hardware is overwriting that value).
-						 //Regs.STATX = value;
-				break;
-
-			case 0x1DB0: // 1F801DB0h 4  CD Volume Left/Right
-				break;   // cd left?
-			case 0x1DB2:
-				break;   // cd right?
-			case 0x1DB4: // 1F801DB4h 4  Extern Volume Left / Right
-				break;   // Extern left?
-			case 0x1DB6:
-				break;   // Extern right?
-			case 0x1DB8: // 1F801DB8h 4  Current Main Volume Left/Right
-				break;   // Current left?
-			case 0x1DBA:
-				break;   // Current right?
+			case 0x1d9c: // Voice 0..15 ON/OFF (status) (ENDX) (R) // writeable but hw overrides it shortly after
+			case 0x1d9e: // Voice 15..23 ON/OFF (status) (ENDX) (R) // writeable but hw overrides it shortly after
+			case 0x1DB0: // 1F801DB0h 4  CD Volume Left/Right - cd left?
+			case 0x1DB2: // cd right?
+			case 0x1DB4: // 1F801DB4h 4  Extern Volume Left / Right - extern left?
+			case 0x1DB6: // extern right?
+			case 0x1DB8: // 1F801DB8h 4  Current Main Volume Left/Right - current left?
+			case 0x1DBA: // current right?
 			case 0x1DBC: // 1F801DBCh 4  Unknown? (R/W)
-				break;
 			case 0x1DBE:
+			case 0x1dae: // 1F801DAEh - SPU Status Register (SPUSTAT) (R)
+				     // The SPUSTAT register should be treated read-only (writing is possible in so far that the written
+				     // value can be read-back for a short moment, however, thereafter the hardware is overwriting that value).
 				break;
 
 			case 0x1DC0:
@@ -619,19 +593,12 @@ u16 V_Core::ReadRegPS1(u32 mem)
 				value = FxVol.Right >> 16;
 				break;
 
-			case 0x1d88:
-				value = 0;
-				break; // Voice 0..23 Key ON(Start Attack / Decay / Sustain) (W)
+			case 0x1d88: // Voice 0..23 Key ON(Start Attack / Decay / Sustain) (W)
 			case 0x1d8a:
-				value = 0;
-				break;
-			case 0x1d8c:
-				value = 0;
-				break; // Voice 0..23 Key OFF (Start Release) (W)
+			case 0x1d8c: // Voice 0..23 Key OFF (Start Release) (W)
 			case 0x1d8e:
 				value = 0;
-				break;
-
+				break; 
 			case 0x1d90:
 				value = Regs.PMON & 0xFFFF;
 				break; // Voice 0..23 Channel FM(pitch lfo) mode(R / W)
