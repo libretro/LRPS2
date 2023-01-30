@@ -413,7 +413,7 @@ static __fi s32 StrToS32(const wxString& str, int base = 10)
 	return l;
 }
 
-void cdvdReadKey(u8, u16, u32 arg2, u8* key)
+static void cdvdReadKey(u8, u16, u32 arg2, u8* key)
 {
 	s32 numbers = 0, letters = 0;
 	u32 key_0_3;
@@ -472,7 +472,7 @@ void cdvdReadKey(u8, u16, u32 arg2, u8* key)
 	}
 }
 
-s32 cdvdGetToc(void* toc)
+static s32 cdvdGetToc(void* toc)
 {
 	s32 ret = CDVD->getTOC(toc);
 	if (ret == -1)
@@ -480,7 +480,7 @@ s32 cdvdGetToc(void* toc)
 	return ret;
 }
 
-s32 cdvdReadSubQ(s32 lsn, cdvdSubQ* subq)
+static s32 cdvdReadSubQ(s32 lsn, cdvdSubQ* subq)
 {
 	s32 ret = CDVD->readSubQ(lsn, subq);
 	if (ret == -1)
@@ -513,17 +513,6 @@ s32 cdvdCtrlTrayClose(void)
 	GetCoreThread().ApplySettings(g_Conf->EmuOptions);
 
 	return 0; // needs to be 0 for success according to homebrew test "CDVD"
-}
-
-// Note: Is tray status being kept as a var here somewhere?
-// Yep, and sceCdTrayReq needs it to detect tray state changes (rama)
-
-//   cdvdNewDiskCB() can update it's status as well...
-
-// Modified by (efp) - 16/01/2006
-static __fi void cdvdGetDiskType(void)
-{
-	cdvd.Type = DoCDVDdetectDiskType();
 }
 
 // check whether disc is single or dual layer
@@ -632,10 +621,9 @@ void cdvdNewDiskCB(void)
 static void mechaDecryptBytes(u32 madr, int size)
 {
 	int shiftAmount = (cdvd.decSet >> 4) & 7;
-	int doXor = (cdvd.decSet) & 1;
-	int doShift = (cdvd.decSet) & 2;
-
-	u8* curval = iopPhysMem(madr);
+	int doXor       = (cdvd.decSet) & 1;
+	int doShift     = (cdvd.decSet) & 2;
+	u8* curval      = iopPhysMem(madr);
 	for (int i = 0; i < size; ++i, ++curval)
 	{
 		if (doXor)
@@ -1019,7 +1007,7 @@ u8 cdvdRead(u8 key)
 			return itob((u8)(cdvd.Sector % 75));
 
 		case 0x0F: // TYPE
-			cdvdGetDiskType();
+			cdvd.Type = DoCDVDdetectDiskType();
 			return cdvd.Type;
 
 		case 0x13: // UNKNOWN
@@ -1293,11 +1281,6 @@ static __fi void cdvdWrite05(u8 rt)
 	}
 }
 
-static __fi void cdvdWrite06(u8 rt)
-{ // HOWTO
-	cdvd.HowTo = rt;
-}
-
 static __fi void cdvdWrite07(u8 rt) // BREAK
 {
 	// If we're already in a Ready state or already Breaking, then do nothing:
@@ -1316,12 +1299,6 @@ static __fi void cdvdWrite07(u8 rt) // BREAK
 	cdvd.Readed = 0;
 	cdvd.Reading = 0;
 	cdvd.Status = CDVD_STATUS_STOP;
-	//cdvd.nCommand = 0;
-}
-
-static __fi void cdvdWrite08(u8 rt)
-{ // INTR_STAT
-	cdvd.PwOff &= ~rt;
 }
 
 static void cdvdWrite16(u8 rt) // SCOMMAND
@@ -1936,15 +1913,6 @@ static __fi void cdvdWrite17(u8 rt)
 	}
 }
 
-static __fi void cdvdWrite18(u8 rt)
-{ // SDATAOUT
-}
-
-static __fi void cdvdWrite3A(u8 rt)
-{ // DEC-SET
-	cdvd.decSet = rt;
-}
-
 void cdvdWrite(u8 key, u8 rt)
 {
 	switch (key)
@@ -1955,14 +1923,14 @@ void cdvdWrite(u8 key, u8 rt)
 		case 0x05:
 			cdvdWrite05(rt);
 			break;
-		case 0x06:
-			cdvdWrite06(rt);
+		case 0x06: /*cdvdWrite06 */
+			cdvd.HowTo = rt;
 			break;
 		case 0x07:
 			cdvdWrite07(rt);
 			break;
-		case 0x08:
-			cdvdWrite08(rt);
+		case 0x08: /* cdvdWrite08 - INTR_STAT */
+			cdvd.PwOff &= ~rt;
 			break;
 		case 0x16:
 			cdvdWrite16(rt);
@@ -1970,15 +1938,13 @@ void cdvdWrite(u8 key, u8 rt)
 		case 0x17:
 			cdvdWrite17(rt);
 			break;
-		case 0x18:
-			cdvdWrite18(rt);
-			break;
-		case 0x3A:
-			cdvdWrite3A(rt);
+		case 0x3A: /* cdvdWrite3A - DEC-SET */
+			cdvd.decSet = rt;
 			break;
 		case 0x0A: /* cdvdWrite0A */
 		case 0x0F: /* cdvdWrite0F */
 		case 0x14: /* cdvdWrite14 */
+		case 0x18: /*cdvdWrite18 - SDATAOUT */
 		default:
 			break;
 	}
