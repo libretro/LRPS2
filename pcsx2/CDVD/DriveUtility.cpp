@@ -22,7 +22,7 @@
 #endif
 
 #if defined(_WIN32)
-std::vector<std::wstring> GetOpticalDriveList(void)
+static std::vector<std::wstring> GetOpticalDriveList(void)
 {
 	DWORD size = GetLogicalDriveStrings(0, nullptr);
 	std::vector<wchar_t> drive_strings(size);
@@ -63,7 +63,7 @@ void GetValidDrive(std::wstring& drive)
 	drive.insert(0, L"\\\\.\\");
 }
 #elif defined(__unix__) || defined(__APPLE__)
-std::vector<std::string> GetOpticalDriveList(void)
+static std::vector<std::string> GetOpticalDriveList(void)
 {
 	return {};
 }

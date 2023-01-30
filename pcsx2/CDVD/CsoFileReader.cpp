@@ -82,20 +82,11 @@ bool CsoFileReader::Open(const wxString& fileName)
 {
 	Close();
 	m_filename = fileName;
-	m_src = PX_fopen_rb(m_filename);
-
-	bool success = false;
+	m_src      = PX_fopen_rb(m_filename);
 	if (m_src && ReadFileHeader() && InitializeBuffers())
-	{
-		success = true;
-	}
-
-	if (!success)
-	{
-		Close();
-		return false;
-	}
-	return true;
+		return true;
+	Close();
+	return false;
 }
 
 bool CsoFileReader::ReadFileHeader()
@@ -113,9 +104,7 @@ bool CsoFileReader::ReadFileHeader()
 	// Determine the translation from bytes to frame.
 	m_frameShift = 0;
 	for (u32 i = m_frameSize; i > 1; i >>= 1)
-	{
 		++m_frameShift;
-	}
 
 	// This is the index alignment (index values need shifting by this amount.)
 	m_indexShift = hdr.align;
@@ -131,30 +120,24 @@ bool CsoFileReader::InitializeBuffers()
 
 	// We might read a bit of alignment too, so be prepared.
 	if (m_frameSize + (1 << m_indexShift) < CSO_READ_BUFFER_SIZE)
-	{
 		m_readBuffer = new u8[CSO_READ_BUFFER_SIZE];
-	}
 	else
-	{
 		m_readBuffer = new u8[m_frameSize + (1 << m_indexShift)];
-	}
 
 	// This is a buffer for the most recently decompressed frame.
-	m_zlibBuffer = new u8[m_frameSize + (1 << m_indexShift)];
-	m_zlibBufferFrame = numFrames;
+	m_zlibBuffer         = new u8[m_frameSize + (1 << m_indexShift)];
+	m_zlibBufferFrame    = numFrames;
 
-	const u32 indexSize = numFrames + 1;
-	m_index = new u32[indexSize];
+	const u32 indexSize  = numFrames + 1;
+	m_index              = new u32[indexSize];
 	if (fread(m_index, sizeof(u32), indexSize, m_src) != indexSize)
 		return false;
-
-	m_z_stream = new z_stream;
-	m_z_stream->zalloc = Z_NULL;
-	m_z_stream->zfree = Z_NULL;
-	m_z_stream->opaque = Z_NULL;
+	m_z_stream           = new z_stream;
+	m_z_stream->zalloc   = Z_NULL;
+	m_z_stream->zfree    = Z_NULL;
+	m_z_stream->opaque   = Z_NULL;
 	if (inflateInit2(m_z_stream, -15) != Z_OK)
 		return false;
-
 	return true;
 }
 
@@ -196,9 +179,7 @@ void CsoFileReader::Close()
 int CsoFileReader::ReadSync(void* pBuffer, uint sector, uint count)
 {
 	if (!m_src)
-	{
 		return 0;
-	}
 
 	// Note that, in practice, count will always be 1.  It seems one sector is read
 	// per interrupt, even if multiple are requested by the application.
@@ -245,11 +226,9 @@ int CsoFileReader::ReadSync(void* pBuffer, uint sector, uint count)
 
 int CsoFileReader::ReadFromFrame(u8* dest, u64 pos, int maxBytes)
 {
+	// Can't read anything passed the end.
 	if (pos >= m_totalSize)
-	{
-		// Can't read anything passed the end.
 		return 0;
-	}
 
 	const u32 frame = (u32)(pos >> m_frameShift);
 	const u32 offset = (u32)(pos - (frame << m_frameShift));
@@ -283,9 +262,7 @@ int CsoFileReader::ReadFromFrame(u8* dest, u64 pos, int maxBytes)
 			// This is because the index positions must be aligned.
 			const u32 readRawBytes = fread(m_readBuffer, 1, frameRawSize, m_src);
 			if (!DecompressFrame(frame, readRawBytes))
-			{
 				return 0;
-			}
 		}
 
 		// Now we just copy the offset data from the cache.
