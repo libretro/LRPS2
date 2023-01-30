@@ -44,14 +44,8 @@ static s32 CALLBACK ISOopen(const char* pTitle)
 	if ((pTitle == NULL) || (pTitle[0] == 0))
 		return -1;
 
-	try
-	{
-		iso.Open(fromUTF8(pTitle));
-	}
-	catch (BaseException& ex)
-	{
+	if (!iso.Open(fromUTF8(pTitle)))
 		return -1;
-	}
 
 	switch (iso.GetType())
 	{

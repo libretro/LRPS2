@@ -197,12 +197,16 @@ bool InputIsoFile::Open(const wxString& srcfile, bool testOnly)
 	bool detected = Detect();
 
 	if (testOnly)
+	{
+		Close();
 		return detected;
+	}
 
 	if (!detected)
-		throw Exception::BadStream()
-			.SetUserMsg(L"Unrecognized ISO image file format")
-			.SetDiagMsg(L"ISO mounting failed: PCSX2 is unable to identify the ISO image type.");
+	{
+		Close();
+		return false;
+	}
 
 	if (!isBlockdump && !isCompressed)
 	{
