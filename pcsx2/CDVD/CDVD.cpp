@@ -38,6 +38,47 @@
 #include "Elfheader.h"
 #include "ps2/BiosTools.h"
 
+enum nCmds
+{
+	N_CD_SYNC = 0x00,          // CdSync
+	N_CD_NOP = 0x01,           // CdNop
+	N_CD_STANDBY = 0x02,       // CdStandby
+	N_CD_STOP = 0x03,          // CdStop
+	N_CD_PAUSE = 0x04,         // CdPause
+	N_CD_SEEK = 0x05,          // CdSeek
+	N_CD_READ = 0x06,          // CdRead
+	N_CD_READ_CDDA = 0x07,     // CdReadCDDA
+	N_DVD_READ = 0x08,         // DvdRead
+	N_CD_GET_TOC = 0x09,       // CdGetToc & cdvdman_call19
+	N_CMD_B = 0x0B,            // CdReadKey
+	N_CD_READ_KEY = 0x0C,      // CdReadKey
+	N_CD_READ_XCDDA = 0x0E,    // CdReadXCDDA
+	N_CD_CHG_SPDL_CTRL = 0x0F  // CdChgSpdlCtrl
+};
+
+// NVM (eeprom) layout info
+struct NVMLayout
+{
+	u32 biosVer;   // bios version that this eeprom layout is for
+	s32 config0;   // offset of 1st config block
+	s32 config1;   // offset of 2nd config block
+	s32 config2;   // offset of 3rd config block
+	s32 consoleId; // offset of console id (?)
+	s32 ilinkId;   // offset of ilink id (ilink mac address)
+	s32 modelNum;  // offset of ps2 model number (eg "SCPH-70002")
+	s32 regparams; // offset of RegionParams for PStwo
+	s32 mac;       // offset of the value written to 0xFFFE0188 and 0xFFFE018C on PStwo
+};
+
+#define NVM_FORMAT_MAX 2
+static NVMLayout nvmlayouts[NVM_FORMAT_MAX] =
+	{
+		{0x000, 0x280, 0x300, 0x200, 0x1C8, 0x1C0, 0x1A0, 0x180, 0x198}, // eeproms from bios v0.00 and up
+		{0x146, 0x270, 0x2B0, 0x200, 0x1C8, 0x1E0, 0x1B0, 0x180, 0x198}, // eeproms from bios v1.70 and up
+};
+
+static const char* mg_zones[8] = {"Japan", "USA", "Europe", "Oceania", "Asia", "Russia", "China", "Mexico"};
+
 // This typically reflects the Sony-assigned serial code for the Disc, if one exists.
 //  (examples:  SLUS-2113, etc).
 // If the disc is homebrew then it probably won't have a valid serial; in which case
@@ -496,7 +537,6 @@ static void cdvdDetectDisk(void)
 
 s32 cdvdCtrlTrayOpen(void)
 {
-	DiscSwapTimerSeconds = cdvd.RTC.second; // remember the PS2 time when this happened
 	cdvd.Status = CDVD_STATUS_TRAY_OPEN;
 	cdvd.Ready = CDVD_NOTREADY;
 
