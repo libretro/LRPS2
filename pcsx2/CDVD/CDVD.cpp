@@ -48,7 +48,6 @@ static cdvdStruct cdvd;
 
 s64 PSXCLK = 36864000;
 
-
 static __fi void SetResultSize(u8 size)
 {
 	cdvd.ResultC = size;
@@ -122,16 +121,11 @@ static void cdvdGetMechaVer(u8* ver)
 	}
 }
 
-NVMLayout* getNvmLayout()
+static NVMLayout* getNvmLayout(void)
 {
-	NVMLayout* nvmLayout = NULL;
-
 	if (nvmlayouts[1].biosVer <= BiosVersion)
-		nvmLayout = &nvmlayouts[1];
-	else
-		nvmLayout = &nvmlayouts[0];
-
-	return nvmLayout;
+		return &nvmlayouts[1];
+	return &nvmlayouts[0];
 }
 
 // Throws Exception::CannotCreateStream if the file cannot be opened for reading, or cannot
@@ -226,6 +220,7 @@ static void cdvdReadModelNumber(u8* num, s32 part)
 {
 	getNvmData(num, part, 8, offsetof(NVMLayout, modelNum));
 }
+
 static void cdvdWriteModelNumber(const u8* num, s32 part)
 {
 	setNvmData(num, part, 8, offsetof(NVMLayout, modelNum));
@@ -235,6 +230,7 @@ static void cdvdReadRegionParams(u8* num)
 {
 	getNvmData(num, 0, 8, offsetof(NVMLayout, regparams));
 }
+
 static void cdvdWriteRegionParams(const u8* num)
 {
 	setNvmData(num, 0, 8, offsetof(NVMLayout, regparams));
@@ -244,11 +240,11 @@ static void cdvdReadMAC(u8* num)
 {
 	getNvmData(num, 0, 8, offsetof(NVMLayout, mac));
 }
+
 static void cdvdWriteMAC(const u8* num)
 {
 	setNvmData(num, 0, 8, offsetof(NVMLayout, mac));
 }
-
 
 void cdvdReadLanguageParams(u8* config)
 {
@@ -271,25 +267,25 @@ s32 cdvdReadConfig(u8* config)
 		((cdvd.COffset == 0) && (cdvd.CBlockIndex >= 4)) ||
 		((cdvd.COffset == 1) && (cdvd.CBlockIndex >= 2)) ||
 		((cdvd.COffset == 2) && (cdvd.CBlockIndex >= 7)))
-	{
 		memset(config, 0, 16);
-		return 0;
-	}
-
-	// get config data
-	switch (cdvd.COffset)
+	else
 	{
-		case 0:
-			getNvmData(config, (cdvd.CBlockIndex++) * 16, 16, offsetof(NVMLayout, config0));
-			break;
-		case 2:
-			getNvmData(config, (cdvd.CBlockIndex++) * 16, 16, offsetof(NVMLayout, config2));
-			break;
-		default:
-			getNvmData(config, (cdvd.CBlockIndex++) * 16, 16, offsetof(NVMLayout, config1));
+		// get config data
+		switch (cdvd.COffset)
+		{
+			case 0:
+				getNvmData(config, (cdvd.CBlockIndex++) * 16, 16, offsetof(NVMLayout, config0));
+				break;
+			case 2:
+				getNvmData(config, (cdvd.CBlockIndex++) * 16, 16, offsetof(NVMLayout, config2));
+				break;
+			default:
+				getNvmData(config, (cdvd.CBlockIndex++) * 16, 16, offsetof(NVMLayout, config1));
+		}
 	}
 	return 0;
 }
+
 s32 cdvdWriteConfig(const u8* config)
 {
 	// make sure its in write mode && the block index is in bounds
@@ -414,7 +410,6 @@ static __fi s32 StrToS32(const wxString& str, int base = 10)
 	long l;
 	if (!str.ToLong(&l, base))
 		return 0;
-
 	return l;
 }
 
@@ -443,16 +438,16 @@ void cdvdReadKey(u8, u16, u32 arg2, u8* key)
 	}
 
 	// calculate magic numbers
-	key_0_3 = ((numbers & 0x1FC00) >> 10) | ((0x01FFFFFF & letters) << 7); // numbers = 7F  letters = FFFFFF80
-	key_4 = ((numbers & 0x0001F) << 3) | ((0x0E000000 & letters) >> 25);   // numbers = F8  letters = 07
-	key_14 = ((numbers & 0x003E0) >> 2) | 0x04;                            // numbers = F8  extra   = 04  unused = 03
+	key_0_3 = ((numbers & 0x1FC00) >> 10) | ((0x01FFFFFF & letters) << 7);   // numbers = 7F  letters = FFFFFF80
+	key_4   = ((numbers & 0x0001F) << 3) | ((0x0E000000 & letters) >> 25);   // numbers = F8  letters = 07
+	key_14  = ((numbers & 0x003E0) >> 2) | 0x04;                             // numbers = F8  extra   = 04  unused = 03
 
 	// store key values
-	key[0] = (key_0_3 & 0x000000FF) >> 0;
-	key[1] = (key_0_3 & 0x0000FF00) >> 8;
-	key[2] = (key_0_3 & 0x00FF0000) >> 16;
-	key[3] = (key_0_3 & 0xFF000000) >> 24;
-	key[4] = key_4;
+	key[0]  = (key_0_3 & 0x000000FF) >> 0;
+	key[1]  = (key_0_3 & 0x0000FF00) >> 8;
+	key[2]  = (key_0_3 & 0x00FF0000) >> 16;
+	key[3]  = (key_0_3 & 0xFF000000) >> 24;
+	key[4]  = key_4;
 
 	switch (arg2)
 	{
@@ -460,10 +455,6 @@ void cdvdReadKey(u8, u16, u32 arg2, u8* key)
 			key[14] = key_14;
 			key[15] = 0x05;
 			break;
-
-			//      case 3075:
-			//          key[15] = 0x01;
-			//          break;
 
 		case 4246:
 			// 0x0001F2F707 = sector 0x0001F2F7  dec 0x07
@@ -485,7 +476,7 @@ s32 cdvdGetToc(void* toc)
 {
 	s32 ret = CDVD->getTOC(toc);
 	if (ret == -1)
-		ret = 0x80;
+		return 0x80;
 	return ret;
 }
 
@@ -493,7 +484,7 @@ s32 cdvdReadSubQ(s32 lsn, cdvdSubQ* subq)
 {
 	s32 ret = CDVD->readSubQ(lsn, subq);
 	if (ret == -1)
-		ret = 0x80;
+		return 0x80;
 	return ret;
 }
 
@@ -654,7 +645,7 @@ static void mechaDecryptBytes(u32 madr, int size)
 	}
 }
 
-int cdvdReadSector()
+int cdvdReadSector(void)
 {
 	s32 bcr = (HW_DMA3_BCR_H16 * HW_DMA3_BCR_L16) * 4;
 	if (bcr < cdvd.BlockSize)
@@ -728,9 +719,7 @@ int cdvdReadSector()
 		mdest[2063] = 0;
 	}
 	else
-	{
 		memcpy(mdest, cdr.Transfer, cdvd.BlockSize);
-	}
 
 	// decrypt sector's bytes
 	if (cdvd.decSet)
@@ -804,7 +793,6 @@ __fi void cdvdReadInterrupt()
 		cdvd.RetryCntP = 0;
 		cdvd.Reading = 1;
 		cdvd.Readed = 1;
-		//cdvd.Status = CDVD_STATUS_PAUSE; // check (rama)
 		cdvd.Status = CDVD_STATUS_READ | CDVD_STATUS_SPIN; // Time Crisis 2
 
 		cdvd.Sector = cdvd.SeekToSector;
@@ -883,21 +871,19 @@ __fi void cdvdReadInterrupt()
 // Returns the number of IOP cycles until the event completes.
 static uint cdvdStartSeek(uint newsector, CDVD_MODE_TYPE mode)
 {
+	uint seektime, delta;
 	cdvd.SeekToSector = newsector;
 
-	uint delta = abs((s32)(cdvd.SeekToSector - cdvd.Sector));
-	uint seektime;
+	delta             = abs((s32)(cdvd.SeekToSector - cdvd.Sector));
 
-	cdvd.Ready = CDVD_NOTREADY;
-	cdvd.Reading = 0;
-	cdvd.Readed = 0;
-	//cdvd.Status = CDVD_STATUS_STOP; // before r4961
-	//cdvd.Status = CDVD_STATUS_SEEK | CDVD_STATUS_SPIN; // Time Crisis 2 // but breaks ICO NTSC
-	cdvd.Status = CDVD_STATUS_PAUSE; // best so far in my tests (rama)
+	cdvd.Ready        = CDVD_NOTREADY;
+	cdvd.Reading      = 0;
+	cdvd.Readed       = 0;
+	cdvd.Status       = CDVD_STATUS_PAUSE; // best so far in my tests (rama)
 
 	if (!cdvd.Spinning)
 	{
-		seektime = PSXCLK / 3; // 333ms delay
+		seektime      = PSXCLK / 3; // 333ms delay
 		cdvd.Spinning = true;
 	}
 	else if ((tbl_ContigiousSeekDelta[mode] == 0) || (delta >= tbl_ContigiousSeekDelta[mode]))
@@ -943,9 +929,7 @@ void cdvdVsync()
 	cdvd.RTCcount = 0;
 
 	if (cdvd.Status == CDVD_STATUS_TRAY_OPEN)
-	{
 		cdvd.TrayTimeout++;
-	}
 	if (cdvd.TrayTimeout > 3)
 	{
 		cdvdCtrlTrayClose();
@@ -1011,8 +995,6 @@ u8 cdvdRead(u8 key)
 		case 0x06: // ERROR
 			return cdvd.Error;
 
-		case 0x07: // BREAK
-			return 0;
 
 		case 0x08: // INTR_STAT
 			return cdvd.PwOff;
@@ -1021,11 +1003,12 @@ u8 cdvdRead(u8 key)
 			return cdvd.Status;
 
 		case 0x0B: // TRAY-STATE (if tray has been opened)
-		{
 			if (cdvd.Status == CDVD_STATUS_TRAY_OPEN)
 				return 1;
+			/* fall-through */
+		case 0x07: // BREAK
 			return 0;
-		}
+
 		case 0x0C: // CRT MINUTE
 			return itob((u8)(cdvd.Sector / (60 * 75)));
 
@@ -1339,23 +1322,6 @@ static __fi void cdvdWrite07(u8 rt) // BREAK
 static __fi void cdvdWrite08(u8 rt)
 { // INTR_STAT
 	cdvd.PwOff &= ~rt;
-}
-
-static __fi void cdvdWrite0A(u8 rt)
-{ // STATUS
-}
-
-static __fi void cdvdWrite0F(u8 rt)
-{ // TYPE
-}
-
-static __fi void cdvdWrite14(u8 rt)
-{
-}
-
-static __fi void fail_pol_cal()
-{
-	cdvd.Result[0] = 0x80;
 }
 
 static void cdvdWrite16(u8 rt) // SCOMMAND
@@ -1833,7 +1799,7 @@ static void cdvdWrite16(u8 rt) // SCOMMAND
 
 					if ((cdvd.mg_maxsize != cdvd.mg_size) || (cdvd.mg_size < 0x20) || (cdvd.mg_size != *(u16*)&cdvd.mg_buffer[0x14]))
 					{
-						fail_pol_cal();
+						cdvd.Result[0] = 0x80;
 						break;
 					}
 
@@ -1862,7 +1828,7 @@ static void cdvdWrite16(u8 rt) // SCOMMAND
 					if ((cdvd.mg_buffer[bit_ofs + 5] || cdvd.mg_buffer[bit_ofs + 6] || cdvd.mg_buffer[bit_ofs + 7]) ||
 						(cdvd.mg_buffer[bit_ofs + 4] * 16 + bit_ofs + 8 + 16 != *(u16*)&cdvd.mg_buffer[0x14]))
 					{
-						fail_pol_cal();
+						cdvd.Result[0] = 0x80;
 						break;
 					}
 				}
@@ -1998,15 +1964,6 @@ void cdvdWrite(u8 key, u8 rt)
 		case 0x08:
 			cdvdWrite08(rt);
 			break;
-		case 0x0A:
-			cdvdWrite0A(rt);
-			break;
-		case 0x0F:
-			cdvdWrite0F(rt);
-			break;
-		case 0x14:
-			cdvdWrite14(rt);
-			break;
 		case 0x16:
 			cdvdWrite16(rt);
 			break;
@@ -2019,6 +1976,9 @@ void cdvdWrite(u8 key, u8 rt)
 		case 0x3A:
 			cdvdWrite3A(rt);
 			break;
+		case 0x0A: /* cdvdWrite0A */
+		case 0x0F: /* cdvdWrite0F */
+		case 0x14: /* cdvdWrite14 */
 		default:
 			break;
 	}
