@@ -970,10 +970,3 @@ wxEventLoopBase* Pcsx2AppTraits::CreateEventLoop()
 {
 	return new wxEventLoop();
 }
-
-wxString GetExecutablePath(void)
-{
-	const char* system = nullptr;
-	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
-	return Path::Combine(system, "pcsx2/PCSX2");
-}

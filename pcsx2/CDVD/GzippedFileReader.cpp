@@ -18,12 +18,15 @@
 #include <fstream>
 #include <algorithm>
 #include <cstring> /* memcpy */
+#include <libretro.h>
 
 #include "AppConfig.h"
 #include "ChunksCache.h"
 #include "CompressedFileReaderUtils.h"
 #include "GzippedFileReader.h"
 #include "zlib_indexed.h"
+
+extern retro_environment_t environ_cb;
 
 #define CLAMP(val, minval, maxval) (std::min(maxval, std::max(minval, val)))
 
@@ -49,12 +52,11 @@ static s64 fsize(const wxString& filename)
 // - [rest] the indexed data points (should be allocated, index->list should then point to it)
 static Access* ReadIndexFromFile(const wxString& filename)
 {
+	char fileId[GZIP_ID_LEN + 1] = {0};
 	s64 size = fsize(filename);
 	if (size <= 0)
 		return 0;
 	std::ifstream infile(PX_wfilename(filename), std::ifstream::binary);
-
-	char fileId[GZIP_ID_LEN + 1] = {0};
 	infile.read(fileId, GZIP_ID_LEN);
 	if (wxString::From8BitData(GZIP_ID) != wxString::From8BitData(fileId))
 	{
@@ -133,7 +135,12 @@ static wxString ApplyTemplate(const wxString& name, const wxDirName& base,
 }
 
 /* forward declaration */
-wxString GetExecutablePath();
+static wxString GetExecutablePath(void)
+{
+	const char* system = nullptr;
+	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
+	return Path::Combine(system, "pcsx2/PCSX2");
+}
 
 static wxString iso2indexname(const wxString& isoname)
 {
@@ -151,7 +158,7 @@ GzippedFileReader::GzippedFileReader(void)
 {
 	m_blocksize = 2048;
 	AsyncPrefetchReset();
-};
+}
 
 void GzippedFileReader::InitZstates()
 {
@@ -169,11 +176,11 @@ void GzippedFileReader::InitZstates()
 }
 
 #ifndef _WIN32
-void GzippedFileReader::AsyncPrefetchReset(){};
-void GzippedFileReader::AsyncPrefetchOpen(){};
-void GzippedFileReader::AsyncPrefetchClose(){};
-void GzippedFileReader::AsyncPrefetchChunk(s64 dummy){};
-void GzippedFileReader::AsyncPrefetchCancel(){};
+void GzippedFileReader::AsyncPrefetchReset(){}
+void GzippedFileReader::AsyncPrefetchOpen(){}
+void GzippedFileReader::AsyncPrefetchClose(){}
+void GzippedFileReader::AsyncPrefetchChunk(s64 dummy){}
+void GzippedFileReader::AsyncPrefetchCancel(){}
 #else
 // AsyncPrefetch works as follows:
 // ater extracting a chunk from the compressed file, ask the OS to asynchronously
@@ -200,7 +207,7 @@ void GzippedFileReader::AsyncPrefetchOpen()
 		OPEN_EXISTING,
 		FILE_FLAG_SEQUENTIAL_SCAN | FILE_FLAG_OVERLAPPED,
 		NULL);
-};
+}
 
 void GzippedFileReader::AsyncPrefetchClose()
 {
@@ -210,7 +217,7 @@ void GzippedFileReader::AsyncPrefetchClose()
 		CloseHandle(hOverlappedFile);
 
 	AsyncPrefetchReset();
-};
+}
 
 void GzippedFileReader::AsyncPrefetchChunk(s64 start)
 {
@@ -229,7 +236,7 @@ void GzippedFileReader::AsyncPrefetchChunk(s64 start)
 
 	ReadFile(hOverlappedFile, mDummyAsyncPrefetchTarget, bytesToRead, NULL, &asyncOperationContext);
 	asyncInProgress = true;
-};
+}
 
 void GzippedFileReader::AsyncPrefetchCancel()
 {
@@ -240,7 +247,7 @@ void GzippedFileReader::AsyncPrefetchCancel()
 		return;
 
 	asyncInProgress = false;
-};
+}
 #endif /* _WIN32 */
 
 // TODO: do better than just checking existance and extension
@@ -266,23 +273,21 @@ bool GzippedFileReader::OkIndex()
 	}
 
 	// No valid index file. Generate an index
-	Access* index;
-	FILE* infile = PX_fopen_rb(m_filename);
-	int len = build_index(infile, GZFILE_SPAN_DEFAULT, &index);
+	Access* index = NULL;
+	FILE* infile  = PX_fopen_rb(m_filename);
+	int len       = build_index(infile, GZFILE_SPAN_DEFAULT, &index);
 	printf("\n"); // build_index prints progress without \n's
 	fclose(infile);
 
-	if (len >= 0)
-	{
-		m_pIndex = index;
-		WriteIndexToFile((Access*)m_pIndex, indexfile);
-	}
-	else
+	if (len < 0)
 	{
 		free_index(index);
 		InitZstates();
 		return false;
 	}
+
+	m_pIndex = index;
+	WriteIndexToFile((Access*)m_pIndex, indexfile);
 
 	InitZstates();
 	return true;
@@ -296,25 +301,24 @@ bool GzippedFileReader::Open(const wxString& fileName)
 	{
 		Close();
 		return false;
-	};
+	}
 
 	AsyncPrefetchOpen();
 	return true;
-};
+}
 
 void GzippedFileReader::BeginRead(void* pBuffer, uint sector, uint count)
 {
 	// No a-sync support yet, implement as sync
 	mBytesRead = ReadSync(pBuffer, sector, count);
-	return;
-};
+}
 
 int GzippedFileReader::FinishRead(void)
 {
 	int res = mBytesRead;
 	mBytesRead = -1;
 	return res;
-};
+}
 
 int GzippedFileReader::ReadSync(void* pBuffer, uint sector, uint count)
 {
@@ -371,14 +375,14 @@ int GzippedFileReader::_ReadSync(void* pBuffer, s64 offset, uint bytesToRead)
 
 	// Not available from cache. Decompress from optimal starting
 	// point in GZFILE_READ_CHUNK_SIZE chunks and cache each chunk.
-	s64 extractOffset = GetOptimalExtractionStart(offset); // guaranteed in GZFILE_READ_CHUNK_SIZE boundaries
-	int size = offset + maxInChunk - extractOffset;
+	s64 extractOffset        = GetOptimalExtractionStart(offset); // guaranteed in GZFILE_READ_CHUNK_SIZE boundaries
+	int size                 = offset + maxInChunk - extractOffset;
 	unsigned char* extracted = (unsigned char*)malloc(size);
 
-	int span = m_pIndex->span;
-	int spanix = extractOffset / span;
+	int span                 = m_pIndex->span;
+	int spanix               = extractOffset / span;
 	AsyncPrefetchCancel();
-	res = extract(m_src, m_pIndex, extractOffset, extracted, size, &(m_zstates[spanix].state));
+	res                      = extract(m_src, m_pIndex, extractOffset, extracted, size, &(m_zstates[spanix].state));
 	if (res < 0)
 	{
 		free(extracted);
